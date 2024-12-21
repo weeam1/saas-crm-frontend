@@ -211,7 +211,7 @@ export default function CheckTable(props) {
 			const data = Object.fromEntries(
 				Object.entries(values).filter(([key, value]) => value !== "")
 			);
-			// fetchAdvancedSearch(data, pageIndex + 1, pageSize);
+			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
 			fetchData(pageIndex + 1, pageSize);
 		}
