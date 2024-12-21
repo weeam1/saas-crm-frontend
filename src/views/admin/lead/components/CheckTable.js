@@ -261,7 +261,7 @@ export default function CheckTable(props) {
 				}
 			});
 
-			// fetchAdvancedSearch(data, 1, pageSize);
+			fetchAdvancedSearch(data, 1, pageSize);
 			setUpdatedPage(0);
 			setGopageValue(1);
 
