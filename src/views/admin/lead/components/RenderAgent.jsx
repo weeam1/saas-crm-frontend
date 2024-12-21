@@ -4,7 +4,7 @@ import {
 	Select,
 	useColorModeValue,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
@@ -18,24 +18,16 @@ const RenderAgent = ({
 	setSearchedData,
 	setData,
 }) => {
-	const [AgentSelected, setAgentSelected] = useState("");
-	const [agents, setAgents] = useState([]);
+	const [AgentSelected, setAgentSelected] = useState(value || "");
 	const tree = useSelector((state) => state.user.tree);
 	const [loading, setLoading] = useState(false);
 
 	const textColor = useColorModeValue("black", "white");
 
-	useEffect(() => {
-		if (tree && tree["managers"]) {
-			// const agentsList = tree?.agents["manager-" + managerAssigned];
-			// const agentsList = tree?.agents?.map(agent=>agent).flat()
-			const agentsList = [].concat(...Object.values(tree?.agents));
-			console.log(agentsList, "agentList");
-			setAgents(agentsList || []);
-			setAgentSelected(value);
-		}
-		console.log(tree, value, "tree");
-	}, [managerAssigned, value, tree]);
+	// Filter agents related to the assigned manager
+	const agents = useMemo(() => {
+		return tree?.agents?.[`manager-${managerAssigned}`] || [];
+	}, [managerAssigned, tree]);
 
 	const handleChangeAgent = async (e) => {
 		try {
@@ -48,7 +40,7 @@ const RenderAgent = ({
 
 			await putApi(`api/lead/edit/${leadID}`, data);
 			toast.success("Agent updated successfuly");
-			// setAgentSelected(data.agentAssigned || "");
+			setAgentSelected(data.agentAssigned || "");
 
 			if (displaySearchData) {
 				setSearchedData((prevData) => {
@@ -95,7 +87,7 @@ const RenderAgent = ({
 				<p style={{ marginRight: 8 }}>Updating</p>{" "}
 				<CircularProgress size={4} isIndeterminate />
 			</Box>
-		) : managerAssigned ? (
+		) : (
 			<Select
 				placeholder="No Agent"
 				onInput={handleChangeAgent}
@@ -110,12 +102,92 @@ const RenderAgent = ({
 					</option>
 				))}
 			</Select>
-		) : (
-			<p style={{ textAlign: "center" }}>No Agent</p>
 		);
 	} else {
 		return <p style={{ textAlign: "center" }}>No agents</p>;
 	}
 };
+
+// const RenderAgent = ({
+// 	value,
+// 	managerAssigned,
+// 	leadID,
+// 	updateLeadData,
+// 	displaySearchData,
+// 	setSearchedData,
+// 	setData,
+// }) => {
+// 	const [AgentSelected, setAgentSelected] = useState(value || "");
+// 	const [loading, setLoading] = useState(false);
+// 	const tree = useSelector((state) => state.user.tree);
+// 	const textColor = useColorModeValue("black", "white");
+
+// 	// Filter agents related to the assigned manager
+// 	const agents = useMemo(() => {
+// 		return tree?.agents?.[`manager-${managerAssigned}`] || [];
+// 	}, [managerAssigned, tree]);
+
+// 	// Handle agent selection change
+// 	const handleChangeAgent = async (event) => {
+// 		const agentAssigned = event.target.value;
+
+// 		try {
+// 			setLoading(true);
+
+// 			const data = { agentAssigned, leadStatus: "reassigned" };
+// 			await putApi(leadID, data);
+
+// 			toast.success("Agent updated successfully");
+// 			setAgentSelected(agentAssigned);
+
+// 			// Update data in the appropriate list
+// 			const updateData = (prevData) => {
+// 				const updatedData = [...prevData];
+// 				const idx = updatedData.findIndex(
+// 					(item) => item._id.toString() === leadID
+// 				);
+// 				if (idx !== -1) {
+// 					updatedData[idx].agentAssigned = agentAssigned;
+// 				}
+// 				return updatedData;
+// 			};
+
+// 			displaySearchData ? setSearchedData(updateData) : setData(updateData);
+// 		} catch (error) {
+// 			console.error("Failed to update agent:", error);
+// 			toast.error("Failed to update the agent");
+// 		} finally {
+// 			setLoading(false);
+// 		}
+// 	};
+
+// 	return loading ? (
+// 		<Box
+// 			border="1px solid #eee"
+// 			borderRadius="4px"
+// 			padding="3"
+// 			display="flex"
+// 			alignItems="center"
+// 		>
+// 			<p style={{ marginRight: 8 }}>Updating</p>
+// 			<CircularProgress size={4} isIndeterminate />
+// 		</Box>
+// 	) : agents.length ? (
+// 		<Select
+// 			placeholder="Select Agent"
+// 			onChange={handleChangeAgent}
+// 			value={AgentSelected}
+// 			style={{ color: AgentSelected ? textColor : "grey" }}
+// 		>
+// 			{agents.map((agent) => (
+// 				<option key={agent._id} value={agent._id}>
+// 					{`${agent.firstName} ${agent.lastName}`}
+// 				</option>
+// 			))}
+// 		</Select>
+// 	) : (
+// 		<p style={{ textAlign: "center" }}>No agents</p>
+// 	);
+// };
 
 export default RenderAgent;
