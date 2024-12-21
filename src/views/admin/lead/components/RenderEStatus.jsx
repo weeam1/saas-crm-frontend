@@ -1,13 +1,16 @@
 import { Select } from "@chakra-ui/react";
+import BoxLoading from "components/shared/BoxLoading";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
 const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 	const [value, setValue] = useState("");
+	const [loading, setLoading] = useState(false);
 
 	const setStatusData = async (e) => {
 		try {
+			setLoading(true);
 			const data = {
 				eLeadStatus: e.target.value,
 			};
@@ -27,6 +30,7 @@ const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 			console.log(e);
 			toast.error("Something went wrong!");
 		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -34,33 +38,31 @@ const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 		setValue(cellValue || "");
 	}, [id]);
 
-	console.log(value);
-
-	return (
-		<>
-			<Select
-				defaultValue=""
-				onChange={setStatusData}
-				height={7}
-				width={150}
-				value={value || ""}
-				style={{
-					fontSize: "14px",
-					backgroundColor: "#ecfeff",
-					color: "#0891b2",
-					border: "1px solid #0891b2",
-					padding: "4px 8px",
-				}}
-			>
-				<option value="" disabled style={{ color: "#999" }}>
-					Choose E.Status
-				</option>
-				<option value="interested">Interested</option>
-				<option value="junk">Junk</option>
-				<option value="not-interested">Not interested</option>
-				<option value="qualified">Qualified</option>
-			</Select>
-		</>
+	return loading ? (
+		<BoxLoading />
+	) : (
+		<Select
+			defaultValue=""
+			onChange={setStatusData}
+			height={7}
+			width={150}
+			value={value || ""}
+			style={{
+				fontSize: "14px",
+				backgroundColor: "#ecfeff",
+				color: "#0891b2",
+				border: "1px solid #0891b2",
+				padding: "4px 8px",
+			}}
+		>
+			<option value="" disabled style={{ color: "#999" }}>
+				Choose E.Status
+			</option>
+			<option value="interested">Interested</option>
+			<option value="junk">Junk</option>
+			<option value="not-interested">Not interested</option>
+			<option value="qualified">Qualified</option>
+		</Select>
 	);
 };
 

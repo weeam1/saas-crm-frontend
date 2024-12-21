@@ -1,10 +1,5 @@
-import {
-	Box,
-	CircularProgress,
-	Select,
-	Text,
-	useColorModeValue,
-} from "@chakra-ui/react";
+import { Select, Text, useColorModeValue } from "@chakra-ui/react";
+import BoxLoading from "components/shared/BoxLoading";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -20,105 +15,78 @@ const RenderManager = ({
 	setSearchedData,
 	setData,
 }) => {
-	const [ManagerSelected, setManagerSelected] = useState("");
-	const tree = useSelector((state) => state.user.tree);
+	const [selectedManager, setSelectedManager] = useState("");
 	const [loading, setLoading] = useState(false);
+	const tree = useSelector((state) => state.user.tree);
 
 	const handleChangeManager = async (e) => {
+		const managerAssigned = e.target.value;
+		const dataObj = {
+			managerAssigned: managerAssigned || "",
+			leadStatus: "reassigned",
+			agentAssigned: managerAssigned ? "" : undefined,
+		};
+
 		try {
 			setLoading(true);
-			const value = e.target.value;
-			const dataObj = {
-				managerAssigned: value,
-				leadStatus: "reassigned",
+			await putApi(`api/lead/edit/${leadID}`, dataObj);
+			toast.success("Manager updated successfully");
+
+			// Update data in the corresponding list (searched or default)
+			const updateListData = (prevData) => {
+				const newData = [...prevData];
+				const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
+				if (updateIdx !== -1) {
+					newData[updateIdx].managerAssigned = dataObj.managerAssigned;
+					newData[updateIdx].agentAssigned = dataObj.agentAssigned || "";
+				}
+				return newData;
 			};
 
-			if (e.target.value === "") {
-				dataObj["agentAssigned"] = "";
-			}
-
-			await putApi(`api/lead/edit/${leadID}`, dataObj);
-			toast.success("Manager updated successfuly");
-			// setManagerSelected(dataObj.managerAssigned || "");
-
 			if (displaySearchData) {
-				setSearchedData((prevData) => {
-					const newData = [...prevData];
-					const updateIdx = newData.findIndex(
-						(l) => l._id.toString() === leadID
-					);
-					if (updateIdx !== -1) {
-						newData[updateIdx].managerAssigned = dataObj.managerAssigned;
-						newData[updateIdx].agentAssigned = "";
-					}
-					return newData;
-				});
+				setSearchedData(updateListData);
 			} else {
-				setData((prevData) => {
-					const newData = [...prevData];
-					const updateIdx = newData.findIndex(
-						(l) => l._id.toString() === leadID
-					);
-					if (updateIdx !== -1) {
-						newData[updateIdx].managerAssigned = dataObj.managerAssigned;
-						newData[updateIdx].agentAssigned = "";
-					}
-					return newData;
-				});
+				setData(updateListData);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error("Failed to update the manager:", error);
 			toast.error("Failed to update the manager");
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	useEffect(() => {
-		setManagerSelected(value);
+		setSelectedManager(value);
 	}, [value]);
 
 	const textColor = useColorModeValue("black", "white");
 
 	return loading ? (
-		<Box
-			border={"1px solid #eee"}
-			borderRadius={"4px"}
-			padding={"3"}
-			display={"flex"}
-			alignItems={"center"}
-		>
-			<p style={{ marginRight: 8 }}>Updating</p>{" "}
-			<CircularProgress size={4} isIndeterminate />
-		</Box>
+		<BoxLoading />
 	) : isAdmin ? (
 		<Select
-			style={{
-				color: !ManagerSelected ? "grey" : textColor,
-			}}
-			value={ManagerSelected || ""}
+			value={selectedManager || ""}
 			onChange={handleChangeManager}
-			placeholder="No Manager"
+			placeholder="No Manager Selected"
+			color={!selectedManager ? "gray.500" : textColor}
+			width={200}
+			size="sm"
 		>
-			{tree &&
-				tree?.managers?.map((manager) => (
-					<option
-						key={manager?._id?.toString()}
-						value={manager?._id?.toString()}
-					>
-						{manager?.firstName + " " + manager?.lastName}
-					</option>
-				))}
+			{tree?.managers?.map((manager) => (
+				<option key={manager?._id?.toString()} value={manager?._id?.toString()}>
+					{`${manager?.firstName} ${manager?.lastName}`}
+				</option>
+			))}
 		</Select>
 	) : (
-		ManagerSelected && (
-			<Text>
-				{tree?.managers?.find((manager) => manager?._id === ManagerSelected)
-					?.firstName +
-					" " +
-					tree?.managers?.find((manager) => manager?._id === ManagerSelected)
-						?.lastName}
-			</Text>
-		)
+		<Text textStyle="sm">
+			{selectedManager
+				? `${
+						tree?.managers?.find((m) => m._id === selectedManager)?.firstName
+				  } ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
+				: "No Manager Assigned"}
+		</Text>
 	);
 };
 

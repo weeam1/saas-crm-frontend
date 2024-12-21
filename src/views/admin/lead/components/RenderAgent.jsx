@@ -1,9 +1,5 @@
-import {
-	Box,
-	CircularProgress,
-	Select,
-	useColorModeValue,
-} from "@chakra-ui/react";
+import { Select, useColorModeValue } from "@chakra-ui/react";
+import BoxLoading from "components/shared/BoxLoading";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -77,16 +73,7 @@ const RenderAgent = ({
 
 	if (agents?.length) {
 		return loading ? (
-			<Box
-				border={"1px solid #eee"}
-				borderRadius={"4px"}
-				padding={"3"}
-				display={"flex"}
-				alignItems={"center"}
-			>
-				<p style={{ marginRight: 8 }}>Updating</p>{" "}
-				<CircularProgress size={4} isIndeterminate />
-			</Box>
+			<BoxLoading />
 		) : (
 			<Select
 				placeholder="No Agent"
@@ -95,6 +82,8 @@ const RenderAgent = ({
 				style={{
 					color: !AgentSelected ? "grey" : textColor,
 				}}
+				width={200}
+				size="sm"
 			>
 				{agents?.map((agent) => (
 					<option key={agent?._id?.toString()} value={agent?._id?.toString()}>
@@ -107,87 +96,5 @@ const RenderAgent = ({
 		return <p style={{ textAlign: "center" }}>No agents</p>;
 	}
 };
-
-// const RenderAgent = ({
-// 	value,
-// 	managerAssigned,
-// 	leadID,
-// 	updateLeadData,
-// 	displaySearchData,
-// 	setSearchedData,
-// 	setData,
-// }) => {
-// 	const [AgentSelected, setAgentSelected] = useState(value || "");
-// 	const [loading, setLoading] = useState(false);
-// 	const tree = useSelector((state) => state.user.tree);
-// 	const textColor = useColorModeValue("black", "white");
-
-// 	// Filter agents related to the assigned manager
-// 	const agents = useMemo(() => {
-// 		return tree?.agents?.[`manager-${managerAssigned}`] || [];
-// 	}, [managerAssigned, tree]);
-
-// 	// Handle agent selection change
-// 	const handleChangeAgent = async (event) => {
-// 		const agentAssigned = event.target.value;
-
-// 		try {
-// 			setLoading(true);
-
-// 			const data = { agentAssigned, leadStatus: "reassigned" };
-// 			await putApi(leadID, data);
-
-// 			toast.success("Agent updated successfully");
-// 			setAgentSelected(agentAssigned);
-
-// 			// Update data in the appropriate list
-// 			const updateData = (prevData) => {
-// 				const updatedData = [...prevData];
-// 				const idx = updatedData.findIndex(
-// 					(item) => item._id.toString() === leadID
-// 				);
-// 				if (idx !== -1) {
-// 					updatedData[idx].agentAssigned = agentAssigned;
-// 				}
-// 				return updatedData;
-// 			};
-
-// 			displaySearchData ? setSearchedData(updateData) : setData(updateData);
-// 		} catch (error) {
-// 			console.error("Failed to update agent:", error);
-// 			toast.error("Failed to update the agent");
-// 		} finally {
-// 			setLoading(false);
-// 		}
-// 	};
-
-// 	return loading ? (
-// 		<Box
-// 			border="1px solid #eee"
-// 			borderRadius="4px"
-// 			padding="3"
-// 			display="flex"
-// 			alignItems="center"
-// 		>
-// 			<p style={{ marginRight: 8 }}>Updating</p>
-// 			<CircularProgress size={4} isIndeterminate />
-// 		</Box>
-// 	) : agents.length ? (
-// 		<Select
-// 			placeholder="Select Agent"
-// 			onChange={handleChangeAgent}
-// 			value={AgentSelected}
-// 			style={{ color: AgentSelected ? textColor : "grey" }}
-// 		>
-// 			{agents.map((agent) => (
-// 				<option key={agent._id} value={agent._id}>
-// 					{`${agent.firstName} ${agent.lastName}`}
-// 				</option>
-// 			))}
-// 		</Select>
-// 	) : (
-// 		<p style={{ textAlign: "center" }}>No agents</p>
-// 	);
-// };
 
 export default RenderAgent;

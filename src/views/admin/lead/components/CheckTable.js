@@ -283,7 +283,7 @@ export default function CheckTable(props) {
 					(agent) => agent?._id?.toString() === values?.agentAssigned
 				);
 			}
-			if (values?.agentAssigned == -1) {
+			if (values?.agentAssigned === -1) {
 				agent = { firstName: "No", lastName: " Agent" };
 			}
 			let manager = null;
@@ -292,7 +292,7 @@ export default function CheckTable(props) {
 					(user) => user?._id?.toString() === values?.managerAssigned
 				);
 			}
-			if (values?.managerAssigned == -1) {
+			if (values?.managerAssigned === -1) {
 				manager = { firstName: "No", lastName: "Manager" };
 			}
 			let getValue = [
@@ -1194,7 +1194,7 @@ export default function CheckTable(props) {
 																	transform={"translate(1520px, 173px);"}
 																>
 																	{access?.update &&
-																	user?.role == "superAdmin" ? (
+																	user?.role === "superAdmin" ? (
 																		<MenuItem
 																			py={2.5}
 																			onClick={() => {
