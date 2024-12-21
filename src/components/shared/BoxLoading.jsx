@@ -7,7 +7,7 @@ const BoxLoading = () => {
 			border="1px solid #eee"
 			borderRadius="4px"
 			display="flex"
-			padding={"4px"}
+			padding={"3px"}
 			alignItems="center"
 			size="sm"
 		>

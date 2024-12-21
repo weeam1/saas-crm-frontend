@@ -36,7 +36,7 @@ const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 
 	useEffect(() => {
 		setValue(cellValue || "");
-	}, [id]);
+	}, [cellValue, id]);
 
 	return loading ? (
 		<BoxLoading />
@@ -49,9 +49,9 @@ const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 			value={value || ""}
 			style={{
 				fontSize: "14px",
-				backgroundColor: "#ecfeff",
-				color: "#0891b2",
-				border: "1px solid #0891b2",
+				backgroundColor: "#faf5ea",
+				color: "#bb892a",
+				border: "1px solid #ebd3a6",
 				padding: "4px 8px",
 			}}
 		>
