@@ -127,8 +127,10 @@ const Index = () => {
 	const dataColumn = dynamicColumns?.filter((item) =>
 		selectedColumns?.find((colum) => colum?.Header === item.Header)
 	);
+
 	const fetchData = async (pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
+
 		let result = await getApi(
 			user.role === "superAdmin"
 				? "api/lead/" +
@@ -140,12 +142,13 @@ const Index = () => {
 						pageNo +
 						"&pageSize=" +
 						pageSize
-				: `api/lead/?user=${user._id}&role=${user.roles[0]?.roleName}&page=${pageNo}&pageSize=${pageSize}`
-
-			// &dateTime=${
-			// 			dateTime?.from + "|" + dateTime?.to
-			// 	  }
+				: `api/lead/?user=${user._id}&role=${
+						user.roles[0]?.roleName
+				  }&page=${pageNo}&pageSize=${pageSize}&dateTime=${
+						dateTime?.from + "|" + dateTime?.to
+				  }`
 		);
+
 		const newData = result.data?.result?.map((lead) => {
 			if (lead?.ip) {
 				const parts = lead?.ip.split("-");
@@ -155,6 +158,7 @@ const Index = () => {
 			}
 			return { ...lead };
 		});
+
 		setData(newData || []);
 		setPages(result.data?.totalPages || 0);
 		setTotalLeads(result.data?.totalLeads || 0);
@@ -163,6 +167,8 @@ const Index = () => {
 
 	const fetchSearchedData = async (term = "", pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
+		console.log("search");
+
 		let result = await getApi(
 			user.role === "superAdmin"
 				? "api/lead/search" +
@@ -199,6 +205,7 @@ const Index = () => {
 	};
 
 	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 30) => {
+		console.log("advance");
 		setIsLoding(true);
 		let result = await getApi(
 			user.role === "superAdmin"
@@ -255,7 +262,7 @@ const Index = () => {
 
 	useEffect(() => {
 		setColumns(tableColumns);
-	}, [action]);
+	}, []);
 
 	return (
 		<div>

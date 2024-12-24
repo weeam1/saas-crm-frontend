@@ -23,7 +23,7 @@ const RenderManager = ({
 		const managerAssigned = e.target.value;
 		const dataObj = {
 			managerAssigned: managerAssigned || "",
-			leadStatus: "reassigned",
+			// leadStatus: "reassigned",
 			agentAssigned: managerAssigned ? "" : undefined,
 		};
 
@@ -31,6 +31,8 @@ const RenderManager = ({
 			setLoading(true);
 			await putApi(`api/lead/edit/${leadID}`, dataObj);
 			toast.success("Manager updated successfully");
+
+			fetchData();
 
 			// Update data in the corresponding list (searched or default)
 			const updateListData = (prevData) => {

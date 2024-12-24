@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
-const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
+const RenderEStatus = ({ id, cellValue }) => {
 	const [value, setValue] = useState("");
 	const [loading, setLoading] = useState(false);
 
@@ -17,13 +17,6 @@ const RenderEStatus = ({ id, cellValue, setUpdatedEStatus }) => {
 			let response = await putApi(`api/lead/update/e-status/${id}`, data);
 			if (response.status === 200) {
 				setValue(data.eLeadStatus);
-				// setUpdatedEStatus((prev) => [
-				// 	...prev,
-				// 	{
-				// 		id,
-				// 		status: data?.eLeadStatus || null,
-				// 	},
-				// ]);
 				toast.success("Extra Lead Status Updated!");
 			}
 		} catch (e) {

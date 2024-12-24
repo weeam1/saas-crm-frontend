@@ -1,6 +1,6 @@
 import { Select, useColorModeValue } from "@chakra-ui/react";
 import BoxLoading from "components/shared/BoxLoading";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
@@ -29,14 +29,15 @@ const RenderAgent = ({
 		try {
 			const data = {
 				agentAssigned: e.target.value,
-				leadStatus: "reassigned",
+				// leadStatus: "reassigned",
 			};
 
 			setLoading(true);
-
 			await putApi(`api/lead/edit/${leadID}`, data);
 			toast.success("Agent updated successfuly");
 			setAgentSelected(data.agentAssigned || "");
+
+			fetchData();
 
 			if (displaySearchData) {
 				setSearchedData((prevData) => {

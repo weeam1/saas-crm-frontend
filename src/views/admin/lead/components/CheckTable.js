@@ -33,7 +33,7 @@ import {
 	useColorModeValue,
 	useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
 	useGlobalFilter,
 	usePagination,
@@ -74,7 +74,6 @@ import { CiMenuKebab } from "react-icons/ci";
 import Edit from "../Edit";
 import { useFormik } from "formik";
 import { BsColumnsGap, BsWhatsapp } from "react-icons/bs";
-import * as yup from "yup";
 import ImportModal from "./ImportModal";
 import CustomSearchInput from "components/search/search";
 import DataNotFound from "components/notFoundData";
@@ -84,13 +83,13 @@ import RenderStatus from "./RenderStatus";
 import { MdTask } from "react-icons/md";
 import AddTask from "./addTask";
 import LeadsModal from "../LeadsModal";
-import LastNoteText from "./LastNoteText";
 import AdvancedSearchModal from "./AdvancedSearchModal";
 // import SizeExample from "./Dummy";
 import { useStateContext } from "contexts/store";
 import RenderEStatus from "./RenderEStatus";
+import { validationLeadSearchSchema } from "schema/leadSchema";
 
-export default function CheckTable(props) {
+const CheckTable = React.memo((props) => {
 	const {
 		tableData,
 		dataColumn,
@@ -128,7 +127,6 @@ export default function CheckTable(props) {
 	const [gopageValue, setGopageValue] = useState(1);
 
 	const user = JSON.parse(localStorage.getItem("user"));
-	console.log("User.....", user);
 	const tree = useSelector((state) => state.user.tree);
 
 	const [leadsModal, setLeadsModal] = useState({
@@ -148,7 +146,14 @@ export default function CheckTable(props) {
 	const [selectedId, setSelectedId] = useState();
 	const [callSelectedId, setCallSelectedId] = useState();
 	const navigate = useNavigate();
+
 	let data = useMemo(() => tableData, [tableData]);
+
+	useEffect(() => {
+		console.log("tableData updated:", tableData);
+		setData(tableData);
+	}, [setData, tableData]);
+
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const {
@@ -217,6 +222,23 @@ export default function CheckTable(props) {
 		}
 	};
 
+	// // Update tableData when statuses change
+	// useEffect(() => {
+	// 	if (updatedStatuses?.length) {
+	// 		setData((prevData) =>
+	// 			prevData.map((row) => {
+	// 				const updatedStatus = updatedStatuses.find(
+	// 					(status) => status.id === row._id
+	// 				);
+	// 				if (updatedStatus) {
+	// 					return { ...row, status: updatedStatus.status };
+	// 				}
+	// 				return row;
+	// 			})
+	// 		);
+	// 	}
+	// }, [setData, updatedStatuses]);
+
 	const initialValues = {
 		leadName: "",
 		leadStatus: "",
@@ -225,98 +247,268 @@ export default function CheckTable(props) {
 		leadPhoneNumber: "",
 		managerAssigned: "",
 		agentAssigned: "",
+		leadWhatsappNumber: "",
+		nationality: "",
+		ip: "",
+		leadAddress: "",
+		leadCampaign: "",
+		leadSourceDetails: "",
+		leadSourceMedium: "",
+		pageUrl: "",
+		r_u_in_uae: "",
 	};
 
-	const validationSchema = yup.object({
-		leadName: yup.string(),
-		leadStatus: yup.string(),
-		eLeadStatus: yup.string(),
-		leadEmail: yup.string().email("Lead Email is invalid"),
-		leadPhoneNumber: yup
-			.number()
-			.typeError("Enter Number")
-			.min(0, "Lead Phone Number is invalid")
-			.max(999999999999, "Lead Phone Number is invalid")
-			.notRequired(),
-		leadAddress: yup.string(),
-		agentAssigned: yup.string(),
-		leadOwner: yup.string(),
-		fromLeadScore: yup.number().min(0, "From Lead Score is invalid"),
-	});
 	const formik = useFormik({
-		initialValues: initialValues,
-		validationSchema: validationSchema,
+		initialValues,
+		validationSchema: validationLeadSearchSchema,
 		onSubmit: (values, { resetForm }) => {
-			setIsLoding(true);
+			// Initialize cleanedData and tags
+			const { cleanedData, tags } = Object.entries(values).reduce(
+				(acc, [key, value]) => {
+					if (value !== "" && value !== undefined) {
+						// Add raw value to cleanedData for API
+						acc.cleanedData[key] = value;
 
-			const data = Object.fromEntries(
-				Object.entries(values).filter(([key, value]) => value !== "")
-			);
-			Object.keys(data).forEach((key) => {
-				if (typeof data[key] === "string") {
-					data[key] = data[key].trim();
-					if (key === "leadPhoneNumber") {
-						data[key] = Number(data[key]);
+						let displayValue = value;
+
+						// Special formatting rules for score range
+						if (key === "fromLeadScore" || key === "toLeadScore") {
+							displayValue = `${values.fromLeadScore || 0}-${
+								values.toLeadScore || "max"
+							}`;
+						}
+
+						// Special formatting for leadStatus
+						if (key === "leadStatus") {
+							displayValue =
+								value === "active"
+									? "Interested"
+									: value === "pending"
+									? "Not Interested"
+									: value;
+						}
+
+						// Handle agentAssigned
+						if (key === "agentAssigned") {
+							const agentsArray = Object.values(tree.agents).flatMap(
+								(managerArray) => managerArray
+							);
+							const assignedAgent = agentsArray.find(
+								(agent) => agent?._id?.toString() === value
+							);
+
+							displayValue = assignedAgent
+								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+								: value === -1
+								? "No Agent"
+								: value;
+						}
+
+						// Handle managerAssigned
+						if (key === "managerAssigned") {
+							const assignedManager = tree.managers.find(
+								(user) => user?._id?.toString() === value
+							);
+
+							displayValue = assignedManager
+								? `${assignedManager.firstName} ${assignedManager.lastName}`
+								: value === -1
+								? "No Manager"
+								: value;
+						}
+
+						// Add formatted value to tags for UI
+						acc.tags.push(`${key}: ${displayValue}`);
 					}
-				}
-			});
 
-			fetchAdvancedSearch(data, 1, pageSize);
-			setUpdatedPage(0);
-			setGopageValue(1);
+					return acc;
+				},
+				{ cleanedData: {}, tags: [] }
+			);
 
-			let agent = null;
-			// if (values?.agentAssigned && user?.roles[0]?.roleName === "Manager") {
-			//   agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
-			//     (user) => user?._id?.toString() === values?.agentAssigned
-			//   );
-			// } else if (values?.agentAssigned && values?.managerAssigned) {
-			//   agent = tree["agents"]["manager-" + values.managerAssigned]?.find(
-			//     (user) => user?._id?.toString() === values?.agentAssigned
-			//   );
-			// }
-			if (values?.agentAssigned) {
-				const agentsArray = Object.values(tree.agents).flatMap(
-					(managerArray) => managerArray
-				);
-				agent = agentsArray.find(
-					(agent) => agent?._id?.toString() === values?.agentAssigned
-				);
-			}
-			if (values?.agentAssigned === -1) {
-				agent = { firstName: "No", lastName: " Agent" };
-			}
-			let manager = null;
-			if (values?.managerAssigned) {
-				manager = tree["managers"]?.find(
-					(user) => user?._id?.toString() === values?.managerAssigned
-				);
-			}
-			if (values?.managerAssigned === -1) {
-				manager = { firstName: "No", lastName: "Manager" };
-			}
-			let getValue = [
-				values.leadName,
-				values.leadStatus === "active"
-					? "interested"
-					: values.leadStatus === "pending"
-					? "not-interested"
-					: values.leadStatus,
-				values?.leadEmail,
-				(manager && manager?.firstName + " " + manager?.lastName) || "",
-				(agent && agent?.firstName + " " + agent?.lastName) || "",
-				values?.leadPhoneNumber,
-				values?.leadOwner,
-				(![null, undefined, ""].includes(values?.fromLeadScore) &&
-					`${values.fromLeadScore}-${values.toLeadScore}`) ||
-					undefined,
-			].filter((value) => value);
-			setGetTagValues(getValue);
+			// Call API with cleaned data
+			fetchAdvancedSearch(cleanedData, 1, pageSize);
+
+			// Update UI with tags
+			setGetTagValues(tags);
 			setAdvaceSearch(false);
 			setSearchClear(true);
+
+			// Reset form values
 			// resetForm();
 		},
 	});
+
+	// const formik = useFormik({
+	// 	initialValues,
+	// 	validationSchema: validationLeadSearchSchema,
+	// 	onSubmit: (values, { resetForm }) => {
+	// 		// Generate filters and prepare cleaned data
+	// 		const { cleanedData, tags } = Object.entries(values).reduce(
+	// 			(acc, [key, value]) => {
+	// 				if (value !== "" && value !== undefined) {
+	// 					let displayValue = value;
+
+	// 					// Special formatting rules for score and status
+	// 					if (key === "fromLeadScore" || key === "toLeadScore") {
+	// 						displayValue = `${values.fromLeadScore || 0}-${
+	// 							values.toLeadScore || "max"
+	// 						}`;
+	// 					} else if (key === "leadStatus") {
+	// 						displayValue =
+	// 							value === "active"
+	// 								? "Interested"
+	// 								: value === "pending"
+	// 								? "Not Interested"
+	// 								: value;
+	// 					}
+
+	// 					// Handle agent assignment
+	// 					if (key === "agentAssigned") {
+	// 						const agentsArray = Object.values(tree.agents).flatMap(
+	// 							(managerArray) => managerArray
+	// 						);
+	// 						const assignedAgent = agentsArray.find(
+	// 							(agent) => agent?._id?.toString() === value
+	// 						);
+
+	// 						if (assignedAgent) {
+	// 							// Show the full name of the assigned agent
+	// 							displayValue = `${assignedAgent.firstName} ${assignedAgent.lastName}`;
+	// 						} else if (value === -1) {
+	// 							displayValue = "No Agent";
+	// 						}
+	// 					}
+
+	// 					// Handle manager assignment
+	// 					if (key === "managerAssigned") {
+	// 						const assignedManager = tree.managers.find(
+	// 							(user) => user?._id?.toString() === value
+	// 						);
+
+	// 						if (assignedManager) {
+	// 							// Show the full name of the assigned manager
+	// 							displayValue = `${assignedManager.firstName} ${assignedManager.lastName}`;
+	// 						} else if (value === -1) {
+	// 							displayValue = "No Manager";
+	// 						}
+	// 					}
+
+	// 					// Add cleaned data for API and tag for display
+	// 					acc.cleanedData[key] = value;
+	// 					acc.tags.push(`${key}: ${displayValue}`);
+	// 				}
+	// 				return acc;
+	// 			},
+	// 			{ cleanedData: {}, tags: [] }
+	// 		);
+
+	// 		// Debug: log the final data and tags
+	// 		console.log("Cleaned Data for API:", cleanedData);
+	// 		console.log("Tags for display:", tags);
+
+	// 		// Call API with cleaned data
+	// 		fetchAdvancedSearch(tags, 1, pageSize);
+
+	// 		// Update UI
+	// 		setGetTagValues(tags);
+	// 		setAdvaceSearch(false);
+	// 		setSearchClear(true);
+	// 		// resetForm();
+	// 	},
+	// });
+
+	// const validationSchema = yup.object({
+	// 	leadName: yup.string(),
+	// 	leadStatus: yup.string(),
+	// 	eLeadStatus: yup.string(),
+	// 	leadEmail: yup.string().email("Lead Email is invalid"),
+	// 	leadPhoneNumber: yup
+	// 		.number()
+	// 		.typeError("Enter Number")
+	// 		.min(0, "Lead Phone Number is invalid")
+	// 		.max(999999999999, "Lead Phone Number is invalid")
+	// 		.notRequired(),
+	// 	leadAddress: yup.string(),
+	// 	agentAssigned: yup.string(),
+	// 	leadOwner: yup.string(),
+	// 	fromLeadScore: yup.number().min(0, "From Lead Score is invalid"),
+	// });
+
+	// const formik = useFormik({
+	// 	initialValues: initialValues,
+	// 	validationSchema: validationLeadSearchSchema,
+	// 	onSubmit: (values, { resetForm }) => {
+	// 		setIsLoding(true);
+
+	// 		const data = Object.fromEntries(
+	// 			Object.entries(values).filter(([key, value]) => value !== "")
+	// 		);
+	// 		Object.keys(data).forEach((key) => {
+	// 			if (typeof data[key] === "string") {
+	// 				data[key] = data[key].trim();
+	// 				if (key === "leadPhoneNumber") {
+	// 					data[key] = Number(data[key]);
+	// 				}
+	// 			}
+	// 		});
+
+	// 		fetchAdvancedSearch(data, 1, pageSize);
+	// 		setUpdatedPage(0);
+	// 		setGopageValue(1);
+
+	// 		let agent = null;
+	// 		// if (values?.agentAssigned && user?.roles[0]?.roleName === "Manager") {
+	// 		//   agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
+	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
+	// 		//   );
+	// 		// } else if (values?.agentAssigned && values?.managerAssigned) {
+	// 		//   agent = tree["agents"]["manager-" + values.managerAssigned]?.find(
+	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
+	// 		//   );
+	// 		// }
+	// 		if (values?.agentAssigned) {
+	// 			const agentsArray = Object.values(tree.agents).flatMap(
+	// 				(managerArray) => managerArray
+	// 			);
+	// 			agent = agentsArray.find(
+	// 				(agent) => agent?._id?.toString() === values?.agentAssigned
+	// 			);
+	// 		}
+	// 		if (values?.agentAssigned === -1) {
+	// 			agent = { firstName: "No", lastName: " Agent" };
+	// 		}
+	// 		let manager = null;
+	// 		if (values?.managerAssigned) {
+	// 			manager = tree["managers"]?.find(
+	// 				(user) => user?._id?.toString() === values?.managerAssigned
+	// 			);
+	// 		}
+	// 		if (values?.managerAssigned === -1) {
+	// 			manager = { firstName: "No", lastName: "Manager" };
+	// 		}
+	// 		let getValue = [
+	// 			values.leadName,
+	// 			values.leadStatus === "active"
+	// 				? "interested"
+	// 				: values.leadStatus === "pending"
+	// 				? "not-interested"
+	// 				: values.leadStatus,
+	// 			values?.leadEmail,
+	// 			(manager && manager?.firstName + " " + manager?.lastName) || "",
+	// 			(agent && agent?.firstName + " " + agent?.lastName) || "",
+	// 			values?.leadPhoneNumber,
+	// 			values?.leadOwner,
+	// 			(![null, undefined, ""].includes(values?.fromLeadScore) &&
+	// 				`${values.fromLeadScore}-${values.toLeadScore}`) ||
+	// 				undefined,
+	// 		].filter((value) => value);
+	// 		setGetTagValues(getValue);
+	// 		setAdvaceSearch(false);
+	// 		setSearchClear(true);
+	// 		resetForm();
+	// 	},
+	// });
 	const handleClear = () => {
 		searchbox.current.value = "";
 		setDisplaySearchData(false);
@@ -326,6 +518,8 @@ export default function CheckTable(props) {
 		fetchData(1, pageSize);
 		setGopageValue(1);
 		setUpdatedPage(0);
+		resetForm();
+		setGetTagValues([]);
 	};
 
 	const {
@@ -540,7 +734,6 @@ export default function CheckTable(props) {
 				Object.entries(values).filter(([key, value]) => value !== "")
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
-			console.log(values, "values of the form ");
 		} else {
 			fetchData(pageIndex + 1, pageSize);
 		}
@@ -556,7 +749,7 @@ export default function CheckTable(props) {
 				Object.entries(values).filter(([key, value]) => value !== "")
 			);
 			fetchAdvancedSearch(data, 1, pageSize);
-		} else {
+		} else if (pageSize !== 30) {
 			fetchData(1, pageSize);
 		}
 	}, [pageSize]);
@@ -805,7 +998,9 @@ export default function CheckTable(props) {
 									key={item}
 									borderRadius="full"
 									variant="solid"
-									colorScheme="gray"
+									backgroundColor="#faf5ea"
+									color="#bb892a"
+									border="1px solid #ebd3a6"
 								>
 									<TagLabel>{item}</TagLabel>
 								</Tag>
@@ -816,11 +1011,98 @@ export default function CheckTable(props) {
 				<Box overflowY={"auto"} className="table-fix-container">
 					<Table
 						{...getTableProps()}
-						variant="simple"
-						color="gray.500"
+						color="black"
 						mb="24px"
+						sx={{
+							"& tbody tr:hover": {
+								// Apply hover effect directly to rows
+								backgroundColor: "white", // Hover background
+								boxShadow: "sm", // Add subtle shadow on hover
+								transition: "background-color 0.2s ease, box-shadow 0.2s ease", // Smooth transition
+							},
+						}}
 					>
 						<Thead zIndex={1} height="10vh">
+							{headerGroups?.map((headerGroup, index) => (
+								<Tr
+									// backgroundColor="#ebd3a6"
+									{...headerGroup.getHeaderGroupProps()}
+									key={index}
+									position="sticky"
+									top="0"
+									zIndex="2"
+									height="60px"
+									width="1146px"
+									left="325px"
+									borderRadius="10px 10px 0 0"
+									borderBottom="1px solid #ebd3a6" // Match Figma style
+									bg="#ebd3a6" // Replace with Figma's header color
+									opacity="1" // Set to '0' if it's intended to be invisible
+									marginBottom="1rem"
+								>
+									{headerGroup.headers?.map((column, index) => (
+										<Th
+											{...column.getHeaderProps(
+												column.isSortable !== false &&
+													column.getSortByToggleProps()
+											)}
+											pe="10px"
+											key={index}
+											borderColor="gray.200"
+											fontWeight="medium"
+											maxWidth={150}
+										>
+											<Flex
+												align="center"
+												justifyContent={column.center ? "center" : "start"}
+												fontSize={{ sm: "12px", lg: "14px" }}
+											>
+												{column.Header === "#" && (
+													<Checkbox
+														borderColor="brand.600"
+														value="true"
+														isChecked={selectAllChecked}
+														onChange={(event) => {
+															setSelectAllChecked(!selectAllChecked);
+															if (event.target.checked) {
+																const ids = page?.map((l) => l?.original?._id);
+																setSelectedValues(() => [...ids]);
+															} else {
+																setSelectedValues([]);
+															}
+														}}
+														me="10px"
+													/>
+												)}
+												<span
+													color="secondaryGray.900"
+													style={{
+														textTransform: "capitalize",
+														marginRight: "8px",
+													}}
+												>
+													{column.render("Header")}
+												</span>
+												{column.isSortable !== false && (
+													<span>
+														{column.isSorted ? (
+															column.isSortedDesc ? (
+																<FaSortDown />
+															) : (
+																<FaSortUp />
+															)
+														) : (
+															<FaSort />
+														)}
+													</span>
+												)}
+											</Flex>
+										</Th>
+									))}
+								</Tr>
+							))}
+						</Thead>
+						{/* <Thead zIndex={1} height="10vh">
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr
 									backgroundColor="#ebd3a6"
@@ -888,7 +1170,91 @@ export default function CheckTable(props) {
 									))}
 								</Tr>
 							))}
-						</Thead>
+						</Thead> */}
+						{/* <Thead zIndex={1} height="10vh">
+							{headerGroups?.map((headerGroup, index) => (
+								<Tr
+									// backgroundColor="#ebd3a6"
+									{...headerGroup.getHeaderGroupProps()}
+									key={index}
+									borderTopRadius="lg" // Rounded top borders for the row
+									position="sticky"
+									top="0"
+									zIndex="2"
+								>
+									{headerGroup.headers?.map((column, index) => (
+										<Th
+											{...column.getHeaderProps(
+												column.isSortable !== false &&
+													column.getSortByToggleProps()
+											)}
+											pe="10px"
+											key={index}
+											borderColor={borderColor}
+											fontWeight="medium"
+											maxWidth={150}
+											borderTopRadius={
+												index === 0
+													? "lg"
+													: index === headerGroup.headers.length - 1
+													? "lg"
+													: "none"
+											} // Conditional rounding
+											bg="#EBD3A7"
+											boxShadow="sm"
+											_hover={{ bg: "gray.50" }}
+										>
+											<Flex
+												align="center"
+												justifyContent={column.center ? "center" : "start"}
+												fontSize={{ sm: "12px", lg: "14px" }}
+											>
+												{column.Header === "#" && (
+													<Checkbox
+														borderColor="brand.600"
+														value="true"
+														isChecked={selectAllChecked}
+														onChange={(event) => {
+															setSelectAllChecked(!selectAllChecked);
+															if (event.target.checked) {
+																const ids = page?.map((l) => l?.original?._id);
+																setSelectedValues(() => [...ids]);
+															} else {
+																setSelectedValues([]);
+															}
+														}}
+														me="10px"
+													/>
+												)}
+												<span
+													color="secondaryGray.900"
+													style={{
+														textTransform: "capitalize",
+														marginRight: "8px",
+													}}
+												>
+													{column.render("Header")}
+												</span>
+												{column.isSortable !== false && (
+													<span>
+														{column.isSorted ? (
+															column.isSortedDesc ? (
+																<FaSortDown />
+															) : (
+																<FaSortUp />
+															)
+														) : (
+															<FaSort />
+														)}
+													</span>
+												)}
+											</Flex>
+										</Th>
+									))}
+								</Tr>
+							))}
+						</Thead> */}
+
 						<Tbody {...getTableBodyProps()}>
 							{isLoding ? (
 								<Tr>
@@ -922,13 +1288,13 @@ export default function CheckTable(props) {
 							) : (
 								page?.map((row, i) => {
 									prepareRow(row);
-									updatedStatuses?.forEach((status) => {
-										if (status?.id === row?.original?._id) {
-											row.cells.find(
-												(cell) => cell?.column?.Header === "Status"
-											).value = status?.status;
-										}
-									});
+									// updatedStatuses?.forEach((status) => {
+									// 	if (status?.id === row?.original?._id) {
+									// 		row.cells.find(
+									// 			(cell) => cell?.column?.Header === "Status"
+									// 		).value = status?.status;
+									// 	}
+									// });
 
 									return (
 										<Tr {...row?.getRowProps()} key={i} className="leadRow">
@@ -988,7 +1354,7 @@ export default function CheckTable(props) {
 														<Text
 															me="10px"
 															fontSize="sm"
-															fontWeight="600"
+															fontWeight="500"
 															width={140}
 														>
 															{cell?.value?.text || cell?.value || "-"}
@@ -999,7 +1365,7 @@ export default function CheckTable(props) {
 														<Text
 															me="10px"
 															fontSize="sm"
-															fontWeight="600"
+															fontWeight="500"
 															maxWidth={140}
 															sx={{
 																"&:hover": {
@@ -1022,13 +1388,10 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === "Address") {
 													data = (
-														<Text
-															color={textColor}
-															fontSize="sm"
-															// fontWeight="500"
-															fontWeight="600"
-														>
-															{cell?.value?.text || cell?.value || ""}
+														<Text fontSize="sm" fontWeight={500}>
+															{cell?.value && cell.value !== "-"
+																? cell.value
+																: "No Address"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Status") {
@@ -1085,36 +1448,24 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === "Nationality") {
 													data = (
 														<Text
-															color={
-																cell?.value < 40
-																	? "red.600"
-																	: cell?.value < 80
-																	? "yellow.400"
-																	: "green.600"
-															}
 															fontSize="md"
-															fontWeight="600"
+															fontWeight="medium"
 															textAlign={"center"}
 														>
-															{cell?.value?.text || cell?.value || "-"}
+															{cell?.value?.text ||
+																cell?.value ||
+																"Not available"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Timetocall") {
 													data = (
 														<Text
-															color={
-																cell?.value < 40
-																	? "red.600"
-																	: cell?.value < 80
-																	? "yellow.400"
-																	: "green.600"
-															}
 															fontSize="sm"
-															fontWeight="600"
+															fontWeight={500}
 															width={300}
 															textAlign={"center"}
 														>
-															{cell?.value?.text || cell?.value || "-"}
+															{cell?.value?.text || cell?.value || "No Data"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Date & Time") {
@@ -1122,64 +1473,70 @@ export default function CheckTable(props) {
 														<Text
 															fontSize={"sm"}
 															textAlign={"center"}
-															fontWeight="600"
+															fontWeight="500"
 															width={150}
 														>
 															{new Date(
 																cell?.value?.text || cell?.value
-															).toLocaleString() || "-"}
+															).toLocaleString() || "Not available"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Last Note") {
 													data = (
-														<Box width={150}>
-															<LastNoteText text={cell?.value} />
-														</Box>
+														<Text width={200} fontSize={"sm"}>
+															{cell?.value || "No Last Note"}
+														</Text>
 													);
 												} else if (cell?.column.Header === "Country") {
 													data = (
-														<Text fontSize={"sm"} width={150} fontWeight={600}>
-															{cell?.value || "-"}
+														<Text fontSize={"sm"} width={150} fontWeight={500}>
+															{cell?.value || "No Country"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Address") {
 													data = (
-														<Text fontSize={"sm"}>{cell?.value || "-"}</Text>
+														<Text
+															color="black"
+															fontSize={"sm"}
+															fontWeight={500}
+														>
+															{cell?.value || "No Address"}
+														</Text>
 													);
 												} else if (cell?.column.Header === "Campaign") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "-"}
+															{cell?.value || "No Campaign"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Source Content") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "-"}
+															{cell?.value || "No Content"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Email") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "-"}
+															{cell?.value || "No Email"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Medium") {
 													data = (
 														<Text fontSize={"sm"} width={200}>
-															{cell?.value || "-"}
+															{cell?.value || "No Medium"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Campaign URL") {
 													data = (
 														<Text fontSize={"sm"} width={300}>
-															{cell?.value || "-"}
+															{cell?.value || "No URL"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "In UAE?") {
 													data = (
 														<Text fontSize={"sm"} width={140}>
-															{cell?.value || "-"}
+															{cell?.value || "Not Selected"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Action") {
@@ -1463,6 +1820,7 @@ export default function CheckTable(props) {
 				handleSubmit={handleSubmit}
 				isLoding={isLoding}
 				resetForm={resetForm}
+				handleClear={handleClear}
 				setAdvaceSearch={setAdvaceSearch}
 				touched={touched}
 				values={values}
@@ -1561,4 +1919,6 @@ export default function CheckTable(props) {
 			)}
 		</>
 	);
-}
+});
+
+export default CheckTable;
