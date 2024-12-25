@@ -260,9 +260,8 @@ const CheckTable = React.memo((props) => {
 
 						// Special formatting rules for score range
 						if (key === "fromLeadScore" || key === "toLeadScore") {
-							displayValue = `${values.fromLeadScore || 0}-${
-								values.toLeadScore || "max"
-							}`;
+							displayValue = `${values.fromLeadScore || 0}-${values.toLeadScore || "max"
+								}`;
 						}
 
 						// Special formatting for leadStatus
@@ -271,8 +270,8 @@ const CheckTable = React.memo((props) => {
 								value === "active"
 									? "Interested"
 									: value === "pending"
-									? "Not Interested"
-									: value;
+										? "Not Interested"
+										: value;
 						}
 
 						// Handle agentAssigned
@@ -287,8 +286,8 @@ const CheckTable = React.memo((props) => {
 							displayValue = assignedAgent
 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
 								: value === -1
-								? "No Agent"
-								: value;
+									? "No Agent"
+									: value;
 						}
 
 						// Handle managerAssigned
@@ -300,8 +299,8 @@ const CheckTable = React.memo((props) => {
 							displayValue = assignedManager
 								? `${assignedManager.firstName} ${assignedManager.lastName}`
 								: value === -1
-								? "No Manager"
-								: value;
+									? "No Manager"
+									: value;
 						}
 
 						// Add formatted value to tags for UI
@@ -765,7 +764,7 @@ const CheckTable = React.memo((props) => {
 				// Return the updated data array
 				return [...updatedData];
 			});
-		} else
+		} else {
 			setData((prevData) => {
 				// First, reset the leadStatus for the target row
 				const resetData = prevData.map((row) =>
@@ -784,6 +783,7 @@ const CheckTable = React.memo((props) => {
 				// Return the updated data array
 				return [...updatedData];
 			});
+		}
 	};
 
 	return (
@@ -1076,7 +1076,7 @@ const CheckTable = React.memo((props) => {
 										<Th
 											{...column.getHeaderProps(
 												column.isSortable !== false &&
-													column.getSortByToggleProps()
+												column.getSortByToggleProps()
 											)}
 											pe="10px"
 											key={index}
@@ -1619,7 +1619,7 @@ const CheckTable = React.memo((props) => {
 																	transform={"translate(1520px, 173px);"}
 																>
 																	{access?.update &&
-																	user?.role === "superAdmin" ? (
+																		user?.role === "superAdmin" ? (
 																		<MenuItem
 																			py={2.5}
 																			onClick={() => {
@@ -1750,7 +1750,7 @@ const CheckTable = React.memo((props) => {
                                     </MenuItem>
                                   )} */}
 																	{access?.delete &&
-																	user?.role == "superAdmin" ? (
+																		user?.role == "superAdmin" ? (
 																		<MenuItem
 																			py={2.5}
 																			color={"red"}
@@ -1784,8 +1784,8 @@ const CheckTable = React.memo((props) => {
 															cell?.column?.Header === "Manager"
 																? { padding: "0 5px 0 0" }
 																: cell?.column?.Header === "Agent"
-																? { padding: 0 }
-																: {}
+																	? { padding: 0 }
+																	: {}
 														}
 														fontSize={{ sm: "14px" }}
 														minW={{ sm: "150px", md: "200px", lg: "auto" }}
@@ -1830,7 +1830,7 @@ const CheckTable = React.memo((props) => {
 
 				<AddTask
 					leadData={taskInits}
-					fetchData={() => {}}
+					fetchData={() => { }}
 					isOpen={isTaskOpen}
 					onClose={onTaskClose}
 				/>
