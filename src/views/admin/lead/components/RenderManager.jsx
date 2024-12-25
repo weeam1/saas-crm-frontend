@@ -87,9 +87,8 @@ const RenderManager = ({
 	) : (
 		<Text textStyle="sm">
 			{selectedManager
-				? `${
-						tree?.managers?.find((m) => m._id === selectedManager)?.firstName
-				  } ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
+				? `${tree?.managers?.find((m) => m._id === selectedManager)?.firstName
+				} ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
 				: "No Manager Assigned"}
 		</Text>
 	);

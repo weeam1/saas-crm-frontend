@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
-const RenderStatus = ({ id, cellValue, rowOriginalStatus }) => {
+const RenderStatus = ({ id, cellValue, rowOriginalStatus, updateRowStatus }) => {
 	const [value, setValue] = useState(cellValue || rowOriginalStatus || "");
 	const [loading, setLoading] = useState(false);
 
@@ -18,7 +18,7 @@ const RenderStatus = ({ id, cellValue, rowOriginalStatus }) => {
 			let response = await putApi(`api/lead/changeStatus/${id}`, data);
 			if (response.status === 200) {
 				setValue(data.leadStatus);
-				// updateRowStatus(id, data.leadStatus); // Update parent data
+				updateRowStatus(id, data.leadStatus); // Update parent data
 				toast.success("Lead Status Updated!");
 			}
 		} catch (e) {
