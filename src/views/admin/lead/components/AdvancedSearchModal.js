@@ -493,6 +493,31 @@ const AdvancedSearchModal = ({
 								{errors.r_u_in_uae && touched.r_u_in_uae && errors.r_u_in_uae}
 							</Text>
 						</GridItem>
+						<GridItem colSpan={{ base: 12, md: 6 }}>
+							<FormLabel
+								display="flex"
+								ms="4px"
+								fontSize="sm"
+								fontWeight="600"
+								color={"#000"}
+								mb="0"
+								mt={2}
+							>
+								Language
+							</FormLabel>
+							<Input
+								fontSize="sm"
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values?.leadLang}
+								name="leadLang"
+								placeholder="Search by Language"
+								fontWeight="500"
+							/>
+							<Text mb="10px" color={"red"}>
+								{errors.leadLang && touched.leadLang && errors.leadLang}
+							</Text>
+						</GridItem>
 						{user?.role === "superAdmin" && (
 							<GridItem colSpan={{ base: 12, md: 6 }}>
 								<FormLabel

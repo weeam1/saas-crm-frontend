@@ -242,6 +242,7 @@ const CheckTable = React.memo((props) => {
 		leadSourceMedium: "",
 		pageUrl: "",
 		r_u_in_uae: "",
+		leadLang: "",
 	};
 
 	const formik = useFormik({
@@ -1508,6 +1509,16 @@ const CheckTable = React.memo((props) => {
 															{cell?.value?.text ||
 																cell?.value ||
 																"Not available"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Language") {
+													data = (
+														<Text
+															fontSize="md"
+															fontWeight="medium"
+															textAlign={"center"}
+														>
+															{cell?.value || "Not Available"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Timetocall") {
