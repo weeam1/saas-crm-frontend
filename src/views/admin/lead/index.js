@@ -238,7 +238,6 @@ const Index = () => {
 	};
 
 	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 30) => {
-		console.log("advance");
 		setIsLoding(true);
 		let result = await getApi(
 			user.role === "superAdmin"
