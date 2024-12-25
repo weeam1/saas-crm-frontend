@@ -5,16 +5,116 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
+// const RenderAgent = ({
+// 	value,
+// 	managerAssigned,
+// 	leadID,
+// 	displaySearchData,
+// 	setSearchedData,
+// 	setData,
+// 	updateRowStatus,
+// }) => {
+// 	const [AgentSelected, setAgentSelected] = useState(value || "");
+// 	const tree = useSelector((state) => state.user.tree);
+// 	const [loading, setLoading] = useState(false);
+
+// 	const textColor = useColorModeValue("black", "white");
+
+// 	// Filter agents related to the assigned manager
+// 	const agents = useMemo(() => {
+// 		return tree?.agents?.[`manager-${managerAssigned}`] || [];
+// 	}, [managerAssigned, tree]);
+
+// 	const handleChangeAgent = async (e) => {
+// 		try {
+// 			const data = {
+// 				agentAssigned: e.target.value,
+// 				// leadStatus: "reassigned",
+// 			};
+
+// 			setLoading(true);
+// 			const res = await putApi(`api/lead/edit/${leadID}`, data);
+
+// 			if (res.status === 200) {
+// 				updateRowStatus(leadID, res.data.leadStatus);
+// 				toast.success("Agent updated successfuly");
+// 			}
+
+// 			if (displaySearchData) {
+// 				setSearchedData((prevData) => {
+// 					const newData = [...prevData];
+
+// 					const updateIdx = newData.findIndex(
+// 						(l) => l._id.toString() === leadID
+// 					);
+// 					if (updateIdx !== -1) {
+// 						newData[updateIdx].agentAssigned = data.agentAssigned;
+// 					}
+// 					return newData;
+// 				});
+// 			} else {
+// 				setData((prevData) => {
+// 					const newData = [...prevData];
+
+// 					const updateIdx = newData.findIndex(
+// 						(l) => l._id.toString() === leadID
+// 					);
+// 					if (updateIdx !== -1) {
+// 						newData[updateIdx].agentAssigned = data.agentAssigned;
+// 					}
+// 					return newData;
+// 				});
+// 			}
+// 			// fetchData();
+// 		} catch (error) {
+// 			console.log(error);
+// 			toast.error("Failed to update the agent");
+// 		}
+// 		setLoading(false);
+// 	};
+
+// 	// setAgentSelected(data.agentAssigned);
+
+// 	useEffect(() => {
+// 		setAgentSelected(value);
+// 	}, [value]);
+
+// 	if (agents?.length) {
+// 		return loading ? (
+// 			<BoxLoading />
+// 		) : (
+// 			<Select
+// 				placeholder="No Agent"
+// 				onInput={handleChangeAgent}
+// 				value={AgentSelected === null ? "" : AgentSelected}
+// 				style={{
+// 					color: !AgentSelected ? "grey" : textColor,
+// 				}}
+// 				width={200}
+// 				size="sm"
+// 			>
+// 				{agents?.map((agent) => (
+// 					<option key={agent?._id?.toString()} value={agent?._id?.toString()}>
+// 						{agent?.firstName + " " + agent?.lastName}
+// 					</option>
+// 				))}
+// 			</Select>
+// 		);
+// 	} else {
+// 		return <p style={{ textAlign: "center" }}>No agents</p>;
+// 	}
+// };
+
 const RenderAgent = ({
 	value,
 	managerAssigned,
 	leadID,
-	fetchData,
 	displaySearchData,
 	setSearchedData,
 	setData,
+	updateRowStatus,
 }) => {
-	const [AgentSelected, setAgentSelected] = useState(value || "");
+	const [AgentSelected, setAgentSelected] = useState("");
 	const tree = useSelector((state) => state.user.tree);
 	const [loading, setLoading] = useState(false);
 
@@ -25,52 +125,100 @@ const RenderAgent = ({
 		return tree?.agents?.[`manager-${managerAssigned}`] || [];
 	}, [managerAssigned, tree]);
 
+	// const handleChangeAgent = async (e) => {
+	// 	try {
+	// 		const data = {
+	// 			agentAssigned: e.target.value,
+	// 			// leadStatus: "reassigned",
+	// 		};
+
+	// 		setLoading(true);
+	// 		const res = await putApi(`api/lead/edit/${leadID}`, data);
+
+	// 		if (res.status === 200) {
+	// 			updateRowStatus(leadID, res.data.leadStatus);
+	// 			toast.success("Agent updated successfuly");
+	// 		}
+
+	// 		if (displaySearchData) {
+	// 			setSearchedData((prevData) => {
+	// 				const newData = [...prevData];
+
+	// 				const updateIdx = newData.findIndex(
+	// 					(l) => l._id.toString() === leadID
+	// 				);
+	// 				if (updateIdx !== -1) {
+	// 					newData[updateIdx].agentAssigned = data.agentAssigned;
+	// 				}
+	// 				return newData;
+	// 			});
+	// 		} else {
+	// 			setData((prevData) => {
+	// 				const newData = [...prevData];
+
+	// 				const updateIdx = newData.findIndex(
+	// 					(l) => l._id.toString() === leadID
+	// 				);
+	// 				if (updateIdx !== -1) {
+	// 					newData[updateIdx].agentAssigned = data.agentAssigned;
+	// 				}
+	// 				return newData;
+	// 			});
+	// 		}
+	// 		// fetchData();
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		toast.error("Failed to update the agent");
+	// 	}
+	// 	setLoading(false);
+	// };
+
+	// setAgentSelected(data.agentAssigned);
+
 	const handleChangeAgent = async (e) => {
 		try {
 			const data = {
 				agentAssigned: e.target.value,
-				// leadStatus: "reassigned",
+				// leadStatus: "reassigned", // Uncomment if lead status should change
 			};
 
 			setLoading(true);
-			await putApi(`api/lead/edit/${leadID}`, data);
-			toast.success("Agent updated successfuly");
-			setAgentSelected(data.agentAssigned || "");
+			const res = await putApi(`api/lead/edit/${leadID}`, data);
 
-			fetchData();
+			if (res.status === 200) {
+				// Call updateRowStatus with the updated status from the response
+				updateRowStatus(leadID, res.data.leadStatus);
+
+				toast.success("Agent updated successfully");
+			}
+
+			// Update the corresponding data list (searched or default)
+			const updateListData = (prevData) => {
+				const newData = [...prevData];
+				const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
+				if (updateIdx !== -1) {
+					newData[updateIdx].agentAssigned = data.agentAssigned;
+				}
+				return newData;
+			};
 
 			if (displaySearchData) {
-				setSearchedData((prevData) => {
-					const newData = [...prevData];
-
-					const updateIdx = newData.findIndex(
-						(l) => l._id.toString() === leadID
-					);
-					if (updateIdx !== -1) {
-						newData[updateIdx].agentAssigned = data.agentAssigned;
-					}
-					return newData;
-				});
+				setSearchedData(updateListData);
 			} else {
-				setData((prevData) => {
-					const newData = [...prevData];
-
-					const updateIdx = newData.findIndex(
-						(l) => l._id.toString() === leadID
-					);
-					if (updateIdx !== -1) {
-						newData[updateIdx].agentAssigned = data.agentAssigned;
-					}
-					return newData;
-				});
+				setData(updateListData);
 			}
-			// fetchData();
 		} catch (error) {
-			console.log(error);
+			console.error("Failed to update the agent:", error);
 			toast.error("Failed to update the agent");
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	};
+
+	useEffect(() => {
+		setAgentSelected(value);
+		console.log(value);
+	}, [value]);
 
 	if (agents?.length) {
 		return loading ? (

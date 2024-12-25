@@ -117,6 +117,7 @@ const CheckTable = React.memo((props) => {
 		totalLeads,
 		fetchSearchedData,
 		setData,
+		refetchData,
 	} = props;
 	const textColor = useColorModeValue("gray.500", "white");
 	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -149,10 +150,11 @@ const CheckTable = React.memo((props) => {
 
 	let data = useMemo(() => tableData, [tableData]);
 
+	console.log({ data });
+
 	useEffect(() => {
-		console.log("tableData updated:", tableData);
 		setData(tableData);
-	}, [setData, tableData]);
+	}, [refetchData, setData, tableData]);
 
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -221,23 +223,6 @@ const CheckTable = React.memo((props) => {
 			fetchData(pageIndex + 1, pageSize);
 		}
 	};
-
-	// // Update tableData when statuses change
-	// useEffect(() => {
-	// 	if (updatedStatuses?.length) {
-	// 		setData((prevData) =>
-	// 			prevData.map((row) => {
-	// 				const updatedStatus = updatedStatuses.find(
-	// 					(status) => status.id === row._id
-	// 				);
-	// 				if (updatedStatus) {
-	// 					return { ...row, status: updatedStatus.status };
-	// 				}
-	// 				return row;
-	// 			})
-	// 		);
-	// 	}
-	// }, [setData, updatedStatuses]);
 
 	const initialValues = {
 		leadName: "",
@@ -580,6 +565,10 @@ const CheckTable = React.memo((props) => {
 		setGopageValue(pageOptions.length);
 	}
 
+	const tableDataUpdate = async () => {
+		refetchData(page, pageSize);
+	};
+
 	const handleCheckboxChange = (event, value) => {
 		if (event.target.checked) {
 			setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
@@ -753,6 +742,16 @@ const CheckTable = React.memo((props) => {
 			fetchData(1, pageSize);
 		}
 	}, [pageSize]);
+
+	const updateRowStatus = (id, newStatus) => {
+		setData((prevData) => {
+			const updatedData = prevData.map((row) => {
+				return row._id === id ? { ...row, leadStatus: newStatus } : row;
+			});
+
+			return [...updatedData];
+		});
+	};
 
 	return (
 		<>
@@ -1395,14 +1394,33 @@ const CheckTable = React.memo((props) => {
 														</Text>
 													);
 												} else if (cell?.column.Header === "Status") {
-													data = (
-														<div className="selectOpt">
+													// data = (
+													// 	<div className="selectOpt">
+													// 		<RenderStatus
+													// 			setUpdatedStatuses={setUpdatedStatuses}
+													// 			id={cell?.row?.original?._id}
+													// 			cellValue={cell?.value}
+													// 		/>
+													// 	</div>
+													// );
+
+													let cellContent = cell.render("Cell");
+
+													// Replace the "Status" cell with the status dropdown
+													if (cell.column.Header === "Status") {
+														cellContent = (
 															<RenderStatus
-																setUpdatedStatuses={setUpdatedStatuses}
 																id={cell?.row?.original?._id}
 																cellValue={cell?.value}
+																rowOriginalStatus={row?.original?.leadStatus}
 															/>
-														</div>
+														);
+													}
+
+													return (
+														<td key={cell.column.id} {...cell.getCellProps()}>
+															{cellContent}
+														</td>
 													);
 												} else if (cell?.column.Header === "E.Status") {
 													data = (
@@ -1417,7 +1435,8 @@ const CheckTable = React.memo((props) => {
 												} else if (cell?.column.Header === "Manager") {
 													data = (
 														<RenderManager
-															fetchData={fetchData}
+															id={row?.original?._id}
+															updateRowStatus={updateRowStatus}
 															displaySearchData={
 																displaySearchData || displayAdvSearchData
 															}
@@ -1433,8 +1452,9 @@ const CheckTable = React.memo((props) => {
 													data = (
 														<>
 															<RenderAgent
+																updateRowStatus={updateRowStatus}
+																tableDataUpdate={tableDataUpdate}
 																setData={setData}
-																fetchData={fetchData}
 																leadID={row?.original?._id?.toString()}
 																managerAssigned={row?.original?.managerAssigned}
 																displaySearchData={

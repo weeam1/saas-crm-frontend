@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
 const RenderManager = ({
+	id,
 	isAdmin,
 	value,
 	leadID,
@@ -14,8 +15,9 @@ const RenderManager = ({
 	displaySearchData,
 	setSearchedData,
 	setData,
+	updateRowStatus,
 }) => {
-	const [selectedManager, setSelectedManager] = useState("");
+	const [selectedManager, setSelectedManager] = useState(value || "");
 	const [loading, setLoading] = useState(false);
 	const tree = useSelector((state) => state.user.tree);
 
@@ -23,16 +25,17 @@ const RenderManager = ({
 		const managerAssigned = e.target.value;
 		const dataObj = {
 			managerAssigned: managerAssigned || "",
-			// leadStatus: "reassigned",
 			agentAssigned: managerAssigned ? "" : undefined,
 		};
 
 		try {
 			setLoading(true);
-			await putApi(`api/lead/edit/${leadID}`, dataObj);
-			toast.success("Manager updated successfully");
+			const res = await putApi(`api/lead/edit/${leadID}`, dataObj);
 
-			fetchData();
+			if (res.status === 200) {
+				updateRowStatus(leadID, res.data.leadStatus);
+				toast.success("Manager updated successfully");
+			}
 
 			// Update data in the corresponding list (searched or default)
 			const updateListData = (prevData) => {

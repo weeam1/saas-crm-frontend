@@ -164,6 +164,39 @@ const Index = () => {
 		setTotalLeads(result.data?.totalLeads || 0);
 		setIsLoding(false);
 	};
+	const refetchData = async (pageNo = 1, pageSize = 30) => {
+		let result = await getApi(
+			user.role === "superAdmin"
+				? "api/lead/" +
+						"?dateTime=" +
+						dateTime?.from +
+						"|" +
+						dateTime?.to +
+						"&page=" +
+						pageNo +
+						"&pageSize=" +
+						pageSize
+				: `api/lead/?user=${user._id}&role=${
+						user.roles[0]?.roleName
+				  }&page=${pageNo}&pageSize=${pageSize}&dateTime=${
+						dateTime?.from + "|" + dateTime?.to
+				  }`
+		);
+
+		const newData = result.data?.result?.map((lead) => {
+			if (lead?.ip) {
+				const parts = lead?.ip.split("-");
+
+				// Return only the IP part, which is the first element of the array
+				lead.ip = parts?.length > 1 ? parts[1] : parts[0];
+			}
+			return { ...lead };
+		});
+
+		setData(newData || []);
+		setPages(result.data?.totalPages || 0);
+		setTotalLeads(result.data?.totalLeads || 0);
+	};
 
 	const fetchSearchedData = async (term = "", pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
@@ -303,6 +336,7 @@ const Index = () => {
 							displaySearchData || displayAdvSearchData ? searchedData : data
 						}
 						fetchData={fetchData}
+						refetchData={refetchData}
 						displaySearchData={displaySearchData}
 						setDisplaySearchData={setDisplaySearchData}
 						displayAdvSearchData={displayAdvSearchData}

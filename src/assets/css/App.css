@@ -146,35 +146,165 @@ option {
 .CustomFieldName:hover .EditDelete {
 	display: block;
 }
-
+/* Pending */
 .pending {
-	background-color: #fbf4dd !important;
-	color: #a37f08 !important;
-	border: 1px solid #a37f08 !important;
+	background-color: #fff4e5; /* Light peach */
+	color: #d67a00; /* Dark orange */
+	border: 1px solid #d67a00;
 }
 
+/* On Hold */
 .onHold {
-	background-color: #ffeeeb !important;
-	color: #db5436 !important;
-	border: 1px solid #db5436 !important;
+	background-color: #ffebee; /* Light red */
+	color: #e53935; /* Red */
+	border: 1px solid #e53935;
 }
 
+/* Completed */
 .completed {
-	background-color: #eaf9e6 !important;
-	color: #4d8f3a !important;
-	border: 1px solid #4d8f3a !important;
+	background-color: #e8f5e9; /* Light green */
+	color: #43a047; /* Dark green */
+	border: 1px solid #43a047;
 }
 
+/* To Do */
 .toDo {
-	background-color: #ebf5ff !important;
-	color: #1f7eeb !important;
-	border: 1px solid #1f7eeb !important;
+	background-color: #e3f2fd; /* Light blue */
+	color: #1976d2; /* Blue */
+	border: 1px solid #1976d2;
 }
 
+/* In Progress */
 .inProgress {
-	background-color: #eee7fc !important;
-	color: #7038db !important;
-	border: 1px solid #7038db !important;
+	background-color: #ede7f6; /* Light purple */
+	color: #6a1b9a; /* Dark purple */
+	border: 1px solid #6a1b9a;
+}
+
+/* New */
+.new {
+	background-color: #f0f4c3; /* Light lime */
+	color: #7cb342; /* Lime green */
+	border: 1px solid #7cb342;
+}
+
+/* Not Interested */
+.notInterested {
+	background-color: #ffe0b2; /* Light orange */
+	color: #fb8c00; /* Dark orange */
+	border: 1px solid #fb8c00;
+}
+
+/* Waiting */
+.waiting {
+	background-color: #ffecb3; /* Light yellow */
+	color: #f57f17; /* Dark yellow */
+	border: 1px solid #f57f17;
+}
+
+/* Follow Up */
+.followUp {
+	background-color: #b2ebf2; /* Light cyan */
+	color: #0097a7; /* Dark cyan */
+	border: 1px solid #0097a7;
+}
+
+/* Meeting */
+.meeting {
+	background-color: #fffde7; /* Very light yellow */
+	color: #fbc02d; /* Gold */
+	border: 1px solid #fbc02d;
+}
+
+/* Deal */
+.deal {
+	background-color: #e8f5e9; /* Very light green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Junk */
+.junk {
+	background-color: #f8bbd0; /* Light pink */
+	color: #d81b60; /* Dark pink */
+	border: 1px solid #d81b60;
+}
+
+/* WhatsApp Send */
+.whatsappSend {
+	background-color: #d0f4f7; /* Very light teal */
+	color: #009688; /* Teal */
+	border: 1px solid #009688;
+}
+
+/* WhatsApp Rec */
+.whatsappRec {
+	background-color: #b2dfdb; /* Light teal */
+	color: #00796b; /* Dark teal */
+	border: 1px solid #00796b;
+}
+
+/* Deal Out */
+.dealOut {
+	background-color: #e1bee7; /* Light purple */
+	color: #6a1b9a; /* Dark purple */
+	border: 1px solid #6a1b9a;
+}
+
+/* Shift Project */
+.shiftProject {
+	background-color: #f3e5f5; /* Light lavender */
+	color: #8e24aa; /* Dark lavender */
+	border: 1px solid #8e24aa;
+}
+
+/* Wrong Number */
+.wrongNumber {
+	background-color: #fff9c4; /* Light pale yellow */
+	color: #fbc02d; /* Dark yellow */
+	border: 1px solid #fbc02d;
+}
+
+/* Broker */
+.broker {
+	background-color: #e1f5fe; /* Light sky blue */
+	color: #0288d1; /* Dark blue */
+	border: 1px solid #0288d1;
+}
+
+/* Voice Mail */
+.voiceMail {
+	background-color: #f1f8e9; /* Light olive green */
+	color: #689f38; /* Dark olive green */
+	border: 1px solid #689f38;
+}
+
+/* Request */
+.request {
+	background-color: #e3f2fd; /* Very light blue */
+	color: #1976d2; /* Blue */
+	border: 1px solid #1976d2;
+}
+
+/* Will Attend the Show */
+.willAttendTheShow {
+	background-color: #e8f5e9; /* Very light green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Attended the Show */
+.attendedTheShow {
+	background-color: #c8e6c9; /* Light pastel green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Callback */
+.callback {
+	background-color: #e8eaf6; /* Light blue-grey */
+	color: #3f51b5; /* Dark blue */
+	border: 1px solid #3f51b5;
 }
 
 progress {

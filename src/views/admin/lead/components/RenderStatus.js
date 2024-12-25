@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
-const RenderStatus = ({ id, cellValue, setUpdatedStatuses }) => {
-	const [value, setValue] = useState("");
+const RenderStatus = ({ id, cellValue, rowOriginalStatus }) => {
+	const [value, setValue] = useState(cellValue || rowOriginalStatus || "");
 	const [loading, setLoading] = useState(false);
 
 	const setStatusData = async (e) => {
@@ -18,13 +18,7 @@ const RenderStatus = ({ id, cellValue, setUpdatedStatuses }) => {
 			let response = await putApi(`api/lead/changeStatus/${id}`, data);
 			if (response.status === 200) {
 				setValue(data.leadStatus);
-				// setUpdatedStatuses((prev) => [
-				// 	...prev,
-				// 	{
-				// 		id,
-				// 		status: data?.leadStatus || "new",
-				// 	},
-				// ]);
+				// updateRowStatus(id, data.leadStatus); // Update parent data
 				toast.success("Lead Status Updated!");
 			}
 		} catch (e) {
@@ -35,29 +29,61 @@ const RenderStatus = ({ id, cellValue, setUpdatedStatuses }) => {
 		}
 	};
 
+	useEffect(() => {
+		// setValue(cellValue || rowOriginalStatus); // Sync state when props change
+
+		console.log({ cellValue, rowOriginalStatus });
+		if (rowOriginalStatus) {
+			setValue(rowOriginalStatus);
+		} else setValue(cellValue);
+	}, [cellValue, rowOriginalStatus]);
+
 	const changeStatus = (value) => {
 		switch (value) {
 			case "pending":
 				return "pending";
 			case "active":
-				return "completed";
+				return "completed"; // Active as completed
 			case "sold":
-				return "onHold";
-			default:
 				return "completed";
+			case "not_interested":
+				return "notInterested";
+			case "waiting":
+				return "waiting";
+			case "follow_up":
+				return "followUp";
+			case "meeting":
+				return "meeting";
+			case "deal":
+				return "deal";
+			case "junk":
+				return "junk";
+			case "whatsapp_send":
+				return "whatsappSend";
+			case "whatsapp_rec":
+				return "whatsappRec";
+			case "deal_out":
+				return "dealOut";
+			case "shift_project":
+				return "shiftProject";
+			case "wrong_number":
+				return "wrongNumber";
+			case "broker":
+				return "broker";
+			case "voice_mail":
+				return "voiceMail";
+			case "request":
+				return "request";
+			case "will_attend_the_show":
+				return "willAttendTheShow";
+			case "attended_the_show":
+				return "attendedTheShow";
+			case "callback":
+				return "callback";
+			default:
+				return "toDo"; // Default for unhandled statuses
 		}
 	};
-
-	// useEffect(() => {
-	// 	if (value !== cellValue) {
-	// 		console.log("Updating value from cellValue:", cellValue);
-	// 		setValue(cellValue || "new");
-	// 	}
-	// }, [cellValue, value]);
-
-	useEffect(() => {
-		setValue(cellValue || "");
-	}, [cellValue, id]);
 
 	return loading ? (
 		<BoxLoading />
