@@ -25,8 +25,8 @@ const RenderManager = ({
 		const managerAssigned = e.target.value;
 		const dataObj = {
 			managerAssigned: managerAssigned || "",
-			// agentAssigned: managerAssigned ? "" : undefined,
-			agentAssigned: "",
+			agentAssigned: managerAssigned ? "" : undefined,
+			// agentAssigned: "",
 		};
 
 		try {
@@ -88,8 +88,9 @@ const RenderManager = ({
 	) : (
 		<Text textStyle="sm">
 			{selectedManager
-				? `${tree?.managers?.find((m) => m._id === selectedManager)?.firstName
-				} ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
+				? `${
+						tree?.managers?.find((m) => m._id === selectedManager)?.firstName
+				  } ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
 				: "No Manager Assigned"}
 		</Text>
 	);
