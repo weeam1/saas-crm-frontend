@@ -91,6 +91,7 @@ const SignInCentered = React.lazy(() => import("views/auth/signIn"));
 const AdminSetting = React.lazy(() => import("views/admin/adminSetting"));
 const LeadPool = React.lazy(() => import("views/admin/leadpool"));
 const HRModule = React.lazy(() => import("views/admin/hrModule"));
+const Announcement = React.lazy(() => import("views/admin/announcement"));
 const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
 
 const routes = [
@@ -245,6 +246,23 @@ const routes = [
 		path: "/admin-setting",
 		component: AdminSetting,
 	},
+	{
+		name: "Announcement",
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		parentName: "admin",
+		under: "admin",
+		path: "/announcements",
+		component: Announcement,
+	},
+	//  for testing search
+	// {
+	// 	name: "Announcement",
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	parentName: "admin",
+	// 	under: "admin",
+	// 	path: "/search",
+	// 	component: AdSearch,
+	// },
 
 	// // ------------- Communication Integration Routes ------------------------
 	// {

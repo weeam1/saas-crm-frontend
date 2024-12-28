@@ -1,0 +1,25 @@
+.aws_btn {
+	--slider-height-percentage: 60%;
+	--slider-transition-duration: 525ms;
+	--organic-arrow-thickness: 2px; /* Thinner arrows for a sleeker design */
+	--organic-arrow-border-radius: 2px; /* Slightly rounded for a modern look */
+	--organic-arrow-height: 25px; /* Shorter arrows */
+	--organic-arrow-color: #ebd3a6; /* Brand color for the arrows */
+	--control-button-width: 8%; /* Narrower buttons */
+	--control-button-height: 20%; /* Adjust button height */
+	--control-button-background: transparent; /* White background for contrast */
+	--control-bullet-color: #e0d4c3; /* Soft inactive bullets */
+	--control-bullet-active-color: #ebd3a6; /* Brand color for active bullets */
+	--loader-bar-color: #ebd3a6; /* Brand color for the loader bar */
+	--loader-bar-height: 5px; /* Slimmer loader bar */
+	background-color: #ffffff; /* White background for the slider */
+}
+
+/* Optional: Hover effect for arrows */
+.aws_btn .aws-slider__arrow {
+	transition: transform 0.2s ease;
+}
+
+.aws_btn .aws-slider__arrow:hover {
+	transform: scale(1.1); /* Slight enlargement on hover */
+}

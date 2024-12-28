@@ -34,6 +34,7 @@ import Spinner from "components/spinner/Spinner";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchImage } from "../../../redux/imageSlice";
 import { setUser } from "../../../redux/localSlice";
+import webSocketService from "services/WebSocketService";
 
 function SignIn() {
 	// Chakra color mode
@@ -118,31 +119,9 @@ function SignIn() {
 				resetForm();
 				dispatch(setUser(response.data.user));
 
-				// const userId = response.data._id;
-				// console.log(response);
+				const userId = response?.data?.user?._id;
 
-				// // Connect to WebSocket after successful login
-				// socket = new WebSocket(`wss://pystage.weeam.info/ws/${userId}`); // Use the correct user_id in the URL
-
-				// socket.onopen = () => {
-				// 	console.log("WebSocket connection established.");
-				// };
-
-				// socket.onmessage = (event) => {
-				// 	const message = JSON.parse(event.data);
-				// 	// Handle incoming messages here
-				// 	console.log("Message from server:", message);
-				// };
-
-				// socket.onerror = (error) => {
-				// 	console.error("WebSocket error:", error);
-				// 	toast.error("WebSocket connection failed.");
-				// };
-
-				// socket.onclose = (event) => {
-				// 	console.log("WebSocket connection closed:", event);
-				// };
-
+				webSocketService.connect(userId);
 				navigate("/superAdmin");
 			} else {
 				toast.error(response.response.data?.error);

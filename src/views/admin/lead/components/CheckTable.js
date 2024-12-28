@@ -140,11 +140,6 @@ const CheckTable = React.memo((props) => {
 	const [addEmailHistory, setAddEmailHistory] = useState(false);
 	const [addPhoneCall, setAddPhoneCall] = useState(false);
 	const [advaceSearch, setAdvaceSearch] = useState(false);
-	const {
-		isOpen: isSearchOpen,
-		onOpen: onSearchOpen,
-		onClose: onSearchClose,
-	} = useDisclosure();
 	const [searchClear, setSearchClear] = useState(false);
 	const [selectedId, setSelectedId] = useState();
 	const [callSelectedId, setCallSelectedId] = useState();
@@ -178,8 +173,8 @@ const CheckTable = React.memo((props) => {
 	const csvColumns = [
 		{ Header: "Name", accessor: "leadName" },
 		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "Whatsapp #", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone #", accessor: "leadPhoneNumber" },
+		{ Header: "Whatsapp", accessor: "leadWhatsappNumber" },
+		{ Header: "Phone", accessor: "leadPhoneNumber" },
 		{ Header: "Date & Time", accessor: "createdDate" },
 		{ Header: "Timetocall", accessor: "timetocall" },
 	];
@@ -244,6 +239,16 @@ const CheckTable = React.memo((props) => {
 		r_u_in_uae: "",
 		leadLang: "",
 	};
+	// const {
+	// 	control,
+	// 	handleSubmit,
+	// 	setValue,
+	// 	reset,
+	// 	formState: { errors, isDirty },
+	// } = useForm({
+	// 	defaultValues: initialValues,
+	// 	resolver: yupResolver(validationLeadSearchSchema),
+	// });
 
 	const formik = useFormik({
 		initialValues,
@@ -260,8 +265,9 @@ const CheckTable = React.memo((props) => {
 
 						// Special formatting rules for score range
 						if (key === "fromLeadScore" || key === "toLeadScore") {
-							displayValue = `${values.fromLeadScore || 0}-${values.toLeadScore || "max"
-								}`;
+							displayValue = `${values.fromLeadScore || 0}-${
+								values.toLeadScore || "max"
+							}`;
 						}
 
 						// Special formatting for leadStatus
@@ -270,8 +276,8 @@ const CheckTable = React.memo((props) => {
 								value === "active"
 									? "Interested"
 									: value === "pending"
-										? "Not Interested"
-										: value;
+									? "Not Interested"
+									: value;
 						}
 
 						// Handle agentAssigned
@@ -286,8 +292,8 @@ const CheckTable = React.memo((props) => {
 							displayValue = assignedAgent
 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
 								: value === -1
-									? "No Agent"
-									: value;
+								? "No Agent"
+								: value;
 						}
 
 						// Handle managerAssigned
@@ -299,8 +305,8 @@ const CheckTable = React.memo((props) => {
 							displayValue = assignedManager
 								? `${assignedManager.firstName} ${assignedManager.lastName}`
 								: value === -1
-									? "No Manager"
-									: value;
+								? "No Manager"
+								: value;
 						}
 
 						// Add formatted value to tags for UI
@@ -325,176 +331,6 @@ const CheckTable = React.memo((props) => {
 		},
 	});
 
-	// const formik = useFormik({
-	// 	initialValues,
-	// 	validationSchema: validationLeadSearchSchema,
-	// 	onSubmit: (values, { resetForm }) => {
-	// 		// Generate filters and prepare cleaned data
-	// 		const { cleanedData, tags } = Object.entries(values).reduce(
-	// 			(acc, [key, value]) => {
-	// 				if (value !== "" && value !== undefined) {
-	// 					let displayValue = value;
-
-	// 					// Special formatting rules for score and status
-	// 					if (key === "fromLeadScore" || key === "toLeadScore") {
-	// 						displayValue = `${values.fromLeadScore || 0}-${
-	// 							values.toLeadScore || "max"
-	// 						}`;
-	// 					} else if (key === "leadStatus") {
-	// 						displayValue =
-	// 							value === "active"
-	// 								? "Interested"
-	// 								: value === "pending"
-	// 								? "Not Interested"
-	// 								: value;
-	// 					}
-
-	// 					// Handle agent assignment
-	// 					if (key === "agentAssigned") {
-	// 						const agentsArray = Object.values(tree.agents).flatMap(
-	// 							(managerArray) => managerArray
-	// 						);
-	// 						const assignedAgent = agentsArray.find(
-	// 							(agent) => agent?._id?.toString() === value
-	// 						);
-
-	// 						if (assignedAgent) {
-	// 							// Show the full name of the assigned agent
-	// 							displayValue = `${assignedAgent.firstName} ${assignedAgent.lastName}`;
-	// 						} else if (value === -1) {
-	// 							displayValue = "No Agent";
-	// 						}
-	// 					}
-
-	// 					// Handle manager assignment
-	// 					if (key === "managerAssigned") {
-	// 						const assignedManager = tree.managers.find(
-	// 							(user) => user?._id?.toString() === value
-	// 						);
-
-	// 						if (assignedManager) {
-	// 							// Show the full name of the assigned manager
-	// 							displayValue = `${assignedManager.firstName} ${assignedManager.lastName}`;
-	// 						} else if (value === -1) {
-	// 							displayValue = "No Manager";
-	// 						}
-	// 					}
-
-	// 					// Add cleaned data for API and tag for display
-	// 					acc.cleanedData[key] = value;
-	// 					acc.tags.push(`${key}: ${displayValue}`);
-	// 				}
-	// 				return acc;
-	// 			},
-	// 			{ cleanedData: {}, tags: [] }
-	// 		);
-
-	// 		// Debug: log the final data and tags
-	// 		console.log("Cleaned Data for API:", cleanedData);
-	// 		console.log("Tags for display:", tags);
-
-	// 		// Call API with cleaned data
-	// 		fetchAdvancedSearch(tags, 1, pageSize);
-
-	// 		// Update UI
-	// 		setGetTagValues(tags);
-	// 		setAdvaceSearch(false);
-	// 		setSearchClear(true);
-	// 		// resetForm();
-	// 	},
-	// });
-
-	// const validationSchema = yup.object({
-	// 	leadName: yup.string(),
-	// 	leadStatus: yup.string(),
-	// 	eLeadStatus: yup.string(),
-	// 	leadEmail: yup.string().email("Lead Email is invalid"),
-	// 	leadPhoneNumber: yup
-	// 		.number()
-	// 		.typeError("Enter Number")
-	// 		.min(0, "Lead Phone Number is invalid")
-	// 		.max(999999999999, "Lead Phone Number is invalid")
-	// 		.notRequired(),
-	// 	leadAddress: yup.string(),
-	// 	agentAssigned: yup.string(),
-	// 	leadOwner: yup.string(),
-	// 	fromLeadScore: yup.number().min(0, "From Lead Score is invalid"),
-	// });
-
-	// const formik = useFormik({
-	// 	initialValues: initialValues,
-	// 	validationSchema: validationLeadSearchSchema,
-	// 	onSubmit: (values, { resetForm }) => {
-	// 		setIsLoding(true);
-
-	// 		const data = Object.fromEntries(
-	// 			Object.entries(values).filter(([key, value]) => value !== "")
-	// 		);
-	// 		Object.keys(data).forEach((key) => {
-	// 			if (typeof data[key] === "string") {
-	// 				data[key] = data[key].trim();
-	// 				if (key === "leadPhoneNumber") {
-	// 					data[key] = Number(data[key]);
-	// 				}
-	// 			}
-	// 		});
-
-	// 		fetchAdvancedSearch(data, 1, pageSize);
-	// 		setUpdatedPage(0);
-	// 		setGopageValue(1);
-
-	// 		let agent = null;
-	// 		// if (values?.agentAssigned && user?.roles[0]?.roleName === "Manager") {
-	// 		//   agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
-	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
-	// 		//   );
-	// 		// } else if (values?.agentAssigned && values?.managerAssigned) {
-	// 		//   agent = tree["agents"]["manager-" + values.managerAssigned]?.find(
-	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
-	// 		//   );
-	// 		// }
-	// 		if (values?.agentAssigned) {
-	// 			const agentsArray = Object.values(tree.agents).flatMap(
-	// 				(managerArray) => managerArray
-	// 			);
-	// 			agent = agentsArray.find(
-	// 				(agent) => agent?._id?.toString() === values?.agentAssigned
-	// 			);
-	// 		}
-	// 		if (values?.agentAssigned === -1) {
-	// 			agent = { firstName: "No", lastName: " Agent" };
-	// 		}
-	// 		let manager = null;
-	// 		if (values?.managerAssigned) {
-	// 			manager = tree["managers"]?.find(
-	// 				(user) => user?._id?.toString() === values?.managerAssigned
-	// 			);
-	// 		}
-	// 		if (values?.managerAssigned === -1) {
-	// 			manager = { firstName: "No", lastName: "Manager" };
-	// 		}
-	// 		let getValue = [
-	// 			values.leadName,
-	// 			values.leadStatus === "active"
-	// 				? "interested"
-	// 				: values.leadStatus === "pending"
-	// 				? "not-interested"
-	// 				: values.leadStatus,
-	// 			values?.leadEmail,
-	// 			(manager && manager?.firstName + " " + manager?.lastName) || "",
-	// 			(agent && agent?.firstName + " " + agent?.lastName) || "",
-	// 			values?.leadPhoneNumber,
-	// 			values?.leadOwner,
-	// 			(![null, undefined, ""].includes(values?.fromLeadScore) &&
-	// 				`${values.fromLeadScore}-${values.toLeadScore}`) ||
-	// 				undefined,
-	// 		].filter((value) => value);
-	// 		setGetTagValues(getValue);
-	// 		setAdvaceSearch(false);
-	// 		setSearchClear(true);
-	// 		resetForm();
-	// 	},
-	// });
 	const handleClear = () => {
 		searchbox.current.value = "";
 		setDisplaySearchData(false);
@@ -1076,7 +912,7 @@ const CheckTable = React.memo((props) => {
 										<Th
 											{...column.getHeaderProps(
 												column.isSortable !== false &&
-												column.getSortByToggleProps()
+													column.getSortByToggleProps()
 											)}
 											pe="10px"
 											key={index}
@@ -1381,7 +1217,7 @@ const CheckTable = React.memo((props) => {
 															{cell?.value?.text || cell?.value}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Whatsapp #") {
+												} else if (cell?.column.Header === "Whatsapp") {
 													data = (
 														<Text
 															me="10px"
@@ -1392,7 +1228,7 @@ const CheckTable = React.memo((props) => {
 															{cell?.value?.text || cell?.value || "-"}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Phone #") {
+												} else if (cell?.column.Header === "Phone") {
 													data = callAccess?.create ? (
 														<Text
 															me="10px"
@@ -1619,7 +1455,7 @@ const CheckTable = React.memo((props) => {
 																	transform={"translate(1520px, 173px);"}
 																>
 																	{access?.update &&
-																		user?.role === "superAdmin" ? (
+																	user?.role === "superAdmin" ? (
 																		<MenuItem
 																			py={2.5}
 																			onClick={() => {
@@ -1750,7 +1586,7 @@ const CheckTable = React.memo((props) => {
                                     </MenuItem>
                                   )} */}
 																	{access?.delete &&
-																		user?.role == "superAdmin" ? (
+																	user?.role == "superAdmin" ? (
 																		<MenuItem
 																			py={2.5}
 																			color={"red"}
@@ -1784,8 +1620,8 @@ const CheckTable = React.memo((props) => {
 															cell?.column?.Header === "Manager"
 																? { padding: "0 5px 0 0" }
 																: cell?.column?.Header === "Agent"
-																	? { padding: 0 }
-																	: {}
+																? { padding: 0 }
+																: {}
 														}
 														fontSize={{ sm: "14px" }}
 														minW={{ sm: "150px", md: "200px", lg: "auto" }}
@@ -1830,7 +1666,7 @@ const CheckTable = React.memo((props) => {
 
 				<AddTask
 					leadData={taskInits}
-					fetchData={() => { }}
+					fetchData={() => {}}
 					isOpen={isTaskOpen}
 					onClose={onTaskClose}
 				/>

@@ -58,6 +58,8 @@ import { useSelector } from "react-redux";
 const View = ({ param, reFreshData, isInLeadPool }) => {
   const user = JSON.parse(localStorage.getItem("user"));
 
+  console.log('View page')
+
   const textColor = useColorModeValue("gray.500", "white");
 
   const [data, setData] = useState();

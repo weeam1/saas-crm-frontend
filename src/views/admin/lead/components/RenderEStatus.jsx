@@ -52,9 +52,10 @@ const RenderEStatus = ({ id, cellValue }) => {
 				Choose E.Status
 			</option>
 			<option value="interested">Interested</option>
-			<option value="junk">Junk</option>
 			<option value="not-interested">Not interested</option>
+			{/* <option value="deal">Deal</option> */}
 			<option value="qualified">Qualified</option>
+			<option value="junk">Junk</option>
 			<option value="change-agent">Change Agent</option>
 		</Select>
 	);

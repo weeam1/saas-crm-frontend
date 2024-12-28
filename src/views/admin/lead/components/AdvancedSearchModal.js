@@ -43,7 +43,7 @@ const AdvancedSearchModal = ({
 			size="6xl"
 			onClose={() => {
 				setAdvaceSearch(false);
-				// resetForm();
+				resetForm();
 			}}
 			isOpen={advaceSearch}
 			isCentered
