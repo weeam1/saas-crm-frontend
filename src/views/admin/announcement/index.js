@@ -2,20 +2,17 @@ import {
 	Box,
 	Text,
 	Textarea,
-	VStack,
 	Button,
 	useRadioGroup,
 	HStack,
 	Select,
-	Radio,
-	CircularProgress,
 } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { getApi } from "services/api";
 import { toast } from "react-toastify";
 import RadioCard from "./components/RadioCard";
+import keys from "config/keys";
 
 // const Announcements = () => {
 // 	const [message, setMessage] = useState("");
@@ -243,7 +240,7 @@ const Announcements = () => {
 				console.log("ids: ", receiverIds);
 
 				if (receiverIds.length > 0) {
-					await axios.post("https://pystage.weeam.info/announcements", {
+					await axios.post(`${keys.socketUrl}/announcements`, {
 						message,
 						receiver_ids: receiverIds,
 					});
@@ -295,6 +292,7 @@ const Announcements = () => {
 					size="lg"
 					resize="vertical"
 					focusBorderColor="orange.200"
+					backgroundColor="white"
 				/>
 				<Text fontWeight="bold" mb={2}>
 					Send to:

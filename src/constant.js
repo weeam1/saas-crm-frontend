@@ -1,4 +1,4 @@
-import keys from "configs/keys";
+import keys from "config/keys";
 
 export const constant = {
 	baseUrl:

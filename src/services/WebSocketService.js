@@ -1,3 +1,4 @@
+import keys from "config/keys";
 import { addAnnouncement } from "./../redux/announcementsSlice";
 import store from "./../redux/store";
 
@@ -13,7 +14,7 @@ class WebSocketService {
 		}
 
 		if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-			this.socket = new WebSocket(`wss://pystage.weeam.info/ws/${userId}`);
+			this.socket = new WebSocket(`${keys.wssSocketUrl}/ws/${userId}`);
 
 			this.socket.onopen = () => {
 				console.log("WebSocket connection established.");
