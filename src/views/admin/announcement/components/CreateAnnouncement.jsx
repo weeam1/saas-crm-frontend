@@ -17,6 +17,7 @@ import keys from "config/keys";
 import RadioCard from "./RadioCard";
 import { MdSend } from "react-icons/md";
 import MessageSuccessModal from "./MessageSuccessModal";
+import SelectManager from "./SelectManager";
 
 const CreateAnnouncement = () => {
 	const user = JSON.parse(localStorage.getItem("user"));
@@ -57,7 +58,6 @@ const CreateAnnouncement = () => {
 
 				if (selectedRole === "managers") {
 					setManagerList(data.doc || []);
-					newReceiverIds = data.doc.map((manager) => manager._id);
 				} else if (selectedRole === "agents") {
 					// setAgentsList(data.doc || []);
 					newReceiverIds = data.doc || [];
@@ -78,23 +78,38 @@ const CreateAnnouncement = () => {
 	const handleManager = async (e) => {
 		const selectedValue = e.target.value;
 
+		// Reset receiverIds to an empty array before making any updates
+		setReceiverIds([]);
+
+		// If "All Managers" is selected, set receiver IDs to all managers
 		if (selectedValue === "allManagers") {
-			// If "All Managers" is selected, set receiver IDs to all managers
 			const managerReceiverIds = managerList?.map((manager) => manager._id);
-
-			setReceiverIds(managerReceiverIds);
-			setSelectedManager(selectedValue);
+			setReceiverIds(managerReceiverIds); // Set all manager IDs
+			setSelectedManager(selectedValue); // Update the selected manager state
 		} else {
-			setSelectedManager(selectedValue);
+			setSelectedManager(selectedValue); // Set the selected manager
 
-			if (selectedValue) {
+			try {
+				// Fetch the hierarchy data for the selected manager
 				const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
 				const { data } = await getApi(user.role === "superAdmin" && apiUrl);
 
-				if (data.doc.length > 0) {
+				if (data.results > 0) {
+					// If there are results, include the manager's own ID as well
 					const updatedReceiverIds = [...data.doc, selectedValue];
-					console.log({ updatedReceiverIds });
-				} else setReceiverIds(selectedValue);
+					console.log({ managersAgents: updatedReceiverIds });
+
+					setReceiverIds(updatedReceiverIds); // Update the state with new receiver IDs
+				} else {
+					// If no results, clear the receiver IDs (or just select the manager)
+					setReceiverIds([selectedValue]);
+					console.log({ single: [selectedValue] });
+				}
+			} catch (error) {
+				// Handle any errors that occur during the API call
+				console.error("Error fetching manager hierarchy:", error);
+				// Optionally, reset or update state in case of an error
+				setReceiverIds([]);
 			}
 		}
 	};
@@ -106,7 +121,10 @@ const CreateAnnouncement = () => {
 				setLoading(true);
 				setRes(null);
 
-				if (receiverIds.length > 0) {
+				if (
+					receiverIds.length > 0 ||
+					(selectedManager && selectedRole === "managers")
+				) {
 					const { data } = await axios.post(`${keys.socketUrl}/announcements`, {
 						message,
 						receiver_ids: receiverIds,
@@ -119,7 +137,6 @@ const CreateAnnouncement = () => {
 				}
 
 				// toast.success("Announcement sent successfully.");
-				setLoading(false);
 				setMessage(""); // Clear the input field after sending
 				setSelectedRole(""); // Reset checkboxes
 				setSelectedManager(null); // Clear specific manager selection
@@ -127,6 +144,8 @@ const CreateAnnouncement = () => {
 			} catch (err) {
 				console.log(err);
 				toast.error("Failed to send announcement.");
+			} finally {
+				setLoading(false);
 			}
 		} else {
 			toast.error("Please fill in the message and select at least one role.");
@@ -160,17 +179,23 @@ const CreateAnnouncement = () => {
 					placeholder="Type your announcement message..."
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
-					mb={4}
+					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
 					size="lg"
 					height="36"
 					resize="vertical"
 					focusBorderColor="orange.200"
 					backgroundColor="gray.100"
 				/>
-				<Text fontWeight="bold" mb={2}>
+				<Text fontWeight="bold" mb={{ base: 1, md: 2 }}>
 					Send to:
 				</Text>
-				<HStack {...group} spacing={4} mb={4}>
+				<HStack
+					{...group}
+					spacing={{ base: 2, md: 4 }} // Adjust spacing for different screen sizes
+					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
+					wrap="wrap" // Allow items to wrap on smaller screens
+					gap="2"
+				>
 					{options.map((value) => {
 						const radio = getRadioProps({ value });
 						return (
@@ -179,27 +204,18 @@ const CreateAnnouncement = () => {
 							</RadioCard>
 						);
 					})}
-					{selectedRole === "managers" && (
-						<Select
-							placeholder="Select a Manager"
-							onChange={handleManager}
-							mb={4}
-						>
-							<option value="allManagers">All Managers</option>
-							{managerList.map((manager) => (
-								<option color="black" key={manager._id} value={manager._id}>
-									{manager.name}
-								</option>
-							))}
-						</Select>
-					)}
+					<SelectManager
+						selectedRole={selectedRole}
+						managerList={managerList}
+						handleManager={handleManager}
+					/>
 				</HStack>
 
 				<Button
 					colorScheme="brand"
 					color="white"
-					w="auto"
-					px={4}
+					w={{ base: "full", md: "auto" }} // Full width on smaller screens
+					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
 					type="submit"
 					isDisabled={
 						!message.trim() ||

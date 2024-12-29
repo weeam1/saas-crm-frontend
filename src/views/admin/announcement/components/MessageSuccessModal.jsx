@@ -39,10 +39,12 @@ const MessageSuccessModal = ({ isOpen, onClose, messageResponse }) => {
 					<Text>
 						The announcement message has been successfully sent to all users.
 					</Text>
-					<Text>
-						Note: {disconnectedUsers} users may be offline and will receive the
-						message when they reconnect.
-					</Text>
+					{disconnectedUsers > 0 && (
+						<Text>
+							Note: {disconnectedUsers} users may be offline and will receive
+							the message when they reconnect.
+						</Text>
+					)}
 				</ModalBody>
 				<ModalFooter>
 					<Button colorScheme="green" width="100px" onClick={onClose}>
