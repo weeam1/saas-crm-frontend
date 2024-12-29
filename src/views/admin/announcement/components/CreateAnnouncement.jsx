@@ -82,9 +82,8 @@ const CreateAnnouncement = () => {
 			// If "All Managers" is selected, set receiver IDs to all managers
 			const managerReceiverIds = managerList?.map((manager) => manager._id);
 
-			console.log({ managerReceiverIds });
 			setReceiverIds(managerReceiverIds);
-			setSelectedManager(null); // Clear specific manager selection
+			setSelectedManager(selectedValue);
 		} else {
 			setSelectedManager(selectedValue);
 
@@ -202,7 +201,11 @@ const CreateAnnouncement = () => {
 					w="auto"
 					px={4}
 					type="submit"
-					isDisabled={!message.trim() || !selectedRole}
+					isDisabled={
+						!message.trim() ||
+						!selectedRole ||
+						(selectedRole === "managers" && !selectedManager)
+					}
 					leftIcon={<Icon as={MdSend} />}
 				>
 					{loading ? "Sending..." : "Send"}

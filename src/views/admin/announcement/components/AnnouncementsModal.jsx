@@ -9,6 +9,7 @@ import {
 	Image,
 	Text,
 	CircularProgress,
+	Box,
 } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearAnnouncement } from "./../../../../redux/announcementsSlice";
@@ -32,7 +33,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const handleAcknowledge = () => {
 		if (announcements.length > 0) {
 			setLoading(true);
-			console.log("loading");
 			dispatch(clearAnnouncement(currentIndex)); // Clear the current announcement
 			setLoading(false);
 			if (currentIndex >= announcements.length - 1) {
@@ -47,30 +47,44 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 		<CircularProgress size="10" isIndeterminate />
 	) : (
 		announcements.length > 0 && (
-			<Modal isOpen={isOpen} onClose={onClose} size="lg">
+			<Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
 				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader display="flex" alignItems="center">
-						<Image src={logo} alt="Logo" boxSize="60px" />
-						<Text fontSize="xl" fontWeight="bold" ml={4}>
-							Announcement
-							<>
-								{announcements.length > 1 && (
-									<span
-										style={{
-											color: "#111",
-											padding: "0 5px",
-											fontWeight: "400",
-										}}
-									>
-										({announcements.length})
-									</span>
-								)}
-							</>
-						</Text>
+				<ModalContent
+					borderRadius="lg"
+					boxShadow="2xl"
+					maxWidth="900px"
+					w="95%"
+					textAlign="center"
+					p={4}
+				>
+					{/* Header Section */}
+					<ModalHeader
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+						textAlign="center"
+						px={6}
+						py={4}
+					>
+						<Box
+							display="flex"
+							flexDirection="column"
+							alignItems="center"
+							justifyContent="center"
+							textAlign="center"
+							gap="2"
+						>
+							<Image src={logo} alt="Logo" boxSize="70px" />
+							<Text fontSize="2xl" fontWeight="bold" ml={4}>
+								Important Announcement
+							</Text>
+						</Box>
 					</ModalHeader>
+
 					<ModalCloseButton />
-					<ModalBody>
+
+					{/* Body Section */}
+					<ModalBody px={6} py={4}>
 						<AnnouncementSlider
 							announcements={announcements}
 							onAcknowledge={handleAcknowledge}
