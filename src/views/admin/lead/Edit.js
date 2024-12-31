@@ -75,7 +75,7 @@ const Edit = (props) => {
 		createBy: JSON.parse(localStorage.getItem("user"))._id,
 	});
 	const param = useParams();
-	console.log("fields of form edit ");
+	console.log("fields of form edit ", props);
 	const formik = useFormik({
 		initialValues: initialValues,
 		enableReinitialize: true,

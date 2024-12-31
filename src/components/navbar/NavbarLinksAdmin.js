@@ -69,8 +69,6 @@ export default function HeaderLinks(props) {
 		localStorage.clear();
 		sessionStorage.clear();
 
-		console.log("Logout");
-
 		// disconnect the web sockets
 		webSocketService.disconnect();
 
@@ -308,7 +306,8 @@ export default function HeaderLinks(props) {
 						</MenuItem>
 
 						{/* Annouoncements allow for admin and managers */}
-						{["superAdmin", "manager"].includes(loginUser?.role) && (
+						{(loginUser?.role === "superAdmin" ||
+							loginUser?.roles?.[0]?.roleName === "Manager") && (
 							<MenuItem
 								_hover={{ bg: "none" }}
 								_focus={{ bg: "none" }}

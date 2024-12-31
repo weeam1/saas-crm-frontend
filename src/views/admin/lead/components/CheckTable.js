@@ -19,7 +19,6 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
-	Select,
 	Table,
 	Tag,
 	TagLabel,
@@ -33,7 +32,7 @@ import {
 	useColorModeValue,
 	useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
 	useGlobalFilter,
 	usePagination,
@@ -49,19 +48,11 @@ import {
 	EmailIcon,
 	PhoneIcon,
 	SearchIcon,
-	ViewIcon,
 } from "@chakra-ui/icons";
 import Card from "components/card/Card";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "components/pagination/Pagination";
 import Spinner from "components/spinner/Spinner";
-import {
-	FaHistory,
-	FaLessThan,
-	FaSort,
-	FaSortDown,
-	FaSortUp,
-} from "react-icons/fa";
+import { FaHistory, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getApi } from "services/api";
@@ -72,7 +63,6 @@ import Add from "../Add";
 import { AddIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import Edit from "../Edit";
-import { useFormik } from "formik";
 import { BsColumnsGap, BsWhatsapp } from "react-icons/bs";
 import ImportModal from "./ImportModal";
 import CustomSearchInput from "components/search/search";
@@ -87,7 +77,6 @@ import AdvancedSearchModal from "./AdvancedSearchModal";
 // import SizeExample from "./Dummy";
 import { useStateContext } from "contexts/store";
 import RenderEStatus from "./RenderEStatus";
-import { validationLeadSearchSchema } from "schema/leadSchema";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -130,7 +119,6 @@ const CheckTable = React.memo((props) => {
 	const [gopageValue, setGopageValue] = useState(1);
 
 	const user = JSON.parse(localStorage.getItem("user"));
-	const tree = useSelector((state) => state.user.tree);
 
 	const [leadsModal, setLeadsModal] = useState({
 		isOpen: false,
@@ -164,11 +152,14 @@ const CheckTable = React.memo((props) => {
 	const [isImportLead, setIsImportLead] = useState(false);
 	const searchbox = useRef();
 	const [column, setColumn] = useState("");
-	const [updatedStatuses, setUpdatedStatuses] = useState([]);
+	// const [updatedStatuses, setUpdatedStatuses] = useState([]);
 	const [manageColumns, setManageColumns] = useState(false);
 	const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn); // State to track changes
 	const [taskInits, setTaskInits] = useState({});
 	const { isLeadCycle, setIsLeadCycle } = useStateContext();
+
+	const [formValues, setFormValues] = useState([]);
+	const [isFormReset, setIsFormReset] = useState(false);
 
 	const csvColumns = [
 		{ Header: "Name", accessor: "leadName" },
@@ -212,7 +203,7 @@ const CheckTable = React.memo((props) => {
 			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(values).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== "")
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -220,25 +211,106 @@ const CheckTable = React.memo((props) => {
 		}
 	};
 
-	const initialValues = {
-		leadName: "",
-		leadStatus: "",
-		eLeadStatus: "",
-		leadEmail: "",
-		leadPhoneNumber: "",
-		managerAssigned: "",
-		agentAssigned: "",
-		leadWhatsappNumber: "",
-		nationality: "",
-		ip: "",
-		leadAddress: "",
-		leadCampaign: "",
-		leadSourceDetails: "",
-		leadSourceMedium: "",
-		pageUrl: "",
-		r_u_in_uae: "",
-		leadLang: "",
-	};
+	// const initialValues = {
+	// 	leadName: "",
+	// 	leadStatus: "",
+	// 	eLeadStatus: "",
+	// 	leadEmail: "",
+	// 	leadPhoneNumber: "",
+	// 	managerAssigned: "",
+	// 	agentAssigned: "",
+	// 	leadWhatsappNumber: "",
+	// 	nationality: "",
+	// 	ip: "",
+	// 	leadAddress: "",
+	// 	leadCampaign: "",
+	// 	leadSourceDetails: "",
+	// 	leadSourceMedium: "",
+	// 	pageUrl: "",
+	// 	r_u_in_uae: "",
+	// 	leadLang: "",
+	// };
+
+	// 	const formik = useFormik({
+	// 		initialValues,
+	// 		validationSchema: validationLeadSearchSchema,
+	// 		onSubmit: (values, { formikResetForm }) => {
+	// 			// Initialize cleanedData and tags
+	// 			const { cleanedData, tags } = Object.entries(values).reduce(
+	// 				(acc, [key, value]) => {
+	// 					if (value !== "" && value !== undefined) {
+	// 						// Add raw value to cleanedData for API
+	// 						acc.cleanedData[key] = value;
+
+	// 						let displayValue = value;
+
+	// 						// Special formatting rules for score range
+	// 						if (key === "fromLeadScore" || key === "toLeadScore") {
+	// 							displayValue = `${values.fromLeadScore || 0}-${
+	// 								values.toLeadScore || "max"
+	// 							}`;
+	// 						}
+
+	// 						// Special formatting for leadStatus
+	// 						if (key === "leadStatus") {
+	// 							displayValue =
+	// 								value === "active"
+	// 									? "Interested"
+	// 									: value === "pending"
+	// 										? "Not Interested"
+	// 										: value;
+	// 						}
+
+	// 						// Handle agentAssigned
+	// 						if (key === "agentAssigned") {
+	// 							const agentsArray = Object.values(tree.agents).flatMap(
+	// 								(managerArray) => managerArray
+	// 							);
+	// 							const assignedAgent = agentsArray.find(
+	// 								(agent) => agent?._id?.toString() === value
+	// 							);
+
+	// 							displayValue = assignedAgent
+	// 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+	// 								: value === -1
+	// 									? "No Agent"
+	// 									: value;
+	// 						}
+
+	// 						// Handle managerAssigned
+	// 						if (key === "managerAssigned") {
+	// 							const assignedManager = tree.managers.find(
+	// 								(user) => user?._id?.toString() === value
+	// 							);
+
+	// 							displayValue = assignedManager
+	// 								? `${assignedManager.firstName} ${assignedManager.lastName}`
+	// 								: value === -1
+	// 									? "No Manager"
+	// 									: value;
+	// 						}
+
+	// 						// Add formatted value to tags for UI
+	// 						acc.tags.push(`${key}: ${displayValue}`);
+	// 					}
+
+	// 					return acc;
+	// 				},
+	// 				{ cleanedData: {}, tags: [] }
+	// 			);
+
+	// 			// Call API with cleaned data
+	// 			fetchAdvancedSearch(cleanedData, 1, pageSize);
+
+	// 			// Update UI with tags
+	// 			setGetTagValues(tags);
+	// 			setAdvaceSearch(false);
+	// 			setSearchClear(true);
+
+	// 			// Reset form values
+	// 			// resetForm();
+	// 		},
+	// 	});
 	// const {
 	// 	control,
 	// 	handleSubmit,
@@ -250,89 +322,9 @@ const CheckTable = React.memo((props) => {
 	// 	resolver: yupResolver(validationLeadSearchSchema),
 	// });
 
-	const formik = useFormik({
-		initialValues,
-		validationSchema: validationLeadSearchSchema,
-		onSubmit: (values, { resetForm }) => {
-			// Initialize cleanedData and tags
-			const { cleanedData, tags } = Object.entries(values).reduce(
-				(acc, [key, value]) => {
-					if (value !== "" && value !== undefined) {
-						// Add raw value to cleanedData for API
-						acc.cleanedData[key] = value;
-
-						let displayValue = value;
-
-						// Special formatting rules for score range
-						if (key === "fromLeadScore" || key === "toLeadScore") {
-							displayValue = `${values.fromLeadScore || 0}-${
-								values.toLeadScore || "max"
-							}`;
-						}
-
-						// Special formatting for leadStatus
-						if (key === "leadStatus") {
-							displayValue =
-								value === "active"
-									? "Interested"
-									: value === "pending"
-									? "Not Interested"
-									: value;
-						}
-
-						// Handle agentAssigned
-						if (key === "agentAssigned") {
-							const agentsArray = Object.values(tree.agents).flatMap(
-								(managerArray) => managerArray
-							);
-							const assignedAgent = agentsArray.find(
-								(agent) => agent?._id?.toString() === value
-							);
-
-							displayValue = assignedAgent
-								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
-								: value === -1
-								? "No Agent"
-								: value;
-						}
-
-						// Handle managerAssigned
-						if (key === "managerAssigned") {
-							const assignedManager = tree.managers.find(
-								(user) => user?._id?.toString() === value
-							);
-
-							displayValue = assignedManager
-								? `${assignedManager.firstName} ${assignedManager.lastName}`
-								: value === -1
-								? "No Manager"
-								: value;
-						}
-
-						// Add formatted value to tags for UI
-						acc.tags.push(`${key}: ${displayValue}`);
-					}
-
-					return acc;
-				},
-				{ cleanedData: {}, tags: [] }
-			);
-
-			// Call API with cleaned data
-			fetchAdvancedSearch(cleanedData, 1, pageSize);
-
-			// Update UI with tags
-			setGetTagValues(tags);
-			setAdvaceSearch(false);
-			setSearchClear(true);
-
-			// Reset form values
-			// resetForm();
-		},
-	});
-
 	const handleClear = () => {
-		searchbox.current.value = "";
+		// Clear parent states
+		if (searchbox.current) searchbox.current.value = "";
 		setDisplaySearchData(false);
 		setDisplayAdvSearchData(false);
 		setSearchedData([]);
@@ -340,21 +332,20 @@ const CheckTable = React.memo((props) => {
 		fetchData(1, pageSize);
 		setGopageValue(1);
 		setUpdatedPage(0);
-		resetForm();
 		setGetTagValues([]);
+		setIsFormReset(true);
 	};
 
-	const {
-		errors,
-		touched,
-		values,
-		handleBlur,
-		handleChange,
-		handleSubmit,
-		setFieldValue,
-		resetForm,
-		dirty,
-	} = formik;
+	// const {
+	// 	errors,
+	// 	touched,
+	// 	values,
+	// 	handleBlur,
+	// 	handleChange,
+	// 	handleSubmit,
+	// 	resetForm: formikResetForm,
+	// 	dirty,
+	// } = formik;
 
 	const hiddenFields =
 		JSON.parse(localStorage.getItem("hiddenCols") || "[]") || [];
@@ -557,7 +548,7 @@ const CheckTable = React.memo((props) => {
 			);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(values).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== "")
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -572,7 +563,7 @@ const CheckTable = React.memo((props) => {
 			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(values).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== "")
 			);
 			fetchAdvancedSearch(data, 1, pageSize);
 		} else if (pageSize !== 30) {
@@ -588,14 +579,10 @@ const CheckTable = React.memo((props) => {
 					row._id === id ? { ...row, leadStatus: "" } : row
 				);
 
-				console.log("After adv Resetting leadStatus:", resetData);
-
 				// Then, update the leadStatus to the new value
 				const updatedData = resetData.map((row) =>
 					row._id === id ? { ...row, leadStatus: newStatus } : row
 				);
-
-				console.log("After adv Updating leadStatus:", updatedData);
 
 				// Return the updated data array
 				return [...updatedData];
@@ -607,14 +594,10 @@ const CheckTable = React.memo((props) => {
 					row._id === id ? { ...row, leadStatus: "" } : row
 				);
 
-				console.log("After Resetting leadStatus:", resetData);
-
 				// Then, update the leadStatus to the new value
 				const updatedData = resetData.map((row) =>
 					row._id === id ? { ...row, leadStatus: newStatus } : row
 				);
-
-				console.log("After Updating leadStatus:", updatedData);
 
 				// Return the updated data array
 				return [...updatedData];
@@ -876,7 +859,7 @@ const CheckTable = React.memo((props) => {
 					</HStack>
 				</Grid>
 
-				<Box overflowY={"auto"} className="table-fix-container">
+				<Box overflowY={"auto"} w="100%" className="table-fix-container">
 					<Table
 						{...getTableProps()}
 						color="black"
@@ -1123,7 +1106,18 @@ const CheckTable = React.memo((props) => {
 							))}
 						</Thead> */}
 
-						<Tbody {...getTableBodyProps()}>
+						<Tbody
+							{...getTableBodyProps()}
+							mb="24px"
+							sx={{
+								"& tbody tr:hover": {
+									backgroundColor: "white",
+									boxShadow: "sm",
+									transition:
+										"background-color 0.2s ease, box-shadow 0.2s ease",
+								},
+							}}
+						>
 							{isLoding ? (
 								<Tr>
 									<Td colSpan={columns?.length}>
@@ -1620,8 +1614,8 @@ const CheckTable = React.memo((props) => {
 															cell?.column?.Header === "Manager"
 																? { padding: "0 5px 0 0" }
 																: cell?.column?.Header === "Agent"
-																? { padding: 0 }
-																: {}
+																	? { padding: 0 }
+																	: {}
 														}
 														fontSize={{ sm: "14px" }}
 														minW={{ sm: "150px", md: "200px", lg: "auto" }}
@@ -1692,17 +1686,20 @@ const CheckTable = React.memo((props) => {
 						action={action}
 					/>
 				)}
-				<Edit
-					isOpen={edit}
-					size={size}
-					setLeadData={setLeadData}
-					leadData={leadData[0]}
-					selectedId={selectedId}
-					setSelectedId={setSelectedId}
-					onClose={setEdit}
-					setAction={setAction}
-					moduleId={leadData?.[0]?._id}
-				/>
+				{selectedId && (
+					<Edit
+						isOpen={edit}
+						size={size}
+						setLeadData={setLeadData}
+						leadData={leadData[0]}
+						selectedId={selectedId}
+						setSelectedId={setSelectedId}
+						onClose={setEdit}
+						setAction={setAction}
+						moduleId={leadData?.[0]?._id}
+					/>
+				)}
+
 				<ImportModal
 					text="Lead file"
 					fetchData={fetchData}
@@ -1711,7 +1708,7 @@ const CheckTable = React.memo((props) => {
 				/>
 			</Card>
 			{/* Advance filter */}
-			<AdvancedSearchModal
+			{/* <AdvancedSearch
 				advaceSearch={advaceSearch}
 				dirty={dirty}
 				errors={errors}
@@ -1719,11 +1716,32 @@ const CheckTable = React.memo((props) => {
 				handleChange={handleChange}
 				handleSubmit={handleSubmit}
 				isLoding={isLoding}
-				resetForm={resetForm}
+				resetForm={formikResetForm}
 				handleClear={handleClear}
 				setAdvaceSearch={setAdvaceSearch}
 				touched={touched}
 				values={values}
+			/> */}
+			<AdvancedSearchModal
+				advaceSearch={advaceSearch}
+				setFormValues={setFormValues}
+				fetchAdvancedSearch={fetchAdvancedSearch}
+				setGetTagValues={setGetTagValues}
+				setSearchClear={setSearchClear}
+				isLoding={isLoding}
+				handleClear={handleClear}
+				setAdvaceSearch={setAdvaceSearch}
+				isFormReset={isFormReset}
+				setIsFormReset={setIsFormReset}
+				// touched={touched}
+				// values={values}
+				// sendResetFunction={setResetFormFunction}
+				// dirty={dirty}
+				// errors={errors}
+				// handleBlur={handleBlur}
+				// handleChange={handleChange}
+				// handleSubmit={handleSubmit}
+				// resetForm={formikResetForm}
 			/>
 
 			<Modal
@@ -1781,7 +1799,7 @@ const CheckTable = React.memo((props) => {
 									)
 								);
 								setManageColumns(false);
-								resetForm();
+								// formikResetForm();
 							}}
 							disabled={isLoding ? true : false}
 						>
