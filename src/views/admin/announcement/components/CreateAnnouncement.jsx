@@ -102,7 +102,6 @@ const CreateAnnouncement = () => {
 					: [...managerAgentsList, selectedValue];
 
 				setReceiverIds(updatedReceiverIds);
-				console.log({ receiverIds }); // Update the state with new receiver IDs
 				setSelectedRole("Team");
 			} else {
 				// If no results, clear the receiver IDs (or just select the manager)
@@ -144,7 +143,6 @@ const CreateAnnouncement = () => {
 			}
 
 			setReceiverIds(newReceiverIds); // Update state with new receiver IDs
-			console.log({ newReceiverIds });
 		} catch (error) {
 			console.error("Failed to handle role change:", error);
 			toast.error("An error occurred while processing the role change.");
@@ -182,8 +180,6 @@ const CreateAnnouncement = () => {
 						user_id: user._id,
 						type: selectedRole,
 					};
-
-					console.log(announcementData);
 
 					const { data } = await axios.post(
 						`${keys.socketUrl}/announcements`,

@@ -26,8 +26,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [loading, setLoading] = useState(false);
 
-	console.log({ announcements });
-
 	// Close modal automatically if there are no announcements
 	useEffect(() => {
 		if (announcements.length === 0) {
@@ -36,8 +34,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	}, [announcements, onClose]);
 
 	const handleAcknowledge = (id) => {
-		console.log({ id });
-		console.log("lsdjflkd");
 		if (announcements.length > 0) {
 			setLoading(true);
 			dispatch(clearAnnouncement(id)); // Clear the current announcement

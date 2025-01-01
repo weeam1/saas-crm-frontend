@@ -9,8 +9,6 @@ const AnnouncementSlider = ({
 	const [announcements, setAnnouncements] = useState(initialAnnouncements);
 	const [currentIndex, setCurrentIndex] = useState(0);
 
-	console.log(initialAnnouncements);
-
 	useEffect(() => {
 		if (initialAnnouncements) {
 			setAnnouncements(initialAnnouncements);
