@@ -45,7 +45,7 @@ const AdvancedSearchModal = ({
 	const tree = useSelector((state) => state.user.tree);
 
 	const formClearHanlder = () => {
-		handleClear();
+		// handleClear();
 		formikResetForm();
 	};
 
@@ -174,27 +174,27 @@ const AdvancedSearchModal = ({
 	}, [isFormReset, formikResetForm, setIsFormReset]);
 
 	return (
-		<Modal
-			size="5xl"
-			onClose={() => {
-				setAdvaceSearch(false);
-				// formikResetForm();
-			}}
-			isOpen={advaceSearch}
-			isCentered
-			motionPreset="slideInBottom"
-		>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Advance Search</ModalHeader>
-				<ModalCloseButton
-					onClick={() => {
-						setAdvaceSearch(false);
-						formikResetForm();
-					}}
-				/>
-				<ModalBody>
-					<React.Suspense fallback={<Spinner />}>
+		<React.Suspense fallback={<Spinner />}>
+			<Modal
+				size="5xl"
+				onClose={() => {
+					setAdvaceSearch(false);
+					// formikResetForm();
+				}}
+				isOpen={advaceSearch}
+				isCentered
+				motionPreset="slideInBottom"
+			>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader>Advance Search</ModalHeader>
+					<ModalCloseButton
+						onClick={() => {
+							setAdvaceSearch(false);
+							formikResetForm();
+						}}
+					/>
+					<ModalBody>
 						<LazyAdvancedSearchForm
 							values={values}
 							errors={errors}
@@ -204,29 +204,29 @@ const AdvancedSearchModal = ({
 							user={user}
 							tree={tree}
 						/>
-					</React.Suspense>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						colorScheme="brand"
-						size="sm"
-						mr={2}
-						onClick={handleSubmit}
-						disabled={isLoding || !dirty ? true : false}
-					>
-						{isLoding ? <Spinner /> : "Search"}
-					</Button>
-					<Button
-						colorScheme="red"
-						variant="outline"
-						size="sm"
-						onClick={formClearHanlder}
-					>
-						Clear
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							colorScheme="brand"
+							size="sm"
+							mr={2}
+							onClick={handleSubmit}
+							disabled={isLoding || !dirty ? true : false}
+						>
+							{isLoding ? <Spinner /> : "Search"}
+						</Button>
+						<Button
+							colorScheme="red"
+							variant="outline"
+							size="sm"
+							onClick={formClearHanlder}
+						>
+							Clear
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</React.Suspense>
 	);
 };
 export default AdvancedSearchModal;

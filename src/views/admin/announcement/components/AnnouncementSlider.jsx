@@ -1,73 +1,21 @@
-import "./Announcement.css"; // Import custom CSS for styling
+import { useEffect, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
-import AwesomeSlider from "react-awesome-slider";
-import withAutoplay from "react-awesome-slider/dist/autoplay";
-import "react-awesome-slider/dist/styles.css";
-import style from "./Slider.module.css";
-import {
-	Box,
-	Button,
-	Text,
-	Flex,
-	IconButton,
-	useDisclosure,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@chakra-ui/icons";
-
-const AutoplaySlider = withAutoplay(AwesomeSlider);
-
-// const AnnouncementSlider = ({ announcements, onAcknowledge }) => {
-// 	// Render slider with effects only if announcements.length > 1
-// 	if (announcements.length > 1) {
-// 		return (
-// 			<AutoplaySlider
-// 				play={true}
-// 				cancelOnInteraction={false}
-// 				interval={6000}
-// 				className={`${style.aws_btn} slider-container`}
-// 			>
-// 				{announcements.map((announcement, index) => (
-// 					<div key={index} className="glass-container">
-// 						<Box className="glass-box">
-// 							<Text className="announcement-message">
-// 								{announcement.message}
-// 							</Text>
-// 						</Box>
-// 						<Button
-// 							className="acknowledge-button"
-// 							colorScheme="brand"
-// 							onClick={() => onAcknowledge(index)}
-// 						>
-// 							Acknowledge
-// 						</Button>
-// 					</div>
-// 				))}
-// 			</AutoplaySlider>
-// 		);
-// 	}
-
-// 	// Render a single static slide without effects if only one announcement
-// 	return (
-// 		<Box className="glass-container">
-// 			<Box className="glass-box">
-// 				<Text className="announcement-message">
-// 					{announcements[0]?.message}
-// 				</Text>
-// 			</Box>
-// 			<Button
-// 				className="acknowledge-button"
-// 				colorScheme="brand"
-// 				onClick={onAcknowledge}
-// 			>
-// 				Acknowledge
-// 			</Button>
-// 		</Box>
-// 	);
-// };
-
-const AnnouncementSlider = ({ announcements, onAcknowledge }) => {
+import { Box, Flex, Text, IconButton, Button } from "@chakra-ui/react";
+const AnnouncementSlider = ({
+	announcements: initialAnnouncements,
+	onAcknowledge,
+}) => {
+	const [announcements, setAnnouncements] = useState(initialAnnouncements);
 	const [currentIndex, setCurrentIndex] = useState(0);
+
+	console.log(initialAnnouncements);
+
+	useEffect(() => {
+		if (initialAnnouncements) {
+			setAnnouncements(initialAnnouncements);
+		}
+	}, [initialAnnouncements]);
 
 	const handleNext = () => {
 		setCurrentIndex((prev) => (prev + 1) % announcements.length);
@@ -79,51 +27,119 @@ const AnnouncementSlider = ({ announcements, onAcknowledge }) => {
 		);
 	};
 
+	const handleAcknowledge = () => {
+		const currentId = announcements[currentIndex]?.id;
+		if (currentId) {
+			onAcknowledge(currentId);
+			const updatedAnnouncements = announcements.filter(
+				(announcement) => announcement.id !== currentId
+			);
+
+			// Update announcements and manage currentIndex
+			setAnnouncements(updatedAnnouncements);
+			if (updatedAnnouncements.length === 0) {
+				setCurrentIndex(0); // Reset index if no announcements remain
+			} else if (currentIndex >= updatedAnnouncements.length) {
+				setCurrentIndex(updatedAnnouncements.length - 1); // Adjust index if out of bounds
+			}
+		}
+	};
+
 	return (
-		<Box textAlign="center" position="relative">
+		<Box
+			position="relative"
+			textAlign="center"
+			p={6}
+			bg="white"
+			borderRadius="md"
+			maxW="lg"
+			mx="auto"
+		>
 			{/* Announcement Content */}
-			<Box>
-				<Text fontSize="md" mb={4}>
+			{announcements.length > 0 ? (
+				<Text fontSize="lg" fontWeight="medium" mb={6} color="gray.800" mt={4}>
 					{announcements[currentIndex]?.message}
 				</Text>
-			</Box>
+			) : (
+				<Text fontSize="lg" fontWeight="medium" mb={6} color="gray.500" mt={4}>
+					No announcements to display.
+				</Text>
+			)}
 
 			{/* Navigation Buttons */}
 			{announcements.length > 1 && (
-				<Flex justify="space-between" align="center" mt={4}>
+				<Flex justify="space-between" align="center" position="relative">
+					{/* Previous Button */}
 					<IconButton
 						icon={<ChevronLeftIcon />}
 						onClick={handlePrev}
 						aria-label="Previous"
-						variant="outline"
+						position="absolute"
+						left="-50px"
+						top="50%"
+						transform="translateY(-50%)"
+						size="lg"
+						variant="ghost"
 						colorScheme="brand"
+						borderRadius="full"
+						transition="all 0.3s ease"
+						_hover={{
+							bg: "brand.500",
+							color: "white",
+							transform: "translate(-10px, -50%)",
+						}}
 					/>
-					<Text fontSize="sm">
-						{currentIndex + 1} / {announcements.length}
-					</Text>
+
+					{/* Next Button */}
 					<IconButton
 						icon={<ChevronRightIcon />}
 						onClick={handleNext}
 						aria-label="Next"
-						variant="outline"
+						position="absolute"
+						right="-50px"
+						top="50%"
+						transform="translateY(-50%)"
+						size="lg"
+						variant="ghost"
 						colorScheme="brand"
+						borderRadius="full"
+						transition="all 0.3s ease"
+						_hover={{
+							bg: "brand.500",
+							color: "white",
+							transform: "translate(10px, -50%)",
+						}}
 					/>
 				</Flex>
 			)}
 
 			{/* Acknowledge Button */}
-			<Button
-				mt={4}
-				w="auto"
-				py="4"
-				px="8"
-				colorScheme="brand"
-				onClick={() => {
-					onAcknowledge(currentIndex);
-				}}
-			>
-				Acknowledge
-			</Button>
+			{announcements.length > 0 && (
+				<Button
+					mt={6}
+					py={4}
+					mb={4}
+					px={8}
+					colorScheme="brand"
+					borderRadius="full"
+					fontWeight="medium"
+					transition="all 0.3s ease"
+					_hover={{
+						bg: "brand.600",
+						transform: "scale(1.05)",
+					}}
+					onClick={handleAcknowledge}
+				>
+					Acknowledge
+				</Button>
+			)}
+
+			{/* Pagination */}
+			{announcements.length > 1 && (
+				<Text fontSize="sm" color="gray.500">
+					{currentIndex + 1} / {announcements.length}
+				</Text>
+			)}
 		</Box>
 	);
 };

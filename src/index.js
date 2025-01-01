@@ -31,12 +31,27 @@ import webSocketService from "services/WebSocketService";
 import { addAnnouncement } from "./redux/announcementsSlice";
 import AnnouncementsModal from "views/admin/announcement/components/AnnouncementsModal";
 
+import addNotification, { Notifications } from "react-push-notification";
+
+import logo from "assets/img/app-logo.jpeg";
+
 function App() {
 	const token = localStorage.getItem("token") || null;
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	const user = JSON.parse(localStorage.getItem("user"));
 	useNavigate();
+
+	const showNotification = (customOptions) => {
+		const notificationOptions = {
+			theme: "darkblue",
+			native: true,
+			duration: 20000,
+			icon: logo,
+			...customOptions,
+		};
+		addNotification(notificationOptions);
+	};
 
 	const user2 = useSelector((state) => state.user.user);
 
@@ -79,17 +94,9 @@ function App() {
 
 			webSocketService.connect(user._id);
 
-			// Cleanup on window close
-			// window.addEventListener("beforeunload", () => {
-			// 	webSocketService.disconnect();
-			// });
-
-			// Listen for incoming messages
 			webSocketService.socket.onmessage = (event) => {
 				try {
 					const message = JSON.parse(event.data);
-
-					console.log("message: ", message);
 
 					// Type = 1 mean Announcemnents
 					if (message.type === 1 && message.data.length > 0) {
@@ -99,6 +106,10 @@ function App() {
 						);
 					} else if (message.type === 1 && message.data.message) {
 						dispatch(addAnnouncement(message.data));
+						showNotification({
+							title: "New Announcement",
+							message: message.data.message || "Check out the latest updates!",
+						});
 					}
 
 					// Type = 0 mean Notificaitons
@@ -125,6 +136,7 @@ function App() {
 		setAppLoaded(false);
 		const response = await getApi("api/user/tree");
 		const data = response.data || null;
+
 		dispatch(setTree(data));
 
 		setTimeout(() => {
@@ -155,6 +167,8 @@ function App() {
 	if (appLoaded)
 		return (
 			<>
+				<Notifications />
+
 				<AnnouncementsModal
 					isOpen={isModalOpen}
 					onClose={() => setIsModalOpen(false)}

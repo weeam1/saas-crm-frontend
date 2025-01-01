@@ -11,17 +11,23 @@ import {
 	Text,
 	Icon,
 	Flex,
+	Box,
 } from "@chakra-ui/react";
 import { MdCheckCircle } from "react-icons/md";
+import { FaCircle } from "react-icons/fa";
 
-const MessageSuccessModal = ({ isOpen, onClose, messageResponse }) => {
-	const disconnectedUsers = messageResponse?.disconnected_users?.length;
+const MessageSuccessModal = ({
+	isOpen,
+	onClose,
+	onlineUsers,
+	offlineUsers,
+}) => {
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader alignContent="center">
-					<Flex align="center" px={4} py={4}>
+					<Flex align="center" px={4} py={2}>
 						<Icon
 							as={MdCheckCircle}
 							width="10"
@@ -34,17 +40,58 @@ const MessageSuccessModal = ({ isOpen, onClose, messageResponse }) => {
 						</Text>
 					</Flex>
 				</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody textAlign="center">
-					<Text>
-						The announcement message has been successfully sent to all users.
+				<ModalBody textAlign="center" p={6}>
+					<Text fontSize="lg" color="green.600" mb={4}>
+						Announcement successfully sent to all users!
 					</Text>
-					{disconnectedUsers > 0 && (
-						<Text>
-							Note: {disconnectedUsers} users may be offline and will receive
-							the message when they reconnect.
-						</Text>
-					)}
+					<Box
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						gap={4}
+					>
+						{/* Online Status Box */}
+						{onlineUsers > 0 && (
+							<Box
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								p={3}
+								borderWidth={1}
+								borderRadius="md"
+								borderColor="green.300"
+								bg="green.50"
+								boxShadow="sm"
+								minW="120px"
+							>
+								<FaCircle color="green" size="1em" />
+								<Text ml={2} color="green.600" fontWeight="medium">
+									{onlineUsers} Online
+								</Text>
+							</Box>
+						)}
+
+						{/* Offline Status Box */}
+						{offlineUsers > 0 && (
+							<Box
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								p={3}
+								borderWidth={1}
+								borderRadius="md"
+								borderColor="red.300"
+								bg="red.50"
+								boxShadow="sm"
+								minW="120px"
+							>
+								<FaCircle color="red" size="1em" />
+								<Text ml={2} color="red.600" fontWeight="medium">
+									{offlineUsers} Offline
+								</Text>
+							</Box>
+						)}
+					</Box>
 				</ModalBody>
 				<ModalFooter>
 					<Button colorScheme="green" width="100px" onClick={onClose}>

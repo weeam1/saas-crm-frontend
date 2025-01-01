@@ -5,11 +5,10 @@ import {
 	Button,
 	useRadioGroup,
 	HStack,
-	Select,
 	Icon,
 } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getApi } from "services/api";
 import { toast } from "react-toastify";
 import keys from "config/keys";
@@ -18,9 +17,15 @@ import RadioCard from "./RadioCard";
 import { MdSend } from "react-icons/md";
 import MessageSuccessModal from "./MessageSuccessModal";
 import SelectManager from "./SelectManager";
+import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 
 const CreateAnnouncement = () => {
 	const user = JSON.parse(localStorage.getItem("user"));
+
+	const { allUsers, managers, agents } = useFetchUserHierarchy(user);
+
+	const isManager = user?.roles[0]?.roleName === "Manager";
+	const isSuperAdmin = user.role === "superAdmin";
 
 	const [message, setMessage] = useState("");
 	const [selectedRole, setSelectedRole] = useState("");
@@ -30,54 +35,124 @@ const CreateAnnouncement = () => {
 	const [selectedManager, setSelectedManager] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [res, setRes] = useState(null);
+	const [onlineUsers, setOnlineUsers] = useState(0);
+	const [offlineUsers, setOfflineUsers] = useState(0);
 
-	const handleRoleChange = async (selectedRole) => {
+	// const handleRoleChange = async (selectedRole) => {
+	// 	try {
+	// 		setSelectedRole(selectedRole);
+	// 		let apiUrl = "";
+
+	// 		switch (selectedRole) {
+	// 			case "all":
+	// 				apiUrl = "api/v2/user/hierarchy?type=all";
+	// 				break;
+	// 			case "managers":
+	// 				apiUrl = "api/v2/user/hierarchy?type=managers";
+	// 				break;
+	// 			case "agents":
+	// 				apiUrl = "api/v2/user/hierarchy?type=agents";
+	// 				break;
+	// 			default:
+	// 				return;
+	// 		}
+
+	// 		const { data } = await getApi(user.role === "superAdmin" && apiUrl);
+
+	// 		if (data) {
+	// 			let newReceiverIds = [];
+
+	// 			if (selectedRole === "managers") {
+	// 				setManagerList(data.doc || []);
+	// 			} else if (selectedRole === "agents") {
+	// 				// setAgentsList(data.doc || []);
+	// 				newReceiverIds = data.doc || [];
+	// 			} else if (selectedRole === "all") {
+	// 				newReceiverIds = data.doc.filter((item) => user._id !== item);
+	// 			}
+
+	// 			// Replace old receiverIds with new data
+	// 			setReceiverIds(newReceiverIds);
+	// 			console.log({ newReceiverIds });
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Failed to fetch data:", error);
+	// 		toast.error("Failed to fetch receiver IDs.");
+	// 	}
+	// };
+
+	useEffect(() => {
+		if (isManager) {
+			fetchMangerAgents(user._id);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isManager]);
+
+	const fetchMangerAgents = async (selectedValue = "") => {
+		try {
+			// Fetch the hierarchy data for the selected manager
+			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
+			const { data } = await getApi((isManager || isSuperAdmin) && apiUrl);
+
+			if (data.results > 0) {
+				const managerAgentsList = data?.doc?.map((agent) => agent._id);
+				// If there are results, include the manager's own ID as well
+				const updatedReceiverIds = isManager
+					? [...managerAgentsList]
+					: [...managerAgentsList, selectedValue];
+
+				setReceiverIds(updatedReceiverIds);
+				console.log({ receiverIds }); // Update the state with new receiver IDs
+				setSelectedRole("Team");
+			} else {
+				// If no results, clear the receiver IDs (or just select the manager)
+				setReceiverIds([selectedValue]);
+			}
+		} catch (error) {
+			// Handle any errors that occur during the API call
+			console.error("Error fetching manager hierarchy:", error);
+			// Optionally, reset or update state in case of an error
+			setReceiverIds([]);
+		}
+	};
+
+	const handleRoleChange = (selectedRole) => {
 		try {
 			setSelectedRole(selectedRole);
-			let apiUrl = "";
+
+			let newReceiverIds = [];
 
 			switch (selectedRole) {
-				case "all":
-					apiUrl = "api/v2/user/hierarchy?type=all";
-					break;
 				case "managers":
-					apiUrl = "api/v2/user/hierarchy?type=managers";
+					setManagerList(managers || []);
+					newReceiverIds = managers.map((manager) => manager._id); // Extract manager IDs
 					break;
+
 				case "agents":
-					apiUrl = "api/v2/user/hierarchy?type=agents";
+					// setAgentsList(agents || []);
+					newReceiverIds = agents.map((agent) => agent._id); // Extract agent IDs
 					break;
+
+				case "all":
+					newReceiverIds = allUsers
+						.filter((userItem) => user._id !== userItem._id) // Exclude the current user
+						.map((userItem) => userItem._id); // Extract all user IDs
+					break;
+
 				default:
 					return;
 			}
 
-			const { data } = await getApi(user.role === "superAdmin" && apiUrl);
-
-			if (data) {
-				let newReceiverIds = [];
-
-				if (selectedRole === "managers") {
-					setManagerList(data.doc || []);
-				} else if (selectedRole === "agents") {
-					// setAgentsList(data.doc || []);
-					newReceiverIds = data.doc || [];
-				} else if (selectedRole === "all") {
-					newReceiverIds = data.doc.filter((item) => user._id !== item);
-				}
-
-				// Replace old receiverIds with new data
-				setReceiverIds(newReceiverIds);
-				console.log({ newReceiverIds });
-			}
+			setReceiverIds(newReceiverIds); // Update state with new receiver IDs
+			console.log({ newReceiverIds });
 		} catch (error) {
-			console.error("Failed to fetch data:", error);
-			toast.error("Failed to fetch receiver IDs.");
+			console.error("Failed to handle role change:", error);
+			toast.error("An error occurred while processing the role change.");
 		}
 	};
 
 	const handleManager = async (e) => {
 		const selectedValue = e.target.value;
-
 		// Reset receiverIds to an empty array before making any updates
 		setReceiverIds([]);
 
@@ -87,60 +162,47 @@ const CreateAnnouncement = () => {
 			setReceiverIds(managerReceiverIds); // Set all manager IDs
 			setSelectedManager(selectedValue); // Update the selected manager state
 		} else {
+			fetchMangerAgents(selectedValue);
 			setSelectedManager(selectedValue); // Set the selected manager
-
-			try {
-				// Fetch the hierarchy data for the selected manager
-				const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
-				const { data } = await getApi(user.role === "superAdmin" && apiUrl);
-
-				if (data.results > 0) {
-					// If there are results, include the manager's own ID as well
-					const updatedReceiverIds = [...data.doc, selectedValue];
-					console.log({ managersAgents: updatedReceiverIds });
-
-					setReceiverIds(updatedReceiverIds); // Update the state with new receiver IDs
-				} else {
-					// If no results, clear the receiver IDs (or just select the manager)
-					setReceiverIds([selectedValue]);
-					console.log({ single: [selectedValue] });
-				}
-			} catch (error) {
-				// Handle any errors that occur during the API call
-				console.error("Error fetching manager hierarchy:", error);
-				// Optionally, reset or update state in case of an error
-				setReceiverIds([]);
-			}
 		}
 	};
 
 	const handleSend = async (e) => {
 		e.preventDefault();
-		if (message.trim() && selectedRole) {
+		if (message.trim()) {
 			try {
 				setLoading(true);
-				setRes(null);
+				setOnlineUsers(0);
+				setOfflineUsers(0);
 
-				if (
-					receiverIds.length > 0 ||
-					(selectedManager && selectedRole === "managers")
-				) {
-					const { data } = await axios.post(`${keys.socketUrl}/announcements`, {
+				if (receiverIds.length > 0) {
+					const announcementData = {
 						message,
 						receiver_ids: receiverIds,
-					});
+						user_id: user._id,
+						type: selectedRole,
+					};
 
-					// Update state and immediately log the response
-					setRes(data);
+					console.log(announcementData);
+
+					const { data } = await axios.post(
+						`${keys.socketUrl}/announcements`,
+						announcementData
+					);
+
+					if (data) {
+						setOfflineUsers(data?.disconnected_users?.length || 0);
+						const online =
+							receiverIds.length - data?.disconnected_users?.length || 0;
+						setOnlineUsers(online);
+						setIsModalOpen(true); // Open the success modal
+						setSelectedManager(null); // Clear specific manager selection
+						setSelectedRole(""); // Reset checkboxes
+						setMessage(""); // Clear the input field after sending
+					}
 				} else {
-					toast.error("Please select again.");
+					toast.error("Please select the recivers again.");
 				}
-
-				// toast.success("Announcement sent successfully.");
-				setMessage(""); // Clear the input field after sending
-				setSelectedRole(""); // Reset checkboxes
-				setSelectedManager(null); // Clear specific manager selection
-				setIsModalOpen(true); // Open the success modal
 			} catch (err) {
 				console.log(err);
 				toast.error("Failed to send announcement.");
@@ -176,7 +238,7 @@ const CreateAnnouncement = () => {
 			</Text>
 			<form onSubmit={handleSend}>
 				<Textarea
-					placeholder="Type your announcement message..."
+					placeholder="Type your message..."
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
@@ -186,30 +248,41 @@ const CreateAnnouncement = () => {
 					focusBorderColor="orange.200"
 					backgroundColor="gray.100"
 				/>
-				<Text fontWeight="bold" mb={{ base: 1, md: 2 }}>
-					Send to:
-				</Text>
-				<HStack
-					{...group}
-					spacing={{ base: 2, md: 4 }} // Adjust spacing for different screen sizes
-					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
-					wrap="wrap" // Allow items to wrap on smaller screens
-					gap="2"
-				>
-					{options.map((value) => {
-						const radio = getRadioProps({ value });
-						return (
-							<RadioCard key={value} {...radio}>
-								{value.charAt(0).toUpperCase() + value.slice(1)}
-							</RadioCard>
-						);
-					})}
-					<SelectManager
-						selectedRole={selectedRole}
-						managerList={managerList}
-						handleManager={handleManager}
-					/>
-				</HStack>
+
+				{isSuperAdmin && (
+					<>
+						<Text fontWeight="bold" mb={{ base: 1, md: 2 }}>
+							Send to:
+						</Text>
+						<HStack
+							{...group}
+							spacing={{ base: 2, md: 4 }} // Adjust spacing for different screen sizes
+							mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
+							wrap="wrap" // Allow items to wrap on smaller screens
+							gap="2"
+						>
+							{options.map((value) => {
+								const radio = getRadioProps({ value });
+								return (
+									<RadioCard key={value} {...radio}>
+										{value.charAt(0).toUpperCase() + value.slice(1)}
+									</RadioCard>
+								);
+							})}
+							<SelectManager
+								selectedRole={selectedRole}
+								managerList={managerList}
+								handleManager={handleManager}
+							/>
+						</HStack>
+					</>
+				)}
+
+				{isManager && (
+					<Text mb={{ base: 1, md: 3 }} color="gray.500">
+						Note: Announcement sent to all agents.
+					</Text>
+				)}
 
 				<Button
 					colorScheme="brand"
@@ -219,7 +292,7 @@ const CreateAnnouncement = () => {
 					type="submit"
 					isDisabled={
 						!message.trim() ||
-						!selectedRole ||
+						(!isManager && !selectedRole) ||
 						(selectedRole === "managers" && !selectedManager)
 					}
 					leftIcon={<Icon as={MdSend} />}
@@ -229,13 +302,12 @@ const CreateAnnouncement = () => {
 			</form>
 
 			{/* Success Modal */}
-			{res && (
-				<MessageSuccessModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-					messageResponse={res}
-				/>
-			)}
+			<MessageSuccessModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				onlineUsers={onlineUsers}
+				offlineUsers={offlineUsers}
+			/>
 		</Box>
 	);
 };

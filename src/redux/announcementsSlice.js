@@ -10,7 +10,10 @@ const announcementsSlice = createSlice({
 			state.list.push(action.payload);
 		},
 		clearAnnouncement: (state, action) => {
-			state.list.splice(action.payload, 1); // remove the announcement at the current index
+			const idToRemove = action.payload; // The ID of the announcement to remove
+			state.list = state.list.filter(
+				(announcement) => announcement.id !== idToRemove
+			);
 		},
 		clearAnnouncements: (state) => {
 			state.list = []; // clear all announcements

@@ -10,18 +10,23 @@ import {
 	Text,
 	CircularProgress,
 	Box,
+	Heading,
+	Flex,
 } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearAnnouncement } from "./../../../../redux/announcementsSlice";
 import AnnouncementSlider from "./AnnouncementSlider";
 
 import logo from "assets/img/app-logo.jpeg";
+import { FaBullhorn } from "react-icons/fa";
 
 const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const announcements = useSelector((state) => state.announcements.list);
 	const dispatch = useDispatch();
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [loading, setLoading] = useState(false);
+
+	console.log({ announcements });
 
 	// Close modal automatically if there are no announcements
 	useEffect(() => {
@@ -30,10 +35,12 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 		}
 	}, [announcements, onClose]);
 
-	const handleAcknowledge = () => {
+	const handleAcknowledge = (id) => {
+		console.log({ id });
+		console.log("lsdjflkd");
 		if (announcements.length > 0) {
 			setLoading(true);
-			dispatch(clearAnnouncement(currentIndex)); // Clear the current announcement
+			dispatch(clearAnnouncement(id)); // Clear the current announcement
 			setLoading(false);
 			if (currentIndex >= announcements.length - 1) {
 				setCurrentIndex(0); // Reset index if at the last announcement
@@ -55,7 +62,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 					maxWidth="900px"
 					w="95%"
 					textAlign="center"
-					p={4}
 				>
 					{/* Header Section */}
 					<ModalHeader
@@ -63,7 +69,10 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 						alignItems="center"
 						justifyContent="center"
 						textAlign="center"
+						bg="brand.500"
 						px={6}
+						borderTopRadius="md"
+						color="white"
 						py={4}
 					>
 						<Box
@@ -80,8 +89,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 							</Text>
 						</Box>
 					</ModalHeader>
-
-					<ModalCloseButton />
 
 					{/* Body Section */}
 					<ModalBody px={6} py={4}>

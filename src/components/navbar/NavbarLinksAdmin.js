@@ -306,7 +306,7 @@ export default function HeaderLinks(props) {
 						</MenuItem>
 
 						{/* Annouoncements allow for admin and managers */}
-						{(loginUser?.role === "superAdmin" ||
+						{/* {(loginUser?.role === "superAdmin" ||
 							loginUser?.roles?.[0]?.roleName === "Manager") && (
 							<MenuItem
 								_hover={{ bg: "none" }}
@@ -318,7 +318,7 @@ export default function HeaderLinks(props) {
 									Announcements
 								</Text>
 							</MenuItem>
-						)}
+						)} */}
 
 						{loginUser?.role === "superAdmin" && (
 							<MenuItem

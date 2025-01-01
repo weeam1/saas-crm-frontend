@@ -25,6 +25,8 @@ import { LuBuilding2 } from "react-icons/lu";
 import { PiPhoneCallBold } from "react-icons/pi";
 import { FaCreativeCommonsBy } from "react-icons/fa";
 import { SiGooglemeet } from "react-icons/si";
+import { MdCampaign } from "react-icons/md";
+
 import { ROLE_PATH } from "./roles";
 import ChangeImage from "views/admin/image";
 import Validation from "views/admin/validation";
@@ -113,6 +115,13 @@ const routes = [
 			<Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
 		),
 		component: Lead,
+	},
+	{
+		name: "Announcement",
+		layout: [ROLE_PATH.superAdmin],
+		path: "/announcements",
+		icon: <Icon as={MdCampaign} width="20px" height="20px" color="inherit" />,
+		component: Announcement,
 	},
 	{
 		name: "HR Module",
@@ -246,14 +255,14 @@ const routes = [
 		path: "/admin-setting",
 		component: AdminSetting,
 	},
-	{
-		name: "Announcement",
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.manager],
-		parentName: "admin",
-		under: "admin",
-		path: "/announcements",
-		component: Announcement,
-	},
+	// {
+	// 	name: "Announcement",
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.manager],
+	// 	parentName: "admin",
+	// 	under: "admin",
+	// 	path: "/announcements",
+	// 	component: Announcement,
+	// },
 	// // ------------- Communication Integration Routes ------------------------
 	// {
 	//   name: "Communication Integration",
