@@ -30,55 +30,12 @@ const CreateAnnouncement = ({ user }) => {
 	const [message, setMessage] = useState("");
 	const [selectedRole, setSelectedRole] = useState("");
 	const [receiverIds, setReceiverIds] = useState([]);
-	const [managerList, setManagerList] = useState([]);
+	// const [managerList, setManagerList] = useState([]);
 	const [selectedManager, setSelectedManager] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [onlineUsers, setOnlineUsers] = useState(0);
 	const [offlineUsers, setOfflineUsers] = useState(0);
-
-	// const handleRoleChange = async (selectedRole) => {
-	// 	try {
-	// 		setSelectedRole(selectedRole);
-	// 		let apiUrl = "";
-
-	// 		switch (selectedRole) {
-	// 			case "all":
-	// 				apiUrl = "api/v2/user/hierarchy?type=all";
-	// 				break;
-	// 			case "managers":
-	// 				apiUrl = "api/v2/user/hierarchy?type=managers";
-	// 				break;
-	// 			case "agents":
-	// 				apiUrl = "api/v2/user/hierarchy?type=agents";
-	// 				break;
-	// 			default:
-	// 				return;
-	// 		}
-
-	// 		const { data } = await getApi(user.role === "superAdmin" && apiUrl);
-
-	// 		if (data) {
-	// 			let newReceiverIds = [];
-
-	// 			if (selectedRole === "managers") {
-	// 				setManagerList(data.doc || []);
-	// 			} else if (selectedRole === "agents") {
-	// 				// setAgentsList(data.doc || []);
-	// 				newReceiverIds = data.doc || [];
-	// 			} else if (selectedRole === "all") {
-	// 				newReceiverIds = data.doc.filter((item) => user._id !== item);
-	// 			}
-
-	// 			// Replace old receiverIds with new data
-	// 			setReceiverIds(newReceiverIds);
-	// 			console.log({ newReceiverIds });
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Failed to fetch data:", error);
-	// 		toast.error("Failed to fetch receiver IDs.");
-	// 	}
-	// };
 
 	useEffect(() => {
 		if (isManager) {
@@ -100,10 +57,9 @@ const CreateAnnouncement = ({ user }) => {
 					? [...managerAgentsList]
 					: [...managerAgentsList, selectedValue];
 
-				console.log({ updatedReceiverIds });
+				console.log({ managersids: updatedReceiverIds });
 
 				setReceiverIds(updatedReceiverIds);
-				setSelectedRole("team");
 			} else {
 				// If no results, clear the receiver IDs (or just select the manager)
 				setReceiverIds([selectedValue]);
@@ -124,7 +80,6 @@ const CreateAnnouncement = ({ user }) => {
 
 			switch (selectedRole) {
 				case "managers":
-					setManagerList(managers || []);
 					newReceiverIds = managers.map((manager) => manager._id); // Extract manager IDs
 					break;
 
@@ -154,19 +109,23 @@ const CreateAnnouncement = ({ user }) => {
 
 	const handleManager = async (e) => {
 		const selectedValue = e.target.value;
+		setSelectedRole("team");
+
 		// Reset receiverIds to an empty array before making any updates
+		fetchMangerAgents(selectedValue);
 		setReceiverIds([]);
+		const managerReceiverIds = managers?.map((manager) => manager._id);
+
+		setReceiverIds(managerReceiverIds); // Set all manager IDs
 
 		// If "All Managers" is selected, set receiver IDs to all managers
-		if (selectedValue === "allManagers") {
-			const managerReceiverIds = managerList?.map((manager) => manager._id);
-			setReceiverIds(managerReceiverIds); // Set all manager IDs
-			console.log({ managerReceiverIds });
-			setSelectedManager(selectedValue); // Update the selected manager state
-		} else {
-			fetchMangerAgents(selectedValue);
-			setSelectedManager(selectedValue); // Set the selected manager
-		}
+		// if (selectedValue === "allManagers") {
+		// console.log({ managerReceiverIds });
+		// setSelectedManager(selectedValue); // Update the selected manager state
+		// } else {
+		// fetchMangerAgents(selectedValue);
+		// setSelectedManager(selectedValue); // Set the selected manager
+		// }
 	};
 
 	const handleSend = async (e) => {
@@ -272,8 +231,8 @@ const CreateAnnouncement = ({ user }) => {
 								);
 							})}
 							<SelectManager
-								selectedRole={selectedRole}
-								managerList={managerList}
+								// selectedRole={selectedRole}
+								managerList={managers}
 								handleManager={handleManager}
 							/>
 						</HStack>
@@ -293,9 +252,8 @@ const CreateAnnouncement = ({ user }) => {
 					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
 					type="submit"
 					isDisabled={
-						!message.trim() ||
-						(!isManager && !selectedRole) ||
-						(selectedRole === "managers" && !selectedManager)
+						!message.trim() || (!isManager && !selectedRole)
+						// (selectedRole === "managers" && !selectedManager)
 					}
 					leftIcon={<Icon as={MdSend} />}
 				>

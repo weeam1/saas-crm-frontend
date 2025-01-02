@@ -9,7 +9,7 @@ const History = ({ user }) => {
 	const itemsPerPage = 10; // Number of announcements per page
 
 	// Use the custom hook
-	const { list, loading } = useFetchAnnouncements(
+	const { list, loading, totalPages } = useFetchAnnouncements(
 		user?._id,
 		currentPage,
 		itemsPerPage
@@ -29,6 +29,8 @@ const History = ({ user }) => {
 		<AnnouncementList
 			loading={loading}
 			list={list}
+			currentPage={currentPage}
+			totalPages={totalPages}
 			handleCopy={handleCopy}
 			handleViewMore={handleViewMore}
 		/>

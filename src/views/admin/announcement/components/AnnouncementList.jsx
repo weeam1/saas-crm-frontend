@@ -27,7 +27,15 @@ const getBadgeColor = (type) => {
 	}
 };
 
-const AnnouncementList = ({ list, loading, handleCopy, handleViewMore }) => {
+const AnnouncementList = ({
+	list,
+	loading,
+	handleCopy,
+	handleViewMore,
+	totalPages,
+	currentPage,
+}) => {
+	const hideViewMoreBtn = currentPage === totalPages;
 	return (
 		<Box
 			height="420px"
@@ -111,17 +119,19 @@ const AnnouncementList = ({ list, loading, handleCopy, handleViewMore }) => {
 					<Spinner color="brand.500" />
 				</Box>
 			) : (
-				<Box display="flex" justifyContent="center" mt={4} py={2} mb={2}>
-					{/* View More Button */}
-					<Button
-						color="brand.500" // Background color
-						size="sm"
-						onClick={handleViewMore}
-						isDisabled={loading}
-					>
-						View More
-					</Button>
-				</Box>
+				!hideViewMoreBtn && (
+					<Box display="flex" justifyContent="center" mt={4} py={2} mb={2}>
+						{/* View More Button */}
+						<Button
+							color="brand.500" // Background color
+							size="sm"
+							onClick={handleViewMore}
+							isDisabled={loading}
+						>
+							View More
+						</Button>
+					</Box>
+				)
 			)}
 		</Box>
 	);

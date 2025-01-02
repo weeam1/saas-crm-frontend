@@ -18,7 +18,6 @@ const AdvancedSearchForm = (props) => {
 	const fields = useMemo(
 		() => [
 			{ name: "leadName", label: "Name", placeholder: "Enter Lead Name" },
-
 			{ name: "leadEmail", label: "Email", placeholder: "Enter Lead Email" },
 			{
 				name: "leadPhoneNumber",
@@ -60,7 +59,11 @@ const AdvancedSearchForm = (props) => {
 				label: "Source Medium",
 				placeholder: "Search by Source Medium",
 			},
-			{ name: "pageUrl", label: "Page URL", placeholder: "Search by Page URL" },
+			{
+				name: "pageUrl",
+				label: "Campaign URL",
+				placeholder: "Search by Campaign URL",
+			},
 			{
 				name: "r_u_in_uae",
 				label: "Are You in UAE?",
@@ -70,6 +73,21 @@ const AdvancedSearchForm = (props) => {
 				name: "leadLang",
 				label: "Lead Language",
 				placeholder: "Search by Language",
+			},
+			{
+				name: "lastNote",
+				label: "Last Note",
+				placeholder: "Search by last note",
+			},
+			{
+				name: "budget",
+				label: "Budget",
+				placeholder: "Search by Budget",
+			},
+			{
+				name: "timetocall",
+				label: "Time To Call",
+				placeholder: "Search by time to call",
 			},
 		],
 		[]

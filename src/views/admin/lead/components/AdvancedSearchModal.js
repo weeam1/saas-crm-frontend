@@ -66,7 +66,10 @@ const AdvancedSearchModal = ({
 		leadSourceMedium: "",
 		pageUrl: "",
 		r_u_in_uae: "",
+		timetocall: "",
 		leadLang: "",
+		lastNote: "",
+		budget: "",
 	};
 
 	const formik = useFormik({
@@ -137,8 +140,6 @@ const AdvancedSearchModal = ({
 				{ cleanedData: {}, tags: [] }
 			);
 
-			console.log({ tags });
-
 			// Call API with cleaned data
 			fetchAdvancedSearch(cleanedData, 1, pageSize);
 			setAdvaceSearch(false);
@@ -147,10 +148,6 @@ const AdvancedSearchModal = ({
 			setGetTagValues(tags);
 			setSearchClear(true);
 			setFormValues(values);
-			// formikResetForm();
-
-			// Reset form values
-			// resetForm();
 		},
 	});
 

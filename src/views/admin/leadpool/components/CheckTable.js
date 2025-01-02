@@ -32,6 +32,7 @@ import {
 	MenuDivider,
 	useColorModeValue,
 	useDisclosure,
+	CircularProgress,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
@@ -165,6 +166,7 @@ export default function CheckTable(props) {
 	const [column, setColumn] = useState("");
 	const [updatedStatuses, setUpdatedStatuses] = useState([]);
 	const [manageColumns, setManageColumns] = useState(false);
+	const [buyLoading, setBuyLoading] = useState([]);
 	const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn); // State to track changes
 	const [taskInits, setTaskInits] = useState({});
 	const [userCoins, setUserCoins] = useState(0);
@@ -799,13 +801,14 @@ export default function CheckTable(props) {
 			leadId: leadID,
 		};
 
-		if (user?.roles[0]?.roleName == "Agent") {
+		if (user?.roles[0]?.roleName === "Agent") {
 			payload.agentId = user?._id;
-		} else if (user?.roles[0]?.roleName == "Manager") {
+		} else if (user?.roles[0]?.roleName === "Manager") {
 			payload.managerId = user?._id;
 		}
 
 		try {
+			setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
 			const res = await axios.post(
 				constant["baseUrl"] + "api/adminApproval/add",
 				payload,
@@ -830,8 +833,9 @@ export default function CheckTable(props) {
 			fetchData();
 		} catch (error) {
 			console.log(error, "error");
+		} finally {
+			setBuyLoading((prev) => ({ ...prev, [leadID]: false }));
 		}
-		// }
 	};
 
 	return (
@@ -1652,17 +1656,27 @@ export default function CheckTable(props) {
 																		sendRequest(row?.original?._id)
 																	}
 																	disabled={
-																		row?.original?.leadStatus == "new" ||
-																		row?.original?.leadStatus == ""
+																		row?.original?.leadStatus === "new" ||
+																		row?.original?.leadStatus === ""
 																			? userCoins < 300
 																			: userCoins < 50
 																	}
 																>
-																	Buy -{" "}
-																	{row?.original?.leadStatus == "new" ||
-																	row?.original?.leadStatus == ""
-																		? 300
-																		: 50}
+																	{buyLoading[row?.original?._id] ? (
+																		<CircularProgress
+																			size="5"
+																			color="white"
+																			isIndeterminate
+																		/>
+																	) : (
+																		<span>
+																			Buy -
+																			{row?.original?.leadStatus === "new" ||
+																			row?.original?.leadStatus === ""
+																				? 300
+																				: 50}
+																		</span>
+																	)}
 																</Button>
 															)}
 														</Text>

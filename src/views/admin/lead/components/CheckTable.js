@@ -31,6 +31,7 @@ import {
 	MenuDivider,
 	useColorModeValue,
 	useDisclosure,
+	Skeleton,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -77,6 +78,8 @@ import AdvancedSearchModal from "./AdvancedSearchModal";
 // import SizeExample from "./Dummy";
 import { useStateContext } from "contexts/store";
 import RenderEStatus from "./RenderEStatus";
+import { postApi } from "services/api";
+import TableLoading from "components/loading/TableLoading";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -107,6 +110,7 @@ const CheckTable = React.memo((props) => {
 		fetchSearchedData,
 		setData,
 		refetchData,
+		hideColumns,
 	} = props;
 	const textColor = useColorModeValue("gray.500", "white");
 	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -135,6 +139,18 @@ const CheckTable = React.memo((props) => {
 
 	// let data = useMemo(() => tableData, [tableData]);
 	let data = tableData;
+
+	const [showTable, setShowTable] = useState(false);
+
+	useEffect(() => {
+		if (!isLoding) {
+			const timer = setTimeout(() => {
+				setShowTable(true);
+			}, 500); // 1 second delay
+
+			return () => clearTimeout(timer); // Clean up timeout
+		}
+	}, [isLoding]);
 
 	useEffect(() => {
 		setData(tableData);
@@ -347,11 +363,13 @@ const CheckTable = React.memo((props) => {
 	// 	dirty,
 	// } = formik;
 
-	const hiddenFields =
-		JSON.parse(localStorage.getItem("hiddenCols") || "[]") || [];
+	const hiddenCols =
+		JSON.parse(localStorage.getItem("userCustomColumns") || "[]") || [];
+
+	console.log({ hideColumns, hiddenCols });
 
 	const [columnVisibility, setColumnVisibility] = useState(
-		hiddenFields?.reduce((acc, key) => {
+		hideColumns?.reduce((acc, key) => {
 			acc[key] = false;
 			return acc;
 		}, {})
@@ -416,6 +434,51 @@ const CheckTable = React.memo((props) => {
 
 	const handleClick = () => {
 		onOpen();
+	};
+
+	// const saveManageCols = async () => {
+	// 	setSelectedColumns(tempSelectedColumns);
+	// 	console.log({ tempSelectedColumns });
+	// 	const tempAccessors = tempSelectedColumns.map((t) => t.accessor);
+
+	// 	const hideCols = dynamicColumns
+	// 		.filter((d) => !tempAccessors.includes(d.accessor))
+	// 		.map((d) => d.accessor);
+
+	// 	const userHideColsData = {
+	// 		userId: user._id,
+	// 		columns: hideCols,
+	// 	};
+
+	// 	await postApi(`api/customColumns`, userHideColsData);
+
+	// 	localStorage.setItem("userCustomColumns", JSON.stringify(hideCols));
+	// 	setManageColumns(false);
+	// 	refetchData();
+	// };
+
+	const saveManageCols = async () => {
+		try {
+			const hideCols = dynamicColumns
+				.filter(
+					(d) => !tempSelectedColumns.some((t) => t.accessor === d.accessor)
+				)
+				.map((d) => d.accessor);
+
+			const userHideColsData = {
+				userId: user._id,
+				columns: hideCols,
+			};
+
+			await postApi(`api/customColumns`, userHideColsData);
+
+			localStorage.setItem("userCustomColumns", JSON.stringify(hideCols));
+			setSelectedColumns(tempSelectedColumns); // Update state after other operations
+			setManageColumns(false);
+			refetchData();
+		} catch (error) {
+			console.error("Error saving columns:", error);
+		}
 	};
 
 	const fetchCustomData = async () => {
@@ -1119,35 +1182,10 @@ const CheckTable = React.memo((props) => {
 							}}
 						>
 							{isLoding ? (
-								<Tr>
-									<Td colSpan={columns?.length}>
-										<Flex
-											justifyContent={"center"}
-											alignItems={"center"}
-											width="100%"
-											color={textColor}
-											fontSize="sm"
-											fontWeight="600"
-										>
-											<Spinner />
-										</Flex>
-									</Td>
-								</Tr>
-							) : data?.length === 0 ? (
-								<Tr>
-									<Td colSpan={columns.length}>
-										<Text
-											textAlign={"center"}
-											width="100%"
-											color={textColor}
-											fontSize="sm"
-											fontWeight="600"
-										>
-											<DataNotFound />
-										</Text>
-									</Td>
-								</Tr>
-							) : (
+								<TableLoading columns={columns} length={8} />
+							) : !showTable ? (
+								<TableLoading columns={columns} length={8} />
+							) : data?.length ? (
 								page?.map((row, i) => {
 									prepareRow(row);
 									// updatedStatuses?.forEach((status) => {
@@ -1360,6 +1398,19 @@ const CheckTable = React.memo((props) => {
 															textAlign={"center"}
 														>
 															{cell?.value?.text || cell?.value || "No Data"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Budget") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight={500}
+															width={100}
+															textAlign={"center"}
+														>
+															{cell?.value || (
+																<span style={{ color: "#444" }}>No Data</span>
+															)}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Date & Time") {
@@ -1628,6 +1679,22 @@ const CheckTable = React.memo((props) => {
 										</Tr>
 									);
 								})
+							) : (
+								data?.length === 0 && (
+									<Tr>
+										<Td colSpan={columns.length}>
+											<Text
+												textAlign={"center"}
+												width="100%"
+												color={textColor}
+												fontSize="sm"
+												fontWeight="600"
+											>
+												<DataNotFound />
+											</Text>
+										</Td>
+									</Tr>
+								)
 							)}
 						</Tbody>
 					</Table>
@@ -1785,22 +1852,7 @@ const CheckTable = React.memo((props) => {
 							colorScheme="brand"
 							size="sm"
 							mr={2}
-							onClick={() => {
-								setSelectedColumns(tempSelectedColumns);
-								const tempAccessors = tempSelectedColumns.map(
-									(t) => t.accessor
-								);
-								localStorage.setItem(
-									"hiddenCols",
-									JSON.stringify(
-										dynamicColumns
-											.filter((d) => !tempAccessors.includes(d.accessor))
-											.map((d) => d.accessor)
-									)
-								);
-								setManageColumns(false);
-								// formikResetForm();
-							}}
+							onClick={saveManageCols}
 							disabled={isLoding ? true : false}
 						>
 							{isLoding ? <Spinner /> : "Save"}

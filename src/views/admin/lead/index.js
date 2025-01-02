@@ -24,6 +24,8 @@ const Index = () => {
 	const user = JSON.parse(localStorage.getItem("user"));
 	const [totalLeads, setTotalLeads] = useState(0);
 	const [pages, setPages] = useState(0);
+	const [hideColumns, setHideColumns] = useState([]);
+
 	const tree = useSelector((state) => state.user.tree);
 
 	const [permission, emailAccess, callAccess] = HasAccess([
@@ -43,22 +45,24 @@ const Index = () => {
 		{ Header: "Phone", accessor: "leadPhoneNumber" },
 		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: "Budget", accessor: "budget" },
 		{ Header: "Nationality", accessor: "nationality" },
 		{ Header: "Language", accessor: "leadLang" },
 		{ Header: "Last Note", width: 100, accessor: "lastNote" },
 		{ Header: "Country", accessor: "ip" },
 		{ Header: "Source Content", accessor: "leadSourceDetails" },
 		{ Header: "Campaign", accessor: "leadCampaign" },
-		// { Header: "Campaign URL", accessor: "pageUrl" },
-		// { Header: "Address", accessor: "leadAddress" },
-		// { Header: "Email", accessor: "leadEmail" },
-		// { Header: "Medium", accessor: "leadSourceMedium" },
+		{ Header: "Campaign URL", accessor: "pageUrl" },
+		{ Header: "Address", accessor: "leadAddress" },
+		{ Header: "Email", accessor: "leadEmail" },
+		{ Header: "Medium", accessor: "leadSourceMedium" },
 		{ Header: "In UAE?", accessor: "r_u_in_uae" },
 		{ Header: "Action", isSortable: false, center: true },
 	];
 	const tableColumnsManager = [
 		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
 		{ Header: "Name", accessor: "leadName", width: 20 },
+		{ Header: "Manager", accessor: "managerAssigned" },
 		{ Header: "Agent", accessor: "agentAssigned" },
 		{ Header: "Status", accessor: "leadStatus" },
 		{ Header: "E.Status", accessor: "eLeadStatus" },
@@ -66,16 +70,17 @@ const Index = () => {
 		{ Header: "Phone", accessor: "leadPhoneNumber" },
 		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: "Budget", accessor: "budget" },
 		{ Header: "Nationality", accessor: "nationality" },
 		{ Header: "Language", accessor: "leadLang" },
 		{ Header: "Last Note", width: 100, accessor: "lastNote" },
 		{ Header: "Country", accessor: "ip" },
-		{ Header: "Campaign", accessor: "leadCampaign" },
 		{ Header: "Source Content", accessor: "leadSourceDetails" },
-		{ Header: "Email", accessor: "leadEmail" },
-		{ Header: "Address", accessor: "leadAddress" },
-		{ Header: "Medium", accessor: "leadSourceMedium" },
+		{ Header: "Campaign", accessor: "leadCampaign" },
 		{ Header: "Campaign URL", accessor: "pageUrl" },
+		{ Header: "Address", accessor: "leadAddress" },
+		{ Header: "Email", accessor: "leadEmail" },
+		{ Header: "Medium", accessor: "leadSourceMedium" },
 		{ Header: "In UAE?", accessor: "r_u_in_uae" },
 		{ Header: "Action", isSortable: false, center: true },
 	];
@@ -89,6 +94,7 @@ const Index = () => {
 		{ Header: "Phone", accessor: "leadPhoneNumber" },
 		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: "Budget", accessor: "budget" },
 		{ Header: "Nationality", accessor: "nationality" },
 		{ Header: "Language", accessor: "leadLang" },
 		{ Header: "Last Note", width: 100, accessor: "lastNote" },
@@ -114,11 +120,13 @@ const Index = () => {
 		roleColumns[role] || tableColumns
 	);
 
-	const hiddenFields = JSON.parse(localStorage.getItem("hiddenCols") || "[]");
+	// const hiddenFields = JSON.parse(localStorage.getItem("hiddenCols") || "[]");
 	const [selectedColumns, setSelectedColumns] = useState(
 		roleColumns[role] ||
-			tableColumns.filter((c) => hiddenFields.includes(c.accessor) === false)
+			tableColumns.filter((c) => hideColumns.includes(c.accessor) === false)
 	);
+
+	console.log({ selectedColumns });
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({
 		from: "",
@@ -148,9 +156,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
 						user.roles[0]?.roleName
-				  }&page=${pageNo}&pageSize=${pageSize}&dateTime=${
+					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }`
+					}`
 		);
 
 		const newData = result.data?.result?.map((lead) => {
@@ -168,6 +176,51 @@ const Index = () => {
 		setTotalLeads(result.data?.totalLeads || 0);
 		setIsLoding(false);
 	};
+
+	const fetchUserCustomColumns = async () => {
+		try {
+			// Check if data exists in localStorage
+			const cachedData = localStorage.getItem("userCustomColumns");
+
+			if (cachedData) {
+				// Parse and set data from localStorage
+				const parsedData = JSON.parse(cachedData);
+				setHideColumns(parsedData || []);
+				setSelectedColumns(
+					roleColumns[role] ||
+						tableColumns.filter(
+							(c) => parsedData.includes(c.accessor) === false
+						)
+				);
+
+				console.log("Loaded columns from localStorage:", parsedData);
+			} else {
+				// Fetch from backend if not found in localStorage
+				let { data } = await getApi(`api/customColumns/${user._id}`);
+
+				if (!data?.doc) {
+					console.log("Data columns not found!");
+					setHideColumns([]);
+				} else {
+					const customCols = data?.doc?.columns;
+					setHideColumns(customCols);
+					console.log({ customCols });
+					setSelectedColumns(
+						roleColumns[role] ||
+							tableColumns.filter(
+								(c) => customCols.includes(c.accessor) === false
+							)
+					);
+
+					// Store fetched data in localStorage
+					localStorage.setItem("userCustomColumns", JSON.stringify(customCols));
+				}
+			}
+		} catch (error) {
+			console.error("Error fetching custom columns:", error);
+		}
+	};
+
 	const refetchData = async (pageNo = 1, pageSize = 30) => {
 		let result = await getApi(
 			user.role === "superAdmin"
@@ -182,9 +235,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
 						user.roles[0]?.roleName
-				  }&page=${pageNo}&pageSize=${pageSize}&dateTime=${
+					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }`
+					}`
 		);
 
 		const newData = result.data?.result?.map((lead) => {
@@ -221,9 +274,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/search?term=${term}&user=${user._id}&role=${
 						user.roles[0]?.roleName
-				  }&dateTime=${
+					}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }&page=${pageNo}&pageSize=${pageSize}`
+					}&page=${pageNo}&pageSize=${pageSize}`
 		);
 		setDisplaySearchData(true);
 		const newData = result.data?.result?.map((lead) => {
@@ -258,9 +311,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
-				  }&role=${user.roles[0]?.roleName}&dateTime=${
+					}&role=${user.roles[0]?.roleName}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }&page=${pageNo}&pageSize=${pageSize}`
+					}&page=${pageNo}&pageSize=${pageSize}`
 		);
 		setDisplayAdvSearchData(true);
 		setIsLoding(false);
@@ -297,6 +350,7 @@ const Index = () => {
 	};
 
 	useEffect(() => {
+		fetchUserCustomColumns();
 		setColumns(tableColumns);
 	}, []);
 
@@ -318,6 +372,7 @@ const Index = () => {
 						</Flex>
 					)}
 					<CheckTable
+						hideColumns={hideColumns}
 						dateTime={dateTime}
 						setDateTime={setDateTime}
 						totalLeads={totalLeads}
