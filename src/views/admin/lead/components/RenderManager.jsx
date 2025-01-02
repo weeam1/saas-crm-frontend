@@ -74,9 +74,9 @@ const RenderManager = ({
 		<Select
 			value={selectedManager || ""}
 			onChange={handleChangeManager}
-			placeholder="No Manager Selected"
+			placeholder="No Manager"
 			color={!selectedManager ? "gray.500" : textColor}
-			width={200}
+			width={180}
 			size="sm"
 		>
 			{tree?.managers?.map((manager) => (
@@ -90,7 +90,7 @@ const RenderManager = ({
 			{selectedManager
 				? `${
 						tree?.managers?.find((m) => m._id === selectedManager)?.firstName
-				  } ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
+					} ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
 				: "No Manager Assigned"}
 		</Text>
 	);

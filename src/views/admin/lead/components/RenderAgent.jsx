@@ -1,4 +1,4 @@
-import { Select, useColorModeValue } from "@chakra-ui/react";
+import { Select, Text, useColorModeValue } from "@chakra-ui/react";
 import BoxLoading from "components/shared/BoxLoading";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -242,7 +242,11 @@ const RenderAgent = ({
 			</Select>
 		);
 	} else {
-		return <p style={{ textAlign: "center" }}>No agents</p>;
+		return (
+			<Text color="gray.500" textAlign="center">
+				No agent
+			</Text>
+		);
 	}
 };
 

@@ -7,7 +7,7 @@ const announcementsSlice = createSlice({
 	},
 	reducers: {
 		addAnnouncement: (state, action) => {
-			state.list.push(action.payload);
+			state.list.unshift(action.payload);
 		},
 		clearAnnouncement: (state, action) => {
 			const idToRemove = action.payload; // The ID of the announcement to remove

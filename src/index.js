@@ -50,6 +50,8 @@ function App() {
 			icon: logo,
 			...customOptions,
 		};
+
+		Notification.requestPermission();
 		addNotification(notificationOptions);
 	};
 
@@ -100,7 +102,6 @@ function App() {
 
 					// Type = 1 mean Announcemnents
 					if (message.type === 1 && message.data.length > 0) {
-						console.log("list of annournasmetns: ", message);
 						message.data.forEach((announcement) =>
 							dispatch(addAnnouncement(announcement))
 						);

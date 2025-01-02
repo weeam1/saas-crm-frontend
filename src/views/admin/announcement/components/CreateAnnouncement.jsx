@@ -19,11 +19,11 @@ import MessageSuccessModal from "./MessageSuccessModal";
 import SelectManager from "./SelectManager";
 import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 
-const CreateAnnouncement = () => {
-	const user = JSON.parse(localStorage.getItem("user"));
-
+const CreateAnnouncement = ({ user }) => {
+	// Fetch the all users data from hook
 	const { allUsers, managers, agents } = useFetchUserHierarchy(user);
 
+	// Set roles
 	const isManager = user?.roles[0]?.roleName === "Manager";
 	const isSuperAdmin = user.role === "superAdmin";
 
@@ -31,7 +31,6 @@ const CreateAnnouncement = () => {
 	const [selectedRole, setSelectedRole] = useState("");
 	const [receiverIds, setReceiverIds] = useState([]);
 	const [managerList, setManagerList] = useState([]);
-	// const [agentsList, setAgentsList] = useState([]);
 	const [selectedManager, setSelectedManager] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,8 +100,10 @@ const CreateAnnouncement = () => {
 					? [...managerAgentsList]
 					: [...managerAgentsList, selectedValue];
 
+				console.log({ updatedReceiverIds });
+
 				setReceiverIds(updatedReceiverIds);
-				setSelectedRole("Team");
+				setSelectedRole("team");
 			} else {
 				// If no results, clear the receiver IDs (or just select the manager)
 				setReceiverIds([selectedValue]);
@@ -142,6 +143,8 @@ const CreateAnnouncement = () => {
 					return;
 			}
 
+			console.log({ newReceiverIds });
+
 			setReceiverIds(newReceiverIds); // Update state with new receiver IDs
 		} catch (error) {
 			console.error("Failed to handle role change:", error);
@@ -158,6 +161,7 @@ const CreateAnnouncement = () => {
 		if (selectedValue === "allManagers") {
 			const managerReceiverIds = managerList?.map((manager) => manager._id);
 			setReceiverIds(managerReceiverIds); // Set all manager IDs
+			console.log({ managerReceiverIds });
 			setSelectedManager(selectedValue); // Update the selected manager state
 		} else {
 			fetchMangerAgents(selectedValue);
@@ -180,6 +184,8 @@ const CreateAnnouncement = () => {
 						user_id: user._id,
 						type: selectedRole,
 					};
+
+					console.log({ announcementData });
 
 					const { data } = await axios.post(
 						`${keys.socketUrl}/announcements`,
@@ -276,7 +282,7 @@ const CreateAnnouncement = () => {
 
 				{isManager && (
 					<Text mb={{ base: 1, md: 3 }} color="gray.500">
-						Note: Announcement sent to all agents.
+						Note: Announcement will be sent all agents under you.
 					</Text>
 				)}
 

@@ -18,7 +18,6 @@ import { clearAnnouncement } from "./../../../../redux/announcementsSlice";
 import AnnouncementSlider from "./AnnouncementSlider";
 
 import logo from "assets/img/app-logo.jpeg";
-import { FaBullhorn } from "react-icons/fa";
 
 const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const announcements = useSelector((state) => state.announcements.list);
@@ -50,13 +49,13 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 		<CircularProgress size="10" isIndeterminate />
 	) : (
 		announcements.length > 0 && (
-			<Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+			<Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
 				<ModalOverlay />
 				<ModalContent
 					borderRadius="lg"
 					boxShadow="2xl"
 					maxWidth="900px"
-					w="95%"
+					w="100%"
 					textAlign="center"
 				>
 					{/* Header Section */}
@@ -85,13 +84,34 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 							</Text>
 						</Box>
 					</ModalHeader>
+					<ModalCloseButton color="white" />
 
 					{/* Body Section */}
-					<ModalBody px={6} py={4}>
-						<AnnouncementSlider
-							announcements={announcements}
-							onAcknowledge={handleAcknowledge}
-						/>
+					<ModalBody py={4} overflow="hidden" width="100%">
+						<Box
+							width="100%"
+							m="0"
+							background="brand"
+							maxH="400px" // Set max height for the modal body
+							overflowY="auto" // Enable vertical scrolling when content exceeds max height
+							sx={{
+								"&::-webkit-scrollbar": {
+									width: "6px", // Custom scrollbar width
+								},
+								"&::-webkit-scrollbar-thumb": {
+									background: "brand.500", // Custom brand color (adjust according to your theme)
+									borderRadius: "8px",
+								},
+								"&::-webkit-scrollbar-thumb:hover": {
+									background: "brand.600", // Slightly darker on hover
+								},
+							}}
+						>
+							<AnnouncementSlider
+								announcements={announcements}
+								onAcknowledge={handleAcknowledge}
+							/>
+						</Box>
 					</ModalBody>
 				</ModalContent>
 			</Modal>

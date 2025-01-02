@@ -47,15 +47,21 @@ const AnnouncementSlider = ({
 		<Box
 			position="relative"
 			textAlign="center"
-			p={6}
 			bg="white"
 			borderRadius="md"
-			maxW="lg"
+			maxW="xl"
 			mx="auto"
 		>
 			{/* Announcement Content */}
 			{announcements.length > 0 ? (
-				<Text fontSize="lg" fontWeight="medium" mb={6} color="gray.800" mt={4}>
+				<Text
+					fontSize="lg"
+					fontWeight="medium"
+					textAlign="justify"
+					mb={6}
+					color="gray.800"
+					mt={4}
+				>
 					{announcements[currentIndex]?.message}
 				</Text>
 			) : (
@@ -128,7 +134,7 @@ const AnnouncementSlider = ({
 					}}
 					onClick={handleAcknowledge}
 				>
-					Acknowledge
+					Acknowledged
 				</Button>
 			)}
 
