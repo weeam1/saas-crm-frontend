@@ -4,7 +4,7 @@ import { Select } from "@chakra-ui/react";
 
 const SelectManager = ({ selectedRole, handleManager, managerList }) => {
 	return (
-		(selectedRole === "managers" || selectedRole === "Team") && (
+		(selectedRole === "managers" || selectedRole === "team") && (
 			<Select
 				size="md"
 				width={{ base: "260px", md: "320px" }}
