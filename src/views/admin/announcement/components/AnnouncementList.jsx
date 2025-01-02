@@ -18,7 +18,7 @@ const getBadgeColor = (type) => {
 			return "blue"; // Neutral color for "all"
 		case "agents":
 			return "orange"; // Blue for "agents"
-		case "Team":
+		case "team":
 			return "green"; // Green for "team"
 		case "managers":
 			return "purple"; // Purple for "managers"
@@ -35,6 +35,7 @@ const AnnouncementList = ({ list, loading, handleCopy, handleViewMore }) => {
 			border="1px solid"
 			borderColor="gray.200"
 			borderRadius="md"
+			padding={2}
 		>
 			{loading && list.length === 0 ? ( // Loading spinner when no data has been loaded yet
 				<Box

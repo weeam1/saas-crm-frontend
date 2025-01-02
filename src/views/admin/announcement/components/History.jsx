@@ -1,14 +1,4 @@
-import {
-	Box,
-	CircularProgress,
-	Text,
-	Flex,
-	Badge,
-	IconButton,
-} from "@chakra-ui/react";
-import axios from "axios";
-import keys from "config/keys";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { toast } from "react-toastify";
 import AnnouncementList from "./AnnouncementList";
@@ -18,32 +8,8 @@ const History = ({ user }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10; // Number of announcements per page
 
-	// const getAnnouncements = async () => {
-	// 	setLoading(true);
-	// 	try {
-	// 		const { data } = await axios.get(
-	// 			`${keys.socketUrl}/posted_announcements?user_id=${user._id}&page=${currentPage}&size=${itemsPerPage}`,
-	// 			{ maxRedirects: 0 } // Prevent auto-following redirects
-	// 		);
-
-	// 		console.log(data);
-
-	// 		if (data?.total_announcements > 0) {
-	// 			setList(data.announcements);
-	// 			setTotalPages(data.totalPages);
-	// 		}
-	// 	} catch (error) {
-	// 		if (error.response?.status === 307) {
-	// 			console.log("Redirected to:", error.response.headers.location);
-	// 		} else {
-	// 			toast.error("Failed to fetch announcements:", error);
-	// 		}
-	// 	}
-	// 	setLoading(false);
-	// };
-
 	// Use the custom hook
-	const { list, loading, totalPages } = useFetchAnnouncements(
+	const { list, loading } = useFetchAnnouncements(
 		user?._id,
 		currentPage,
 		itemsPerPage
