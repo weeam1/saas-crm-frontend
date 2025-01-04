@@ -217,7 +217,6 @@ const RenderAgent = ({
 
 	useEffect(() => {
 		setAgentSelected(value);
-		console.log(value);
 	}, [value]);
 
 	if (agents?.length) {

@@ -120,10 +120,12 @@ const Index = () => {
 		roleColumns[role] || tableColumns
 	);
 
-	// const hiddenFields = JSON.parse(localStorage.getItem("hiddenCols") || "[]");
+	const hiddenFields = JSON.parse(
+		localStorage.getItem("userCustomColumns") || "[]"
+	);
 	const [selectedColumns, setSelectedColumns] = useState(
 		roleColumns[role] ||
-			tableColumns.filter((c) => hideColumns.includes(c.accessor) === false)
+			tableColumns.filter((c) => hiddenFields.includes(c.accessor) === false)
 	);
 
 	console.log({ selectedColumns });
@@ -181,6 +183,8 @@ const Index = () => {
 		try {
 			// Check if data exists in localStorage
 			const cachedData = localStorage.getItem("userCustomColumns");
+
+			console.log({ cachedData });
 
 			if (cachedData) {
 				// Parse and set data from localStorage
@@ -373,6 +377,7 @@ const Index = () => {
 					)}
 					<CheckTable
 						hideColumns={hideColumns}
+						setHideColumns={setHideColumns}
 						dateTime={dateTime}
 						setDateTime={setDateTime}
 						totalLeads={totalLeads}

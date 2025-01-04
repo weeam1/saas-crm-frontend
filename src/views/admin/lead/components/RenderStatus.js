@@ -37,7 +37,6 @@ const RenderStatus = ({
 	useEffect(() => {
 		// setValue(cellValue || rowOriginalStatus); // Sync state when props change
 
-		console.log({ cellValue, rowOriginalStatus });
 		if (rowOriginalStatus) {
 			setValue(rowOriginalStatus);
 		} else setValue(cellValue);

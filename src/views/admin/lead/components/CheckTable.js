@@ -33,7 +33,7 @@ import {
 	useDisclosure,
 	Skeleton,
 } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
 	useGlobalFilter,
 	usePagination,
@@ -71,7 +71,7 @@ import DataNotFound from "components/notFoundData";
 import RenderManager from "./RenderManager";
 import RenderAgent from "./RenderAgent";
 import RenderStatus from "./RenderStatus";
-import { MdTask } from "react-icons/md";
+import { MdFileUpload, MdTask } from "react-icons/md";
 import AddTask from "./addTask";
 import LeadsModal from "../LeadsModal";
 import AdvancedSearchModal from "./AdvancedSearchModal";
@@ -80,6 +80,9 @@ import { useStateContext } from "contexts/store";
 import RenderEStatus from "./RenderEStatus";
 import { postApi } from "services/api";
 import TableLoading from "components/loading/TableLoading";
+import ManageColumnModal from "./ManageColumnModal";
+import { FiUpload } from "react-icons/fi";
+import BlukImportModal from "./BlukImportModal";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -115,8 +118,10 @@ const CheckTable = React.memo((props) => {
 	const textColor = useColorModeValue("gray.500", "white");
 	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 	const [leadData, setLeadData] = useState([]);
-	// const columns = useMemo(() => dataColumn, [dataColumn]);
-	const columns = dataColumn;
+	const columns = useMemo(() => dataColumn, [dataColumn]);
+	// const columns = dataColumn;
+
+	const [blukImport, setBlukImport] = useState(false);
 
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [getTagValues, setGetTagValues] = useState([]);
@@ -156,6 +161,15 @@ const CheckTable = React.memo((props) => {
 		setData(tableData);
 	}, [refetchData, setData, tableData]);
 
+	useEffect(() => {
+		const savedColumns =
+			JSON.parse(localStorage.getItem("userCustomColumns")) || [];
+		const updatedColumns = dynamicColumns.filter(
+			(col) => !savedColumns.includes(col.accessor)
+		);
+		setSelectedColumns(updatedColumns);
+	}, [dynamicColumns, setSelectedColumns]);
+
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const {
@@ -193,6 +207,8 @@ const CheckTable = React.memo((props) => {
 			(column) => column?.accessor === columnKey
 		);
 
+		console.log({ columnKey, isColumnSelected });
+
 		if (isColumnSelected) {
 			const updatedColumns = tempSelectedColumns?.filter(
 				(column) => column?.accessor !== columnKey
@@ -205,6 +221,34 @@ const CheckTable = React.memo((props) => {
 			setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
 		}
 	};
+
+	// const toggleColumnVisibility = (columnKey) => {
+	// 	setColumn(columnKey); // Optional: Update any additional state tied to the current column.
+
+	// 	isColumnSelected = tempSelectedColumns?.some(
+	// 		(column) => column?.accessor === columnKey
+	// 	);
+
+	// 	console.log({ columnKey, isColumnSelected });
+
+	// 	if (isColumnSelected) {
+	// 		// Remove column from selected
+	// 		const updatedColumns = tempSelectedColumns?.filter(
+	// 			(column) => column?.accessor !== columnKey
+	// 		);
+	// 		console.log({ updatedColumns });
+	// 		setTempSelectedColumns([...updatedColumns]); // Spread to ensure a new array is created
+	// 	} else {
+	// 		// Add column to selected
+	// 		const columnToAdd = dynamicColumns?.find(
+	// 			(column) => column?.accessor === columnKey
+	// 		);
+	// 		console.log({ columnToAdd });
+	// 		if (columnToAdd) {
+	// 			setTempSelectedColumns((prevColumns) => [...prevColumns, columnToAdd]);
+	// 		}
+	// 	}
+	// };
 
 	const handleColumnClear = () => {
 		isColumnSelected = selectedColumns?.some(
@@ -352,22 +396,6 @@ const CheckTable = React.memo((props) => {
 		setIsFormReset(true);
 	};
 
-	// const {
-	// 	errors,
-	// 	touched,
-	// 	values,
-	// 	handleBlur,
-	// 	handleChange,
-	// 	handleSubmit,
-	// 	resetForm: formikResetForm,
-	// 	dirty,
-	// } = formik;
-
-	const hiddenCols =
-		JSON.parse(localStorage.getItem("userCustomColumns") || "[]") || [];
-
-	console.log({ hideColumns, hiddenCols });
-
 	const [columnVisibility, setColumnVisibility] = useState(
 		hideColumns?.reduce((acc, key) => {
 			acc[key] = false;
@@ -436,45 +464,30 @@ const CheckTable = React.memo((props) => {
 		onOpen();
 	};
 
-	// const saveManageCols = async () => {
-	// 	setSelectedColumns(tempSelectedColumns);
-	// 	console.log({ tempSelectedColumns });
-	// 	const tempAccessors = tempSelectedColumns.map((t) => t.accessor);
-
-	// 	const hideCols = dynamicColumns
-	// 		.filter((d) => !tempAccessors.includes(d.accessor))
-	// 		.map((d) => d.accessor);
-
-	// 	const userHideColsData = {
-	// 		userId: user._id,
-	// 		columns: hideCols,
-	// 	};
-
-	// 	await postApi(`api/customColumns`, userHideColsData);
-
-	// 	localStorage.setItem("userCustomColumns", JSON.stringify(hideCols));
-	// 	setManageColumns(false);
-	// 	refetchData();
-	// };
-
 	const saveManageCols = async () => {
 		try {
+			// Identify hidden columns
+			const tempAccessors = tempSelectedColumns.map((t) => t.accessor);
+
 			const hideCols = dynamicColumns
-				.filter(
-					(d) => !tempSelectedColumns.some((t) => t.accessor === d.accessor)
-				)
+				.filter((d) => !tempAccessors.includes(d.accessor))
 				.map((d) => d.accessor);
 
+			// Prepare data for saving
 			const userHideColsData = {
 				userId: user._id,
 				columns: hideCols,
 			};
 
+			// Save to backend
 			await postApi(`api/customColumns`, userHideColsData);
 
+			// Update local storage and state
 			localStorage.setItem("userCustomColumns", JSON.stringify(hideCols));
-			setSelectedColumns(tempSelectedColumns); // Update state after other operations
+			setSelectedColumns(tempSelectedColumns);
 			setManageColumns(false);
+
+			// Refetch data
 			refetchData();
 		} catch (error) {
 			console.error("Error saving columns:", error);
@@ -764,23 +777,23 @@ const CheckTable = React.memo((props) => {
 							>
 								Advance Search
 							</Button>
-							{displaySearchData || displayAdvSearchData ? (
-								<Button
-									variant="outline"
-									size="sm"
-									colorScheme="red"
-									ms={2}
-									onClick={() => {
-										handleClear();
+							{displaySearchData ||
+								(displayAdvSearchData && (
+									<Button
+										variant="outline"
+										size="sm"
+										colorScheme="red"
+										ms={2}
+										onClick={() => {
+											handleClear();
 
-										setGetTagValues([]);
-									}}
-								>
-									Clear
-								</Button>
-							) : (
-								""
-							)}
+											setGetTagValues([]);
+										}}
+									>
+										Clear
+									</Button>
+								))}
+
 							{selectedValues.length > 0 && access?.delete && (
 								<DeleteIcon
 									cursor={"pointer"}
@@ -789,8 +802,33 @@ const CheckTable = React.memo((props) => {
 									ms={2}
 								/>
 							)}
+
+							{/* {selectedValues && selectedValues.length > 1 ? ( */}
+							<Button
+								variant="outline"
+								color="gray.800"
+								bg="whiteAlpha.300"
+								leftIcon={<MdFileUpload />}
+								onClick={() => setBlukImport(true)}
+								mt={{ sm: "5px", md: "0" }}
+								mx="2"
+								size="sm"
+								isDisabled={!(selectedValues && selectedValues.length > 1)}
+							>
+								Bluk Import
+							</Button>
 						</Flex>
 					</GridItem>
+
+					{blukImport && selectedValues?.length && (
+						<BlukImportModal
+							blukImport={blukImport}
+							setBlukImport={setBlukImport}
+							isLoding={isLoding}
+							refetchData={refetchData}
+							selectedValues={selectedValues}
+						/>
+					)}
 
 					{/* <GridItem
             display={"flex"}
@@ -1331,6 +1369,7 @@ const CheckTable = React.memo((props) => {
 																// setUpdatedEStatus={setUpdatedEStatus}
 																id={cell?.row?.original?._id}
 																cellValue={cell?.value}
+																user={user}
 															/>
 														</div>
 													);
@@ -1811,7 +1850,18 @@ const CheckTable = React.memo((props) => {
 				// resetForm={formikResetForm}
 			/>
 
-			<Modal
+			<ManageColumnModal
+				setManageColumns={setManageColumns}
+				manageColumns={manageColumns}
+				handleColumnClear={handleColumnClear}
+				toggleColumnVisibility={toggleColumnVisibility}
+				selectedColumns={selectedColumns}
+				dynamicColumns={dynamicColumns}
+				isLoding={isLoding}
+				saveManageCols={saveManageCols}
+			/>
+
+			{/* <Modal
 				onClose={() => {
 					setManageColumns(false);
 				}}
@@ -1867,7 +1917,7 @@ const CheckTable = React.memo((props) => {
 						</Button>
 					</ModalFooter>
 				</ModalContent>
-			</Modal>
+			</Modal> */}
 			{/* Delete model */}
 			<Delete
 				isOpen={deleteModel}

@@ -51,8 +51,8 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: "leadSourceDetails",
-				label: "Source Details",
-				placeholder: "Search by Source Details",
+				label: "Source Content",
+				placeholder: "Search by Source Content",
 			},
 			{
 				name: "leadSourceMedium",
