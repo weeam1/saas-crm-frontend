@@ -177,7 +177,6 @@ export default function CheckTable(props) {
 	useEffect(() => {
 		setTempSelectedColumns(dataColumn);
 	}, [dataColumn]);
-	console.log(dataColumn, "dataColumn");
 	const { isLeadCycle, setIsLeadCycle } = useStateContext();
 
 	const csvColumns = [
@@ -463,6 +462,8 @@ export default function CheckTable(props) {
 		dirty,
 	} = formik;
 
+	console.log({ displayAdvSearchData });
+
 	const refreshData = () => {
 		if (displaySearchData) {
 			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
@@ -601,8 +602,6 @@ export default function CheckTable(props) {
 		approvalId
 	) => {
 		const user = JSON.parse(localStorage.getItem("user"));
-		console.log(user?.role, "role");
-		console.log(e, leadId, agentId, managerId, approvalId, "it an information");
 		if (e == "none") return;
 		try {
 			const res = await axios.put(
@@ -786,6 +785,11 @@ export default function CheckTable(props) {
 		setGopageValue(1);
 		if (displaySearchData) {
 			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+		} else if (displayAdvSearchData) {
+			const data = Object.fromEntries(
+				Object.entries(values).filter(([key, value]) => value !== "")
+			);
+			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
 			fetchData(1, pageSize);
 		}
@@ -819,7 +823,6 @@ export default function CheckTable(props) {
 					},
 				}
 			);
-			console.log(res.data);
 
 			const r = await getApi(`api/user/view/${user?._id}`);
 			const response = await putApi(`api/user/edit/${user?._id}`, {

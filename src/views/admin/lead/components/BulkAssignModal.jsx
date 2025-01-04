@@ -17,15 +17,25 @@ const {
 	Spinner,
 } = require("@chakra-ui/react");
 
-const BlukAssignModal = (props) => {
-	const { blukAssign, setBlukAssign, selectedValues, refetchData } = props;
+const BulkAssignModal = (props) => {
+	const {
+		bulkAssign,
+		setBulkAssign,
+		selectedValues,
+		refetchData,
+		fetchData,
+		displayAdvSearchData,
+		fetchAdvancedSearch,
+		setSelectedValues,
+	} = props;
+
 	const [isLoading, setIsLoading] = useState(false);
 
 	const user = JSON.parse(localStorage.getItem("user"));
 	const tree = useSelector((state) => state.user.tree);
 
 	const closeHandler = () => {
-		setBlukAssign(false);
+		setBulkAssign(false);
 	};
 
 	const initialValues = {
@@ -42,11 +52,16 @@ const BlukAssignModal = (props) => {
 			};
 			setIsLoading(true);
 
-			let response = await putApi(`api/lead/bluk-assign`, payload);
+			let response = await putApi(`api/lead/Bulk-assign`, payload);
 			if (response.status === 200) {
 				toast.success("Leads successfully Updated!");
 				formikResetForm();
-				refetchData();
+				fetchData();
+				setSelectedValues([]);
+				if (displayAdvSearchData) {
+					refetchData();
+					fetchAdvancedSearch();
+				}
 			}
 		} catch (error) {
 			console.error("Error submitting bulk assign:", error);
@@ -76,13 +91,13 @@ const BlukAssignModal = (props) => {
 		<Modal
 			size="2xl"
 			onClose={closeHandler}
-			isOpen={blukAssign}
+			isOpen={bulkAssign}
 			isCentered
 			motionPreset="slideInBottom"
 		>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Bluk Import</ModalHeader>
+				<ModalHeader>Bulk Assign</ModalHeader>
 				<ModalBody>
 					<ModalCloseButton onClick={closeHandler} />
 					<ManagerAgentImport
@@ -118,4 +133,4 @@ const BlukAssignModal = (props) => {
 	);
 };
 
-export default BlukAssignModal;
+export default BulkAssignModal;

@@ -184,9 +184,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
-				  }&role=${user.roles[0]?.roleName}&dateTime=${
+					}&role=${user.roles[0]?.roleName}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
+					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
 		);
 		setDisplayAdvSearchData(true);
 		setIsLoding(false);
@@ -389,9 +389,9 @@ const Index = () => {
 							"&isInLeadPool=true"
 					: `api/lead/?user=${user._id}&role=${
 							user.roles[0]?.roleName
-					  }&dateTime=${
+						}&dateTime=${
 							dateTime?.from + "|" + dateTime?.to
-					  }&page=${pageNo}&pageSize=${pageSize}`,
+						}&page=${pageNo}&pageSize=${pageSize}`,
 				null,
 				"baseUrl",
 				source
@@ -461,9 +461,9 @@ const Index = () => {
 						pageSize
 				: `api/lead/search?term=${term}&user=${user._id}&role=${
 						user.roles[0]?.roleName
-				  }&dateTime=${
+					}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
-				  }&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
+					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
 		);
 		setDisplaySearchData(true);
 		setSearchedData(result.data?.result || []);
@@ -502,7 +502,7 @@ const Index = () => {
 	useEffect(() => {
 		setColumns(tableColumns);
 	}, [action]);
-	console.log(dynamicColumns, "manager");
+
 	return (
 		<div>
 			<Button

@@ -81,7 +81,7 @@ import RenderEStatus from "./RenderEStatus";
 import { postApi } from "services/api";
 import TableLoading from "components/loading/TableLoading";
 import ManageColumnModal from "./ManageColumnModal";
-import BlukAssignModal from "./BlukAssignModal";
+import BulkAssignModal from "./BulkAssignModal";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -120,7 +120,7 @@ const CheckTable = React.memo((props) => {
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	// const columns = dataColumn;
 
-	const [blukAssign, setBlukAssign] = useState(false);
+	const [bulkAssign, setBulkAssign] = useState(false);
 
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [getTagValues, setGetTagValues] = useState([]);
@@ -809,76 +809,31 @@ const CheckTable = React.memo((props) => {
 									color="gray.800"
 									bg="whiteAlpha.300"
 									leftIcon={<MdFileUpload />}
-									onClick={() => setBlukAssign(true)}
+									onClick={() => setBulkAssign(true)}
 									mt={{ sm: "5px", md: "0" }}
 									mx="2"
 									size="sm"
 									isDisabled={!(selectedValues && selectedValues.length > 1)}
 								>
-									Bluk Assign
+									Bulk Assign
 								</Button>
 							)}
 						</Flex>
 					</GridItem>
 
-					{blukAssign && selectedValues?.length && (
-						<BlukAssignModal
-							blukAssign={blukAssign}
-							setBlukAssign={setBlukAssign}
+					{bulkAssign && selectedValues?.length && (
+						<BulkAssignModal
+							fetchData={fetchData}
+							bulkAssign={bulkAssign}
+							setBulkAssign={setBulkAssign}
+							setSelectedValues={setSelectedValues}
 							isLoding={isLoding}
 							refetchData={refetchData}
 							selectedValues={selectedValues}
+							fetchAdvancedSearch={fetchAdvancedSearch}
+							displayAdvSearchData={displayAdvSearchData}
 						/>
 					)}
-
-					{/* <GridItem
-            display={"flex"}
-            alignItems={"center"}
-            colSpan={{ base: 5 }}
-          >
-            <Flex
-              alignItems={"center"}
-              style={{
-                position: "relative",
-                left: "-15px",
-                fontSize: 15,
-              }}
-              className="date-range-selector"
-            >
-              <Flex alignItems={"center"}>
-                <p>From:</p>
-                <div style={{ width: 10 }}></div>
-                <input
-                  value={dateTime.from}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setDateTime({ ...dateTime, from: e.target.value });
-                    } else {
-                      setDateTime({ to: "", from: "" });
-                    }
-                  }}
-                  style={{ color: "#422afb" }}
-                  type="datetime-local"
-                />
-              </Flex>
-              {dateTime?.from && (
-                <div>
-                  <Flex ms={2} alignItems={"center"}>
-                    <p>To:</p>
-                    <div style={{ width: 10 }}></div>
-                    <input
-                      value={dateTime.to}
-                      onChange={(e) => {
-                        setDateTime({ ...dateTime, to: e.target.value });
-                      }}
-                      style={{ color: "#422afb" }}
-                      type="datetime-local"
-                    />
-                  </Flex>
-                </div>
-              )}
-            </Flex>
-          </GridItem> */}
 
 					<GridItem
 						colSpan={{ base: 4 }}
@@ -1765,12 +1720,12 @@ const CheckTable = React.memo((props) => {
 					id={selectedId}
 				/>
 
-				<AddTask
+				{/* <AddTask
 					leadData={taskInits}
 					fetchData={() => {}}
 					isOpen={isTaskOpen}
 					onClose={onTaskClose}
-				/>
+				/> */}
 
 				<AddPhoneCall
 					fetchData={fetchData}
@@ -1791,6 +1746,7 @@ const CheckTable = React.memo((props) => {
 						fetchData={fetchData}
 						setAction={setAction}
 						action={action}
+						pageIndex={pageIndex}
 					/>
 				)}
 				{selectedId && (

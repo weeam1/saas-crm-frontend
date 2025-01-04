@@ -4,7 +4,8 @@ import { HSeparator } from 'components/separator/Separator';
 import { PhoneIcon, StarIcon } from '@chakra-ui/icons';
 
 const CustomForm = ({ leadData, values, handleChange, handleBlur, errors, touched, setFieldValue }) => {
-    console.log(values); 
+    console.log({ values }); 
+    console.log(leadData)
     return (
         <Grid templateColumns="repeat(12, 1fr)" gap={3}>
             {leadData?.headings?.length > 0 ?
