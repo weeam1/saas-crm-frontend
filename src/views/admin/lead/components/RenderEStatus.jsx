@@ -10,25 +10,58 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 
 	const isSuperAdmin = user.role === "superAdmin";
 
+	// const setStatusData = async (e) => {
+	// 	try {
+	// 		const data = {
+	// 			eLeadStatus: e.target.value,
+	// 		};
+
+	// 		setLoading(true);
+	// 		let response = await putApi(`api/lead/update/e-status/${id}`, data);
+	// 		if (response.status === 200) {
+	// 			setValue(data.eLeadStatus);
+	// 			toast.success("Extra Lead Status Updated!");
+	// 		}
+	// 	} catch (e) {
+	// 		console.log("error", e);
+	// 		toast.error("Something went wrong!");
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
 	const setStatusData = async (e) => {
 		try {
 			const data = {
 				eLeadStatus: e.target.value,
 			};
 
-			if (data.eLeadStatus === "deal" && !isSuperAdmin) {
-				return toast.error("Only a Super Admin can change the deal status.");
-			}
-
 			setLoading(true);
-			let response = await putApi(`api/lead/update/e-status/${id}`, data);
+
+			const response = await putApi(`api/lead/update/e-status/${id}`, data);
+
 			if (response.status === 200) {
 				setValue(data.eLeadStatus);
 				toast.success("Extra Lead Status Updated!");
+			} else if (response.status === 400) {
+				// Handle 400 Bad Request specifically
+				console.log(response);
+				const errorDetails =
+					response?.response?.data?.message || "Invalid request data.";
+				toast.error(`${errorDetails}`);
+			} else {
+				toast.error("Something went wrong!");
 			}
-		} catch (e) {
-			console.log(e);
-			toast.error("Something went wrong!");
+		} catch (error) {
+			// Check if the error contains response data
+			if (error.response?.status === 400) {
+				const errorDetails =
+					error.response.data?.message || "Invalid input provided.";
+				toast.error(`Bad Request: ${errorDetails}`);
+			} else {
+				console.error("Unexpected error:", error);
+				toast.error("Something went wrong!");
+			}
 		} finally {
 			setLoading(false);
 		}

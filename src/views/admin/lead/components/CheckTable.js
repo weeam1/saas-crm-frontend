@@ -81,8 +81,7 @@ import RenderEStatus from "./RenderEStatus";
 import { postApi } from "services/api";
 import TableLoading from "components/loading/TableLoading";
 import ManageColumnModal from "./ManageColumnModal";
-import { FiUpload } from "react-icons/fi";
-import BlukImportModal from "./BlukImportModal";
+import BlukAssignModal from "./BlukAssignModal";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -121,7 +120,7 @@ const CheckTable = React.memo((props) => {
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	// const columns = dataColumn;
 
-	const [blukImport, setBlukImport] = useState(false);
+	const [blukAssign, setBlukAssign] = useState(false);
 
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [getTagValues, setGetTagValues] = useState([]);
@@ -200,14 +199,13 @@ const CheckTable = React.memo((props) => {
 		{ Header: "Timetocall", accessor: "timetocall" },
 	];
 
+	console.log({ user });
 	let isColumnSelected;
 	const toggleColumnVisibility = (columnKey) => {
 		setColumn(columnKey);
 		isColumnSelected = tempSelectedColumns?.some(
 			(column) => column?.accessor === columnKey
 		);
-
-		console.log({ columnKey, isColumnSelected });
 
 		if (isColumnSelected) {
 			const updatedColumns = tempSelectedColumns?.filter(
@@ -804,26 +802,29 @@ const CheckTable = React.memo((props) => {
 							)}
 
 							{/* {selectedValues && selectedValues.length > 1 ? ( */}
-							<Button
-								variant="outline"
-								color="gray.800"
-								bg="whiteAlpha.300"
-								leftIcon={<MdFileUpload />}
-								onClick={() => setBlukImport(true)}
-								mt={{ sm: "5px", md: "0" }}
-								mx="2"
-								size="sm"
-								isDisabled={!(selectedValues && selectedValues.length > 1)}
-							>
-								Bluk Import
-							</Button>
+							{(user?.role === "superAdmin" ||
+								user?.roles[0]?.roleName === "Manager") && (
+								<Button
+									variant="outline"
+									color="gray.800"
+									bg="whiteAlpha.300"
+									leftIcon={<MdFileUpload />}
+									onClick={() => setBlukAssign(true)}
+									mt={{ sm: "5px", md: "0" }}
+									mx="2"
+									size="sm"
+									isDisabled={!(selectedValues && selectedValues.length > 1)}
+								>
+									Bluk Assign
+								</Button>
+							)}
 						</Flex>
 					</GridItem>
 
-					{blukImport && selectedValues?.length && (
-						<BlukImportModal
-							blukImport={blukImport}
-							setBlukImport={setBlukImport}
+					{blukAssign && selectedValues?.length && (
+						<BlukAssignModal
+							blukAssign={blukAssign}
+							setBlukAssign={setBlukAssign}
 							isLoding={isLoding}
 							refetchData={refetchData}
 							selectedValues={selectedValues}

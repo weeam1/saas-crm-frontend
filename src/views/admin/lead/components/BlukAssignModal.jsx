@@ -17,18 +17,15 @@ const {
 	Spinner,
 } = require("@chakra-ui/react");
 
-const BlukImportModal = (props) => {
-	const { isLoding, blukImport, setBlukImport, selectedValues, refetchData } =
-		props;
+const BlukAssignModal = (props) => {
+	const { blukAssign, setBlukAssign, selectedValues, refetchData } = props;
 	const [isLoading, setIsLoading] = useState(false);
 
 	const user = JSON.parse(localStorage.getItem("user"));
 	const tree = useSelector((state) => state.user.tree);
 
-	console.log({ selectedValues });
-
 	const closeHandler = () => {
-		setBlukImport(false);
+		setBlukAssign(false);
 	};
 
 	const initialValues = {
@@ -45,17 +42,14 @@ const BlukImportModal = (props) => {
 			};
 			setIsLoading(true);
 
-			// Submit data to the server or handle logic
-			console.log("Submitting payload:", payload);
-
-			let response = await putApi(`api/lead/bluk-import`, payload);
+			let response = await putApi(`api/lead/bluk-assign`, payload);
 			if (response.status === 200) {
 				toast.success("Leads successfully Updated!");
 				formikResetForm();
 				refetchData();
 			}
 		} catch (error) {
-			console.error("Error submitting bulk import:", error);
+			console.error("Error submitting bulk assign:", error);
 			toast.error(error);
 		} finally {
 			setIsLoading(false);
@@ -80,9 +74,9 @@ const BlukImportModal = (props) => {
 
 	return (
 		<Modal
-			size="5xl"
+			size="2xl"
 			onClose={closeHandler}
-			isOpen={blukImport}
+			isOpen={blukAssign}
 			isCentered
 			motionPreset="slideInBottom"
 		>
@@ -124,4 +118,4 @@ const BlukImportModal = (props) => {
 	);
 };
 
-export default BlukImportModal;
+export default BlukAssignModal;
