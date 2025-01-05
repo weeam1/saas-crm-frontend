@@ -22,11 +22,9 @@ const BulkAssignModal = (props) => {
 		bulkAssign,
 		setBulkAssign,
 		selectedValues,
-		refetchData,
-		fetchData,
-		displayAdvSearchData,
-		fetchAdvancedSearch,
 		setSelectedValues,
+		setSelectAllChecked,
+		refreshData,
 	} = props;
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -52,16 +50,13 @@ const BulkAssignModal = (props) => {
 			};
 			setIsLoading(true);
 
-			let response = await putApi(`api/lead/Bulk-assign`, payload);
+			let response = await putApi(`api/lead/bulk-assign`, payload);
 			if (response.status === 200) {
-				toast.success("Leads successfully Updated!");
+				toast.success("Leads updated successfully");
+				refreshData();
 				formikResetForm();
-				fetchData();
 				setSelectedValues([]);
-				if (displayAdvSearchData) {
-					refetchData();
-					fetchAdvancedSearch();
-				}
+				setSelectAllChecked(false);
 			}
 		} catch (error) {
 			console.error("Error submitting bulk assign:", error);

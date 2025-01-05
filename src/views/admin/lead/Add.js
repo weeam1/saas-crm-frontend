@@ -98,8 +98,6 @@ const Add = (props) => {
 		setFieldValue,
 	} = formik;
 
-	console.log({ page: props.pageIndex });
-
 	const AddData = async () => {
 		try {
 			setIsLoding(true);
@@ -121,8 +119,8 @@ const Add = (props) => {
 			if (response.status === 200) {
 				props.onClose();
 				formik.resetForm();
-				props.setAction((pre) => !pre);
-				// if (props.pageIndex === 0) props.fetchData();
+				// props.setAction((pre) => !pre);
+				props.refreshData();
 			}
 		} catch (e) {
 			console.log(e);

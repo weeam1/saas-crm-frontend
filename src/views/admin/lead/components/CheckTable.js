@@ -53,7 +53,13 @@ import {
 import Card from "components/card/Card";
 import Pagination from "components/pagination/Pagination";
 import Spinner from "components/spinner/Spinner";
-import { FaHistory, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
+import {
+	FaHistory,
+	FaSort,
+	FaSortDown,
+	FaSortUp,
+	FaTasks,
+} from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getApi } from "services/api";
@@ -800,40 +806,8 @@ const CheckTable = React.memo((props) => {
 									ms={2}
 								/>
 							)}
-
-							{/* {selectedValues && selectedValues.length > 1 ? ( */}
-							{(user?.role === "superAdmin" ||
-								user?.roles[0]?.roleName === "Manager") && (
-								<Button
-									variant="outline"
-									color="gray.800"
-									bg="whiteAlpha.300"
-									leftIcon={<MdFileUpload />}
-									onClick={() => setBulkAssign(true)}
-									mt={{ sm: "5px", md: "0" }}
-									mx="2"
-									size="sm"
-									isDisabled={!(selectedValues && selectedValues.length > 1)}
-								>
-									Bulk Assign
-								</Button>
-							)}
 						</Flex>
 					</GridItem>
-
-					{bulkAssign && selectedValues?.length && (
-						<BulkAssignModal
-							fetchData={fetchData}
-							bulkAssign={bulkAssign}
-							setBulkAssign={setBulkAssign}
-							setSelectedValues={setSelectedValues}
-							isLoding={isLoding}
-							refetchData={refetchData}
-							selectedValues={selectedValues}
-							fetchAdvancedSearch={fetchAdvancedSearch}
-							displayAdvSearchData={displayAdvSearchData}
-						/>
-					)}
 
 					<GridItem
 						colSpan={{ base: 4 }}
@@ -842,6 +816,22 @@ const CheckTable = React.memo((props) => {
 						alignItems={"center"}
 						textAlign={"right"}
 					>
+						{(user?.role === "superAdmin" ||
+							user?.roles[0]?.roleName === "Manager") && (
+							<Button
+								variant="outline"
+								colorScheme="gray"
+								bg="whiteAlpha.300"
+								leftIcon={<FaTasks />}
+								onClick={() => setBulkAssign(true)}
+								mt={{ sm: "5px", md: "0" }}
+								mx="2"
+								size="sm"
+								isDisabled={!(selectedValues && selectedValues.length > 1)}
+							>
+								Bulk Assign
+							</Button>
+						)}
 						<Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
@@ -886,6 +876,7 @@ const CheckTable = React.memo((props) => {
 								</MenuItem>
 							</MenuList>
 						</Menu>
+
 						{access?.create && (
 							<Button
 								onClick={() => handleClick()}
@@ -915,6 +906,16 @@ const CheckTable = React.memo((props) => {
 							))}
 					</HStack>
 				</Grid>
+				{bulkAssign && selectedValues?.length && (
+					<BulkAssignModal
+						refreshData={refreshData}
+						bulkAssign={bulkAssign}
+						setBulkAssign={setBulkAssign}
+						setSelectedValues={setSelectedValues}
+						selectedValues={selectedValues}
+						setSelectAllChecked={setSelectAllChecked}
+					/>
+				)}
 
 				<Box overflowY={"auto"} w="100%" className="table-fix-container">
 					<Table
@@ -1746,7 +1747,7 @@ const CheckTable = React.memo((props) => {
 						fetchData={fetchData}
 						setAction={setAction}
 						action={action}
-						pageIndex={pageIndex}
+						refreshData={refreshData}
 					/>
 				)}
 				{selectedId && (

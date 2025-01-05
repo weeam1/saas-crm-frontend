@@ -330,6 +330,7 @@ const Index = () => {
 			}
 			return { ...lead };
 		});
+		console.log({ newData });
 		setSearchedData(newData || []);
 		setPages(result.data?.totalPages || 0);
 		setTotalLeads(result.data?.totalLeads || 0);
