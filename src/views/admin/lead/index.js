@@ -128,7 +128,6 @@ const Index = () => {
 			tableColumns.filter((c) => hiddenFields.includes(c.accessor) === false)
 	);
 
-	console.log({ selectedColumns });
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({
 		from: "",
@@ -184,8 +183,6 @@ const Index = () => {
 			// Check if data exists in localStorage
 			const cachedData = localStorage.getItem("userCustomColumns");
 
-			console.log({ cachedData });
-
 			if (cachedData) {
 				// Parse and set data from localStorage
 				const parsedData = JSON.parse(cachedData);
@@ -196,19 +193,15 @@ const Index = () => {
 							(c) => parsedData.includes(c.accessor) === false
 						)
 				);
-
-				console.log("Loaded columns from localStorage:", parsedData);
 			} else {
 				// Fetch from backend if not found in localStorage
 				let { data } = await getApi(`api/customColumns/${user._id}`);
 
 				if (!data?.doc) {
-					console.log("Data columns not found!");
 					setHideColumns([]);
 				} else {
 					const customCols = data?.doc?.columns;
 					setHideColumns(customCols);
-					console.log({ customCols });
 					setSelectedColumns(
 						roleColumns[role] ||
 							tableColumns.filter(
@@ -261,7 +254,6 @@ const Index = () => {
 
 	const fetchSearchedData = async (term = "", pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
-		console.log("search");
 
 		let result = await getApi(
 			user.role === "superAdmin"
@@ -330,7 +322,6 @@ const Index = () => {
 			}
 			return { ...lead };
 		});
-		console.log({ newData });
 		setSearchedData(newData || []);
 		setPages(result.data?.totalPages || 0);
 		setTotalLeads(result.data?.totalLeads || 0);

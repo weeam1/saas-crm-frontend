@@ -164,6 +164,7 @@ const CheckTable = React.memo((props) => {
 
 	useEffect(() => {
 		setData(tableData);
+		console.log({ tableData });
 	}, [refetchData, setData, tableData]);
 
 	useEffect(() => {
@@ -205,7 +206,6 @@ const CheckTable = React.memo((props) => {
 		{ Header: "Timetocall", accessor: "timetocall" },
 	];
 
-	console.log({ user });
 	let isColumnSelected;
 	const toggleColumnVisibility = (columnKey) => {
 		setColumn(columnKey);
@@ -272,6 +272,19 @@ const CheckTable = React.memo((props) => {
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
 			fetchData(pageIndex + 1, pageSize);
+		}
+	};
+
+	const bulkRefreshData = () => {
+		if (displaySearchData) {
+			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+		} else if (displayAdvSearchData) {
+			const data = Object.fromEntries(
+				Object.entries(formValues).filter(([key, value]) => value !== "")
+			);
+			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
+		} else {
+			refetchData(pageIndex + 1, pageSize);
 		}
 	};
 
@@ -908,7 +921,7 @@ const CheckTable = React.memo((props) => {
 				</Grid>
 				{bulkAssign && selectedValues?.length && (
 					<BulkAssignModal
-						refreshData={refreshData}
+						refreshData={bulkRefreshData}
 						bulkAssign={bulkAssign}
 						setBulkAssign={setBulkAssign}
 						setSelectedValues={setSelectedValues}
