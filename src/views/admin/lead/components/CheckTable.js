@@ -350,7 +350,7 @@ const CheckTable = React.memo((props) => {
 	// 							displayValue = assignedAgent
 	// 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
 	// 								: value === -1
-	// 									? "No Agent"
+	// 									?"no Agent"
 	// 									: value;
 	// 						}
 
@@ -363,7 +363,7 @@ const CheckTable = React.memo((props) => {
 	// 							displayValue = assignedManager
 	// 								? `${assignedManager.firstName} ${assignedManager.lastName}`
 	// 								: value === -1
-	// 									? "No Manager"
+	// 									?"no Manager"
 	// 									: value;
 	// 						}
 
@@ -764,6 +764,23 @@ const CheckTable = React.memo((props) => {
 				w="100%"
 				overflowX={{ sm: "scroll", lg: "hidden" }}
 			>
+				{(user?.role === "superAdmin" ||
+					user?.roles[0]?.roleName === "Manager") && (
+					<Button
+						size="sm"
+						variant="outline"
+						colorScheme="gray"
+						bg="whiteAlpha.300"
+						mt={{ base: "5px", md: "0" }}
+						alignSelf={{ base: "center", sm: "end" }} // Center on mobile, end on larger devices
+						onClick={() => setBulkAssign(true)}
+						width="fit-content"
+						isDisabled={!(selectedValues && selectedValues.length > 1)}
+						leftIcon={<FaTasks />}
+					>
+						Bulk Assign
+					</Button>
+				)}
 				<Grid templateColumns="repeat(12, 1fr)" gap={2}>
 					<GridItem
 						colSpan={{ base: 8 }}
@@ -829,22 +846,6 @@ const CheckTable = React.memo((props) => {
 						alignItems={"center"}
 						textAlign={"right"}
 					>
-						{(user?.role === "superAdmin" ||
-							user?.roles[0]?.roleName === "Manager") && (
-							<Button
-								variant="outline"
-								colorScheme="gray"
-								bg="whiteAlpha.300"
-								leftIcon={<FaTasks />}
-								onClick={() => setBulkAssign(true)}
-								mt={{ sm: "5px", md: "0" }}
-								mx="2"
-								size="sm"
-								isDisabled={!(selectedValues && selectedValues.length > 1)}
-							>
-								Bulk Assign
-							</Button>
-						)}
 						<Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
@@ -1299,7 +1300,7 @@ const CheckTable = React.memo((props) => {
 														<Text fontSize="sm" fontWeight={500}>
 															{cell?.value && cell.value !== "-"
 																? cell.value
-																: "No Address"}
+																: "no address"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Status") {
@@ -1406,7 +1407,7 @@ const CheckTable = React.memo((props) => {
 															width={300}
 															textAlign={"center"}
 														>
-															{cell?.value?.text || cell?.value || "No Data"}
+															{cell?.value?.text || cell?.value || "no Data"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Budget") {
@@ -1438,13 +1439,13 @@ const CheckTable = React.memo((props) => {
 												} else if (cell?.column.Header === "Last Note") {
 													data = (
 														<Text width={200} fontSize={"sm"}>
-															{cell?.value || "No Last Note"}
+															{cell?.value || "no note"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Country") {
 													data = (
 														<Text fontSize={"sm"} width={150} fontWeight={500}>
-															{cell?.value || "No Country"}
+															{cell?.value || "no country"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Address") {
@@ -1454,43 +1455,43 @@ const CheckTable = React.memo((props) => {
 															fontSize={"sm"}
 															fontWeight={500}
 														>
-															{cell?.value || "No Address"}
+															{cell?.value || "no address"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Campaign") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "No Campaign"}
+															{cell?.value || "no campaign"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Source Content") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "No Content"}
+															{cell?.value || "no content"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Email") {
 													data = (
 														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "No Email"}
+															{cell?.value || "no email"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Medium") {
 													data = (
 														<Text fontSize={"sm"} width={200}>
-															{cell?.value || "No Medium"}
+															{cell?.value || "no medium"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Campaign URL") {
 													data = (
 														<Text fontSize={"sm"} width={300}>
-															{cell?.value || "No URL"}
+															{cell?.value || "no URL"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "In UAE?") {
 													data = (
 														<Text fontSize={"sm"} width={140}>
-															{cell?.value || "Not Selected"}
+															{cell?.value || "not selected"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Action") {

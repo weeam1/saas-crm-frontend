@@ -97,6 +97,7 @@ import { IoMdClose } from "react-icons/io";
 import { deleteApi } from "services/api";
 import LastNoteText from "views/admin/lead/components/LastNoteText";
 import { useStateContext } from "contexts/store";
+import TableLoading from "components/loading/TableLoading";
 
 export default function CheckTable(props) {
 	const {
@@ -174,9 +175,23 @@ export default function CheckTable(props) {
 		isOpen: false,
 		lid: null,
 	});
+
+	const [showTable, setShowTable] = useState(false);
+
+	useEffect(() => {
+		if (!isLoding) {
+			const timer = setTimeout(() => {
+				setShowTable(true);
+			}, 500); // 1 second delay
+
+			return () => clearTimeout(timer); // Clean up timeout
+		}
+	}, [isLoding]);
+
 	useEffect(() => {
 		setTempSelectedColumns(dataColumn);
 	}, [dataColumn]);
+
 	const { isLeadCycle, setIsLeadCycle } = useStateContext();
 
 	const csvColumns = [
@@ -942,18 +957,21 @@ export default function CheckTable(props) {
 						alignItems={"center"}
 					>
 						<Flex alignItems={"center"} flexWrap={"wrap"}>
-							<Text
+							<Flex
 								color={useColorModeValue("secondaryGray.900", "white")}
 								fontSize="22px"
 								fontWeight="700"
+								alignItems={"center"}
+								gap="2"
 							>
-								Leads (
+								<Text style={{ marginRight: "2px" }}>
+									{user.role === "superAdmin" ? "Requested Leads" : "Leads"}
+								</Text>
 								<CountUpComponent
 									key={data?.length}
 									targetNumber={totalLeads}
 								/>
-								)
-							</Text>
+							</Flex>
 							<CustomSearchInput
 								searchbox={searchbox}
 								dataColumn={dataColumn}
@@ -1196,7 +1214,21 @@ export default function CheckTable(props) {
 					>
 						<Thead zIndex={1}>
 							{headerGroups?.map((headerGroup, index) => (
-								<Tr {...headerGroup.getHeaderGroupProps()} key={index}>
+								<Tr
+									{...headerGroup.getHeaderGroupProps()}
+									key={index}
+									position="sticky"
+									top="0"
+									zIndex="2"
+									height="60px"
+									width="1146px"
+									left="325px"
+									borderRadius="10px 10px 0 0"
+									borderBottom="1px solid #ebd3a6" // Match Figma style
+									bg="#ebd3a6" // Replace with Figma's header color
+									opacity="1" // Set to '0' if it's intended to be invisible
+									marginBottom="1rem"
+								>
 									{headerGroup.headers?.map((column, index) => (
 										<Th
 											{...column.getHeaderProps(
@@ -1209,6 +1241,7 @@ export default function CheckTable(props) {
 										>
 											<Flex
 												align="center"
+												textAlign="center"
 												justifyContent={column.center ? "center" : "start"}
 												fontSize={{ sm: "10px", lg: "12px" }}
 											>
@@ -1234,6 +1267,7 @@ export default function CheckTable(props) {
 													style={{
 														textTransform: "capitalize",
 														marginRight: "8px",
+														textAlign: "center",
 													}}
 												>
 													{column.render("Header")}
@@ -1259,35 +1293,10 @@ export default function CheckTable(props) {
 						</Thead>
 						<Tbody {...getTableBodyProps()}>
 							{isLoding ? (
-								<Tr>
-									<Td colSpan={columns?.length}>
-										<Flex
-											justifyContent={"center"}
-											alignItems={"center"}
-											width="100%"
-											color={textColor}
-											fontSize="sm"
-											fontWeight="700"
-										>
-											<Spinner />
-										</Flex>
-									</Td>
-								</Tr>
-							) : data?.length === 0 ? (
-								<Tr>
-									<Td colSpan={columns.length}>
-										<Text
-											textAlign={"center"}
-											width="100%"
-											color={textColor}
-											fontSize="sm"
-											fontWeight="700"
-										>
-											<DataNotFound />
-										</Text>
-									</Td>
-								</Tr>
-							) : (
+								<TableLoading columns={columns} length={8} />
+							) : !showTable ? (
+								<TableLoading columns={columns} length={8} />
+							) : data?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
 									updatedStatuses?.forEach((status) => {
@@ -1319,8 +1328,7 @@ export default function CheckTable(props) {
 															<Text
 																color={textColor}
 																fontSize="sm"
-																// fontWeight="500"
-																fontWeight="700"
+																fontWeight="500"
 															>
 																{cell?.value || "-"}
 															</Text>
@@ -1329,7 +1337,7 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === "Name") {
 													data =
 														access?.view &&
-														row?.original?.ApprovalStatus == "Accepted" ? (
+														row?.original?.ApprovalStatus === "Accepted" ? (
 															<Link to={`/leadView/${row?.original?.leadId}`}>
 																<Text
 																	me="10px"
@@ -1341,9 +1349,8 @@ export default function CheckTable(props) {
 																	}}
 																	color="brand.600"
 																	fontSize="sm"
-																	// fontWeight="500"
+																	fontWeight="500"
 																	pl="24px"
-																	fontWeight="700"
 																>
 																	{cell?.value?.text || cell?.value}
 																</Text>
@@ -1364,9 +1371,8 @@ export default function CheckTable(props) {
 																}}
 																color="brand.600"
 																fontSize="sm"
-																// fontWeight="500"
+																fontWeight="500"
 																pl="24px"
-																fontWeight="700"
 															>
 																{cell?.value?.text || cell?.value}
 															</Text>
@@ -1388,32 +1394,30 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === "Country Source") {
 													data = (
-														<Text fontSize={"sm"}>{cell?.value || "-"}</Text>
+														<Text fontSize="sm" fontWeight="500">
+															{cell?.value || "no source"}
+														</Text>
 													);
 												} else if (cell?.column.Header === "Whatsapp Number") {
 													data = (
-														<Text
-															me="10px"
-															fontSize="sm"
-															// fontWeight="500"
-															fontWeight="700"
-														>
-															{cell?.value?.text || cell?.value || "-"}
+														<Text fontSize="sm" fontWeight="500">
+															{cell?.value?.text ||
+																cell?.value ||
+																"no whatsapp"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Last Note") {
 													data = (
-														<Box maxWidth={300}>
-															<LastNoteText text={cell?.value} />
-														</Box>
+														<Text width={200} fontSize={"sm"}>
+															{cell?.value || "no note"}
+														</Text>
 													);
 												} else if (cell?.column.Header === "Phone Number") {
 													data = callAccess?.create ? (
 														<Text
 															me="10px"
 															fontSize="sm"
-															// fontWeight="500"
-															fontWeight="700"
+															fontWeight="500"
 															color="brand.600"
 															sx={{
 																"&:hover": {
@@ -1427,7 +1431,7 @@ export default function CheckTable(props) {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value || "-"}
+															{cell?.value?.formula || cell?.value || "No data"}
 														</Text>
 													) : (
 														<Text
@@ -1444,10 +1448,9 @@ export default function CheckTable(props) {
 														<Text
 															color={textColor}
 															fontSize="sm"
-															// fontWeight="500"
-															fontWeight="700"
+															fontWeight="500"
 														>
-															{cell?.value?.text || cell?.value || ""}
+															{cell?.value?.text || cell?.value || "No address"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Status") {
@@ -1474,7 +1477,7 @@ export default function CheckTable(props) {
 														//     cellValue={cell?.value}
 														//   />
 														// </div>
-														row?.original?.approvalStatus != "pending" ? (
+														row?.original?.approvalStatus !== "pending" ? (
 															row?.original?.approvalStatus
 														) : (
 															<div
@@ -1504,7 +1507,7 @@ export default function CheckTable(props) {
 																		},
 																	}}
 																>
-																	<FaCheck size={18} />
+																	<FaCheck size={12} />
 																</Button>
 																<Button
 																	onClick={() => {
@@ -1530,7 +1533,7 @@ export default function CheckTable(props) {
 																		},
 																	}}
 																>
-																	<IoMdClose size={18} />
+																	<IoMdClose size={12} />
 																</Button>
 															</div>
 														);
@@ -1589,55 +1592,115 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === "Nationality") {
 													data = (
 														<Text
-															color={
-																cell?.value < 40
-																	? "red.600"
-																	: cell?.value < 80
-																		? "yellow.400"
-																		: "green.600"
-															}
-															fontSize="md"
+															fontSize="sm"
 															pl="19px"
-															fontWeight="900"
+															fontWeight="500"
 															textAlign={"left"}
 														>
-															{cell?.value?.text || cell?.value || "-"}
+															{cell?.value?.text ||
+																cell?.value ||
+																"no nationality"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Lead Email") {
+													data = (
+														<Text
+															fontSize="sm"
+															pl="19px"
+															width={200}
+															fontWeight="500"
+															textAlign={"left"}
+														>
+															{cell?.value?.text || cell?.value || "no email"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Timetocall") {
 													data = (
 														<Text
-															color={
-																cell?.value < 40
-																	? "red.600"
-																	: cell?.value < 80
-																		? "yellow.400"
-																		: "green.600"
-															}
-															fontSize="md"
-															fontWeight="900"
+															fontSize="sm"
+															fontWeight="500"
 															textAlign={"center"}
 														>
-															{cell?.value?.text || cell?.value || "-"}
+															{cell?.value?.text ||
+																cell?.value ||
+																"no timetocall"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Lead Address") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight="500"
+															textAlign={"center"}
+														>
+															{cell?.value || "no address"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Lead Campaign") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight="500"
+															textAlign={"center"}
+														>
+															{cell?.value || "no compaign"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Source Content") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight="500"
+															textAlign={"center"}
+														>
+															{cell?.value || "no source"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Lead Medium") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight="500"
+															textAlign={"center"}
+														>
+															{cell?.value || "no medium"}
+														</Text>
+													);
+												} else if (cell?.column.Header === "Campaign URL") {
+													data = (
+														<Text
+															fontSize="sm"
+															fontWeight="500"
+															width={250}
+															textAlign={"center"}
+														>
+															{cell?.value || "no url"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Date And Time") {
 													data = (
 														<Text
 															fontSize={"sm"}
-															fontWeight="900"
+															fontWeight="500"
 															textAlign={"center"}
+															width={200}
 														>
 															{new Date(
 																cell?.value?.text || cell?.value
-															).toLocaleString() || "-"}
+															).toLocaleString() || ""}
+														</Text>
+													);
+												} else if (cell?.column.Header === "In UAE?") {
+													data = (
+														<Text fontSize={"sm"} width={140}>
+															{cell?.value || "not selected"}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Buy") {
 													data = (
 														<Text
-															fontSize="md"
-															fontWeight="900"
+															fontSize="sm"
+															fontWeight="500"
 															textAlign={"center"}
 														>
 															{row?.original?.agentAssigned ||
@@ -1687,8 +1750,8 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === "Action") {
 													data = (
 														<Text
-															fontSize="md"
-															fontWeight="900"
+															fontSize="sm"
+															fontWeight="500"
 															textAlign={"center"}
 														>
 															<Menu isLazy>
@@ -1740,7 +1803,7 @@ export default function CheckTable(props) {
 																},
 															}}
 														>
-															<IoMdClose size={18} />
+															<IoMdClose size={12} />
 														</Button>
 													);
 												}
@@ -1760,7 +1823,7 @@ export default function CheckTable(props) {
 																	: {}
 														}
 														fontSize={{ sm: "14px" }}
-														minW={{ sm: "150px", md: "200px", lg: "auto" }}
+														minW={{ sm: "150px", md: "250px", lg: "auto" }}
 														borderColor="transparent"
 													>
 														{data}
@@ -1770,6 +1833,20 @@ export default function CheckTable(props) {
 										</Tr>
 									);
 								})
+							) : (
+								<Tr>
+									<Td colSpan={columns.length}>
+										<Text
+											textAlign={"center"}
+											width="100%"
+											color={textColor}
+											fontSize="sm"
+											fontWeight="700"
+										>
+											<DataNotFound />
+										</Text>
+									</Td>
+								</Tr>
 							)}
 						</Tbody>
 					</Table>
@@ -2152,7 +2229,7 @@ export default function CheckTable(props) {
 									display="flex"
 									ms="4px"
 									fontSize="sm"
-									fontWeight="600"
+									fontWeight="500"
 									color={"#000"}
 									mb="0"
 									mt={2}

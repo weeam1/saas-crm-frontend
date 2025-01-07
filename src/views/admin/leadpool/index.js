@@ -1,9 +1,11 @@
+/* eslint-disable eqeqeq */
 import {
 	Button,
 	CircularProgress,
 	Flex,
 	Grid,
 	GridItem,
+	HStack,
 	useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -16,6 +18,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { constant } from "constant";
 import { setLeadPoolState } from "../../../redux/localSlice";
+import StateButton from "./components/StateButton";
 const Index = () => {
 	const dispatch = useDispatch();
 	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
@@ -66,8 +69,8 @@ const Index = () => {
 		{ Header: "Source Content", accessor: "leadSourceDetails" },
 		// { Header: "Lead Email", accessor: "leadEmail" },
 		{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-		{ Header: "Campaign Page URL", accessor: "pageUrl" },
-		{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+		{ Header: "Campaign URL", accessor: "pageUrl" },
+		{ Header: "In UAE?", accessor: "r_u_in_uae" },
 		{ Header: "Action", accessor: "" },
 	]);
 	const [tableColumnsAgent, setTableColumnsAgent] = useState([
@@ -96,8 +99,8 @@ const Index = () => {
 		{ Header: "Source Content", accessor: "leadSourceDetails" },
 		// { Header: "Lead Email", accessor: "leadEmail" },
 		{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-		{ Header: "Campaign Page URL", accessor: "pageUrl" },
-		{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+		{ Header: "Campaign URL", accessor: "pageUrl" },
+		{ Header: "In UAE?", accessor: "r_u_in_uae" },
 		{ Header: "Action", isSortable: false, center: true },
 	]);
 	const roleColumns = {
@@ -236,8 +239,8 @@ const Index = () => {
 				{ Header: "Source Content", accessor: "leadSourceDetails" },
 				{ Header: "Lead Email", accessor: "leadEmail" },
 				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-				{ Header: "Campaign Page URL", accessor: "pageUrl" },
-				{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+				{ Header: "Campaign URL", accessor: "pageUrl" },
+				{ Header: "In UAE?", accessor: "r_u_in_uae" },
 				{ Header: "Action", accessor: "" },
 			]);
 			setTableColumnsAgent([
@@ -269,8 +272,8 @@ const Index = () => {
 				{ Header: "Source Content", accessor: "leadSourceDetails" },
 				{ Header: "Lead Email", accessor: "leadEmail" },
 				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-				{ Header: "Campaign Page URL", accessor: "pageUrl" },
-				{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+				{ Header: "Campaign URL", accessor: "pageUrl" },
+				{ Header: "In UAE?", accessor: "r_u_in_uae" },
 				{ Header: "Action", accessor: "" },
 			]);
 		} else {
@@ -291,8 +294,8 @@ const Index = () => {
 				{ Header: "Source Content", accessor: "leadSourceDetails" },
 				//  { Header: "Lead Email", accessor: "leadEmail" },
 				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-				{ Header: "Campaign Page URL", accessor: "pageUrl" },
-				{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+				{ Header: "Campaign URL", accessor: "pageUrl" },
+				{ Header: "In UAE?", accessor: "r_u_in_uae" },
 
 				currentState === "all_leads" && {
 					Header: "Buy",
@@ -329,8 +332,8 @@ const Index = () => {
 				{ Header: "Source Content", accessor: "leadSourceDetails" },
 				//  { Header: "Lead Email", accessor: "leadEmail" },
 				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-				{ Header: "Campaign Page URL", accessor: "pageUrl" },
-				{ Header: "Are you in UAE?", accessor: "r_u_in_uae" },
+				{ Header: "Campaign URL", accessor: "pageUrl" },
+				{ Header: "In UAE?", accessor: "r_u_in_uae" },
 				currentState === "all_leads" && {
 					Header: "Buy",
 					isSortable: false,
@@ -505,7 +508,7 @@ const Index = () => {
 
 	return (
 		<div>
-			<Button
+			{/* <Button
 				onClick={() => setCurrentState("all_leads")}
 				sx={{
 					backgroundColor: currentState == "all_leads" && "#B79045",
@@ -553,7 +556,38 @@ const Index = () => {
 				}}
 			>
 				Rejected Leads
-			</Button>
+			</Button> */}
+
+			<HStack spacing={2} gap={2} wrap="wrap" justify="start">
+				<StateButton
+					state="all_leads"
+					currentState={currentState}
+					setCurrentState={setCurrentState}
+					label="All Leads"
+					isSuperAdmin={user?.role === "superAdmin"}
+				/>
+				<StateButton
+					state="pending"
+					currentState={currentState}
+					setCurrentState={setCurrentState}
+					label="Pending"
+					isSuperAdmin={user?.role === "superAdmin"}
+				/>
+				<StateButton
+					state="Accepted"
+					currentState={currentState}
+					setCurrentState={setCurrentState}
+					label="Approved Leads"
+					isSuperAdmin={user?.role === "superAdmin"}
+				/>
+				<StateButton
+					state="Rejected"
+					currentState={currentState}
+					setCurrentState={setCurrentState}
+					label="Rejected Leads"
+					isSuperAdmin={user?.role === "superAdmin"}
+				/>
+			</HStack>
 			<Grid templateColumns="repeat(6, 1fr)" mt={3} mb={3} gap={4}>
 				<GridItem colSpan={6}>
 					{role === "Manager" && (

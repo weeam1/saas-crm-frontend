@@ -150,11 +150,14 @@ export const getUserNameById = (id, tree) => {
 	//           return manager?._id == id  ;
 	//   });
 
-	const item = tree?.find((item) => item?._id == id);
+	const item = tree?.find((item) => item?._id === id);
 	console.log(item, "find user");
 	console.log(tree, "it is a user tree");
 
-	return item ? item?.firstName + " " + item?.lastName : "";
+	const userName = item ? item?.firstName + " " + item?.lastName : "";
+
+	console.log({ userName });
+	return userName;
 };
 //   export   const getAgentNameById = (id,tree) =>{
 // //   const tree = useSelector((state) => state.user.tree);
