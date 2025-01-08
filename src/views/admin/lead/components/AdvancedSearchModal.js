@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-// import AdvancedSearchForm from "./AdvancedSearchForm";
 import { validationLeadSearchSchema } from "schema/leadSchema";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
@@ -20,26 +19,15 @@ const {
 
 const AdvancedSearchModal = ({
 	setAdvaceSearch,
-	handleClear,
 	advaceSearch,
-	isLoding,
+	isLoading,
 	fetchAdvancedSearch,
 	setSearchClear,
 	setFormValues,
 	isFormReset,
 	setIsFormReset,
-	// resetForm,
-	// handleChange,
-	// handleBlur,
-	// errors,
-	// touched,
-	// values,
-	// dirty,
 	pageSize,
 	setGetTagValues,
-	// setFormReset,
-	// handleReset,
-	// handleSubmit,
 }) => {
 	const user = JSON.parse(localStorage.getItem("user"));
 	const tree = useSelector((state) => state.user.tree);
@@ -220,21 +208,21 @@ const AdvancedSearchModal = ({
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme="brand"
-							size="sm"
-							mr={2}
-							onClick={handleSubmit}
-							disabled={isLoding || !dirty ? true : false}
-						>
-							{isLoding ? <Spinner /> : "Search"}
-						</Button>
-						<Button
 							colorScheme="red"
 							variant="outline"
 							size="sm"
+							mr={2}
 							onClick={formClearHanlder}
 						>
 							Clear
+						</Button>
+						<Button
+							colorScheme="brand"
+							size="sm"
+							onClick={handleSubmit}
+							disabled={isLoading || !dirty ? true : false}
+						>
+							{isLoading ? <Spinner /> : "Search"}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

@@ -148,6 +148,10 @@ export default function User(props) {
 			icon: <Icon as={HiUsers} width="20px" height="20px" color="inherit" />,
 			component: UserPage,
 		});
+		// Remove the "Leads Pool" route
+		routes = routes.filter((route) => route.name !== "Leads Pool");
+
+		console.log({ routes });
 	}
 
 	const accessRoute = newRoute?.filter((item) =>

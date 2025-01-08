@@ -81,6 +81,8 @@ const View = () => {
   const [noteAdded, setNoteAdded] = useState(0);
   const size = "lg";
 
+  console.log('view open')
+
   const [addEmailHistory, setAddEmailHistory] = useState(false);
   const [addPhoneCall, setAddPhoneCall] = useState(false);
 

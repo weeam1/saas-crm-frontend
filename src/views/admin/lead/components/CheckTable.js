@@ -863,31 +863,33 @@ const CheckTable = React.memo((props) => {
 									Manage Columns
 								</MenuItem>
 								{user?.role === "superAdmin" && (
-									<MenuItem
-										width={"165px"}
-										onClick={() => setIsImportLead(true)}
-									>
-										{" "}
-										Import Leads
-									</MenuItem>
+									<>
+										<MenuItem
+											width={"165px"}
+											onClick={() => setIsImportLead(true)}
+										>
+											{" "}
+											Import Leads
+										</MenuItem>
+										<MenuDivider />
+										<MenuItem
+											width={"165px"}
+											onClick={() => handleExportLeads("csv")}
+										>
+											{selectedValues && selectedValues?.length > 0
+												? "Export Selected Data as CSV"
+												: "Export as CSV"}
+										</MenuItem>
+										<MenuItem
+											width={"165px"}
+											onClick={() => handleExportLeads("xlsx")}
+										>
+											{selectedValues && selectedValues?.length > 0
+												? "Export Selected Data as Excel"
+												: "Export as Excel"}
+										</MenuItem>
+									</>
 								)}
-								<MenuDivider />
-								<MenuItem
-									width={"165px"}
-									onClick={() => handleExportLeads("csv")}
-								>
-									{selectedValues && selectedValues?.length > 0
-										? "Export Selected Data as CSV"
-										: "Export as CSV"}
-								</MenuItem>
-								<MenuItem
-									width={"165px"}
-									onClick={() => handleExportLeads("xlsx")}
-								>
-									{selectedValues && selectedValues?.length > 0
-										? "Export Selected Data as Excel"
-										: "Export as Excel"}
-								</MenuItem>
 							</MenuList>
 						</Menu>
 
@@ -906,14 +908,13 @@ const CheckTable = React.memo((props) => {
 						{getTagValues &&
 							getTagValues.map((item) => (
 								<Tag
-									size={"md"}
+									size="sm"
 									p={2}
 									key={item}
 									borderRadius="full"
 									variant="solid"
-									backgroundColor="#faf5ea"
-									color="#bb892a"
-									border="1px solid #ebd3a6"
+									backgroundColor="brand.100"
+									color="brand.800"
 								>
 									<TagLabel>{item}</TagLabel>
 								</Tag>
@@ -935,7 +936,7 @@ const CheckTable = React.memo((props) => {
 					<Table
 						{...getTableProps()}
 						color="black"
-						mb="24px"
+						mb="30px"
 						sx={{
 							"& tbody tr:hover": {
 								// Apply hover effect directly to rows
@@ -948,19 +949,17 @@ const CheckTable = React.memo((props) => {
 						<Thead zIndex={1} height="10vh">
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr
-									// backgroundColor="#ebd3a6"
 									{...headerGroup.getHeaderGroupProps()}
 									key={index}
 									position="sticky"
 									top="0"
 									zIndex="2"
 									height="60px"
-									width="1146px"
-									left="325px"
+									width="100%"
 									borderRadius="10px 10px 0 0"
-									borderBottom="1px solid #ebd3a6" // Match Figma style
-									bg="#ebd3a6" // Replace with Figma's header color
-									opacity="1" // Set to '0' if it's intended to be invisible
+									borderBottom="1px solid #ebd3a6"
+									bg="brand.200"
+									opacity="1"
 									marginBottom="1rem"
 								>
 									{headerGroup.headers?.map((column, index) => (
@@ -969,15 +968,15 @@ const CheckTable = React.memo((props) => {
 												column.isSortable !== false &&
 													column.getSortByToggleProps()
 											)}
-											pe="10px"
 											key={index}
+											textAlign="center" // Center text in the cell
 											borderColor="gray.200"
 											fontWeight="medium"
-											maxWidth={150}
+											maxWidth="150px"
 										>
 											<Flex
 												align="center"
-												justifyContent={column.center ? "center" : "start"}
+												justifyContent="center" // Center the Flex content
 												fontSize={{ sm: "12px", lg: "14px" }}
 											>
 												{column.Header === "#" && (
@@ -998,10 +997,9 @@ const CheckTable = React.memo((props) => {
 													/>
 												)}
 												<span
-													color="secondaryGray.900"
 													style={{
 														textTransform: "capitalize",
-														marginRight: "8px",
+														textAlign: "center", // Ensure text alignment
 													}}
 												>
 													{column.render("Header")}
@@ -1025,159 +1023,6 @@ const CheckTable = React.memo((props) => {
 								</Tr>
 							))}
 						</Thead>
-						{/* <Thead zIndex={1} height="10vh">
-							{headerGroups?.map((headerGroup, index) => (
-								<Tr
-									backgroundColor="#ebd3a6"
-									{...headerGroup.getHeaderGroupProps()}
-									key={index}
-								>
-									{headerGroup.headers?.map((column, index) => (
-										<Th
-											{...column.getHeaderProps(
-												column.isSortable !== false &&
-													column.getSortByToggleProps()
-											)}
-											pe="10px"
-											key={index}
-											borderColor={borderColor}
-											fontWeight={"medium"}
-											maxWidth={150}
-										>
-											<Flex
-												align="center"
-												justifyContent={column.center ? "center" : "start"}
-												fontSize={{ sm: "12px", lg: "14px" }}
-											>
-												{column.Header === "#" && (
-													<Checkbox
-														borderColor={"brand.600"}
-														value={"true"}
-														isChecked={selectAllChecked}
-														onChange={(event) => {
-															setSelectAllChecked(!selectAllChecked);
-															if (event.target.checked) {
-																const ids = page?.map((l) => l?.original?._id);
-																setSelectedValues(() => [...ids]);
-															} else {
-																setSelectedValues([]);
-															}
-														}}
-														me="10px"
-													/>
-												)}
-												<span
-													color="secondaryGray.900"
-													style={{
-														textTransform: "capitalize",
-														marginRight: "8px",
-													}}
-												>
-													{column.render("Header")}
-												</span>
-												{column.isSortable !== false && (
-													<span>
-														{column.isSorted ? (
-															column.isSortedDesc ? (
-																<FaSortDown />
-															) : (
-																<FaSortUp />
-															)
-														) : (
-															<FaSort />
-														)}
-													</span>
-												)}
-											</Flex>
-										</Th>
-									))}
-								</Tr>
-							))}
-						</Thead> */}
-						{/* <Thead zIndex={1} height="10vh">
-							{headerGroups?.map((headerGroup, index) => (
-								<Tr
-									// backgroundColor="#ebd3a6"
-									{...headerGroup.getHeaderGroupProps()}
-									key={index}
-									borderTopRadius="lg" // Rounded top borders for the row
-									position="sticky"
-									top="0"
-									zIndex="2"
-								>
-									{headerGroup.headers?.map((column, index) => (
-										<Th
-											{...column.getHeaderProps(
-												column.isSortable !== false &&
-													column.getSortByToggleProps()
-											)}
-											pe="10px"
-											key={index}
-											borderColor={borderColor}
-											fontWeight="medium"
-											maxWidth={150}
-											borderTopRadius={
-												index === 0
-													? "lg"
-													: index === headerGroup.headers.length - 1
-													? "lg"
-													: "none"
-											} // Conditional rounding
-											bg="#EBD3A7"
-											boxShadow="sm"
-											_hover={{ bg: "gray.50" }}
-										>
-											<Flex
-												align="center"
-												justifyContent={column.center ? "center" : "start"}
-												fontSize={{ sm: "12px", lg: "14px" }}
-											>
-												{column.Header === "#" && (
-													<Checkbox
-														borderColor="brand.600"
-														value="true"
-														isChecked={selectAllChecked}
-														onChange={(event) => {
-															setSelectAllChecked(!selectAllChecked);
-															if (event.target.checked) {
-																const ids = page?.map((l) => l?.original?._id);
-																setSelectedValues(() => [...ids]);
-															} else {
-																setSelectedValues([]);
-															}
-														}}
-														me="10px"
-													/>
-												)}
-												<span
-													color="secondaryGray.900"
-													style={{
-														textTransform: "capitalize",
-														marginRight: "8px",
-													}}
-												>
-													{column.render("Header")}
-												</span>
-												{column.isSortable !== false && (
-													<span>
-														{column.isSorted ? (
-															column.isSortedDesc ? (
-																<FaSortDown />
-															) : (
-																<FaSortUp />
-															)
-														) : (
-															<FaSort />
-														)}
-													</span>
-												)}
-											</Flex>
-										</Th>
-									))}
-								</Tr>
-							))}
-						</Thead> */}
-
 						<Tbody
 							{...getTableBodyProps()}
 							mb="24px"
@@ -1786,40 +1631,17 @@ const CheckTable = React.memo((props) => {
 				/>
 			</Card>
 			{/* Advance filter */}
-			{/* <AdvancedSearch
-				advaceSearch={advaceSearch}
-				dirty={dirty}
-				errors={errors}
-				handleBlur={handleBlur}
-				handleChange={handleChange}
-				handleSubmit={handleSubmit}
-				isLoding={isLoding}
-				resetForm={formikResetForm}
-				handleClear={handleClear}
-				setAdvaceSearch={setAdvaceSearch}
-				touched={touched}
-				values={values}
-			/> */}
 			<AdvancedSearchModal
 				advaceSearch={advaceSearch}
 				setFormValues={setFormValues}
 				fetchAdvancedSearch={fetchAdvancedSearch}
 				setGetTagValues={setGetTagValues}
 				setSearchClear={setSearchClear}
-				isLoding={isLoding}
+				isLoading={isLoding}
 				handleClear={handleClear}
 				setAdvaceSearch={setAdvaceSearch}
 				isFormReset={isFormReset}
 				setIsFormReset={setIsFormReset}
-				// touched={touched}
-				// values={values}
-				// sendResetFunction={setResetFormFunction}
-				// dirty={dirty}
-				// errors={errors}
-				// handleBlur={handleBlur}
-				// handleChange={handleChange}
-				// handleSubmit={handleSubmit}
-				// resetForm={formikResetForm}
 			/>
 
 			<ManageColumnModal
