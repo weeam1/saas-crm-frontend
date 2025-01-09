@@ -14,7 +14,7 @@ import {
 import { ItemContent } from "components/menu/ItemContent";
 import { SidebarResponsive } from "components/sidebar/Sidebar";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // Assets
 import { MdNotificationsNone } from "react-icons/md";
 import { FaEthereum } from "react-icons/fa";
@@ -27,6 +27,8 @@ import { useSelector } from "react-redux";
 import { MoonIcon, SunIcon, BellIcon, TimeIcon } from "@chakra-ui/icons";
 import { Box } from "@chakra-ui/react";
 import webSocketService from "services/WebSocketService";
+
+import NotificationIcon from "./notifications/NotificationIcon";
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -46,7 +48,9 @@ export default function HeaderLinks(props) {
 	// const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
 
 	const [loginUser, setLoginUser] = useState();
+
 	const { colorMode, toggleColorMode } = useColorMode();
+
 	const navigate = useNavigate();
 	const userData = useSelector((state) => state.user.user);
 
@@ -230,7 +234,7 @@ export default function HeaderLinks(props) {
       </Menu> */}
 			{/* <FixedPlugin /> */}
 			{/* <ThemeEditor navbarIcon={navbarIcon} /> */}
-			<Box
+			{/* <Box
 				boxSize={10}
 				bg="brand.500"
 				pb={2}
@@ -238,10 +242,11 @@ export default function HeaderLinks(props) {
 				pl={2}
 				pr={2}
 				mx={1}
-				sx={{ clipPath: "circle()" }} // Applying circular clip path
+				sx={{ clipPath: "circle()" }}
 			>
 				<BellIcon boxSize={6} color="white" />
-			</Box>
+			</Box> */}
+			<NotificationIcon userId={userId} />
 			<Box
 				boxSize={10}
 				bg="brand.500"

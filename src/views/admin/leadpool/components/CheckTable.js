@@ -199,7 +199,7 @@ export default function CheckTable(props) {
 		{ Header: "Status", accessor: "leadStatus" },
 		{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
 		{ Header: "Phone Number", accessor: "leadPhoneNumber" },
-		{ Header: "Date And Time", accessor: "createdDate" },
+		{ Header: "Date & Time", accessor: "createdDate" },
 		{ Header: "Timetocall", accessor: "timetocall" },
 	];
 
@@ -1210,8 +1210,10 @@ export default function CheckTable(props) {
 				<Box overflowY={"auto"} className="table-fix-container">
 					<Table
 						{...getTableProps()}
-						variant="simple"
+						// variant="simple"
+						variant="striped"
 						color="gray.500"
+						// colorScheme="brand"
 						mb="24px"
 					>
 						{/* <Thead zIndex={1}>
@@ -1303,7 +1305,7 @@ export default function CheckTable(props) {
 									top="0"
 									zIndex="2"
 									height="60px"
-									width="100%" // Ensure full-width header
+									// width="100%" // Ensure full-width header
 									borderRadius="10px 10px 0 0"
 									borderBottom="1px solid brand.200"
 									bg="brand.200"
@@ -1370,7 +1372,19 @@ export default function CheckTable(props) {
 							))}
 						</Thead>
 
-						<Tbody {...getTableBodyProps()}>
+						<Tbody
+							{...getTableBodyProps()}
+							mb="30px"
+							sx={{
+								"& tbody tr:hover": {
+									// Apply hover effect directly to rows
+									backgroundColor: "white", // Hover background
+									boxShadow: "sm", // Add subtle shadow on hover
+									transition:
+										"background-color 0.2s ease, box-shadow 0.2s ease", // Smooth transition
+								},
+							}}
+						>
 							{isLoding ? (
 								<TableLoading columns={columns} length={8} />
 							) : !showTable ? (
@@ -1387,7 +1401,12 @@ export default function CheckTable(props) {
 									});
 
 									return (
-										<Tr {...row?.getRowProps()} key={i} className="leadRow">
+										<Tr
+											{...row?.getRowProps()}
+											key={i}
+											className="leadRow"
+											textAlign="center"
+										>
 											{row?.cells?.map((cell, index) => {
 												let data = "";
 												if (cell?.column.Header === "#") {
@@ -1565,6 +1584,7 @@ export default function CheckTable(props) {
 																	display: "flex",
 																	gap: "10px",
 																	paddingLeft: "19px",
+																	textAlign: "center",
 																}}
 															>
 																<Button
@@ -1635,40 +1655,51 @@ export default function CheckTable(props) {
 															{row?.original?.approvalStatus}
 														</h1>
 													);
-												} else if (
-													cell?.column.Header === "Requested By Manager"
-												) {
-													data =
-														// <RenderManager
-														//   fetchData={fetchData}
-														//   pageIndex={pageIndex}
-														//   setData={setData}
-														//   leadID={row?.original?._id?.toString()}
-														//   value={cell?.value}
-														//   checkApproval={checkApproval}
-														// />
-														getUserNameById(row?.original?.managerId, users);
-												} else if (
-													cell?.column.Header === "Requested By Agent"
-												) {
-													console.log(
-														row?.original?.agentId,
-														row?.original?.leadName,
-														"agent assigned "
-													);
-													data =
-														// <>
-														//   <RenderAgent
-														//   checkApproval={checkApproval}
+												}
+												// else if (
+												// 	cell?.column.Header === "Requested By Manager"
+												// ) {
+												// 	data =
+												// 		// <RenderManager
+												// 		//   fetchData={fetchData}
+												// 		//   pageIndex={pageIndex}
+												// 		//   setData={setData}
+												// 		//   leadID={row?.original?._id?.toString()}
+												// 		//   value={cell?.value}
+												// 		//   checkApproval={checkApproval}
+												// 		// />
+												// 		getUserNameById(row?.original?.managerId, users);
+												// }
+												else if (cell?.column.Header === "Requested By Agent") {
+													data = displayAdvSearchData
+														? getUserNameById(
+																row?.original?.agentAssigned,
+																users
+															)
+														: getUserNameById(row?.original?.agentId, users);
 
-														//     setData={setData}
-														//     fetchData={fetchData}
-														//     leadID={row?.original?._id?.toString()}
-														//     managerAssigned={row?.original?.managerAssigned}
-														//     value={cell?.value}
-														//   />
-														// </>
-														getUserNameById(row?.original?.agentId, users);
+													// Example with width set
+													return (
+														<Td
+															style={{ width: "400px", maxWidth: "250px" }}
+															fontSize="14px"
+															textAlign="center"
+															verticalAlign="middle"
+														>
+															{data}
+														</Td>
+													);
+													// <>
+													//   <RenderAgent
+													//   checkApproval={checkApproval}
+
+													//     setData={setData}
+													//     fetchData={fetchData}
+													//     leadID={row?.original?._id?.toString()}
+													//     managerAssigned={row?.original?.managerAssigned}
+													//     value={cell?.value}
+													//   />
+													// </>
 												} else if (cell?.column.Header === "Nationality") {
 													data = (
 														<Text
@@ -1711,7 +1742,7 @@ export default function CheckTable(props) {
 															pl="19px"
 															width={200}
 															fontWeight="500"
-															textAlign={"left"}
+															textAlign={"center"}
 														>
 															{cell?.value?.text || cell?.value || "no email"}
 														</Text>
@@ -1779,7 +1810,7 @@ export default function CheckTable(props) {
 															{cell?.value || "no url"}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Date And Time") {
+												} else if (cell?.column.Header === "Date & Time") {
 													data = (
 														<Text
 															fontSize={"sm"}
@@ -1910,23 +1941,43 @@ export default function CheckTable(props) {
 													);
 												}
 												return (
+													// <Td
+													// 	paddingTop={"0.35rem"}
+													// 	paddingBottom={"0.35rem"}
+													// 	paddingLeft={"5px"}
+													// 	paddingRight={"5px"}
+													// 	{...cell?.getCellProps()}
+													// 	key={index}
+													// 	style={
+													// 		cell?.column?.Header === "Requested By Manager"
+													// 			? { padding: "0 5px 0 0" }
+													// 			: cell?.column?.Header === "Agent"
+													// 				? { padding: 0 }
+													// 				: {}
+													// 	}
+													// 	fontSize={{ sm: "14px" }}
+													// 	minW={{ sm: "150px", md: "250px", lg: "auto" }}
+													// 	borderColor="transparent"
+													// 	textAlign="center"
+													// >
+													// 	{data}
+													// </Td>
 													<Td
-														paddingTop={"0.35rem"}
-														paddingBottom={"0.35rem"}
-														paddingLeft={"5px"}
-														paddingRight={"5px"}
+														padding="0.35rem 5px" // Combines padding properties
 														{...cell?.getCellProps()}
 														key={index}
 														style={
 															cell?.column?.Header === "Requested By Manager"
-																? { padding: "0 5px 0 0" }
+																? { paddingRight: "5px" }
 																: cell?.column?.Header === "Agent"
-																	? { padding: 0 }
+																	? { padding: "0" }
 																	: {}
 														}
-														fontSize={{ sm: "14px" }}
+														fontSize="14px"
 														minW={{ sm: "150px", md: "250px", lg: "auto" }}
 														borderColor="transparent"
+														textAlign="center" // Centers text horizontally
+														verticalAlign="middle" // Centers text vertically (optional)
 													>
 														{data}
 													</Td>

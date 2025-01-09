@@ -20,7 +20,7 @@ import React, { useState, useEffect } from "react";
 
 import { Text } from "@chakra-ui/react";
 
-function CountUpComponent({ targetNumber, duration = 1000 }) {
+function CountUpComponent({ targetNumber, duration = 500 }) {
 	const [count, setCount] = useState(0);
 
 	useEffect(() => {

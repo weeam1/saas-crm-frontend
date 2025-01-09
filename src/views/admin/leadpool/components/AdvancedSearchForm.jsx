@@ -91,6 +91,11 @@ const AdvancedSearchForm = (props) => {
 				label: "Time To Call",
 				placeholder: "Search by time to call",
 			},
+			// {
+			// 	name: "createdAt",
+			// 	label: "Date And Time",
+			// 	placeholder: "Search by date and time",
+			// },
 		],
 		[]
 	);
@@ -108,7 +113,7 @@ const AdvancedSearchForm = (props) => {
 					"leadName",
 					"requestedByAgent",
 					"nationality",
-					"lastNote",
+					"leadEmail",
 					"status",
 				].includes(field.name)
 			);
@@ -249,7 +254,7 @@ const AdvancedSearchForm = (props) => {
 							mb="0"
 							mt={2}
 						>
-							Agent
+							Requested By Agent
 						</FormLabel>
 						<Box>
 							<Select
@@ -263,7 +268,7 @@ const AdvancedSearchForm = (props) => {
 										{agent.name}
 									</option>
 								))}
-								<option value={-1}>No Agent</option>
+								{/* <option value={-1}>No Agent</option> */}
 							</Select>
 						</Box>
 						<Text mb="10px" color="red">
