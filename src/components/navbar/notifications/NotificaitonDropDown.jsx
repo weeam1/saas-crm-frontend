@@ -26,11 +26,11 @@ const NotificationDropDown = ({
 	return (
 		<Popover placement="bottom-end" isLazy isOpen>
 			<PopoverTrigger>
-				{/* Empty Box to align dropdown */}
 				<Box></Box>
 			</PopoverTrigger>
 			<PopoverContent
 				w={{ base: "90%", md: "400px" }} // Responsive width
+				minW="300px" // Consistent minimum width
 				maxH="500px"
 				overflowY="auto" // Allow scrolling
 				outline="none"
@@ -62,19 +62,19 @@ const NotificationDropDown = ({
 				<PopoverArrow />
 				<PopoverHeader
 					fontWeight="bold"
-					position="sticky" // Change to sticky
-					top={0} // Position at the top of the viewport
-					zIndex="dropdown" // Ensure it stays above other content
+					position="sticky"
+					top={0}
+					zIndex="dropdown"
 					bg="white"
 					color="brand.700"
-					boxShadow="sm" // Optional: Add a subtle shadow for depth
-					p={2} // Optional: Add padding for better spacing
+					boxShadow="sm"
+					p={2}
 				>
 					Notifications
 				</PopoverHeader>
 				<PopoverBody>
 					{notificationList.length > 0 ? (
-						<Flex direction="column" gap="1">
+						<Flex direction="column" gap="2">
 							{notificationList.map((notification, index) => (
 								<NotificationBox key={index} notification={notification} />
 							))}
@@ -85,25 +85,26 @@ const NotificationDropDown = ({
 						</Text>
 					)}
 				</PopoverBody>
-				<PopoverFooter display="flex" justifyContent="center">
+				<PopoverFooter display="flex" justifyContent="center" p={2}>
 					{loading ? (
 						<Spinner color="brand.400" />
 					) : (
 						notificationList.length > 0 &&
 						!hideLoadMoreBtn && (
 							<Button
-								size="xs"
+								size="sm"
 								backgroundColor="gray.100"
 								color="gray.600"
 								onClick={loadMoreNotifications}
 								_hover={{
-									backgroundColor: "gray.200", // Lighter gray on hover
-									color: "gray.800", // Darker text color on hover
-									boxShadow: "sm", // Subtle shadow for depth
+									backgroundColor: "gray.200",
+									color: "gray.800",
+									boxShadow: "sm",
 								}}
 								_active={{
-									backgroundColor: "gray.300", // Slightly darker gray when clicked
+									backgroundColor: "gray.300",
 								}}
+								display={{ base: "block", md: "inline-block" }} // Ensure visibility on small screens
 							>
 								Load More
 							</Button>

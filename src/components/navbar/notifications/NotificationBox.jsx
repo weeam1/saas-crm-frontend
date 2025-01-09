@@ -59,8 +59,13 @@ const NotificationBox = ({ notification }) => {
 			)}
 
 			{/* Message Details */}
-			<Box flex="1" width="80%">
-				<Text fontSize="sm" color="gray.700" isTruncated>
+			<Box flex="1">
+				<Text
+					fontSize="sm"
+					width={{ sm: "150px", md: "250px" }}
+					color="gray.700"
+					isTruncated
+				>
 					{message}
 				</Text>
 				<Text fontSize="xs" color="gray.800" mt={1}>
