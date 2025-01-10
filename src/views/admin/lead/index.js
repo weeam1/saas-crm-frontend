@@ -292,9 +292,10 @@ const Index = () => {
 
 	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
+		// change the new v2 search api
 		let result = await getApi(
 			user.role === "superAdmin"
-				? "api/lead/advanced-search" +
+				? "api/lead/v2/advanced-search" +
 						"?data=" +
 						JSON.stringify(data) +
 						"&dateTime=" +

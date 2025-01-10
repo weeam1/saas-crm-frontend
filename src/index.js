@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import theme from "theme/theme";
 import { ThemeEditorProvider } from "@hypertheme-editor/chakra-ui";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Provider, useSelector } from "react-redux";
 import store from "./redux/store";
@@ -34,6 +34,12 @@ import AnnouncementsModal from "views/admin/announcement/components/Announcement
 import addNotification, { Notifications } from "react-push-notification";
 
 import logo from "assets/img/app-logo.jpeg";
+
+// Import your audio file
+import newAnnouncementSound from "assets/sounds/new-notification.wav";
+
+// Create an audio instance
+const announcementSound = new Audio(newAnnouncementSound);
 
 function App() {
 	const token = localStorage.getItem("token") || null;
@@ -107,9 +113,22 @@ function App() {
 						);
 					} else if (message.type === 1 && message.data.message) {
 						dispatch(addAnnouncement(message.data));
-						showNotification({
-							title: "New Announcement",
-							message: message.data.message || "Check out the latest updates!",
+
+						if (Notification.permission === "granted") {
+							console.log("Notification granted");
+							showNotification({
+								title: "New Announcement",
+								message:
+									message.data.message || "Check out the latest updates!",
+							});
+						} else {
+							// Fallback to an in-app notification or alert
+							toast.success("Check out the latest updates!");
+						}
+
+						// Play the sound effect for new announcement
+						announcementSound.play().catch((error) => {
+							console.error("Error playing sound:", error);
 						});
 					}
 

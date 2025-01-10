@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify"; // Ensure you have the react-toastify library
 import keys from "config/keys";
+// import webSocketService from "services/WebSocketService";
 
 // const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 // 	const [list, setList] = useState([]);
@@ -51,6 +52,20 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 	const [backupList, setBackupList] = useState([]); // Backup list
 	const [loading, setLoading] = useState(true);
 	const [totalPages, setTotalPages] = useState(0);
+	// const [refreshNotification, setRefreshNotification] = useState(false);
+
+	// webSocketService.socket.onmessage = (event) => {
+	// 	try {
+	// 		const message = JSON.parse(event.data);
+
+	// 		if (message.type === 1 || message.type === 0) {
+	// 			setRefreshNotification(true);
+	// 			setList([]);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error("Error handling WebSocket message:", error);
+	// 	}
+	// };
 
 	const getHistory = async () => {
 		setLoading(true);

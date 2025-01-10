@@ -13,15 +13,6 @@ const NotificationBox = ({ notification }) => {
 		<Box
 			p={2}
 			borderRadius="md"
-			bg={
-				isAnnouncement ? "rgba(255, 255, 255, 0.8)" : "rgba(240, 240, 240, 0.8)"
-			} // Glass effect colors
-			_hover={{
-				bg: isAnnouncement
-					? "rgba(255, 255, 255, 1)"
-					: "rgba(230, 230, 230, 1)",
-				boxShadow: "md", // Add shadow on hover
-			}}
 			display="flex"
 			alignItems="center"
 			gap={3}

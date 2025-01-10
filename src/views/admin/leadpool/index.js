@@ -79,7 +79,7 @@ const Index = () => {
 		{ Header: "Status", accessor: "leadStatus" },
 		// { Header: "E.Status", accessor: "eLeadStatus" },
 		{ Header: "Last Note", width: 100, accessor: "lastNote" },
-		{ Header: "Date And Time", accessor: "createdDate", width: 40 },
+		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 		{ Header: "Timetocall", accessor: "timetocall" },
 		{ Header: "Nationality", accessor: "nationality" },
 		{ Header: "Language", accessor: "leadLang" },
@@ -162,9 +162,10 @@ const Index = () => {
 	}, [currentState]);
 	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 200) => {
 		setIsLoding(true);
+		// change v2 search api
 		let result = await getApi(
 			user.role === "superAdmin"
-				? "api/lead/advanced-search" +
+				? "api/lead/v2/advanced-search" +
 						"?data=" +
 						JSON.stringify(data) +
 						"&dateTime=" +
@@ -240,7 +241,7 @@ const Index = () => {
 				{ Header: "Status", accessor: "leadStatus" },
 				// { Header: "E.Status", accessor: "eLeadStatus" },
 				{ Header: "Last Note", width: 100, accessor: "lastNote" },
-				{ Header: "Date And Time", accessor: "createdDate", width: 40 },
+				{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 				{ Header: "Timetocall", accessor: "timetocall" },
 				{ Header: "Nationality", accessor: "nationality" },
 				{ Header: "Language", accessor: "leadLang" },

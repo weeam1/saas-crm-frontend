@@ -1,31 +1,6 @@
 import React from "react";
-import { format } from "date-fns";
-import { FiCopy } from "react-icons/fi";
-import {
-	Box,
-	Text,
-	Flex,
-	Badge,
-	IconButton,
-	Button,
-	Stack,
-	Spinner,
-} from "@chakra-ui/react";
-
-const getBadgeColor = (type) => {
-	switch (type) {
-		case "all":
-			return "blue"; // Neutral color for "all"
-		case "agents":
-			return "orange"; // Blue for "agents"
-		case "team":
-			return "green"; // Green for "team"
-		case "managers":
-			return "purple"; // Purple for "managers"
-		default:
-			return "gray"; // Default color
-	}
-};
+import { Box, Text, Button, Spinner } from "@chakra-ui/react";
+import AnnouncementCard from "./AnnouncementCard";
 
 const AnnouncementList = ({
 	list,
@@ -40,9 +15,10 @@ const AnnouncementList = ({
 		<Box
 			height="420px"
 			overflowY="auto"
-			border="1px solid"
-			borderColor="gray.200"
+			// border="1px solid"
+			// borderColor="gray.100"
 			borderRadius="md"
+			backgroundColor="white"
 			padding={2}
 		>
 			{loading && list.length === 0 ? ( // Loading spinner when no data has been loaded yet
@@ -57,56 +33,11 @@ const AnnouncementList = ({
 			) : list?.length > 0 ? (
 				<Box>
 					{list.map((item) => (
-						<Flex
+						<AnnouncementCard
 							key={item.id}
-							align="center"
-							justify="space-between"
-							p={4}
-							mb={2}
-							bg="gray.50"
-							borderRadius="md"
-							boxShadow="sm"
-							_hover={{ bg: "gray.100" }}
-						>
-							<Flex
-								align="center"
-								alignItems="center"
-								justify="space-between"
-								gap="2"
-							>
-								{/* Clipboard Copy Icon */}
-								<IconButton
-									aria-label="Copy message"
-									icon={<FiCopy />}
-									size="sm"
-									colorScheme="teal"
-									variant="ghost"
-									onClick={() => handleCopy(item.message)}
-								/>
-
-								{/* Announcement Type with Dynamic Badge Color */}
-								<Badge colorScheme={getBadgeColor(item.type)} mr={4}>
-									{item.type}
-								</Badge>
-
-								{/* Truncated Message */}
-								<Text
-									flex="1"
-									maxWidth={{ sm: "200px", md: "400px", lg: "600px" }}
-									isTruncated
-									fontWeight="medium"
-									mr={4}
-								>
-									{item.message}
-								</Text>
-							</Flex>
-
-							{/* Formatted Date */}
-							<Text fontSize="sm" color="gray.500">
-								{format(new Date(item.created_at), "PPPpp")}{" "}
-								{/* Example: Jan 1, 2025, 12:55 PM */}
-							</Text>
-						</Flex>
+							item={item}
+							handleCopy={handleCopy}
+						/>
 					))}
 				</Box>
 			) : (

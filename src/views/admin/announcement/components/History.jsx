@@ -15,6 +15,8 @@ const History = ({ user }) => {
 		itemsPerPage
 	);
 
+	console.log({ list });
+
 	const handleViewMore = () => {
 		setCurrentPage((prevPage) => prevPage + 1);
 	};
