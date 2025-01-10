@@ -84,7 +84,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 							</Text>
 						</Box>
 					</ModalHeader>
-					<ModalCloseButton color="white" />
 
 					{/* Body Section */}
 					<ModalBody py={4} overflow="hidden" width="100%">
