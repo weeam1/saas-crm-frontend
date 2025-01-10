@@ -1151,31 +1151,33 @@ export default function CheckTable(props) {
 									Manage Columns
 								</MenuItem>
 								{user?.role === "superAdmin" && (
-									<MenuItem
-										width={"165px"}
-										onClick={() => setIsImportLead(true)}
-									>
-										{" "}
-										Import Leads
-									</MenuItem>
+									<>
+										<MenuItem
+											width={"165px"}
+											onClick={() => setIsImportLead(true)}
+										>
+											{" "}
+											Import Leads
+										</MenuItem>
+										<MenuDivider />
+										<MenuItem
+											width={"165px"}
+											onClick={() => handleExportLeads("csv")}
+										>
+											{selectedValues && selectedValues?.length > 0
+												? "Export Selected Data as CSV"
+												: "Export as CSV"}
+										</MenuItem>
+										<MenuItem
+											width={"165px"}
+											onClick={() => handleExportLeads("xlsx")}
+										>
+											{selectedValues && selectedValues?.length > 0
+												? "Export Selected Data as Excel"
+												: "Export as Excel"}
+										</MenuItem>
+									</>
 								)}
-								<MenuDivider />
-								<MenuItem
-									width={"165px"}
-									onClick={() => handleExportLeads("csv")}
-								>
-									{selectedValues && selectedValues?.length > 0
-										? "Export Selected Data as CSV"
-										: "Export as CSV"}
-								</MenuItem>
-								<MenuItem
-									width={"165px"}
-									onClick={() => handleExportLeads("xlsx")}
-								>
-									{selectedValues && selectedValues?.length > 0
-										? "Export Selected Data as Excel"
-										: "Export as Excel"}
-								</MenuItem>
 							</MenuList>
 						</Menu>
 						{/* {access?.create && (
