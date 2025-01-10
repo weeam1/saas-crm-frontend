@@ -1147,7 +1147,6 @@ export default function CheckTable(props) {
 									onClick={() => setManageColumns(true)}
 									width={"165px"}
 								>
-									{" "}
 									Manage Columns
 								</MenuItem>
 								{user?.role === "superAdmin" && (
@@ -1156,7 +1155,6 @@ export default function CheckTable(props) {
 											width={"165px"}
 											onClick={() => setIsImportLead(true)}
 										>
-											{" "}
 											Import Leads
 										</MenuItem>
 										<MenuDivider />
