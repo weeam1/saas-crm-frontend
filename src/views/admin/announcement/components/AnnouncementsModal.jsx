@@ -49,7 +49,13 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 		<CircularProgress size="10" isIndeterminate />
 	) : (
 		announcements.length > 0 && (
-			<Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+			<Modal
+				isOpen={isOpen}
+				onClose={onClose}
+				size="lg"
+				isCentered
+				closeOnOverlayClick={false}
+			>
 				<ModalOverlay />
 				<ModalContent
 					borderRadius="lg"
