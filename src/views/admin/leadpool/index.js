@@ -42,37 +42,37 @@ const Index = () => {
 		{ Header: "Lead Approval", accessor: "leadWhatsappNumber" },
 		// { Header: "Action", isSortable: false, center: true },
 	]);
-	// const [tableColumnsManager, setTableColumnsManager] = useState([
-	// 	// { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-	// 	// { Header: "Name", accessor: "leadName", width: 20 },
-	// 	// { Header: "Manager", accessor: "managerAssigned" },
-	// 	// { Header: "Agent", accessor: "agentAssigned" },
-	// 	// { Header: "Status", accessor: "leadStatus" },
-	// 	// { Header: "Approval Status", accessor: "leadWhatsappNumber" },
-	// 	// { Header: "Intrest", accessor: "interest" },
-	// 	// { Header: "Nationality", accessor: "nationality" },
-	// 	// { Header: "Action", isSortable: false, center: true },
-	// 	{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
-	// 	{ Header: "Name", accessor: "leadName", width: 20 },
-	// 	// { Header: "Manager", accessor: "managerAssigned" },
-	// 	{ Header: "Agent", accessor: "agentAssigned" },
-	// 	{ Header: "Status", accessor: "leadStatus" },
-	// 	// { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-	// 	// { Header: "Phone Number", accessor: "leadPhoneNumber" },
-	// 	{ Header: "Last Note", width: 100, accessor: "lastNote" },
-	// 	{ Header: "Date And Time", accessor: "createdDate", width: 40 },
-	// 	{ Header: "Timetocall", accessor: "timetocall" },
-	// 	{ Header: "Nationality", accessor: "nationality" },
-	// 	{ Header: "Country Source", accessor: "ip" },
-	// 	{ Header: "Lead Address", accessor: "leadAddress" },
-	// 	{ Header: "Lead Campaign", accessor: "leadCampaign" },
-	// 	{ Header: "Source Content", accessor: "leadSourceDetails" },
-	// 	// { Header: "Lead Email", accessor: "leadEmail" },
-	// 	{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-	// 	{ Header: "Campaign URL", accessor: "pageUrl" },
-	// 	{ Header: "In UAE?", accessor: "r_u_in_uae" },
-	// 	{ Header: "Action", accessor: "" },
-	// ]);
+	const [tableColumnsManager, setTableColumnsManager] = useState([
+		// { Header: "#", accessor: "_id", isSortable: false, width: 10 },
+		// { Header: "Name", accessor: "leadName", width: 20 },
+		// { Header: "Manager", accessor: "managerAssigned" },
+		// { Header: "Agent", accessor: "agentAssigned" },
+		// { Header: "Status", accessor: "leadStatus" },
+		// { Header: "Approval Status", accessor: "leadWhatsappNumber" },
+		// { Header: "Intrest", accessor: "interest" },
+		// { Header: "Nationality", accessor: "nationality" },
+		// { Header: "Action", isSortable: false, center: true },
+		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
+		{ Header: "Name", accessor: "leadName", width: 20 },
+		// { Header: "Manager", accessor: "managerAssigned" },
+		{ Header: "Agent", accessor: "agentAssigned" },
+		{ Header: "Status", accessor: "leadStatus" },
+		// { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
+		// { Header: "Phone Number", accessor: "leadPhoneNumber" },
+		{ Header: "Last Note", width: 100, accessor: "lastNote" },
+		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
+		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: "Nationality", accessor: "nationality" },
+		{ Header: "Country Source", accessor: "ip" },
+		{ Header: "Lead Address", accessor: "leadAddress" },
+		{ Header: "Lead Campaign", accessor: "leadCampaign" },
+		{ Header: "Source Content", accessor: "leadSourceDetails" },
+		// { Header: "Lead Email", accessor: "leadEmail" },
+		{ Header: "Lead Medium", accessor: "leadSourceMedium" },
+		{ Header: "Campaign URL", accessor: "pageUrl" },
+		{ Header: "In UAE?", accessor: "r_u_in_uae" },
+		{ Header: "Action", accessor: "" },
+	]);
 	const [tableColumnsAgent, setTableColumnsAgent] = useState([
 		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
 		{ Header: "Name", accessor: "leadName", width: 20 },
@@ -91,10 +91,15 @@ const Index = () => {
 		{ Header: "Lead Medium", accessor: "leadSourceMedium" },
 		{ Header: "Campaign URL", accessor: "pageUrl" },
 		{ Header: "In UAE?", accessor: "r_u_in_uae" },
+		// currentState === "all_leads" && {
+		// 	Header: "Buy",
+		// 	isSortable: false,
+		// 	center: true,
+		// },
 		{ Header: "Action", isSortable: false, center: true },
 	]);
 	const roleColumns = {
-		// Manager: tableColumnsManager,
+		Manager: tableColumnsManager,
 		Agent: tableColumnsAgent,
 	};
 	const [isLoding, setIsLoding] = useState(false);
@@ -160,7 +165,8 @@ const Index = () => {
 			source.cancel();
 		};
 	}, [currentState]);
-	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 200) => {
+
+	const fetchAdvancedSearch = async (data = {}, pageNo = 1, pageSize = 10) => {
 		setIsLoding(true);
 		// change v2 search api
 		let result = await getApi(
@@ -176,7 +182,7 @@ const Index = () => {
 						pageNo +
 						"&pageSize=" +
 						pageSize
-				: `api/lead/advanced-search?data=${JSON.stringify(data)}&user=${
+				: `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
 					}&role=${user.roles[0]?.roleName}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
@@ -200,46 +206,45 @@ const Index = () => {
 
 	useEffect(() => {
 		if (currentState == "Accepted") {
-			// setTableColumnsManager([
-			// 	// { Header: "#", accessor: "intID", isSortable: false, width: 10 },
-			// 	// { Header: "Name", accessor: "leadName", width: 20 },
-			// 	// { Header: "Manager", accessor: "managerAssigned" },
-			// 	// { Header: "Agent", accessor: "agentId" },
-			// 	// { Header: "Status", accessor: "leadStatus" },
-			// 	// { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-			// 	// { Header: "Phone Number", accessor: "leadPhoneNumber" },
-			// 	// { Header: "Last Note", width: 100, accessor: "lastNote" },
-			// 	// { Header: "Date And Time", accessor: "createdDate" },
-			// 	// { Header: "Timetocall", accessor: "timetocall" },
-			// 	// { Header: "Nationality", accessor: "nationality" },
-			// 	// { Header: "Action", isSortable: false, center: true },
-			// 	{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
-			// 	{ Header: "Name", accessor: "leadName", width: 20 },
-			// 	// { Header: "Manager", accessor: "managerAssigned" },
-			// 	{ Header: "Agent", accessor: "agentAssigned" },
-			// 	{ Header: "Status", accessor: "leadStatus" },
-			// 	{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-			// 	{ Header: "Phone Number", accessor: "leadPhoneNumber" },
-			// 	{ Header: "Last Note", width: 100, accessor: "lastNote" },
-			// 	{ Header: "Date And Time", accessor: "createdDate", width: 40 },
-			// 	{ Header: "Timetocall", accessor: "timetocall" },
-			// 	{ Header: "Nationality", accessor: "nationality" },
-			// 	{ Header: "Country Source", accessor: "ip" },
-			// 	{ Header: "Lead Address", accessor: "leadAddress" },
-			// 	{ Header: "Lead Campaign", accessor: "leadCampaign" },
-			// 	{ Header: "Source Content", accessor: "leadSourceDetails" },
-			// 	{ Header: "Lead Email", accessor: "leadEmail" },
-			// 	{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-			// 	{ Header: "Campaign URL", accessor: "pageUrl" },
-			// 	{ Header: "In UAE?", accessor: "r_u_in_uae" },
-			// 	{ Header: "Action", accessor: "" },
-			// ]);
+			setTableColumnsManager([
+				// { Header: "#", accessor: "intID", isSortable: false, width: 10 },
+				// { Header: "Name", accessor: "leadName", width: 20 },
+				// { Header: "Manager", accessor: "managerAssigned" },
+				// { Header: "Agent", accessor: "agentId" },
+				// { Header: "Status", accessor: "leadStatus" },
+				// { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
+				// { Header: "Phone Number", accessor: "leadPhoneNumber" },
+				// { Header: "Last Note", width: 100, accessor: "lastNote" },
+				// { Header: "Date And Time", accessor: "createdDate" },
+				// { Header: "Timetocall", accessor: "timetocall" },
+				// { Header: "Nationality", accessor: "nationality" },
+				// { Header: "Action", isSortable: false, center: true },
+				{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
+				{ Header: "Name", accessor: "leadName", width: 20 },
+				// { Header: "Manager", accessor: "managerAssigned" },
+				{ Header: "Agent", accessor: "agentAssigned" },
+				{ Header: "Status", accessor: "leadStatus" },
+				{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
+				{ Header: "Phone Number", accessor: "leadPhoneNumber" },
+				{ Header: "Last Note", width: 100, accessor: "lastNote" },
+				{ Header: "Date & Time", accessor: "createdDate", width: 40 },
+				{ Header: "Timetocall", accessor: "timetocall" },
+				{ Header: "Nationality", accessor: "nationality" },
+				{ Header: "Country Source", accessor: "ip" },
+				{ Header: "Lead Address", accessor: "leadAddress" },
+				{ Header: "Lead Campaign", accessor: "leadCampaign" },
+				{ Header: "Source Content", accessor: "leadSourceDetails" },
+				{ Header: "Lead Email", accessor: "leadEmail" },
+				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
+				{ Header: "Campaign URL", accessor: "pageUrl" },
+				{ Header: "In UAE?", accessor: "r_u_in_uae" },
+				{ Header: "Action", accessor: "" },
+			]);
 			setTableColumnsAgent([
 				// { Header: "#", accessor: "intID", isSortable: false, width: 10 },
 				{ Header: "Name", accessor: "leadName", width: 20 },
 				{ Header: "Manager", accessor: "managerAssigned" },
 				{ Header: "Status", accessor: "leadStatus" },
-				// { Header: "E.Status", accessor: "eLeadStatus" },
 				{ Header: "Last Note", width: 100, accessor: "lastNote" },
 				{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 				{ Header: "Timetocall", accessor: "timetocall" },
@@ -257,45 +262,18 @@ const Index = () => {
 				{ Header: "Action", accessor: "" },
 			]);
 		} else {
-			// setTableColumnsManager([
-			// 	{ Header: "Name", accessor: "leadName", width: 20 },
-			// 	// { Header: "Manager", accessor: "managerAssigned" },
-			// 	{ Header: "Agent", accessor: "agentAssigned" },
-			// 	{ Header: "Status", accessor: "leadStatus" },
-			// 	//{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-			// 	//{ Header: "Phone Number", accessor: "leadPhoneNumber" },
-			// 	{ Header: "Last Note", width: 100, accessor: "lastNote" },
-			// 	{ Header: "Date And Time", accessor: "createdDate", width: 40 },
-			// 	{ Header: "Timetocall", accessor: "timetocall" },
-			// 	{ Header: "Nationality", accessor: "nationality" },
-			// 	{ Header: "Country Source", accessor: "ip" },
-			// 	{ Header: "Lead Address", accessor: "leadAddress" },
-			// 	{ Header: "Lead Campaign", accessor: "leadCampaign" },
-			// 	{ Header: "Source Content", accessor: "leadSourceDetails" },
-			// 	//  { Header: "Lead Email", accessor: "leadEmail" },
-			// 	{ Header: "Lead Medium", accessor: "leadSourceMedium" },
-			// 	{ Header: "Campaign URL", accessor: "pageUrl" },
-			// 	{ Header: "In UAE?", accessor: "r_u_in_uae" },
-
-			// 	currentState === "all_leads" && {
-			// 		Header: "Buy",
-			// 		isSortable: false,
-			// 		center: true,
-			// 	},
-
-			// 	currentState === "pending" && { Header: "Cancel" },
-			// 	{ Header: "Action", accessor: "" },
-			// ]);
-			setTableColumnsAgent([
+			console.log({ currentState: currentState });
+			setTableColumnsManager([
 				{ Header: "Name", accessor: "leadName", width: 20 },
+				// { Header: "Manager", accessor: "managerAssigned" },
+				{ Header: "Agent", accessor: "agentAssigned" },
 				{ Header: "Status", accessor: "leadStatus" },
-				// { Header: "E.Status", accessor: "eLeadStatus" },
+				//{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
+				//{ Header: "Phone Number", accessor: "leadPhoneNumber" },
 				{ Header: "Last Note", width: 100, accessor: "lastNote" },
-				{ Header: "Date And Time", accessor: "createdDate", width: 40 },
+				{ Header: "Date & Time", accessor: "createdDate", width: 40 },
 				{ Header: "Timetocall", accessor: "timetocall" },
 				{ Header: "Nationality", accessor: "nationality" },
-				{ Header: "Language", accessor: "leadLang" },
-				{ Header: "Budget", accessor: "budget" },
 				{ Header: "Country Source", accessor: "ip" },
 				{ Header: "Lead Address", accessor: "leadAddress" },
 				{ Header: "Lead Campaign", accessor: "leadCampaign" },
@@ -304,6 +282,7 @@ const Index = () => {
 				{ Header: "Lead Medium", accessor: "leadSourceMedium" },
 				{ Header: "Campaign URL", accessor: "pageUrl" },
 				{ Header: "In UAE?", accessor: "r_u_in_uae" },
+
 				currentState === "all_leads" && {
 					Header: "Buy",
 					isSortable: false,
@@ -313,7 +292,38 @@ const Index = () => {
 				currentState === "pending" && { Header: "Cancel" },
 				{ Header: "Action", accessor: "" },
 			]);
+			setTableColumnsAgent(
+				[
+					{ Header: "Name", accessor: "leadName", width: 20 },
+					{ Header: "Status", accessor: "leadStatus" },
+					// { Header: "E.Status", accessor: "eLeadStatus" },
+					{ Header: "Last Note", width: 100, accessor: "lastNote" },
+					{ Header: "Date & Time", accessor: "createdDate", width: 40 },
+					{ Header: "Timetocall", accessor: "timetocall" },
+					{ Header: "Nationality", accessor: "nationality" },
+					{ Header: "Language", accessor: "leadLang" },
+					{ Header: "Budget", accessor: "budget" },
+					{ Header: "Country Source", accessor: "ip" },
+					{ Header: "Lead Address", accessor: "leadAddress" },
+					{ Header: "Lead Campaign", accessor: "leadCampaign" },
+					{ Header: "Source Content", accessor: "leadSourceDetails" },
+					//  { Header: "Lead Email", accessor: "leadEmail" },
+					{ Header: "Lead Medium", accessor: "leadSourceMedium" },
+					{ Header: "Campaign URL", accessor: "pageUrl" },
+					{ Header: "In UAE?", accessor: "r_u_in_uae" },
+					currentState === "all_leads" && {
+						Header: "Buy",
+						isSortable: false,
+						center: true,
+					},
+
+					currentState === "pending" && { Header: "Cancel" },
+					{ Header: "Action", accessor: "" },
+				].filter(Boolean)
+			);
 		}
+
+		console.log({ currentState, tableColumnsAgent });
 
 		//     if(currentState == "all_leads"){
 		//       setFilteredLeads(data)
@@ -332,10 +342,12 @@ const Index = () => {
 		//    setFilteredLeads(leadApprovals);
 	}, [currentState]);
 
-	// useEffect(() => {
-	// 	setDynamicColumns(roleColumns[role] || tableColumns);
-	// 	setSelectedColumns(roleColumns[role] || tableColumns);
-	// }, [tableColumnsManager]);
+	useEffect(() => {
+		setDynamicColumns(roleColumns[role] || tableColumns);
+		setSelectedColumns(roleColumns[role] || tableColumns);
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [tableColumnsManager]);
 
 	const dataColumn = dynamicColumns?.filter((item) =>
 		selectedColumns?.find((colum) => colum?.Header === item.Header)
@@ -545,13 +557,13 @@ const Index = () => {
 					label="Pending"
 					isSuperAdmin={user?.role === "superAdmin"}
 				/>
-				<StateButton
+				{/* <StateButton
 					state="Accepted"
 					currentState={currentState}
 					setCurrentState={setCurrentState}
 					label="Approved Leads"
 					isSuperAdmin={user?.role === "superAdmin"}
-				/>
+				/> */}
 				<StateButton
 					state="Rejected"
 					currentState={currentState}

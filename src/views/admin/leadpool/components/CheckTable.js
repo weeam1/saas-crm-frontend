@@ -96,6 +96,7 @@ import LastNoteText from "views/admin/lead/components/LastNoteText";
 import { useStateContext } from "contexts/store";
 import TableLoading from "components/loading/TableLoading";
 import RenderEStatus from "views/admin/lead/components/RenderEStatus";
+import { findManagerForAgent } from "utils";
 
 export default function CheckTable(props) {
 	const {
@@ -457,7 +458,7 @@ export default function CheckTable(props) {
 	// });
 
 	const handleClear = () => {
-		searchbox.current.value = "";
+		if (searchbox.current) searchbox.current.value = "";
 		setDisplaySearchData(false);
 		setDisplayAdvSearchData(false);
 		setSearchedData([]);
@@ -465,6 +466,7 @@ export default function CheckTable(props) {
 		fetchData(1, pageSize);
 		setGopageValue(1);
 		setUpdatedPage(0);
+		setGetTagValues([]);
 		setIsFormReset(true);
 	};
 
@@ -817,8 +819,13 @@ export default function CheckTable(props) {
 		// alert("The manager is wroking")
 		//  const res= await postApi("api/adminApproval/add", {leadId: leadID, managerId: e.target.value,},true);
 		//    console.log(res.data)
+
+		const manager = findManagerForAgent(user?._id, tree);
+
 		let payload = {
 			leadId: leadID,
+			managerId: manager.managerId,
+			mangerName: manager.managerName,
 		};
 
 		if (user?.roles[0]?.roleName === "Agent") {
@@ -829,6 +836,7 @@ export default function CheckTable(props) {
 
 		try {
 			setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
+			console.log(payload, "payload");
 			const res = await axios.post(
 				constant["baseUrl"] + "api/adminApproval/add",
 				payload,
@@ -997,7 +1005,6 @@ export default function CheckTable(props) {
 									ms={2}
 									onClick={() => {
 										handleClear();
-
 										setGetTagValues([]);
 									}}
 								>

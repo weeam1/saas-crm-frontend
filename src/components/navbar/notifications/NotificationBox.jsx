@@ -1,69 +1,76 @@
-import { Box, Text, Icon } from "@chakra-ui/react";
+import { Box, Text, Icon, useDisclosure } from "@chakra-ui/react";
 import { FaBell, FaBullhorn } from "react-icons/fa"; // React icon for announcements
 import { format } from "date-fns"; // For formatting date and time
+import NotificationView from "./NotificationView";
 
 const NotificationBox = ({ notification }) => {
 	const { type, message, created_at } = notification;
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	// Check if the message is an announcement (type 1)
 	const isAnnouncement = type === 1;
-	// Convert and format the date
 	// const formattedDate = format(new Date(created_at), "PPP p"); // Format: Jan 8, 2025 11:49 AM
 	const formattedDate = format(new Date(created_at), "MMM d, yyyy h:mm a");
 	return (
-		<Box
-			p={2}
-			borderRadius="md"
-			display="flex"
-			alignItems="center"
-			gap={3}
-			border="none"
-			outline="none"
-			cursor="pointer"
-			transition="background 0.3s ease, box-shadow 0.3s ease" // Smooth transition for hover effects
-		>
-			{/* Icon */}
-			{isAnnouncement ? (
-				<Box
-					bg="rgba(0, 123, 255, 0.7)" // Glass effect background for announcement icon
-					borderRadius="full"
-					p={1}
-					boxSize={10} // Increase size for better visibility
-					display="flex"
-					alignItems="center"
-					justifyContent="center"
-				>
-					<Icon as={FaBullhorn} boxSize={6} color="white" />
-				</Box>
-			) : (
-				<Box
-					bg="rgba(40, 167, 69, 0.7)" // Glass effect background for notification icon
-					borderRadius="full"
-					p={1}
-					boxSize={10} // Increase size for better visibility
-					display="flex"
-					alignItems="center"
-					justifyContent="center"
-				>
-					<Icon as={FaBell} boxSize={6} color="white" />{" "}
-					{/* Use a different icon for notifications */}
-				</Box>
-			)}
+		<>
+			<Box
+				onClick={onOpen}
+				p={2}
+				borderRadius="md"
+				display="flex"
+				alignItems="center"
+				gap={3}
+				border="none"
+				outline="none"
+				cursor="pointer"
+				transition="background 0.3s ease, box-shadow 0.3s ease" // Smooth transition for hover effects
+			>
+				{/* Icon */}
+				{isAnnouncement ? (
+					<Box
+						bg="rgba(0, 123, 255, 0.7)" // Glass effect background for announcement icon
+						borderRadius="full"
+						p={1}
+						boxSize={10} // Increase size for better visibility
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+					>
+						<Icon as={FaBullhorn} boxSize={6} color="white" />
+					</Box>
+				) : (
+					<Box
+						bg="rgba(40, 167, 69, 0.7)" // Glass effect background for notification icon
+						borderRadius="full"
+						p={1}
+						boxSize={10} // Increase size for better visibility
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+					>
+						<Icon as={FaBell} boxSize={6} color="white" />{" "}
+						{/* Use a different icon for notifications */}
+					</Box>
+				)}
 
-			{/* Message Details */}
-			<Box flex="1">
-				<Text
-					fontSize="sm"
-					width={{ sm: "150px", md: "250px" }}
-					color="gray.700"
-					isTruncated
-				>
-					{message}
-				</Text>
-				<Text fontSize="xs" color="gray.800" mt={1}>
-					{formattedDate}
-				</Text>
+				{/* Message Details */}
+				<Box flex="1">
+					<Text
+						fontSize="sm"
+						width={{ sm: "150px", md: "250px" }}
+						color="gray.700"
+						isTruncated
+					>
+						{message}
+					</Text>
+					<Text fontSize="xs" color="gray.800" mt={1}>
+						{formattedDate}
+					</Text>
+				</Box>
 			</Box>
-		</Box>
+
+			<NotificationView item={notification} isOpen={isOpen} onClose={onClose} />
+		</>
 	);
 };
 

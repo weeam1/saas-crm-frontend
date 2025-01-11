@@ -6,36 +6,27 @@ import {
 	ModalHeader,
 	ModalFooter,
 	ModalBody,
-	ModalCloseButton,
 	Button,
 	Flex,
-	Badge,
 	Text,
 	Box,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
-import StatusBadge from "components/shared/StatusBadge";
-import { MdAllInbox, MdMarkEmailRead, MdMarkEmailUnread } from "react-icons/md";
 
-const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
+const NotificationView = ({ item, isOpen, onClose }) => {
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
-			size="xl"
+			size="2xl"
 			motionPreset="slideInBottom"
 		>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Announcement Details</ModalHeader>
+				<ModalHeader>Notification Details</ModalHeader>
 				<ModalBody>
 					<Flex direction="column" gap={4}>
-						{/* Announcement Type */}
-						<div>
-							<Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge>
-						</div>
-
-						{/* Announcement Message */}
+						{/* Notification Message */}
 						<Box
 							backgroundColor="gray.100"
 							p={3}
@@ -63,28 +54,6 @@ const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
 							</Text>
 						</Box>
 
-						{/* Read & Pending Counts */}
-						<Flex justify="space-between">
-							<StatusBadge
-								status={`${item.read_count} Read`}
-								color="green"
-								Icon={MdMarkEmailRead}
-								size={16}
-							/>
-							<StatusBadge
-								status={`${item.pending_count} Pending`}
-								color="orange"
-								Icon={MdMarkEmailUnread}
-								size={16}
-							/>
-							<StatusBadge
-								status={`${item.total_count} Total`}
-								color="pink"
-								Icon={MdAllInbox}
-								size={16}
-							/>
-						</Flex>
-
 						{/* Created At */}
 						<Text fontSize="sm" color="gray.500">
 							{format(new Date(item.created_at), "MMM d, yyyy h:mm a")}
@@ -102,4 +71,4 @@ const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
 	);
 };
 
-export default AnnouncementView;
+export default NotificationView;

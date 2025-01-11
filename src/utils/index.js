@@ -173,3 +173,45 @@ export const getUserNameById = (id, tree) => {
 
 // modulo that supports negative numbers (so that e.g. -5 % 4 = 3)
 export const modulo = (a, n) => ((a % n) + n) % n;
+
+export const findManagerForAgent = (agentId, tree) => {
+	const { agents, managers } = tree; // Fix typo: 'mangers' -> 'managers'
+
+	// Loop through all managers in the agents object
+	for (const managerKey in agents) {
+		if (Object.hasOwn(agents, managerKey)) {
+			const managerAgents = agents[managerKey];
+
+			// Debugging log to inspect manager's agents
+			console.log("managerAgents", managerAgents);
+
+			// Check if the agent ID exists in the manager's agents list
+			const agentFound = managerAgents.find(
+				(agent) => agent._id.toString() === agentId.toString() // Convert IDs to string for reliable comparison
+			);
+
+			if (agentFound) {
+				// Extract manager ID from the key (e.g., "manager-<id>")
+				const managerId = managerKey.split("-")[1];
+
+				// Find the manager's details in the managers array
+				const managerDetails = managers.find(
+					(manager) => manager._id.toString() === managerId.toString()
+				);
+
+				if (managerDetails) {
+					// Return both manager ID and name
+					const managerName =
+						managerDetails.firstName + " " + managerDetails.lastName;
+					return {
+						managerId,
+						managerName,
+					};
+				}
+			}
+		}
+	}
+
+	// Return null if no manager is found
+	return null;
+};

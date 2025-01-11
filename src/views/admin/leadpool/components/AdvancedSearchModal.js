@@ -62,22 +62,6 @@ const AdvancedSearchModal = ({
 		budget: "",
 	};
 
-	// const initialValues = {
-	// 	leadName: "",
-	// 	leadStatus: "",
-	// 	lastNote: "",
-	// 	dateAndTime: "", // Added
-	// 	timetocall: "",
-	// 	nationality: "",
-	// 	ip: "",
-	// 	leadAddress: "",
-	// 	leadCampaign: "",
-	// 	leadSourceDetails: "",
-	// 	leadSourceMedium: "",
-	// 	pageUrl: "",
-	// 	r_u_in_uae: "",
-	// };
-
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validationLeadSearchSchema,
@@ -113,8 +97,6 @@ const AdvancedSearchModal = ({
 							const assignedAgent = agents.find(
 								(agent) => agent?._id?.toString() === value
 							);
-
-							console.log({ assignedAgent });
 
 							displayValue = assignedAgent
 								? `${assignedAgent.name}`
