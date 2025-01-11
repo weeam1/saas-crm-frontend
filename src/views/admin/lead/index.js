@@ -306,7 +306,7 @@ const Index = () => {
 						pageNo +
 						"&pageSize=" +
 						pageSize
-				: `api/lead/advanced-search?data=${JSON.stringify(data)}&user=${
+				: `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
 					}&role=${user.roles[0]?.roleName}&dateTime=${
 						dateTime?.from + "|" + dateTime?.to
