@@ -843,7 +843,6 @@ export default function CheckTable(props) {
 
 		try {
 			setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
-			console.log(payload, "payload");
 			const res = await axios.post(
 				constant["baseUrl"] + "api/adminApproval/add",
 				payload,

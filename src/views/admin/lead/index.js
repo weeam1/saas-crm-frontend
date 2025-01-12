@@ -407,6 +407,7 @@ const Index = () => {
 						setSelectedColumns={setSelectedColumns}
 						emailAccess={emailAccess}
 						callAccess={callAccess}
+						setTotalLeads={setTotalLeads}
 					/>
 				</GridItem>
 			</Grid>

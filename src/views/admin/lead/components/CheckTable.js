@@ -90,6 +90,7 @@ import TableLoading from "components/loading/TableLoading";
 import ManageColumnModal from "./ManageColumnModal";
 import BulkAssignModal from "./BulkAssignModal";
 import ReleaseLead from "./ReleaseLead";
+import LeadTypeBadge from "./subComponents/LeadTypeBadge";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -121,6 +122,7 @@ const CheckTable = React.memo((props) => {
 		setData,
 		refetchData,
 		hideColumns,
+		setTotalLeads,
 	} = props;
 	const textColor = useColorModeValue("gray.500", "white");
 	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -1080,43 +1082,10 @@ const CheckTable = React.memo((props) => {
 														</Flex>
 													);
 												} else if (cell?.column.Header === "Name") {
+													const leadType = row?.original?.leadType;
+													const roleName = user?.roles[0]?.roleName;
+
 													data = access?.view ? (
-														// <Text
-														// 	onClick={() =>
-														// 		handleLeadsModal(row.original?._id)
-														// 	}
-														// 	me="10px"
-														// 	sx={{
-														// 		"&:hover": {
-														// 			color: "blue.500",
-														// 			textDecoration: "underline",
-														// 		},
-														// 	}}
-														// 	cursor="pointer"
-														// 	color={"brand.600"}
-														// 	fontSize="sm"
-														// 	fontWeight="600"
-														// 	textAlign="center"
-														// 	width={140}
-														// >
-														// 	{cell?.value?.text || cell?.value}
-														// 	{row?.original?.leadType === "leadpool" &&
-														// 		user.role !== "superAdmin" && (
-														// 			<Badge
-														// 				colorScheme="blue"
-														// 				size="xs"
-														// 				mx="2px"
-														// 				textTransform="lowercase"
-														// 				sx={{
-														// 					fontSize: "0.6rem",
-														// 				}}
-														// 				p=".6em"
-														// 				rounded="full"
-														// 			>
-														// 				Pool
-														// 			</Badge>
-														// 		)}
-														// </Text>
 														<Flex
 															alignItems="center"
 															width={200}
@@ -1140,31 +1109,13 @@ const CheckTable = React.memo((props) => {
 															>
 																{cell?.value?.text || cell?.value}
 															</Text>
-															{row?.original?.leadType === "leadpool"
-																? user.roles[0].roleName === "Agent" && (
-																		<Badge
-																			colorScheme="green"
-																			fontSize="0.7rem"
-																			size="sm"
-																			p="2px"
-																			rounded="full"
-																			textTransform="capitalize"
-																		>
-																			Pool
-																		</Badge>
-																	)
-																: row?.original?.leadType === "release" && (
-																		<Badge
-																			colorScheme="pink"
-																			fontSize=".7rem"
-																			size="sm"
-																			p="2px"
-																			rounded="full"
-																			textTransform="capitalize"
-																		>
-																			release
-																		</Badge>
-																	)}
+															{(roleName === "Manager" ||
+																roleName === "Agent") && (
+																<LeadTypeBadge
+																	leadType={leadType}
+																	roleName={roleName}
+																/>
+															)}
 														</Flex>
 													) : (
 														<Text
@@ -1421,7 +1372,7 @@ const CheckTable = React.memo((props) => {
 															isReleased={row.original?.isReleased}
 															role={user?.roles[0]?.roleName}
 															leadId={row.original?._id}
-															refreshData={refreshData}
+															setTotalLeads={setTotalLeads}
 															setData={
 																displayAdvSearchData ? setSearchedData : setData
 															}

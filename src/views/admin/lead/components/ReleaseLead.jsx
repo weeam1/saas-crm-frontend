@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 
-const ReleaseLead = ({ isReleased, role, leadId, refreshData, setData }) => {
+const ReleaseLead = ({ isReleased, role, leadId, setTotalLeads, setData }) => {
 	const shouldRenderButton =
 		(isReleased && role === "Manager") || role === "Agent";
 
@@ -43,6 +43,7 @@ const ReleaseLead = ({ isReleased, role, leadId, refreshData, setData }) => {
 
 					return filteredData;
 				});
+				setTotalLeads((prevValue) => prevValue - 1);
 			}
 
 			toast.success("Lead released successfully");
