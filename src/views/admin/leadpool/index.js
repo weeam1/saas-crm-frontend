@@ -24,6 +24,9 @@ const Index = () => {
 	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const user = JSON.parse(localStorage.getItem("user"));
 	const role = user?.roles[0]?.roleName;
+
+	const isSuperAdmin = user?.role === "superAdmin";
+
 	const { leadPoolState: currentState } = useSelector((state) => state?.user);
 	function setCurrentState(value) {
 		dispatch(setLeadPoolState(value));
@@ -199,6 +202,8 @@ const Index = () => {
 			}
 			return { ...lead };
 		});
+		console.log("newData", newData);
+
 		setSearchedData(newData || []);
 		setPages(result.data?.totalPages || 0);
 		setTotalLeads(result.data?.totalLeads || 0);
@@ -548,28 +553,30 @@ const Index = () => {
 					currentState={currentState}
 					setCurrentState={setCurrentState}
 					label="All Leads"
-					isSuperAdmin={user?.role === "superAdmin"}
+					isSuperAdmin={isSuperAdmin}
 				/>
 				<StateButton
 					state="pending"
 					currentState={currentState}
 					setCurrentState={setCurrentState}
 					label="Pending"
-					isSuperAdmin={user?.role === "superAdmin"}
+					isSuperAdmin={isSuperAdmin}
 				/>
-				{/* <StateButton
-					state="Accepted"
-					currentState={currentState}
-					setCurrentState={setCurrentState}
-					label="Approved Leads"
-					isSuperAdmin={user?.role === "superAdmin"}
-				/> */}
+				{isSuperAdmin && (
+					<StateButton
+						state="Accepted"
+						currentState={currentState}
+						setCurrentState={setCurrentState}
+						label="Approved Leads"
+						isSuperAdmin={isSuperAdmin}
+					/>
+				)}
 				<StateButton
 					state="Rejected"
 					currentState={currentState}
 					setCurrentState={setCurrentState}
 					label="Rejected Leads"
-					isSuperAdmin={user?.role === "superAdmin"}
+					isSuperAdmin={isSuperAdmin}
 				/>
 			</HStack>
 			<Grid templateColumns="repeat(6, 1fr)" mt={3} mb={3} gap={4}>

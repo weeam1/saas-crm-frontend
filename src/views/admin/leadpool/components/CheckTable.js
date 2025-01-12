@@ -620,12 +620,12 @@ export default function CheckTable(props) {
 		approvalId
 	) => {
 		const user = JSON.parse(localStorage.getItem("user"));
-		if (e == "none") return;
+		if (e === "none") return;
 		try {
 			const res = await axios.put(
 				constant["baseUrl"] + "api/adminApproval/update",
 				{
-					isApproved: e == "accept" ? true : false,
+					isApproved: e === "accept" ? true : false,
 					objectId: approvalId,
 					// isManager:
 				},
@@ -643,6 +643,7 @@ export default function CheckTable(props) {
 						// setLoading(true);
 						const dataObj = {
 							managerAssigned: managerId,
+							leadType: "leadpool",
 						};
 
 						if (e === "") {
@@ -672,6 +673,7 @@ export default function CheckTable(props) {
 					try {
 						const data = {
 							agentAssigned: agentId,
+							leadType: "leadpool",
 						};
 
 						// setLoading(true);
@@ -793,6 +795,11 @@ export default function CheckTable(props) {
 				pageIndex + 1,
 				pageSize
 			);
+		} else if (displayAdvSearchData) {
+			const data = Object.fromEntries(
+				Object.entries(formValues).filter(([key, value]) => value !== "")
+			);
+			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
 			fetchData(pageIndex + 1, pageSize);
 		}
@@ -1452,7 +1459,7 @@ export default function CheckTable(props) {
 																			textDecoration: "underline",
 																		},
 																	}}
-																	color="brand.600"
+																	color={"brand.600"}
 																	fontSize="sm"
 																	fontWeight="500"
 																	pl="24px"

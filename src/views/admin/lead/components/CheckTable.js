@@ -32,6 +32,7 @@ import {
 	useColorModeValue,
 	useDisclosure,
 	Skeleton,
+	Badge,
 } from "@chakra-ui/react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -88,6 +89,7 @@ import { postApi } from "services/api";
 import TableLoading from "components/loading/TableLoading";
 import ManageColumnModal from "./ManageColumnModal";
 import BulkAssignModal from "./BulkAssignModal";
+import ReleaseLead from "./ReleaseLead";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -1079,28 +1081,102 @@ const CheckTable = React.memo((props) => {
 													);
 												} else if (cell?.column.Header === "Name") {
 													data = access?.view ? (
+														// <Text
+														// 	onClick={() =>
+														// 		handleLeadsModal(row.original?._id)
+														// 	}
+														// 	me="10px"
+														// 	sx={{
+														// 		"&:hover": {
+														// 			color: "blue.500",
+														// 			textDecoration: "underline",
+														// 		},
+														// 	}}
+														// 	cursor="pointer"
+														// 	color={"brand.600"}
+														// 	fontSize="sm"
+														// 	fontWeight="600"
+														// 	textAlign="center"
+														// 	width={140}
+														// >
+														// 	{cell?.value?.text || cell?.value}
+														// 	{row?.original?.leadType === "leadpool" &&
+														// 		user.role !== "superAdmin" && (
+														// 			<Badge
+														// 				colorScheme="blue"
+														// 				size="xs"
+														// 				mx="2px"
+														// 				textTransform="lowercase"
+														// 				sx={{
+														// 					fontSize: "0.6rem",
+														// 				}}
+														// 				p=".6em"
+														// 				rounded="full"
+														// 			>
+														// 				Pool
+														// 			</Badge>
+														// 		)}
+														// </Text>
+														<Flex
+															alignItems="center"
+															width={200}
+															textAlign="left"
+														>
+															<Text
+																onClick={() =>
+																	handleLeadsModal(row.original?._id)
+																}
+																me="10px"
+																sx={{
+																	"&:hover": {
+																		color: "blue.500",
+																		textDecoration: "underline",
+																	},
+																}}
+																cursor="pointer"
+																color={"brand.600"}
+																fontSize="sm"
+																fontWeight="600"
+															>
+																{cell?.value?.text || cell?.value}
+															</Text>
+															{row?.original?.leadType === "leadpool"
+																? user.roles[0].roleName === "Agent" && (
+																		<Badge
+																			colorScheme="green"
+																			fontSize="0.7rem"
+																			size="sm"
+																			p="2px"
+																			rounded="full"
+																			textTransform="capitalize"
+																		>
+																			Pool
+																		</Badge>
+																	)
+																: row?.original?.leadType === "release" && (
+																		<Badge
+																			colorScheme="pink"
+																			fontSize=".7rem"
+																			size="sm"
+																			p="2px"
+																			rounded="full"
+																			textTransform="capitalize"
+																		>
+																			release
+																		</Badge>
+																	)}
+														</Flex>
+													) : (
 														<Text
-															onClick={() =>
-																handleLeadsModal(row.original?._id)
-															}
 															me="10px"
-															sx={{
-																"&:hover": {
-																	color: "blue.500",
-																	textDecoration: "underline",
-																},
-															}}
-															cursor="pointer"
-															color="brand.600"
 															fontSize="sm"
 															fontWeight="600"
-															width={140}
+															textAlign="center"
 														>
 															{cell?.value?.text || cell?.value}
-														</Text>
-													) : (
-														<Text me="10px" fontSize="sm" fontWeight="600">
-															{cell?.value?.text || cell?.value}
+															{/* {row?.original?.leadType === "leadpool" && (
+																<span>leadpool</span>
+															)} */}
 														</Text>
 													);
 												} else if (cell?.column.Header === "Whatsapp") {
@@ -1338,6 +1414,18 @@ const CheckTable = React.memo((props) => {
 														<Text fontSize={"sm"} width={140}>
 															{cell?.value || "not selected"}
 														</Text>
+													);
+												} else if (cell?.column.Header === "Release") {
+													data = (
+														<ReleaseLead
+															isReleased={row.original?.isReleased}
+															role={user?.roles[0]?.roleName}
+															leadId={row.original?._id}
+															refreshData={refreshData}
+															setData={
+																displayAdvSearchData ? setSearchedData : setData
+															}
+														/>
 													);
 												} else if (cell?.column.Header === "Action") {
 													data = (

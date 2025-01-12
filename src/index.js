@@ -37,6 +37,7 @@ import logo from "assets/img/app-logo.jpeg";
 
 // Import your audio file
 import newAnnouncementSound from "assets/sounds/new-notification.wav";
+import PermissionModal from "components/Permission/PermissionModal";
 
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
@@ -45,6 +46,7 @@ function App() {
 	const token = localStorage.getItem("token") || null;
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
+	// const [permissionGranted, setPermissionGranted] = useState(false);
 	const user = JSON.parse(localStorage.getItem("user"));
 	useNavigate();
 
@@ -64,42 +66,10 @@ function App() {
 	const user2 = useSelector((state) => state.user.user);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	// useEffect(() => {
-	// 	if (user && user._id) {
-	// 		console.log(user._id);
-	// 		webSocketService.connect(user._id);
-
-	// 		// Cleanup on window close
-	// 		window.addEventListener("beforeunload", () => {
-	// 			webSocketService.disconnect();
-	// 		});
-
-	// 		// Listen for incoming messages
-	// 		webSocketService.socket.onmessage = (event) => {
-	// 			const message = JSON.parse(event.data);
-	// 			console.log({ message });
-
-	// 			console.log("check socket");
-
-	// 			// Check if the message type is for announcements
-	// 			if (message.type === 1) {
-	// 				console.log("Announcement message received");
-
-	// 				// Dispatch action to add each announcement to Redux store
-	// 				dispatch(addAnnouncement(message.data));
-
-	// 				// Automatically open the modal to show new announcements
-	// 				setIsModalOpen(true);
-	// 			}
-	// 		};
-	// 	}
-	// }, [dispatch, user]);
+	// const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
 
 	useEffect(() => {
-		if (user && user._id) {
-			console.log(user._id);
-
+		if (user && user?._id) {
 			webSocketService.connect(user._id);
 
 			webSocketService.socket.onmessage = (event) => {
@@ -148,6 +118,42 @@ function App() {
 		}
 	}, [dispatch, user]);
 
+	// useEffect(() => {
+	// 	const checkPermissions = () => {
+	// 		if (Notification.permission === "granted") {
+	// 			setPermissionGranted(true);
+	// 		} else if (Notification.permission === "denied") {
+	// 			setPermissionGranted(false);
+	// 		} else {
+	// 			// Permission is not yet requested (default).
+	// 			setIsPermissionModalOpen(false);
+	// 		}
+	// 	};
+
+	// 	checkPermissions();
+
+	// 	if (permissionGranted && user?._id) {
+	// 		webSocketService.connect(user?._id);
+	// 		// WebSocket connection logic here
+	// 		webSocketService.socket.onmessage = (event) => {
+	// 			const message = JSON.parse(event.data);
+
+	// 			if (message.type === 1 && message.data.message) {
+	// 				dispatch(addAnnouncement(message.data));
+
+	// 				showNotification({
+	// 					title: "New Announcement",
+	// 					message: message.data.message || "Check out the latest updates!",
+	// 				});
+
+	// 				announcementSound.play().catch((error) => {
+	// 					console.error("Error playing sound:", error);
+	// 				});
+	// 			}
+	// 		};
+	// 	}
+	// }, [dispatch, permissionGranted, user]);
+
 	const getToken = () => {
 		return localStorage.getItem("token") || null;
 	};
@@ -188,6 +194,13 @@ function App() {
 		return (
 			<>
 				<Notifications />
+
+				{/* {isPermissionModalOpen && (
+					<PermissionModal
+						isOpen={isPermissionModalOpen}
+						onClose={() => setIsPermissionModalOpen(false)}
+					/>
+				)} */}
 
 				<AnnouncementsModal
 					isOpen={isModalOpen}

@@ -82,6 +82,7 @@ const Index = () => {
 		{ Header: "Email", accessor: "leadEmail" },
 		{ Header: "Medium", accessor: "leadSourceMedium" },
 		{ Header: "In UAE?", accessor: "r_u_in_uae" },
+		{ Header: "Release", isSortable: false, center: true },
 		{ Header: "Action", isSortable: false, center: true },
 	];
 	const tableColumnsAgent = [
@@ -106,6 +107,7 @@ const Index = () => {
 		{ Header: "Medium", accessor: "leadSourceMedium" },
 		{ Header: "Campaign URL", accessor: "pageUrl" },
 		{ Header: "In UAE?", accessor: "r_u_in_uae" },
+		{ Header: "Release", isSortable: false, center: true },
 		{ Header: "Action", isSortable: false, center: true },
 	];
 
