@@ -1,4 +1,5 @@
 import { Button, Spinner } from "@chakra-ui/react";
+import ReleaseLeadModal from "components/Permission/ReleaseLeadModal";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
@@ -9,9 +10,12 @@ const ReleaseLead = ({ isReleased, role, leadId, setTotalLeads, setData }) => {
 
 	const [isLoading, setIsLoading] = useState(false);
 
+	const [isOpen, setIsOpen] = useState(false);
+
 	const handleRelease = async () => {
 		try {
 			setIsLoading(true);
+			setIsOpen(false);
 			const { data } = await putApi(`api/lead/release/${leadId}`);
 
 			if (data.status === "success") {
@@ -56,22 +60,34 @@ const ReleaseLead = ({ isReleased, role, leadId, setTotalLeads, setData }) => {
 	};
 
 	return shouldRenderButton ? (
-		<Button
-			bgColor="brand.500"
-			color="white"
-			size="sm"
-			variant="solid"
-			px={4}
-			py={2}
-			borderRadius="lg"
-			rounded="full"
-			onClick={handleRelease}
-			_hover={{
-				bg: "brand.600",
-			}}
-		>
-			{isLoading ? <Spinner size="sm" /> : "Release"}
-		</Button>
+		<>
+			{isOpen && (
+				<ReleaseLeadModal
+					isOpen={isOpen}
+					onClose={() => setIsOpen(false)}
+					onConfirm={handleRelease}
+				/>
+			)}
+			<Button
+				bg="brand.500"
+				color="white"
+				size="sm"
+				variant="solid"
+				px={4}
+				py={2}
+				borderRadius="full"
+				onClick={() => setIsOpen(true)}
+				_hover={{
+					bg: "brand.600",
+				}}
+				_active={{
+					bg: "brand.700",
+				}}
+				isDisabled={isLoading}
+			>
+				{isLoading ? <Spinner size="sm" /> : "Release"}
+			</Button>
+		</>
 	) : (
 		"-"
 	);
