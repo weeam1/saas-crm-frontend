@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 import ManagerAgentImport from "./ManagerAgentImport";
+import ErrorMessageModal from "components/Message/ErrorMessageModal";
 
 const {
 	Modal,
@@ -18,6 +19,11 @@ const {
 } = require("@chakra-ui/react");
 
 const BulkAssignModal = (props) => {
+	// const [errorModal, setErrorModal] = useState({
+	// 	visible: false,
+	// 	message: "",
+	// });
+
 	const {
 		bulkAssign,
 		setBulkAssign,
@@ -50,13 +56,23 @@ const BulkAssignModal = (props) => {
 			};
 			setIsLoading(true);
 
-			let response = await putApi(`api/lead/bulk-assign`, payload);
-			if (response.status === 200) {
+			let res = await putApi(`api/lead/bulk-assign`, payload);
+			if (res.status === 200) {
 				toast.success("Leads updated successfully");
 				refreshData();
 				formikResetForm();
 				setSelectedValues([]);
 				setSelectAllChecked(false);
+			} else if (res.status === 400) {
+				console.log(res.response);
+
+				const errorDetails =
+					res?.response?.data?.message || "Invalid input provided.";
+				// const errorHint =
+				// 	res?.response?.data?.hint ||
+				// 	"Please review the input and adjust as necessary.";
+
+				toast.error(`${errorDetails}`);
 			}
 		} catch (error) {
 			console.error("Error submitting bulk assign:", error);
@@ -83,48 +99,58 @@ const BulkAssignModal = (props) => {
 	} = formik;
 
 	return (
-		<Modal
-			size="2xl"
-			onClose={closeHandler}
-			isOpen={bulkAssign}
-			isCentered
-			motionPreset="slideInBottom"
-		>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Bulk Assign</ModalHeader>
-				<ModalBody>
-					<ModalCloseButton onClick={closeHandler} />
-					<ManagerAgentImport
-						values={values}
-						errors={errors}
-						touched={touched}
-						handleChange={handleChange}
-						user={user}
-						tree={tree}
-					/>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						colorScheme="brand"
-						size="sm"
-						mr={2}
-						onClick={handleSubmit}
-						disabled={isLoading || !dirty ? true : false}
-					>
-						{isLoading ? <Spinner /> : "Save"}
-					</Button>
-					<Button
-						colorScheme="red"
-						variant="outline"
-						size="sm"
-						onClick={() => formikResetForm()}
-					>
-						Clear
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
+		<>
+			{/* {errorModal.visible && (
+				<ErrorMessageModal
+					isOpen={errorModal.visible}
+					onClose={() => setErrorModal({ ...errorModal, visible: false })}
+					message={errorModal.message}
+				/>
+			)} */}
+
+			<Modal
+				size="2xl"
+				onClose={closeHandler}
+				isOpen={bulkAssign}
+				isCentered
+				motionPreset="slideInBottom"
+			>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader>Bulk Assign</ModalHeader>
+					<ModalBody>
+						<ModalCloseButton onClick={closeHandler} />
+						<ManagerAgentImport
+							values={values}
+							errors={errors}
+							touched={touched}
+							handleChange={handleChange}
+							user={user}
+							tree={tree}
+						/>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							colorScheme="brand"
+							size="sm"
+							mr={2}
+							onClick={handleSubmit}
+							disabled={isLoading || !dirty ? true : false}
+						>
+							{isLoading ? <Spinner /> : "Save"}
+						</Button>
+						<Button
+							colorScheme="red"
+							variant="outline"
+							size="sm"
+							onClick={() => formikResetForm()}
+						>
+							Clear
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</>
 	);
 };
 

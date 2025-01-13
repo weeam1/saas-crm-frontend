@@ -205,8 +205,9 @@ const AdvancedSearchForm = (props) => {
 						<option value="interested">Interested</option>
 						<option value="junk">Junk</option>
 						<option value="not-interested">Not interested</option>
-						<option value="qualified">Qualified</option>
+						<option value="no-response">No response</option>
 						<option value="change-agent">Change Agent</option>
+						<option value="-1">No E.Status</option>
 					</Select>
 					<Text mb="10px" color="red">
 						{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}

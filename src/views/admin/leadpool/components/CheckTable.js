@@ -865,7 +865,14 @@ export default function CheckTable(props) {
 
 			fetchData();
 		} catch (error) {
-			console.log(error, "error");
+			if (error.response?.status === 400) {
+				const errorDetails =
+					error.response.data?.message || "Invalid input provided.";
+				toast.error(`${errorDetails}`);
+			} else {
+				console.error("Unexpected error:", error);
+				toast.error("Something went wrong!");
+			}
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [leadID]: false }));
 		}

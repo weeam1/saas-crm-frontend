@@ -190,28 +190,35 @@ const RenderAgent = ({
 				updateRowStatus(leadID, res.data.leadStatus);
 
 				toast.success("Agent updated successfully");
-			}
 
-			// Update the corresponding data list (searched or default)
-			const updateListData = (prevData) => {
-				const newData = [...prevData];
-				const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
-				if (updateIdx !== -1) {
-					newData[updateIdx].agentAssigned = data.agentAssigned;
-					newData[updateIdx].leadType = data.leadType || null;
-					newData[updateIdx].isReleased = data.isReleased;
+				// Update the corresponding data list (searched or default)
+				const updateListData = (prevData) => {
+					const newData = [...prevData];
+					const updateIdx = newData.findIndex(
+						(l) => l._id.toString() === leadID
+					);
+					if (updateIdx !== -1) {
+						newData[updateIdx].agentAssigned = data.agentAssigned;
+						newData[updateIdx].leadType = data.leadType || null;
+						newData[updateIdx].isReleased = data.isReleased;
+					}
+					return newData;
+				};
+
+				if (displaySearchData) {
+					setSearchedData(updateListData);
+				} else {
+					setData(updateListData);
 				}
-				return newData;
-			};
-
-			if (displaySearchData) {
-				setSearchedData(updateListData);
-			} else {
-				setData(updateListData);
+			} else if (res.status === 400) {
+				console.log(res.response);
+				const errorDetails =
+					res?.response?.data?.message || "Invalid input provided.";
+				toast.error(`${errorDetails}`);
 			}
 		} catch (error) {
 			console.error("Failed to update the agent:", error);
-			toast.error("Failed to update the agent");
+			toast.error("Agent not updated. Please try again.");
 		} finally {
 			setLoading(false);
 		}

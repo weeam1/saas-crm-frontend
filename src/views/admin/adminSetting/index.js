@@ -7,7 +7,7 @@ import { TbExchange } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { GrValidate } from "react-icons/gr";
 import { TbTableColumn } from "react-icons/tb";
-import { MdCampaign } from "react-icons/md";
+import { MdCampaign, MdSettings } from "react-icons/md";
 
 import {
 	MdAccountBalanceWallet,
@@ -147,7 +147,7 @@ const Index = () => {
 					}
 					name="Bank Accounts"
 				/>
-				<MiniStatistics
+				{/* <MiniStatistics
 					fontsize="md"
 					onClick={() => navigate("/announcements")}
 					startContent={
@@ -159,6 +159,19 @@ const Index = () => {
 						/>
 					}
 					name="Announcement"
+				/> */}
+				<MiniStatistics
+					fontsize="md"
+					onClick={() => navigate("/lead-settings")}
+					startContent={
+						<IconBox
+							w="56px"
+							h="56px"
+							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+							icon={<Icon w="28px" h="28px" as={MdSettings} color="white" />} // Change icon here
+						/>
+					}
+					name="Lead Settings" // Update the name to reflect the new purpose
 				/>
 			</SimpleGrid>
 		</div>

@@ -90,6 +90,11 @@ const AdvancedSearchModal = ({
 										: value;
 						}
 
+						// Special formatting for leadStatus
+						if (key === "eLeadStatus") {
+							displayValue = value === "-1" ? "No E.Status" : value;
+						}
+
 						// Handle agentAssigned
 						if (key === "agentAssigned") {
 							const agentsArray = Object.values(tree.agents).flatMap(
