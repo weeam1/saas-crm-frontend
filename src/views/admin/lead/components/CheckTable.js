@@ -1088,7 +1088,8 @@ const CheckTable = React.memo((props) => {
 													data = access?.view ? (
 														<Flex
 															alignItems="center"
-															width={200}
+															width={150}
+															maxWidth={200}
 															textAlign="left"
 														>
 															<Text

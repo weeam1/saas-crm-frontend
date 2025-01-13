@@ -198,6 +198,8 @@ const RenderAgent = ({
 				const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
 				if (updateIdx !== -1) {
 					newData[updateIdx].agentAssigned = data.agentAssigned;
+					newData[updateIdx].leadType = data.leadType || null;
+					newData[updateIdx].isReleased = data.isReleased;
 				}
 				return newData;
 			};

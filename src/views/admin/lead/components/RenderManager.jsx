@@ -45,6 +45,8 @@ const RenderManager = ({
 				if (updateIdx !== -1) {
 					newData[updateIdx].managerAssigned = dataObj.managerAssigned;
 					newData[updateIdx].agentAssigned = dataObj.agentAssigned || "";
+					newData[updateIdx].leadType = dataObj.leadType || null;
+					newData[updateIdx].isReleased = dataObj.isReleased;
 				}
 				return newData;
 			};
