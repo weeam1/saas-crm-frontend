@@ -36,8 +36,8 @@ import addNotification, { Notifications } from "react-push-notification";
 import logo from "assets/img/app-logo.jpeg";
 
 // Import your audio file
-import newAnnouncementSound from "assets/sounds/new-notification.wav";
-import PermissionModal from "components/Permission/PermissionModal";
+import newAnnouncementSound from "assets/sounds/new-notification.mp3";
+// import PermissionModal from "components/Permission/PermissionModal";
 
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);

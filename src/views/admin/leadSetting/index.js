@@ -1,14 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LeadLimitForm from "./LeadSettingForm";
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, Spinner } from "@chakra-ui/react";
+import { toast } from "react-toastify";
+import { getApi } from "services/api";
 
 const LeadSetting = () => {
-	return (
+	const [leadLimit, setLeadLimit] = useState("");
+	const [isFetching, setIsFetching] = useState(false);
+
+	// Fetch the lead settings when the component mounts
+	useEffect(() => {
+		setIsFetching(true);
+		const fetchLeadSettings = async () => {
+			try {
+				const res = await getApi("api/lead-settings");
+				if (res.status === 200) {
+					// Set the initial input value
+					setLeadLimit(res.data.doc.agentLeadLimit || 0);
+				}
+			} catch (error) {
+				console.error("Error fetching lead settings:", error);
+				toast.error("Could not retrieve current lead settings.");
+			} finally {
+				setIsFetching(false);
+			}
+		};
+
+		fetchLeadSettings();
+	}, []);
+
+	return isFetching ? (
+		<Spinner />
+	) : (
 		<Box p={6}>
 			<Heading as="h1" size="md" textAlign="left" mb="4" color="brand.600">
 				Lead Settings
 			</Heading>
-			<LeadLimitForm />
+			<LeadLimitForm leadLimit={leadLimit} setLeadLimit={setLeadLimit} />
 		</Box>
 	);
 };

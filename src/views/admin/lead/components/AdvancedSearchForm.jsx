@@ -203,9 +203,10 @@ const AdvancedSearchForm = (props) => {
 						placeholder="Select Extra Lead Status"
 					>
 						<option value="interested">Interested</option>
-						<option value="junk">Junk</option>
 						<option value="not-interested">Not interested</option>
 						<option value="no-response">No response</option>
+						<option value="junk">Junk</option>
+						<option value="deal">Deal</option>
 						<option value="change-agent">Change Agent</option>
 						<option value="-1">No E.Status</option>
 					</Select>
