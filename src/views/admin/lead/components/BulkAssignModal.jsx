@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 import ManagerAgentImport from "./ManagerAgentImport";
-import ErrorMessageModal from "components/Message/ErrorMessageModal";
 
 const {
 	Modal,
@@ -19,11 +18,6 @@ const {
 } = require("@chakra-ui/react");
 
 const BulkAssignModal = (props) => {
-	// const [errorModal, setErrorModal] = useState({
-	// 	visible: false,
-	// 	message: "",
-	// });
-
 	const {
 		bulkAssign,
 		setBulkAssign,
@@ -100,14 +94,6 @@ const BulkAssignModal = (props) => {
 
 	return (
 		<>
-			{/* {errorModal.visible && (
-				<ErrorMessageModal
-					isOpen={errorModal.visible}
-					onClose={() => setErrorModal({ ...errorModal, visible: false })}
-					message={errorModal.message}
-				/>
-			)} */}
-
 			<Modal
 				size="2xl"
 				onClose={closeHandler}

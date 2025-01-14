@@ -4,6 +4,11 @@ const LeadTypeBadge = ({ leadType, roleName }) => {
 	const badgeDetails = {
 		leadpool: { role: ["Agent", "Manager"], color: "green", text: "Pool" },
 		release: { role: ["Manager"], color: "pink", text: "Release" },
+		new: {
+			role: ["Manager", "Agent", "superAdmin"],
+			color: "brand",
+			text: "New",
+		},
 	};
 
 	const badgeInfo = badgeDetails[leadType];

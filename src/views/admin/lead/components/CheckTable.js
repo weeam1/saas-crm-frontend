@@ -1082,8 +1082,18 @@ const CheckTable = React.memo((props) => {
 														</Flex>
 													);
 												} else if (cell?.column.Header === "Name") {
-													const leadType = row?.original?.leadType;
-													const roleName = user?.roles[0]?.roleName;
+													console.log({ type: row?.original?.leadType });
+
+													const leadType =
+														(row?.original?.leadType === null ||
+															row?.original?.leadType === undefined) &&
+														row?.original?.leadStatus === "new"
+															? "new"
+															: row?.original?.leadType;
+													const roleName =
+														user?.role === "superAdmin"
+															? "superAdmin"
+															: user?.roles[0]?.roleName;
 
 													data = access?.view ? (
 														<Flex
@@ -1110,13 +1120,10 @@ const CheckTable = React.memo((props) => {
 															>
 																{cell?.value?.text || cell?.value}
 															</Text>
-															{(roleName === "Manager" ||
-																roleName === "Agent") && (
-																<LeadTypeBadge
-																	leadType={leadType}
-																	roleName={roleName}
-																/>
-															)}
+															<LeadTypeBadge
+																leadType={leadType}
+																roleName={roleName}
+															/>
 														</Flex>
 													) : (
 														<Text

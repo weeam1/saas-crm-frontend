@@ -42,14 +42,7 @@ import {
 import * as XLSX from "xlsx";
 
 // Custom components
-import {
-	DeleteIcon,
-	EditIcon,
-	EmailIcon,
-	PhoneIcon,
-	SearchIcon,
-	ViewIcon,
-} from "@chakra-ui/icons";
+import { DeleteIcon, SearchIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "components/pagination/Pagination";
@@ -70,20 +63,14 @@ import Delete from "../Delete";
 import AddEmailHistory from "views/admin/emailHistory/components/AddEmail";
 import AddPhoneCall from "views/admin/phoneCall/components/AddPhoneCall";
 import Add from "../Add";
-import { AddIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import Edit from "../Edit";
-import { useFormik } from "formik";
-import { BsColumnsGap, BsWhatsapp } from "react-icons/bs";
-import * as yup from "yup";
+import { BsColumnsGap } from "react-icons/bs";
 import ImportModal from "./ImportModal";
 import CustomSearchInput from "components/search/search";
 import DataNotFound from "components/notFoundData";
 import RenderManager from "./RenderManager";
-import RenderAgent from "./RenderAgent";
 import RenderStatus from "./RenderStatus";
-import ApprovalStatus from "./ApprovalStatus";
-import { MdTask } from "react-icons/md";
 import AddTask from "./addTask";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
@@ -91,12 +78,10 @@ import { constant } from "constant";
 import AdvancedSearchModal from "./AdvancedSearchModal";
 import { getUserNameById } from "utils";
 import { IoMdClose } from "react-icons/io";
-import { deleteApi } from "services/api";
-import LastNoteText from "views/admin/lead/components/LastNoteText";
 import { useStateContext } from "contexts/store";
 import TableLoading from "components/loading/TableLoading";
-import RenderEStatus from "views/admin/lead/components/RenderEStatus";
 import { findManagerForAgent } from "utils";
+import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 
 export default function CheckTable(props) {
 	const {
@@ -178,6 +163,9 @@ export default function CheckTable(props) {
 	const [formValues, setFormValues] = useState([]);
 	const [isFormReset, setIsFormReset] = useState(false);
 	const [showTable, setShowTable] = useState(false);
+
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
 
 	useEffect(() => {
 		if (!isLoding) {
@@ -548,6 +536,16 @@ export default function CheckTable(props) {
 		setLeadData(response.data);
 	};
 
+	const fetchAgentLeadsSats = async (userId) => {
+		try {
+			const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+
+			return data?.doc;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
@@ -627,6 +625,7 @@ export default function CheckTable(props) {
 				{
 					isApproved: e === "accept" ? true : false,
 					objectId: approvalId,
+					agentId,
 					// isManager:
 				},
 				{
@@ -733,8 +732,12 @@ export default function CheckTable(props) {
 			console.log(res, "response from update of lead request");
 		} catch (error) {
 			console.log("error", error);
+			toast.error(
+				error.response?.data?.message || "Failed to process lead request"
+			);
 		}
 	};
+
 	const handleLeadsModal = (lid) => {
 		setLeadsModal({
 			isOpen: true,
@@ -821,7 +824,18 @@ export default function CheckTable(props) {
 	}, [pageSize]);
 
 	const sendRequest = async (leadID) => {
+		setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
+
 		const user = JSON.parse(localStorage.getItem("user"));
+		const stats = await fetchAgentLeadsSats(user._id);
+
+		if (!stats.canAddLeads) {
+			setErrorLeadData(stats);
+			setIsErrorModalOpen(true);
+			setBuyLoading((prev) => ({ ...prev, [leadID]: false }));
+
+			return;
+		}
 		// if(user._id == e.target.value){
 		// alert("The manager is wroking")
 		//  const res= await postApi("api/adminApproval/add", {leadId: leadID, managerId: e.target.value,},true);
@@ -842,7 +856,6 @@ export default function CheckTable(props) {
 		}
 
 		try {
-			setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
 			const res = await axios.post(
 				constant["baseUrl"] + "api/adminApproval/add",
 				payload,
@@ -880,6 +893,14 @@ export default function CheckTable(props) {
 
 	return (
 		<>
+			{errorLeadData && (
+				<ErrorLeadLimitMessage
+					isOpen={isErrorModalOpen}
+					onClose={() => setIsErrorModalOpen(false)}
+					errorLeadData={errorLeadData}
+				/>
+			)}
+
 			{/* <Flex
         p={4}
         alignItems={"center"}
