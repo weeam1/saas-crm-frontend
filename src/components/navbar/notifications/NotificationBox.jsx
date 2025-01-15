@@ -28,7 +28,7 @@ const NotificationBox = ({ notification }) => {
 				{/* Icon */}
 				{isAnnouncement ? (
 					<Box
-						bg="rgba(0, 123, 255, 0.7)" // Glass effect background for announcement icon
+						bg="brand.500" // Glass effect background for announcement icon
 						borderRadius="full"
 						p={1}
 						boxSize={10} // Increase size for better visibility

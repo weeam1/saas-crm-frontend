@@ -26,6 +26,8 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 		maxLeadLimit,
 	} = errorLeadData;
 
+	console.log({ errorLeadData });
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
 			<ModalOverlay />

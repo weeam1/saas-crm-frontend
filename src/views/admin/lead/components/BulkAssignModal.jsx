@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 import ManagerAgentImport from "./ManagerAgentImport";
+import BulkLeadLimitMessage from "components/Message/BulkLeadLimitMessage";
 
 const {
 	Modal,
@@ -58,15 +59,13 @@ const BulkAssignModal = (props) => {
 				setSelectedValues([]);
 				setSelectAllChecked(false);
 			} else if (res.status === 400) {
-				console.log(res.response);
+				// const errorDetails =
+				// 	res?.response?.data?.message || "Invalid input provided.";
+				const errorHint =
+					res?.response?.data?.hint ||
+					"Please review the input and adjust as necessary.";
 
-				const errorDetails =
-					res?.response?.data?.message || "Invalid input provided.";
-				// const errorHint =
-				// 	res?.response?.data?.hint ||
-				// 	"Please review the input and adjust as necessary.";
-
-				toast.error(`${errorDetails}`);
+				toast.error(errorHint);
 			}
 		} catch (error) {
 			console.error("Error submitting bulk assign:", error);
@@ -92,8 +91,18 @@ const BulkAssignModal = (props) => {
 		dirty,
 	} = formik;
 
+	// console.log({ isErrorModalOpen, errorData });
+
 	return (
 		<>
+			{/* {isErrorModalOpen && (
+				<BulkLeadLimitMessage
+					isOpen={isErrorModalOpen}
+					onClose={() => setIsErrorModalOpen(false)}
+					errorData={errorData}
+				/>
+			)} */}
+
 			<Modal
 				size="2xl"
 				onClose={closeHandler}

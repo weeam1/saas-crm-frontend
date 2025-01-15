@@ -1165,7 +1165,6 @@ export default function CheckTable(props) {
               )}
             </Flex>
           </GridItem> */}
-
 					<GridItem
 						colSpan={{ base: 4 }}
 						display={"flex"}
