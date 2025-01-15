@@ -15,12 +15,12 @@ option {
 }
 
 ::-webkit-scrollbar {
-	height: 4px !important;
-	width: 7px;
+	height: 8px !important;
+	width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #b9b9b9;
+	background: #e5e7eb;
 	border-radius: 20px;
 }
 

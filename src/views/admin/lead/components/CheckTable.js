@@ -91,6 +91,7 @@ import ManageColumnModal from "./ManageColumnModal";
 import BulkAssignModal from "./BulkAssignModal";
 import ReleaseLead from "./ReleaseLead";
 import LeadTypeBadge from "./subComponents/LeadTypeBadge";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -797,7 +798,12 @@ const CheckTable = React.memo((props) => {
 								fontSize="22px"
 								fontWeight="600"
 							>
-								Leads (<span>{totalLeads || 0}</span>)
+								Leads (
+								<CountUpComponent
+									key={data?.length}
+									targetNumber={totalLeads}
+								/>
+								)
 							</Text>
 							<CustomSearchInput
 								searchbox={searchbox}

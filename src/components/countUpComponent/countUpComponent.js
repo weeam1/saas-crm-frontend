@@ -49,11 +49,7 @@ function CountUpComponent({ targetNumber, duration = 500 }) {
 		return () => setCount(0); // Reset on unmount
 	}, [targetNumber, duration]);
 
-	return (
-		<Text fontSize="xl" fontWeight="bold">
-			{typeof targetNumber === "number" ? count : targetNumber}
-		</Text>
-	);
+	return <span>{typeof targetNumber === "number" ? count : targetNumber}</span>;
 }
 
 export default CountUpComponent;

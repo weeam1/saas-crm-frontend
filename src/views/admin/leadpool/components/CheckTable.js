@@ -1000,21 +1000,19 @@ export default function CheckTable(props) {
 						alignItems={"center"}
 					>
 						<Flex alignItems={"center"} flexWrap={"wrap"}>
-							<Flex
+							<Text
 								color={useColorModeValue("secondaryGray.900", "white")}
 								fontSize="22px"
-								fontWeight="700"
-								alignItems={"center"}
-								gap="2"
+								fontWeight="600"
 							>
-								<Text style={{ marginRight: "2px" }}>
-									{user.role === "superAdmin" ? "Requested Leads" : "Leads"}
-								</Text>
+								{user.role === "superAdmin" ? "Requested Leads " : "Leads "}
+								(
 								<CountUpComponent
 									key={data?.length}
 									targetNumber={totalLeads}
 								/>
-							</Flex>
+								)
+							</Text>
 							<CustomSearchInput
 								searchbox={searchbox}
 								dataColumn={dataColumn}
