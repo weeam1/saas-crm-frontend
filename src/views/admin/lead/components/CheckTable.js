@@ -959,7 +959,8 @@ const CheckTable = React.memo((props) => {
 				<Box overflowY={"auto"} w="100%" className="table-fix-container">
 					<Table
 						{...getTableProps()}
-						color="black"
+						variant="striped"
+						color="gray.500"
 						mb="30px"
 						sx={{
 							"& tbody tr:hover": {

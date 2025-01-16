@@ -39,7 +39,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 	const user = JSON.parse(localStorage.getItem("user"));
 
 	const superAdmin = user?.role === "superAdmin";
-	const role = user?.roles[0].roleName;
+	const role = user?.roles[0]?.roleName;
 
 	const target = role === "Agent" ? "You" : "Agent";
 
