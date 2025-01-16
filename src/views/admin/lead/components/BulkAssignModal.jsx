@@ -4,7 +4,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { putApi } from "services/api";
 import ManagerAgentImport from "./ManagerAgentImport";
-import BulkLeadLimitMessage from "components/Message/BulkLeadLimitMessage";
+import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
+import { fetchAgentLeadsSats } from "api";
 
 const {
 	Modal,
@@ -22,6 +23,8 @@ const BulkAssignModal = (props) => {
 	const {
 		bulkAssign,
 		setBulkAssign,
+		setErrorModal,
+		setErrorLeadData,
 		selectedValues,
 		setSelectedValues,
 		setSelectAllChecked,
@@ -50,6 +53,15 @@ const BulkAssignModal = (props) => {
 				formData: values,
 			};
 			setIsLoading(true);
+
+			const stats = await fetchAgentLeadsSats(values.agentAssigned);
+
+			if (!stats.canAddLeads) {
+				setIsLoading(false);
+				setErrorLeadData(stats);
+				setErrorModal(true);
+				return;
+			}
 
 			let res = await putApi(`api/lead/bulk-assign`, payload);
 			if (res.status === 200) {
@@ -91,18 +103,8 @@ const BulkAssignModal = (props) => {
 		dirty,
 	} = formik;
 
-	// console.log({ isErrorModalOpen, errorData });
-
 	return (
 		<>
-			{/* {isErrorModalOpen && (
-				<BulkLeadLimitMessage
-					isOpen={isErrorModalOpen}
-					onClose={() => setIsErrorModalOpen(false)}
-					errorData={errorData}
-				/>
-			)} */}
-
 			<Modal
 				size="2xl"
 				onClose={closeHandler}

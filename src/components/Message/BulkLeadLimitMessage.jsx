@@ -17,8 +17,6 @@ import {
 const BulkLeadLimitMessage = ({ isOpen, onClose, errorData }) => {
 	const { message, hint } = errorData;
 
-	console.log({ errorData, isOpen, onClose });
-
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
 			<ModalOverlay />

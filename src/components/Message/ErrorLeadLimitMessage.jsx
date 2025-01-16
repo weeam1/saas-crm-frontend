@@ -16,6 +16,14 @@ import {
 	List,
 	ListItem,
 	Text,
+	Divider,
+	Flex,
+	Table,
+	Tr,
+	Thead,
+	Th,
+	Tbody,
+	Td,
 } from "@chakra-ui/react";
 
 const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
@@ -26,7 +34,14 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 		maxLeadLimit,
 	} = errorLeadData;
 
-	console.log({ errorLeadData });
+	if (!isOpen) return null;
+
+	const user = JSON.parse(localStorage.getItem("user"));
+
+	const superAdmin = user?.role === "superAdmin";
+	const role = user?.roles[0].roleName;
+
+	const target = role === "Agent" ? "You" : "Agent";
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -39,48 +54,89 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 							<AlertTitle fontSize="lg" mb={1}>
 								Limit Reached
 							</AlertTitle>
-							<AlertDescription>
-								{`You’ve reached the maximum lead limit of ${maxLeadLimit}`}
+							<AlertDescription fontSize="1rem">
+								{`${target} have reached the maximum lead limit of ${maxLeadLimit}`}
 							</AlertDescription>
 						</Box>
 					</Alert>
 				</ModalHeader>
 				<ModalBody>
 					<Stack spacing={4}>
+						<Table variant="unstyled" size="sm">
+							<Thead>
+								<Tr>
+									<Th
+										textAlign="left"
+										fontSize="lg"
+										fontWeight="bold"
+										color="gray.800"
+										pb={4}
+									>
+										Leads Status
+									</Th>
+								</Tr>
+							</Thead>
+							<Tbody>
+								<Tr>
+									<Td fontWeight="semibold" color="gray.600">
+										Assigned Leads
+									</Td>
+									<Td textAlign="right" color="gray.700">
+										{agentLeads}
+									</Td>
+								</Tr>
+								<Tr>
+									<Td fontWeight="semibold" color="gray.600">
+										Pending Leads
+									</Td>
+									<Td textAlign="right" color="gray.700">
+										{pendingLeads}
+									</Td>
+								</Tr>
+								<Tr>
+									<Td fontWeight="semibold" color="gray.600">
+										Total Leads
+									</Td>
+									<Td textAlign="right" color="gray.700">
+										{totalLeads}
+									</Td>
+								</Tr>
+							</Tbody>
+						</Table>
+
+						<Divider />
 						<Box>
-							<Text fontWeight="bold" fontSize="lg">
-								Summary of Your Leads:
+							<Text fontWeight="bold" fontSize="md" mb={2}>
+								To continue, you can:
 							</Text>
-							<List spacing={2} styleType="disc" pl={5}>
-								<ListItem>
-									<Text as="span" fontWeight="semibold">
-										Assigned Leads:
-									</Text>{" "}
-									{agentLeads}
-								</ListItem>
-								<ListItem>
-									<Text as="span" fontWeight="semibold">
-										Pending Leads:
-									</Text>{" "}
-									{pendingLeads}
-								</ListItem>
-								<ListItem>
-									<Text as="span" fontWeight="semibold">
-										Total Leads:
-									</Text>{" "}
-									{totalLeads}
-								</ListItem>
-							</List>
-						</Box>
-						<Box>
-							<Text fontSize="md">To continue, you can:</Text>
-							<List spacing={2} styleType="disc" pl={5}>
-								<ListItem>
-									Cancel some pending leads to free up your limit.
-								</ListItem>
-								<ListItem>
-									Release some assigned leads that are no longer required.
-								</ListItem>
+							<List spacing={2} styleType="disc" pl={6}>
+								{target === "Agent" ? (
+									<ListItem>
+										<Text>
+											{`The agent has no remaining lead capacity. Please reassign
+											some leads ${
+												superAdmin &&
+												` or adjust the agent's lead limit in the
+											settings.`
+											} `}
+										</Text>
+									</ListItem>
+								) : (
+									<>
+										{pendingLeads > 0 && (
+											<ListItem>
+												<Text>
+													Cancel some pending leads to free up your limit.
+												</Text>
+											</ListItem>
+										)}
+										<ListItem>
+											<Text>
+												Release some assigned leads that are no longer required.
+											</Text>
+										</ListItem>
+									</>
+								)}
 							</List>
 						</Box>
 					</Stack>

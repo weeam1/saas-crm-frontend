@@ -92,6 +92,7 @@ import BulkAssignModal from "./BulkAssignModal";
 import ReleaseLead from "./ReleaseLead";
 import LeadTypeBadge from "./subComponents/LeadTypeBadge";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
+import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -156,6 +157,9 @@ const CheckTable = React.memo((props) => {
 	let data = tableData;
 
 	const [showTable, setShowTable] = useState(false);
+
+	const [errorModal, setErrorModal] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
 
 	useEffect(() => {
 		if (!isLoding) {
@@ -939,6 +943,16 @@ const CheckTable = React.memo((props) => {
 						setSelectedValues={setSelectedValues}
 						selectedValues={selectedValues}
 						setSelectAllChecked={setSelectAllChecked}
+						setErrorLeadData={setErrorLeadData}
+						setErrorModal={setErrorModal}
+					/>
+				)}
+
+				{errorModal && !bulkAssign && (
+					<ErrorLeadLimitMessage
+						isOpen={errorModal}
+						onClose={() => setErrorModal(false)}
+						errorLeadData={errorLeadData}
 					/>
 				)}
 

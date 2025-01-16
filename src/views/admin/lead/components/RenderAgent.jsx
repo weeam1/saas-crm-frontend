@@ -1,4 +1,6 @@
 import { Select, Text, useColorModeValue } from "@chakra-ui/react";
+import { fetchAgentLeadsSats } from "api";
+import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 import BoxLoading from "components/shared/BoxLoading";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -118,6 +120,9 @@ const RenderAgent = ({
 	const tree = useSelector((state) => state.user.tree);
 	const [loading, setLoading] = useState(false);
 
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
+
 	const textColor = useColorModeValue("black", "white");
 
 	// Filter agents related to the assigned manager
@@ -177,12 +182,22 @@ const RenderAgent = ({
 
 	const handleChangeAgent = async (e) => {
 		try {
+			setLoading(true);
+
 			const data = {
 				agentAssigned: e.target.value,
 				// leadStatus: "reassigned", // Uncomment if lead status should change
 			};
 
-			setLoading(true);
+			const stats = await fetchAgentLeadsSats(data.agentAssigned);
+
+			if (!stats.canAddLeads) {
+				setErrorLeadData(stats);
+				setIsErrorModalOpen(true);
+				setLoading(false);
+				return;
+			}
+
 			const res = await putApi(`api/lead/edit/${leadID}`, data);
 
 			if (res.status === 200) {
@@ -210,11 +225,6 @@ const RenderAgent = ({
 				} else {
 					setData(updateListData);
 				}
-			} else if (res.status === 400) {
-				console.log(res.response);
-				const errorDetails =
-					res?.response?.data?.message || "Invalid input provided.";
-				toast.error(`${errorDetails}`);
 			}
 		} catch (error) {
 			console.error("Failed to update the agent:", error);
@@ -232,22 +242,31 @@ const RenderAgent = ({
 		return loading ? (
 			<BoxLoading />
 		) : (
-			<Select
-				placeholder="No Agent"
-				onInput={handleChangeAgent}
-				value={AgentSelected === null ? "" : AgentSelected}
-				style={{
-					color: !AgentSelected ? "grey" : textColor,
-				}}
-				width={200}
-				size="sm"
-			>
-				{agents?.map((agent) => (
-					<option key={agent?._id?.toString()} value={agent?._id?.toString()}>
-						{agent?.firstName + " " + agent?.lastName}
-					</option>
-				))}
-			</Select>
+			<>
+				<Select
+					placeholder="No Agent"
+					onInput={handleChangeAgent}
+					value={AgentSelected === null ? "" : AgentSelected}
+					style={{
+						color: !AgentSelected ? "grey" : textColor,
+					}}
+					width={200}
+					size="sm"
+				>
+					{agents?.map((agent) => (
+						<option key={agent?._id?.toString()} value={agent?._id?.toString()}>
+							{agent?.firstName + " " + agent?.lastName}
+						</option>
+					))}
+				</Select>
+				{errorLeadData && (
+					<ErrorLeadLimitMessage
+						isOpen={isErrorModalOpen}
+						onClose={() => setIsErrorModalOpen(false)}
+						errorLeadData={errorLeadData}
+					/>
+				)}
+			</>
 		);
 	} else {
 		return (
