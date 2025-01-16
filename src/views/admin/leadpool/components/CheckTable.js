@@ -1487,7 +1487,8 @@ export default function CheckTable(props) {
 																	fontSize="sm"
 																	fontWeight="500"
 																	pl="24px"
-																	width={250}
+																	maxWidth={500}
+																	width="auto"
 																>
 																	{cell?.value?.text || cell?.value}
 																</Text>
