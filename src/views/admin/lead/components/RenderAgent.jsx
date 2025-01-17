@@ -1,11 +1,11 @@
-import { Select, Text, useColorModeValue } from "@chakra-ui/react";
-import { fetchAgentLeadsSats } from "api";
-import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
-import BoxLoading from "components/shared/BoxLoading";
-import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { putApi } from "services/api";
+import { Select, Text, useColorModeValue } from '@chakra-ui/react';
+import { fetchAgentLeadsSats } from 'api';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import BoxLoading from 'components/shared/BoxLoading';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
 
 // const RenderAgent = ({
 // 	value,
@@ -116,14 +116,14 @@ const RenderAgent = ({
 	setData,
 	updateRowStatus,
 }) => {
-	const [AgentSelected, setAgentSelected] = useState("");
+	const [AgentSelected, setAgentSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
 	const [loading, setLoading] = useState(false);
 
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 
-	const textColor = useColorModeValue("black", "white");
+	const textColor = useColorModeValue('black', 'white');
 
 	// Filter agents related to the assigned manager
 	const agents = useMemo(() => {
@@ -189,13 +189,15 @@ const RenderAgent = ({
 				// leadStatus: "reassigned", // Uncomment if lead status should change
 			};
 
-			const stats = await fetchAgentLeadsSats(data.agentAssigned);
+			if (data.agentAssigned) {
+				const stats = await fetchAgentLeadsSats(data.agentAssigned);
 
-			if (!stats.canAddLeads) {
-				setErrorLeadData(stats);
-				setIsErrorModalOpen(true);
-				setLoading(false);
-				return;
+				if (!stats.canAddLeads) {
+					setErrorLeadData(stats);
+					setIsErrorModalOpen(true);
+					setLoading(false);
+					return;
+				}
 			}
 
 			const res = await putApi(`api/lead/edit/${leadID}`, data);
@@ -204,7 +206,7 @@ const RenderAgent = ({
 				// Call updateRowStatus with the updated status from the response
 				updateRowStatus(leadID, res.data.leadStatus);
 
-				toast.success("Agent updated successfully");
+				toast.success('Agent updated successfully');
 
 				// Update the corresponding data list (searched or default)
 				const updateListData = (prevData) => {
@@ -227,8 +229,8 @@ const RenderAgent = ({
 				}
 			}
 		} catch (error) {
-			console.error("Failed to update the agent:", error);
-			toast.error("Agent not updated. Please try again.");
+			console.error('Failed to update the agent:', error);
+			toast.error('Agent not updated. Please try again.');
 		} finally {
 			setLoading(false);
 		}
@@ -244,18 +246,18 @@ const RenderAgent = ({
 		) : (
 			<>
 				<Select
-					placeholder="No Agent"
+					placeholder='No Agent'
 					onInput={handleChangeAgent}
-					value={AgentSelected === null ? "" : AgentSelected}
+					value={AgentSelected === null ? '' : AgentSelected}
 					style={{
-						color: !AgentSelected ? "grey" : textColor,
+						color: !AgentSelected ? 'grey' : textColor,
 					}}
 					width={200}
-					size="sm"
+					size='sm'
 				>
 					{agents?.map((agent) => (
 						<option key={agent?._id?.toString()} value={agent?._id?.toString()}>
-							{agent?.firstName + " " + agent?.lastName}
+							{agent?.firstName + ' ' + agent?.lastName}
 						</option>
 					))}
 				</Select>
@@ -270,7 +272,7 @@ const RenderAgent = ({
 		);
 	} else {
 		return (
-			<Text color="gray.500" textAlign="center">
+			<Text color='gray.500' textAlign='center'>
 				No agent
 			</Text>
 		);

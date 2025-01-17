@@ -144,8 +144,6 @@ const CreateAnnouncement = ({ user }) => {
 						type: selectedRole,
 					};
 
-					console.log({ announcementData });
-
 					const { data } = await axios.post(
 						`${keys.socketUrl}/announcements`,
 						announcementData
