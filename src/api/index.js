@@ -41,7 +41,12 @@ export const fetchAllUsers = async () => {
 	}
 };
 
-export const getApplications = async (server = 'baseUrl') => {
+export const getApplications = async (
+	page,
+	pageSize,
+	query,
+	server = 'baseUrl'
+) => {
 	try {
 		console.log('aplciajlfdjl');
 		const headers = {};
@@ -49,12 +54,16 @@ export const getApplications = async (server = 'baseUrl') => {
 
 		console.log({ headers });
 
-		const response = await axios.get(`${keys.baseLocalUrl}api/applications`, {
+		const url = !query
+			? `${keys.baseLocalUrl}api/applications?page=${page}&limit=${pageSize}`
+			: `${keys.baseLocalUrl}api/applications?page=${page}&limit=${pageSize}${query}`;
+
+		const response = await axios.get(url, {
 			headers,
 		});
 
 		if (response?.status === 200) {
-			return response.data?.doc || [];
+			return response.data || [];
 		} else {
 			throw new Error(
 				`Unexpected response: ${response?.status} - ${response?.statusText}`
