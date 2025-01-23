@@ -72,6 +72,8 @@ const CandidateCard = ({ candidate, refetch }) => {
 								textDecoration='underline'
 								fontSize='.8rem'
 								mb='4'
+								isTruncated
+								width={{ base: '12rem', lg: '10rem' }}
 							>
 								{email}
 							</Text>

@@ -1,4 +1,4 @@
-import { Box, Input } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { format } from 'date-fns';
 
 const DisplayField = ({ label, value }) => {
@@ -10,21 +10,17 @@ const DisplayField = ({ label, value }) => {
 			<Box fontSize='xs' fontWeight='semibold' mb={1}>
 				{label}
 			</Box>
-			<Input
-				value={value}
-				isReadOnl
+			<Box
 				border='none'
 				outline='none'
-				_focus={{
-					border: 'none',
-					outline: 'none',
-				}}
 				bg='#F2F2F2'
 				p='2'
 				rounded='md'
 				shadow='sm'
-				fontSize='xs' // Slightly smaller text
-			/>
+				fontSize='xs'
+			>
+				{value}
+			</Box>
 		</Box>
 	);
 };

@@ -17,12 +17,11 @@ import ErrorMessage from 'components/Message/ErrorMessage';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 
 const Candidates = () => {
-	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize] = useState(12); // Items per page
 	const [advanceSearch, setAdvanceSearch] = useState(false);
-
 	const [searchTags, setSearchTags] = useState([]);
 
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pageSize, setPageSize] = useState(12); // Items per page
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
@@ -33,17 +32,33 @@ const Candidates = () => {
 		params: queryParams,
 	});
 
-	const handlePageChange = (page) => setCurrentPage(page);
+	// Update queryParams only when necessary
+	useEffect(() => {
+		setQueryParams((prev) => ({
+			...prev,
+			page: currentPage, // Keep page in sync
+		}));
+	}, [currentPage]);
 
-	// Watch for changes in queryParams and trigger refetch
+	useEffect(() => {
+		setQueryParams((prev) => ({
+			...prev,
+			limit: pageSize, // Update limit when pageSize changes
+		}));
+	}, [pageSize]);
+
+	// Automatically refetch when queryParams change
 	useEffect(() => {
 		refetch({
 			path: '/applications',
 			params: queryParams,
 		});
-
-		setCurrentPage(1);
 	}, [queryParams, refetch]);
+
+	// Handle page changes
+	const handlePageChange = (page) => {
+		setCurrentPage(page);
+	};
 
 	const handleSearch = (params) => {
 		// Filter out empty or undefined values
@@ -78,6 +93,8 @@ const Candidates = () => {
 
 		// Merge and update query parameters for refetch
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
+		// set current page 1
+		setCurrentPage(1);
 	};
 
 	const removeTag = (key) => {
@@ -113,6 +130,7 @@ const Candidates = () => {
 
 		// update query parameters
 		setQueryParams(queryParams);
+		setCurrentPage(1);
 	};
 
 	if (error) {
@@ -131,13 +149,17 @@ const Candidates = () => {
 				mb={6}
 				bg='white'
 				rounded='md'
-				shadow='md'
+				shadow='sm'
 				p='1rem'
 			>
-				<Heading size='lg' color='gray.800'>
+				<Heading size='md' color='gray.800'>
 					Candidates
 				</Heading>
-				<Button colorScheme='brand' onClick={() => setAdvanceSearch(true)}>
+				<Button
+					colorScheme='brand'
+					rounded='full'
+					onClick={() => setAdvanceSearch(true)}
+				>
 					Advanced Search
 				</Button>
 			</Box>
@@ -159,7 +181,7 @@ const Candidates = () => {
 			</Box>
 
 			{/* Display Search Tags */}
-			{isLoading || isFetching ? (
+			{isLoading ? (
 				<Box textAlign='center' mt='4'>
 					<Spinner size='md' />
 					<Text mt='4'>Loading...</Text>

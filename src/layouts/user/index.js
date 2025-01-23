@@ -24,8 +24,14 @@ import {
 	MdInsertChartOutlined,
 	MdLock,
 	MdPeopleOutline,
+	MdWork,
 } from 'react-icons/md';
-import { FaUserCircle, FaDollarSign, FaUserFriends } from 'react-icons/fa';
+import {
+	FaUserCircle,
+	FaDollarSign,
+	FaUserFriends,
+	FaClock,
+} from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -155,18 +161,16 @@ export default function User(props) {
 
 	if (user?.roles[0]?.roleName === 'HR') {
 		// Define the "Candidates" route
-		const candidatesRoute = {
-			name: 'Candidates',
+		const hiringRoutes = {
+			name: 'Hiring',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/hiring/candidates',
-			icon: (
-				<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
-			),
+			icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
 			component: Candidates,
 		};
 
-		// Only show the "Candidates" route for HR role
-		routes = [candidatesRoute];
+		// Only show the "Hiring" route for HR role
+		routes = [hiringRoutes];
 	}
 
 	const accessRoute = newRoute?.filter((item) =>

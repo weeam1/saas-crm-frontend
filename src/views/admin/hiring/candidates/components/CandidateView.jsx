@@ -85,7 +85,7 @@ const CandidateView = ({
 						templateColumns={{
 							base: '1fr',
 							md: 'repeat(2, 1fr)',
-							lg: 'repeat(3, 1fr)',
+							lg: 'repeat(2, 1fr)',
 						}}
 						gap={2}
 					>
@@ -100,14 +100,15 @@ const CandidateView = ({
 					</Grid>
 					<ExperienceDetails experience={experience} />
 
-					<VStack spacing={2} mt={2}>
+					<HStack spacing={2} mt={2}>
 						<Button
 							onClick={onViewCV}
-							bg='brand.400'
+							bg='brand.500'
 							color='white'
 							width='100%'
+							rounded='full'
 							_hover={{
-								bg: 'brand.500',
+								bg: 'brand.600',
 								color: 'white',
 							}}
 							_active={{
@@ -119,11 +120,12 @@ const CandidateView = ({
 
 						<Button
 							onClick={onDownloadCV}
-							bg='brand.400'
+							bg='brand.500'
 							color='white'
 							width='100%'
+							rounded='full'
 							_hover={{
-								bg: 'brand.500',
+								bg: 'brand.600',
 								color: 'white',
 							}}
 							_active={{
@@ -132,13 +134,14 @@ const CandidateView = ({
 						>
 							Download CV
 						</Button>
-					</VStack>
+					</HStack>
 				</ModalBody>
 				<HStack
-					justifyContent='space-around'
+					justifyContent='space-between'
 					alignItems='end'
 					spacing={2}
 					pb='4'
+					px='4'
 					mt={2}
 				>
 					<ApplicationStatus
@@ -157,10 +160,10 @@ const CandidateView = ({
 							Cancel
 						</Button>
 						<Button
-							bg='brand.400'
+							bg='brand.500'
 							color='white'
 							_hover={{
-								bg: 'brand.500',
+								bg: 'brand.600',
 								color: 'white',
 							}}
 							_active={{

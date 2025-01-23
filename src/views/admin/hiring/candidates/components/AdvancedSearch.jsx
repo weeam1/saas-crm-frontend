@@ -21,7 +21,6 @@ import * as Yup from 'yup';
 const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	const initialValues = {
 		name: '',
-		dob: '',
 		position: '',
 		email: '',
 		whatsApp: '',
@@ -60,7 +59,6 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 
 	const fields = [
 		{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
-		{ name: 'dob', label: 'Birthdate', placeholder: 'Enter Birthdate' },
 		{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
 		{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
 		{ name: 'whatsApp', label: 'WhatsApp No', placeholder: 'WhatsApp Number' },
@@ -92,7 +90,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='3xl'>
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
 			<ModalOverlay />
 			<ModalContent p='2'>
 				<ModalHeader>Advanced Search</ModalHeader>
@@ -129,7 +127,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 						}) => (
 							<Form>
 								<Grid
-									templateColumns={{ base: '1fr', md: 'repeat(3, 1fr)' }}
+									templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 									gap={{ base: 3, md: 6 }}
 								>
 									{fields.map((field) => (
@@ -155,7 +153,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 									<GridItem>
 										<FormLabel>Status</FormLabel>
 										<Select
-											fontSize='xs'
+											fontSize='sm'
 											name='status'
 											fontWeight='500'
 											defaultValue={''}
@@ -190,10 +188,10 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										Clear
 									</Button>
 									<Button
-										bg='brand.400'
+										bg='brand.500'
 										color='white'
 										_hover={{
-											bg: 'brand.500',
+											bg: 'brand.600',
 											color: 'white',
 										}}
 										_active={{

@@ -36,6 +36,7 @@ import ChangeImage from 'views/admin/image';
 import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -344,12 +345,10 @@ const routes = [
 	// 	],
 	// },
 	{
-		name: 'Candidates',
+		name: 'Hiring',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/candidates',
-		icon: (
-			<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
-		),
+		icon: <Icon as={MdWork} width='20px' height='20px' color='inherit' />,
 		component: Candidates,
 	},
 	// {

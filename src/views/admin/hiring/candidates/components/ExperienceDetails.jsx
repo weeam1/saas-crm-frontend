@@ -5,7 +5,7 @@ const ExperienceDetails = ({ experience }) => {
 	return (
 		<Box width='full' py='2'>
 			<Box fontWeight='bold' fontSize='xs' mb={1}>
-				Experience Details:
+				Experience Details
 			</Box>
 			<Box
 				bg='#F2F2F2'
