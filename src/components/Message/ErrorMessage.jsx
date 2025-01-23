@@ -7,8 +7,14 @@ import {
 } from '@chakra-ui/react';
 
 const ErrorMessage = ({ message }) => (
-	<Box textAlign='center' mt='4'>
-		<Alert status='error' rounded='md'>
+	<Box textAlign='left' mt='4'>
+		<Alert
+			status='error'
+			display='flex'
+			alignItems='center'
+			gap='2'
+			rounded='md'
+		>
 			<AlertIcon />
 			<Box>
 				<AlertTitle>Error</AlertTitle>
