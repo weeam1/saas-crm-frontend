@@ -35,26 +35,29 @@ const Candidates = () => {
 
 	const handlePageChange = (page) => setCurrentPage(page);
 
+	// Watch for changes in queryParams and trigger refetch
 	useEffect(() => {
+		refetch({
+			path: '/applications',
+			params: queryParams,
+		});
+
 		setCurrentPage(1);
-	}, [data]);
+	}, [queryParams, refetch]);
 
 	const handleSearch = (params) => {
 		// Filter out empty or undefined values
 		const filteredParams = Object.entries(params)
 			.filter(([_, value]) => value !== '' && value !== undefined)
 			.reduce((acc, [key, value]) => {
-				// Handle status as an exact match
-				if (key === 'status') {
-					// Skip adding status to advancedSearch and directly include it in queryParams
-					acc['status'] = value;
-				} else {
-					acc[key] = value;
-				}
+				acc[key] = value;
 				return acc;
 			}, {});
 
-		// Update tags for UI display
+		// Separate status from the filteredParams
+		const { status, ...advancedSearch } = filteredParams;
+
+		// Update tags for UI display (all filtered params including status)
 		const tags = Object.entries(filteredParams).map(([key, value]) => ({
 			key,
 			value,
@@ -63,24 +66,18 @@ const Candidates = () => {
 
 		// Prepare the query parameters
 		const queryParams = {
-			advancedSearch: JSON.stringify(filteredParams), // Add other filters to advanced search
+			advancedSearch: JSON.stringify(advancedSearch),
 			page: 1,
 			limit: pageSize,
 		};
 
-		// Check if status exists and add it directly to queryParams
-		if (filteredParams.status) {
-			queryParams.status = filteredParams.status;
+		// Add status directly to queryParams if it exists
+		if (status) {
+			queryParams.status = status;
 		}
 
 		// Merge and update query parameters for refetch
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
-
-		// Trigger the API call with the updated query params
-		refetch({
-			path: '/applications',
-			params: queryParams,
-		});
 	};
 
 	const removeTag = (key) => {
@@ -88,36 +85,34 @@ const Candidates = () => {
 		const updatedTags = searchTags.filter((tag) => tag.key !== key);
 		setSearchTags(updatedTags);
 
+		console.log({ updatedTags });
+
 		// Convert the updated tags back into query parameters
 		const updatedParams = updatedTags.reduce(
 			(acc, { key, value }) => ({ ...acc, [key]: value }),
 			{}
 		);
 
-		// Update the advancedSearch object
-		const advancedSearch = Object.entries(updatedParams).reduce(
-			(acc, [key, value]) => {
-				acc[key] = value; // Keep the key-value pair
-				return acc;
-			},
-			{}
-		);
+		// Separate status from other advanced search fields
+		const { status, ...advancedSearch } = updatedParams;
 
 		// Prepare the query parameters
 		const queryParams = {
-			advancedSearch: JSON.stringify(advancedSearch), // Updated advanced search filters
+			advancedSearch: JSON.stringify(advancedSearch),
 			page: 1,
 			limit: pageSize,
 		};
+		console.log({ updatedParams, queryParams });
 
-		// Merge and update query parameters for refetch
-		setQueryParams((prev) => ({ ...prev, ...queryParams }));
+		console.log({ status });
 
-		// Refetch with the updated parameters
-		refetch({
-			path: '/applications',
-			params: queryParams,
-		});
+		// Add status back directly if it exists in updatedParams
+		if (status) {
+			queryParams.status = status;
+		}
+
+		// update query parameters
+		setQueryParams(queryParams);
 	};
 
 	if (error) {
@@ -147,30 +142,30 @@ const Candidates = () => {
 				</Button>
 			</Box>
 
+			<Box mb={4}>
+				{searchTags.map(({ key, value }) => (
+					<Tag
+						key={key}
+						size='sm'
+						colorScheme='brand'
+						borderRadius='full'
+						m={1}
+						p='1'
+						onClick={() => removeTag(key)}
+					>
+						{key}: {value} <TagCloseButton onClick={() => removeTag(key)} />
+					</Tag>
+				))}
+			</Box>
+
 			{/* Display Search Tags */}
 			{isLoading || isFetching ? (
 				<Box textAlign='center' mt='4'>
 					<Spinner size='md' />
-					<Text mt='4'>Loading Candidates...</Text>
+					<Text mt='4'>Loading...</Text>
 				</Box>
 			) : (
 				<>
-					<Box mb={4}>
-						{searchTags.map(({ key, value }) => (
-							<Tag
-								key={key}
-								size='sm'
-								colorScheme='brand'
-								borderRadius='full'
-								m={1}
-								p='1'
-								onClick={() => removeTag(key)}
-							>
-								{key}: {value} <TagCloseButton onClick={() => removeTag(key)} />
-							</Tag>
-						))}
-					</Box>
-
 					{/* Content */}
 					{data?.doc?.length ? (
 						<>

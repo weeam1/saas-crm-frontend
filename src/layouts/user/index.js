@@ -25,7 +25,7 @@ import {
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-import { FaUserCircle, FaDollarSign } from 'react-icons/fa';
+import { FaUserCircle, FaDollarSign, FaUserFriends } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -33,6 +33,7 @@ import { HiUsers } from 'react-icons/hi';
 import Report from 'views/admin/reports';
 import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
+import Candidates from 'views/admin/hiring/candidates';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -150,8 +151,22 @@ export default function User(props) {
 		});
 		// Remove the "Leads Pool" route
 		routes = routes.filter((route) => route.name !== 'Leads Pool');
+	}
 
-		console.log({ routes });
+	if (user?.roles[0]?.roleName === 'HR') {
+		// Define the "Candidates" route
+		const candidatesRoute = {
+			name: 'Candidates',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring/candidates',
+			icon: (
+				<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
+			),
+			component: Candidates,
+		};
+
+		// Only show the "Candidates" route for HR role
+		routes = [candidatesRoute];
 	}
 
 	const accessRoute = newRoute?.filter((item) =>

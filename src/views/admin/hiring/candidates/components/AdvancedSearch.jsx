@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	Modal,
 	ModalOverlay,
@@ -32,6 +32,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
+
+	const isMounted = useRef(true);
+
+	useEffect(() => {
+		// Set mounted to true on component mount
+		isMounted.current = true;
+
+		// Cleanup function sets mounted to false on component unmount
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
 	const validationSchema = Yup.object({
 		name: Yup.string(),
@@ -69,10 +81,14 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 		},
 	];
 
-	const handleClose = () => {
-		// Optionally clear form values if you want to reset the form on close
-		setFormValues(initialValues);
-		onClose();
+	const handleSubmit = (values) => {
+		onSearch(values); // Trigger search with form values
+		onClose(); // Close modal
+
+		// Only update state if the component is still mounted
+		if (isMounted.current) {
+			setFormValues(values);
+		}
 	};
 
 	return (
@@ -101,11 +117,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 					<Formik
 						initialValues={formValues}
 						validationSchema={validationSchema}
-						onSubmit={(values) => {
-							onSearch(values); // Trigger search with form values
-							onClose(); // Close modal
-							setFormValues(values);
-						}}
+						onSubmit={handleSubmit}
 					>
 						{({
 							handleChange,
