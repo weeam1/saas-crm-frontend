@@ -1,5 +1,5 @@
 import axios from 'axios';
-import keys from 'config/keys';
+import { constant } from 'constant';
 
 const { getApi } = require('services/api');
 
@@ -52,11 +52,9 @@ export const getApplications = async (
 		const headers = {};
 		setAuthHeader(headers);
 
-		console.log({ headers });
-
 		const url = !query
-			? `${keys.baseLocalUrl}api/applications?page=${page}&limit=${pageSize}`
-			: `${keys.baseLocalUrl}api/applications?page=${page}&limit=${pageSize}${query}`;
+			? `${constant[server]}api/applications?page=${page}&limit=${pageSize}`
+			: `${constant[server]}api/applications?page=${page}&limit=${pageSize}${query}`;
 
 		const response = await axios.get(url, {
 			headers,

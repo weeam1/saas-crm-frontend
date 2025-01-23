@@ -4,16 +4,19 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
 	ModalCloseButton,
-	Box,
 	Button,
 	VStack,
 	Grid,
-	Select,
+	Spinner,
+	HStack,
 } from '@chakra-ui/react';
 import ExperienceDetails from './ExperienceDetails';
 import DisplayField from 'components/displays/DisplayField';
+import ApplicationStatus from './ApplicationStatus';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
 
 const CandidateView = ({
 	isOpen,
@@ -21,6 +24,7 @@ const CandidateView = ({
 	candidate,
 	onViewCV,
 	onDownloadCV,
+	refetch,
 }) => {
 	const {
 		name,
@@ -32,185 +36,29 @@ const CandidateView = ({
 		nationality,
 		experience,
 		experienceYears,
+		status,
 	} = candidate;
 
-	return (
-		// <Modal isOpen={isOpen} onClose={onClose} size='lg'>
-		// 	<ModalOverlay />
-		// 	<ModalContent>
-		// 		<ModalHeader>Application</ModalHeader>
-		// 		<ModalCloseButton />
-		// 		<ModalBody>
-		// 			<Grid
-		// 				templateColumns={{
-		// 					base: '1fr',
-		// 					md: 'repeat(2, 1fr)',
-		// 				}}
-		// 				gap={2}
-		// 			>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Name:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={name}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Date of Birth:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={dob}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Position:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={position}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Email:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={email}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						WhatsApp:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={whatsApp}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Phone:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={phone}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Nationality:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={nationality}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 				<Box>
-		// 					<Box fontWeight='bold' mb={1}>
-		// 						Applying for:
-		// 					</Box>
-		// 					<Input
-		// 						bg='#F2F2F2'
-		// 						p='2'
-		// 						rounded='md'
-		// 						shadown='sm'
-		// 						value={position}
-		// 						isReadOnly
-		// 					/>
-		// 				</Box>
-		// 			</Grid>
-		// 			<ExperienceDetails experience={experience} />
-		// 			<VStack spacing={2} mt={6}>
-		// 				<Button onClick={onViewCV} colorScheme='brand' width='100%'>
-		// 					View CV
-		// 				</Button>
-		// 				<Button onClick={onDownloadCV} colorScheme='brand' width='100%'>
-		// 					Download CV
-		// 				</Button>
-		// 			</VStack>
-		// 		</ModalBody>
-		// 		<ModalFooter width='full'>
-		// 			<Flex width='full' justifyContent='space-between' alignItems='center'>
-		// 				<Box>
-		// 					<FormLabel
-		// 						display='flex'
-		// 						ms='4px'
-		// 						fontSize='sm'
-		// 						fontWeight='500'
-		// 						color='#000'
-		// 						mb='0'
-		// 						mt={2}
-		// 					>
-		// 						Change Status
-		// 					</FormLabel>
-		// 					<Select
-		// 						// value={status}
-		// 						fontSize='sm'
-		// 						name='status'
-		// 						colorScheme='brand'
-		// 						// onChange={handleChange}
-		// 						fontWeight='500'
-		// 						defaultValue='Pending'
-		// 					>
-		// 						<option value='Pending'>Pending</option>
-		// 						<option value='Eligible'>Eligible</option>
-		// 						<option value='Not Eligible'>Not Eligible</option>
-		// 					</Select>
-		// 				</Box>
+	const [newStatus, setNewStatus] = useState(status);
 
-		// 				<Box>
-		// 					<Button colorScheme='gray' variant='outline' size='sm'>
-		// 						Cancel
-		// 					</Button>
-		// 					<Button
-		// 						colorScheme='brand'
-		// 						size='sm'
-		// 						mr={2}
-		// 						// onClick={handleSubmit}
-		// 						// disabled={isLoading}
-		// 					>
-		// 						{/* {isLoading ? <Spinner /> : 'Save'} */}
-		// 						Save
-		// 					</Button>
-		// 				</Box>
-		// 			</Flex>
-		// 		</ModalFooter>
-		// 	</ModalContent>
-		// </Modal>
+	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
+
+	const handleApplicationStatus = async () => {
+		try {
+			await updateItemMutation({
+				path: `/applications/status/${candidate._id}`,
+				body: { status: newStatus },
+			}).unwrap();
+
+			refetch();
+			onClose();
+			toast.success('Application status successfully updated');
+		} catch (error) {
+			toast.error(error?.data?.message || 'Applicaiton status not updated!');
+		}
+	};
+
+	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='xl'>
 			<ModalOverlay />
 			<ModalContent>
@@ -235,32 +83,7 @@ const CandidateView = ({
 						<DisplayField label='Applying for' value={position} />
 					</Grid>
 					<ExperienceDetails experience={experience} />
-					<Box mt='2'>
-						<Box fontSize='xs' fontWeight='semibold'>
-							Change Status
-						</Box>
-						<Select
-							fontSize='xs'
-							name='status'
-							fontWeight='500'
-							defaultValue='Pending'
-							p='2'
-							rounded='md'
-							shadow='sm'
-							borderColor='gray.300'
-							_focus={{
-								borderColor: 'brand.500', // Apply brand color on focus
-								boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
-							}}
-							_hover={{
-								borderColor: 'brand.500', // Apply brand color on hover
-							}}
-						>
-							<option value='Pending'>Pending</option>
-							<option value='Eligible'>Eligible</option>
-							<option value='Not Eligible'>Not Eligible</option>
-						</Select>
-					</Box>
+
 					<VStack spacing={2} mt={2}>
 						<Button
 							onClick={onViewCV}
@@ -295,25 +118,45 @@ const CandidateView = ({
 						</Button>
 					</VStack>
 				</ModalBody>
-				<ModalFooter width='full'>
-					<Button colorScheme='gray' variant='outline' size='sm' mr={2}>
-						Cancel
-					</Button>
-					<Button
-						bg='brand.400'
-						color='white'
-						_hover={{
-							bg: 'brand.500',
-							color: 'white',
-						}}
-						_active={{
-							bg: 'brand.600',
-						}}
-						size='sm'
-					>
-						Save
-					</Button>
-				</ModalFooter>
+				<HStack
+					justifyContent='space-around'
+					alignItems='end'
+					spacing={2}
+					pb='4'
+					mt={2}
+				>
+					<ApplicationStatus
+						applicationStatus={status}
+						newStatus={newStatus}
+						setNewStatus={setNewStatus}
+					/>
+					<div>
+						<Button
+							colorScheme='gray'
+							onClick={onClose}
+							variant='outline'
+							size='sm'
+							mr={2}
+						>
+							Cancel
+						</Button>
+						<Button
+							bg='brand.400'
+							color='white'
+							_hover={{
+								bg: 'brand.500',
+								color: 'white',
+							}}
+							_active={{
+								bg: 'brand.600',
+							}}
+							size='sm'
+							onClick={handleApplicationStatus}
+						>
+							{isLoading ? <Spinner /> : 'Save'}
+						</Button>
+					</div>
+				</HStack>
 			</ModalContent>
 		</Modal>
 	);

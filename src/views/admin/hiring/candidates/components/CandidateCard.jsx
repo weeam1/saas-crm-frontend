@@ -5,17 +5,24 @@ import { useState } from 'react';
 import { FaLocationDot } from 'react-icons/fa6';
 import { constant } from 'constant';
 import CandidateView from './CandidateView';
-import ReactDOM from 'react-dom';
-import PdfViewer from './PdfViewer';
+import StatusBadge from 'components/shared/StatusBadge';
 
-const CandidateCard = ({ candidate }) => {
-	const { name, position, email, whatsApp, phone, country, resume, createdAt } =
-		candidate;
+const CandidateCard = ({ candidate, refetch }) => {
+	const {
+		name,
+		position,
+		email,
+		whatsApp,
+		phone,
+		country,
+		resume,
+		status,
+		createdAt,
+	} = candidate;
 
 	const pdfURL = `${constant['baseUrl']}${resume}`;
 
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
-	const [CVOpen, setCVOpen] = useState(false);
 
 	const handleViewCV = () => {
 		window.open(pdfURL, '_blank');
@@ -29,20 +36,20 @@ const CandidateCard = ({ candidate }) => {
 		link.click();
 	};
 
-	// const handlePdf = (url) => {
-	// 	const pdfURL = `${constant['baseUrl']}${url}`;
-
-	// 	if (pdfURL) {
-	// 		window.open(pdfURL, '_blank', 'noopener,noreferrer');
-	// 	} else {
-	// 		console.error('PDF URL is not provided.');
-	// 	}
-	// };
-
-	const handlePdfOpen = () => {
-		// const setPdfUrl = `${constant['baseUrl']}${url}`;
-		setCVOpen(true);
+	const getStatusColor = (status) => {
+		switch (status) {
+			case 'Pending':
+				return 'yellow';
+			case 'Eligible':
+				return 'green';
+			case 'Not Eligible':
+				return 'red';
+			default:
+				return 'gray'; // Default color if no matching status
+		}
 	};
+
+	const statusColor = getStatusColor(status);
 
 	return (
 		<>
@@ -56,9 +63,9 @@ const CandidateCard = ({ candidate }) => {
 				<Box mb='2rem'>
 					<Flex alignItems='flex-start' justifyContent='space-between'>
 						<Box>
-							<Flex alignItems='center' gap='1'>
-								<Heading size='md'>{name}</Heading>
-							</Flex>
+							<Heading width='10rem' size='md' isTruncated>
+								{name}
+							</Heading>
 
 							<Text
 								style={{ color: '#B3B3B3' }}
@@ -87,7 +94,7 @@ const CandidateCard = ({ candidate }) => {
 							gap='4px'
 							alignItems='center'
 							justifyContent='center'
-							onClick={handlePdfOpen}
+							onClick={handleViewCV}
 						>
 							<FaEye size={18} />
 							<span>CV</span>
@@ -95,25 +102,29 @@ const CandidateCard = ({ candidate }) => {
 					</Flex>
 
 					<Flex flexDirection='column' gap='1' py='10px'>
-						{country?.flags?.png && (
-							<Flex
-								alignItems='center'
-								gap='1'
-								fontSize='.8rem'
-								fontWeight='semibold'
-								color='gray.800'
-							>
-								<FaLocationDot style={{ marginRight: '4px' }} />
-								<Image
-									rounded='sm'
-									src={country?.flags.png}
-									alt={country?.flags.alt}
-									h='20px'
-									fit='cover'
-									shadow='md'
-								/>
-							</Flex>
-						)}
+						<Flex gap='2' alignItems='center'>
+							<StatusBadge status={status} color={statusColor} size={8} />
+							{country?.flags?.png && (
+								<Flex
+									alignItems='center'
+									gap='1'
+									fontSize='.8rem'
+									fontWeight='semibold'
+									color='gray.800'
+								>
+									{/* <FaLocationDot style={{ marginRight: '4px' }} /> */}
+									<Image
+										rounded='sm'
+										src={country?.flags.png}
+										alt={country?.flags.alt}
+										h='20px'
+										fit='cover'
+										shadow='md'
+									/>
+								</Flex>
+							)}
+						</Flex>
+
 						<Flex
 							alignItems='center'
 							gap='1'
@@ -196,15 +207,16 @@ const CandidateCard = ({ candidate }) => {
 				candidate={candidate}
 				onViewCV={handleViewCV}
 				onDownloadCV={handleDownloadCV}
+				refetch={refetch}
 			/>
 
-			{CVOpen && (
+			{/* {CVOpen && (
 				<PdfViewer
 					isOpen={CVOpen}
 					onClose={() => setCVOpen(false)}
 					pdfUrl={pdfURL}
 				/>
-			)}
+			)} */}
 		</>
 	);
 };

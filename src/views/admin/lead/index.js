@@ -1,19 +1,11 @@
-import {
-	Button,
-	CircularProgress,
-	Flex,
-	Grid,
-	GridItem,
-	keyframes,
-	useDisclosure,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { getApi } from "services/api";
-import { HasAccess } from "../../../redux/accessUtils";
-import CheckTable from "./components/CheckTable";
-import { postApi } from "services/api";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { Button, Flex, Grid, GridItem, useDisclosure } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { getApi } from 'services/api';
+import { HasAccess } from '../../../redux/accessUtils';
+import CheckTable from './components/CheckTable';
+import { postApi } from 'services/api';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const Index = () => {
 	const [isLoding, setIsLoding] = useState(false);
@@ -21,7 +13,7 @@ const Index = () => {
 	const [displaySearchData, setDisplaySearchData] = useState(false);
 	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const [searchedData, setSearchedData] = useState([]);
-	const user = JSON.parse(localStorage.getItem("user"));
+	const user = JSON.parse(localStorage.getItem('user'));
 	const [totalLeads, setTotalLeads] = useState(0);
 	const [pages, setPages] = useState(0);
 	const [hideColumns, setHideColumns] = useState([]);
@@ -29,86 +21,86 @@ const Index = () => {
 	const tree = useSelector((state) => state.user.tree);
 
 	const [permission, emailAccess, callAccess] = HasAccess([
-		"Lead",
-		"Email",
-		"Call",
+		'Lead',
+		'Email',
+		'Call',
 	]);
 
 	const tableColumns = [
-		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
-		{ Header: "Name", accessor: "leadName", width: 20 },
-		{ Header: "Manager", accessor: "managerAssigned" },
-		{ Header: "Agent", accessor: "agentAssigned" },
-		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "E.Status", accessor: "eLeadStatus" },
-		{ Header: "Whatsapp", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone", accessor: "leadPhoneNumber" },
-		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
-		{ Header: "Timetocall", accessor: "timetocall" },
-		{ Header: "Budget", accessor: "budget" },
-		{ Header: "Nationality", accessor: "nationality" },
-		{ Header: "Language", accessor: "leadLang" },
-		{ Header: "Last Note", width: 100, accessor: "lastNote" },
-		{ Header: "Country", accessor: "ip" },
-		{ Header: "Source Content", accessor: "leadSourceDetails" },
-		{ Header: "Campaign", accessor: "leadCampaign" },
-		{ Header: "Campaign URL", accessor: "pageUrl" },
-		{ Header: "Address", accessor: "leadAddress" },
-		{ Header: "Email", accessor: "leadEmail" },
-		{ Header: "Medium", accessor: "leadSourceMedium" },
-		{ Header: "In UAE?", accessor: "r_u_in_uae" },
-		{ Header: "Action", isSortable: false, center: true },
+		{ Header: '#', accessor: 'intID', isSortable: false, width: 10 },
+		{ Header: 'Name', accessor: 'leadName', width: 20 },
+		{ Header: 'Manager', accessor: 'managerAssigned' },
+		{ Header: 'Agent', accessor: 'agentAssigned' },
+		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'E.Status', accessor: 'eLeadStatus' },
+		{ Header: 'Whatsapp', accessor: 'leadWhatsappNumber' },
+		{ Header: 'Phone', accessor: 'leadPhoneNumber' },
+		{ Header: 'Date & Time', accessor: 'createdDate', width: 40 },
+		{ Header: 'Timetocall', accessor: 'timetocall' },
+		{ Header: 'Budget', accessor: 'budget' },
+		{ Header: 'Nationality', accessor: 'nationality' },
+		{ Header: 'Language', accessor: 'leadLang' },
+		{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
+		{ Header: 'Country', accessor: 'ip' },
+		{ Header: 'Source Content', accessor: 'leadSourceDetails' },
+		{ Header: 'Campaign', accessor: 'leadCampaign' },
+		{ Header: 'Campaign URL', accessor: 'pageUrl' },
+		{ Header: 'Address', accessor: 'leadAddress' },
+		{ Header: 'Email', accessor: 'leadEmail' },
+		{ Header: 'Medium', accessor: 'leadSourceMedium' },
+		{ Header: 'In UAE?', accessor: 'r_u_in_uae' },
+		{ Header: 'Action', isSortable: false, center: true },
 	];
 	const tableColumnsManager = [
-		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
-		{ Header: "Name", accessor: "leadName", width: 20 },
-		{ Header: "Manager", accessor: "managerAssigned" },
-		{ Header: "Agent", accessor: "agentAssigned" },
-		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "E.Status", accessor: "eLeadStatus" },
-		{ Header: "Whatsapp", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone", accessor: "leadPhoneNumber" },
-		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
-		{ Header: "Timetocall", accessor: "timetocall" },
-		{ Header: "Budget", accessor: "budget" },
-		{ Header: "Nationality", accessor: "nationality" },
-		{ Header: "Language", accessor: "leadLang" },
-		{ Header: "Last Note", width: 100, accessor: "lastNote" },
-		{ Header: "Country", accessor: "ip" },
-		{ Header: "Source Content", accessor: "leadSourceDetails" },
-		{ Header: "Campaign", accessor: "leadCampaign" },
-		{ Header: "Campaign URL", accessor: "pageUrl" },
-		{ Header: "Address", accessor: "leadAddress" },
-		{ Header: "Email", accessor: "leadEmail" },
-		{ Header: "Medium", accessor: "leadSourceMedium" },
-		{ Header: "In UAE?", accessor: "r_u_in_uae" },
-		{ Header: "Release", isSortable: false, center: true },
-		{ Header: "Action", isSortable: false, center: true },
+		{ Header: '#', accessor: 'intID', isSortable: false, width: 10 },
+		{ Header: 'Name', accessor: 'leadName', width: 20 },
+		{ Header: 'Manager', accessor: 'managerAssigned' },
+		{ Header: 'Agent', accessor: 'agentAssigned' },
+		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'E.Status', accessor: 'eLeadStatus' },
+		{ Header: 'Whatsapp', accessor: 'leadWhatsappNumber' },
+		{ Header: 'Phone', accessor: 'leadPhoneNumber' },
+		{ Header: 'Date & Time', accessor: 'createdDate', width: 40 },
+		{ Header: 'Timetocall', accessor: 'timetocall' },
+		{ Header: 'Budget', accessor: 'budget' },
+		{ Header: 'Nationality', accessor: 'nationality' },
+		{ Header: 'Language', accessor: 'leadLang' },
+		{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
+		{ Header: 'Country', accessor: 'ip' },
+		{ Header: 'Source Content', accessor: 'leadSourceDetails' },
+		{ Header: 'Campaign', accessor: 'leadCampaign' },
+		{ Header: 'Campaign URL', accessor: 'pageUrl' },
+		{ Header: 'Address', accessor: 'leadAddress' },
+		{ Header: 'Email', accessor: 'leadEmail' },
+		{ Header: 'Medium', accessor: 'leadSourceMedium' },
+		{ Header: 'In UAE?', accessor: 'r_u_in_uae' },
+		{ Header: 'Release', isSortable: false, center: true },
+		{ Header: 'Action', isSortable: false, center: true },
 	];
 	const tableColumnsAgent = [
-		{ Header: "#", accessor: "intID", isSortable: false, width: 10 },
-		{ Header: "Name", accessor: "leadName", width: 20 },
-		{ Header: "Manager", accessor: "managerAssigned" },
-		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "E.Status", accessor: "eLeadStatus" },
-		{ Header: "Whatsapp", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone", accessor: "leadPhoneNumber" },
-		{ Header: "Date & Time", accessor: "createdDate", width: 40 },
-		{ Header: "Timetocall", accessor: "timetocall" },
-		{ Header: "Budget", accessor: "budget" },
-		{ Header: "Nationality", accessor: "nationality" },
-		{ Header: "Language", accessor: "leadLang" },
-		{ Header: "Last Note", width: 100, accessor: "lastNote" },
-		{ Header: "Country", accessor: "ip" },
-		{ Header: "Address", accessor: "leadAddress" },
-		{ Header: "Campaign", accessor: "leadCampaign" },
-		{ Header: "Source Content", accessor: "leadSourceDetails" },
-		{ Header: "Email", accessor: "leadEmail" },
-		{ Header: "Medium", accessor: "leadSourceMedium" },
-		{ Header: "Campaign URL", accessor: "pageUrl" },
-		{ Header: "In UAE?", accessor: "r_u_in_uae" },
-		{ Header: "Release", isSortable: false, center: true },
-		{ Header: "Action", isSortable: false, center: true },
+		{ Header: '#', accessor: 'intID', isSortable: false, width: 10 },
+		{ Header: 'Name', accessor: 'leadName', width: 20 },
+		{ Header: 'Manager', accessor: 'managerAssigned' },
+		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'E.Status', accessor: 'eLeadStatus' },
+		{ Header: 'Whatsapp', accessor: 'leadWhatsappNumber' },
+		{ Header: 'Phone', accessor: 'leadPhoneNumber' },
+		{ Header: 'Date & Time', accessor: 'createdDate', width: 40 },
+		{ Header: 'Timetocall', accessor: 'timetocall' },
+		{ Header: 'Budget', accessor: 'budget' },
+		{ Header: 'Nationality', accessor: 'nationality' },
+		{ Header: 'Language', accessor: 'leadLang' },
+		{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
+		{ Header: 'Country', accessor: 'ip' },
+		{ Header: 'Address', accessor: 'leadAddress' },
+		{ Header: 'Campaign', accessor: 'leadCampaign' },
+		{ Header: 'Source Content', accessor: 'leadSourceDetails' },
+		{ Header: 'Email', accessor: 'leadEmail' },
+		{ Header: 'Medium', accessor: 'leadSourceMedium' },
+		{ Header: 'Campaign URL', accessor: 'pageUrl' },
+		{ Header: 'In UAE?', accessor: 'r_u_in_uae' },
+		{ Header: 'Release', isSortable: false, center: true },
+		{ Header: 'Action', isSortable: false, center: true },
 	];
 
 	const roleColumns = {
@@ -123,7 +115,7 @@ const Index = () => {
 	);
 
 	const hiddenFields = JSON.parse(
-		localStorage.getItem("userCustomColumns") || "[]"
+		localStorage.getItem('userCustomColumns') || '[]'
 	);
 	const [selectedColumns, setSelectedColumns] = useState(
 		roleColumns[role] ||
@@ -132,8 +124,8 @@ const Index = () => {
 
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({
-		from: "",
-		to: "",
+		from: '',
+		to: '',
 	});
 	const [autoAssignLoading, setAutoAssignLoading] = useState(false);
 	const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
@@ -147,26 +139,26 @@ const Index = () => {
 		setIsLoding(true);
 
 		let result = await getApi(
-			user.role === "superAdmin"
-				? "api/lead/" +
-						"?dateTime=" +
+			user.role === 'superAdmin'
+				? 'api/lead/' +
+						'?dateTime=' +
 						dateTime?.from +
-						"|" +
+						'|' +
 						dateTime?.to +
-						"&page=" +
+						'&page=' +
 						pageNo +
-						"&pageSize=" +
+						'&pageSize=' +
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
 						user.roles[0]?.roleName
 					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
-						dateTime?.from + "|" + dateTime?.to
+						dateTime?.from + '|' + dateTime?.to
 					}`
 		);
 
 		const newData = result.data?.result?.map((lead) => {
 			if (lead?.ip) {
-				const parts = lead?.ip.split("-");
+				const parts = lead?.ip.split('-');
 
 				// Return only the IP part, which is the first element of the array
 				lead.ip = parts?.length > 1 ? parts[1] : parts[0];
@@ -183,7 +175,7 @@ const Index = () => {
 	const fetchUserCustomColumns = async () => {
 		try {
 			// Check if data exists in localStorage
-			const cachedData = localStorage.getItem("userCustomColumns");
+			const cachedData = localStorage.getItem('userCustomColumns');
 
 			if (cachedData) {
 				// Parse and set data from localStorage
@@ -212,36 +204,36 @@ const Index = () => {
 					);
 
 					// Store fetched data in localStorage
-					localStorage.setItem("userCustomColumns", JSON.stringify(customCols));
+					localStorage.setItem('userCustomColumns', JSON.stringify(customCols));
 				}
 			}
 		} catch (error) {
-			console.error("Error fetching custom columns:", error);
+			console.error('Error fetching custom columns:', error);
 		}
 	};
 
 	const refetchData = async (pageNo = 1, pageSize = 30) => {
 		let result = await getApi(
-			user.role === "superAdmin"
-				? "api/lead/" +
-						"?dateTime=" +
+			user.role === 'superAdmin'
+				? 'api/lead/' +
+						'?dateTime=' +
 						dateTime?.from +
-						"|" +
+						'|' +
 						dateTime?.to +
-						"&page=" +
+						'&page=' +
 						pageNo +
-						"&pageSize=" +
+						'&pageSize=' +
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
 						user.roles[0]?.roleName
 					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
-						dateTime?.from + "|" + dateTime?.to
+						dateTime?.from + '|' + dateTime?.to
 					}`
 		);
 
 		const newData = result.data?.result?.map((lead) => {
 			if (lead?.ip) {
-				const parts = lead?.ip.split("-");
+				const parts = lead?.ip.split('-');
 
 				// Return only the IP part, which is the first element of the array
 				lead.ip = parts?.length > 1 ? parts[1] : parts[0];
@@ -254,32 +246,32 @@ const Index = () => {
 		setTotalLeads(result.data?.totalLeads || 0);
 	};
 
-	const fetchSearchedData = async (term = "", pageNo = 1, pageSize = 30) => {
+	const fetchSearchedData = async (term = '', pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
 
 		let result = await getApi(
-			user.role === "superAdmin"
-				? "api/lead/search" +
-						"?term=" +
+			user.role === 'superAdmin'
+				? 'api/lead/search' +
+						'?term=' +
 						term +
-						"&dateTime=" +
+						'&dateTime=' +
 						dateTime?.from +
-						"|" +
+						'|' +
 						dateTime?.to +
-						"&page=" +
+						'&page=' +
 						pageNo +
-						"&pageSize=" +
+						'&pageSize=' +
 						pageSize
 				: `api/lead/search?term=${term}&user=${user._id}&role=${
 						user.roles[0]?.roleName
 					}&dateTime=${
-						dateTime?.from + "|" + dateTime?.to
+						dateTime?.from + '|' + dateTime?.to
 					}&page=${pageNo}&pageSize=${pageSize}`
 		);
 		setDisplaySearchData(true);
 		const newData = result.data?.result?.map((lead) => {
 			if (lead?.ip) {
-				const parts = lead?.ip.split("-");
+				const parts = lead?.ip.split('-');
 
 				// Return only the IP part, which is the first element of the array
 				lead.ip = parts?.length > 0 ? parts[1] : parts[0];
@@ -296,29 +288,29 @@ const Index = () => {
 		setIsLoding(true);
 		// change the new v2 search api
 		let result = await getApi(
-			user.role === "superAdmin"
-				? "api/lead/v2/advanced-search" +
-						"?data=" +
+			user.role === 'superAdmin'
+				? 'api/lead/v2/advanced-search' +
+						'?data=' +
 						JSON.stringify(data) +
-						"&dateTime=" +
+						'&dateTime=' +
 						dateTime?.from +
-						"|" +
+						'|' +
 						dateTime?.to +
-						"&page=" +
+						'&page=' +
 						pageNo +
-						"&pageSize=" +
+						'&pageSize=' +
 						pageSize
 				: `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
 					}&role=${user.roles[0]?.roleName}&dateTime=${
-						dateTime?.from + "|" + dateTime?.to
+						dateTime?.from + '|' + dateTime?.to
 					}&page=${pageNo}&pageSize=${pageSize}`
 		);
 		setDisplayAdvSearchData(true);
 		setIsLoding(false);
 		const newData = result.data?.result?.map((lead) => {
 			if (lead?.ip) {
-				const parts = lead?.ip.split("-");
+				const parts = lead?.ip.split('-');
 
 				// Return only the IP part, which is the first element of the array
 				lead.ip = parts?.length > 0 ? parts[1] : parts[0];
@@ -335,16 +327,16 @@ const Index = () => {
 			setAutoAssignLoading(true);
 			let agents = [];
 
-			if (tree && tree["managers"]) {
-				agents = tree["agents"]["manager-" + user?._id?.toString()];
+			if (tree && tree['managers']) {
+				agents = tree['agents']['manager-' + user?._id?.toString()];
 			}
-			await postApi("api/user/autoAssign", { agents });
+			await postApi('api/user/autoAssign', { agents });
 			setAutoAssignLoading(false);
-			toast.success("Auto assignment of agents done!");
+			toast.success('Auto assignment of agents done!');
 			fetchData();
 		} catch (error) {
 			console.log(error);
-			toast.error("Something went wrong!");
+			toast.error('Something went wrong!');
 		}
 	};
 
@@ -355,18 +347,18 @@ const Index = () => {
 
 	return (
 		<div>
-			<Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
+			<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
 				<GridItem colSpan={6}>
-					{role === "Manager" && (
-						<Flex justifyContent={"flex-end"} mb={4}>
+					{role === 'Manager' && (
+						<Flex justifyContent={'flex-end'} mb={4}>
 							<Button
 								onClick={autoAssign}
-								bg={"black"}
+								bg={'black'}
 								disabled={autoAssignLoading}
-								rounded={"full"}
-								colorScheme={"white"}
+								rounded={'full'}
+								colorScheme={'white'}
 							>
-								{autoAssignLoading ? "Assigning.." : "Auto Assign"}
+								{autoAssignLoading ? 'Assigning..' : 'Auto Assign'}
 							</Button>
 						</Flex>
 					)}
