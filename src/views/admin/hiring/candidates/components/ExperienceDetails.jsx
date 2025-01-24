@@ -3,15 +3,16 @@ import { Box, Textarea } from '@chakra-ui/react';
 
 const ExperienceDetails = ({ experience }) => {
 	return (
-		<Box width='full' py='2'>
-			<Box fontWeight='bold' fontSize='xs' mb={1}>
+		<Box width='full' fontSize='sm' py='2'>
+			<Box fontWeight='semibold' mb={1}>
 				Experience Details
 			</Box>
 			<Box
 				bg='#F2F2F2'
-				p='1'
+				p='3'
 				rounded='md'
 				shadown='xs'
+				textAlign='justify'
 				height='100px' /* Set a fixed height */
 				overflowY='auto' /* Enable vertical scrolling */
 				sx={{
@@ -27,14 +28,7 @@ const ExperienceDetails = ({ experience }) => {
 					},
 				}}
 			>
-				<Textarea
-					value={experience}
-					isReadOnly
-					fontSize='xs'
-					height='full' /* Ensure it occupies the full height */
-					resize='none' /* Disable resizing by the user */
-					border='none' /* Remove the border for cleaner look */
-				/>
+				{experience}
 			</Box>
 		</Box>
 	);

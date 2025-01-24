@@ -6,8 +6,8 @@ const DisplayField = ({ label, value }) => {
 		value = format(new Date(value), 'd MMM, yyyy');
 	}
 	return (
-		<Box color='gray.800'>
-			<Box fontSize='xs' fontWeight='semibold' mb={1}>
+		<Box color='gray.800' fontSize='sm'>
+			<Box fontWeight='semibold' mb={1}>
 				{label}
 			</Box>
 			<Box
@@ -17,7 +17,6 @@ const DisplayField = ({ label, value }) => {
 				p='2'
 				rounded='md'
 				shadow='sm'
-				fontSize='xs'
 			>
 				{value}
 			</Box>

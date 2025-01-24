@@ -3,25 +3,23 @@ import React from 'react';
 
 const ApplicationStatus = ({ newStatus, setNewStatus }) => {
 	return (
-		<Box mt='2'>
+		<Box mt='2' fontSize='sm'>
 			<Box
 				htmlFor='status'
 				color='gray.800'
-				fontSize='xs'
 				px='1'
+				mb='1'
 				fontWeight='semibold'
 			>
 				Change Status
 			</Box>
 			<Select
 				onChange={(e) => setNewStatus(e.target.value)}
-				fontSize='xs'
 				name='status'
-				fontWeight='500'
 				defaultValue={newStatus || ''}
-				p='1'
 				width='200px'
 				rounded='md'
+				fontSize='sm'
 				shadow='sm'
 				borderColor='gray.300'
 				_focus={{
