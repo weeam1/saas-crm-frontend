@@ -4,7 +4,7 @@ import { Box, Textarea } from '@chakra-ui/react';
 const ExperienceDetails = ({ experience }) => {
 	return (
 		<Box width='full' fontSize='sm' py='2'>
-			<Box fontWeight='semibold' mb={1}>
+			<Box fontWeight='500' fontSize='md' mb={1}>
 				Experience Details
 			</Box>
 			<Box

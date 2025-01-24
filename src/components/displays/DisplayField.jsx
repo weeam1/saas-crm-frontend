@@ -7,7 +7,7 @@ const DisplayField = ({ label, value }) => {
 	}
 	return (
 		<Box color='gray.800' fontSize='sm'>
-			<Box fontWeight='semibold' mb={1}>
+			<Box fontWeight='500' fontSize='md' mb={1}>
 				{label}
 			</Box>
 			<Box

@@ -7,6 +7,7 @@ import {
 	MdLeaderboard,
 	MdList,
 	MdLock,
+	MdLockClock,
 	MdPeopleOutline,
 	MdWork,
 } from 'react-icons/md';
@@ -24,6 +25,7 @@ import {
 	FaDollarSign,
 	FaCheckCircle,
 	FaUserFriends,
+	FaClock,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -90,6 +92,7 @@ const Meeting = React.lazy(() => import('views/admin/meeting'));
 const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
+const Hiring = React.lazy(() => import('views/admin/hiring'));
 
 const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
 const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
@@ -130,6 +133,13 @@ const routes = [
 		path: '/announcements',
 		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
 		component: Announcement,
+	},
+	{
+		name: 'Hiring',
+		path: '/hiring',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
+		component: Hiring,
 	},
 	{
 		name: 'HR Module',
@@ -314,43 +324,15 @@ const routes = [
 	},
 
 	// ------------- Hiring Routes -----------------------
+
 	{
-		name: 'Hiring',
-		path: 'Hiring',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: <Icon as={MdWork} width='20px' height='20px' color='inherit' />,
-		collapse: true,
-		items: [
-			{
-				name: 'Candidates',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/candidates',
-				icon: (
-					<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
-				),
-				component: Candidates,
-			},
-			// {
-			// 	name: 'Applications',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	path: '/hiring/applications',
-			// 	icon: (
-			// 		<Icon
-			// 			as={MdDescription}
-			// 			width='20px'
-			// 			height='20px'
-			// 			color='inherit'
-			// 		/>
-			// 	),
-			// 	component: Applications, // Define the component for this route
-			// },
-		],
-	},
-	{
-		name: 'Hiring',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		name: 'Candidates',
+		layout: [ROLE_PATH.user],
 		path: '/hiring/candidates',
-		icon: <Icon as={MdWork} width='20px' height='20px' color='inherit' />,
+		under: '/hiring',
+		icon: (
+			<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
+		),
 		component: Candidates,
 	},
 	// {

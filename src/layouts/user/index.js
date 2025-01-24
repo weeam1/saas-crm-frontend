@@ -40,6 +40,7 @@ import Report from 'views/admin/reports';
 import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
 import Candidates from 'views/admin/hiring/candidates';
+import Hiring from 'views/admin/hiring';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -110,15 +111,6 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: Lead,
 		},
-		{
-			name: 'Candidates',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/candidates',
-			icon: (
-				<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
-			),
-			component: Candidates,
-		},
 
 		{
 			name: 'HR Module',
@@ -168,19 +160,30 @@ export default function User(props) {
 		routes = routes.filter((route) => route.name !== 'Leads Pool');
 	}
 
-	// if (user?.roles[0]?.roleName === 'HR') {
-	// 	// Define the "Candidates" route
-	// 	const hiringRoutes = {
-	// 		name: 'Hiring',
-	// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 		path: '/hiring/candidates',
-	// 		icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
-	// 		component: Candidates,
-	// 	};
-
-	// 	// Only show the "Hiring" route for HR role
-	// 	routes = [hiringRoutes];
-	// }
+	if (user?.roles[0]?.roleName === 'HR') {
+		// Define the "Candidates" route
+		const hiringRoutes = [
+			{
+				name: 'Hiring',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring',
+				icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
+				component: Hiring,
+			},
+			{
+				name: 'Candidates',
+				layout: [ROLE_PATH.user],
+				path: '/hiring/candidates',
+				under: '/hiring',
+				icon: (
+					<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
+				),
+				component: Candidates,
+			},
+		];
+		// 	// Only show the "Hiring" route for HR role
+		routes = hiringRoutes;
+	}
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
@@ -512,7 +515,12 @@ export default function User(props) {
 									>
 										<Routes>
 											{getRoutes(routes)}
-											<Route path='/*' element={<Navigate to='/default' />} />
+
+											{user?.roles[0]?.roleName === 'HR' ? (
+												<Route path='/*' element={<Navigate to='/hiring' />} />
+											) : (
+												<Route path='/*' element={<Navigate to='/default' />} />
+											)}
 										</Routes>
 									</Suspense>
 								</Box>

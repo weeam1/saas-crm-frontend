@@ -9,7 +9,8 @@ const ApplicationStatus = ({ newStatus, setNewStatus }) => {
 				color='gray.800'
 				px='1'
 				mb='1'
-				fontWeight='semibold'
+				fontWeight='500'
+				fontSize='md'
 			>
 				Change Status
 			</Box>

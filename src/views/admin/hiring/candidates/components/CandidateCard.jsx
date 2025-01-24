@@ -6,6 +6,7 @@ import { FaLocationDot } from 'react-icons/fa6';
 import { constant } from 'constant';
 import CandidateView from './CandidateView';
 import StatusBadge from 'components/shared/StatusBadge';
+import { toast } from 'react-toastify';
 
 const CandidateCard = ({ candidate, refetch }) => {
 	const {
@@ -24,16 +25,44 @@ const CandidateCard = ({ candidate, refetch }) => {
 
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 
-	const handleViewCV = () => {
-		window.open(pdfURL, '_blank');
+	const handleViewCV = async () => {
+		try {
+			// Make a request to check if the file exists
+			const response = await fetch(pdfURL, { method: 'HEAD' });
+
+			if (!response.ok) {
+				throw new Error('File not found');
+			}
+
+			// Open the PDF if it exists
+			window.open(pdfURL, '_blank');
+		} catch (error) {
+			// Handle errors (e.g., file not found or server error)
+			console.error('Error viewing CV:', error);
+			toast.error('The requested CV could not be found.');
+		}
 	};
 
-	const handleDownloadCV = () => {
-		const link = document.createElement('a');
+	const handleDownloadCV = async () => {
+		try {
+			// Check if the file exists using a HEAD request
+			const response = await fetch(pdfURL, { method: 'HEAD' });
 
-		link.href = pdfURL;
-		link.download = pdfURL;
-		link.click();
+			if (!response.ok) {
+				throw new Error('File not found');
+			}
+
+			// Create an anchor element for the download
+			const link = document.createElement('a');
+			link.href = pdfURL;
+			link.download = pdfURL.split('/').pop(); // Extract the file name from the URL
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link); // Clean up the DOM
+		} catch (error) {
+			console.error('Error downloading CV:', error);
+			toast.error('The requested CV could not be downloaded.');
+		}
 	};
 
 	const getStatusColor = (status) => {

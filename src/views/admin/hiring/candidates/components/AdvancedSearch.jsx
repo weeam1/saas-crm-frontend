@@ -63,7 +63,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	const validationSchema = Yup.object({
 		name: Yup.string(),
 		dob: Yup.date(),
-		email: Yup.string().email('Invalid email format'),
+		email: Yup.string(),
 		phone: Yup.string(),
 		whatsApp: Yup.string(),
 		nationality: Yup.string(),
@@ -146,8 +146,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 											<FormLabel
 												display='flex'
 												ms='4px'
-												fontSize='sm'
-												fontWeight='600'
+												fontSize='md'
+												fontWeight='400'
 												color='gray.800'
 												mt={2}
 												mb='1'
@@ -178,8 +178,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<FormLabel
 											display='flex'
 											ms='4px'
-											fontSize='sm'
-											fontWeight='600'
+											fontSize='md'
+											fontWeight='500'
 											color='gray.800'
 											mt={2}
 											mb='1'
@@ -189,7 +189,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<Select
 											fontSize='sm'
 											name='position'
-											fontWeight='500'
+											fontWeight='400'
 											defaultValue={''}
 											rounded='md'
 											shadow='sm'
@@ -214,8 +214,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<FormLabel
 											display='flex'
 											ms='4px'
-											fontSize='sm'
-											fontWeight='600'
+											fontSize='md'
+											fontWeight='400'
 											color='gray.800'
 											mt={2}
 											mb='1'
@@ -250,8 +250,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<FormLabel
 											display='flex'
 											ms='4px'
-											fontSize='sm'
-											fontWeight='600'
+											fontSize='md'
+											fontWeight='400'
 											color='gray.800'
 											mt={2}
 											mb='1'
@@ -261,7 +261,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<Select
 											fontSize='sm'
 											name='status'
-											fontWeight='500'
+											fontWeight='400'
 											defaultValue={''}
 											rounded='md'
 											shadow='sm'

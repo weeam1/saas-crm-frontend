@@ -67,7 +67,7 @@ const CandidateView = ({
 				<ModalBody
 					// style={{ fontFamily: `'Poppins', sans-serif` }}
 					width='100%'
-					maxH='500px' // Set max height for the modal body
+					maxH='550px' // Set max height for the modal body
 					overflowY='auto' // Enable vertical scrolling when content exceeds max height
 					sx={{
 						'&::-webkit-scrollbar': {
@@ -88,7 +88,7 @@ const CandidateView = ({
 							md: 'repeat(2, 1fr)',
 							lg: 'repeat(2, 1fr)',
 						}}
-						gap={2}
+						gap={3}
 					>
 						<DisplayField label='Name' value={name} />
 						<DisplayField label='Date of Birth' value={dob} />
