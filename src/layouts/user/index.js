@@ -110,6 +110,15 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: Lead,
 		},
+		{
+			name: 'Candidates',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/candidates',
+			icon: (
+				<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
+			),
+			component: Candidates,
+		},
 
 		{
 			name: 'HR Module',
@@ -159,19 +168,19 @@ export default function User(props) {
 		routes = routes.filter((route) => route.name !== 'Leads Pool');
 	}
 
-	if (user?.roles[0]?.roleName === 'HR') {
-		// Define the "Candidates" route
-		const hiringRoutes = {
-			name: 'Hiring',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/hiring/candidates',
-			icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
-			component: Candidates,
-		};
+	// if (user?.roles[0]?.roleName === 'HR') {
+	// 	// Define the "Candidates" route
+	// 	const hiringRoutes = {
+	// 		name: 'Hiring',
+	// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 		path: '/hiring/candidates',
+	// 		icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
+	// 		component: Candidates,
+	// 	};
 
-		// Only show the "Hiring" route for HR role
-		routes = [hiringRoutes];
-	}
+	// 	// Only show the "Hiring" route for HR role
+	// 	routes = [hiringRoutes];
+	// }
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
@@ -228,22 +237,28 @@ export default function User(props) {
 	}
 
 	const getActiveRoute = (routes) => {
+		if (!Array.isArray(routes)) {
+			// Ensure routes is an array
+			return '';
+		}
+
 		let activeRoute = '';
 		for (let i = 0; i < routes.length; i++) {
 			if (routes[i].collapse) {
-				let collapseActiveRoute = getActiveRoute(routes[i].items);
+				let collapseActiveRoute = getActiveRoute(routes[i].items || []);
 				if (collapseActiveRoute !== activeRoute) {
 					return collapseActiveRoute;
 				}
 			} else if (routes[i].category) {
-				let categoryActiveRoute = getActiveRoute(routes[i].items);
+				let categoryActiveRoute = getActiveRoute(routes[i].items || []);
 				if (categoryActiveRoute !== activeRoute) {
 					return categoryActiveRoute;
 				}
 			} else {
 				if (
+					routes[i].path && // Ensure path is defined
 					window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
-					-1
+						-1
 				) {
 					return routes[i].name;
 				}
@@ -251,6 +266,31 @@ export default function User(props) {
 		}
 		return activeRoute;
 	};
+
+	// const getActiveRoute = (routes) => {
+	// 	let activeRoute = '';
+	// 	for (let i = 0; i < routes.length; i++) {
+	// 		if (routes[i].collapse) {
+	// 			let collapseActiveRoute = getActiveRoute(routes[i].items);
+	// 			if (collapseActiveRoute !== activeRoute) {
+	// 				return collapseActiveRoute;
+	// 			}
+	// 		} else if (routes[i].category) {
+	// 			let categoryActiveRoute = getActiveRoute(routes[i].items);
+	// 			if (categoryActiveRoute !== activeRoute) {
+	// 				return categoryActiveRoute;
+	// 			}
+	// 		} else {
+	// 			if (
+	// 				window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
+	// 				-1
+	// 			) {
+	// 				return routes[i].name;
+	// 			}
+	// 		}
+	// 	}
+	// 	return activeRoute;
+	// };
 	const under = (routes) => {
 		let activeRoute = false;
 		for (let i = 0; i < routes.length; i++) {
@@ -319,28 +359,59 @@ export default function User(props) {
 		return activeNavbar;
 	};
 
+	// const getRoutes = (routes) => {
+	// 	return routes.map((prop, key) => {
+	// 		// if (!prop.under && prop.layout === '/admin') {
+	// 		if (!prop.under && prop.layout !== '/auth') {
+	// 			return (
+	// 				<Route path={prop.path} element={<prop.component />} key={key} />
+	// 			);
+	// 		} else if (prop.under) {
+	// 			return (
+	// 				<Route path={prop.path} element={<prop.component />} key={key} />
+	// 			);
+	// 		}
+	// 		if (prop.collapse) {
+	// 			return getRoutes(prop.items);
+	// 		}
+	// 		if (prop.category) {
+	// 			return getRoutes(prop.items);
+	// 		} else {
+	// 			return null;
+	// 		}
+	// 	});
+	// };
 	const getRoutes = (routes) => {
-		return routes.map((prop, key) => {
-			// if (!prop.under && prop.layout === '/admin') {
+		return routes.flatMap((prop, key) => {
+			// Handle main routes that are not "under" and not part of authentication layout
 			if (!prop.under && prop.layout !== '/auth') {
 				return (
 					<Route path={prop.path} element={<prop.component />} key={key} />
 				);
-			} else if (prop.under) {
+			}
+
+			// Handle routes with "under" property
+			if (prop.under) {
 				return (
 					<Route path={prop.path} element={<prop.component />} key={key} />
 				);
 			}
+
+			// Handle routes with "collapse" property recursively
 			if (prop.collapse) {
 				return getRoutes(prop.items);
 			}
+
+			// Handle routes with "category" property recursively
 			if (prop.category) {
 				return getRoutes(prop.items);
-			} else {
-				return null;
 			}
+
+			// Return empty array instead of `null` to avoid React rendering issues
+			return [];
 		});
 	};
+
 	document.documentElement.dir = 'ltr';
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';

@@ -314,36 +314,38 @@ const routes = [
 	},
 
 	// ------------- Hiring Routes -----------------------
-	// {
-	// 	name: 'Hiring',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/hiring',
-	// 	icon: <Icon as={MdWork} width='20px' height='20px' color='inherit' />,
-	// 	collapse: true,
-	// 	items: [
-	// 		{
-	// 			name: 'Candidates',
-	// 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 			path: '/hiring/job-listings',
-	// 			icon: <Icon as={MdList} width='20px' height='20px' color='inherit' />,
-	// 			component: Candidates,
-	// 		},
-	// 		// {
-	// 		// 	name: 'Applications',
-	// 		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 		// 	path: '/hiring/applications',
-	// 		// 	icon: (
-	// 		// 		<Icon
-	// 		// 			as={MdDescription}
-	// 		// 			width='20px'
-	// 		// 			height='20px'
-	// 		// 			color='inherit'
-	// 		// 		/>
-	// 		// 	),
-	// 		// 	component: Applications, // Define the component for this route
-	// 		// },
-	// 	],
-	// },
+	{
+		name: 'Hiring',
+		path: 'Hiring',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		icon: <Icon as={MdWork} width='20px' height='20px' color='inherit' />,
+		collapse: true,
+		items: [
+			{
+				name: 'Candidates',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/candidates',
+				icon: (
+					<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
+				),
+				component: Candidates,
+			},
+			// {
+			// 	name: 'Applications',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	path: '/hiring/applications',
+			// 	icon: (
+			// 		<Icon
+			// 			as={MdDescription}
+			// 			width='20px'
+			// 			height='20px'
+			// 			color='inherit'
+			// 		/>
+			// 	),
+			// 	component: Applications, // Define the component for this route
+			// },
+		],
+	},
 	{
 		name: 'Hiring',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
