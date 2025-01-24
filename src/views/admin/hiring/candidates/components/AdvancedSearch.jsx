@@ -19,6 +19,15 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
+const positionOptions = [
+	{ label: 'Manager', value: 'Manager' },
+	{ label: 'HR', value: 'HR' },
+	{ label: 'Secretary', value: 'Secretary' },
+	{ label: 'Team Leader', value: 'Team Leader' },
+	{ label: 'Sales', value: 'Sales' },
+	{ label: 'Tele Sales', value: 'Tele Sales' },
+];
+
 const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	const initialValues = {
 		name: '',
@@ -74,11 +83,11 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 			label: 'Experience in Years',
 			placeholder: 'Years of Experience',
 		},
-		{
-			name: 'position',
-			label: 'Applied For',
-			placeholder: 'Enter the role',
-		},
+		// {
+		// 	name: 'position',
+		// 	label: 'Applied For',
+		// 	placeholder: 'Enter the role',
+		// },
 	];
 
 	const handleSubmit = (values) => {
@@ -92,7 +101,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='xl'>
 			<ModalOverlay />
 			<ModalContent p='2'>
 				<ModalHeader>Advanced Search</ModalHeader>
@@ -134,8 +143,20 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 								>
 									{fields.map((field) => (
 										<GridItem key={field.name}>
-											<FormLabel>{field.label}</FormLabel>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='600'
+												color='gray.800'
+												mt={2}
+												mb='1'
+											>
+												{field.label}
+											</FormLabel>
 											<Input
+												fontWeight='500'
+												fontSize='sm'
 												type={field.type}
 												name={field.name}
 												placeholder={field.placeholder}
@@ -154,7 +175,53 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										</GridItem>
 									))}
 									<GridItem>
-										<FormLabel>Nationality</FormLabel>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='600'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Apply For
+										</FormLabel>
+										<Select
+											fontSize='sm'
+											name='position'
+											fontWeight='500'
+											defaultValue={''}
+											rounded='md'
+											shadow='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values['position']}
+											borderColor='gray.300'
+											_focus={{
+												borderColor: 'brand.500', // Apply brand color on focus
+												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+											}}
+											placeholder='Search by role'
+										>
+											{positionOptions?.map((item) => (
+												<option value={item.value} key={item.label}>
+													{item.value}
+												</option>
+											))}
+										</Select>
+									</GridItem>
+									<GridItem>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='600'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Nationality
+										</FormLabel>
 										<Select
 											fontSize='sm'
 											name='nationality'
@@ -180,7 +247,17 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										</Select>
 									</GridItem>
 									<GridItem>
-										<FormLabel>Status</FormLabel>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='600'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Status
+										</FormLabel>
 										<Select
 											fontSize='sm'
 											name='status'
