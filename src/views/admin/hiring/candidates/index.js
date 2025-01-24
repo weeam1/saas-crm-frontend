@@ -15,6 +15,7 @@ import AdvancedSearch from './components/AdvancedSearch';
 import Pagination from './components/Pagination';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
 
 const Candidates = () => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
@@ -154,6 +155,11 @@ const Candidates = () => {
 			>
 				<Heading size='md' color='gray.800'>
 					Candidates
+					{data && (
+						<span style={{ marginLeft: '6px' }}>
+							({<CountUpComponent targetNumber={data?.totalDocs} />})
+						</span>
+					)}
 				</Heading>
 				<Button
 					colorScheme='brand'
