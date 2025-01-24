@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	const initialValues = {
@@ -31,6 +32,12 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
+
+	const { data: countries } = useFetchItemsQuery({
+		path: '/countries',
+	});
+
+	console.log(countries);
 
 	const isMounted = useRef(true);
 
@@ -62,11 +69,6 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 		{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
 		{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
 		{ name: 'whatsApp', label: 'WhatsApp No', placeholder: 'WhatsApp Number' },
-		{
-			name: 'nationality',
-			label: 'Nationality',
-			placeholder: 'Search by Nationality',
-		},
 		{
 			name: 'experienceYears',
 			label: 'Experience in Years',
@@ -134,6 +136,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 										<GridItem key={field.name}>
 											<FormLabel>{field.label}</FormLabel>
 											<Input
+												type={field.type}
 												name={field.name}
 												placeholder={field.placeholder}
 												onChange={handleChange}
@@ -150,6 +153,32 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 											)}
 										</GridItem>
 									))}
+									<GridItem>
+										<FormLabel>Nationality</FormLabel>
+										<Select
+											fontSize='sm'
+											name='nationality'
+											fontWeight='500'
+											defaultValue={''}
+											rounded='md'
+											shadow='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values['nationality']}
+											borderColor='gray.300'
+											_focus={{
+												borderColor: 'brand.500', // Apply brand color on focus
+												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+											}}
+											placeholder='Search by nationality'
+										>
+											{countries?.doc?.map((country) => (
+												<option value={country.name} key={country.code}>
+													{country.name}
+												</option>
+											))}
+										</Select>
+									</GridItem>
 									<GridItem>
 										<FormLabel>Status</FormLabel>
 										<Select
