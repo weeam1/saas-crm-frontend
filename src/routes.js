@@ -5,11 +5,8 @@ import {
 	MdHome,
 	MdInsertChartOutlined,
 	MdLeaderboard,
-	MdList,
 	MdLock,
-	MdLockClock,
 	MdPeopleOutline,
-	MdWork,
 } from 'react-icons/md';
 // icon
 import React from 'react';
@@ -23,9 +20,7 @@ import {
 	FaWpforms,
 	FaUserCircle,
 	FaDollarSign,
-	FaCheckCircle,
 	FaUserFriends,
-	FaClock,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -39,6 +34,7 @@ import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { FaClipboardUser } from 'react-icons/fa6';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -138,7 +134,9 @@ const routes = [
 		name: 'Hiring',
 		path: '/hiring',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
+		icon: (
+			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+		),
 		component: Hiring,
 	},
 	{

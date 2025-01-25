@@ -1,14 +1,5 @@
 // Chakra imports
-import {
-	Portal,
-	Box,
-	useDisclosure,
-	Text,
-	Button,
-	Link,
-	Flex,
-	Icon,
-} from '@chakra-ui/react';
+import { Portal, Box, useDisclosure, Flex, Icon } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
 // Layout components
 import Navbar from 'components/navbar/NavbarAdmin.js';
@@ -24,14 +15,8 @@ import {
 	MdInsertChartOutlined,
 	MdLock,
 	MdPeopleOutline,
-	MdWork,
 } from 'react-icons/md';
-import {
-	FaUserCircle,
-	FaDollarSign,
-	FaUserFriends,
-	FaClock,
-} from 'react-icons/fa';
+import { FaUserCircle, FaDollarSign, FaUserFriends } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -41,6 +26,7 @@ import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
 import Candidates from 'views/admin/hiring/candidates';
 import Hiring from 'views/admin/hiring';
+import { FaClipboardUser } from 'react-icons/fa6';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -167,7 +153,14 @@ export default function User(props) {
 				name: 'Hiring',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 				path: '/hiring',
-				icon: <Icon as={FaClock} width='20px' height='20px' color='inherit' />,
+				icon: (
+					<Icon
+						as={FaClipboardUser}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
 				component: Hiring,
 			},
 			{
