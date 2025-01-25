@@ -14,10 +14,13 @@ import {
 	Text,
 	Flex,
 	Select,
+	Icon,
+	Box,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { FiInfo } from 'react-icons/fi';
 
 const positionOptions = [
 	{ label: 'Manager', value: 'Manager' },
@@ -64,12 +67,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 		name: Yup.string(),
 		dob: Yup.date(),
 		email: Yup.string(),
-		phone: Yup.string(),
-		whatsApp: Yup.string(),
-		nationality: Yup.string(),
-		experienceYears: Yup.number().typeError(
-			'Experience must be a valid number'
+		phone: Yup.string().matches(
+			/^\+?[0-9\s]+$/,
+			'Phone number must only contain digits'
 		),
+		whatsApp: Yup.string().matches(
+			/^\+?[0-9\s]+$/,
+			'WhatsApp number must only contain digits'
+		),
+		nationality: Yup.string(),
+		experienceYears: Yup.number()
+			.integer('Experience must be a integer number')
+			.typeError('Experience must be a valid number'),
 		position: Yup.string(),
 	});
 
@@ -170,7 +179,9 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 												}}
 											/>
 											{errors[field.name] && touched[field.name] && (
-												<Text color='red'>{errors[field.name]}</Text>
+												<Text color='red' fontSize='xs'>
+													{errors[field.name]}
+												</Text>
 											)}
 										</GridItem>
 									))}

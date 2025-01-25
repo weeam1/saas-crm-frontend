@@ -71,7 +71,8 @@ const Candidates = () => {
 			}, {});
 
 		// Separate status from the filteredParams
-		const { status, ...advancedSearch } = filteredParams;
+		// const { status, ...advancedSearch } = filteredParams;
+		const { ...advancedSearch } = filteredParams;
 
 		// Update tags for UI display (all filtered params including status)
 		const tags = Object.entries(filteredParams).map(([key, value]) => ({
@@ -88,9 +89,9 @@ const Candidates = () => {
 		};
 
 		// Add status directly to queryParams if it exists
-		if (status) {
-			queryParams.status = status;
-		}
+		// if (status) {
+		// 	queryParams.status = status;
+		// }
 
 		// Merge and update query parameters for refetch
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
@@ -112,7 +113,8 @@ const Candidates = () => {
 		);
 
 		// Separate status from other advanced search fields
-		const { status, ...advancedSearch } = updatedParams;
+		// const { status, ...advancedSearch } = updatedParams;
+		const { ...advancedSearch } = updatedParams;
 
 		// Prepare the query parameters
 		const queryParams = {
@@ -120,14 +122,10 @@ const Candidates = () => {
 			page: 1,
 			limit: pageSize,
 		};
-		console.log({ updatedParams, queryParams });
-
-		console.log({ status });
-
 		// Add status back directly if it exists in updatedParams
-		if (status) {
-			queryParams.status = status;
-		}
+		// if (status) {
+		// 	queryParams.status = status;
+		// }
 
 		// update query parameters
 		setQueryParams(queryParams);
