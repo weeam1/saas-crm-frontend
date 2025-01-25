@@ -21,6 +21,7 @@ import {
 	FaUserCircle,
 	FaDollarSign,
 	FaUserFriends,
+	FaUsers,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -87,8 +88,11 @@ const EmailHistoryView = React.lazy(
 const Meeting = React.lazy(() => import('views/admin/meeting'));
 const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
-const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
+const ShortListedCandidates = React.lazy(
+	() => import('views/admin/hiring/shortListedCandidates')
+);
 
 const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
 const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
@@ -322,7 +326,6 @@ const routes = [
 	},
 
 	// ------------- Hiring Routes -----------------------
-
 	{
 		name: 'Candidates',
 		layout: [ROLE_PATH.user],
@@ -333,15 +336,14 @@ const routes = [
 		),
 		component: Candidates,
 	},
-	// {
-	// 	name: 'Short Listed',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/hiring/short-listed',
-	// 	icon: (
-	// 		<Icon as={FaCheckCircle} width='20px' height='20px' color='inherit' />
-	// 	),
-	// 	component: ShortListed,
-	// },
+	{
+		name: 'Short Listed',
+		layout: [ROLE_PATH.user],
+		path: '/hiring/short-listed',
+		under: '/hiring',
+		icon: <Icon as={FaUsers} width='20px' height='20px' color='inherit' />,
+		component: ShortListedCandidates,
+	},
 	// ------------- Phone Routes ------------------------
 	{
 		name: 'Call',

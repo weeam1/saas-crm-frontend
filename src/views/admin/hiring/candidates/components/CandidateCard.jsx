@@ -1,8 +1,7 @@
 import { Box, Button, Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { FaWhatsapp, FaPhone, FaEye } from 'react-icons/fa';
+import { FaWhatsapp, FaPhone, FaEye } from 'react-icons/fa6';
 import { useState } from 'react';
-import { FaLocationDot } from 'react-icons/fa6';
 import { constant } from 'constant';
 import CandidateView from './CandidateView';
 import StatusBadge from 'components/shared/StatusBadge';

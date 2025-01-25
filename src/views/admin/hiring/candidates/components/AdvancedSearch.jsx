@@ -76,9 +76,9 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 			'WhatsApp number must only contain digits'
 		),
 		nationality: Yup.string(),
-		experienceYears: Yup.number()
-			.integer('Experience must be a integer number')
-			.typeError('Experience must be a valid number'),
+		experienceYears: Yup.string()
+			.matches(/^\d+$/, 'Experience must be a valid integer') // Only allows whole numbers (no decimals)
+			.typeError('Experience must be a valid number'), // Handles invalid type input
 		position: Yup.string(),
 	});
 
