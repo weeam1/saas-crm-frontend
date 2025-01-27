@@ -97,6 +97,8 @@ export default function UserReports() {
   ]);
   const [fetched, setFetched] = useState(false);
   const [callData, setCallData] = useState([]);
+  const [totalLeads, setTotalLeads] = useState()
+  const [graphLeadsData, setGraphLeadsData] = useState([])
 
   const navigate = useNavigate();
 
@@ -149,6 +151,23 @@ export default function UserReports() {
     }
     setLeadData(lead?.data?.totalLeads || 0);
   };
+  const fetchGraphLeads = async () => {
+    let lead;
+    if (user.role === "superAdmin") {
+      lead = await getApi("api/dashboard");
+    } else if (
+      leadView?.create ||
+      leadView?.update ||
+      leadView?.delete ||
+      leadView?.view
+    ) {
+      lead = await getApi(
+        `api/dashboard/?role=${user?.roles[0]?.roleName}&user=${user._id}`
+      );
+    }
+    setTotalLeads(lead?.data?.totalLeads || 0);
+    setGraphLeadsData(lead?.data?.groupedLeads)
+  };
 
   const fetchCalls = async () => {
     let call;
@@ -183,6 +202,7 @@ export default function UserReports() {
       fetchCalls();
       fetchContacts();
       fetchProgressChart();
+      fetchGraphLeads();
       setFetched(true);
     }
   }, [viewsState]);
@@ -318,7 +338,7 @@ export default function UserReports() {
               />
             }
             name="Leads"
-            value={leadData || 0}
+            value={totalLeads || 0}
           />
         )}
         {(callView?.create ||
@@ -363,12 +383,12 @@ export default function UserReports() {
         <GridItem rowSpan={2} colSpan={{ base: 12, md: 12 }}>
           <Card>
             <Flex mb={5} alignItems={"center"} justifyContent={"space-between"}>
-              <Heading size="md">Report</Heading>
+              <Heading size="md">Leads</Heading>
             </Flex>
             <Box mb={3}>
               <HSeparator />
             </Box>
-            <Chart dashboard={"dashboard"} data={data} />
+            <Chart dashboard={"dashboard"} data={graphLeadsData} />
           </Card>
         </GridItem>
       </Grid>
