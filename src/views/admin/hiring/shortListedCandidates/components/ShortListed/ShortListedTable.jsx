@@ -16,6 +16,7 @@ import {
 	Image,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import TableLoading from 'components/loading/TableLoading';
 // import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
 
 const ShortListedTable = ({
@@ -24,52 +25,56 @@ const ShortListedTable = ({
 	loading,
 	handleSort,
 	sortConfig,
-	// handleViewCV,
-	// handleDownloadCV,
+	handleViewCandidate,
+	arrangeInterviewOpen,
 }) => {
 	return (
-		<Box transform='translate(-10px, -10px)' rounded='md' overflow='hidden'>
-			<TableContainer>
-				<Table variant='striped' size='md'>
-					<Thead position='sticky ' top={0} bg='brand.200' zIndex={1} p='4'>
-						<Tr>
-							{headers.map((header) => (
-								<Th key={header.key} textAlign='center' color='gray.800'>
-									<Flex align='center' justify='space-evenly' gap='4'>
-										<Text textTransform='capitalize'>{header.label}</Text>
-										{header.key !== 'action' && (
-											<IconButton
-												aria-label='Sort'
-												size='xs'
-												icon={
-													sortConfig.key === header.key &&
-													sortConfig.direction === 'asc' ? (
-														<TriangleUpIcon />
-													) : (
-														<TriangleDownIcon />
-													)
-												}
-												onClick={() => handleSort(header.key)}
-												variant='ghost'
-											/>
-										)}
-									</Flex>
-								</Th>
-							))}
-						</Tr>
-					</Thead>
-					<Tbody>
-						{loading
-							? Array.from({ length: 5 }).map((_, index) => (
-									<Tr key={index}>
-										{headers.map((header, i) => (
-											<Td key={i}>
-												<Skeleton height='20px' />
-											</Td>
-										))}
-									</Tr>
-								))
-							: data?.map((item, index) => (
+		<>
+			{/* Box:  transform='translate(-10px, -10px)' */}
+			<Box rounded='md' overflow='hidden'>
+				<TableContainer
+					maxHeight='400px' // Set a custom height for the container
+					overflowY='auto' // Enable vertical scrolling
+					overflowX='auto' // Optional: Enable horizontal scrolling
+				>
+					<Table variant='striped' size='md'>
+						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
+							<Tr>
+								{headers.map((header) => (
+									<Th
+										key={header.key}
+										textAlign='center'
+										color='gray.800'
+										width={header.width || '150px'}
+									>
+										<Flex align='center' justify='space-evenly' gap='4'>
+											<Text textTransform='capitalize'>{header.label}</Text>
+											{header.key !== 'action' && (
+												<IconButton
+													aria-label='Sort'
+													size='xs'
+													icon={
+														sortConfig.key === header.key &&
+														sortConfig.direction === 'asc' ? (
+															<TriangleUpIcon />
+														) : (
+															<TriangleDownIcon />
+														)
+													}
+													onClick={() => handleSort(header.key)}
+													variant='ghost'
+												/>
+											)}
+										</Flex>
+									</Th>
+								))}
+							</Tr>
+						</Thead>
+						<Tbody>
+							{loading ? (
+								<TableLoading columns={headers} length={8} />
+							) : data.length ? (
+								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
 										<Td>
 											<HStack gap='1'>
@@ -116,7 +121,7 @@ const ShortListedTable = ({
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
-													// onClick={handleViewCV}
+													onClick={() => handleViewCandidate(item._id)}
 												>
 													View
 												</Button>
@@ -132,17 +137,34 @@ const ShortListedTable = ({
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
+													onClick={arrangeInterviewOpen}
 												>
 													Arrange Interview
 												</Button>
 											</HStack>
 										</Td>
 									</Tr>
-								))}
-					</Tbody>
-				</Table>
-			</TableContainer>
-		</Box>
+								))
+							) : (
+								<Tr>
+									<Td colSpan={headers.length}>
+										<Text
+											textAlign={'center'}
+											width='100%'
+											color='gray.500'
+											fontSize='sm'
+											fontWeight='600'
+										>
+											No data found
+										</Text>
+									</Td>
+								</Tr>
+							)}
+						</Tbody>
+					</Table>
+				</TableContainer>
+			</Box>
+		</>
 	);
 };
 

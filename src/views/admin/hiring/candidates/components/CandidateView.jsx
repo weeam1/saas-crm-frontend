@@ -33,6 +33,7 @@ const CandidateView = ({
 		email,
 		whatsApp,
 		phone,
+		resume,
 		nationality,
 		experience,
 		experienceYears,
@@ -103,7 +104,7 @@ const CandidateView = ({
 
 					<HStack spacing={2} mt={2}>
 						<Button
-							onClick={onViewCV}
+							onClick={() => onViewCV(resume)}
 							bg='brand.500'
 							color='white'
 							width='100%'
@@ -120,7 +121,7 @@ const CandidateView = ({
 						</Button>
 
 						<Button
-							onClick={onDownloadCV}
+							onClick={() => onDownloadCV(resume)}
 							bg='brand.500'
 							color='white'
 							width='100%'

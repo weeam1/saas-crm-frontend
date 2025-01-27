@@ -4,7 +4,6 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import ErrorMessage from 'components/Message/ErrorMessage';
-import Pagination from 'components/pagination/Pagination';
 import ShortListed from './components/ShortListed';
 
 const ShortListedCandidates = () => {
@@ -18,7 +17,8 @@ const ShortListedCandidates = () => {
 	const [data, setData] = useState([]);
 
 	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(12); // Items per page
+	const [gopageValue, setGopageValue] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
@@ -32,6 +32,10 @@ const ShortListedCandidates = () => {
 	} = useFetchItemsQuery({
 		path: `/applications/short-listed`,
 		params: queryParams,
+	});
+
+	const { data: allData } = useFetchItemsQuery({
+		path: `/applications/short-listed`,
 	});
 
 	// Update queryParams only when necessary
@@ -78,9 +82,21 @@ const ShortListedCandidates = () => {
 		setData(sortedData);
 	};
 
-	// Handle page changes
-	const handlePageChange = (page) => {
-		setCurrentPage(page);
+	const handleGotoPage = (page) => {
+		setCurrentPage(page + 1);
+		refetch({
+			path: '/applications/short-listed',
+			params: { page: page + 1, limit: pageSize },
+		});
+	};
+
+	const handlePageSizeChange = (size) => {
+		setPageSize(size);
+		setCurrentPage(1); // Reset to first page
+		refetch({
+			path: '/applications/short-listed',
+			params: { page: 1, limit: size },
+		});
 	};
 
 	const handleSearch = (params) => {
@@ -183,11 +199,20 @@ const ShortListedCandidates = () => {
 			</Box>
 			<>
 				<ShortListed
+					allData={allData}
 					data={data}
 					totalDocs={shortListedData?.totalDocs}
 					loading={isLoading}
 					handleSort={handleSort}
 					sortConfig={sortConfig}
+					refetch={refetch}
+					totalPages={shortListedData?.totalPages}
+					currentPage={currentPage}
+					pageSize={pageSize}
+					handlePageSizeChange={handlePageSizeChange}
+					handleGotoPage={handleGotoPage}
+					gopageValue={gopageValue}
+					setGopageValue={setGopageValue}
 					// setAdvanceSearch={setAdvanceSearch}
 				/>
 				{/* <Pagination

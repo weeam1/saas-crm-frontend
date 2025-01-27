@@ -1,33 +1,73 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
-import ShortListedTable from './ShortListedTable';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
-import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import { Box, Button, Heading, HStack, useDisclosure } from '@chakra-ui/react';
 import { FaUsers } from 'react-icons/fa';
 
-const ShortListed = ({ data, loading, totalDocs, handleSort, sortConfig }) => {
+import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import SearchBar from 'components/search/SearchBar';
+import TablePagination from 'components/pagination/TablePagination';
+import ArrangeInterview from '../ArrangeInterview';
+import ShortListedTable from './ShortListedTable';
+import { constant } from 'constant';
+
+const ShortListed = ({
+	data,
+	allData,
+	loading,
+	totalDocs,
+	handleSort,
+	sortConfig,
+	refetch,
+	totalPages,
+	currentPage,
+	pageSize,
+	handleGotoPage,
+	handlePageSizeChange,
+	gopageValue,
+	setGopageValue,
+}) => {
+	const [isApplicationOpen, setApplicationOpen] = useState(false);
+	const [candidate, setCandidate] = useState(null);
+	const [searchData, setSearchData] = useState([]);
+	const [isSearch, setIsSearch] = useState(false);
+
+	console.log({ data });
+
 	const headers = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'email', label: 'Email' },
-		{ key: 'position', label: 'Job Role' },
-		{ key: 'phone', label: 'Phone No' },
-		{ key: 'whatsApp', label: 'WhatsApp No' },
-		{ key: 'createdAt', label: 'Apply Date' },
-		// { key: 'nationality', label: 'Nationality' },
-		{ key: 'action', label: 'Action' },
+		{ key: 'name', label: 'Name', width: '200px' }, // Name column width
+		{ key: 'email', label: 'Email', width: '250px' }, // Email column width
+		{ key: 'position', label: 'Job Role', width: '150px' }, // Job Role column width
+		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
+		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
+		{ key: 'createdAt', label: 'Apply Date', width: '150px' }, // Apply Date column width
+		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
 
-	const handleViewCV = async (PdfURL) => {
+	const { isOpen, onOpen: arrangeInterviewOpen, onClose } = useDisclosure();
+	const [selectedDate, setSelectedDate] = useState(null);
+	const [selectedTime, setSelectedTime] = useState('');
+
+	const handleScheduleInterview = () => {
+		console.log('Date:', selectedDate);
+		console.log('Time:', selectedTime);
+		// Handle scheduling logic here
+		onClose();
+	};
+
+	const handleViewCV = async (resume) => {
 		try {
+			const pdfURL = `${constant['baseUrl']}${resume}`;
+
 			// Make a request to check if the file exists
-			const response = await fetch(PdfURL, { method: 'HEAD' });
+			const response = await fetch(pdfURL, { method: 'HEAD' });
 
 			if (!response.ok) {
 				throw new Error('File not found');
 			}
 
 			// Open the PDF if it exists
-			window.open(PdfURL, '_blank');
+			window.open(pdfURL, '_blank');
 		} catch (error) {
 			// Handle errors (e.g., file not found or server error)
 			console.error('Error viewing CV:', error);
@@ -35,8 +75,10 @@ const ShortListed = ({ data, loading, totalDocs, handleSort, sortConfig }) => {
 		}
 	};
 
-	const handleDownloadCV = async (pdfURL) => {
+	const handleDownloadCV = async (resume) => {
 		try {
+			const pdfURL = `${constant['baseUrl']}${resume}`;
+
 			// Check if the file exists using a HEAD request
 			const response = await fetch(pdfURL, { method: 'HEAD' });
 
@@ -57,14 +99,28 @@ const ShortListed = ({ data, loading, totalDocs, handleSort, sortConfig }) => {
 		}
 	};
 
+	const handleViewCandidate = async (id) => {
+		const selectedCandidate = data.find((item) => item._id === id);
+		setCandidate(selectedCandidate);
+		setApplicationOpen(true);
+	};
+
+	// Update filtered data on search change
+	const handleFilteredData = (filtered) => {
+		setIsSearch(true);
+		setSearchData(filtered);
+
+		console.log({ searchData });
+	};
+
 	return (
-		<Box w='full' p={6} bg='white'>
+		<Box w='full' p={6} bg='white' rounded='md' shadow='sm'>
 			<Box
 				display='flex'
 				justifyContent='space-between'
-				alignItems='center'
-				p='1rem'
-				mb='2'
+				alignItems={{ base: 'flex-start', md: 'center' }}
+				flexDirection={{ base: 'column', md: 'row' }}
+				px='.5rem'
 				shadow='none'
 			>
 				<HStack gap='2'>
@@ -79,24 +135,69 @@ const ShortListed = ({ data, loading, totalDocs, handleSort, sortConfig }) => {
 					</Heading>
 				</HStack>
 
-				<Button
-					colorScheme='brand'
-					rounded='full'
-					// onClick={() => setAdvanceSearch(true)}
-				>
-					Advanced Search
-				</Button>
+				<HStack gap='2'>
+					<SearchBar data={allData?.doc} onFilteredData={handleFilteredData} />
+
+					<Button
+						colorScheme='brand'
+						rounded='full'
+						size={{ base: 'sm', md: 'md' }} // Adjusts the size
+						px={{ base: 4, md: 6 }} // Adjust padding for different breakpoints
+						py={{ base: 2, md: 3 }} // Adjust vertical padding
+						fontSize={{ base: 'sm', md: 'md' }} // Adjust font size
+					>
+						Advanced Search
+					</Button>
+				</HStack>
 			</Box>
 
 			<ShortListedTable
 				headers={headers}
-				data={data}
+				data={isSearch ? searchData : data}
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				loading={loading}
-				handleViewCV={handleViewCV}
-				handleDownloadCV={handleDownloadCV}
+				handleViewCandidate={handleViewCandidate}
+				arrangeInterviewOpen={arrangeInterviewOpen}
 			/>
+			<TablePagination
+				gotoPage={handleGotoPage}
+				gopageValue={gopageValue}
+				setGopageValue={setGopageValue}
+				pageCount={totalPages}
+				canPreviousPage={currentPage > 1}
+				previousPage={() => handleGotoPage(currentPage - 2)}
+				canNextPage={currentPage < totalPages}
+				nextPage={() => handleGotoPage(currentPage)}
+				pageOptions={Array.from({ length: totalPages })}
+				setPageSize={handlePageSizeChange}
+				pageSize={pageSize}
+				pageIndex={currentPage - 1}
+				totalDocs={totalDocs}
+			/>
+
+			{isApplicationOpen && (
+				<CandidateView
+					isOpen={isApplicationOpen}
+					onClose={() => setApplicationOpen(false)}
+					candidate={candidate}
+					onViewCV={handleViewCV}
+					onDownloadCV={handleDownloadCV}
+					refetch={refetch}
+				/>
+			)}
+
+			{arrangeInterviewOpen && (
+				<ArrangeInterview
+					isOpen={isOpen}
+					onClose={onClose}
+					selectedDate={selectedDate}
+					setSelectedDate={setSelectedDate}
+					selectedTime={selectedTime}
+					setSelectedTime={setSelectedTime}
+					handleScheduleInterview={handleScheduleInterview}
+				/>
+			)}
 		</Box>
 	);
 };

@@ -20,12 +20,12 @@ const CandidateCard = ({ candidate, refetch }) => {
 		createdAt,
 	} = candidate;
 
-	const pdfURL = `${constant['baseUrl']}${resume}`;
-
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 
-	const handleViewCV = async () => {
+	const handleViewCV = async (resume) => {
 		try {
+			const pdfURL = `${constant['baseUrl']}${resume}`;
+
 			// Make a request to check if the file exists
 			const response = await fetch(pdfURL, { method: 'HEAD' });
 
@@ -42,8 +42,10 @@ const CandidateCard = ({ candidate, refetch }) => {
 		}
 	};
 
-	const handleDownloadCV = async () => {
+	const handleDownloadCV = async (resume) => {
 		try {
+			const pdfURL = `${constant['baseUrl']}${resume}`;
+
 			// Check if the file exists using a HEAD request
 			const response = await fetch(pdfURL, { method: 'HEAD' });
 
@@ -124,7 +126,7 @@ const CandidateCard = ({ candidate, refetch }) => {
 							gap='4px'
 							alignItems='center'
 							justifyContent='center'
-							onClick={handleViewCV}
+							onClick={() => handleViewCV(resume)}
 						>
 							<FaEye size={18} />
 							<span>CV</span>

@@ -31,6 +31,8 @@ import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
 import Hiring from 'views/admin/hiring';
 import { FaClipboardUser } from 'react-icons/fa6';
+import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
+import Candidates from 'views/admin/hiring/candidates';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -152,24 +154,17 @@ export default function User(props) {
 
 	if (user?.roles[0]?.roleName === 'HR') {
 		// Define the "Candidates" route
-		const hiringRoutes = [
-			{
-				name: 'Hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring',
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-		];
+		const hiringRoutes = {
+			name: 'Hiring',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring',
+			icon: (
+				<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+			),
+			component: Hiring,
+		};
 		// 	// Only show the "Hiring" route for HR role
-		routes = hiringRoutes;
+		routes = [hiringRoutes];
 	}
 
 	const accessRoute = newRoute?.filter((item) =>
@@ -504,7 +499,20 @@ export default function User(props) {
 											{getRoutes(routes)}
 
 											{user?.roles[0]?.roleName === 'HR' ? (
-												<Route path='/*' element={<Navigate to='/hiring' />} />
+												<>
+													<Route
+														path='/*'
+														element={<Navigate to='/hiring' />}
+													/>
+													<Route
+														path='/hiring/candidates'
+														element={<Candidates />}
+													/>
+													<Route
+														path='/hiring/short-listed'
+														element={<ShortListedCandidates />}
+													/>
+												</>
 											) : (
 												<Route path='/*' element={<Navigate to='/default' />} />
 											)}

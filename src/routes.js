@@ -330,7 +330,8 @@ const routes = [
 		name: 'Candidates',
 		layout: [ROLE_PATH.user],
 		path: '/hiring/candidates',
-		under: '/hiring',
+		under: 'candidates',
+		parentName: 'Hiring',
 		icon: (
 			<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
 		),
@@ -340,7 +341,8 @@ const routes = [
 		name: 'Short Listed',
 		layout: [ROLE_PATH.user],
 		path: '/hiring/short-listed',
-		under: '/hiring',
+		under: 'short-listed',
+		parentName: 'Hiring',
 		icon: <Icon as={FaUsers} width='20px' height='20px' color='inherit' />,
 		component: ShortListedCandidates,
 	},
