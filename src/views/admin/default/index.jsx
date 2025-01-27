@@ -32,6 +32,7 @@ import MonthlyRevenueChart from "./components/MonthlyRevenueChart";
 import { PiPhoneCallBold } from "react-icons/pi";
 import Header from "./components/Header";
 import Invoice from "./Invoice";
+import { newGetApi } from "services/api";
 
 export default function UserReports() {
   // Chakra Color Mode
@@ -152,21 +153,9 @@ export default function UserReports() {
     setLeadData(lead?.data?.totalLeads || 0);
   };
   const fetchGraphLeads = async () => {
-    let lead;
-    if (user.role === "superAdmin") {
-      lead = await getApi("api/dashboard");
-    } else if (
-      leadView?.create ||
-      leadView?.update ||
-      leadView?.delete ||
-      leadView?.view
-    ) {
-      lead = await getApi(
-        `api/dashboard/?role=${user?.roles[0]?.roleName}&user=${user._id}`
-      );
-    }
+    const lead = await newGetApi("api/dashboard");
     setTotalLeads(lead?.data?.totalLeads || 0);
-    setGraphLeadsData(lead?.data?.groupedLeads)
+    setGraphLeadsData(lead?.data?.groupedLeads || [])
   };
 
   const fetchCalls = async () => {
