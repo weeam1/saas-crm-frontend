@@ -100,6 +100,7 @@ export default function UserReports() {
   const [callData, setCallData] = useState([]);
   const [totalLeads, setTotalLeads] = useState()
   const [graphLeadsData, setGraphLeadsData] = useState([])
+  const [unAssignedList, setUnAssignedList] = useState([])
 
   const navigate = useNavigate();
 
@@ -135,7 +136,6 @@ export default function UserReports() {
 
     setContactData(contact?.data);
   };
-
   const fetchLeads = async () => {
     let lead;
     if (user.role === "superAdmin") {
@@ -194,8 +194,11 @@ export default function UserReports() {
 
   const fetchGraphLeads = async () => {
     const lead = await newGetApi("api/dashboard");
+    const unAssigned = lead?.data?.unassigned;
     setTotalLeads(lead?.data?.totalLeads || 0);
     const leadsCount = getTop5AscWithNameMape(lead?.data?.groupedLeads || [])
+    setUnAssignedList(unAssigned)
+    console.log(unAssigned)
     setGraphLeadsData(leadsCount)
   };
 
@@ -234,6 +237,7 @@ export default function UserReports() {
       fetchProgressChart();
       fetchGraphLeads();
       setFetched(true);
+      console.log("let",unAssignedList)
     }
   }, [viewsState]);
 
@@ -306,7 +310,28 @@ export default function UserReports() {
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="20px" mb="20px">
         {/* , "2xl": 6 */}
-        {(taskView?.create ||
+        <MiniStatistics
+            onClick={() => navigate("/lead")}
+            startContent={
+              <IconBox
+                w="40px"
+                h="40px"
+                bg={boxBg}
+                icon={
+                  <Icon
+                    w="20px"
+                    h="20px"
+                    as={MdLeaderboard}
+                    color={brandColor}
+                  />
+                }
+              />
+            }
+            name="Leads"
+            value={totalLeads || 0}
+          />
+        {
+        (taskView?.create ||
           taskView?.update ||
           taskView?.delete ||
           taskView?.view) && (
@@ -318,12 +343,12 @@ export default function UserReports() {
                 h="40px"
                 bg={boxBg}
                 icon={
-                  <Icon w="20px" h="20px" as={MdAddTask} color={brandColor} />
+                  <Icon w="20px" h="20px" as={(unAssignedList.length != 0) ? MdLeaderboard: MdAddTask} color={brandColor} />
                 }
               />
             }
-            name="Tasks"
-            value={task?.length || 0}
+            name={(unAssignedList.length != 0) ? "Un Assigned" :"Tasks"}
+            value={(unAssignedList.length != 0) ? unAssignedList[0].length: task?.length || 0}
           />
         )}
         {(contactsView?.create ||
@@ -344,31 +369,6 @@ export default function UserReports() {
             }
             name="Contacts"
             value={contactData?.length || 0}
-          />
-        )}
-        {(leadView?.create ||
-          leadView?.update ||
-          leadView?.delete ||
-          leadView?.view) && (
-          <MiniStatistics
-            onClick={() => navigate("/lead")}
-            startContent={
-              <IconBox
-                w="40px"
-                h="40px"
-                bg={boxBg}
-                icon={
-                  <Icon
-                    w="20px"
-                    h="20px"
-                    as={MdLeaderboard}
-                    color={brandColor}
-                  />
-                }
-              />
-            }
-            name="Leads"
-            value={totalLeads || 0}
           />
         )}
         {(callView?.create ||
