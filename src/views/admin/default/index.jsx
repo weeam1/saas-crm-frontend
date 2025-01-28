@@ -101,6 +101,9 @@ export default function UserReports() {
   const [totalLeads, setTotalLeads] = useState()
   const [graphLeadsData, setGraphLeadsData] = useState([])
   const [unAssignedList, setUnAssignedList] = useState([])
+  const [dealLeads, setDealLeads] = useState([])
+  const [todayLeads, setTodayLeads] =useState([])
+  const [perValue, setPerValue]  = useState([]);
 
   const navigate = useNavigate();
 
@@ -179,7 +182,6 @@ export default function UserReports() {
   const getTop5AscWithNameMape = (data) => {
     // Sort the data array based on the 'length' property in ascending order
     const sortedData = data.sort((a, b) => a.length - b.length);
-      console.log("sorted data", sortedData)
     const sortedWithNameMap = sortedData.map(item => ({
       ...item,
       name: nameMap[item.name] || item.name 
@@ -198,7 +200,10 @@ export default function UserReports() {
     setTotalLeads(lead?.data?.totalLeads || 0);
     const leadsCount = getTop5AscWithNameMape(lead?.data?.groupedLeads || [])
     setUnAssignedList(unAssigned)
-    console.log(unAssigned)
+    setDealLeads(lead?.data?.deal)
+    setTodayLeads(lead?.data?.todayLeads)
+    setPerValue(lead?.data?.perValue)
+    console.log(lead)
     setGraphLeadsData(leadsCount)
   };
 
@@ -237,7 +242,6 @@ export default function UserReports() {
       fetchProgressChart();
       fetchGraphLeads();
       setFetched(true);
-      console.log("let",unAssignedList)
     }
   }, [viewsState]);
 
@@ -363,12 +367,13 @@ export default function UserReports() {
                 h="40px"
                 bg={boxBg}
                 icon={
-                  <Icon w="20px" h="20px" as={MdContacts} color={brandColor} />
+                  <Icon w="20px" h="20px" as={(dealLeads.length != 0) ? MdLeaderboard : MdContacts} color={brandColor} />
                 }
               />
             }
-            name="Contacts"
-            value={contactData?.length || 0}
+            name={(dealLeads.length != 0) ? "Today Leads" :"Contacts"}
+            value={(dealLeads.length != 0) ? dealLeads.length :contactData?.length || 0}
+             growth= {perValue}
           />
         )}
         {(callView?.create ||
@@ -386,14 +391,14 @@ export default function UserReports() {
                   <Icon
                     w="20px"
                     h="20px"
-                    as={PiPhoneCallBold}
+                    as={(dealLeads.length != 0) ? MdLeaderboard : PiPhoneCallBold}
                     color={brandColor}
                   />
                 }
               />
             }
-            name="Calls"
-            value={callData?.length || 0}
+            name={(dealLeads.length != 0) ? "Deal Leads" : "Calls"}
+            value={(dealLeads.length != 0) ? dealLeads[0]?.length :callData?.length || 0}
           />
         )}
       </SimpleGrid>
