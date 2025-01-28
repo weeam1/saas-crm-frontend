@@ -102,8 +102,8 @@ export default function UserReports() {
   const [graphLeadsData, setGraphLeadsData] = useState([])
   const [unAssignedList, setUnAssignedList] = useState([])
   const [dealLeads, setDealLeads] = useState([])
-  const [todayLeads, setTodayLeads] =useState([])
-  const [perValue, setPerValue]  = useState([]);
+  const [todayLeads, setTodayLeads] =useState(0)
+  const [perValue, setPerValue]  = useState(0);
 
   const navigate = useNavigate();
 
@@ -202,9 +202,8 @@ export default function UserReports() {
     const leadsCount = getTop5AscWithNameMape(lead?.data?.groupedLeads || [])
     setUnAssignedList(unAssigned)
     setDealLeads(lead?.data?.deal)
-    setTodayLeads(lead?.data?.todayLeads)
+    setTodayLeads(lead?.data?.thisMonth)
     setPerValue(lead?.data?.perValue)
-    console.log(lead)
     setGraphLeadsData(leadsCount)
   };
 
@@ -372,9 +371,9 @@ export default function UserReports() {
                 }
               />
             }
-            name={(dealLeads.length != 0) ? "Today Leads" :"Contacts"}
-            value={(dealLeads.length != 0) ? dealLeads.length :contactData?.length || 0}
-            growth= {perValue > 0 ? perValue : "0"}
+            name={(dealLeads.length != 0) ? "This Month" :"Contacts"}
+            value={(dealLeads.length != 0) ? todayLeads : contactData?.length || 0}
+            growth= {`${Math.floor(perValue)}%`}
             
             />
           )}
