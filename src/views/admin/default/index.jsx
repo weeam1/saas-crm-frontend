@@ -152,10 +152,51 @@ export default function UserReports() {
     }
     setLeadData(lead?.data?.totalLeads || 0);
   };
+  const nameMap = {
+    interested: "Interested",
+    sold: "Sold",
+    not_interested: "Not Interested",
+    reassigned: "Reassigned",
+    new: "New",
+    no_answer: "No Answer",
+    unreachable: "Unreachable",
+    waiting: "Waiting",
+    follow_up: "Follow Up",
+    meeting: "Meeting",
+    follow_up_after_meeting: "Follow Up After Meeting",
+    deal: "Deal",
+    junk: "Junk",
+    whatsapp_send: "Whatsapp Send",
+    whatsapp_rec: "Whatsapp Rec",
+    deal_out: "Deal Out",
+    shift_project: "Shift Project",
+    wrong_number: "Wrong Number",
+    broker: "Broker",
+    voice_mail: "Voice Mail",
+    pending: "Pending"
+  };
+
+  const getTop5AscWithNameMape = (data) => {
+    // Sort the data array based on the 'length' property in ascending order
+    const sortedData = data.sort((a, b) => a.length - b.length);
+      console.log("sorted data", sortedData)
+    const sortedWithNameMap = sortedData.map(item => ({
+      ...item,
+      name: nameMap[item.name] || item.name 
+    }));
+    // Return the top 5 items from the sorted array
+    if(sortedWithNameMap.length >= 5){
+      return sortedWithNameMap.slice(sortedWithNameMap.length-6);
+    }else{
+      return sortedWithNameMap
+    }
+  }
+
   const fetchGraphLeads = async () => {
     const lead = await newGetApi("api/dashboard");
     setTotalLeads(lead?.data?.totalLeads || 0);
-    setGraphLeadsData(lead?.data?.groupedLeads || [])
+    const leadsCount = getTop5AscWithNameMape(lead?.data?.groupedLeads || [])
+    setGraphLeadsData(leadsCount)
   };
 
   const fetchCalls = async () => {
