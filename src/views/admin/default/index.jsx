@@ -188,9 +188,10 @@ export default function UserReports() {
     }));
     // Return the top 5 items from the sorted array
     if(sortedWithNameMap.length >= 5){
-      return sortedWithNameMap.slice(sortedWithNameMap.length-6);
+      const value = sortedWithNameMap.slice(sortedWithNameMap.length-6);
+      return value.sort((a,b) => b.length - a.length)
     }else{
-      return sortedWithNameMap
+      return sortedWithNameMap.sort((a,b) => b.length - a.length)
     }
   }
 
@@ -373,9 +374,10 @@ export default function UserReports() {
             }
             name={(dealLeads.length != 0) ? "Today Leads" :"Contacts"}
             value={(dealLeads.length != 0) ? dealLeads.length :contactData?.length || 0}
-             growth= {perValue}
-          />
-        )}
+            growth= {perValue > 0 ? perValue : "0"}
+            
+            />
+          )}
         {(callView?.create ||
           callView?.update ||
           callView?.delete ||
