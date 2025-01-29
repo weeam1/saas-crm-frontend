@@ -32,6 +32,7 @@ import MonthlyRevenueChart from "./components/MonthlyRevenueChart";
 import { PiPhoneCallBold } from "react-icons/pi";
 import Header from "./components/Header";
 import Invoice from "./Invoice";
+import { newGetApi } from "services/api";
 
 export default function UserReports() {
   // Chakra Color Mode
@@ -97,6 +98,12 @@ export default function UserReports() {
   ]);
   const [fetched, setFetched] = useState(false);
   const [callData, setCallData] = useState([]);
+  const [totalLeads, setTotalLeads] = useState()
+  const [graphLeadsData, setGraphLeadsData] = useState([])
+  const [unAssignedList, setUnAssignedList] = useState([])
+  const [dealLeads, setDealLeads] = useState([])
+  const [todayLeads, setTodayLeads] =useState(0)
+  const [perValue, setPerValue]  = useState(0);
 
   const navigate = useNavigate();
 
@@ -132,7 +139,6 @@ export default function UserReports() {
 
     setContactData(contact?.data);
   };
-
   const fetchLeads = async () => {
     let lead;
     if (user.role === "superAdmin") {
@@ -148,6 +154,57 @@ export default function UserReports() {
       );
     }
     setLeadData(lead?.data?.totalLeads || 0);
+  };
+  const nameMap = {
+    interested: "Interested",
+    sold: "Sold",
+    not_interested: "Not Interested",
+    reassigned: "Reassigned",
+    new: "New",
+    no_answer: "No Answer",
+    unreachable: "Unreachable",
+    waiting: "Waiting",
+    follow_up: "Follow Up",
+    meeting: "Meeting",
+    follow_up_after_meeting: "Follow Up After Meeting",
+    deal: "Deal",
+    junk: "Junk",
+    whatsapp_send: "Whatsapp Send",
+    whatsapp_rec: "Whatsapp Rec",
+    deal_out: "Deal Out",
+    shift_project: "Shift Project",
+    wrong_number: "Wrong Number",
+    broker: "Broker",
+    voice_mail: "Voice Mail",
+    pending: "Pending"
+  };
+
+  const getTop5AscWithNameMape = (data) => {
+    // Sort the data array based on the 'length' property in ascending order
+    const sortedData = data.sort((a, b) => a.length - b.length);
+    const sortedWithNameMap = sortedData.map(item => ({
+      ...item,
+      name: nameMap[item.name] || item.name 
+    }));
+    // Return the top 5 items from the sorted array
+    if(sortedWithNameMap.length >= 5){
+      const value = sortedWithNameMap.slice(sortedWithNameMap.length-6);
+      return value.sort((a,b) => b.length - a.length)
+    }else{
+      return sortedWithNameMap.sort((a,b) => b.length - a.length)
+    }
+  }
+
+  const fetchGraphLeads = async () => {
+    const lead = await newGetApi("api/dashboard");
+    const unAssigned = lead?.data?.unassigned;
+    setTotalLeads(lead?.data?.totalLeads || 0);
+    const leadsCount = getTop5AscWithNameMape(lead?.data?.groupedLeads || [])
+    setUnAssignedList(unAssigned)
+    setDealLeads(lead?.data?.deal)
+    setTodayLeads(lead?.data?.thisMonth)
+    setPerValue(lead?.data?.perValue)
+    setGraphLeadsData(leadsCount)
   };
 
   const fetchCalls = async () => {
@@ -183,6 +240,7 @@ export default function UserReports() {
       fetchCalls();
       fetchContacts();
       fetchProgressChart();
+      fetchGraphLeads();
       setFetched(true);
     }
   }, [viewsState]);
@@ -256,51 +314,7 @@ export default function UserReports() {
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="20px" mb="20px">
         {/* , "2xl": 6 */}
-        {(taskView?.create ||
-          taskView?.update ||
-          taskView?.delete ||
-          taskView?.view) && (
-          <MiniStatistics
-            onClick={() => navigate("/task")}
-            startContent={
-              <IconBox
-                w="40px"
-                h="40px"
-                bg={boxBg}
-                icon={
-                  <Icon w="20px" h="20px" as={MdAddTask} color={brandColor} />
-                }
-              />
-            }
-            name="Tasks"
-            value={task?.length || 0}
-          />
-        )}
-        {(contactsView?.create ||
-          contactsView?.update ||
-          contactsView?.delete ||
-          contactsView?.view) && (
-          <MiniStatistics
-            onClick={() => navigate("/contacts")}
-            startContent={
-              <IconBox
-                w="40px"
-                h="40px"
-                bg={boxBg}
-                icon={
-                  <Icon w="20px" h="20px" as={MdContacts} color={brandColor} />
-                }
-              />
-            }
-            name="Contacts"
-            value={contactData?.length || 0}
-          />
-        )}
-        {(leadView?.create ||
-          leadView?.update ||
-          leadView?.delete ||
-          leadView?.view) && (
-          <MiniStatistics
+        <MiniStatistics
             onClick={() => navigate("/lead")}
             startContent={
               <IconBox
@@ -318,9 +332,51 @@ export default function UserReports() {
               />
             }
             name="Leads"
-            value={leadData || 0}
+            value={totalLeads || 0}
+          />
+        {
+        (taskView?.create ||
+          taskView?.update ||
+          taskView?.delete ||
+          taskView?.view) && (
+          <MiniStatistics
+            onClick={() => navigate("/task")}
+            startContent={
+              <IconBox
+                w="40px"
+                h="40px"
+                bg={boxBg}
+                icon={
+                  <Icon w="20px" h="20px" as={(unAssignedList.length != 0) ? MdLeaderboard: MdAddTask} color={brandColor} />
+                }
+              />
+            }
+            name={(unAssignedList.length != 0) ? "Un Assigned" :"Tasks"}
+            value={(unAssignedList.length != 0) ? unAssignedList[0].length: task?.length || 0}
           />
         )}
+        {(contactsView?.create ||
+          contactsView?.update ||
+          contactsView?.delete ||
+          contactsView?.view) && (
+          <MiniStatistics
+            onClick={() => navigate("/contacts")}
+            startContent={
+              <IconBox
+                w="40px"
+                h="40px"
+                bg={boxBg}
+                icon={
+                  <Icon w="20px" h="20px" as={(dealLeads.length != 0) ? MdLeaderboard : MdContacts} color={brandColor} />
+                }
+              />
+            }
+            name={(dealLeads.length != 0) ? "This Month" :"Contacts"}
+            value={(dealLeads.length != 0) ? todayLeads : contactData?.length || 0}
+            growth= {`${Math.floor(perValue)}%`}
+            
+            />
+          )}
         {(callView?.create ||
           callView?.update ||
           callView?.delete ||
@@ -336,14 +392,14 @@ export default function UserReports() {
                   <Icon
                     w="20px"
                     h="20px"
-                    as={PiPhoneCallBold}
+                    as={(dealLeads.length != 0) ? MdLeaderboard : PiPhoneCallBold}
                     color={brandColor}
                   />
                 }
               />
             }
-            name="Calls"
-            value={callData?.length || 0}
+            name={(dealLeads.length != 0) ? "Deal Leads" : "Calls"}
+            value={(dealLeads.length != 0) ? dealLeads[0]?.length :callData?.length || 0}
           />
         )}
       </SimpleGrid>
@@ -363,12 +419,12 @@ export default function UserReports() {
         <GridItem rowSpan={2} colSpan={{ base: 12, md: 12 }}>
           <Card>
             <Flex mb={5} alignItems={"center"} justifyContent={"space-between"}>
-              <Heading size="md">Report</Heading>
+              <Heading size="md">Leads</Heading>
             </Flex>
             <Box mb={3}>
               <HSeparator />
             </Box>
-            <Chart dashboard={"dashboard"} data={data} />
+            <Chart dashboard={"dashboard"} data={graphLeadsData} />
           </Card>
         </GridItem>
       </Grid>
