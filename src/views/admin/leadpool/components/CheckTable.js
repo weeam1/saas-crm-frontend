@@ -30,24 +30,24 @@ import {
 	useColorModeValue,
 	useDisclosure,
 	CircularProgress,
-} from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
+} from '@chakra-ui/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import axios from 'axios';
 import {
 	useGlobalFilter,
 	usePagination,
 	useSortBy,
 	useTable,
-} from "react-table";
-import * as XLSX from "xlsx";
+} from 'react-table';
+import * as XLSX from 'xlsx';
 
 // Custom components
-import { DeleteIcon, SearchIcon } from "@chakra-ui/icons";
-import Card from "components/card/Card";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
-import Pagination from "components/pagination/Pagination";
-import Spinner from "components/spinner/Spinner";
-import LeadsModal from "../../lead/LeadsModal";
+import { DeleteIcon, SearchIcon } from '@chakra-ui/icons';
+import Card from 'components/card/Card';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import Pagination from 'components/pagination/Pagination';
+import Spinner from 'components/spinner/Spinner';
+import LeadsModal from '../../lead/LeadsModal';
 
 import {
 	FaCheck,
@@ -55,33 +55,33 @@ import {
 	FaSort,
 	FaSortDown,
 	FaSortUp,
-} from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getApi } from "services/api";
-import Delete from "../Delete";
-import AddEmailHistory from "views/admin/emailHistory/components/AddEmail";
-import AddPhoneCall from "views/admin/phoneCall/components/AddPhoneCall";
-import Add from "../Add";
-import { CiMenuKebab } from "react-icons/ci";
-import Edit from "../Edit";
-import { BsColumnsGap } from "react-icons/bs";
-import ImportModal from "./ImportModal";
-import CustomSearchInput from "components/search/search";
-import DataNotFound from "components/notFoundData";
-import RenderManager from "./RenderManager";
-import RenderStatus from "./RenderStatus";
-import AddTask from "./addTask";
-import { toast } from "react-toastify";
-import { putApi } from "services/api";
-import { constant } from "constant";
-import AdvancedSearchModal from "./AdvancedSearchModal";
-import { getUserNameById } from "utils";
-import { IoMdClose } from "react-icons/io";
-import { useStateContext } from "contexts/store";
-import TableLoading from "components/loading/TableLoading";
-import { findManagerForAgent } from "utils";
-import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
+} from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { getApi } from 'services/api';
+import Delete from '../Delete';
+import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
+import AddPhoneCall from 'views/admin/phoneCall/components/AddPhoneCall';
+import Add from '../Add';
+import { CiMenuKebab } from 'react-icons/ci';
+import Edit from '../Edit';
+import { BsColumnsGap } from 'react-icons/bs';
+import ImportModal from './ImportModal';
+import CustomSearchInput from 'components/search/search';
+import DataNotFound from 'components/notFoundData';
+import RenderManager from './RenderManager';
+import RenderStatus from './RenderStatus';
+import AddTask from './addTask';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
+import { constant } from 'constant';
+import AdvancedSearchModal from './AdvancedSearchModal';
+import { getUserNameById } from 'utils';
+import { IoMdClose } from 'react-icons/io';
+import { useStateContext } from 'contexts/store';
+import TableLoading from 'components/loading/TableLoading';
+import { findManagerForAgent } from 'utils';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 
 export default function CheckTable(props) {
 	const {
@@ -114,8 +114,8 @@ export default function CheckTable(props) {
 		fetchAdvancedSearch,
 		currentState,
 	} = props;
-	const textColor = useColorModeValue("gray.500", "white");
-	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+	const textColor = useColorModeValue('gray.500', 'white');
+	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
 	const [leadData, setLeadData] = useState([]);
 	// const columns = useMemo(() => dataColumn, [dataColumn]);
 	const columns = dataColumn;
@@ -123,7 +123,7 @@ export default function CheckTable(props) {
 	const [getTagValues, setGetTagValues] = useState([]);
 	const [gopageValue, setGopageValue] = useState(1);
 
-	const user = JSON.parse(localStorage.getItem("user"));
+	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
 	const users = useSelector((state) => state.user?.users);
 
@@ -148,7 +148,7 @@ export default function CheckTable(props) {
 	const [updatedPage, setUpdatedPage] = useState(0);
 	const [isImportLead, setIsImportLead] = useState(false);
 	const searchbox = useRef();
-	const [column, setColumn] = useState("");
+	const [column, setColumn] = useState('');
 	const [updatedStatuses, setUpdatedStatuses] = useState([]);
 	const [manageColumns, setManageColumns] = useState(false);
 	const [buyLoading, setBuyLoading] = useState([]);
@@ -184,12 +184,12 @@ export default function CheckTable(props) {
 	const { isLeadCycle, setIsLeadCycle } = useStateContext();
 
 	const csvColumns = [
-		{ Header: "Name", accessor: "leadName" },
-		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone Number", accessor: "leadPhoneNumber" },
-		{ Header: "Date & Time", accessor: "createdDate" },
-		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: 'Name', accessor: 'leadName' },
+		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'Whatsapp Number', accessor: 'leadWhatsappNumber' },
+		{ Header: 'Phone Number', accessor: 'leadPhoneNumber' },
+		{ Header: 'Date & Time', accessor: 'createdDate' },
+		{ Header: 'Timetocall', accessor: 'timetocall' },
 	];
 
 	let isColumnSelected;
@@ -213,17 +213,17 @@ export default function CheckTable(props) {
 	};
 
 	async function requestDeleteHandler(id, leadID, userId) {
-		console.log(id, leadID, userId, "details");
+		console.log(id, leadID, userId, 'details');
 		try {
 			const res = await axios.post(
-				constant["baseUrl"] + "api/adminApproval/delete",
+				constant['baseUrl'] + 'api/adminApproval/delete',
 				{
 					id: id,
 				},
 				{
 					headers: {
 						Authorization:
-							localStorage.getItem("token") || sessionStorage.getItem("token"),
+							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
 				}
 			);
@@ -233,16 +233,16 @@ export default function CheckTable(props) {
 			const response = await putApi(`api/user/edit/${userId}`, {
 				// ...r?.data,
 				coins:
-					lead?.data?.lead?.leadStatus == "new"
+					lead?.data?.lead?.leadStatus == 'new'
 						? r?.data?.coins + 300
 						: r?.data?.coins + 50,
 			});
 
 			fetchData();
-			toast.success("Request is deleted successfuly");
+			toast.success('Request is deleted successfuly');
 		} catch (error) {
-			console.log("an error occured");
-			toast.success("Unable to delete request");
+			console.log('an error occured');
+			toast.success('Unable to delete request');
 		}
 	}
 
@@ -446,7 +446,7 @@ export default function CheckTable(props) {
 	// });
 
 	const handleClear = () => {
-		if (searchbox.current) searchbox.current.value = "";
+		if (searchbox.current) searchbox.current.value = '';
 		setDisplaySearchData(false);
 		setDisplayAdvSearchData(false);
 		setSearchedData([]);
@@ -472,10 +472,10 @@ export default function CheckTable(props) {
 
 	const refreshData = () => {
 		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -532,7 +532,7 @@ export default function CheckTable(props) {
 	};
 
 	const fetchCustomData = async () => {
-		const response = await getApi("api/custom-field?moduleName=Lead");
+		const response = await getApi('api/custom-field?moduleName=Lead');
 		setLeadData(response.data);
 	};
 
@@ -550,7 +550,7 @@ export default function CheckTable(props) {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
 
-	const size = "lg";
+	const size = 'lg';
 
 	const handleExportLeads = (extension) => {
 		if (selectedValues && selectedValues?.length > 0) {
@@ -569,10 +569,10 @@ export default function CheckTable(props) {
 						const selectedFieldsData = {};
 						csvColumns.forEach((property) => {
 							if (
-								property.accessor === "leadStatus" &&
+								property.accessor === 'leadStatus' &&
 								!rec[property.accessor]
 							) {
-								selectedFieldsData[property.accessor] = "new";
+								selectedFieldsData[property.accessor] = 'new';
 							} else {
 								selectedFieldsData[property.accessor] = rec[property.accessor];
 							}
@@ -583,15 +583,15 @@ export default function CheckTable(props) {
 				convertJsonToCsvOrExcel(
 					selectedRecordsWithSpecificFileds,
 					csvColumns,
-					"lead",
+					'lead',
 					extension
 				);
 			} else {
 				const AllRecordsWithSpecificFileds = tableData?.map((rec) => {
 					const selectedFieldsData = {};
 					csvColumns.forEach((property) => {
-						if (property.accessor === "leadStatus" && !rec[property.accessor]) {
-							selectedFieldsData[property.accessor] = "new";
+						if (property.accessor === 'leadStatus' && !rec[property.accessor]) {
+							selectedFieldsData[property.accessor] = 'new';
 						} else {
 							selectedFieldsData[property.accessor] = rec[property.accessor];
 						}
@@ -601,7 +601,7 @@ export default function CheckTable(props) {
 				convertJsonToCsvOrExcel(
 					AllRecordsWithSpecificFileds,
 					csvColumns,
-					"lead",
+					'lead',
 					extension
 				);
 			}
@@ -617,13 +617,13 @@ export default function CheckTable(props) {
 		managerId,
 		approvalId
 	) => {
-		const user = JSON.parse(localStorage.getItem("user"));
-		if (e === "none") return;
+		const user = JSON.parse(localStorage.getItem('user'));
+		if (e === 'none') return;
 		try {
 			const res = await axios.put(
-				constant["baseUrl"] + "api/adminApproval/update",
+				constant['baseUrl'] + 'api/adminApproval/update',
 				{
-					isApproved: e === "accept" ? true : false,
+					isApproved: e === 'accept' ? true : false,
 					objectId: approvalId,
 					agentId,
 					// isManager:
@@ -631,7 +631,7 @@ export default function CheckTable(props) {
 				{
 					headers: {
 						Authorization:
-							localStorage.getItem("token") || sessionStorage.getItem("token"),
+							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
 				}
 			);
@@ -642,17 +642,17 @@ export default function CheckTable(props) {
 						// setLoading(true);
 						const dataObj = {
 							managerAssigned: managerId,
-							leadType: "leadpool",
+							leadType: 'leadpool',
 						};
 
-						if (e === "") {
-							dataObj["agentAssigned"] = "";
+						if (e === '') {
+							dataObj['agentAssigned'] = '';
 						}
 
 						await putApi(`api/lead/edit/${leadId}`, dataObj);
 
 						fetchData();
-						toast.success("Manager updated successfuly");
+						toast.success('Manager updated successfuly');
 						// setManagerSelected(dataObj.managerAssigned || "");
 						// setData(prevData => {
 						//   const newData = [...prevData];
@@ -666,13 +666,13 @@ export default function CheckTable(props) {
 						// })
 					} catch (error) {
 						console.log(error);
-						toast.error("Failed to update the manager");
+						toast.error('Failed to update the manager');
 					}
 				} else {
 					try {
 						const data = {
 							agentAssigned: agentId,
-							leadType: "leadpool",
+							leadType: 'leadpool',
 						};
 
 						// setLoading(true);
@@ -688,13 +688,13 @@ export default function CheckTable(props) {
 						//       ? r?.data?.coins - 300
 						//       : r?.data?.coins - 150,
 						// });
-						toast.success("Agent updated successfuly");
+						toast.success('Agent updated successfuly');
 						fetchData();
 
 						// fetchData();
 					} catch (error) {
 						console.log(error);
-						toast.error("Failed to update the agent");
+						toast.error('Failed to update the agent');
 					}
 				}
 			} else {
@@ -706,7 +706,7 @@ export default function CheckTable(props) {
 						const res = await putApi(`api/user/edit/${agentId}`, {
 							// ...r?.data,
 							coins:
-								lead?.data?.lead?.leadStatus === "new"
+								lead?.data?.lead?.leadStatus === 'new'
 									? r?.data?.coins + 300
 									: r?.data?.coins + 50,
 						});
@@ -717,23 +717,23 @@ export default function CheckTable(props) {
 						const res = await putApi(`api/user/edit/${managerId}`, {
 							// ...r?.data,
 							coins:
-								lead?.data?.lead?.leadStatus === "new"
+								lead?.data?.lead?.leadStatus === 'new'
 									? r?.data?.coins + 300
 									: r?.data?.coins + 50,
 						});
 					}
-					toast.success("Request Rejected successfuly");
+					toast.success('Request Rejected successfuly');
 					fetchData();
 				} catch (error) {
 					console.log(error);
 				}
 			}
 
-			console.log(res, "response from update of lead request");
+			console.log(res, 'response from update of lead request');
 		} catch (error) {
-			console.log("error", error);
+			console.log('error', error);
 			toast.error(
-				error.response?.data?.message || "Failed to process lead request"
+				error.response?.data?.message || 'Failed to process lead request'
 			);
 		}
 	};
@@ -760,7 +760,7 @@ export default function CheckTable(props) {
 
 		const ws = XLSX.utils.aoa_to_sheet(csvContent);
 		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
 		XLSX.writeFile(wb, `${fileName}.${extension}`); // .csv, .xlsx
 		setSelectedValues([]);
 	};
@@ -794,13 +794,13 @@ export default function CheckTable(props) {
 		setUpdatedPage(pageIndex);
 		if (displaySearchData) {
 			fetchSearchedData(
-				searchbox.current?.value?.trim() || "",
+				searchbox.current?.value?.trim() || '',
 				pageIndex + 1,
 				pageSize
 			);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -812,10 +812,10 @@ export default function CheckTable(props) {
 		setUpdatedPage(0);
 		setGopageValue(1);
 		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -826,7 +826,7 @@ export default function CheckTable(props) {
 	const sendRequest = async (leadID) => {
 		setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
 
-		const user = JSON.parse(localStorage.getItem("user"));
+		const user = JSON.parse(localStorage.getItem('user'));
 		const stats = await fetchAgentLeadsSats(user._id);
 
 		if (!stats.canAddLeads) {
@@ -845,46 +845,53 @@ export default function CheckTable(props) {
 
 		let payload = {
 			leadId: leadID,
-			managerId: manager.managerId,
-			mangerName: manager.managerName,
+			managerId: manager?.managerId,
+			mangerName: manager?.managerName,
 		};
 
-		if (user?.roles[0]?.roleName === "Agent") {
+		if (user?.roles[0]?.roleName === 'Agent') {
 			payload.agentId = user?._id;
-		} else if (user?.roles[0]?.roleName === "Manager") {
+		} else if (user?.roles[0]?.roleName === 'Manager') {
 			payload.managerId = user?._id;
 		}
 
 		try {
 			const res = await axios.post(
-				constant["baseUrl"] + "api/adminApproval/add",
+				constant['baseUrl'] + 'api/adminApproval/add',
 				payload,
 				{
 					headers: {
 						Authorization:
-							localStorage.getItem("token") || sessionStorage.getItem("token"),
+							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
 				}
 			);
+
+			console.log({ resAdminApprove: res });
 
 			const r = await getApi(`api/user/view/${user?._id}`);
 			const response = await putApi(`api/user/edit/${user?._id}`, {
 				// ...r?.data,
 				coins:
-					allData?.find((lead) => lead?._id == leadID)?.leadStatus == "new"
+					allData?.find((lead) => lead?._id === leadID)?.leadStatus === 'new'
 						? r?.data?.coins - 300
 						: r?.data?.coins - 50,
 			});
 
+			toast.success('You have successfully purchased');
 			fetchData();
 		} catch (error) {
 			if (error.response?.status === 400) {
 				const errorDetails =
-					error.response.data?.message || "Invalid input provided.";
+					error.response.data?.message || 'Invalid input provided.';
 				toast.error(`${errorDetails}`);
+
+				if (errorDetails?.startsWith(`We're sorry`)) {
+					fetchData();
+				}
 			} else {
-				console.error("Unexpected error:", error);
-				toast.error("Something went wrong!");
+				console.error('Unexpected error:', error);
+				toast.error('Something went wrong!');
 			}
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [leadID]: false }));
@@ -960,52 +967,52 @@ export default function CheckTable(props) {
           </Button>
         )}
       </Flex> */}
-			{user?.role !== "superAdmin" ? (
+			{user?.role !== 'superAdmin' ? (
 				<div
 					style={{
-						display: "flex",
-						alignItems: "center",
-						gap: "10px",
+						display: 'flex',
+						alignItems: 'center',
+						gap: '10px',
 					}}
 				>
 					<div
 						style={{
-							fontSize: "22px",
-							color: "#F0A608",
+							fontSize: '22px',
+							color: '#F0A608',
 						}}
 					>
 						COINS
 					</div>
 					<div
 						style={{
-							fontSize: "22px",
-							color: "#F0A608",
+							fontSize: '22px',
+							color: '#F0A608',
 						}}
 					>
 						{userCoins}
 					</div>
 				</div>
 			) : (
-				""
+				''
 			)}
 			<Card
-				direction="column"
-				w="100%"
-				overflowX={{ sm: "scroll", lg: "hidden" }}
+				direction='column'
+				w='100%'
+				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				<Grid templateColumns="repeat(12, 1fr)" gap={2}>
+				<Grid templateColumns='repeat(12, 1fr)' gap={2}>
 					<GridItem
 						colSpan={{ base: 8 }}
-						display={"flex"}
-						alignItems={"center"}
+						display={'flex'}
+						alignItems={'center'}
 					>
-						<Flex alignItems={"center"} flexWrap={"wrap"}>
+						<Flex alignItems={'center'} flexWrap={'wrap'}>
 							<Text
-								color={useColorModeValue("secondaryGray.900", "white")}
-								fontSize="22px"
-								fontWeight="600"
+								color={useColorModeValue('secondaryGray.900', 'white')}
+								fontSize='22px'
+								fontWeight='600'
 							>
-								{user.role === "superAdmin" ? "Requested Leads " : "Leads "}
+								{user.role === 'superAdmin' ? 'Requested Leads ' : 'Leads '}
 								(
 								<CountUpComponent
 									key={data?.length}
@@ -1020,20 +1027,20 @@ export default function CheckTable(props) {
 								fetchSearch={fetchSearch}
 							/>
 							<Button
-								variant="outline"
-								colorScheme="brand"
+								variant='outline'
+								colorScheme='brand'
 								leftIcon={<SearchIcon />}
 								onClick={() => setAdvaceSearch(true)}
-								mt={{ sm: "5px", md: "0" }}
-								size="sm"
+								mt={{ sm: '5px', md: '0' }}
+								size='sm'
 							>
 								Advance Search
 							</Button>
 							{displaySearchData || displayAdvSearchData ? (
 								<Button
-									variant="outline"
-									size="sm"
-									colorScheme="red"
+									variant='outline'
+									size='sm'
+									colorScheme='red'
 									ms={2}
 									onClick={() => {
 										handleClear();
@@ -1043,13 +1050,13 @@ export default function CheckTable(props) {
 									Clear
 								</Button>
 							) : (
-								""
+								''
 							)}
 							{selectedValues.length > 0 && access?.delete && (
 								<DeleteIcon
-									cursor={"pointer"}
+									cursor={'pointer'}
 									onClick={() => setDelete(true)}
-									color={"red"}
+									color={'red'}
 									ms={2}
 								/>
 							)}
@@ -1167,50 +1174,50 @@ export default function CheckTable(props) {
           </GridItem> */}
 					<GridItem
 						colSpan={{ base: 4 }}
-						display={"flex"}
-						justifyContent={"end"}
-						alignItems={"center"}
-						textAlign={"right"}
+						display={'flex'}
+						justifyContent={'end'}
+						alignItems={'center'}
+						textAlign={'right'}
 					>
 						<Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
 							</MenuButton>
 							<MenuList
-								minW={"fit-content"}
-								transform={"translate(1670px, 60px)"}
+								minW={'fit-content'}
+								transform={'translate(1670px, 60px)'}
 								zIndex={2}
 							>
 								<MenuItem
 									onClick={() => setManageColumns(true)}
-									width={"165px"}
+									width={'165px'}
 								>
 									Manage Columns
 								</MenuItem>
-								{user?.role === "superAdmin" && (
+								{user?.role === 'superAdmin' && (
 									<>
 										<MenuItem
-											width={"165px"}
+											width={'165px'}
 											onClick={() => setIsImportLead(true)}
 										>
 											Import Leads
 										</MenuItem>
 										<MenuDivider />
 										<MenuItem
-											width={"165px"}
-											onClick={() => handleExportLeads("csv")}
+											width={'165px'}
+											onClick={() => handleExportLeads('csv')}
 										>
 											{selectedValues && selectedValues?.length > 0
-												? "Export Selected Data as CSV"
-												: "Export as CSV"}
+												? 'Export Selected Data as CSV'
+												: 'Export as CSV'}
 										</MenuItem>
 										<MenuItem
-											width={"165px"}
-											onClick={() => handleExportLeads("xlsx")}
+											width={'165px'}
+											onClick={() => handleExportLeads('xlsx')}
 										>
 											{selectedValues && selectedValues?.length > 0
-												? "Export Selected Data as Excel"
-												: "Export as Excel"}
+												? 'Export Selected Data as Excel'
+												: 'Export as Excel'}
 										</MenuItem>
 									</>
 								)}
@@ -1231,13 +1238,13 @@ export default function CheckTable(props) {
 						{getTagValues &&
 							getTagValues.map((item) => (
 								<Tag
-									size={"sm"}
+									size={'sm'}
 									p={2}
 									key={item}
-									borderRadius="full"
-									variant="solid"
-									backgroundColor="brand.100"
-									color="brand.800"
+									borderRadius='full'
+									variant='solid'
+									backgroundColor='brand.100'
+									color='brand.800'
 								>
 									<TagLabel>{item}</TagLabel>
 								</Tag>
@@ -1245,14 +1252,14 @@ export default function CheckTable(props) {
 					</HStack>
 				</Grid>
 
-				<Box overflowY={"auto"} className="table-fix-container">
+				<Box overflowY={'auto'} className='table-fix-container'>
 					<Table
 						{...getTableProps()}
 						// variant="simple"
-						variant="striped"
-						color="gray.500"
+						variant='striped'
+						color='gray.500'
 						// colorScheme="brand"
-						mb="24px"
+						mb='24px'
 					>
 						{/* <Thead zIndex={1}>
 							{headerGroups?.map((headerGroup, index) => (
@@ -1339,14 +1346,14 @@ export default function CheckTable(props) {
 								<Tr
 									{...headerGroup.getHeaderGroupProps()}
 									key={index}
-									position="sticky"
-									top="0"
-									zIndex="2"
-									height="60px"
+									position='sticky'
+									top='0'
+									zIndex='2'
+									height='60px'
 									// width="100%" // Ensure full-width header
-									borderRadius="10px 10px 0 0"
-									borderBottom="1px solid brand.200"
-									bg="brand.200"
+									borderRadius='10px 10px 0 0'
+									borderBottom='1px solid brand.200'
+									bg='brand.200'
 								>
 									{headerGroup.headers?.map((column, index) => (
 										<Th
@@ -1356,18 +1363,18 @@ export default function CheckTable(props) {
 											)}
 											key={index}
 											borderColor={borderColor}
-											textAlign="center" // Center text in the cell
-											px="10px" // Add consistent padding
+											textAlign='center' // Center text in the cell
+											px='10px' // Add consistent padding
 										>
 											<Flex
-												align="center"
-												justifyContent="center" // Center the Flex content
-												fontSize={{ sm: "10px", lg: "12px" }}
+												align='center'
+												justifyContent='center' // Center the Flex content
+												fontSize={{ sm: '10px', lg: '12px' }}
 											>
-												{column.Header === "#" && (
+												{column.Header === '#' && (
 													<Checkbox
-														borderColor="brand.600"
-														value="true"
+														borderColor='brand.600'
+														value='true'
 														isChecked={selectAllChecked}
 														onChange={(event) => {
 															setSelectAllChecked(!selectAllChecked);
@@ -1378,17 +1385,17 @@ export default function CheckTable(props) {
 																setSelectedValues([]);
 															}
 														}}
-														me="10px"
+														me='10px'
 													/>
 												)}
 												<span
 													style={{
-														textTransform: "capitalize",
-														marginRight: "8px",
-														textAlign: "center", // Ensure text is centered
+														textTransform: 'capitalize',
+														marginRight: '8px',
+														textAlign: 'center', // Ensure text is centered
 													}}
 												>
-													{column.render("Header")}
+													{column.render('Header')}
 												</span>
 												{column.isSortable !== false && (
 													<span>
@@ -1412,14 +1419,14 @@ export default function CheckTable(props) {
 
 						<Tbody
 							{...getTableBodyProps()}
-							mb="30px"
+							mb='30px'
 							sx={{
-								"& tbody tr:hover": {
+								'& tbody tr:hover': {
 									// Apply hover effect directly to rows
-									backgroundColor: "white", // Hover background
-									boxShadow: "sm", // Add subtle shadow on hover
+									backgroundColor: 'white', // Hover background
+									boxShadow: 'sm', // Add subtle shadow on hover
 									transition:
-										"background-color 0.2s ease, box-shadow 0.2s ease", // Smooth transition
+										'background-color 0.2s ease, box-shadow 0.2s ease', // Smooth transition
 								},
 							}}
 						>
@@ -1433,7 +1440,7 @@ export default function CheckTable(props) {
 									updatedStatuses?.forEach((status) => {
 										if (status?.id === row?.original?._id) {
 											row.cells.find(
-												(cell) => cell?.column?.Header === "Status"
+												(cell) => cell?.column?.Header === 'Status'
 											).value = status?.status;
 										}
 									});
@@ -1442,16 +1449,16 @@ export default function CheckTable(props) {
 										<Tr
 											{...row?.getRowProps()}
 											key={i}
-											className="leadRow"
-											textAlign="center"
+											className='leadRow'
+											textAlign='center'
 										>
 											{row?.cells?.map((cell, index) => {
-												let data = "";
-												if (cell?.column.Header === "#") {
+												let data = '';
+												if (cell?.column.Header === '#') {
 													data = (
-														<Flex align="center">
+														<Flex align='center'>
 															<Checkbox
-																colorScheme="brandScheme"
+																colorScheme='brandScheme'
 																value={selectedValues}
 																isChecked={selectedValues.includes(
 																	row.original?._id
@@ -1459,36 +1466,36 @@ export default function CheckTable(props) {
 																onChange={(event) =>
 																	handleCheckboxChange(event, row.original?._id)
 																}
-																me="10px"
+																me='10px'
 															/>
 															<Text
 																color={textColor}
-																fontSize="sm"
-																fontWeight="500"
+																fontSize='sm'
+																fontWeight='500'
 															>
-																{cell?.value || "-"}
+																{cell?.value || '-'}
 															</Text>
 														</Flex>
 													);
-												} else if (cell?.column.Header === "Name") {
+												} else if (cell?.column.Header === 'Name') {
 													data =
 														access?.view &&
-														row?.original?.ApprovalStatus === "Accepted" ? (
+														row?.original?.ApprovalStatus === 'Accepted' ? (
 															<Link to={`/leadView/${row?.original?.leadId}`}>
 																<Text
-																	me="10px"
+																	me='10px'
 																	sx={{
-																		"&:hover": {
-																			color: "blue.500",
-																			textDecoration: "underline",
+																		'&:hover': {
+																			color: 'blue.500',
+																			textDecoration: 'underline',
 																		},
 																	}}
-																	color={"brand.600"}
-																	fontSize="sm"
-																	fontWeight="500"
-																	pl="24px"
+																	color={'brand.600'}
+																	fontSize='sm'
+																	fontWeight='500'
+																	pl='24px'
 																	maxWidth={500}
-																	width="auto"
+																	width='auto'
 																>
 																	{cell?.value?.text || cell?.value}
 																</Text>
@@ -1500,22 +1507,22 @@ export default function CheckTable(props) {
 																		row.original?.leadId || row.original?._id
 																	)
 																}
-																me="10px"
+																me='10px'
 																sx={{
-																	"&:hover": {
-																		color: "blue.500",
-																		textDecoration: "underline",
+																	'&:hover': {
+																		color: 'blue.500',
+																		textDecoration: 'underline',
 																	},
 																}}
-																color="brand.600"
-																fontSize="sm"
-																fontWeight="500"
-																pl="24px"
+																color='brand.600'
+																fontSize='sm'
+																fontWeight='500'
+																pl='24px'
 															>
 																{cell?.value?.text || cell?.value}
 															</Text>
 														);
-												} else if (cell?.column.Header === "Manager") {
+												} else if (cell?.column.Header === 'Manager') {
 													data = (
 														<RenderManager
 															fetchData={fetchData}
@@ -1527,41 +1534,41 @@ export default function CheckTable(props) {
 															setData={setData}
 															leadID={row?.original?._id?.toString()}
 															value={cell?.value}
-															isAdmin={user?.role === "superAdmin"}
+															isAdmin={user?.role === 'superAdmin'}
 														/>
 													);
-												} else if (cell?.column.Header === "Country Source") {
+												} else if (cell?.column.Header === 'Country Source') {
 													data = (
-														<Text fontSize="sm" fontWeight="500">
-															{cell?.value || "no source"}
+														<Text fontSize='sm' fontWeight='500'>
+															{cell?.value || 'no source'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Whatsapp Number") {
+												} else if (cell?.column.Header === 'Whatsapp Number') {
 													data = (
-														<Text fontSize="sm" fontWeight="500">
+														<Text fontSize='sm' fontWeight='500'>
 															{cell?.value?.text ||
 																cell?.value ||
-																"no whatsapp"}
+																'no whatsapp'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Last Note") {
+												} else if (cell?.column.Header === 'Last Note') {
 													data = (
-														<Text width={200} fontSize={"sm"}>
-															{cell?.value || "no note"}
+														<Text width={200} fontSize={'sm'}>
+															{cell?.value || 'no note'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Phone Number") {
+												} else if (cell?.column.Header === 'Phone Number') {
 													data = callAccess?.create ? (
 														<Text
-															me="10px"
-															fontSize="sm"
-															fontWeight="500"
-															color="brand.600"
+															me='10px'
+															fontSize='sm'
+															fontWeight='500'
+															color='brand.600'
 															sx={{
-																"&:hover": {
-																	color: "blue.500",
-																	textDecoration: "underline",
-																	cursor: "pointer",
+																'&:hover': {
+																	color: 'blue.500',
+																	textDecoration: 'underline',
+																	cursor: 'pointer',
 																},
 															}}
 															onClick={() => {
@@ -1569,33 +1576,33 @@ export default function CheckTable(props) {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value || "No data"}
+															{cell?.value?.formula || cell?.value || 'No data'}
 														</Text>
 													) : (
 														<Text
-															me="10px"
-															fontSize="sm"
+															me='10px'
+															fontSize='sm'
 															// fontWeight="500"
-															fontWeight="700"
+															fontWeight='700'
 														>
-															{cell?.value?.formula || cell?.value || "-"}
+															{cell?.value?.formula || cell?.value || '-'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Address") {
+												} else if (cell?.column.Header === 'Address') {
 													data = (
 														<Text
 															color={textColor}
-															fontSize="sm"
-															fontWeight="500"
+															fontSize='sm'
+															fontWeight='500'
 														>
-															{cell?.value?.text || cell?.value || "No address"}
+															{cell?.value?.text || cell?.value || 'No address'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Status") {
+												} else if (cell?.column.Header === 'Status') {
 													data = (
-														<div className="selectOpt">
-															{user?.role === "superAdmin" ||
-															currentState === "Accepted" ? (
+														<div className='selectOpt'>
+															{user?.role === 'superAdmin' ||
+															currentState === 'Accepted' ? (
 																<RenderStatus
 																	setUpdatedStatuses={setUpdatedStatuses}
 																	id={cell?.row?.original?._id}
@@ -1606,7 +1613,7 @@ export default function CheckTable(props) {
 															)}
 														</div>
 													);
-												} else if (cell?.column.Header === "Lead Approval") {
+												} else if (cell?.column.Header === 'Lead Approval') {
 													data =
 														// <div className="selectOpt">
 														//   <ApprovalStatus
@@ -1615,21 +1622,21 @@ export default function CheckTable(props) {
 														//     cellValue={cell?.value}
 														//   />
 														// </div>
-														row?.original?.approvalStatus !== "pending" ? (
+														row?.original?.approvalStatus !== 'pending' ? (
 															row?.original?.approvalStatus
 														) : (
 															<div
 																style={{
-																	display: "flex",
-																	gap: "10px",
-																	paddingLeft: "19px",
-																	textAlign: "center",
+																	display: 'flex',
+																	gap: '10px',
+																	paddingLeft: '19px',
+																	textAlign: 'center',
 																}}
 															>
 																<Button
 																	onClick={() =>
 																		approveChangeHandler(
-																			"accept",
+																			'accept',
 																			row?.original?.leadId?.toString(),
 																			row?.original?.agentId,
 																			row?.original?.managerId,
@@ -1637,12 +1644,12 @@ export default function CheckTable(props) {
 																		)
 																	}
 																	sx={{
-																		padding: "5px",
-																		borderRadius: "50%",
-																		cursor: "pointer",
+																		padding: '5px',
+																		borderRadius: '50%',
+																		cursor: 'pointer',
 																		hover: {
-																			backgroundColor: "blue",
-																			color: "white",
+																			backgroundColor: 'blue',
+																			color: 'white',
 																		},
 																	}}
 																>
@@ -1651,7 +1658,7 @@ export default function CheckTable(props) {
 																<Button
 																	onClick={() => {
 																		approveChangeHandler(
-																			"reject",
+																			'reject',
 																			row?.original?.leadId?.toString(),
 																			row?.original?.agentId,
 																			row?.original?.managerId,
@@ -1659,16 +1666,16 @@ export default function CheckTable(props) {
 																		);
 																		console.log(
 																			row?.original,
-																			"it is an object"
+																			'it is an object'
 																		);
 																	}}
 																	sx={{
-																		padding: "5px",
-																		borderRadius: "50%",
-																		cursor: "pointer",
+																		padding: '5px',
+																		borderRadius: '50%',
+																		cursor: 'pointer',
 																		hover: {
-																			backgroundColor: "red",
-																			color: "white",
+																			backgroundColor: 'red',
+																			color: 'white',
 																		},
 																	}}
 																>
@@ -1688,9 +1695,9 @@ export default function CheckTable(props) {
 													//   <option value="accept">Accept</option>
 													//   <option value="reject">Reject</option>
 													//         </Select>
-												} else if (cell?.column.Header === "Approval Status") {
+												} else if (cell?.column.Header === 'Approval Status') {
 													data = (
-														<h1 style={{ textAlign: "center" }}>
+														<h1 style={{ textAlign: 'center' }}>
 															{row?.original?.approvalStatus}
 														</h1>
 													);
@@ -1709,7 +1716,7 @@ export default function CheckTable(props) {
 												// 		// />
 												// 		getUserNameById(row?.original?.managerId, users);
 												// }
-												else if (cell?.column.Header === "Requested By Agent") {
+												else if (cell?.column.Header === 'Requested By Agent') {
 													data = displayAdvSearchData
 														? getUserNameById(
 																row?.original?.agentAssigned,
@@ -1720,10 +1727,10 @@ export default function CheckTable(props) {
 													// Example with width set
 													return (
 														<Td
-															style={{ width: "400px", maxWidth: "250px" }}
-															fontSize="14px"
-															textAlign="center"
-															verticalAlign="middle"
+															style={{ width: '400px', maxWidth: '250px' }}
+															fontSize='14px'
+															textAlign='center'
+															verticalAlign='middle'
 														>
 															{data}
 														</Td>
@@ -1739,178 +1746,178 @@ export default function CheckTable(props) {
 													//     value={cell?.value}
 													//   />
 													// </>
-												} else if (cell?.column.Header === "Nationality") {
+												} else if (cell?.column.Header === 'Nationality') {
 													data = (
 														<Text
-															fontSize="sm"
-															pl="19px"
-															fontWeight="500"
+															fontSize='sm'
+															pl='19px'
+															fontWeight='500'
 															width={150}
 														>
 															{cell?.value?.text ||
 																cell?.value ||
-																"no nationality"}
+																'no nationality'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Language") {
+												} else if (cell?.column.Header === 'Language') {
 													data = (
 														<Text
-															fontSize="sm"
-															pl="19px"
-															fontWeight="500"
+															fontSize='sm'
+															pl='19px'
+															fontWeight='500'
 															width={150}
 														>
-															{cell?.value || "no data"}
+															{cell?.value || 'no data'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Budget") {
+												} else if (cell?.column.Header === 'Budget') {
 													data = (
 														<Text
-															fontSize="sm"
-															pl="19px"
-															fontWeight="500"
+															fontSize='sm'
+															pl='19px'
+															fontWeight='500'
 															width={150}
 														>
-															{cell?.value || "no budget"}
+															{cell?.value || 'no budget'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Lead Email") {
+												} else if (cell?.column.Header === 'Lead Email') {
 													data = (
 														<Text
-															fontSize="sm"
-															pl="19px"
+															fontSize='sm'
+															pl='19px'
 															width={200}
-															fontWeight="500"
-															textAlign={"center"}
+															fontWeight='500'
+															textAlign={'center'}
 														>
-															{cell?.value?.text || cell?.value || "no email"}
+															{cell?.value?.text || cell?.value || 'no email'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Timetocall") {
+												} else if (cell?.column.Header === 'Timetocall') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
 															{cell?.value?.text ||
 																cell?.value ||
-																"no timetocall"}
+																'no timetocall'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Lead Address") {
+												} else if (cell?.column.Header === 'Lead Address') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
-															{cell?.value || "no address"}
+															{cell?.value || 'no address'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Lead Campaign") {
+												} else if (cell?.column.Header === 'Lead Campaign') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
-															{cell?.value || "no compaign"}
+															{cell?.value || 'no compaign'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Source Content") {
+												} else if (cell?.column.Header === 'Source Content') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
-															{cell?.value || "no source"}
+															{cell?.value || 'no source'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Lead Medium") {
+												} else if (cell?.column.Header === 'Lead Medium') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
-															{cell?.value || "no medium"}
+															{cell?.value || 'no medium'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Campaign URL") {
+												} else if (cell?.column.Header === 'Campaign URL') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
+															fontSize='sm'
+															fontWeight='500'
 															width={250}
-															textAlign={"center"}
+															textAlign={'center'}
 														>
-															{cell?.value || "no url"}
+															{cell?.value || 'no url'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Date & Time") {
+												} else if (cell?.column.Header === 'Date & Time') {
 													data = (
 														<Text
-															fontSize={"sm"}
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize={'sm'}
+															fontWeight='500'
+															textAlign={'center'}
 															width={200}
 														>
 															{new Date(
 																cell?.value?.text || cell?.value
-															).toLocaleString() || ""}
+															).toLocaleString() || ''}
 														</Text>
 													);
-												} else if (cell?.column.Header === "In UAE?") {
+												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
-														<Text fontSize={"sm"} width={140}>
-															{cell?.value || "not selected"}
+														<Text fontSize={'sm'} width={140}>
+															{cell?.value || 'not selected'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Buy") {
+												} else if (cell?.column.Header === 'Buy') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
 															{row?.original?.agentAssigned ||
 															row?.original?.managerAssigned ? (
 																<Button
-																	colorScheme="red"
+																	colorScheme='red'
 																	// variant="filled"
-																	size="sm"
+																	size='sm'
 																	disabled
 																>
 																	Sold Out
 																</Button>
 															) : (
 																<Button
-																	colorScheme="brand"
+																	colorScheme='brand'
 																	// variant="filled"
-																	size="sm"
+																	size='sm'
 																	onClick={() =>
 																		sendRequest(row?.original?._id)
 																	}
 																	disabled={
-																		row?.original?.leadStatus === "new" ||
-																		row?.original?.leadStatus === ""
+																		row?.original?.leadStatus === 'new' ||
+																		row?.original?.leadStatus === ''
 																			? userCoins < 300
 																			: userCoins < 50
 																	}
 																>
 																	{buyLoading[row?.original?._id] ? (
 																		<CircularProgress
-																			size="5"
-																			color="white"
+																			size='5'
+																			color='white'
 																			isIndeterminate
 																		/>
 																	) : (
 																		<span>
 																			Buy -
-																			{row?.original?.leadStatus === "new" ||
-																			row?.original?.leadStatus === ""
+																			{row?.original?.leadStatus === 'new' ||
+																			row?.original?.leadStatus === ''
 																				? 300
 																				: 50}
 																		</span>
@@ -1919,24 +1926,24 @@ export default function CheckTable(props) {
 															)}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Action") {
+												} else if (cell?.column.Header === 'Action') {
 													data = (
 														<Text
-															fontSize="sm"
-															fontWeight="500"
-															textAlign={"center"}
+															fontSize='sm'
+															fontWeight='500'
+															textAlign={'center'}
 														>
 															<Menu isLazy>
 																<MenuButton>
 																	<CiMenuKebab />
 																</MenuButton>
 																<MenuList
-																	minW={"fit-content"}
-																	transform={"translate(1520px, 173px);"}
+																	minW={'fit-content'}
+																	transform={'translate(1520px, 173px);'}
 																>
 																	<MenuItem
 																		py={2.5}
-																		width={"max-content"}
+																		width={'max-content'}
 																		onClick={() => {
 																			// navigate(
 																			//   "/leadCycle/" + row?.original?._id
@@ -1954,7 +1961,7 @@ export default function CheckTable(props) {
 															</Menu>
 														</Text>
 													);
-												} else if (cell?.column.Header === "Cancel") {
+												} else if (cell?.column.Header === 'Cancel') {
 													data = (
 														<Button
 															onClick={() =>
@@ -1966,12 +1973,12 @@ export default function CheckTable(props) {
 																)
 															}
 															sx={{
-																padding: "5px",
-																borderRadius: "50%",
-																cursor: "pointer",
+																padding: '5px',
+																borderRadius: '50%',
+																cursor: 'pointer',
 																hover: {
-																	backgroundColor: "red",
-																	color: "white",
+																	backgroundColor: 'red',
+																	color: 'white',
 																},
 															}}
 														>
@@ -2002,21 +2009,21 @@ export default function CheckTable(props) {
 													// 	{data}
 													// </Td>
 													<Td
-														padding="0.35rem 5px" // Combines padding properties
+														padding='0.35rem 5px' // Combines padding properties
 														{...cell?.getCellProps()}
 														key={index}
 														style={
-															cell?.column?.Header === "Requested By Manager"
-																? { paddingRight: "5px" }
-																: cell?.column?.Header === "Agent"
-																	? { padding: "0" }
+															cell?.column?.Header === 'Requested By Manager'
+																? { paddingRight: '5px' }
+																: cell?.column?.Header === 'Agent'
+																	? { padding: '0' }
 																	: {}
 														}
-														fontSize="14px"
-														minW={{ sm: "150px", md: "250px", lg: "auto" }}
-														borderColor="transparent"
-														textAlign="center" // Centers text horizontally
-														verticalAlign="middle" // Centers text vertically (optional)
+														fontSize='14px'
+														minW={{ sm: '150px', md: '250px', lg: 'auto' }}
+														borderColor='transparent'
+														textAlign='center' // Centers text horizontally
+														verticalAlign='middle' // Centers text vertically (optional)
 													>
 														{data}
 													</Td>
@@ -2029,11 +2036,11 @@ export default function CheckTable(props) {
 								<Tr>
 									<Td colSpan={columns.length}>
 										<Text
-											textAlign={"center"}
-											width="100%"
+											textAlign={'center'}
+											width='100%'
 											color={textColor}
-											fontSize="sm"
-											fontWeight="700"
+											fontSize='sm'
+											fontWeight='700'
 										>
 											<DataNotFound />
 										</Text>
@@ -2065,7 +2072,7 @@ export default function CheckTable(props) {
 					isOpen={addEmailHistory}
 					onClose={setAddEmailHistory}
 					data={data?.contact}
-					lead="true"
+					lead='true'
 					id={selectedId}
 				/>
 
@@ -2082,7 +2089,7 @@ export default function CheckTable(props) {
 					onClose={setAddPhoneCall}
 					data={data?.contact}
 					id={callSelectedId}
-					lead="true"
+					lead='true'
 				/>
 
 				{isOpen && (
@@ -2112,7 +2119,7 @@ export default function CheckTable(props) {
 				)}
 
 				<ImportModal
-					text="Lead file"
+					text='Lead file'
 					fetchData={fetchData}
 					isOpen={isImportLead}
 					onClose={setIsImportLead}
@@ -2673,7 +2680,7 @@ export default function CheckTable(props) {
 					<ModalBody>
 						<div>
 							{dynamicColumns.map((column) => (
-								<Text display={"flex"} key={column.accessor} py={2}>
+								<Text display={'flex'} key={column.accessor} py={2}>
 									<Checkbox
 										value={selectedColumns.some(
 											(selectedColumn) =>
@@ -2693,8 +2700,8 @@ export default function CheckTable(props) {
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme="brand"
-							size="sm"
+							colorScheme='brand'
+							size='sm'
 							mr={2}
 							onClick={() => {
 								setSelectedColumns(tempSelectedColumns);
@@ -2703,12 +2710,12 @@ export default function CheckTable(props) {
 							}}
 							disabled={isLoding ? true : false}
 						>
-							{isLoding ? <Spinner /> : "Save"}
+							{isLoding ? <Spinner /> : 'Save'}
 						</Button>
 						<Button
-							size="sm"
-							variant="outline"
-							colorScheme="red"
+							size='sm'
+							variant='outline'
+							colorScheme='red'
 							onClick={() => handleColumnClear()}
 						>
 							Close
@@ -2721,9 +2728,9 @@ export default function CheckTable(props) {
 				isOpen={deleteModel}
 				onClose={setDelete}
 				setSelectedValues={setSelectedValues}
-				url="api/lead/deleteMany"
+				url='api/lead/deleteMany'
 				data={selectedValues}
-				method="many"
+				method='many'
 				setAction={setAction}
 				setSelectAllChecked={setSelectAllChecked}
 			/>

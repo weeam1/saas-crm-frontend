@@ -16,10 +16,12 @@ import Pagination from './components/Pagination';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import { useNavigate } from 'react-router-dom';
 
 const Candidates = () => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
+	const navigate = useNavigate();
 
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(12); // Items per page
@@ -140,6 +142,18 @@ const Candidates = () => {
 
 	return (
 		<Box>
+			<Button
+				colorScheme='gray'
+				borderRadius='5px'
+				size={{ base: 'sm', md: 'md' }} // Adjusts the size
+				px={{ base: 4, md: 6 }} // Adjust padding for different breakpoints
+				py={{ base: 2, md: 3 }} // Adjust vertical padding
+				fontSize={{ base: 'sm', md: 'md' }} // Adjust font size
+				onClick={() => navigate('/hiring')}
+				mb={4}
+			>
+				Back
+			</Button>
 			{/* Header */}
 			<Box
 				display='flex'

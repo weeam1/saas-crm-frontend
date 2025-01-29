@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react';
 import { Box, Tag, TagCloseButton } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import AdvancedSearch from '../candidates/components/AdvancedSearch';
 
 const ShortListedData = () => {
+	const [advanceSearch, setAdvanceSearch] = useState(false);
+
 	const [searchTags, setSearchTags] = useState([]);
 	const [sortConfig, setSortConfig] = useState({
 		key: null,
@@ -211,14 +214,16 @@ const ShortListedData = () => {
 				handleGotoPage={handleGotoPage}
 				gopageValue={gopageValue}
 				setGopageValue={setGopageValue}
-				// setAdvanceSearch={setAdvanceSearch}
+				setAdvanceSearch={setAdvanceSearch}
 			/>
 
-			{/* <AdvancedSearch
+			{advanceSearch && (
+				<AdvancedSearch
 					isOpen={advanceSearch}
 					onClose={() => setAdvanceSearch(false)}
 					onSearch={handleSearch}
-				/> */}
+				/>
+			)}
 		</Box>
 	);
 };

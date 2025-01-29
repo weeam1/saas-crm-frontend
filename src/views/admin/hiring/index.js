@@ -1,21 +1,32 @@
-import { Box, Heading, Icon, SimpleGrid } from '@chakra-ui/react';
+import { Box, Heading, Icon, SimpleGrid, Spinner } from '@chakra-ui/react';
 import { FaUsers } from 'react-icons/fa';
 import IconBox from 'components/icons/IconBox';
 import { useNavigate } from 'react-router-dom';
 import MiniStatistics from 'components/card/MiniStatistics';
 import { MdDashboard } from 'react-icons/md';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const Hiring = () => {
+	const { data: allShortListed, isLoading: shortListedLoading } =
+		useFetchItemsQuery({
+			path: `/applications/short-listed`,
+		});
+
+	const { data: allApplications, isLoading: applicationLoading } =
+		useFetchItemsQuery({
+			path: `/applications`,
+		});
+
 	const stats = [
 		{
 			title: 'Candidates',
-			total: 120,
+			total: allShortListed?.totalDocs || 0,
 			icon: MdDashboard,
 			path: '/hiring/candidates',
 		},
 		{
 			title: 'Short Listed',
-			total: 45,
+			total: allApplications?.totalDocs || 0,
 			icon: FaUsers,
 			path: '/hiring/short-listed',
 		},
@@ -24,9 +35,14 @@ const Hiring = () => {
 
 	const navigate = useNavigate();
 
-	return (
+	return applicationLoading || shortListedLoading ? (
+		<Spinner />
+	) : (
 		<Box>
-			<Heading>Hiring</Heading>
+			<Heading px={5} size='lg' color='gray.800'>
+				Hiring
+			</Heading>
+
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
 				{stats.map((stat, index) => (
 					<MiniStatistics
@@ -42,6 +58,7 @@ const Hiring = () => {
 							/>
 						}
 						name={stat.title}
+						value={stat.total || 0}
 					/>
 				))}
 			</SimpleGrid>

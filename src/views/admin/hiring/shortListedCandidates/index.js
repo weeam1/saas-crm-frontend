@@ -2,12 +2,28 @@ import React, { useState } from 'react';
 import { Box, Heading, Button } from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
+import { useNavigate } from 'react-router-dom';
 
 const ShortListedCandidates = () => {
 	const [activeTab, setActiveTab] = useState(0);
 
+	const navigate = useNavigate();
+
 	return (
 		<Box>
+			<Button
+				colorScheme='gray'
+				borderRadius='5px'
+				size={{ base: 'sm', md: 'md' }} // Adjusts the size
+				px={{ base: 4, md: 6 }} // Adjust padding for different breakpoints
+				py={{ base: 2, md: 3 }} // Adjust vertical padding
+				fontSize={{ base: 'sm', md: 'md' }} // Adjust font size
+				onClick={() => navigate('/hiring')}
+				mb={4}
+			>
+				Back
+			</Button>
+
 			{/* Header */}
 			<Box mb={6} bg='white' rounded='md' shadow='sm' p='1rem'>
 				<Heading size='md' color='gray.800'>

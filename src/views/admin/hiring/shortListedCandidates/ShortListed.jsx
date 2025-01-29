@@ -27,6 +27,7 @@ const ShortListed = ({
 	handlePageSizeChange,
 	gopageValue,
 	setGopageValue,
+	setAdvanceSearch,
 }) => {
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 	const [candidate, setCandidate] = useState(null);
@@ -168,6 +169,7 @@ const ShortListed = ({
 						px={{ base: 4, md: 6 }} // Adjust padding for different breakpoints
 						py={{ base: 2, md: 3 }} // Adjust vertical padding
 						fontSize={{ base: 'sm', md: 'md' }} // Adjust font size
+						onClick={() => setAdvanceSearch(true)}
 					>
 						Advanced Search
 					</Button>
@@ -183,7 +185,7 @@ const ShortListed = ({
 				handleViewCandidate={handleViewCandidate}
 				handleArrangeInterview={handleArrangeInterview}
 			/>
-			{data?.length && (
+			{data?.length > 0 && (
 				<TablePagination
 					gotoPage={handleGotoPage}
 					gopageValue={gopageValue}
