@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Button, Heading, HStack, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack } from '@chakra-ui/react';
 import { FaUsers } from 'react-icons/fa';
 
 import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import SearchBar from 'components/search/SearchBar';
 import TablePagination from 'components/pagination/TablePagination';
-import ArrangeInterview from '../ArrangeInterview';
-import ShortListedTable from './ShortListedTable';
+import ArrangeInterview from './components/ArrangeInterview';
 import { constant } from 'constant';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import InvitedTable from './components/InvitedTable';
 
-const ShortListed = ({
+const InvitedCandidates = ({
 	data,
 	allData,
 	loading,
@@ -32,7 +33,8 @@ const ShortListed = ({
 	const [searchData, setSearchData] = useState([]);
 	const [isSearch, setIsSearch] = useState(false);
 
-	console.log({ data });
+	const [updateItemMuation, { isLoading: isInviting }] =
+		useUpdateItemMutation();
 
 	const headers = [
 		{ key: 'name', label: 'Name', width: '200px' }, // Name column width
@@ -44,15 +46,30 @@ const ShortListed = ({
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
 
-	const { isOpen, onOpen: arrangeInterviewOpen, onClose } = useDisclosure();
+	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
+
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedTime, setSelectedTime] = useState('');
 
-	const handleScheduleInterview = () => {
+	const handleScheduleInterview = async () => {
 		console.log('Date:', selectedDate);
 		console.log('Time:', selectedTime);
-		// Handle scheduling logic here
-		onClose();
+
+		try {
+			await updateItemMuation({
+				path: `/applications/schedule-interview/${candidate._id}`,
+				body: {
+					interviewDate: selectedDate,
+					interviewTime: selectedTime,
+				},
+			}).unwrap();
+
+			toast.success('Invite succesfully sended');
+		} catch (err) {
+			console.log(err);
+		} finally {
+			setArrangeInterviewOpen(false);
+		}
 	};
 
 	const handleViewCV = async (resume) => {
@@ -109,8 +126,6 @@ const ShortListed = ({
 	const handleFilteredData = (filtered) => {
 		setIsSearch(true);
 		setSearchData(filtered);
-
-		console.log({ searchData });
 	};
 
 	return (
@@ -126,7 +141,7 @@ const ShortListed = ({
 				<HStack gap='2'>
 					<FaUsers w='14' h='14' />
 					<Heading size='md' color='gray.800'>
-						Short Listed
+						Invited Candidates
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={totalDocs || 0} />})
@@ -151,30 +166,31 @@ const ShortListed = ({
 				</HStack>
 			</Box>
 
-			<ShortListedTable
+			<InvitedTable
 				headers={headers}
 				data={isSearch ? searchData : data}
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				loading={loading}
 				handleViewCandidate={handleViewCandidate}
-				arrangeInterviewOpen={arrangeInterviewOpen}
 			/>
-			<TablePagination
-				gotoPage={handleGotoPage}
-				gopageValue={gopageValue}
-				setGopageValue={setGopageValue}
-				pageCount={totalPages}
-				canPreviousPage={currentPage > 1}
-				previousPage={() => handleGotoPage(currentPage - 2)}
-				canNextPage={currentPage < totalPages}
-				nextPage={() => handleGotoPage(currentPage)}
-				pageOptions={Array.from({ length: totalPages })}
-				setPageSize={handlePageSizeChange}
-				pageSize={pageSize}
-				pageIndex={currentPage - 1}
-				totalDocs={totalDocs}
-			/>
+			{data?.length && (
+				<TablePagination
+					gotoPage={handleGotoPage}
+					gopageValue={gopageValue}
+					setGopageValue={setGopageValue}
+					pageCount={totalPages}
+					canPreviousPage={currentPage > 1}
+					previousPage={() => handleGotoPage(currentPage - 2)}
+					canNextPage={currentPage < totalPages}
+					nextPage={() => handleGotoPage(currentPage)}
+					pageOptions={Array.from({ length: totalPages })}
+					setPageSize={handlePageSizeChange}
+					pageSize={pageSize}
+					pageIndex={currentPage - 1}
+					totalDocs={totalDocs}
+				/>
+			)}
 
 			{isApplicationOpen && (
 				<CandidateView
@@ -189,12 +205,13 @@ const ShortListed = ({
 
 			{arrangeInterviewOpen && (
 				<ArrangeInterview
-					isOpen={isOpen}
-					onClose={onClose}
+					isOpen={arrangeInterviewOpen}
+					onClose={() => setArrangeInterviewOpen(false)}
 					selectedDate={selectedDate}
 					setSelectedDate={setSelectedDate}
 					selectedTime={selectedTime}
 					setSelectedTime={setSelectedTime}
+					isLoading={isInviting}
 					handleScheduleInterview={handleScheduleInterview}
 				/>
 			)}
@@ -202,4 +219,4 @@ const ShortListed = ({
 	);
 };
 
-export default ShortListed;
+export default InvitedCandidates;

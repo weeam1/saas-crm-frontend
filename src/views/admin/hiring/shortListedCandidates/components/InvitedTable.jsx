@@ -6,7 +6,6 @@ import {
 	Th,
 	Td,
 	TableContainer,
-	Skeleton,
 	IconButton,
 	Box,
 	Flex,
@@ -17,16 +16,14 @@ import {
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
-// import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
 
-const ShortListedTable = ({
+const InvitedTable = ({
 	headers,
 	data,
 	loading,
 	handleSort,
 	sortConfig,
 	handleViewCandidate,
-	arrangeInterviewOpen,
 }) => {
 	return (
 		<>
@@ -40,7 +37,7 @@ const ShortListedTable = ({
 					<Table variant='striped' size='md'>
 						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
 							<Tr>
-								{headers.map((header) => (
+								{headers?.map((header) => (
 									<Th
 										key={header.key}
 										textAlign='center'
@@ -73,7 +70,7 @@ const ShortListedTable = ({
 						<Tbody>
 							{loading ? (
 								<TableLoading columns={headers} length={8} />
-							) : data.length ? (
+							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
 										<Td>
@@ -137,9 +134,9 @@ const ShortListedTable = ({
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
-													onClick={arrangeInterviewOpen}
+													// onClick={}
 												>
-													Arrange Interview
+													Select Interview
 												</Button>
 											</HStack>
 										</Td>
@@ -168,4 +165,4 @@ const ShortListedTable = ({
 	);
 };
 
-export default ShortListedTable;
+export default InvitedTable;

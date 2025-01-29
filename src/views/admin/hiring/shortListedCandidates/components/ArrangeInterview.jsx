@@ -1,4 +1,3 @@
-import { CalendarIcon } from '@chakra-ui/icons';
 import {
 	Button,
 	Modal,
@@ -33,14 +32,42 @@ const ArrangeInterview = ({
 	handleScheduleInterview,
 }) => {
 	const [showCalendar, setShowCalendar] = useState(false);
+	const [showTime, setShowTime] = useState('');
 
 	const toggleCalendar = () => {
 		setShowCalendar(!showCalendar);
 	};
 
 	const handleDateChange = (date) => {
-		setSelectedDate(date);
+		if (!(date instanceof Date)) {
+			console.error('Invalid date:', date);
+			return;
+		}
+
+		const formattedDate = date.toDateString(); // Example: "Thu Jan 30 2025"
+		console.log('Formatted Date:', formattedDate);
+
+		setSelectedDate(date); // Store Date object, not a formatted string
 		setShowCalendar(false); // Hide the calendar after selecting a date
+	};
+
+	const handleTimeChange = (e) => {
+		const time = e.target.value;
+
+		console.log(time);
+
+		setShowTime(time);
+
+		if (time !== '') {
+			let hours = time.split(':')[0];
+			let minutes = time.split(':')[1];
+			let suffix = hours >= 12 ? 'PM' : 'AM';
+			hours = hours % 12 || 12;
+			hours = hours < 10 ? '0' + hours : hours;
+
+			const displayTime = hours + ':' + minutes + ' ' + suffix;
+			setSelectedTime(displayTime);
+		}
 	};
 
 	return (
@@ -107,8 +134,8 @@ const ArrangeInterview = ({
 							<FormLabel>Select Time</FormLabel>
 							<Input
 								type='time'
-								value={selectedTime}
-								onChange={(e) => setSelectedTime(e.target.value)}
+								value={showTime}
+								onChange={handleTimeChange}
 								focusBorderColor='#E0B960'
 								bg='#F2F2F2'
 								borderRadius='md'
@@ -129,7 +156,7 @@ const ArrangeInterview = ({
 						<Button
 							colorScheme='gray'
 							onClick={onClose}
-							variant='outline'
+							letiant='outline'
 							size='sm'
 							mr={2}
 						>
