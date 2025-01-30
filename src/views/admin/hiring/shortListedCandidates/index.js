@@ -1,25 +1,37 @@
 import React, { useState } from 'react';
-import { Box, Heading, Button, Icon, HStack, Grid } from '@chakra-ui/react';
+import { Box, Button, Icon } from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import CandidateCard from './../candidates/components/CandidateCard';
-import { FaClock } from 'react-icons/fa';
+
 import Loader from 'components/loading/Loader';
+import MeetingSection from './components/MeetingSection';
 
 const ShortListedCandidates = () => {
 	const [activeTab, setActiveTab] = useState(0);
 
+	// const [tabLoading, setTabLoading] = useState(false);
+
+	const handleTabChange = (tabIndex) => {
+		// setTabLoading(true);
+		setActiveTab(tabIndex);
+
+		// Simulate a brief loading state
+		// setTimeout(() => {
+		// 	setTabLoading(false);
+		// }, 400); // Adjust time as needed
+	};
+
 	const {
 		data: invitedCandidates,
 		isLoading: invitedCandidatesLoading,
-		refetch,
+		refetch: invitedRefetch,
 	} = useFetchItemsQuery({
 		path: `/applications/invited-candidates`,
 		params: {
-			sort: '-updatedAt',
+			sort: 'interviewDate',
 			limit: 4,
 		},
 	});
@@ -44,66 +56,17 @@ const ShortListedCandidates = () => {
 				Back
 			</Button>
 
-			{/* Header */}
-			<Box mb={4} bg='white' rounded='md' shadow='sm' p='1rem'>
-				<Heading size='md' color='gray.800'>
-					Short Listed Candidates
-				</Heading>
-			</Box>
-
-			{/* Invited candidates  */}
-			{activeTab === 0 && (
-				<Box mb='4'>
-					<HStack
-						justifyContent='space-between'
-						alignItems='center'
-						mb='2'
-						p='2'
-					>
-						<HStack gap='2'>
-							<FaClock w='14' h='14' />
-							<Heading size='md' color='gray.800'>
-								Upcoming Meetings
-							</Heading>
-						</HStack>
-
-						<Button
-							variant='link'
-							color='blue.400'
-							fontWeight='normal'
-							onClick={() => setActiveTab(1)}
-						>
-							View All
-						</Button>
-					</HStack>
-					<Grid
-						templateColumns={{
-							base: '1fr',
-							md: 'repeat(2, 1fr)',
-							lg: 'repeat(4, 1fr)',
-						}}
-						justifyContent='space-between'
-						alignItems='center'
-						gap='2'
-					>
-						{invitedCandidates?.doc &&
-							invitedCandidates?.doc?.length &&
-							invitedCandidates?.doc?.map((candidate) => (
-								<CandidateCard
-									key={candidate._id}
-									candidate={candidate}
-									refetch={refetch}
-								/>
-							))}
-					</Grid>
-				</Box>
-			)}
+			<MeetingSection
+				invitedCandidates={invitedCandidates}
+				refetch={invitedRefetch}
+				setActiveTab={setActiveTab}
+			/>
 
 			{/* Tabs for navigation */}
 			<Box>
 				<Box display='flex' mb={2}>
 					<Button
-						onClick={() => setActiveTab(0)}
+						onClick={() => handleTabChange(0)}
 						colorScheme={activeTab === 0 ? 'brand' : 'gray'}
 						bg={activeTab === 0 ? 'brand.500' : 'white'}
 						color={activeTab === 0 ? 'white' : 'gray.800'}
@@ -120,7 +83,7 @@ const ShortListedCandidates = () => {
 						Short Listed
 					</Button>
 					<Button
-						onClick={() => setActiveTab(1)}
+						onClick={() => handleTabChange(1)}
 						colorScheme={activeTab === 1 ? 'brand' : 'gray'}
 						bg={activeTab === 1 ? 'brand.500' : 'white'}
 						color={activeTab === 1 ? 'white' : 'gray.800'}
@@ -139,10 +102,21 @@ const ShortListedCandidates = () => {
 
 				{/* Tab Panels */}
 				{activeTab === 0 ? (
-					<ShortListedData invitedRefetch={refetch} />
+					<ShortListedData invitedRefetch={invitedRefetch} />
 				) : (
 					<InvitedData />
 				)}
+
+				{/* Tab Panels */}
+				{/* {tabLoading ? (
+					<Box textAlign='center' p={10}>
+						<Loader />
+					</Box>
+				) : activeTab === 0 ? (
+					<ShortListedData invitedRefetch={invitedRefetch} />
+				) : (
+					<InvitedData />
+				)} */}
 			</Box>
 		</Box>
 	);

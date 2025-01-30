@@ -4,8 +4,10 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import InvitedCandidates from './InvitedCandidates';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
+import Loader from 'components/loading/Loader';
 
 const InvitedData = () => {
+	const [showContent, setShowContent] = useState(false);
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
 	const [sortConfig, setSortConfig] = useState({
@@ -21,7 +23,7 @@ const InvitedData = () => {
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
-		sort: '-updatedAt',
+		sort: 'interviewDate',
 	});
 
 	const {
@@ -168,7 +170,9 @@ const InvitedData = () => {
 		);
 	}
 
-	return (
+	return showContent ? (
+		<Loader />
+	) : (
 		<Box>
 			<Box mb={4}>
 				{/* Display Search Tags */}

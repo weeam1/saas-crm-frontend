@@ -38,12 +38,16 @@ const InvitedCandidates = ({
 		useUpdateItemMutation();
 
 	const headers = [
-		{ key: 'name', label: 'Name', width: '200px' }, // Name column width
+		{ key: 'name', label: 'Name', width: '250px' }, // Name column width
 		{ key: 'email', label: 'Email', width: '250px' }, // Email column width
 		{ key: 'position', label: 'Job Role', width: '150px' }, // Job Role column width
 		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
-		{ key: 'createdAt', label: 'Apply Date', width: '150px' }, // Apply Date column width
+		{
+			key: 'interviewDate&Time',
+			label: 'Interveiw Date',
+			width: '150px',
+		}, // Apply Date column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
 
@@ -202,6 +206,7 @@ const InvitedCandidates = ({
 					onViewCV={handleViewCV}
 					onDownloadCV={handleDownloadCV}
 					refetch={refetch}
+					type='invited'
 				/>
 			)}
 

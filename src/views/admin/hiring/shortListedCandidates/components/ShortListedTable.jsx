@@ -12,26 +12,26 @@ import {
 	Text,
 	Button,
 	HStack,
-	Image,
-	Tooltip,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import MailIcon from './MailIcon';
+import FlagBadge from '../../_components/FlagBadge';
 // import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
 
 const ShortListedTable = ({
 	headers,
 	data,
 	loading,
+	isFetching,
 	handleSort,
 	sortConfig,
 	handleViewCandidate,
 	handleArrangeInterview,
 }) => {
+	console.log('Loading:', loading);
 	return (
 		<>
-			{/* Box:  transform='translate(-10px, -10px)' */}
 			<Box rounded='md' overflow='hidden'>
 				<TableContainer
 					maxHeight='400px' // Set a custom height for the container
@@ -74,29 +74,13 @@ const ShortListedTable = ({
 						<Tbody>
 							{loading ? (
 								<TableLoading columns={headers} length={8} />
-							) : data.length ? (
+							) : data?.length > 0 ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
 										<Td>
 											<HStack gap='1'>
 												<span>{item.name}</span>
-
-												{item.country?.flags?.png && (
-													<Tooltip
-														label={item.nationality}
-														hasArrow
-														cursor={'pointer'}
-													>
-														<Image
-															rounded='sm'
-															src={item.country?.flags.png}
-															alt={item.country?.flags.alt}
-															h='12px'
-															fit='cover'
-															shadow='md'
-														/>
-													</Tooltip>
-												)}
+												<FlagBadge item={item} />
 											</HStack>
 										</Td>
 										<Td>{item.email}</Td>
@@ -146,19 +130,21 @@ const ShortListedTable = ({
 									</Tr>
 								))
 							) : (
-								<Tr>
-									<Td colSpan={headers.length}>
-										<Text
-											textAlign={'center'}
-											width='100%'
-											color='gray.500'
-											fontSize='sm'
-											fontWeight='600'
-										>
-											No data found
-										</Text>
-									</Td>
-								</Tr>
+								!loading && (
+									<Tr>
+										<Td colSpan={headers.length}>
+											<Text
+												textAlign={'center'}
+												width='100%'
+												color='gray.500'
+												fontSize='sm'
+												fontWeight='600'
+											>
+												No data found
+											</Text>
+										</Td>
+									</Tr>
+								)
 							)}
 						</Tbody>
 					</Table>

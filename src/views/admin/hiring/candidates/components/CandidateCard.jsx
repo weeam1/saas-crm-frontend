@@ -1,4 +1,12 @@
-import { Box, Button, Flex, Heading, Image, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	Heading,
+	HStack,
+	Image,
+	Text,
+} from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { FaWhatsapp, FaPhone, FaEye } from 'react-icons/fa6';
 import { useState } from 'react';
@@ -6,19 +14,23 @@ import { constant } from 'constant';
 import CandidateView from './CandidateView';
 import StatusBadge from 'components/shared/StatusBadge';
 import { toast } from 'react-toastify';
+import FlagBadge from '../../_components/FlagBadge';
 
-const CandidateCard = ({ candidate, refetch }) => {
+const CandidateCard = ({ candidate, refetch, type }) => {
 	const {
 		name,
 		position,
 		email,
 		whatsApp,
 		phone,
-		country,
 		resume,
 		status,
+		interviewDate,
+		interviewTime,
 		createdAt,
 	} = candidate;
+
+	console.log('Candidate:', candidate);
 
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 
@@ -91,7 +103,7 @@ const CandidateCard = ({ candidate, refetch }) => {
 				boxShadow='sm'
 				width='full'
 			>
-				<Box mb='2rem'>
+				<Box mb='4'>
 					<Flex alignItems='flex-start' justifyContent='space-between'>
 						<Box>
 							<Heading width='10rem' size='md' isTruncated>
@@ -137,25 +149,7 @@ const CandidateCard = ({ candidate, refetch }) => {
 					<Flex flexDirection='column' gap='1' py='10px'>
 						<Flex gap='2' alignItems='center'>
 							<StatusBadge status={status} color={statusColor} size={8} />
-							{country?.flags?.png && (
-								<Flex
-									alignItems='center'
-									gap='1'
-									fontSize='.8rem'
-									fontWeight='semibold'
-									color='gray.800'
-								>
-									{/* <FaLocationDot style={{ marginRight: '4px' }} /> */}
-									<Image
-										rounded='sm'
-										src={country?.flags.png}
-										alt={country?.flags.alt}
-										h='20px'
-										fit='cover'
-										shadow='md'
-									/>
-								</Flex>
-							)}
+							<FlagBadge item={candidate} />
 						</Flex>
 
 						<Flex
@@ -221,16 +215,24 @@ const CandidateCard = ({ candidate, refetch }) => {
 				</Box>
 
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
-					<span
-						style={{
-							color: '#B3B3B3',
-							marginRight: '4px',
-							fontWeight: 'lighter',
-						}}
-					>
-						applied on
-					</span>
-					{format(new Date(createdAt), 'EEE, MMM d, yyyy h:mm a')}
+					{type === 'meeting' ? (
+						<HStack alignItems='center' justifyContent='flex-end' gap={1}>
+							<Text color='gray.500' fontWeight='light'>
+								meeting on
+							</Text>
+							<Text>{format(new Date(interviewDate), 'EEE, MMM d, yyyy')}</Text>
+							<Text>{interviewTime}</Text>
+						</HStack>
+					) : (
+						<HStack alignItems='center' justifyContent='flex-end' gap={1}>
+							<Text color='gray.500' fontWeight='light'>
+								applied on
+							</Text>
+							<Text>
+								{format(new Date(createdAt), 'EEE, MMM d, yyyy h:mm a')}
+							</Text>
+						</HStack>
+					)}
 				</Box>
 			</Box>
 

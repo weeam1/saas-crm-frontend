@@ -29,6 +29,7 @@ const ShortListedData = ({ invitedRefetch }) => {
 		data: shortListedData,
 		error,
 		isLoading,
+		isFetching,
 		refetch,
 	} = useFetchItemsQuery({
 		path: `/applications/short-listed`,
@@ -204,6 +205,7 @@ const ShortListedData = ({ invitedRefetch }) => {
 				data={data}
 				totalDocs={shortListedData?.totalDocs}
 				loading={isLoading}
+				isFetching={isFetching}
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				refetch={refetch}

@@ -17,6 +17,7 @@ import ApplicationStatus from './ApplicationStatus';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
+import { format } from 'date-fns';
 
 const CandidateView = ({
 	isOpen,
@@ -25,22 +26,9 @@ const CandidateView = ({
 	onViewCV,
 	onDownloadCV,
 	refetch,
+	type,
 }) => {
-	const {
-		name,
-		dob,
-		position,
-		email,
-		whatsApp,
-		phone,
-		resume,
-		nationality,
-		experience,
-		experienceYears,
-		status,
-	} = candidate;
-
-	const [newStatus, setNewStatus] = useState(status);
+	const [newStatus, setNewStatus] = useState(candidate.status);
 
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
@@ -60,9 +48,9 @@ const CandidateView = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='xl'>
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent p={4}>
 				<ModalHeader>Application</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody
@@ -87,24 +75,47 @@ const CandidateView = ({
 						templateColumns={{
 							base: '1fr',
 							md: 'repeat(2, 1fr)',
-							lg: 'repeat(2, 1fr)',
+							lg: type === 'invited' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
 						}}
 						gap={3}
 					>
-						<DisplayField label='Name' value={name} />
-						<DisplayField label='Date of Birth' value={dob} />
-						<DisplayField label='Email' value={email} />
-						<DisplayField label='Phone' value={phone} />
-						<DisplayField label='WhatsApp' value={whatsApp} />
-						<DisplayField label='Nationality' value={nationality} />
-						<DisplayField label='Experience Years' value={experienceYears} />
-						<DisplayField label='Applying for' value={position} />
+						<DisplayField label='Name' value={candidate?.name} />
+						<DisplayField label='Date of Birth' value={candidate?.dob} />
+						<DisplayField label='Email' value={candidate?.email} />
+						<DisplayField label='Phone' value={candidate?.phone} />
+						<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
+						<DisplayField label='Nationality' value={candidate?.nationality} />
+						<DisplayField
+							label='Experience Years'
+							value={candidate?.experienceYears}
+						/>
+						<DisplayField label='Applying for' value={candidate?.position} />
+						{type === 'invited' && (
+							<>
+								<DisplayField
+									label='Intivite Status'
+									value={candidate?.inviteAccepted ? 'Accepted' : 'Pending'}
+								/>
+								<DisplayField
+									label='Interview Date'
+									value={format(
+										new Date(candidate?.interviewDate),
+										'MMM d, yyyy'
+									)}
+								/>
+
+								<DisplayField
+									label='Interview Time'
+									value={candidate?.interviewTime}
+								/>
+							</>
+						)}
 					</Grid>
-					<ExperienceDetails experience={experience} />
+					<ExperienceDetails experience={candidate?.experience} />
 
 					<HStack spacing={2} mt={2}>
 						<Button
-							onClick={() => onViewCV(resume)}
+							onClick={() => onViewCV(candidate?.resume)}
 							bg='brand.500'
 							color='white'
 							width='100%'
@@ -121,7 +132,7 @@ const CandidateView = ({
 						</Button>
 
 						<Button
-							onClick={() => onDownloadCV(resume)}
+							onClick={() => onDownloadCV(candidate?.resume)}
 							bg='brand.500'
 							color='white'
 							width='100%'
@@ -138,46 +149,49 @@ const CandidateView = ({
 						</Button>
 					</HStack>
 				</ModalBody>
-				<HStack
-					justifyContent='space-between'
-					alignItems='end'
-					spacing={2}
-					pb='4'
-					px='4'
-					mt={2}
-				>
-					<ApplicationStatus
-						applicationStatus={status}
-						newStatus={newStatus}
-						setNewStatus={setNewStatus}
-					/>
-					<div>
-						<Button
-							colorScheme='gray'
-							onClick={onClose}
-							variant='outline'
-							size='sm'
-							mr={2}
-						>
-							Cancel
-						</Button>
-						<Button
-							bg='brand.500'
-							color='white'
-							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
-							}}
-							size='sm'
-							onClick={handleApplicationStatus}
-						>
-							{isLoading ? <Spinner /> : 'Save'}
-						</Button>
-					</div>
-				</HStack>
+				{candidate.status !== 'Eligible' && (
+					<HStack
+						justifyContent='space-between'
+						alignItems='end'
+						spacing={2}
+						pb='4'
+						px='4'
+						mt={2}
+					>
+						<ApplicationStatus
+							applicationStatus={candidate.status}
+							newStatus={newStatus}
+							setNewStatus={setNewStatus}
+						/>
+
+						<div>
+							<Button
+								colorScheme='gray'
+								onClick={onClose}
+								variant='outline'
+								size='sm'
+								mr={2}
+							>
+								Cancel
+							</Button>
+							<Button
+								bg='brand.500'
+								color='white'
+								_hover={{
+									bg: 'brand.600',
+									color: 'white',
+								}}
+								_active={{
+									bg: 'brand.600',
+								}}
+								size='sm'
+								onClick={handleApplicationStatus}
+							>
+								{isLoading ? <Spinner /> : 'Save'}
+							</Button>
+						</div>
+					</HStack>
+				)}
 			</ModalContent>
 		</Modal>
 	);

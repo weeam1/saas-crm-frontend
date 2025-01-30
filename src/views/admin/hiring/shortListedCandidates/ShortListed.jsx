@@ -16,6 +16,7 @@ const ShortListed = ({
 	data,
 	allData,
 	loading,
+	isFetching,
 	totalDocs,
 	handleSort,
 	sortConfig,
@@ -67,6 +68,9 @@ const ShortListed = ({
 			}).unwrap();
 
 			toast.success('Invite succesfully sended');
+			// short listed candidates refetch
+			refetch();
+			// invited candidates refetch
 			invitedRefetch();
 		} catch (err) {
 			console.log(err);
@@ -184,6 +188,7 @@ const ShortListed = ({
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				loading={loading}
+				isFetching={isFetching}
 				handleViewCandidate={handleViewCandidate}
 				handleArrangeInterview={handleArrangeInterview}
 			/>

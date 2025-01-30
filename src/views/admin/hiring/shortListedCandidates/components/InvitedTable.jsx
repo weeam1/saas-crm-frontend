@@ -12,12 +12,12 @@ import {
 	Text,
 	Button,
 	HStack,
-	Image,
-	Tooltip,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import MailIcon from './MailIcon';
+import FlagBadge from '../../_components/FlagBadge';
+import { format } from 'date-fns';
 
 const InvitedTable = ({
 	headers,
@@ -78,30 +78,22 @@ const InvitedTable = ({
 										<Td>
 											<HStack gap='1'>
 												<span>{item.name}</span>
-
-												{item.country?.flags?.png && (
-													<Tooltip
-														label={item.nationality}
-														hasArrow
-														cursor={'pointer'}
-													>
-														<Image
-															rounded='sm'
-															src={item.country?.flags.png}
-															alt={item.country?.flags.alt}
-															h='12px'
-															fit='cover'
-															shadow='md'
-														/>
-													</Tooltip>
-												)}
+												<FlagBadge item={item} />
 											</HStack>
 										</Td>
 										<Td>{item.email}</Td>
 										<Td>{item.position}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>
-										<Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
+										<Td display='flex' alignItems='center' gap='2'>
+											<p>
+												{format(
+													new Date(item.interviewDate),
+													'EEE, MMM d, yyyy'
+												)}
+											</p>
+											<p>{item.interviewTime}</p>
+										</Td>
 										{/* <Td>{item.nationality}</Td> */}
 										<Td>
 											<HStack gap='1' alignItems='center'>
@@ -135,7 +127,7 @@ const InvitedTable = ({
 													_active={{ bg: '#D4AC50' }}
 													// onClick={}
 												>
-													Select Interview
+													Start Interview
 												</Button>
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />
