@@ -209,6 +209,7 @@ const InvitedData = () => {
 					isOpen={advanceSearch}
 					onClose={() => setAdvanceSearch(false)}
 					onSearch={handleSearch}
+					type='invited'
 				/>
 			)}
 		</Box>

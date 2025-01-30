@@ -13,9 +13,11 @@ import {
 	Button,
 	HStack,
 	Image,
+	Tooltip,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
+import MailIcon from './MailIcon';
 
 const InvitedTable = ({
 	headers,
@@ -78,14 +80,11 @@ const InvitedTable = ({
 												<span>{item.name}</span>
 
 												{item.country?.flags?.png && (
-													<Flex
-														alignItems='center'
-														gap='1'
-														fontSize='.8rem'
-														fontWeight='semibold'
-														color='gray.800'
+													<Tooltip
+														label={item.nationality}
+														hasArrow
+														cursor={'pointer'}
 													>
-														{/* <FaLocationDot style={{ marginRight: '4px' }} /> */}
 														<Image
 															rounded='sm'
 															src={item.country?.flags.png}
@@ -94,7 +93,7 @@ const InvitedTable = ({
 															fit='cover'
 															shadow='md'
 														/>
-													</Flex>
+													</Tooltip>
 												)}
 											</HStack>
 										</Td>
@@ -105,7 +104,7 @@ const InvitedTable = ({
 										<Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
 										{/* <Td>{item.nationality}</Td> */}
 										<Td>
-											<HStack gap='1'>
+											<HStack gap='1' alignItems='center'>
 												<Button
 													bg='#EDC270'
 													color='gray.800'
@@ -138,6 +137,8 @@ const InvitedTable = ({
 												>
 													Select Interview
 												</Button>
+												{/* Mail Icon for accepting interview intive */}
+												<MailIcon isRead={item.inviteAccepted} />
 											</HStack>
 										</Td>
 									</Tr>

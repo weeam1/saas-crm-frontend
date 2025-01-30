@@ -5,7 +5,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 
-const ShortListedData = () => {
+const ShortListedData = ({ invitedRefetch }) => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 
 	const [searchTags, setSearchTags] = useState([]);
@@ -215,6 +215,7 @@ const ShortListedData = () => {
 				gopageValue={gopageValue}
 				setGopageValue={setGopageValue}
 				setAdvanceSearch={setAdvanceSearch}
+				invitedRefetch={invitedRefetch}
 			/>
 
 			{advanceSearch && (
@@ -222,6 +223,7 @@ const ShortListedData = () => {
 					isOpen={advanceSearch}
 					onClose={() => setAdvanceSearch(false)}
 					onSearch={handleSearch}
+					type='short-listed'
 				/>
 			)}
 		</Box>

@@ -89,6 +89,7 @@ const CandidateCard = ({ candidate, refetch }) => {
 				borderRadius='md'
 				p={4}
 				boxShadow='sm'
+				width='full'
 			>
 				<Box mb='2rem'>
 					<Flex alignItems='flex-start' justifyContent='space-between'>

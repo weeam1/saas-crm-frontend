@@ -28,6 +28,7 @@ const ShortListed = ({
 	gopageValue,
 	setGopageValue,
 	setAdvanceSearch,
+	invitedRefetch,
 }) => {
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 	const [candidate, setCandidate] = useState(null);
@@ -66,6 +67,7 @@ const ShortListed = ({
 			}).unwrap();
 
 			toast.success('Invite succesfully sended');
+			invitedRefetch();
 		} catch (err) {
 			console.log(err);
 		} finally {

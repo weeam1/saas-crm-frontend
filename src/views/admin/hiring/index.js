@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import MiniStatistics from 'components/card/MiniStatistics';
 import { MdDashboard } from 'react-icons/md';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
 
 const Hiring = () => {
 	const { data: allShortListed, isLoading: shortListedLoading } =
@@ -20,13 +21,13 @@ const Hiring = () => {
 	const stats = [
 		{
 			title: 'Candidates',
-			total: allShortListed?.totalDocs || 0,
+			total: allApplications?.totalDocs || 0,
 			icon: MdDashboard,
 			path: '/hiring/candidates',
 		},
 		{
 			title: 'Short Listed',
-			total: allApplications?.totalDocs || 0,
+			total: allShortListed?.totalDocs || 0,
 			icon: FaUsers,
 			path: '/hiring/short-listed',
 		},
@@ -36,7 +37,7 @@ const Hiring = () => {
 	const navigate = useNavigate();
 
 	return applicationLoading || shortListedLoading ? (
-		<Spinner />
+		<Loader />
 	) : (
 		<Box>
 			<Heading px={5} size='lg' color='gray.800'>

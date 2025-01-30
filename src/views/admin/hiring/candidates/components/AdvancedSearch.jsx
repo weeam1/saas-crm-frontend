@@ -31,7 +31,7 @@ const positionOptions = [
 	{ label: 'Tele Sales', value: 'Tele Sales' },
 ];
 
-const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
+const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
 		name: '',
 		position: '',
@@ -41,6 +41,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 		nationality: '',
 		experienceYears: '',
 		status: '',
+		inviteAccepted: '',
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
@@ -110,14 +111,14 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='xl'>
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
 			<ModalOverlay />
 			<ModalContent p='2'>
 				<ModalHeader>Advanced Search</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody
 					width='100%'
-					maxH='500px' // Set max height for the modal body
+					maxH='540px' // Set max height for the modal body
 					overflowY='auto' // Enable vertical scrolling when content exceeds max height
 					sx={{
 						'&::-webkit-scrollbar': {
@@ -292,6 +293,41 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch }) => {
 											<option value='Not Eligible'>Not Eligible</option>
 										</Select>
 									</GridItem>
+									{(type === 'short-listed' || type === 'invited') && (
+										<GridItem>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='md'
+												fontWeight='400'
+												color='gray.800'
+												mt={2}
+												mb='1'
+											>
+												Invite Status
+											</FormLabel>
+											<Select
+												fontSize='sm'
+												name='inviteAccepted'
+												fontWeight='400'
+												defaultValue={''}
+												rounded='md'
+												shadow='sm'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values['inviteAccepted']}
+												borderColor='gray.300'
+												_focus={{
+													borderColor: 'brand.500', // Apply brand color on focus
+													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												}}
+												placeholder='Search by invite status'
+											>
+												<option value='true'>Accepted</option>
+												<option value='false'>Not Accepted</option>
+											</Select>
+										</GridItem>
+									)}
 								</Grid>
 
 								<Flex mt={4} justifyContent='flex-end'>

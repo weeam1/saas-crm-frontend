@@ -3,6 +3,7 @@ import {
 	Box,
 	Button,
 	Heading,
+	Icon,
 	Spinner,
 	Tag,
 	TagCloseButton,
@@ -17,6 +18,8 @@ import ErrorMessage from 'components/Message/ErrorMessage';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { useNavigate } from 'react-router-dom';
+import Loader from 'components/loading/Loader';
+import { IoArrowBack } from 'react-icons/io5';
 
 const Candidates = () => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
@@ -145,10 +148,11 @@ const Candidates = () => {
 			<Button
 				colorScheme='gray'
 				borderRadius='5px'
-				size={{ base: 'sm', md: 'md' }} // Adjusts the size
-				px={{ base: 4, md: 6 }} // Adjust padding for different breakpoints
-				py={{ base: 2, md: 3 }} // Adjust vertical padding
-				fontSize={{ base: 'sm', md: 'md' }} // Adjust font size
+				size={{ base: 'sm', md: 'md' }}
+				px={{ base: 4, md: 6 }}
+				py={{ base: 2, md: 3 }}
+				fontSize={{ base: 'sm', md: 'md' }}
+				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
 				onClick={() => navigate('/hiring')}
 				mb={4}
 			>
@@ -200,10 +204,7 @@ const Candidates = () => {
 
 			{/* Display Search Tags */}
 			{isLoading ? (
-				<Box textAlign='center' mt='4'>
-					<Spinner size='md' />
-					<Text mt='4'>Loading...</Text>
-				</Box>
+				<Loader />
 			) : (
 				<>
 					{/* Content */}
