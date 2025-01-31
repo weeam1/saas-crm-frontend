@@ -6,29 +6,29 @@ import {
 	useRadioGroup,
 	HStack,
 	Icon,
-} from "@chakra-ui/react";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { getApi } from "services/api";
-import { toast } from "react-toastify";
-import keys from "config/keys";
+} from '@chakra-ui/react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { getApi } from 'services/api';
+import { toast } from 'react-toastify';
+import keys from 'config/keys';
 
-import RadioCard from "./RadioCard";
-import { MdSend } from "react-icons/md";
-import MessageSuccessModal from "./MessageSuccessModal";
-import SelectManager from "./SelectManager";
-import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
+import RadioCard from './RadioCard';
+import { MdSend } from 'react-icons/md';
+import MessageSuccessModal from './MessageSuccessModal';
+import SelectManager from './SelectManager';
+import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 
 const CreateAnnouncement = ({ user }) => {
 	// Fetch the all users data from hook
 	const { allUsers, managers, agents } = useFetchUserHierarchy(user);
 
 	// Set roles
-	const isManager = user?.roles[0]?.roleName === "Manager";
-	const isSuperAdmin = user.role === "superAdmin";
+	const isManager = user?.roles[0]?.roleName === 'Manager';
+	const isSuperAdmin = user.role === 'superAdmin';
 
-	const [message, setMessage] = useState("");
-	const [selectedRole, setSelectedRole] = useState("");
+	const [message, setMessage] = useState('');
+	const [selectedRole, setSelectedRole] = useState('');
 	const [receiverIds, setReceiverIds] = useState([]);
 	// const [managerList, setManagerList] = useState([]);
 	const [selectedManager, setSelectedManager] = useState(null);
@@ -44,7 +44,7 @@ const CreateAnnouncement = ({ user }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isManager]);
 
-	const fetchMangerAgents = async (selectedValue = "") => {
+	const fetchMangerAgents = async (selectedValue = '') => {
 		try {
 			// Fetch the hierarchy data for the selected manager
 			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
@@ -57,8 +57,6 @@ const CreateAnnouncement = ({ user }) => {
 					? [...managerAgentsList]
 					: [...managerAgentsList, selectedValue];
 
-				console.log({ managersids: updatedReceiverIds });
-
 				setReceiverIds(updatedReceiverIds);
 			} else {
 				// If no results, clear the receiver IDs (or just select the manager)
@@ -66,7 +64,7 @@ const CreateAnnouncement = ({ user }) => {
 			}
 		} catch (error) {
 			// Handle any errors that occur during the API call
-			console.error("Error fetching manager hierarchy:", error);
+			console.error('Error fetching manager hierarchy:', error);
 			// Optionally, reset or update state in case of an error
 			setReceiverIds([]);
 		}
@@ -79,16 +77,16 @@ const CreateAnnouncement = ({ user }) => {
 			let newReceiverIds = [];
 
 			switch (selectedRole) {
-				case "managers":
+				case 'managers':
 					newReceiverIds = managers.map((manager) => manager._id); // Extract manager IDs
 					break;
 
-				case "agents":
+				case 'agents':
 					// setAgentsList(agents || []);
 					newReceiverIds = agents.map((agent) => agent._id); // Extract agent IDs
 					break;
 
-				case "all":
+				case 'all':
 					newReceiverIds = allUsers
 						.filter((userItem) => user._id !== userItem._id) // Exclude the current user
 						.map((userItem) => userItem._id); // Extract all user IDs
@@ -102,14 +100,14 @@ const CreateAnnouncement = ({ user }) => {
 
 			setReceiverIds(newReceiverIds); // Update state with new receiver IDs
 		} catch (error) {
-			console.error("Failed to handle role change:", error);
-			toast.error("An error occurred while processing the role change.");
+			console.error('Failed to handle role change:', error);
+			toast.error('An error occurred while processing the role change.');
 		}
 	};
 
 	const handleManager = async (e) => {
 		const selectedValue = e.target.value;
-		setSelectedRole("team");
+		setSelectedRole('team');
 
 		// Reset receiverIds to an empty array before making any updates
 		fetchMangerAgents(selectedValue);
@@ -156,26 +154,26 @@ const CreateAnnouncement = ({ user }) => {
 						setOnlineUsers(online);
 						setIsModalOpen(true); // Open the success modal
 						setSelectedManager(null); // Clear specific manager selection
-						setSelectedRole(""); // Reset checkboxes
-						setMessage(""); // Clear the input field after sending
+						setSelectedRole(''); // Reset checkboxes
+						setMessage(''); // Clear the input field after sending
 					}
 				} else {
-					toast.error("Please select the recivers again.");
+					toast.error('Please select the recivers again.');
 				}
 			} catch (err) {
 				console.log(err);
-				toast.error("Failed to send announcement.");
+				toast.error('Failed to send announcement.');
 			} finally {
 				setLoading(false);
 			}
 		} else {
-			toast.error("Please fill in the message and select at least one role.");
+			toast.error('Please fill in the message and select at least one role.');
 		}
 	};
 
-	const options = ["all", "managers", "agents"];
+	const options = ['all', 'managers', 'agents'];
 	const { getRootProps, getRadioProps } = useRadioGroup({
-		name: "roles",
+		name: 'roles',
 		value: selectedRole,
 		onChange: handleRoleChange,
 	});
@@ -185,40 +183,40 @@ const CreateAnnouncement = ({ user }) => {
 	return (
 		<Box
 			p={6}
-			maxW="800px"
-			mx="auto"
+			maxW='800px'
+			mx='auto'
 			borderWidth={1}
-			borderRadius="md"
-			shadow="md"
-			background="white"
+			borderRadius='md'
+			shadow='md'
+			background='white'
 		>
-			<Text as="h3" fontSize="2xl" fontWeight="bold" mb={6} textAlign="center">
+			<Text as='h3' fontSize='2xl' fontWeight='bold' mb={6} textAlign='center'>
 				Announcement
 			</Text>
 			<form onSubmit={handleSend}>
 				<Textarea
-					placeholder="Type your message..."
+					placeholder='Type your message...'
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
-					size="lg"
-					height="36"
-					resize="vertical"
-					focusBorderColor="orange.200"
-					backgroundColor="gray.100"
+					size='lg'
+					height='36'
+					resize='vertical'
+					focusBorderColor='orange.200'
+					backgroundColor='gray.100'
 				/>
 
 				{isSuperAdmin && (
 					<>
-						<Text fontWeight="bold" mb={{ base: 1, md: 2 }}>
+						<Text fontWeight='bold' mb={{ base: 1, md: 2 }}>
 							Send to:
 						</Text>
 						<HStack
 							{...group}
 							spacing={{ base: 2, md: 4 }} // Adjust spacing for different screen sizes
 							mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
-							wrap="wrap" // Allow items to wrap on smaller screens
-							gap="2"
+							wrap='wrap' // Allow items to wrap on smaller screens
+							gap='2'
 						>
 							{options.map((value) => {
 								const radio = getRadioProps({ value });
@@ -238,24 +236,24 @@ const CreateAnnouncement = ({ user }) => {
 				)}
 
 				{isManager && (
-					<Text mb={{ base: 1, md: 3 }} color="gray.500">
+					<Text mb={{ base: 1, md: 3 }} color='gray.500'>
 						Note: Announcement will be sent all agents under you.
 					</Text>
 				)}
 
 				<Button
-					colorScheme="brand"
-					color="white"
-					w={{ base: "full", md: "auto" }} // Full width on smaller screens
+					colorScheme='brand'
+					color='white'
+					w={{ base: 'full', md: 'auto' }} // Full width on smaller screens
 					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
-					type="submit"
+					type='submit'
 					isDisabled={
 						!message.trim() || (!isManager && !selectedRole)
 						// (selectedRole === "managers" && !selectedManager)
 					}
 					leftIcon={<Icon as={MdSend} />}
 				>
-					{loading ? "Sending..." : "Send"}
+					{loading ? 'Sending...' : 'Send'}
 				</Button>
 			</form>
 

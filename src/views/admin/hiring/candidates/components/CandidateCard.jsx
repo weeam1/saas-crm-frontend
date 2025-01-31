@@ -15,6 +15,8 @@ import CandidateView from './CandidateView';
 import StatusBadge from 'components/shared/StatusBadge';
 import { toast } from 'react-toastify';
 import FlagBadge from '../../_components/FlagBadge';
+import { useDispatch, useSelector } from 'react-redux';
+import { addMissingFile } from './../../../../../redux/missingFilesSlice';
 
 const CandidateCard = ({ candidate, refetch, type }) => {
 	const {
@@ -29,40 +31,55 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 		interviewTime,
 		createdAt,
 	} = candidate;
-
-	console.log('Candidate:', candidate);
-
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
+
+	const dispatch = useDispatch();
+	const missingFiles = useSelector((state) => state.missingFiles.missingFiles);
 
 	const handleViewCV = async (resume) => {
 		try {
 			const pdfURL = `${constant['baseUrl']}${resume}`;
 
-			// Make a request to check if the file exists
+			// Check if this file was already marked as missing
+			if (missingFiles.includes(resume)) {
+				toast.error('CV not found!');
+				return; // Stop further execution
+			}
+
+			// Send a single HEAD request to check if the file exists
 			const response = await fetch(pdfURL, { method: 'HEAD' });
 
 			if (!response.ok) {
-				throw new Error('File not found');
+				// Store the missing file to prevent future requests
+				dispatch(addMissingFile(resume));
+				toast.error('CV not found!');
+				return;
 			}
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
 		} catch (error) {
-			// Handle errors (e.g., file not found or server error)
 			console.error('Error viewing CV:', error);
-			toast.error('The requested CV could not be found.');
+			toast.error('Failed to retrieve the CV. Please try again later.');
 		}
 	};
-
 	const handleDownloadCV = async (resume) => {
 		try {
 			const pdfURL = `${constant['baseUrl']}${resume}`;
+			// Check if this file was already marked as missing
+			if (missingFiles.includes(resume)) {
+				toast.error('CV could not be downloaded');
+				return;
+			}
 
 			// Check if the file exists using a HEAD request
 			const response = await fetch(pdfURL, { method: 'HEAD' });
 
 			if (!response.ok) {
-				throw new Error('File not found');
+				// Store the missing file to prevent future requests
+				dispatch(addMissingFile(resume));
+				toast.error('CV could not be downloaded');
+				return;
 			}
 
 			// Create an anchor element for the download
@@ -73,8 +90,8 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
 		} catch (error) {
-			console.error('Error downloading CV:', error);
-			toast.error('The requested CV could not be downloaded.');
+			console.error('Error viewing CV:', error);
+			toast.error('Failed to retrieve the CV. Please try again later.');
 		}
 	};
 
@@ -92,6 +109,8 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 	};
 
 	const statusColor = getStatusColor(status);
+
+	console.log({ missingFiles });
 
 	return (
 		<>
@@ -139,6 +158,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 							gap='4px'
 							alignItems='center'
 							justifyContent='center'
+							disabled={missingFiles.includes(resume)}
 							onClick={() => handleViewCV(resume)}
 						>
 							<FaEye size={18} />
@@ -242,6 +262,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 				candidate={candidate}
 				onViewCV={handleViewCV}
 				onDownloadCV={handleDownloadCV}
+				missingFiles={missingFiles}
 				refetch={refetch}
 			/>
 

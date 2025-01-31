@@ -27,6 +27,7 @@ const CandidateView = ({
 	onDownloadCV,
 	refetch,
 	type,
+	missingFiles,
 }) => {
 	const [newStatus, setNewStatus] = useState(candidate.status);
 
@@ -127,6 +128,7 @@ const CandidateView = ({
 							_active={{
 								bg: 'brand.600',
 							}}
+							disabled={missingFiles.includes(candidate?.resume)}
 						>
 							View CV
 						</Button>
@@ -144,54 +146,56 @@ const CandidateView = ({
 							_active={{
 								bg: 'brand.600',
 							}}
+							disabled={missingFiles.includes(candidate?.resume)}
 						>
 							Download CV
 						</Button>
 					</HStack>
 				</ModalBody>
-				{candidate.status !== 'Eligible' && (
-					<HStack
-						justifyContent='space-between'
-						alignItems='end'
-						spacing={2}
-						pb='4'
-						px='4'
-						mt={2}
-					>
-						<ApplicationStatus
-							applicationStatus={candidate.status}
-							newStatus={newStatus}
-							setNewStatus={setNewStatus}
-						/>
+				<HStack
+					justifyContent='space-between'
+					alignItems='end'
+					spacing={2}
+					pb='4'
+					px='4'
+					mt={2}
+				>
+					<ApplicationStatus
+						candidate={candidate}
+						newStatus={newStatus}
+						setNewStatus={setNewStatus}
+					/>
 
-						<div>
-							<Button
-								colorScheme='gray'
-								onClick={onClose}
-								variant='outline'
-								size='sm'
-								mr={2}
-							>
-								Cancel
-							</Button>
-							<Button
-								bg='brand.500'
-								color='white'
-								_hover={{
-									bg: 'brand.600',
-									color: 'white',
-								}}
-								_active={{
-									bg: 'brand.600',
-								}}
-								size='sm'
-								onClick={handleApplicationStatus}
-							>
-								{isLoading ? <Spinner /> : 'Save'}
-							</Button>
-						</div>
-					</HStack>
-				)}
+					<div>
+						<Button
+							colorScheme='gray'
+							onClick={onClose}
+							variant='outline'
+							size='sm'
+							mr={2}
+						>
+							Cancel
+						</Button>
+						<Button
+							bg='brand.500'
+							color='white'
+							_hover={{
+								bg: 'brand.600',
+								color: 'white',
+							}}
+							_active={{
+								bg: 'brand.600',
+							}}
+							size='sm'
+							disabled={
+								candidate.status === 'Eligible' && candidate.inviteAccepted
+							}
+							onClick={handleApplicationStatus}
+						>
+							{isLoading ? <Spinner /> : 'Save'}
+						</Button>
+					</div>
+				</HStack>
 			</ModalContent>
 		</Modal>
 	);

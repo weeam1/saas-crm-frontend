@@ -29,7 +29,6 @@ const ShortListedTable = ({
 	handleViewCandidate,
 	handleArrangeInterview,
 }) => {
-	console.log('Loading:', loading);
 	return (
 		<>
 			<Box rounded='md' overflow='hidden'>
@@ -121,7 +120,9 @@ const ShortListedTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={() => handleArrangeInterview(item._id)}
 												>
-													Arrange Interview
+													{item.interviewDate
+														? 'Reschedule'
+														: 'Arrange Interview'}
 												</Button>
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />
