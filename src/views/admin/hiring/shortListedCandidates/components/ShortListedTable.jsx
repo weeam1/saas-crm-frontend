@@ -89,7 +89,11 @@ const ShortListedTable = ({
 										<Td>{new Date(item.createdAt).toLocaleDateString()}</Td>
 										{/* <Td>{item.nationality}</Td> */}
 										<Td>
-											<HStack gap='1' alignItems='center'>
+											<HStack
+												gap='1'
+												alignItems='center'
+												justifyContent='space-between'
+											>
 												<Button
 													bg='#EDC270'
 													color='gray.800'
