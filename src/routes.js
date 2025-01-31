@@ -36,6 +36,7 @@ import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { FaClipboardUser } from 'react-icons/fa6';
+import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -332,9 +333,6 @@ const routes = [
 		path: '/hiring/candidates',
 		under: 'candidates',
 		parentName: 'Hiring',
-		icon: (
-			<Icon as={FaUserFriends} width='20px' height='20px' color='inherit' />
-		),
 		component: Candidates,
 	},
 	{
@@ -343,8 +341,15 @@ const routes = [
 		path: '/hiring/short-listed',
 		under: 'short-listed',
 		parentName: 'Hiring',
-		icon: <Icon as={FaUsers} width='20px' height='20px' color='inherit' />,
 		component: ShortListedCandidates,
+	},
+	{
+		name: 'Interview',
+		layout: [ROLE_PATH.user],
+		path: '/hiring/interview',
+		under: 'interview',
+		parentName: 'Hiring',
+		component: InterviewScreen,
 	},
 	// ------------- Phone Routes ------------------------
 	{
