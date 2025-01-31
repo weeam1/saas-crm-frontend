@@ -33,7 +33,9 @@ const ApplicationStatus = ({ candidate, newStatus, setNewStatus }) => {
 					borderColor: 'brand.500', // Apply brand color on hover
 				}}
 			>
-				{/* <option value='Pending'>Pending</option> */}
+				<option disabled value='Pending'>
+					Select status
+				</option>
 				<option value='Eligible' disabled={disabledOption}>
 					Eligible
 				</option>
