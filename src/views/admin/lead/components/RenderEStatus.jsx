@@ -75,6 +75,8 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 			<option value='interested'>Interested</option>
 			<option value='not-interested'>Not interested</option>
 			<option value='no-response'>No response</option>
+			<option value='interested-seller'>Interested Seller</option>
+			<option value='interested-buyer'>Interested Buyer</option>
 			<option value='hot'>Hot</option>
 			<option value='secondary-request'>Secondary request</option>
 			<option value='show'>Show</option>

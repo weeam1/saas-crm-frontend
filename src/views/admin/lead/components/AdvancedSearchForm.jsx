@@ -151,8 +151,7 @@ const AdvancedSearchForm = (props) => {
 						<option value='active'>Interested</option>
 						<option value='sold'>Sold</option>
 						<option value='pending'>Not interested</option>
-						<option value='interested_seller'>Interested Seller</option>
-						<option value='interested_buyer'>Interested Buyer</option>
+
 						<option value='reassigned'>Reassigned</option>
 						<option value='new'>New</option>
 						<option value='no_answer'>No Answer</option>
@@ -207,6 +206,8 @@ const AdvancedSearchForm = (props) => {
 						<option value='interested'>Interested</option>
 						<option value='not-interested'>Not interested</option>
 						<option value='no-response'>No response</option>
+						<option value='interested-seller'>Interested Seller</option>
+						<option value='interested-buyer'>Interested Buyer</option>
 						<option value='hot'>Hot</option>
 						<option value='secondary-request'>Secondary request</option>
 						<option value='show'>Show</option>
