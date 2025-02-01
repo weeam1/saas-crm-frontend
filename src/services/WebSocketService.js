@@ -1,6 +1,6 @@
-import keys from "config/keys";
-import { addAnnouncement } from "./../redux/announcementsSlice";
-import store from "./../redux/store";
+import keys from 'config/keys';
+import { addAnnouncement } from './../redux/announcementsSlice';
+import store from './../redux/store';
 
 class WebSocketService {
 	constructor() {
@@ -9,7 +9,7 @@ class WebSocketService {
 
 	connect(userId) {
 		if (!userId) {
-			console.error("User ID is required for WebSocket connection.");
+			console.error('User ID is required for WebSocket connection.');
 			return;
 		}
 
@@ -17,7 +17,7 @@ class WebSocketService {
 			this.socket = new WebSocket(`${keys.wssSocketUrl}/ws/${userId}`);
 
 			this.socket.onopen = () => {
-				console.log("WebSocket connection established.");
+				console.log('WebSocket connection established.');
 			};
 
 			this.socket.onmessage = (event) => {
@@ -25,19 +25,19 @@ class WebSocketService {
 
 				console.log({ message });
 				if (message.type === 1) {
-					console.log("Announcement message received added");
+					console.log('Announcement message received added');
 					// Add to Redux store
 					store.dispatch(addAnnouncement(message.data));
 				}
-				console.log("Message from server:", message);
+				console.log('Message from server:', message);
 			};
 
 			this.socket.onerror = (error) => {
-				console.error("WebSocket error:", error);
+				console.error('WebSocket error:', error);
 			};
 
 			this.socket.onclose = (event) => {
-				console.log("WebSocket connection closed:", event);
+				console.log('WebSocket connection closed:', event);
 			};
 		}
 	}
@@ -45,7 +45,7 @@ class WebSocketService {
 	disconnect() {
 		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
 			this.socket.close();
-			console.log("WebSocket connection terminated.");
+			console.log('WebSocket connection terminated.');
 		}
 	}
 
@@ -53,7 +53,7 @@ class WebSocketService {
 		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
 			this.socket.send(JSON.stringify(data));
 		} else {
-			console.error("WebSocket is not connected.");
+			console.error('WebSocket is not connected.');
 		}
 	}
 }

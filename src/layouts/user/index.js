@@ -33,6 +33,11 @@ import Hiring from 'views/admin/hiring';
 import { FaClipboardUser } from 'react-icons/fa6';
 import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
 import Candidates from 'views/admin/hiring/candidates';
+import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
+import HiringInfo from 'views/admin/hiring/interview/HiringInfo';
+import EvaluationPoints from 'views/admin/hiring/interview/EvaluationPoints';
+import SubmitResult from 'views/admin/hiring/interview/SubmitResult';
+import SelectInterviewers from 'views/admin/hiring/interview/SelectInterviewers';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -41,7 +46,8 @@ const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Lead = React.lazy(() => import('views/admin/lead'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
-// Custom Chakra theme
+// Custom Chakra themeimport interviewCandidates from './../../views/admin/hiring/interview/interviewCandidates';
+
 export default function User(props) {
 	const { ...rest } = props;
 	// states and functions
@@ -504,14 +510,38 @@ export default function User(props) {
 														path='/*'
 														element={<Navigate to='/hiring' />}
 													/>
-													<Route
-														path='/hiring/candidates'
-														element={<Candidates />}
-													/>
-													<Route
-														path='/hiring/short-listed'
-														element={<ShortListedCandidates />}
-													/>
+													<Route path='hiring'>
+														<Route path='candidates' element={<Candidates />} />
+														<Route
+															path='interview-candidates'
+															element={<interviewCandidates />}
+														/>
+														<Route
+															path='short-listed'
+															element={<ShortListedCandidates />}
+														/>
+														<Route
+															path='interview'
+															element={<InterviewScreen />}
+														>
+															<Route
+																path=':interviewId/hiring-info'
+																element={<HiringInfo />}
+															/>
+															<Route
+																path=':interviewId/evaluation'
+																element={<EvaluationPoints />}
+															/>
+															<Route
+																path=':interviewId/submit'
+																element={<SubmitResult />}
+															/>
+															<Route
+																path=':interviewId'
+																element={<SelectInterviewers />}
+															/>
+														</Route>
+													</Route>
 												</>
 											) : (
 												<Route path='/*' element={<Navigate to='/default' />} />

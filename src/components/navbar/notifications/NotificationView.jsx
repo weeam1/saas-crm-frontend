@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
 	Modal,
 	ModalOverlay,
@@ -10,61 +10,90 @@ import {
 	Flex,
 	Text,
 	Box,
-} from "@chakra-ui/react";
-import { format } from "date-fns";
+} from '@chakra-ui/react';
+import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
-const NotificationView = ({ item, isOpen, onClose }) => {
+const NotificationView = ({ title, item, type, isOpen, onClose }) => {
+	const navigate = useNavigate();
+
+	const handleJoinInterview = () => {
+		navigate(`/hiring/interview/${item.interview_id}`);
+		onClose();
+	};
+
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
-			size="2xl"
-			motionPreset="slideInBottom"
+			size='2xl'
+			motionPreset='slideInBottom'
+			isCentered
 		>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Notification Details</ModalHeader>
+				<ModalHeader>{title}</ModalHeader>
 				<ModalBody>
-					<Flex direction="column" gap={4}>
+					<Flex direction='column' gap={4}>
 						{/* Notification Message */}
 						<Box
-							backgroundColor="gray.100"
+							backgroundColor='softGray.100'
 							p={3}
-							rounded="md"
-							width="100%"
-							m="0"
-							background="brand"
-							maxH="200px" // Set max height for the modal body
-							overflowY="auto" // Enable vertical scrolling when content exceeds max height
+							rounded='md'
+							width='100%'
+							m='0'
+							maxH='200px' // Set max height for the modal body
+							overflowY='auto' // Enable vertical scrolling when content exceeds max height
 							sx={{
-								"&::-webkit-scrollbar": {
-									width: "6px", // Custom scrollbar width
+								'&::-webkit-scrollbar': {
+									width: '6px', // Custom scrollbar width
 								},
-								"&::-webkit-scrollbar-thumb": {
-									background: "gray.200", // Custom brand color (adjust according to your theme)
-									borderRadius: "8px",
+								'&::-webkit-scrollbar-thumb': {
+									background: 'gray.200', // Custom brand color (adjust according to your theme)
+									borderRadius: '8px',
 								},
-								"&::-webkit-scrollbar-thumb:hover": {
-									background: "gray.300", // Slightly darker on hover
+								'&::-webkit-scrollbar-thumb:hover': {
+									background: 'gray.300', // Slightly darker on hover
 								},
 							}}
 						>
-							<Text fontSize="md" wordBreak="break-word">
+							<Text fontSize='md' wordBreak='break-word'>
 								{item.message}
 							</Text>
 						</Box>
 
 						{/* Created At */}
-						<Text fontSize="sm" color="gray.500">
-							{format(new Date(item.created_at), "MMM d, yyyy h:mm a")}
+						<Text fontSize='sm' color='gray.500'>
+							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
 						</Text>
 					</Flex>
 				</ModalBody>
 
 				<ModalFooter>
-					<Button onClick={onClose} colorScheme="brand" rounded="md">
+					<Button onClick={onClose} colorScheme='gray' rounded='md'>
 						Close
 					</Button>
+					{/* is invite */}
+					{type === 'invite' && (
+						<>
+							<Button
+								onClick={handleJoinInterview}
+								fontSize='md'
+								fontWeight='semibold'
+								color='softGray.100'
+								bg='green.400'
+								_hover={{ bg: 'green.600', shadow: 'sm' }}
+								transition='0.2 s all'
+								width='fit-content'
+								py={2}
+								px={4}
+								ml={2}
+								rounded='md'
+							>
+								Join Interview
+							</Button>
+						</>
+					)}
 				</ModalFooter>
 			</ModalContent>
 		</Modal>

@@ -66,7 +66,6 @@ function App() {
 	const user2 = useSelector((state) => state.user.user);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	// const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
 
 	useEffect(() => {
 		if (user && user?._id) {
@@ -75,6 +74,8 @@ function App() {
 			webSocketService.socket.onmessage = (event) => {
 				try {
 					const message = JSON.parse(event.data);
+
+					console.log('WebSocket message:', message);
 
 					// Type = 1 mean Announcemnents
 					if (message.type === 1 && message.data.length > 0) {

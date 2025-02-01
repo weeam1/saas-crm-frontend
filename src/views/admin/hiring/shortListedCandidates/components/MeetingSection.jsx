@@ -29,7 +29,7 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 				<HStack gap={2}>
 					<Icon as={FaClock} w={5} h={5} />
 					<Heading size='md' color='gray.800'>
-						Upcoming Meetings
+						Upcoming Interviews
 					</Heading>
 				</HStack>
 

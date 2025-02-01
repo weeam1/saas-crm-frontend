@@ -66,6 +66,7 @@ export const globalStyles = extendTheme({
 		},
 		green: {
 			100: '#E6FAF5',
+			400: '#10B981',
 			500: '#01B574',
 		},
 		navy: {

@@ -238,7 +238,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 					{type === 'meeting' ? (
 						<HStack alignItems='center' justifyContent='flex-end' gap={1}>
 							<Text color='gray.500' fontWeight='light'>
-								meeting on
+								interview on
 							</Text>
 							<Text>{format(new Date(interviewDate), 'EEE, MMM d, yyyy')}</Text>
 							<Text>{interviewTime}</Text>

@@ -346,7 +346,7 @@ const routes = [
 	{
 		name: 'Interview',
 		layout: [ROLE_PATH.user],
-		path: '/hiring/interview',
+		path: '/hiring/interview/:interviewId',
 		under: 'interview',
 		parentName: 'Hiring',
 		component: InterviewScreen,

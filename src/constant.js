@@ -1,8 +1,10 @@
-import keys from "config/keys";
+import keys from 'config/keys';
 
 export const constant = {
 	baseUrl:
-		keys.nodeENV === "development" ? keys.baseLocalUrl : keys.baseLiveUrl,
+		keys.nodeENV === 'development' ? keys.baseLocalUrl : keys.baseLiveUrl,
+	socketBaseUrl:
+		keys.nodeENV === 'development' ? keys.socketUrl : keys.wssSocketUrl,
 	server2: keys.server2,
 };
 

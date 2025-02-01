@@ -6,8 +6,8 @@ import {
 	MenuItem,
 	Spinner,
 	Text,
-} from "@chakra-ui/react";
-import NotificationBox from "./NotificationBox";
+} from '@chakra-ui/react';
+import NotificationBox from './NotificationBox';
 
 const NotificationDropDown = ({
 	unreadCount,
@@ -16,35 +16,36 @@ const NotificationDropDown = ({
 	loadMoreNotifications,
 	hideLoadMoreBtn,
 }) => {
+	console.log({ notificationList });
 	return (
 		<>
 			<MenuList
-				w={{ base: "80%", md: "350px" }}
-				minW="250px"
-				maxH="450px"
-				overflowY="auto"
+				w={{ base: '80%', md: '350px' }}
+				minW='250px'
+				maxH='450px'
+				overflowY='auto'
 				sx={{
-					"&::-webkit-scrollbar": {
-						width: "8px",
-						transition: "opacity 0.3s",
+					'&::-webkit-scrollbar': {
+						width: '8px',
+						transition: 'opacity 0.3s',
 					},
-					"&:hover::-webkit-scrollbar": {
+					'&:hover::-webkit-scrollbar': {
 						opacity: 1,
 					},
-					"&::-webkit-scrollbar-thumb": {
-						backgroundColor: "gray.200",
-						borderRadius: "4px",
+					'&::-webkit-scrollbar-thumb': {
+						backgroundColor: 'gray.200',
+						borderRadius: '4px',
 					},
 				}}
 			>
 				{/* Header */}
 				<Box
-					fontWeight="bold"
-					bg="white"
-					color="brand.700"
+					fontWeight='bold'
+					bg='white'
+					color='brand.600'
 					p={2}
-					borderBottom="1px solid"
-					borderColor="gray.200"
+					borderBottom='1px solid'
+					borderColor='gray.200'
 				>
 					Notifications
 				</Box>
@@ -52,15 +53,15 @@ const NotificationDropDown = ({
 				{/* Notification List */}
 				<Box p={2}>
 					{notificationList.length > 0 ? (
-						<Flex direction="column" gap="1">
+						<Flex direction='column' gap='1'>
 							{notificationList.map((notification, index) => (
-								<MenuItem key={index} p={3} rounded="md">
+								<MenuItem key={index} p={3} rounded='md'>
 									<NotificationBox notification={notification} />
 								</MenuItem>
 							))}
 						</Flex>
 					) : (
-						<Text color="gray.800" textAlign="center">
+						<Text color='gray.800' textAlign='center'>
 							No notifications
 						</Text>
 					)}
@@ -69,18 +70,18 @@ const NotificationDropDown = ({
 				{/* Footer */}
 				<Box
 					p={2}
-					textAlign="center"
-					borderTop="1px solid"
-					borderColor="gray.200"
+					textAlign='center'
+					borderTop='1px solid'
+					borderColor='gray.200'
 				>
 					{loading ? (
-						<Spinner color="brand.400" />
+						<Spinner color='brand.400' />
 					) : (
 						notificationList.length > 0 &&
 						!hideLoadMoreBtn && (
 							<Button
-								size="sm"
-								colorScheme="gray"
+								size='sm'
+								colorScheme='gray'
 								onClick={loadMoreNotifications}
 							>
 								Load More

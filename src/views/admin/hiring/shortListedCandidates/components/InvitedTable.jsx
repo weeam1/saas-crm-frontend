@@ -18,6 +18,9 @@ import TableLoading from 'components/loading/TableLoading';
 import MailIcon from './MailIcon';
 import FlagBadge from '../../_components/FlagBadge';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { useCreateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
 
 const InvitedTable = ({
 	headers,
@@ -27,6 +30,31 @@ const InvitedTable = ({
 	sortConfig,
 	handleViewCandidate,
 }) => {
+	const naviagte = useNavigate();
+
+	const [createItemMutation, { isLoading: startingInterview }] =
+		useCreateItemMutation();
+
+	const handleStartInterview = async (candidateId) => {
+		try {
+			const { data } = await createItemMutation({
+				path: `/interviews`,
+				body: {
+					candidate: candidateId,
+				},
+			});
+
+			if (data?.status === 'success') {
+				naviagte(`/hiring/interview/${data?.doc._id}`);
+				toast.success('Interview started...');
+			}
+		} catch (error) {
+			console.log(error);
+			toast.error(
+				error.data.message || 'Interveiw not started.. due to some reason.'
+			);
+		}
+	};
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}
@@ -125,7 +153,7 @@ const InvitedTable = ({
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
-													// onClick={}
+													onClick={() => handleStartInterview(item._id)}
 												>
 													Start Interview
 												</Button>
