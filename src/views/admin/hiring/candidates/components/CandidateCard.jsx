@@ -123,7 +123,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 				width='full'
 			>
 				<Box mb='4'>
-					<Flex alignItems='flex-start' justifyContent='space-between'>
+					<Flex alignItems='flex-start' gap='2' justifyContent='space-between'>
 						<Box>
 							<Heading width='10rem' size='md' isTruncated>
 								{name}
@@ -167,10 +167,12 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 					</Flex>
 
 					<Flex flexDirection='column' gap='1' py='10px'>
-						<Flex gap='2' alignItems='center'>
-							<StatusBadge status={status} color={statusColor} size={8} />
-							<FlagBadge item={candidate} />
-						</Flex>
+						{type !== 'meeting' && (
+							<Flex gap='2' alignItems='center'>
+								<StatusBadge status={status} color={statusColor} size={8} />
+								<FlagBadge item={candidate} />
+							</Flex>
+						)}
 
 						<Flex
 							alignItems='center'
@@ -222,7 +224,6 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 						fontSize='0.85rem'
 						fontWeight='medium'
 						shadow='md'
-						// borderRadius='md'
 						rounded='full'
 						_hover={{ bg: '#E0B960' }} // Slightly darker shade for hover effect
 						_active={{ bg: '#D4AC50' }} // Darker shade for active state
@@ -236,22 +237,32 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
 					{type === 'meeting' ? (
-						<HStack alignItems='center' justifyContent='flex-end' gap={1}>
+						<Flex
+							fontSize='sm'
+							alignItems='center'
+							justifyContent='flex-end'
+							gap={1}
+						>
 							<Text color='gray.500' fontWeight='light'>
 								interview on
 							</Text>
 							<Text>{format(new Date(interviewDate), 'EEE, MMM d, yyyy')}</Text>
-							<Text>{interviewTime}</Text>
-						</HStack>
+							<span>{interviewTime}</span>
+						</Flex>
 					) : (
-						<HStack alignItems='center' justifyContent='flex-end' gap={1}>
+						<Flex
+							fontSize='sm'
+							alignItems='center'
+							justifyContent='flex-end'
+							gap={1}
+						>
 							<Text color='gray.500' fontWeight='light'>
 								applied on
 							</Text>
 							<Text>
 								{format(new Date(createdAt), 'EEE, MMM d, yyyy h:mm a')}
 							</Text>
-						</HStack>
+						</Flex>
 					)}
 				</Box>
 			</Box>

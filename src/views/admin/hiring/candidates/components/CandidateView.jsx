@@ -55,7 +55,6 @@ const CandidateView = ({
 				<ModalHeader>Application</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody
-					// style={{ fontFamily: `'Poppins', sans-serif` }}
 					width='100%'
 					maxH='550px' // Set max height for the modal body
 					overflowY='auto' // Enable vertical scrolling when content exceeds max height

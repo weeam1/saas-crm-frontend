@@ -17,9 +17,14 @@ import axios from 'axios';
 import keys from 'config/keys';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
+import CandidateCard from '../candidates/components/CandidateCard';
 
 const SelectInterviewers = () => {
 	const { interviewId } = useParams();
+
+	const { data: interview, isLoading: interviewLoading } = useFetchItemsQuery({
+		path: `/interviews/${interviewId}`,
+	});
 
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
@@ -29,10 +34,6 @@ const SelectInterviewers = () => {
 	const navigate = useNavigate();
 	const user = JSON.parse(localStorage.getItem('user'));
 	const userRole = user?.roles[0]?.roleName || user?.role;
-
-	const { data: interview, isLoading: interviewLoading } = useFetchItemsQuery({
-		path: `/interviews/${interviewId}`,
-	});
 
 	const [selectedIds, setSelectedIds] = useState([]);
 
@@ -137,12 +138,18 @@ const SelectInterviewers = () => {
 	return usersLoading || interviewLoading ? (
 		<Loader />
 	) : (
-		<Box p={8} width='700px' mx='auto'>
-			<Text fontSize='2xl' fontWeight='bold' mb={4} textAlign='center'>
+		<Box p={{ base: 4, md: 8 }} width={{ base: '100%', md: '700px' }} mx='auto'>
+			<Text
+				fontSize={{ base: 'xl', md: '2xl' }}
+				fontWeight='bold'
+				mb={4}
+				textAlign='center'
+			>
 				Select Interviewers
 			</Text>
+
 			<Tabs variant='subtle'>
-				<TabList justifyContent='space-between' gap='2' mb={4}>
+				<TabList justifyContent='space-between' gap={2} mb={4}>
 					{['Admin', 'Manager', 'HR'].map((tabName) => (
 						<Tab
 							key={tabName}
@@ -150,7 +157,7 @@ const SelectInterviewers = () => {
 							bg='softGray.100'
 							border='none'
 							borderRadius='10px'
-							fontWeight={'normal'}
+							fontWeight='normal'
 							_selected={{
 								bg: 'brand.300',
 								color: 'gray.800',
@@ -174,7 +181,7 @@ const SelectInterviewers = () => {
 			<Button
 				bg='#EDC270'
 				color='gray.800'
-				fontSize='sm'
+				fontSize={{ base: 'xs', md: 'sm' }}
 				fontWeight='normal'
 				shadow='sm'
 				rounded='md'

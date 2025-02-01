@@ -1,8 +1,19 @@
 import { Box, Button, Heading, HStack } from '@chakra-ui/react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
+import CandidateCard from '../candidates/components/CandidateCard';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
 
 const InterviewScreen = () => {
-	return (
+	const { interviewId } = useParams();
+
+	const { data: interview, isLoading: interviewLoading } = useFetchItemsQuery({
+		path: `/interviews/${interviewId}`,
+	});
+
+	return interviewLoading ? (
+		<Loader />
+	) : (
 		<Box>
 			{/* Header Section - Click to Toggle */}
 			<HStack
@@ -40,8 +51,19 @@ const InterviewScreen = () => {
 				</Button>
 			</HStack>
 
+			{interview?.doc?.candidate && (
+				<Box pt='2' pb='4' px='4' rounded='md' bg='softGray.100' mb='4'>
+					<Box width='fit-content'>
+						<CandidateCard
+							candidate={interview?.doc?.candidate}
+							type='meeting'
+						/>
+					</Box>
+				</Box>
+			)}
+
 			{/* Dynamic screen */}
-			<Box>
+			<Box bg='white' p={4} rounded='md' shadow='sm'>
 				<Outlet />
 			</Box>
 		</Box>
