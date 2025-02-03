@@ -61,7 +61,7 @@ const InterviewTabs = ({
 			// Redirect to the appropriate page based on the interviewer
 			const redirectUrl = isLeadInterviewer
 				? '/hiring/interviewed-candidates'
-				: '/hiring';
+				: '/';
 
 			navigate(redirectUrl);
 		} catch (error) {

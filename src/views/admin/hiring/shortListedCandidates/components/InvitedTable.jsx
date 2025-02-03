@@ -158,7 +158,7 @@ const InvitedTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={() => handleStartInterview(item._id)}
 												>
-													{startingInterview ? 'Staring...' : 'Start Interview'}
+													Start Interview
 												</Button>
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />
