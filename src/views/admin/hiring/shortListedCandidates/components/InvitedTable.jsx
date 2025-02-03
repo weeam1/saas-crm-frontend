@@ -30,7 +30,7 @@ const InvitedTable = ({
 	sortConfig,
 	handleViewCandidate,
 }) => {
-	const naviagte = useNavigate();
+	const navigate = useNavigate();
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
@@ -48,7 +48,9 @@ const InvitedTable = ({
 			});
 
 			if (data?.status === 'success') {
-				naviagte(`/hiring/interview/${data?.doc._id}`);
+				navigate(
+					`/hiring/interview/${data?.doc._id}?phase=select-interviewers`
+				);
 				toast.success('Interview started...');
 			}
 		} catch (error) {

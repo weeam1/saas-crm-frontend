@@ -36,13 +36,15 @@ const validationSchema = Yup.object().shape({
 		.min(1, 'Amount must be at least 1'),
 });
 
-const initialValues = {
-	jobRole: '',
-	jobType: '',
-	amount: '',
-};
+const HiringInfo = ({ interview, onSubmit }) => {
+	console.log({ interview });
 
-const HiringInfo = ({ onSubmit }) => {
+	const initialValues = {
+		jobRole: interview?.candidate?.position || '',
+		jobType: '',
+		amount: '',
+	};
+
 	return (
 		<Box w='full'>
 			<Text
@@ -142,7 +144,7 @@ const HiringInfo = ({ onSubmit }) => {
 						<Button
 							bg='#EDC270'
 							color='gray.800'
-							fontSize={{ base: 'xs', md: 'sm' }}
+							fontSize={{ base: 'sm', md: 'md' }}
 							fontWeight='normal'
 							shadow='sm'
 							rounded='md'

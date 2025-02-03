@@ -56,8 +56,6 @@ const ArrangeInterview = ({
 	const handleTimeChange = (e) => {
 		const time = e.target.value;
 
-		console.log(time);
-
 		setShowTime(time);
 
 		if (time !== '') {

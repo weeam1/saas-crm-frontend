@@ -13,7 +13,7 @@ import SelectInterviewers from './SelectInterviewers';
 import HiringInfo from './HiringInfo';
 import EvaluationPoints from './EvaluationPoints';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,9 +23,19 @@ const InterviewTabs = ({
 	user,
 	activeTabIndex,
 	isLeadInterviewer,
+	interviewersSelected,
+	setInterviewersSelected,
 }) => {
 	const [hiringData, setHiringData] = useState();
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
+
+	console.log({ interview });
+
+	const isInvitiedInerviewer = interview?.totalInterviewers > 0;
+
+	if (isInvitiedInerviewer) {
+		handleTabChange(1);
+	}
 
 	const navigate = useNavigate();
 
@@ -72,6 +82,10 @@ const InterviewTabs = ({
 	return (
 		<Box
 			display='flex'
+			bg='white'
+			p={{ base: 4, lg: 8 }}
+			rounded='md'
+			shadow='sm'
 			justifyContent='center'
 			width='full'
 			alignItems='center'
@@ -94,20 +108,36 @@ const InterviewTabs = ({
 						rounded='md'
 						shadow='sm'
 					>
+						{/* Conditionally render the "Select Interviewers" tab separately if not invited */}
+
+						<Tab
+							isDisabled={isInvitiedInerviewer}
+							_selected={{ bg: 'brand.400', color: 'white' }}
+							_focus={{ boxShadow: 'none' }} // Removes focus outline
+							rounded='md'
+							width='full'
+						>
+							<HStack>
+								<LuUsers />
+								<Text>Select Interviewers</Text>
+							</HStack>
+						</Tab>
+
+						{/* Other tabs */}
 						{[
-							{ label: 'Select Interviewers', icon: LuUsers },
 							{ label: 'Hiring Info', icon: LuFileText },
 							{ label: 'Evaluation Points', icon: LuCheckSquare },
 						].map((tab, index) => (
 							<Tab
 								key={index}
+								isDisabled={!isInvitiedInerviewer} // Disable all tabs if not invited
 								_selected={{ bg: 'brand.400', color: 'white' }}
 								_focus={{ boxShadow: 'none' }} // Removes focus outline
 								rounded='md'
 								width='full'
 							>
 								<HStack>
-									{<tab.icon />}
+									<tab.icon />
 									<Text>{tab.label}</Text>
 								</HStack>
 							</Tab>
@@ -124,11 +154,13 @@ const InterviewTabs = ({
 							<SelectInterviewers
 								user={user}
 								interview={interview}
+								setInterviewersSelected={setInterviewersSelected}
 								handleTabChange={handleTabChange}
 							/>
 						</TabPanel>
 						<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
 							<HiringInfo
+								interview={interview}
 								hiringData={hiringData}
 								setHiringData={setHiringData}
 								onSubmit={handleHiringInfoSubmit}
@@ -136,7 +168,10 @@ const InterviewTabs = ({
 						</TabPanel>
 
 						<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
-							<EvaluationPoints onSubmit={handleSubmit} />
+							<EvaluationPoints
+								onSubmit={handleSubmit}
+								isLeadInterviewer={isLeadInterviewer}
+							/>
 						</TabPanel>
 					</TabPanels>
 				</Tabs>

@@ -15,6 +15,7 @@ const InterviewScreen = () => {
 
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
+	const [interviewersSelected, setInterviewersSelected] = useState(false);
 	const phases = useMemo(
 		() => ['select-interviewers', 'hiring-info', 'evaluation-points'],
 		[]
@@ -29,8 +30,8 @@ const InterviewScreen = () => {
 	}, [searchParams, phases]);
 
 	const handleTabChange = (index) => {
-		console.log({ IDEX: index });
-		console.log({ phase: phases[index] });
+		if (interviewersSelected && index === 0) return;
+
 		setSearchParams({ phase: phases[index] });
 		setActiveTabIndex(index); // Update the active tab index
 	};
@@ -129,6 +130,8 @@ const InterviewScreen = () => {
 						interview={interview.doc}
 						user={user}
 						isLeadInterviewer={isLeadInterviewer}
+						interviewersSelected={interviewersSelected}
+						setInterviewersSelected={setInterviewersSelected}
 					/>
 				</>
 			) : (

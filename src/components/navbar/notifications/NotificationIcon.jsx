@@ -5,14 +5,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import useNotificationHistory from 'hooks/useNotificationHistory';
 import NotificationDropDown from './NotificaitonDropDown';
 import { BellIcon } from '@chakra-ui/icons';
-// import webSocketService from 'services/WebSocketService';
-import { useSelector } from 'react-redux';
-// import { MdNotificationsNone } from "react-icons/md";
+import { useDispatch, useSelector } from 'react-redux';
+// import { clearNotifyItem } from './../../redux/webSocketReducer';
 
 const NotificationIcon = ({ userId }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10; // Number of announcements per page
 	const [isOpen, setIsOpen] = useState(false);
+
+	const dispatch = useDispatch();
 
 	const {
 		list: notificationList,
@@ -21,16 +22,15 @@ const NotificationIcon = ({ userId }) => {
 		getHistory,
 	} = useNotificationHistory(userId, currentPage, itemsPerPage);
 
-	// const newNotification = useSelector(
-	// 	(state) => state.webSocket.newNotification
-	// );
+	// const newNotifyItem = useSelector((state) => state.webSocket.newNotifyItem);
 
 	// useEffect(() => {
-	// 	if (newNotification.status === true) {
+	// 	if (newNotifyItem.type !== -1) {
 	// 		setCurrentPage(1);
 	// 		getHistory();
+	// 		dispatch(clearNotifyItem);
 	// 	}
-	// }, [getHistory, newNotification.status]);
+	// }, [getHistory, newNotifyItem.type, dispatch]);
 
 	const dropdownRef = useRef(null); // Ref for the dropdown component
 

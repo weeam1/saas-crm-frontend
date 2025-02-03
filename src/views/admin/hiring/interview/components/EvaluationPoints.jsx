@@ -31,17 +31,6 @@ const createInitialState = () => {
 	}, {});
 };
 
-// Validation schema using Yup
-// const validationSchema = Yup.object().shape(
-// 	evaluationFields.reduce((acc, field) => {
-// 		acc[field] = Yup.number()
-// 			.min(1, `${field} must be at least 1`)
-// 			.max(10, `${field} must be at most 10`)
-// 			.required(`${field} is required`);
-// 		return acc;
-// 	}, {})
-// );
-
 const validationSchema = Yup.object().shape(
 	evaluationFields.reduce((acc, field) => {
 		acc[field] = Yup.number()
@@ -53,7 +42,7 @@ const validationSchema = Yup.object().shape(
 	}, {})
 );
 
-const EvaluationPoints = ({ onSubmit }) => {
+const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 	const [evaluationData, setLocalEvaluationData] =
 		useState(createInitialState());
 	return (
@@ -119,7 +108,7 @@ const EvaluationPoints = ({ onSubmit }) => {
 						<Button
 							bg='#EDC270'
 							color='gray.800'
-							fontSize={{ base: 'xs', md: 'sm' }}
+							fontSize={{ base: 'sm', md: 'md' }}
 							fontWeight='normal'
 							shadow='sm'
 							rounded='md'
@@ -129,7 +118,7 @@ const EvaluationPoints = ({ onSubmit }) => {
 							mt={6}
 							type='submit'
 						>
-							End Interview
+							{isLeadInterviewer ? 'Submit Points' : 'End Interview'}
 						</Button>
 					</Form>
 				)}

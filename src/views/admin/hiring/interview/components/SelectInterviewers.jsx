@@ -16,7 +16,6 @@ import Loader from 'components/loading/Loader';
 import axios from 'axios';
 import keys from 'config/keys';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { useUpdateItemMutation } from 'api/apiSlice';
 
 const SelectInterviewers = ({ interview, user, handleTabChange }) => {
@@ -25,9 +24,9 @@ const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 		params: { type: 'all' },
 	});
 
-	const [updateItemMutation] = useUpdateItemMutation();
+	const [updateItemMutation, { isLoading: updatingInterview }] =
+		useUpdateItemMutation();
 
-	const navigate = useNavigate();
 	const userRole = user?.roles[0]?.roleName || user?.role;
 
 	const [selectedIds, setSelectedIds] = useState([]);
@@ -125,7 +124,11 @@ const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 				toast.success('Interview invite sent successfully.');
 				handleTabChange(1);
 			} else {
-				toast.error('Please select the recivers again.');
+				await updateItemMutation({
+					path: `/interviews/${interview._id}`,
+					body: { interviewers: [user._id] },
+				}).unwrap();
+				handleTabChange(1);
 			}
 		} catch (err) {
 			console.log(err);
@@ -181,7 +184,7 @@ const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 			<Button
 				bg='#EDC270'
 				color='gray.800'
-				fontSize={{ base: 'xs', md: 'sm' }}
+				fontSize={{ base: 'sm', md: 'md' }}
 				fontWeight='normal'
 				shadow='sm'
 				rounded='md'
@@ -190,9 +193,12 @@ const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 				w='full'
 				mt={6}
 				onClick={() => handleSendInvite(selectedIds)}
-				isDisabled={selectedIds.length === 0}
 			>
-				Send Invite ({selectedIds.length})
+				{updatingInterview
+					? 'Updating...'
+					: selectedIds.length === 0
+						? 'Skip'
+						: `Send Invite (${selectedIds.length})`}
 			</Button>
 		</Box>
 	);

@@ -129,7 +129,6 @@ function App() {
 
 				// Open the modal and clear previous notification
 				setIsModalOpen(true);
-				dispatch(clearNotifyItem());
 			} catch (error) {
 				console.error('Error handling WebSocket message:', error);
 			}
@@ -333,10 +332,13 @@ function App() {
 					/>
 				)} */}
 
-				<AnnouncementsModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-				/>
+				{isModalOpen && (
+					<AnnouncementsModal
+						isOpen={isModalOpen}
+						onClose={() => setIsModalOpen(false)}
+					/>
+				)}
+
 				<ToastContainer />
 				<Routes>
 					{token && user?.role ? (

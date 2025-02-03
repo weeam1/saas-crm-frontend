@@ -93,13 +93,15 @@ const NotificationBox = ({ notification }) => {
 				</Box>
 			</Box>
 
-			<NotificationView
-				title={title}
-				item={notification}
-				type={messageType}
-				isOpen={isOpen}
-				onClose={onClose}
-			/>
+			{isOpen && (
+				<NotificationView
+					title={title}
+					item={notification}
+					type={messageType}
+					isOpen={isOpen}
+					onClose={onClose}
+				/>
+			)}
 		</>
 	);
 };
