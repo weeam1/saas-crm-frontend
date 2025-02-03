@@ -23,7 +23,7 @@ const InterviewTabs = ({
 	user,
 	activeTabIndex,
 	isLeadInterviewer,
-	interviewersSelected,
+	interviewRefetch,
 	setInterviewersSelected,
 }) => {
 	const [hiringData, setHiringData] = useState();
@@ -32,10 +32,6 @@ const InterviewTabs = ({
 	console.log({ interview });
 
 	const isInvitiedInerviewer = interview?.totalInterviewers > 0;
-
-	if (isInvitiedInerviewer) {
-		handleTabChange(1);
-	}
 
 	const navigate = useNavigate();
 
@@ -78,6 +74,8 @@ const InterviewTabs = ({
 			toast.error(error?.data?.message || 'Failed to update interview data');
 		}
 	};
+
+	console.log({ isInvitiedInerviewer });
 
 	return (
 		<Box
@@ -154,6 +152,7 @@ const InterviewTabs = ({
 							<SelectInterviewers
 								user={user}
 								interview={interview}
+								interviewRefetch={interviewRefetch}
 								setInterviewersSelected={setInterviewersSelected}
 								handleTabChange={handleTabChange}
 							/>

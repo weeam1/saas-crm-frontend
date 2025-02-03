@@ -40,6 +40,7 @@ const InterviewScreen = () => {
 		data: interview,
 		isLoading: interviewLoading,
 		error,
+		refetch: interviewRefetch,
 	} = useFetchItemsQuery({
 		path: `/interviews/${interviewId}`,
 	});
@@ -128,6 +129,7 @@ const InterviewScreen = () => {
 						handleTabChange={handleTabChange}
 						activeTabIndex={activeTabIndex}
 						interview={interview.doc}
+						interviewRefetch={interviewRefetch}
 						user={user}
 						isLeadInterviewer={isLeadInterviewer}
 						interviewersSelected={interviewersSelected}

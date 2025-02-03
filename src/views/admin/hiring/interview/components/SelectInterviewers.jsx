@@ -18,7 +18,12 @@ import keys from 'config/keys';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 
-const SelectInterviewers = ({ interview, user, handleTabChange }) => {
+const SelectInterviewers = ({
+	interview,
+	user,
+	handleTabChange,
+	interviewRefetch,
+}) => {
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
 		params: { type: 'all' },
@@ -134,7 +139,7 @@ const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 			console.log(err);
 			toast.error('Failed to send announcement.');
 		} finally {
-			// setLoading(false);
+			interviewRefetch();
 		}
 	};
 
