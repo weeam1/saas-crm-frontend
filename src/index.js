@@ -28,6 +28,7 @@ import { setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
 import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
+import { clearNotifyItem, newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
 import AnnouncementsModal from 'views/admin/announcement/components/AnnouncementsModal';
 
@@ -37,8 +38,7 @@ import logo from 'assets/img/app-logo.jpeg';
 
 // Import your audio file
 import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
-// import PermissionModal from "components/Permission/PermissionModal";
-
+import { requestNotificationPermission } from 'services/NotificationService';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -49,6 +49,8 @@ function App() {
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
+
+	const [notify, setNotify] = useState({});
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
@@ -68,62 +70,190 @@ function App() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	useEffect(() => {
-		if (user && user?._id) {
-			webSocketService.connect(user._id);
+		if (!user?._id) return;
 
-			webSocketService.socket.onmessage = (event) => {
-				try {
-					const message = JSON.parse(event.data);
+		webSocketService.connect(user._id);
 
-					console.log('WebSocket message:', message);
+		webSocketService.socket.onmessage = async (event) => {
+			try {
+				const socketData = JSON.parse(event.data);
+				console.log('WebSocket message:', socketData);
 
-					// Type = 1 mean Announcemnents
-					if (message.type === 1 && message.data.length > 0) {
-						message.data.forEach((announcement) =>
+				const { type, data } = socketData;
+				const message = data?.message || 'Check out the latest updates!';
+
+				// Handle announcements (type === 1)
+				if (type === 1) {
+					if (Array.isArray(data) && data.length > 0) {
+						data.forEach((announcement) =>
 							dispatch(addAnnouncement(announcement))
 						);
-					} else if (message.type === 1 && message.data.message) {
-						dispatch(addAnnouncement(message.data));
-
-						if (Notification.permission === 'granted') {
-							console.log('Notification granted');
-							showNotification({
-								title: 'New Announcement',
-								message:
-									message.data.message || 'Check out the latest updates!',
-							});
-						} else {
-							// Fallback to an in-app notification or alert
-							toast.success('Check out the latest updates!');
-						}
-
-						// Play the sound effect for new announcement
-						announcementSound.play().catch((error) => {
-							console.error('Error playing sound:', error);
-						});
+					} else {
+						dispatch(addAnnouncement(socketData));
 					}
-
-					// Type = 0 mean Notificaitons
-					// if (message.type === 0) {
-					// 	message.data.forEach((announcement) =>
-					// 		dispatch(addNotification(announcement))
-					// 	);
-					// }
-
-					// Automatically open the modal to show new announcements
-					setIsModalOpen(true);
-				} catch (error) {
-					console.error('Error handling WebSocket message:', error);
 				}
-			};
-		}
+
+				// Push notification if type is valid
+				if (type !== -1 && message) {
+					dispatch(newNotifyItem(socketData));
+
+					const notificationDetails = {
+						title:
+							type === 1
+								? 'New Announcement'
+								: type === 2
+									? 'Interview Invite'
+									: 'New Notification',
+						message,
+					};
+
+					setNotify(notificationDetails);
+				}
+
+				// Request and send notifications
+				const isGranted = await requestNotificationPermission();
+				if (isGranted) {
+					console.log('Notification granted');
+					showNotification({
+						title: notify.title,
+						message: notify.message,
+					});
+				} else {
+					toast.success('Check out the latest updates!');
+				}
+
+				// Play notification sound
+				await announcementSound
+					.play()
+					.catch((error) => console.error('Error playing sound:', error));
+
+				// Open the modal and clear previous notification
+				setIsModalOpen(true);
+				dispatch(clearNotifyItem());
+			} catch (error) {
+				console.error('Error handling WebSocket message:', error);
+			}
+		};
+
+		return () => {
+			webSocketService.socket.onmessage = null; // Cleanup
+		};
 	}, [dispatch, user]);
 
 	// useEffect(() => {
+	// 	if (user && user?._id) {
+	// 		webSocketService.connect(user._id);
+
+	// 		webSocketService.socket.onmessage = (event) => {
+	// 			const socketData = JSON.parse(event.data);
+
+	// 			console.log('WebSocket message:', socketData);
+
+	// 			// Type = 1 mean Announcemnents
+	// 			if (socketData.type === 1 && socketData.data.length > 0) {
+	// 				socketData.data.forEach((announcement) =>
+	// 					dispatch(addAnnouncement(announcement))
+	// 				);
+	// 			} else if (socketData.type === 1 && socketData.data.message) {
+	// 				dispatch(addAnnouncement(socketData));
+	// 				dispatch(newNotifyItem(socketData));
+	// 			}
+
+	// 			if (socketData.type !== -1 && socketData.data.message) {
+	// 				dispatch(newNotifyItem(socketData));
+	// 				if (socketData?.type === 1) {
+	// 					setNotify({
+	// 						title: 'New Announcement',
+	// 						message:
+	// 							socketData.data.message || 'Check out the latest updates!',
+	// 					});
+	// 				} else if (socketData?.type === 0) {
+	// 					setNotify({
+	// 						title: 'New Notification',
+	// 						message:
+	// 							socketData.data.message || 'Check out the latest updates!',
+	// 					});
+	// 				} else if (socketData?.type === 2) {
+	// 					setNotify({
+	// 						title: 'Interiew Invite',
+	// 						message:
+	// 							socketData.data.message || 'Check out the latest updates!',
+	// 					});
+	// 				}
+	// 			}
+
+	// 			requestNotificationPermission().then((isGranted) => {
+	// 				if (isGranted) {
+	// 					console.log('Notification granted');
+	// 					showNotification(notify);
+	// 				} else {
+	// 					// Fallback to in-app notification
+	// 					toast.success('Check out the latest updates!');
+	// 				}
+	// 			});
+
+	// 			// Play the sound effect for new announcement
+	// 			announcementSound.play().catch((error) => {
+	// 				console.error('Error playing sound:', error);
+	// 			});
+
+	// 			setIsModalOpen(true);
+	// 			dispatch(clearNotifyItem());
+	// 		};
+
+	// 		// webSocketService.socket.onmessage = (event) => {
+	// 		// 	try {
+	// 		// 		const message = JSON.parse(event.data);
+
+	// 		// 		console.log('WebSocket message:', message);
+
+	// 		// 		// Type = 1 mean Announcemnents
+	// 		// 		if (message.type === 1 && message.data.length > 0) {
+	// 		// 			message.data.forEach((announcement) =>
+	// 		// 				dispatch(addAnnouncement(announcement))
+	// 		// 			);
+	// 		// 		} else if (message.type === 1 && message.data.message) {
+	// 		// 			dispatch(addAnnouncement(message.data));
+
+	// 		// 			if (Notification.permission === 'granted') {
+	// 		// 				console.log('Notification granted');
+	// 		// 				showNotification({
+	// 		// 					title: 'New Announcement',
+	// 		// 					message:
+	// 		// 						message.data.message || 'Check out the latest updates!',
+	// 		// 				});
+	// 		// 			} else {
+	// 		// 				// Fallback to an in-app notification or alert
+	// 		// 				toast.success('Check out the latest updates!');
+	// 		// 			}
+
+	// 		// 			// Play the sound effect for new announcement
+	// 		// 			announcementSound.play().catch((error) => {
+	// 		// 				console.error('Error playing sound:', error);
+	// 		// 			});
+	// 		// 		}
+
+	// 		// 		// Type = 0 mean Notificaitons
+	// 		// 		// if (message.type === 0) {
+	// 		// 		// 	message.data.forEach((announcement) =>
+	// 		// 		// 		dispatch(addNotification(announcement))
+	// 		// 		// 	);
+	// 		// 		// }
+
+	// 		// 		// Automatically open the modal to show new announcements
+	// 		// 		setIsModalOpen(true);
+	// 		// 	} catch (error) {
+	// 		// 		console.error('Error handling WebSocket message:', error);
+	// 		// 	}
+	// 		// };
+	// 	}
+	// }, [dispatch, newNotifyItem, notify, user]);
+
+	// useEffect(() => {
 	// 	const checkPermissions = () => {
-	// 		if (Notification.permission === "granted") {
+	// 		if (Notification.permission === 'granted') {
 	// 			setPermissionGranted(true);
-	// 		} else if (Notification.permission === "denied") {
+	// 		} else if (Notification.permission === 'denied') {
 	// 			setPermissionGranted(false);
 	// 		} else {
 	// 			// Permission is not yet requested (default).
@@ -143,12 +273,12 @@ function App() {
 	// 				dispatch(addAnnouncement(message.data));
 
 	// 				showNotification({
-	// 					title: "New Announcement",
-	// 					message: message.data.message || "Check out the latest updates!",
+	// 					title: 'New Announcement',
+	// 					message: message.data.message || 'Check out the latest updates!',
 	// 				});
 
 	// 				announcementSound.play().catch((error) => {
-	// 					console.error("Error playing sound:", error);
+	// 					console.error('Error playing sound:', error);
 	// 				});
 	// 			}
 	// 		};

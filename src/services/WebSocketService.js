@@ -1,6 +1,15 @@
 import keys from 'config/keys';
+import { toast } from 'react-toastify';
 import { addAnnouncement } from './../redux/announcementsSlice';
+import { newNotifyItem } from './../redux/webSocketReducer';
+
 import store from './../redux/store';
+
+import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
+// import { showNotification } from './NotificationService';
+
+// Create an audio instance
+const announcementSound = new Audio(newAnnouncementSound);
 
 class WebSocketService {
 	constructor() {
@@ -20,17 +29,23 @@ class WebSocketService {
 				console.log('WebSocket connection established.');
 			};
 
-			this.socket.onmessage = (event) => {
-				const message = JSON.parse(event.data);
+			// this.socket.onmessage = (event) => {
+			// 	const socketData = JSON.parse(event.data);
 
-				console.log({ message });
-				if (message.type === 1) {
-					console.log('Announcement message received added');
-					// Add to Redux store
-					store.dispatch(addAnnouncement(message.data));
-				}
-				console.log('Message from server:', message);
-			};
+			// 	console.log('WebSocket message:', socketData);
+
+			// 	// Type = 1 mean Announcemnents
+			// 	if (socketData.type === 1 && socketData.data.length > 0) {
+			// 		socketData.data.forEach((announcement) =>
+			// 			store.dispatch(addAnnouncement(announcement))
+			// 		);
+			// 	} else if (socketData.type === 1 && socketData.data.message) {
+			// 		store.dispatch(addAnnouncement(socketData));
+			// 		store.dispatch(newNotifyItem(socketData));
+			// 	} else if (socketData.type === 2 && socketData.data.message) {
+			// 		store.dispatch(newNotifyItem(socketData));
+			// 	}
+			// };
 
 			this.socket.onerror = (error) => {
 				console.error('WebSocket error:', error);

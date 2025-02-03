@@ -4,6 +4,7 @@ import imageReducer from './imageSlice';
 import userReducer from './localSlice';
 import announcementsReducer from './announcementsSlice';
 import missingFilesReducer from './missingFilesSlice';
+import webSocketReducer from './webSocketReducer';
 import { apiSlice } from 'api/apiSlice';
 
 const store = configureStore({
@@ -13,6 +14,7 @@ const store = configureStore({
 		user: userReducer,
 		announcements: announcementsReducer,
 		missingFiles: missingFilesReducer,
+		webSocket: webSocketReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>

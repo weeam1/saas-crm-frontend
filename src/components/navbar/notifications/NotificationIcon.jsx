@@ -5,7 +5,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import useNotificationHistory from 'hooks/useNotificationHistory';
 import NotificationDropDown from './NotificaitonDropDown';
 import { BellIcon } from '@chakra-ui/icons';
-import webSocketService from 'services/WebSocketService';
+// import webSocketService from 'services/WebSocketService';
+import { useSelector } from 'react-redux';
 // import { MdNotificationsNone } from "react-icons/md";
 
 const NotificationIcon = ({ userId }) => {
@@ -20,19 +21,16 @@ const NotificationIcon = ({ userId }) => {
 		getHistory,
 	} = useNotificationHistory(userId, currentPage, itemsPerPage);
 
-	useEffect(() => {
-		webSocketService.socket.onmessage = (event) => {
-			try {
-				const message = JSON.parse(event.data);
-				if (message.data.message) {
-					setCurrentPage(1);
-					getHistory();
-				}
-			} catch (error) {
-				console.error('Error handling WebSocket message:', error);
-			}
-		};
-	}, [getHistory]);
+	// const newNotification = useSelector(
+	// 	(state) => state.webSocket.newNotification
+	// );
+
+	// useEffect(() => {
+	// 	if (newNotification.status === true) {
+	// 		setCurrentPage(1);
+	// 		getHistory();
+	// 	}
+	// }, [getHistory, newNotification.status]);
 
 	const dropdownRef = useRef(null); // Ref for the dropdown component
 
