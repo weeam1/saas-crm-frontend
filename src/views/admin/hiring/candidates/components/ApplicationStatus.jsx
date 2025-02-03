@@ -4,6 +4,7 @@ import React from 'react';
 const ApplicationStatus = ({ candidate, newStatus, setNewStatus }) => {
 	const disabledOption =
 		candidate.status === 'Eligible' && candidate.inviteAccepted;
+
 	return (
 		<Box mt='2' fontSize='sm'>
 			<Box

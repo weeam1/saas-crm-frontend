@@ -34,10 +34,7 @@ import { FaClipboardUser } from 'react-icons/fa6';
 import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
 import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
-import HiringInfo from 'views/admin/hiring/interview/HiringInfo';
-import EvaluationPoints from 'views/admin/hiring/interview/EvaluationPoints';
-import SubmitResult from 'views/admin/hiring/interview/SubmitResult';
-import SelectInterviewers from 'views/admin/hiring/interview/SelectInterviewers';
+import InterviewedCandidates from 'views/admin/hiring/interview/InterviewedCandidates';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -160,17 +157,25 @@ export default function User(props) {
 
 	if (user?.roles[0]?.roleName === 'HR') {
 		// Define the "Candidates" route
-		const hiringRoutes = {
-			name: 'Hiring',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/hiring',
-			icon: (
-				<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
-			),
-			component: Hiring,
-		};
+		const hiringRoutes = [
+			{
+				name: 'Hiring',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring',
+				icon: (
+					<Icon
+						as={FaClipboardUser}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Hiring,
+			},
+		];
+
 		// 	// Only show the "Hiring" route for HR role
-		routes = [hiringRoutes];
+		routes = hiringRoutes;
 	}
 
 	const accessRoute = newRoute?.filter((item) =>
@@ -521,26 +526,13 @@ export default function User(props) {
 															element={<ShortListedCandidates />}
 														/>
 														<Route
-															path='interview'
+															path='interview/:interviewId'
 															element={<InterviewScreen />}
-														>
-															<Route
-																path=':interviewId/hiring-info'
-																element={<HiringInfo />}
-															/>
-															<Route
-																path=':interviewId/evaluation'
-																element={<EvaluationPoints />}
-															/>
-															<Route
-																path=':interviewId/submit'
-																element={<SubmitResult />}
-															/>
-															<Route
-																path=':interviewId'
-																element={<SelectInterviewers />}
-															/>
-														</Route>
+														/>
+														<Route
+															path='interviewed-candidates'
+															element={<InterviewedCandidates />}
+														/>
 													</Route>
 												</>
 											) : (

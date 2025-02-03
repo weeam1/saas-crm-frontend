@@ -14,6 +14,7 @@ import {
 	Box,
 	InputRightElement,
 	InputGroup,
+	Text,
 } from '@chakra-ui/react';
 import './date.css';
 import { FaRegCalendar } from 'react-icons/fa';
@@ -33,6 +34,7 @@ const ArrangeInterview = ({
 }) => {
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showTime, setShowTime] = useState('');
+	const [errors, setErrors] = useState({});
 
 	const toggleCalendar = () => {
 		setShowCalendar(!showCalendar);
@@ -46,7 +48,7 @@ const ArrangeInterview = ({
 
 		const formattedDate = date.toDateString(); // Example: "Thu Jan 30 2025"
 		console.log('Formatted Date:', formattedDate);
-
+		setErrors((prev) => ({ ...prev, selectedDate: '' }));
 		setSelectedDate(date); // Store Date object, not a formatted string
 		setShowCalendar(false); // Hide the calendar after selecting a date
 	};
@@ -66,7 +68,21 @@ const ArrangeInterview = ({
 			hours = hours < 10 ? '0' + hours : hours;
 
 			const displayTime = hours + ':' + minutes + ' ' + suffix;
+
+			setErrors((prev) => ({ ...prev, showTime: '' }));
 			setSelectedTime(displayTime);
+		}
+	};
+
+	const handleSubmit = () => {
+		const newErrors = {};
+		if (!selectedDate) newErrors.selectedDate = 'Date is required';
+		if (!showTime) newErrors.showTime = 'Time is required';
+
+		setErrors(newErrors);
+
+		if (Object.keys(newErrors).length === 0) {
+			handleScheduleInterview();
 		}
 	};
 
@@ -80,9 +96,8 @@ const ArrangeInterview = ({
 					<ModalCloseButton />
 					<ModalBody>
 						{/* Date Input */}
-						<FormControl mb={4}>
+						<FormControl mb={4} isInvalid={errors?.selectedDate}>
 							<FormLabel>Select Date</FormLabel>
-							{/* Input Wrapper */}
 							<Box position='relative' width='100%'>
 								<InputGroup>
 									<Input
@@ -91,24 +106,22 @@ const ArrangeInterview = ({
 										}
 										placeholder='Select a date'
 										readOnly
+										required
 										bg='#F2F2F2'
-										borderColor='gray.300'
+										borderColor={errors?.selectedDate ? 'red.500' : 'gray.300'}
 										borderRadius='md'
-										focusBorderColor='#E0B960'
-									/>
-									{/* Calendar Icon Inside Input */}
-									<InputRightElement
-										children={
-											<FaRegCalendar
-												size={16}
-												cursor='pointer'
-												onClick={toggleCalendar}
-											/>
+										focusBorderColor={
+											errors?.selectedDate ? 'red.500' : '#E0B960'
 										}
 									/>
+									<InputRightElement>
+										<FaRegCalendar
+											size={16}
+											cursor='pointer'
+											onClick={toggleCalendar}
+										/>
+									</InputRightElement>
 								</InputGroup>
-
-								{/* Calendar Component */}
 								{showCalendar && (
 									<Box
 										position='absolute'
@@ -128,18 +141,25 @@ const ArrangeInterview = ({
 									</Box>
 								)}
 							</Box>
+							{errors?.selectedDate && (
+								<Text color='red.500' fontSize='sm'>
+									{errors?.selectedDate}
+								</Text>
+							)}
 						</FormControl>
+
 						{/* Time Input */}
-						<FormControl>
+						<FormControl isInvalid={errors?.showTime}>
 							<FormLabel>Select Time</FormLabel>
 							<Input
 								type='time'
 								value={showTime}
 								onChange={handleTimeChange}
-								focusBorderColor='#E0B960'
+								focusBorderColor={errors?.showTime ? 'red.500' : '#E0B960'}
 								bg='#F2F2F2'
+								required
 								borderRadius='md'
-								colorScheme='brand'
+								borderColor={errors?.showTime ? 'red.500' : 'gray.300'}
 								placeholder='Select a time'
 								shadow='sm'
 								pl='1rem'
@@ -150,6 +170,11 @@ const ArrangeInterview = ({
 									},
 								}}
 							/>
+							{errors?.showTime && (
+								<Text color='red.500' fontSize='sm'>
+									{errors?.showTime}
+								</Text>
+							)}
 						</FormControl>
 					</ModalBody>
 					<ModalFooter>
@@ -163,18 +188,16 @@ const ArrangeInterview = ({
 							Cancel
 						</Button>
 						<Button
-							bg='brand.500'
+							bg='brand.400'
 							color='white'
 							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
+								bg: 'brand.500',
 							}}
 							size='sm'
 							px='1rem'
-							onClick={handleScheduleInterview}
+							rounded='full'
+							_active={{ bg: '#D4AC50' }}
+							onClick={handleSubmit}
 						>
 							{isLoading ? <Spinner /> : 'Invite'}
 						</Button>

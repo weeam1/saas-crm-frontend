@@ -26,7 +26,6 @@ const CandidateView = ({
 	onViewCV,
 	onDownloadCV,
 	refetch,
-	type,
 	missingFiles,
 }) => {
 	const [newStatus, setNewStatus] = useState(candidate.status);
@@ -75,7 +74,7 @@ const CandidateView = ({
 						templateColumns={{
 							base: '1fr',
 							md: 'repeat(2, 1fr)',
-							lg: type === 'invited' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+							lg: candidate.invited ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
 						}}
 						gap={3}
 					>
@@ -90,7 +89,7 @@ const CandidateView = ({
 							value={candidate?.experienceYears}
 						/>
 						<DisplayField label='Applying for' value={candidate?.position} />
-						{type === 'invited' && (
+						{candidate.invited && (
 							<>
 								<DisplayField
 									label='Intivite Status'
@@ -107,6 +106,10 @@ const CandidateView = ({
 								<DisplayField
 									label='Interview Time'
 									value={candidate?.interviewTime}
+								/>
+								<DisplayField
+									label='Candidate Status'
+									value={candidate?.status}
 								/>
 							</>
 						)}
@@ -151,50 +154,52 @@ const CandidateView = ({
 						</Button>
 					</HStack>
 				</ModalBody>
-				<HStack
-					justifyContent='space-between'
-					alignItems='end'
-					spacing={2}
-					pb='4'
-					px='4'
-					mt={2}
-				>
-					<ApplicationStatus
-						candidate={candidate}
-						newStatus={newStatus}
-						setNewStatus={setNewStatus}
-					/>
+				{!candidate.invited && (
+					<HStack
+						justifyContent='space-between'
+						alignItems='end'
+						spacing={2}
+						pb='4'
+						px='4'
+						mt={2}
+					>
+						<ApplicationStatus
+							candidate={candidate}
+							newStatus={newStatus}
+							setNewStatus={setNewStatus}
+						/>
 
-					<div>
-						<Button
-							colorScheme='gray'
-							onClick={onClose}
-							variant='outline'
-							size='sm'
-							mr={2}
-						>
-							Cancel
-						</Button>
-						<Button
-							bg='brand.500'
-							color='white'
-							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
-							}}
-							size='sm'
-							disabled={
-								candidate.status === 'Eligible' && candidate.inviteAccepted
-							}
-							onClick={handleApplicationStatus}
-						>
-							{isLoading ? <Spinner /> : 'Save'}
-						</Button>
-					</div>
-				</HStack>
+						<div>
+							<Button
+								colorScheme='gray'
+								onClick={onClose}
+								variant='outline'
+								size='sm'
+								mr={2}
+							>
+								Cancel
+							</Button>
+							<Button
+								bg='brand.500'
+								color='white'
+								_hover={{
+									bg: 'brand.600',
+									color: 'white',
+								}}
+								_active={{
+									bg: 'brand.600',
+								}}
+								size='sm'
+								disabled={
+									candidate.status === 'Eligible' && candidate.inviteAccepted
+								}
+								onClick={handleApplicationStatus}
+							>
+								{isLoading ? <Spinner /> : 'Save'}
+							</Button>
+						</div>
+					</HStack>
+				)}
 			</ModalContent>
 		</Modal>
 	);

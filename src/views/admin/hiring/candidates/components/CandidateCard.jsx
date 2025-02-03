@@ -18,7 +18,7 @@ import FlagBadge from '../../_components/FlagBadge';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMissingFile } from './../../../../../redux/missingFilesSlice';
 
-const CandidateCard = ({ candidate, refetch, type }) => {
+const CandidateCard = ({ candidate, refetch, mode }) => {
 	const {
 		name,
 		position,
@@ -27,6 +27,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 		phone,
 		resume,
 		status,
+		invited,
 		interviewDate,
 		interviewTime,
 		createdAt,
@@ -110,8 +111,6 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 
 	const statusColor = getStatusColor(status);
 
-	console.log({ missingFiles });
-
 	return (
 		<>
 			<Box
@@ -167,7 +166,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 					</Flex>
 
 					<Flex flexDirection='column' gap='1' py='10px'>
-						{type !== 'meeting' && (
+						{mode !== 'interview' && (
 							<Flex gap='2' alignItems='center'>
 								<StatusBadge status={status} color={statusColor} size={8} />
 								<FlagBadge item={candidate} />
@@ -236,7 +235,7 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 				</Box>
 
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
-					{type === 'meeting' ? (
+					{invited ? (
 						<Flex
 							fontSize='sm'
 							alignItems='center'
@@ -276,14 +275,6 @@ const CandidateCard = ({ candidate, refetch, type }) => {
 				missingFiles={missingFiles}
 				refetch={refetch}
 			/>
-
-			{/* {CVOpen && (
-				<PdfViewer
-					isOpen={CVOpen}
-					onClose={() => setCVOpen(false)}
-					pdfUrl={pdfURL}
-				/>
-			)} */}
 		</>
 	);
 };

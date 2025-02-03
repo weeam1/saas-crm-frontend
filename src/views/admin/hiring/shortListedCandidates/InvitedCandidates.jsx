@@ -228,7 +228,6 @@ const InvitedCandidates = ({
 					onViewCV={handleViewCV}
 					onDownloadCV={handleDownloadCV}
 					refetch={refetch}
-					type='invited'
 				/>
 			)}
 

@@ -76,7 +76,6 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 									key={candidate._id}
 									candidate={candidate}
 									refetch={refetch}
-									type='meeting'
 								/>
 							))}
 						</Grid>

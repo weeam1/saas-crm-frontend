@@ -37,6 +37,7 @@ import TableField from 'views/admin/tableField';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { FaClipboardUser } from 'react-icons/fa6';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
+import InterviewedCandidates from 'views/admin/hiring/interview/InterviewedCandidates';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -329,7 +330,7 @@ const routes = [
 	// ------------- Hiring Routes -----------------------
 	{
 		name: 'Candidates',
-		layout: [ROLE_PATH.user],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/candidates',
 		under: 'candidates',
 		parentName: 'Hiring',
@@ -337,19 +338,24 @@ const routes = [
 	},
 	{
 		name: 'Short Listed',
-		layout: [ROLE_PATH.user],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/short-listed',
-		under: 'short-listed',
 		parentName: 'Hiring',
 		component: ShortListedCandidates,
 	},
 	{
 		name: 'Interview',
-		layout: [ROLE_PATH.user],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/interview/:interviewId',
-		under: 'interview',
 		parentName: 'Hiring',
 		component: InterviewScreen,
+	},
+	{
+		name: 'Interview Candidates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/interviewed-candidates',
+		parentName: 'Hiring',
+		component: InterviewedCandidates,
 	},
 	// ------------- Phone Routes ------------------------
 	{

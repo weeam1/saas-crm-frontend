@@ -32,6 +32,8 @@ const InvitedTable = ({
 }) => {
 	const naviagte = useNavigate();
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
 	const [createItemMutation, { isLoading: startingInterview }] =
 		useCreateItemMutation();
 
@@ -41,6 +43,7 @@ const InvitedTable = ({
 				path: `/interviews`,
 				body: {
 					candidate: candidateId,
+					leadInterviewer: user._id,
 				},
 			});
 
@@ -155,7 +158,7 @@ const InvitedTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={() => handleStartInterview(item._id)}
 												>
-													Start Interview
+													{startingInterview ? 'Staring...' : 'Start Interview'}
 												</Button>
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />

@@ -16,23 +16,18 @@ import Loader from 'components/loading/Loader';
 import axios from 'axios';
 import keys from 'config/keys';
 import { toast } from 'react-toastify';
-import { useNavigate, useParams } from 'react-router-dom';
-import CandidateCard from '../candidates/components/CandidateCard';
+import { useNavigate } from 'react-router-dom';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
-const SelectInterviewers = () => {
-	const { interviewId } = useParams();
-
-	const { data: interview, isLoading: interviewLoading } = useFetchItemsQuery({
-		path: `/interviews/${interviewId}`,
-	});
-
+const SelectInterviewers = ({ interview, user, handleTabChange }) => {
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
 		params: { type: 'all' },
 	});
 
+	const [updateItemMutation] = useUpdateItemMutation();
+
 	const navigate = useNavigate();
-	const user = JSON.parse(localStorage.getItem('user'));
 	const userRole = user?.roles[0]?.roleName || user?.role;
 
 	const [selectedIds, setSelectedIds] = useState([]);
@@ -109,9 +104,9 @@ const SelectInterviewers = () => {
 					sender_name,
 					sender_role: userRole,
 					receiver_ids: selectedIds,
-					interview_id: interviewId,
-					candidate_name: interview?.doc?.candidate?.name,
-					candidate_job_type: interview?.doc?.candidate?.position,
+					interview_id: interview._id,
+					candidate_name: interview?.candidate?.name,
+					candidate_job_type: interview?.candidate?.position,
 				};
 
 				console.log({ interviewData });
@@ -121,9 +116,14 @@ const SelectInterviewers = () => {
 					interviewData
 				);
 
+				await updateItemMutation({
+					path: `/interviews/${interview._id}`,
+					body: { interviewers: selectedIds },
+				}).unwrap();
+
 				console.log(data);
 				toast.success('Interview invite sent successfully.');
-				navigate(`/hiring/interview/${interviewId}/hiring-info`);
+				handleTabChange(1);
 			} else {
 				toast.error('Please select the recivers again.');
 			}
@@ -135,10 +135,10 @@ const SelectInterviewers = () => {
 		}
 	};
 
-	return usersLoading || interviewLoading ? (
+	return usersLoading ? (
 		<Loader />
 	) : (
-		<Box p={{ base: 4, md: 8 }} width={{ base: '100%', md: '700px' }} mx='auto'>
+		<Box>
 			<Text
 				fontSize={{ base: 'xl', md: '2xl' }}
 				fontWeight='bold'

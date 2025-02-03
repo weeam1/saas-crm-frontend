@@ -18,7 +18,7 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const navigate = useNavigate();
 
 	const handleJoinInterview = () => {
-		navigate(`/hiring/interview/${item.interview_id}`);
+		navigate(`/hiring/interview/${item.interview_id}?phase=evaluation-points`);
 		onClose();
 	};
 
