@@ -201,6 +201,13 @@ export default function User(props) {
 					component: Announcements,
 				},
 				{
+					name: 'Interview',
+					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+					path: '/hiring/interview/:interviewId',
+					parentName: 'Hiring',
+					component: InterviewScreen,
+				},
+				{
 					name: 'Daily Report',
 					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
 					path: '/daily-report',
