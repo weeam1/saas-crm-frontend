@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -17,6 +17,7 @@ import axios from 'axios';
 import keys from 'config/keys';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import { useNavigate } from 'react-router-dom';
 
 const SelectInterviewers = ({
 	interview,
@@ -28,6 +29,14 @@ const SelectInterviewers = ({
 		path: `/v2/user/hierarchy/new`,
 		params: { type: 'all' },
 	});
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (interview?.totalInterviewers > 0) {
+			navigate(`/hiring/interview/${interview._id}?phase=hiring-info`);
+		}
+	}, [interview._id, interview?.totalInterviewers, navigate]);
 
 	const [updateItemMutation, { isLoading: updatingInterview }] =
 		useUpdateItemMutation();
@@ -67,7 +76,7 @@ const SelectInterviewers = ({
 			>
 				{filteredUsers?.map((user) => (
 					<Box
-						key={user.id}
+						key={user._id}
 						display='flex'
 						alignItems='center'
 						justifyContent='space-between'
@@ -158,9 +167,9 @@ const SelectInterviewers = ({
 
 			<Tabs variant='subtle'>
 				<TabList justifyContent='space-between' gap={2} mb={4}>
-					{['Admin', 'Manager', 'HR'].map((tabName) => (
+					{['Admin', 'Manager', 'HR'].map((tabName, index) => (
 						<Tab
-							key={tabName}
+							key={index}
 							flex='1'
 							bg='softGray.100'
 							border='none'

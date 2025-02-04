@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Ensure you have the react-toastify library
 import keys from 'config/keys';
-// import webSocketService from "services/WebSocketService";
+import { useDispatch } from 'react-redux';
+import { clearNotifyItem } from './../redux/webSocketReducer';
 
 // const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 // 	const [list, setList] = useState([]);
@@ -52,6 +53,8 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 	const [loading, setLoading] = useState(true);
 	const [totalPages, setTotalPages] = useState(0);
 
+	const dispatch = useDispatch();
+
 	const getHistory = async () => {
 		setLoading(true);
 		try {
@@ -80,6 +83,7 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 			}
 		} finally {
 			setLoading(false);
+			dispatch(clearNotifyItem());
 		}
 	};
 

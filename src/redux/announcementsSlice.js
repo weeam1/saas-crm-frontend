@@ -1,12 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const announcementsSlice = createSlice({
-	name: "announcements",
+	name: 'announcements',
 	initialState: {
 		list: [],
 	},
 	reducers: {
 		addAnnouncement: (state, action) => {
+			console.log({ data: action.payload });
 			state.list.unshift(action.payload);
 		},
 		clearAnnouncement: (state, action) => {

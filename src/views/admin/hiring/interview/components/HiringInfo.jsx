@@ -37,8 +37,6 @@ const validationSchema = Yup.object().shape({
 });
 
 const HiringInfo = ({ interview, onSubmit }) => {
-	console.log({ interview });
-
 	const initialValues = {
 		jobRole: interview?.candidate?.position || '',
 		jobType: '',

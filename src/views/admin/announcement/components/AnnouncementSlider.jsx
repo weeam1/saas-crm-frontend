@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
-import { Box, Flex, Text, IconButton, Button } from "@chakra-ui/react";
+import { Box, Flex, Text, IconButton, Button } from '@chakra-ui/react';
+
 const AnnouncementSlider = ({
 	announcements: initialAnnouncements,
 	onAcknowledge,
@@ -45,52 +46,52 @@ const AnnouncementSlider = ({
 
 	return (
 		<Box
-			position="relative"
-			textAlign="center"
-			bg="white"
-			borderRadius="md"
-			maxW="xl"
-			mx="auto"
+			position='relative'
+			textAlign='center'
+			bg='white'
+			borderRadius='md'
+			maxW='xl'
+			mx='auto'
 		>
 			{/* Announcement Content */}
 			{announcements.length > 0 ? (
 				<Text
-					fontSize="lg"
-					fontWeight="medium"
-					textAlign="justify"
+					fontSize='lg'
+					fontWeight='medium'
+					textAlign='justify'
 					mb={6}
-					color="gray.800"
+					color='gray.800'
 					mt={4}
 				>
 					{announcements[currentIndex]?.message}
 				</Text>
 			) : (
-				<Text fontSize="lg" fontWeight="medium" mb={6} color="gray.500" mt={4}>
+				<Text fontSize='lg' fontWeight='medium' mb={6} color='gray.500' mt={4}>
 					No announcements to display.
 				</Text>
 			)}
 
 			{/* Navigation Buttons */}
 			{announcements.length > 1 && (
-				<Flex justify="space-between" align="center" position="relative">
+				<Flex justify='space-between' align='center' position='relative'>
 					{/* Previous Button */}
 					<IconButton
 						icon={<ChevronLeftIcon />}
 						onClick={handlePrev}
-						aria-label="Previous"
-						position="absolute"
-						left="-50px"
-						top="50%"
-						transform="translateY(-50%)"
-						size="lg"
-						variant="ghost"
-						colorScheme="brand"
-						borderRadius="full"
-						transition="all 0.3s ease"
+						aria-label='Previous'
+						position='absolute'
+						left='-50px'
+						top='50%'
+						transform='translateY(-50%)'
+						size='lg'
+						variant='ghost'
+						colorScheme='brand'
+						borderRadius='full'
+						transition='all 0.3s ease'
 						_hover={{
-							bg: "brand.500",
-							color: "white",
-							transform: "translate(-10px, -50%)",
+							bg: 'brand.500',
+							color: 'white',
+							transform: 'translate(-10px, -50%)',
 						}}
 					/>
 
@@ -98,20 +99,20 @@ const AnnouncementSlider = ({
 					<IconButton
 						icon={<ChevronRightIcon />}
 						onClick={handleNext}
-						aria-label="Next"
-						position="absolute"
-						right="-50px"
-						top="50%"
-						transform="translateY(-50%)"
-						size="lg"
-						variant="ghost"
-						colorScheme="brand"
-						borderRadius="full"
-						transition="all 0.3s ease"
+						aria-label='Next'
+						position='absolute'
+						right='-50px'
+						top='50%'
+						transform='translateY(-50%)'
+						size='lg'
+						variant='ghost'
+						colorScheme='brand'
+						borderRadius='full'
+						transition='all 0.3s ease'
 						_hover={{
-							bg: "brand.500",
-							color: "white",
-							transform: "translate(10px, -50%)",
+							bg: 'brand.500',
+							color: 'white',
+							transform: 'translate(10px, -50%)',
 						}}
 					/>
 				</Flex>
@@ -124,13 +125,13 @@ const AnnouncementSlider = ({
 					py={4}
 					mb={4}
 					px={8}
-					colorScheme="brand"
-					borderRadius="full"
-					fontWeight="medium"
-					transition="all 0.3s ease"
+					colorScheme='brand'
+					borderRadius='full'
+					fontWeight='medium'
+					transition='all 0.3s ease'
 					_hover={{
-						bg: "brand.600",
-						transform: "scale(1.05)",
+						bg: 'brand.600',
+						transform: 'scale(1.05)',
 					}}
 					onClick={handleAcknowledge}
 				>
@@ -140,7 +141,7 @@ const AnnouncementSlider = ({
 
 			{/* Pagination */}
 			{announcements.length > 1 && (
-				<Text fontSize="sm" color="gray.500">
+				<Text fontSize='sm' color='gray.500'>
 					{currentIndex + 1} / {announcements.length}
 				</Text>
 			)}

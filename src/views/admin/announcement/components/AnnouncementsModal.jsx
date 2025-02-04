@@ -4,14 +4,11 @@ import {
 	ModalOverlay,
 	ModalContent,
 	ModalHeader,
-	ModalCloseButton,
 	ModalBody,
 	Image,
 	Text,
 	CircularProgress,
 	Box,
-	Heading,
-	Flex,
 } from '@chakra-ui/react';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearAnnouncement } from './../../../../redux/announcementsSlice';
@@ -24,6 +21,8 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const dispatch = useDispatch();
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [loading, setLoading] = useState(false);
+
+	console.log('message: ', announcements);
 
 	// Close modal automatically if there are no announcements
 	useEffect(() => {

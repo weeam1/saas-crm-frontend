@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Box, Tag, TagCloseButton } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import InvitedCandidates from './InvitedCandidates';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import Loader from 'components/loading/Loader';
+import PendingInvitedCandidates from './PendingInvitedCandidates';
 
-const InvitedData = () => {
+const PendingInvitedData = ({ invitedRefetch }) => {
 	const [showContent, setShowContent] = useState(false);
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
@@ -33,12 +33,12 @@ const InvitedData = () => {
 		isLoading,
 		refetch,
 	} = useFetchItemsQuery({
-		path: `/applications/invited-candidates`,
+		path: `/applications/invited-candidates/pending`,
 		params: queryParams,
 	});
 
 	const { data: allData } = useFetchItemsQuery({
-		path: `/applications/invited-candidates`,
+		path: `/applications/invited-candidates/pending`,
 	});
 
 	const handleGotoPage = (page) => {
@@ -62,7 +62,7 @@ const InvitedData = () => {
 	// Automatically refetch when queryParams change
 	useEffect(() => {
 		refetch({
-			path: '/applications/invited-candidates',
+			path: '/applications/invited-candidates/pending',
 			params: queryParams,
 		});
 	}, [queryParams, refetch]);
@@ -87,26 +87,6 @@ const InvitedData = () => {
 		});
 		setData(sortedData);
 	};
-
-	// const handleGotoPage = (page) => {
-	// 	setCurrentPage(page + 1);
-	// 	refetch({
-	// 		path: '/applications/invited-candidates',
-	// 		params: {
-	// 			page: page + 1,
-	// 			limit: pageSize,
-	// 		},
-	// 	});
-	// };
-
-	// const handlePageSizeChange = (size) => {
-	// 	setPageSize(size);
-	// 	setCurrentPage(1); // Reset to first page
-	// 	refetch({
-	// 		path: '/applications/invited-candidates',
-	// 		params: { page: 1, limit: size },
-	// 	});
-	// };
 
 	const handleSearch = (params) => {
 		// Filter out empty or undefined values
@@ -191,9 +171,10 @@ const InvitedData = () => {
 					</Tag>
 				))}
 			</Box>
-			<InvitedCandidates
+			<PendingInvitedCandidates
 				allData={allData}
 				data={data}
+				invitedRefetch={invitedRefetch}
 				totalDocs={invitedData?.totalDocs}
 				loading={isLoading}
 				handleSort={handleSort}
@@ -221,4 +202,4 @@ const InvitedData = () => {
 	);
 };
 
-export default InvitedData;
+export default PendingInvitedData;

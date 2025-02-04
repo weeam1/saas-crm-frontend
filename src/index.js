@@ -79,6 +79,7 @@ function App() {
 				const socketData = JSON.parse(event.data);
 				console.log('WebSocket message:', socketData);
 
+				let notificationDetails = {};
 				const { type, data } = socketData;
 				const message = data?.message || 'Check out the latest updates!';
 
@@ -89,7 +90,7 @@ function App() {
 							dispatch(addAnnouncement(announcement))
 						);
 					} else {
-						dispatch(addAnnouncement(socketData));
+						dispatch(addAnnouncement(data));
 					}
 				}
 
@@ -97,7 +98,7 @@ function App() {
 				if (type !== -1 && message) {
 					dispatch(newNotifyItem(socketData));
 
-					const notificationDetails = {
+					notificationDetails = {
 						title:
 							type === 1
 								? 'New Announcement'
@@ -106,17 +107,14 @@ function App() {
 									: 'New Notification',
 						message,
 					};
-
-					setNotify(notificationDetails);
 				}
 
 				// Request and send notifications
 				const isGranted = await requestNotificationPermission();
 				if (isGranted) {
-					console.log('Notification granted');
 					showNotification({
-						title: notify.title,
-						message: notify.message,
+						title: notificationDetails.title,
+						message: notificationDetails.message,
 					});
 				} else {
 					toast.success('Check out the latest updates!');

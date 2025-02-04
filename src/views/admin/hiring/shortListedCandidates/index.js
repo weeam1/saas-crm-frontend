@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { Box, Button, Icon } from '@chakra-ui/react';
+import { memo, useState } from 'react';
+import {
+	Box,
+	Button,
+	Icon,
+	Tab,
+	TabList,
+	TabPanel,
+	TabPanels,
+	Tabs,
+} from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
 import { useNavigate } from 'react-router-dom';
@@ -8,21 +17,10 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 
 import Loader from 'components/loading/Loader';
 import MeetingSection from './components/MeetingSection';
+import PendingInvitedData from './PendingInvitedData';
 
-const ShortListedCandidates = () => {
+const ShortListedCandidates = memo(() => {
 	const [activeTab, setActiveTab] = useState(0);
-
-	// const [tabLoading, setTabLoading] = useState(false);
-
-	const handleTabChange = (tabIndex) => {
-		// setTabLoading(true);
-		setActiveTab(tabIndex);
-
-		// Simulate a brief loading state
-		// setTimeout(() => {
-		// 	setTabLoading(false);
-		// }, 400); // Adjust time as needed
-	};
 
 	const {
 		data: invitedCandidates,
@@ -37,6 +35,18 @@ const ShortListedCandidates = () => {
 	});
 
 	const navigate = useNavigate();
+
+	const tabData = [
+		{
+			title: 'Short Listed',
+			component: <ShortListedData invitedRefetch={invitedRefetch} />,
+		},
+		{ title: 'Invited Candidates', component: <InvitedData /> },
+		{
+			title: 'Old Pending Interviews',
+			component: <PendingInvitedData invitedRefetch={invitedRefetch} />,
+		},
+	];
 
 	return invitedCandidatesLoading ? (
 		<Loader />
@@ -62,8 +72,7 @@ const ShortListedCandidates = () => {
 				setActiveTab={setActiveTab}
 			/>
 
-			{/* Tabs for navigation */}
-			<Box>
+			{/* <Box>
 				<Box display='flex' mb={2}>
 					<Button
 						onClick={() => handleTabChange(0)}
@@ -98,28 +107,66 @@ const ShortListedCandidates = () => {
 					>
 						Invited Candidates
 					</Button>
+					<Button
+						onClick={() => handleTabChange(3)}
+						colorScheme={activeTab === 1 ? 'brand' : 'gray'}
+						bg={activeTab === 1 ? 'brand.500' : 'white'}
+						color={activeTab === 1 ? 'white' : 'gray.800'}
+						_focus={{ outline: 'none' }}
+						borderRadius='5px'
+						transition='background-color 0.1s ease, color 0.1s ease'
+						_hover={{
+							bg: activeTab === 1 ? 'brand.600' : 'gray.100',
+							color: activeTab === 1 ? 'white' : 'gray.800',
+						}}
+						fontWeight='normal'
+					>
+						Pending Invited Candidates
+					</Button>
 				</Box>
 
-				{/* Tab Panels */}
+				
 				{activeTab === 0 ? (
 					<ShortListedData invitedRefetch={invitedRefetch} />
-				) : (
+				) : activeTab === 1 ? (
 					<InvitedData />
+				) : (
+					<PendingInvitedData />
 				)}
+			</Box> */}
 
-				{/* Tab Panels */}
-				{/* {tabLoading ? (
-					<Box textAlign='center' p={10}>
-						<Loader />
-					</Box>
-				) : activeTab === 0 ? (
-					<ShortListedData invitedRefetch={invitedRefetch} />
-				) : (
-					<InvitedData />
-				)} */}
-			</Box>
+			<Tabs
+				// bg='transparent'
+				index={activeTab}
+				onChange={setActiveTab}
+				variant='soft-rounded'
+			>
+				<TabList width='fit-content' px='4' gap='2'>
+					{tabData.map((tab, index) => (
+						<Tab
+							key={index}
+							bg={activeTab !== index && 'white'}
+							color={activeTab !== index && 'gray.800'}
+							_selected={{ bg: 'brand.400', color: 'white' }}
+							_focus={{ boxShadow: 'none' }}
+							rounded='md'
+							shadow='sm'
+							fontSize='lg'
+							fontWeight='normal'
+						>
+							{tab.title}
+						</Tab>
+					))}
+				</TabList>
+
+				<TabPanels>
+					{tabData.map((tab, index) => (
+						<TabPanel key={index}>{tab.component}</TabPanel>
+					))}
+				</TabPanels>
+			</Tabs>
 		</Box>
 	);
-};
+});
 
 export default ShortListedCandidates;
