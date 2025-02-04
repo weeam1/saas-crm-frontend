@@ -12,10 +12,12 @@ import {
 	Textarea,
 	Flex,
 	Spinner,
+	IconButton,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import DisplayField from 'components/displays/DisplayField';
 import { useState } from 'react';
+import { FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
@@ -57,6 +59,25 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 				<ModalHeader>Finish Interview</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
+					{pendingEvaluations > 0 && (
+						<IconButton
+							aria-label='Refetch'
+							icon={<FaSyncAlt />}
+							colorScheme='brand'
+							variant='ghost'
+							size='sm'
+							mb='4'
+							_hover={{
+								bg: 'brand.600',
+								color: 'white',
+							}}
+							_active={{
+								bg: 'brand.600',
+							}}
+							onClick={() => refetch()}
+						/>
+					)}
+
 					<Flex direction='column' gap='4'>
 						<DisplayField
 							label={`Total Interviewers`}
