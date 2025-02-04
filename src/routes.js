@@ -34,10 +34,7 @@ import ChangeImage from 'views/admin/image';
 import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
-import { useFetchItemsQuery } from 'api/apiSlice';
 import { FaClipboardUser } from 'react-icons/fa6';
-import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
-import InterviewedCandidates from 'views/admin/hiring/interview/InterviewedCandidates';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -91,6 +88,12 @@ const Meeting = React.lazy(() => import('views/admin/meeting'));
 const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const InterviewScreen = React.lazy(
+	() => import('views/admin/hiring/interview/InterviewScreen')
+);
+const InterviewedCandidates = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates')
+);
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
 const ShortListedCandidates = React.lazy(
 	() => import('views/admin/hiring/shortListedCandidates')
@@ -351,7 +354,7 @@ const routes = [
 		component: InterviewScreen,
 	},
 	{
-		name: 'Interview Candidates',
+		name: 'Interviewed Candidates',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/interviewed-candidates',
 		parentName: 'Hiring',

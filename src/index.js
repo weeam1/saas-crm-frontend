@@ -28,10 +28,9 @@ import { setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
 import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
-import { clearNotifyItem, newNotifyItem } from './redux/webSocketReducer';
+import { newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
 import AnnouncementsModal from 'views/admin/announcement/components/AnnouncementsModal';
-
 import addNotification, { Notifications } from 'react-push-notification';
 
 import logo from 'assets/img/app-logo.jpeg';
@@ -49,8 +48,6 @@ function App() {
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
-
-	const [notify, setNotify] = useState({});
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {

@@ -14,7 +14,8 @@ const DisplayField = ({ label, value }) => {
 				border='none'
 				outline='none'
 				bg='#F2F2F2'
-				p='2'
+				py='2'
+				px='3'
 				rounded='md'
 				shadow='sm'
 			>

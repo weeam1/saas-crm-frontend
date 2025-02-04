@@ -22,8 +22,6 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [loading, setLoading] = useState(false);
 
-	console.log('message: ', announcements);
-
 	// Close modal automatically if there are no announcements
 	useEffect(() => {
 		if (announcements.length === 0) {

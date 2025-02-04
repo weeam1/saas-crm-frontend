@@ -2,6 +2,7 @@ import { Image, Tooltip } from '@chakra-ui/react';
 import React from 'react';
 
 const FlagBadge = ({ item }) => {
+	console.log({ item });
 	return (
 		<div>
 			{item.country?.flags?.png && (

@@ -30,8 +30,6 @@ const InterviewTabs = memo(
 		const [hiringData, setHiringData] = useState();
 		const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
-		console.log({ interview });
-
 		// Memoize computed values
 		const isInvitedInterviewer = useMemo(
 			() => interview?.totalInterviewers > 0,

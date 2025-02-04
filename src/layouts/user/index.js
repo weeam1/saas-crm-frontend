@@ -1,7 +1,5 @@
-// Chakra imports
 import { Portal, Box, useDisclosure, Flex, Icon } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
-// Layout components
 import Navbar from 'components/navbar/NavbarAdmin.js';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
@@ -16,12 +14,7 @@ import {
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-import {
-	FaUserCircle,
-	FaDollarSign,
-	FaUserFriends,
-	FaUsers,
-} from 'react-icons/fa';
+import { FaUserCircle, FaDollarSign } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -34,7 +27,7 @@ import { FaClipboardUser } from 'react-icons/fa6';
 import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
 import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
-import InterviewedCandidates from 'views/admin/hiring/interview/InterviewedCandidates';
+import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -43,7 +36,6 @@ const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Lead = React.lazy(() => import('views/admin/lead'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
-// Custom Chakra themeimport interviewCandidates from './../../views/admin/hiring/interview/interviewCandidates';
 
 export default function User(props) {
 	const { ...rest } = props;

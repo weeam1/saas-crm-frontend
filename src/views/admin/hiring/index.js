@@ -1,42 +1,55 @@
 import { Box, Heading, Icon, SimpleGrid, Spinner } from '@chakra-ui/react';
-import { FaUsers } from 'react-icons/fa';
+import { FaUserCheck, FaUsers } from 'react-icons/fa';
 import IconBox from 'components/icons/IconBox';
 import { useNavigate } from 'react-router-dom';
 import MiniStatistics from 'components/card/MiniStatistics';
 import { MdDashboard } from 'react-icons/md';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
+import RunningInterviews from './interview/RunningInterviews';
 
 const Hiring = () => {
-	const { data: allShortListed, isLoading: shortListedLoading } =
+	const { data, isLoading } = useFetchItemsQuery({
+		path: `/hiring/stats`,
+	});
+
+	const { data: runningInterviews, isLoading: interviewLoading } =
 		useFetchItemsQuery({
-			path: `/applications/short-listed`,
+			path: `/interviews/running`,
 		});
 
-	const { data: allApplications, isLoading: applicationLoading } =
-		useFetchItemsQuery({
-			path: `/applications`,
-		});
+	console.log({ runningInterviews });
 
 	const stats = [
 		{
 			title: 'Candidates',
-			total: allApplications?.totalDocs || 0,
+			total: data?.doc?.totalCandidates || 0,
 			icon: MdDashboard,
 			path: '/hiring/candidates',
 		},
 		{
 			title: 'Short Listed',
-			total: allShortListed?.totalDocs || 0,
+			total: data?.doc?.totalShortListed || 0,
 			icon: FaUsers,
 			path: '/hiring/short-listed',
 		},
-		// { title: "Tasks Completed", total: 300, icon: FaTasks },
+		{
+			title: 'Interviewed Candidates',
+			total: data?.doc?.totalCompletedInterviews || 0,
+			icon: FaUserCheck,
+			path: '/hiring/interviewed-candidates',
+		},
+		// {
+		// 	title: 'Running Interviews',
+		// 	total: data?.doc?.totalRunningInterviews || 0,
+		// 	icon: FaUserCheck,
+		// 	path: '/hiring/running-interviews',
+		// },
 	];
 
 	const navigate = useNavigate();
 
-	return applicationLoading || shortListedLoading ? (
+	return isLoading ? (
 		<Loader />
 	) : (
 		<Box>
@@ -63,6 +76,13 @@ const Hiring = () => {
 					/>
 				))}
 			</SimpleGrid>
+
+			{runningInterviews?.total > 0 && (
+				<RunningInterviews
+					interviews={runningInterviews?.doc}
+					totals={runningInterviews?.total}
+				/>
+			)}
 		</Box>
 	);
 };
