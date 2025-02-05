@@ -2,12 +2,13 @@ import React from 'react';
 import { Box, Text, Button, VStack, Grid, Heading } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import { format } from 'date-fns';
 
 const RunningInterviews = ({ interviews, totals }) => {
 	const navigate = useNavigate();
 
 	const handleJoinInterview = (id) => {
-		navigate(`/hiring/interview/${id}?phase=hiring-info`);
+		navigate(`/hiring/interview/${id}`);
 	};
 
 	return (
@@ -29,6 +30,7 @@ const RunningInterviews = ({ interviews, totals }) => {
 					<InterviewCard
 						key={interview._id}
 						candidateName={interview.candidate.name}
+						interviewDate={interview.createdAt}
 						role={interview.candidate.position}
 						onJoin={() => handleJoinInterview(interview._id)}
 					/>
@@ -38,7 +40,7 @@ const RunningInterviews = ({ interviews, totals }) => {
 	);
 };
 
-const InterviewCard = ({ candidateName, role, onJoin }) => {
+const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
 	return (
 		<Box
 			borderRadius='lg'
@@ -53,6 +55,10 @@ const InterviewCard = ({ candidateName, role, onJoin }) => {
 				</Text>
 				<Text fontSize='md' color='gray.600'>
 					Role: {role}
+				</Text>
+				<Text fontSize='md' color='gray.600'>
+					Interview Started at:{interviewDate}
+					{/* {format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a')} */}
 				</Text>
 				<Button
 					onClick={onJoin}

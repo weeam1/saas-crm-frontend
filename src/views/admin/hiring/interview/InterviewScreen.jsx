@@ -1,4 +1,4 @@
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Icon } from '@chakra-ui/react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import CandidateCard from '../candidates/components/CandidateCard';
 import { useFetchItemsQuery, useUpdateItemMutation } from 'api/apiSlice';
@@ -7,6 +7,7 @@ import InterviewTabs from './components/InterviewTabs';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { toast } from 'react-toastify';
+import { IoArrowBack } from 'react-icons/io5';
 
 // const InterviewScreen = () => {
 // 	const { interviewId } = useParams();
@@ -231,6 +232,19 @@ const InterviewScreen = memo(() => {
 	// Render content
 	return interview && interview?.doc ? (
 		<Box>
+			<Button
+				colorScheme='gray'
+				borderRadius='5px'
+				size={{ base: 'sm', md: 'md' }}
+				px={{ base: 4, md: 6 }}
+				py={{ base: 2, md: 3 }}
+				fontSize={{ base: 'sm', md: 'md' }}
+				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
+				onClick={() => navigate('/hiring')}
+				mb={4}
+			>
+				Back
+			</Button>
 			{/* Header Section */}
 			<HStack
 				bg='white'

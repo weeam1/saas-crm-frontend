@@ -29,7 +29,7 @@ const InterviewedCandidates = () => {
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
-		sort: 'updatedAt',
+		sort: '-updatedAt',
 	});
 
 	const {

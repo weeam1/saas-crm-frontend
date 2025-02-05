@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Box, Button, Heading, HStack } from '@chakra-ui/react';
 import { FaUserCheck } from 'react-icons/fa';
@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import InterviewedTable from './InterviewedTable';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import InterviewResult from './InterviewResult';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const Interviewed = ({
 	data,
@@ -33,8 +34,9 @@ const Interviewed = ({
 	setAdvanceSearch,
 }) => {
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
-	const [interview, setInterview] = useState(null);
 	const [searchData, setSearchData] = useState([]);
+	const [interview, setInterview] = useState(null);
+	const [interviewId, setInterviewId] = useState(null);
 	const [isSearch, setIsSearch] = useState(false);
 
 	const [resultModalOpen, setResultModalOpen] = useState(false);
@@ -129,9 +131,16 @@ const Interviewed = ({
 
 	const handleViewResult = (interview) => {
 		setInterview(interview);
-		console.log({ interview });
+		setInterviewId(interview._id);
 		setResultModalOpen(true);
 	};
+
+	useEffect(() => {
+		if (interviewId) {
+			const interview = data.find((item) => item.candidate._id === interviewId);
+			setInterview(interview);
+		}
+	}, [refetch]);
 
 	console.log({ resultModalOpen });
 
@@ -213,19 +222,6 @@ const Interviewed = ({
 					refetch={refetch}
 				/>
 			)}
-
-			{/* {arrangeInterviewOpen && (
-				<ArrangeInterview
-					isOpen={arrangeInterviewOpen}
-					onClose={() => setArrangeInterviewOpen(false)}
-					selectedDate={selectedDate}
-					setSelectedDate={setSelectedDate}
-					selectedTime={selectedTime}
-					setSelectedTime={setSelectedTime}
-					isLoading={isInviting}
-					// handleScheduleInterview={handleScheduleInterview}
-				/>
-			)} */}
 
 			{resultModalOpen && (
 				<InterviewResult

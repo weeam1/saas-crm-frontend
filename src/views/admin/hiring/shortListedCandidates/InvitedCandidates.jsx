@@ -75,6 +75,9 @@ const InvitedCandidates = ({
 			toast.success('Invite succesfully sended');
 		} catch (err) {
 			console.log(err);
+			toast.error(
+				err.data.message || 'Interview is not arrange, please try again.'
+			);
 		} finally {
 			setArrangeInterviewOpen(false);
 		}

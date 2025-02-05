@@ -39,27 +39,51 @@ const InvitedTable = ({
 
 	const handleStartInterview = async (candidateId) => {
 		try {
-			const { data } = await createItemMutation({
+			const data = await createItemMutation({
 				path: `/interviews`,
 				body: {
 					candidate: candidateId,
 					leadInterviewer: user._id,
 				},
-			});
+			}).unwrap();
 
-			if (data?.status === 'success') {
-				navigate(
-					`/hiring/interview/${data?.doc._id}?phase=select-interviewers`
-				);
+			if (data?.status === 'success' && data?.doc?._id) {
+				navigate(`/hiring/interview/${data.doc._id}?phase=select-interviewers`);
 				toast.success('Interview started...');
+			} else {
+				toast.error('Invalid response from server.');
 			}
 		} catch (error) {
 			console.log(error);
 			toast.error(
-				error.data.message || 'Interveiw not started.. due to some reason.'
+				error?.data?.message || 'Interview not started, please try again.'
 			);
 		}
 	};
+
+	// const handleStartInterview = async (candidateId) => {
+	// 	try {
+	// 		const { data } = await createItemMutation({
+	// 			path: `/interviews`,
+	// 			body: {
+	// 				candidate: candidateId,
+	// 				leadInterviewer: user._id,
+	// 			},
+	// 		}).unwrap();
+
+	// 		if (data?.status === 'success') {
+	// 			navigate(
+	// 				`/hiring/interview/${data?.doc._id}?phase=select-interviewers`
+	// 			);
+	// 			toast.success('Interview started...');
+	// 		}
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 		toast.error(
+	// 			error?.data?.message || 'Interveiw not started, please try agian.'
+	// 		);
+	// 	}
+	// };
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}

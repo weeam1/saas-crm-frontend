@@ -13,11 +13,14 @@ import {
 	Flex,
 	Spinner,
 	IconButton,
+	Box,
+	Text,
+	Icon,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import DisplayField from 'components/displays/DisplayField';
 import { useState } from 'react';
-import { FaSyncAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaInfo, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
@@ -43,6 +46,8 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 			refetch();
 		}
 	};
+
+	console.log({ data });
 
 	return (
 		<Modal
@@ -89,6 +94,14 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 								value={'Pending'}
 							/>
 						)}
+						{data.evaluations.length > 0 &&
+							data.evaluations?.map((item) => (
+								<DisplayField
+									label={`${item.interviewer.firstName} Points`}
+									value={`${item.points}%`}
+								/>
+							))}
+
 						<DisplayField
 							label={
 								pendingEvaluations > 0
@@ -97,7 +110,18 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 							}
 							value={`${percentageScore}%`}
 						/>
-
+						<Box
+							p={1}
+							bg='blue.50'
+							borderRadius='md'
+							display='flex'
+							alignItems='center'
+						>
+							<Icon as={FaInfo} color='blue.500' mr={2} />
+							<Text color='gray.700' fontSize='xs'>
+								total interviewers points / total interviewers
+							</Text>
+						</Box>
 						<FormControl>
 							<FormLabel>Remarks</FormLabel>
 							<Textarea

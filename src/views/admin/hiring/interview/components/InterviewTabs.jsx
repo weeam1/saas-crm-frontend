@@ -50,6 +50,9 @@ const InterviewTabs = memo(
 		const handleSubmit = async (data) => {
 			try {
 				let interviewData = {};
+
+				const points = Object.values(data).reduce((acc, val) => acc + val, 0);
+
 				if (isLeadInterviewer) {
 					// check hiring information is filled or not
 					if (!hiringData) {
@@ -59,9 +62,10 @@ const InterviewTabs = memo(
 					interviewData = {
 						hiringData,
 						evaluationData: data,
+						points,
 					};
 				} else {
-					interviewData = { evaluationData: data };
+					interviewData = { evaluationData: data, points };
 				}
 
 				await updateItemMutation({
