@@ -72,12 +72,12 @@ const ShortListed = ({
 			toast.success('Invite succesfully sended');
 			// short listed candidates refetch
 			refetch();
-			// invited candidates refetch
-			invitedRefetch();
 		} catch (err) {
 			console.log(err);
 		} finally {
 			setArrangeInterviewOpen(false);
+			// invited candidates refetch
+			invitedRefetch();
 		}
 	};
 

@@ -7,18 +7,23 @@ import { MdDashboard } from 'react-icons/md';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import RunningInterviews from './interview/RunningInterviews';
+import { useEffect } from 'react';
 
 const Hiring = () => {
-	const { data, isLoading } = useFetchItemsQuery({
-		path: `/hiring/stats`,
-	});
+	const { data, isLoading, refetch } = useFetchItemsQuery(
+		{
+			path: `/hiring/stats`,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
 
 	const { data: runningInterviews, isLoading: interviewLoading } =
-		useFetchItemsQuery({
-			path: `/interviews/running`,
-		});
-
-	console.log({ runningInterviews });
+		useFetchItemsQuery(
+			{
+				path: `/interviews/running`,
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
 
 	const stats = [
 		{

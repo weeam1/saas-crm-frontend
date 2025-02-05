@@ -37,14 +37,20 @@ const InterviewedCandidates = () => {
 		error,
 		isLoading,
 		refetch,
-	} = useFetchItemsQuery({
-		path: `/interviews/interviewed-candidates`,
-		params: queryParams,
-	});
+	} = useFetchItemsQuery(
+		{
+			path: `/interviews/interviewed-candidates`,
+			params: queryParams,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
 
-	const { data: allData } = useFetchItemsQuery({
-		path: `/interviews/interviewed-candidates`,
-	});
+	const { data: allData } = useFetchItemsQuery(
+		{
+			path: `/interviews/interviewed-candidates`,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);

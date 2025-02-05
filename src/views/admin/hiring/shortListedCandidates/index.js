@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import {
 	Box,
 	Button,
+	Flex,
 	Icon,
 	Tab,
 	TabList,
@@ -135,12 +136,7 @@ const ShortListedCandidates = memo(() => {
 				)}
 			</Box> */}
 
-			<Tabs
-				// bg='transparent'
-				index={activeTab}
-				onChange={setActiveTab}
-				variant='soft-rounded'
-			>
+			{/* <Tabs index={activeTab} onChange={setActiveTab} variant='soft-rounded'>
 				<TabList width='fit-content' px='4' gap='2'>
 					{tabData.map((tab, index) => (
 						<Tab
@@ -164,9 +160,55 @@ const ShortListedCandidates = memo(() => {
 						<TabPanel key={index}>{tab.component}</TabPanel>
 					))}
 				</TabPanels>
-			</Tabs>
+			</Tabs> */}
+
+			<Box>
+				<Flex gap='2' px='4' width='fit-content'>
+					{tabData.map((tab, index) => (
+						<TabButton
+							key={index}
+							isActive={activeTab === index}
+							onClick={() => setActiveTab(index)}
+						>
+							{tab.title}
+						</TabButton>
+					))}
+				</Flex>
+
+				<Box
+					mt='4'
+					p='4'
+					bg='white'
+					shadow='sm'
+					rounded='md'
+					minH='100px'
+					transition='opacity 0.3s ease, transform 0.3s ease'
+					opacity={1}
+					transform='translateY(0px)'
+					key={activeTab}
+				>
+					{tabData[activeTab].component}
+				</Box>
+			</Box>
 		</Box>
 	);
 });
+
+const TabButton = ({ isActive, onClick, children }) => (
+	<Button
+		onClick={onClick}
+		bg={isActive ? 'brand.400' : 'white'}
+		color={isActive ? 'white' : 'gray.800'}
+		_hover={{ bg: isActive ? 'brand.500' : 'gray.100' }}
+		_focus={{ boxShadow: 'none' }}
+		rounded='md'
+		shadow='sm'
+		fontSize='lg'
+		fontWeight='normal'
+		transition='all 0.3s ease'
+	>
+		{children}
+	</Button>
+);
 
 export default ShortListedCandidates;

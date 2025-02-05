@@ -11,20 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-
-const jobRoles = [
-	{ label: 'Manager', value: 'Manager' },
-	{ label: 'HR', value: 'HR' },
-	{ label: 'Secretary', value: 'Secretary' },
-	{ label: 'Team Leader', value: 'Team Leader' },
-	{ label: 'Sales', value: 'Sales' },
-	{ label: 'Telesales', value: 'Telesales' },
-];
-
-const jobTypes = [
-	{ value: 'Slaray', label: 'Salary' },
-	{ value: 'Comission', label: 'Comission' },
-];
+import { jobRoles, jobTypes } from '../../helpers';
 
 // Validation Schema
 const validationSchema = Yup.object().shape({

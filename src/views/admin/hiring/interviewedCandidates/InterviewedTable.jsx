@@ -29,6 +29,7 @@ const InterviewedTable = ({
 	sortConfig,
 	handleViewCandidate,
 	handleViewResult,
+	handleSendOffer,
 }) => {
 	const navigate = useNavigate();
 
@@ -127,7 +128,7 @@ const InterviewedTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={
 														item.remarks
-															? () => console.log('view offer')
+															? () => handleSendOffer(item)
 															: () => handleViewResult(item)
 													}
 												>

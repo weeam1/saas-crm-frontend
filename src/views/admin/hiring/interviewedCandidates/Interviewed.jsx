@@ -15,6 +15,7 @@ import InterviewedTable from './InterviewedTable';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import InterviewResult from './InterviewResult';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import OfferView from './OfferView';
 
 const Interviewed = ({
 	data,
@@ -37,9 +38,11 @@ const Interviewed = ({
 	const [searchData, setSearchData] = useState([]);
 	const [interview, setInterview] = useState(null);
 	const [interviewId, setInterviewId] = useState(null);
+	const [offerDetails, setOfferDetails] = useState(null);
 	const [isSearch, setIsSearch] = useState(false);
 
 	const [resultModalOpen, setResultModalOpen] = useState(false);
+	const [offerModalOpen, setOfferModalOpen] = useState(false);
 
 	const [updateItemMuation, { isLoading: isInviting }] =
 		useUpdateItemMutation();
@@ -135,14 +138,30 @@ const Interviewed = ({
 		setResultModalOpen(true);
 	};
 
+	const handleSendOffer = (interview) => {
+		const offer = {
+			candidateId: interview.candidate._id,
+			candidateName: interview.candidate.name,
+			leadInterviewerName: `${interview.leadInterviewer.firstName} ${interview.leadInterviewer.lastName}`,
+			jobType: interview.jobType,
+			location: interview.location,
+			position: interview.jobRole,
+			amount: interview.amount,
+			joiningDate: interview.joiningDate || '',
+		};
+
+		setOfferDetails(offer);
+		setOfferModalOpen(true);
+	};
+
 	useEffect(() => {
 		if (interviewId) {
 			const interview = data.find((item) => item.candidate._id === interviewId);
 			setInterview(interview);
-		}
-	}, [refetch]);
 
-	console.log({ resultModalOpen });
+			console.log({ interview });
+		}
+	}, [data]);
 
 	return (
 		<Box w='full' p={6} bg='white' rounded='md' shadow='sm'>
@@ -192,6 +211,7 @@ const Interviewed = ({
 				loading={loading}
 				handleViewResult={handleViewResult}
 				handleViewCandidate={handleViewCandidate}
+				handleSendOffer={handleSendOffer}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -229,6 +249,15 @@ const Interviewed = ({
 					isOpen={resultModalOpen}
 					data={interview}
 					refetch={refetch}
+				/>
+			)}
+
+			{offerModalOpen && (
+				<OfferView
+					isOpen={offerModalOpen}
+					onClose={() => setOfferModalOpen(false)}
+					offerDetails={offerDetails}
+					setOfferDetails={setOfferDetails}
 				/>
 			)}
 		</Box>

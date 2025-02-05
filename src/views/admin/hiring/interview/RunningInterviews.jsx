@@ -45,8 +45,8 @@ const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
 		<Box
 			borderRadius='lg'
 			p={4}
-			bg='white'
-			boxShadow='md'
+			bg='brand.100'
+			boxShadow='sm'
 			_hover={{ boxShadow: 'lg' }}
 		>
 			<VStack spacing={4} align='start'>
@@ -56,9 +56,11 @@ const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
 				<Text fontSize='md' color='gray.600'>
 					Role: {role}
 				</Text>
-				<Text fontSize='md' color='gray.600'>
-					Interview Started at:{interviewDate}
-					{/* {format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a')} */}
+				<Text fontSize='sm' color='gray.600'>
+					Started at:
+					<span style={{ marginLeft: '4px' }}>
+						{format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a')}
+					</span>
 				</Text>
 				<Button
 					onClick={onJoin}

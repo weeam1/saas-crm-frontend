@@ -16,14 +16,15 @@ import {
 	Box,
 	Text,
 	Icon,
+	Grid,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import DisplayField from 'components/displays/DisplayField';
 import { useState } from 'react';
-import { FaCheckCircle, FaInfo, FaSyncAlt } from 'react-icons/fa';
+import { FaInfo, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
-const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
+const InterviewResult = ({ isOpen, onClose, data, interview, refetch }) => {
 	const [remarks, setRemarks] = useState(data?.remarks || '');
 	const { totalInterviewers, percentageScore, pendingEvaluations } = data;
 	const totalInterviewersPointsSubmited =
@@ -58,12 +59,29 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 			shadow='md'
 			p='10'
 			isCentered
+			scrollBehavior='smooth'
 		>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Finish Interview</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody>
+				<ModalBody
+					width='100%'
+					maxH='550px' // Set max height for the modal body
+					overflowY='auto' // Enable vertical scrolling when content exceeds max height
+					sx={{
+						'&::-webkit-scrollbar': {
+							width: '6px', // Custom scrollbar width
+						},
+						'&::-webkit-scrollbar-thumb': {
+							background: 'brand.500', // Custom brand color (adjust according to your theme)
+							borderRadius: '8px',
+						},
+						'&::-webkit-scrollbar-thumb:hover': {
+							background: 'brand.600', // Slightly darker on hover
+						},
+					}}
+				>
 					{pendingEvaluations > 0 && (
 						<IconButton
 							aria-label='Refetch'
@@ -88,19 +106,27 @@ const InterviewResult = ({ isOpen, onClose, data, refetch }) => {
 							label={`Total Interviewers`}
 							value={totalInterviewers}
 						/>
-						{pendingEvaluations > 0 && (
+						{/* {pendingEvaluations > 0 && (
 							<DisplayField
 								label={`Interviewer ${pendingEvaluations} Points`}
 								value={'Pending'}
 							/>
-						)}
-						{data.evaluations.length > 0 &&
-							data.evaluations?.map((item) => (
-								<DisplayField
-									label={`${item.interviewer.firstName} Points`}
-									value={`${item.points}%`}
-								/>
-							))}
+						)} */}
+						<Grid
+							templateColumns={{
+								base: '1fr',
+								md: 'repeat(2, 1fr)',
+							}}
+							gap={3}
+						>
+							{data.evaluations.length > 0 &&
+								data.evaluations?.map((item) => (
+									<DisplayField
+										label={`${item.interviewer.firstName} ${item.interviewer.lastName} Points`}
+										value={item.status === false ? 'Pending' : `${item.points}`}
+									/>
+								))}
+						</Grid>
 
 						<DisplayField
 							label={
