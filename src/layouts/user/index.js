@@ -28,6 +28,7 @@ import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
 import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
 import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
+import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -531,6 +532,10 @@ export default function User(props) {
 														<Route
 															path='interviewed-candidates'
 															element={<InterviewedCandidates />}
+														/>
+														<Route
+															path='interviewed-candidates/offer-letter/:id'
+															element={<OfferLetter />}
 														/>
 													</Route>
 												</>

@@ -10,6 +10,7 @@ const DisplayField = ({ label, value }) => {
 			<Box fontWeight='500' fontSize='md' mb={1}>
 				{label}
 			</Box>
+
 			<Box
 				border='none'
 				outline='none'
@@ -18,6 +19,8 @@ const DisplayField = ({ label, value }) => {
 				px='3'
 				rounded='md'
 				shadow='sm'
+				maxH='200px' // Set a maximum height for the box
+				overflowY='auto' // Enable vertical scrolling
 			>
 				{value}
 			</Box>

@@ -16,10 +16,7 @@ import {
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import FlagBadge from '../_components/FlagBadge';
-import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { toast } from 'react-toastify';
 
 const InterviewedTable = ({
 	headers,
@@ -95,7 +92,7 @@ const InterviewedTable = ({
 										<Td>{item.jobType}</Td>
 										<Td>{item.percentageScore}%</Td>
 										<Td>
-											<HStack gap='1' alignItems='center'>
+											<HStack alignItems='center'>
 												<Button
 													bg='#EDC270'
 													color='gray.800'
@@ -114,26 +111,66 @@ const InterviewedTable = ({
 												>
 													View
 												</Button>
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={
-														item.remarks
-															? () => handleSendOffer(item)
-															: () => handleViewResult(item)
-													}
-												>
-													{item.remarks ? 'Send Offer' : 'View Result'}
-												</Button>
+												{item.joiningDate ? (
+													<>
+														<Button
+															bg='#EDC270'
+															color='gray.800'
+															h='6'
+															py='2'
+															px='4'
+															fontSize='xs'
+															fontWeight='normal'
+															shadow='sm'
+															rounded='md'
+															_hover={{ bg: '#E0B960' }}
+															_active={{ bg: '#D4AC50' }}
+															onClick={() =>
+																handleSendOffer(item._id, 'resend')
+															}
+														>
+															Resend Offer
+														</Button>
+														<Button
+															bg='#EDC270'
+															color='gray.800'
+															h='6'
+															py='2'
+															px='4'
+															fontSize='xs'
+															fontWeight='normal'
+															shadow='sm'
+															rounded='md'
+															_hover={{ bg: '#E0B960' }}
+															_active={{ bg: '#D4AC50' }}
+															onClick={() => handleSendOffer(item._id, 'view')}
+														>
+															View Offer
+														</Button>
+													</>
+												) : (
+													<Button
+														bg='#EDC270'
+														color='gray.800'
+														h='6'
+														py='2'
+														px='4'
+														flex={1}
+														fontSize='xs'
+														fontWeight='normal'
+														shadow='sm'
+														rounded='md'
+														_hover={{ bg: '#E0B960' }}
+														_active={{ bg: '#D4AC50' }}
+														onClick={
+															item.remarks
+																? () => handleSendOffer(item)
+																: () => handleViewResult(item)
+														}
+													>
+														{item.remarks ? 'Send Offer' : 'Submit Result'}
+													</Button>
+												)}
 											</HStack>
 										</Td>
 									</Tr>

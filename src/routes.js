@@ -88,6 +88,9 @@ const Meeting = React.lazy(() => import('views/admin/meeting'));
 const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const OfferLetter = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
+);
 const InterviewScreen = React.lazy(
 	() => import('views/admin/hiring/interview/InterviewScreen')
 );
@@ -343,6 +346,7 @@ const routes = [
 		name: 'Short Listed',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/short-listed',
+		under: 'shortListed',
 		parentName: 'Hiring',
 		component: ShortListedCandidates,
 	},
@@ -350,6 +354,7 @@ const routes = [
 		name: 'Interview',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/interview/:interviewId',
+		under: 'interview',
 		parentName: 'Hiring',
 		component: InterviewScreen,
 	},
@@ -357,8 +362,17 @@ const routes = [
 		name: 'Interviewed Candidates',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/interviewed-candidates',
+		under: 'interviewCandidates',
 		parentName: 'Hiring',
 		component: InterviewedCandidates,
+	},
+	{
+		name: 'Offer Letter',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/interviewed-candidates/offer-letter/:id',
+		under: 'offerLetter',
+		parentName: 'Hiring',
+		component: OfferLetter,
 	},
 	// ------------- Phone Routes ------------------------
 	{

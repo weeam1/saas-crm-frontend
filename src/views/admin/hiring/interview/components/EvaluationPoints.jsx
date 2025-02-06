@@ -118,7 +118,7 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 							mt={6}
 							type='submit'
 						>
-							{isLeadInterviewer ? 'Submit Points' : 'End Interview'}
+							{isLeadInterviewer ? 'End Interview' : 'Submit Points'}
 						</Button>
 					</Form>
 				)}

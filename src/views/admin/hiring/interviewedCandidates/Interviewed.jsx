@@ -16,6 +16,7 @@ import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import InterviewResult from './InterviewResult';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import OfferView from './OfferView';
+import { useNavigate } from 'react-router-dom';
 
 const Interviewed = ({
 	data,
@@ -138,20 +139,12 @@ const Interviewed = ({
 		setResultModalOpen(true);
 	};
 
-	const handleSendOffer = (interview) => {
-		const offer = {
-			candidateId: interview.candidate._id,
-			candidateName: interview.candidate.name,
-			leadInterviewerName: `${interview.leadInterviewer.firstName} ${interview.leadInterviewer.lastName}`,
-			jobType: interview.jobType,
-			location: interview.location,
-			position: interview.jobRole,
-			amount: interview.amount,
-			joiningDate: interview.joiningDate || '',
-		};
+	const navigate = useNavigate();
 
-		setOfferDetails(offer);
-		setOfferModalOpen(true);
+	const handleSendOffer = (interviewId, offerType) => {
+		navigate(
+			`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+		);
 	};
 
 	useEffect(() => {
@@ -252,14 +245,14 @@ const Interviewed = ({
 				/>
 			)}
 
-			{offerModalOpen && (
+			{/* {offerModalOpen && (
 				<OfferView
 					isOpen={offerModalOpen}
 					onClose={() => setOfferModalOpen(false)}
 					offerDetails={offerDetails}
 					setOfferDetails={setOfferDetails}
 				/>
-			)}
+			)} */}
 		</Box>
 	);
 };
