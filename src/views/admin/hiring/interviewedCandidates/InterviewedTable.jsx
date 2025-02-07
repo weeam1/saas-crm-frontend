@@ -79,13 +79,13 @@ const InterviewedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td>
+										<Td minWidth='200px'>
 											<HStack gap='1'>
 												<span>{item.candidate.name}</span>
 												<FlagBadge item={item.candidate} />
 											</HStack>
 										</Td>
-										<Td>{item.candidate.email}</Td>
+										<Td minWidth='250px'>{item.candidate.email}</Td>
 										<Td>{item.position}</Td>
 										<Td>{item.candidate.phone}</Td>
 										<Td>{item.candidate.whatsApp}</Td>
