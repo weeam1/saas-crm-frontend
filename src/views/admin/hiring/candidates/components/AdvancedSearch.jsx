@@ -18,6 +18,7 @@ import {
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { jobTypes } from '../../helpers';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -321,6 +322,48 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												<option value='false'>Not Accepted</option>
 											</Select>
 										</GridItem>
+									)}
+
+									{type === 'interviewed' && (
+										<>
+											<GridItem>
+												<FormLabel
+													display='flex'
+													ms='4px'
+													fontSize='md'
+													fontWeight='400'
+													color='gray.800'
+													mt={2}
+													mb='1'
+												>
+													Job Type
+												</FormLabel>
+												<Select
+													fontSize='sm'
+													name='jobType'
+													fontWeight='400'
+													defaultValue={''}
+													rounded='md'
+													shadow='sm'
+													onChange={handleChange}
+													onBlur={handleBlur}
+													value={values['jobType']}
+													borderColor='gray.300'
+													_focus={{
+														borderColor: 'brand.500',
+														boxShadow:
+															'0 0 0 1px var(--chakra-colors-brand-500)',
+													}}
+													placeholder='Search by status'
+												>
+													{jobTypes.map((type) => (
+														<option key={type.value} value={type.value}>
+															{type.label}
+														</option>
+													))}
+												</Select>
+											</GridItem>
+										</>
 									)}
 								</Grid>
 

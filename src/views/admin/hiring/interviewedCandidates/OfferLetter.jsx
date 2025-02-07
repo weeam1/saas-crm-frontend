@@ -15,18 +15,16 @@ import {
 	FormErrorMessage,
 	Heading,
 	Flex,
-	Icon,
 	IconButton,
 	Tooltip,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FaEdit, FaRegCalendar } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import calendar styles
-import { positions, jobTypes } from '../helpers';
-import { useCreateItemMutation } from 'api/apiSlice';
+import { jobTypes } from '../helpers';
+import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import { useFetchItemsQuery } from 'api/apiSlice';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Loader from 'components/loading/Loader';
 import { IoArrowBack } from 'react-icons/io5';
@@ -54,15 +52,25 @@ const OfferLetter = () => {
 	const [searchParams] = useSearchParams();
 	const offerType = searchParams.get('type');
 	const [isEditing, setIsEditing] = useState(false);
-	const { data: interview, isLoading } = useFetchItemsQuery({
-		path: `/interviews/${id}`,
-	});
+	const { data: interview, isLoading } = useFetchItemsQuery(
+		{
+			path: `/interviews/${id}`,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
 
-	const positionOptions = useSelector((state) => state.positions.options);
+	const { data: positionOptions, isLoading: positionsLoading } =
+		useFetchItemsQuery(
+			{
+				path: `/positions/options`,
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
 
 	useEffect(() => {
 		if (interview?.doc) {
 			const data = interview?.doc;
+
 			setOfferDetails({
 				remarks: data.remarks || '',
 				leadInterviewerName: data.leadInterviewer.fullName || '',
@@ -154,7 +162,7 @@ const OfferLetter = () => {
 
 	const navigate = useNavigate();
 
-	return isLoading ? (
+	return isLoading || positionsLoading ? (
 		<Loader />
 	) : offerDetails && interview?.doc ? (
 		<Box>
@@ -203,7 +211,7 @@ const OfferLetter = () => {
 									<CustomSelect
 										label='Position'
 										name='position'
-										options={positionOptions}
+										options={positionOptions?.doc}
 										isReadOnly={!isEditing}
 										isInvalid={errors.position && touched.position}
 										placeholder={offerDetails.position}
@@ -240,9 +248,7 @@ const OfferLetter = () => {
 									/>
 
 									<FormControl mb={4} isInvalid={errors?.joiningDate}>
-										<FormLabel fontSize='sm'>
-											{isEditing && 'Joining Date'}
-										</FormLabel>
+										<FormLabel fontSize='sm'>Joining Date</FormLabel>
 										{!isEditing ? (
 											interview?.doc?.joiningDate && (
 												<Box
@@ -349,7 +355,7 @@ const OfferLetter = () => {
 										isLoading={sendingOffer}
 										isDisabled={!isEditing}
 									>
-										{offerDetails.joiningDate ? 'Resend Offer' : 'Submit Offer'}
+										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
 									</CustomButton>
 								</Flex>
 								<Box

@@ -285,7 +285,7 @@ const InterviewScreen = memo(() => {
 			{/* Candidate Section */}
 			{interview?.doc?.candidate ? (
 				<>
-					<Box pt='2' pb='4' px='4' rounded='md' bg='softGray.100' mb='4'>
+					<Box pt='2' pb='4' px='4' rounded='md' mb='4'>
 						<Box width='fit-content'>
 							<CandidateCard
 								candidate={interview?.doc?.candidate}

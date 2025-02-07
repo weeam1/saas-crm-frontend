@@ -112,6 +112,7 @@ const SelectInterviewers = ({
 		try {
 			if (selectedIds.length > 0) {
 				const sender_name = `${user.firstName} ${user.lastName}`;
+
 				const interviewData = {
 					sender_id: user._id,
 					sender_name,
@@ -119,10 +120,8 @@ const SelectInterviewers = ({
 					receiver_ids: selectedIds,
 					interview_id: interview._id,
 					candidate_name: interview?.candidate?.name,
-					candidate_job_type: interview?.candidate?.position,
+					candidate_job_type: interview?.candidate?.position.name,
 				};
-
-				console.log({ interviewData });
 
 				const { data } = await axios.post(
 					`${keys.socketUrl}/interview_invite`,

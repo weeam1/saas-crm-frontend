@@ -378,7 +378,7 @@ const routes = [
 	{
 		name: 'Positions',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/hiring/positions',
+		path: '/hiring/settings',
 		under: 'positions',
 		parentName: 'Hiring',
 		component: Positions,

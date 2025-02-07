@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+import StatusBadge from 'components/shared/StatusBadge';
 
 const InvitedTable = ({
 	headers,
@@ -170,22 +171,31 @@ const InvitedTable = ({
 												>
 													View
 												</Button>
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleStartInterview(item._id)}
-												>
-													Start Interview
-												</Button>
+												{item.isInterviewed ? (
+													<StatusBadge
+														status='Interviewed'
+														color={'green'}
+														size={4}
+													/>
+												) : (
+													<Button
+														bg='#EDC270'
+														color='gray.800'
+														h='6'
+														py='2'
+														px='4'
+														fontSize='xs'
+														fontWeight='normal'
+														shadow='sm'
+														rounded='md'
+														_hover={{ bg: '#E0B960' }}
+														_active={{ bg: '#D4AC50' }}
+														onClick={() => handleStartInterview(item._id)}
+													>
+														Start Interview
+													</Button>
+												)}
+
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />
 											</HStack>

@@ -14,6 +14,11 @@ import { IoSettings } from 'react-icons/io5';
 
 const Hiring = () => {
 	const dispatch = useDispatch();
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const isAdmin = user?.role === 'superAdmin';
+
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
 			path: `/hiring/stats`,
@@ -79,19 +84,21 @@ const Hiring = () => {
 				<Heading px={5} size='lg' color='gray.800'>
 					Hiring
 				</Heading>
-				<Button
-					colorScheme='gray'
-					borderRadius='5px'
-					size={{ base: 'sm', md: 'md' }}
-					px={{ base: 4, md: 6 }}
-					py={{ base: 2, md: 3 }}
-					fontSize={{ base: 'sm', md: 'md' }}
-					leftIcon={<Icon as={IoSettings} boxSize={4} />}
-					onClick={() => navigate('/hiring/positions')}
-					mb={4}
-				>
-					Positions
-				</Button>
+				{isAdmin && (
+					<Button
+						colorScheme='gray'
+						borderRadius='5px'
+						size={{ base: 'sm', md: 'md' }}
+						px={{ base: 4, md: 6 }}
+						py={{ base: 2, md: 3 }}
+						fontSize={{ base: 'sm', md: 'md' }}
+						leftIcon={<Icon as={IoSettings} boxSize={4} />}
+						onClick={() => navigate('/hiring/settings')}
+						mb={4}
+					>
+						Settings
+					</Button>
+				)}
 			</Flex>
 
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>

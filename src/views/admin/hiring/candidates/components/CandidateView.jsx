@@ -50,26 +50,27 @@ const CandidateView = ({
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
 			<ModalOverlay />
-			<ModalContent p={4}>
+			<ModalContent
+				maxH='650px' // Set max height for the modal body
+				overflowY='auto' // Enable vertical scrolling when content exceeds max height
+				sx={{
+					'&::-webkit-scrollbar': {
+						width: '6px', // Custom scrollbar width
+					},
+					'&::-webkit-scrollbar-thumb': {
+						background: 'brand.500', // Custom brand color (adjust according to your theme)
+						borderRadius: '8px',
+					},
+					'&::-webkit-scrollbar-thumb:hover': {
+						background: 'brand.600', // Slightly darker on hover
+					},
+				}}
+				px={4}
+				py={8}
+			>
 				<ModalHeader>Application</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody
-					width='100%'
-					maxH='550px' // Set max height for the modal body
-					overflowY='auto' // Enable vertical scrolling when content exceeds max height
-					sx={{
-						'&::-webkit-scrollbar': {
-							width: '6px', // Custom scrollbar width
-						},
-						'&::-webkit-scrollbar-thumb': {
-							background: 'brand.500', // Custom brand color (adjust according to your theme)
-							borderRadius: '8px',
-						},
-						'&::-webkit-scrollbar-thumb:hover': {
-							background: 'brand.600', // Slightly darker on hover
-						},
-					}}
-				>
+				<ModalBody width='100%'>
 					<Grid
 						templateColumns={{
 							base: '1fr',

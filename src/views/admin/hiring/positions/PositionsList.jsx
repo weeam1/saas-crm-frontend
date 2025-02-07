@@ -3,14 +3,7 @@ import { EditIcon } from '@chakra-ui/icons';
 
 const PositionsList = ({ positions, onEdit }) => {
 	return (
-		<Box
-			mt={5}
-			textAlign='center'
-			bg='softGray.100'
-			rounded='sm'
-			shadow='sm'
-			p='4'
-		>
+		<Box mt={5} textAlign='center' bg='white' rounded='sm' shadow='sm' p='4'>
 			<Text fontSize='2xl' fontWeight='bold' mb='4'>
 				Positions
 			</Text>
@@ -23,7 +16,7 @@ const PositionsList = ({ positions, onEdit }) => {
 							justifyContent='space-between'
 							alignItems='center'
 							shadow='sm'
-							bg='white'
+							bg='gray.100'
 							p='2'
 						>
 							{position.name}

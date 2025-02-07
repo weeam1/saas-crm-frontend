@@ -111,7 +111,7 @@ const InterviewedTable = ({
 												>
 													View
 												</Button>
-												{item.joiningDate ? (
+												{item.isOffer ? (
 													<>
 														<Button
 															bg='#EDC270'

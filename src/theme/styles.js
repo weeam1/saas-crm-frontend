@@ -36,7 +36,7 @@ export const globalStyles = extendTheme({
 			900: '#332602',
 		},
 		softGray: {
-			100: '#EEEEEE',
+			100: '#eeeeef',
 		},
 		secondaryGray: {
 			100: '#E0E5F2',
