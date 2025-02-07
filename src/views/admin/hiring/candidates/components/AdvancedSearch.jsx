@@ -114,14 +114,6 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			},
 		];
 
-		if (type === 'interviewed') {
-			baseFields.push({
-				name: 'points',
-				label: 'Points',
-				placeholder: 'Enter Points',
-			});
-		}
-
 		return baseFields;
 	};
 
