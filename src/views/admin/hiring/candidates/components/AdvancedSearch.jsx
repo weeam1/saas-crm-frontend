@@ -78,22 +78,54 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		position: Yup.string(),
 	});
 
-	const fields = [
-		{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
-		{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
-		{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
-		{ name: 'whatsApp', label: 'WhatsApp No', placeholder: 'WhatsApp Number' },
-		{
-			name: 'experienceYears',
-			label: 'Experience in Years',
-			placeholder: 'Years of Experience',
-		},
-		// {
-		// 	name: 'position',
-		// 	label: 'Applied For',
-		// 	placeholder: 'Enter the role',
-		// },
-	];
+	// const fields = [
+	// 	{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
+	// 	{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
+	// 	{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
+	// 	{ name: 'whatsApp', label: 'WhatsApp No', placeholder: 'WhatsApp Number' },
+
+	// 	{ name: 'points', label: 'Points', placeholder: 'Enter Points' },
+	// 	{
+	// 		name: 'experienceYears',
+	// 		label: 'Experience in Years',
+	// 		placeholder: 'Years of Experience',
+	// 	},
+	// 	// {
+	// 	// 	name: 'position',
+	// 	// 	label: 'Applied For',
+	// 	// 	placeholder: 'Enter the role',
+	// 	// },
+	// ];
+
+	const getFields = (type) => {
+		const baseFields = [
+			{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
+			{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
+			{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
+			{
+				name: 'whatsApp',
+				label: 'WhatsApp No',
+				placeholder: 'WhatsApp Number',
+			},
+			{
+				name: 'experienceYears',
+				label: 'Experience in Years',
+				placeholder: 'Years of Experience',
+			},
+		];
+
+		if (type === 'interviewed') {
+			baseFields.push({
+				name: 'points',
+				label: 'Points',
+				placeholder: 'Enter Points',
+			});
+		}
+
+		return baseFields;
+	};
+
+	const fields = getFields(type);
 
 	const handleSubmit = (values) => {
 		onSearch(values); // Trigger search with form values
@@ -253,41 +285,44 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											))}
 										</Select>
 									</GridItem>
-									<GridItem>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='md'
-											fontWeight='400'
-											color='gray.800'
-											mt={2}
-											mb='1'
-										>
-											Status
-										</FormLabel>
-										<Select
-											fontSize='sm'
-											name='status'
-											fontWeight='400'
-											defaultValue={''}
-											rounded='md'
-											shadow='sm'
-											onChange={handleChange}
-											onBlur={handleBlur}
-											value={values['status']}
-											borderColor='gray.300'
-											_focus={{
-												borderColor: 'brand.500', // Apply brand color on focus
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
-											}}
-											placeholder='Search by status'
-										>
-											{/* <option value=''>Search by status</option> */}
-											<option value='Pending'>Pending</option>
-											<option value='Eligible'>Eligible</option>
-											<option value='Not Eligible'>Not Eligible</option>
-										</Select>
-									</GridItem>
+									{type !== 'interviewed' && (
+										<GridItem>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='md'
+												fontWeight='400'
+												color='gray.800'
+												mt={2}
+												mb='1'
+											>
+												Status
+											</FormLabel>
+
+											<Select
+												fontSize='sm'
+												name='status'
+												fontWeight='400'
+												defaultValue={''}
+												rounded='md'
+												shadow='sm'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values['status']}
+												borderColor='gray.300'
+												_focus={{
+													borderColor: 'brand.500', // Apply brand color on focus
+													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												}}
+												placeholder='Search by status'
+											>
+												<option value='Pending'>Pending</option>
+												<option value='Eligible'>Eligible</option>
+												<option value='Not Eligible'>Not Eligible</option>
+											</Select>
+										</GridItem>
+									)}
+
 									{(type === 'short-listed' || type === 'invited') && (
 										<GridItem>
 											<FormLabel

@@ -218,7 +218,7 @@ const InterviewedCandidates = () => {
 					isOpen={advanceSearch}
 					onClose={() => setAdvanceSearch(false)}
 					onSearch={handleSearch}
-					type='invited'
+					type='interviewed'
 				/>
 			)}
 		</Box>

@@ -37,7 +37,7 @@ const PendingInvitedTable = ({
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
-					<Table variant='striped' size='md'>
+					<Table variant='striped' size='md' width='100%'>
 						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
 							<Tr>
 								{headers?.map((header) => (
@@ -46,6 +46,7 @@ const PendingInvitedTable = ({
 										textAlign='center'
 										color='gray.800'
 										width={header.width || '150px'}
+										whiteSpace='nowrap'
 									>
 										<Flex align='center' justify='space-evenly' gap='4'>
 											<Text textTransform='capitalize'>{header.label}</Text>
@@ -76,13 +77,13 @@ const PendingInvitedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td>
+										<Td minWidth='200px'>
 											<HStack gap='1'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />
 											</HStack>
 										</Td>
-										<Td>{item.email}</Td>
+										<Td minWidth='250px'>{item.email}</Td>
 										<Td>{item.position.name}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>

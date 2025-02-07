@@ -94,7 +94,7 @@ const InvitedTable = ({
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
-					<Table variant='striped' size='md'>
+					<Table variant='striped' width='100%' size='md'>
 						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
 							<Tr>
 								{headers?.map((header) => (
@@ -102,7 +102,9 @@ const InvitedTable = ({
 										key={header.key}
 										textAlign='center'
 										color='gray.800'
-										width={header.width || '150px'}
+										width={header.width || '250px'}
+										maxWidth={'300px'}
+										whiteSpace='nowrap'
 									>
 										<Flex align='center' justify='space-evenly' gap='4'>
 											<Text textTransform='capitalize'>{header.label}</Text>
@@ -133,13 +135,13 @@ const InvitedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td>
-											<HStack gap='1'>
+										<Td minWidth='200px'>
+											<Flex alignItems='center' gap='2'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />
-											</HStack>
+											</Flex>
 										</Td>
-										<Td>{item.email}</Td>
+										<Td minWidth='250px'>{item.email}</Td>
 										<Td>{item.position.name}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>

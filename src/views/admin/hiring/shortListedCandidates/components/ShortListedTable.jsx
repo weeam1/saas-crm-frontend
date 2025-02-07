@@ -17,7 +17,7 @@ import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import MailIcon from './MailIcon';
 import FlagBadge from '../../_components/FlagBadge';
-// import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
+import StatusBadge from 'components/shared/StatusBadge';
 
 const ShortListedTable = ({
 	headers,
@@ -37,7 +37,7 @@ const ShortListedTable = ({
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
-					<Table variant='striped' size='md'>
+					<Table variant='striped' size='md' width='100%'>
 						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
 							<Tr>
 								{headers.map((header) => (
@@ -76,13 +76,13 @@ const ShortListedTable = ({
 							) : data?.length > 0 ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td>
+										<Td minWidth='200px'>
 											<HStack gap='1'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />
 											</HStack>
 										</Td>
-										<Td>{item.email}</Td>
+										<Td minWidth='250px'>{item.email}</Td>
 										<Td>{item.position.name}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>
@@ -110,24 +110,33 @@ const ShortListedTable = ({
 												>
 													View
 												</Button>
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleArrangeInterview(item._id)}
-												>
-													{item.interviewDate
-														? 'Reschedule'
-														: 'Arrange Interview'}
-												</Button>
+												{item.isInterviewed ? (
+													<StatusBadge
+														status='Interviewed'
+														color={'green'}
+														size={4}
+													/>
+												) : (
+													<Button
+														bg='#EDC270'
+														color='gray.800'
+														h='6'
+														py='2'
+														px='4'
+														fontSize='xs'
+														fontWeight='normal'
+														shadow='sm'
+														rounded='md'
+														_hover={{ bg: '#E0B960' }}
+														_active={{ bg: '#D4AC50' }}
+														onClick={() => handleArrangeInterview(item._id)}
+													>
+														{item.interviewDate
+															? 'Reschedule'
+															: 'Arrange Interview'}
+													</Button>
+												)}
+
 												{/* Mail Icon for accepting interview intive */}
 												<MailIcon isRead={item.inviteAccepted} />
 											</HStack>
