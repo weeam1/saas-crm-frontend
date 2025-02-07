@@ -156,6 +156,22 @@ const Interviewed = ({
 		}
 	}, [data]);
 
+	// Update filtered data on search change
+	const handleSearchTermChange = (term) => {
+		if (!term) {
+			setIsSearch(false);
+			setSearchData(data); // Reset to original data
+			return;
+		}
+
+		const filteredData = data.filter((item) =>
+			item.candidate.name.toLowerCase().includes(term.toLowerCase())
+		);
+
+		setIsSearch(true);
+		setSearchData(filteredData);
+	};
+
 	return (
 		<Box w='full' p={6} bg='white' rounded='md' shadow='sm'>
 			<Box
@@ -179,8 +195,9 @@ const Interviewed = ({
 					</Heading>
 				</HStack>
 
-				{/* <HStack gap='2'>
-					<SearchBar data={allData?.doc} onFilteredData={handleFilteredData} />
+				<HStack gap='2'>
+					{/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
+					<SearchBar onSearchTermChange={handleSearchTermChange} />
 
 					<Button
 						colorScheme='brand'
@@ -193,7 +210,7 @@ const Interviewed = ({
 					>
 						Advanced Search
 					</Button>
-				</HStack> */}
+				</HStack>
 			</Box>
 
 			<InterviewedTable

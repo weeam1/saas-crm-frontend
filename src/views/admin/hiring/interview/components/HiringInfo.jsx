@@ -15,7 +15,7 @@ import { jobTypes } from '../../helpers';
 
 // Validation Schema
 const validationSchema = Yup.object().shape({
-	position: Yup.string().required('Job role is required'),
+	position: Yup.string().required('Job position is required'),
 	jobType: Yup.string().required('Job type is required'),
 	amount: Yup.number()
 		.typeError('Amount must be a number')
@@ -23,7 +23,12 @@ const validationSchema = Yup.object().shape({
 		.min(1, 'Amount must be at least 1'),
 });
 
-const HiringInfo = ({ interview, onSubmit, positionOptions }) => {
+const HiringInfo = ({
+	interview,
+	onSubmit,
+	setHiringData,
+	positionOptions,
+}) => {
 	const initialValues = {
 		position: interview?.candidate?.position._id || '',
 		jobType: '',
@@ -46,6 +51,7 @@ const HiringInfo = ({ interview, onSubmit, positionOptions }) => {
 				validationSchema={validationSchema}
 				onSubmit={(values) => {
 					onSubmit(values); // Proceed to the next step
+					setHiringData(values);
 				}}
 			>
 				{({ errors, touched, handleChange, handleBlur }) => (

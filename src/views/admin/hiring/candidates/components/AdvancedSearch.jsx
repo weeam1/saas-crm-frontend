@@ -14,23 +14,10 @@ import {
 	Text,
 	Flex,
 	Select,
-	Icon,
-	Box,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { FiInfo } from 'react-icons/fi';
-import { useSelector } from 'react-redux';
-
-// const positionOptions = [
-// 	{ label: 'Manager', value: 'Manager' },
-// 	{ label: 'HR', value: 'HR' },
-// 	{ label: 'Secretary', value: 'Secretary' },
-// 	{ label: 'Team Leader', value: 'Team Leader' },
-// 	{ label: 'Sales', value: 'Sales' },
-// 	{ label: 'Tele Sales', value: 'Tele Sales' },
-// ];
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {

@@ -165,6 +165,22 @@ const PendingInvitedCandidates = ({
 		setSearchData(filtered);
 	};
 
+	// Update filtered data on search change
+	const handleSearchTermChange = (term) => {
+		if (!term) {
+			setIsSearch(false);
+			setSearchData([]); // Reset to original data
+			return;
+		}
+
+		const filteredData = allData?.doc?.filter((item) =>
+			item.name.toLowerCase().includes(term.toLowerCase())
+		);
+
+		setIsSearch(true);
+		setSearchData(filteredData);
+	};
+
 	return (
 		<Box w='full' p={6} bg='white' rounded='md' shadow='sm'>
 			<Box
@@ -188,7 +204,8 @@ const PendingInvitedCandidates = ({
 				</HStack>
 
 				<HStack gap='2'>
-					<SearchBar data={allData?.doc} onFilteredData={handleFilteredData} />
+					{/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
+					<SearchBar onSearchTermChange={handleSearchTermChange} />
 
 					<Button
 						colorScheme='brand'

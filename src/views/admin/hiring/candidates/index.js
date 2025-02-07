@@ -82,6 +82,7 @@ const Candidates = () => {
 			key,
 			value,
 		}));
+
 		setSearchTags(tags);
 
 		// Prepare the query parameters

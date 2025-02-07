@@ -86,7 +86,7 @@ const InterviewedTable = ({
 											</HStack>
 										</Td>
 										<Td>{item.candidate.email}</Td>
-										<Td>{item.candidate.position}</Td>
+										<Td>{item.position}</Td>
 										<Td>{item.candidate.phone}</Td>
 										<Td>{item.candidate.whatsApp}</Td>
 										<Td>{item.jobType}</Td>
@@ -164,7 +164,7 @@ const InterviewedTable = ({
 														_active={{ bg: '#D4AC50' }}
 														onClick={
 															item.remarks
-																? () => handleSendOffer(item)
+																? () => handleSendOffer(item._id, 'view')
 																: () => handleViewResult(item)
 														}
 													>

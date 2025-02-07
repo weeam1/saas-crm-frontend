@@ -49,7 +49,7 @@ const InterviewTabs = memo(
 		// Memoize functions
 		const handleHiringInfoSubmit = useCallback(
 			async (data) => {
-				setHiringData(data);
+				// setHiringData(data);
 				handleTabChange(2);
 			},
 			[handleTabChange]

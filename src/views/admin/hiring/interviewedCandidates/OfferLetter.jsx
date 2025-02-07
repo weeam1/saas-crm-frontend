@@ -155,7 +155,7 @@ const OfferLetter = () => {
 	const navigate = useNavigate();
 
 	return isLoading ? (
-		<Spinner />
+		<Loader />
 	) : offerDetails && interview?.doc ? (
 		<Box>
 			<Button
@@ -240,19 +240,23 @@ const OfferLetter = () => {
 									/>
 
 									<FormControl mb={4} isInvalid={errors?.joiningDate}>
-										<FormLabel fontSize='sm'>Joining Date</FormLabel>
+										<FormLabel fontSize='sm'>
+											{isEditing && 'Joining Date'}
+										</FormLabel>
 										{!isEditing ? (
-											<Box
-												border='none'
-												outline='none'
-												bg='#F2F2F2'
-												p='3'
-												fontSize='sm'
-												rounded='md'
-												shadow='sm'
-											>
-												{formattedDate(interview?.doc?.joiningDate)}
-											</Box>
+											interview?.doc?.joiningDate && (
+												<Box
+													border='none'
+													outline='none'
+													bg='#F2F2F2'
+													p='3'
+													fontSize='sm'
+													rounded='md'
+													shadow='sm'
+												>
+													{formattedDate(interview?.doc?.joiningDate)}
+												</Box>
+											)
 										) : (
 											<Box position='relative' width='100%'>
 												<InputGroup>

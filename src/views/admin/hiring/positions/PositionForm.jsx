@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -23,7 +22,6 @@ const PositionForm = ({
 	initialData = {},
 	mode = 'create',
 	setViewForm,
-	positionId,
 	setMode,
 	refetch,
 }) => {

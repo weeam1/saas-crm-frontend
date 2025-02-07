@@ -56,7 +56,7 @@ const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
 				<Text fontSize='md' color='gray.600'>
 					Role: {role}
 				</Text>
-				<Text fontSize='sm' color='gray.600'>
+				<Text fontSize='xs' color='gray.600'>
 					Started at:
 					<span style={{ marginLeft: '4px' }}>
 						{format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a')}

@@ -182,7 +182,7 @@ const ShortListedData = ({ invitedRefetch }) => {
 
 	return (
 		<Box>
-			<Box mb={4}>
+			<Box mb={2}>
 				{/* Display Search Tags */}
 				{searchTags.map(({ key, value }) => (
 					<Tag
