@@ -31,7 +31,7 @@ const RunningInterviews = ({ interviews, totals }) => {
 						key={interview._id}
 						candidateName={interview.candidate.name}
 						interviewDate={interview.createdAt}
-						role={interview.candidate.position}
+						role={interview.candidate.position.name}
 						onJoin={() => handleJoinInterview(interview._id)}
 					/>
 				))}

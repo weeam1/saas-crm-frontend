@@ -142,7 +142,7 @@ const InvitedTable = ({
 											</HStack>
 										</Td>
 										<Td>{item.email}</Td>
-										<Td>{item.position}</Td>
+										<Td>{item.position.name}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>
 										<Td display='flex' alignItems='center' gap='2'>

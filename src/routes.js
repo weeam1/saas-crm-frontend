@@ -88,6 +88,7 @@ const Meeting = React.lazy(() => import('views/admin/meeting'));
 const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const Positions = React.lazy(() => import('views/admin/hiring/positions'));
 const OfferLetter = React.lazy(
 	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
 );
@@ -373,6 +374,14 @@ const routes = [
 		under: 'offerLetter',
 		parentName: 'Hiring',
 		component: OfferLetter,
+	},
+	{
+		name: 'Positions',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/positions',
+		under: 'positions',
+		parentName: 'Hiring',
+		component: Positions,
 	},
 	// ------------- Phone Routes ------------------------
 	{

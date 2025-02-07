@@ -24,14 +24,12 @@ const validationSchema = Yup.object().shape({
 		.min(1, 'Amount must be at least 1'),
 });
 
-const HiringInfo = ({ interview, onSubmit }) => {
+const HiringInfo = ({ interview, onSubmit, positionOptions }) => {
 	const initialValues = {
-		position: interview?.candidate?.position || '',
+		position: interview?.candidate?.position._id || '',
 		jobType: '',
 		amount: '',
 	};
-
-	const positionOptions = useSelector((state) => state.positions.options);
 
 	return (
 		<Box w='full'>

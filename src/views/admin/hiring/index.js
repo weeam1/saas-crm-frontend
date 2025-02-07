@@ -1,4 +1,4 @@
-import { Box, Heading, Icon, SimpleGrid } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Icon, SimpleGrid } from '@chakra-ui/react';
 import { FaUserCheck, FaUsers } from 'react-icons/fa';
 import IconBox from 'components/icons/IconBox';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import RunningInterviews from './interview/RunningInterviews';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addPositions } from './../../../redux/positionsSlice';
+import { IoSettings } from 'react-icons/io5';
 
 const Hiring = () => {
 	const dispatch = useDispatch();
@@ -74,9 +75,24 @@ const Hiring = () => {
 		<Loader />
 	) : (
 		<Box>
-			<Heading px={5} size='lg' color='gray.800'>
-				Hiring
-			</Heading>
+			<Flex justifyContent='space-between' alignItems='center'>
+				<Heading px={5} size='lg' color='gray.800'>
+					Hiring
+				</Heading>
+				<Button
+					colorScheme='gray'
+					borderRadius='5px'
+					size={{ base: 'sm', md: 'md' }}
+					px={{ base: 4, md: 6 }}
+					py={{ base: 2, md: 3 }}
+					fontSize={{ base: 'sm', md: 'md' }}
+					leftIcon={<Icon as={IoSettings} boxSize={4} />}
+					onClick={() => navigate('/hiring/positions')}
+					mb={4}
+				>
+					Positions
+				</Button>
+			</Flex>
 
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
 				{stats.map((stat, index) => (

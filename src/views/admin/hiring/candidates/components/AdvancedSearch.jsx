@@ -46,13 +46,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
-	const positionOptions = useSelector((state) => state.positions.options);
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
 	});
 
-	console.log(countries);
+	const { data: positionOptions, isLoading: positionsLoading } =
+		useFetchItemsQuery(
+			{
+				path: `/positions/options`,
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
 
 	const isMounted = useRef(true);
 
@@ -217,7 +222,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											}}
 											placeholder='Search by role'
 										>
-											{positionOptions?.map((item) => (
+											{positionOptions?.doc?.map((item) => (
 												<option value={item._id} key={item._id}>
 													{item.value}
 												</option>

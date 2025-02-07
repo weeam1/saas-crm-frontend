@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
 
 const InterviewTabs = memo(
 	({
@@ -29,6 +31,14 @@ const InterviewTabs = memo(
 	}) => {
 		const [hiringData, setHiringData] = useState();
 		const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
+
+		const { data: positionOptions, isLoading: positionsLoading } =
+			useFetchItemsQuery(
+				{
+					path: `/positions/options`,
+				},
+				{ refetchOnMountOrArgChange: true }
+			);
 
 		// Memoize computed values
 		const isInvitedInterviewer = useMemo(
@@ -86,7 +96,9 @@ const InterviewTabs = memo(
 			}
 		};
 
-		return (
+		return positionsLoading ? (
+			<Loader />
+		) : (
 			<Box
 				display='flex'
 				bg='white'
@@ -172,6 +184,7 @@ const InterviewTabs = memo(
 									hiringData={hiringData}
 									setHiringData={setHiringData}
 									onSubmit={handleHiringInfoSubmit}
+									positionOptions={positionOptions?.doc}
 								/>
 							</TabPanel>
 
