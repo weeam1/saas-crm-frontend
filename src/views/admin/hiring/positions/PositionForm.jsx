@@ -38,7 +38,7 @@ const PositionForm = ({
 		try {
 			if (mode === 'edit') {
 				await updateItemMuation({
-					path: `/positions/${positionId}`,
+					path: `/positions/${initialData._id}`,
 					body: values,
 				}).unwrap();
 			} else {
@@ -105,7 +105,7 @@ const PositionForm = ({
 					/>
 					<FormErrorMessage>{formik.errors.name}</FormErrorMessage>
 				</FormControl>
-				<Flex justifyContent='flex-end' alignItems='center'>
+				<Flex justifyContent='flex-end' gap='2' alignItems='center'>
 					<Button
 						colorScheme='gray'
 						rounded='md'

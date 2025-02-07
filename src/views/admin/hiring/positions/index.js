@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import PositionForm from './PositionForm';
 import { Box, Button, Flex, Icon } from '@chakra-ui/react';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { useUpdateItemMutation } from 'api/apiSlice';
 import { IoAdd, IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import PositionsList from './PositionsList';
@@ -11,7 +9,6 @@ import Loader from 'components/loading/Loader';
 
 const Positions = () => {
 	const [mode, setMode] = useState('create');
-	const [positionId, setPositionId] = useState(null);
 	const [viewForm, setViewForm] = useState(false);
 	const [initialData, setInitialData] = useState({});
 
@@ -30,7 +27,7 @@ const Positions = () => {
 
 	const handleEdit = (position) => {
 		setMode('edit');
-		setPositionId(positionId);
+		setInitialData({});
 		setInitialData(position);
 		setViewForm(true);
 	};

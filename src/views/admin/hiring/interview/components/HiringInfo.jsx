@@ -12,7 +12,6 @@ import {
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { jobTypes } from '../../helpers';
-import { useSelector } from 'react-redux';
 
 // Validation Schema
 const validationSchema = Yup.object().shape({
