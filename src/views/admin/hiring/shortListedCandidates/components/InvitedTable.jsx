@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+import Loader from 'components/loading/Loader';
 
 const InvitedTable = ({
 	headers,
@@ -84,7 +85,9 @@ const InvitedTable = ({
 	// 		);
 	// 	}
 	// };
-	return (
+	return startingInterview ? (
+		<Loader />
+	) : (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}
 			<Box rounded='md' overflow='hidden'>

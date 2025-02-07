@@ -4,10 +4,8 @@ import {
 	Button,
 	Heading,
 	Icon,
-	Spinner,
 	Tag,
 	TagCloseButton,
-	Text,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 

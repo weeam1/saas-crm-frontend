@@ -11,11 +11,12 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import { jobRoles, jobTypes } from '../../helpers';
+import { jobTypes } from '../../helpers';
+import { useSelector } from 'react-redux';
 
 // Validation Schema
 const validationSchema = Yup.object().shape({
-	jobRole: Yup.string().required('Job role is required'),
+	position: Yup.string().required('Job role is required'),
 	jobType: Yup.string().required('Job type is required'),
 	amount: Yup.number()
 		.typeError('Amount must be a number')
@@ -25,10 +26,12 @@ const validationSchema = Yup.object().shape({
 
 const HiringInfo = ({ interview, onSubmit }) => {
 	const initialValues = {
-		jobRole: interview?.candidate?.position || '',
+		position: interview?.candidate?.position || '',
 		jobType: '',
 		amount: '',
 	};
+
+	const positionOptions = useSelector((state) => state.positions.options);
 
 	return (
 		<Box w='full'>
@@ -56,12 +59,12 @@ const HiringInfo = ({ interview, onSubmit }) => {
 							w='full'
 						>
 							{/* Job Role */}
-							<FormControl isInvalid={errors.jobRole && touched.jobRole}>
-								<FormLabel>Job Role</FormLabel>
+							<FormControl isInvalid={errors.position && touched.position}>
+								<FormLabel>Job Position</FormLabel>
 								<Field
 									as={Select}
-									name='jobRole'
-									placeholder='Select Role'
+									name='position'
+									placeholder='Select Position'
 									bg='gray.100'
 									borderColor='gray.300'
 									_focus={{
@@ -71,13 +74,13 @@ const HiringInfo = ({ interview, onSubmit }) => {
 									onChange={handleChange}
 									onBlur={handleBlur}
 								>
-									{jobRoles.map((role) => (
-										<option key={role.value} value={role.value}>
+									{positionOptions.map((role) => (
+										<option key={role._id} value={role._id}>
 											{role.label}
 										</option>
 									))}
 								</Field>
-								<FormErrorMessage>{errors.jobRole}</FormErrorMessage>
+								<FormErrorMessage>{errors.position}</FormErrorMessage>
 							</FormControl>
 
 							{/* Job Type */}

@@ -101,7 +101,7 @@ const InterviewResultModal = ({
 										<FormLabel>Remarks</FormLabel>
 										<Textarea
 											value={remarks}
-											name='jobRole'
+											name='remarks'
 											bg='gray.100'
 											borderColor='gray.300'
 											_focus={{

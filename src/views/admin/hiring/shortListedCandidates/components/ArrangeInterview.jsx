@@ -47,7 +47,6 @@ const ArrangeInterview = ({
 		}
 
 		const formattedDate = date.toDateString(); // Example: "Thu Jan 30 2025"
-		console.log('Formatted Date:', formattedDate);
 		setErrors((prev) => ({ ...prev, selectedDate: '' }));
 		setSelectedDate(date); // Store Date object, not a formatted string
 		setShowCalendar(false); // Hide the calendar after selecting a date

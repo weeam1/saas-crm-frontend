@@ -88,7 +88,10 @@ const CandidateView = ({
 							label='Experience Years'
 							value={candidate?.experienceYears}
 						/>
-						<DisplayField label='Applying for' value={candidate?.position} />
+						<DisplayField
+							label='Applying for'
+							value={candidate?.position.name}
+						/>
 						{candidate.invited && (
 							<>
 								<DisplayField

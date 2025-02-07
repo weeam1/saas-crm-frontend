@@ -1,4 +1,4 @@
-import { Box, Heading, Icon, SimpleGrid, Spinner } from '@chakra-ui/react';
+import { Box, Heading, Icon, SimpleGrid } from '@chakra-ui/react';
 import { FaUserCheck, FaUsers } from 'react-icons/fa';
 import IconBox from 'components/icons/IconBox';
 import { useNavigate } from 'react-router-dom';
@@ -8,14 +8,30 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import RunningInterviews from './interview/RunningInterviews';
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { addPositions } from './../../../redux/positionsSlice';
 
 const Hiring = () => {
+	const dispatch = useDispatch();
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
 			path: `/hiring/stats`,
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
+	const { data: positionOptions, isLoading: positionsLoading } =
+		useFetchItemsQuery(
+			{
+				path: `/positions/options`,
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
+
+	useEffect(() => {
+		if (!positionsLoading && positionOptions?.doc) {
+			dispatch(addPositions(positionOptions?.doc));
+		}
+	}, [positionsLoading, positionOptions, dispatch]);
 
 	const { data: runningInterviews, isLoading: interviewLoading } =
 		useFetchItemsQuery(
@@ -54,7 +70,7 @@ const Hiring = () => {
 
 	const navigate = useNavigate();
 
-	return isLoading ? (
+	return isLoading || interviewLoading ? (
 		<Loader />
 	) : (
 		<Box>

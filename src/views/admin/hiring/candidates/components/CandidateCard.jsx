@@ -212,7 +212,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 							Job Role
 						</span>
 						<Text fontWeight='semibold'>
-							<span>{position}</span>
+							<span>{position.name}</span>
 						</Text>
 					</Flex>
 					<Button

@@ -5,11 +5,13 @@ import userReducer from './localSlice';
 import announcementsReducer from './announcementsSlice';
 import missingFilesReducer from './missingFilesSlice';
 import webSocketReducer from './webSocketReducer';
+import positionsReducer from './positionsSlice';
 import { apiSlice } from 'api/apiSlice';
 
 const store = configureStore({
 	reducer: {
 		roles: roleReducer,
+		positions: positionsReducer,
 		images: imageReducer,
 		user: userReducer,
 		announcements: announcementsReducer,

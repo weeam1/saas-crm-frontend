@@ -23,7 +23,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaEdit, FaRegCalendar } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import calendar styles
-import { jobRoles, jobTypes } from '../helpers';
+import { positions, jobTypes } from '../helpers';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -36,6 +36,7 @@ import CustomSelect from 'components/shared/CustomSelect';
 import CustomInput from 'components/shared/CustomInput';
 import CustomButton from 'components/shared/CustomButton';
 import { formattedDate } from 'utils/helpers';
+import { useSelector } from 'react-redux';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -57,6 +58,8 @@ const OfferLetter = () => {
 		path: `/interviews/${id}`,
 	});
 
+	const positionOptions = useSelector((state) => state.positions.options);
+
 	useEffect(() => {
 		if (interview?.doc) {
 			const data = interview?.doc;
@@ -66,7 +69,7 @@ const OfferLetter = () => {
 				candidateName: data.candidate.name || '',
 				jobType: data.jobType || '',
 				location: data.location || '',
-				position: data.jobRole || '',
+				position: data.position || '',
 				amount: data.amount || '',
 				joiningDate: data.joiningDate || new Date(),
 			});
@@ -200,7 +203,7 @@ const OfferLetter = () => {
 									<CustomSelect
 										label='Position'
 										name='position'
-										options={jobRoles}
+										options={positionOptions}
 										isReadOnly={!isEditing}
 										isInvalid={errors.position && touched.position}
 										placeholder={offerDetails.position}
@@ -390,7 +393,7 @@ const OfferLetter = () => {
 // 				candidateName: data.candidate.name || '',
 // 				jobType: data.jobType || '',
 // 				location: data.location || '',
-// 				position: data.jobRole || '',
+// 				position: data.position || '',
 // 				amount: data.amount || '',
 // 				joiningDate: data.joiningDate || '',
 // 			});
@@ -539,7 +542,7 @@ const OfferLetter = () => {
 // 													handleFieldChange('position', e.target.value);
 // 												}}
 // 											>
-// 												{jobRoles.map((role) => (
+// 												{positions.map((role) => (
 // 													<option key={role.value} value={role.value}>
 // 														{role.label}
 // 													</option>

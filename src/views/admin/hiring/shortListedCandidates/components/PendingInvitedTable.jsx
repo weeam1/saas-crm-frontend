@@ -18,9 +18,6 @@ import TableLoading from 'components/loading/TableLoading';
 import MailIcon from './MailIcon';
 import FlagBadge from '../../_components/FlagBadge';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { toast } from 'react-toastify';
 
 const PendingInvitedTable = ({
 	headers,
@@ -31,36 +28,6 @@ const PendingInvitedTable = ({
 	handleViewCandidate,
 	handleArrangeInterview,
 }) => {
-	const navigate = useNavigate();
-
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const [createItemMutation, { isLoading: startingInterview }] =
-		useCreateItemMutation();
-
-	const handleStartInterview = async (candidateId) => {
-		try {
-			const { data } = await createItemMutation({
-				path: `/interviews`,
-				body: {
-					candidate: candidateId,
-					leadInterviewer: user._id,
-				},
-			});
-
-			if (data?.status === 'success') {
-				navigate(
-					`/hiring/interview/${data?.doc._id}?phase=select-interviewers`
-				);
-				toast.success('Interview started...');
-			}
-		} catch (error) {
-			console.log(error);
-			toast.error(
-				error.data.message || 'Interveiw not started.. due to some reason.'
-			);
-		}
-	};
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}

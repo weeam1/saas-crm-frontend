@@ -155,8 +155,6 @@ const ShortListedData = ({ invitedRefetch }) => {
 		const updatedTags = searchTags.filter((tag) => tag.key !== key);
 		setSearchTags(updatedTags);
 
-		console.log({ updatedTags });
-
 		// Convert the updated tags back into query parameters
 		const updatedParams = updatedTags.reduce(
 			(acc, { key, value }) => ({ ...acc, [key]: value }),

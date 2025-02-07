@@ -21,15 +21,16 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { FiInfo } from 'react-icons/fi';
+import { useSelector } from 'react-redux';
 
-const positionOptions = [
-	{ label: 'Manager', value: 'Manager' },
-	{ label: 'HR', value: 'HR' },
-	{ label: 'Secretary', value: 'Secretary' },
-	{ label: 'Team Leader', value: 'Team Leader' },
-	{ label: 'Sales', value: 'Sales' },
-	{ label: 'Tele Sales', value: 'Tele Sales' },
-];
+// const positionOptions = [
+// 	{ label: 'Manager', value: 'Manager' },
+// 	{ label: 'HR', value: 'HR' },
+// 	{ label: 'Secretary', value: 'Secretary' },
+// 	{ label: 'Team Leader', value: 'Team Leader' },
+// 	{ label: 'Sales', value: 'Sales' },
+// 	{ label: 'Tele Sales', value: 'Tele Sales' },
+// ];
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -45,6 +46,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
+	const positionOptions = useSelector((state) => state.positions.options);
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -216,7 +218,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											placeholder='Search by role'
 										>
 											{positionOptions?.map((item) => (
-												<option value={item.value} key={item.label}>
+												<option value={item._id} key={item._id}>
 													{item.value}
 												</option>
 											))}
