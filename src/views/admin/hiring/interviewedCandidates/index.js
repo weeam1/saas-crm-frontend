@@ -52,6 +52,10 @@ const InterviewedCandidates = () => {
 		{ refetchOnMountOrArgChange: true }
 	);
 
+	const { data: positionOptions } = useFetchItemsQuery({
+		path: `/positions/options`,
+	});
+
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
 	};
@@ -108,13 +112,30 @@ const InterviewedCandidates = () => {
 				return acc;
 			}, {});
 
-		const { ...advancedSearch } = filteredParams;
+		let { ...advancedSearch } = filteredParams;
 
 		// Update tags for UI display (all filtered params including status)
-		const tags = Object.entries(filteredParams)?.map(([key, value]) => ({
-			key,
-			value,
-		}));
+		const tags = Object.entries(filteredParams).map(([key, value]) => {
+			let formattedValue = value;
+
+			// If the key is "position", map value through positionOptions
+			if (key === 'position') {
+				const matchedOption = positionOptions?.doc?.find(
+					(option) => option._id === value
+				);
+
+				formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
+
+				// Update advancedSearch to store label instead of ID
+				advancedSearch = { ...advancedSearch, position: formattedValue };
+			}
+
+			return {
+				key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+				value: formattedValue,
+			};
+		});
+
 		setSearchTags(tags);
 
 		// Prepare the query parameters

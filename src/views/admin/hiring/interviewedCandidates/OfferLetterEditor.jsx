@@ -6,7 +6,7 @@ import { formattedDate } from 'utils/helpers';
 import { InfoIcon } from '@chakra-ui/icons';
 
 const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
-	const [offerBody, setOfferBody] = useState('');
+	const [offerBody, setOfferBody] = useState(offerDetails?.offerMail || '');
 
 	// ✅ Memoized Offer Details (Fixed, Non-Editable)
 	const staticOfferDetails = useMemo(
@@ -56,19 +56,19 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 	);
 
 	useEffect(() => {
-		if (offerDetails?.offerMail) {
-			const offerText = offerDetails?.offerMail;
-			console.log(offerText);
-			setOfferBody(offerText);
-			setEmailBody(offerText);
-		} else {
-			const finalEmailBody = defaultTemplate.replace(
-				'<div style="display: none;"></div>',
-				staticOfferDetails
-			);
-			setOfferBody(finalEmailBody);
-			setEmailBody(finalEmailBody);
-		}
+		// if (offerDetails?.offerMail) {
+		// 	const offerText = offerDetails?.offerMail;
+		// 	console.log(offerText);
+		// 	setOfferBody(offerText);
+		// 	setEmailBody(offerText);
+		// } else {
+		const finalEmailBody = defaultTemplate.replace(
+			'<div style="display: none;"></div>',
+			staticOfferDetails
+		);
+		setOfferBody(finalEmailBody);
+		setEmailBody(finalEmailBody);
+		// }
 	}, [defaultTemplate, staticOfferDetails, offerDetails, setEmailBody]);
 
 	const handleOfferBody = (e) => {
@@ -79,6 +79,8 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 			'<div style="display: none;"></div>',
 			staticOfferDetails
 		);
+
+		// console.log({ staticOfferDetails });
 
 		setEmailBody(finalEmailBody);
 	};

@@ -69,6 +69,7 @@ const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
 					color='softGray.100'
 					bg='green.400'
 					_hover={{ bg: 'green.600', shadow: 'sm' }}
+					_active={{ bg: 'green.700' }}
 					transition='0.2 s all'
 					width='fit-content'
 					py={2}

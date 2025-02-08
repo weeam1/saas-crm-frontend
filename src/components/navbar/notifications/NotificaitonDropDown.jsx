@@ -16,7 +16,6 @@ const NotificationDropDown = ({
 	loadMoreNotifications,
 	hideLoadMoreBtn,
 }) => {
-	console.log({ notificationList });
 	return (
 		<>
 			<MenuList

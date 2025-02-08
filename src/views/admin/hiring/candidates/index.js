@@ -31,6 +31,10 @@ const Candidates = () => {
 		limit: pageSize,
 	});
 
+	const { data: positionOptions } = useFetchItemsQuery({
+		path: `/positions/options`,
+	});
+
 	const { data, error, isLoading, refetch, isFetching } = useFetchItemsQuery({
 		path: '/applications',
 		params: queryParams,
@@ -78,10 +82,23 @@ const Candidates = () => {
 		const { ...advancedSearch } = filteredParams;
 
 		// Update tags for UI display (all filtered params including status)
-		const tags = Object.entries(filteredParams).map(([key, value]) => ({
-			key,
-			value,
-		}));
+		const tags = Object.entries(filteredParams).map(([key, value]) => {
+			let formattedValue = value;
+
+			// If the key is "position", map value through positionOptions
+			if (key === 'position') {
+				const matchedOption = positionOptions?.doc?.find(
+					(option) => option._id === value
+				);
+
+				formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
+			}
+
+			return {
+				key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+				value: formattedValue,
+			};
+		});
 
 		setSearchTags(tags);
 
@@ -107,8 +124,6 @@ const Candidates = () => {
 		// Remove the tag with the specified key
 		const updatedTags = searchTags.filter((tag) => tag.key !== key);
 		setSearchTags(updatedTags);
-
-		console.log({ updatedTags });
 
 		// Convert the updated tags back into query parameters
 		const updatedParams = updatedTags.reduce(

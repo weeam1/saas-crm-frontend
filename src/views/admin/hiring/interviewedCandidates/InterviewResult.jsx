@@ -18,18 +18,47 @@ import {
 	Icon,
 	Grid,
 } from '@chakra-ui/react';
+import { useFetchItemsQuery } from 'api/apiSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import DisplayField from 'components/displays/DisplayField';
-import { useState } from 'react';
+import Loader from 'components/loading/Loader';
+import { useEffect, useMemo, useState } from 'react';
 import { FaInfo, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
-const InterviewResult = ({ isOpen, onClose, data, interview, refetch }) => {
-	const [remarks, setRemarks] = useState(data?.remarks || '');
-	const { totalInterviewers, percentageScore, pendingEvaluations } = data;
-	const totalInterviewersPointsSubmited =
-		totalInterviewers - pendingEvaluations;
+const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
+	const [remarks, setRemarks] = useState('');
 
+	const [
+		totalInterviewersPointsSubmitted,
+		setTotalInterviewersPointsSubmitted,
+	] = useState(0);
+
+	// Fetch interview data
+	const {
+		data: interview,
+		isLoading: interviewLoading,
+		isFetching,
+		refetch: interviewRefetch,
+	} = useFetchItemsQuery(
+		{ path: `/interviews/${interviewId}` },
+		{ refetchOnMountOrArgChange: true }
+	);
+
+	// Memoized interview document data
+	const interviewDoc = useMemo(() => interview?.doc || {}, [interview]);
+
+	// Update remarks when interviewDoc changes
+	useEffect(() => {
+		if (interviewDoc.remarks) {
+			setRemarks(interviewDoc.remarks);
+			setTotalInterviewersPointsSubmitted(
+				interviewDoc.totalInterviewers - interviewDoc.pendingEvaluations
+			);
+		}
+	}, [interviewDoc]);
+
+	// Mutation function
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
 	const handleSubmitResult = async () => {
@@ -47,8 +76,6 @@ const InterviewResult = ({ isOpen, onClose, data, interview, refetch }) => {
 			refetch();
 		}
 	};
-
-	console.log({ data });
 
 	return (
 		<Modal
@@ -82,88 +109,100 @@ const InterviewResult = ({ isOpen, onClose, data, interview, refetch }) => {
 						},
 					}}
 				>
-					{pendingEvaluations > 0 && (
-						<IconButton
-							aria-label='Refetch'
-							icon={<FaSyncAlt />}
-							colorScheme='brand'
-							variant='ghost'
-							size='sm'
-							mb='4'
-							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
-							}}
-							onClick={() => refetch()}
-						/>
-					)}
+					{interviewLoading || isFetching ? (
+						<Box height='full'>
+							<Loader />
+						</Box>
+					) : interview?.doc ? (
+						<>
+							{interviewDoc.pendingEvaluations > 0 && (
+								<IconButton
+									aria-label='Refetch'
+									icon={<FaSyncAlt />}
+									colorScheme='brand'
+									variant='ghost'
+									size='sm'
+									mb='4'
+									_hover={{
+										bg: 'brand.600',
+										color: 'white',
+									}}
+									_active={{
+										bg: 'brand.600',
+									}}
+									onClick={() => interviewRefetch()}
+								/>
+							)}
 
-					<Flex direction='column' gap='4'>
-						<DisplayField
-							label={`Total Interviewers`}
-							value={totalInterviewers}
-						/>
-						{/* {pendingEvaluations > 0 && (
+							<Flex direction='column' gap='4'>
+								<DisplayField
+									label={`Total Interviewers`}
+									value={interviewDoc.totalInterviewers}
+								/>
+								{/* {pendingEvaluations > 0 && (
 							<DisplayField
 								label={`Interviewer ${pendingEvaluations} Points`}
 								value={'Pending'}
 							/>
 						)} */}
-						<Grid
-							templateColumns={{
-								base: '1fr',
-								md: 'repeat(2, 1fr)',
-							}}
-							gap={3}
-						>
-							{data.evaluations.length > 0 &&
-								data.evaluations?.map((item) => (
-									<DisplayField
-										label={`${item.interviewer.firstName} ${item.interviewer.lastName} Points`}
-										value={item.status === false ? 'Pending' : `${item.points}`}
-									/>
-								))}
-						</Grid>
+								<Grid
+									templateColumns={{
+										base: '1fr',
+										md: 'repeat(2, 1fr)',
+									}}
+									gap={3}
+								>
+									{interviewDoc.evaluations.length > 0 &&
+										interviewDoc.evaluations?.map((item) => (
+											<DisplayField
+												label={`${item.interviewer.fullName} Points`}
+												value={
+													item.status === false ? 'Pending' : `${item.points}`
+												}
+											/>
+										))}
+								</Grid>
 
-						<DisplayField
-							label={
-								pendingEvaluations > 0
-									? `Interviewer ${totalInterviewersPointsSubmited} Points`
-									: `Total Points`
-							}
-							value={`${percentageScore}%`}
-						/>
-						<Box
-							p={1}
-							bg='blue.50'
-							borderRadius='md'
-							display='flex'
-							alignItems='center'
-						>
-							<Icon as={FaInfo} color='blue.500' mr={2} />
-							<Text color='gray.700' fontSize='xs'>
-								total interviewers points / total interviewers
-							</Text>
-						</Box>
-						<FormControl>
-							<FormLabel>Remarks</FormLabel>
-							<Textarea
-								value={remarks}
-								name='remarks'
-								bg='gray.100'
-								borderColor='gray.300'
-								_focus={{
-									borderColor: '#D99A36',
-									boxShadow: '0 0 0 1px #D99A36',
-								}}
-								onChange={(e) => setRemarks(e.target.value)}
-								placeholder='Enter the remarks'
-							/>
-						</FormControl>
-					</Flex>
+								<DisplayField
+									label={
+										interviewDoc.pendingEvaluations > 0
+											? `Interviewer ${totalInterviewersPointsSubmitted} Points`
+											: `Total Points (%)`
+									}
+									value={`${interviewDoc.percentageScore}%`}
+								/>
+								<Box
+									p={1}
+									bg='blue.50'
+									borderRadius='md'
+									display='flex'
+									alignItems='center'
+								>
+									<Icon as={FaInfo} color='blue.500' mr={2} />
+									<Text color='gray.700' fontSize='xs'>
+										total interviewers points / total interviewers
+									</Text>
+								</Box>
+								<FormControl>
+									<FormLabel>Remarks</FormLabel>
+									<Textarea
+										value={remarks}
+										name='remarks'
+										bg='gray.100'
+										borderColor='gray.300'
+										_focus={{
+											borderColor: '#D99A36',
+											boxShadow: '0 0 0 1px #D99A36',
+										}}
+										onChange={(e) => setRemarks(e.target.value)}
+										placeholder='Enter the remarks'
+									/>
+								</FormControl>
+							</Flex>
+						</>
+					) : (
+						<Text>Interview data not found!</Text>
+					)}
 				</ModalBody>
 				<ModalFooter>
 					<Button
@@ -187,6 +226,7 @@ const InterviewResult = ({ isOpen, onClose, data, interview, refetch }) => {
 						}}
 						size='sm'
 						onClick={handleSubmitResult}
+						isDisabled={!remarks}
 					>
 						{isLoading ? <Spinner /> : 'Submit Result'}
 					</Button>

@@ -48,7 +48,7 @@ const CandidateView = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
 			<ModalOverlay />
 			<ModalContent
 				maxH='650px' // Set max height for the modal body
@@ -69,7 +69,7 @@ const CandidateView = ({
 				py={8}
 			>
 				<ModalHeader>Application</ModalHeader>
-				<ModalCloseButton />
+				<ModalCloseButton mt='6' />
 				<ModalBody width='100%'>
 					<Grid
 						templateColumns={{

@@ -215,7 +215,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											mt={2}
 											mb='1'
 										>
-											Apply For
+											Position
 										</FormLabel>
 										<Select
 											fontSize='sm'

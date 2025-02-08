@@ -30,6 +30,8 @@ const PositionForm = ({
 	const [updateItemMuation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
+	console.log({ initialData });
+
 	const onSubmit = async (values) => {
 		console.log('Form values:', values);
 
@@ -67,6 +69,7 @@ const PositionForm = ({
 			name: initialData.name || '',
 		},
 		validationSchema,
+		enableReinitialize: true, // This will update initialValues when initialData changes
 		onSubmit: (values, { resetForm }) => {
 			onSubmit(values);
 			if (mode === 'create') resetForm();

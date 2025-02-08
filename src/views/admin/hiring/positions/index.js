@@ -29,6 +29,7 @@ const Positions = () => {
 		setMode('edit');
 		setInitialData({});
 		setInitialData(position);
+
 		setViewForm(true);
 	};
 

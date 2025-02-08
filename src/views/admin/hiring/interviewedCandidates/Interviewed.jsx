@@ -14,8 +14,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import InterviewedTable from './InterviewedTable';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import InterviewResult from './InterviewResult';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import OfferView from './OfferView';
 import { useNavigate } from 'react-router-dom';
 
 const Interviewed = ({
@@ -39,14 +37,9 @@ const Interviewed = ({
 	const [searchData, setSearchData] = useState([]);
 	const [interview, setInterview] = useState(null);
 	const [interviewId, setInterviewId] = useState(null);
-	const [offerDetails, setOfferDetails] = useState(null);
 	const [isSearch, setIsSearch] = useState(false);
 
 	const [resultModalOpen, setResultModalOpen] = useState(false);
-	const [offerModalOpen, setOfferModalOpen] = useState(false);
-
-	const [updateItemMuation, { isLoading: isInviting }] =
-		useUpdateItemMutation();
 
 	const headers = [
 		{ key: 'name', label: 'Name', width: '250px' }, // Name column width
@@ -146,15 +139,6 @@ const Interviewed = ({
 			`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
 		);
 	};
-
-	useEffect(() => {
-		if (interviewId) {
-			const interview = data.find((item) => item.candidate._id === interviewId);
-			setInterview(interview);
-
-			console.log({ interview });
-		}
-	}, [data]);
 
 	// Update filtered data on search change
 	const handleSearchTermChange = (term) => {
@@ -258,6 +242,7 @@ const Interviewed = ({
 					onClose={() => setResultModalOpen(false)}
 					isOpen={resultModalOpen}
 					data={interview}
+					interviewId={interviewId}
 					refetch={refetch}
 				/>
 			)}

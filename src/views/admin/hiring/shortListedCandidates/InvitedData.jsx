@@ -41,6 +41,10 @@ const InvitedData = () => {
 		path: `/applications/invited-candidates`,
 	});
 
+		const { data: positionOptions } = useFetchItemsQuery({
+			path: `/positions/options`,
+		});
+
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
 	};
@@ -120,12 +124,25 @@ const InvitedData = () => {
 		const { ...advancedSearch } = filteredParams;
 
 		// Update tags for UI display (all filtered params including status)
-		const tags = Object.entries(filteredParams)?.map(([key, value]) => ({
-			key,
-			value,
-		}));
-		setSearchTags(tags);
+		const tags = Object.entries(filteredParams).map(([key, value]) => {
+			let formattedValue = value;
 
+			// If the key is "position", map value through positionOptions
+			if (key === 'position') {
+				const matchedOption = positionOptions?.doc?.find(
+					(option) => option._id === value
+				);
+
+				formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
+			}
+
+			return {
+				key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+				value: formattedValue,
+			};
+		});
+
+		setSearchTags(tags);
 		// Prepare the query parameters
 		const queryParams = {
 			advancedSearch: JSON.stringify(advancedSearch),

@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
 	Modal,
 	ModalOverlay,
@@ -99,6 +98,7 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 								color='softGray.100'
 								bg='green.400'
 								_hover={{ bg: 'green.600', shadow: 'sm' }}
+								_active={{ bg: 'green.700' }}
 								transition='0.2 s all'
 								width='fit-content'
 								py={2}
