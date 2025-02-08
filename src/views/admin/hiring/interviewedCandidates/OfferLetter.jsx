@@ -34,7 +34,7 @@ import CustomSelect from 'components/shared/CustomSelect';
 import CustomInput from 'components/shared/CustomInput';
 import CustomButton from 'components/shared/CustomButton';
 import { formattedDate } from 'utils/helpers';
-import { useSelector } from 'react-redux';
+import OfferLetterEditor from './OfferLetterEditor';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -48,6 +48,8 @@ const validationSchema = Yup.object().shape({
 });
 const OfferLetter = () => {
 	const [offerDetails, setOfferDetails] = useState({});
+	const [emailBody, setEmailBody] = useState('');
+
 	const { id } = useParams();
 	const [searchParams] = useSearchParams();
 	const offerType = searchParams.get('type');
@@ -80,6 +82,7 @@ const OfferLetter = () => {
 				position: data.position || '',
 				amount: data.amount || '',
 				joiningDate: data.joiningDate || new Date(),
+				offerMail: data.offerMail || '',
 			});
 
 			if (offerType) {
@@ -108,7 +111,10 @@ const OfferLetter = () => {
 			...data,
 			joiningDate: selectedDate,
 			leadInterviewerName: offerDetails?.leadInterviewerName,
+			emailBody,
 		};
+
+		console.log({ emailBody });
 
 		if (!selectedDate) {
 			toast.error('Joining date is required');
@@ -137,28 +143,28 @@ const OfferLetter = () => {
 		}));
 	};
 
-	const offerMessage = useMemo(() => {
-		return `
-      Hello ${offerDetails.candidateName},
+	// const offerMessage = useMemo(() => {
+	// 	return `
+	//     Hello ${offerDetails.candidateName},
 
-      We are delighted to offer you the position of ${offerDetails.position} at WEAM ELNAGGAR. 
-      We believe your skills and experience will be a valuable addition to our team.
+	//     We are delighted to offer you the position of ${offerDetails.position} at WEAM ELNAGGAR.
+	//     We believe your skills and experience will be a valuable addition to our team.
 
-      Offer Details:
-      Job Role: ${offerDetails.position}
-      Job Type: ${offerDetails.jobType}
-      Reporting To: ${offerDetails?.leadInterviewerName || 'N/A'}
-      Salary: ${offerDetails.amount}
-      Joining Date: ${formattedDate(offerDetails.joiningDate)}
-      Location: ${offerDetails.location}
+	//     Offer Details:
+	//     Job Role: ${offerDetails.position}
+	//     Job Type: ${offerDetails.jobType}
+	//     Reporting To: ${offerDetails?.leadInterviewerName || 'N/A'}
+	//     Salary: ${offerDetails.amount}
+	//     Joining Date: ${formattedDate(offerDetails.joiningDate)}
+	//     Location: ${offerDetails.location}
 
-      If you have any questions, feel free to reach out.
-      Looking forward to welcoming you to our team!
+	//     If you have any questions, feel free to reach out.
+	//     Looking forward to welcoming you to our team!
 
-      Best Regards,
-      WEAM ELNAGGAR HR Team
-    `;
-	}, [offerDetails]);
+	//     Best Regards,
+	//     WEAM ELNAGGAR HR Team
+	//   `;
+	// }, [offerDetails]);
 
 	const navigate = useNavigate();
 
@@ -248,23 +254,27 @@ const OfferLetter = () => {
 									/>
 
 									<FormControl mb={4} isInvalid={errors?.joiningDate}>
-										<FormLabel fontSize='sm'>Joining Date</FormLabel>
 										{!isEditing ? (
 											interview?.doc?.joiningDate && (
-												<Box
-													border='none'
-													outline='none'
-													bg='#F2F2F2'
-													p='3'
-													fontSize='sm'
-													rounded='md'
-													shadow='sm'
-												>
-													{formattedDate(interview?.doc?.joiningDate)}
-												</Box>
+												<>
+													<FormLabel fontSize='sm'>Joining Date</FormLabel>
+
+													<Box
+														border='none'
+														outline='none'
+														bg='#F2F2F2'
+														p='3'
+														fontSize='sm'
+														rounded='md'
+														shadow='sm'
+													>
+														{formattedDate(interview?.doc?.joiningDate)}
+													</Box>
+												</>
 											)
 										) : (
 											<Box position='relative' width='100%'>
+												<FormLabel fontSize='sm'>Joining Date</FormLabel>
 												<InputGroup>
 													<Input
 														value={
@@ -350,15 +360,7 @@ const OfferLetter = () => {
 									{offerDetails?.remarks}
 								</Box>
 
-								<Flex justifyContent='flex-end'>
-									<CustomButton
-										isLoading={sendingOffer}
-										isDisabled={!isEditing}
-									>
-										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
-									</CustomButton>
-								</Flex>
-								<Box
+								{/* <Box
 									width='full'
 									maxHeight='300px'
 									overflowY='auto'
@@ -372,7 +374,23 @@ const OfferLetter = () => {
 									<Text whiteSpace='pre-line' fontSize='sm'>
 										{offerMessage}
 									</Text>
-								</Box>
+								</Box> */}
+
+								<OfferLetterEditor
+									onSend={onSubmitOffer}
+									offerDetails={offerDetails}
+									emailBody={emailBody}
+									setEmailBody={setEmailBody}
+									setOfferDetails={setOfferDetails}
+								/>
+								<Flex justifyContent='flex-end'>
+									<CustomButton
+										isLoading={sendingOffer}
+										isDisabled={!isEditing}
+									>
+										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
+									</CustomButton>
+								</Flex>
 							</Form>
 						)}
 					</Formik>
