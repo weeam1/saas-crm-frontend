@@ -5,6 +5,7 @@ import InvitedCandidates from './InvitedCandidates';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import Loader from 'components/loading/Loader';
+import SearchTags from 'components/shared/SearchTags';
 
 const InvitedData = () => {
 	const [showContent, setShowContent] = useState(false);
@@ -41,9 +42,9 @@ const InvitedData = () => {
 		path: `/applications/invited-candidates`,
 	});
 
-		const { data: positionOptions } = useFetchItemsQuery({
-			path: `/positions/options`,
-		});
+	const { data: positionOptions } = useFetchItemsQuery({
+		path: `/positions/options`,
+	});
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
@@ -121,63 +122,106 @@ const InvitedData = () => {
 				return acc;
 			}, {});
 
-		const { ...advancedSearch } = filteredParams;
+		let advancedSearch = { ...filteredParams };
 
-		// Update tags for UI display (all filtered params including status)
+		// Generate UI tags and update advancedSearch
 		const tags = Object.entries(filteredParams).map(([key, value]) => {
 			let formattedValue = value;
+			let originalKey = key; // Keep original lowercase key
 
-			// If the key is "position", map value through positionOptions
+			// If key is "position", replace value with label for UI, but keep ID in search
 			if (key === 'position') {
 				const matchedOption = positionOptions?.doc?.find(
 					(option) => option._id === value
 				);
 
-				formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
+				if (matchedOption) {
+					formattedValue = matchedOption.label; // Use label for UI
+					advancedSearch.position = matchedOption._id; // Keep ID for actual search
+				}
 			}
 
 			return {
-				key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
 				value: formattedValue,
+				originalKey, // Store original key for removal reference
 			};
 		});
 
 		setSearchTags(tags);
-		// Prepare the query parameters
+
+		// Prepare query parameters
 		const queryParams = {
 			advancedSearch: JSON.stringify(advancedSearch),
 			page: 1,
 			limit: pageSize,
 		};
 
-		// Merge and update query parameters for refetch
+		// Update search query and pagination
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
-		// set current page 1
 		setCurrentPage(1);
 	};
 
+	// const removeTag = (key) => {
+	// 	// Remove the tag with the specified key
+	// 	const updatedTags = searchTags.filter((tag) => tag.key !== key);
+	// 	setSearchTags(updatedTags);
+
+	// 	console.log({ updatedTags });
+
+	// 	// Convert the updated tags back into query parameters
+	// 	const updatedParams = updatedTags.reduce(
+	// 		(acc, { key, value }) => ({ ...acc, [key]: value }),
+	// 		{}
+	// 	);
+
+	// 	const { ...advancedSearch } = updatedParams;
+
+	// 	// Prepare the query parameters
+	// 	const queryParams = {
+	// 		advancedSearch: JSON.stringify(advancedSearch),
+	// 		page: 1,
+	// 		limit: pageSize,
+	// 	};
+	// 	// update query parameters
+	// 	setQueryParams(queryParams);
+	// 	setCurrentPage(1);
+	// };
+
 	const removeTag = (key) => {
-		// Remove the tag with the specified key
+		// Find the exact key (case-sensitive)
+		const removedTag = searchTags.find((tag) => tag.key === key);
+		if (!removedTag) return; // If tag is not found, exit
+
 		const updatedTags = searchTags.filter((tag) => tag.key !== key);
 		setSearchTags(updatedTags);
 
-		console.log({ updatedTags });
+		// Rebuild search parameters after removal
+		const updatedParams = updatedTags.reduce((acc, { originalKey, value }) => {
+			acc[originalKey] = value; // Use originalKey to prevent case mismatches
+			return acc;
+		}, {});
 
-		// Convert the updated tags back into query parameters
-		const updatedParams = updatedTags.reduce(
-			(acc, { key, value }) => ({ ...acc, [key]: value }),
-			{}
-		);
+		let advancedSearch = { ...updatedParams };
 
-		const { ...advancedSearch } = updatedParams;
+		// Ensure position stays as ID in search
+		if (advancedSearch.position) {
+			const matchedOption = positionOptions?.doc?.find(
+				(option) => option.label === advancedSearch.position
+			);
+			if (matchedOption) {
+				advancedSearch.position = matchedOption._id;
+			}
+		}
 
-		// Prepare the query parameters
+		// Prepare updated query parameters
 		const queryParams = {
 			advancedSearch: JSON.stringify(advancedSearch),
 			page: 1,
 			limit: pageSize,
 		};
-		// update query parameters
+
+		// Update query and reset pagination
 		setQueryParams(queryParams);
 		setCurrentPage(1);
 	};
@@ -192,22 +236,8 @@ const InvitedData = () => {
 		<Loader />
 	) : (
 		<Box>
-			<Box mb={4}>
-				{/* Display Search Tags */}
-				{searchTags?.map(({ key, value }) => (
-					<Tag
-						key={key}
-						size='sm'
-						colorScheme='brand'
-						borderRadius='full'
-						m={1}
-						p='1'
-						onClick={() => removeTag(key)}
-					>
-						{key}: {value} <TagCloseButton onClick={() => removeTag(key)} />
-					</Tag>
-				))}
-			</Box>
+			<SearchTags removeTag={removeTag} searchTags={searchTags} />
+
 			<InvitedCandidates
 				allData={allData}
 				data={data}

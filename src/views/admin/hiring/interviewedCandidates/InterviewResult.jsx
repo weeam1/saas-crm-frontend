@@ -166,8 +166,8 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 								<DisplayField
 									label={
 										interviewDoc.pendingEvaluations > 0
-											? `Interviewer ${totalInterviewersPointsSubmitted} Points`
-											: `Total Points (%)`
+											? `Interviewer ${totalInterviewersPointsSubmitted} Percentage`
+											: `Total Percentage (%)`
 									}
 									value={`${interviewDoc.percentageScore}%`}
 								/>

@@ -48,7 +48,7 @@ const Interviewed = ({
 		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
 		{ key: 'type', label: 'Type', width: '150px' }, // WhatsApp No column width
-		{ key: 'points', label: 'T.Points', width: '150px' }, // WhatsApp No column width
+		{ key: 'percentageSocre', label: 'T.Percentage', width: '150px' }, // WhatsApp No column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
 
