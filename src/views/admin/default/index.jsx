@@ -484,7 +484,7 @@ export default function UserReports() {
 						<Grid
 							templateColumns='repeat(12, 1fr)'
 							overflowY={'scroll'}
-							height={300}
+							height='500'
 							gap={2}
 						>
 							<GridItem colSpan={{ base: 12, md: 6 }}>
@@ -1022,9 +1022,9 @@ export default function UserReports() {
 							</GridItem>
 						</Grid>
 					)}
-					<Flex mt={5} justifyContent={'center'}>
+					{/* <Flex mt={5} justifyContent={'center'}>
 						<PieChart leadData={leadData} />
-					</Flex>
+					</Flex> */}
 				</Card>
 
 				<Card>

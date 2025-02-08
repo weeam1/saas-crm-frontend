@@ -1,3 +1,4 @@
+import { InfoIcon } from '@chakra-ui/icons';
 import {
 	Modal,
 	ModalOverlay,
@@ -17,6 +18,7 @@ import {
 	Text,
 	Icon,
 	Grid,
+	FormHelperText,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
@@ -155,6 +157,7 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 									{interviewDoc.evaluations.length > 0 &&
 										interviewDoc.evaluations?.map((item) => (
 											<DisplayField
+												key={item._id}
 												label={`${item.interviewer.fullName} Points`}
 												value={
 													item.status === false ? 'Pending' : `${item.points}`
@@ -185,9 +188,20 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 								</Box>
 								<FormControl>
 									<FormLabel>Remarks</FormLabel>
+									<Text
+										fontSize='sm'
+										color='gray.500'
+										display='flex'
+										alignItems='center'
+										gap={1}
+									>
+										<InfoIcon /> Complete evaluation to enable remarks &
+										submission.
+									</Text>
 									<Textarea
 										value={remarks}
 										name='remarks'
+										isDisabled={interviewDoc?.pendingEvaluations > 0}
 										bg='gray.100'
 										borderColor='gray.300'
 										_focus={{
@@ -226,7 +240,7 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 						}}
 						size='sm'
 						onClick={handleSubmitResult}
-						isDisabled={!remarks}
+						isDisabled={!remarks || interviewDoc?.pendingEvaluations > 0}
 					>
 						{isLoading ? <Spinner /> : 'Submit Result'}
 					</Button>

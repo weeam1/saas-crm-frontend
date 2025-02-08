@@ -141,6 +141,12 @@ const InvitedData = () => {
 				}
 			}
 
+			// if (key === 'inviteAccepted') {
+			// 	formattedValue = value === true ? 'Accepted' : 'Not Accepted';
+			// }
+
+			console.log({ key, formattedValue, originalKey });
+
 			return {
 				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
 				value: formattedValue,
