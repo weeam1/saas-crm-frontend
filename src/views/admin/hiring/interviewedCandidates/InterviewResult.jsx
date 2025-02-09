@@ -192,20 +192,9 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 								</Box>
 								<FormControl>
 									<FormLabel>Remarks</FormLabel>
-									<Text
-										fontSize='sm'
-										color='gray.500'
-										display='flex'
-										alignItems='center'
-										gap={1}
-									>
-										<InfoIcon /> Complete evaluation to enable remarks &
-										submission.
-									</Text>
 									<Textarea
 										value={remarks}
 										name='remarks'
-										isDisabled={interviewDoc?.pendingEvaluations > 0}
 										bg='gray.100'
 										borderColor='gray.300'
 										_focus={{
