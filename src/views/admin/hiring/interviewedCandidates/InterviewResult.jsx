@@ -244,7 +244,7 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 						}}
 						size='sm'
 						onClick={handleSubmitResult}
-						isDisabled={!remarks || interviewDoc?.pendingEvaluations > 0}
+						isDisabled={!remarks}
 					>
 						{isLoading ? <Spinner /> : 'Submit Result'}
 					</Button>
