@@ -49,10 +49,13 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 
 	// Memoized interview document data
 	const interviewDoc = useMemo(() => interview?.doc || {}, [interview]);
+	const points =
+		interviewDoc.totalInterviewers - interviewDoc.pendingEvaluations;
+	console.log({ points });
 
 	// Update remarks when interviewDoc changes
 	useEffect(() => {
-		if (interviewDoc.remarks) {
+		if (interviewDoc) {
 			setRemarks(interviewDoc.remarks);
 			setTotalInterviewersPointsSubmitted(
 				interviewDoc.totalInterviewers - interviewDoc.pendingEvaluations
@@ -168,9 +171,10 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 
 								<DisplayField
 									label={
-										interviewDoc.pendingEvaluations > 0
-											? `Interviewer ${totalInterviewersPointsSubmitted} Percentage`
-											: `Total Percentage (%)`
+										// interviewDoc.pendingEvaluations > 0
+										// 	? `Interviewer ${totalInterviewersPointsSubmitted} Percentage`
+										// 	: `Total Percentage (%)`
+										`${totalInterviewersPointsSubmitted} Interviewer Percentage`
 									}
 									value={`${interviewDoc.percentageScore}%`}
 								/>
