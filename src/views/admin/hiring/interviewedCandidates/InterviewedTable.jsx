@@ -90,7 +90,11 @@ const InterviewedTable = ({
 										<Td>{item.candidate.phone}</Td>
 										<Td>{item.candidate.whatsApp}</Td>
 										<Td>{item.jobType}</Td>
-										<Td>{item.percentageScore}%</Td>
+										<Td>
+											{item.pendingEvaluations > 0
+												? 'No Result'
+												: `${item.percentageScore}%`}
+										</Td>
 										<Td>
 											<HStack alignItems='center'>
 												<Button
