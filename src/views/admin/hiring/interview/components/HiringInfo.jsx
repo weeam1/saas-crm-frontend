@@ -9,7 +9,6 @@ import {
 	FormErrorMessage,
 	Button,
 } from '@chakra-ui/react';
-import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { jobTypes } from '../../helpers';
 import { useFormik } from 'formik';

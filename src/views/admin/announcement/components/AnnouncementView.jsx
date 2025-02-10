@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
 	Modal,
 	ModalOverlay,
@@ -6,30 +6,29 @@ import {
 	ModalHeader,
 	ModalFooter,
 	ModalBody,
-	ModalCloseButton,
 	Button,
 	Flex,
 	Badge,
 	Text,
 	Box,
-} from "@chakra-ui/react";
-import { format } from "date-fns";
-import StatusBadge from "components/shared/StatusBadge";
-import { MdAllInbox, MdMarkEmailRead, MdMarkEmailUnread } from "react-icons/md";
+} from '@chakra-ui/react';
+import { format } from 'date-fns';
+import StatusBadge from 'components/shared/StatusBadge';
+import { MdAllInbox, MdMarkEmailRead, MdMarkEmailUnread } from 'react-icons/md';
 
 const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
-			size="xl"
-			motionPreset="slideInBottom"
+			size='xl'
+			motionPreset='slideInBottom'
 		>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Announcement Details</ModalHeader>
 				<ModalBody>
-					<Flex direction="column" gap={4}>
+					<Flex direction='column' gap={4}>
 						{/* Announcement Type */}
 						<div>
 							<Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge>
@@ -37,63 +36,64 @@ const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
 
 						{/* Announcement Message */}
 						<Box
-							backgroundColor="gray.100"
+							backgroundColor='gray.100'
 							p={3}
-							rounded="md"
-							width="100%"
-							m="0"
-							background="brand"
-							maxH="200px" // Set max height for the modal body
-							overflowY="auto" // Enable vertical scrolling when content exceeds max height
+							rounded='md'
+							width='100%'
+							m='0'
+							background='brand'
+							maxH='200px' // Set max height for the modal body
+							overflowY='auto' // Enable vertical scrolling when content exceeds max height
 							sx={{
-								"&::-webkit-scrollbar": {
-									width: "6px", // Custom scrollbar width
+								'&::-webkit-scrollbar': {
+									width: '6px', // Custom scrollbar width
 								},
-								"&::-webkit-scrollbar-thumb": {
-									background: "gray.200", // Custom brand color (adjust according to your theme)
-									borderRadius: "8px",
+								'&::-webkit-scrollbar-thumb': {
+									background: 'gray.200', // Custom brand color (adjust according to your theme)
+									borderRadius: '8px',
 								},
-								"&::-webkit-scrollbar-thumb:hover": {
-									background: "gray.300", // Slightly darker on hover
+								'&::-webkit-scrollbar-thumb:hover': {
+									background: 'gray.300', // Slightly darker on hover
 								},
 							}}
 						>
-							<Text fontSize="md" wordBreak="break-word">
+							<Text fontSize='md' wordBreak='break-word'>
 								{item.message}
 							</Text>
 						</Box>
 
 						{/* Read & Pending Counts */}
-						<Flex justify="space-between">
+						<Flex justify='space-between'>
 							<StatusBadge
 								status={`${item.read_count} Read`}
-								color="green"
+								color='green'
 								Icon={MdMarkEmailRead}
 								size={16}
 							/>
+
 							<StatusBadge
 								status={`${item.pending_count} Pending`}
-								color="orange"
+								color='orange'
 								Icon={MdMarkEmailUnread}
 								size={16}
 							/>
 							<StatusBadge
 								status={`${item.total_count} Total`}
-								color="pink"
+								color='purple'
 								Icon={MdAllInbox}
 								size={16}
 							/>
 						</Flex>
 
 						{/* Created At */}
-						<Text fontSize="sm" color="gray.500">
-							{format(new Date(item.created_at), "MMM d, yyyy h:mm a")}
+						<Text fontSize='sm' color='gray.500'>
+							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
 						</Text>
 					</Flex>
 				</ModalBody>
 
 				<ModalFooter>
-					<Button onClick={onClose} colorScheme="brand" rounded="md">
+					<Button onClick={onClose} colorScheme='brand' rounded='md'>
 						Close
 					</Button>
 				</ModalFooter>
