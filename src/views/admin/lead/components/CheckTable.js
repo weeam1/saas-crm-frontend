@@ -33,15 +33,15 @@ import {
 	useDisclosure,
 	Skeleton,
 	Badge,
-} from "@chakra-ui/react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+} from '@chakra-ui/react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	useGlobalFilter,
 	usePagination,
 	useSortBy,
 	useTable,
-} from "react-table";
-import * as XLSX from "xlsx";
+} from 'react-table';
+import * as XLSX from 'xlsx';
 
 // Custom components
 import {
@@ -50,49 +50,49 @@ import {
 	EmailIcon,
 	PhoneIcon,
 	SearchIcon,
-} from "@chakra-ui/icons";
-import Card from "components/card/Card";
-import Pagination from "components/pagination/Pagination";
-import Spinner from "components/spinner/Spinner";
+} from '@chakra-ui/icons';
+import Card from 'components/card/Card';
+import Pagination from 'components/pagination/Pagination';
+import Spinner from 'components/spinner/Spinner';
 import {
 	FaHistory,
 	FaSort,
 	FaSortDown,
 	FaSortUp,
 	FaTasks,
-} from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getApi } from "services/api";
-import Delete from "../Delete";
-import AddEmailHistory from "views/admin/emailHistory/components/AddEmail";
-import AddPhoneCall from "views/admin/phoneCall/components/AddPhoneCall";
-import Add from "../Add";
-import { AddIcon } from "@chakra-ui/icons";
-import { CiMenuKebab } from "react-icons/ci";
-import Edit from "../Edit";
-import { BsColumnsGap, BsWhatsapp } from "react-icons/bs";
-import ImportModal from "./ImportModal";
-import CustomSearchInput from "components/search/search";
-import DataNotFound from "components/notFoundData";
-import RenderManager from "./RenderManager";
-import RenderAgent from "./RenderAgent";
-import RenderStatus from "./RenderStatus";
-import { MdFileUpload, MdTask } from "react-icons/md";
-import AddTask from "./addTask";
-import LeadsModal from "../LeadsModal";
-import AdvancedSearchModal from "./AdvancedSearchModal";
+} from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { getApi } from 'services/api';
+import Delete from '../Delete';
+import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
+import AddPhoneCall from 'views/admin/phoneCall/components/AddPhoneCall';
+import Add from '../Add';
+import { AddIcon } from '@chakra-ui/icons';
+import { CiMenuKebab } from 'react-icons/ci';
+import Edit from '../Edit';
+import { BsColumnsGap, BsWhatsapp } from 'react-icons/bs';
+import ImportModal from './ImportModal';
+import CustomSearchInput from 'components/search/search';
+import DataNotFound from 'components/notFoundData';
+import RenderManager from './RenderManager';
+import RenderAgent from './RenderAgent';
+import RenderStatus from './RenderStatus';
+import { MdFileUpload, MdTask } from 'react-icons/md';
+import AddTask from './addTask';
+import LeadsModal from '../LeadsModal';
+import AdvancedSearchModal from './AdvancedSearchModal';
 // import SizeExample from "./Dummy";
-import { useStateContext } from "contexts/store";
-import RenderEStatus from "./RenderEStatus";
-import { postApi } from "services/api";
-import TableLoading from "components/loading/TableLoading";
-import ManageColumnModal from "./ManageColumnModal";
-import BulkAssignModal from "./BulkAssignModal";
-import ReleaseLead from "./ReleaseLead";
-import LeadTypeBadge from "./subComponents/LeadTypeBadge";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
-import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
+import { useStateContext } from 'contexts/store';
+import RenderEStatus from './RenderEStatus';
+import { postApi } from 'services/api';
+import TableLoading from 'components/loading/TableLoading';
+import ManageColumnModal from './ManageColumnModal';
+import BulkAssignModal from './BulkAssignModal';
+import ReleaseLead from './ReleaseLead';
+import LeadTypeBadge from './subComponents/LeadTypeBadge';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -126,8 +126,8 @@ const CheckTable = React.memo((props) => {
 		hideColumns,
 		setTotalLeads,
 	} = props;
-	const textColor = useColorModeValue("gray.500", "white");
-	const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+	const textColor = useColorModeValue('gray.500', 'white');
+	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
 	const [leadData, setLeadData] = useState([]);
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	// const columns = dataColumn;
@@ -138,7 +138,7 @@ const CheckTable = React.memo((props) => {
 	const [getTagValues, setGetTagValues] = useState([]);
 	const [gopageValue, setGopageValue] = useState(1);
 
-	const user = JSON.parse(localStorage.getItem("user"));
+	const user = JSON.parse(localStorage.getItem('user'));
 
 	const [leadsModal, setLeadsModal] = useState({
 		isOpen: false,
@@ -146,6 +146,7 @@ const CheckTable = React.memo((props) => {
 	});
 	const [deleteModel, setDelete] = useState(false);
 	const [addEmailHistory, setAddEmailHistory] = useState(false);
+	const [leadDetails, setLeadDetails] = useState({});
 	const [addPhoneCall, setAddPhoneCall] = useState(false);
 	const [advaceSearch, setAdvaceSearch] = useState(false);
 	const [searchClear, setSearchClear] = useState(false);
@@ -178,7 +179,7 @@ const CheckTable = React.memo((props) => {
 
 	useEffect(() => {
 		const savedColumns =
-			JSON.parse(localStorage.getItem("userCustomColumns")) || [];
+			JSON.parse(localStorage.getItem('userCustomColumns')) || [];
 		const updatedColumns = dynamicColumns.filter(
 			(col) => !savedColumns.includes(col.accessor)
 		);
@@ -196,7 +197,7 @@ const CheckTable = React.memo((props) => {
 	const [updatedPage, setUpdatedPage] = useState(0);
 	const [isImportLead, setIsImportLead] = useState(false);
 	const searchbox = useRef();
-	const [column, setColumn] = useState("");
+	const [column, setColumn] = useState('');
 	// const [updatedStatuses, setUpdatedStatuses] = useState([]);
 	const [manageColumns, setManageColumns] = useState(false);
 	const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn); // State to track changes
@@ -207,12 +208,12 @@ const CheckTable = React.memo((props) => {
 	const [isFormReset, setIsFormReset] = useState(false);
 
 	const csvColumns = [
-		{ Header: "Name", accessor: "leadName" },
-		{ Header: "Status", accessor: "leadStatus" },
-		{ Header: "Whatsapp", accessor: "leadWhatsappNumber" },
-		{ Header: "Phone", accessor: "leadPhoneNumber" },
-		{ Header: "Date & Time", accessor: "createdDate" },
-		{ Header: "Timetocall", accessor: "timetocall" },
+		{ Header: 'Name', accessor: 'leadName' },
+		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'Whatsapp', accessor: 'leadWhatsappNumber' },
+		{ Header: 'Phone', accessor: 'leadPhoneNumber' },
+		{ Header: 'Date & Time', accessor: 'createdDate' },
+		{ Header: 'Timetocall', accessor: 'timetocall' },
 	];
 
 	let isColumnSelected;
@@ -273,10 +274,10 @@ const CheckTable = React.memo((props) => {
 
 	const refreshData = () => {
 		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -286,10 +287,10 @@ const CheckTable = React.memo((props) => {
 
 	const bulkRefreshData = () => {
 		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -410,7 +411,7 @@ const CheckTable = React.memo((props) => {
 
 	const handleClear = () => {
 		// Clear parent states
-		if (searchbox.current) searchbox.current.value = "";
+		if (searchbox.current) searchbox.current.value = '';
 		setDisplaySearchData(false);
 		setDisplayAdvSearchData(false);
 		setSearchedData([]);
@@ -509,19 +510,19 @@ const CheckTable = React.memo((props) => {
 			await postApi(`api/customColumns`, userHideColsData);
 
 			// Update local storage and state
-			localStorage.setItem("userCustomColumns", JSON.stringify(hideCols));
+			localStorage.setItem('userCustomColumns', JSON.stringify(hideCols));
 			setSelectedColumns(tempSelectedColumns);
 			setManageColumns(false);
 
 			// Refetch data
 			refetchData();
 		} catch (error) {
-			console.error("Error saving columns:", error);
+			console.error('Error saving columns:', error);
 		}
 	};
 
 	const fetchCustomData = async () => {
-		const response = await getApi("api/custom-field?moduleName=Lead");
+		const response = await getApi('api/custom-field?moduleName=Lead');
 		setLeadData(response.data);
 	};
 
@@ -529,7 +530,7 @@ const CheckTable = React.memo((props) => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
 
-	const size = "lg";
+	const size = 'lg';
 
 	const handleExportLeads = (extension) => {
 		if (selectedValues && selectedValues?.length > 0) {
@@ -548,10 +549,10 @@ const CheckTable = React.memo((props) => {
 						const selectedFieldsData = {};
 						csvColumns.forEach((property) => {
 							if (
-								property.accessor === "leadStatus" &&
+								property.accessor === 'leadStatus' &&
 								!rec[property.accessor]
 							) {
-								selectedFieldsData[property.accessor] = "new";
+								selectedFieldsData[property.accessor] = 'new';
 							} else {
 								selectedFieldsData[property.accessor] = rec[property.accessor];
 							}
@@ -562,15 +563,15 @@ const CheckTable = React.memo((props) => {
 				convertJsonToCsvOrExcel(
 					selectedRecordsWithSpecificFileds,
 					csvColumns,
-					"lead",
+					'lead',
 					extension
 				);
 			} else {
 				const AllRecordsWithSpecificFileds = tableData?.map((rec) => {
 					const selectedFieldsData = {};
 					csvColumns.forEach((property) => {
-						if (property.accessor === "leadStatus" && !rec[property.accessor]) {
-							selectedFieldsData[property.accessor] = "new";
+						if (property.accessor === 'leadStatus' && !rec[property.accessor]) {
+							selectedFieldsData[property.accessor] = 'new';
 						} else {
 							selectedFieldsData[property.accessor] = rec[property.accessor];
 						}
@@ -580,7 +581,7 @@ const CheckTable = React.memo((props) => {
 				convertJsonToCsvOrExcel(
 					AllRecordsWithSpecificFileds,
 					csvColumns,
-					"lead",
+					'lead',
 					extension
 				);
 			}
@@ -604,7 +605,7 @@ const CheckTable = React.memo((props) => {
 
 		const ws = XLSX.utils.aoa_to_sheet(csvContent);
 		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
+		XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
 		XLSX.writeFile(wb, `${fileName}.${extension}`); // .csv, .xlsx
 		setSelectedValues([]);
 	};
@@ -644,13 +645,13 @@ const CheckTable = React.memo((props) => {
 		setUpdatedPage(pageIndex);
 		if (displaySearchData) {
 			fetchSearchedData(
-				searchbox.current?.value?.trim() || "",
+				searchbox.current?.value?.trim() || '',
 				pageIndex + 1,
 				pageSize
 			);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -662,10 +663,10 @@ const CheckTable = React.memo((props) => {
 		setUpdatedPage(0);
 		setGopageValue(1);
 		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim() || "", 1, pageSize);
+			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== "")
+				Object.entries(formValues).filter(([key, value]) => value !== '')
 			);
 			fetchAdvancedSearch(data, 1, pageSize);
 		} else if (pageSize !== 30) {
@@ -678,7 +679,7 @@ const CheckTable = React.memo((props) => {
 			setSearchedData((prevData) => {
 				// First, reset the leadStatus for the target row
 				const resetData = prevData.map((row) =>
-					row._id === id ? { ...row, leadStatus: "" } : row
+					row._id === id ? { ...row, leadStatus: '' } : row
 				);
 
 				// Then, update the leadStatus to the new value
@@ -693,7 +694,7 @@ const CheckTable = React.memo((props) => {
 			setData((prevData) => {
 				// First, reset the leadStatus for the target row
 				const resetData = prevData.map((row) =>
-					row._id === id ? { ...row, leadStatus: "" } : row
+					row._id === id ? { ...row, leadStatus: '' } : row
 				);
 
 				// Then, update the leadStatus to the new value
@@ -769,38 +770,38 @@ const CheckTable = React.memo((props) => {
 				)}
 			</Flex> */}
 			<Card
-				direction="column"
-				w="100%"
-				overflowX={{ sm: "scroll", lg: "hidden" }}
+				direction='column'
+				w='100%'
+				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				{(user?.role === "superAdmin" ||
-					user?.roles[0]?.roleName === "Manager") && (
+				{(user?.role === 'superAdmin' ||
+					user?.roles[0]?.roleName === 'Manager') && (
 					<Button
-						size="sm"
-						variant="outline"
-						colorScheme="gray"
-						bg="whiteAlpha.300"
-						mt={{ base: "5px", md: "0" }}
-						alignSelf={{ base: "center", sm: "end" }} // Center on mobile, end on larger devices
+						size='sm'
+						variant='outline'
+						colorScheme='gray'
+						bg='whiteAlpha.300'
+						mt={{ base: '5px', md: '0' }}
+						alignSelf={{ base: 'center', sm: 'end' }} // Center on mobile, end on larger devices
 						onClick={() => setBulkAssign(true)}
-						width="fit-content"
+						width='fit-content'
 						isDisabled={!(selectedValues && selectedValues.length > 1)}
 						leftIcon={<FaTasks />}
 					>
 						Bulk Assign
 					</Button>
 				)}
-				<Grid templateColumns="repeat(12, 1fr)" gap={2}>
+				<Grid templateColumns='repeat(12, 1fr)' gap={2}>
 					<GridItem
 						colSpan={{ base: 8 }}
-						display={"flex"}
-						alignItems={"center"}
+						display={'flex'}
+						alignItems={'center'}
 					>
-						<Flex alignItems={"center"} flexWrap={"wrap"}>
+						<Flex alignItems={'center'} flexWrap={'wrap'}>
 							<Text
-								color={useColorModeValue("secondaryGray.900", "white")}
-								fontSize="22px"
-								fontWeight="600"
+								color={useColorModeValue('secondaryGray.900', 'white')}
+								fontSize='22px'
+								fontWeight='600'
 							>
 								Leads (
 								<CountUpComponent
@@ -816,21 +817,21 @@ const CheckTable = React.memo((props) => {
 								fetchSearch={fetchSearch}
 							/>
 							<Button
-								variant="outline"
-								colorScheme="brand"
+								variant='outline'
+								colorScheme='brand'
 								leftIcon={<SearchIcon />}
 								onClick={() => setAdvaceSearch(true)}
-								mt={{ sm: "5px", md: "0" }}
-								size="sm"
+								mt={{ sm: '5px', md: '0' }}
+								size='sm'
 							>
 								Advance Search
 							</Button>
 							{displaySearchData ||
 								(displayAdvSearchData && (
 									<Button
-										variant="outline"
-										size="sm"
-										colorScheme="red"
+										variant='outline'
+										size='sm'
+										colorScheme='red'
 										ms={2}
 										onClick={() => {
 											handleClear();
@@ -844,9 +845,9 @@ const CheckTable = React.memo((props) => {
 
 							{selectedValues.length > 0 && access?.delete && (
 								<DeleteIcon
-									cursor={"pointer"}
+									cursor={'pointer'}
 									onClick={() => setDelete(true)}
-									color={"red"}
+									color={'red'}
 									ms={2}
 								/>
 							)}
@@ -855,52 +856,52 @@ const CheckTable = React.memo((props) => {
 
 					<GridItem
 						colSpan={{ base: 4 }}
-						display={"flex"}
-						justifyContent={"end"}
-						alignItems={"center"}
-						textAlign={"right"}
+						display={'flex'}
+						justifyContent={'end'}
+						alignItems={'center'}
+						textAlign={'right'}
 					>
 						<Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
 							</MenuButton>
 							<MenuList
-								minW={"fit-content"}
-								transform={"translate(1670px, 60px)"}
+								minW={'fit-content'}
+								transform={'translate(1670px, 60px)'}
 								zIndex={2}
 							>
 								<MenuItem
 									onClick={() => setManageColumns(true)}
-									width={"165px"}
+									width={'165px'}
 								>
-									{" "}
+									{' '}
 									Manage Columns
 								</MenuItem>
-								{user?.role === "superAdmin" && (
+								{user?.role === 'superAdmin' && (
 									<>
 										<MenuItem
-											width={"165px"}
+											width={'165px'}
 											onClick={() => setIsImportLead(true)}
 										>
-											{" "}
+											{' '}
 											Import Leads
 										</MenuItem>
 										<MenuDivider />
 										<MenuItem
-											width={"165px"}
-											onClick={() => handleExportLeads("csv")}
+											width={'165px'}
+											onClick={() => handleExportLeads('csv')}
 										>
 											{selectedValues && selectedValues?.length > 0
-												? "Export Selected Data as CSV"
-												: "Export as CSV"}
+												? 'Export Selected Data as CSV'
+												: 'Export as CSV'}
 										</MenuItem>
 										<MenuItem
-											width={"165px"}
-											onClick={() => handleExportLeads("xlsx")}
+											width={'165px'}
+											onClick={() => handleExportLeads('xlsx')}
 										>
 											{selectedValues && selectedValues?.length > 0
-												? "Export Selected Data as Excel"
-												: "Export as Excel"}
+												? 'Export Selected Data as Excel'
+												: 'Export as Excel'}
 										</MenuItem>
 									</>
 								)}
@@ -910,8 +911,8 @@ const CheckTable = React.memo((props) => {
 						{access?.create && (
 							<Button
 								onClick={() => handleClick()}
-								size="sm"
-								variant="brand"
+								size='sm'
+								variant='brand'
 								leftIcon={<AddIcon />}
 							>
 								Add New
@@ -922,13 +923,13 @@ const CheckTable = React.memo((props) => {
 						{getTagValues &&
 							getTagValues.map((item) => (
 								<Tag
-									size="sm"
+									size='sm'
 									p={2}
 									key={item}
-									borderRadius="full"
-									variant="solid"
-									backgroundColor="brand.100"
-									color="brand.800"
+									borderRadius='full'
+									variant='solid'
+									backgroundColor='brand.100'
+									color='brand.800'
 								>
 									<TagLabel>{item}</TagLabel>
 								</Tag>
@@ -956,36 +957,36 @@ const CheckTable = React.memo((props) => {
 					/>
 				)}
 
-				<Box overflowY={"auto"} w="100%" className="table-fix-container">
+				<Box overflowY={'auto'} w='100%' className='table-fix-container'>
 					<Table
 						{...getTableProps()}
-						variant="striped"
-						color="gray.500"
-						mb="30px"
+						variant='striped'
+						color='gray.500'
+						mb='30px'
 						sx={{
-							"& tbody tr:hover": {
+							'& tbody tr:hover': {
 								// Apply hover effect directly to rows
-								backgroundColor: "white", // Hover background
-								boxShadow: "sm", // Add subtle shadow on hover
-								transition: "background-color 0.2s ease, box-shadow 0.2s ease", // Smooth transition
+								backgroundColor: 'white', // Hover background
+								boxShadow: 'sm', // Add subtle shadow on hover
+								transition: 'background-color 0.2s ease, box-shadow 0.2s ease', // Smooth transition
 							},
 						}}
 					>
-						<Thead zIndex={1} height="10vh">
+						<Thead zIndex={1} height='10vh'>
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr
 									{...headerGroup.getHeaderGroupProps()}
 									key={index}
-									position="sticky"
-									top="0"
-									zIndex="2"
-									height="60px"
-									width="100%"
-									borderRadius="10px 10px 0 0"
-									borderBottom="1px solid #ebd3a6"
-									bg="brand.200"
-									opacity="1"
-									marginBottom="1rem"
+									position='sticky'
+									top='0'
+									zIndex='2'
+									height='60px'
+									width='100%'
+									borderRadius='10px 10px 0 0'
+									borderBottom='1px solid #ebd3a6'
+									bg='brand.200'
+									opacity='1'
+									marginBottom='1rem'
 								>
 									{headerGroup.headers?.map((column, index) => (
 										<Th
@@ -994,20 +995,20 @@ const CheckTable = React.memo((props) => {
 													column.getSortByToggleProps()
 											)}
 											key={index}
-											textAlign="center" // Center text in the cell
-											borderColor="gray.200"
-											fontWeight="medium"
-											maxWidth="150px"
+											textAlign='center' // Center text in the cell
+											borderColor='gray.200'
+											fontWeight='medium'
+											maxWidth='150px'
 										>
 											<Flex
-												align="center"
-												justifyContent="center" // Center the Flex content
-												fontSize={{ sm: "12px", lg: "14px" }}
+												align='center'
+												justifyContent='center' // Center the Flex content
+												fontSize={{ sm: '12px', lg: '14px' }}
 											>
-												{column.Header === "#" && (
+												{column.Header === '#' && (
 													<Checkbox
-														borderColor="brand.600"
-														value="true"
+														borderColor='brand.600'
+														value='true'
 														isChecked={selectAllChecked}
 														onChange={(event) => {
 															setSelectAllChecked(!selectAllChecked);
@@ -1018,16 +1019,16 @@ const CheckTable = React.memo((props) => {
 																setSelectedValues([]);
 															}
 														}}
-														me="10px"
+														me='10px'
 													/>
 												)}
 												<span
 													style={{
-														textTransform: "capitalize",
-														textAlign: "center", // Ensure text alignment
+														textTransform: 'capitalize',
+														textAlign: 'center', // Ensure text alignment
 													}}
 												>
-													{column.render("Header")}
+													{column.render('Header')}
 												</span>
 												{column.isSortable !== false && (
 													<span>
@@ -1050,13 +1051,13 @@ const CheckTable = React.memo((props) => {
 						</Thead>
 						<Tbody
 							{...getTableBodyProps()}
-							mb="24px"
+							mb='24px'
 							sx={{
-								"& tbody tr:hover": {
-									backgroundColor: "white",
-									boxShadow: "sm",
+								'& tbody tr:hover': {
+									backgroundColor: 'white',
+									boxShadow: 'sm',
 									transition:
-										"background-color 0.2s ease, box-shadow 0.2s ease",
+										'background-color 0.2s ease, box-shadow 0.2s ease',
 								},
 							}}
 						>
@@ -1076,14 +1077,14 @@ const CheckTable = React.memo((props) => {
 									// });
 
 									return (
-										<Tr {...row?.getRowProps()} key={i} className="leadRow">
+										<Tr {...row?.getRowProps()} key={i} className='leadRow'>
 											{row?.cells?.map((cell, index) => {
-												let data = "";
-												if (cell?.column.Header === "#") {
+												let data = '';
+												if (cell?.column.Header === '#') {
 													data = (
-														<Flex align="center">
+														<Flex align='center'>
 															<Checkbox
-																colorScheme="brandScheme"
+																colorScheme='brandScheme'
 																value={selectedValues}
 																isChecked={selectedValues.includes(
 																	row.original?._id
@@ -1091,53 +1092,53 @@ const CheckTable = React.memo((props) => {
 																onChange={(event) =>
 																	handleCheckboxChange(event, row.original?._id)
 																}
-																me="10px"
+																me='10px'
 															/>
 															<Text
 																color={textColor}
-																fontSize="sm"
-																fontWeight="600"
+																fontSize='sm'
+																fontWeight='600'
 															>
-																{cell?.value || "-"}
+																{cell?.value || '-'}
 															</Text>
 														</Flex>
 													);
-												} else if (cell?.column.Header === "Name") {
+												} else if (cell?.column.Header === 'Name') {
 													console.log({ type: row?.original?.leadType });
 
 													const leadType =
 														(row?.original?.leadType === null ||
 															row?.original?.leadType === undefined) &&
-														row?.original?.leadStatus === "new"
-															? "new"
+														row?.original?.leadStatus === 'new'
+															? 'new'
 															: row?.original?.leadType;
 													const roleName =
-														user?.role === "superAdmin"
-															? "superAdmin"
+														user?.role === 'superAdmin'
+															? 'superAdmin'
 															: user?.roles[0]?.roleName;
 
 													data = access?.view ? (
 														<Flex
-															alignItems="center"
-															width="auto"
+															alignItems='center'
+															width='auto'
 															maxWidth={500}
-															textAlign="left"
+															textAlign='left'
 														>
 															<Text
 																onClick={() =>
 																	handleLeadsModal(row.original?._id)
 																}
-																me="10px"
+																me='10px'
 																sx={{
-																	"&:hover": {
-																		color: "blue.500",
-																		textDecoration: "underline",
+																	'&:hover': {
+																		color: 'blue.500',
+																		textDecoration: 'underline',
 																	},
 																}}
-																cursor="pointer"
-																color={"brand.600"}
-																fontSize="sm"
-																fontWeight="600"
+																cursor='pointer'
+																color={'brand.600'}
+																fontSize='sm'
+																fontWeight='600'
 															>
 																{cell?.value?.text || cell?.value}
 															</Text>
@@ -1148,10 +1149,10 @@ const CheckTable = React.memo((props) => {
 														</Flex>
 													) : (
 														<Text
-															me="10px"
-															fontSize="sm"
-															fontWeight="600"
-															textAlign="center"
+															me='10px'
+															fontSize='sm'
+															fontWeight='600'
+															textAlign='center'
 														>
 															{cell?.value?.text || cell?.value}
 															{/* {row?.original?.leadType === "leadpool" && (
@@ -1159,29 +1160,29 @@ const CheckTable = React.memo((props) => {
 															)} */}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Whatsapp") {
+												} else if (cell?.column.Header === 'Whatsapp') {
 													data = (
 														<Text
-															me="10px"
-															fontSize="sm"
-															fontWeight="500"
+															me='10px'
+															fontSize='sm'
+															fontWeight='500'
 															width={140}
 														>
-															{cell?.value?.text || cell?.value || "-"}
+															{cell?.value?.text || cell?.value || '-'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Phone") {
+												} else if (cell?.column.Header === 'Phone') {
 													data = callAccess?.create ? (
 														<Text
-															me="10px"
-															fontSize="sm"
-															fontWeight="500"
+															me='10px'
+															fontSize='sm'
+															fontWeight='500'
 															maxWidth={140}
 															sx={{
-																"&:hover": {
-																	color: "blue.500",
-																	textDecoration: "underline",
-																	cursor: "pointer",
+																'&:hover': {
+																	color: 'blue.500',
+																	textDecoration: 'underline',
+																	cursor: 'pointer',
 																},
 															}}
 															onClick={() => {
@@ -1189,22 +1190,22 @@ const CheckTable = React.memo((props) => {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value || "-"}
+															{cell?.value?.formula || cell?.value || '-'}
 														</Text>
 													) : (
-														<Text me="10px" fontSize="sm" fontWeight="600">
-															{cell?.value?.formula || cell?.value || "-"}
+														<Text me='10px' fontSize='sm' fontWeight='600'>
+															{cell?.value?.formula || cell?.value || '-'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Address") {
+												} else if (cell?.column.Header === 'Address') {
 													data = (
-														<Text fontSize="sm" fontWeight={500}>
-															{cell?.value && cell.value !== "-"
+														<Text fontSize='sm' fontWeight={500}>
+															{cell?.value && cell.value !== '-'
 																? cell.value
-																: "no address"}
+																: 'no address'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Status") {
+												} else if (cell?.column.Header === 'Status') {
 													// data = (
 													// 	<div className="selectOpt">
 													// 		<RenderStatus
@@ -1215,10 +1216,10 @@ const CheckTable = React.memo((props) => {
 													// 	</div>
 													// );
 
-													let cellContent = cell.render("Cell");
+													let cellContent = cell.render('Cell');
 
 													// Replace the "Status" cell with the status dropdown
-													if (cell.column.Header === "Status") {
+													if (cell.column.Header === 'Status') {
 														cellContent = (
 															<RenderStatus
 																id={cell?.row?.original?._id}
@@ -1234,7 +1235,7 @@ const CheckTable = React.memo((props) => {
 															{cellContent}
 														</td>
 													);
-												} else if (cell?.column.Header === "E.Status") {
+												} else if (cell?.column.Header === 'E.Status') {
 													data = (
 														<div>
 															<RenderEStatus
@@ -1245,7 +1246,7 @@ const CheckTable = React.memo((props) => {
 															/>
 														</div>
 													);
-												} else if (cell?.column.Header === "Manager") {
+												} else if (cell?.column.Header === 'Manager') {
 													data = (
 														<RenderManager
 															id={row?.original?._id}
@@ -1258,10 +1259,10 @@ const CheckTable = React.memo((props) => {
 															setData={setData}
 															leadID={row?.original?._id?.toString()}
 															value={cell?.value}
-															isAdmin={user?.role === "superAdmin"}
+															isAdmin={user?.role === 'superAdmin'}
 														/>
 													);
-												} else if (cell?.column.Header === "Agent") {
+												} else if (cell?.column.Header === 'Agent') {
 													data = (
 														<>
 															<RenderAgent
@@ -1278,124 +1279,124 @@ const CheckTable = React.memo((props) => {
 															/>
 														</>
 													);
-												} else if (cell?.column.Header === "Nationality") {
+												} else if (cell?.column.Header === 'Nationality') {
 													data = (
 														<Text
-															fontSize="md"
-															fontWeight="medium"
-															textAlign={"center"}
+															fontSize='md'
+															fontWeight='medium'
+															textAlign={'center'}
 														>
 															{cell?.value?.text ||
 																cell?.value ||
-																"Not available"}
+																'Not available'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Language") {
+												} else if (cell?.column.Header === 'Language') {
 													data = (
 														<Text
-															fontSize="md"
-															fontWeight="medium"
-															textAlign={"center"}
+															fontSize='md'
+															fontWeight='medium'
+															textAlign={'center'}
 														>
-															{cell?.value || "Not Available"}
+															{cell?.value || 'Not Available'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Timetocall") {
+												} else if (cell?.column.Header === 'Timetocall') {
 													data = (
 														<Text
-															fontSize="sm"
+															fontSize='sm'
 															fontWeight={500}
 															width={300}
-															textAlign={"center"}
+															textAlign={'center'}
 														>
-															{cell?.value?.text || cell?.value || "no Data"}
+															{cell?.value?.text || cell?.value || 'no Data'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Budget") {
+												} else if (cell?.column.Header === 'Budget') {
 													data = (
 														<Text
-															fontSize="sm"
+															fontSize='sm'
 															fontWeight={500}
 															width={100}
-															textAlign={"center"}
+															textAlign={'center'}
 														>
 															{cell?.value || (
-																<span style={{ color: "#444" }}>No Data</span>
+																<span style={{ color: '#444' }}>No Data</span>
 															)}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Date & Time") {
+												} else if (cell?.column.Header === 'Date & Time') {
 													data = (
 														<Text
-															fontSize={"sm"}
-															textAlign={"center"}
-															fontWeight="500"
+															fontSize={'sm'}
+															textAlign={'center'}
+															fontWeight='500'
 															width={150}
 														>
 															{new Date(
 																cell?.value?.text || cell?.value
-															).toLocaleString() || "Not available"}
+															).toLocaleString() || 'Not available'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Last Note") {
+												} else if (cell?.column.Header === 'Last Note') {
 													data = (
-														<Text width={200} fontSize={"sm"}>
-															{cell?.value || "no note"}
+														<Text width={200} fontSize={'sm'}>
+															{cell?.value || 'no note'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Country") {
+												} else if (cell?.column.Header === 'Country') {
 													data = (
-														<Text fontSize={"sm"} width={150} fontWeight={500}>
-															{cell?.value || "no country"}
+														<Text fontSize={'sm'} width={150} fontWeight={500}>
+															{cell?.value || 'no country'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Address") {
+												} else if (cell?.column.Header === 'Address') {
 													data = (
 														<Text
-															color="black"
-															fontSize={"sm"}
+															color='black'
+															fontSize={'sm'}
 															fontWeight={500}
 														>
-															{cell?.value || "no address"}
+															{cell?.value || 'no address'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Campaign") {
+												} else if (cell?.column.Header === 'Campaign') {
 													data = (
-														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "no campaign"}
+														<Text fontSize={'sm'} width={150}>
+															{cell?.value || 'no campaign'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Source Content") {
+												} else if (cell?.column.Header === 'Source Content') {
 													data = (
-														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "no content"}
+														<Text fontSize={'sm'} width={150}>
+															{cell?.value || 'no content'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Email") {
+												} else if (cell?.column.Header === 'Email') {
 													data = (
-														<Text fontSize={"sm"} width={150}>
-															{cell?.value || "no email"}
+														<Text fontSize={'sm'} width={150}>
+															{cell?.value || 'no email'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Medium") {
+												} else if (cell?.column.Header === 'Medium') {
 													data = (
-														<Text fontSize={"sm"} width={200}>
-															{cell?.value || "no medium"}
+														<Text fontSize={'sm'} width={200}>
+															{cell?.value || 'no medium'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Campaign URL") {
+												} else if (cell?.column.Header === 'Campaign URL') {
 													data = (
-														<Text fontSize={"sm"} width={300}>
-															{cell?.value || "no URL"}
+														<Text fontSize={'sm'} width={300}>
+															{cell?.value || 'no URL'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "In UAE?") {
+												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
-														<Text fontSize={"sm"} width={140}>
-															{cell?.value || "not selected"}
+														<Text fontSize={'sm'} width={140}>
+															{cell?.value || 'not selected'}
 														</Text>
 													);
-												} else if (cell?.column.Header === "Release") {
+												} else if (cell?.column.Header === 'Release') {
 													data = (
 														<ReleaseLead
 															isReleased={row.original?.isReleased}
@@ -1407,23 +1408,23 @@ const CheckTable = React.memo((props) => {
 															}
 														/>
 													);
-												} else if (cell?.column.Header === "Action") {
+												} else if (cell?.column.Header === 'Action') {
 													data = (
 														<Text
-															fontSize="md"
-															fontWeight="900"
-															textAlign={"center"}
+															fontSize='md'
+															fontWeight='900'
+															textAlign={'center'}
 														>
 															<Menu isLazy>
 																<MenuButton>
 																	<CiMenuKebab />
 																</MenuButton>
 																<MenuList
-																	minW={"fit-content"}
-																	transform={"translate(1520px, 173px);"}
+																	minW={'fit-content'}
+																	transform={'translate(1520px, 173px);'}
 																>
 																	{access?.update &&
-																	user?.role === "superAdmin" ? (
+																	user?.role === 'superAdmin' ? (
 																		<MenuItem
 																			py={2.5}
 																			onClick={() => {
@@ -1435,12 +1436,12 @@ const CheckTable = React.memo((props) => {
 																			Edit
 																		</MenuItem>
 																	) : (
-																		""
+																		''
 																	)}
 																	{callAccess?.create && (
 																		<MenuItem
 																			py={2.5}
-																			width={"165px"}
+																			width={'165px'}
 																			onClick={() => {
 																				setAddPhoneCall(true);
 																				setCallSelectedId(
@@ -1455,10 +1456,11 @@ const CheckTable = React.memo((props) => {
 																	{emailAccess?.create && (
 																		<MenuItem
 																			py={2.5}
-																			width={"165px"}
+																			width={'165px'}
 																			onClick={() => {
 																				setAddEmailHistory(true);
-																				setSelectedId(cell?.row?.values._id);
+																				setSelectedId(cell?.row?.original._id);
+																				setLeadDetails(cell?.row?.original);
 																			}}
 																			icon={<EmailIcon fontSize={15} mb={1} />}
 																		>
@@ -1467,7 +1469,7 @@ const CheckTable = React.memo((props) => {
 																	)}
 																	<MenuItem
 																		py={2.5}
-																		width={"max-content"}
+																		width={'max-content'}
 																		onClick={() => {
 																			// navigate(
 																			//   "/leadCycle/" + row?.original?._id
@@ -1483,10 +1485,10 @@ const CheckTable = React.memo((props) => {
 																	</MenuItem>
 																	<MenuItem
 																		py={2.5}
-																		width={"max-content"}
+																		width={'max-content'}
 																		onClick={() => {
 																			navigate(
-																				"/leadHistory/" + cell?.row?.values?._id
+																				'/leadHistory/' + cell?.row?.values?._id
 																			);
 																		}}
 																		icon={<FaHistory fontSize={15} mb={1} />}
@@ -1495,9 +1497,9 @@ const CheckTable = React.memo((props) => {
 																	</MenuItem>
 
 																	<MenuItem
-																		display={{ sm: "block", xl: "none" }}
+																		display={{ sm: 'block', xl: 'none' }}
 																		py={2.5}
-																		width={"195px"}
+																		width={'195px'}
 																		onClick={() => {
 																			const contact = parseInt(
 																				cell?.row?.values?.leadPhoneNumber
@@ -1512,7 +1514,7 @@ const CheckTable = React.memo((props) => {
 
 																	<MenuItem
 																		py={2.5}
-																		width={"210px"}
+																		width={'210px'}
 																		onClick={() => {
 																			const contact = parseInt(
 																				cell?.row?.values?.leadPhoneNumber
@@ -1526,10 +1528,10 @@ const CheckTable = React.memo((props) => {
 																	>
 																		Open in Whatsapp
 																	</MenuItem>
-																	{user?.roles[0]?.roleName === "Agent" && (
+																	{user?.roles[0]?.roleName === 'Agent' && (
 																		<MenuItem
 																			py={2.5}
-																			width={"210px"}
+																			width={'210px'}
 																			onClick={() => {
 																				setTaskInits(row?.original);
 																				onTaskOpen();
@@ -1554,10 +1556,10 @@ const CheckTable = React.memo((props) => {
                                     </MenuItem>
                                   )} */}
 																	{access?.delete &&
-																	user?.role == "superAdmin" ? (
+																	user?.role == 'superAdmin' ? (
 																		<MenuItem
 																			py={2.5}
-																			color={"red"}
+																			color={'red'}
 																			onClick={() => {
 																				setSelectedValues([
 																					cell?.row?.original._id,
@@ -1569,7 +1571,7 @@ const CheckTable = React.memo((props) => {
 																			Delete
 																		</MenuItem>
 																	) : (
-																		""
+																		''
 																	)}
 																</MenuList>
 															</Menu>
@@ -1578,22 +1580,22 @@ const CheckTable = React.memo((props) => {
 												}
 												return (
 													<Td
-														paddingTop={"0.35rem"}
-														paddingBottom={"0.35rem"}
-														paddingLeft={"5px"}
-														paddingRight={"5px"}
+														paddingTop={'0.35rem'}
+														paddingBottom={'0.35rem'}
+														paddingLeft={'5px'}
+														paddingRight={'5px'}
 														{...cell?.getCellProps()}
 														key={index}
 														style={
-															cell?.column?.Header === "Manager"
-																? { padding: "0 5px 0 0" }
-																: cell?.column?.Header === "Agent"
+															cell?.column?.Header === 'Manager'
+																? { padding: '0 5px 0 0' }
+																: cell?.column?.Header === 'Agent'
 																	? { padding: 0 }
 																	: {}
 														}
-														fontSize={{ sm: "14px" }}
-														minW={{ sm: "150px", md: "200px", lg: "auto" }}
-														borderColor="transparent"
+														fontSize={{ sm: '14px' }}
+														minW={{ sm: '150px', md: '200px', lg: 'auto' }}
+														borderColor='transparent'
 													>
 														{data}
 													</Td>
@@ -1607,11 +1609,11 @@ const CheckTable = React.memo((props) => {
 									<Tr>
 										<Td colSpan={columns.length}>
 											<Text
-												textAlign={"center"}
-												width="100%"
+												textAlign={'center'}
+												width='100%'
 												color={textColor}
-												fontSize="sm"
-												fontWeight="600"
+												fontSize='sm'
+												fontWeight='600'
 											>
 												<DataNotFound />
 											</Text>
@@ -1639,14 +1641,17 @@ const CheckTable = React.memo((props) => {
 					/>
 				)}
 
-				<AddEmailHistory
-					fetchData={fetchData}
-					isOpen={addEmailHistory}
-					onClose={setAddEmailHistory}
-					data={data?.contact}
-					lead="true"
-					id={selectedId}
-				/>
+				{leadDetails && addEmailHistory && (
+					<AddEmailHistory
+						fetchData={fetchData}
+						isOpen={addEmailHistory}
+						onClose={setAddEmailHistory}
+						data={data?.contact}
+						leadDetails={leadDetails}
+						lead='true'
+						id={selectedId}
+					/>
+				)}
 
 				{/* <AddTask
 					leadData={taskInits}
@@ -1661,7 +1666,7 @@ const CheckTable = React.memo((props) => {
 					onClose={setAddPhoneCall}
 					data={data?.contact}
 					id={callSelectedId}
-					lead="true"
+					lead='true'
 				/>
 
 				{isOpen && (
@@ -1692,7 +1697,7 @@ const CheckTable = React.memo((props) => {
 				)}
 
 				<ImportModal
-					text="Lead file"
+					text='Lead file'
 					fetchData={fetchData}
 					isOpen={isImportLead}
 					onClose={setIsImportLead}
@@ -1785,9 +1790,9 @@ const CheckTable = React.memo((props) => {
 				isOpen={deleteModel}
 				onClose={setDelete}
 				setSelectedValues={setSelectedValues}
-				url="api/lead/deleteMany"
+				url='api/lead/deleteMany'
 				data={selectedValues}
-				method="many"
+				method='many'
 				setAction={setAction}
 				setSelectAllChecked={setSelectAllChecked}
 			/>
