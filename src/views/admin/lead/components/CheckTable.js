@@ -33,6 +33,7 @@ import {
 	useDisclosure,
 	Skeleton,
 	Badge,
+	Wrap,
 } from '@chakra-ui/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -775,92 +776,97 @@ const CheckTable = React.memo((props) => {
 				w='100%'
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				{(user?.role === 'superAdmin' ||
-					user?.roles[0]?.roleName === 'Manager') && (
-					<Button
-						size='sm'
-						variant='outline'
-						colorScheme='gray'
-						bg='whiteAlpha.300'
-						mt={{ base: '5px', md: '0' }}
-						alignSelf={{ base: 'center', sm: 'end' }} // Center on mobile, end on larger devices
-						onClick={() => setBulkAssign(true)}
-						width='fit-content'
-						isDisabled={!(selectedValues && selectedValues.length > 1)}
-						leftIcon={<FaTasks />}
-					>
-						Bulk Assign
-					</Button>
-				)}
 				<Grid templateColumns='repeat(12, 1fr)' gap={2}>
 					<GridItem
-						colSpan={{ base: 8 }}
+						colSpan={{ base: 12 }}
 						display={'flex'}
 						alignItems={'center'}
+						justifyContent='space-between'
 					>
-						<Flex alignItems={'center'} flexWrap={'wrap'}>
-							<Text
-								color={useColorModeValue('secondaryGray.900', 'white')}
-								fontSize='22px'
-								fontWeight='600'
-							>
-								Leads (
-								<CountUpComponent
-									key={data?.length}
-									targetNumber={totalLeads}
-								/>
-								)
-							</Text>
-							<CustomSearchInput
-								searchbox={searchbox}
-								dataColumn={dataColumn}
-								isPaginated={true}
-								fetchSearch={fetchSearch}
-							/>
+						<Text
+							color={useColorModeValue('secondaryGray.900', 'white')}
+							fontSize='22px'
+							fontWeight='600'
+						>
+							Leads (
+							<CountUpComponent key={data?.length} targetNumber={totalLeads} />)
+						</Text>
+						{(user?.role === 'superAdmin' ||
+							user?.roles[0]?.roleName === 'Manager') && (
 							<Button
-								variant='outline'
-								colorScheme='brand'
-								leftIcon={<SearchIcon />}
-								onClick={() => setAdvaceSearch(true)}
-								mt={{ sm: '5px', md: '0' }}
 								size='sm'
+								variant='outline'
+								colorScheme='gray'
+								bg='whiteAlpha.300'
+								mt={{ base: '5px', md: '0' }}
+								alignSelf={{ base: 'center', sm: 'end' }} // Center on mobile, end on larger devices
+								onClick={() => setBulkAssign(true)}
+								width='fit-content'
+								isDisabled={!(selectedValues && selectedValues.length > 1)}
+								leftIcon={<FaTasks />}
 							>
-								Advance Search
+								Bulk Assign
 							</Button>
-							{displaySearchData ||
-								(displayAdvSearchData && (
-									<Button
-										variant='outline'
-										size='sm'
-										colorScheme='red'
-										ms={2}
-										onClick={() => {
-											handleClear();
-
-											setGetTagValues([]);
-										}}
-									>
-										Clear
-									</Button>
-								))}
-
-							{selectedValues.length > 0 && access?.delete && (
-								<DeleteIcon
-									cursor={'pointer'}
-									onClick={() => setDelete(true)}
-									color={'red'}
-									ms={2}
-								/>
-							)}
-						</Flex>
+						)}
 					</GridItem>
 
 					<GridItem
-						colSpan={{ base: 4 }}
+						colSpan={{ base: 12 }}
 						display={'flex'}
-						justifyContent={'end'}
 						alignItems={'center'}
-						textAlign={'right'}
+						gap='2'
+						flexWrap='wrap'
+					>
+						<CustomSearchInput
+							searchbox={searchbox}
+							dataColumn={dataColumn}
+							isPaginated={true}
+							fetchSearch={fetchSearch}
+						/>
+						<Button
+							variant='outline'
+							colorScheme='brand'
+							leftIcon={<SearchIcon />}
+							onClick={() => setAdvaceSearch(true)}
+							mt={{ sm: '5px', md: '0' }}
+							size='sm'
+						>
+							Advance Search
+						</Button>
+						{displaySearchData ||
+							(displayAdvSearchData && (
+								<Button
+									variant='outline'
+									size='sm'
+									colorScheme='red'
+									ms={2}
+									onClick={() => {
+										handleClear();
+										setGetTagValues([]);
+									}}
+								>
+									Clear
+								</Button>
+							))}
+
+						{selectedValues.length > 0 && access?.delete && (
+							<DeleteIcon
+								cursor={'pointer'}
+								onClick={() => setDelete(true)}
+								color={'red'}
+								ms={2}
+							/>
+						)}
+
+						{/* Manage settings */}
+					</GridItem>
+
+					<GridItem
+						colSpan={12}
+						display='flex'
+						alignItems='center'
+						justifyContent='end'
+						gap='2'
 					>
 						<Menu isLazy>
 							<MenuButton p={4}>
@@ -875,7 +881,6 @@ const CheckTable = React.memo((props) => {
 									onClick={() => setManageColumns(true)}
 									width={'165px'}
 								>
-									{' '}
 									Manage Columns
 								</MenuItem>
 								{user?.role === 'superAdmin' && (
@@ -884,7 +889,6 @@ const CheckTable = React.memo((props) => {
 											width={'165px'}
 											onClick={() => setIsImportLead(true)}
 										>
-											{' '}
 											Import Leads
 										</MenuItem>
 										<MenuDivider />
@@ -913,30 +917,34 @@ const CheckTable = React.memo((props) => {
 							<Button
 								onClick={() => handleAddNewClick()}
 								size='sm'
-								variant='brand'
+								colorScheme='brand'
 								leftIcon={<AddIcon />}
+								py='2'
+								px='4'
 							>
 								Add New
 							</Button>
 						)}
 					</GridItem>
-					<HStack spacing={4} mb={2}>
-						{getTagValues &&
-							getTagValues.map((item) => (
-								<Tag
-									size='sm'
-									p={2}
-									key={item}
-									borderRadius='full'
-									variant='solid'
-									backgroundColor='brand.100'
-									color='brand.800'
-								>
-									<TagLabel>{item}</TagLabel>
-								</Tag>
-							))}
-					</HStack>
 				</Grid>
+				{/* Search tags */}
+				<Wrap gap='2' my={2}>
+					{getTagValues &&
+						getTagValues.map((item) => (
+							<Tag
+								size='sm'
+								p={2}
+								key={item}
+								borderRadius='full'
+								variant='solid'
+								backgroundColor='brand.100'
+								color='brand.800'
+								width='fit-content'
+							>
+								<TagLabel>{item}</TagLabel>
+							</Tag>
+						))}
+				</Wrap>
 				{bulkAssign && selectedValues?.length && (
 					<BulkAssignModal
 						refreshData={bulkRefreshData}
@@ -1558,7 +1566,7 @@ const CheckTable = React.memo((props) => {
                                     </MenuItem>
                                   )} */}
 																	{access?.delete &&
-																	user?.role == 'superAdmin' ? (
+																	user?.role === 'superAdmin' ? (
 																		<MenuItem
 																			py={2.5}
 																			color={'red'}
