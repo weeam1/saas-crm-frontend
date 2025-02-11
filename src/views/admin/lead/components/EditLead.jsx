@@ -36,10 +36,9 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
-		// r_u_in_uae: data.r_u_in_uae || '',
+		r_u_in_uae: leadData.r_u_in_uae || '',
+		lastNote: leadData.lastNote || '',
 	};
-
-	console.log(initialValues);
 
 	// Only "name" is required; others are optional.
 	const validationSchema = Yup.object({
@@ -53,17 +52,17 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		{ name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
 		{ name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
-		// { name: 'timetocall', label: 'Time to Call', type: 'time' },
+		// { name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		// { name: 'lastNote', label: 'Last Note', type: 'textarea' },
 		{ name: 'leadSourceDetails', label: 'Source Details', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
-		// { name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'checkbox' },
+		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'lastNote', label: 'Last Note', type: 'textarea' },
 	];
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
