@@ -1,7 +1,6 @@
 import {
 	Button,
 	Checkbox,
-	Flex,
 	Grid,
 	Modal,
 	ModalBody,
@@ -12,8 +11,8 @@ import {
 	ModalOverlay,
 	Spinner,
 	Text,
-} from "@chakra-ui/react";
-import React, { useMemo } from "react";
+} from '@chakra-ui/react';
+import React, { useMemo } from 'react';
 
 const ManageColumnModal = (props) => {
 	const {
@@ -33,19 +32,19 @@ const ManageColumnModal = (props) => {
 		<>
 			{/* Modal Component */}
 			<Modal
-				size="2xl"
+				size='2xl'
 				isOpen={manageColumns}
 				onClose={() => setManageColumns(false)}
 				isCentered
 			>
 				<ModalOverlay />
-				<ModalContent overflowY={"scroll"}>
+				<ModalContent overflowY={'scroll'}>
 					<ModalHeader>Manage Columns</ModalHeader>
 					<ModalCloseButton onClick={() => setManageColumns(false)} />
 					<ModalBody>
-						<Grid templateColumns="repeat(4, 1fr)" mb={3} gap={3}>
+						<Grid templateColumns='repeat(4, 1fr)' mb={3} gap={3}>
 							{memoizedColumns.map((column) => (
-								<Text display={"flex"} key={column.accessor} py={2}>
+								<Text display={'flex'} key={column.accessor} py={2}>
 									<Checkbox
 										value={selectedColumns.some(
 											(selectedColumn) =>
@@ -65,18 +64,18 @@ const ManageColumnModal = (props) => {
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme="brand"
-							size="sm"
+							colorScheme='brand'
+							size='sm'
 							mr={2}
 							onClick={saveManageCols}
 							disabled={isLoding}
 						>
-							{isLoding ? <Spinner /> : "Save"}
+							{isLoding ? <Spinner /> : 'Save'}
 						</Button>
 						<Button
-							size="sm"
-							variant="outline"
-							colorScheme="red"
+							size='sm'
+							variant='outline'
+							colorScheme='red'
 							onClick={() => {
 								handleColumnClear();
 							}}

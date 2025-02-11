@@ -93,6 +93,8 @@ import ReleaseLead from './ReleaseLead';
 import LeadTypeBadge from './subComponents/LeadTypeBadge';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import AddLead from './AddLead';
+import EditLead from './EditLead';
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -174,7 +176,6 @@ const CheckTable = React.memo((props) => {
 
 	useEffect(() => {
 		setData(tableData);
-		console.log({ tableData });
 	}, [refetchData, setData, tableData]);
 
 	useEffect(() => {
@@ -487,7 +488,7 @@ const CheckTable = React.memo((props) => {
 		});
 	};
 
-	const handleClick = () => {
+	const handleAddNewClick = () => {
 		onOpen();
 	};
 
@@ -521,14 +522,14 @@ const CheckTable = React.memo((props) => {
 		}
 	};
 
-	const fetchCustomData = async () => {
-		const response = await getApi('api/custom-field?moduleName=Lead');
-		setLeadData(response.data);
-	};
+	// const fetchCustomData = async () => {
+	// 	const response = await getApi('api/custom-field?moduleName=Lead');
+	// 	setLeadData(response.data);
+	// };
 
-	useEffect(() => {
-		if (fetchCustomData) fetchCustomData();
-	}, [action]);
+	// useEffect(() => {
+	// 	if (fetchCustomData) fetchCustomData();
+	// }, [action]);
 
 	const size = 'lg';
 
@@ -910,7 +911,7 @@ const CheckTable = React.memo((props) => {
 
 						{access?.create && (
 							<Button
-								onClick={() => handleClick()}
+								onClick={() => handleAddNewClick()}
 								size='sm'
 								variant='brand'
 								leftIcon={<AddIcon />}
@@ -1430,6 +1431,7 @@ const CheckTable = React.memo((props) => {
 																			onClick={() => {
 																				setEdit(true);
 																				setSelectedId(cell?.row?.original._id);
+																				setLeadDetails(cell?.row?.original);
 																			}}
 																			icon={<EditIcon fontSize={15} mb={1} />}
 																		>
@@ -1669,7 +1671,7 @@ const CheckTable = React.memo((props) => {
 					lead='true'
 				/>
 
-				{isOpen && (
+				{/* {isOpen && (
 					<Add
 						isOpen={isOpen}
 						size={size}
@@ -1681,8 +1683,17 @@ const CheckTable = React.memo((props) => {
 						action={action}
 						refreshData={refreshData}
 					/>
+				)} */}
+				{isOpen && (
+					<AddLead
+						isOpen={isOpen}
+						onClose={onClose}
+						size={size}
+						refreshData={refreshData}
+					/>
 				)}
-				{selectedId && (
+
+				{/* {selectedId && (
 					<Edit
 						isOpen={edit}
 						size={size}
@@ -1693,6 +1704,16 @@ const CheckTable = React.memo((props) => {
 						onClose={setEdit}
 						setAction={setAction}
 						moduleId={leadData?.[0]?._id}
+					/>
+				)} */}
+
+				{edit && (
+					<EditLead
+						isOpen={edit}
+						size={size}
+						refreshData={refreshData}
+						leadData={leadDetails}
+						onClose={() => setEdit(false)}
 					/>
 				)}
 

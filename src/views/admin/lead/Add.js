@@ -1,4 +1,4 @@
-import { CloseIcon, PhoneIcon } from "@chakra-ui/icons";
+import { CloseIcon, PhoneIcon } from '@chakra-ui/icons';
 import {
 	Button,
 	Drawer,
@@ -17,17 +17,17 @@ import {
 	InputLeftElement,
 	Select,
 	Text,
-} from "@chakra-ui/react";
-import { HSeparator } from "components/separator/Separator";
-import Spinner from "components/spinner/Spinner";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { leadSchema } from "schema";
-import { getApi } from "services/api";
-import { postApi } from "services/api";
-import { generateValidationSchema } from "utils";
-import CustomForm from "utils/customForm";
-import * as yup from "yup";
+} from '@chakra-ui/react';
+import { HSeparator } from 'components/separator/Separator';
+import Spinner from 'components/spinner/Spinner';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { leadSchema } from 'schema';
+import { getApi } from 'services/api';
+import { postApi } from 'services/api';
+import { generateValidationSchema } from 'utils';
+import CustomForm from 'utils/customForm';
+import * as yup from 'yup';
 
 const Add = (props) => {
 	const [isLoding, setIsLoding] = useState(false);
@@ -69,12 +69,14 @@ const Add = (props) => {
 	// const initialFieldValues = Object.fromEntries(props?.leadData && props?.leadData?.fields?.length > 0 && props?.leadData?.fields?.map(field => [field?.name, '']))
 
 	const initialFieldValues = Object.fromEntries(
-		(props?.leadData?.fields || []).map((field) => [field?.name, ""])
+		(props?.leadData?.fields || []).map((field) => [field?.name, ''])
 	);
+
+	console.log({ leadData: props.leadData });
 
 	const initialValues = {
 		...initialFieldValues,
-		createBy: JSON.parse(localStorage.getItem("user"))._id,
+		createBy: JSON.parse(localStorage.getItem('user'))._id,
 	};
 
 	const formik = useFormik({
@@ -86,7 +88,7 @@ const Add = (props) => {
 		},
 	});
 
-	const user = JSON.parse(localStorage.getItem("user"));
+	const user = JSON.parse(localStorage.getItem('user'));
 
 	const {
 		errors,
@@ -103,16 +105,16 @@ const Add = (props) => {
 			setIsLoding(true);
 
 			const formValues = { ...values };
-			if (user?.roles[0]?.roleName === "Manager") {
-				formValues["managerAssigned"] = user?._id?.toString();
+			if (user?.roles[0]?.roleName === 'Manager') {
+				formValues['managerAssigned'] = user?._id?.toString();
 			}
 
-			if (user?.roles[0]?.roleName === "Agent") {
-				formValues["agentAssigned"] = user?._id?.toString();
+			if (user?.roles[0]?.roleName === 'Agent') {
+				formValues['agentAssigned'] = user?._id?.toString();
 			}
 			// let response = await postApi('api/lead/add', values)
-			formValues["leadStatus"] = "new";
-			let response = await postApi("api/form/add", {
+			formValues['leadStatus'] = 'new';
+			let response = await postApi('api/form/add', {
 				...formValues,
 				moduleId: props?.leadData?._id,
 			});
@@ -139,7 +141,7 @@ const Add = (props) => {
 			<Drawer isOpen={props.isOpen} size={props.size}>
 				<DrawerOverlay />
 				<DrawerContent>
-					<DrawerHeader justifyContent="space-between" display="flex">
+					<DrawerHeader justifyContent='space-between' display='flex'>
 						Add leads
 						<IconButton onClick={props.onClose} icon={<CloseIcon />} />
 					</DrawerHeader>
@@ -250,22 +252,22 @@ const Add = (props) => {
 					</DrawerBody>
 					<DrawerFooter>
 						<Button
-							sx={{ textTransform: "capitalize" }}
-							size="sm"
+							sx={{ textTransform: 'capitalize' }}
+							size='sm'
 							disabled={isLoding ? true : false}
-							variant="brand"
-							type="submit"
+							variant='brand'
+							type='submit'
 							onClick={handleSubmit}
 						>
-							{isLoding ? <Spinner /> : "Save"}
+							{isLoding ? <Spinner /> : 'Save'}
 						</Button>
 						<Button
-							variant="outline"
-							colorScheme="red"
-							size="sm"
+							variant='outline'
+							colorScheme='red'
+							size='sm'
 							sx={{
 								marginLeft: 2,
-								textTransform: "capitalize",
+								textTransform: 'capitalize',
 							}}
 							onClick={handleCancel}
 						>

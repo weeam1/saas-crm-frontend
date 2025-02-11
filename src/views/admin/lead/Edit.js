@@ -1,4 +1,4 @@
-import { CloseIcon, PhoneIcon } from "@chakra-ui/icons";
+import { CloseIcon, PhoneIcon } from '@chakra-ui/icons';
 import {
 	Button,
 	Drawer,
@@ -18,24 +18,24 @@ import {
 	InputLeftElement,
 	Select,
 	Text,
-} from "@chakra-ui/react";
-import { HSeparator } from "components/separator/Separator";
-import Spinner from "components/spinner/Spinner";
-import { useFormik } from "formik";
-import moment from "moment";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { leadSchema } from "schema";
-import { putApi } from "services/api";
-import { getApi } from "services/api";
-import { generateValidationSchema } from "../../../utils";
-import CustomForm from "../../../utils/customForm";
-import * as yup from "yup";
+} from '@chakra-ui/react';
+import { HSeparator } from 'components/separator/Separator';
+import Spinner from 'components/spinner/Spinner';
+import { useFormik } from 'formik';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { leadSchema } from 'schema';
+import { putApi } from 'services/api';
+import { getApi } from 'services/api';
+import { generateValidationSchema } from '../../../utils';
+import CustomForm from '../../../utils/customForm';
+import * as yup from 'yup';
 
 const Edit = (props) => {
 	const [isLoding, setIsLoding] = useState(false);
 	const initialFieldValues = Object.fromEntries(
-		(props?.leadData?.fields || []).map((field) => [field?.name, ""])
+		(props?.leadData?.fields || []).map((field) => [field?.name, ''])
 	);
 	// const [initialValues, setInitialValues] = useState({
 	//     // Lead Information:
@@ -72,10 +72,11 @@ const Edit = (props) => {
 	// });
 	const [initialValues, setInitialValues] = useState({
 		...initialFieldValues,
-		createBy: JSON.parse(localStorage.getItem("user"))._id,
+		createBy: JSON.parse(localStorage.getItem('user'))._id,
 	});
+
 	const param = useParams();
-	console.log("fields of form edit ", props);
+	console.log('fields of form edit ', props);
 	const formik = useFormik({
 		initialValues: initialValues,
 		enableReinitialize: true,
@@ -127,19 +128,19 @@ const Edit = (props) => {
 			try {
 				setIsLoding(true);
 				response = await getApi(
-					"api/lead/view/",
+					'api/lead/view/',
 					props?.selectedId ? props?.selectedId : param.id
 				);
 				let editData = response?.data?.lead;
 				editData.leadCreationDate = moment(
 					response?.data?.lead?.leadCreationDate
-				).format("YYYY-MM-DD");
+				).format('YYYY-MM-DD');
 				editData.leadConversionDate = moment(
 					response?.data?.lead?.leadConversionDate
-				).format("YYYY-MM-DD");
+				).format('YYYY-MM-DD');
 				editData.leadFollowUpDate = moment(
 					response?.data?.lead?.leadFollowUpDate
-				).format("YYYY-MM-DD");
+				).format('YYYY-MM-DD');
 				setInitialValues(editData);
 			} catch (e) {
 				console.error(e);
@@ -150,7 +151,6 @@ const Edit = (props) => {
 	};
 
 	useEffect(() => {
-		console.log("data::", props.selectedId);
 		if (props.isOpen) {
 			fetchData();
 		}
@@ -161,16 +161,16 @@ const Edit = (props) => {
 			<Drawer isOpen={props.isOpen} size={props.size}>
 				<DrawerOverlay />
 				<DrawerContent>
-					<DrawerHeader justifyContent="space-between" display="flex">
+					<DrawerHeader justifyContent='space-between' display='flex'>
 						Edit leads
 						<IconButton onClick={handleClose} icon={<CloseIcon />} />
 					</DrawerHeader>
 					<DrawerBody>
 						{isLoding ? (
 							<Flex
-								justifyContent={"center"}
-								alignItems={"center"}
-								width="100%"
+								justifyContent={'center'}
+								alignItems={'center'}
+								width='100%'
 							>
 								<Spinner />
 							</Flex>
@@ -624,22 +624,22 @@ const Edit = (props) => {
                             </Grid> */}
 					<DrawerFooter>
 						<Button
-							sx={{ textTransform: "capitalize" }}
-							variant="brand"
-							size="sm"
-							type="submit"
+							sx={{ textTransform: 'capitalize' }}
+							variant='brand'
+							size='sm'
+							type='submit'
 							disabled={isLoding ? true : false}
 							onClick={handleSubmit}
 						>
-							{isLoding ? <Spinner /> : "Update"}
+							{isLoding ? <Spinner /> : 'Update'}
 						</Button>
 						<Button
-							variant="outline"
-							colorScheme="red"
-							size="sm"
+							variant='outline'
+							colorScheme='red'
+							size='sm'
 							sx={{
 								marginLeft: 2,
-								textTransform: "capitalize",
+								textTransform: 'capitalize',
 							}}
 							onClick={handleClose}
 						>
