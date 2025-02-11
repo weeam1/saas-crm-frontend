@@ -302,7 +302,6 @@ const AddEmailHistory = (props) => {
 	const AddData = async (formValues) => {
 		try {
 			setIsLoading(true);
-			console.log('add data');
 			let response = await postApi('api/email/add', formValues);
 			if (response.status === 200) {
 				onClose();
@@ -496,7 +495,7 @@ const AddEmailHistory = (props) => {
 								</Button>
 								<Button
 									size='sm'
-									variant='brand'
+									colorScheme='brand'
 									type='submit'
 									disabled={isLoading}
 								>
