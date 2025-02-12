@@ -51,3 +51,8 @@ export const leadStatus = [
 	{ label: 'Broker', value: 'broker' },
 	{ label: 'Request', value: 'request' },
 ];
+
+export const userLocations = [
+	{ label: 'Dubai', value: 'Dubai' },
+	{ label: 'Egypt', value: 'Egypt' },
+];

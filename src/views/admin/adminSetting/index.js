@@ -1,151 +1,149 @@
-import { Icon, SimpleGrid, useColorModeValue } from "@chakra-ui/react";
-import MiniStatistics from "components/card/MiniStatistics";
-import IconBox from "components/icons/IconBox";
-import { FaCreativeCommonsBy, FaWpforms } from "react-icons/fa";
-import { HiUsers } from "react-icons/hi";
-import { TbExchange } from "react-icons/tb";
-import { useNavigate } from "react-router-dom";
-import { GrValidate } from "react-icons/gr";
-import { TbTableColumn } from "react-icons/tb";
-import { MdCampaign, MdSettings } from "react-icons/md";
+import { Icon, SimpleGrid, useColorModeValue } from '@chakra-ui/react';
+import MiniStatistics from 'components/card/MiniStatistics';
+import IconBox from 'components/icons/IconBox';
+import { FaCreativeCommonsBy, FaWpforms } from 'react-icons/fa';
+import { HiUsers } from 'react-icons/hi';
+import { TbExchange } from 'react-icons/tb';
+import { useNavigate } from 'react-router-dom';
+import { GrValidate } from 'react-icons/gr';
+import { TbTableColumn } from 'react-icons/tb';
+import { MdCampaign, MdSettings } from 'react-icons/md';
 
 import {
 	MdAccountBalanceWallet,
 	MdConstruction,
 	MdDeveloperMode,
-} from "react-icons/md";
-import { LuConstruction } from "react-icons/lu";
-import { AuBankAccountElement } from "@stripe/react-stripe-js";
+} from 'react-icons/md';
 
 const Index = () => {
 	const navigate = useNavigate();
-	const brandColor = useColorModeValue("brand.500", "white");
-	const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
+	const brandColor = useColorModeValue('brand.500', 'white');
+	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 
 	return (
 		<div>
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="20px" mb="20px">
+			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap='20px' mb='20px'>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/user")}
+					fontsize='md'
+					onClick={() => navigate('/user')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={HiUsers} color="white" />}
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={HiUsers} color='white' />}
 						/>
 					}
-					name="Users"
+					name='Users'
 					// value={task?.length || 0}
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/role")}
+					fontsize='md'
+					onClick={() => navigate('/role')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
 							icon={
 								<Icon
-									w="28px"
-									h="28px"
+									w='28px'
+									h='28px'
 									as={FaCreativeCommonsBy}
-									color="white"
+									color='white'
 								/>
 							}
 						/>
 					}
-					name="Roles"
+					name='Roles'
 					// value={contactData?.length || 0}
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/change-images")}
+					fontsize='md'
+					onClick={() => navigate('/change-images')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={TbExchange} color="white" />}
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={TbExchange} color='white' />}
 						/>
 					}
-					name="Change Images"
+					name='Change Images'
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/custom-Fields")}
+					fontsize='md'
+					onClick={() => navigate('/custom-Fields')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={FaWpforms} color="white" />}
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={FaWpforms} color='white' />}
 						/>
 					}
-					name="Custom Fields"
+					name='Custom Fields'
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/validations")}
+					fontsize='md'
+					onClick={() => navigate('/validations')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={GrValidate} color="white" />}
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={GrValidate} color='white' />}
 						/>
 					}
-					name="Validations"
+					name='Validations'
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/table-field")}
+					fontsize='md'
+					onClick={() => navigate('/table-field')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={TbTableColumn} color="white" />}
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={TbTableColumn} color='white' />}
 						/>
 					}
-					name="Table Fields"
+					name='Table Fields'
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/developers")}
+					fontsize='md'
+					onClick={() => navigate('/developers')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
 							icon={
-								<Icon w="28px" h="28px" as={MdConstruction} color="white" />
+								<Icon w='28px' h='28px' as={MdConstruction} color='white' />
 							}
 						/>
 					}
-					name="Developers"
+					name='Developers'
 				/>
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/bank-accounts")}
+					fontsize='md'
+					onClick={() => navigate('/bank-accounts')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
 							icon={
 								<Icon
-									w="28px"
-									h="28px"
+									w='28px'
+									h='28px'
 									as={MdAccountBalanceWallet}
-									color="white"
+									color='white'
 								/>
 							}
 						/>
 					}
-					name="Bank Accounts"
+					name='Bank Accounts'
 				/>
 				{/* <MiniStatistics
 					fontsize="md"
@@ -161,17 +159,17 @@ const Index = () => {
 					name="Announcement"
 				/> */}
 				<MiniStatistics
-					fontsize="md"
-					onClick={() => navigate("/lead-settings")}
+					fontsize='md'
+					onClick={() => navigate('/lead-settings')}
 					startContent={
 						<IconBox
-							w="56px"
-							h="56px"
-							bg="linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)"
-							icon={<Icon w="28px" h="28px" as={MdSettings} color="white" />} // Change icon here
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={MdSettings} color='white' />} // Change icon here
 						/>
 					}
-					name="Lead Settings" // Update the name to reflect the new purpose
+					name='Lead Settings' // Update the name to reflect the new purpose
 				/>
 			</SimpleGrid>
 		</div>

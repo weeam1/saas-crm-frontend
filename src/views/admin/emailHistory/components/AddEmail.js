@@ -275,8 +275,8 @@ const AddEmailHistory = (props) => {
 		message: '',
 		createBy: '',
 		createByLead: '',
-		startDate: '',
-		endDate: '',
+		// startDate: '',
+		// endDate: '',
 	};
 
 	const formik = useFormik({
@@ -334,16 +334,35 @@ const AddEmailHistory = (props) => {
 		setLeadLoading(false);
 	};
 
-	console.log(values);
+	const defaultTemplate = `Hello,
+
+Mark your calendar! Weeam Real Estate invites you to our exclusive Property Expo.  
+
+✨ Explore:
+✅ Premier residential & commercial properties  
+✅ Expert market insights  
+✅ Exclusive deals & financing options
+	
+Event Details:
+📅 Dates: February 21–23, 2025
+⏰ Time: 10:00 AM – 6:00 PM daily
+📍 Venue: Weam Elnaggar Real Estate Office, 203 API World Tower, Dubai
+
+Don’t miss this chance to connect with industry leaders and find your perfect property. Let’s build your future together!  
+
+Best regards,  
+Weeam Real Estate Team
+	`;
+
 	useEffect(() => {
 		if (isOpen) {
-			console.log('data fetched');
+			setFieldValue('message', defaultTemplate);
 			fetchRecipientData();
 		}
 	}, [props.id, isOpen]);
 
 	return (
-		<Modal onClose={onClose} isOpen={isOpen} isCentered>
+		<Modal onClose={onClose} size='2xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Send Email</ModalHeader>
@@ -355,7 +374,13 @@ const AddEmailHistory = (props) => {
 						</VStack>
 					) : values?.recipient ? (
 						<form onSubmit={handleSubmit}>
-							<Grid templateColumns='repeat(12, 1fr)' gap={3}>
+							<Grid
+								overflow='scroll'
+								height='65vh'
+								p='4'
+								templateColumns='repeat(12, 1fr)'
+								gap={3}
+							>
 								<GridItem colSpan={{ base: 12 }}>
 									<DisplayField label='Recipient' value={values.recipient} />
 								</GridItem>
@@ -408,7 +433,7 @@ const AddEmailHistory = (props) => {
 										</Text>
 									)}
 								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
+								{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
 										Start Date
 									</FormLabel>
@@ -454,7 +479,7 @@ const AddEmailHistory = (props) => {
 											{errors.endDate}
 										</Text>
 									)}
-								</GridItem>
+								</GridItem> */}
 								<GridItem colSpan={{ base: 12 }}>
 									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
 										Message
@@ -463,6 +488,7 @@ const AddEmailHistory = (props) => {
 										fontSize='sm'
 										placeholder='Here Type message'
 										resize='none'
+										height='35vh'
 										onChange={handleChange}
 										onBlur={handleBlur}
 										value={values.message}

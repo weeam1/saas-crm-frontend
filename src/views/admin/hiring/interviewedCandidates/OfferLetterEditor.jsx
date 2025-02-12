@@ -56,19 +56,12 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 	);
 
 	useEffect(() => {
-		// if (offerDetails?.offerMail) {
-		// 	const offerText = offerDetails?.offerMail;
-		// 	console.log(offerText);
-		// 	setOfferBody(offerText);
-		// 	setEmailBody(offerText);
-		// } else {
 		const finalEmailBody = defaultTemplate.replace(
 			'<div style="display: none;"></div>',
 			staticOfferDetails
 		);
 		setOfferBody(finalEmailBody);
 		setEmailBody(finalEmailBody);
-		// }
 	}, [defaultTemplate, staticOfferDetails, offerDetails, setEmailBody]);
 
 	const handleOfferBody = (e) => {
@@ -79,8 +72,6 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 			'<div style="display: none;"></div>',
 			staticOfferDetails
 		);
-
-		// console.log({ staticOfferDetails });
 
 		setEmailBody(finalEmailBody);
 	};
