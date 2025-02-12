@@ -1383,7 +1383,7 @@ const CheckTable = React.memo((props) => {
 													);
 												} else if (cell?.column.Header === 'Email') {
 													data = (
-														<Text fontSize={'sm'} width={150}>
+														<Text fontSize={'sm'} min-width={200}>
 															{cell?.value || 'no email'}
 														</Text>
 													);

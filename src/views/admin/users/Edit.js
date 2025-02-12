@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CloseIcon, PhoneIcon } from '@chakra-ui/icons';
 import {
 	Button,
@@ -19,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
@@ -55,12 +56,20 @@ const Edit = (props) => {
 		},
 	});
 
+	useEffect(() => {
+		if (props.edit) {
+			// Replace initial Data with your actual initial values
+			formik.setValues(initialValues);
+		}
+	}, [props.edit]);
+
 	const dispatch = useDispatch();
 
 	const handleCloseModal = () => {
 		setEdit(false);
-		// Dispatch setUser action to set user data
+		formik.resetForm();
 	};
+
 	const {
 		errors,
 		touched,
@@ -122,7 +131,7 @@ const Edit = (props) => {
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Edit User
-					<IconButton onClick={() => setEdit(false)} icon={<CloseIcon />} />
+					<IconButton onClick={handleCloseModal} icon={<CloseIcon />} />
 				</ModalHeader>
 				<ModalBody>
 					<Grid

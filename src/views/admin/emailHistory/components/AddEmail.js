@@ -1,7 +1,5 @@
 import {
-	Box,
 	Button,
-	CircularProgress,
 	FormLabel,
 	Grid,
 	GridItem,
@@ -11,17 +9,14 @@ import {
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
-	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
 	Text,
 	Textarea,
 	VStack,
 } from '@chakra-ui/react';
-import { useFetchItemsQuery } from 'api/apiSlice';
 import DisplayField from 'components/displays/DisplayField';
 import Loader from 'components/loading/Loader';
-import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { BsFillSendFill } from 'react-icons/bs';
@@ -350,8 +345,8 @@ Event Details:
 
 Don’t miss this chance to connect with industry leaders and find your perfect property. Let’s build your future together!  
 
-Best regards,  
-Weeam Real Estate Team
+Thanks,  
+Weeam Real Estate
 	`;
 
 	useEffect(() => {
