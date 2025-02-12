@@ -3,6 +3,7 @@ import BoxLoading from 'components/shared/BoxLoading';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { leadStatus } from 'utils/options';
 
 const RenderStatus = ({
 	id,
@@ -116,7 +117,12 @@ const RenderStatus = ({
 			value={value || 'new'}
 			style={{ fontSize: '14px' }}
 		>
-			<option value='active'>Interested</option>
+			{leadStatus.map((item) => (
+				<option key={item.value} value={item.value}>
+					{item.label}
+				</option>
+			))}
+			{/* <option value='active'>Interested</option>
 			<option value='sold'>Sold</option>
 			<option value='pending'>Not interested</option>
 			<option value='reassigned'>Reassigned</option>
@@ -140,7 +146,7 @@ const RenderStatus = ({
 			<option value='request'>Request</option>
 			<option value='will_attend_the_show'>Will attend the show</option>
 			<option value='attended_the_show'>Attended the show</option>
-			<option value='callback'>Callback</option>
+			<option value='callback'>Callback</option> */}
 		</Select>
 	);
 };

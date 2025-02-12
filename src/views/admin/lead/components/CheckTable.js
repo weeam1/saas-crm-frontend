@@ -1244,7 +1244,7 @@ const CheckTable = React.memo((props) => {
 															{cellContent}
 														</td>
 													);
-												} else if (cell?.column.Header === 'E.Status') {
+												} else if (cell?.column.Header === 'M.Status') {
 													data = (
 														<div>
 															<RenderEStatus

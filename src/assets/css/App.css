@@ -15,7 +15,7 @@ option {
 }
 
 ::-webkit-scrollbar {
-	height: 8px !important;
+	height: 12px !important;
 	width: 8px;
 }
 

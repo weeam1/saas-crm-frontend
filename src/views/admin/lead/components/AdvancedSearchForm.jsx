@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import ManagerAgentForm from './ManagerAgentForm';
+import { mainLeadStatus } from 'utils/options';
+import { leadStatus } from 'utils/options';
 
 const {
 	Grid,
@@ -148,34 +150,11 @@ const AdvancedSearchForm = (props) => {
 						fontWeight='500'
 						placeholder='Select Lead Status'
 					>
-						<option value='active'>Interested</option>
-						<option value='sold'>Sold</option>
-						<option value='pending'>Not interested</option>
-
-						<option value='reassigned'>Reassigned</option>
-						<option value='new'>New</option>
-						<option value='no_answer'>No Answer</option>
-						<option value='unreachable'>Unreachable</option>
-
-						<option value='waiting'>Waiting</option>
-						<option value='follow_up'>Follow Up</option>
-						<option value='meeting'>Meeting</option>
-						<option value='follow_up_after_meeting'>
-							Follow Up After Meeting
-						</option>
-						<option value='deal'>Deal</option>
-						<option value='junk'>Junk</option>
-						<option value='whatsapp_send'>Whatsapp Send</option>
-						<option value='whatsapp_rec'>Whatsapp Rec</option>
-						<option value='deal_out'>Deal Out</option>
-						<option value='shift_project'>Shift Project</option>
-						<option value='wrong_number'>Wrong Number</option>
-						<option value='broker'>Broker</option>
-						<option value='voice_mail'>Voice Mail</option>
-						<option value='request'>Request</option>
-						<option value='will_attend_the_show'>Will attend the show</option>
-						<option value='attended_the_show'>Attended the show</option>
-						<option value='callback'>Callback</option>
+						{leadStatus.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
 					</Select>
 					<Text mb='10px' color='red'>
 						{errors.leadStatus && touched.leadStatus && errors.leadStatus}
@@ -193,7 +172,7 @@ const AdvancedSearchForm = (props) => {
 						mb='0'
 						mt={2}
 					>
-						Extra Status
+						Main Status
 					</FormLabel>
 					<Select
 						value={values?.eLeadStatus}
@@ -201,19 +180,13 @@ const AdvancedSearchForm = (props) => {
 						name='eLeadStatus'
 						onChange={handleChange}
 						fontWeight='500'
-						placeholder='Select Extra Lead Status'
+						placeholder='Select Main Lead Status'
 					>
-						<option value='interested'>Interested</option>
-						<option value='not-interested'>Not interested</option>
-						<option value='no-response'>No response</option>
-						<option value='interested-seller'>Interested Seller</option>
-						<option value='interested-buyer'>Interested Buyer</option>
-						<option value='hot'>Hot</option>
-						<option value='secondary-request'>Secondary request</option>
-						<option value='show'>Show</option>
-						<option value='junk'>Junk</option>
-						<option value='deal'>Deal</option>
-						<option value='change-agent'>Change Agent</option>
+						{mainLeadStatus?.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
 						<option value='-1'>No E.Status</option>
 					</Select>
 					<Text mb='10px' color='red'>

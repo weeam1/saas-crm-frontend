@@ -3,12 +3,11 @@ import BoxLoading from 'components/shared/BoxLoading';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { mainLeadStatus } from 'utils/options';
 
 const RenderEStatus = ({ id, cellValue, user }) => {
 	const [value, setValue] = useState('');
 	const [loading, setLoading] = useState(false);
-
-	const isSuperAdmin = user.role === 'superAdmin';
 
 	const setStatusData = async (e) => {
 		try {
@@ -22,7 +21,7 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 
 			if (response.status === 200) {
 				setValue(data.eLeadStatus);
-				toast.success('Extra Lead Status Updated!');
+				toast.success('Main Lead Status Updated!');
 			} else if (response.status === 400) {
 				// Handle 400 Bad Request specifically
 				console.log(response);
@@ -70,9 +69,14 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 			}}
 		>
 			<option value='' disabled style={{ color: '#999' }}>
-				Choose E.Status
+				Choose M.Status
 			</option>
-			<option value='interested'>Interested</option>
+			{mainLeadStatus?.map((item) => (
+				<option key={item.value} value={item.value}>
+					{item.label}
+				</option>
+			))}
+			{/* <option value='interested'>Interested</option>
 			<option value='not-interested'>Not interested</option>
 			<option value='no-response'>No response</option>
 			<option value='interested-seller'>Interested Seller</option>
@@ -82,7 +86,7 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 			<option value='show'>Show</option>
 			<option value='junk'>Junk</option>
 			<option value='deal'>Deal</option>
-			<option value='change-agent'>Change Agent</option>
+			<option value='change-agent'>Change Agent</option> */}
 		</Select>
 	);
 };
