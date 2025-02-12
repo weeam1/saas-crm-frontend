@@ -6,6 +6,7 @@ import {
 	FormLabel,
 	Input,
 	Button,
+	Select,
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import { useState } from 'react';
@@ -17,12 +18,23 @@ const evaluationFields = [
 	'Experience',
 	'Communication',
 	'Presentation Skills',
-	'Visa',
-	'Driving License',
 	'Education',
 	'Responsibility',
 	'Politeness',
+	'Stability', // Yes/No field
+	'Information', // Yes/No field
 ];
+
+const validationSchema = Yup.object().shape(
+	evaluationFields.reduce((acc, field) => {
+		// For numeric fields (1-10)
+		acc[field] = Yup.number()
+			.min(0, `${field} must be at least 0`)
+			.max(10, `${field} must be at most 10`)
+			.required(`${field} is required`);
+		return acc;
+	}, {})
+);
 
 const createInitialState = () => {
 	return evaluationFields.reduce((acc, field) => {
@@ -31,20 +43,10 @@ const createInitialState = () => {
 	}, {});
 };
 
-const validationSchema = Yup.object().shape(
-	evaluationFields.reduce((acc, field) => {
-		acc[field] = Yup.number()
-			.min(1, `${field} must be at least 1`)
-			.max(10, `${field} must be at most 10`)
-			.required(`${field} is required`);
-
-		return acc;
-	}, {})
-);
-
 const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 	const [evaluationData, setLocalEvaluationData] =
 		useState(createInitialState());
+
 	return (
 		<Box>
 			<Text
@@ -74,7 +76,7 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 							gap={3}
 							w='full'
 						>
-							{evaluationFields.map((field) => (
+							{/* {evaluationFields.map((field) => (
 								<FormControl
 									key={field}
 									isInvalid={errors[field] && touched[field]}
@@ -99,6 +101,59 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 											/>
 										)}
 									</Field>
+									{errors[field] && touched[field] ? (
+										<Text color='red.500'>{errors[field]}</Text>
+									) : null}
+								</FormControl>
+							))} */}
+
+							{evaluationFields.map((field) => (
+								<FormControl
+									key={field}
+									isInvalid={errors[field] && touched[field]}
+								>
+									<FormLabel>
+										{field.replace(/([A-Z])/g, ' $1').trim()}
+									</FormLabel>
+									{field === 'Stability' || field === 'Information' ? (
+										// Render Select Input for Yes/No fields
+										<Field name={field}>
+											{({ field }) => (
+												<Select
+													{...field}
+													placeholder={`Select ${field.name}`}
+													bg='gray.100'
+													borderColor='gray.300'
+													_focus={{
+														borderColor: '#D99A36',
+														boxShadow: '0 0 0 1px #D99A36',
+													}}
+												>
+													<option value={10}>Yes</option>
+													<option value={0}>No</option>
+												</Select>
+											)}
+										</Field>
+									) : (
+										// Render Numeric Input for other fields
+										<Field name={field}>
+											{({ field }) => (
+												<Input
+													{...field}
+													type='number'
+													min={1}
+													max={10}
+													placeholder='0-10'
+													bg='gray.100'
+													borderColor='gray.300'
+													_focus={{
+														borderColor: '#D99A36',
+														boxShadow: '0 0 0 1px #D99A36',
+													}}
+												/>
+											)}
+										</Field>
+									)}
 									{errors[field] && touched[field] ? (
 										<Text color='red.500'>{errors[field]}</Text>
 									) : null}

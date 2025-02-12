@@ -61,7 +61,10 @@ const InterviewTabs = memo(
 			try {
 				let interviewData = {};
 
-				const points = Object.values(data).reduce((acc, val) => acc + val, 0);
+				const points = Object.values(data).reduce(
+					(acc, val) => acc + Number(val),
+					0
+				);
 
 				if (isLeadInterviewer) {
 					// check hiring information is filled or not

@@ -1,4 +1,3 @@
-import { InfoIcon } from '@chakra-ui/icons';
 import {
 	Modal,
 	ModalOverlay,
@@ -18,7 +17,6 @@ import {
 	Text,
 	Icon,
 	Grid,
-	FormHelperText,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
