@@ -7,92 +7,7 @@ import NotificationDropDown from './NotificaitonDropDown';
 import { BellIcon } from '@chakra-ui/icons';
 import { useSelector } from 'react-redux';
 
-// const NotificationIcon = ({ userId }) => {
-// 	const [currentPage, setCurrentPage] = useState(1);
-// 	const itemsPerPage = 10; // Number of announcements per page
-// 	const [isOpen, setIsOpen] = useState(false);
-
-// 	const {
-// 		list: notificationList,
-// 		loading,
-// 		totalPages,
-// 		getHistory,
-// 	} = useNotificationHistory(userId, currentPage, itemsPerPage);
-
-// 	const newNotifyItem = useSelector((state) => state.webSocket.newNotifyItem);
-
-// 	useEffect(() => {
-// 		if (newNotifyItem.type !== -1) {
-// 			setCurrentPage(1);
-// 			getHistory();
-// 		}
-// 	}, [getHistory, newNotifyItem.type]);
-
-// 	const dropdownRef = useRef(null); // Ref for the dropdown component
-
-// 	const handleOpen = () => {
-// 		console.log({ isOpen });
-// 		setIsOpen((prev) => !prev);
-// 	};
-
-// 	const handleClose = () => {
-// 		console.log({ isOpen });
-// 		setIsOpen(false);
-// 	};
-
-// 	const handleLoadMore = () => {
-// 		setCurrentPage((prev) => prev + 1);
-// 	};
-
-// 	useEffect(() => {
-// 		const handleClickOutside = (event) => {
-// 			if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-// 				handleClose(); // Close the dropdown if clicked outside
-// 			}
-// 		};
-
-// 		document.addEventListener('mousedown', handleClickOutside);
-
-// 		return () => {
-// 			document.removeEventListener('mousedown', handleClickOutside);
-// 		};
-// 	}, []);
-
-// 	return (
-// 		<Menu>
-// 			<MenuButton
-// 				as={IconButton}
-// 				icon={<BellIcon />}
-// 				variant='solid'
-// 				rounded='full'
-// 				colorScheme='brand'
-// 				aria-label='Notifications'
-// 				position='relative' // Ensures badge is positioned correctly
-// 			>
-// 				{/* Red Badge */}
-// 				<Badge
-// 					colorScheme='red'
-// 					borderRadius='full'
-// 					position='absolute'
-// 					top='-2px' // Adjust based on icon size
-// 					right='-2px' // Adjust based on icon size
-// 					boxSize='8px' // Smaller dot for a clean look
-// 				/>
-// 			</MenuButton>
-
-// 			<NotificationDropDown
-// 				unreadCount={20}
-// 				loading={loading}
-// 				notificationList={notificationList}
-// 				loadMoreNotifications={handleLoadMore}
-// 				onClose={handleClose}
-// 				hideLoadMoreBtn={currentPage === totalPages}
-// 			/>
-// 		</Menu>
-// 	);
-// };
-
-const NotificationIcon = React.memo(({ userId }) => {
+const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10; // Number of announcements per page
 	const [isOpen, setIsOpen] = useState(false);
@@ -149,7 +64,7 @@ const NotificationIcon = React.memo(({ userId }) => {
 	}, [handleClickOutside]);
 
 	return (
-		<Menu>
+		<Menu ref={ref}>
 			<MenuButton
 				as={IconButton}
 				icon={<BellIcon />}
@@ -177,7 +92,7 @@ const NotificationIcon = React.memo(({ userId }) => {
 				loadMoreNotifications={handleLoadMore}
 				onClose={handleClose}
 				hideLoadMoreBtn={currentPage === totalPages}
-				ref={dropdownRef} // Pass ref to NotificationDropDown if needed
+				// ref={dropdownRef} // Pass ref to NotificationDropDown if needed
 			/>
 		</Menu>
 	);

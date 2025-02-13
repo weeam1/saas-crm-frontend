@@ -81,13 +81,14 @@
 // };
 
 // export default RenderStatus;
-import { Select } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { putApi } from "services/api";
+import { Select } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
+import { leadStatus } from 'utils/options';
 
 const RenderStatus = ({ id, cellValue, setUpdatedStatuses }) => {
-	const [value, setValue] = useState("");
+	const [value, setValue] = useState('');
 
 	const setStatusData = async (e) => {
 		try {
@@ -101,71 +102,51 @@ const RenderStatus = ({ id, cellValue, setUpdatedStatuses }) => {
 					...prev,
 					{
 						id,
-						status: data?.leadStatus || "new",
+						status: data?.leadStatus || 'new',
 					},
 				]);
-				toast.success("Lead Status Updated!");
+				toast.success('Lead Status Updated!');
 			}
 		} catch (e) {
 			console.log(e);
-			toast.error("Something went wrong!");
+			toast.error('Something went wrong!');
 		} finally {
 		}
 	};
 
 	const changeStatus = (value) => {
 		switch (value) {
-			case "pending":
-				return "pending";
-			case "active":
-				return "completed";
-			case "sold":
-				return "onHold";
+			case 'pending':
+				return 'pending';
+			case 'active':
+				return 'completed';
+			case 'sold':
+				return 'onHold';
 			default:
-				return "completed";
+				return 'completed';
 		}
 	};
 
 	useEffect(() => {
-		setValue(cellValue || "new");
+		setValue(cellValue || 'new');
 	}, [id]);
 
 	return (
 		<>
 			<Select
-				defaultValue={"new"}
+				// defaultValue={"new"}
 				className={changeStatus(value)}
 				onChange={setStatusData}
 				height={7}
 				width={150}
-				value={value || "new"}
-				style={{ fontSize: "14px" }}
+				value={value || 'new'}
+				style={{ fontSize: '14px' }}
 			>
-				<option value="active">Interested</option>
-				<option value="sold">Sold</option>
-				<option value="pending">Not interested</option>
-				<option value="reassigned">Reassigned</option>
-				<option value="new">New</option>
-				<option value="no_answer">No Answer</option>
-				<option value="unreachable">Unreachable</option>
-
-				<option value="waiting">Waiting</option>
-				<option value="follow_up">Follow Up</option>
-				<option value="meeting">Meeting</option>
-				<option value="follow_up_after_meeting">Follow Up After Meeting</option>
-				<option value="deal">Deal</option>
-				<option value="junk">Junk</option>
-				<option value="whatsapp_send">Whatsapp Send</option>
-				<option value="whatsapp_rec">Whatsapp Rec</option>
-				<option value="deal_out">Deal Out</option>
-				<option value="shift_project">Shift Project</option>
-				<option value="wrong_number">Wrong Number</option>
-				<option value="broker">Broker</option>
-				<option value="voice_mail">Voice Mail</option>
-				<option value="request">Request</option>
-				<option value="will_attend_the_show">Will attend the show</option>
-				<option value="attended_the_show">Attended the show</option>
-				<option value="callback">Callback</option>
+				{leadStatus.map((item) => (
+					<option key={item.value} value={item.value}>
+						{item.label}
+					</option>
+				))}
 			</Select>
 		</>
 	);

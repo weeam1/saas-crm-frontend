@@ -93,44 +93,7 @@ export const globalStyles = extendTheme({
 			900: '#171923',
 		},
 	},
-	// components: {
-	// 	// Input: {
-	// 	// 	variants: {
-	// 	// 		custom: {
-	// 	// 			field: {
-	// 	// 				bg: 'gray.100',
-	// 	// 				borderColor: 'gray.300',
-	// 	// 				_focus: {
-	// 	// 					borderColor: '#D99A36',
-	// 	// 					boxShadow: '0 0 0 1px #D99A36',
-	// 	// 				},
-	// 	// 			},
-	// 	// 		},
-	// 	// 	},
-	// 	// 	defaultProps: {
-	// 	// 		variant: 'custom', // Use this variant everywhere
-	// 	// 		size: 'md',
-	// 	// 	},
-	// 	// },
-	// 	// Select: {
-	// 	// 	variants: {
-	// 	// 		custom: {
-	// 	// 			field: {
-	// 	// 				bg: 'gray.100',
-	// 	// 				borderColor: 'gray.300',
-	// 	// 				_focus: {
-	// 	// 					borderColor: '#D99A36',
-	// 	// 					boxShadow: '0 0 0 1px #D99A36',
-	// 	// 				},
-	// 	// 			},
-	// 	// 		},
-	// 	// 	},
-	// 	// 	defaultProps: {
-	// 	// 		variant: 'custom', // Use this variant everywhere
-	// 	// 		size: 'md',
-	// 	// 	},
-	// 	// },
-	// },
+
 	styles: {
 		global: (props) => ({
 			body: {

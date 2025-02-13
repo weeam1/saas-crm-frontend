@@ -29,6 +29,7 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 	const [readByUsers, setByReadUsers] = useState([]);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	const {
 		isOpen: isReadOpen,
 		onOpen: readOnOpen,
@@ -110,13 +111,13 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 				{/* Right Section */}
 				<Flex align='center' justifyContent='space-between' wrap='wrap' gap={4}>
 					<Flex align='center' gap={4}>
-						<Tooltip label='Read by' hasArrow cursor={'pointer'}>
+						<Tooltip label='Read by' hasArrow cursor='pointer'>
 							<Button
 								bg='transparent'
-								_hover={'transparent'}
-								_focus={'transparent'}
-								_active={'transparent'}
-								onClick={handleReadByOpen}
+								_hover='transparent'
+								_focus='transparent'
+								_active='transparent'
+								onClick={handleReadByOpen} // This should set `isOpen` to true for the drawer.
 							>
 								<StatusBadge
 									status={`${item.read_count} Read`}
@@ -154,6 +155,9 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 					item={item}
 					isOpen={isOpen}
 					onClose={onClose}
+					// isReadOpen={isReadOpen}
+					// readOnClose={readOnClose}
+					handleReadByOpen={handleReadByOpen}
 					getBadgeColor={getBadgeColor}
 				/>
 			)}

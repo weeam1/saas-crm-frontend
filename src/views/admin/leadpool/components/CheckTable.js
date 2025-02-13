@@ -82,6 +82,7 @@ import { useStateContext } from 'contexts/store';
 import TableLoading from 'components/loading/TableLoading';
 import { findManagerForAgent } from 'utils';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import { PropTypes } from 'prop-types';
 
 export default function CheckTable(props) {
 	const {
@@ -114,6 +115,7 @@ export default function CheckTable(props) {
 		fetchAdvancedSearch,
 		currentState,
 	} = props;
+
 	const textColor = useColorModeValue('gray.500', 'white');
 	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
 	const [leadData, setLeadData] = useState([]);
@@ -136,7 +138,9 @@ export default function CheckTable(props) {
 	const [selectedId, setSelectedId] = useState();
 	const [callSelectedId, setCallSelectedId] = useState();
 	const navigate = useNavigate();
+
 	let data = useMemo(() => tableData, [tableData]);
+
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const {
@@ -213,7 +217,6 @@ export default function CheckTable(props) {
 	};
 
 	async function requestDeleteHandler(id, leadID, userId) {
-		console.log(id, leadID, userId, 'details');
 		try {
 			const res = await axios.post(
 				constant['baseUrl'] + 'api/adminApproval/delete',
@@ -263,188 +266,6 @@ export default function CheckTable(props) {
 		fetchUser();
 	}, [tableData]);
 
-	// const initialValues = {
-	// 	leadName: "",
-	// 	leadStatus: "",
-	// 	leadEmail: "",
-	// 	leadPhoneNumber: "",
-	// 	managerAssigned: "",
-	// 	agentAssigned: "",
-	// };
-
-	// const validationSchema = yup.object({
-	// 	leadName: yup.string(),
-	// 	leadStatus: yup.string(),
-	// 	leadEmail: yup.string().email("Lead Email is invalid"),
-	// 	leadPhoneNumber: yup
-	// 		.number()
-	// 		.typeError("Enter Number")
-	// 		.min(0, "Lead Phone Number is invalid")
-	// 		.max(999999999999, "Lead Phone Number is invalid")
-	// 		.notRequired(),
-	// 	leadAddress: yup.string(),
-	// 	agentAssigned: yup.string(),
-	// 	leadOwner: yup.string(),
-	// 	fromLeadScore: yup.number().min(0, "From Lead Score is invalid"),
-	// });
-	// const formik = useFormik({
-	// 	initialValues: initialValues,
-	// 	validationSchema: validationSchema,
-	// 	// onSubmit: (values, { resetForm }) => {
-	// 	//   console.log(values?.managerAssigned, "manager Assigned");
-	// 	//   setIsLoding(true);
-	// 	//   const searchResult = allData?.filter(
-	// 	//     (item) =>
-	// 	//       (!values?.leadName ||
-	// 	//         (item?.leadName &&
-	// 	//           item?.leadName
-	// 	//             ?.toLowerCase()
-	// 	//             ?.includes(values?.leadName?.toLowerCase()))) &&
-	// 	//       (!values?.leadStatus ||
-	// 	//         (values?.leadStatus === "new"
-	// 	//           ? item?.leadStatus === "" || item?.leadStatus === "new"
-	// 	//           : item?.leadStatus
-	// 	//               ?.toLowerCase()
-	// 	//               ?.includes(values?.leadStatus?.toLowerCase()))) &&
-	// 	//       (!values?.leadEmail ||
-	// 	//         (item?.leadEmail &&
-	// 	//           item?.leadEmail
-	// 	//             ?.toLowerCase()
-	// 	//             ?.includes(values?.leadEmail?.toLowerCase()))) &&
-	// 	//       (!values?.agentAssigned ||
-	// 	//         (item?.agentAssigned &&
-	// 	//           item?.agentAssigned === values?.agentAssigned)) &&
-	// 	//       (!values?.managerAssigned ||
-	// 	//         (item?.managerAssigned &&
-	// 	//           item?.managerAssigned === values?.managerAssigned)) &&
-	// 	//       (!values?.leadPhoneNumber ||
-	// 	//         (item?.leadPhoneNumber &&
-	// 	//           item?.leadPhoneNumber
-	// 	//             ?.toString()
-	// 	//             ?.includes(values?.leadPhoneNumber)))
-	// 	//   );
-
-	// 	//   let agent = null;
-	// 	//   if (values?.agentAssigned && user?.roles[0]?.roleName === "Manager") {
-	// 	//     agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
-	// 	//       (user) => user?._id?.toString() === values?.agentAssigned
-	// 	//     );
-	// 	//   } else if (values?.agentAssigned && values?.managerAssigned) {
-	// 	//     agent = tree["agents"]["manager-" + values.managerAssigned]?.find(
-	// 	//       (user) => user?._id?.toString() === values?.agentAssigned
-	// 	//     );
-	// 	//   }
-	// 	//   if (values?.agentAssigned == -1) {
-	// 	//     agent = { firstName: "No", lastName: " Agent" };
-	// 	//   }
-
-	// 	//   let manager = null;
-	// 	//   if (values?.managerAssigned) {
-	// 	//     manager = tree["managers"]?.find(
-	// 	//       (user) => user?._id?.toString() === values?.managerAssigned
-	// 	//     );
-	// 	//   }
-	// 	//   if (values?.managerAssigned == -1) {
-	// 	//     alert("it is called in manager");
-	// 	//     manager = { firstName: "No", lastNamt: "Manager" };
-	// 	//   }
-	// 	//   let getValue = [
-	// 	//     values.leadName,
-	// 	//     values.leadStatus === "active"
-	// 	//       ? "interested"
-	// 	//       : values.leadStatus === "pending"
-	// 	//       ? "not-interested"
-	// 	//       : values.leadStatus,
-	// 	//     values?.leadEmail,
-	// 	//     (manager && manager?.firstName + " " + manager?.lastName) || "",
-	// 	//     (agent && agent?.firstName + " " + agent?.lastName) || "",
-	// 	//     values?.leadPhoneNumber,
-	// 	//     values?.leadOwner,
-	// 	//     (![null, undefined, ""].includes(values?.fromLeadScore) &&
-	// 	//       `${values.fromLeadScore}-${values.toLeadScore}`) ||
-	// 	//       undefined,
-	// 	//   ].filter((value) => value);
-	// 	//   setGetTagValues(getValue);
-	// 	//   setUpdatedPage(0);
-	// 	//   setSearchedData(searchResult);
-	// 	//   setDisplaySearchData(true);
-	// 	//   setAdvaceSearch(false);
-	// 	//   setSearchClear(true);
-	// 	//   setIsLoding(false);
-	// 	//   resetForm();
-	// 	// },
-	// 	onSubmit: (values, { resetForm }) => {
-	// 		setIsLoding(true);
-	// 		console.log(values, "values in advance search");
-	// 		const data = Object.fromEntries(
-	// 			Object.entries(values).filter(([key, value]) => value !== "")
-	// 		);
-	// 		Object.keys(data).forEach((key) => {
-	// 			if (typeof data[key] === "string") {
-	// 				data[key] = data[key].trim();
-	// 				if (key === "leadPhoneNumber") {
-	// 					data[key] = Number(data[key]);
-	// 				}
-	// 			}
-	// 		});
-
-	// 		fetchAdvancedSearch(data, 1, pageSize);
-	// 		setUpdatedPage(0);
-	// 		setGopageValue(1);
-
-	// 		let agent = null;
-	// 		// if (values?.agentAssigned && user?.roles[0]?.roleName === "Manager") {
-	// 		//   agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
-	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
-	// 		//   );
-	// 		// } else if (values?.agentAssigned && values?.managerAssigned) {
-	// 		//   agent = tree["agents"]["manager-" + values.managerAssigned]?.find(
-	// 		//     (user) => user?._id?.toString() === values?.agentAssigned
-	// 		//   );
-	// 		// }
-	// 		if (values?.agentAssigned) {
-	// 			const agentsArray = Object.values(tree.agents).flatMap(
-	// 				(managerArray) => managerArray
-	// 			);
-	// 			agent = agentsArray.find(
-	// 				(agent) => agent?._id?.toString() === values?.agentAssigned
-	// 			);
-	// 		}
-	// 		if (values?.agentAssigned == -1) {
-	// 			agent = { firstName: "No", lastName: " Agent" };
-	// 		}
-	// 		let manager = null;
-	// 		if (values?.managerAssigned) {
-	// 			manager = tree["managers"]?.find(
-	// 				(user) => user?._id?.toString() === values?.managerAssigned
-	// 			);
-	// 		}
-	// 		if (values?.managerAssigned == -1) {
-	// 			manager = { firstName: "No", lastName: "Manager" };
-	// 		}
-	// 		let getValue = [
-	// 			values.leadName,
-	// 			values.leadStatus === "active"
-	// 				? "interested"
-	// 				: values.leadStatus === "pending"
-	// 					? "not-interested"
-	// 					: values.leadStatus,
-	// 			values?.leadEmail,
-	// 			(manager && manager?.firstName + " " + manager?.lastName) || "",
-	// 			(agent && agent?.firstName + " " + agent?.lastName) || "",
-	// 			values?.leadPhoneNumber,
-	// 			values?.leadOwner,
-	// 			(![null, undefined, ""].includes(values?.fromLeadScore) &&
-	// 				`${values.fromLeadScore}-${values.toLeadScore}`) ||
-	// 				undefined,
-	// 		].filter((value) => value);
-	// 		setGetTagValues(getValue);
-	// 		setAdvaceSearch(false);
-	// 		setSearchClear(true);
-	// 		// resetForm();
-	// 	},
-	// });
-
 	const handleClear = () => {
 		if (searchbox.current) searchbox.current.value = '';
 		setDisplaySearchData(false);
@@ -457,18 +278,6 @@ export default function CheckTable(props) {
 		setGetTagValues([]);
 		setIsFormReset(true);
 	};
-
-	// const {
-	// 	errors,
-	// 	touched,
-	// 	values,
-	// 	handleBlur,
-	// 	handleChange,
-	// 	handleSubmit,
-	// 	setFieldValue,
-	// 	resetForm,
-	// 	dirty,
-	// } = formik;
 
 	const refreshData = () => {
 		if (displaySearchData) {
@@ -728,8 +537,6 @@ export default function CheckTable(props) {
 					console.log(error);
 				}
 			}
-
-			console.log(res, 'response from update of lead request');
 		} catch (error) {
 			console.log('error', error);
 			toast.error(
@@ -867,8 +674,6 @@ export default function CheckTable(props) {
 				}
 			);
 
-			console.log({ resAdminApprove: res });
-
 			const r = await getApi(`api/user/view/${user?._id}`);
 			const response = await putApi(`api/user/edit/${user?._id}`, {
 				// ...r?.data,
@@ -899,7 +704,7 @@ export default function CheckTable(props) {
 	};
 
 	return (
-		<>
+		<Box>
 			{errorLeadData && (
 				<ErrorLeadLimitMessage
 					isOpen={isErrorModalOpen}
@@ -1371,7 +1176,7 @@ export default function CheckTable(props) {
 												justifyContent='center' // Center the Flex content
 												fontSize={{ sm: '10px', lg: '12px' }}
 											>
-												{column.Header === '#' && (
+												{column?.Header === '#' && (
 													<Checkbox
 														borderColor='brand.600'
 														value='true'
@@ -1397,7 +1202,7 @@ export default function CheckTable(props) {
 												>
 													{column.render('Header')}
 												</span>
-												{column.isSortable !== false && (
+												{column?.isSortable !== false && (
 													<span>
 														{column.isSorted ? (
 															column.isSortedDesc ? (
@@ -1434,16 +1239,16 @@ export default function CheckTable(props) {
 								<TableLoading columns={columns} length={8} />
 							) : !showTable ? (
 								<TableLoading columns={columns} length={8} />
-							) : data?.length > 0 ? (
+							) : data?.length > 0 && page?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
-									updatedStatuses?.forEach((status) => {
-										if (status?.id === row?.original?._id) {
-											row.cells.find(
-												(cell) => cell?.column?.Header === 'Status'
-											).value = status?.status;
-										}
-									});
+									// updatedStatuses?.forEach((status) => {
+									// 	if (status?.id === row?.original?._id) {
+									// 		row.cells.find(
+									// 			(cell) => cell?.column?.Header === 'Status'
+									// 		).value = status?.status;
+									// 	}
+									// });
 
 									return (
 										<Tr
@@ -1461,10 +1266,13 @@ export default function CheckTable(props) {
 																colorScheme='brandScheme'
 																value={selectedValues}
 																isChecked={selectedValues.includes(
-																	row.original?._id
+																	row?.original?._id
 																)}
 																onChange={(event) =>
-																	handleCheckboxChange(event, row.original?._id)
+																	handleCheckboxChange(
+																		event,
+																		row?.original?._id
+																	)
 																}
 																me='10px'
 															/>
@@ -1473,7 +1281,7 @@ export default function CheckTable(props) {
 																fontSize='sm'
 																fontWeight='500'
 															>
-																{cell?.value || '-'}
+																{cell?.value?.text || '-'}
 															</Text>
 														</Flex>
 													);
@@ -1501,10 +1309,11 @@ export default function CheckTable(props) {
 																</Text>
 															</Link>
 														) : (
-															<Text
+															<Button
+																variant='link'
 																onClick={() =>
 																	handleLeadsModal(
-																		row.original?.leadId || row.original?._id
+																		row?.original?.leadId || row.original?._id
 																	)
 																}
 																me='10px'
@@ -1520,7 +1329,7 @@ export default function CheckTable(props) {
 																pl='24px'
 															>
 																{cell?.value?.text || cell?.value}
-															</Text>
+															</Button>
 														);
 												} else if (cell?.column.Header === 'Manager') {
 													data = (
@@ -1540,21 +1349,21 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === 'Country Source') {
 													data = (
 														<Text fontSize='sm' fontWeight='500'>
-															{cell?.value || 'no source'}
+															{cell?.value?.text || 'no source'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Whatsapp Number') {
 													data = (
 														<Text fontSize='sm' fontWeight='500'>
 															{cell?.value?.text ||
-																cell?.value ||
+																cell?.value?.text ||
 																'no whatsapp'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Last Note') {
 													data = (
 														<Text width={200} fontSize={'sm'}>
-															{cell?.value || 'no note'}
+															{cell?.value?.text || 'no note'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Phone Number') {
@@ -1576,7 +1385,9 @@ export default function CheckTable(props) {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value || 'No data'}
+															{cell?.value?.formula ||
+																cell?.value?.text ||
+																'No data'}
 														</Text>
 													) : (
 														<Text
@@ -1585,7 +1396,7 @@ export default function CheckTable(props) {
 															// fontWeight="500"
 															fontWeight='700'
 														>
-															{cell?.value?.formula || cell?.value || '-'}
+															{cell?.value?.formula || cell?.value?.text || '-'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Address') {
@@ -1595,7 +1406,9 @@ export default function CheckTable(props) {
 															fontSize='sm'
 															fontWeight='500'
 														>
-															{cell?.value?.text || cell?.value || 'No address'}
+															{cell?.value?.text ||
+																cell?.value?.text ||
+																'No address'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Status') {
@@ -1663,10 +1476,6 @@ export default function CheckTable(props) {
 																			row?.original?.agentId,
 																			row?.original?.managerId,
 																			row?.original?._id
-																		);
-																		console.log(
-																			row?.original,
-																			'it is an object'
 																		);
 																	}}
 																	sx={{
@@ -1755,7 +1564,7 @@ export default function CheckTable(props) {
 															width={150}
 														>
 															{cell?.value?.text ||
-																cell?.value ||
+																cell?.value?.text ||
 																'no nationality'}
 														</Text>
 													);
@@ -1767,7 +1576,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															width={150}
 														>
-															{cell?.value || 'no data'}
+															{cell?.value?.text || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Budget') {
@@ -1778,7 +1587,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															width={150}
 														>
-															{cell?.value || 'no budget'}
+															{cell?.value?.text || 'no budget'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Email') {
@@ -1790,7 +1599,9 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text || cell?.value || 'no email'}
+															{cell?.value?.text ||
+																cell?.value?.text ||
+																'no email'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Timetocall') {
@@ -1801,7 +1612,7 @@ export default function CheckTable(props) {
 															textAlign={'center'}
 														>
 															{cell?.value?.text ||
-																cell?.value ||
+																cell?.value?.text ||
 																'no timetocall'}
 														</Text>
 													);
@@ -1812,7 +1623,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value || 'no address'}
+															{cell?.value?.text || 'no address'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Campaign') {
@@ -1822,7 +1633,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value || 'no compaign'}
+															{cell?.value?.text || 'no compaign'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Source Content') {
@@ -1832,7 +1643,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value || 'no source'}
+															{cell?.value?.text || 'no source'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Medium') {
@@ -1842,7 +1653,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value || 'no medium'}
+															{cell?.value?.text || 'no medium'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign URL') {
@@ -1853,7 +1664,7 @@ export default function CheckTable(props) {
 															width={250}
 															textAlign={'center'}
 														>
-															{cell?.value || 'no url'}
+															{cell?.value?.text || 'no url'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Date & Time') {
@@ -1872,7 +1683,7 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
 														<Text fontSize={'sm'} width={140}>
-															{cell?.value || 'not selected'}
+															{cell?.value?.text || 'not selected'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Buy') {
@@ -2679,8 +2490,8 @@ export default function CheckTable(props) {
 					/>
 					<ModalBody>
 						<div>
-							{dynamicColumns.map((column) => (
-								<Text display={'flex'} key={column.accessor} py={2}>
+							{dynamicColumns?.map((column, index) => (
+								<Text display={'flex'} key={column.accessor + index} py={2}>
 									<Checkbox
 										value={selectedColumns.some(
 											(selectedColumn) =>
@@ -2742,6 +2553,43 @@ export default function CheckTable(props) {
 					isInLeadPool
 				/>
 			)}
-		</>
+		</Box>
 	);
 }
+
+// CheckTable.propTypes = {
+// 	tableData: PropTypes.array,
+// 	dataColumn: PropTypes.array,
+// 	fetchData: PropTypes.func,
+// 	isLoding: PropTypes.bool,
+// 	allData: PropTypes.array,
+// 	access: PropTypes.string,
+// 	setSearchedData: PropTypes.func,
+// 	setDisplaySearchData: PropTypes.func,
+// 	displaySearchData: PropTypes.array,
+// 	selectedColumns: PropTypes.array,
+// 	setSelectedColumns: PropTypes.func,
+// 	dynamicColumns: PropTypes.array,
+// 	callAccess: PropTypes.bool,
+// 	emailAccess: PropTypes.bool,
+// 	setAction: PropTypes.func,
+// 	setDisplayAdvSearchData: PropTypes.func,
+// 	// Using oneOfType here because action's type might vary.
+// 	action: PropTypes.oneOfType([
+// 		PropTypes.string,
+// 		PropTypes.number,
+// 		PropTypes.object,
+// 	]),
+// 	setIsLoding: PropTypes.func,
+// 	// Allowing dateTime to be either a string or a Date instance.
+// 	dateTime: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+// 	setDateTime: PropTypes.func,
+// 	pages: PropTypes.number,
+// 	totalLeads: PropTypes.number,
+// 	fetchSearchedData: PropTypes.func,
+// 	setData: PropTypes.func,
+// 	checkApproval: PropTypes.func,
+// 	displayAdvSearchData: PropTypes.array,
+// 	fetchAdvancedSearch: PropTypes.func,
+// 	currentState: PropTypes.string,
+// };

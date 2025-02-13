@@ -21,8 +21,8 @@ const evaluationFields = [
 	'Education',
 	'Responsibility',
 	'Politeness',
-	'Stability', // Yes/No field
-	'Information', // Yes/No field
+	'Stability',
+	'Information',
 ];
 
 const validationSchema = Yup.object().shape(
@@ -76,7 +76,7 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 							gap={3}
 							w='full'
 						>
-							{/* {evaluationFields.map((field) => (
+							{evaluationFields.map((field) => (
 								<FormControl
 									key={field}
 									isInvalid={errors[field] && touched[field]}
@@ -89,9 +89,9 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 											<Input
 												{...field}
 												type='number'
-												min={1}
+												min={0}
 												max={10}
-												placeholder='1-10'
+												placeholder='0-10'
 												bg='gray.100'
 												borderColor='gray.300'
 												_focus={{
@@ -102,12 +102,14 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 										)}
 									</Field>
 									{errors[field] && touched[field] ? (
-										<Text color='red.500'>{errors[field]}</Text>
+										<Text fontSize='sm' mt='1' color='red.500'>
+											{errors[field]}
+										</Text>
 									) : null}
 								</FormControl>
-							))} */}
+							))}
 
-							{evaluationFields.map((field) => (
+							{/* {evaluationFields.map((field) => (
 								<FormControl
 									key={field}
 									isInvalid={errors[field] && touched[field]}
@@ -158,7 +160,7 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 										<Text color='red.500'>{errors[field]}</Text>
 									) : null}
 								</FormControl>
-							))}
+							))} */}
 						</Grid>
 						<Button
 							bg='#EDC270'

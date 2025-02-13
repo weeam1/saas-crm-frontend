@@ -11,12 +11,19 @@ import {
 	Badge,
 	Text,
 	Box,
+	Tooltip,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import StatusBadge from 'components/shared/StatusBadge';
 import { MdAllInbox, MdMarkEmailRead, MdMarkEmailUnread } from 'react-icons/md';
 
-const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
+const AnnouncementView = ({
+	item,
+	isOpen,
+	onClose,
+	getBadgeColor,
+	handleReadByOpen,
+}) => {
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -64,12 +71,22 @@ const AnnouncementView = ({ item, isOpen, onClose, getBadgeColor }) => {
 
 						{/* Read & Pending Counts */}
 						<Flex justify='space-between'>
-							<StatusBadge
-								status={`${item.read_count} Read`}
-								color='green'
-								Icon={MdMarkEmailRead}
-								size={16}
-							/>
+							<Tooltip label='Read by' hasArrow cursor='pointer'>
+								<Button
+									bg='transparent'
+									_hover='transparent'
+									_focus='transparent'
+									_active='transparent'
+									onClick={handleReadByOpen} // This should set `isOpen` to true for the drawer.
+								>
+									<StatusBadge
+										status={`${item.read_count} Read`}
+										color='green'
+										Icon={MdMarkEmailRead}
+										size={16}
+									/>
+								</Button>
+							</Tooltip>
 
 							<StatusBadge
 								status={`${item.pending_count} Pending`}

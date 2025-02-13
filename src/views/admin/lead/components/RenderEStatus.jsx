@@ -54,7 +54,6 @@ const RenderEStatus = ({ id, cellValue, user }) => {
 		<BoxLoading />
 	) : (
 		<Select
-			defaultValue=''
 			onChange={setStatusData}
 			height={7}
 			width={160}

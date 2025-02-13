@@ -52,7 +52,7 @@ import {
 	PhoneIcon,
 	SearchIcon,
 } from '@chakra-ui/icons';
-import Card from 'components/card/Card';
+// import Card from 'components/card/Card';
 import Pagination from 'components/pagination/Pagination';
 import Spinner from 'components/spinner/Spinner';
 import {
@@ -96,6 +96,7 @@ import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import AddLead from './AddLead';
 import EditLead from './EditLead';
+import Card from 'components/card/Card';
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -1003,7 +1004,7 @@ const CheckTable = React.memo((props) => {
 												column.isSortable !== false &&
 													column.getSortByToggleProps()
 											)}
-											key={index}
+											key={column.Header + index}
 											textAlign='center' // Center text in the cell
 											borderColor='gray.200'
 											fontWeight='medium'
@@ -1074,21 +1075,14 @@ const CheckTable = React.memo((props) => {
 								<TableLoading columns={columns} length={8} />
 							) : !showTable ? (
 								<TableLoading columns={columns} length={8} />
-							) : data?.length ? (
+							) : data?.length && page?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
-									// updatedStatuses?.forEach((status) => {
-									// 	if (status?.id === row?.original?._id) {
-									// 		row.cells.find(
-									// 			(cell) => cell?.column?.Header === "Status"
-									// 		).value = status?.status;
-									// 	}
-									// });
-
 									return (
-										<Tr {...row?.getRowProps()} key={i} className='leadRow'>
+										<Tr {...row?.getRowProps()} key={i++} className='leadRow'>
 											{row?.cells?.map((cell, index) => {
 												let data = '';
+
 												if (cell?.column.Header === '#') {
 													data = (
 														<Flex align='center'>
@@ -1108,13 +1102,11 @@ const CheckTable = React.memo((props) => {
 																fontSize='sm'
 																fontWeight='600'
 															>
-																{cell?.value || '-'}
+																{cell?.value?.text || '-'}
 															</Text>
 														</Flex>
 													);
 												} else if (cell?.column.Header === 'Name') {
-													console.log({ type: row?.original?.leadType });
-
 													const leadType =
 														(row?.original?.leadType === null ||
 															row?.original?.leadType === undefined) &&
@@ -1177,7 +1169,7 @@ const CheckTable = React.memo((props) => {
 															fontWeight='500'
 															width={140}
 														>
-															{cell?.value?.text || cell?.value || '-'}
+															{cell?.value?.text || cell?.value?.text || '-'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Phone') {
@@ -1199,17 +1191,17 @@ const CheckTable = React.memo((props) => {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value || '-'}
+															{cell?.value?.formula || cell?.value?.text || '-'}
 														</Text>
 													) : (
 														<Text me='10px' fontSize='sm' fontWeight='600'>
-															{cell?.value?.formula || cell?.value || '-'}
+															{cell?.value?.formula || cell?.value?.text || '-'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Address') {
 													data = (
 														<Text fontSize='sm' fontWeight={500}>
-															{cell?.value && cell.value !== '-'
+															{cell?.value?.text && cell.value !== '-'
 																? cell.value
 																: 'no address'}
 														</Text>
@@ -1296,7 +1288,7 @@ const CheckTable = React.memo((props) => {
 															textAlign={'center'}
 														>
 															{cell?.value?.text ||
-																cell?.value ||
+																cell?.value?.text ||
 																'Not available'}
 														</Text>
 													);
@@ -1307,7 +1299,7 @@ const CheckTable = React.memo((props) => {
 															fontWeight='medium'
 															textAlign={'center'}
 														>
-															{cell?.value || 'Not Available'}
+															{cell?.value?.text || 'Not Available'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Timetocall') {
@@ -1318,7 +1310,9 @@ const CheckTable = React.memo((props) => {
 															width={300}
 															textAlign={'center'}
 														>
-															{cell?.value?.text || cell?.value || 'no Data'}
+															{cell?.value?.text ||
+																cell?.value?.text ||
+																'no Data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Budget') {
@@ -1329,7 +1323,7 @@ const CheckTable = React.memo((props) => {
 															width={100}
 															textAlign={'center'}
 														>
-															{cell?.value || (
+															{cell?.value?.text || (
 																<span style={{ color: '#444' }}>No Data</span>
 															)}
 														</Text>
@@ -1350,13 +1344,13 @@ const CheckTable = React.memo((props) => {
 												} else if (cell?.column.Header === 'Last Note') {
 													data = (
 														<Text width={200} fontSize={'sm'}>
-															{cell?.value || 'no note'}
+															{cell?.value?.text || 'no note'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Country') {
 													data = (
 														<Text fontSize={'sm'} width={150} fontWeight={500}>
-															{cell?.value || 'no country'}
+															{cell?.value?.text || 'no country'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Address') {
@@ -1366,43 +1360,43 @@ const CheckTable = React.memo((props) => {
 															fontSize={'sm'}
 															fontWeight={500}
 														>
-															{cell?.value || 'no address'}
+															{cell?.value?.text || 'no address'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign') {
 													data = (
 														<Text fontSize={'sm'} width={150}>
-															{cell?.value || 'no campaign'}
+															{cell?.value?.text || 'no campaign'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Source Content') {
 													data = (
 														<Text fontSize={'sm'} width={150}>
-															{cell?.value || 'no content'}
+															{cell?.value?.text || 'no content'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Email') {
 													data = (
 														<Text fontSize={'sm'} min-width={200}>
-															{cell?.value || 'no email'}
+															{cell?.value?.text || 'no email'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Medium') {
 													data = (
 														<Text fontSize={'sm'} width={200}>
-															{cell?.value || 'no medium'}
+															{cell?.value?.text || 'no medium'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign URL') {
 													data = (
 														<Text fontSize={'sm'} width={300}>
-															{cell?.value || 'no URL'}
+															{cell?.value?.text || 'no URL'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
 														<Text fontSize={'sm'} width={140}>
-															{cell?.value || 'not selected'}
+															{cell?.value?.text || 'not selected'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Release') {
@@ -1757,63 +1751,6 @@ const CheckTable = React.memo((props) => {
 				saveManageCols={saveManageCols}
 			/>
 
-			{/* <Modal
-				onClose={() => {
-					setManageColumns(false);
-				}}
-				isOpen={manageColumns}
-				isCentered
-			>
-				<ModalOverlay />
-				<ModalContent height={"90vh"} overflowY={"scroll"}>
-					<ModalHeader>Manage Columns</ModalHeader>
-					<ModalCloseButton
-						onClick={() => {
-							setManageColumns(false);
-						}}
-					/>
-					<ModalBody>
-						<div>
-							{dynamicColumns.map((column) => (
-								<Text display={"flex"} key={column.accessor} py={2}>
-									<Checkbox
-										value={selectedColumns.some(
-											(selectedColumn) =>
-												selectedColumn.accessor === column.accessor
-										)}
-										defaultChecked={selectedColumns.some(
-											(selectedColumn) =>
-												selectedColumn.accessor === column.accessor
-										)}
-										onChange={() => toggleColumnVisibility(column.accessor)}
-										pe={2}
-									/>
-									{column.Header}
-								</Text>
-							))}
-						</div>
-					</ModalBody>
-					<ModalFooter>
-						<Button
-							colorScheme="brand"
-							size="sm"
-							mr={2}
-							onClick={saveManageCols}
-							disabled={isLoding ? true : false}
-						>
-							{isLoding ? <Spinner /> : "Save"}
-						</Button>
-						<Button
-							size="sm"
-							variant="outline"
-							colorScheme="red"
-							onClick={() => handleColumnClear()}
-						>
-							Close
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal> */}
 			{/* Delete model */}
 			<Delete
 				isOpen={deleteModel}
