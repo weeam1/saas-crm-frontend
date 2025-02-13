@@ -1076,9 +1076,10 @@ const CheckTable = React.memo((props) => {
 								<TableLoading columns={columns} length={8} />
 							) : !showTable ? (
 								<TableLoading columns={columns} length={8} />
-							) : data?.length && page?.length > 0 ? (
+							) : data?.length && page && page?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
+									console.log({ row });
 									return (
 										<Tr {...row?.getRowProps()} key={i++} className='leadRow'>
 											{row?.cells?.map((cell, index) => {
@@ -1103,21 +1104,32 @@ const CheckTable = React.memo((props) => {
 																fontSize='sm'
 																fontWeight='600'
 															>
-																{cell?.value}
+																{cell?.value || '-'}
 															</Text>
 														</Flex>
 													);
 												} else if (cell?.column.Header === 'Name') {
+													// const leadType =
+													// 	(row?.original?.leadType === null ||
+													// 		row?.original?.leadType === undefined) &&
+													// 	row?.original?.leadStatus === 'new'
+													// 		? 'new'
+													// 		: row?.original?.leadType;
+													// const roleName =
+													// 	user?.role === 'superAdmin'
+													// 		? 'superAdmin'
+													// 		: user?.roles[0]?.roleName;
+
 													const leadType =
-														(row?.original?.leadType === null ||
-															row?.original?.leadType === undefined) &&
-														row?.original?.leadStatus === 'new'
+														row?.original?.leadType ??
+														(row?.original?.leadStatus === 'new'
 															? 'new'
-															: row?.original?.leadType;
+															: undefined);
+
 													const roleName =
 														user?.role === 'superAdmin'
 															? 'superAdmin'
-															: user?.roles[0]?.roleName;
+															: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 													data = access?.view ? (
 														<Flex
@@ -1170,7 +1182,10 @@ const CheckTable = React.memo((props) => {
 															fontWeight='500'
 															width={140}
 														>
-															{cell?.value || cell?.value?.text || '-'}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
+															{/* {cell?.value || cell?.value?.text || '-'} */}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Phone') {
@@ -1192,17 +1207,26 @@ const CheckTable = React.memo((props) => {
 																setCallSelectedId(row?.original?._id);
 															}}
 														>
-															{cell?.value?.formula || cell?.value?.text || '-'}
+															{/* {cell?.value?.formula || cell?.value?.text || '-'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													) : (
 														<Text me='10px' fontSize='sm' fontWeight='600'>
-															{cell?.value?.formula || cell?.value?.text || '-'}
+															{/* {cell?.value?.formula || cell?.value?.text || '-'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Address') {
 													data = (
 														<Text fontSize='sm' fontWeight={500}>
-															{cell?.value || cell?.value?.text || 'no address'}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
+															{/* {cell?.value || cell?.value?.text || 'no address'} */}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Status') {
@@ -1316,9 +1340,12 @@ const CheckTable = React.memo((props) => {
 															fontWeight='medium'
 															textAlign={'center'}
 														>
-															{cell?.value ||
+															{/* {cell?.value ||
 																cell?.value?.text ||
-																'Not available'}
+																'Not available'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Language') {
@@ -1328,9 +1355,12 @@ const CheckTable = React.memo((props) => {
 															fontWeight='medium'
 															textAlign={'center'}
 														>
-															{cell?.value ||
+															{/* {cell?.value ||
 																cell?.value?.text ||
-																'Not Available'}
+																'Not Available'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Timetocall') {
@@ -1341,7 +1371,10 @@ const CheckTable = React.memo((props) => {
 															width={300}
 															textAlign={'center'}
 														>
-															{cell?.value || cell?.value?.text || 'no data'}
+															{/* {cell?.value || cell?.value?.text || 'no data'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Budget') {
@@ -1352,7 +1385,10 @@ const CheckTable = React.memo((props) => {
 															width={100}
 															textAlign={'center'}
 														>
-															{cell?.value || cell?.value?.text || 'no data'}
+															{/* {cell?.value || cell?.value?.text || 'no data'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Date & Time') {
@@ -1371,13 +1407,19 @@ const CheckTable = React.memo((props) => {
 												} else if (cell?.column.Header === 'Last Note') {
 													data = (
 														<Text width={200} fontSize={'sm'}>
-															{cell?.value || cell?.value?.text || 'no note'}
+															{/* {cell?.value || cell?.value?.text || 'no note'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Country') {
 													data = (
 														<Text fontSize={'sm'} width={150} fontWeight={500}>
-															{cell?.value || cell?.value?.text || 'no country'}
+															{/* {cell?.value || cell?.value?.text || 'no country'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Address') {
@@ -1387,47 +1429,69 @@ const CheckTable = React.memo((props) => {
 															fontSize={'sm'}
 															fontWeight={500}
 														>
-															{cell?.value || cell?.value?.text || 'no address'}
+															{/* {cell?.value || cell?.value?.text || 'no address'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign') {
 													data = (
 														<Text fontSize={'sm'} width={150}>
-															{cell?.value ||
+															{/* {cell?.value ||
 																cell?.value?.text ||
-																'no campaign'}
+																'no campaign'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Source Content') {
 													data = (
 														<Text fontSize={'sm'} width={150}>
-															{cell?.value || cell?.value?.text || 'no content'}
+															{/* {cell?.value || cell?.value?.text || 'no content'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Email') {
 													data = (
 														<Text fontSize={'sm'} min-width={200}>
-															{cell?.value || cell?.value?.text || 'no email'}
+															{/* {cell?.value || cell?.value?.text || 'no email'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Medium') {
 													data = (
 														<Text fontSize={'sm'} width={200}>
-															{cell?.value || cell?.value?.text || 'no medium'}
+															{/* {cell?.value || cell?.value?.text || 'no medium'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign URL') {
 													data = (
 														<Text fontSize={'sm'} width={300}>
-															{cell?.value || cell?.value?.text || 'no URL'}
+															{/* {cell?.value || cell?.value?.text || 'no URL'} */}
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
 														<Text fontSize={'sm'} width={140}>
-															{cell?.value ||
+															{/* {cell?.value ||
 																cell?.value?.text ||
-																'not selected'}
+																'not selected'} */}
+
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Release') {
