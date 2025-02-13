@@ -6,10 +6,10 @@ import {
 	ModalBody,
 	ModalCloseButton,
 	Button,
-	VStack,
 	Grid,
 	Spinner,
 	HStack,
+	Box,
 } from '@chakra-ui/react';
 import ExperienceDetails from './ExperienceDetails';
 import DisplayField from 'components/displays/DisplayField';
@@ -50,75 +50,67 @@ const CandidateView = ({
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
 			<ModalOverlay />
-			<ModalContent
-				maxH='650px' // Set max height for the modal body
-				overflowY='auto' // Enable vertical scrolling when content exceeds max height
-				sx={{
-					'&::-webkit-scrollbar': {
-						width: '6px', // Custom scrollbar width
-					},
-					'&::-webkit-scrollbar-thumb': {
-						background: 'brand.500', // Custom brand color (adjust according to your theme)
-						borderRadius: '8px',
-					},
-					'&::-webkit-scrollbar-thumb:hover': {
-						background: 'brand.600', // Slightly darker on hover
-					},
-				}}
-				px={4}
-				py={8}
-			>
+			<ModalContent p={4}>
 				<ModalHeader>Application</ModalHeader>
 				<ModalCloseButton mt='6' />
 				<ModalBody width='100%'>
-					<Grid
-						templateColumns={{
-							base: '1fr',
-							md: 'repeat(2, 1fr)',
-							lg: candidate.invited ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
-						}}
-						gap={3}
-					>
-						<DisplayField label='Name' value={candidate?.name} />
-						<DisplayField label='Date of Birth' value={candidate?.dob} />
-						<DisplayField label='Email' value={candidate?.email} />
-						<DisplayField label='Phone' value={candidate?.phone} />
-						<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
-						<DisplayField label='Nationality' value={candidate?.nationality} />
-						<DisplayField
-							label='Experience Years'
-							value={candidate?.experienceYears}
-						/>
-						<DisplayField
-							label='Applying for'
-							value={candidate?.position.name}
-						/>
-						{candidate.invited && (
-							<>
-								<DisplayField
-									label='Intivite Status'
-									value={candidate?.inviteAccepted ? 'Accepted' : 'Pending'}
-								/>
-								<DisplayField
-									label='Interview Date'
-									value={format(
-										new Date(candidate?.interviewDate),
-										'MMM d, yyyy'
-									)}
-								/>
+					<Box overflow='scroll' height='60vh' p='4'>
+						<Grid
+							templateColumns={{
+								base: '1fr',
+								md: 'repeat(2, 1fr)',
+								lg: candidate.invited ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+							}}
+							gap={3}
+						>
+							<DisplayField label='Name' value={candidate?.name} />
+							<DisplayField label='Date of Birth' value={candidate?.dob} />
+							<DisplayField label='Email' value={candidate?.email} />
+							<DisplayField label='Phone' value={candidate?.phone} />
+							<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
+							<DisplayField
+								label='Nationality'
+								value={candidate?.nationality}
+							/>
+							<DisplayField
+								label='Driving License'
+								value={candidate?.drivingLice ? 'Yes' : 'No'}
+							/>
+							<DisplayField
+								label='Experience Years'
+								value={candidate?.experienceYears}
+							/>
+							<DisplayField
+								label='Applying for'
+								value={candidate?.position.name}
+							/>
+							{candidate.invited && (
+								<>
+									<DisplayField
+										label='Intivite Status'
+										value={candidate?.inviteAccepted ? 'Accepted' : 'Pending'}
+									/>
+									<DisplayField
+										label='Interview Date'
+										value={format(
+											new Date(candidate?.interviewDate),
+											'MMM d, yyyy'
+										)}
+									/>
 
-								<DisplayField
-									label='Interview Time'
-									value={candidate?.interviewTime}
-								/>
-								<DisplayField
-									label='Candidate Status'
-									value={candidate?.status}
-								/>
-							</>
-						)}
-					</Grid>
-					<ExperienceDetails experience={candidate?.experience} />
+									<DisplayField
+										label='Interview Time'
+										value={candidate?.interviewTime}
+									/>
+									<DisplayField
+										label='Candidate Status'
+										value={candidate?.status}
+									/>
+								</>
+							)}
+						</Grid>
+						<ExperienceDetails experience={candidate?.experience} />
+					</Box>
 
 					<HStack spacing={2} mt={2}>
 						<Button

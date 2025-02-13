@@ -83,6 +83,7 @@ import TableLoading from 'components/loading/TableLoading';
 import { findManagerForAgent } from 'utils';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { PropTypes } from 'prop-types';
+import { formattedDate } from 'utils/helpers';
 
 export default function CheckTable(props) {
 	const {
@@ -684,7 +685,18 @@ export default function CheckTable(props) {
 			});
 
 			toast.success('You have successfully purchased');
-			fetchData();
+			// fetchData();
+
+			// Helper function to filter out an object by `_id`
+			const filterOutById = (data, id) => {
+				return data.filter((row) => row._id !== id);
+			};
+
+			if (displayAdvSearchData) {
+				setSearchedData((prevData) => filterOutById(prevData, leadID));
+			} else {
+				setData((prevData) => filterOutById(prevData, leadID));
+			}
 		} catch (error) {
 			if (error.response?.status === 400) {
 				const errorDetails =
@@ -1328,7 +1340,7 @@ export default function CheckTable(props) {
 																fontWeight='500'
 																pl='24px'
 															>
-																{cell?.value?.text || cell?.value}
+																{cell?.value || cell?.value?.text}
 															</Button>
 														);
 												} else if (cell?.column.Header === 'Manager') {
@@ -1349,13 +1361,13 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === 'Country Source') {
 													data = (
 														<Text fontSize='sm' fontWeight='500'>
-															{cell?.value?.text || 'no source'}
+															{cell?.value || cell?.value?.text || 'no source'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Whatsapp Number') {
 													data = (
 														<Text fontSize='sm' fontWeight='500'>
-															{cell?.value?.text ||
+															{cell?.value ||
 																cell?.value?.text ||
 																'no whatsapp'}
 														</Text>
@@ -1363,7 +1375,7 @@ export default function CheckTable(props) {
 												} else if (cell?.column.Header === 'Last Note') {
 													data = (
 														<Text width={200} fontSize={'sm'}>
-															{cell?.value?.text || 'no note'}
+															{cell?.value || cell?.value?.text || 'no note'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Phone Number') {
@@ -1406,9 +1418,7 @@ export default function CheckTable(props) {
 															fontSize='sm'
 															fontWeight='500'
 														>
-															{cell?.value?.text ||
-																cell?.value?.text ||
-																'No address'}
+															{cell?.value || cell?.value?.text || 'No address'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Status') {
@@ -1438,14 +1448,7 @@ export default function CheckTable(props) {
 														row?.original?.approvalStatus !== 'pending' ? (
 															row?.original?.approvalStatus
 														) : (
-															<div
-																style={{
-																	display: 'flex',
-																	gap: '10px',
-																	paddingLeft: '19px',
-																	textAlign: 'center',
-																}}
-															>
+															<HStack>
 																<Button
 																	onClick={() =>
 																		approveChangeHandler(
@@ -1490,7 +1493,7 @@ export default function CheckTable(props) {
 																>
 																	<IoMdClose size={12} />
 																</Button>
-															</div>
+															</HStack>
 														);
 													//   <Select
 													//   defaultValue={"None"}
@@ -1506,9 +1509,9 @@ export default function CheckTable(props) {
 													//         </Select>
 												} else if (cell?.column.Header === 'Approval Status') {
 													data = (
-														<h1 style={{ textAlign: 'center' }}>
+														<Text textAlign='center'>
 															{row?.original?.approvalStatus}
-														</h1>
+														</Text>
 													);
 												}
 												// else if (
@@ -1563,7 +1566,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															width={150}
 														>
-															{cell?.value?.text ||
+															{cell?.value ||
 																cell?.value?.text ||
 																'no nationality'}
 														</Text>
@@ -1576,7 +1579,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															width={150}
 														>
-															{cell?.value?.text || 'no data'}
+															{cell?.value || cell?.value?.text || 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Budget') {
@@ -1587,7 +1590,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															width={150}
 														>
-															{cell?.value?.text || 'no budget'}
+															{cell?.value || cell?.value?.text || 'no budget'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Email') {
@@ -1599,9 +1602,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text ||
-																cell?.value?.text ||
-																'no email'}
+															{cell?.value || cell?.value?.text || 'no email'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Timetocall') {
@@ -1611,7 +1612,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text ||
+															{cell?.value ||
 																cell?.value?.text ||
 																'no timetocall'}
 														</Text>
@@ -1623,7 +1624,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text || 'no address'}
+															{cell?.value || cell?.value?.text || 'no address'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Campaign') {
@@ -1633,7 +1634,9 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text || 'no compaign'}
+															{cell?.value ||
+																cell?.value?.text ||
+																'no compaign'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Source Content') {
@@ -1643,7 +1646,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text || 'no source'}
+															{cell?.value || cell?.value?.text || 'no source'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Lead Medium') {
@@ -1653,7 +1656,7 @@ export default function CheckTable(props) {
 															fontWeight='500'
 															textAlign={'center'}
 														>
-															{cell?.value?.text || 'no medium'}
+															{cell?.value || cell?.value?.text || 'no medium'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Campaign URL') {
@@ -1664,7 +1667,7 @@ export default function CheckTable(props) {
 															width={250}
 															textAlign={'center'}
 														>
-															{cell?.value?.text || 'no url'}
+															{cell?.value || cell?.value?.text || 'no url'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Date & Time') {
@@ -1675,15 +1678,43 @@ export default function CheckTable(props) {
 															textAlign={'center'}
 															width={200}
 														>
-															{new Date(
-																cell?.value?.text || cell?.value
-															).toLocaleString() || ''}
+															{cell?.value
+																? formattedDate(cell?.value)
+																: 'no data'}
+														</Text>
+													);
+												} else if (cell?.column.Header === 'Approved Date') {
+													data = (
+														<Text
+															fontSize={'sm'}
+															fontWeight='500'
+															textAlign={'center'}
+															width={200}
+														>
+															{cell?.value
+																? formattedDate(cell?.value)
+																: 'no data'}
+														</Text>
+													);
+												} else if (cell?.column.Header === 'Rejected Date') {
+													data = (
+														<Text
+															fontSize={'sm'}
+															fontWeight='500'
+															textAlign={'center'}
+															width={200}
+														>
+															{cell?.value
+																? formattedDate(cell?.value)
+																: 'no data'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'In UAE?') {
 													data = (
 														<Text fontSize={'sm'} width={140}>
-															{cell?.value?.text || 'not selected'}
+															{cell?.value ||
+																cell?.value?.text ||
+																'not selected'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Buy') {

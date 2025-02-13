@@ -40,6 +40,15 @@ const Index = () => {
 		{ Header: 'Lead Email', accessor: 'leadEmail' },
 		{ Header: 'Nationality', accessor: 'nationality' },
 		{ Header: 'Date & Time', accessor: 'createdAt' },
+
+		['Accepted', 'all_leads'].includes(currentState) && {
+			Header: 'Approved Date',
+			accessor: 'approvedDate',
+		},
+		['Rejected', 'all_leads'].includes(currentState) && {
+			Header: 'Rejected Date',
+			accessor: 'rejectedDate',
+		},
 		// { Header: "Last Note", width: 100, accessor: "lastNote" },
 		{ Header: 'Status', accessor: 'leadStatus' },
 		{ Header: 'Lead Approval', accessor: 'leadWhatsappNumber' },
@@ -60,6 +69,7 @@ const Index = () => {
 		// { Header: "Manager", accessor: "managerAssigned" },
 		{ Header: 'Agent', accessor: 'agentAssigned' },
 		{ Header: 'Status', accessor: 'leadStatus' },
+
 		// { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
 		// { Header: "Phone Number", accessor: "leadPhoneNumber" },
 		{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
@@ -202,7 +212,6 @@ const Index = () => {
 			}
 			return { ...lead };
 		});
-		console.log('newData', newData);
 
 		setSearchedData(newData || []);
 		setPages(result.data?.totalPages || 0);
@@ -267,7 +276,6 @@ const Index = () => {
 				{ Header: 'Action', accessor: '' },
 			]);
 		} else {
-			console.log({ currentState: currentState });
 			setTableColumnsManager([
 				{ Header: 'Name', accessor: 'leadName', width: 20 },
 				// { Header: "Manager", accessor: "managerAssigned" },
@@ -327,8 +335,6 @@ const Index = () => {
 				].filter(Boolean)
 			);
 		}
-
-		console.log({ currentState, tableColumnsAgent });
 
 		//     if(currentState == "all_leads"){
 		//       setFilteredLeads(data)

@@ -33,6 +33,8 @@ const Index = () => {
 		{ Header: 'Agent', accessor: 'agentAssigned' },
 		{ Header: 'M.Status', accessor: 'eLeadStatus' },
 		{ Header: 'Status', accessor: 'leadStatus' },
+		{ Header: 'Manager Assign Date', accessor: 'managerAssignedDate' },
+		{ Header: 'Agent Assign Date', accessor: 'agentAssignedDate' },
 		{ Header: 'Whatsapp', accessor: 'leadWhatsappNumber' },
 		{ Header: 'Phone', accessor: 'leadPhoneNumber' },
 		{ Header: 'Date & Time', accessor: 'createdDate', width: 40 },

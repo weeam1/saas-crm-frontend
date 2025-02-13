@@ -153,66 +153,72 @@ const AdvancedSearchForm = (props) => {
 	);
 
 	return (
-		<div>
-			<Grid templateColumns='repeat(24, 1fr)' mb={3} gap={3}>
-				{displayedFields.map(renderField)}
+		<Grid
+			overflow='scroll'
+			height='65vh'
+			p='2'
+			templateColumns='repeat(24, 1fr)'
+			mb={3}
+			gap={3}
+		>
+			{displayedFields.map(renderField)}
 
-				{/* Lead Status Field */}
-				<GridItem colSpan={{ base: 12, md: 6 }}>
-					<FormLabel
-						display='flex'
-						ms='4px'
-						fontSize='sm'
-						fontWeight='600'
-						color='#000'
-						mb='0'
-						mt={2}
-					>
-						Status
-					</FormLabel>
-					<Select
-						value={values?.leadStatus}
-						fontSize='sm'
-						name='leadStatus'
-						onChange={handleChange}
-						fontWeight='500'
-						placeholder='Select Lead Status'
-					>
-						<option value='active'>Interested</option>
-						<option value='sold'>Sold</option>
-						<option value='pending'>Not interested</option>
-						<option value='reassigned'>Reassigned</option>
-						<option value='new'>New</option>
-						<option value='no_answer'>No Answer</option>
-						<option value='unreachable'>Unreachable</option>
+			{/* Lead Status Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Status
+				</FormLabel>
+				<Select
+					value={values?.leadStatus}
+					fontSize='sm'
+					name='leadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Lead Status'
+				>
+					<option value='active'>Interested</option>
+					<option value='sold'>Sold</option>
+					<option value='pending'>Not interested</option>
+					<option value='reassigned'>Reassigned</option>
+					<option value='new'>New</option>
+					<option value='no_answer'>No Answer</option>
+					<option value='unreachable'>Unreachable</option>
 
-						<option value='waiting'>Waiting</option>
-						<option value='follow_up'>Follow Up</option>
-						<option value='meeting'>Meeting</option>
-						<option value='follow_up_after_meeting'>
-							Follow Up After Meeting
-						</option>
-						<option value='deal'>Deal</option>
-						<option value='junk'>Junk</option>
-						<option value='whatsapp_send'>Whatsapp Send</option>
-						<option value='whatsapp_rec'>Whatsapp Rec</option>
-						<option value='deal_out'>Deal Out</option>
-						<option value='shift_project'>Shift Project</option>
-						<option value='wrong_number'>Wrong Number</option>
-						<option value='broker'>Broker</option>
-						<option value='voice_mail'>Voice Mail</option>
-						<option value='request'>Request</option>
-						<option value='will_attend_the_show'>Will attend the show</option>
-						<option value='attended_the_show'>Attended the show</option>
-						<option value='callback'>Callback</option>
-					</Select>
-					<Text mb='10px' color='red'>
-						{errors.leadStatus && touched.leadStatus && errors.leadStatus}
-					</Text>
-				</GridItem>
+					<option value='waiting'>Waiting</option>
+					<option value='follow_up'>Follow Up</option>
+					<option value='meeting'>Meeting</option>
+					<option value='follow_up_after_meeting'>
+						Follow Up After Meeting
+					</option>
+					<option value='deal'>Deal</option>
+					<option value='junk'>Junk</option>
+					<option value='whatsapp_send'>Whatsapp Send</option>
+					<option value='whatsapp_rec'>Whatsapp Rec</option>
+					<option value='deal_out'>Deal Out</option>
+					<option value='shift_project'>Shift Project</option>
+					<option value='wrong_number'>Wrong Number</option>
+					<option value='broker'>Broker</option>
+					<option value='voice_mail'>Voice Mail</option>
+					<option value='request'>Request</option>
+					<option value='will_attend_the_show'>Will attend the show</option>
+					<option value='attended_the_show'>Attended the show</option>
+					<option value='callback'>Callback</option>
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
+				</Text>
+			</GridItem>
 
-				{/* Extra Status Field */}
-				{/* <GridItem colSpan={{ base: 12, md: 6 }}>
+			{/* Extra Status Field */}
+			{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 					<FormLabel
 						display="flex"
 						ms="4px"
@@ -243,43 +249,42 @@ const AdvancedSearchForm = (props) => {
 					</Text>
 				</GridItem> */}
 
-				{isSuperAdmin && (
-					<GridItem colSpan={{ base: 12, md: 6 }}>
-						<FormLabel
-							display='flex'
-							ms='4px'
-							fontSize='sm'
-							fontWeight='600'
-							color='#000'
-							mb='0'
-							mt={2}
+			{isSuperAdmin && (
+				<GridItem colSpan={{ base: 12, md: 6 }}>
+					<FormLabel
+						display='flex'
+						ms='4px'
+						fontSize='sm'
+						fontWeight='600'
+						color='#000'
+						mb='0'
+						mt={2}
+					>
+						Requested By Agent
+					</FormLabel>
+					<Box>
+						<Select
+							name='agentAssigned'
+							onChange={handleChange}
+							value={values['agentAssigned']}
 						>
-							Requested By Agent
-						</FormLabel>
-						<Box>
-							<Select
-								name='agentAssigned'
-								onChange={handleChange}
-								value={values['agentAssigned']}
-							>
-								<option value=''>Select agent</option>
-								{agents.map((agent) => (
-									<option key={agent._id} value={agent._id}>
-										{agent.name}
-									</option>
-								))}
-								{/* <option value={-1}>No Agent</option> */}
-							</Select>
-						</Box>
-						<Text mb='10px' color='red'>
-							{errors.agentAssigned &&
-								touched.agentAssigned &&
-								errors.agentAssigned}
-						</Text>
-					</GridItem>
-				)}
-			</Grid>
-		</div>
+							<option value=''>Select agent</option>
+							{agents.map((agent) => (
+								<option key={agent._id} value={agent._id}>
+									{agent.name}
+								</option>
+							))}
+							{/* <option value={-1}>No Agent</option> */}
+						</Select>
+					</Box>
+					<Text mb='10px' color='red'>
+						{errors.agentAssigned &&
+							touched.agentAssigned &&
+							errors.agentAssigned}
+					</Text>
+				</GridItem>
+			)}
+		</Grid>
 	);
 };
 

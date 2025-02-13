@@ -10,6 +10,7 @@ const {
 	Input,
 	Text,
 	Select,
+	Box,
 } = require('@chakra-ui/react');
 
 const AdvancedSearchForm = (props) => {
@@ -125,11 +126,81 @@ const AdvancedSearchForm = (props) => {
 	);
 
 	return (
-		<div>
-			<Grid templateColumns='repeat(24, 1fr)' mb={3} gap={3}>
-				{fields.map(renderField)}
+		<Grid
+			overflow='scroll'
+			height='65vh'
+			p='2'
+			templateColumns='repeat(24, 1fr)'
+			mb={3}
+			gap={2}
+		>
+			{fields.map(renderField)}
 
-				{/* Lead Status Field */}
+			{/* Lead Status Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Status
+				</FormLabel>
+				<Select
+					value={values?.leadStatus}
+					fontSize='sm'
+					name='leadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Lead Status'
+				>
+					{leadStatus.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
+				</Text>
+			</GridItem>
+
+			{/* Extra Status Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Main Status
+				</FormLabel>
+				<Select
+					value={values?.eLeadStatus}
+					fontSize='sm'
+					name='eLeadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Main Lead Status'
+				>
+					{mainLeadStatus?.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
+					<option value='-1'>No E.Status</option>
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+			{user?.roles[0]?.roleName !== 'Agent' && (
 				<GridItem colSpan={{ base: 12, md: 6 }}>
 					<FormLabel
 						display='flex'
@@ -140,70 +211,33 @@ const AdvancedSearchForm = (props) => {
 						mb='0'
 						mt={2}
 					>
-						Status
+						Rleased
 					</FormLabel>
 					<Select
-						value={values?.leadStatus}
+						value={values?.isReleased}
 						fontSize='sm'
-						name='leadStatus'
+						name='isReleased'
 						onChange={handleChange}
 						fontWeight='500'
-						placeholder='Select Lead Status'
+						placeholder='Select Released Status'
 					>
-						{leadStatus.map((item) => (
-							<option key={item.value} value={item.value}>
-								{item.label}
-							</option>
-						))}
+						<option value={true}>Released Leads</option>
 					</Select>
 					<Text mb='10px' color='red'>
-						{errors.leadStatus && touched.leadStatus && errors.leadStatus}
+						{errors.isReleased && touched.isReleased && errors.isReleased}
 					</Text>
 				</GridItem>
+			)}
 
-				{/* Extra Status Field */}
-				<GridItem colSpan={{ base: 12, md: 6 }}>
-					<FormLabel
-						display='flex'
-						ms='4px'
-						fontSize='sm'
-						fontWeight='600'
-						color='#000'
-						mb='0'
-						mt={2}
-					>
-						Main Status
-					</FormLabel>
-					<Select
-						value={values?.eLeadStatus}
-						fontSize='sm'
-						name='eLeadStatus'
-						onChange={handleChange}
-						fontWeight='500'
-						placeholder='Select Main Lead Status'
-					>
-						{mainLeadStatus?.map((item) => (
-							<option key={item.value} value={item.value}>
-								{item.label}
-							</option>
-						))}
-						<option value='-1'>No E.Status</option>
-					</Select>
-					<Text mb='10px' color='red'>
-						{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
-					</Text>
-				</GridItem>
-
-				<ManagerAgentForm
-					user={user}
-					tree={tree}
-					handleChange={handleChange}
-					values={values}
-					errors={errors}
-					touched={touched}
-				/>
-			</Grid>
-		</div>
+			<ManagerAgentForm
+				user={user}
+				tree={tree}
+				handleChange={handleChange}
+				values={values}
+				errors={errors}
+				touched={touched}
+			/>
+		</Grid>
 	);
 };
 
