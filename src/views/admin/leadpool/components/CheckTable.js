@@ -687,16 +687,7 @@ export default function CheckTable(props) {
 			toast.success('You have successfully purchased');
 			// fetchData();
 
-			// Helper function to filter out an object by `_id`
-			const filterOutById = (data, id) => {
-				return data.filter((row) => row._id !== id);
-			};
-
-			if (displayAdvSearchData) {
-				setSearchedData((prevData) => filterOutById(prevData, leadID));
-			} else {
-				setData((prevData) => filterOutById(prevData, leadID));
-			}
+			refreshData();
 		} catch (error) {
 			if (error.response?.status === 400) {
 				const errorDetails =
