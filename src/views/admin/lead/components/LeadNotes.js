@@ -28,6 +28,7 @@ const LeadNotes = ({ lid, noteAdded }) => {
 			// Filter the notes to only include those added by the current user
 			// const filteredNotes = (leadNotes.data || []).filter(note => note.addedBy?._id === user?._id || user?.role == "superAdmin");
 
+			console.log({ leadNotes });
 			// Set the filtered notes to state
 			// setAllNotes(filteredNotes);
 			setAllNotes(leadNotes.data || []);
@@ -37,6 +38,8 @@ const LeadNotes = ({ lid, noteAdded }) => {
 			toast.error("Couldn't fetch lead notes");
 		}
 	};
+
+	console.log({ allNotes });
 
 	useEffect(() => {
 		if (lid) {
@@ -57,25 +60,14 @@ const LeadNotes = ({ lid, noteAdded }) => {
 				</Box>
 			) : (
 				<VStack mt={4} alignItems='flex-start'>
-					{allNotes.length === 0 && (
-						<Text
-							textAlign={'center'}
-							width='100%'
-							color={textColor}
-							fontSize='sm'
-							fontWeight='700'
-						>
-							<DataNotFound />
-						</Text>
-					)}
-					{allNotes.length > 0 && (
+					{allNotes && allNotes?.length > 0 ? (
 						<Grid
 							width={'100%'}
 							templateColumns='repeat(12, 1fr)'
 							gap={4}
 							mb={2}
 						>
-							{allNotes.map((note, id) => {
+							{allNotes?.map((note, id) => {
 								return (
 									<GridItem colSpan={{ base: 12, md: 6, lg: 6 }}>
 										<Box
@@ -121,7 +113,7 @@ const LeadNotes = ({ lid, noteAdded }) => {
 													overflowWrap='break-word' // Ensures words break if needed
 													wordBreak='break-word' // Ensures long words break properly
 												>
-													{note.note}
+													{note?.note}
 												</Text>
 											</Box>
 										</Box>
@@ -129,6 +121,16 @@ const LeadNotes = ({ lid, noteAdded }) => {
 								);
 							})}
 						</Grid>
+					) : (
+						<Text
+							textAlign={'center'}
+							width='100%'
+							color={textColor}
+							fontSize='sm'
+							fontWeight='700'
+						>
+							<DataNotFound />
+						</Text>
 					)}
 				</VStack>
 			)}

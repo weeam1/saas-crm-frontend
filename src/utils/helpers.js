@@ -16,3 +16,10 @@ export const formattedDate = (_date) => {
 
 	return formattedDate;
 };
+
+export const renderValue = (value) => {
+	if (!value) return 'No data';
+	if (typeof value === 'string' || typeof value === 'number') return value;
+	if (typeof value === 'object' && value.text) return value.text;
+	return 'Invalid data';
+};
