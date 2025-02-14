@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	FormLabel,
 	Grid,
@@ -11,6 +12,7 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalOverlay,
+	Select,
 	Text,
 	Textarea,
 	VStack,
@@ -22,6 +24,8 @@ import { useEffect, useState } from 'react';
 import { BsFillSendFill } from 'react-icons/bs';
 import { emailSchema } from 'schema';
 import { getApi, postApi } from 'services/api';
+import { leadStatus } from 'utils/options';
+import { mainLeadStatus } from 'utils/options';
 
 // const AddEmailHistory = (props) => {
 // 	const { onClose, isOpen, fetchData, leadDetails, setAction } = props;
@@ -338,7 +342,7 @@ Mark your calendar! Weeam Real Estate invites you to our exclusive Property Expo
 ✅ Premier residential & commercial properties  
 ✅ Expert market insights  
 ✅ Exclusive deals & financing options
-	
+  
 Event Details:
 📅 Dates: February 21–23, 2025
 ⏰ Time: 10:00 AM – 6:00 PM daily
@@ -348,7 +352,7 @@ Don’t miss this chance to connect with industry leaders and find your perfect 
 
 Thanks,  
 Weeam Real Estate
-	`;
+  `;
 
 	useEffect(() => {
 		if (isOpen) {
@@ -361,197 +365,174 @@ Weeam Real Estate
 		<Modal onClose={onClose} size='2xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Send Email</ModalHeader>
+				<ModalHeader>Send Bulk Email</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
-					{leadLoading ? (
-						<VStack p='4' height='full'>
-							<Loader />
-						</VStack>
-					) : values?.recipient ? (
-						<form onSubmit={handleSubmit}>
-							<Grid
-								overflow='scroll'
-								height='65vh'
-								p='4'
-								templateColumns='repeat(12, 1fr)'
-								gap={3}
+					<Box>
+						{/* Main Status Field */}
+						<GridItem colSpan={{ base: 12, md: 6 }}>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='600'
+								color='#000'
+								mb='0'
+								mt={2}
 							>
-								<GridItem colSpan={{ base: 12 }}>
-									<DisplayField label='Recipient' value={values.recipient} />
-								</GridItem>
-								{/* <GridItem colSpan={{ base: 12 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Recipient
+								Main Status
+							</FormLabel>
+							<Select
+								value={values?.eLeadStatus}
+								fontSize='sm'
+								name='eLeadStatus'
+								onChange={handleChange}
+								fontWeight='500'
+								placeholder='Select Main Lead Status'
+							>
+								{mainLeadStatus?.map((item) => (
+									<option key={item.value} value={item.value}>
+										{item.label}
+									</option>
+								))}
+							</Select>
+						</GridItem>
+						{/* Lead Status Field */}
+						<GridItem colSpan={{ base: 12, md: 6 }}>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='600'
+								color='#000'
+								mb='0'
+								mt={2}
+							>
+								Status
+							</FormLabel>
+							<Select
+								value={values?.leadStatus}
+								fontSize='sm'
+								name='leadStatus'
+								onChange={handleChange}
+								fontWeight='500'
+								placeholder='Select Lead Status'
+							>
+								{leadStatus.map((item) => (
+									<option key={item.value} value={item.value}>
+										{item.label}
+									</option>
+								))}
+							</Select>
+						</GridItem>
+					</Box>
+
+					<form onSubmit={handleSubmit}>
+						<Grid
+							overflow='scroll'
+							height='65vh'
+							p='4'
+							templateColumns='repeat(12, 1fr)'
+							gap={3}
+						>
+							<GridItem colSpan={{ base: 12 }}>
+								<DisplayField label='Recipient' value={values.recipient} />
+							</GridItem>
+
+							<GridItem colSpan={{ base: 12 }}>
+								<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
+									Subject
 								</FormLabel>
 								<Input
 									fontSize='sm'
+									placeholder='Enter subject'
 									onChange={handleChange}
 									onBlur={handleBlur}
-									value={values.recipient}
-									name='recipient'
-									disabled
-									placeholder='Recipient'
+									value={values.subject}
+									name='subject'
 									fontWeight='500'
 									borderColor={
-										errors.recipient && touched.recipient ? 'red.300' : null
+										errors.subject && touched.subject ? 'red.300' : undefined
 									}
 								/>
-								<Text mb='10px' color={'red'}>
-									{errors.recipient && touched.recipient && errors.recipient}
-								</Text>
-							</GridItem> */}
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										Subject
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										placeholder='Enter subject'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.subject}
-										name='subject'
-										fontWeight='500'
-										borderColor={
-											errors.subject && touched.subject ? 'red.300' : undefined
-										}
-									/>
-									{errors.subject && touched.subject && (
-										<Text mb='10px' color='red'>
-											{errors.subject}
-										</Text>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										Title
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										placeholder='e.g: Expo Invite'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.title}
-										name='title'
-										fontWeight='500'
-										borderColor={
-											errors.title && touched.title ? 'red.300' : undefined
-										}
-									/>
-									{errors.title && touched.title && (
-										<Text mb='10px' color='red'>
-											{errors.title}
-										</Text>
-									)}
-								</GridItem>
-								{/* <GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										Start Date
-									</FormLabel>
-									<Input
-										type='datetime-local'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.startDate}
-										name='startDate'
-										fontWeight='500'
-										borderColor={
-											errors.startDate && touched.startDate
-												? 'red.300'
-												: undefined
-										}
-									/>
-									{errors.startDate && touched.startDate && (
-										<Text mb='10px' color='red'>
-											{errors.startDate}
-										</Text>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										End Date
-									</FormLabel>
-									<Input
-										type='datetime-local'
-										fontSize='sm'
-										min={values.startDate}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.endDate}
-										name='endDate'
-										fontWeight='500'
-										borderColor={
-											errors.endDate && touched.endDate ? 'red.300' : undefined
-										}
-									/>
-									{errors.endDate && touched.endDate && (
-										<Text mb='10px' color='red'>
-											{errors.endDate}
-										</Text>
-									)}
-								</GridItem> */}
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										Message
-									</FormLabel>
-									<Textarea
-										fontSize='sm'
-										placeholder='Here Type message'
-										resize='none'
-										height='35vh'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.message}
-										name='message'
-										fontWeight='500'
-										borderColor={
-											errors.message && touched.message ? 'red.300' : undefined
-										}
-									/>
-									{errors.message && touched.message && (
-										<Text mb='10px' color='red'>
-											{errors.message}
-										</Text>
-									)}
-								</GridItem>
-							</Grid>
+								{errors.subject && touched.subject && (
+									<Text mb='10px' color='red'>
+										{errors.subject}
+									</Text>
+								)}
+							</GridItem>
+							<GridItem colSpan={{ base: 12 }}>
+								<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
+									Title
+								</FormLabel>
+								<Input
+									fontSize='sm'
+									placeholder='e.g: Expo Invite'
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={values.title}
+									name='title'
+									fontWeight='500'
+									borderColor={
+										errors.title && touched.title ? 'red.300' : undefined
+									}
+								/>
+								{errors.title && touched.title && (
+									<Text mb='10px' color='red'>
+										{errors.title}
+									</Text>
+								)}
+							</GridItem>
 
-							<HStack py='4' justifyContent='flex-end' gap='2'>
-								<Button
-									sx={{ marginLeft: 2, textTransform: 'capitalize' }}
-									variant='outline'
-									colorScheme='gray'
-									size='sm'
-									onClick={() => {
-										formik.resetForm();
-										onClose();
-									}}
-								>
-									Close
-								</Button>
-								<Button
-									size='sm'
-									colorScheme='brand'
-									type='submit'
-									disabled={isLoading}
-								>
-									{isLoading ? 'Sending...' : 'Send Email'}
-								</Button>
-							</HStack>
-						</form>
-					) : (
-						<Text p='4' mb='4'>
-							There is no email address available for this lead.
-						</Text>
-					)}
+							<GridItem colSpan={{ base: 12 }}>
+								<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
+									Message
+								</FormLabel>
+								<Textarea
+									fontSize='sm'
+									placeholder='Here Type message'
+									resize='none'
+									height='35vh'
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={values.message}
+									name='message'
+									fontWeight='500'
+									borderColor={
+										errors.message && touched.message ? 'red.300' : undefined
+									}
+								/>
+								{errors.message && touched.message && (
+									<Text mb='10px' color='red'>
+										{errors.message}
+									</Text>
+								)}
+							</GridItem>
+						</Grid>
+
+						<HStack py='4' justifyContent='flex-end' gap='2'>
+							<Button
+								sx={{ marginLeft: 2, textTransform: 'capitalize' }}
+								variant='outline'
+								colorScheme='gray'
+								size='sm'
+								onClick={() => {
+									formik.resetForm();
+									onClose();
+								}}
+							>
+								Close
+							</Button>
+							<Button
+								size='sm'
+								colorScheme='brand'
+								type='submit'
+								disabled={isLoading}
+							>
+								{isLoading ? 'Sending...' : 'Send Email'}
+							</Button>
+						</HStack>
+					</form>
 				</ModalBody>
 			</ModalContent>
 		</Modal>

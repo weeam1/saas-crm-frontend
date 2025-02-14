@@ -18,6 +18,9 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import RenderFields from './subComponents/RenderFields';
+import { mainLeadStatus } from 'utils/options';
+import { leadStatus } from 'utils/options';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	// Set initial values for your form using the data object:
@@ -30,6 +33,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		ip: leadData.ip || '',
 		leadLang: leadData.leadLang || '',
 		leadCountry: leadData.leadCountry || '',
+		timetocall: leadData.timetocall || '',
 		leadSourceDetails: leadData.leadSourceDetails || '',
 		leadCampaign: leadData.leadCampaign || '',
 		pageUrl: leadData.pageUrl || '',
@@ -52,7 +56,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		{ name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
 		{ name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
-		// { name: 'timetocall', label: 'Time to Call', type: 'text' },
+		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
@@ -62,7 +66,19 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
-		{ name: 'lastNote', label: 'Last Note', type: 'textarea' },
+		{ name: 'lastNote', label: 'Last Note', type: 'text' },
+		// {
+		// 	name: 'eLeadStatus',
+		// 	label: 'Select Main Status',
+		// 	type: 'select',
+		// 	options: mainLeadStatus,
+		// },
+		// {
+		// 	name: 'leadStatus',
+		// 	label: 'Select Lead Status',
+		// 	type: 'select',
+		// 	options: leadStatus,
+		// },
 	];
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
@@ -87,81 +103,66 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	};
 
 	// Helper to render each field using Chakra UI and Formik's Field.
-	const renderField = (field) => (
-		<Field name={field.name} key={field.name}>
-			{({ field: formikField, meta }) => (
-				<FormControl mb={4} isInvalid={meta.touched && meta.error}>
-					{/* For checkboxes, the label is rendered differently */}
-					{field.type !== 'checkbox' && (
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-					)}
-					{field.type === 'textarea' ? (
-						<Textarea
-							id={field.name}
-							{...formikField}
-							bg='gray.100'
-							borderColor='gray.300'
-							_focus={{
-								borderColor: '#D99A36',
-								boxShadow: '0 0 0 1px #D99A36',
-							}}
-							placeholder={field.label}
-						/>
-					) : field.type === 'checkbox' ? (
-						<Checkbox
-							bg='gray.100'
-							borderColor='gray.300'
-							_focus={{
-								borderColor: '#D99A36',
-								boxShadow: '0 0 0 1px #D99A36',
-							}}
-							id={field.name}
-							{...formikField}
-							isChecked={formikField.value}
-						>
-							{field.label}
-						</Checkbox>
-					) : (
-						<Input
-							id={field.name}
-							type={field.type}
-							{...formikField}
-							bg='gray.100'
-							borderColor='gray.300'
-							_focus={{
-								borderColor: '#D99A36',
-								boxShadow: '0 0 0 1px #D99A36',
-							}}
-							placeholder={field.label}
-						/>
-					)}
-					{meta.touched && meta.error && (
-						<div style={{ color: 'red', fontSize: '0.8em' }}>{meta.error}</div>
-					)}
-				</FormControl>
-			)}
-		</Field>
-	);
+	// const renderField = (field) => (
+	// 	<Field name={field.name} key={field.name}>
+	// 		{({ field: formikField, meta }) => (
+	// 			<FormControl mb={4} isInvalid={meta.touched && meta.error}>
+	// 				{/* For checkboxes, the label is rendered differently */}
+	// 				{field.type !== 'checkbox' && (
+	// 					<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+	// 				)}
+	// 				{field.type === 'textarea' ? (
+	// 					<Textarea
+	// 						id={field.name}
+	// 						{...formikField}
+	// 						bg='gray.100'
+	// 						borderColor='gray.300'
+	// 						_focus={{
+	// 							borderColor: '#D99A36',
+	// 							boxShadow: '0 0 0 1px #D99A36',
+	// 						}}
+	// 						placeholder={field.label}
+	// 					/>
+	// 				) : field.type === 'checkbox' ? (
+	// 					<Checkbox
+	// 						bg='gray.100'
+	// 						borderColor='gray.300'
+	// 						_focus={{
+	// 							borderColor: '#D99A36',
+	// 							boxShadow: '0 0 0 1px #D99A36',
+	// 						}}
+	// 						id={field.name}
+	// 						{...formikField}
+	// 						isChecked={formikField.value}
+	// 					>
+	// 						{field.label}
+	// 					</Checkbox>
+	// 				) : (
+	// 					<Input
+	// 						id={field.name}
+	// 						type={field.type}
+	// 						{...formikField}
+	// 						bg='gray.100'
+	// 						borderColor='gray.300'
+	// 						_focus={{
+	// 							borderColor: '#D99A36',
+	// 							boxShadow: '0 0 0 1px #D99A36',
+	// 						}}
+	// 						placeholder={field.label}
+	// 					/>
+	// 				)}
+	// 				{meta.touched && meta.error && (
+	// 					<div style={{ color: 'red', fontSize: '0.8em' }}>{meta.error}</div>
+	// 				)}
+	// 			</FormControl>
+	// 		)}
+	// 	</Field>
+	// );
 
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
 			<DrawerOverlay />
-			<DrawerContent
-				maxH='full' // Set max height for the modal body
-				overflowY='auto' // Enable vertical scrolling when content exceeds max height
-				sx={{
-					'&::-webkit-scrollbar': {
-						width: '6px', // Custom scrollbar width
-					},
-					'&::-webkit-scrollbar-thumb': {
-						background: 'brand.500', // Custom brand color (adjust according to your theme)
-						borderRadius: '8px',
-					},
-					'&::-webkit-scrollbar-thumb:hover': {
-						background: 'brand.600', // Slightly darker on hover
-					},
-				}}
-			>
+			<DrawerContent>
 				<DrawerCloseButton />
 				<DrawerHeader>Edit Lead</DrawerHeader>
 				<Formik
@@ -179,8 +180,11 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 									}}
 									gap={2}
 									w='full'
+									overflow='scroll'
+									height='80vh'
+									p='4'
 								>
-									{fields.map((field) => renderField(field))}
+									<RenderFields fields={fields} />
 								</Grid>
 							</DrawerBody>
 							<DrawerFooter>

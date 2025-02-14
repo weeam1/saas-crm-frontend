@@ -1417,7 +1417,7 @@ const CheckTable = React.memo((props) => {
 													data = (
 														<Text fontSize={'sm'} width={150} fontWeight={500}>
 															{/* {cell?.value || cell?.value?.text || 'no country'} */}
-															{typeof cell?.value === 'object'
+															{typeof cell?.value === 'obect'
 																? cell?.value?.text
 																: cell?.value || 'no data'}
 														</Text>
