@@ -6,10 +6,12 @@ import {
 	FormLabel,
 	Input,
 	Button,
-	Select,
 } from '@chakra-ui/react';
+import { useUpdateItemMutation } from 'api/apiSlice';
 import { Formik, Form, Field } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 const evaluationFields = [
@@ -43,9 +45,51 @@ const createInitialState = () => {
 	}, {});
 };
 
-const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
+const EvaluationPoints = ({
+	isLeadInterviewer,
+	handleTabChange,
+	interview,
+	interviewRefetch,
+	isInterviewerSubmittedPoints,
+}) => {
 	const [evaluationData, setLocalEvaluationData] =
 		useState(createInitialState());
+
+	const [searchParams] = useSearchParams();
+
+	const [updateItemMutation, { isLoading: pointsUpdating }] =
+		useUpdateItemMutation();
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (isInterviewerSubmittedPoints) {
+			navigate(`/hiring/interview/${interview._id}?phase=hiring-info`);
+		}
+	}, [interview._id, isInterviewerSubmittedPoints, searchParams, navigate]);
+
+	const handleSubmit = async (data) => {
+		try {
+			const points = Object.values(data).reduce(
+				(acc, val) => acc + Number(val),
+				0
+			);
+
+			const interviewData = { evaluationData: data, points };
+
+			await updateItemMutation({
+				path: `/interviews/${interview._id}`,
+				body: interviewData,
+			}).unwrap();
+
+			toast.success('Interview data updated successfully');
+			handleTabChange(2);
+		} catch (error) {
+			toast.error(error?.data?.message || 'Failed to update interview data');
+		} finally {
+			interviewRefetch();
+		}
+	};
 
 	return (
 		<Box>
@@ -63,7 +107,7 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 				onSubmit={(values) => {
 					// Handle form submission
 					setLocalEvaluationData(values);
-					onSubmit(values);
+					handleSubmit(values);
 				}}
 			>
 				{({ errors, touched }) => (
@@ -175,7 +219,11 @@ const EvaluationPoints = ({ isLeadInterviewer, onSubmit }) => {
 							mt={6}
 							type='submit'
 						>
-							{isLeadInterviewer ? 'End Interview' : 'Submit Points'}
+							{pointsUpdating
+								? 'Loading...'
+								: isLeadInterviewer
+									? 'Next'
+									: 'Submit Points'}
 						</Button>
 					</Form>
 				)}

@@ -19,7 +19,7 @@ const CustomSelect = ({
 }) => (
 	<FormControl isInvalid={isInvalid}>
 		<FormLabel fontSize='sm'>{label}</FormLabel>
-		{!isReadOnly ? (
+		{/* {!isReadOnly ? (
 			<Field
 				as={Select}
 				name={name}
@@ -51,7 +51,28 @@ const CustomSelect = ({
 			>
 				{placeholder}
 			</Box>
-		)}
+		)} */}
+
+		<Field
+			as={Select}
+			name={name}
+			bg='gray.100'
+			borderColor='gray.300'
+			fontSize='sm'
+			isReadOnly={isReadOnly}
+			py={1}
+			_focus={{
+				borderColor: '#D99A36',
+				boxShadow: '0 0 0 1px #D99A36',
+			}}
+			{...rest}
+		>
+			{options.map((option, index) => (
+				<option key={`${option.value + index}`} value={option.value}>
+					{option.label}
+				</option>
+			))}
+		</Field>
 		<FormErrorMessage>{isInvalid}</FormErrorMessage>
 	</FormControl>
 );

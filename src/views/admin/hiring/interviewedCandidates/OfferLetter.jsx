@@ -14,12 +14,12 @@ import {
 	Flex,
 	IconButton,
 	Tooltip,
+	GridItem,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FaEdit, FaRegCalendar } from 'react-icons/fa';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import calendar styles
-import { jobTypes } from '../helpers';
 import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -32,15 +32,33 @@ import CustomInput from 'components/shared/CustomInput';
 import CustomButton from 'components/shared/CustomButton';
 import { formattedDate } from 'utils/helpers';
 import OfferLetterEditor from './OfferLetterEditor';
+import { jobTypes } from 'utils/options';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
 	jobType: Yup.string().required('Job type is required'),
 	location: Yup.string().required('Location is required'),
 	position: Yup.string().required('Position is required'),
-	amount: Yup.number()
-		.required('Amount is required')
-		.positive('Must be a positive number'),
+	amount: Yup.number().when('jobType', {
+		is: (jobType) => jobType === 'Salary',
+		then: (schema) =>
+			schema
+				.typeError('Amount must be a number')
+				.required('Amount is required')
+				.min(1, 'Amount must be at least 1'),
+		otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
+	}),
+
+	commission: Yup.number().when('jobType', {
+		is: (jobType) => ['Commission', 'SalaryPlusCommission'].includes(jobType),
+		then: (schema) =>
+			schema
+				.typeError('Commission must be a number')
+				.required('Commission is required')
+				.min(1, 'Commission must be at least 1')
+				.max(100, 'Commission must be between 1 to 100'),
+		otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
+	}),
 	joiningDate: Yup.date().required('Joining date is required'),
 });
 const OfferLetter = () => {
@@ -78,12 +96,14 @@ const OfferLetter = () => {
 				location: data.location || '',
 				position: data.position || '',
 				amount: data.amount || '',
+				commission: data.commission || '',
+				instructions: '',
 				joiningDate: data.joiningDate || new Date(),
 				offerMail: data.offerMail || '',
 			});
 
 			if (offerType) {
-				offerType === 'resend' ? setIsEditing(true) : setIsEditing(false);
+				offerType === 'edit' ? setIsEditing(true) : setIsEditing(false);
 			}
 		}
 	}, [interview, offerType]);
@@ -138,29 +158,6 @@ const OfferLetter = () => {
 		}));
 	};
 
-	// const offerMessage = useMemo(() => {
-	// 	return `
-	//     Hello ${offerDetails.candidateName},
-
-	//     We are delighted to offer you the position of ${offerDetails.position} at WEAM ELNAGGAR.
-	//     We believe your skills and experience will be a valuable addition to our team.
-
-	//     Offer Details:
-	//     Job Role: ${offerDetails.position}
-	//     Job Type: ${offerDetails.jobType}
-	//     Reporting To: ${offerDetails?.leadInterviewerName || 'N/A'}
-	//     Salary: ${offerDetails.amount}
-	//     Joining Date: ${formattedDate(offerDetails.joiningDate)}
-	//     Location: ${offerDetails.location}
-
-	//     If you have any questions, feel free to reach out.
-	//     Looking forward to welcoming you to our team!
-
-	//     Best Regards,
-	//     WEAM ELNAGGAR HR Team
-	//   `;
-	// }, [offerDetails]);
-
 	const navigate = useNavigate();
 
 	return isLoading || positionsLoading ? (
@@ -200,10 +197,14 @@ const OfferLetter = () => {
 						validationSchema={validationSchema}
 						onSubmit={onSubmitOffer}
 					>
-						{({ handleSubmit, setFieldValue, errors, touched }) => (
+						{({ handleSubmit, setFieldValue, errors, touched, values }) => (
 							<Form onSubmit={handleSubmit}>
 								<Grid
-									templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+									templateColumns={{
+										base: '1fr',
+										md: 'repeat(2, 1fr)',
+										lg: 'repeat(3, 1fr)',
+									}}
 									gap={3}
 									w='full'
 									mt={2}
@@ -234,20 +235,38 @@ const OfferLetter = () => {
 										}}
 									/>
 
-									<CustomInput
-										label='Salary Amount'
-										name='amount'
-										type='number'
-										placeholder={offerDetails.amount}
-										isReadOnly={!isEditing}
-										isInvalid={errors.amount && touched.amount}
-										onChange={(e) => {
-											setFieldValue('amount', e.target.value);
-											handleFieldChange('amount', e.target.value);
-										}}
-									/>
+									{values?.jobType !== 'Commission' && (
+										<CustomInput
+											label='Salary Amount'
+											name='amount'
+											type='number'
+											placeholder={offerDetails.amount}
+											isReadOnly={!isEditing}
+											isInvalid={errors.amount && touched.amount}
+											onChange={(e) => {
+												setFieldValue('amount', e.target.value);
+												handleFieldChange('amount', e.target.value);
+											}}
+										/>
+									)}
+									{values.jobType !== 'Salary' && (
+										<CustomInput
+											label='Commission %'
+											name='commission'
+											min={1}
+											max={100}
+											type='number'
+											placeholder={offerDetails.commission}
+											isReadOnly={!isEditing}
+											isInvalid={errors.commission && touched.commission}
+											onChange={(e) => {
+												setFieldValue('commission', e.target.value);
+												handleFieldChange('commission', e.target.value);
+											}}
+										/>
+									)}
 
-									<FormControl mb={4} isInvalid={errors?.joiningDate}>
+									<FormControl isInvalid={errors?.joiningDate}>
 										{!isEditing ? (
 											interview?.doc?.joiningDate && (
 												<>
@@ -325,50 +344,49 @@ const OfferLetter = () => {
 											</Text>
 										)}
 									</FormControl>
+									<GridItem colSpan={3}>
+										<CustomInput
+											label='Location'
+											name='location'
+											placeholder={offerDetails.location}
+											isReadOnly={!isEditing}
+											isInvalid={errors.location && touched.location}
+											onChange={(e) => {
+												setFieldValue('location', e.target.value);
+												handleFieldChange('location', e.target.value);
+											}}
+										/>
+									</GridItem>
+
+									<GridItem colSpan={3}>
+										<CustomInput
+											label='Instructions'
+											name='instructions'
+											isReadOnly={!isEditing}
+											isInvalid={errors.instructions && touched.instructions}
+											placeholder={offerDetails.instructions}
+											onChange={(e) => {
+												setFieldValue('instructions', e.target.value);
+												handleFieldChange('instructions', e.target.value);
+											}}
+										/>
+									</GridItem>
+
+									<GridItem colSpan={3}>
+										<FormLabel fontSize='sm'>Remarks</FormLabel>
+										<Box
+											border='none'
+											outline='none'
+											bg='#F2F2F2'
+											p='3'
+											fontSize='sm'
+											rounded='md'
+											shadow='sm'
+										>
+											{offerDetails?.remarks}
+										</Box>
+									</GridItem>
 								</Grid>
-
-								<CustomInput
-									label='Location'
-									name='location'
-									placeholder={offerDetails.location}
-									isReadOnly={!isEditing}
-									isInvalid={errors.location && touched.location}
-									onChange={(e) => {
-										setFieldValue('location', e.target.value);
-										handleFieldChange('location', e.target.value);
-									}}
-								/>
-
-								<FormLabel fontSize='sm' my='2'>
-									Remarks
-								</FormLabel>
-								<Box
-									border='none'
-									outline='none'
-									bg='#F2F2F2'
-									p='3'
-									fontSize='sm'
-									rounded='md'
-									shadow='sm'
-								>
-									{offerDetails?.remarks}
-								</Box>
-
-								{/* <Box
-									width='full'
-									maxHeight='300px'
-									overflowY='auto'
-									borderWidth='1px'
-									borderColor='gray.300'
-									borderRadius='md'
-									p={4}
-									mt='4'
-									bg='softGray.100'
-								>
-									<Text whiteSpace='pre-line' fontSize='sm'>
-										{offerMessage}
-									</Text>
-								</Box> */}
 
 								<OfferLetterEditor
 									onSend={onSubmitOffer}

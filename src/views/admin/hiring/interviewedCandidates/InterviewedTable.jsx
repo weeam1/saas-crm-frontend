@@ -17,6 +17,7 @@ import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import FlagBadge from '../_components/FlagBadge';
 import { useNavigate } from 'react-router-dom';
+import OfferLetterIcon from './OfferLetterIcon';
 
 const InterviewedTable = ({
 	headers,
@@ -127,9 +128,7 @@ const InterviewedTable = ({
 															rounded='md'
 															_hover={{ bg: '#E0B960' }}
 															_active={{ bg: '#D4AC50' }}
-															onClick={() =>
-																handleSendOffer(item._id, 'resend')
-															}
+															onClick={() => handleSendOffer(item._id, 'edit')}
 														>
 															Resend Offer
 														</Button>
@@ -149,6 +148,8 @@ const InterviewedTable = ({
 														>
 															View Offer
 														</Button>
+
+														<OfferLetterIcon status={item.offerStatus} />
 													</>
 												) : (
 													<Button
@@ -166,7 +167,7 @@ const InterviewedTable = ({
 														_active={{ bg: '#D4AC50' }}
 														onClick={
 															item.remarks
-																? () => handleSendOffer(item._id, 'view')
+																? () => handleSendOffer(item._id, 'edit')
 																: () => handleViewResult(item)
 														}
 													>

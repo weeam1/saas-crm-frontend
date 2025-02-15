@@ -13,7 +13,7 @@ import SelectInterviewers from './SelectInterviewers';
 import HiringInfo from './HiringInfo';
 import EvaluationPoints from './EvaluationPoints';
 import { toast } from 'react-toastify';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -28,9 +28,15 @@ const InterviewTabs = memo(
 		isLeadInterviewer,
 		interviewRefetch,
 		setInterviewersSelected,
+		isInterviewerSubmittedPoints,
 	}) => {
 		const [hiringData, setHiringData] = useState();
-		const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
+		const [updateItemMutation, { isLoading: updatingInterview }] =
+			useUpdateItemMutation();
+
+		// const interviewerEvaluationPoints = interview?.evaluations?.filter(
+		// 	(item) => item.interviewer._id === user._id
+		// )[0];
 
 		const { data: positionOptions, isLoading: positionsLoading } =
 			useFetchItemsQuery(
@@ -47,43 +53,32 @@ const InterviewTabs = memo(
 		);
 
 		// Memoize functions
-		const handleHiringInfoSubmit = useCallback(
-			async (data) => {
-				// setHiringData(data);
-				handleTabChange(2);
-			},
-			[handleTabChange]
-		);
+		// const handleHiringInfoSubmit = useCallback(
+		// 	async (data) => {
+		// 		// setHiringData(data);
+		// 		handleTabChange(2);
+		// 	},
+		// 	[handleTabChange]
+		// );
 
 		const navigate = useNavigate();
 
 		const handleSubmit = async (data) => {
 			try {
-				let interviewData = {};
+				let hiringInfo = {};
 
-				const points = Object.values(data).reduce(
-					(acc, val) => acc + Number(val),
-					0
-				);
+				hiringInfo = {
+					jobType: data.jobType,
+					position: data.position,
+				};
 
-				if (isLeadInterviewer) {
-					// check hiring information is filled or not
-					if (!hiringData) {
-						return toast.error('Please fill hiring info first');
-					}
-
-					interviewData = {
-						hiringData,
-						evaluationData: data,
-						points,
-					};
-				} else {
-					interviewData = { evaluationData: data, points };
-				}
+				hiringInfo.amount = data.jobType === 'Commission' ? null : data.amount;
+				hiringInfo.commission =
+					data.jobType === 'Salary' ? null : data.commission;
 
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
-					body: interviewData,
+					body: { hiringData: hiringInfo },
 				}).unwrap();
 
 				toast.success('Interview data updated successfully');
@@ -136,7 +131,7 @@ const InterviewTabs = memo(
 								_selected={{ bg: 'brand.400', color: 'white' }}
 								_focus={{ boxShadow: 'none' }} // Removes focus outline
 								rounded='md'
-								color={isInvitedInterviewer ? 'gray.500' : 'gray.800'}
+								color={isInvitedInterviewer ? 'brand.500' : 'gray.800'}
 								width='full'
 							>
 								<HStack>
@@ -144,11 +139,45 @@ const InterviewTabs = memo(
 									<Text>Select Interviewers</Text>
 								</HStack>
 							</Tab>
+							<Tab
+								isDisabled={
+									!isInvitedInterviewer || isInterviewerSubmittedPoints
+								}
+								_selected={{ bg: 'brand.400', color: 'white' }}
+								_focus={{ boxShadow: 'none' }} // Removes focus outline
+								rounded='md'
+								color={isInterviewerSubmittedPoints ? 'brand.500' : 'gray.800'}
+								width='full'
+							>
+								<HStack>
+									<LuCheckSquare />
+									<Text>Evaluation Points</Text>
+								</HStack>
+							</Tab>
+							<Tab
+								isDisabled={
+									!isInvitedInterviewer || !isInterviewerSubmittedPoints
+								}
+								_selected={{ bg: 'brand.400', color: 'white' }}
+								_focus={{ boxShadow: 'none' }} // Removes focus outline
+								rounded='md'
+								color={
+									!isInvitedInterviewer || !isInterviewerSubmittedPoints
+										? 'gray.500'
+										: 'gray.800'
+								}
+								width='full'
+							>
+								<HStack>
+									<LuFileText />
+									<Text>Hiring Info</Text>
+								</HStack>
+							</Tab>
 
 							{/* Other tabs */}
-							{[
-								{ label: 'Hiring Info', icon: LuFileText },
+							{/* {[
 								{ label: 'Evaluation Points', icon: LuCheckSquare },
+								{ label: 'Hiring Info', icon: LuFileText },
 							].map((tab, index) => (
 								<Tab
 									key={index}
@@ -163,7 +192,7 @@ const InterviewTabs = memo(
 										<Text>{tab.label}</Text>
 									</HStack>
 								</Tab>
-							))}
+							))} */}
 						</TabList>
 
 						{/* Tab Panels */}
@@ -181,20 +210,25 @@ const InterviewTabs = memo(
 									handleTabChange={handleTabChange}
 								/>
 							</TabPanel>
+
+							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
+								<EvaluationPoints
+									// onSubmit={handleSubmit}
+									interview={interview}
+									isLeadInterviewer={isLeadInterviewer}
+									handleTabChange={handleTabChange}
+									interviewRefetch={interviewRefetch}
+									isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
+								/>
+							</TabPanel>
 							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
 								<HiringInfo
 									interview={interview}
 									hiringData={hiringData}
 									setHiringData={setHiringData}
-									onSubmit={handleHiringInfoSubmit}
-									positionOptions={positionOptions?.doc}
-								/>
-							</TabPanel>
-
-							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
-								<EvaluationPoints
 									onSubmit={handleSubmit}
-									isLeadInterviewer={isLeadInterviewer}
+									positionOptions={positionOptions?.doc}
+									updatingInterview={updatingInterview}
 								/>
 							</TabPanel>
 						</TabPanels>

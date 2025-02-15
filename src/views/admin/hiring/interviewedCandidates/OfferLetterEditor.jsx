@@ -9,20 +9,30 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 	const [offerBody, setOfferBody] = useState(offerDetails?.offerMail || '');
 
 	// ✅ Memoized Offer Details (Fixed, Non-Editable)
-	const staticOfferDetails = useMemo(
-		() => `
+	const staticOfferDetails = useMemo(() => {
+		return `
     <div contenteditable="false" style="background:#f3f4f6; padding:10px; border-radius:5px;">
       <strong>Offer Details:</strong><br/>
       <strong>Job Role:</strong> ${offerDetails.position} <br/>
       <strong>Job Type:</strong> ${offerDetails.jobType} <br/>
       <strong>Reporting To:</strong> ${offerDetails?.leadInterviewerName || 'N/A'} <br/>
-      <strong>Salary:</strong> ${offerDetails.amount} <br/>
+      ${
+				offerDetails.jobType !== 'Commission'
+					? `<strong>Salary Amount:</strong> ${offerDetails.amount} <br/>`
+					: ''
+			}
+      ${
+				offerDetails.jobType !== 'Salary'
+					? `<strong>Commission:</strong> ${offerDetails.commission}% <br/>`
+					: ''
+			}
       <strong>Joining Date:</strong> ${formattedDate(offerDetails.joiningDate)} <br/>
       <strong>Location:</strong> ${offerDetails.location} <br/>
+
+			<p>${offerDetails.instructions}</p>
     </div><br/>
-  `,
-		[offerDetails]
-	);
+  `;
+	}, [offerDetails]);
 
 	const defaultTemplate = useMemo(
 		() => `

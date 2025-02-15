@@ -34,7 +34,7 @@ const SelectInterviewers = ({
 
 	useEffect(() => {
 		if (interview?.totalInterviewers > 0) {
-			navigate(`/hiring/interview/${interview._id}?phase=hiring-info`);
+			navigate(`/hiring/interview/${interview._id}?phase=evaluation-points`);
 		}
 	}, [interview._id, interview?.totalInterviewers, navigate]);
 
@@ -133,7 +133,6 @@ const SelectInterviewers = ({
 					body: { interviewers: selectedIds },
 				}).unwrap();
 
-				console.log(data);
 				toast.success('Interview invite sent successfully.');
 				handleTabChange(1);
 			} else {

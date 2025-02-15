@@ -18,7 +18,7 @@ import {
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { jobTypes } from '../../helpers';
+import { jobTypes } from 'utils/options';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {

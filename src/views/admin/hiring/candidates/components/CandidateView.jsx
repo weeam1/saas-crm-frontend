@@ -84,6 +84,10 @@ const CandidateView = ({
 								label='Applying for'
 								value={candidate?.position.name}
 							/>
+							<DisplayField
+								label='English Level'
+								value={candidate?.engLangLevel || 'N/A'}
+							/>
 							{candidate.invited && (
 								<>
 									<DisplayField

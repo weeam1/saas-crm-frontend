@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Box, Button, Icon, Tag, TagCloseButton } from '@chakra-ui/react';
+import { Box, Button, Icon } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import Loader from 'components/loading/Loader';

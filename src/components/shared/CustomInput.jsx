@@ -18,7 +18,7 @@ const CustomInput = ({
 }) => (
 	<FormControl isInvalid={isInvalid}>
 		<FormLabel fontSize='sm'>{label}</FormLabel>
-		{!isReadOnly ? (
+		{/* {!isReadOnly ? (
 			<Field
 				as={Input}
 				name={name}
@@ -44,9 +44,25 @@ const CustomInput = ({
 				rounded='md'
 				shadow='sm'
 			>
-				{placeholder}
+				{placeholder || ''}
 			</Box>
-		)}
+		)} */}
+
+		<Field
+			as={Input}
+			name={name}
+			bg='gray.100'
+			borderColor='gray.300'
+			fontSize='sm'
+			py={1}
+			isReadOnly={isReadOnly}
+			placeholder={placeholder}
+			_focus={{
+				borderColor: '#D99A36',
+				boxShadow: '0 0 0 1px #D99A36',
+			}}
+			{...rest}
+		/>
 		<FormErrorMessage>{isInvalid}</FormErrorMessage>
 	</FormControl>
 );
