@@ -77,7 +77,7 @@ const InterviewScreen = memo(() => {
 
 		if (
 			['end', 'canceled'].includes(interview.doc.status) ||
-			interview?.doc?.jobType
+			(isLeadInterviewer && interview?.doc?.jobType)
 		) {
 			toast.error('This interview has already completed.');
 			navigate('/');
