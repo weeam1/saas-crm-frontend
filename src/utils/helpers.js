@@ -3,6 +3,8 @@ export const formattedDate = (_date) => {
 		return '';
 	}
 
+	console.log('date is changed');
+
 	const date = new Date(_date);
 
 	// Get the formatted date

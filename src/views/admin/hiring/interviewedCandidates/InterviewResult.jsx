@@ -177,15 +177,17 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 														>
 															{`${item.interviewer.fullName} Points`}
 
-															<Icon
-																onClick={() =>
-																	handlePointsDetails(item?.interviewer?._id)
-																}
-																as={FaClipboardList}
-																color='brand.500'
-																cursor='pointer'
-																mr={2}
-															/>
+															{item.status === true && (
+																<Icon
+																	onClick={() =>
+																		handlePointsDetails(item?.interviewer?._id)
+																	}
+																	as={FaClipboardList}
+																	color='brand.500'
+																	cursor='pointer'
+																	mr={2}
+																/>
+															)}
 														</Box>
 
 														<Box
