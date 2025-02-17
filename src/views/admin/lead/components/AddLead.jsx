@@ -23,7 +23,7 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
-import RenderFields from './subComponents/RenderFields';
+import RenderFields from 'components/shared/RenderFields';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik
