@@ -18,6 +18,9 @@ const Hiring = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	const isAdmin = user?.role === 'superAdmin';
+	const isManager = user?.roles[0]?.roleName === 'Manager';
+
+	console.log({ user: user?.roles });
 
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
@@ -74,6 +77,12 @@ const Hiring = () => {
 		// },
 	];
 
+	const filteredStats = isManager
+		? stats.filter((stat) => stat.title === 'Short Listed')
+		: stats;
+
+	console.log({ isManager, filteredStats });
+
 	const navigate = useNavigate();
 
 	return isLoading || interviewLoading ? (
@@ -102,7 +111,7 @@ const Hiring = () => {
 			</Flex>
 
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
-				{stats.map((stat, index) => (
+				{filteredStats.map((stat, index) => (
 					<MiniStatistics
 						key={index}
 						fontsize='md'

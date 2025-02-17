@@ -181,54 +181,158 @@ export default function User(props) {
 
 	routes.push(...accessRoute);
 
+	// if (user?.roles[0]?.roleName === 'Manager') {
+	// 	routes.push(
+	// 		...[
+	// 			{
+	// 				name: 'Hiring',
+	// 				path: '/hiring',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				icon: (
+	// 					<Icon
+	// 						as={FaClipboardUser}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: Hiring,
+	// 			},
+	// 			{
+	// 				name: 'Short Listed',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: '/hiring/short-listed',
+	// 				under: 'shortListed',
+	// 				parentName: 'Hiring',
+	// 				component: ShortListedCandidates,
+	// 			},
+	// 			{
+	// 				name: 'Interview',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/hiring/interview/:interviewId',
+	// 				under: 'interview',
+	// 				parentName: 'Hiring',
+	// 				component: InterviewScreen,
+	// 			},
+	// 			{
+	// 				name: 'Announcement',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/announcements',
+	// 				icon: (
+	// 					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
+	// 				),
+	// 				component: Announcements,
+	// 			},
+
+	// 			{
+	// 				name: 'Daily Report',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/daily-report',
+	// 				icon: (
+	// 					<Icon
+	// 						as={MdInsertChartOutlined}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: DailyReport,
+	// 			},
+	// 			{
+	// 				name: 'Reporting and Analytics',
+	// 				layout: [ROLE_PATH.user],
+	// 				path: '/reporting-analytics',
+	// 				icon: (
+	// 					<Icon
+	// 						as={MdInsertChartOutlined}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: Report,
+	// 			},
+	// 		]
+	// 	);
+	// }
+
 	if (user?.roles[0]?.roleName === 'Manager') {
+		// Define the new routes to be inserted
+		const newRoutes = [
+			{
+				name: 'Announcement',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/announcements',
+				icon: (
+					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
+				),
+				component: Announcements,
+			},
+			{
+				name: 'Hiring',
+				path: '/hiring',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				icon: (
+					<Icon
+						as={FaClipboardUser}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Hiring,
+			},
+			{
+				name: 'Short Listed',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring/short-listed',
+				under: 'shortListed',
+				parentName: 'Hiring',
+				component: ShortListedCandidates,
+			},
+			{
+				name: 'Interview',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/hiring/interview/:interviewId',
+				under: 'interview',
+				parentName: 'Hiring',
+				component: InterviewScreen,
+			},
+		];
+
+		// Insert the new routes at index 3 and 4
+		routes.splice(3, 0, ...newRoutes);
+
+		// Add other routes (e.g., Daily Report, Reporting and Analytics)
 		routes.push(
-			...[
-				{
-					name: 'Announcement',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/announcements',
-					icon: (
-						<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-					),
-					component: Announcements,
-				},
-				{
-					name: 'Interview',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/hiring/interview/:interviewId',
-					parentName: 'Hiring',
-					component: InterviewScreen,
-				},
-				{
-					name: 'Daily Report',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/daily-report',
-					icon: (
-						<Icon
-							as={MdInsertChartOutlined}
-							width='20px'
-							height='20px'
-							color='inherit'
-						/>
-					),
-					component: DailyReport,
-				},
-				{
-					name: 'Reporting and Analytics',
-					layout: [ROLE_PATH.user],
-					path: '/reporting-analytics',
-					icon: (
-						<Icon
-							as={MdInsertChartOutlined}
-							width='20px'
-							height='20px'
-							color='inherit'
-						/>
-					),
-					component: Report,
-				},
-			]
+			{
+				name: 'Daily Report',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/daily-report',
+				icon: (
+					<Icon
+						as={MdInsertChartOutlined}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: DailyReport,
+			},
+			{
+				name: 'Reporting and Analytics',
+				layout: [ROLE_PATH.user],
+				path: '/reporting-analytics',
+				icon: (
+					<Icon
+						as={MdInsertChartOutlined}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Report,
+			}
 		);
 	}
 

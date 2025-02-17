@@ -33,7 +33,7 @@ const ShortListedTable = ({
 		<>
 			<Box rounded='md' overflow='hidden'>
 				<TableContainer
-					maxHeight='500px' // Set a custom height for the container
+					maxHeight='700px' // Set a custom height for the container
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
