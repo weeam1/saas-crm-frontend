@@ -362,6 +362,7 @@ const OfferLetter = () => {
 										<CustomInput
 											label='Instructions'
 											name='instructions'
+											type='textarea'
 											isReadOnly={!isEditing}
 											isInvalid={errors.instructions && touched.instructions}
 											placeholder={offerDetails.instructions}

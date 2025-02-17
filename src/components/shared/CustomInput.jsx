@@ -5,6 +5,7 @@ import {
 	Input,
 	FormErrorMessage,
 	Box,
+	Textarea,
 } from '@chakra-ui/react';
 import { Field } from 'formik';
 
@@ -12,6 +13,7 @@ const CustomInput = ({
 	label,
 	name,
 	isReadOnly,
+	type = 'input',
 	isInvalid,
 	placeholder,
 	...rest
@@ -49,7 +51,7 @@ const CustomInput = ({
 		)} */}
 
 		<Field
-			as={Input}
+			as={type === 'textarea' ? Textarea : Input}
 			name={name}
 			bg='gray.100'
 			borderColor='gray.300'
