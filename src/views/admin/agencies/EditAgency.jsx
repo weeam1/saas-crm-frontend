@@ -14,11 +14,12 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import RenderFields from 'components/shared/RenderFields';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
-const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
+const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 	const initialValues = {
-		name: '',
-		location: '',
+		name: data?.name || '',
+		location: data?.location || '',
 	};
 
 	const validationSchema = Yup.object({
@@ -31,19 +32,19 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
 	];
 
-	const [createItemMuation, { isLoading }] = useCreateItemMutation();
+	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
 	const handleSubmit = async (values, actions) => {
 		try {
-			await createItemMuation({
-				path: '/agencies',
+			await updateItemMuation({
+				path: `/agencies/${data._id}`,
 				body: values,
 			}).unwrap();
 
-			toast.success('Agency added successfully.');
+			toast.success('Agency updated successfully.');
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			toast.error(error.data.message || 'agency not updated!');
 		} finally {
 			actions.resetForm();
 			refreshData();
@@ -99,4 +100,4 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 	);
 };
 
-export default CreateAgency;
+export default EditAgency;

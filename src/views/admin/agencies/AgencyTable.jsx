@@ -6,9 +6,11 @@ import {
 	Th,
 	Td,
 	TableContainer,
+	Icon,
 } from '@chakra-ui/react';
+import { FiEdit } from 'react-icons/fi';
 
-const AgencyTable = ({ data }) => {
+const AgencyTable = ({ data, handleEdit }) => {
 	return (
 		<TableContainer>
 			<Table variant='striped' size='md'>
@@ -17,6 +19,7 @@ const AgencyTable = ({ data }) => {
 						<Th color='gray.800'>S.No</Th>
 						<Th color='gray.800'>Name</Th>
 						<Th color='gray.800'>Location</Th>
+						<Th color='gray.800'>Action</Th>
 					</Tr>
 				</Thead>
 				<Tbody>
@@ -26,6 +29,14 @@ const AgencyTable = ({ data }) => {
 								<Td>{++i}</Td>
 								<Td>{row.name}</Td>
 								<Td>{row.location}</Td>
+								<Td onClick={() => handleEdit(row)}>
+									<Icon
+										as={FiEdit}
+										boxSize={4}
+										color='green.400'
+										cursor='pointer'
+									/>
+								</Td>
 							</Tr>
 						))
 					) : (

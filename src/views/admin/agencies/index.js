@@ -7,10 +7,13 @@ import AgencyTable from './AgencyTable';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { Box, Heading, HStack } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import EditAgency from './EditAgency';
 
 const Agency = () => {
 	const navigate = useNavigate();
 	const [openModal, setOpenModal] = useState(false);
+	const [openEditModal, setOpenEditModal] = useState(false);
+	const [agency, setAgency] = useState(null);
 
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
@@ -19,7 +22,10 @@ const Agency = () => {
 		{ refetchOnMountOrArgChange: true }
 	);
 
-	console.log({ openModal });
+	const handleEdit = (data) => {
+		setAgency(data);
+		setOpenEditModal(true);
+	};
 
 	return (
 		<div>
@@ -39,6 +45,16 @@ const Agency = () => {
 				/>
 			)}
 
+			{openEditModal && (
+				<EditAgency
+					isOpen={openEditModal}
+					onClose={() => setOpenEditModal(false)}
+					refreshData={refetch}
+					data={agency}
+					size='sm'
+				/>
+			)}
+
 			<Box my='2' bg='white' p='4' rounded='md' shadow='sm'>
 				<HStack mb='4' justifyContent='space-between' alignItems='center'>
 					<Heading size='md' color='gray.800'>
@@ -53,7 +69,7 @@ const Agency = () => {
 						Create Agency
 					</AppButton>
 				</HStack>
-				<AgencyTable data={data?.doc} />
+				<AgencyTable handleEdit={handleEdit} data={data?.doc} />
 			</Box>
 		</div>
 	);
