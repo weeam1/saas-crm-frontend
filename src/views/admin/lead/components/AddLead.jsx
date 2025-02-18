@@ -24,6 +24,7 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik

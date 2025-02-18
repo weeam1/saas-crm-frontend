@@ -94,6 +94,14 @@ const CandidateView = ({
 								label='English Level'
 								value={candidate?.engLangLevel || 'N/A'}
 							/>
+							<DisplayField
+								label='Agency'
+								value={candidate?.agency?.name || 'N/A'}
+							/>
+
+							{/* {isAdmin && (
+							)} */}
+
 							{candidate.invited && (
 								<>
 									<DisplayField

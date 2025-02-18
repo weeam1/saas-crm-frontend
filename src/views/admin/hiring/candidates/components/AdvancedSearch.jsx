@@ -30,10 +30,14 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		nationality: '',
 		experienceYears: '',
 		status: '',
+		agency: '',
 		inviteAccepted: '',
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
+
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -46,6 +50,15 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			},
 			{ refetchOnMountOrArgChange: true }
 		);
+
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const isMounted = useRef(true);
 
@@ -135,23 +148,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			<ModalContent p='2'>
 				<ModalHeader>Advanced Search</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody
-					width='100%'
-					maxH='540px' // Set max height for the modal body
-					overflowY='auto' // Enable vertical scrolling when content exceeds max height
-					sx={{
-						'&::-webkit-scrollbar': {
-							width: '6px', // Custom scrollbar width
-						},
-						'&::-webkit-scrollbar-thumb': {
-							background: 'brand.500', // Custom brand color (adjust according to your theme)
-							borderRadius: '8px',
-						},
-						'&::-webkit-scrollbar-thumb:hover': {
-							background: 'brand.600', // Slightly darker on hover
-						},
-					}}
-				>
+				<ModalBody>
 					<Formik
 						initialValues={formValues}
 						validationSchema={validationSchema}
@@ -167,6 +164,9 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 						}) => (
 							<Form>
 								<Grid
+									height='70vh'
+									overflow='scroll'
+									p='4'
 									templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 									gap={{ base: 3, md: 6 }}
 								>
@@ -311,6 +311,45 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												<option value='Pending'>Pending</option>
 												<option value='Eligible'>Eligible</option>
 												<option value='Not Eligible'>Not Eligible</option>
+											</Select>
+										</GridItem>
+									)}
+									{isAdmin && (
+										<GridItem>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='md'
+												fontWeight='400'
+												color='gray.800'
+												mt={2}
+												mb='1'
+											>
+												Agency
+											</FormLabel>
+
+											<Select
+												fontSize='sm'
+												name='agency'
+												fontWeight='400'
+												defaultValue={''}
+												rounded='md'
+												shadow='sm'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values['agency']}
+												borderColor='gray.300'
+												_focus={{
+													borderColor: 'brand.500', // Apply brand color on focus
+													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												}}
+												placeholder='Search by agency'
+											>
+												{agencies?.doc?.map((item) => (
+													<option key={item._id} value={item._id}>
+														{item.name}
+													</option>
+												))}
 											</Select>
 										</GridItem>
 									)}

@@ -29,7 +29,8 @@ import { userSchema } from 'schema';
 import { useSelector } from 'react-redux';
 import { getApi } from 'services/api';
 import { postApi } from 'services/api';
-import { userLocations } from 'utils/options';
+import { useragencys } from 'utils/options';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const AddUser = (props) => {
 	const { onClose, isOpen, setAction } = props;
@@ -37,6 +38,10 @@ const AddUser = (props) => {
 	const [roles, setRoles] = useState([]);
 
 	const tree = useSelector((state) => state.user);
+
+	const { data: agencies } = useFetchItemsQuery({
+		path: '/agencies',
+	});
 
 	const [show, setShow] = React.useState(false);
 	const showPass = () => setShow(!show);
@@ -50,7 +55,7 @@ const AddUser = (props) => {
 		role: '',
 		parent: '',
 		nationality: '',
-		location: '',
+		agency: '',
 		dob: '',
 		educationDegree: '',
 		passportNum: '',
@@ -69,6 +74,7 @@ const AddUser = (props) => {
 			resetForm();
 		},
 	});
+
 	const {
 		errors,
 		touched,
@@ -130,8 +136,6 @@ const AddUser = (props) => {
 	useEffect(() => {
 		fetchRoles();
 	}, []);
-
-	console.log(tree);
 
 	return (
 		<Modal size='2xl' isOpen={isOpen} isCentered>
@@ -372,29 +376,25 @@ const AddUser = (props) => {
 								fontWeight='500'
 								mb='8px'
 							>
-								Select Location <Text color={'red'}>*</Text>
+								Select agency <Text color={'red'}>*</Text>
 							</FormLabel>
 							<Select
-								name='location'
-								value={values.location}
+								name='agency'
+								value={values.agency}
 								onChange={handleChange}
 								onBlur={handleBlur}
-								placeholder='Select Location'
-								borderColor={
-									errors.location && touched.location ? 'red.300' : null
-								}
-								className={
-									errors.location && touched.location ? 'isInvalid' : null
-								}
+								placeholder='Select agency'
+								borderColor={errors.agency && touched.agency ? 'red.300' : null}
+								className={errors.agency && touched.agency ? 'isInvalid' : null}
 							>
-								{userLocations?.map((location) => (
-									<option key={location.value} value={location.value}>
-										{location.label}
+								{agencies?.doc?.map((agency) => (
+									<option key={agency._id} value={agency._id}>
+										{agency.name}
 									</option>
 								))}
 							</Select>
 							<Text mb='10px' color={'red'}>
-								{errors.location && touched.location && errors.location}
+								{errors.agency && touched.agency && errors.agency}
 							</Text>
 						</GridItem>
 						<GridItem colSpan={{ base: 12 }}>

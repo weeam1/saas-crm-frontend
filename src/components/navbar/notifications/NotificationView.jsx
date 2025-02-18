@@ -60,20 +60,8 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 							rounded='md'
 							width='100%'
 							m='0'
-							maxH='200px' // Set max height for the modal body
-							overflowY='auto' // Enable vertical scrolling when content exceeds max height
-							sx={{
-								'&::-webkit-scrollbar': {
-									width: '6px', // Custom scrollbar width
-								},
-								'&::-webkit-scrollbar-thumb': {
-									background: 'gray.200', // Custom brand color (adjust according to your theme)
-									borderRadius: '8px',
-								},
-								'&::-webkit-scrollbar-thumb:hover': {
-									background: 'gray.300', // Slightly darker on hover
-								},
-							}}
+							height='30vh'
+							overflow='scroll'
 						>
 							<Text fontSize='md' wordBreak='break-word'>
 								{item.message}

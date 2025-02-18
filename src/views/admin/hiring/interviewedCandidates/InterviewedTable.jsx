@@ -12,12 +12,14 @@ import {
 	Text,
 	Button,
 	HStack,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import FlagBadge from '../_components/FlagBadge';
-import { useNavigate } from 'react-router-dom';
 import OfferLetterIcon from './OfferLetterIcon';
+import FeedbackView from './FeedbackView';
+import { useState } from 'react';
 
 const InterviewedTable = ({
 	headers,
@@ -29,9 +31,9 @@ const InterviewedTable = ({
 	handleViewResult,
 	handleSendOffer,
 }) => {
-	const navigate = useNavigate();
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [feedback, setFeedback] = useState(null);
 
-	const user = JSON.parse(localStorage.getItem('user'));
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}
@@ -149,7 +151,13 @@ const InterviewedTable = ({
 															View Offer
 														</Button>
 
-														<OfferLetterIcon status={item.offerStatus} />
+														<OfferLetterIcon
+															status={item.offerStatus}
+															onClick={() => {
+																setFeedback(item.feedback);
+																onOpen();
+															}}
+														/>
 													</>
 												) : (
 													<Button
@@ -197,6 +205,10 @@ const InterviewedTable = ({
 					</Table>
 				</TableContainer>
 			</Box>
+
+			{isOpen && (
+				<FeedbackView isOpen={isOpen} onClose={onClose} item={feedback} />
+			)}
 		</>
 	);
 };
