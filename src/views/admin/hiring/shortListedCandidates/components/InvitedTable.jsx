@@ -135,7 +135,7 @@ const InvitedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td minWidth='200px'>
+										<Td minWidth='300px'>
 											<Flex alignItems='center' gap='2'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />

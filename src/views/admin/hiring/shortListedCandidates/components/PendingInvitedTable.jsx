@@ -77,7 +77,7 @@ const PendingInvitedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td minWidth='200px'>
+										<Td minWidth='300px'>
 											<HStack gap='1'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />
