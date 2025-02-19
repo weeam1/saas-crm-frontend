@@ -161,7 +161,7 @@ const Candidates = () => {
 				}
 			}
 
-			// If key is "position", replace value with label for UI, but keep ID in search
+			// If key is "agency", replace value with label for UI, but keep ID in search
 			if (key === 'agency') {
 				const matchedOption = agencies?.doc?.find(
 					(option) => option._id === value

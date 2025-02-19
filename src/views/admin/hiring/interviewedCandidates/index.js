@@ -19,6 +19,9 @@ const InterviewedCandidates = () => {
 		direction: null,
 	});
 
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
+
 	const [data, setData] = useState([]);
 
 	const navigate = useNavigate();
@@ -56,6 +59,15 @@ const InterviewedCandidates = () => {
 	const { data: positionOptions } = useFetchItemsQuery({
 		path: `/positions/options`,
 	});
+
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
@@ -203,6 +215,18 @@ const InterviewedCandidates = () => {
 				if (matchedOption) {
 					formattedValue = matchedOption.label; // Use label for UI
 					advancedSearch.position = matchedOption.label; // Keep ID for actual search
+				}
+			}
+
+			// If key is "agency", replace value with label for UI, but keep ID in search
+			if (key === 'agency') {
+				const matchedOption = agencies?.doc?.find(
+					(option) => option._id === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.name; // Use label for UI
+					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
 				}
 			}
 
