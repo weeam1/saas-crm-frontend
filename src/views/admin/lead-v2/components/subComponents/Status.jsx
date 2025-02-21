@@ -2,7 +2,7 @@ import SelectInput from 'components/shared/SelectInput';
 import { leadStatus } from 'utils/options';
 import { Box, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -11,6 +11,19 @@ import {
 
 const Status = ({ value }) => {
 	const [selected, setSelected] = useState('' || value);
+	const [bgColor, setBgColor] = useState('');
+	const [textColor, setTextColor] = useState('');
+
+	useEffect(() => {
+		const selectedOption = leadStatus.find((item) => item.value === selected);
+		if (selectedOption) {
+			setBgColor(selectedOption.bgColor || 'white');
+			setTextColor(selectedOption.textColor || 'black');
+		} else {
+			setBgColor('white');
+			setTextColor('black');
+		}
+	}, [selected]);
 
 	return (
 		<>
@@ -34,6 +47,8 @@ const Status = ({ value }) => {
 				selectedValue={selected}
 				onChange={(e) => setSelected(e.target.value)}
 				type='static'
+				bgColorCustom={bgColor}
+				textColorCustom={textColor}
 				size={leadSelectInputSize}
 			/>
 		</>

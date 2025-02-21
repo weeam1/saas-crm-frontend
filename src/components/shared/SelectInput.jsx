@@ -231,6 +231,9 @@ const SelectInput = ({
 	const textColor = textColorCustom || defaultTextColor;
 	const bgColor = bgColorCustom || defaultBgColor;
 	const dropdownBg = dropdownBgCustom || defaultDropdownBg;
+
+	console.log({ bgColorCustom, textColorCustom });
+
 	return (
 		<FormControl>
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
