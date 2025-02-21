@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 // import Select from 'react-select';
+
+import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constants';
+import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
+
 import {
-	Select,
 	FormControl,
 	FormLabel,
+	Select,
 	useColorModeValue,
 } from '@chakra-ui/react';
-import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constants';
-import { leadSelectInputSize } from 'views/admin/lead-v2/components/constants';
 
 // const SelectInput = ({
 // 	name,
@@ -46,7 +48,7 @@ import { leadSelectInputSize } from 'views/admin/lead-v2/components/constants';
 // 			color: state.isSelected || state.isFocused ? 'white' : '#333',
 // 			padding: '2px 4px',
 // 			borderRadius: '0.375rem',
-// 			// Override the default blue active state
+// 			// Override the default brand active state
 // 			':active': {
 // 				...provided[':active'],
 // 				backgroundColor: '#D99A36',
@@ -208,26 +210,49 @@ const SelectInput = ({
 	label,
 	options = [],
 	placeholder = 'Select an option',
-	size = 'md', // e.g. "xs", "sm", "md", "lg"
+	size = 'md', // "xs", "sm", "md", "lg"
+	borderColorCustom,
+	textColorCustom,
+	bgColorCustom,
+	dropdownBgCustom,
 	...props
 }) => {
-	const borderColor = useColorModeValue('gray.300', 'gray.600');
-	const focusBorderColor = useColorModeValue('blue.500', 'blue.300');
+	// Move all useColorModeValue calls to the top level to avoid conditional hooks
+	const defaultBorderColor = useColorModeValue('gray.300', 'gray.600');
+	const defaultFocusBorderColor = useColorModeValue('brand.500', 'brand.300');
+	const defaultTextColor = useColorModeValue('black', 'white');
+	const defaultBgColor = useColorModeValue('white', 'gray.800');
+	const defaultDropdownBg = useColorModeValue('white', 'gray.700');
+	const dropdownHoverBg = useColorModeValue('gray.100', 'gray.600');
 
+	// Use custom values if provided, otherwise fallback to defaults
+	const borderColor = borderColorCustom || defaultBorderColor;
+	const focusBorderColor = defaultFocusBorderColor;
+	const textColor = textColorCustom || defaultTextColor;
+	const bgColor = bgColorCustom || defaultBgColor;
+	const dropdownBg = dropdownBgCustom || defaultDropdownBg;
 	return (
 		<FormControl>
-			{/* Optional label */}
-			{label && <FormLabel fontSize={size}>{label}</FormLabel>}
+			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
 
 			<Select
 				placeholder={placeholder}
 				size={size}
-				fontSize={leadSelectInputFontSize || 'md'}
+				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
+				color={textColor}
+				bg={bgColor}
 				_hover={{ borderColor: focusBorderColor }}
 				_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
 				borderRadius='md'
+				sx={{
+					option: {
+						bg: dropdownBg,
+						color: 'gray.800',
+						_hover: { bg: dropdownHoverBg },
+					},
+				}}
 				{...props}
 			>
 				{options.map((opt) => (

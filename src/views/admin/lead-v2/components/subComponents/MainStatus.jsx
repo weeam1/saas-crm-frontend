@@ -34,6 +34,9 @@ const MainStatus = ({ value }) => {
 				placeholder='Select MStatus'
 				selectedValue={selected}
 				type='static'
+				textColorCustom='white'
+				bgColorCustom='brand.300'
+				borderColorCustom='brand.600'
 				size={leadSelectInputSize}
 				onChange={(e) => setSelected(e.target.value)}
 			/>
