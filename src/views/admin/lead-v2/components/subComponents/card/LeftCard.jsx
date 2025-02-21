@@ -6,6 +6,7 @@ import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
+import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 
 const LeftCard = ({ lead }) => {
 	return (
@@ -13,16 +14,16 @@ const LeftCard = ({ lead }) => {
 			<Flex alignItems='center' gap='2'>
 				<Icon as={IoMdEye} boxSize='10px' color='gray.400' />
 
-				<Text fontSize='10px' color='softGray.200'>
-					{lead?.intID}
+				<Text fontSize={leadlabelFontSize} color='softGray.200'>
+					{lead?.intID || 'N/A'}
 				</Text>
 			</Flex>
-			<Text fontSize='xs' fontWeight='semibold' mb={2}>
-				{lead?.leadName}
+			<Text fontSize={leadValueFontSize} fontWeight='semibold' mb={2}>
+				{lead?.leadName || 'N/A'}
 			</Text>
 
 			<Grid
-				width='230px'
+				maxWidth='220px'
 				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 				gap={1}
 			>
@@ -49,7 +50,7 @@ const LeftCard = ({ lead }) => {
 				<GridItem>
 					<EntityField
 						label='Phone'
-						value='234234234324'
+						value={lead.leadPhoneNumber}
 						isCopy
 						valueProps={{ color: 'blue.500' }}
 					/>
@@ -59,7 +60,7 @@ const LeftCard = ({ lead }) => {
 				<GridItem>
 					<EntityField
 						label='WhatsApp'
-						value='234234234324'
+						value={lead.leadWhatsappNumber}
 						isCopy
 						valueProps={{ color: 'green.400' }}
 					/>
@@ -67,10 +68,7 @@ const LeftCard = ({ lead }) => {
 
 				{/* Last Note (occupy full width) */}
 				<GridItem colSpan={{ base: 1, md: 2 }}>
-					<LastNoteField
-						label='Last Note'
-						value='Whereas disregard and contempt for human rights sldkjflsd kljsdflkjsd lkfksdjflk sdfkljsdkl fdskljf'
-					/>
+					<LastNoteField label='Last Note' value={lead.lastNote} />
 				</GridItem>
 			</Grid>
 		</Box>

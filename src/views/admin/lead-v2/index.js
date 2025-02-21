@@ -40,7 +40,7 @@ const LeadScreen = () => {
 	useEffect(() => {
 		setQueryParams((prev) => ({
 			...prev,
-			limit: pageSize, // Update limit when pageSize changes
+			pageSize, // Update limit when pageSize changes
 		}));
 	}, [pageSize]);
 

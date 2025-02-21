@@ -8,13 +8,18 @@ import {
 	HStack,
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
+import {
+	leadIconSize,
+	leadlabelFontSize,
+	leadValueFontSize,
+} from '../../constants';
 
 const LastNoteField = ({ label, value }) => {
 	const labelColor = useColorModeValue('softGray.200', 'gray.300');
 	const valueColor = useColorModeValue('gray.800', 'green.600');
 
 	return (
-		<Box display='flex' width='200px' flexDir='column'>
+		<Box display='flex' maxWidth='200px' flexDir='column'>
 			{/* Label + Copy Icon*/}
 			<HStack
 				alignItems='center'
@@ -23,25 +28,25 @@ const LastNoteField = ({ label, value }) => {
 				flex='1'
 			>
 				{label && (
-					<Text fontSize='6px' color={labelColor}>
+					<Text fontSize={leadlabelFontSize} color={labelColor}>
 						{label}
 					</Text>
 				)}
 
 				<Tooltip label={value} closeOnClick={false} hasArrow>
-					<Icon as={InfoIcon} boxSize='10px' color='blue.300' />
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip>
 			</HStack>
 
 			{/* Value */}
 			<Text
-				fontSize='7px'
+				fontSize={leadValueFontSize}
 				textAlign='left'
 				fontWeight='normal'
 				isTruncated
 				color={valueColor}
 			>
-				{value}
+				{value || 'N/A'}
 			</Text>
 		</Box>
 	);

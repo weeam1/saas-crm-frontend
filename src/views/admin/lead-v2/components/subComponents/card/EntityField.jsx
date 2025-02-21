@@ -9,6 +9,11 @@ import {
 	HStack,
 } from '@chakra-ui/react';
 import { CopyIcon } from '@chakra-ui/icons';
+import {
+	leadIconSize,
+	leadlabelFontSize,
+	leadValueFontSize,
+} from '../../constants';
 
 const EntityField = ({
 	label,
@@ -30,12 +35,18 @@ const EntityField = ({
 			display='flex'
 			width='fit-content'
 			flexDir='column'
+			justifyContent='flex-start'
 			{...boxProps}
 		>
 			{/* Label + Copy Icon*/}
 			<HStack alignItems='center' justifyContent='space-between' flex='1' m={0}>
 				{label && (
-					<Text fontSize='6px' mb='0' color={labelColor} {...labelProps}>
+					<Text
+						fontSize={leadlabelFontSize}
+						mb='0'
+						color={labelColor}
+						{...labelProps}
+					>
 						{label}
 					</Text>
 				)}
@@ -48,8 +59,8 @@ const EntityField = ({
 					>
 						<IconButton
 							icon={<CopyIcon />}
-							size='20px'
-							fontSize='6px'
+							size='xs'
+							fontSize={leadIconSize}
 							variant='ghost'
 							onClick={onCopy}
 							aria-label='Copy text'
@@ -61,12 +72,12 @@ const EntityField = ({
 
 			{/* Value */}
 			<Text
-				fontSize='8px'
-				fontWeight='normal'
+				fontSize={leadValueFontSize}
+				fontWeight='medium'
 				color={valueColor}
 				{...valueProps}
 			>
-				{value}
+				{value || 'N/A'}
 			</Text>
 		</Box>
 	);

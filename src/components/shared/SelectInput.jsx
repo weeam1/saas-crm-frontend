@@ -6,6 +6,8 @@ import {
 	FormLabel,
 	useColorModeValue,
 } from '@chakra-ui/react';
+import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constants';
+import { leadSelectInputSize } from 'views/admin/lead-v2/components/constants';
 
 // const SelectInput = ({
 // 	name,
@@ -220,7 +222,7 @@ const SelectInput = ({
 			<Select
 				placeholder={placeholder}
 				size={size}
-				fontSize='7px'
+				fontSize={leadSelectInputFontSize || 'md'}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
 				_hover={{ borderColor: focusBorderColor }}

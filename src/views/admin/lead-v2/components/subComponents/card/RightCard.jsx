@@ -1,32 +1,34 @@
 import React from 'react';
 import EntityField from './EntityField';
-import { Box, Grid, Text } from '@chakra-ui/react';
+import { Box, Flex, Grid, Text } from '@chakra-ui/react';
 import InfoSection from './InfoSection';
+import { formattedDate } from 'utils/helpers';
 
-const RightCard = () => {
+const RightCard = ({ lead }) => {
 	return (
-		<Box
-			display='flex'
+		<Flex
 			flexDir='column'
 			gap='1'
 			flex='1'
-			alignSelf='end'
+			alignSelf='center'
+			justifyContent='center'
+			alignItems='center'
 			width='fit-content'
 		>
 			<Grid width='fit-content' templateColumns='1fr 1fr' gap='1'>
 				<EntityField
 					label='Country'
-					value='Pakistan'
+					value={lead?.ip?.split('-')[1]}
 					valueProps={{ color: 'red.600' }}
 				/>
 				<EntityField
 					label='Budget'
-					value='14 Million'
+					value={lead.budget}
 					valueProps={{ color: 'orange.500' }}
 				/>
 				<EntityField
 					label='Nationality'
-					value='Pak'
+					value={lead.nationality}
 					valueProps={{ color: 'red.600' }}
 				/>
 				<EntityField
@@ -36,13 +38,13 @@ const RightCard = () => {
 				/>
 			</Grid>
 
-			<Box>
-				<InfoSection />
+			<Box alignSelf='center'>
+				<InfoSection lead={lead} />
 			</Box>
 			<Text mt={4} fontSize='7px' color='gray.500'>
-				Lead time Thu, Feb 13, 2025
+				Lead time {formattedDate(lead?.createdDate) || 'N/A'}
 			</Text>
-		</Box>
+		</Flex>
 	);
 };
 

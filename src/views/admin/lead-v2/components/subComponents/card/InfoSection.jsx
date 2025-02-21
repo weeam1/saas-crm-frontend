@@ -1,18 +1,25 @@
 import { Box, Text } from '@chakra-ui/react';
 import InfoItem from './InfoItem';
+import { leadlabelFontSize } from '../../constants';
 
-const InfoSection = () => {
+const InfoSection = ({ lead }) => {
 	const infoFields = [
-		{ label: 'Source Content', value: 'The origin of this lead' },
-		{ label: 'Campaign', value: 'Campaign details go here' },
-		{ label: 'Campaign Url', value: 'https://example.com' },
-		{ label: 'Medium', value: 'Online Ad' },
-		{ label: 'In UAE?', value: 'Yes' },
+		{ label: 'Source Content', value: lead?.leadSourceDetails },
+		{ label: 'Campaign', value: lead?.leadCampaign },
+		{ label: 'Campaign Url', value: lead?.pageUrl },
+		{ label: 'Medium', value: lead?.leadSourceMedium },
+		{
+			label: 'In UAE?',
+			value:
+				typeof lead?.r_u_in_uae === 'object'
+					? lead?.r_u_in_uae?.text
+					: lead?.r_u_in_uae,
+		},
 	];
 
 	return (
 		<Box>
-			<Text fontSize='10px' color='gray.400' mb={1}>
+			<Text fontSize={leadlabelFontSize} color='gray.400' mb={1}>
 				Info
 			</Text>
 			<Box width='fit-content'>

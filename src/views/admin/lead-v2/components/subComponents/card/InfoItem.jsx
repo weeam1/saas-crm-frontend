@@ -7,6 +7,7 @@ import {
 	useColorModeValue,
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
+import { leadIconSize, leadlabelFontSize } from '../../constants';
 
 const InfoItem = ({
 	label,
@@ -25,7 +26,7 @@ const InfoItem = ({
 			{/* Label */}
 			<Text
 				fontWeight='medium'
-				fontSize='7px'
+				fontSize={leadlabelFontSize}
 				color={labelColor}
 				mr={2}
 				{...labelProps}
@@ -34,10 +35,10 @@ const InfoItem = ({
 			</Text>
 
 			{/* Info Icon with Tooltip */}
-			<Tooltip label={value} hasArrow {...tooltipProps}>
+			<Tooltip label={value || 'N/A'} hasArrow {...tooltipProps}>
 				<Icon
 					as={InfoIcon}
-					boxSize='10px'
+					boxSize={leadIconSize}
 					color='blue.300'
 					cursor='pointer'
 					{...iconProps}
