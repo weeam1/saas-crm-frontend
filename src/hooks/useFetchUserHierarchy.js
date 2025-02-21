@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import { setUsers } from './../redux/usersSlice';
 import { getApi } from 'services/api';
 
 const useFetchUserHierarchy = (user) => {
 	const [allUsers, setAllUsers] = useState([]);
 	const [managers, setManagers] = useState([]);
 	const [agents, setAgents] = useState([]);
+
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const fetchAllData = async () => {
@@ -24,6 +28,7 @@ const useFetchUserHierarchy = (user) => {
 					setAllUsers(allData || []);
 					setManagers(managerData || []);
 					setAgents(agentData || []);
+					dispatch(setUsers(data?.doc));
 				}
 				// }
 			} catch (error) {

@@ -10,9 +10,10 @@ import {
 } from '../constants';
 import { InfoIcon } from '@chakra-ui/icons';
 
-const MainStatus = ({ value }) => {
-	const [selected, setSelected] = useState('' || value);
+const MainStatus = ({ lead }) => {
+	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 
+	console.log({ status: lead?.eLeadStatus });
 	return (
 		<>
 			<HStack alignItems='center' justifyContent='space-between'>
@@ -22,7 +23,7 @@ const MainStatus = ({ value }) => {
 					color='softGray.200'
 					mr={2}
 				>
-					Status
+					M Status
 				</Text>
 				<Tooltip label={selected} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
@@ -31,9 +32,8 @@ const MainStatus = ({ value }) => {
 			<SelectInput
 				name='eLeadStatus'
 				options={mainLeadStatus}
-				placeholder='Select MStatus'
+				placeholder='Select'
 				selectedValue={selected}
-				type='static'
 				textColorCustom='white'
 				bgColorCustom='brand.300'
 				borderColorCustom='brand.600'

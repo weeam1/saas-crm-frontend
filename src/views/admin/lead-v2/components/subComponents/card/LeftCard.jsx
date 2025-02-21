@@ -10,7 +10,7 @@ import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 
 const LeftCard = ({ lead }) => {
 	return (
-		<Box>
+		<Box flex='1'>
 			<Flex alignItems='center' gap='2'>
 				<Icon as={IoMdEye} boxSize='10px' color='gray.400' />
 
@@ -23,27 +23,27 @@ const LeftCard = ({ lead }) => {
 			</Text>
 
 			<Grid
-				maxWidth='220px'
+				minWidth='13.75rem'
 				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 				gap={1}
 			>
 				{/* Manager */}
 				<GridItem>
-					<Managers />
+					<Managers lead={lead} />
 				</GridItem>
 
 				{/* Agent */}
 				<GridItem>
-					<Agents />
+					<Agents lead={lead} />
 				</GridItem>
 
 				{/* Main lead status */}
 				<GridItem>
-					<MainStatus />
+					<MainStatus lead={lead} />
 				</GridItem>
 				{/* Lead status */}
 				<GridItem>
-					<Status />
+					<Status lead={lead} />
 				</GridItem>
 
 				{/* Phone */}

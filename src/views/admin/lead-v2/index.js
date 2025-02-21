@@ -1,15 +1,18 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useEffect, useState } from 'react';
-import LeadCard from './components/LeadCard';
-import { Flex, Grid } from '@chakra-ui/react';
 import Loader from 'components/loading/Loader';
+import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
+import Leads from './components/Leads';
+// import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadScreen = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const isAdmin = user?.role === 'superAdmin';
 
-	const [currentPage, setCurrentPage] = useState(13);
+	const users = useFetchUserHierarchy();
+
+	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(12);
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
@@ -68,11 +71,7 @@ const LeadScreen = () => {
 	return leadsLoading ? (
 		<Loader />
 	) : (
-		<Flex wrap='wrap' width='fit-content' gap='1'>
-			{leads?.doc?.map((lead) => (
-				<LeadCard lead={lead} />
-			))}
-		</Flex>
+		<Leads leads={leads} isLoading={leadsLoading} />
 	);
 };
 

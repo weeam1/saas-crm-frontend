@@ -215,6 +215,8 @@ const SelectInput = ({
 	textColorCustom,
 	bgColorCustom,
 	dropdownBgCustom,
+	selectedValue,
+	type = 'static',
 	...props
 }) => {
 	// Move all useColorModeValue calls to the top level to avoid conditional hooks
@@ -232,8 +234,6 @@ const SelectInput = ({
 	const bgColor = bgColorCustom || defaultBgColor;
 	const dropdownBg = dropdownBgCustom || defaultDropdownBg;
 
-	console.log({ bgColorCustom, textColorCustom });
-
 	return (
 		<FormControl>
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
@@ -241,6 +241,7 @@ const SelectInput = ({
 			<Select
 				placeholder={placeholder}
 				size={size}
+				value={selectedValue}
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
@@ -260,7 +261,7 @@ const SelectInput = ({
 			>
 				{options.map((opt) => (
 					<option key={opt.value} value={opt.value}>
-						{opt.label}
+						{type === 'dynamic' ? opt.name : opt.label}
 					</option>
 				))}
 			</Select>

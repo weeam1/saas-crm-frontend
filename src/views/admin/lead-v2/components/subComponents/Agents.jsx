@@ -2,14 +2,13 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useState } from 'react';
-import {
-	leadIconSize,
-	leadlabelFontSize,
-	leadSelectInputSize,
-} from '../constants';
+import { leadIconSize, leadlabelFontSize } from '../constants';
+import { leadSelectInputSize } from './../constants';
+import { useSelector } from 'react-redux';
 
 const Agents = ({ value }) => {
 	const [selected, setSelected] = useState('');
+	const { list } = useSelector((state) => state?.users);
 
 	return (
 		<>
@@ -30,11 +29,11 @@ const Agents = ({ value }) => {
 				</Tooltip>
 			</Flex>
 			<SelectInput
-				name='assignAgent'
-				options={[]}
-				placeholder='Select Agent'
+				name='agentAssigned'
+				options={list?.agents || []}
+				placeholder='Select'
 				selectedValue={selected}
-				type='static'
+				type='dynamic'
 				size={leadSelectInputSize}
 				onChange={(e) => setSelected(e.target.value)}
 			/>

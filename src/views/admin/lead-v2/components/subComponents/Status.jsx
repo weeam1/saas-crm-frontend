@@ -9,10 +9,12 @@ import {
 	leadSelectInputSize,
 } from '../constants';
 
-const Status = ({ value }) => {
-	const [selected, setSelected] = useState('' || value);
+const Status = ({ lead }) => {
+	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+
+	console.log({ status: lead?.leadStatus });
 
 	useEffect(() => {
 		const selectedOption = leadStatus.find((item) => item.value === selected);
@@ -43,10 +45,9 @@ const Status = ({ value }) => {
 			<SelectInput
 				name='leadStatus'
 				options={leadStatus}
-				placeholder='Select Status'
+				placeholder='Select'
 				selectedValue={selected}
 				onChange={(e) => setSelected(e.target.value)}
-				type='static'
 				bgColorCustom={bgColor}
 				textColorCustom={textColor}
 				size={leadSelectInputSize}
