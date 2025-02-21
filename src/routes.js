@@ -56,6 +56,7 @@ const PropertyImport = React.lazy(
 );
 
 const Lead = React.lazy(() => import('views/admin/lead'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const CallHistory = React.lazy(() => import('views/admin/callHistory'));
 const LeadCycle = React.lazy(() => import('views/admin/leadCycle'));
 const LeadView = React.lazy(() => import('views/admin/lead/View'));
@@ -136,6 +137,15 @@ const routes = [
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
 		component: Lead,
+	},
+	{
+		name: 'New Lead',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/new-lead',
+		icon: (
+			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+		),
+		component: LeadScreen,
 	},
 	{
 		name: 'Announcement',

@@ -414,7 +414,6 @@ const Index = () => {
 		setIsLoding(true);
 		try {
 			//  const res = await getApi("api/adminApproval/get","")
-			console.log(user, 'user');
 			const result = await axios.get(
 				constant['baseUrl'] + 'api/adminApproval/get',
 				{
@@ -433,7 +432,6 @@ const Index = () => {
 				}
 			);
 			//  setApprovals()
-			console.log(result.data?.approvals, 'approvals');
 			setData([...result.data?.approvals] || []);
 			setPages(result.data?.totalPages || 0);
 			setTotalLeads(result.data?.totalApprovals || 0);

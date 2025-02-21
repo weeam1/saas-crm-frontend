@@ -20,8 +20,6 @@ const Hiring = () => {
 	const isAdmin = user?.role === 'superAdmin';
 	const isManager = user?.roles[0]?.roleName === 'Manager';
 
-	console.log({ user: user?.roles });
-
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
 			path: `/hiring/stats`,
@@ -91,7 +89,7 @@ const Hiring = () => {
 		<Box>
 			<Flex justifyContent='space-between' alignItems='center'>
 				<Heading px={5} size='lg' color='gray.800'>
-					Hiring
+					Hiring / <span>{(!isAdmin && user?.agency?.name) || ''}</span>
 				</Heading>
 				{isAdmin && (
 					<Button
