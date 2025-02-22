@@ -18,7 +18,7 @@ const InfoItem = ({
 	...rest
 }) => {
 	// Optional color mode styling
-	const labelColor = useColorModeValue('gray.600', 'gray.300');
+	const labelColor = useColorModeValue('gray.800', 'gray.300');
 	const iconBg = useColorModeValue('blue.100', 'blue.700');
 
 	return (

@@ -11,16 +11,17 @@ import {
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
+	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
 
-	console.log({ status: lead?.leadStatus });
-
 	useEffect(() => {
 		const selectedOption = leadStatus.find((item) => item.value === selected);
+
 		if (selectedOption) {
 			setBgColor(selectedOption.bgColor || 'white');
 			setTextColor(selectedOption.textColor || 'black');
+			setLabel(selectedOption?.label);
 		} else {
 			setBgColor('white');
 			setTextColor('black');
@@ -38,7 +39,7 @@ const Status = ({ lead }) => {
 				>
 					Status
 				</Text>
-				<Tooltip label={selected} closeOnClick={false} hasArrow>
+				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip>
 			</HStack>

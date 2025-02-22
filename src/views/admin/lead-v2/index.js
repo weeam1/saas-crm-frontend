@@ -12,7 +12,7 @@ const LeadScreen = () => {
 
 	const users = useFetchUserHierarchy();
 
-	const [currentPage, setCurrentPage] = useState(1);
+	const [currentPage, setCurrentPage] = useState(13);
 	const [pageSize, setPageSize] = useState(12);
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
@@ -68,11 +68,7 @@ const LeadScreen = () => {
 		);
 	}
 
-	return leadsLoading ? (
-		<Loader />
-	) : (
-		<Leads leads={leads} isLoading={leadsLoading} />
-	);
+	return <Leads leads={leads} leadsLoading={leadsLoading} />;
 };
 
 export default LeadScreen;

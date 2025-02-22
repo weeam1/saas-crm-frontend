@@ -1,6 +1,6 @@
 import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { mainLeadStatus } from 'utils/options';
 import {
@@ -12,8 +12,17 @@ import { InfoIcon } from '@chakra-ui/icons';
 
 const MainStatus = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
+	const [label, setLabel] = useState('');
 
-	console.log({ status: lead?.eLeadStatus });
+	useEffect(() => {
+		const selectedOption = mainLeadStatus.find(
+			(item) => item.value === selected
+		);
+
+		if (selectedOption) {
+			setLabel(selectedOption?.label);
+		}
+	}, [selected]);
 	return (
 		<>
 			<HStack alignItems='center' justifyContent='space-between'>
@@ -25,7 +34,7 @@ const MainStatus = ({ lead }) => {
 				>
 					M Status
 				</Text>
-				<Tooltip label={selected} closeOnClick={false} hasArrow>
+				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip>
 			</HStack>

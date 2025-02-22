@@ -18,7 +18,7 @@ const LeftCard = ({ lead }) => {
 					{lead?.intID || 'N/A'}
 				</Text>
 			</Flex>
-			<Text fontSize={leadValueFontSize} fontWeight='semibold' mb={2}>
+			<Text fontSize='12px' fontWeight='semibold' mb={2}>
 				{lead?.leadName || 'N/A'}
 			</Text>
 
@@ -27,14 +27,28 @@ const LeftCard = ({ lead }) => {
 				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 				gap={1}
 			>
+				<EntityField
+					label='Country'
+					value={lead?.ip?.split('-')[1]}
+					valueProps={{ color: '#FF0004' }}
+				/>
+				<EntityField
+					label='Nationality'
+					value={lead.nationality}
+					valueProps={{ color: '#FF0004' }}
+				/>
 				{/* Manager */}
 				<GridItem>
-					<Managers lead={lead} />
+					<Managers managerAssigned={lead?.managerAssigned} lead={lead} />
 				</GridItem>
 
 				{/* Agent */}
 				<GridItem>
-					<Agents lead={lead} />
+					<Agents
+						agentAssigned={lead?.agentAssigned}
+						managerAssigned={lead?.managerAssigned}
+						lead={lead}
+					/>
 				</GridItem>
 
 				{/* Main lead status */}
@@ -52,7 +66,7 @@ const LeftCard = ({ lead }) => {
 						label='Phone'
 						value={lead.leadPhoneNumber}
 						isCopy
-						valueProps={{ color: 'blue.500' }}
+						valueProps={{ color: '#7667FF' }}
 					/>
 				</GridItem>
 
@@ -62,7 +76,7 @@ const LeftCard = ({ lead }) => {
 						label='WhatsApp'
 						value={lead.leadWhatsappNumber}
 						isCopy
-						valueProps={{ color: 'green.400' }}
+						valueProps={{ color: 'green.700' }}
 					/>
 				</GridItem>
 

@@ -245,8 +245,8 @@ const SelectInput = ({
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
-				color={textColor}
-				bg={bgColor}
+				color={type === 'static' ? textColor : 'softGray.300'}
+				bg={type === 'static' ? bgColor : 'softGray.400'}
 				_hover={{ borderColor: focusBorderColor }}
 				_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
 				borderRadius='md'
@@ -260,8 +260,13 @@ const SelectInput = ({
 				{...props}
 			>
 				{options.map((opt) => (
-					<option key={opt.value} value={opt.value}>
-						{type === 'dynamic' ? opt.name : opt.label}
+					<option
+						key={type === 'dynamic' ? opt._id : opt.value}
+						value={type === 'dynamic' ? opt._id : opt.value}
+					>
+						{type === 'dynamic'
+							? opt?.firstName + ' ' + opt?.lastName
+							: opt.label}
 					</option>
 				))}
 			</Select>

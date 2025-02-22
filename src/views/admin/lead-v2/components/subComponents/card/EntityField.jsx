@@ -31,11 +31,11 @@ const EntityField = ({
 
 	return (
 		<Box
-			// p='1'
 			display='flex'
 			width='fit-content'
 			flexDir='column'
 			justifyContent='flex-start'
+			justifySelf='stretch'
 			{...boxProps}
 		>
 			{/* Label + Copy Icon*/}

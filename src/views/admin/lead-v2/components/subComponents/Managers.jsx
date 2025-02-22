@@ -15,10 +15,54 @@ import {
 	leadSelectInputSize,
 } from '../constants';
 import { useSelector } from 'react-redux';
+import { formattedDate } from 'utils/helpers';
 
-const Managers = ({ lead, value }) => {
-	const { list } = useSelector((state) => state?.users);
-	const [selected, setSelected] = useState('' || lead?.managerAssigned);
+const Managers = ({ lead, managerAssigned }) => {
+	const [selected, setSelected] = useState('' || managerAssigned);
+	const tree = useSelector((state) => state.user.tree);
+
+	// const handleChangeManager = async (e) => {
+	// 	const managerAssigned = e.target.value;
+	// 	const dataObj = {
+	// 		managerAssigned: managerAssigned || '',
+	// 		agentAssigned: managerAssigned ? '' : undefined,
+	// 		// agentAssigned: "",
+	// 	};
+
+	// 	try {
+	// 		setLoading(true);
+	// 		const res = await putApi(`api/lead/edit/${leadID}`, dataObj);
+
+	// 		if (res.status === 200) {
+	// 			updateRowStatus(leadID, res.data.leadStatus);
+	// 			toast.success('Manager updated successfully');
+	// 		}
+
+	// 		// Update data in the corresponding list (searched or default)
+	// 		const updateListData = (prevData) => {
+	// 			const newData = [...prevData];
+	// 			const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
+	// 			if (updateIdx !== -1) {
+	// 				newData[updateIdx].managerAssigned = dataObj.managerAssigned;
+	// 				newData[updateIdx].agentAssigned = dataObj.agentAssigned || '';
+	// 				newData[updateIdx].leadType = dataObj.leadType || null;
+	// 				newData[updateIdx].isReleased = dataObj.isReleased;
+	// 			}
+	// 			return newData;
+	// 		};
+
+	// 		if (displaySearchData) {
+	// 			setSearchedData(updateListData);
+	// 		} else {
+	// 			setData(updateListData);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Failed to update the manager:', error);
+	// 		toast.error('Failed to update the manager');
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
 
 	return (
 		<>
@@ -34,13 +78,17 @@ const Managers = ({ lead, value }) => {
 				</Text>
 
 				{/* Info Icon with Tooltip */}
-				<Tooltip label={selected} hasArrow>
+				<Tooltip
+					label={`Assign Date:\n${lead?.managerAssignedDate ? formattedDate(lead?.managerAssignedDate) : 'N/A'}`}
+					hasArrow
+					whiteSpace='pre-line'
+				>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip>
 			</Flex>
 			<SelectInput
 				name='managerAssigned'
-				options={list?.managers || []}
+				options={tree?.managers || []}
 				placeholder='Select'
 				selectedValue={selected}
 				type='dynamic'

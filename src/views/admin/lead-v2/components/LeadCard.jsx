@@ -1,7 +1,8 @@
+import { formattedDate } from 'utils/helpers';
+import { leadlabelFontSize } from './constants';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
-import React, { useState, useEffect } from 'react';
-import { Box, Flex, Skeleton, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
 
 // const LeadCard = ({ lead }) => {
 // 	const cardWidth = useBreakpointValue({
@@ -43,26 +44,17 @@ import { Box, Flex, Skeleton, useBreakpointValue } from '@chakra-ui/react';
 const LeadCard = ({ lead }) => {
 	const cardWidth = useBreakpointValue({
 		base: '100%', // Full width on mobile
-		sm: '48%', // Two cards per row on small screens
+		// sm: '48%', // Two cards per row on small screens
 		md: '33.33%', // Three cards per row on medium screens
-		lg: '32%', // Three cards per row on larger screens
+		lg: '25%', // Three cards per row on larger screens
 	});
-
-	const [isLoaded, setIsLoaded] = useState(false);
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setIsLoaded(true);
-		}, 1000); // 1 second delay
-		return () => clearTimeout(timer);
-	}, [lead]);
 
 	return (
 		<Box
 			fontFamily="'DM Sans', sans-serif"
 			borderWidth='1px'
 			borderRadius='md'
-			p={1}
+			p={2}
 			bg='white'
 			width='100%'
 			flexBasis={cardWidth}
@@ -70,24 +62,26 @@ const LeadCard = ({ lead }) => {
 			_hover={{ boxShadow: 'lg' }}
 			transition='all 0.2s ease-in-out'
 		>
-			<Skeleton
-				borderRadius='4px' // Rounded corners
-				startColor='gray.100'
-				endColor='gray.200' // Gradient shimmer effect
-				isLoaded={isLoaded}
-				fadeDuration={0.4}
+			<Flex
+				justify='space-between'
+				align='stretch'
+				wrap='wrap'
+				gap={{ base: 2, md: 3 }}
 			>
-				<Flex
-					justify='space-between'
-					align='stretch'
-					wrap='wrap'
-					gap={{ base: 2, md: 3 }}
+				<LeftCard lead={lead} />
+				<RightCard lead={lead} />
+				<Box
+					textAlign='right'
+					width='full'
+					fontSize={leadlabelFontSize}
+					color='gray.900'
 				>
-					{/* Replace these with your actual content components */}
-					<LeftCard lead={lead} />
-					<RightCard lead={lead} />
-				</Flex>
-			</Skeleton>
+					<span style={{ color: '#D3D3D3', marginRight: '4px' }}>
+						Lead time
+					</span>
+					{formattedDate(lead?.createdDate) || 'N/A'}
+				</Box>
+			</Flex>
 		</Box>
 	);
 };
