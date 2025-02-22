@@ -58,7 +58,7 @@ const LeadCard = ({ lead }) => {
 			bg='white'
 			width='100%'
 			flexBasis={cardWidth}
-			boxShadow='md'
+			boxShadow='sm'
 			_hover={{ boxShadow: 'lg' }}
 			transition='all 0.2s ease-in-out'
 		>
@@ -66,22 +66,20 @@ const LeadCard = ({ lead }) => {
 				justify='space-between'
 				align='stretch'
 				wrap='wrap'
-				gap={{ base: 2, md: 3 }}
+				gap={{ base: 2, md: 3, lg: 4 }}
 			>
 				<LeftCard lead={lead} />
 				<RightCard lead={lead} />
-				<Box
-					textAlign='right'
-					width='full'
-					fontSize={leadlabelFontSize}
-					color='gray.900'
-				>
-					<span style={{ color: '#D3D3D3', marginRight: '4px' }}>
-						Lead time
-					</span>
-					{formattedDate(lead?.createdDate) || 'N/A'}
-				</Box>
 			</Flex>
+			<Box
+				textAlign='right'
+				width='full'
+				fontSize={leadlabelFontSize}
+				color='gray.900'
+			>
+				<span style={{ color: '#D3D3D3', marginRight: '4px' }}>Lead time</span>
+				{formattedDate(lead?.createdDate) || 'N/A'}
+			</Box>
 		</Box>
 	);
 };

@@ -23,7 +23,8 @@ const LeftCard = ({ lead }) => {
 			</Text>
 
 			<Grid
-				minWidth='13.75rem'
+				// minWidth='14.75rem'
+				minWidth='14.75em' // Scales based on the parent element's font size
 				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 				gap={1}
 			>

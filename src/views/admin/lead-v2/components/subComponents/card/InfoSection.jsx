@@ -8,6 +8,7 @@ const InfoSection = ({ lead }) => {
 		{ label: 'Campaign', value: lead?.leadCampaign },
 		{ label: 'Campaign Url', value: lead?.pageUrl },
 		{ label: 'Medium', value: lead?.leadSourceMedium },
+		{ label: 'Attendance Day', value: lead?.attendanceDay },
 		{
 			label: 'In UAE?',
 			value:

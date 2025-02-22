@@ -65,7 +65,8 @@ const RightCard = ({ lead }) => {
 		<Flex
 			flexDir='column'
 			gap={1}
-			flex='1'
+			// flex='1'
+			flexGrow='1'
 			justifySelf='end'
 			justifyContent='space-between'
 			// align='center'
@@ -95,7 +96,7 @@ const RightCard = ({ lead }) => {
 				// minWidth={{ base: '6rem', md: '8rem' }}
 				templateColumns={{ base: 'repeat(1, 1fr)' }}
 				gap={2}
-				p='1'
+				// p='1'
 				mt='6'
 			>
 				<EntityField
@@ -110,9 +111,7 @@ const RightCard = ({ lead }) => {
 				/>
 			</Grid>
 
-			<Box mt={3}>
-				<InfoSection lead={lead} />
-			</Box>
+			<InfoSection lead={lead} />
 		</Flex>
 	);
 };

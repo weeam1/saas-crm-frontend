@@ -2,7 +2,7 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useMemo, useState } from 'react';
-import { leadIconSize, leadlabelFontSize } from '../constants';
+import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
@@ -15,7 +15,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned }) => {
 
 	// Filter agents related to the assigned manager
 	const agents = useMemo(() => {
-		return tree?.agents?.[`manager-${managerAssigned}`] || [];
+		return mergeSort(tree?.agents?.[`manager-${managerAssigned}`] || []);
 	}, [managerAssigned, tree]);
 
 	return (

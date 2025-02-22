@@ -13,6 +13,7 @@ import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	mergeSort,
 } from '../constants';
 import { useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
@@ -88,7 +89,7 @@ const Managers = ({ lead, managerAssigned }) => {
 			</Flex>
 			<SelectInput
 				name='managerAssigned'
-				options={tree?.managers || []}
+				options={mergeSort(tree?.managers || [])}
 				placeholder='Select'
 				selectedValue={selected}
 				type='dynamic'
