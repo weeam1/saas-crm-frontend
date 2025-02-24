@@ -50,7 +50,7 @@ function Sidebar(props) {
 				bg={sidebarBg}
 				transition={variantChange}
 				// w='280px'
-				w={openSidebar ? '280px' : '80px'}
+				w={openSidebar ? '240px' : '80px'}
 				h='100vh'
 				m={sidebarMargins}
 				minH='100%'
@@ -121,8 +121,8 @@ export function SidebarResponsive(props) {
 				<DrawerOverlay />
 				<DrawerContent
 					boxShadow={'xl'}
-					w='285px'
-					maxW='285px'
+					// w='285px'
+					// maxW='285px'
 					bg={sidebarBackgroundColor}
 				>
 					<DrawerCloseButton
@@ -131,7 +131,7 @@ export function SidebarResponsive(props) {
 						_focus={{ boxShadow: 'none' }}
 						_hover={{ boxShadow: 'none' }}
 					/>
-					<DrawerBody maxW='285px' px='0rem' pb='0'>
+					<DrawerBody bg='red.200' maxW='full' px='0rem' pb='0'>
 						<Scrollbars
 							autoHide
 							renderTrackVertical={renderTrack}

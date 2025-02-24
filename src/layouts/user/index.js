@@ -101,15 +101,15 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: Lead,
 		},
-		// {
-		// 	name: 'New Lead',
-		// 	layout: [ROLE_PATH.user],
-		// 	path: '/new-lead',
-		// 	icon: (
-		// 		<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-		// 	),
-		// 	component: LeadScreen,
-		// },
+		{
+			name: 'New Lead',
+			layout: [ROLE_PATH.user],
+			path: '/new-lead',
+			icon: (
+				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadScreen,
+		},
 		{
 			name: 'HR Module',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -565,14 +565,14 @@ export default function User(props) {
 							base: '100%',
 							xl:
 								openSidebar === true
-									? 'calc( 100% - 300px )'
+									? 'calc( 100% - 240px )'
 									: 'calc( 100% - 88px )',
 						}}
 						maxWidth={{
 							base: '100%',
 							xl:
 								openSidebar === true
-									? 'calc( 100% - 300px )'
+									? 'calc( 100% - 240px )'
 									: 'calc( 100% - 88px )',
 						}}
 						transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
