@@ -16,7 +16,7 @@ const Pagination = ({
 	totalItems,
 	itemsPerPage,
 }) => {
-	const [gotoPage, setGotoPage] = useState(currentPage || null);
+	const [gotoPage, setGotoPage] = useState(currentPage || '');
 
 	// Calculate indices for the summary
 	const startIndex = (currentPage - 1) * itemsPerPage + 1;
@@ -115,7 +115,7 @@ const Pagination = ({
 					onChange={(valueString) => setGotoPage(Number(valueString) || '')} // Instantly update value
 					onBlur={handleGoToBlur} // Triggers when input loses focus
 					min={1}
-					max={totalPages}
+					// max={totalPages > 0 ? totalPages : null}
 					size='sm'
 					borderRadius='md'
 					width='5rem'

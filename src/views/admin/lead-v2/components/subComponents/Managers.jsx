@@ -17,53 +17,38 @@ import {
 } from '../constants';
 import { useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
 
-const Managers = ({ lead, managerAssigned }) => {
+const Managers = ({ lead, managerAssigned, refreshLeads }) => {
+	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('' || managerAssigned);
 	const tree = useSelector((state) => state.user.tree);
 
-	// const handleChangeManager = async (e) => {
-	// 	const managerAssigned = e.target.value;
-	// 	const dataObj = {
-	// 		managerAssigned: managerAssigned || '',
-	// 		agentAssigned: managerAssigned ? '' : undefined,
-	// 		// agentAssigned: "",
-	// 	};
+	const handleChangeManager = async (e) => {
+		const managerAssigned = e.target.value;
 
-	// 	try {
-	// 		setLoading(true);
-	// 		const res = await putApi(`api/lead/edit/${leadID}`, dataObj);
+		const dataObj = {
+			managerAssigned: managerAssigned || '',
+			agentAssigned: managerAssigned ? '' : undefined,
+		};
 
-	// 		if (res.status === 200) {
-	// 			updateRowStatus(leadID, res.data.leadStatus);
-	// 			toast.success('Manager updated successfully');
-	// 		}
+		try {
+			setLoading(true);
+			const res = await putApi(`api/lead/edit/${lead._id}`, dataObj);
 
-	// 		// Update data in the corresponding list (searched or default)
-	// 		const updateListData = (prevData) => {
-	// 			const newData = [...prevData];
-	// 			const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
-	// 			if (updateIdx !== -1) {
-	// 				newData[updateIdx].managerAssigned = dataObj.managerAssigned;
-	// 				newData[updateIdx].agentAssigned = dataObj.agentAssigned || '';
-	// 				newData[updateIdx].leadType = dataObj.leadType || null;
-	// 				newData[updateIdx].isReleased = dataObj.isReleased;
-	// 			}
-	// 			return newData;
-	// 		};
-
-	// 		if (displaySearchData) {
-	// 			setSearchedData(updateListData);
-	// 		} else {
-	// 			setData(updateListData);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('Failed to update the manager:', error);
-	// 		toast.error('Failed to update the manager');
-	// 	} finally {
-	// 		setLoading(false);
-	// 	}
-	// };
+			if (res.status === 200) {
+				setSelected(managerAssigned);
+				refreshLeads();
+				toast.success('Manager updated successfully');
+			}
+		} catch (error) {
+			console.error('Failed to update the manager:', error);
+			toast.error('Failed to update the manager');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
 		<>
@@ -94,7 +79,8 @@ const Managers = ({ lead, managerAssigned }) => {
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}
-				onChange={(e) => setSelected(e.target.value)}
+				loading={loading}
+				onChange={handleChangeManager}
 			/>
 			{/* <FormControl>
 				<Select

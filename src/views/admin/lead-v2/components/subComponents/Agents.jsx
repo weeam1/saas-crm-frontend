@@ -6,12 +6,55 @@ import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
+import { toast } from 'react-toastify';
+import { fetchAgentLeadsSats } from 'api';
+import { putApi } from 'services/api';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 
-const Agents = ({ lead, managerAssigned, agentAssigned }) => {
+const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
+	const [loading, setLoading] = useState(false);
+
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
 	// const { list } = useSelector((state) => state?.users);
 
 	const tree = useSelector((state) => state.user.tree);
+
+	const handleChangeAgent = async (e) => {
+		try {
+			setLoading(true);
+
+			const data = {
+				agentAssigned: e.target.value,
+			};
+
+			if (data.agentAssigned) {
+				const stats = await fetchAgentLeadsSats(data.agentAssigned);
+
+				if (!stats.canAddLeads) {
+					setErrorLeadData(stats);
+					setIsErrorModalOpen(true);
+					setLoading(false);
+					return;
+				}
+			}
+
+			const res = await putApi(`api/lead/edit/${lead._id}`, data);
+
+			if (res.status === 200) {
+				setSelected(data.agentAssigned);
+
+				toast.success('Agent updated successfully');
+				refreshLeads();
+			}
+		} catch (error) {
+			console.error('Failed to update the agent:', error);
+			toast.error('Agent not updated. Please try again.');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	// Filter agents related to the assigned manager
 	const agents = useMemo(() => {
@@ -47,8 +90,17 @@ const Agents = ({ lead, managerAssigned, agentAssigned }) => {
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}
-				onChange={(e) => setSelected(e.target.value)}
+				loading={loading}
+				onChange={handleChangeAgent}
 			/>
+
+			{errorLeadData && (
+				<ErrorLeadLimitMessage
+					isOpen={isErrorModalOpen}
+					onClose={() => setIsErrorModalOpen(false)}
+					errorLeadData={errorLeadData}
+				/>
+			)}
 		</>
 	);
 };

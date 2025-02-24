@@ -4,7 +4,8 @@ import { leadlabelFontSize } from '../../constants';
 
 const InfoSection = ({ lead }) => {
 	const infoFields = [
-		{ label: 'Source Content', value: lead?.leadSourceDetails },
+		// { label: 'Source Content', value: lead?.leadSourceDetails },
+		{ label: 'Budget', value: lead?.budget },
 		{ label: 'Campaign', value: lead?.leadCampaign },
 		{ label: 'Campaign Url', value: lead?.pageUrl },
 		{ label: 'Medium', value: lead?.leadSourceMedium },

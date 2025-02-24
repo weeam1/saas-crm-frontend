@@ -8,12 +8,35 @@ import {
 	leadlabelFontSize,
 	leadSelectInputSize,
 } from '../constants';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
 
-const Status = ({ lead }) => {
+const Status = ({ lead, refresh }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+	const [loading, setLoading] = useState(false);
+
+	const handleStatus = async (e) => {
+		try {
+			setLoading(true);
+			const data = {
+				leadStatus: e.target.value,
+			};
+
+			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
+			if (response.status === 200) {
+				setSelected(data.leadStatus);
+				toast.success('Lead Status Updated!');
+			}
+		} catch (e) {
+			console.log(e);
+			toast.error('Something went wrong!');
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	useEffect(() => {
 		const selectedOption = leadStatus.find((item) => item.value === selected);
@@ -48,7 +71,8 @@ const Status = ({ lead }) => {
 				options={leadStatus}
 				placeholder='Select'
 				selectedValue={selected}
-				onChange={(e) => setSelected(e.target.value)}
+				loading={loading}
+				onChange={handleStatus}
 				bgColorCustom={bgColor}
 				textColorCustom={textColor}
 				size={leadSelectInputSize}

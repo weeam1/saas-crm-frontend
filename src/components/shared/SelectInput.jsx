@@ -5,11 +5,14 @@ import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constant
 import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
 
 import {
+	CircularProgress,
 	FormControl,
 	FormLabel,
 	Select,
 	useColorModeValue,
 } from '@chakra-ui/react';
+import BoxLoading from './BoxLoading';
+import SelectLoading from './SelectLoading';
 
 // const SelectInput = ({
 // 	name,
@@ -216,6 +219,7 @@ const SelectInput = ({
 	bgColorCustom,
 	dropdownBgCustom,
 	selectedValue,
+	loading,
 	type = 'static',
 	...props
 }) => {
@@ -239,7 +243,7 @@ const SelectInput = ({
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
 
 			<Select
-				placeholder={placeholder}
+				placeholder={loading ? 'Updating...' : placeholder}
 				size={size}
 				value={selectedValue}
 				fontSize={leadSelectInputFontSize}
@@ -257,18 +261,21 @@ const SelectInput = ({
 						_hover: { bg: dropdownHoverBg },
 					},
 				}}
+				isDisabled={loading}
 				{...props}
 			>
-				{options.map((opt) => (
-					<option
-						key={type === 'dynamic' ? opt._id : opt.value}
-						value={type === 'dynamic' ? opt._id : opt.value}
-					>
-						{type === 'dynamic'
-							? opt?.firstName + ' ' + opt?.lastName
-							: opt.label}
-					</option>
-				))}
+				{!loading
+					? options.map((opt) => (
+							<option
+								key={type === 'dynamic' ? opt._id : opt.value}
+								value={type === 'dynamic' ? opt._id : opt.value}
+							>
+								{type === 'dynamic'
+									? opt?.firstName + ' ' + opt?.lastName
+									: opt.label}
+							</option>
+						))
+					: null}
 			</Select>
 		</FormControl>
 	);

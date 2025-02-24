@@ -7,8 +7,9 @@ import {
 	useClipboard,
 	useColorModeValue,
 	HStack,
+	Icon,
 } from '@chakra-ui/react';
-import { CopyIcon } from '@chakra-ui/icons';
+import { CopyIcon, InfoIcon } from '@chakra-ui/icons';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -19,6 +20,7 @@ const EntityField = ({
 	label,
 	value,
 	isCopy = false,
+	isInfo = false,
 	labelProps = {},
 	valueProps = {},
 	iconProps = {},
@@ -33,6 +35,7 @@ const EntityField = ({
 		<Box
 			display='flex'
 			width='fit-content'
+			maxWidth={isInfo ? '100px' : '200px'}
 			flexDir='column'
 			justifyContent='flex-start'
 			justifySelf='stretch'
@@ -68,6 +71,16 @@ const EntityField = ({
 						/>
 					</Tooltip>
 				)}
+				{isInfo && value && (
+					<Tooltip label={value || 'N/A'} hasArrow>
+						<Icon
+							as={InfoIcon}
+							boxSize={leadIconSize}
+							color='blue.300'
+							cursor='pointer'
+						/>
+					</Tooltip>
+				)}
 			</HStack>
 
 			{/* Value */}
@@ -75,6 +88,7 @@ const EntityField = ({
 				fontSize={leadValueFontSize}
 				fontWeight='medium'
 				color={valueColor}
+				isTruncated={isInfo}
 				{...valueProps}
 			>
 				{value || 'N/A'}

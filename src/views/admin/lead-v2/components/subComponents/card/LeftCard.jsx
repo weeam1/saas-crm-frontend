@@ -1,26 +1,53 @@
 import EntityField from './EntityField';
-import { Box, Flex, Grid, GridItem, Icon, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Flex,
+	Grid,
+	GridItem,
+	HStack,
+	Icon,
+	Text,
+	Tooltip,
+} from '@chakra-ui/react';
 import LastNoteField from './LastNoteField';
 import MainStatus from '../MainStatus';
 import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
-import { leadlabelFontSize, leadValueFontSize } from '../../constants';
+import { leadlabelFontSize } from '../../constants';
+import LeadTypeBadge from '../LeadTypeBadge';
 
-const LeftCard = ({ lead }) => {
+const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
+	const leadType =
+		lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
+
+	const roleName =
+		user?.role === 'superAdmin'
+			? 'superAdmin'
+			: (user?.roles?.[0]?.roleName ?? 'unknown');
+
 	return (
 		<Box flex='1'>
 			<Flex alignItems='center' gap='2'>
-				<Icon as={IoMdEye} boxSize='10px' color='gray.400' />
+				<Icon
+					as={IoMdEye}
+					boxSize='12px'
+					onClick={() => setViewLead({ isOpen: true, lid: lead?._id })}
+					color='gray.400'
+					cursor='pointer'
+				/>
 
 				<Text fontSize={leadlabelFontSize} color='softGray.200'>
 					{lead?.intID || 'N/A'}
 				</Text>
 			</Flex>
-			<Text fontSize='12px' fontWeight='semibold' mb={2}>
-				{lead?.leadName || 'N/A'}
-			</Text>
+			<HStack mb={2}>
+				<Text fontSize='12px' fontWeight='semibold'>
+					{lead?.leadName || 'N/A'}
+				</Text>
+				<LeadTypeBadge leadType={leadType} roleName={roleName} />
+			</HStack>
 
 			<Grid
 				// minWidth='14.75rem'
@@ -40,7 +67,11 @@ const LeftCard = ({ lead }) => {
 				/>
 				{/* Manager */}
 				<GridItem>
-					<Managers managerAssigned={lead?.managerAssigned} lead={lead} />
+					<Managers
+						managerAssigned={lead?.managerAssigned}
+						lead={lead}
+						refreshLeads={refreshLeads}
+					/>
 				</GridItem>
 
 				{/* Agent */}
@@ -49,16 +80,17 @@ const LeftCard = ({ lead }) => {
 						agentAssigned={lead?.agentAssigned}
 						managerAssigned={lead?.managerAssigned}
 						lead={lead}
+						refreshLeads={refreshLeads}
 					/>
 				</GridItem>
 
 				{/* Main lead status */}
 				<GridItem>
-					<MainStatus lead={lead} />
+					<MainStatus lead={lead} refreshLeads={refreshLeads} />
 				</GridItem>
 				{/* Lead status */}
 				<GridItem>
-					<Status lead={lead} />
+					<Status lead={lead} refreshLeads={refreshLeads} />
 				</GridItem>
 
 				{/* Phone */}

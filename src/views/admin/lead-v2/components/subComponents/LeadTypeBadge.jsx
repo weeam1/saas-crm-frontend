@@ -1,4 +1,5 @@
 import { Badge } from '@chakra-ui/react';
+import { leadlabelFontSize, leadValueFontSize } from '../constants';
 
 const LeadTypeBadge = ({ leadType, roleName }) => {
 	const badgeDetails = {
@@ -21,8 +22,8 @@ const LeadTypeBadge = ({ leadType, roleName }) => {
 		return (
 			<Badge
 				colorScheme={badgeInfo.color}
-				fontSize='0.7rem'
-				size='sm'
+				fontSize={leadlabelFontSize}
+				size='xs'
 				p='4px'
 				rounded='full'
 				textTransform='capitalize'

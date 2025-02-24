@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { FaPlus } from 'react-icons/fa6';
+import { buttonStyle } from './components/constants';
 // import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadScreen = () => {
@@ -31,6 +32,7 @@ const LeadScreen = () => {
 		isLoading: leadsLoading,
 		error: leadsError,
 		refetch: leadsRefetch,
+		isFetching: leadsRefetching,
 	} = useFetchItemsQuery(
 		{
 			path: '/lead/v2',
@@ -67,6 +69,15 @@ const LeadScreen = () => {
 		setCurrentPage(page);
 	};
 
+	// Refresh data
+	const refreshLeads = () => {
+		console.log('refresh leads call');
+		leadsRefetch({
+			path: '/lead/v2',
+			params: queryParams,
+		});
+	};
+
 	if (leadsError) {
 		return (
 			<ErrorMessage
@@ -74,18 +85,6 @@ const LeadScreen = () => {
 			/>
 		);
 	}
-
-	const buttonStyle = {
-		size: 'sm',
-		borderRadius: 'md',
-		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
-		_active: { bg: 'brand.500' },
-		color: 'white',
-		fontWeight: 'medium',
-		sx: {
-			svg: { fill: 'white', bg: 'green.600', borderRadius: 'full', p: '.5px' },
-		}, // ✅ Only changes icon color
-	};
 
 	return (
 		<Box
@@ -133,9 +132,13 @@ const LeadScreen = () => {
 			<Leads
 				leads={leads}
 				leadsLoading={leadsLoading}
+				leadsRefetching={leadsRefetching}
+				refreshLeads={refreshLeads}
 				currentPage={currentPage}
+				setCurrentPage={setCurrentPage}
 				hanldePage={handlePageChange}
 				pageSize={pageSize}
+				setQueryParams={setQueryParams}
 			/>
 		</Box>
 	);

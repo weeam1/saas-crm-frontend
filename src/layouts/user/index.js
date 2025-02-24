@@ -11,6 +11,7 @@ import {
 	MdCampaign,
 	MdHome,
 	MdInsertChartOutlined,
+	MdLeaderboard,
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
@@ -36,6 +37,7 @@ const UserPage = React.lazy(() => import('views/admin/users'));
 const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Lead = React.lazy(() => import('views/admin/lead'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 
 export default function User(props) {
@@ -99,7 +101,15 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: Lead,
 		},
-
+		// {
+		// 	name: 'New Lead',
+		// 	layout: [ROLE_PATH.user],
+		// 	path: '/new-lead',
+		// 	icon: (
+		// 		<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: LeadScreen,
+		// },
 		{
 			name: 'HR Module',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

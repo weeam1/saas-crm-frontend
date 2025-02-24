@@ -100,14 +100,15 @@ const RightCard = ({ lead }) => {
 				mt='6'
 			>
 				<EntityField
-					label='Budget'
-					value={lead.budget}
-					valueProps={{ color: '#FFBB00' }}
-				/>
-				<EntityField
 					label='Time to Call'
 					value='11:40 PM'
 					valueProps={{ color: 'green.600' }}
+				/>
+				<EntityField
+					label='Source Content'
+					value={lead.leadSourceDetails}
+					valueProps={{ color: '#FFBB00' }}
+					isInfo={true}
 				/>
 			</Grid>
 

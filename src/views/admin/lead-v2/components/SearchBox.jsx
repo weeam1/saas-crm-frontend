@@ -7,8 +7,9 @@ import {
 	Box,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
+import DateFilterButton from './DateFilterButton';
 
-const SearchBox = () => {
+const SearchBox = ({ dateTimeOnOpen }) => {
 	return (
 		<Box
 			alignSelf='end'
@@ -67,6 +68,8 @@ const SearchBox = () => {
 				>
 					Advance Search
 				</Button>
+
+				<DateFilterButton onClick={dateTimeOnOpen} />
 			</HStack>
 		</Box>
 	);

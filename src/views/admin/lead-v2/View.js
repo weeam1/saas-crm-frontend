@@ -34,8 +34,6 @@ import Spinner from 'components/spinner/Spinner';
 import { constant } from 'constant';
 import moment from 'moment/moment';
 import { useEffect, useState } from 'react';
-import { IoIosArrowBack } from 'react-icons/io';
-import { Link, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getApi, postApi } from 'services/api';
 import ColumnsTable from '../contact/components/ColumnsTable';
@@ -46,19 +44,20 @@ import AddEmailHistory from '../emailHistory/components/AddEmail';
 import AddMeeting from '../meeting/components/Addmeeting';
 import AddPhoneCall from '../phoneCall/components/AddPhoneCall';
 import AddTask from '../task/components/addTask';
-import Add from './Add';
 import Delete from './Delete';
-import Edit from './Edit';
 import { HasAccess } from '../../../redux/accessUtils';
 import DataNotFound from 'components/notFoundData';
 import LeadNotes from './components/LeadNotes';
 import { FaPlus } from 'react-icons/fa';
 import NewNoteModal from './components/NewNoteModal';
 import { useSelector } from 'react-redux';
+
+import EditLead from './components/EditLead';
+import AddLead from './components/AddLead';
+import { formattedDate } from 'utils/helpers';
+
 const View = ({ param, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
-
-	console.log('View page');
 
 	const textColor = useColorModeValue('gray.500', 'white');
 
@@ -78,6 +77,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	const [action, setAction] = useState(false);
 	const [leadData, setLeadData] = useState([]);
 	const [noteAdded, setNoteAdded] = useState(0);
+
 	const size = 'lg';
 	const { leadPoolState: currentState } = useSelector((state) => state?.user);
 	const [addEmailHistory, setAddEmailHistory] = useState(false);
@@ -123,7 +123,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		setIsLoding(true);
 		let response = await getApi('api/lead/view/', param.id);
 		setData(response.data?.lead);
-		setAllData(response.data);
+		setAllData(response?.data);
 		setIsLoding(false);
 	};
 
@@ -146,21 +146,36 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
 
-	console.log({ data });
-
 	return (
 		<>
 			{isOpen && (
-				<Add
+				// <Add
+				// 	isOpen={isOpen}
+				// 	size={size}
+				// 	onClose={onClose}
+				// 	setLeadData={setLeadData}
+				// 	leadData={leadData[0]}
+				// 	setAction={setAction}
+				// />
+				<AddLead
 					isOpen={isOpen}
-					size={size}
 					onClose={onClose}
-					setLeadData={setLeadData}
-					leadData={leadData[0]}
-					setAction={setAction}
+					size={size}
+					refreshData={reFreshData}
 				/>
 			)}
-			<Edit
+
+			{edit && (
+				<EditLead
+					isOpen={edit}
+					size={size}
+					refreshData={reFreshData}
+					leadData={data}
+					onClose={() => setEdit(false)}
+				/>
+			)}
+
+			{/* <Edit
 				isOpen={edit}
 				size={size}
 				onClose={setEdit}
@@ -168,7 +183,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 				leadData={leadData[0]}
 				setAction={setAction}
 				moduleId={leadData?.[0]?._id}
-			/>
+			/> */}
 			<Delete
 				isOpen={deleteModel}
 				onClose={setDelete}
@@ -405,10 +420,13 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														fontSize='sm'
 														fontWeight='bold'
 													>
-														{' '}
-														Lead Creation Date{' '}
+														Lead Creation Date
 													</Text>
-													<Text>{moment(data?.createdDate).format('L')}</Text>
+													<Text>
+														{data?.createdDate
+															? formattedDate(data?.createdDate)
+															: 'N/A'}
+													</Text>
 												</GridItem>
 												{/* <GridItem colSpan={{ base: 12, md: 6 }}>
                           <Text
@@ -512,8 +530,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														fontSize='sm'
 														fontWeight='bold'
 													>
-														{' '}
-														Lead Source Channel{' '}
+														Lead Source Channel
 													</Text>
 													<Text>
 														{data?.leadSourceChannel
@@ -816,7 +833,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 												alignItems={'center'}
 											>
 												{(currentState === 'Accepted' ||
-													window?.location?.pathname === '/lead') && (
+													window?.location?.pathname === '/new-lead') && (
 													<Button
 														color='white'
 														onClick={() => setNewNoteModal(true)}

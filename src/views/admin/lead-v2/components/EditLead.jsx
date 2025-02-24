@@ -174,7 +174,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='80vh'
+									height='70vh'
 									p='4'
 								>
 									<RenderFields fields={fields} />

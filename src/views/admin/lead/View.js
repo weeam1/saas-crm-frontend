@@ -122,6 +122,9 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	const fetchData = async () => {
 		setIsLoding(true);
 		let response = await getApi('api/lead/view/', param.id);
+
+		console.log({ response });
+
 		setData(response.data?.lead);
 		setAllData(response.data);
 		setIsLoding(false);
