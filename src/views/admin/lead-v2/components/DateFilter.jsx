@@ -18,6 +18,7 @@ import { buttonStyle, customDatepickerStyles } from './constants';
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { formattedDate } from 'utils/helpers';
 
 const DateFilter = ({
 	setQueryParams,
@@ -25,6 +26,8 @@ const DateFilter = ({
 	setCurrentPage,
 	onClose,
 	isOpen,
+	setSearchTags,
+	setSearchClear,
 }) => {
 	// const [selectedDates, setSelectedDates] = useState([new Date(), new Date()]);
 
@@ -48,7 +51,13 @@ const DateFilter = ({
 		}));
 		setCurrentPage(1);
 
+		const searchValues = [
+			`Start: ${formattedDate(from)}`,
+			`End: ${formattedDate(to)}`,
+		];
+		setSearchTags(searchValues);
 		setRefetchLoading(true);
+		setSearchClear(true);
 		onClose();
 	};
 
@@ -70,7 +79,8 @@ const DateFilter = ({
 		// 					color: 'black !important', // Ensures text is visible
 		// 					_placeholder: { color: 'gray.500 !important' }, // Placeholder color
 		// 					border: '1px solid #ccc !important', // Ensures border visibility
-		// 				},
+		// 				},import { formattedDate } from 'utils/helpers';
+
 		// 			},
 		// 		}}
 		// 	/>

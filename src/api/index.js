@@ -48,7 +48,6 @@ export const getApplications = async (
 	server = 'baseUrl'
 ) => {
 	try {
-		console.log('aplciajlfdjl');
 		const headers = {};
 		setAuthHeader(headers);
 

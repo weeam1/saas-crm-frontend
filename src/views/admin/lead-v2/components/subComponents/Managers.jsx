@@ -1,14 +1,7 @@
 import SelectInput from 'components/shared/SelectInput';
 import { InfoIcon } from '@chakra-ui/icons';
-import {
-	Flex,
-	FormControl,
-	Icon,
-	Select,
-	Text,
-	Tooltip,
-} from '@chakra-ui/react';
-import { useState } from 'react';
+import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -22,8 +15,12 @@ import { putApi } from 'services/api';
 
 const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 	const [loading, setLoading] = useState(false);
-	const [selected, setSelected] = useState('' || managerAssigned);
+	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
+
+	useEffect(() => {
+		setSelected(managerAssigned);
+	}, [managerAssigned]);
 
 	const handleChangeManager = async (e) => {
 		const managerAssigned = e.target.value;

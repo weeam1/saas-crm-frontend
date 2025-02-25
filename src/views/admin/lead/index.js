@@ -19,7 +19,6 @@ const Index = () => {
 	const [hideColumns, setHideColumns] = useState([]);
 
 	const tree = useSelector((state) => state.user.tree);
-
 	const [permission, emailAccess, callAccess] = HasAccess([
 		'Lead',
 		'Email',

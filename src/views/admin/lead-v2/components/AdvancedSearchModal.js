@@ -18,19 +18,26 @@ const {
 } = require('@chakra-ui/react');
 
 const AdvancedSearchModal = ({
-	setAdvaceSearch,
-	advaceSearch,
-	isLoading,
-	fetchAdvancedSearch,
+	advanceSearch,
+	setAdvanceSearch,
+	setQueryParams,
 	setSearchClear,
-	setFormValues,
+	// setFormValues,
 	isFormReset,
 	setIsFormReset,
-	pageSize,
 	setGetTagValues,
+	setRefetchLoading,
 }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
+
+	const updateAdvancedSearchQuery = (advancedSearchData) => {
+		setQueryParams((prev) => ({
+			...prev,
+			page: 1, // Reset to first page on new search
+			data: JSON.stringify(advancedSearchData),
+		}));
+	};
 
 	const formClearHanlder = () => {
 		// handleClear();
@@ -134,13 +141,14 @@ const AdvancedSearchModal = ({
 			);
 
 			// Call API with cleaned data
-			fetchAdvancedSearch(cleanedData, 1, pageSize);
-			setAdvaceSearch(false);
+			updateAdvancedSearchQuery(cleanedData);
+			setAdvanceSearch(false);
 
 			// Update UI with tags
 			setGetTagValues(tags);
 			setSearchClear(true);
-			setFormValues(values);
+			setRefetchLoading(true);
+			// setFormValues(values);
 		},
 	});
 
@@ -168,10 +176,10 @@ const AdvancedSearchModal = ({
 			<Modal
 				size='6xl'
 				onClose={() => {
-					setAdvaceSearch(false);
+					setAdvanceSearch(false);
 					// formikResetForm();
 				}}
-				isOpen={advaceSearch}
+				isOpen={advanceSearch}
 				isCentered
 				motionPreset='slideInBottom'
 			>
@@ -180,7 +188,7 @@ const AdvancedSearchModal = ({
 					<ModalHeader>Advance Search</ModalHeader>
 					<ModalCloseButton
 						onClick={() => {
-							setAdvaceSearch(false);
+							setAdvanceSearch(false);
 							formikResetForm();
 						}}
 					/>
@@ -205,13 +213,8 @@ const AdvancedSearchModal = ({
 						>
 							Clear
 						</Button>
-						<Button
-							colorScheme='brand'
-							size='sm'
-							onClick={handleSubmit}
-							disabled={isLoading || !dirty ? true : false}
-						>
-							{isLoading ? <Spinner /> : 'Search'}
+						<Button colorScheme='brand' size='sm' onClick={handleSubmit}>
+							Search
 						</Button>
 					</ModalFooter>
 				</ModalContent>

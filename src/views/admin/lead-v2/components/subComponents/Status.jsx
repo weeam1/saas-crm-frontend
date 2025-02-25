@@ -1,6 +1,6 @@
 import SelectInput from 'components/shared/SelectInput';
 import { leadStatus } from 'utils/options';
-import { Box, HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import {

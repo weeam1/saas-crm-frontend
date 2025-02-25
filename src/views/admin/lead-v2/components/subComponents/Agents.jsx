@@ -1,7 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useSelector } from 'react-redux';
@@ -20,6 +20,10 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	// const { list } = useSelector((state) => state?.users);
 
 	const tree = useSelector((state) => state.user.tree);
+
+	useEffect(() => {
+		setSelected(agentAssigned);
+	}, [agentAssigned]);
 
 	const handleChangeAgent = async (e) => {
 		try {
