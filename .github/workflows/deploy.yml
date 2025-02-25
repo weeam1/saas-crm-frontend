@@ -16,7 +16,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: crm.weeam.info
+          host: 46.202.140.221
           username: root
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
