@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Spinner } from '@chakra-ui/react';
+import { Button, HStack, Spinner } from '@chakra-ui/react';
 
 const CustomButton = ({ isLoading, isDisabled, children, ...rest }) => (
 	<Button
@@ -19,7 +19,14 @@ const CustomButton = ({ isLoading, isDisabled, children, ...rest }) => (
 		isDisabled={isDisabled}
 		{...rest}
 	>
-		{isLoading ? <Spinner /> : children}
+		{isLoading ? (
+			<HStack>
+				<Spinner size='sm' />
+				'Loading...'
+			</HStack>
+		) : (
+			children
+		)}
 	</Button>
 );
 

@@ -19,7 +19,6 @@ const Index = () => {
 	const [hideColumns, setHideColumns] = useState([]);
 
 	const tree = useSelector((state) => state.user.tree);
-
 	const [permission, emailAccess, callAccess] = HasAccess([
 		'Lead',
 		'Email',
@@ -42,9 +41,12 @@ const Index = () => {
 		{ Header: 'Budget', accessor: 'budget' },
 		{ Header: 'Nationality', accessor: 'nationality' },
 		{ Header: 'Language', accessor: 'leadLang' },
+
 		{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
 		{ Header: 'Country', accessor: 'ip' },
 		{ Header: 'Source Content', accessor: 'leadSourceDetails' },
+		{ Header: 'Attendence Day', accessor: 'attendanceDay' },
+
 		{ Header: 'Campaign', accessor: 'leadCampaign' },
 		{ Header: 'Campaign URL', accessor: 'pageUrl' },
 		{ Header: 'Address', accessor: 'leadAddress' },

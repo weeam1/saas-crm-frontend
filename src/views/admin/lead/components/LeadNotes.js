@@ -39,13 +39,11 @@ const LeadNotes = ({ lid, noteAdded }) => {
 		}
 	};
 
-	console.log({ allNotes });
-
 	useEffect(() => {
 		if (lid) {
 			fetchLeadNotes(lid);
 		}
-	}, [noteAdded]);
+	}, [lid, noteAdded]);
 
 	return (
 		<div>

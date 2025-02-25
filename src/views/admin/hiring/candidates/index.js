@@ -25,6 +25,9 @@ const Candidates = () => {
 	const [searchTags, setSearchTags] = useState([]);
 	const navigate = useNavigate();
 
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
+
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(12); // Items per page
 	const [queryParams, setQueryParams] = useState({
@@ -35,6 +38,15 @@ const Candidates = () => {
 	const { data: positionOptions } = useFetchItemsQuery({
 		path: `/positions/options`,
 	});
+
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const { data, error, isLoading, refetch, isFetching } = useFetchItemsQuery({
 		path: '/applications',
@@ -146,6 +158,18 @@ const Candidates = () => {
 				if (matchedOption) {
 					formattedValue = matchedOption.label; // Use label for UI
 					advancedSearch.position = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			// If key is "agency", replace value with label for UI, but keep ID in search
+			if (key === 'agency') {
+				const matchedOption = agencies?.doc?.find(
+					(option) => option._id === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.name; // Use label for UI
+					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
 				}
 			}
 

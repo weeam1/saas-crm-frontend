@@ -7,20 +7,13 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Button,
-	FormControl,
-	FormLabel,
-	Input,
-	Textarea,
-	Checkbox,
 	Grid,
 } from '@chakra-ui/react';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import RenderFields from './subComponents/RenderFields';
-import { mainLeadStatus } from 'utils/options';
-import { leadStatus } from 'utils/options';
+import RenderFields from 'components/shared/RenderFields';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	// Set initial values for your form using the data object:

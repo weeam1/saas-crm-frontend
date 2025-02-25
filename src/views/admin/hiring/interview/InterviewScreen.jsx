@@ -75,10 +75,14 @@ const InterviewScreen = memo(() => {
 	useEffect(() => {
 		if (!interview?.doc) return;
 
-		if (
-			['end', 'canceled'].includes(interview.doc.status) ||
-			interview?.doc?.jobType
-		) {
+		const isInterviewCompleted = ['end', 'canceled'].includes(
+			interview.doc.status
+		);
+
+		const isFinalStatusAsLead =
+			isLeadInterviewer && interview?.doc?.status === 'final';
+
+		if (isInterviewCompleted || isFinalStatusAsLead) {
 			toast.error('This interview has already completed.');
 			navigate('/');
 		}

@@ -27,7 +27,6 @@ export const apiSlice = createApi({
 				return `${path}?${queryString}`; // Appends query params to the URL
 			},
 			providesTags: (result, error, { path, params }) => {
-				console.log('Result:', result);
 				const queryString = new URLSearchParams(params).toString();
 				const cacheKey = `${path}?${queryString}`;
 

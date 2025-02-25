@@ -1,15 +1,5 @@
 import { memo, useState } from 'react';
-import {
-	Box,
-	Button,
-	Flex,
-	Icon,
-	Tab,
-	TabList,
-	TabPanel,
-	TabPanels,
-	Tabs,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Icon } from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
 import { useNavigate } from 'react-router-dom';
@@ -19,9 +9,14 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import MeetingSection from './components/MeetingSection';
 import PendingInvitedData from './PendingInvitedData';
+import { ItemContent } from './../../../../components/menu/ItemContent';
 
 const ShortListedCandidates = memo(() => {
 	const [activeTab, setActiveTab] = useState(0);
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const isManager = user?.roles[0]?.roleName === 'Manager';
 
 	const {
 		data: invitedCandidates,
@@ -49,6 +44,10 @@ const ShortListedCandidates = memo(() => {
 		},
 	];
 
+	const filteredTabData = isManager
+		? tabData.filter((item) => ItemContent.title === 'Short Listed')
+		: tabData;
+
 	return invitedCandidatesLoading ? (
 		<Loader />
 	) : (
@@ -67,11 +66,13 @@ const ShortListedCandidates = memo(() => {
 				Back
 			</Button>
 
-			<MeetingSection
-				invitedCandidates={invitedCandidates}
-				refetch={invitedRefetch}
-				setActiveTab={setActiveTab}
-			/>
+			{!isManager && (
+				<MeetingSection
+					invitedCandidates={invitedCandidates}
+					refetch={invitedRefetch}
+					setActiveTab={setActiveTab}
+				/>
+			)}
 
 			{/* <Box>
 				<Box display='flex' mb={2}>
@@ -164,7 +165,7 @@ const ShortListedCandidates = memo(() => {
 
 			<Box>
 				<Flex gap='2' px='4' width='fit-content'>
-					{tabData.map((tab, index) => (
+					{filteredTabData.map((tab, index) => (
 						<TabButton
 							key={index}
 							isActive={activeTab === index}

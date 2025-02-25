@@ -90,7 +90,7 @@ const InvitedTable = ({
 			{/* Box:  transform='translate(-10px, -10px)' */}
 			<Box rounded='md' overflow='hidden'>
 				<TableContainer
-					maxHeight='500px' // Set a custom height for the container
+					maxHeight='700px' // Set a custom height for the container
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
@@ -135,7 +135,7 @@ const InvitedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td minWidth='200px'>
+										<Td minWidth='300px'>
 											<Flex alignItems='center' gap='2'>
 												<span>{item.name}</span>
 												<FlagBadge item={item} />

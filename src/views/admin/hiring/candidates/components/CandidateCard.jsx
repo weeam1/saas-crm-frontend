@@ -1,12 +1,4 @@
-import {
-	Box,
-	Button,
-	Flex,
-	Heading,
-	HStack,
-	Image,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { FaWhatsapp, FaPhone, FaEye } from 'react-icons/fa6';
 import { useState } from 'react';
@@ -237,7 +229,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
 					{invited ? (
 						<Flex
-							fontSize='sm'
+							fontSize='xs'
 							alignItems='center'
 							justifyContent='flex-end'
 							gap={1}
@@ -245,12 +237,13 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 							<Text color='gray.500' fontWeight='light'>
 								interview on
 							</Text>
+
 							<Text>{format(new Date(interviewDate), 'EEE, MMM d, yyyy')}</Text>
 							<span>{interviewTime}</span>
 						</Flex>
 					) : (
 						<Flex
-							fontSize='sm'
+							fontSize='xs'
 							alignItems='center'
 							justifyContent='flex-end'
 							gap={1}

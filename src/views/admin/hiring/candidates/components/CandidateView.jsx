@@ -18,6 +18,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { format } from 'date-fns';
+import StatusBadge from 'components/shared/StatusBadge';
 
 const CandidateView = ({
 	isOpen,
@@ -51,10 +52,15 @@ const CandidateView = ({
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
 			<ModalOverlay />
 			<ModalContent p={4}>
-				<ModalHeader>Application</ModalHeader>
+				<ModalHeader display='flex' gap='2' alignItems='center'>
+					Application
+					{candidate?.isInterviewed && (
+						<StatusBadge status='Interviewed' color='green' />
+					)}
+				</ModalHeader>
 				<ModalCloseButton mt='6' />
 				<ModalBody width='100%'>
-					<Box overflow='scroll' height='60vh' p='4'>
+					<Box overflow='scroll' bg='white' height='60vh' p='4'>
 						<Grid
 							templateColumns={{
 								base: '1fr',
@@ -88,6 +94,14 @@ const CandidateView = ({
 								label='English Level'
 								value={candidate?.engLangLevel || 'N/A'}
 							/>
+							<DisplayField
+								label='Agency'
+								value={candidate?.agency?.name || 'N/A'}
+							/>
+
+							{/* {isAdmin && (
+							)} */}
+
 							{candidate.invited && (
 								<>
 									<DisplayField

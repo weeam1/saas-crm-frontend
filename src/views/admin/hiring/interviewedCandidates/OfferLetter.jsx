@@ -1,4 +1,4 @@
-import { Formik, Form } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import {
 	Button,
@@ -65,6 +65,11 @@ const OfferLetter = () => {
 	const [offerDetails, setOfferDetails] = useState({});
 	const [emailBody, setEmailBody] = useState('');
 
+	const [selectedDate, setSelectedDate] = useState(
+		offerDetails.joiningDate ? new Date(offerDetails.joiningDate) : null
+	);
+	const [showCalendar, setShowCalendar] = useState(false);
+
 	const { id } = useParams();
 	const [searchParams] = useSearchParams();
 	const offerType = searchParams.get('type');
@@ -103,7 +108,9 @@ const OfferLetter = () => {
 			});
 
 			if (offerType) {
-				offerType === 'edit' ? setIsEditing(true) : setIsEditing(false);
+				offerType === 'edit' || !data?.isOffer
+					? setIsEditing(true)
+					: setIsEditing(false);
 			}
 		}
 	}, [interview, offerType]);
@@ -111,16 +118,15 @@ const OfferLetter = () => {
 	const [createItemMutation, { isLoading: sendingOffer }] =
 		useCreateItemMutation();
 
-	const [selectedDate, setSelectedDate] = useState(
-		offerDetails.joiningDate ? new Date(offerDetails.joiningDate) : null
-	);
-	const [showCalendar, setShowCalendar] = useState(false);
-
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
 	const handleDateChange = (date) => {
 		setSelectedDate(date);
 		setShowCalendar(false);
+		setOfferDetails((prevDetails) => ({
+			...prevDetails,
+			joiningDate: date,
+		}));
 	};
 
 	const onSubmitOffer = async (data) => {
@@ -180,15 +186,17 @@ const OfferLetter = () => {
 			<Box bg='white' p={8} mb={4} rounded='md' shadow='sm'>
 				<Flex justifyContent='space-between' alignItems='center' mb={4}>
 					<Heading>Offer Letter</Heading>
-					<Tooltip label={isEditing ? 'Stop Editing' : 'Edit Offer'}>
-						<IconButton
-							icon={<FaEdit />}
-							onClick={() => setIsEditing(!isEditing)}
-							aria-label='Edit Offer Details'
-							colorScheme={isEditing ? 'brand' : 'gray'}
-							borderRadius='10px'
-						/>
-					</Tooltip>
+					{interview?.doc?.isOffer && (
+						<Tooltip label={isEditing ? 'Stop Editing' : 'Edit Offer'}>
+							<IconButton
+								icon={<FaEdit />}
+								onClick={() => setIsEditing(!isEditing)}
+								aria-label='Edit Offer Details'
+								colorScheme={isEditing ? 'brand' : 'gray'}
+								borderRadius='10px'
+							/>
+						</Tooltip>
+					)}
 				</Flex>
 				<Box>
 					<Formik
@@ -203,10 +211,11 @@ const OfferLetter = () => {
 									templateColumns={{
 										base: '1fr',
 										md: 'repeat(2, 1fr)',
-										lg: 'repeat(3, 1fr)',
+										// lg: 'repeat(2, 1fr)',
 									}}
 									gap={3}
 									w='full'
+									p={{ base: 2, md: 4 }}
 									mt={2}
 								>
 									<CustomSelect
@@ -256,6 +265,13 @@ const OfferLetter = () => {
 											min={1}
 											max={100}
 											type='number'
+											onKeyDown={(e) =>
+												['e', 'E', '+', '-'].includes(e.key) &&
+												e.preventDefault()
+											}
+											onInput={(e) =>
+												(e.target.value = e.target.value.replace(/[^0-9]/g, ''))
+											}
 											placeholder={offerDetails.commission}
 											isReadOnly={!isEditing}
 											isInvalid={errors.commission && touched.commission}
@@ -271,18 +287,16 @@ const OfferLetter = () => {
 											interview?.doc?.joiningDate && (
 												<>
 													<FormLabel fontSize='sm'>Joining Date</FormLabel>
-
-													<Box
-														border='none'
-														outline='none'
-														bg='#F2F2F2'
-														p='3'
+													<Field
+														as={Input}
+														bg='gray.100'
+														borderColor='gray.300'
 														fontSize='sm'
-														rounded='md'
-														shadow='sm'
-													>
-														{formattedDate(interview?.doc?.joiningDate)}
-													</Box>
+														py={1}
+														value={formattedDate(interview?.doc?.joiningDate)}
+														_focus={{ outline: 'none' }}
+														isReadOnly={true}
+													/>
 												</>
 											)
 										) : (
@@ -344,7 +358,7 @@ const OfferLetter = () => {
 											</Text>
 										)}
 									</FormControl>
-									<GridItem colSpan={3}>
+									<GridItem colSpan={2}>
 										<CustomInput
 											label='Location'
 											name='location'
@@ -358,10 +372,11 @@ const OfferLetter = () => {
 										/>
 									</GridItem>
 
-									<GridItem colSpan={3}>
+									<GridItem colSpan={2}>
 										<CustomInput
 											label='Instructions'
 											name='instructions'
+											type='textarea'
 											isReadOnly={!isEditing}
 											isInvalid={errors.instructions && touched.instructions}
 											placeholder={offerDetails.instructions}
@@ -372,7 +387,7 @@ const OfferLetter = () => {
 										/>
 									</GridItem>
 
-									<GridItem colSpan={3}>
+									<GridItem colSpan={2}>
 										<FormLabel fontSize='sm'>Remarks</FormLabel>
 										<Box
 											border='none'
