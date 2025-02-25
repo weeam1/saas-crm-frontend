@@ -31,5 +31,11 @@ jobs:
             cd /var/www/html/weeam-crm-frontend
             git reset --hard
             git pull origin main
+            
+            # Ensure NVM and Node.js are loaded
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 22
+            
             npm install
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
