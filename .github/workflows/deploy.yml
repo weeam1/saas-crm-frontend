@@ -1,0 +1,26 @@
+name: Deploy React Frontend
+
+on:
+  push:
+    branches:
+      - main  # Runs when you push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: crm.weeam.info
+          username: root
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd /var/www/html/weeam-crm-frontend
+            git pull origin main
+            npm install
+            NODE_OPTIONS="--max-old-space-size=4096" npm run build
