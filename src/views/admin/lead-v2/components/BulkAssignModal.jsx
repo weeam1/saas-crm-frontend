@@ -1,11 +1,11 @@
-import { useSelector } from "react-redux";
-import { useFormik } from "formik";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { putApi } from "services/api";
-import ManagerAgentImport from "./ManagerAgentImport";
-import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
-import { fetchAgentLeadsSats } from "api";
+import { useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
+import ManagerAgentImport from './ManagerAgentImport';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import { fetchAgentLeadsSats } from 'api';
 
 const {
 	Modal,
@@ -17,7 +17,7 @@ const {
 	ModalFooter,
 	Button,
 	Spinner,
-} = require("@chakra-ui/react");
+} = require('@chakra-ui/react');
 
 const BulkAssignModal = (props) => {
 	const {
@@ -27,13 +27,13 @@ const BulkAssignModal = (props) => {
 		setErrorLeadData,
 		selectedValues,
 		setSelectedValues,
-		setSelectAllChecked,
 		refreshData,
+		setSelectAllChecked,
 	} = props;
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	const user = JSON.parse(localStorage.getItem("user"));
+	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
 
 	const closeHandler = () => {
@@ -41,8 +41,8 @@ const BulkAssignModal = (props) => {
 	};
 
 	const initialValues = {
-		managerAssigned: "",
-		agentAssigned: "",
+		managerAssigned: '',
+		agentAssigned: '',
 	};
 
 	const handleFormSubmit = async (values) => {
@@ -54,19 +54,22 @@ const BulkAssignModal = (props) => {
 			};
 			setIsLoading(true);
 
-			const stats = await fetchAgentLeadsSats(values.agentAssigned);
+			if (values?.agentAssigned) {
+				const stats = await fetchAgentLeadsSats(values.agentAssigned);
 
-			if (!stats.canAddLeads) {
-				setIsLoading(false);
-				setErrorLeadData(stats);
-				setErrorModal(true);
-				return;
+				if (!stats.canAddLeads) {
+					setIsLoading(false);
+					setErrorLeadData(stats);
+					setErrorModal(true);
+					return;
+				}
 			}
 
 			let res = await putApi(`api/lead/bulk-assign`, payload);
+
 			if (res.status === 200) {
-				toast.success("Leads updated successfully");
 				refreshData();
+				toast.success('Leads updated successfully');
 				formikResetForm();
 				setSelectedValues([]);
 				setSelectAllChecked(false);
@@ -75,12 +78,12 @@ const BulkAssignModal = (props) => {
 				// 	res?.response?.data?.message || "Invalid input provided.";
 				const errorHint =
 					res?.response?.data?.hint ||
-					"Please review the input and adjust as necessary.";
+					'Please review the input and adjust as necessary.';
 
 				toast.error(errorHint);
 			}
 		} catch (error) {
-			console.error("Error submitting bulk assign:", error);
+			console.error('Error submitting bulk assign:', error);
 			toast.error(error);
 		} finally {
 			setIsLoading(false);
@@ -106,11 +109,11 @@ const BulkAssignModal = (props) => {
 	return (
 		<>
 			<Modal
-				size="2xl"
+				size='2xl'
 				onClose={closeHandler}
 				isOpen={bulkAssign}
 				isCentered
-				motionPreset="slideInBottom"
+				motionPreset='slideInBottom'
 			>
 				<ModalOverlay />
 				<ModalContent>
@@ -128,21 +131,21 @@ const BulkAssignModal = (props) => {
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme="brand"
-							size="sm"
-							mr={2}
-							onClick={handleSubmit}
-							disabled={isLoading || !dirty ? true : false}
-						>
-							{isLoading ? <Spinner /> : "Save"}
-						</Button>
-						<Button
-							colorScheme="red"
-							variant="outline"
-							size="sm"
+							colorScheme='red'
+							variant='outline'
+							size='sm'
+							mr='2'
 							onClick={() => formikResetForm()}
 						>
 							Clear
+						</Button>
+						<Button
+							colorScheme='brand'
+							size='sm'
+							onClick={handleSubmit}
+							disabled={isLoading}
+						>
+							{isLoading ? <Spinner /> : 'Save'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

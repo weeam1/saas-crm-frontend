@@ -6,8 +6,9 @@ import {
 	NumberInputField,
 	Text,
 } from '@chakra-ui/react';
-import { FaAngleLeft, FaAngleRight, FaPlay } from 'react-icons/fa';
+import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
+import { leadValueFontSize } from './constants';
 
 const Pagination = ({
 	currentPage,
@@ -15,6 +16,7 @@ const Pagination = ({
 	onPageChange,
 	totalItems,
 	itemsPerPage,
+	leadsRefetching,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage || '');
 
@@ -67,45 +69,50 @@ const Pagination = ({
 			spacing={3}
 			p={2}
 			gap='2'
-			flexDirection={{ base: 'column', md: 'row' }}
+			flexDirection={{ base: 'column', lg: 'row' }}
 			bg='softGray.50'
 			border='1px solid'
 			borderColor='softGray.600'
 			borderRadius='md'
 			align='center'
-			width='fit-content'
+			justifyContent='center'
+			// width={{ base: '100%', lg: 'fit-content' }}
+			width='100%'
+			fontSize={leadValueFontSize}
 		>
 			{/* First Button */}
-			<Button
-				{...buttonStyle}
-				onClick={handleFirst}
-				isDisabled={currentPage === 1}
-				variant='solid'
-				bg='softGray.600'
-				color='black'
-				py='2'
-				px='5'
-				leftIcon={
-					<IoPlaySkipForwardSharp style={{ transform: 'rotate(180deg)' }} />
-				}
-				aria-label='First Page'
-			>
-				First
-			</Button>
+			<HStack flexDirection='row'>
+				<Button
+					{...buttonStyle}
+					onClick={handleFirst}
+					isDisabled={currentPage === 1 || leadsRefetching}
+					variant='solid'
+					bg='softGray.600'
+					color='black'
+					py='2'
+					px='5'
+					leftIcon={
+						<IoPlaySkipForwardSharp style={{ transform: 'rotate(180deg)' }} />
+					}
+					aria-label='First Page'
+				>
+					First
+				</Button>
 
-			{/* Previous Button */}
-			<Button
-				{...buttonStyle}
-				onClick={handlePrevious}
-				isDisabled={currentPage === 1}
-				variant='solid'
-				bg='softGray.600' // ✅ Same color as Next
-				color='black'
-				leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
-				aria-label='Previous Page'
-			>
-				Previous
-			</Button>
+				{/* Previous Button */}
+				<Button
+					{...buttonStyle}
+					onClick={handlePrevious}
+					isDisabled={currentPage === 1 || leadsRefetching}
+					variant='solid'
+					bg='softGray.600' // ✅ Same color as Next
+					color='black'
+					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
+					aria-label='Previous Page'
+				>
+					Previous
+				</Button>
+			</HStack>
 
 			{/* Go To Page */}
 			<HStack fontWeight='medium' color='gray.800' spacing={1}>
@@ -149,39 +156,41 @@ const Pagination = ({
 			</HStack>
 
 			{/* Showing start-end of totalItems */}
-			<Text color='gray.800' fontSize='sm' fontWeight='medium'>
+			<Text color='gray.800' fontSize={leadValueFontSize} fontWeight='medium'>
 				Showing {startIndex} - {endIndex} of {totalItems}
 			</Text>
 
-			{/* Next Button */}
-			<Button
-				{...buttonStyle}
-				onClick={handleNext}
-				isDisabled={currentPage === totalPages}
-				variant='solid'
-				bg='softGray.600' // ✅ Same color as Previous
-				color='black'
-				rightIcon={<FaPlay />}
-				aria-label='Next Page'
-			>
-				Next
-			</Button>
+			<HStack flexDirection='row'>
+				{/* Next Button */}
+				<Button
+					{...buttonStyle}
+					onClick={handleNext}
+					isDisabled={currentPage === totalPages || leadsRefetching}
+					variant='solid'
+					bg='softGray.600' // ✅ Same color as Previous
+					color='black'
+					rightIcon={<FaPlay />}
+					aria-label='Next Page'
+				>
+					Next
+				</Button>
 
-			{/* Last Button */}
-			<Button
-				{...buttonStyle}
-				onClick={handleLast}
-				isDisabled={currentPage === totalPages}
-				variant='solid'
-				bg='softGray.600'
-				color='black'
-				py='2'
-				px='5'
-				rightIcon={<IoPlaySkipForwardSharp />}
-				aria-label='Last Page'
-			>
-				Last
-			</Button>
+				{/* Last Button */}
+				<Button
+					{...buttonStyle}
+					onClick={handleLast}
+					isDisabled={currentPage === totalPages || leadsRefetching}
+					variant='solid'
+					bg='softGray.600'
+					color='black'
+					py='2'
+					px='5'
+					rightIcon={<IoPlaySkipForwardSharp />}
+					aria-label='Last Page'
+				>
+					Last
+				</Button>
+			</HStack>
 		</HStack>
 	);
 };

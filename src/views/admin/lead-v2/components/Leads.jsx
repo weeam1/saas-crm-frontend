@@ -7,6 +7,9 @@ import SearchBox from './SearchBox';
 import DateFilter from './DateFilter';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import LeadsModals from './LeadsModals';
+import { HasAccess } from './../../../../redux/accessUtils';
+import AdvancedSearchModal from './AdvancedSearchModal';
+import SearchTags from './SearchTags';
 
 const Leads = ({
 	leads,
@@ -18,6 +21,14 @@ const Leads = ({
 	hanldePage,
 	pageSize,
 	setQueryParams,
+	addLead,
+	setAddLead,
+	selectedValues,
+	setSelectedValues,
+	selectAllChecked,
+	setSelectAllChecked,
+	refetchLoading,
+	setRefetchLoading,
 }) => {
 	const {
 		isOpen: dateTimeIsOpen,
@@ -25,15 +36,18 @@ const Leads = ({
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
 
-	console.log('refersh leads: ', typeof refreshLeads);
+	const [permission, emailAccess, callAccess] = HasAccess([
+		'Lead',
+		'Email',
+		'Call',
+	]);
 
 	const [isLoaded, setIsLoaded] = useState(false);
-	const [refetchLoading, setRefetchLoading] = useState(false);
 
 	useEffect(() => {
 		setIsLoaded(false); // Reset loading state on page change
 		if (!leadsLoading) {
-			const timer = setTimeout(() => setIsLoaded(true), 1000);
+			const timer = setTimeout(() => setIsLoaded(true), 1500);
 			return () => clearTimeout(timer);
 		}
 	}, [leadsLoading, currentPage]); // Reacts to both loading state & page change
@@ -49,15 +63,62 @@ const Leads = ({
 		isOpen: false,
 		lid: null,
 	});
+	const [editLead, setEditLead] = useState(false);
+	const [leadDetails, setLeadDetails] = useState(null);
+	const [sendEmail, setSendEmail] = useState(false);
+	const [deleteLead, setDeleteLead] = useState(false);
+
+	const [advanceSearch, setAdvanceSearch] = useState(false);
+
+	// const [formValues, setFormValues] = useState([]);
+	const [isFormReset, setIsFormReset] = useState(false);
+	const [searchTags, setSearchTags] = useState([]);
+	const [searchClear, setSearchClear] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
+
+	const handleClear = () => {
+		setSearchTags([]);
+		setSearchTerm('');
+		setIsFormReset(true);
+		setSearchClear(false);
+		setRefetchLoading(true);
+		setQueryParams((prev) => {
+			const { data, dateTime, ...rest } = prev; // Remove 'data' key
+			return {
+				...rest,
+				page: 1,
+			};
+		});
+	};
+
+	const handleSearchByName = () => {
+		if (!searchTerm) {
+			return;
+		}
+
+		const searchKey = [`leadName: ${searchTerm}`];
+
+		setSearchClear(true);
+		setSearchTags(searchKey);
+
+		setQueryParams((prev) => ({
+			...prev,
+			page: 1, // Reset to first page on new search
+			data: JSON.stringify({ leadName: searchTerm }),
+		}));
+
+		setRefetchLoading(true);
+	};
 
 	return (
 		<Box>
 			<Flex
 				width='full'
-				justifyContent='space-between'
-				alignItems='center'
+				// justifyContent='space-between'
+				// alignItems='center'
 				gap='2'
-				flexDirection={{ base: 'column', md: 'row' }}
+				// flexDirection={{ base: 'column', lg: 'row' }}
+				flexDirection='column'
 			>
 				{/* Pagination */}
 				<Pagination
@@ -66,21 +127,23 @@ const Leads = ({
 					onPageChange={hanldePage}
 					totalItems={leads?.totalLeads ?? ''}
 					itemsPerPage={pageSize}
+					leadsRefetching={leadsRefetching}
 				/>
 
-				<SearchBox dateTimeOnOpen={dateTimeOnOpen} />
+				<SearchBox
+					dateTimeOnOpen={dateTimeOnOpen}
+					setQueryParams={setQueryParams}
+					setAdvanceSearch={setAdvanceSearch}
+					handleClear={handleClear}
+					searchClear={searchClear}
+					handleSearchByName={handleSearchByName}
+					searchTerm={searchTerm}
+					setSearchTerm={setSearchTerm}
+				/>
 			</Flex>
 
-			{/* Date filter */}
-			{dateTimeIsOpen && (
-				<DateFilter
-					isOpen={dateTimeIsOpen}
-					onClose={dateTimeOnClose}
-					setQueryParams={setQueryParams}
-					setRefetchLoading={setRefetchLoading}
-					setCurrentPage={setCurrentPage}
-				/>
-			)}
+			{/* Search tags */}
+			<SearchTags searchTags={searchTags} />
 
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
@@ -103,7 +166,19 @@ const Leads = ({
 							key={lead._id}
 							lead={lead}
 							refreshLeads={refreshLeads}
+							emailAccess={emailAccess}
+							permission={permission}
+							setLeadDetails={setLeadDetails}
+							callAccess={callAccess}
 							setViewLead={setViewLead}
+							setEditLead={setEditLead}
+							setAddLead={setAddLead}
+							setSendEmail={setSendEmail}
+							selectedValues={selectedValues}
+							setSelectedValues={setSelectedValues}
+							setDeleteLead={setDeleteLead}
+							setSelectAllChecked={setSelectAllChecked}
+							selectAllChecked={selectAllChecked}
 						/>
 					))}
 				</Grid>
@@ -116,7 +191,45 @@ const Leads = ({
 				refetchData={refreshLeads}
 				viewLead={viewLead}
 				setViewLead={setViewLead}
+				editLead={editLead}
+				setEditLead={setEditLead}
+				lead={leadDetails}
+				addLead={addLead}
+				setAddLead={setAddLead}
+				sendEmail={sendEmail}
+				setSendEmail={setSendEmail}
+				selectedValues={selectedValues}
+				setSelectedValues={setSelectedValues}
+				deleteLead={deleteLead}
+				setDeleteLead={setDeleteLead}
 			/>
+
+			{/* Date time filter */}
+			<DateFilter
+				setQueryParams={setQueryParams}
+				setRefetchLoading={setRefetchLoading}
+				setCurrentPage={setCurrentPage}
+				onClose={dateTimeOnClose}
+				isOpen={dateTimeIsOpen}
+				setSearchClear={setSearchClear}
+				setSearchTags={setSearchTags}
+			/>
+
+			{/* Advance filter */}
+			{advanceSearch && (
+				<AdvancedSearchModal
+					advanceSearch={advanceSearch}
+					setAdvanceSearch={setAdvanceSearch}
+					// setFormValues={setFormValues}
+					setQueryParams={setQueryParams}
+					setGetTagValues={setSearchTags}
+					setSearchClear={setSearchClear}
+					handleClear={handleClear}
+					isFormReset={isFormReset}
+					setIsFormReset={setIsFormReset}
+					setRefetchLoading={setRefetchLoading}
+				/>
+			)}
 		</Box>
 	);
 };

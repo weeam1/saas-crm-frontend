@@ -131,7 +131,7 @@ export function SidebarResponsive(props) {
 						_focus={{ boxShadow: 'none' }}
 						_hover={{ boxShadow: 'none' }}
 					/>
-					<DrawerBody bg='red.200' maxW='full' px='0rem' pb='0'>
+					<DrawerBody maxW='full' px='0rem' pb='0'>
 						<Scrollbars
 							autoHide
 							renderTrackVertical={renderTrack}

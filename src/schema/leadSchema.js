@@ -1,14 +1,14 @@
-import * as yup from "yup";
+import * as yup from 'yup';
 
 export const leadSchema = yup.object({
 	// Lead Information:
-	leadName: yup.string().required("Lead Name Is required"),
+	leadName: yup.string().required('Lead Name Is required'),
 	leadEmail: yup.string().email(),
-	leadPhoneNumber: yup
-		.number()
-		.min(1000000000, "Phone number is invalid")
-		.max(999999999999, "Phone number is invalid")
-		.required("Lead Phone Number Is required"),
+	// leadPhoneNumber: yup
+	// 	.number()
+	// 	.min(1000000000, "Phone number is invalid")
+	// 	.max(999999999999, "Phone number is invalid")
+	// 	.required("Lead Phone Number Is required"),
 	leadAddress: yup.string(),
 	// Lead Source and Details:
 	// leadSource: yup.string(),
@@ -41,20 +41,20 @@ export const validationLeadSearchSchema = yup.object({
 	leadName: yup.string(),
 	leadStatus: yup.string(),
 	eLeadStatus: yup.string(),
-	leadEmail: yup.string().email("Lead Email is invalid").notRequired(),
+	leadEmail: yup.string().email('Lead Email is invalid').notRequired(),
 	leadPhoneNumber: yup
 		.number()
-		.typeError("Enter a valid number")
-		.min(0, "Lead Phone Number is invalid")
-		.max(999999999999, "Lead Phone Number is invalid")
+		.typeError('Enter a valid number')
+		.min(0, 'Lead Phone Number is invalid')
+		.max(999999999999, 'Lead Phone Number is invalid')
 		.notRequired(),
 	managerAssigned: yup.string(),
 	agentAssigned: yup.string(),
 	leadWhatsappNumber: yup
 		.number()
-		.typeError("Enter a valid number")
-		.min(0, "Lead Whatsapp Number is invalid")
-		.max(999999999999, "Lead Whatsapp Number is invalid")
+		.typeError('Enter a valid number')
+		.min(0, 'Lead Whatsapp Number is invalid')
+		.max(999999999999, 'Lead Whatsapp Number is invalid')
 		.notRequired(),
 	nationality: yup.string(),
 	ip: yup.string(),

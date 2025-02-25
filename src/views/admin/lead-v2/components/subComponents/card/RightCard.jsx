@@ -8,6 +8,7 @@ import { leadlabelFontSize } from '../../constants';
 import { Checkbox, IconButton } from '@chakra-ui/react';
 import { FiMoreVertical } from 'react-icons/fi';
 import { TbDotsVertical } from 'react-icons/tb';
+import LeadMenu from './LeadMenu';
 
 // const RightCard = ({ lead }) => {
 // 	return (
@@ -70,26 +71,7 @@ const RightCard = ({ lead }) => {
 			justifySelf='end'
 			justifyContent='space-between'
 			// align='center'
-			position='relative'
 		>
-			{/* Top-right controls */}
-			<Box
-				position='absolute'
-				top={1}
-				right={0}
-				display='flex'
-				alignItems='center'
-				gap={2}
-			>
-				<Checkbox colorScheme='brand' />
-				<IconButton
-					aria-label='More options'
-					icon={<TbDotsVertical size='20' />}
-					size='sm'
-					variant='ghost'
-				/>
-			</Box>
-
 			{/* Lead details */}
 			<Grid
 				width='100%'

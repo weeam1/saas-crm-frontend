@@ -89,8 +89,9 @@ export function SidebarLinks(props) {
 								}
 								// ps={'25px'}
 								pb={'6px'}
-								pt={'4px'}
+								pt={'6px'}
 								px='16px'
+								mx='auto'
 							>
 								<HStack
 									spacing={
@@ -147,7 +148,7 @@ export function SidebarLinks(props) {
 														? activeIcon
 														: textColor
 												}
-												me='18px'
+												// me='18px'
 											>
 												{route.icon}
 											</Box>

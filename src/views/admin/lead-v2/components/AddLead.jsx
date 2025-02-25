@@ -202,12 +202,12 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 								<Grid
 									templateColumns={{
 										base: '1fr',
-										md: 'repeat(2, 1fr)',
+										md: 'repeat(3, 1fr)',
 									}}
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='80vh'
+									height='70vh'
 									p='4'
 								>
 									<RenderFields fields={fields} />

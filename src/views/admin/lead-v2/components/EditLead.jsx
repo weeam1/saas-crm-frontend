@@ -169,7 +169,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 								<Grid
 									templateColumns={{
 										base: '1fr',
-										md: 'repeat(2, 1fr)',
+										md: 'repeat(3, 1fr)',
 									}}
 									gap={2}
 									w='full'

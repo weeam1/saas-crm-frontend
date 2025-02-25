@@ -245,7 +245,7 @@ const SelectInput = ({
 			<Select
 				placeholder={loading ? 'Updating...' : placeholder}
 				size={size}
-				value={selectedValue}
+				value={selectedValue ?? ''}
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
