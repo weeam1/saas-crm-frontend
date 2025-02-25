@@ -8,16 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: main
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/scp-action@master
         with:
           host: 46.202.140.221
           username: root
+          port: 22
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/html/weeam-crm-frontend
