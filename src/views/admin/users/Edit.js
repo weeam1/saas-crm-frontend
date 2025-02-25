@@ -27,16 +27,20 @@ import { userSchema } from 'schema';
 import { putApi } from 'services/api';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
-import { userLocations } from 'utils/options';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+
+	const { data: agencies } = useFetchItemsQuery({
+		path: '/agencies',
+	});
 
 	const initialValues = {
 		firstName: data ? data?.firstName : '',
 		lastName: data ? data?.lastName : '',
 		username: data ? data?.username : '',
-		location: data ? data?.location : '',
+		agency: data ? data?.agency : '',
 		phoneNumber: data ? data?.phoneNumber : '',
 		parent: data ? data?.parent || '' : '',
 		target: data ? data?.target : '',
@@ -267,26 +271,24 @@ const Edit = (props) => {
 								fontWeight='500'
 								mb='8px'
 							>
-								Select Location <Text color={'red'}>*</Text>
+								Select agency <Text color={'red'}>*</Text>
 							</FormLabel>
 							<Select
-								name='location'
-								value={values.location}
+								name='agency'
+								value={values.agency?._id}
 								onChange={handleChange}
 								onBlur={handleBlur}
-								placeholder='Select Location'
-								borderColor={
-									errors.location && touched.location ? 'red.300' : null
-								}
+								placeholder='Select agency'
+								borderColor={errors.agency && touched.agency ? 'red.300' : null}
 							>
-								{userLocations?.map((location) => (
-									<option key={location.value} value={location.value}>
-										{location.label}
+								{agencies?.doc?.map((agency) => (
+									<option key={agency._id} value={agency._id}>
+										{agency.name}
 									</option>
 								))}
 							</Select>
 							<Text mb='10px' color={'red'}>
-								{errors.location && touched.location && errors.location}
+								{errors.agency && touched.agency && errors.agency}
 							</Text>
 						</GridItem>
 

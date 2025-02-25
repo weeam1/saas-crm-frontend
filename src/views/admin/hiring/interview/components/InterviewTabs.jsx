@@ -94,6 +94,8 @@ const InterviewTabs = memo(
 			}
 		};
 
+		console.log({ interview });
+
 		return positionsLoading ? (
 			<Loader />
 		) : (
@@ -241,7 +243,14 @@ const InterviewTabs = memo(
 						mx='auto'
 						rounded='md'
 					>
-						<EvaluationPoints onSubmit={handleSubmit} />
+						<EvaluationPoints
+							// onSubmit={handleSubmit}
+							interview={interview}
+							isLeadInterviewer={isLeadInterviewer}
+							handleTabChange={handleTabChange}
+							interviewRefetch={interviewRefetch}
+							isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
+						/>
 					</Box>
 				)}
 			</Box>

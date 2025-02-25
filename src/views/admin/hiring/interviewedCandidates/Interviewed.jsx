@@ -8,7 +8,6 @@ import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import SearchBar from 'components/search/SearchBar';
 import TablePagination from 'components/pagination/TablePagination';
 import { constant } from 'constant';
-import { useUpdateItemMutation } from 'api/apiSlice';
 
 import { useDispatch, useSelector } from 'react-redux';
 import InterviewedTable from './InterviewedTable';

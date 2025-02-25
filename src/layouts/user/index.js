@@ -11,6 +11,7 @@ import {
 	MdCampaign,
 	MdHome,
 	MdInsertChartOutlined,
+	MdLeaderboard,
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
@@ -36,6 +37,7 @@ const UserPage = React.lazy(() => import('views/admin/users'));
 const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Lead = React.lazy(() => import('views/admin/lead'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 
 export default function User(props) {
@@ -99,7 +101,15 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: Lead,
 		},
-
+		{
+			name: 'New Lead',
+			layout: [ROLE_PATH.user],
+			path: '/new-lead',
+			icon: (
+				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadScreen,
+		},
 		{
 			name: 'HR Module',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -181,54 +191,158 @@ export default function User(props) {
 
 	routes.push(...accessRoute);
 
+	// if (user?.roles[0]?.roleName === 'Manager') {
+	// 	routes.push(
+	// 		...[
+	// 			{
+	// 				name: 'Hiring',
+	// 				path: '/hiring',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				icon: (
+	// 					<Icon
+	// 						as={FaClipboardUser}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: Hiring,
+	// 			},
+	// 			{
+	// 				name: 'Short Listed',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: '/hiring/short-listed',
+	// 				under: 'shortListed',
+	// 				parentName: 'Hiring',
+	// 				component: ShortListedCandidates,
+	// 			},
+	// 			{
+	// 				name: 'Interview',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/hiring/interview/:interviewId',
+	// 				under: 'interview',
+	// 				parentName: 'Hiring',
+	// 				component: InterviewScreen,
+	// 			},
+	// 			{
+	// 				name: 'Announcement',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/announcements',
+	// 				icon: (
+	// 					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
+	// 				),
+	// 				component: Announcements,
+	// 			},
+
+	// 			{
+	// 				name: 'Daily Report',
+	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 				path: '/daily-report',
+	// 				icon: (
+	// 					<Icon
+	// 						as={MdInsertChartOutlined}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: DailyReport,
+	// 			},
+	// 			{
+	// 				name: 'Reporting and Analytics',
+	// 				layout: [ROLE_PATH.user],
+	// 				path: '/reporting-analytics',
+	// 				icon: (
+	// 					<Icon
+	// 						as={MdInsertChartOutlined}
+	// 						width='20px'
+	// 						height='20px'
+	// 						color='inherit'
+	// 					/>
+	// 				),
+	// 				component: Report,
+	// 			},
+	// 		]
+	// 	);
+	// }
+
 	if (user?.roles[0]?.roleName === 'Manager') {
+		// Define the new routes to be inserted
+		const newRoutes = [
+			{
+				name: 'Announcement',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/announcements',
+				icon: (
+					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
+				),
+				component: Announcements,
+			},
+			{
+				name: 'Hiring',
+				path: '/hiring',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				icon: (
+					<Icon
+						as={FaClipboardUser}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Hiring,
+			},
+			{
+				name: 'Short Listed',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring/short-listed',
+				under: 'shortListed',
+				parentName: 'Hiring',
+				component: ShortListedCandidates,
+			},
+			{
+				name: 'Interview',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/hiring/interview/:interviewId',
+				under: 'interview',
+				parentName: 'Hiring',
+				component: InterviewScreen,
+			},
+		];
+
+		// Insert the new routes at index 3 and 4
+		routes.splice(3, 0, ...newRoutes);
+
+		// Add other routes (e.g., Daily Report, Reporting and Analytics)
 		routes.push(
-			...[
-				{
-					name: 'Announcement',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/announcements',
-					icon: (
-						<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-					),
-					component: Announcements,
-				},
-				{
-					name: 'Interview',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/hiring/interview/:interviewId',
-					parentName: 'Hiring',
-					component: InterviewScreen,
-				},
-				{
-					name: 'Daily Report',
-					layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-					path: '/daily-report',
-					icon: (
-						<Icon
-							as={MdInsertChartOutlined}
-							width='20px'
-							height='20px'
-							color='inherit'
-						/>
-					),
-					component: DailyReport,
-				},
-				{
-					name: 'Reporting and Analytics',
-					layout: [ROLE_PATH.user],
-					path: '/reporting-analytics',
-					icon: (
-						<Icon
-							as={MdInsertChartOutlined}
-							width='20px'
-							height='20px'
-							color='inherit'
-						/>
-					),
-					component: Report,
-				},
-			]
+			{
+				name: 'Daily Report',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/daily-report',
+				icon: (
+					<Icon
+						as={MdInsertChartOutlined}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: DailyReport,
+			},
+			{
+				name: 'Reporting and Analytics',
+				layout: [ROLE_PATH.user],
+				path: '/reporting-analytics',
+				icon: (
+					<Icon
+						as={MdInsertChartOutlined}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Report,
+			}
 		);
 	}
 
@@ -451,14 +565,14 @@ export default function User(props) {
 							base: '100%',
 							xl:
 								openSidebar === true
-									? 'calc( 100% - 300px )'
+									? 'calc( 100% - 240px )'
 									: 'calc( 100% - 88px )',
 						}}
 						maxWidth={{
 							base: '100%',
 							xl:
 								openSidebar === true
-									? 'calc( 100% - 300px )'
+									? 'calc( 100% - 240px )'
 									: 'calc( 100% - 88px )',
 						}}
 						transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'

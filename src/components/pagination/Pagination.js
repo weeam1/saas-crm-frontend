@@ -3,7 +3,7 @@ import {
 	ArrowRightIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
-} from "@chakra-ui/icons";
+} from '@chakra-ui/icons';
 import {
 	Box,
 	Flex,
@@ -16,9 +16,9 @@ import {
 	Select,
 	Text,
 	Tooltip,
-} from "@chakra-ui/react";
-import React from "react";
-import { useEffect } from "react";
+} from '@chakra-ui/react';
+import React from 'react';
+import { useEffect } from 'react';
 
 const Pagination = (props) => {
 	const {
@@ -41,21 +41,21 @@ const Pagination = (props) => {
 	}, []);
 
 	return (
-		<Box mt={4} overflowX="auto" w="100%" mb="4">
+		<Box mt={4} overflowX='auto' w='100%' mb='4'>
 			<Flex
-				justifyContent={pageOptions?.length !== 1 ? "space-between" : "end"}
+				justifyContent={pageOptions?.length !== 1 ? 'space-between' : 'end'}
 				mt={2}
-				alignItems="center"
-				flexWrap="wrap"
+				alignItems='center'
+				flexWrap='wrap'
 				gap={4}
-				fontSize={{ base: "sm", md: "md" }} // Small text for small screens
-				flexDirection={{ base: "column", md: "row" }} // Stack items on small screens
+				fontSize={{ base: 'sm', md: 'md' }} // Small text for small screens
+				flexDirection={{ base: 'column', md: 'row' }} // Stack items on small screens
 			>
 				{pageOptions?.length !== 1 && (
-					<Flex gap={2} alignItems="center">
-						<Tooltip label="First Page">
+					<Flex gap={2} alignItems='center'>
+						<Tooltip label='First Page'>
 							<IconButton
-								size={{ base: "sm", md: "md" }} // Smaller button on small screens
+								size={{ base: 'sm', md: 'md' }} // Smaller button on small screens
 								onClick={() => {
 									gotoPage(0);
 									setGopageValue(1);
@@ -64,9 +64,9 @@ const Pagination = (props) => {
 								icon={<ArrowLeftIcon h={3} w={3} />}
 							/>
 						</Tooltip>
-						<Tooltip label="Previous Page">
+						<Tooltip label='Previous Page'>
 							<IconButton
-								size={{ base: "sm", md: "md" }}
+								size={{ base: 'sm', md: 'md' }}
 								onClick={() => {
 									previousPage();
 									setGopageValue((prev) => prev - 1);
@@ -78,24 +78,24 @@ const Pagination = (props) => {
 					</Flex>
 				)}
 
-				<Flex alignItems="center" gap={2}>
+				<Flex alignItems='center' gap={2}>
 					{pageOptions?.length !== 1 && (
 						<>
 							<Text>
-								Page{" "}
-								<Text as="span" fontWeight="bold">
+								Page{' '}
+								<Text as='span' fontWeight='bold'>
 									{pageIndex + 1}
-								</Text>{" "}
-								of{" "}
-								<Text as="span" fontWeight="bold">
+								</Text>{' '}
+								of{' '}
+								<Text as='span' fontWeight='bold'>
 									{pageOptions?.length}
 								</Text>
 							</Text>
-							<Flex gap={2} alignItems="center">
+							<Flex gap={2} alignItems='center'>
 								<Text>Go to page:</Text>
 								<NumberInput
 									// size={{ base: "sm", md: "md" }}
-									maxW={{ base: "20", md: "28" }} // Adjust width for small screens
+									maxW={{ base: '20', md: '28' }} // Adjust width for small screens
 									min={1}
 									max={pageOptions?.length}
 									value={gopageValue === 0 ? 1 : gopageValue}
@@ -116,7 +116,7 @@ const Pagination = (props) => {
 					)}
 					<Select
 						// size={{ base: "sm", md: "md", lg: "lg" }}
-						w={{ base: "24", md: "32" }}
+						w={{ base: '24', md: '32' }}
 						value={pageSize}
 						onChange={(e) => setPageSize(Number(e.target.value))}
 					>
@@ -130,9 +130,9 @@ const Pagination = (props) => {
 
 				{pageOptions?.length !== 1 && (
 					<Flex gap={2}>
-						<Tooltip label="Next Page">
+						<Tooltip label='Next Page'>
 							<IconButton
-								size={{ base: "sm", md: "md" }}
+								size={{ base: 'sm', md: 'md' }}
 								onClick={() => {
 									nextPage();
 									setGopageValue((prev) => prev + 1);
@@ -141,9 +141,9 @@ const Pagination = (props) => {
 								icon={<ChevronRightIcon h={6} w={6} />}
 							/>
 						</Tooltip>
-						<Tooltip label="Last Page">
+						<Tooltip label='Last Page'>
 							<IconButton
-								size={{ base: "sm", md: "md" }}
+								size={{ base: 'sm', md: 'md' }}
 								onClick={() => {
 									gotoPage(pageCount - 1);
 									setGopageValue(pageCount);

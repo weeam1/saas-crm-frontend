@@ -64,9 +64,9 @@ const EvaluationPoints = ({
 
 	useEffect(() => {
 		if (isInterviewerSubmittedPoints) {
-			navigate(`/hiring/interview/${interview._id}?phase=hiring-info`);
+			navigate(`/hiring/interview/${interview?._id}?phase=hiring-info`);
 		}
-	}, [interview._id, isInterviewerSubmittedPoints, searchParams, navigate]);
+	}, [interview?._id, isInterviewerSubmittedPoints, searchParams, navigate]);
 
 	const handleSubmit = async (data) => {
 		try {
@@ -78,12 +78,13 @@ const EvaluationPoints = ({
 			const interviewData = { evaluationData: data, points };
 
 			await updateItemMutation({
-				path: `/interviews/${interview._id}`,
+				path: `/interviews/${interview?._id}`,
 				body: interviewData,
 			}).unwrap();
 
 			toast.success('Interview data updated successfully');
-			handleTabChange(2);
+
+			isLeadInterviewer ? handleTabChange(2) : navigate('/');
 		} catch (error) {
 			toast.error(error?.data?.message || 'Failed to update interview data');
 		} finally {

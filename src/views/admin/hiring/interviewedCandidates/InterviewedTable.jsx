@@ -12,12 +12,14 @@ import {
 	Text,
 	Button,
 	HStack,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
 import FlagBadge from '../_components/FlagBadge';
-import { useNavigate } from 'react-router-dom';
 import OfferLetterIcon from './OfferLetterIcon';
+import FeedbackView from './FeedbackView';
+import { useState } from 'react';
 
 const InterviewedTable = ({
 	headers,
@@ -29,15 +31,15 @@ const InterviewedTable = ({
 	handleViewResult,
 	handleSendOffer,
 }) => {
-	const navigate = useNavigate();
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [feedback, setFeedback] = useState(null);
 
-	const user = JSON.parse(localStorage.getItem('user'));
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}
 			<Box rounded='md' overflow='hidden'>
 				<TableContainer
-					maxHeight='500px' // Set a custom height for the container
+					maxHeight='700px' // Set a custom height for the container
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
@@ -80,7 +82,7 @@ const InterviewedTable = ({
 							) : data && data?.length ? (
 								data?.map((item, index) => (
 									<Tr key={index} fontSize='sm'>
-										<Td minWidth='200px'>
+										<Td minWidth='300px'>
 											<HStack gap='1'>
 												<span>{item.candidate.name}</span>
 												<FlagBadge item={item.candidate} />
@@ -149,7 +151,13 @@ const InterviewedTable = ({
 															View Offer
 														</Button>
 
-														<OfferLetterIcon status={item.offerStatus} />
+														<OfferLetterIcon
+															status={item.offerStatus}
+															onClick={() => {
+																setFeedback(item.feedback);
+																onOpen();
+															}}
+														/>
 													</>
 												) : (
 													<Button
@@ -197,6 +205,10 @@ const InterviewedTable = ({
 					</Table>
 				</TableContainer>
 			</Box>
+
+			{isOpen && (
+				<FeedbackView isOpen={isOpen} onClose={onClose} item={feedback} />
+			)}
 		</>
 	);
 };

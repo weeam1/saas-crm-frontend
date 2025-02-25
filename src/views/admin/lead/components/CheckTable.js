@@ -1417,7 +1417,15 @@ const CheckTable = React.memo((props) => {
 													data = (
 														<Text fontSize={'sm'} width={150} fontWeight={500}>
 															{/* {cell?.value || cell?.value?.text || 'no country'} */}
-															{typeof cell?.value === 'obect'
+															{typeof cell?.value === 'object'
+																? cell?.value?.text
+																: cell?.value || 'no data'}
+														</Text>
+													);
+												} else if (cell?.column.Header === 'Attendence Day') {
+													data = (
+														<Text fontSize={'sm'} width={150} fontWeight={500}>
+															{typeof cell?.value === 'object'
 																? cell?.value?.text
 																: cell?.value || 'no data'}
 														</Text>

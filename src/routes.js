@@ -56,6 +56,7 @@ const PropertyImport = React.lazy(
 );
 
 const Lead = React.lazy(() => import('views/admin/lead'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const CallHistory = React.lazy(() => import('views/admin/callHistory'));
 const LeadCycle = React.lazy(() => import('views/admin/leadCycle'));
 const LeadView = React.lazy(() => import('views/admin/lead/View'));
@@ -70,6 +71,7 @@ const Developers = React.lazy(() => import('views/admin/developers'));
 const BankAccounts = React.lazy(() => import('views/admin/bankAccounts'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
+const Agency = React.lazy(() => import('views/admin/agencies'));
 const TaskView = React.lazy(
 	() => import('views/admin/task/components/taskView')
 );
@@ -135,6 +137,15 @@ const routes = [
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
 		component: Lead,
+	},
+	{
+		name: 'New Lead',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/new-lead',
+		icon: (
+			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+		),
+		component: LeadScreen,
 	},
 	{
 		name: 'Announcement',
@@ -597,6 +608,13 @@ const routes = [
 		path: '/lead-settings',
 		under: 'lead-settings',
 		component: LeadSetting,
+	},
+	{
+		name: 'Agencies',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/agencies',
+		under: 'agencies',
+		component: Agency,
 	},
 	// ========================== User layout ==========================
 

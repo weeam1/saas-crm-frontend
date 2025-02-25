@@ -19,7 +19,11 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const navigate = useNavigate();
 	// const [interview, setInterview] = useState(null);
 
-	const { data: interview, isLoading } = useFetchItemsQuery(
+	const {
+		data: interview,
+		isLoading,
+		error,
+	} = useFetchItemsQuery(
 		{
 			path: `/interviews/${item?.interview_id}`,
 		},
@@ -27,7 +31,9 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	);
 
 	const isInterviewCancel =
-		interview?.doc?.status === 'end' || interview?.doc?.status === 'canceled';
+		interview?.doc?.status === 'end' ||
+		interview?.doc?.status === 'canceled' ||
+		error?.status === 404;
 
 	const handleJoinInterview = () => {
 		navigate(`/hiring/interview/${item.interview_id}?phase=evaluation-points`);
@@ -54,20 +60,8 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 							rounded='md'
 							width='100%'
 							m='0'
-							maxH='200px' // Set max height for the modal body
-							overflowY='auto' // Enable vertical scrolling when content exceeds max height
-							sx={{
-								'&::-webkit-scrollbar': {
-									width: '6px', // Custom scrollbar width
-								},
-								'&::-webkit-scrollbar-thumb': {
-									background: 'gray.200', // Custom brand color (adjust according to your theme)
-									borderRadius: '8px',
-								},
-								'&::-webkit-scrollbar-thumb:hover': {
-									background: 'gray.300', // Slightly darker on hover
-								},
-							}}
+							height='30vh'
+							overflow='scroll'
 						>
 							<Text fontSize='md' wordBreak='break-word'>
 								{item.message}
@@ -84,7 +78,7 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 				<ModalFooter>
 					{isLoading ? (
 						<Spinner px='2' />
-					) : interview && interview?.doc && isInterviewCancel ? (
+					) : isInterviewCancel ? (
 						<Text fontSize='md' mx='4' color='blue.400'>
 							This invitaion is expired
 						</Text>

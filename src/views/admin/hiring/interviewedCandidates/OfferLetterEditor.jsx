@@ -10,6 +10,8 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 
 	// ✅ Memoized Offer Details (Fixed, Non-Editable)
 	const staticOfferDetails = useMemo(() => {
+		const joiningDate = formattedDate(offerDetails.joiningDate);
+
 		return `
     <div contenteditable="false" style="background:#f3f4f6; padding:10px; border-radius:5px;">
       <strong>Offer Details:</strong><br/>
@@ -26,22 +28,24 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 					? `<strong>Commission:</strong> ${offerDetails.commission}% <br/>`
 					: ''
 			}
-      <strong>Joining Date:</strong> ${formattedDate(offerDetails.joiningDate)} <br/>
+      <strong>Joining Date:</strong> ${joiningDate} <br/>
       <strong>Location:</strong> ${offerDetails.location} <br/>
 
-			<p>${offerDetails.instructions}</p>
     </div><br/>
   `;
 	}, [offerDetails]);
 
 	const defaultTemplate = useMemo(
 		() => `
+		<div font-size: 20px;>
     <p>Dear <strong>${offerDetails.candidateName}</strong>,</p>
     <p>We are pleased to offer you the position of <strong>${offerDetails.position}</strong> at <strong>WEAM ELNAGGAR</strong>.</p>
     <p>We believe your skills and experience will be a valuable addition to our team.</p>
 
     <!-- Offer Details Placeholder (Hidden) -->
     <div style="display: none;"></div>
+
+		<p>${offerDetails.instructions}</p>
 
     <h2 style="color: #2c3e50; font-size: 20px; margin-top: 20px;">Documents Required:</h2>
     <div class="documents-required" style="background-color: #f9f9f9; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
@@ -61,6 +65,7 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
     
     <p>Thank you.</p>
     <p>WEAM ELNAGGAR HR Team</p>
+		</div>
   `,
 		[offerDetails]
 	);
@@ -99,14 +104,17 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 
 			{/* Information Message with Icon */}
 			<Flex bg='blue.50' p={3} borderRadius='md' align='center' mb={3}>
-				<InfoIcon color='blue.500' boxSize={5} mr={2} />
-				<Text fontSize='sm' color='blue.600'>
+				<InfoIcon color='blue.500' boxSize={{ base: 3, md: 5 }} mr={2} />
+				<Text fontSize={{ base: 'xs', md: 'sm' }} color='blue.600'>
 					Offer details below will be automatically attached to the email.
 				</Text>
 			</Flex>
 
 			{/* Non-Editable Offer Details (Fixed) */}
-			<Box dangerouslySetInnerHTML={{ __html: staticOfferDetails }} />
+			<Box
+				fontSize={{ base: 'sm', md: 'md' }}
+				dangerouslySetInnerHTML={{ __html: staticOfferDetails }}
+			/>
 		</Box>
 	);
 };
