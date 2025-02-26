@@ -65,7 +65,7 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 				/>
 				{/* Manager */}
 				{role === 'superAdmin' && (
-					<GridItem colSpan={role === 'Agent' ? '2' : '1'}>
+					<GridItem>
 						<Managers
 							managerAssigned={lead?.managerAssigned}
 							lead={lead}
@@ -77,7 +77,7 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 
 				{/* Agent */}
 				{['superAdmin', 'Manager'].includes(role) && (
-					<GridItem>
+					<GridItem colSpan={role === 'Manager' ? '2' : '1'}>
 						<Agents
 							agentAssigned={lead?.agentAssigned}
 							managerAssigned={lead?.managerAssigned}
