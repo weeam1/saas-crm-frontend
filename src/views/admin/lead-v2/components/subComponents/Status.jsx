@@ -11,7 +11,7 @@ import {
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 
-const Status = ({ lead, refresh }) => {
+const Status = ({ lead, refreshLeads }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
@@ -28,6 +28,7 @@ const Status = ({ lead, refresh }) => {
 			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
 			if (response.status === 200) {
 				setSelected(data.leadStatus);
+				if (data.leadStatus === 'new') refreshLeads();
 				toast.success('Lead Status Updated!');
 			}
 		} catch (e) {

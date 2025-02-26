@@ -17,10 +17,12 @@ import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
+import { useMemo } from 'react';
 
 const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
-	const leadType =
-		lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
+	const leadType = useMemo(() => {
+		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
+	}, [lead?.leadType, lead?.leadStatus]);
 
 	const roleName =
 		user?.role === 'superAdmin'
@@ -51,8 +53,9 @@ const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
 
 			<Grid
 				// minWidth='14.75rem'
-				minWidth='14.75em' // Scales based on the parent element's font size
-				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+				minWidth='12em' // Scales based on the parent element's font size
+				// templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+				templateColumns='repeat(2, 1fr)'
 				gap={1}
 			>
 				<EntityField

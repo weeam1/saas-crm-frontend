@@ -1,5 +1,5 @@
 import { Box, Flex, Grid, useDisclosure } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
 import CardLoader from './CardLoader';
 import Pagination from './Pagination';
@@ -18,7 +18,6 @@ const Leads = ({
 	refreshLeads,
 	currentPage,
 	setCurrentPage,
-	hanldePage,
 	pageSize,
 	setQueryParams,
 	addLead,
@@ -27,8 +26,6 @@ const Leads = ({
 	setSelectedValues,
 	selectAllChecked,
 	setSelectAllChecked,
-	refetchLoading,
-	setRefetchLoading,
 }) => {
 	const {
 		isOpen: dateTimeIsOpen,
@@ -43,11 +40,12 @@ const Leads = ({
 	]);
 
 	const [isLoaded, setIsLoaded] = useState(false);
+	const [refetchLoading, setRefetchLoading] = useState(false);
 
 	useEffect(() => {
 		setIsLoaded(false); // Reset loading state on page change
 		if (!leadsLoading) {
-			const timer = setTimeout(() => setIsLoaded(true), 1500);
+			const timer = setTimeout(() => setIsLoaded(true), 700);
 			return () => clearTimeout(timer);
 		}
 	}, [leadsLoading, currentPage]); // Reacts to both loading state & page change
@@ -57,6 +55,8 @@ const Leads = ({
 			setRefetchLoading(false);
 		}
 	}, [leadsRefetching]);
+
+	console.log({ refetchLoading });
 
 	// Modals states
 	const [viewLead, setViewLead] = useState({
@@ -74,39 +74,47 @@ const Leads = ({
 	const [isFormReset, setIsFormReset] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
 	const [searchClear, setSearchClear] = useState(false);
-	const [searchTerm, setSearchTerm] = useState('');
+	// const [searchTerm, setSearchTerm] = useState('');
+
+	const searchTermRef = useRef('');
 
 	const handleClear = () => {
 		setSearchTags([]);
-		setSearchTerm('');
+		searchTermRef.current = '';
+		// Reset input value in DOM
+		document.getElementById('searchInput').value = '';
 		setIsFormReset(true);
 		setSearchClear(false);
 		setRefetchLoading(true);
 		setQueryParams((prev) => {
-			const { data, dateTime, ...rest } = prev; // Remove 'data' key
-			return {
-				...rest,
-				page: 1,
-			};
+			const { data, dateTime, ...rest } = prev;
+
+			// Only remove keys if they exist
+			const updatedParams = { ...rest, page: 1 };
+
+			return updatedParams;
 		});
 	};
 
-	const handleSearchByName = () => {
-		if (!searchTerm) {
-			return;
-		}
-
-		const searchKey = [`leadName: ${searchTerm}`];
+	const handleSearchByName = useCallback(() => {
+		const term = searchTermRef.current.trim();
+		if (!term) return;
 
 		setSearchClear(true);
-		setSearchTags(searchKey);
+		setSearchTags([`leadName: ${term}`]);
 
 		setQueryParams((prev) => ({
 			...prev,
-			page: 1, // Reset to first page on new search
-			data: JSON.stringify({ leadName: searchTerm }),
+			page: 1,
+			data: JSON.stringify({ leadName: term }),
 		}));
 
+		setRefetchLoading(true);
+	}, [setQueryParams, setRefetchLoading]);
+
+	// Handle page changes
+	const handlePageChange = (page) => {
+		setCurrentPage(page);
 		setRefetchLoading(true);
 	};
 
@@ -114,17 +122,21 @@ const Leads = ({
 		<Box>
 			<Flex
 				width='full'
-				// justifyContent='space-between'
-				// alignItems='center'
+				justifyContent='space-between'
+				alignItems='center'
 				gap='2'
-				// flexDirection={{ base: 'column', lg: 'row' }}
-				flexDirection='column'
+				sx={{
+					flexDirection: 'column', // Default
+					'@media (min-width: 1380px)': {
+						flexDirection: 'row',
+					},
+				}}
 			>
 				{/* Pagination */}
 				<Pagination
 					currentPage={currentPage}
 					totalPages={leads?.totalPages ?? ''}
-					onPageChange={hanldePage}
+					onPageChange={handlePageChange}
 					totalItems={leads?.totalLeads ?? ''}
 					itemsPerPage={pageSize}
 					leadsRefetching={leadsRefetching}
@@ -137,8 +149,7 @@ const Leads = ({
 					handleClear={handleClear}
 					searchClear={searchClear}
 					handleSearchByName={handleSearchByName}
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
+					searchTermRef={searchTermRef}
 				/>
 			</Flex>
 
@@ -152,12 +163,44 @@ const Leads = ({
 				<CardLoader count={pageSize} />
 			) : leads && leads?.totalLeads > 0 ? (
 				<Grid
-					templateColumns={{
-						base: '1fr',
-						md: 'repeat(2, 1fr)',
-						lg: 'repeat(3, 1fr)',
-						xl: 'repeat(4, 1fr)',
-						'2xl': 'repeat(5, 1fr',
+					// Use the `sx` prop to apply custom media queries
+					sx={{
+						// >= 0px
+						'@media (min-width: 0px)': {
+							gridTemplateColumns: '1fr',
+						},
+						// // >= 812px
+						// '@media (min-width: 812px)': {
+						// 	gridTemplateColumns: '1fr',
+						// },
+						// >= 992px
+						'@media (min-width: 812px)': {
+							gridTemplateColumns: 'repeat(2, 1fr)',
+						},
+						// >= 1280px
+						'@media (min-width: 1280px)': {
+							gridTemplateColumns: 'repeat(3, 1fr)',
+						},
+						// >= 1664px
+						'@media (min-width: 1664px)': {
+							gridTemplateColumns: 'repeat(4, 1fr)',
+						},
+						// >= 1920px (e.g., Full HD+)
+						'@media (min-width: 2120px)': {
+							gridTemplateColumns: 'repeat(5, 1fr)',
+						},
+						// >= 2560px (2.5K / QHD)
+						'@media (min-width: 2560px)': {
+							gridTemplateColumns: 'repeat(6, 1fr)',
+						},
+						// >= 3840px (4K)
+						'@media (min-width: 3840px)': {
+							gridTemplateColumns: 'repeat(7, 1fr)',
+						},
+						// >= 7680px (8K)
+						'@media (min-width: 7680px)': {
+							gridTemplateColumns: 'repeat(8, 1fr)',
+						},
 					}}
 					gap='2'
 				>
@@ -205,15 +248,17 @@ const Leads = ({
 			/>
 
 			{/* Date time filter */}
-			<DateFilter
-				setQueryParams={setQueryParams}
-				setRefetchLoading={setRefetchLoading}
-				setCurrentPage={setCurrentPage}
-				onClose={dateTimeOnClose}
-				isOpen={dateTimeIsOpen}
-				setSearchClear={setSearchClear}
-				setSearchTags={setSearchTags}
-			/>
+			{dateTimeIsOpen && (
+				<DateFilter
+					setQueryParams={setQueryParams}
+					setRefetchLoading={setRefetchLoading}
+					setCurrentPage={setCurrentPage}
+					onClose={dateTimeOnClose}
+					isOpen={dateTimeIsOpen}
+					setSearchClear={setSearchClear}
+					setSearchTags={setSearchTags}
+				/>
+			)}
 
 			{/* Advance filter */}
 			{advanceSearch && (

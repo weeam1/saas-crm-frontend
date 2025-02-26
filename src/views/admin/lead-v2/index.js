@@ -15,7 +15,6 @@ const LeadScreen = () => {
 	const isAdmin = user?.role === 'superAdmin';
 
 	const [currentPage, setCurrentPage] = useState(1);
-	const [refetchLoading, setRefetchLoading] = useState(false);
 	const [addLead, setAddLead] = useState(false);
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -66,11 +65,6 @@ const LeadScreen = () => {
 			params: queryParams,
 		});
 	}, [queryParams, leadsRefetch]);
-
-	// Handle page changes
-	const handlePageChange = (page) => {
-		setCurrentPage(page);
-	};
 
 	// Refresh data
 	const refreshLeads = () => {
@@ -143,7 +137,7 @@ const LeadScreen = () => {
 				refreshLeads={refreshLeads}
 				currentPage={currentPage}
 				setCurrentPage={setCurrentPage}
-				hanldePage={handlePageChange}
+				// hanldePage={handlePageChange}
 				pageSize={pageSize}
 				setQueryParams={setQueryParams}
 				addLead={addLead}
@@ -152,8 +146,6 @@ const LeadScreen = () => {
 				setSelectedValues={setSelectedValues}
 				setSelectAllChecked={setSelectAllChecked}
 				selectAllChecked={selectAllChecked}
-				refreshLoading={refetchLoading}
-				setRefetchLoading={setRefetchLoading}
 			/>
 
 			{bulkAssign && selectedValues?.length && (

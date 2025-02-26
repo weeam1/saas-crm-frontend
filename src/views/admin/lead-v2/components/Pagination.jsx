@@ -57,7 +57,7 @@ const Pagination = ({
 	};
 
 	const buttonStyle = {
-		size: 'sm',
+		size: 'xs',
 		borderRadius: 'lg',
 		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
 		_active: { bg: 'softGray.500' },
@@ -75,9 +75,9 @@ const Pagination = ({
 			borderColor='softGray.600'
 			borderRadius='md'
 			align='center'
-			justifyContent='center'
-			// width={{ base: '100%', lg: 'fit-content' }}
-			width='100%'
+			// justifyContent='center'
+			width={{ base: '100%', lg: 'fit-content' }}
+			// width='100%'
 			fontSize={leadValueFontSize}
 		>
 			{/* First Button */}

@@ -55,6 +55,7 @@ import { useSelector } from 'react-redux';
 import EditLead from './components/EditLead';
 import AddLead from './components/AddLead';
 import { formattedDate } from 'utils/helpers';
+import Loader from 'components/loading/Loader';
 
 const View = ({ param, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
@@ -184,18 +185,20 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 				setAction={setAction}
 				moduleId={leadData?.[0]?._id}
 			/> */}
-			<Delete
-				isOpen={deleteModel}
-				onClose={setDelete}
-				method='one'
-				url='api/lead/delete/'
-				id={param.id}
-				setAction={setAction}
-			/>
+			{deleteModel && (
+				<Delete
+					isOpen={deleteModel}
+					onClose={setDelete}
+					method='one'
+					url='api/lead/delete/'
+					id={param.id}
+					setAction={setAction}
+				/>
+			)}
 
 			{isLoding ? (
 				<Flex justifyContent={'center'} alignItems={'center'} width='100%'>
-					<Spinner />
+					<Loader />
 				</Flex>
 			) : (
 				<>

@@ -17,11 +17,10 @@ const SearchBox = ({
 	searchClear,
 	handleClear,
 	handleSearchByName,
-	searchTerm,
-	setSearchTerm,
+	searchTermRef,
 }) => {
-	const handleInputChange = (e) => {
-		setSearchTerm(e.target.value);
+	const handleInputChange = (event) => {
+		searchTermRef.current = event.target.value;
 	};
 
 	return (
@@ -43,11 +42,11 @@ const SearchBox = ({
 					overflow='hidden'
 				>
 					<Input
+						id='searchInput'
 						placeholder='name..'
 						border='none'
 						fontSize='xs'
 						height='2.2rem'
-						value={searchTerm}
 						onChange={handleInputChange}
 						onKeyDown={(e) => e.key === 'Enter' && handleSearchByName()}
 						_focus={{ boxShadow: 'none' }}
@@ -97,8 +96,6 @@ const SearchBox = ({
 							variant='solid'
 							bg='red.400'
 							color='white'
-							py='2'
-							px='5'
 							sx={{
 								svg: {
 									fill: 'white',
