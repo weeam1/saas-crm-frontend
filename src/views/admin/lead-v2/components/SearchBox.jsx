@@ -7,15 +7,11 @@ import {
 	Box,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
-import DateFilterButton from './DateFilterButton';
-import { buttonStyle } from './constants';
-import { BiX } from 'react-icons/bi';
+// import DateFilterButton from './DateFilterButton';
 
 const SearchBox = ({
 	dateTimeOnOpen,
 	setAdvanceSearch,
-	searchClear,
-	handleClear,
 	handleSearchByName,
 	searchTermRef,
 }) => {
@@ -87,27 +83,6 @@ const SearchBox = ({
 					>
 						Advance Search
 					</Button>
-
-					<DateFilterButton onClick={dateTimeOnOpen} />
-
-					{searchClear && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='red.400'
-							color='white'
-							sx={{
-								svg: {
-									fill: 'white',
-								},
-							}}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)}
 				</HStack>
 			</HStack>
 		</Box>

@@ -94,17 +94,17 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: MainDashboard,
 		},
+		// {
+		// 	name: 'Lead',
+		// 	layout: [ROLE_PATH.user],
+		// 	path: '/lead',
+		// 	icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+		// 	component: Lead,
+		// },
 		{
 			name: 'Lead',
 			layout: [ROLE_PATH.user],
 			path: '/lead',
-			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-			component: Lead,
-		},
-		{
-			name: 'Lead',
-			layout: [ROLE_PATH.user],
-			path: '/new-lead',
 			icon: (
 				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 			),

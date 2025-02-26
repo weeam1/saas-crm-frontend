@@ -7,7 +7,6 @@ import {
 	HStack,
 	Icon,
 	Text,
-	Tooltip,
 } from '@chakra-ui/react';
 import LastNoteField from './LastNoteField';
 import MainStatus from '../MainStatus';
@@ -19,15 +18,10 @@ import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
 
-const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
+const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 	const leadType = useMemo(() => {
 		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
 	}, [lead?.leadType, lead?.leadStatus]);
-
-	const roleName =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	return (
 		<Box flex='1'>
@@ -48,7 +42,7 @@ const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
 				<Text fontSize='12px' fontWeight='semibold'>
 					{lead?.leadName || 'N/A'}
 				</Text>
-				<LeadTypeBadge leadType={leadType} roleName={roleName} />
+				<LeadTypeBadge leadType={leadType} roleName={role} />
 			</HStack>
 
 			<Grid
@@ -69,23 +63,26 @@ const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
 					valueProps={{ color: '#FF0004' }}
 				/>
 				{/* Manager */}
-				<GridItem>
+				<GridItem colSpan={role === 'Agent' ? '2' : '1'}>
 					<Managers
 						managerAssigned={lead?.managerAssigned}
 						lead={lead}
 						refreshLeads={refreshLeads}
+						role={role}
 					/>
 				</GridItem>
 
 				{/* Agent */}
-				<GridItem>
-					<Agents
-						agentAssigned={lead?.agentAssigned}
-						managerAssigned={lead?.managerAssigned}
-						lead={lead}
-						refreshLeads={refreshLeads}
-					/>
-				</GridItem>
+				{['superAdmin', 'Manager'].includes(role) && (
+					<GridItem>
+						<Agents
+							agentAssigned={lead?.agentAssigned}
+							managerAssigned={lead?.managerAssigned}
+							lead={lead}
+							refreshLeads={refreshLeads}
+						/>
+					</GridItem>
+				)}
 
 				{/* Main lead status */}
 				<GridItem>
@@ -100,7 +97,11 @@ const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
 				<GridItem>
 					<EntityField
 						label='Phone'
-						value={lead.leadPhoneNumber}
+						value={
+							typeof lead?.leadPhoneNumber === 'object'
+								? lead?.leadPhoneNumber?.result
+								: lead?.leadPhoneNumber
+						}
 						isCopy
 						valueProps={{ color: '#7667FF' }}
 					/>
@@ -110,7 +111,11 @@ const LeftCard = ({ lead, user, setViewLead, refreshLeads }) => {
 				<GridItem>
 					<EntityField
 						label='WhatsApp'
-						value={lead.leadWhatsappNumber}
+						value={
+							typeof lead.leadWhatsappNumber === 'object'
+								? lead.leadWhatsappNumber?.result
+								: lead.leadWhatsappNumber
+						}
 						isCopy
 						valueProps={{ color: 'green.700' }}
 					/>

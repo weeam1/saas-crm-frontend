@@ -2,17 +2,28 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useEffect, useState } from 'react';
 import Leads from './components/Leads';
-import { Box, Button, Flex, HStack, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { FaPlus } from 'react-icons/fa6';
 import { buttonStyle } from './components/constants';
 import BulkAssignModal from './components/BulkAssignModal';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import DateFilterButton from './components/DateFilterButton';
 // import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadScreen = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const role =
+		user?.role === 'superAdmin'
+			? 'superAdmin'
+			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	const [currentPage, setCurrentPage] = useState(1);
 	const [addLead, setAddLead] = useState(false);
@@ -23,7 +34,13 @@ const LeadScreen = () => {
 	const [errorModal, setErrorModal] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 
-	const [pageSize, setPageSize] = useState(32);
+	const {
+		isOpen: dateTimeIsOpen,
+		onOpen: dateTimeOnOpen,
+		onClose: dateTimeOnClose,
+	} = useDisclosure();
+
+	const pageSize = 32;
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		pageSize,
@@ -89,7 +106,8 @@ const LeadScreen = () => {
 			rounded='md'
 			shadow='sm'
 			fontFamily="'DM Sans', sans-serif"
-			bg='softGray.800'
+			// bg='softGray.800'
+			bg='white'
 		>
 			<Flex
 				justifyContent='space-between'
@@ -101,33 +119,39 @@ const LeadScreen = () => {
 					<CountUpComponent targetNumber={leads?.totalLeads} />
 				</Text>
 
-				{/* Action buttons */}
+				{/* Action buttons only for Admins */}
 				<HStack gap='2'>
-					<Button
-						{...buttonStyle}
-						onClick={() => setBulkAssign(true)}
-						isDisabled={!(selectedValues && selectedValues?.length > 1)}
-						variant='solid'
-						bg='brand.400'
-						py='2'
-						px='5'
-						aria-label='Bulk Assign'
-					>
-						Bulk Assign
-					</Button>
+					{['superAdmin', 'Manager'].includes(role) && (
+						<Button
+							{...buttonStyle}
+							onClick={() => setBulkAssign(true)}
+							isDisabled={!(selectedValues && selectedValues?.length > 1)}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							aria-label='Bulk Assign'
+						>
+							Bulk Assign
+						</Button>
+					)}
 
-					<Button
-						{...buttonStyle}
-						variant='solid'
-						bg='brand.400'
-						py='2'
-						px='5'
-						leftIcon={<FaPlus />}
-						aria-label='New lead'
-						onClick={() => setAddLead(true)}
-					>
-						New
-					</Button>
+					{role === 'superAdmin' && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							leftIcon={<FaPlus />}
+							aria-label='New lead'
+							onClick={() => setAddLead(true)}
+						>
+							New
+						</Button>
+					)}
+
+					<DateFilterButton onClick={dateTimeOnOpen} />
 				</HStack>
 			</Flex>
 			<Leads
@@ -146,6 +170,8 @@ const LeadScreen = () => {
 				setSelectedValues={setSelectedValues}
 				setSelectAllChecked={setSelectAllChecked}
 				selectAllChecked={selectAllChecked}
+				dateTimeIsOpen={dateTimeIsOpen}
+				dateTimeOnClose={dateTimeOnClose}
 			/>
 
 			{bulkAssign && selectedValues?.length && (

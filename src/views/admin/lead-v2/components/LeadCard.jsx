@@ -31,6 +31,8 @@ const LeadCard = memo(
 			lg: '25%', // Three cards per row on larger screens
 		});
 
+		console.log({ lead });
+
 		const user = JSON.parse(localStorage.getItem('user'));
 
 		const [localChecked, setLocalChecked] = useState(
@@ -59,6 +61,11 @@ const LeadCard = memo(
 		useEffect(() => {
 			setLocalChecked(selectedValues.includes(lead?._id));
 		}, [selectedValues, lead?._id]);
+
+		const role =
+			user?.role === 'superAdmin'
+				? 'superAdmin'
+				: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 		return (
 			<>
@@ -117,6 +124,7 @@ const LeadCard = memo(
 							setSelectedValues={setSelectedValues}
 							setDeleteLead={setDeleteLead}
 							setLeadDetails={setLeadDetails}
+							refreshData={refreshLeads}
 						/>
 					</Box>
 					<Flex
@@ -128,9 +136,9 @@ const LeadCard = memo(
 					>
 						<LeftCard
 							lead={lead}
-							user={user}
 							setViewLead={setViewLead}
 							refreshLeads={refreshLeads}
+							role={role}
 						/>
 						<RightCard lead={lead} />
 					</Flex>

@@ -1,4 +1,11 @@
-import { Box, Flex, Grid, useDisclosure } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	Grid,
+	HStack,
+	useDisclosure,
+} from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
 import CardLoader from './CardLoader';
@@ -10,6 +17,9 @@ import LeadsModals from './LeadsModals';
 import { HasAccess } from './../../../../redux/accessUtils';
 import AdvancedSearchModal from './AdvancedSearchModal';
 import SearchTags from './SearchTags';
+import { buttonStyle } from './constants';
+import { BiX } from 'react-icons/bi';
+import NoData from './subComponents/NoData';
 
 const Leads = ({
 	leads,
@@ -26,13 +36,9 @@ const Leads = ({
 	setSelectedValues,
 	selectAllChecked,
 	setSelectAllChecked,
+	dateTimeIsOpen,
+	dateTimeOnClose,
 }) => {
-	const {
-		isOpen: dateTimeIsOpen,
-		onOpen: dateTimeOnOpen,
-		onClose: dateTimeOnClose,
-	} = useDisclosure();
-
 	const [permission, emailAccess, callAccess] = HasAccess([
 		'Lead',
 		'Email',
@@ -143,18 +149,45 @@ const Leads = ({
 				/>
 
 				<SearchBox
-					dateTimeOnOpen={dateTimeOnOpen}
+					// dateTimeOnOpen={dateTimeOnOpen}
 					setQueryParams={setQueryParams}
 					setAdvanceSearch={setAdvanceSearch}
-					handleClear={handleClear}
-					searchClear={searchClear}
 					handleSearchByName={handleSearchByName}
 					searchTermRef={searchTermRef}
 				/>
 			</Flex>
 
 			{/* Search tags */}
-			<SearchTags searchTags={searchTags} />
+			{searchClear && searchTags && (
+				<Flex
+					flexDirection={{ base: 'column-reverse', lg: 'row' }}
+					justifyContent='space-between'
+					alignItems={{ base: 'start' }}
+					py='2'
+				>
+					<SearchTags searchTags={searchTags} />
+
+					{searchClear && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='red.400'
+							color='white'
+							alignSelf='end'
+							sx={{
+								svg: {
+									fill: 'white',
+								},
+							}}
+							leftIcon={<BiX />}
+							aria-label='Clear'
+							onClick={handleClear}
+						>
+							Clear
+						</Button>
+					)}
+				</Flex>
+			)}
 
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
@@ -226,7 +259,7 @@ const Leads = ({
 					))}
 				</Grid>
 			) : (
-				<NotFoundMessage message={'No leads available at the moment.'} />
+				<NoData />
 			)}
 
 			{/* Modals */}

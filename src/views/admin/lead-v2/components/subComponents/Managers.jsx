@@ -1,11 +1,12 @@
 import SelectInput from 'components/shared/SelectInput';
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	leadValueFontSize,
 	mergeSort,
 } from '../constants';
 import { useSelector } from 'react-redux';
@@ -13,7 +14,7 @@ import { formattedDate } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 
-const Managers = ({ lead, managerAssigned, refreshLeads }) => {
+const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
@@ -47,6 +48,18 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 		}
 	};
 
+	const { managerName } = useMemo(() => {
+		if (!['Manager', 'Agent'].includes(role)) return { managerName: 'N/A' };
+
+		// Create a lookup map for fast access
+		const managerMap = new Map(
+			tree?.managers?.map((m) => [m._id, m.fullName]) || []
+		);
+		const managerName = managerMap.get(selected) || 'N/A';
+
+		return { managerName };
+	}, [tree?.managers, role, selected, lead]);
+
 	return (
 		<>
 			<Flex alignItems='center' justifyContent='space-between' mb='1'>
@@ -69,16 +82,32 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip>
 			</Flex>
-			<SelectInput
-				name='managerAssigned'
-				options={mergeSort(tree?.managers || [])}
-				placeholder='Select'
-				selectedValue={selected}
-				type='dynamic'
-				size={leadSelectInputSize}
-				loading={loading}
-				onChange={handleChangeManager}
-			/>
+
+			{['Manager', 'Agent'].includes(role) ? (
+				<Text
+					bg='softGray.400'
+					py='2px'
+					px='4px'
+					mt='6px'
+					rounded='md'
+					color='softGray.300'
+					fontSize={leadValueFontSize}
+				>
+					{managerName}
+				</Text>
+			) : (
+				<SelectInput
+					name='managerAssigned'
+					options={mergeSort(tree?.managers || [])}
+					placeholder='Select'
+					selectedValue={selected}
+					type='dynamic'
+					size={leadSelectInputSize}
+					loading={loading}
+					onChange={handleChangeManager}
+				/>
+			)}
+
 			{/* <FormControl>
 				<Select
 					placeholder={'Select'}

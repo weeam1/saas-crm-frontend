@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	Box,
 	Input,
@@ -16,6 +15,7 @@ const CustomDatePicker = ({
 	selectedDate,
 	handleDateChange,
 	errors,
+	errorKey,
 	label,
 	minDate,
 	maxDate,
@@ -23,8 +23,10 @@ const CustomDatePicker = ({
 	isCalendarOpen,
 	toggleCalendar,
 }) => {
+	const errorMessage = errors?.[errorKey];
+
 	return (
-		<FormControl mb={4} isInvalid={!!errors?.selectedDate}>
+		<FormControl mb={4} isInvalid={!!errorMessage}>
 			<FormLabel>{label}</FormLabel>
 			<Box position='relative' width='100%'>
 				<InputGroup>
@@ -34,9 +36,9 @@ const CustomDatePicker = ({
 						readOnly
 						required
 						bg='#F2F2F2'
-						borderColor={errors?.selectedDate ? 'red.500' : 'gray.300'}
+						borderColor={errorMessage ? 'red.500' : 'gray.300'}
 						borderRadius='md'
-						focusBorderColor={errors?.selectedDate ? 'red.500' : '#E0B960'}
+						focusBorderColor={errorMessage ? 'red.500' : '#E0B960'}
 					/>
 					<InputRightElement>
 						<FaRegCalendar
@@ -69,9 +71,9 @@ const CustomDatePicker = ({
 					</Box>
 				)}
 			</Box>
-			{errors?.selectedDate && (
+			{errorMessage && (
 				<Text color='red.500' fontSize='sm'>
-					{errors?.selectedDate}
+					{errorMessage}
 				</Text>
 			)}
 		</FormControl>

@@ -211,6 +211,7 @@ import SelectLoading from './SelectLoading';
 
 const SelectInput = ({
 	label,
+	name,
 	options = [],
 	placeholder = 'Select an option',
 	size = 'md', // "xs", "sm", "md", "lg"
@@ -242,9 +243,10 @@ const SelectInput = ({
 		<FormControl>
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
 
-			<Select
+			{/* <Select
 				placeholder={loading ? 'Updating...' : placeholder}
 				size={size}
+				name={name}
 				value={selectedValue ?? ''}
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
@@ -264,8 +266,19 @@ const SelectInput = ({
 				isDisabled={loading || options.length < 1}
 				{...props}
 			>
-				{!loading
-					? options.map((opt) => (
+				{!loading ? (
+					<>
+						{['managerAssigned', 'agentAssigned'].includes(name) && (
+							<option value='3'>
+								Unassigned{' '}
+								{name === 'managerAssigned'
+									? 'Manager'
+									: name === 'agentAssigned'
+										? 'Agent'
+										: ''}
+							</option>
+						)}
+						{options.map((opt) => (
 							<option
 								key={type === 'dynamic' ? opt._id : opt.value}
 								value={type === 'dynamic' ? opt._id : opt.value}
@@ -274,8 +287,55 @@ const SelectInput = ({
 									? opt?.firstName + ' ' + opt?.lastName
 									: opt.label}
 							</option>
-						))
-					: null}
+						))}
+					</>
+				) : null}
+			</Select> */}
+
+			<Select
+				// placeholder={loading ? 'Updating...' : placeholder}
+				size={size}
+				name={name}
+				value={selectedValue ?? ''} // Ensures placeholder is shown when value is null
+				fontSize={leadSelectInputFontSize}
+				borderColor={borderColor}
+				focusBorderColor={focusBorderColor}
+				color={type === 'static' ? textColor : 'softGray.300'}
+				bg={type === 'static' ? bgColor : 'softGray.400'}
+				_hover={{ borderColor: focusBorderColor }}
+				_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+				borderRadius='md'
+				sx={{
+					option: {
+						bg: dropdownBg,
+						color: 'gray.800',
+						_hover: { bg: dropdownHoverBg },
+					},
+				}}
+				isDisabled={loading || options.length < 1}
+				{...props}
+			>
+				{/* Placeholder (hidden when an option is selected) */}
+				<option disabled>{loading ? 'Updating...' : placeholder}</option>
+
+				{/* "Unassigned" option */}
+				{['managerAssigned', 'agentAssigned'].includes(name) && (
+					<option value=''>
+						Unassigned {name === 'managerAssigned' ? 'Manager' : 'Agent'}
+					</option>
+				)}
+
+				{/* Dynamic options */}
+				{options.map((opt) => (
+					<option
+						key={type === 'dynamic' ? opt._id : opt.value}
+						value={type === 'dynamic' ? opt._id : opt.value}
+					>
+						{type === 'dynamic'
+							? `${opt?.firstName} ${opt?.lastName}`
+							: opt.label}
+					</option>
+				))}
 			</Select>
 		</FormControl>
 	);

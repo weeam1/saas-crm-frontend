@@ -198,7 +198,7 @@ const AdvancedSearchForm = (props) => {
 					<option value='follow_up_after_meeting'>
 						Follow Up After Meeting
 					</option>
-					<option value='deal'>Deal</option>
+					{/* <option value='deal'>Deal</option> */}
 					<option value='junk'>Junk</option>
 					<option value='whatsapp_send'>Whatsapp Send</option>
 					<option value='whatsapp_rec'>Whatsapp Rec</option>

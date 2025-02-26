@@ -129,19 +129,19 @@ const routes = [
 	},
 	// ========================== Admin Layout ==========================
 	// ------------- lead Routes ------------------------
+	// {
+	// 	name: 'Lead',
+	// 	layout: [ROLE_PATH.superAdmin],
+	// 	path: '/lead',
+	// 	icon: (
+	// 		<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: Lead,
+	// },
 	{
 		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin],
 		path: '/lead',
-		icon: (
-			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-		),
-		component: Lead,
-	},
-	{
-		name: 'Lead',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/new-lead',
 		icon: (
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
