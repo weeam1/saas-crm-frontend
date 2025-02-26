@@ -2,9 +2,11 @@ import { formattedDate } from 'utils/helpers';
 import { leadlabelFontSize } from './constants';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
-import { Box, Checkbox, Flex, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, useBreakpointValue } from '@chakra-ui/react';
 import LeadMenu from './subComponents/card/LeadMenu';
-import { useMemo, memo, useCallback } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
+
+import './checkbox.css';
 
 const LeadCard = memo(
 	({
@@ -31,21 +33,32 @@ const LeadCard = memo(
 
 		const user = JSON.parse(localStorage.getItem('user'));
 
-		const isChecked = useMemo(
-			() => Boolean(selectedValues?.includes(lead?._id)),
-			[selectedValues, lead?._id]
+		const [localChecked, setLocalChecked] = useState(
+			selectedValues.includes(lead?._id)
 		);
 
 		const handleCheckboxChange = useCallback(
-			(event, value) => {
-				setSelectedValues((prev = []) =>
-					event.target.checked
-						? [...prev, value]
-						: prev.filter((v) => v !== value)
-				);
+			(event) => {
+				const isChecked = event.target.checked;
+
+				// ✅ Instant UI update
+				setLocalChecked(isChecked);
+
+				// ✅ Background state update (does not block UI)
+				setTimeout(() => {
+					setSelectedValues((prev = []) =>
+						isChecked
+							? [...prev, lead?._id]
+							: prev.filter((id) => id !== lead?._id)
+					);
+				}, 0); // Runs in the background immediately
 			},
-			[setSelectedValues]
+			[setSelectedValues, lead?._id]
 		);
+
+		useEffect(() => {
+			setLocalChecked(selectedValues.includes(lead?._id));
+		}, [selectedValues, lead?._id]);
 
 		return (
 			<>
@@ -71,12 +84,21 @@ const LeadCard = memo(
 						alignItems='center'
 						gap={2}
 					>
-						<Checkbox
+						{/* <Checkbox
 							colorScheme='brand'
 							value={selectedValues}
 							isChecked={isChecked}
 							onChange={(event) => handleCheckboxChange(event, lead?._id)}
-						/>
+						/> */}
+
+						<label className='custom-checkbox'>
+							<input
+								type='checkbox'
+								checked={localChecked}
+								onChange={handleCheckboxChange}
+							/>
+							<span className='checkmark'></span>
+						</label>
 						{/* <IconButton
 					aria-label='More options'
 					icon={<TbDotsVertical size='20' />}
@@ -101,7 +123,8 @@ const LeadCard = memo(
 						justify='space-between'
 						align='stretch'
 						wrap='wrap'
-						gap={{ base: 2, md: 3, lg: 4 }}
+						// gap={{ base: 2, md: 3 }}
+						gap={2}
 					>
 						<LeftCard
 							lead={lead}
