@@ -89,8 +89,8 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 			</Flex>
 			<SelectInput
 				name='agentAssigned'
-				options={agents || []}
 				placeholder='Select'
+				options={agents || []}
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}

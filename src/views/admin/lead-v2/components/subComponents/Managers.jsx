@@ -98,8 +98,8 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			) : (
 				<SelectInput
 					name='managerAssigned'
-					options={mergeSort(tree?.managers || [])}
 					placeholder='Select'
+					options={mergeSort(tree?.managers || [])}
 					selectedValue={selected}
 					type='dynamic'
 					size={leadSelectInputSize}

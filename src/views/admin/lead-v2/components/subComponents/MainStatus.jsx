@@ -12,7 +12,7 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
 
-const MainStatus = ({ lead }) => {
+const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 	const [label, setLabel] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -82,12 +82,13 @@ const MainStatus = ({ lead }) => {
 			</HStack>
 			<SelectInput
 				name='eLeadStatus'
-				options={mainLeadStatus}
+				options={mainLeadStatus || []}
 				placeholder='Select'
 				selectedValue={selected}
 				textColorCustom='white'
 				bgColorCustom='brand.300'
 				loading={loading}
+				isDisabled={(selected === 'deal' && role === 'Agent') || loading}
 				borderColorCustom='brand.600'
 				size={leadSelectInputSize}
 				onChange={hanldeMainStatus}

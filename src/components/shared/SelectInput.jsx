@@ -213,7 +213,7 @@ const SelectInput = ({
 	label,
 	name,
 	options = [],
-	placeholder = 'Select an option',
+	placeholder = 'Select',
 	size = 'md', // "xs", "sm", "md", "lg"
 	borderColorCustom,
 	textColorCustom,
@@ -224,6 +224,7 @@ const SelectInput = ({
 	type = 'static',
 	...props
 }) => {
+	console.log({ loading });
 	// Move all useColorModeValue calls to the top level to avoid conditional hooks
 	const defaultBorderColor = useColorModeValue('gray.300', 'gray.600');
 	const defaultFocusBorderColor = useColorModeValue('brand.500', 'brand.300');
@@ -293,10 +294,9 @@ const SelectInput = ({
 			</Select> */}
 
 			<Select
-				// placeholder={loading ? 'Updating...' : placeholder}
 				size={size}
 				name={name}
-				value={selectedValue ?? ''} // Ensures placeholder is shown when value is null
+				value={loading ? '' : (selectedValue ?? '')}
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
 				focusBorderColor={focusBorderColor}
@@ -315,27 +315,37 @@ const SelectInput = ({
 				isDisabled={loading || options.length < 1}
 				{...props}
 			>
-				{/* Placeholder (hidden when an option is selected) */}
-				<option disabled>{loading ? 'Updating...' : placeholder}</option>
-
-				{/* "Unassigned" option */}
-				{['managerAssigned', 'agentAssigned'].includes(name) && (
-					<option value=''>
-						Unassigned {name === 'managerAssigned' ? 'Manager' : 'Agent'}
+				{loading ? (
+					<option value='' disabled selected>
+						Updating...
 					</option>
+				) : (
+					<>
+						{/* Placeholder option */}
+						<option value='' disabled selected={selectedValue === ''}>
+							{placeholder}
+						</option>
+
+						{/* "Unassigned" option */}
+						{['managerAssigned', 'agentAssigned'].includes(name) && (
+							<option value=''>
+								Unassigned {name === 'managerAssigned' ? 'Manager' : 'Agent'}
+							</option>
+						)}
+
+						{/* Dynamic options */}
+						{options.map((opt) => (
+							<option
+								key={type === 'dynamic' ? opt._id : opt.value}
+								value={type === 'dynamic' ? opt._id : opt.value}
+							>
+								{type === 'dynamic'
+									? `${opt?.firstName} ${opt?.lastName}`
+									: opt.label}
+							</option>
+						))}
+					</>
 				)}
-
-				{/* Dynamic options */}
-				{options.map((opt) => (
-					<option
-						key={type === 'dynamic' ? opt._id : opt.value}
-						value={type === 'dynamic' ? opt._id : opt.value}
-					>
-						{type === 'dynamic'
-							? `${opt?.firstName} ${opt?.lastName}`
-							: opt.label}
-					</option>
-				))}
 			</Select>
 		</FormControl>
 	);

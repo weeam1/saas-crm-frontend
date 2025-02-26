@@ -50,6 +50,7 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 				minWidth='12em' // Scales based on the parent element's font size
 				// templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 				templateColumns='repeat(2, 1fr)'
+				alignItems='start'
 				gap={1}
 			>
 				<EntityField
@@ -63,14 +64,16 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 					valueProps={{ color: '#FF0004' }}
 				/>
 				{/* Manager */}
-				<GridItem colSpan={role === 'Agent' ? '2' : '1'}>
-					<Managers
-						managerAssigned={lead?.managerAssigned}
-						lead={lead}
-						refreshLeads={refreshLeads}
-						role={role}
-					/>
-				</GridItem>
+				{role === 'superAdmin' && (
+					<GridItem colSpan={role === 'Agent' ? '2' : '1'}>
+						<Managers
+							managerAssigned={lead?.managerAssigned}
+							lead={lead}
+							refreshLeads={refreshLeads}
+							role={role}
+						/>
+					</GridItem>
+				)}
 
 				{/* Agent */}
 				{['superAdmin', 'Manager'].includes(role) && (
@@ -86,7 +89,7 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role }) => {
 
 				{/* Main lead status */}
 				<GridItem>
-					<MainStatus lead={lead} refreshLeads={refreshLeads} />
+					<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
 				</GridItem>
 				{/* Lead status */}
 				<GridItem>
