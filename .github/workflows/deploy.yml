@@ -30,7 +30,7 @@ jobs:
           script: |
             cd /var/www/html/weeam-crm-frontend
             git reset --hard
-            git pull origin main
+            git pull origin new-code
             
             # Ensure NVM and Node.js are loaded
             export NVM_DIR="$HOME/.nvm"
