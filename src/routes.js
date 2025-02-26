@@ -139,7 +139,7 @@ const routes = [
 		component: Lead,
 	},
 	{
-		name: 'New Lead',
+		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin],
 		path: '/new-lead',
 		icon: (

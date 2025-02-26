@@ -18,6 +18,7 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { MdTask } from 'react-icons/md';
 import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
+import { useStateContext } from 'contexts/store';
 
 const LeadMenu = ({
 	lead,
@@ -29,7 +30,6 @@ const LeadMenu = ({
 	setLeadDetails,
 	setAddPhoneCall,
 	setCallSelectedId,
-	setIsLeadCycle,
 	setTaskInits,
 	onTaskOpen,
 
@@ -41,6 +41,8 @@ const LeadMenu = ({
 	const navigate = useNavigate();
 	const leadId = lead?._id;
 	const phoneNumber = lead?.leadPhoneNumber;
+
+	const { setIsLeadCycle } = useStateContext();
 
 	return (
 		<Menu isLazy>

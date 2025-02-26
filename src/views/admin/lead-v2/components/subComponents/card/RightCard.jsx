@@ -1,14 +1,7 @@
 import React from 'react';
 import EntityField from './EntityField';
-import { Box, Flex, Grid, Text } from '@chakra-ui/react';
+import { Flex, Grid } from '@chakra-ui/react';
 import InfoSection from './InfoSection';
-import { formattedDate } from 'utils/helpers';
-import { leadlabelFontSize } from '../../constants';
-
-import { Checkbox, IconButton } from '@chakra-ui/react';
-import { FiMoreVertical } from 'react-icons/fi';
-import { TbDotsVertical } from 'react-icons/tb';
-import LeadMenu from './LeadMenu';
 
 // const RightCard = ({ lead }) => {
 // 	return (
@@ -64,19 +57,20 @@ import LeadMenu from './LeadMenu';
 const RightCard = ({ lead }) => {
 	return (
 		<Flex
-			flexDir='column'
 			gap={1}
+			flexDirection={{ base: 'row', lg: 'column' }}
+			// flexDirection='column'
 			// flex='1'
 			flexGrow='1'
 			justifySelf='end'
 			justifyContent='space-between'
-			// align='center'
+			align={{ base: 'center', md: 'end' }}
 		>
 			{/* Lead details */}
 			<Grid
 				width='100%'
 				// minWidth={{ base: '6rem', md: '8rem' }}
-				templateColumns={{ base: 'repeat(1, 1fr)' }}
+				templateColumns={{ base: 'repeat(1, 1fr)', md: '1fr' }}
 				gap={2}
 				// p='1'
 				mt='6'

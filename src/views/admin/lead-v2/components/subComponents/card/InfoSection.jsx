@@ -20,7 +20,7 @@ const InfoSection = ({ lead }) => {
 	];
 
 	return (
-		<Box>
+		<Box justifySelf='end'>
 			<Text fontSize={leadlabelFontSize} color='gray.400' mb={1}>
 				Info
 			</Text>

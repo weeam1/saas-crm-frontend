@@ -102,7 +102,7 @@ export default function User(props) {
 			component: Lead,
 		},
 		{
-			name: 'New Lead',
+			name: 'Lead',
 			layout: [ROLE_PATH.user],
 			path: '/new-lead',
 			icon: (

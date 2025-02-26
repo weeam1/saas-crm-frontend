@@ -12,6 +12,7 @@ import {
 	FormLabel,
 	HStack,
 	Input,
+	VStack,
 } from '@chakra-ui/react';
 // import { RangeDatepicker, SingleDatepicker } from 'chakra-dayzed-datepicker';
 import { buttonStyle, customDatepickerStyles } from './constants';
@@ -19,6 +20,7 @@ import { buttonStyle, customDatepickerStyles } from './constants';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { formattedDate } from 'utils/helpers';
+import CustomDatePicker from 'components/datetime/CustomDatePicker';
 
 const DateFilter = ({
 	setQueryParams,
@@ -31,8 +33,25 @@ const DateFilter = ({
 }) => {
 	// const [selectedDates, setSelectedDates] = useState([new Date(), new Date()]);
 
-	const [startDate, setStartDate] = useState(new Date());
-	const [endDate, setEndDate] = useState(new Date());
+	const [startDate, setStartDate] = useState();
+	const [endDate, setEndDate] = useState();
+
+	const [errors, setErrors] = useState({});
+	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
+
+	const handleStartDateChange = (date) => {
+		setStartDate(date);
+		setErrors((prevErrors) => ({ ...prevErrors, startDate: '' }));
+	};
+
+	const handleEndDateChange = (date) => {
+		setEndDate(date);
+		setErrors((prevErrors) => ({ ...prevErrors, endDate: '' }));
+	};
+
+	const toggleCalendar = (calendar) => {
+		setOpenCalendar(openCalendar === calendar ? null : calendar);
+	};
 
 	// const [selectedDate, setSelectedDate] = useState(new Date());
 	// const [isRange, setIsRange] = useState(true);
@@ -62,94 +81,38 @@ const DateFilter = ({
 	};
 
 	return (
-		// <VStack spacing={4} p={4}>
-		// 	{/* <Button onClick={() => setIsRange(!isRange)}>
-		// 		{isRange ? 'Switch to Single Date' : 'Switch to Date Range'}
-		// 	</Button> */}
-
-		// 	{/* {isRange ? ( */}
-		// 	<RangeDatepicker
-		// 		selectedDates={selectedDates}
-		// 		onDateChange={setSelectedDates}
-		// 		propsConfigs={{
-		// 			inputProps: {
-		// 				placeholder: 'Select date range',
-		// 				sx: {
-		// 					background: 'white !important', // Forces white background
-		// 					color: 'black !important', // Ensures text is visible
-		// 					_placeholder: { color: 'gray.500 !important' }, // Placeholder color
-		// 					border: '1px solid #ccc !important', // Ensures border visibility
-		// 				},import { formattedDate } from 'utils/helpers';
-
-		// 			},
-		// 		}}
-		// 	/>
-
-		// 	{/* ) : (
-		// 		<SingleDatepicker
-		// 			date={selectedDate}
-		// 			onDateChange={setSelectedDate}
-		// 			propsConfigs={{ inputProps: { placeholder: 'Select a date' } }}
-		// 		/>
-		// 	)} */}
-
-		// 	<Button
-		// 		{...buttonStyle}
-		// 		variant='solid'
-		// 		bg='brand.400'
-		// 		py='2'
-		// 		px='5'
-		// 		aria-label='New lead'
-		// 		colorScheme='blue'
-		// 		onClick={handleApply}
-		// 	>
-		// 		Apply Filter
-		// 	</Button>
-
-		// 	{/* <Text>
-		// 		{isRange
-		// 			? `Selected Range: ${selectedDates[0]?.toLocaleDateString()} - ${selectedDates[1]?.toLocaleDateString()}`
-		// 			: `Selected Date: ${selectedDate?.toLocaleDateString()}`}
-		// 	</Text> */}
-		// </VStack>
-
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Select Date Range</ModalHeader>
+				<ModalHeader>Date Range Filter</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
-					<HStack p={4} width='100%' spacing={4} alignItems='flex-end'>
-						<style>{customDatepickerStyles.styles}</style>
-
+					<VStack p={4} width='100%' gap='2' alignItems='flex-end'>
 						{/* Start Date */}
-						<FormControl>
-							<FormLabel fontSize='sm' fontWeight='600' color='gray.700' mb={1}>
-								Start Date
-							</FormLabel>
-							<DatePicker
-								selected={startDate}
-								onChange={(date) => setStartDate(date)}
-								dateFormat='MM/dd/yyyy'
-								placeholderText='Select start date'
-								customInput={<Input />}
-							/>
-						</FormControl>
+						<CustomDatePicker
+							selectedDate={startDate}
+							handleDateChange={handleStartDateChange}
+							errors={errors}
+							label='Start Date'
+							placeholder='Select start date'
+							maxDate={endDate || new Date()}
+							isCalendarOpen={openCalendar === 'start'}
+							toggleCalendar={() => toggleCalendar('start')}
+						/>
 
 						{/* End Date */}
-						<FormControl>
-							<FormLabel fontSize='sm' fontWeight='600' color='gray.700' mb={1}>
-								End Date
-							</FormLabel>
-							<DatePicker
-								selected={endDate}
-								onChange={(date) => setEndDate(date)}
-								dateFormat='MM/dd/yyyy'
-								placeholderText='Select end date'
-								customInput={<Input />}
-							/>
-						</FormControl>
-					</HStack>
+						<CustomDatePicker
+							selectedDate={endDate}
+							handleDateChange={handleEndDateChange}
+							errors={errors}
+							label='End Date'
+							placeholder='Select end date'
+							minDate={startDate} // Ensure the end date is after the start date
+							maxDate={new Date()}
+							isCalendarOpen={openCalendar === 'end'}
+							toggleCalendar={() => toggleCalendar('end')}
+						/>
+					</VStack>
 				</ModalBody>
 
 				<ModalFooter>

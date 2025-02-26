@@ -261,7 +261,7 @@ const SelectInput = ({
 						_hover: { bg: dropdownHoverBg },
 					},
 				}}
-				isDisabled={loading}
+				isDisabled={loading || options.length < 1}
 				{...props}
 			>
 				{!loading
