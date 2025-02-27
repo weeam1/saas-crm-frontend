@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	HStack,
 	Button,
@@ -16,9 +16,14 @@ const Pagination = ({
 	onPageChange,
 	totalItems,
 	itemsPerPage,
-	leadsRefetching,
+	refetching,
+	loading,
 }) => {
-	const [gotoPage, setGotoPage] = useState(currentPage || '');
+	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
+
+	useEffect(() => {
+		setGotoPage(currentPage);
+	}, [currentPage]);
 
 	// Calculate indices for the summary
 	const startIndex = (currentPage - 1) * itemsPerPage + 1;
@@ -90,7 +95,7 @@ const Pagination = ({
 				<Button
 					{...buttonStyle}
 					onClick={handleFirst}
-					isDisabled={currentPage === 1 || leadsRefetching}
+					isDisabled={currentPage === 1 || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'
@@ -107,7 +112,7 @@ const Pagination = ({
 				<Button
 					{...buttonStyle}
 					onClick={handlePrevious}
-					isDisabled={currentPage === 1 || leadsRefetching}
+					isDisabled={currentPage === 1 || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'
@@ -121,39 +126,8 @@ const Pagination = ({
 			{/* Go To Page */}
 			<HStack fontWeight='medium' color='gray.800' spacing={1}>
 				<Text>Go to</Text>
-				{/* <NumberInput
-					value={gotoPage}
-					onChange={(valueString) => setGotoPage(Number(valueString) || '')}
-					onBlur={handleGoToBlur}
-					min={1}
-					max={totalPages ?? 999999999}
-					size='sm'
-					borderRadius='md'
-					width='5rem'
-					bg='softGray.50'
-					border='1px solid softGray.600'
-					allowMouseWheel={false}
-					clampValueOnBlur={false}
-				>
-					<NumberInputField
-						aria-label='Go to page'
-						textAlign='center'
-						borderRadius='md'
-						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
-						border='2px solid'
-						borderColor='softGray.600'
-						_focus={{
-							outline: 'none',
-							bg: 'softGray.50',
-							border: '1px solid',
-							borderColor: 'brand.500',
-						}}
-						_active={{ bg: 'softGray.400' }}
-					/>
-				</NumberInput> */}
 				<NumberInput
-					value={gotoPage}
-					// onChange={(valueString) => setGotoPage(Number(valueString) || '')}
+					value={gotoPage ?? 1}
 					onChange={(valueString) => {
 						const value = Number(valueString) || '';
 						if (value <= (totalPages ?? 999999999)) {
@@ -170,7 +144,7 @@ const Pagination = ({
 					border='1px solid softGray.600'
 					allowMouseWheel={false}
 					clampValueOnBlur={false}
-					isDisabled={leadsRefetching} // Disable when loading
+					isDisabled={refetching || loading} // Disable when loading
 				>
 					<NumberInputField
 						aria-label='Go to page'
@@ -186,7 +160,7 @@ const Pagination = ({
 							borderColor: 'brand.500',
 						}}
 						_active={{ bg: 'softGray.400' }}
-						isDisabled={leadsRefetching} // Disable input when loading
+						isDisabled={refetching || loading} // Disable input when loading
 					/>
 				</NumberInput>
 
@@ -203,7 +177,7 @@ const Pagination = ({
 				<Button
 					{...buttonStyle}
 					onClick={handleNext}
-					isDisabled={currentPage === totalPages || leadsRefetching}
+					isDisabled={currentPage === totalPages || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'
@@ -216,7 +190,7 @@ const Pagination = ({
 				<Button
 					{...buttonStyle}
 					onClick={handleLast}
-					isDisabled={currentPage === totalPages || leadsRefetching}
+					isDisabled={currentPage === totalPages || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'

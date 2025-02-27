@@ -15,7 +15,7 @@ import NoData from './subComponents/NoData';
 import { useSelector } from 'react-redux';
 
 const Leads = ({
-	// leads,
+	data,
 	leadsLoading,
 	leadsRefetching,
 	refreshLeads,
@@ -133,11 +133,12 @@ const Leads = ({
 				{/* Pagination */}
 				<Pagination
 					currentPage={currentPage}
-					totalPages={leads?.totalPages ?? ''}
+					totalPages={data?.totalPages ?? ''}
 					onPageChange={handlePageChange}
-					totalItems={leads?.totalLeads ?? ''}
+					totalItems={data?.totalLeads ?? ''}
 					itemsPerPage={pageSize}
-					leadsRefetching={leadsRefetching}
+					refetching={leadsRefetching}
+					loading={leadsLoading}
 				/>
 
 				{/* Search Box */}

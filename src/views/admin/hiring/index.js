@@ -89,7 +89,7 @@ const Hiring = () => {
 		<Box>
 			<Flex justifyContent='space-between' alignItems='center'>
 				<Heading px={5} size='lg' color='gray.800'>
-					Hiring / <span>{(!isAdmin && user?.agency?.name) || ''}</span>
+					Hiring
 				</Heading>
 				{isAdmin && (
 					<Button

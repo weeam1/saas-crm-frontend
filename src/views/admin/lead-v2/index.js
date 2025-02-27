@@ -44,7 +44,7 @@ const LeadScreen = () => {
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
 
-	const pageSize = 32;
+	const [pageSize, setPageSize] = useState(32);
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		pageSize,
@@ -70,6 +70,8 @@ const LeadScreen = () => {
 			...prev,
 			page: currentPage, // Keep page in sync
 		}));
+
+		setCurrentPage(currentPage);
 	}, [currentPage]);
 
 	useEffect(() => {
@@ -77,6 +79,7 @@ const LeadScreen = () => {
 			...prev,
 			pageSize, // Update limit when pageSize changes
 		}));
+		setPageSize(pageSize);
 	}, [pageSize]);
 
 	// Automatically refetch when queryParams change
@@ -105,7 +108,7 @@ const LeadScreen = () => {
 				})
 			);
 		}
-	}, [currentPage, dispatch, leads]);
+	}, [currentPage, dispatch, leads, leadsRefetch, pageSize]);
 
 	if (leadsError) {
 		return (
@@ -171,7 +174,7 @@ const LeadScreen = () => {
 				</HStack>
 			</Flex>
 			<Leads
-				leads={leads}
+				data={leads}
 				leadsLoading={leadsLoading}
 				leadsRefetching={leadsRefetching}
 				refreshLeads={refreshLeads}

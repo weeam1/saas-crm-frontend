@@ -17,17 +17,13 @@ const leadsSlice = createSlice({
 			const { currentPage, leads, pageSize } = action.payload;
 
 			// If page is 1 and doc for page 1 already exists, do not update.
-			if (
-				currentPage === 1 &&
-				state.currentPage === 1 &&
-				state.doc.length > 0
-			) {
-				return;
-			}
+			// if (currentPage === 1 && state.currentPage === 1 && state.doc) {
+			// 	return;
+			// }
 
 			// For any other page (e.g., page 2), remove previous doc and update.
 			state.currentPage = currentPage;
-			state.doc = leads?.doc;
+			state.doc = leads?.doc ?? [];
 			state.totalLeads = leads?.totalLeads;
 			state.totalPages = leads?.totalPages;
 			state.pageSize = pageSize;
