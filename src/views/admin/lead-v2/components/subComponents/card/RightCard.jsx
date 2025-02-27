@@ -1,7 +1,7 @@
-import React from 'react';
-import EntityField from './EntityField';
-import { Flex, Grid } from '@chakra-ui/react';
-import InfoSection from './InfoSection';
+import React from "react";
+import EntityField from "./EntityField";
+import { Flex, Grid } from "@chakra-ui/react";
+import InfoSection from "./InfoSection";
 
 // const RightCard = ({ lead }) => {
 // 	return (
@@ -55,42 +55,56 @@ import InfoSection from './InfoSection';
 // };
 
 const RightCard = ({ lead }) => {
-	return (
-		<Flex
-			gap={1}
-			flexDirection={{ base: 'row', lg: 'column' }}
-			// flexDirection='column'
-			// flex='1'
-			flexGrow='1'
-			justifySelf='end'
-			justifyContent='space-between'
-			align={{ base: 'center', md: 'end' }}
-		>
-			{/* Lead details */}
-			<Grid
-				width='100%'
-				// minWidth={{ base: '6rem', md: '8rem' }}
-				templateColumns={{ base: 'repeat(1, 1fr)', md: '1fr' }}
-				gap={2}
-				// p='1'
-				mt='6'
-			>
-				<EntityField
-					label='Time to Call'
-					value='11:40 PM'
-					valueProps={{ color: 'green.600' }}
-				/>
-				<EntityField
-					label='Source Content'
-					value={lead.leadSourceDetails}
-					valueProps={{ color: '#FFBB00' }}
-					isInfo={true}
-				/>
-			</Grid>
+  return (
+    <Flex
+      gap={1}
+      flexDirection={{ base: "row", lg: "column" }}
+      flexGrow="1"
+      justifySelf="end"
+      justifyContent="space-between"
+      align={{ base: "center", md: "end" }}
+    >
+      {/* Lead details */}
+      <Grid
+        width={{ base: "100%", md: "100%" }} // ✅ Responsive width
+        templateColumns={{ base: "repeat(1, 1fr)", md: "1fr" }}
+        display="flex"
+        flexDirection="column"
+        alignItems={{ base: "flex-start", md: "center" }}
+        justifyContent="center"
+        height="100%"
+        gap={2}
+        mt={6}
+      >
+        <EntityField
+          label="Time to Call"
+          value="11:40 PM"
+          ml={{ base: 0, md: 4, lg: 0 }}
+          valueProps={{ color: "green.600" }}
+        />
+        <EntityField
+          label="Source Content"
+          value={lead.leadSourceDetails}
+          valueProps={{ color: "#FFBB00" }}
+          ml={{ base: 0, md: 4, lg: 4 }}
+          isInfo={true}
+        />
+      </Grid>
 
-			<InfoSection lead={lead} />
-		</Flex>
-	);
+      {/* Info Section with Responsive Width */}
+      <Grid
+        width={{ base: "70%", md: "80%" }}
+        templateColumns="1fr"
+        display="flex"
+        flexDirection="column"
+        alignItems={{ base: "center", md: "flex-end" }}
+        gap={2}
+        mt={4}
+      >
+        <InfoSection lead={lead} />
+      </Grid>
+    </Flex>
+  );
 };
 
 export default RightCard;
