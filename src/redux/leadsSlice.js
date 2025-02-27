@@ -68,8 +68,6 @@ const leadsSlice = createSlice({
 						? { ...lead, ...updatesMap[lead._id] } // Merge updated fields
 						: lead // Keep unchanged leads as they are
 			);
-
-			console.log('Updated Leads:', state.doc);
 		},
 
 		addOrUpdateLead: (state, action) => {
@@ -86,7 +84,7 @@ const leadsSlice = createSlice({
 					...state.doc[existingIndex],
 					...newLead,
 				};
-			} else {
+			} else if (state.currentPage === 1) {
 				// **Add new lead**
 				if (state.doc.length > 0) {
 					state.doc.pop(); // Remove last item
