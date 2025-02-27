@@ -116,10 +116,10 @@ const SignInCentered = React.lazy(() => import("views/auth/signIn"));
 const AdminSetting = React.lazy(() => import("views/admin/adminSetting"));
 const LeadPool = React.lazy(() => import("views/admin/leadpool"));
 const HRModule = React.lazy(() => import("views/admin/hrModule"));
-const AttendenceEmp = React.lazy(() => import("views/admin/attendenceEmp/components/dashboard/index"));
 const Announcement = React.lazy(() => import("views/admin/announcement"));
 const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
-
+// Attendence module
+const AttendenceEmp = React.lazy(() => import("views/admin/attendenceEmp/index"));
 const routes = [
   // ========================== Dashboard ==========================
   {
