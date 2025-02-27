@@ -44,7 +44,7 @@ const LeadScreen = () => {
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
 
-	const pageSize = 2;
+	const pageSize = 32;
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		pageSize,
