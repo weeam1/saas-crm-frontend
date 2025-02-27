@@ -10,6 +10,8 @@ import {
 } from '../constants';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
 
 const Status = ({ lead, refreshLeads }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
@@ -17,6 +19,10 @@ const Status = ({ lead, refreshLeads }) => {
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
 	const [loading, setLoading] = useState(false);
+
+	console.log({ lead });
+
+	const dispatch = useDispatch();
 
 	const handleStatus = async (e) => {
 		try {
@@ -28,7 +34,15 @@ const Status = ({ lead, refreshLeads }) => {
 			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
 			if (response.status === 200) {
 				setSelected(data.leadStatus);
-				if (data.leadStatus === 'new') refreshLeads();
+				// if (data.leadStatus === 'new') refreshLeads();
+
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'leadStatus',
+						value: data.leadStatus,
+					})
+				);
 				toast.success('Lead Status Updated!');
 			}
 		} catch (e) {

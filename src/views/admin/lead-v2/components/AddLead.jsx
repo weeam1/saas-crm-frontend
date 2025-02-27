@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	Drawer,
 	DrawerOverlay,
@@ -8,14 +7,7 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Button,
-	FormControl,
-	FormLabel,
-	Input,
-	Textarea,
-	Checkbox,
 	Grid,
-	Box,
-	Select,
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -24,7 +16,6 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
-import { useFetchItemsQuery } from 'api/apiSlice';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik

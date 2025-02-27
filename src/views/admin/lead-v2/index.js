@@ -1,201 +1,218 @@
-import { useFetchItemsQuery } from "api/apiSlice";
-import ErrorMessage from "components/Message/ErrorMessage";
-import { useEffect, useState } from "react";
-import Leads from "./components/Leads";
+import { useFetchItemsQuery } from 'api/apiSlice';
+import ErrorMessage from 'components/Message/ErrorMessage';
+import { useEffect, useState } from 'react';
+import Leads from './components/Leads';
 import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
-import { FaPlus } from "react-icons/fa6";
-import { buttonStyle } from "./components/constants";
-import BulkAssignModal from "./components/BulkAssignModal";
-import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
-import DateFilterButton from "./components/DateFilterButton";
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import { FaPlus } from 'react-icons/fa6';
+import { buttonStyle } from './components/constants';
+import BulkAssignModal from './components/BulkAssignModal';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import DateFilterButton from './components/DateFilterButton';
+import { useDispatch } from 'react-redux';
+import { updateLeads } from '../../../redux/leadsSlice';
 // import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadScreen = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const role =
-    user?.role === "superAdmin"
-      ? "superAdmin"
-      : (user?.roles?.[0]?.roleName ?? "unknown");
+	const user = JSON.parse(localStorage.getItem('user'));
+	const role =
+		user?.role === 'superAdmin'
+			? 'superAdmin'
+			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [addLead, setAddLead] = useState(false);
-  const [selectedValues, setSelectedValues] = useState([]);
-  const [selectAllChecked, setSelectAllChecked] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [addLead, setAddLead] = useState(false);
+	const [selectedValues, setSelectedValues] = useState([]);
+	const [selectAllChecked, setSelectAllChecked] = useState(false);
 
-  const [bulkAssign, setBulkAssign] = useState(false);
-  const [errorModal, setErrorModal] = useState(false);
-  const [errorLeadData, setErrorLeadData] = useState({});
+	const [bulkAssign, setBulkAssign] = useState(false);
+	const [errorModal, setErrorModal] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
 
-  const {
-    isOpen: dateTimeIsOpen,
-    onOpen: dateTimeOnOpen,
-    onClose: dateTimeOnClose,
-  } = useDisclosure();
+	const dispatch = useDispatch();
 
-  const pageSize = 32;
-  const [queryParams, setQueryParams] = useState({
-    page: currentPage,
-    pageSize,
-  });
+	const {
+		isOpen: dateTimeIsOpen,
+		onOpen: dateTimeOnOpen,
+		onClose: dateTimeOnClose,
+	} = useDisclosure();
 
-  const {
-    data: leads,
-    isLoading: leadsLoading,
-    error: leadsError,
-    refetch: leadsRefetch,
-    isFetching: leadsRefetching,
-  } = useFetchItemsQuery(
-    {
-      path: "/lead/v2",
-      params: queryParams,
-    },
-    { refetchOnMountOrArgChange: true }
-  );
+	const pageSize = 2;
+	const [queryParams, setQueryParams] = useState({
+		page: currentPage,
+		pageSize,
+	});
 
-  // Update queryParams only when necessary
-  useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev,
-      page: currentPage, // Keep page in sync
-    }));
-  }, [currentPage]);
+	const {
+		data: leads,
+		isLoading: leadsLoading,
+		error: leadsError,
+		refetch: leadsRefetch,
+		isFetching: leadsRefetching,
+	} = useFetchItemsQuery(
+		{
+			path: '/lead/v2',
+			params: queryParams,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
 
-  useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev,
-      pageSize, // Update limit when pageSize changes
-    }));
-  }, [pageSize]);
+	// Update queryParams only when necessary
+	useEffect(() => {
+		setQueryParams((prev) => ({
+			...prev,
+			page: currentPage, // Keep page in sync
+		}));
+	}, [currentPage]);
 
-  // Automatically refetch when queryParams change
-  useEffect(() => {
-    leadsRefetch({
-      path: "/lead/v2",
-      params: queryParams,
-    });
-  }, [queryParams, leadsRefetch]);
+	useEffect(() => {
+		setQueryParams((prev) => ({
+			...prev,
+			pageSize, // Update limit when pageSize changes
+		}));
+	}, [pageSize]);
 
-  // Refresh data
-  const refreshLeads = () => {
-    leadsRefetch({
-      path: "/lead/v2",
-      params: queryParams,
-    });
-  };
+	// Automatically refetch when queryParams change
+	useEffect(() => {
+		leadsRefetch({
+			path: '/lead/v2',
+			params: queryParams,
+		});
+	}, [queryParams, leadsRefetch]);
 
-  if (leadsError) {
-    return (
-      <ErrorMessage
-        message={leadsError?.data?.message || "Something went wrong!"}
-      />
-    );
-  }
+	// Refresh data
+	const refreshLeads = () => {
+		leadsRefetch({
+			path: '/lead/v2',
+			params: queryParams,
+		});
+	};
 
-  return (
-    <Box
-      py="8"
-      px="4"
-      rounded="md"
-      shadow="sm"
-      fontFamily="'DM Sans', sans-serif"
-      // bg='softGray.800'
-      bg="white"
-    >
-      <Flex
-        justifyContent="space-between"
-        flexDirection={{ base: "column", md: "row" }}
-        mb="4"
-      >
-        <Text color={"gray.900"} fontSize="22px" fontWeight="600">
-          <span style={{ marginRight: "4px" }}>Leads</span>
-          <CountUpComponent targetNumber={leads?.totalLeads} />
-        </Text>
+	useEffect(() => {
+		if (leads?.doc) {
+			dispatch(
+				updateLeads({
+					leads: leads,
+					currentPage,
+					pageSize,
+				})
+			);
+		}
+	}, [currentPage, dispatch, leads]);
 
-        {/* Action buttons only for Admins */}
-        <HStack gap="2">
-          {["superAdmin", "Manager"].includes(role) && (
-            <Button
-              {...buttonStyle}
-              onClick={() => setBulkAssign(true)}
-              isDisabled={!(selectedValues && selectedValues?.length > 1)}
-              variant="solid"
-              bg="brand.400"
-              py="2"
-              px="5"
-              aria-label="Bulk Assign"
-            >
-              Bulk Assign
-            </Button>
-          )}
+	if (leadsError) {
+		return (
+			<ErrorMessage
+				message={leadsError?.data?.message || 'Something went wrong!'}
+			/>
+		);
+	}
 
-          {role === "superAdmin" && (
-            <Button
-              {...buttonStyle}
-              variant="solid"
-              bg="brand.400"
-              py="2"
-              px="5"
-              leftIcon={<FaPlus />}
-              aria-label="New lead"
-              onClick={() => setAddLead(true)}
-            >
-              New
-            </Button>
-          )}
+	return (
+		<Box
+			py='8'
+			px='4'
+			rounded='md'
+			shadow='sm'
+			fontFamily="'DM Sans', sans-serif"
+			// bg='softGray.800'
+			bg='white'
+		>
+			<Flex
+				justifyContent='space-between'
+				flexDirection={{ base: 'column', md: 'row' }}
+				mb='4'
+			>
+				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
+					<span style={{ marginRight: '4px' }}>Leads</span>
+					<CountUpComponent targetNumber={leads?.totalLeads} />
+				</Text>
 
-          <DateFilterButton onClick={dateTimeOnOpen} />
-        </HStack>
-      </Flex>
-      <Leads
-        leads={leads}
-        leadsLoading={leadsLoading}
-        leadsRefetching={leadsRefetching}
-        refreshLeads={refreshLeads}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        // hanldePage={handlePageChange}
-        pageSize={pageSize}
-        setQueryParams={setQueryParams}
-        addLead={addLead}
-        setAddLead={setAddLead}
-        selectedValues={selectedValues}
-        setSelectedValues={setSelectedValues}
-        setSelectAllChecked={setSelectAllChecked}
-        selectAllChecked={selectAllChecked}
-        dateTimeIsOpen={dateTimeIsOpen}
-        dateTimeOnClose={dateTimeOnClose}
-      />
+				{/* Action buttons only for Admins */}
+				<HStack gap='2'>
+					{['superAdmin', 'Manager'].includes(role) && (
+						<Button
+							{...buttonStyle}
+							onClick={() => setBulkAssign(true)}
+							isDisabled={!(selectedValues && selectedValues?.length > 1)}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							aria-label='Bulk Assign'
+						>
+							Bulk Assign
+						</Button>
+					)}
 
-      {bulkAssign && selectedValues?.length && (
-        <BulkAssignModal
-          refreshData={refreshLeads}
-          bulkAssign={bulkAssign}
-          setBulkAssign={setBulkAssign}
-          setSelectedValues={setSelectedValues}
-          selectedValues={selectedValues}
-          setSelectAllChecked={setSelectAllChecked}
-          setErrorLeadData={setErrorLeadData}
-          setErrorModal={setErrorModal}
-        />
-      )}
+					{role === 'superAdmin' && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							leftIcon={<FaPlus />}
+							aria-label='New lead'
+							onClick={() => setAddLead(true)}
+						>
+							New
+						</Button>
+					)}
 
-      {errorModal && !bulkAssign && (
-        <ErrorLeadLimitMessage
-          isOpen={errorModal}
-          onClose={() => setErrorModal(false)}
-          errorLeadData={errorLeadData}
-        />
-      )}
-    </Box>
-  );
+					<DateFilterButton onClick={dateTimeOnOpen} />
+				</HStack>
+			</Flex>
+			<Leads
+				leads={leads}
+				leadsLoading={leadsLoading}
+				leadsRefetching={leadsRefetching}
+				refreshLeads={refreshLeads}
+				currentPage={currentPage}
+				setCurrentPage={setCurrentPage}
+				// hanldePage={handlePageChange}
+				pageSize={pageSize}
+				queryParams={queryParams}
+				setQueryParams={setQueryParams}
+				addLead={addLead}
+				setAddLead={setAddLead}
+				selectedValues={selectedValues}
+				setSelectedValues={setSelectedValues}
+				setSelectAllChecked={setSelectAllChecked}
+				selectAllChecked={selectAllChecked}
+				dateTimeIsOpen={dateTimeIsOpen}
+				dateTimeOnClose={dateTimeOnClose}
+			/>
+
+			{bulkAssign && selectedValues?.length && (
+				<BulkAssignModal
+					refreshData={refreshLeads}
+					bulkAssign={bulkAssign}
+					setBulkAssign={setBulkAssign}
+					setSelectedValues={setSelectedValues}
+					selectedValues={selectedValues}
+					setSelectAllChecked={setSelectAllChecked}
+					setErrorLeadData={setErrorLeadData}
+					setErrorModal={setErrorModal}
+				/>
+			)}
+
+			{errorModal && !bulkAssign && (
+				<ErrorLeadLimitMessage
+					isOpen={errorModal}
+					onClose={() => setErrorModal(false)}
+					errorLeadData={errorLeadData}
+				/>
+			)}
+		</Box>
+	);
 };
 
 export default LeadScreen;

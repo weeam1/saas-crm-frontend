@@ -23,6 +23,7 @@ const LeadCard = memo(
 		setSelectedValues,
 		setDeleteLead,
 		setLeadDetails,
+		queryParams,
 	}) => {
 		const cardWidth = useBreakpointValue({
 			base: '100%', // Full width on mobile
@@ -30,8 +31,6 @@ const LeadCard = memo(
 			md: '33.33%', // Three cards per row on medium screens
 			lg: '25%', // Three cards per row on larger screens
 		});
-
-		console.log({ lead });
 
 		const user = JSON.parse(localStorage.getItem('user'));
 
@@ -139,6 +138,7 @@ const LeadCard = memo(
 							setViewLead={setViewLead}
 							refreshLeads={refreshLeads}
 							role={role}
+							queryParams={queryParams}
 						/>
 						<RightCard lead={lead} />
 					</Flex>

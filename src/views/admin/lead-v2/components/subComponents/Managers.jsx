@@ -9,10 +9,11 @@ import {
 	leadValueFontSize,
 	mergeSort,
 } from '../constants';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
@@ -22,6 +23,8 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	useEffect(() => {
 		setSelected(managerAssigned);
 	}, [managerAssigned]);
+
+	const dispatch = useDispatch();
 
 	const handleChangeManager = async (e) => {
 		const managerAssigned = e.target.value;
@@ -37,7 +40,14 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 
 			if (res.status === 200) {
 				setSelected(managerAssigned);
-				refreshLeads();
+				// refreshLeads();
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'managerAssigned',
+						value: managerAssigned,
+					})
+				);
 				toast.success('Manager updated successfully');
 			}
 		} catch (error) {

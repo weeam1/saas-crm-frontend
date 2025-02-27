@@ -224,7 +224,6 @@ const SelectInput = ({
 	type = 'static',
 	...props
 }) => {
-	console.log({ loading });
 	// Move all useColorModeValue calls to the top level to avoid conditional hooks
 	const defaultBorderColor = useColorModeValue('gray.300', 'gray.600');
 	const defaultFocusBorderColor = useColorModeValue('brand.500', 'brand.300');

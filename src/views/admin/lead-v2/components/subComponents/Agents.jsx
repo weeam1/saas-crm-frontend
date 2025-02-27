@@ -4,12 +4,13 @@ import SelectInput from 'components/shared/SelectInput';
 import { useMemo, useState, useEffect } from 'react';
 import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
 import { leadSelectInputSize } from './../constants';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { formattedDate } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { fetchAgentLeadsSats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -24,6 +25,8 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	useEffect(() => {
 		setSelected(agentAssigned);
 	}, [agentAssigned]);
+
+	const dispatch = useDispatch();
 
 	const handleChangeAgent = async (e) => {
 		try {
@@ -50,7 +53,15 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				setSelected(data.agentAssigned);
 
 				toast.success('Agent updated successfully');
-				refreshLeads();
+				// refreshLeads();
+
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'agentAssigned',
+						value: agentAssigned,
+					})
+				);
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);
