@@ -1,18 +1,10 @@
-import {
-	Box,
-	Button,
-	Flex,
-	Grid,
-	HStack,
-	useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Grid } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
 import CardLoader from './CardLoader';
 import Pagination from './Pagination';
 import SearchBox from './SearchBox';
 import DateFilter from './DateFilter';
-import NotFoundMessage from 'components/Message/NotFoundMessage';
 import LeadsModals from './LeadsModals';
 import { HasAccess } from './../../../../redux/accessUtils';
 import AdvancedSearchModal from './AdvancedSearchModal';
@@ -47,9 +39,10 @@ const Leads = ({
 		'Call',
 	]);
 
-	const leads = useSelector((state) => state.leads);
-
-	console.log({ leads });
+	const leads = useSelector(
+		(state) => state.leads,
+		(prev, next) => prev === next
+	);
 
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);

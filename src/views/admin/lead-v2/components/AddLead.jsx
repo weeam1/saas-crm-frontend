@@ -16,6 +16,8 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
+import { useDispatch } from 'react-redux';
+import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik
@@ -80,11 +82,13 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();
 
+	const dispatch = useDispatch();
+
 	// The submit handler is similar to your provided AddData function.
 	const handleSubmit = async (values, actions) => {
 		try {
 			// Call the API – adjust the endpoint/path as needed.
-			await createItemMuation({
+			const res = await createItemMuation({
 				path: '/lead/add-lead',
 				body: values,
 			}).unwrap();
@@ -92,7 +96,8 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 			toast.success('Lead added successfully.');
 			onClose();
 			actions.resetForm();
-			refreshData();
+			dispatch(addOrUpdateLead(res));
+			// refreshData();
 		} catch (error) {
 			console.error(error);
 			toast.error(error.data.message || 'Lead not added');

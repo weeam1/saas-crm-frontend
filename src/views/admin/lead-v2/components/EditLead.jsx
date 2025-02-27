@@ -14,6 +14,8 @@ import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import RenderFields from 'components/shared/RenderFields';
+import { addOrUpdateLead } from '../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	// Set initial values for your form using the data object:
@@ -76,11 +78,12 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
+	const dispatch = useDispatch();
+
 	// The submit handler is similar to your provided AddData function.
 	const handleSubmit = async (values, actions) => {
 		try {
-			console.log({ values });
-			await updateItemMuation({
+			const res = await updateItemMuation({
 				path: `/lead/edit-lead/${leadData._id}`,
 				body: values,
 			}).unwrap();
@@ -88,7 +91,9 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 			toast.success('Lead updated successfully.');
 			onClose();
 			actions.resetForm();
-			refreshData();
+			dispatch(addOrUpdateLead(res));
+
+			// refreshData();
 		} catch (error) {
 			console.error(error);
 			toast.error(error.data.message || 'Lead not added');

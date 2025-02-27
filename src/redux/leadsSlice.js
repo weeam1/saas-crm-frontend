@@ -50,8 +50,57 @@ const leadsSlice = createSlice({
 				// console.log({ leads: state.doc });
 			}
 		},
+
+		updateMultipleLeadFields: (state, action) => {
+			const { updates } = action.payload; // Array of updates [{ id, key, value }, ...]
+
+			// Convert updates array into a dictionary for quick lookup
+			const updatesMap = updates.reduce((acc, { id, key, value }) => {
+				if (!acc[id]) acc[id] = {};
+				acc[id][key] = value;
+				return acc;
+			}, {});
+
+			// Efficiently update only the necessary leads
+			state.doc = state.doc.map(
+				(lead) =>
+					updatesMap[lead._id] // If this lead needs an update
+						? { ...lead, ...updatesMap[lead._id] } // Merge updated fields
+						: lead // Keep unchanged leads as they are
+			);
+
+			console.log('Updated Leads:', state.doc);
+		},
+
+		addOrUpdateLead: (state, action) => {
+			const newLead = action.payload;
+
+			// Check if lead already exists
+			const existingIndex = state.doc.findIndex(
+				(lead) => lead._id === newLead._id
+			);
+
+			if (existingIndex !== -1) {
+				// **Update existing lead**
+				state.doc[existingIndex] = {
+					...state.doc[existingIndex],
+					...newLead,
+				};
+			} else {
+				// **Add new lead**
+				if (state.doc.length > 0) {
+					state.doc.pop(); // Remove last item
+				}
+				state.doc.unshift(newLead); // Add new lead at the top
+			}
+		},
 	},
 });
 
-export const { updateLeads, updateLeadField } = leadsSlice.actions;
+export const {
+	updateLeads,
+	updateLeadField,
+	updateMultipleLeadFields,
+	addOrUpdateLead,
+} = leadsSlice.actions;
 export default leadsSlice.reducer;

@@ -20,8 +20,6 @@ const Status = ({ lead, refreshLeads }) => {
 	const [textColor, setTextColor] = useState('');
 	const [loading, setLoading] = useState(false);
 
-	console.log({ lead });
-
 	const dispatch = useDispatch();
 
 	const handleStatus = async (e) => {
