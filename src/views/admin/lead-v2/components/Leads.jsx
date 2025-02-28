@@ -105,7 +105,7 @@ const Leads = ({
 		setSearchClear(false);
 		setRefetchLoading(true);
 		setQueryParams((prev) => {
-			const { data, dateTime, ...rest } = prev;
+			const { data, dateTime, name, ...rest } = prev;
 
 			// Only remove keys if they exist
 			const updatedParams = { ...rest, page: 1 };
@@ -124,7 +124,7 @@ const Leads = ({
 		setQueryParams((prev) => ({
 			...prev,
 			page: 1,
-			data: JSON.stringify({ leadName: term }),
+			name: term,
 		}));
 
 		setRefetchLoading(true);
