@@ -5,6 +5,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import SearchTags from 'components/shared/SearchTags';
+import { experienceYearsOptions } from '../helpers';
 
 const ShortListedData = ({ invitedRefetch }) => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
@@ -14,6 +15,9 @@ const ShortListedData = ({ invitedRefetch }) => {
 		key: null,
 		direction: null,
 	});
+
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
 
 	const [data, setData] = useState([]);
 
@@ -44,20 +48,15 @@ const ShortListedData = ({ invitedRefetch }) => {
 	const { data: positionOptions } = useFetchItemsQuery({
 		path: `/positions/options`,
 	});
-	// Update queryParams only when necessary
-	// useEffect(() => {
-	// 	setQueryParams((prev) => ({
-	// 		...prev,
-	// 		page: currentPage, // Keep page in sync
-	// 	}));
-	// }, [currentPage]);
 
-	// useEffect(() => {
-	// 	setQueryParams((prev) => ({
-	// 		...prev,
-	// 		limit: pageSize, // Update limit when pageSize changes
-	// 	}));
-	// }, [pageSize]);
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
@@ -65,7 +64,7 @@ const ShortListedData = ({ invitedRefetch }) => {
 
 	const handlePageSizeChange = (size) => {
 		setPageSize(size);
-		setCurrentPage(1); // Reset to first page
+		setCurrentPage(1);
 	};
 
 	// Single useEffect for updating queryParams and fetching data
@@ -77,7 +76,6 @@ const ShortListedData = ({ invitedRefetch }) => {
 		}));
 	}, [currentPage, pageSize]);
 
-	// Automatically refetch when queryParams change
 	useEffect(() => {
 		refetch({
 			path: '/applications/short-listed',
@@ -106,23 +104,6 @@ const ShortListedData = ({ invitedRefetch }) => {
 		setData(sortedData);
 	};
 
-	// const handleGotoPage = (page) => {
-	// 	setCurrentPage(page + 1);
-	// 	refetch({
-	// 		path: '/applications/short-listed',
-	// 		params: { page: page + 1, limit: pageSize },
-	// 	});
-	// };
-
-	// const handlePageSizeChange = (size) => {
-	// 	setPageSize(size);
-	// 	setCurrentPage(1); // Reset to first page
-	// 	refetch({
-	// 		path: '/applications/short-listed',
-	// 		params: { page: 1, limit: size },
-	// 	});
-	// };
-
 	const handleSearch = (params) => {
 		// Filter out empty or undefined values
 		const filteredParams = Object.entries(params)
@@ -146,13 +127,35 @@ const ShortListedData = ({ invitedRefetch }) => {
 				);
 
 				if (matchedOption) {
-					formattedValue = matchedOption.label; // Use label for UI
-					advancedSearch.position = matchedOption._id; // Keep ID for actual search
+					formattedValue = matchedOption.label;
+					advancedSearch.position = matchedOption._id;
+				}
+			}
+
+			if (key === 'agency') {
+				const matchedOption = agencies?.doc?.find(
+					(option) => option._id === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.name;
+					advancedSearch.agency = matchedOption._id;
+				}
+			}
+
+			if (key === 'experienceYears') {
+				const matchedOption = experienceYearsOptions?.find(
+					(option) => option.value === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.label;
+					advancedSearch.experienceYears = matchedOption.value;
 				}
 			}
 
 			return {
-				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
+				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1),
 				value: formattedValue,
 				originalKey, // Store original key for removal reference
 			};
@@ -171,29 +174,6 @@ const ShortListedData = ({ invitedRefetch }) => {
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
 		setCurrentPage(1);
 	};
-	// const removeTag = (key) => {
-	// 	// Remove the tag with the specified key
-	// 	const updatedTags = searchTags.filter((tag) => tag.key !== key);
-	// 	setSearchTags(updatedTags);
-
-	// 	// Convert the updated tags back into query parameters
-	// 	const updatedParams = updatedTags.reduce(
-	// 		(acc, { key, value }) => ({ ...acc, [key]: value }),
-	// 		{}
-	// 	);
-
-	// 	const { ...advancedSearch } = updatedParams;
-
-	// 	// Prepare the query parameters
-	// 	const queryParams = {
-	// 		advancedSearch: JSON.stringify(advancedSearch),
-	// 		page: 1,
-	// 		limit: pageSize,
-	// 	};
-	// 	// update query parameters
-	// 	setQueryParams(queryParams);
-	// 	setCurrentPage(1);
-	// };
 
 	const removeTag = (key) => {
 		// Find the exact key (case-sensitive)
