@@ -45,13 +45,14 @@ const LeadCard = ({
       border="1px solid"
       borderColor="gray.300"
       borderRadius="lg"
-      p={5}
-      bg="white"
+      p={{ base: 2, md: 5 }} // Reduced padding on small screens
       boxShadow="md"
       width="100%"
+      maxWidth={{ base: "100%", md: "md" }} // Full width on mobile, 768px on md and up
+      overflowX="hidden" // Prevent horizontal overflow
     >
       {/* Header */}
-      <HStack justifyContent="space-between" mb={2}>
+      <HStack justifyContent="space-between" mb={{ base: 1, md: 2 }} w="100%">
         <HStack>
           <Icon as={FaEye} color="gray.500" />
           <Text fontWeight="bold" color="gray.600">
@@ -62,24 +63,47 @@ const LeadCard = ({
       </HStack>
 
       {/* Name & SourceContent/Time */}
-      <HStack justify="space-between">
-        <Text fontSize="xl" fontWeight="bold">
+      <HStack
+        justify="space-between"
+        width="100%"
+        mb={{ base: 2, md: 4 }}
+        flexWrap="wrap" // Allow wrapping on smaller screens
+      >
+        <Text
+          fontSize={{ base: "lg", md: "xl" }}
+          fontWeight="bold"
+          flex="1"
+          minWidth="0" // Prevent text overflow
+        >
           {name}
         </Text>
-        <VStack align="start" spacing={2}>
+        <VStack
+          align="start"
+          spacing={{ base: 1, md: 2 }}
+          flex="1"
+          minWidth="0"
+        >
           <VStack align="start" spacing={0}>
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
               Source Content
             </Text>
-            <Text fontSize="lg" fontWeight="bold" color="#FFBB00">
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="#FFBB00"
+            >
               {sourceContent}
             </Text>
           </VStack>
           <VStack align="start" spacing={0}>
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
               Time To Call
             </Text>
-            <Text fontSize="lg" fontWeight="bold" color="#32BD00">
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="#32BD00"
+            >
               {timeToCall}
             </Text>
           </VStack>
@@ -87,49 +111,61 @@ const LeadCard = ({
       </HStack>
 
       {/* Country & Nationality */}
-      <HStack spacing={6} align="start" mt={2}>
-        <VStack align="start" spacing={0}>
-          <Text fontSize="xs" color="gray.500">
+      <HStack
+        spacing={{ base: 2, md: 6 }}
+        align="start"
+        mt={{ base: 2, md: 2 }}
+        mb={{ base: 2, md: 4 }}
+        flexWrap="wrap"
+      >
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
+          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
             Country
           </Text>
-          <Text fontSize="sm" color="red.500">
+          <Text fontSize={{ base: "sm", md: "sm" }} color="red.500">
             {country}
           </Text>
         </VStack>
-        <VStack align="start" spacing={0}>
-          <Text fontSize="xs" color="gray.500">
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
+          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
             Nationality
           </Text>
-          <Text fontSize="sm" color="red.500">
+          <Text fontSize={{ base: "sm", md: "sm" }} color="red.500">
             {nationality}
           </Text>
         </VStack>
       </HStack>
 
       {/* M Status & Status */}
-      <HStack spacing={6} align="start" mt={2}>
-        <VStack align="start" spacing={0}>
-          <Text fontSize="xs" color="gray.500">
+      <HStack
+        spacing={{ base: 2, md: 6 }}
+        align="start"
+        mt={{ base: 2, md: 2 }}
+        mb={{ base: 2, md: 4 }}
+        flexWrap="wrap"
+      >
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
+          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
             M Status
           </Text>
           <Input
             size="sm"
             value={mStatus}
-            w="85px"
+            w={{ base: "70px", md: "85px" }}
             bg="#f6e0b7"
             border="1px solid"
             borderColor="gray.300"
             readOnly
           />
         </VStack>
-        <VStack align="start" spacing={0}>
-          <Text fontSize="xs" color="gray.500">
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
+          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
             Status
           </Text>
           <Input
             size="sm"
             value={status}
-            w="90px"
+            w={{ base: "75px", md: "90px" }}
             bg="gray.100"
             border="1px solid"
             borderColor="gray.300"
@@ -140,10 +176,15 @@ const LeadCard = ({
       </HStack>
 
       {/* Contact Info */}
-      <HStack mt={3} spacing={6}>
-        <VStack align="start" spacing={0}>
+      <HStack
+        mt={{ base: 2, md: 3 }}
+        spacing={{ base: 2, md: 6 }}
+        mb={{ base: 2, md: 4 }}
+        flexWrap="wrap"
+      >
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
           <HStack>
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
               Phone
             </Text>
             <Tooltip label="Copy Phone">
@@ -156,13 +197,13 @@ const LeadCard = ({
               />
             </Tooltip>
           </HStack>
-          <Text fontSize="sm" color="blue.500">
+          <Text fontSize={{ base: "sm", md: "sm" }} color="blue.500">
             {phone}
           </Text>
         </VStack>
-        <VStack align="start" spacing={0}>
+        <VStack align="start" spacing={0} flex="1" minWidth="0">
           <HStack>
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
               WhatsApp
             </Text>
             <Tooltip label="Copy WhatsApp">
@@ -175,25 +216,44 @@ const LeadCard = ({
               />
             </Tooltip>
           </HStack>
-          <Text fontSize="sm" color="green.500">
+          <Text fontSize={{ base: "sm", md: "sm" }} color="green.500">
             {whatsapp}
           </Text>
         </VStack>
       </HStack>
 
       {/* Buy Button & Info */}
-      <HStack mt={4} width="full" justifyContent="space-between">
-        <Button bg="#34C759" color="white" width="60%">
+      <HStack
+        mt={{ base: 2, md: 4 }}
+        width="100%"
+        justifyContent="space-between"
+        flexWrap="wrap"
+      >
+        <Button
+          bg="#34C759"
+          color="white"
+          width={{ base: "100%", md: "60%" }}
+          mb={{ base: 2, md: 0 }}
+        >
           Buy for 50 coins
         </Button>
-        <VStack align="start">
-          <Text fontSize="xs" color="gray.500" fontWeight="bold">
+        <VStack align="start" spacing={1} flex="1" minWidth="0">
+          <Text
+            fontSize={{ base: "xs", md: "xs" }}
+            color="gray.500"
+            fontWeight="bold"
+          >
             Info
           </Text>
           {["Budget", "Campaign", "Campaign Url", "Medium", "In UAE?"].map(
             (item) => (
-              <HStack key={item} width="full" justifyContent="space-between">
-                <Text fontSize="sm" color="black">
+              <HStack
+                key={item}
+                width="100%"
+                justifyContent="space-between"
+                mb={1}
+              >
+                <Text fontSize={{ base: "sm", md: "sm" }} color="black">
                   {item}
                 </Text>
                 <Tooltip label={item}>
@@ -206,8 +266,8 @@ const LeadCard = ({
       </HStack>
 
       {/* Lead Time */}
-      <HStack width="full" justifyContent="end">
-        <Text mt={3} fontSize="xs" color="gray.500">
+      <HStack width="100%" justifyContent="flex-end" mt={{ base: 2, md: 3 }}>
+        <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
           Lead time: <b>{leadTime}</b>
         </Text>
       </HStack>
@@ -221,7 +281,11 @@ const LeadGrid = ({ leads }) => {
 
   return (
     <Box bg="gray.100" minH="100vh">
-      <Grid templateColumns={`repeat(${columns}, 1fr)`} gap={6} p={4}>
+      <Grid
+        templateColumns={`repeat(${columns}, 1fr)`}
+        gap={{ base: 2, md: 6 }}
+        p={{ base: 2, md: 4 }}
+      >
         {leads.map((lead, index) => (
           <LeadCard key={index} {...lead} />
         ))}
@@ -237,7 +301,7 @@ const leadsData = [
     name: "Faisal Al Karim",
     country: "Saudi Arabia",
     nationality: "PAK",
-    sourceContent: "14 Million", // Changed from budget to sourceContent
+    sourceContent: "14 Million",
     timeToCall: "11:50 PM",
     mStatus: "Hot",
     status: "Meeting",
@@ -250,7 +314,7 @@ const leadsData = [
     name: "Ahmed Al Saud",
     country: "United Arab Emirates",
     nationality: "UAE",
-    sourceContent: "10 Million", // Changed from budget to sourceContent
+    sourceContent: "10 Million",
     timeToCall: "10:00 PM",
     mStatus: "Warm",
     status: "Call",
@@ -263,7 +327,7 @@ const leadsData = [
     name: "Ali Bin Khalid",
     country: "Qatar",
     nationality: "QAT",
-    sourceContent: "15 Million", // Changed from budget to sourceContent
+    sourceContent: "15 Million",
     timeToCall: "9:00 PM",
     mStatus: "Cold",
     status: "New",
@@ -285,7 +349,7 @@ const leadsData = [
     leadTime: "Sun, Feb 16, 2025",
   },
   {
-    id: "2144",
+    id: "2145",
     name: "Sara Al Maktoum",
     country: "Dubai",
     nationality: "UAE",
@@ -298,7 +362,7 @@ const leadsData = [
     leadTime: "Sun, Feb 16, 2025",
   },
   {
-    id: "2144",
+    id: "2146",
     name: "Sara Al Maktoum",
     country: "Dubai",
     nationality: "UAE",
@@ -311,7 +375,7 @@ const leadsData = [
     leadTime: "Sun, Feb 16, 2025",
   },
   {
-    id: "2144",
+    id: "2147",
     name: "Sara Al Maktoum",
     country: "Dubai",
     nationality: "UAE",

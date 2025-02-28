@@ -5,7 +5,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 
   return (
     <Box width="100%" mb={4}>
-      <HStack spacing={2} bg="gray.100" p={2} borderRadius="md">
+      <HStack spacing={2} p={2} borderRadius="md">
         {tabs.map((tab) => (
           <Button
             key={tab}
