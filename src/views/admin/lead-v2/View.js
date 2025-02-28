@@ -835,7 +835,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
                         alignItems={"center"}
                       >
                         {(currentState === "Accepted" ||
-                          window?.location?.pathname === "/new-lead") && (
+                          window?.location?.pathname === "/lead") && (
                           <Button
                             color="white"
                             onClick={() => setNewNoteModal(true)}

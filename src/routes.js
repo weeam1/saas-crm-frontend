@@ -132,7 +132,7 @@ const routes = [
 	// {
 	// 	name: 'Lead',
 	// 	layout: [ROLE_PATH.superAdmin],
-	// 	path: '/lead',
+	// 	path: '/new-lead',
 	// 	icon: (
 	// 		<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 	// 	),
