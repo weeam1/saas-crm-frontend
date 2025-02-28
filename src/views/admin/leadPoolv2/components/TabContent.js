@@ -5,7 +5,7 @@ import RejectedItems from "./RejectedItems";
 
 const TabContent = ({ activeTab }) => {
   return (
-    <Box mt={4}>
+    <Box>
       {activeTab === "All" && <AllItems />}
       {activeTab === "Pending" && <PendingItems />}
       {activeTab === "Rejected" && <RejectedItems />}

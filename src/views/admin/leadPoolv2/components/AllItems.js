@@ -26,7 +26,6 @@ const handleCopy = (text) => {
       console.error("Clipboard error: ", err);
     });
 };
-
 const LeadCard = ({
   id,
   name,
@@ -39,252 +38,228 @@ const LeadCard = ({
   phone,
   whatsapp,
   leadTime,
+  note,
 }) => {
   return (
     <Box
-      border="1px solid"
-      borderColor="gray.300"
       borderRadius="lg"
-      p={{ base: 2, md: 5 }} // Reduced padding on small screens
       boxShadow="md"
-      width="100%"
-      maxWidth={{ base: "100%", md: "md" }} // Full width on mobile, 768px on md and up
-      overflowX="hidden" // Prevent horizontal overflow
+      p="4"
+      // width="400px"
+      // height="370px"
+      overflow="hidden"
+      bg="white"
     >
       {/* Header */}
-      <HStack justifyContent="space-between" mb={{ base: 1, md: 2 }} w="100%">
+      <HStack justifyContent="space-between" w="100%" mb={2}>
         <HStack>
-          <Icon as={FaEye} color="gray.500" />
-          <Text fontWeight="bold" color="gray.600">
+          <Icon as={FaEye} color="gray.500" boxSize={3} />
+          <Text fontWeight="bold" color="gray.600" fontSize="sm">
             {id}
           </Text>
         </HStack>
-        <Icon as={BsThreeDotsVertical} color="gray.500" cursor="pointer" />
+        <Icon
+          as={BsThreeDotsVertical}
+          color="gray.500"
+          cursor="pointer"
+          boxSize={3}
+        />
       </HStack>
 
-      {/* Name & SourceContent/Time */}
-      <HStack
-        justify="space-between"
-        width="100%"
-        mb={{ base: 2, md: 4 }}
-        flexWrap="wrap" // Allow wrapping on smaller screens
-      >
-        <Text
-          fontSize={{ base: "lg", md: "xl" }}
-          fontWeight="bold"
-          flex="1"
-          minWidth="0" // Prevent text overflow
-        >
-          {name}
-        </Text>
-        <VStack
-          align="start"
-          spacing={{ base: 1, md: 2 }}
-          flex="1"
-          minWidth="0"
-        >
+      <HStack align="start" spacing={2} w="100%" h="calc(100% - 40px)">
+        {/* Left Side */}
+        <VStack align="start" spacing={2} flex="2" minWidth="0" h="100%">
+          <Text fontSize="sm" fontWeight="bold">
+            {name}
+          </Text>
+
+          <HStack spacing={2} w="100%" flexWrap="wrap">
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <Text fontSize="sm" color="gray.500">
+                Country
+              </Text>
+              <Text fontSize="xs" color="red.500">
+                {country}
+              </Text>
+            </VStack>
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <Text fontSize="sm" color="gray.500">
+                Nationality
+              </Text>
+              <Text fontSize="xs" color="red.500">
+                {nationality}
+              </Text>
+            </VStack>
+          </HStack>
+
+          <HStack spacing={2} w="100%" flexWrap="wrap">
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <Text fontSize="sm" color="gray.500">
+                M Status
+              </Text>
+              <Input
+                size="xs"
+                value={mStatus}
+                w={{ base: "60px", md: "70px" }}
+                bg="#f6e0b7"
+                border="1px solid"
+                borderColor="gray.300"
+                readOnly
+                fontSize="xs"
+              />
+            </VStack>
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <Text fontSize="sm" color="gray.500">
+                Status
+              </Text>
+              <Input
+                size="xs"
+                value={status}
+                w={{ base: "65px", md: "75px" }}
+                bg="gray.100"
+                border="1px solid"
+                borderColor="gray.300"
+                textColor="#FFF049"
+                readOnly
+                fontSize="xs"
+              />
+            </VStack>
+          </HStack>
+
+          <HStack spacing={2} w="100%" flexWrap="wrap">
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <HStack>
+                <Text fontSize="sm" color="gray.500">
+                  Phone
+                </Text>
+                <Tooltip label="Copy Phone">
+                  <Icon
+                    as={BiCopy}
+                    color="gray.500"
+                    cursor="pointer"
+                    boxSize={3}
+                    ml={0.5}
+                    onClick={() => handleCopy(phone)}
+                  />
+                </Tooltip>
+              </HStack>
+              <Text fontSize="sm" color="blue.500">
+                {phone}
+              </Text>
+            </VStack>
+            <VStack align="start" spacing={0} flex="1" minWidth="0">
+              <HStack>
+                <Text fontSize="sm" color="gray.500">
+                  WhatsApp
+                </Text>
+                <Tooltip label="Copy WhatsApp">
+                  <Icon
+                    as={BiCopy}
+                    color="gray.500"
+                    cursor="pointer"
+                    boxSize={3}
+                    ml={0.5}
+                    onClick={() => handleCopy(whatsapp)}
+                  />
+                </Tooltip>
+              </HStack>
+              <Text fontSize="xs" color="green.500">
+                {whatsapp}
+              </Text>
+            </VStack>
+          </HStack>
+
+          <VStack align="start" spacing={0} width="100%">
+            <Text fontSize="xs" color="gray.500">
+              Lead Note
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {note}
+            </Text>
+          </VStack>
+
+          <VStack
+            h="100%"
+            w="100%"
+            align="start"
+            justify="start"
+            flex="1"
+            spacing={0}
+          >
+            <Button bg="#34C759" color="white" size="xs" width="100%">
+              Buy for 50 coins
+            </Button>
+          </VStack>
+        </VStack>
+
+        {/* Right Side */}
+        <VStack align="start" spacing={2} flex="1" minWidth="0" h="100%">
           <VStack align="start" spacing={0}>
-            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
+            <Text fontSize="xs" color="gray.500">
               Source Content
             </Text>
-            <Text
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="bold"
-              color="#FFBB00"
-            >
+            <Text fontSize="sm" fontWeight="bold" color="#FFBB00">
               {sourceContent}
             </Text>
           </VStack>
+
           <VStack align="start" spacing={0}>
-            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
+            <Text fontSize="xs" color="gray.500">
               Time To Call
             </Text>
-            <Text
-              fontSize={{ base: "md", md: "lg" }}
-              fontWeight="bold"
-              color="#32BD00"
-            >
+            <Text fontSize="sm" fontWeight="bold" color="#32BD00">
               {timeToCall}
             </Text>
           </VStack>
+
+          <VStack h="80%" w="100%" justify="flex-end">
+            <VStack align="start" spacing={0} width="100%">
+              <Text fontSize="xs" color="gray.500" fontWeight="bold">
+                Info
+              </Text>
+              {[
+                { label: "Budget", value: "N/A" },
+                { label: "Campaign", value: "N/A" },
+                { label: "Campaign Url", value: "N/A" },
+                { label: "Medium", value: "N/A" },
+                { label: "In UAE?", value: "Yes" },
+              ].map((item) => (
+                <HStack
+                  key={item.label}
+                  width="100%"
+                  justifyContent="space-between"
+                >
+                  <Text fontSize="13px" color="black">
+                    {item.label}
+                  </Text>
+                  <Tooltip label={item.value} placement="right" hasArrow>
+                    <span>
+                      <Icon as={FcInfo} cursor="pointer" boxSize={3} />
+                    </span>
+                  </Tooltip>
+                </HStack>
+              ))}
+            </VStack>
+          </VStack>
         </VStack>
       </HStack>
-
-      {/* Country & Nationality */}
-      <HStack
-        spacing={{ base: 2, md: 6 }}
-        align="start"
-        mt={{ base: 2, md: 2 }}
-        mb={{ base: 2, md: 4 }}
-        flexWrap="wrap"
-      >
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-            Country
-          </Text>
-          <Text fontSize={{ base: "sm", md: "sm" }} color="red.500">
-            {country}
-          </Text>
-        </VStack>
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-            Nationality
-          </Text>
-          <Text fontSize={{ base: "sm", md: "sm" }} color="red.500">
-            {nationality}
-          </Text>
-        </VStack>
-      </HStack>
-
-      {/* M Status & Status */}
-      <HStack
-        spacing={{ base: 2, md: 6 }}
-        align="start"
-        mt={{ base: 2, md: 2 }}
-        mb={{ base: 2, md: 4 }}
-        flexWrap="wrap"
-      >
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-            M Status
-          </Text>
-          <Input
-            size="sm"
-            value={mStatus}
-            w={{ base: "70px", md: "85px" }}
-            bg="#f6e0b7"
-            border="1px solid"
-            borderColor="gray.300"
-            readOnly
-          />
-        </VStack>
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-            Status
-          </Text>
-          <Input
-            size="sm"
-            value={status}
-            w={{ base: "75px", md: "90px" }}
-            bg="gray.100"
-            border="1px solid"
-            borderColor="gray.300"
-            textColor="#FFF049"
-            readOnly
-          />
-        </VStack>
-      </HStack>
-
-      {/* Contact Info */}
-      <HStack
-        mt={{ base: 2, md: 3 }}
-        spacing={{ base: 2, md: 6 }}
-        mb={{ base: 2, md: 4 }}
-        flexWrap="wrap"
-      >
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <HStack>
-            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-              Phone
-            </Text>
-            <Tooltip label="Copy Phone">
-              <Icon
-                as={BiCopy}
-                color="gray.500"
-                cursor="pointer"
-                ml={1}
-                onClick={() => handleCopy(phone)}
-              />
-            </Tooltip>
-          </HStack>
-          <Text fontSize={{ base: "sm", md: "sm" }} color="blue.500">
-            {phone}
-          </Text>
-        </VStack>
-        <VStack align="start" spacing={0} flex="1" minWidth="0">
-          <HStack>
-            <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
-              WhatsApp
-            </Text>
-            <Tooltip label="Copy WhatsApp">
-              <Icon
-                as={BiCopy}
-                color="gray.500"
-                cursor="pointer"
-                ml={1}
-                onClick={() => handleCopy(whatsapp)}
-              />
-            </Tooltip>
-          </HStack>
-          <Text fontSize={{ base: "sm", md: "sm" }} color="green.500">
-            {whatsapp}
-          </Text>
-        </VStack>
-      </HStack>
-
-      {/* Buy Button & Info */}
-      <HStack
-        mt={{ base: 2, md: 4 }}
-        width="100%"
-        justifyContent="space-between"
-        flexWrap="wrap"
-      >
-        <Button
-          bg="#34C759"
-          color="white"
-          width={{ base: "100%", md: "60%" }}
-          mb={{ base: 2, md: 0 }}
-        >
-          Buy for 50 coins
-        </Button>
-        <VStack align="start" spacing={1} flex="1" minWidth="0">
-          <Text
-            fontSize={{ base: "xs", md: "xs" }}
-            color="gray.500"
-            fontWeight="bold"
-          >
-            Info
-          </Text>
-          {["Budget", "Campaign", "Campaign Url", "Medium", "In UAE?"].map(
-            (item) => (
-              <HStack
-                key={item}
-                width="100%"
-                justifyContent="space-between"
-                mb={1}
-              >
-                <Text fontSize={{ base: "sm", md: "sm" }} color="black">
-                  {item}
-                </Text>
-                <Tooltip label={item}>
-                  <Icon as={FcInfo} cursor="pointer" />
-                </Tooltip>
-              </HStack>
-            )
-          )}
-        </VStack>
-      </HStack>
-
-      {/* Lead Time */}
-      <HStack width="100%" justifyContent="flex-end" mt={{ base: 2, md: 3 }}>
-        <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
+      <HStack width="100%" justifyContent="flex-end" mt={2}>
+        <Text fontSize="xs" color="gray.500">
           Lead time: <b>{leadTime}</b>
         </Text>
       </HStack>
     </Box>
   );
 };
-
-// Responsive Grid Layout
 const LeadGrid = ({ leads }) => {
-  const columns = useBreakpointValue({ base: 1, md: 2, lg: 4 });
+  const columns = useBreakpointValue({ base: 1, md: 2, lg: 3, xl: 4 });
 
   return (
-    <Box bg="gray.100" minH="100vh">
+    <Box minH="100vh">
       <Grid
         templateColumns={`repeat(${columns}, 1fr)`}
-        gap={{ base: 2, md: 6 }}
-        p={{ base: 2, md: 4 }}
+        gap={{ base: 2, md: 2, lg: 2 }}
+        p={{ base: 2, md: 2 }}
       >
         {leads.map((lead, index) => (
           <LeadCard key={index} {...lead} />
@@ -294,7 +269,6 @@ const LeadGrid = ({ leads }) => {
   );
 };
 
-// Updated Leads Data with sourceContent instead of budget
 const leadsData = [
   {
     id: "2141",
@@ -308,6 +282,77 @@ const leadsData = [
     phone: "1234567890",
     whatsapp: "9876543210",
     leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
+  },
+  {
+    id: "2141",
+    name: "Faisal Al Karim",
+    country: "Saudi Arabia",
+    nationality: "PAK",
+    sourceContent: "14 Million",
+    timeToCall: "11:50 PM",
+    mStatus: "Hot",
+    status: "Meeting",
+    phone: "1234567890",
+    whatsapp: "9876543210",
+    leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
+  },
+  {
+    id: "2141",
+    name: "Faisal Al Karim",
+    country: "Saudi Arabia",
+    nationality: "PAK",
+    sourceContent: "14 Million",
+    timeToCall: "11:50 PM",
+    mStatus: "Hot",
+    status: "Meeting",
+    phone: "1234567890",
+    whatsapp: "9876543210",
+    leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
+  },
+  {
+    id: "2141",
+    name: "Faisal Al Karim",
+    country: "Saudi Arabia",
+    nationality: "PAK",
+    sourceContent: "14 Million",
+    timeToCall: "11:50 PM",
+    mStatus: "Hot",
+    status: "Meeting",
+    phone: "1234567890",
+    whatsapp: "9876543210",
+    leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
+  },
+  {
+    id: "2141",
+    name: "Faisal Al Karim",
+    country: "Saudi Arabia",
+    nationality: "PAK",
+    sourceContent: "14 Million",
+    timeToCall: "11:50 PM",
+    mStatus: "Hot",
+    status: "Meeting",
+    phone: "1234567890",
+    whatsapp: "9876543210",
+    leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
+  },
+  {
+    id: "2141",
+    name: "Faisal Al Karim",
+    country: "Saudi Arabia",
+    nationality: "PAK",
+    sourceContent: "14 Million",
+    timeToCall: "11:50 PM",
+    mStatus: "Hot",
+    status: "Meeting",
+    phone: "1234567890",
+    whatsapp: "9876543210",
+    leadTime: "Thu, Feb 13, 2025",
+    note: "N/A",
   },
   {
     id: "2142",
@@ -321,6 +366,7 @@ const leadsData = [
     phone: "9876543210",
     whatsapp: "1231231234",
     leadTime: "Fri, Feb 14, 2025",
+    note: "N/A",
   },
   {
     id: "2143",
@@ -334,6 +380,7 @@ const leadsData = [
     phone: "5555555555",
     whatsapp: "4444444444",
     leadTime: "Sat, Feb 15, 2025",
+    note: "N/A",
   },
   {
     id: "2144",
@@ -347,6 +394,7 @@ const leadsData = [
     phone: "6666666666",
     whatsapp: "7777777777",
     leadTime: "Sun, Feb 16, 2025",
+    note: "N/A",
   },
   {
     id: "2145",
@@ -360,6 +408,7 @@ const leadsData = [
     phone: "6666666666",
     whatsapp: "7777777777",
     leadTime: "Sun, Feb 16, 2025",
+    note: "N/A",
   },
   {
     id: "2146",
@@ -373,6 +422,7 @@ const leadsData = [
     phone: "6666666666",
     whatsapp: "7777777777",
     leadTime: "Sun, Feb 16, 2025",
+    note: "N/A",
   },
   {
     id: "2147",
@@ -386,6 +436,7 @@ const leadsData = [
     phone: "6666666666",
     whatsapp: "7777777777",
     leadTime: "Sun, Feb 16, 2025",
+    note: "N/A",
   },
 ];
 

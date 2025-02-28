@@ -4,18 +4,19 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["All", "Pending", "Rejected"];
 
   return (
-    <Box width="100%" mb={4}>
-      <HStack spacing={2} p={2} borderRadius="md">
+    <Box width="100%">
+      <HStack spacing={2} p={2}>
         {tabs.map((tab) => (
           <Button
+            borderRadius="10px"
+            w="160px"
             key={tab}
             onClick={() => setActiveTab(tab)}
-            bg={activeTab === tab ? "goldenrod" : "white"}
+            bg={activeTab === tab ? "#b79045" : "white"}
             color={activeTab === tab ? "white" : "black"}
             _hover={{ bg: "gray.200" }}
             border="1px solid"
             borderColor="gray.300"
-            px={6}
             py={2}
           >
             {tab}

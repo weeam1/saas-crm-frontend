@@ -4,20 +4,18 @@ import { FaPlay } from "react-icons/fa";
 import { IoPlaySkipForwardSharp } from "react-icons/io5";
 import SearchBox from "./Search";
 import Tabs from "./Tabs";
-import TabContent from "./TabContent"; // Component to show selected tab content
+import TabContent from "./TabContent";
 
 const Pagination = () => {
   const totalPages = 10;
   const totalItems = 100;
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState("All"); // Manage active tab
+  const [activeTab, setActiveTab] = useState("All");
 
-  // Calculate indices for the summary
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Handlers
   const handleFirst = () => setCurrentPage(1);
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNext = () =>
@@ -34,37 +32,88 @@ const Pagination = () => {
 
   return (
     <Box width="100%">
-      {/* Tabs Menu at the Top */}
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Pagination Controls */}
-      <Flex justifyContent="space-between" alignItems="center" p={3} width="100%">
-        {/* Pagination Controls (Left) */}
-        <Box bg="softGray.50" border="1px solid" borderColor="softGray.600" borderRadius="md" p={3}>
-          <HStack spacing={3}>
-            <Button {...buttonStyle} onClick={handleFirst} isDisabled={currentPage === 1} variant="solid"
-              bg="softGray.600" color="black" py="2" px="5"
-              leftIcon={<IoPlaySkipForwardSharp style={{ transform: "rotate(180deg)" }} />}
+      <Flex
+        direction={{ base: "column", lg: "row" }}
+        justifyContent={{ base: "center", lg: "space-between" }}
+        alignItems={{ base: "stretch", lg: "center" }}
+        width="100%"
+        gap={{ base: 2, lg: 3 }}
+        flexWrap="wrap" // Allows wrapping when space is insufficient
+      >
+        {/* Pagination Controls */}
+        <Box
+          bg="softGray.50"
+          border="1px solid"
+          borderColor="softGray.600"
+          borderRadius="md"
+          p={{ base: 2, md: 3 }}
+          minWidth="200px" // Prevents excessive shrinking
+          flex="1" // Allows the box to expand as needed
+        >
+          <HStack
+            spacing={{ base: 1, md: 3 }}
+            wrap="wrap" // Ensures buttons break into new rows when needed
+            justifyContent="center"
+          >
+            <Button
+              {...buttonStyle}
+              onClick={handleFirst}
+              isDisabled={currentPage === 1}
+              variant="solid"
+              bg="softGray.600"
+              color="black"
+              py={{ base: 1, md: 2 }}
+              px={{ base: 2, md: 5 }}
+              leftIcon={
+                <IoPlaySkipForwardSharp
+                  style={{ transform: "rotate(180deg)" }}
+                />
+              }
               aria-label="First Page"
             >
               First
             </Button>
-            <Button {...buttonStyle} onClick={handlePrevious} isDisabled={currentPage === 1} variant="solid"
-              bg="softGray.600" color="black" leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
+            <Button
+              {...buttonStyle}
+              onClick={handlePrevious}
+              isDisabled={currentPage === 1}
+              variant="solid"
+              bg="softGray.600"
+              color="black"
+              leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
               aria-label="Previous Page"
             >
               Previous
             </Button>
-            <Text>Page {currentPage} of {totalPages}</Text>
-            <Text>Showing {startIndex} - {endIndex} of {totalItems}</Text>
-            <Button {...buttonStyle} onClick={handleNext} isDisabled={currentPage === totalPages} variant="solid"
-              bg="softGray.600" color="black" rightIcon={<FaPlay />}
+            <Text fontSize={{ base: "xs", md: "sm" }}>
+              Page {currentPage} of {totalPages}
+            </Text>
+            <Text fontSize={{ base: "xs", md: "sm" }}>
+              Showing {startIndex} - {endIndex} of {totalItems}
+            </Text>
+            <Button
+              {...buttonStyle}
+              onClick={handleNext}
+              isDisabled={currentPage === totalPages}
+              variant="solid"
+              bg="softGray.600"
+              color="black"
+              rightIcon={<FaPlay />}
               aria-label="Next Page"
             >
               Next
             </Button>
-            <Button {...buttonStyle} onClick={handleLast} isDisabled={currentPage === totalPages} variant="solid"
-              bg="softGray.600" color="black" py="2" px="5"
+            <Button
+              {...buttonStyle}
+              onClick={handleLast}
+              isDisabled={currentPage === totalPages}
+              variant="solid"
+              bg="softGray.600"
+              color="black"
+              py={{ base: 1, md: 2 }}
+              px={{ base: 2, md: 5 }}
               rightIcon={<IoPlaySkipForwardSharp />}
               aria-label="Last Page"
             >
@@ -73,17 +122,25 @@ const Pagination = () => {
           </HStack>
         </Box>
 
-        {/* Space between Pagination and Search */}
-        <Box width="20px" />
-
-        {/* Search Box (Right) */}
-        <Box bg="softGray.50" border="1px solid" borderColor="softGray.600" borderRadius="md" p={3}>
+        {/* Search Box - Wraps when space is insufficient */}
+        <Box
+          bg="softGray.50"
+          border="1px solid"
+          borderColor="softGray.600"
+          borderRadius="md"
+          p={{ base: 2, md: 3 }}
+          minWidth="200px" // Prevents shrinking too much
+          flex="1"
+          mt={{ base: 2, lg: 0 }}
+        >
           <SearchBox />
         </Box>
       </Flex>
 
-      {/* Component Below Pagination (Dynamic Based on Active Tab) */}
-      <TabContent activeTab={activeTab} />
+      {/* Tab Content */}
+      <Box mt={4}>
+        <TabContent activeTab={activeTab} />
+      </Box>
     </Box>
   );
 };
