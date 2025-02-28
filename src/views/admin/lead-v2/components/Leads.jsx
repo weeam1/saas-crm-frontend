@@ -47,13 +47,28 @@ const Leads = ({
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);
 
+	// useEffect(() => {
+	// 	setIsLoaded(false); // Reset loading state on page change
+	// 	if (!leadsLoading) {
+	// 		const timer = setTimeout(() => setIsLoaded(true), 700);
+	// 		return () => clearTimeout(timer);
+	// 	}
+	// }, [leadsLoading, currentPage]); // Reacts to both loading state & page change
+
+	// useEffect(() => {
+	// 	if (!leadsRefetching) {
+	// 		setRefetchLoading(false);
+	// 	}
+	// }, [leadsRefetching]);
+
 	useEffect(() => {
-		setIsLoaded(false); // Reset loading state on page change
-		if (!leadsLoading) {
+		if (leadsLoading) {
+			setIsLoaded(false); // Ensure loading starts properly
+		} else {
 			const timer = setTimeout(() => setIsLoaded(true), 700);
-			return () => clearTimeout(timer);
+			return () => clearTimeout(timer); // Ensure cleanup
 		}
-	}, [leadsLoading, currentPage]); // Reacts to both loading state & page change
+	}, [leadsLoading, currentPage]); // Runs only when loading state or page changes
 
 	useEffect(() => {
 		if (!leadsRefetching) {
@@ -117,8 +132,11 @@ const Leads = ({
 
 	// Handle page changes
 	const handlePageChange = (page) => {
-		setCurrentPage(page);
-		setRefetchLoading(true);
+		setCurrentPage((prevPage) => {
+			if (prevPage === page) return prevPage; // Prevent unnecessary updates
+			setRefetchLoading(true);
+			return page;
+		});
 	};
 
 	return (
@@ -128,7 +146,7 @@ const Leads = ({
 				justifyContent='space-between'
 				alignItems='center'
 				gap='2'
-				flexDirection={{ base: 'column', lg: 'row' }} // ✅ Responsive direction
+				flexDirection={{ base: 'column', lg: 'row' }}
 			>
 				{/* Pagination */}
 				<Pagination

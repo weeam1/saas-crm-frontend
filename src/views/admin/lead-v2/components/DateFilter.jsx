@@ -130,6 +130,7 @@ import CustomDatePicker from 'components/datetime/CustomDatePicker';
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import moment from 'moment';
 
 const DateFilter = ({
 	setQueryParams,
@@ -146,7 +147,11 @@ const DateFilter = ({
 		setOpenCalendar(openCalendar === calendar ? null : calendar);
 	};
 
-	const toUTCString = (date) => (date ? new Date(date).toISOString() : null);
+	const toUTCString = (date) => {
+		return date
+			? moment(date).utcOffset(0, true).startOf('day').toISOString()
+			: null;
+	};
 
 	const formik = useFormik({
 		initialValues: {
