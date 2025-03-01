@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Spinner, Center } from "@chakra-ui/react";
+import { Box, SimpleGrid, Skeleton } from "@chakra-ui/react";
 import AllItems from "./AllItems";
 import PendingItems from "./PendingItems";
 import RejectedItems from "./RejectedItems";
@@ -19,15 +19,17 @@ const TabContent = ({ activeTab }) => {
   return (
     <Box>
       {isLoading ? (
-        <Center>
-          <Spinner
-            thickness="4px"
-            speed="0.65s"
-            emptyColor="gray.200"
-            color="blue.500"
-            size="xl"
-          />
-        </Center>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+            <Skeleton
+              key={item}
+              height="300px"
+              borderRadius="lg"
+              startColor="gray.100"
+              endColor="gray.200"
+            />
+          ))}
+        </SimpleGrid>
       ) : (
         <>
           {activeTab === "All" && <AllItems />}

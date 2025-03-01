@@ -16,6 +16,7 @@ const LeadCard = () => {
   return (
     <Box
       border="1px solid"
+      h="370px"
       borderColor="gray.300"
       borderRadius="md"
       p={{ base: 2, md: 4 }} // Responsive padding
@@ -51,7 +52,12 @@ const LeadCard = () => {
         >
           Faisal Al Karim
         </Text>
-        <VStack align="start" spacing={{ base: 1, md: 2 }} flex="1" minWidth="0">
+        <VStack
+          align="start"
+          spacing={{ base: 1, md: 2 }}
+          flex="1"
+          minWidth="0"
+        >
           <VStack align="start" spacing={0}>
             <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500">
               Budget
@@ -178,7 +184,11 @@ const LeadCard = () => {
         mb={{ base: 2, md: 4 }}
         w="100%"
       >
-        <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500" fontWeight="bold">
+        <Text
+          fontSize={{ base: "xs", md: "xs" }}
+          color="gray.500"
+          fontWeight="bold"
+        >
           Lead Note
         </Text>
         <Text fontSize={{ base: "sm", md: "sm" }} color="black">
@@ -198,7 +208,11 @@ const LeadCard = () => {
 
       {/* Info Section */}
       <VStack mt={{ base: 2, md: 3 }} align="start" mb={{ base: 2, md: 4 }}>
-        <Text fontSize={{ base: "xs", md: "xs" }} color="gray.500" fontWeight="bold">
+        <Text
+          fontSize={{ base: "xs", md: "xs" }}
+          color="gray.500"
+          fontWeight="bold"
+        >
           Info
         </Text>
         {[
@@ -220,7 +234,11 @@ const LeadCard = () => {
       </VStack>
 
       {/* Lead Time */}
-      <Text mt={{ base: 2, md: 3 }} fontSize={{ base: "xs", md: "xs" }} color="gray.500">
+      <Text
+        mt={{ base: 2, md: 3 }}
+        fontSize={{ base: "xs", md: "xs" }}
+        color="gray.500"
+      >
         lead time <b>Thu, Feb 13, 2025</b>
       </Text>
     </Box>

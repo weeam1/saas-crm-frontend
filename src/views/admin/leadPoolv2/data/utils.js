@@ -147,7 +147,7 @@ const leadsData = [
     sourceContent: "12 Million",
     timeToCall: "12:00 PM",
     mStatus: "Hot",
-    status: "Meeting",
+    status: "New",
     phone: "*******",
     whatsapp: "********",
     leadTime: "Sun, Feb 16, 2025",

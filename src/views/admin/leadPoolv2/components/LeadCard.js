@@ -11,8 +11,8 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import { BiCopy } from "react-icons/bi";
-import { InfoIcon, ChevronDownIcon } from "@chakra-ui/icons";
+
+import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
@@ -93,7 +93,7 @@ const ContactPair = ({ label, value, color }) => (
       </Text>
       <Tooltip label={`Copy ${label}`}>
         <Icon
-          as={BiCopy}
+          as={CopyIcon}
           color="gray.500"
           cursor="pointer"
           boxSize={3}
@@ -112,7 +112,6 @@ const ContactPair = ({ label, value, color }) => (
   </VStack>
 );
 
-// LeadCard Component
 const LeadCard = ({
   id,
   name,
@@ -126,16 +125,19 @@ const LeadCard = ({
   whatsapp,
   leadTime,
   note,
-  buttonText = "Buy for 50 coins",
+  buttonText = "Buy for 50 coins", 
   buttonBg = "#34C759",
   buttonColor = "white",
   buttonHoverBg = "#32BD00",
 }) => {
+  const displayButtonText =
+    status && status.toLowerCase() === "new" ? "Buy for 300 coins" : buttonText;
+
   return (
     <Box
       borderRadius="lg"
       p="3"
-      height="300px"
+      height="320px"
       overflow="hidden"
       flex="wrap"
       _hover={{
@@ -145,11 +147,9 @@ const LeadCard = ({
       display="flex"
       flexDirection="column"
       border="1px solid #D8D8D9"
-      
     >
       <CardHeader id={id} />
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
-        {/* Left Side */}
         <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
           <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
             {name}
@@ -204,7 +204,7 @@ const LeadCard = ({
               borderRadius="5px"
               _hover={{ bg: buttonHoverBg }}
             >
-              {buttonText}
+              {displayButtonText}
             </Button>
           </VStack>
         </VStack>
@@ -221,12 +221,7 @@ const LeadCard = ({
             <Text fontSize="10px" color="#d0d0d0" fontFamily="DM Sans">
               Source Content
             </Text>
-            <Text
-              fontSize="10px"
-              fontWeight="bold"
-              color="#FFBB00"
-              fontFamily="DM Sans"
-            >
+            <Text fontSize="12px" color="#FFBB00" fontFamily="DM Sans">
               {sourceContent}
             </Text>
           </VStack>
@@ -235,61 +230,23 @@ const LeadCard = ({
               Time To Call
             </Text>
             <Text
-              fontSize="12px"
-              fontWeight="bold"
+              fontSize="13px"
               color="#32BD00"
+              fontWeight="semibold"
               fontFamily="DM Sans"
             >
               {timeToCall}
             </Text>
           </VStack>
-          {/* <VStack h="70%" w="100%" justify="flex-end">
-            <VStack align="start" spacing={0} width="100%">
-              <Text
-                fontSize="xs"
-                color="#AEBAC9"
-                fontWeight="bold"
-                fontFamily="DM Sans"
-              >
-                Info
-              </Text>
-              {[
-                { label: "Budget", value: "N/A" },
-                { label: "Campaign", value: "N/A" },
-                { label: "Campaign Url", value: "N/A" },
-                { label: "Medium", value: "N/A" },
-                { label: "In UAE?", value: "Yes" },
-              ].map((item) => (
-                <HStack
-                  key={item.label}
-                  width="100%"
-                  justifyContent="space-between"
-                >
-                  <Text fontSize="10px" color="black" fontFamily="DM Sans">
-                    {item.label}
-                  </Text>
-                  <Tooltip label={item.value} placement="right" hasArrow>
-                    <span>
-                      <Icon
-                        as={InfoIcon}
-                        color="blue.300"
-                        boxSize={3.5}
-                        cursor="pointer"
-                      />
-                    </span>
-                  </Tooltip>
-                </HStack>
-              ))}
-            </VStack>
-          </VStack> */}
           <VStack h="70%" w="100%" justify="flex-end">
             <VStack align="start" spacing={0} width="100%">
               <Text
+                ml={{ md: "30px", lg: "48px" }}
                 fontSize="xs"
                 color="#AEBAC9"
                 fontWeight="bold"
                 fontFamily="DM Sans"
-                mb={1} // Add margin-bottom to the "Info" label if needed
+                mb={1}
               >
                 Info
               </Text>
@@ -302,13 +259,14 @@ const LeadCard = ({
               ].map((item) => (
                 <HStack
                   key={item.label}
-                  lineHeight="15px"
+                  lineHeight="20px"
                   width="100%"
                   justifyContent="space-between"
                   spacing={0}
                   marginBottom={-1}
                 >
                   <Text
+                    ml={{ md: "30px", lg: "48px" }}
                     fontSize="10px"
                     color="black"
                     fontFamily="DM Sans"

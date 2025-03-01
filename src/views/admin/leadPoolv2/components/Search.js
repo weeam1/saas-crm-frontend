@@ -12,68 +12,65 @@ import { BiX } from "react-icons/bi";
 const SearchBox = () => {
   return (
     <Box
-      width={{ base: "100%", md: "auto" }}
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      h={{ base: "auto", md: "40px" }}
+      // alignSelf='end'
+      width={{ base: "100%", lg: "fit-content" }}
       bg="softGray.50"
-      p={{ base: 2, md: 3 }}
+      p="2"
       borderRadius="md"
-      boxShadow="sm"
     >
-      <HStack
-        spacing={{ base: 2, md: 3 }}
-        flexDirection={{ base: "column", sm: "row" }}
-        gap={{ base: 2, md: 3 }}
-        width="100%"
-      >
+      <HStack spacing={3} gap="2" flexDirection={{ base: "column", md: "row" }}>
+        {/* Search Input & Button */}
         <InputGroup
           bg="white"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          width={{ base: "100%", sm: "20rem", md: "24rem", lg: "28rem" }}
+          // width={{ base: '100%', md: '18rem' }}
+          w="250px"
           overflow="hidden"
         >
           <Input
-            placeholder="Search by name..."
+            placeholder="name.."
             border="none"
-            fontSize={{ base: "sm", md: "xs" }}
-            height={{ base: "2.5rem", md: "2.2rem" }}
+            fontSize="xs"
+            height="2.2rem"
             _focus={{ boxShadow: "none" }}
-            _placeholder={{ color: "softGray.600" }}
-            width="100%"
           />
-          <InputRightElement width="auto" height="100%">
+          <InputRightElement width="auto">
             <Button
-              size="sm"
-              bg="#F7FAFC"
+              size="md"
+              bg="softGray.700"
               borderLeft="1px solid"
               borderColor="softGray.600"
-              px={{ base: 3, md: 4 }}
-              borderRadius="0 md 0 md"
-              fontSize={{ base: "sm", md: "xs" }}
+              px={4}
+              borderRadius="0"
+              fontSize="xs"
               _hover={{ bg: "gray.50" }}
               _active={{ bg: "gray.100" }}
             >
-              Search <SearchIcon ml={1} boxSize={3} color="brand.500" />
+              Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
             </Button>
           </InputRightElement>
         </InputGroup>
-        <Button
-          border="1px solid"
-          borderColor="softGray.600"
-          bg="white"
-          borderRadius="md"
-          px={{ base: 3, md: 6 }}
-          fontSize={{ base: "sm", md: "xs" }}
-          height={{ base: "2.5rem", md: "2.2rem" }}
-          _hover={{ bg: "gray.50" }}
-          _active={{ bg: "gray.100" }}
-        >
-          Advanced Search
-        </Button>
+
+        <HStack gap="2">
+          {/* Advance Search Button */}
+          <Button
+            border="1px solid"
+            borderColor="softGray.600"
+            bg="white"
+            borderRadius="md"
+            px={4}
+            fontSize="xs"
+            w="auto"
+            minW="max-content"
+            height="2.2rem"
+            _hover={{ bg: "gray.50" }}
+            _active={{ bg: "gray.100" }}
+          >
+            Advance Search
+          </Button>
+        </HStack>
       </HStack>
     </Box>
   );

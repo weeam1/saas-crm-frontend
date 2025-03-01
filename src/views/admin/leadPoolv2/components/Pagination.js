@@ -36,22 +36,23 @@ const Pagination = () => {
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <Flex
-        direction={{ base: "column", lg: "row" }}
-        justifyContent={{ base: "center", lg: "space-between" }}
-        alignItems={{ base: "stretch", lg: "center" }}
-        width="100%"
+        direction={{ base: "column", md: "column", lg: "row" }}
+        justifyContent={{ base: "center", md: "space-between" }}
+        alignItems="center"
         gap={{ base: 2, lg: 3 }}
-        flexWrap="wrap" 
+        width="100%" // Ensure Flex takes full width
+        flexWrap={{ base: "wrap", lg: "nowrap" }} // Prevent wrapping issues on lg
       >
-        {/* Pagination Controls */}
+        {/* Pagination Controls Box */}
         <Box
           bg="softGray.50"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          minWidth="200px"
-          flex="1"
+          width={{ base: "100%", md: "100%", lg: "auto" }} // Auto width on lg to fit content
+          flex={{ base: "none", md: "none", lg: "1" }} // Flex grow on lg
+          minWidth={{ base: "100%", md: "100%", lg: "200px" }}
         >
           <HStack
             spacing={{ base: 1, md: 3 }}
@@ -123,22 +124,23 @@ const Pagination = () => {
           </HStack>
         </Box>
 
-        {/* Search Box - Wraps when space is insufficient */}
+        {/* Search Box */}
         <Box
           bg="softGray.50"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          minWidth="200px" // Prevents shrinking too much
-          flex="1"
+          width={{ base: "100%", md: "100%", lg: "auto" }} // Auto width on lg to fit content
+          flex={{ base: "none", md: "none", lg: "1" }} // Flex grow on lg
+          minWidth={{ base: "100%", md: "100%", lg: "200px" }}
+          maxWidth={{ lg: "470px" }} 
           mt={{ base: 2, lg: 0 }}
         >
           <SearchBox />
         </Box>
       </Flex>
 
-      {/* Tab Content */}
       <Box mt={4}>
         <TabContent activeTab={activeTab} />
       </Box>
