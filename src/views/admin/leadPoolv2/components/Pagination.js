@@ -5,6 +5,7 @@ import { IoPlaySkipForwardSharp } from "react-icons/io5";
 import SearchBox from "./Search";
 import Tabs from "./Tabs";
 import TabContent from "./TabContent";
+import SearchTags from "./searchTags";
 
 const Pagination = () => {
   const totalPages = 10;
@@ -31,7 +32,7 @@ const Pagination = () => {
   };
 
   return (
-    <Box width="100%">
+    <Box width="100%" bg="white" p={5} borderRadius="10px">
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <Flex
@@ -40,7 +41,7 @@ const Pagination = () => {
         alignItems={{ base: "stretch", lg: "center" }}
         width="100%"
         gap={{ base: 2, lg: 3 }}
-        flexWrap="wrap" // Allows wrapping when space is insufficient
+        flexWrap="wrap" 
       >
         {/* Pagination Controls */}
         <Box
@@ -49,12 +50,12 @@ const Pagination = () => {
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          minWidth="200px" // Prevents excessive shrinking
-          flex="1" // Allows the box to expand as needed
+          minWidth="200px"
+          flex="1"
         >
           <HStack
             spacing={{ base: 1, md: 3 }}
-            wrap="wrap" // Ensures buttons break into new rows when needed
+            wrap="wrap"
             justifyContent="center"
           >
             <Button

@@ -5,11 +5,12 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 
   return (
     <Box width="100%">
-      <HStack spacing={2} p={2}>
+      <HStack spacing={1} p={2}>
         {tabs.map((tab) => (
           <Button
-            borderRadius="10px"
+            borderRadius="6px"
             w="160px"
+            h="42px"
             key={tab}
             onClick={() => setActiveTab(tab)}
             bg={activeTab === tab ? "#b79045" : "white"}
@@ -17,7 +18,8 @@ const Tabs = ({ activeTab, setActiveTab }) => {
             _hover={{ bg: "gray.200" }}
             border="1px solid"
             borderColor="gray.300"
-            py={2}
+            fontFamily="DM Sans"
+            fontWeight="400"
           >
             {tab}
           </Button>

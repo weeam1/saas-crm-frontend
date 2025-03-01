@@ -5,11 +5,11 @@ import LeadCard from "./components/leadBox";
 
 const index = () => {
   return (
-    <>
+    <div bg="white">
       <PaginationPage />
       {/* <SearchBox/> */}
       {/* <LeadCard/> */}
-    </>
+    </div>
   );
 };
 
