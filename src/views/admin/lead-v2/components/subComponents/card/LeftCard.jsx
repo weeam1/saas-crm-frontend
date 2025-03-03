@@ -73,7 +73,7 @@ const LeftCard = ({
 				alignItems='start'
 				gap={{ base: 4, md: 2 }}
 			>
-				<GridItem colSpan={2} display='flex'>
+				<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 					{!hiddenFields.includes('leadSourceDetails') && (
 						<EntityField
 							label='Source Content'
@@ -87,6 +87,7 @@ const LeftCard = ({
 						<EntityField
 							label='Time to Call'
 							value={lead?.timetocall}
+							isInfo={true}
 							valueProps={{ color: 'green.600' }}
 						/>
 					)}

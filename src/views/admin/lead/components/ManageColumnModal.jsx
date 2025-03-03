@@ -26,6 +26,8 @@ const ManageColumnModal = (props) => {
 		saveManageCols,
 	} = props;
 
+	console.log({ dynamicColumns });
+
 	const memoizedColumns = useMemo(() => dynamicColumns, [dynamicColumns]);
 
 	return (
