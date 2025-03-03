@@ -79,8 +79,6 @@ const Hiring = () => {
 		? stats.filter((stat) => stat.title === 'Short Listed')
 		: stats;
 
-	console.log({ isManager, filteredStats });
-
 	const navigate = useNavigate();
 
 	return isLoading || interviewLoading ? (

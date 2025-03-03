@@ -13,6 +13,7 @@ import { constant } from 'constant';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
 
 const ShortListed = ({
 	data,
@@ -56,12 +57,18 @@ const ShortListed = ({
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedTime, setSelectedTime] = useState('');
 
+	const toUTCString = (date) => {
+		return date
+			? moment(date).utcOffset(0, true).startOf('day').toISOString()
+			: null;
+	};
+
 	const handleScheduleInterview = async () => {
 		try {
 			await updateItemMuation({
 				path: `/applications/schedule-interview/${candidate._id}`,
 				body: {
-					interviewDate: selectedDate,
+					interviewDate: toUTCString(selectedDate),
 					interviewTime: selectedTime,
 				},
 			}).unwrap();
