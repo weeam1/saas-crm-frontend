@@ -11,6 +11,7 @@ import {
 // icon
 import React from "react";
 import { AiFillFolderOpen, AiOutlineMail } from "react-icons/ai";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import {
   FaCalendarAlt,
   FaFile,
@@ -137,6 +138,7 @@ const AttendanceDashboard = React.lazy(
 );
 //leadpool v2
 const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
+const LeadPoolAdmin = React.lazy(() => import("views/admin/leadAdmin"));
 
 const routes = [
   // ========================== Dashboard ==========================
@@ -247,7 +249,20 @@ const routes = [
     ),
     component: LeadPoolVersion2,
   },
-
+  {
+    name: "Leads Pool Admin",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/leadpooladmin",
+    icon: (
+      <Icon
+        as={MdOutlineAdminPanelSettings}
+        width="20px"
+        height="20px"
+        color="inherit"
+      />
+    ),
+    component: LeadPoolAdmin,
+  },
   {
     name: "Leads Pool",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
