@@ -110,7 +110,13 @@ const LeftCard = ({
 				{/* Agent */}
 				{['superAdmin', 'Manager'].includes(role) &&
 					!hiddenFields.includes('agentAssigned') && (
-						<GridItem colSpan={role === 'Manager' ? '2' : '1'}>
+						<GridItem
+							colSpan={
+								role === 'Manager' || hiddenFields.includes('managerAssigned')
+									? '2'
+									: '1'
+							}
+						>
 							<Agents
 								agentAssigned={lead?.agentAssigned}
 								managerAssigned={lead?.managerAssigned}
