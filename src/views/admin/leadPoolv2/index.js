@@ -7,8 +7,6 @@ const index = () => {
   return (
     <>
       <PaginationPage />
-      {/* <SearchBox/> */}
-      {/* <LeadCard/> */}
     </>
   );
 };

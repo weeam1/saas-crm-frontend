@@ -28,8 +28,6 @@ const CardHeader = ({ id }) => (
     <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
   </HStack>
 );
-
-// Info Pair Component (e.g., Country/Nationality)
 const InfoPair = ({ label, value, color = "#ff0307" }) => (
   <VStack align="start" spacing={0} flex="1" minWidth="0">
     <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
@@ -84,7 +82,6 @@ const InputPair = ({
   </VStack>
 );
 
-// Contact Pair Component (e.g., Phone/WhatsApp)
 const ContactPair = ({ label, value, color }) => (
   <VStack align="start" spacing={0} flex="1" minWidth="0">
     <HStack>
@@ -125,7 +122,7 @@ const LeadCard = ({
   whatsapp,
   leadTime,
   note,
-  buttonText = "Buy for 50 coins", 
+  buttonText = "Buy for 50 coins",
   buttonBg = "#34C759",
   buttonColor = "white",
   buttonHoverBg = "#32BD00",
@@ -199,10 +196,12 @@ const LeadCard = ({
               bg={buttonBg}
               color={buttonColor}
               size="xs"
-              width="90%"
+              width="100%"
+              maxWidth="250px"
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: buttonHoverBg }}
+              flexShrink={0}
             >
               {displayButtonText}
             </Button>
@@ -218,14 +217,6 @@ const LeadCard = ({
           ml="15px"
         >
           <VStack align="start" spacing={0}>
-            <Text fontSize="10px" color="#d0d0d0" fontFamily="DM Sans">
-              Source Content
-            </Text>
-            <Text fontSize="12px" color="#FFBB00" fontFamily="DM Sans">
-              {sourceContent}
-            </Text>
-          </VStack>
-          <VStack align="start" spacing={0}>
             <Text fontSize="10px" color="#c0c0c0" fontFamily="DM Sans">
               Time To Call
             </Text>
@@ -238,6 +229,15 @@ const LeadCard = ({
               {timeToCall}
             </Text>
           </VStack>
+          <VStack align="start" spacing={0}>
+            <Text fontSize="10px" color="#d0d0d0" fontFamily="DM Sans">
+              Source Content
+            </Text>
+            <Text fontSize="12px" color="#FFBB00" fontFamily="DM Sans">
+              {sourceContent}
+            </Text>
+          </VStack>
+
           <VStack h="70%" w="100%" justify="flex-end">
             <VStack align="start" spacing={0} width="100%">
               <Text
@@ -269,6 +269,7 @@ const LeadCard = ({
                     ml={{ md: "30px", lg: "48px" }}
                     fontSize="10px"
                     color="black"
+                    fontWeight={500}
                     fontFamily="DM Sans"
                     marginBottom={0}
                   >

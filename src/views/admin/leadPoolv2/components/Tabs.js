@@ -1,5 +1,5 @@
 import { Button, HStack, Box, Flex } from "@chakra-ui/react";
-import DatePicker from "./DateFilter"
+import DatePicker from "./DateFilter";
 
 const Tabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["All", "Pending", "Rejected"];
@@ -7,12 +7,12 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   return (
     <Box width="100%">
       <Flex
-        justifyContent="space-between" 
+        justifyContent="space-between"
         alignItems="center"
         p={2}
         width="100%"
-        flexWrap="wrap" 
-        gap={{ base: 2, md: 0 }} 
+        flexWrap="wrap"
+        gap={{ base: 2, md: 0 }}
       >
         {/* Tabs on the left */}
         <HStack spacing={1}>

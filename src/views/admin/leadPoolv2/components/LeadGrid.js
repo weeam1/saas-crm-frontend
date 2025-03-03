@@ -6,8 +6,8 @@ const LeadGrid = ({ leads }) => {
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
     sm: "repeat(1, 1fr)",
-    md: "repeat(auto-fit, minmax(350px, 1fr))",
-    lg: "repeat(auto-fit, minmax(500px, 1fr))",
+    md: "repeat(auto-fit, minmax(320px, 1fr))",
+    lg: "repeat(auto-fit, minmax(350px, 1fr))",
   });
 
   return (

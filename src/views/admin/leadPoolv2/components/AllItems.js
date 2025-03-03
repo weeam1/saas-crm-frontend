@@ -1,6 +1,6 @@
 import React from "react";
 import LeadGrid from "./LeadGrid";
-import leadsData from "../data/utils";
+import leadsData from "../data/allitems";
 
 const App = () => {
   return <LeadGrid leads={leadsData} />;

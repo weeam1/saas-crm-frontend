@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HStack, Button, Text, Flex, Box } from "@chakra-ui/react";
+import { HStack, Button, Text, Flex, Box, Divider } from "@chakra-ui/react";
 import { FaPlay } from "react-icons/fa";
 import { IoPlaySkipForwardSharp } from "react-icons/io5";
 import SearchBox from "./Search";
@@ -40,8 +40,8 @@ const Pagination = () => {
         justifyContent={{ base: "center", md: "space-between" }}
         alignItems="center"
         gap={{ base: 2, lg: 3 }}
-        width="100%" // Ensure Flex takes full width
-        flexWrap={{ base: "wrap", lg: "nowrap" }} // Prevent wrapping issues on lg
+        width="100%"
+        flexWrap={{ base: "wrap", lg: "nowrap" }}
       >
         {/* Pagination Controls Box */}
         <Box
@@ -50,8 +50,8 @@ const Pagination = () => {
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          width={{ base: "100%", md: "100%", lg: "auto" }} // Auto width on lg to fit content
-          flex={{ base: "none", md: "none", lg: "1" }} // Flex grow on lg
+          width={{ base: "100%", md: "100%", lg: "auto" }}
+          flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "200px" }}
         >
           <HStack
@@ -131,16 +131,16 @@ const Pagination = () => {
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          width={{ base: "100%", md: "100%", lg: "auto" }} // Auto width on lg to fit content
-          flex={{ base: "none", md: "none", lg: "1" }} // Flex grow on lg
+          width={{ base: "100%", md: "100%", lg: "auto" }}
+          flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "200px" }}
-          maxWidth={{ lg: "470px" }} 
+          maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
           <SearchBox />
         </Box>
       </Flex>
-
+      <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
       <Box mt={4}>
         <TabContent activeTab={activeTab} />
       </Box>

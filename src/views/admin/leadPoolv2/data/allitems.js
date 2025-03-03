@@ -1,4 +1,4 @@
-const leadsData = [
+export const leadsData = [
   {
     id: "2141",
     name: "Faisal Al Karim",
