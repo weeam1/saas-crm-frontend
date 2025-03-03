@@ -17,8 +17,17 @@ import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
+// import { extractLocationData } from 'utils/helpers';
+// import { useSelector } from 'react-redux';
 
-const LeftCard = ({ lead, setViewLead, refreshLeads, role, queryParams }) => {
+const LeftCard = ({
+	lead,
+	setViewLead,
+	refreshLeads,
+	role,
+	queryParams,
+	// countryList,
+}) => {
 	const leadType = useMemo(() => {
 		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
 	}, [lead?.leadType, lead?.leadStatus]);
@@ -39,30 +48,30 @@ const LeftCard = ({ lead, setViewLead, refreshLeads, role, queryParams }) => {
 				</Text>
 			</Flex>
 			<HStack mb={2}>
-				<Text fontSize='12px' fontWeight='semibold'>
+				<Text fontSize='12px' fontWeight='semibold' isTruncated maxWidth='6rem'>
 					{lead?.leadName || 'N/A'}
 				</Text>
 				<LeadTypeBadge leadType={leadType} roleName={role} />
 			</HStack>
 
 			<Grid
-				// minWidth='14.75rem'
-				minWidth='12em' // Scales based on the parent element's font size
-				// templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+				minWidth='100%'
 				templateColumns='repeat(2, 1fr)'
 				alignItems='start'
 				gap={{ base: 4, md: 2 }}
 			>
 				<EntityField
-					label='Country'
-					value={lead?.ip?.split('-')[1]}
-					valueProps={{ color: '#FF0004' }}
+					label='Source Content'
+					value={lead.leadSourceDetails}
+					valueProps={{ color: '#FFBB00' }}
+					isInfo={true}
 				/>
 				<EntityField
-					label='Nationality'
-					value={lead.nationality}
-					valueProps={{ color: '#FF0004' }}
+					label='Time to Call'
+					value='11:40 PM'
+					valueProps={{ color: 'green.600' }}
 				/>
+
 				{/* Manager */}
 				{role === 'superAdmin' && (
 					<GridItem>

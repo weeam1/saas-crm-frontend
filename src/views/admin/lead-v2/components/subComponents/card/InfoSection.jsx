@@ -5,6 +5,7 @@ import { leadlabelFontSize } from '../../constants';
 const InfoSection = ({ lead }) => {
 	const infoFields = [
 		// { label: 'Source Content', value: lead?.leadSourceDetails },
+		{ label: 'Nationality', value: lead?.nationality },
 		{ label: 'Budget', value: lead?.budget },
 		{ label: 'Campaign', value: lead?.leadCampaign },
 		{ label: 'Campaign Url', value: lead?.pageUrl },
@@ -20,7 +21,7 @@ const InfoSection = ({ lead }) => {
 	];
 
 	return (
-		<Box justifySelf='end'>
+		<Box>
 			<Text fontSize={leadlabelFontSize} color='gray.400' mb={1}>
 				Info
 			</Text>

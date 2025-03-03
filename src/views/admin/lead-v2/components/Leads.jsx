@@ -1,3 +1,4 @@
+import { useSelector } from 'react-redux';
 import { Box, Button, Flex, Grid } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
@@ -12,7 +13,6 @@ import SearchTags from './SearchTags';
 import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
-import { useSelector } from 'react-redux';
 
 const Leads = ({
 	data,
@@ -47,26 +47,12 @@ const Leads = ({
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);
 
-	// useEffect(() => {
-	// 	setIsLoaded(false); // Reset loading state on page change
-	// 	if (!leadsLoading) {
-	// 		const timer = setTimeout(() => setIsLoaded(true), 700);
-	// 		return () => clearTimeout(timer);
-	// 	}
-	// }, [leadsLoading, currentPage]); // Reacts to both loading state & page change
-
-	// useEffect(() => {
-	// 	if (!leadsRefetching) {
-	// 		setRefetchLoading(false);
-	// 	}
-	// }, [leadsRefetching]);
-
 	useEffect(() => {
 		if (leadsLoading) {
-			setIsLoaded(false); // Ensure loading starts properly
+			setIsLoaded(false);
 		} else {
 			const timer = setTimeout(() => setIsLoaded(true), 700);
-			return () => clearTimeout(timer); // Ensure cleanup
+			return () => clearTimeout(timer);
 		}
 	}, [leadsLoading, currentPage]); // Runs only when loading state or page changes
 
@@ -248,11 +234,11 @@ const Leads = ({
 						// 	gridTemplateColumns: '1fr',
 						// },
 						// >= 992px
-						'@media (min-width: 812px)': {
+						'@media (min-width: 700px)': {
 							gridTemplateColumns: 'repeat(2, 1fr)',
 						},
 						// >= 1280px
-						'@media (min-width: 1280px)': {
+						'@media (min-width: 1180px)': {
 							gridTemplateColumns: 'repeat(3, 1fr)',
 						},
 						// >= 1664px

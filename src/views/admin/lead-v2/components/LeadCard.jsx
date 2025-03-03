@@ -127,11 +127,10 @@ const LeadCard = memo(
 						/>
 					</Box>
 					<Flex
-						justify='space-between'
+						justifyContent='space-between'
 						align='stretch'
 						wrap='wrap'
-						// gap={{ base: 2, md: 3 }}
-						gap={2}
+						gap={{ base: 2, md: 3, lg: 6 }}
 					>
 						<LeftCard
 							lead={lead}
@@ -139,6 +138,7 @@ const LeadCard = memo(
 							refreshLeads={refreshLeads}
 							role={role}
 							queryParams={queryParams}
+							// countryList={countryList}
 						/>
 						<RightCard lead={lead} />
 					</Flex>

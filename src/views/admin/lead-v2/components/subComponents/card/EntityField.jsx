@@ -88,7 +88,8 @@ const EntityField = ({
 				fontSize={leadValueFontSize}
 				fontWeight='medium'
 				color={valueColor}
-				isTruncated={isInfo}
+				textTransform='capitalize'
+				isTruncated={isInfo || isCopy}
 				{...valueProps}
 			>
 				{value || 'N/A'}
