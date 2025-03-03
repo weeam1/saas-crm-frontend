@@ -61,6 +61,12 @@ const RightCard = ({ lead }) => {
 
 	const { city, country } = extractLocationData(lead?.ip, countries);
 
+	const hiddenFields = JSON.parse(
+		localStorage.getItem('userCustomColumns') || '[]'
+	);
+
+	console.log({ hiddenFields });
+
 	return (
 		<Flex
 			// flex='1'

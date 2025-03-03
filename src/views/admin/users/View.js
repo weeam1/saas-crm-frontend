@@ -216,7 +216,6 @@ const View = () => {
 							</GridItem>
 							<GridItem colSpan={{ base: 2, md: 1 }}>
 								<Text fontSize='sm' fontWeight='bold' color={'blackAlpha.900'}>
-									{' '}
 									User Email{' '}
 								</Text>
 								<Text>{data?.username ? data?.username : ' - '}</Text>

@@ -32,6 +32,10 @@ const LeftCard = ({
 		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
 	}, [lead?.leadType, lead?.leadStatus]);
 
+	const hiddenFields = JSON.parse(
+		localStorage.getItem('userCustomColumns') || '[]'
+	);
+
 	return (
 		<Box flex='1'>
 			<Flex alignItems='center' gap='2'>

@@ -90,13 +90,6 @@ const LeadCard = memo(
 						alignItems='center'
 						gap={2}
 					>
-						{/* <Checkbox
-							colorScheme='brand'
-							value={selectedValues}
-							isChecked={isChecked}
-							onChange={(event) => handleCheckboxChange(event, lead?._id)}
-						/> */}
-
 						<label className='custom-checkbox'>
 							<input
 								type='checkbox'
@@ -105,12 +98,7 @@ const LeadCard = memo(
 							/>
 							<span className='checkmark'></span>
 						</label>
-						{/* <IconButton
-					aria-label='More options'
-					icon={<TbDotsVertical size='20' />}
-					size='sm'
-					variant='ghost'
-				/> */}
+
 						<LeadMenu
 							user={user}
 							lead={lead}
@@ -138,7 +126,6 @@ const LeadCard = memo(
 							refreshLeads={refreshLeads}
 							role={role}
 							queryParams={queryParams}
-							// countryList={countryList}
 						/>
 						<RightCard lead={lead} />
 					</Flex>

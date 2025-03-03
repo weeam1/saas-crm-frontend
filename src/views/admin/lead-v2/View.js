@@ -55,14 +55,23 @@ import EditLead from './components/EditLead';
 import AddLead from './components/AddLead';
 import { formattedDate } from 'utils/helpers';
 import Loader from 'components/loading/Loader';
+import { extractLocationData } from 'utils/helpers';
 
 const View = ({ param, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	const textColor = useColorModeValue('gray.500', 'white');
 
+	const countries = useSelector((state) => state.countries.countryNames);
+
 	const [data, setData] = useState();
 	const [allData, setAllData] = useState([]);
+	const [leadIp, setLeadIp] = useState({
+		ip: '',
+		city: '',
+		country: '',
+	});
+
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [edit, setEdit] = useState(false);
 	const [deleteModel, setDelete] = useState(false);
@@ -124,6 +133,14 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		let response = await getApi('api/lead/view/', param.id);
 		setData(response.data?.lead);
 		setAllData(response?.data);
+
+		const { ip, city, country } = extractLocationData(
+			response?.data?.lead?.ip,
+			countries
+		);
+
+		setLeadIp({ ip, city, country });
+
 		setIsLoding(false);
 	};
 
@@ -145,6 +162,8 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
+
+	console.log({ leadIp });
 
 	return (
 		<>
@@ -627,6 +646,30 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														IP Address
 													</Text>
 													<Text>{data?.ip ? data?.ip : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														City
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.city : 'N/A'}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Country
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.country : 'N/A'}
+													</Text>
 												</GridItem>
 												<GridItem colSpan={{ base: 12, md: 6 }}>
 													<Text
