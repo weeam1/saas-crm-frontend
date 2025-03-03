@@ -136,7 +136,7 @@ const AttendanceDashboard = React.lazy(
   () => import("views/admin/attendenceEmp/components/dashboard")
 );
 //leadpool v2
-const LeadPoolV2 = React.lazy(() => import("views/admin/leadPoolv2"));
+const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
 
 const routes = [
   // ========================== Dashboard ==========================
@@ -149,15 +149,15 @@ const routes = [
   },
   // ========================== Admin Layout ==========================
   // ------------- lead Routes ------------------------
-  {
-    name: "Lead",
-    layout: [ROLE_PATH.superAdmin],
-    path: "/lead",
-    icon: (
-      <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-    ),
-    component: Lead,
-  },
+  // {
+  //   name: "Lead",
+  //   layout: [ROLE_PATH.superAdmin],
+  //   path: "/lead",
+  //   icon: (
+  //     <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
+  //   ),
+  //   component: Lead,
+  // },
   {
     name: "New Lead",
     layout: [ROLE_PATH.superAdmin],
@@ -238,7 +238,6 @@ const routes = [
     parentName: "Attendence",
     component: Attendance,
   },
-  //leads pool v2
   {
     name: "Leads Pool v2",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -246,7 +245,7 @@ const routes = [
     icon: (
       <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
     ),
-    component: LeadPoolV2,
+    component: LeadPoolVersion2,
   },
 
   {

@@ -11,7 +11,6 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-
 import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
@@ -28,6 +27,7 @@ const CardHeader = ({ id }) => (
     <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
   </HStack>
 );
+
 const InfoPair = ({ label, value, color = "#ff0307" }) => (
   <VStack align="start" spacing={0} flex="1" minWidth="0">
     <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
@@ -113,7 +113,7 @@ const LeadCard = ({
   id,
   name,
   country,
-  nationality,
+  city,
   sourceContent,
   timeToCall,
   mStatus,
@@ -130,6 +130,39 @@ const LeadCard = ({
   const displayButtonText =
     status && status.toLowerCase() === "new" ? "Buy for 300 coins" : buttonText;
 
+  const getStatusStyles = (status) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return {
+          borderColor: "#FFEB3B",
+          buttonBg: "#FFEB3B",
+          buttonHoverBg: "#FFB300",
+          buttonColor: "black",
+        };
+      case "rejected":
+        return {
+          borderColor: "#FF3B3B",
+          buttonBg: "#FF3B3B",
+          buttonHoverBg: "#D32F2F",
+          buttonColor: "white",
+        };
+      default:
+        return {
+          borderColor: "#D8D8D9",
+          buttonBg: buttonBg,
+          buttonHoverBg: buttonHoverBg,
+          buttonColor: buttonColor,
+        };
+    }
+  };
+
+  const {
+    borderColor,
+    buttonBg: dynamicButtonBg,
+    buttonHoverBg: dynamicButtonHoverBg,
+    buttonColor: dynamicButtonColor,
+  } = getStatusStyles(status);
+
   return (
     <Box
       borderRadius="lg"
@@ -143,7 +176,8 @@ const LeadCard = ({
       transition="box-shadow 0.2s ease-in-out"
       display="flex"
       flexDirection="column"
-      border="1px solid #D8D8D9"
+      border="1px solid"
+      borderColor={borderColor}
     >
       <CardHeader id={id} />
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
@@ -152,8 +186,8 @@ const LeadCard = ({
             {name}
           </Text>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
+            <InfoPair label="City" value={city} />
             <InfoPair label="Country" value={country} />
-            <InfoPair label="Nationality" value={nationality} />
           </HStack>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <InputPair
@@ -193,14 +227,14 @@ const LeadCard = ({
             spacing={0}
           >
             <Button
-              bg={buttonBg}
-              color={buttonColor}
+              bg={dynamicButtonBg}
+              color={dynamicButtonColor}
               size="xs"
               width="100%"
-              maxWidth="250px"
+              maxWidth="200px"
               fontFamily="DM Sans"
               borderRadius="5px"
-              _hover={{ bg: buttonHoverBg }}
+              _hover={{ bg: dynamicButtonHoverBg }}
               flexShrink={0}
             >
               {displayButtonText}
@@ -210,84 +244,90 @@ const LeadCard = ({
         {/* Right Side */}
         <VStack
           align="start"
-          spacing={1}
+          spacing={2}
           flex="1"
           minWidth="0"
           h="100%"
           ml="15px"
+          justify="space-between" // Push Info to bottom
         >
-          <VStack align="start" spacing={0}>
-            <Text fontSize="10px" color="#c0c0c0" fontFamily="DM Sans">
-              Time To Call
-            </Text>
-            <Text
-              fontSize="13px"
-              color="#32BD00"
-              fontWeight="semibold"
-              fontFamily="DM Sans"
-            >
-              {timeToCall}
-            </Text>
-          </VStack>
-          <VStack align="start" spacing={0}>
-            <Text fontSize="10px" color="#d0d0d0" fontFamily="DM Sans">
-              Source Content
-            </Text>
-            <Text fontSize="12px" color="#FFBB00" fontFamily="DM Sans">
-              {sourceContent}
-            </Text>
-          </VStack>
-
-          <VStack h="70%" w="100%" justify="flex-end">
-            <VStack align="start" spacing={0} width="100%">
+          {/* Top Section: Time To Call and Source Content */}
+          <VStack align="start" spacing={2}>
+            <VStack align="start" spacing={0}>
               <Text
-                ml={{ md: "30px", lg: "48px" }}
                 fontSize="xs"
                 color="#AEBAC9"
                 fontWeight="bold"
                 fontFamily="DM Sans"
-                mb={1}
               >
-                Info
+                Time To Call
               </Text>
-              {[
-                { label: "Budget", value: "N/A" },
-                { label: "Campaign", value: "N/A" },
-                { label: "Campaign Url", value: "N/A" },
-                { label: "Medium", value: "N/A" },
-                { label: "In UAE?", value: "Yes" },
-              ].map((item) => (
-                <HStack
-                  key={item.label}
-                  lineHeight="20px"
-                  width="100%"
-                  justifyContent="space-between"
-                  spacing={0}
-                  marginBottom={-1}
-                >
-                  <Text
-                    ml={{ md: "30px", lg: "48px" }}
-                    fontSize="10px"
-                    color="black"
-                    fontWeight={500}
-                    fontFamily="DM Sans"
-                    marginBottom={0}
-                  >
-                    {item.label}
-                  </Text>
-                  <Tooltip label={item.value} placement="right" hasArrow>
-                    <span>
-                      <Icon
-                        as={InfoIcon}
-                        color="blue.300"
-                        boxSize={3.5}
-                        cursor="pointer"
-                      />
-                    </span>
-                  </Tooltip>
-                </HStack>
-              ))}
+              <Text fontSize="10px" color="#32BD00" fontFamily="DM Sans">
+                {timeToCall}
+              </Text>
             </VStack>
+            <VStack align="start" spacing={0}>
+              <Text
+                fontSize="xs"
+                color="#AEBAC9"
+                fontWeight="bold"
+                fontFamily="DM Sans"
+              >
+                Source Content
+              </Text>
+              <Text fontSize="10px" color="#FFBB00" fontFamily="DM Sans">
+                {sourceContent}
+              </Text>
+            </VStack>
+          </VStack>
+
+          {/* Bottom Section: Info */}
+          <VStack align="start" spacing={0} width="100%">
+            <Text
+              fontSize="xs"
+              color="#AEBAC9"
+              fontWeight="bold"
+              fontFamily="DM Sans"
+              mb={1}
+            >
+              Info
+            </Text>
+            {[
+              { label: "Budget", value: "N/A" },
+              { label: "Campaign", value: "N/A" },
+              { label: "Campaign Url", value: "N/A" },
+              { label: "Medium", value: "N/A" },
+              { label: "In UAE?", value: "Yes" },
+            ].map((item) => (
+              <HStack
+                key={item.label}
+                lineHeight="20px"
+                width="100%"
+                justifyContent="space-between"
+                spacing={0}
+                marginBottom={-1}
+              >
+                <Text
+                  fontSize="10px"
+                  color="black"
+                  fontWeight={500}
+                  fontFamily="DM Sans"
+                  marginBottom={0}
+                >
+                  {item.label}
+                </Text>
+                <Tooltip label={item.value} placement="right" hasArrow>
+                  <span>
+                    <Icon
+                      as={InfoIcon}
+                      color="blue.300"
+                      boxSize={3.5}
+                      cursor="pointer"
+                    />
+                  </span>
+                </Tooltip>
+              </HStack>
+            ))}
           </VStack>
         </VStack>
       </HStack>
