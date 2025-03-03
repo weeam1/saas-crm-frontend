@@ -183,6 +183,7 @@ const LeadsCards = () => {
 				setCurrentPage={setCurrentPage}
 				// hanldePage={handlePageChange}
 				pageSize={pageSize}
+				setPageSize={setPageSize}
 				queryParams={queryParams}
 				setQueryParams={setQueryParams}
 				addLead={addLead}

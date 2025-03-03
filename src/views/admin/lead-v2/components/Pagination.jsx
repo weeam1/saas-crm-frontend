@@ -5,6 +5,7 @@ import {
 	NumberInput,
 	NumberInputField,
 	Text,
+	Select,
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
@@ -16,8 +17,10 @@ const Pagination = ({
 	onPageChange,
 	totalItems,
 	itemsPerPage,
+	setPageSize,
 	refetching,
 	loading,
+	handlePageSize,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
@@ -75,7 +78,7 @@ const Pagination = ({
 			p={2}
 			gap='2'
 			flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
-			flexWrap='wrap' // ✅ Ensures proper wrapping
+			flexWrap='wrap'
 			bg='softGray.50'
 			border='1px solid'
 			borderColor='softGray.600'
@@ -85,7 +88,7 @@ const Pagination = ({
 				base: 'center',
 				md: 'space-between',
 				lg: 'space-between',
-			}} // ✅ Adjusts alignment
+			}}
 			width='100%'
 			maxWidth='100%'
 			fontSize={leadValueFontSize}
@@ -174,6 +177,24 @@ const Pagination = ({
 
 			{/* Next & Last Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
+				<Select
+					size='sm'
+					w={{ base: '32' }}
+					value={itemsPerPage}
+					color={'gray.800'}
+					bg={'softGray.400'}
+					borderRadius='md'
+					border='2px solid'
+					_focus={{ boxShadow: `0 0 0 1px softGray.500` }}
+					onChange={handlePageSize}
+				>
+					{[6, 12, 32, 50, 60, 50, 80, 100, 200].map((size) => (
+						<option key={size} value={size}>
+							Show {size}
+						</option>
+					))}
+				</Select>
+
 				<Button
 					{...buttonStyle}
 					onClick={handleNext}

@@ -65,8 +65,6 @@ const RightCard = ({ lead }) => {
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 
-	console.log({ hiddenFields });
-
 	return (
 		<Flex
 			// flex='1'

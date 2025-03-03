@@ -22,6 +22,7 @@ const Leads = ({
 	currentPage,
 	setCurrentPage,
 	pageSize,
+	setPageSize,
 	setQueryParams,
 	addLead,
 	setAddLead,
@@ -125,6 +126,11 @@ const Leads = ({
 		});
 	};
 
+	const handlePageSize = (e) => {
+		setPageSize(Number(e.target.value));
+		setRefetchLoading(true);
+	};
+
 	return (
 		<Box>
 			<Flex
@@ -141,8 +147,10 @@ const Leads = ({
 					onPageChange={handlePageChange}
 					totalItems={data?.totalLeads ?? ''}
 					itemsPerPage={pageSize}
+					setPageSize={setPageSize}
 					refetching={leadsRefetching}
 					loading={leadsLoading}
+					handlePageSize={handlePageSize}
 				/>
 
 				{/* Search Box */}

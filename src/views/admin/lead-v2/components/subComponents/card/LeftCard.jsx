@@ -47,16 +47,25 @@ const LeftCard = ({
 					cursor='pointer'
 				/>
 
-				<Text fontSize={leadlabelFontSize} color='softGray.200'>
-					{lead?.intID || 'N/A'}
-				</Text>
+				{!hiddenFields.includes('intID') && (
+					<Text fontSize={leadlabelFontSize} color='softGray.200'>
+						{lead?.intID || 'N/A'}
+					</Text>
+				)}
 			</Flex>
-			<HStack mb={2}>
-				<Text fontSize='12px' fontWeight='semibold' isTruncated maxWidth='6rem'>
-					{lead?.leadName || 'N/A'}
-				</Text>
-				<LeadTypeBadge leadType={leadType} roleName={role} />
-			</HStack>
+			{!hiddenFields.includes('leadName') && (
+				<HStack mb={2}>
+					<Text
+						fontSize='12px'
+						fontWeight='semibold'
+						isTruncated
+						maxWidth='6rem'
+					>
+						{lead?.leadName || 'N/A'}
+					</Text>
+					<LeadTypeBadge leadType={leadType} roleName={role} />
+				</HStack>
+			)}
 
 			<Grid
 				minWidth='100%'
@@ -64,21 +73,30 @@ const LeftCard = ({
 				alignItems='start'
 				gap={{ base: 4, md: 2 }}
 			>
-				<EntityField
-					label='Source Content'
-					value={lead.leadSourceDetails}
-					valueProps={{ color: '#FFBB00' }}
-					isInfo={true}
-				/>
-				<EntityField
-					label='Time to Call'
-					value='11:40 PM'
-					valueProps={{ color: 'green.600' }}
-				/>
+				<GridItem colSpan={2} display='flex'>
+					{!hiddenFields.includes('leadSourceDetails') && (
+						<EntityField
+							label='Source Content'
+							value={lead.leadSourceDetails}
+							valueProps={{ color: '#FFBB00' }}
+							isInfo={true}
+						/>
+					)}
+
+					{!hiddenFields.includes('timetocall') && (
+						<EntityField
+							label='Time to Call'
+							value={lead?.timetocall}
+							valueProps={{ color: 'green.600' }}
+						/>
+					)}
+				</GridItem>
 
 				{/* Manager */}
-				{role === 'superAdmin' && (
-					<GridItem>
+				{role === 'superAdmin' && !hiddenFields.includes('managerAssigned') && (
+					<GridItem
+						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+					>
 						<Managers
 							managerAssigned={lead?.managerAssigned}
 							lead={lead}
@@ -90,58 +108,68 @@ const LeftCard = ({
 				)}
 
 				{/* Agent */}
-				{['superAdmin', 'Manager'].includes(role) && (
-					<GridItem colSpan={role === 'Manager' ? '2' : '1'}>
-						<Agents
-							agentAssigned={lead?.agentAssigned}
-							managerAssigned={lead?.managerAssigned}
-							lead={lead}
-							refreshLeads={refreshLeads}
-						/>
+				{['superAdmin', 'Manager'].includes(role) &&
+					!hiddenFields.includes('agentAssigned') && (
+						<GridItem colSpan={role === 'Manager' ? '2' : '1'}>
+							<Agents
+								agentAssigned={lead?.agentAssigned}
+								managerAssigned={lead?.managerAssigned}
+								lead={lead}
+								refreshLeads={refreshLeads}
+							/>
+						</GridItem>
+					)}
+
+				{/* Main lead status */}
+				{!hiddenFields.includes('eLeadStatus') && (
+					<GridItem colSpan={hiddenFields.includes('leadStatus') ? '2' : '1'}>
+						<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
 					</GridItem>
 				)}
 
-				{/* Main lead status */}
-				<GridItem>
-					<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
-				</GridItem>
 				{/* Lead status */}
-				<GridItem>
-					<Status lead={lead} refreshLeads={refreshLeads} />
-				</GridItem>
+				{!hiddenFields.includes('leadStatus') && (
+					<GridItem colSpan={hiddenFields.includes('eLeadStatus') ? '2' : '1'}>
+						<Status lead={lead} refreshLeads={refreshLeads} />
+					</GridItem>
+				)}
 
-				{/* Phone */}
-				<GridItem>
-					<EntityField
-						label='Phone'
-						value={
-							typeof lead?.leadPhoneNumber === 'object'
-								? lead?.leadPhoneNumber?.result
-								: lead?.leadPhoneNumber
-						}
-						isCopy
-						valueProps={{ color: '#7667FF' }}
-					/>
-				</GridItem>
+				<GridItem colSpan={2} display='flex' justifyContent='space-between'>
+					{/* Phone */}
+					{!hiddenFields.includes('leadPhoneNumber') && (
+						<EntityField
+							label='Phone'
+							value={
+								typeof lead?.leadPhoneNumber === 'object'
+									? lead?.leadPhoneNumber?.result
+									: lead?.leadPhoneNumber
+							}
+							isCopy
+							valueProps={{ color: '#7667FF' }}
+						/>
+					)}
 
-				{/* WhatsApp */}
-				<GridItem>
-					<EntityField
-						label='WhatsApp'
-						value={
-							typeof lead.leadWhatsappNumber === 'object'
-								? lead.leadWhatsappNumber?.result
-								: lead.leadWhatsappNumber
-						}
-						isCopy
-						valueProps={{ color: 'green.700' }}
-					/>
+					{/* WhatsApp */}
+					{!hiddenFields.includes('leadWhatsappNumber') && (
+						<EntityField
+							label='WhatsApp'
+							value={
+								typeof lead.leadWhatsappNumber === 'object'
+									? lead.leadWhatsappNumber?.result
+									: lead.leadWhatsappNumber
+							}
+							isCopy
+							valueProps={{ color: 'green.700' }}
+						/>
+					)}
 				</GridItem>
 
 				{/* Last Note (occupy full width) */}
-				<GridItem colSpan={{ base: 1, md: 2 }}>
-					<LastNoteField label='Last Note' value={lead.lastNote} />
-				</GridItem>
+				{!hiddenFields.includes('lastNote') && (
+					<GridItem colSpan={{ base: 1, md: 2 }}>
+						<LastNoteField label='Last Note' value={lead.lastNote} />
+					</GridItem>
+				)}
 			</Grid>
 		</Box>
 	);
