@@ -676,6 +676,9 @@ export default function CheckTable(props) {
 			);
 
 			const r = await getApi(`api/user/view/${user?._id}`);
+
+			console.log('coins ', r?.data);
+
 			const response = await putApi(`api/user/edit/${user?._id}`, {
 				// ...r?.data,
 				coins:

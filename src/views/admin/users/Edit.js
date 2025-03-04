@@ -28,6 +28,7 @@ import { putApi } from 'services/api';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { jobTypes } from 'utils/options';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -40,7 +41,9 @@ const Edit = (props) => {
 		firstName: data ? data?.firstName : '',
 		lastName: data ? data?.lastName : '',
 		username: data ? data?.username : '',
-		agency: data ? data?.agency : '',
+		agency: data ? data?.agency?._id : '',
+		salary: data ? data?.salary : '',
+		salaryType: data ? data?.salaryType : '',
 		phoneNumber: data ? data?.phoneNumber : '',
 		parent: data ? data?.parent || '' : '',
 		target: data ? data?.target : '',
@@ -91,6 +94,7 @@ const Edit = (props) => {
 			setIsLoding(true);
 
 			const valuesObj = { ...values };
+			console.log({ valuesObj });
 			if (data?.roles[0]?.roleName === 'Manager') {
 				delete valuesObj['parent'];
 			}
@@ -112,8 +116,15 @@ const Edit = (props) => {
 					}
 
 					const updatedDataString = JSON.stringify(updatedUserData);
-					localStorage.setItem('user', updatedDataString);
+
 					dispatch(setUser(updatedDataString));
+				}
+
+				if (user?.role === 'superAdmin' && user?._id === props.selectedId) {
+					window.location.reload();
+					localStorage.removeItem('token');
+					localStorage.removeItem('user');
+					localStorage.removeItem('accessToken');
 				}
 
 				handleCloseModal();
@@ -130,7 +141,7 @@ const Edit = (props) => {
 	};
 
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
+		<Modal size='4xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
@@ -145,7 +156,7 @@ const Edit = (props) => {
 						gap={3}
 						p={4}
 					>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -172,7 +183,7 @@ const Edit = (props) => {
 								{errors.firstName && touched.firstName && errors.firstName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -199,7 +210,7 @@ const Edit = (props) => {
 								{errors.lastName && touched.lastName && errors.lastName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -223,11 +234,66 @@ const Edit = (props) => {
 								}
 							/>
 							<Text mb='10px' color={'red'}>
-								{' '}
 								{errors.username && touched.username && errors.username}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Salary Type
+							</FormLabel>
+							<Select
+								name='salaryType'
+								value={values.salaryType}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								placeholder='Select salary type'
+								borderColor={
+									errors.salaryType && touched.salaryType ? 'red.300' : null
+								}
+							>
+								{jobTypes?.map((job) => (
+									<option key={job.value} value={job.value}>
+										{job.label}
+									</option>
+								))}
+							</Select>
+
+							<Text mb='10px' color={'red'}>
+								{errors.salaryType && touched.salaryType && errors.salaryType}
+							</Text>
+						</GridItem>
+						<GridItem colSpan={{ base: 6 }}>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Salary
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								type='number'
+								min={0}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.salary}
+								name='salary'
+								fontWeight='500'
+								borderColor={errors.salary && touched.salary ? 'red.300' : null}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.salary && touched.salary && errors.salary}
+							</Text>
+						</GridItem>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -275,8 +341,7 @@ const Edit = (props) => {
 							</FormLabel>
 							<Select
 								name='agency'
-								// value={values.agency?._id || ''}
-								defaultValue={values.agency?._id || ''}
+								value={values.agency}
 								onChange={handleChange}
 								onBlur={handleBlur}
 								placeholder='Select agency'
@@ -288,6 +353,7 @@ const Edit = (props) => {
 									</option>
 								))}
 							</Select>
+
 							<Text mb='10px' color={'red'}>
 								{errors.agency && touched.agency && errors.agency}
 							</Text>
@@ -296,7 +362,7 @@ const Edit = (props) => {
 						{values &&
 							values?.roles &&
 							values?.roles[0]?.roleName === 'Agent' && (
-								<GridItem colSpan={{ base: 12 }}>
+								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'
 										ms='4px'
@@ -323,7 +389,7 @@ const Edit = (props) => {
 							)}
 						{(user?.role === 'superAdmin' ||
 							user?.roles[0]?.roleName === 'Manager') && (
-							<GridItem colSpan={{ base: 12 }}>
+							<GridItem colSpan={{ base: 6 }}>
 								<FormLabel
 									display='flex'
 									ms='4px'
@@ -350,7 +416,7 @@ const Edit = (props) => {
 						)}
 
 						{user?.role === 'superAdmin' && (
-							<GridItem colSpan={{ base: 12 }}>
+							<GridItem colSpan={{ base: 6 }}>
 								<FormLabel
 									display='flex'
 									ms='4px'

@@ -5,8 +5,10 @@ import Leads from './components/Leads';
 import {
 	Box,
 	Button,
+	Checkbox,
 	Flex,
 	HStack,
+	IconButton,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
@@ -18,6 +20,18 @@ import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import DateFilterButton from './components/DateFilterButton';
 import { useDispatch } from 'react-redux';
 import { updateLeads } from '../../../redux/leadsSlice';
+import { postApi } from 'services/api';
+import { toast } from 'react-toastify';
+import ManageColumns from './components/ManageColumns';
+import {
+	MdCheck,
+	MdCheckBox,
+	MdCheckBoxOutlineBlank,
+	MdSettings,
+} from 'react-icons/md';
+import { useSearchParams } from 'react-router-dom';
+import usePaginationParams from './usePaginationParams';
+import AllCheckBox from './AllCheckBox';
 // import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadsCards = () => {
@@ -27,7 +41,17 @@ const LeadsCards = () => {
 			? 'superAdmin'
 			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
-	const [currentPage, setCurrentPage] = useState(1);
+	const { currentPage, setCurrentPage, pageSize, setPageSize } =
+		usePaginationParams();
+
+	// const [currentPage, setCurrentPage] = useState(null);
+	// const [searchParams, setSearchParams] = useSearchParams();
+	// const [pageSize, setPageSize] = useState(null);
+	const [queryParams, setQueryParams] = useState({
+		page: currentPage,
+		pageSize,
+	});
+
 	const [addLead, setAddLead] = useState(false);
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -35,6 +59,12 @@ const LeadsCards = () => {
 	const [bulkAssign, setBulkAssign] = useState(false);
 	const [errorModal, setErrorModal] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
+	const [manageCols, setManageCols] = useState(false);
+
+	const hiddenFields = JSON.parse(
+		localStorage.getItem('userCustomColumns') || '[]'
+	);
+	const [hiddenCols, setHiddenCols] = useState(hiddenFields || []);
 
 	const dispatch = useDispatch();
 
@@ -43,12 +73,6 @@ const LeadsCards = () => {
 		onOpen: dateTimeOnOpen,
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
-
-	const [pageSize, setPageSize] = useState(32);
-	const [queryParams, setQueryParams] = useState({
-		page: currentPage,
-		pageSize,
-	});
 
 	const {
 		data: leads,
@@ -64,11 +88,10 @@ const LeadsCards = () => {
 		{ refetchOnMountOrArgChange: true }
 	);
 
-	// Update queryParams only when necessary
 	useEffect(() => {
 		setQueryParams((prev) => ({
 			...prev,
-			page: currentPage, // Keep page in sync
+			page: currentPage,
 		}));
 
 		setCurrentPage(currentPage);
@@ -77,19 +100,27 @@ const LeadsCards = () => {
 	useEffect(() => {
 		setQueryParams((prev) => ({
 			...prev,
-			pageSize, // Update limit when pageSize changes
+			pageSize,
 		}));
 		setPageSize(pageSize);
 	}, [pageSize]);
 
-	// Automatically refetch when queryParams change
 	useEffect(() => {
 		leadsRefetch({
 			path: '/lead/v2',
 			params: queryParams,
 		});
+
+		if (queryParams?.page === 1) {
+			setCurrentPage(1);
+		}
+
+		setSelectAllChecked(false);
+		setSelectedValues([]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [queryParams, leadsRefetch]);
 
+	console.log('data search: ', queryParams.data);
 	// Refresh data
 	const refreshLeads = () => {
 		leadsRefetch({
@@ -109,6 +140,27 @@ const LeadsCards = () => {
 			);
 		}
 	}, [currentPage, dispatch, leads, leadsRefetch, pageSize]);
+
+	const saveManageCols = async () => {
+		try {
+			const userHideColsData = {
+				userId: user._id,
+				columns: hiddenCols,
+			};
+
+			console.log({ userHideColsData, hiddenCols });
+
+			await postApi(`api/customColumns`, userHideColsData);
+
+			// Update local storage and state
+			localStorage.setItem('userCustomColumns', JSON.stringify(hiddenCols));
+		} catch (error) {
+			console.error('Error saving columns:', error);
+			toast.error(error.data.message || 'Manage columns not saving!');
+		} finally {
+			setManageCols(false);
+		}
+	};
 
 	if (leadsError) {
 		return (
@@ -153,6 +205,9 @@ const LeadsCards = () => {
 							aria-label='Bulk Assign'
 						>
 							Bulk Assign
+							{selectedValues?.length > 0
+								? ` (${selectedValues?.length})`
+								: null}
 						</Button>
 					)}
 
@@ -171,9 +226,27 @@ const LeadsCards = () => {
 						</Button>
 					)}
 
+					<IconButton
+						icon={<MdSettings />}
+						onClick={() => setManageCols(true)}
+						aria-label='Filter Date'
+						colorScheme='brand'
+						variant='solid'
+						size='sm'
+						borderRadius='full'
+						boxShadow='md'
+					/>
+
 					<DateFilterButton onClick={dateTimeOnOpen} />
 				</HStack>
 			</Flex>
+
+			<AllCheckBox
+				leads={leads}
+				setSelectAllChecked={setSelectAllChecked}
+				selectedValues={selectedValues}
+				setSelectedValues={setSelectedValues}
+			/>
 			<Leads
 				data={leads}
 				leadsLoading={leadsLoading}
@@ -214,6 +287,16 @@ const LeadsCards = () => {
 					isOpen={errorModal}
 					onClose={() => setErrorModal(false)}
 					errorLeadData={errorLeadData}
+				/>
+			)}
+
+			{manageCols && (
+				<ManageColumns
+					setManageCols={setManageCols}
+					manageCols={manageCols}
+					hiddenCols={hiddenCols}
+					setHiddenCols={setHiddenCols}
+					saveManageCols={saveManageCols}
 				/>
 			)}
 		</Box>

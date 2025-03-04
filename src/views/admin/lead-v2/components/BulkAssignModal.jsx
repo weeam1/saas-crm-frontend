@@ -139,7 +139,9 @@ const BulkAssignModal = (props) => {
 			>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Bulk Assign</ModalHeader>
+					<ModalHeader>
+						Bulk Assign ({selectedValues?.length} Leads)
+					</ModalHeader>
 					<ModalBody>
 						<ModalCloseButton onClick={closeHandler} />
 						<ManagerAgentImport
