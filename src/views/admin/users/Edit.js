@@ -275,7 +275,8 @@ const Edit = (props) => {
 							</FormLabel>
 							<Select
 								name='agency'
-								value={values.agency?._id}
+								// value={values.agency?._id || ''}
+								defaultValue={values.agency?._id || ''}
 								onChange={handleChange}
 								onBlur={handleBlur}
 								placeholder='Select agency'
