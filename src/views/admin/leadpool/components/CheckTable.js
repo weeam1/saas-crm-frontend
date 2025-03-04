@@ -677,15 +677,17 @@ export default function CheckTable(props) {
 
 			const r = await getApi(`api/user/view/${user?._id}`);
 
-			console.log('coins ', r?.data);
+			const coinsDeduct =
+				allData?.find((lead) => lead?._id === leadID)?.leadStatus === 'new'
+					? r?.data?.coins - 300
+					: r?.data?.coins - 50;
 
 			const response = await putApi(`api/user/edit/${user?._id}`, {
 				// ...r?.data,
-				coins:
-					allData?.find((lead) => lead?._id === leadID)?.leadStatus === 'new'
-						? r?.data?.coins - 300
-						: r?.data?.coins - 50,
+				coins: coinsDeduct,
 			});
+
+			setUserCoins(coinsDeduct);
 
 			toast.success('You have successfully purchased');
 			// fetchData();
