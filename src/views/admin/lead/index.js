@@ -122,9 +122,10 @@ const Index = () => {
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 	const [selectedColumns, setSelectedColumns] = useState(
-		roleColumns[role].filter(
-			(c) => hiddenFields.includes(c.accessor) === false
-		) || tableColumns.filter((c) => hiddenFields.includes(c.accessor) === false)
+		roleColumns[role]?.filter(
+			(c) => hiddenFields?.includes(c.accessor) === false
+		) ||
+			tableColumns?.filter((c) => hiddenFields?.includes(c.accessor) === false)
 	);
 
 	const [action, setAction] = useState(false);
@@ -139,14 +140,6 @@ const Index = () => {
 	const dataColumn = dynamicColumns?.filter((item) =>
 		selectedColumns?.find((colum) => colum?.Header === item.Header)
 	);
-
-	console.log({
-		dataColumn,
-		selectedColumns,
-		dynamicColumns,
-		hiddenFields,
-		tableColumns,
-	});
 
 	const fetchData = async (pageNo = 1, pageSize = 30) => {
 		setIsLoding(true);
@@ -195,10 +188,10 @@ const Index = () => {
 				const parsedData = JSON.parse(cachedData);
 				setHideColumns(parsedData || []);
 				setSelectedColumns(
-					roleColumns[role].filter(
+					roleColumns[role]?.filter(
 						(c) => parsedData.includes(c.accessor) === false
 					) ||
-						tableColumns.filter(
+						tableColumns?.filter(
 							(c) => parsedData.includes(c.accessor) === false
 						)
 				);
@@ -212,10 +205,10 @@ const Index = () => {
 					const customCols = data?.doc?.columns;
 					setHideColumns(customCols);
 					setSelectedColumns(
-						roleColumns[role].filter(
+						roleColumns[role]?.filter(
 							(c) => customCols.includes(c.accessor) === false
 						) ||
-							tableColumns.filter(
+							tableColumns?.filter(
 								(c) => customCols.includes(c.accessor) === false
 							)
 					);
