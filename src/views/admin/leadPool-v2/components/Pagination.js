@@ -82,7 +82,6 @@ const Pagination = () => {
         width="100%"
         flexWrap={{ base: "wrap", lg: "nowrap" }}
       >
-        {/* Pagination Controls Box */}
         <Box
           bg="softGray.50"
           border="1px solid"
@@ -99,9 +98,8 @@ const Pagination = () => {
             alignItems="center"
             width="100%"
             gap={{ base: 2, md: 3 }}
-            flexWrap={{ base: "wrap", md: "wrap" }} // Enable wrapping on md and base
+            flexWrap={{ base: "wrap", md: "wrap" }}
           >
-            {/* Left Side: First and Previous Buttons */}
             <HStack spacing={2} flexShrink={0}>
               <Button
                 {...buttonStyle}
@@ -111,7 +109,7 @@ const Pagination = () => {
                 bg="softGray.600"
                 color="black"
                 py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }} // Reduced padding for md
+                px={{ base: 2, md: 4 }}
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
@@ -129,7 +127,7 @@ const Pagination = () => {
                 bg="softGray.600"
                 color="black"
                 py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }} // Reduced padding for md
+                px={{ base: 2, md: 4 }}
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
               >
@@ -137,7 +135,6 @@ const Pagination = () => {
               </Button>
             </HStack>
 
-            {/* Middle: Go To and Showing */}
             <Flex
               direction={{ base: "column", md: "row" }}
               flex="1"
@@ -145,7 +142,7 @@ const Pagination = () => {
               alignItems="center"
               gap={{ base: 2, md: 3 }}
               width={{ base: "100%", md: "auto" }}
-              flexWrap={{ md: "wrap" }} // Allow wrapping on md
+              flexWrap={{ md: "wrap" }}
             >
               <HStack spacing={1} fontWeight="medium" color="gray.800">
                 <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
@@ -200,7 +197,6 @@ const Pagination = () => {
               </Text>
             </Flex>
 
-            {/* Right Side: Next and Last Buttons */}
             <HStack spacing={2} flexShrink={0}>
               <Button
                 {...buttonStyle}
@@ -210,7 +206,7 @@ const Pagination = () => {
                 bg="softGray.600"
                 color="black"
                 py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }} // Reduced padding for md
+                px={{ base: 2, md: 4 }}
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
               >
@@ -224,7 +220,7 @@ const Pagination = () => {
                 bg="softGray.600"
                 color="black"
                 py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }} // Reduced padding for md
+                px={{ base: 2, md: 4 }}
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
               >
@@ -234,7 +230,6 @@ const Pagination = () => {
           </Flex>
         </Box>
 
-        {/* Search Box */}
         <Box
           bg="softGray.50"
           border="1px solid"

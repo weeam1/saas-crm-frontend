@@ -12,10 +12,11 @@ import { BiX } from "react-icons/bi";
 const SearchBox = () => {
   return (
     <Box
-      // alignSelf='end'
       width={{ base: "100%", lg: "fit-content" }}
       bg="softGray.50"
       borderRadius="md"
+      display="flex"
+      justifyContent={{ base: "center", md: "center", lg: "end" }}
     >
       <HStack spacing={1} flexDirection={{ base: "column", md: "row" }}>
         {/* Search Input & Button */}
@@ -24,8 +25,7 @@ const SearchBox = () => {
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          // width={{ base: '100%', md: '18rem' }}
-          w="300px"
+          w={{ base: "100%", md: "300px" }}
           overflow="hidden"
         >
           <Input
@@ -52,8 +52,7 @@ const SearchBox = () => {
           </InputRightElement>
         </InputGroup>
 
-        <HStack gap="2">
-          {/* Advance Search Button */}
+        <HStack gap="1">
           <Button
             border="1px solid"
             borderColor="softGray.600"

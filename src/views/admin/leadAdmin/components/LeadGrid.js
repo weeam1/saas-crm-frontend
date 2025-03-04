@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Grid, useBreakpointValue } from "@chakra-ui/react";
-import LeadCard from "./LeadCard";
+import LeadCard from "../Leads/LeadCard";
 
 const LeadGrid = ({ leads }) => {
   const templateColumns = useBreakpointValue({

@@ -17,17 +17,22 @@ import TabContent from "./TabContent";
 import { leadValueFontSize } from "./constants";
 import LeadsProgress from "./LeadProgress";
 
-const Pagination = () => {
-  const totalPages = 10;
-  const totalItems = 100;
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
+const Pagination = ({
+  leads,
+  currentPage,
+  setCurrentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+}) => {
+  console.log(leads, "leads data");
+
   const [gotoPage, setGotoPage] = useState(currentPage || "");
   const [activeTab, setActiveTab] = useState("All");
-  const [totalLeads, setTotalLeads] = useState(0);
+  const [totalLeads, setTotalLeads] = useState(totalItems);
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+  const startIndex = (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, totalItems);
 
   const handleFirst = () => {
     setCurrentPage(1);
@@ -69,7 +74,7 @@ const Pagination = () => {
   };
 
   return (
-    <Box width="100%" bg="white" borderRadius="8px">
+    <Box width="100%" bg="white" p={5} borderRadius="10px">
       <LeadsProgress totalLeads={totalLeads} />
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -81,27 +86,24 @@ const Pagination = () => {
         width="100%"
         flexWrap={{ base: "wrap", lg: "nowrap" }}
       >
-        {/* Pagination Controls Box */}
         <Box
           bg="softGray.50"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          p={{ base: 2, md: 3, lg: 5 }} // Increased padding on lg
+          p={{ base: 2, md: 3 }}
           width={{ base: "100%", md: "100%", lg: "auto" }}
           flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "300px" }}
-          minHeight={{ lg: "80px" }} // Added minHeight for lg screens
         >
           <Flex
             direction={{ base: "column", md: "row" }}
             justifyContent={{ base: "center", md: "space-between" }}
             alignItems="center"
             width="100%"
-            gap={{ base: 2, md: 3, lg: 4 }} // More spacing on lg
+            gap={{ base: 2, md: 3 }}
             flexWrap={{ base: "wrap", md: "wrap" }}
           >
-            {/* Left Side: First and Previous Buttons */}
             <HStack spacing={2} flexShrink={0}>
               <Button
                 {...buttonStyle}
@@ -110,8 +112,8 @@ const Pagination = () => {
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2, lg: 3 }} // Increased padding for lg
-                px={{ base: 2, md: 4, lg: 6 }} // Increased width for lg
+                py={{ base: 1, md: 2 }}
+                px={{ base: 2, md: 4 }}
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
@@ -128,8 +130,8 @@ const Pagination = () => {
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2, lg: 3 }} // Increased padding for lg
-                px={{ base: 2, md: 4, lg: 6 }} // Increased width for lg
+                py={{ base: 1, md: 2 }}
+                px={{ base: 2, md: 4 }}
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
               >
@@ -137,18 +139,17 @@ const Pagination = () => {
               </Button>
             </HStack>
 
-            {/* Middle: Go To and Showing */}
             <Flex
               direction={{ base: "column", md: "row" }}
               flex="1"
               justifyContent={{ base: "center", md: "space-around" }}
               alignItems="center"
-              gap={{ base: 2, md: 3, lg: 4 }}
+              gap={{ base: 2, md: 3 }}
               width={{ base: "100%", md: "auto" }}
               flexWrap={{ md: "wrap" }}
             >
               <HStack spacing={1} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "xs", md: "sm", lg: "md" }}>Go to</Text>
+                <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
                   onChange={(valueString) =>
@@ -158,27 +159,40 @@ const Pagination = () => {
                   min={1}
                   size="sm"
                   borderRadius="md"
-                  width="6rem"
+                  width="5rem"
                   bg="softGray.50"
                   border="1px solid softGray.600"
+                  allowMouseWheel={false}
+                  clampValueOnBlur={false}
                 >
                   <NumberInputField
                     aria-label="Go to page"
                     textAlign="center"
                     borderRadius="md"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleGoToBlur();
+                      }
+                    }}
                     border="2px solid"
                     borderColor="softGray.600"
-                    _focus={{ outline: "none", borderColor: "brand.500" }}
-                    fontSize={{ base: "sm", md: "md", lg: "lg" }} // Increased font size for lg
+                    _focus={{
+                      outline: "none",
+                      bg: "softGray.50",
+                      border: "1px solid",
+                      borderColor: "brand.500",
+                    }}
+                    _active={{ bg: "softGray.400" }}
+                    fontSize={leadValueFontSize}
                   />
                 </NumberInput>
-                <Text fontSize={{ base: "xs", md: "sm", lg: "md" }}>
+                <Text fontSize={{ base: "xs", md: "sm" }}>
                   of {Number(totalPages).toLocaleString()}
                 </Text>
               </HStack>
 
               <Text
-                fontSize={{ base: "xs", md: "sm", lg: "md" }}
+                fontSize={{ base: "xs", md: "sm" }}
                 fontWeight="medium"
                 color="gray.800"
                 textAlign={{ base: "center", md: "left" }}
@@ -187,7 +201,6 @@ const Pagination = () => {
               </Text>
             </Flex>
 
-            {/* Right Side: Next and Last Buttons */}
             <HStack spacing={2} flexShrink={0}>
               <Button
                 {...buttonStyle}
@@ -196,8 +209,8 @@ const Pagination = () => {
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2, lg: 3 }}
-                px={{ base: 2, md: 4, lg: 6 }}
+                py={{ base: 1, md: 2 }}
+                px={{ base: 2, md: 4 }}
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
               >
@@ -210,8 +223,8 @@ const Pagination = () => {
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2, lg: 3 }}
-                px={{ base: 2, md: 4, lg: 6 }}
+                py={{ base: 1, md: 2 }}
+                px={{ base: 2, md: 4 }}
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
               >
@@ -221,7 +234,6 @@ const Pagination = () => {
           </Flex>
         </Box>
 
-        {/* Search Box */}
         <Box
           bg="softGray.50"
           border="1px solid"
@@ -241,7 +253,11 @@ const Pagination = () => {
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
 
       <Box mt={4}>
-        <TabContent activeTab={activeTab} onTotalLeadsChange={setTotalLeads} />
+        <TabContent
+          activeTab={activeTab}
+          onTotalLeadsChange={setTotalLeads}
+          leadsdata={leads}
+        />
       </Box>
     </Box>
   );

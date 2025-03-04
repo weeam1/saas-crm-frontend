@@ -34,7 +34,7 @@ const InfoPair = ({ label, value, color = "#ff0307" }) => (
       {label}
     </Text>
     <Text fontSize="10px" color={color} fontFamily="DM Sans">
-      {value}
+      {value || "N/A"}
     </Text>
   </VStack>
 );
@@ -53,7 +53,7 @@ const InputPair = ({
     <InputGroup w={width}>
       <Input
         size="xs"
-        value={value}
+        value={value || "N/A"}
         h="1.3rem"
         bg={bg}
         color={color}
@@ -104,21 +104,21 @@ const ContactPair = ({ label, value, color }) => (
       color={color}
       fontFamily="DM Sans"
     >
-      {value}
+      {value || "N/A"}
     </Text>
   </VStack>
 );
 
 const LeadCard = ({
   id,
-  name,
-  country,
+  leadName,
+  nationality,
   city,
   sourceContent,
   timeToCall,
   mStatus,
-  status,
-  phone,
+  approvalStatus,
+  leadPhoneNumber,
   approved,
   whatsapp,
   leadTime,
@@ -143,7 +143,7 @@ const LeadCard = ({
           buttonHoverBg: "#D32F2F",
           buttonColor: "white",
         };
-      case "approved":
+      case "accepted":
         return {
           borderColor: "#34c759",
           buttonBg: "#34C759",
@@ -165,13 +165,13 @@ const LeadCard = ({
     buttonBg: dynamicButtonBg,
     buttonHoverBg: dynamicButtonHoverBg,
     buttonColor: dynamicButtonColor,
-  } = getStatusStyles(status);
+  } = getStatusStyles(approvalStatus);
 
   const renderActionSection = () => {
-    const statusLower = status?.toLowerCase();
+    const statusLower = approvalStatus?.toLowerCase();
 
     if (tab === "All") {
-      if (statusLower === "approved") {
+      if (statusLower === "accepted") {
         return (
           <VStack width="100%" spacing={1} align="start">
             <HStack spacing={1}>
@@ -180,7 +180,7 @@ const LeadCard = ({
               </Text>
             </HStack>
             <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
-              {approved}
+              {approved || "N/A"}
             </Text>
             <Box
               bg="#4BFF79"
@@ -251,7 +251,7 @@ const LeadCard = ({
           </HStack>
         );
       }
-    } else if (tab === "Approved") {
+    } else if (tab === "Accepted") {
       return (
         <Box bg="#4BFF79" w="100%" p={1} borderRadius="5px" textAlign="center">
           <Text
@@ -260,7 +260,7 @@ const LeadCard = ({
             fontWeight="bold"
             fontFamily="DM Sans"
           >
-            Approved
+            Accepted
           </Text>
         </Box>
       );
@@ -313,11 +313,11 @@ const LeadCard = ({
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
         <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
           <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
-            {name}
+            {leadName || "N/A"}
           </Text>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <InfoPair label="City" value={city} />
-            <InfoPair label="Country" value={country} />
+            <InfoPair label="Country" value={nationality} />
           </HStack>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <InputPair
@@ -328,13 +328,17 @@ const LeadCard = ({
             />
             <InputPair
               label="Status"
-              value={status}
+              value={approvalStatus}
               bg="#FEEFEE"
               color="black"
             />
           </HStack>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
-            <ContactPair label="Phone" value={phone} color="#7869FF" />
+            <ContactPair
+              label="Phone"
+              value={leadPhoneNumber}
+              color="#7869FF"
+            />
             <ContactPair label="WhatsApp" value={whatsapp} color="#32BD00" />
           </HStack>
           <VStack align="start" spacing={0} width="100%">
@@ -344,7 +348,7 @@ const LeadCard = ({
               </Text>
             </HStack>
             <Text fontSize="xs" color="gray.500" fontFamily="DM Sans">
-              {requested}
+              {requested || "N/A"}
             </Text>
           </VStack>
           <VStack
@@ -378,7 +382,7 @@ const LeadCard = ({
                 Time To Call
               </Text>
               <Text fontSize="10px" color="#32BD00" fontFamily="DM Sans">
-                {timeToCall}
+                {timeToCall || "N/A"}
               </Text>
             </VStack>
             <VStack align="start" spacing={0}>
@@ -391,7 +395,7 @@ const LeadCard = ({
                 Source Content
               </Text>
               <Text fontSize="10px" color="#FFBB00" fontFamily="DM Sans">
-                {sourceContent}
+                {sourceContent || "N/A"}
               </Text>
             </VStack>
           </VStack>
@@ -446,7 +450,7 @@ const LeadCard = ({
       </HStack>
       <HStack width="100%" justifyContent="flex-end" mt={1}>
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {leadTime}
+          Lead time: {leadTime || "N/A"}
         </Text>
       </HStack>
     </Box>

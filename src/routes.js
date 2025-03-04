@@ -137,7 +137,7 @@ const AttendanceDashboard = React.lazy(
   () => import("views/admin/attendenceEmp/components/dashboard")
 );
 //leadpool v2
-const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
+// const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
 const LeadPoolAdmin = React.lazy(() => import("views/admin/leadAdmin"));
 
 const routes = [
@@ -240,15 +240,7 @@ const routes = [
     parentName: "Attendence",
     component: Attendance,
   },
-  {
-    name: "Leads Pool v2",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/leadpoolv2",
-    icon: (
-      <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
-    ),
-    component: LeadPoolVersion2,
-  },
+
   {
     name: "Leads Pool Admin",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
