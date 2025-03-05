@@ -177,7 +177,6 @@ const LeadsCards = () => {
 			rounded='md'
 			shadow='sm'
 			fontFamily="'DM Sans', sans-serif"
-			// bg='softGray.800'
 			bg='white'
 			width='100%'
 		>
@@ -193,6 +192,13 @@ const LeadsCards = () => {
 
 				{/* Action buttons only for Admins */}
 				<HStack gap='2'>
+					<AllCheckBox
+						leads={leads}
+						setSelectAllChecked={setSelectAllChecked}
+						selectedValues={selectedValues}
+						setSelectedValues={setSelectedValues}
+					/>
+
 					{['superAdmin', 'Manager'].includes(role) && (
 						<Button
 							{...buttonStyle}
@@ -241,12 +247,6 @@ const LeadsCards = () => {
 				</HStack>
 			</Flex>
 
-			<AllCheckBox
-				leads={leads}
-				setSelectAllChecked={setSelectAllChecked}
-				selectedValues={selectedValues}
-				setSelectedValues={setSelectedValues}
-			/>
 			<Leads
 				data={leads}
 				leadsLoading={leadsLoading}

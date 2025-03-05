@@ -2,11 +2,14 @@ import { formattedDate } from 'utils/helpers';
 import { leadlabelFontSize } from './constants';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
-import { Box, Flex, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, Icon, Tooltip, useBreakpointValue } from '@chakra-ui/react';
 import LeadMenu from './subComponents/card/LeadMenu';
 import { memo, useCallback, useEffect, useState } from 'react';
 
 import './checkbox.css';
+import { MdNoteAdd } from 'react-icons/md';
+import NewNoteModal from './NewNoteModal';
+import { FaPen } from 'react-icons/fa';
 
 const LeadCard = memo(
 	({
@@ -33,6 +36,8 @@ const LeadCard = memo(
 		});
 
 		const user = JSON.parse(localStorage.getItem('user'));
+
+		const [addNote, setAddNote] = useState(false);
 
 		const [localChecked, setLocalChecked] = useState(
 			selectedValues.includes(lead?._id)
@@ -66,6 +71,10 @@ const LeadCard = memo(
 				? 'superAdmin'
 				: (user?.roles?.[0]?.roleName ?? 'unknown');
 
+		const hiddenFields = JSON.parse(
+			localStorage.getItem('userCustomColumns') || '[]'
+		);
+
 		return (
 			<>
 				<Box
@@ -90,6 +99,14 @@ const LeadCard = memo(
 						alignItems='center'
 						gap={2}
 					>
+						<Icon
+							as={FaPen}
+							boxSize='14px'
+							onClick={() => setAddNote(true)}
+							color='gray.400'
+							cursor='pointer'
+						/>
+
 						<label className='custom-checkbox'>
 							<input
 								type='checkbox'
@@ -129,17 +146,29 @@ const LeadCard = memo(
 						/>
 						<RightCard lead={lead} />
 					</Flex>
-					<Box
-						textAlign='right'
-						width='full'
-						fontSize={leadlabelFontSize}
-						color='gray.900'
-					>
-						<span style={{ color: 'softGray.200', marginRight: '4px' }}>
-							Lead time
-						</span>
-						{formattedDate(lead?.createdDate) || 'N/A'}
-					</Box>
+					{!hiddenFields.includes('createdDate') && (
+						<Box
+							textAlign='right'
+							width='full'
+							fontSize={leadlabelFontSize}
+							color='gray.900'
+						>
+							<span style={{ color: 'softGray.200', marginRight: '4px' }}>
+								Lead time
+							</span>
+							{formattedDate(lead?.createdDate) || 'N/A'}
+						</Box>
+					)}
+
+					{addNote && (
+						<NewNoteModal
+							isOpen={addNote}
+							onClose={() => setAddNote(false)}
+							paramId={lead._id}
+							setNoteAdded={setAddNote}
+							reFreshData={refreshLeads}
+						/>
+					)}
 				</Box>
 			</>
 		);

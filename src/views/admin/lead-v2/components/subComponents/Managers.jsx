@@ -117,34 +117,6 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 					onChange={handleChangeManager}
 				/>
 			)}
-
-			{/* <FormControl>
-				<Select
-					placeholder={'Select'}
-					size={leadSelectInputSize}
-					fontSize={leadSelectInputFontSize}
-					borderColor={borderColor}
-					focusBorderColor={focusBorderColor}
-					color={textColor}
-					bg={bgColor}
-					_hover={{ borderColor: focusBorderColor }}
-					_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
-					borderRadius='md'
-					sx={{
-						option: {
-							bg: dropdownBg,
-							color: 'gray.800',
-							_hover: { bg: dropdownHoverBg },
-						},
-					}}
-				>
-					{list?.managers.map((opt) => (
-						<option key={opt._id} value={opt._id}>
-							{opt.name}
-						</option>
-					))}
-				</Select>
-			</FormControl> */}
 		</>
 	);
 };

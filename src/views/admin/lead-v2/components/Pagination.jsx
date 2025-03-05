@@ -188,7 +188,7 @@ const Pagination = ({
 					_focus={{ boxShadow: `0 0 0 1px softGray.500` }}
 					onChange={handlePageSize}
 				>
-					{[6, 12, 32, 50, 60, 50, 80, 100, 200].map((size) => (
+					{[6, 12, 32, 50, 60, 80, 100, 150, 200].map((size) => (
 						<option key={size} value={size}>
 							Show {size}
 						</option>

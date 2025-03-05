@@ -13,6 +13,7 @@ import SearchTags from './SearchTags';
 import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
+// import VirtualLeads from './VirtualLeads';
 
 const Leads = ({
 	data,
@@ -55,7 +56,7 @@ const Leads = ({
 			const timer = setTimeout(() => setIsLoaded(true), 700);
 			return () => clearTimeout(timer);
 		}
-	}, [leadsLoading, currentPage]); // Runs only when loading state or page changes
+	}, [leadsLoading, currentPage]);
 
 	useEffect(() => {
 		if (!leadsRefetching) {
@@ -86,7 +87,6 @@ const Leads = ({
 	const handleClear = () => {
 		setSearchTags([]);
 		searchTermRef.current = '';
-		// Reset input value in DOM
 		document.getElementById('searchInput').value = '';
 		setIsFormReset(true);
 		setSearchClear(false);
@@ -120,7 +120,7 @@ const Leads = ({
 	// Handle page changes
 	const handlePageChange = (page) => {
 		setCurrentPage((prevPage) => {
-			if (prevPage === page) return prevPage; // Prevent unnecessary updates
+			if (prevPage === page) return prevPage;
 			setRefetchLoading(true);
 			return page;
 		});
@@ -164,35 +164,6 @@ const Leads = ({
 
 			{/* Search tags */}
 			{searchClear && searchTags && (
-				// <Flex
-				// 	flexDirection={{ base: 'column-reverse', lg: 'row' }}
-				// 	justifyContent='space-between'
-				// 	alignItems={{ base: 'start' }}
-				// 	py='2'
-				// >
-				// 	<SearchTags searchTags={searchTags} />
-
-				// 	{searchClear && (
-				// 		<Button
-				// 			{...buttonStyle}
-				// 			variant='solid'
-				// 			bg='red.400'
-				// 			w='fit-content'
-				// 			color='white'
-				// 			alignSelf='end'
-				// 			sx={{
-				// 				svg: {
-				// 					fill: 'white',
-				// 				},
-				// 			}}
-				// 			leftIcon={<BiX />}
-				// 			aria-label='Clear'
-				// 			onClick={handleClear}
-				// 		>
-				// 			Clear
-				// 		</Button>
-				// 	)}
-				// </Flex>
 				<Flex
 					flexDirection={{ base: 'row', lg: 'row' }}
 					justifyContent='space-between'
@@ -229,9 +200,8 @@ const Leads = ({
 
 			{!isLoaded || leadsLoading || refetchLoading ? (
 				<CardLoader count={pageSize} />
-			) : leads && leads?.totalLeads > 0 ? (
+			) : leads && leads?.totalLeads ? (
 				<Grid
-					// Use the `sx` prop to apply custom media queries
 					sx={{
 						// >= 0px
 						'@media (min-width: 0px)': {
@@ -295,6 +265,24 @@ const Leads = ({
 					))}
 				</Grid>
 			) : (
+				// <VirtualLeads
+				// 	leads={leads}
+				// 	refreshLeads={refreshLeads}
+				// 	emailAccess={emailAccess}
+				// 	permission={permission}
+				// 	setLeadDetails={setLeadDetails}
+				// 	callAccess={callAccess}
+				// 	setViewLead={setViewLead}
+				// 	queryParams={queryParams}
+				// 	setEditLead={setEditLead}
+				// 	setAddLead={setAddLead}
+				// 	setSendEmail={setSendEmail}
+				// 	selectedValues={selectedValues}
+				// 	setSelectedValues={setSelectedValues}
+				// 	setDeleteLead={setDeleteLead}
+				// 	setSelectAllChecked={setSelectAllChecked}
+				// 	selectAllChecked={selectAllChecked}
+				// />
 				<NoData />
 			)}
 
@@ -334,7 +322,6 @@ const Leads = ({
 				<AdvancedSearchModal
 					advanceSearch={advanceSearch}
 					setAdvanceSearch={setAdvanceSearch}
-					// setFormValues={setFormValues}
 					setQueryParams={setQueryParams}
 					setGetTagValues={setSearchTags}
 					setSearchClear={setSearchClear}

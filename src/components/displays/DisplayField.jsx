@@ -22,7 +22,7 @@ const DisplayField = ({ label, value }) => {
 				maxH='200px' // Set a maximum height for the box
 				overflowY='auto' // Enable vertical scrolling
 			>
-				{value ?? 'N/A'}
+				{value === undefined || value === null || value === '' ? 'N/A' : value}
 			</Box>
 		</Box>
 	);
