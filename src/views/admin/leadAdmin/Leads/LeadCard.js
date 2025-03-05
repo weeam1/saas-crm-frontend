@@ -17,11 +17,11 @@ import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 
 const CardHeader = ({ id }) => (
-  <HStack justifyContent="space-between" w="100%" mb={1}>
-    <HStack>
+  <HStack justify="space-between" w="100%" mb={1}>
+    <HStack spacing={1}>
       <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
       <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
-        {id}
+        {id || "N/A"}
       </Text>
     </HStack>
     <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
@@ -29,11 +29,11 @@ const CardHeader = ({ id }) => (
 );
 
 const InfoPair = ({ label, value, color = "#ff0307" }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
+  <VStack align="start" spacing={0} flex="1" minW={0}>
     <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
       {label}
     </Text>
-    <Text fontSize="10px" color={color} fontFamily="DM Sans">
+    <Text fontSize="10px" color={color} fontFamily="DM Sans" isTruncated>
       {value || "N/A"}
     </Text>
   </VStack>
@@ -46,7 +46,7 @@ const InputPair = ({
   color,
   width = { base: "60px", md: "70px" },
 }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
+  <VStack align="start" spacing={0} flex="1" minW={0}>
     <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
       {label}
     </Text>
@@ -65,7 +65,7 @@ const InputPair = ({
         _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
         _hover={{ borderColor: "#B79045" }}
         pr="1.5rem"
-        disabled={true}
+        isDisabled
         pl={label === "Status" ? "3px" : undefined}
       />
       <InputRightElement
@@ -83,8 +83,8 @@ const InputPair = ({
 );
 
 const ContactPair = ({ label, value, color }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
-    <HStack>
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <HStack spacing={1}>
       <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
         {label}
       </Text>
@@ -94,15 +94,15 @@ const ContactPair = ({ label, value, color }) => (
           color="gray.500"
           cursor="pointer"
           boxSize={3}
-          ml={0.5}
           onClick={() => handleCopy(value)}
         />
       </Tooltip>
     </HStack>
     <Text
-      fontSize={label === "Phone" ? "sm" : "xs"}
+      fontSize={label === "Phone" ? "12px" : "xs"}
       color={color}
       fontFamily="DM Sans"
+      isTruncated
     >
       {value || "N/A"}
     </Text>
@@ -110,7 +110,7 @@ const ContactPair = ({ label, value, color }) => (
 );
 
 const LeadCard = ({
-  id,
+  leadId,
   leadName,
   nationality,
   city,
@@ -118,10 +118,10 @@ const LeadCard = ({
   timeToCall,
   mStatus,
   approvalStatus,
-  leadPhoneNumber,
+  // leadPhoneNumber,
   approved,
-  whatsapp,
-  leadTime,
+  // whatsapp,
+  createdDate,
   requested,
   tab = "All",
   onAccept,
@@ -152,20 +152,16 @@ const LeadCard = ({
         };
       default:
         return {
-          borderColor: "#c73434",
-          buttonBg: "#34C759",
-          buttonHoverBg: "#32BD00",
-          buttonColor: "white",
+          borderColor: "#cdcdcd",
+          buttonBg: "#FFEB3B",
+          buttonHoverBg: "#FFB300",
+          buttonColor: "black",
         };
     }
   };
 
-  const {
-    borderColor,
-    buttonBg: dynamicButtonBg,
-    buttonHoverBg: dynamicButtonHoverBg,
-    buttonColor: dynamicButtonColor,
-  } = getStatusStyles(approvalStatus);
+  const { borderColor, buttonBg, buttonHoverBg, buttonColor } =
+    getStatusStyles(approvalStatus);
 
   const renderActionSection = () => {
     const statusLower = approvalStatus?.toLowerCase();
@@ -173,12 +169,10 @@ const LeadCard = ({
     if (tab === "All") {
       if (statusLower === "accepted") {
         return (
-          <VStack width="100%" spacing={1} align="start">
-            <HStack spacing={1}>
-              <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
-                Approved on
-              </Text>
-            </HStack>
+          <VStack w="100%" spacing={1} align="start">
+            <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
+              Approved on
+            </Text>
             <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
               {approved || "N/A"}
             </Text>
@@ -226,8 +220,8 @@ const LeadCard = ({
               bg="#3FFC6E"
               color="white"
               size="xs"
-              width="50%"
-              maxWidth="100px"
+              w="50%"
+              maxW="100px"
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#32BD00" }}
@@ -239,8 +233,8 @@ const LeadCard = ({
               bg="#FF6363"
               color="white"
               size="xs"
-              width="50%"
-              maxWidth="100px"
+              w="50%"
+              maxW="100px"
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#D32F2F" }}
@@ -277,7 +271,7 @@ const LeadCard = ({
           </Text>
         </Box>
       );
-    } else if (tab === "Pending" || statusLower === "pending") {
+    } else if (tab === "Pending") {
       return (
         <Box bg="#FFEB3B" w="100%" p={1} borderRadius="5px" textAlign="center">
           <Text
@@ -296,30 +290,35 @@ const LeadCard = ({
   return (
     <Box
       borderRadius="lg"
-      p="3"
-      height="320px"
+      p={3}
+      车型
+      w="100%"
+      h="320px"
       overflow="hidden"
-      flex="wrap"
+      bg="white"
+      border="1px solid"
+      borderColor={borderColor}
+      transition="box-shadow 0.2s ease-in-out"
       _hover={{
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
-      transition="box-shadow 0.2s ease-in-out"
-      display="flex"
-      flexDirection="column"
-      border="1px solid"
-      borderColor={borderColor}
     >
-      <CardHeader id={id} />
-      <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
-        <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
-          <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
+      <CardHeader id={leadId} />
+      <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="1">
+        <VStack align="start" spacing={2} flex="2" w="60%" minW={0}>
+          <Text
+            fontSize="12px"
+            fontWeight="bold"
+            fontFamily="DM Sans"
+            isTruncated
+          >
             {leadName || "N/A"}
           </Text>
-          <HStack spacing={0.5} w="100%" flexWrap="wrap">
+          <HStack spacing={2} w="100%">
             <InfoPair label="City" value={city} />
             <InfoPair label="Country" value={nationality} />
           </HStack>
-          <HStack spacing={0.5} w="100%" flexWrap="wrap">
+          <HStack spacing={2} w="100%">
             <InputPair
               label="M Status"
               value={mStatus}
@@ -333,42 +332,34 @@ const LeadCard = ({
               color="black"
             />
           </HStack>
-          <HStack spacing={0.5} w="100%" flexWrap="wrap">
-            <ContactPair
-              label="Phone"
-              value={leadPhoneNumber}
-              color="#7869FF"
-            />
+          {/* <HStack spacing={2} w="100%">
+            <ContactPair label="Phone" value={leadPhoneNumber} color="#7869FF" />
             <ContactPair label="WhatsApp" value={whatsapp} color="#32BD00" />
-          </HStack>
-          <VStack align="start" spacing={0} width="100%">
-            <HStack>
-              <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
-                Requested by
-              </Text>
-            </HStack>
-            <Text fontSize="xs" color="gray.500" fontFamily="DM Sans">
+          </HStack> */}
+          <VStack align="start" spacing={0} height="3rem" w="100%">
+            <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
+              Requested by
+            </Text>
+            <Text
+              fontSize="xs"
+              color="gray.500"
+              fontFamily="DM Sans"
+              isTruncated
+            >
               {requested || "N/A"}
             </Text>
           </VStack>
-          <VStack
-            h="auto"
-            w="100%"
-            align="start"
-            justify="center"
-            flex="1"
-            spacing={0}
-          >
+          <Box flex="1" w="100%" display="flex" alignItems="flex-end">
             {renderActionSection()}
-          </VStack>
+          </Box>
         </VStack>
         <VStack
           align="start"
           spacing={2}
           flex="1"
-          minWidth="0"
+          w="40%"
+          minW={0}
           h="100%"
-          ml="15px"
           justify="space-between"
         >
           <VStack align="start" spacing={2}>
@@ -381,7 +372,12 @@ const LeadCard = ({
               >
                 Time To Call
               </Text>
-              <Text fontSize="10px" color="#32BD00" fontFamily="DM Sans">
+              <Text
+                fontSize="10px"
+                color="#32BD00"
+                fontFamily="DM Sans"
+                isTruncated
+              >
                 {timeToCall || "N/A"}
               </Text>
             </VStack>
@@ -394,18 +390,22 @@ const LeadCard = ({
               >
                 Source Content
               </Text>
-              <Text fontSize="10px" color="#FFBB00" fontFamily="DM Sans">
+              <Text
+                fontSize="10px"
+                color="#FFBB00"
+                fontFamily="DM Sans"
+                isTruncated
+              >
                 {sourceContent || "N/A"}
               </Text>
             </VStack>
           </VStack>
-          <VStack align="start" spacing={0} width="100%">
+          <VStack align="start" spacing={1} w="100%">
             <Text
               fontSize="xs"
               color="#AEBAC9"
               fontWeight="bold"
               fontFamily="DM Sans"
-              mb={1}
             >
               Info
             </Text>
@@ -418,39 +418,35 @@ const LeadCard = ({
             ].map((item) => (
               <HStack
                 key={item.label}
-                lineHeight="20px"
-                width="100%"
-                justifyContent="space-between"
+                w="100%"
+                justify="space-between"
                 spacing={0}
-                marginBottom={-1}
+                lineHeight="18px"
               >
                 <Text
                   fontSize="10px"
                   color="black"
                   fontWeight={500}
                   fontFamily="DM Sans"
-                  marginBottom={0}
                 >
                   {item.label}
                 </Text>
                 <Tooltip label={item.value} placement="right" hasArrow>
-                  <span>
-                    <Icon
-                      as={InfoIcon}
-                      color="blue.300"
-                      boxSize={3.5}
-                      cursor="pointer"
-                    />
-                  </span>
+                  <Icon
+                    as={InfoIcon}
+                    color="blue.300"
+                    boxSize={3.5}
+                    cursor="pointer"
+                  />
                 </Tooltip>
               </HStack>
             ))}
           </VStack>
         </VStack>
       </HStack>
-      <HStack width="100%" justifyContent="flex-end" mt={1}>
+      <HStack w="100%" justify="flex-end" mt={1}>
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {leadTime || "N/A"}
+          Lead time: {createdDate || "N/A"}
         </Text>
       </HStack>
     </Box>

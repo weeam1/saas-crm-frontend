@@ -8,6 +8,7 @@ import {
   Flex,
   Box,
   Divider,
+  Select,
 } from "@chakra-ui/react";
 import { FaPlay } from "react-icons/fa";
 import { IoPlaySkipForwardSharp } from "react-icons/io5";
@@ -16,6 +17,7 @@ import Tabs from "./Tabs";
 import TabContent from "./TabContent";
 import { leadValueFontSize } from "./constants";
 import LeadsProgress from "./LeadProgress";
+import ClearAdvancedSearchButton from "./ClearButton";
 
 const Pagination = ({
   leads,
@@ -24,35 +26,48 @@ const Pagination = ({
   totalPages,
   totalItems,
   pageSize,
+  onPageSizeChange,
+  activeTab,
+  setActiveTab,
+  loading,
+  searchQuery,
+  setSearchQuery,
+  fetchAdvancedSearch,
+  setSearchClear,
+  setFormValues,
+  isFormReset,
+  setIsFormReset,
+  setGetTagValues,
+  clearAdvancedSearch,
 }) => {
-  console.log(leads, "leads data");
-
   const [gotoPage, setGotoPage] = useState(currentPage || "");
-  const [activeTab, setActiveTab] = useState("All");
-  const [totalLeads, setTotalLeads] = useState(totalItems);
 
-  const startIndex = (currentPage - 1) * pageSize + 1;
+  const totalPagesForTab = Math.max(1, totalPages);
+  const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
 
   const handleFirst = () => {
     setCurrentPage(1);
     setGotoPage(1);
   };
+
   const handlePrevious = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       setGotoPage(currentPage - 1);
     }
   };
+
   const handleNext = () => {
-    if (currentPage < totalPages) {
+    if (currentPage < totalPagesForTab) {
       setCurrentPage(currentPage + 1);
       setGotoPage(currentPage + 1);
     }
   };
+
   const handleLast = () => {
-    setCurrentPage(totalPages);
-    setGotoPage(totalPages);
+    setCurrentPage(totalPagesForTab);
+    setGotoPage(totalPagesForTab);
   };
 
   const handleGoToChange = (value) => {
@@ -60,7 +75,7 @@ const Pagination = ({
   };
 
   const handleGoToBlur = () => {
-    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
+    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPagesForTab));
     setCurrentPage(page);
     setGotoPage(page);
   };
@@ -75,7 +90,7 @@ const Pagination = ({
 
   return (
     <Box width="100%" bg="white" p={5} borderRadius="10px">
-      <LeadsProgress totalLeads={totalLeads} />
+      <LeadsProgress totalLeads={totalItems} />
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <Flex
@@ -152,11 +167,10 @@ const Pagination = ({
                 <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
-                  onChange={(valueString) =>
-                    setGotoPage(Number(valueString) || "")
-                  }
+                  onChange={handleGoToChange}
                   onBlur={handleGoToBlur}
                   min={1}
+                  max={totalPagesForTab}
                   size="sm"
                   borderRadius="md"
                   width="5rem"
@@ -187,8 +201,23 @@ const Pagination = ({
                   />
                 </NumberInput>
                 <Text fontSize={{ base: "xs", md: "sm" }}>
-                  of {Number(totalPages).toLocaleString()}
+                  of {Number(totalPagesForTab).toLocaleString()}
                 </Text>
+              </HStack>
+
+              <HStack>
+                <Text fontSize={{ base: "xs", md: "sm" }}>Items per page:</Text>
+                <Select
+                  size="sm"
+                  value={pageSize}
+                  onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                  width="70px"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </Select>
               </HStack>
 
               <Text
@@ -205,7 +234,9 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={currentPage === totalPages}
+                isDisabled={
+                  currentPage === totalPagesForTab || totalItems === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -219,7 +250,9 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={currentPage === totalPages}
+                isDisabled={
+                  currentPage === totalPagesForTab || totalItems === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -246,18 +279,29 @@ const Pagination = ({
           maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
-          <SearchBox />
+          <SearchBox
+            onSearch={setSearchQuery}
+            searchQuery={searchQuery}
+            fetchAdvancedSearch={fetchAdvancedSearch}
+            setSearchClear={setSearchClear}
+            setFormValues={setFormValues}
+            isFormReset={isFormReset}
+            setIsFormReset={setIsFormReset}
+            pageSize={pageSize}
+            setGetTagValues={setGetTagValues}
+            loading={loading}
+            clearAdvancedSearch={clearAdvancedSearch}
+          />
         </Box>
       </Flex>
-
+      {/* <ClearAdvancedSearchButton
+        clearAdvancedSearch={clearAdvancedSearch}
+        loading={loading}
+      /> */}
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
 
       <Box mt={4}>
-        <TabContent
-          activeTab={activeTab}
-          onTotalLeadsChange={setTotalLeads}
-          leadsdata={leads}
-        />
+        <TabContent activeTab={activeTab} leadsdata={leads} loading={loading} />
       </Box>
     </Box>
   );

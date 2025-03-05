@@ -1,8 +1,22 @@
-import { Button, HStack, Box, Flex } from "@chakra-ui/react";
+import {
+  Button,
+  HStack,
+  Box,
+  Flex,
+  VStack,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 // import DatePicker from "./DateFilter";
 
 const Tabs = ({ activeTab, setActiveTab }) => {
-  const tabs = ["All", "Pending", "Approved","Rejected"];
+  const tabs = ["All", "Pending", "Approved", "Rejected"];
+
+  // Dynamic button width for responsiveness
+  const buttonWidth = useBreakpointValue({
+    base: "100%",
+    sm: "140px",
+    md: "160px",
+  });
 
   return (
     <Box width="100%">
@@ -13,15 +27,21 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         width="100%"
         flexWrap="wrap"
         gap={{ base: 2, md: 0 }}
+        flexDirection={{ base: "column", md: "row" }} // Stack on small screens
       >
-        {/* Tabs on the left */}
-        <HStack spacing={1}>
+        {/* Tabs Section */}
+        <HStack
+          spacing={2}
+          flexWrap="wrap"
+          justify={{ base: "center", md: "start" }}
+          width="100%"
+        >
           {tabs.map((tab) => (
             <Button
-              borderRadius="6px"
-              w="160px"
-              h="42px"
               key={tab}
+              borderRadius="6px"
+              w={buttonWidth}
+              h="42px"
               onClick={() => setActiveTab(tab)}
               bg={activeTab === tab ? "#b79045" : "white"}
               color={activeTab === tab ? "white" : "black"}
@@ -36,7 +56,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           ))}
         </HStack>
 
-        {/* DatePicker on the right */}
+        {/* DatePicker Section (Uncomment when needed) */}
         {/* <DatePicker /> */}
       </Flex>
     </Box>
