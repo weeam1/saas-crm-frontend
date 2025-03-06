@@ -39,12 +39,15 @@ const Pagination = ({
   setIsFormReset,
   setGetTagValues,
   clearAdvancedSearch,
+  formValues = {}, 
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || "");
 
   const totalPagesForTab = Math.max(1, totalPages);
   const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
+
+  const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
 
   const handleFirst = () => {
     setCurrentPage(1);
@@ -234,9 +237,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={
-                  currentPage === totalPagesForTab || totalItems === 0
-                }
+                isDisabled={currentPage === totalPagesForTab || totalItems === 0}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -250,9 +251,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={
-                  currentPage === totalPagesForTab || totalItems === 0
-                }
+                isDisabled={currentPage === totalPagesForTab || totalItems === 0}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -294,10 +293,12 @@ const Pagination = ({
           />
         </Box>
       </Flex>
-      {/* <ClearAdvancedSearchButton
-        clearAdvancedSearch={clearAdvancedSearch}
-        loading={loading}
-      /> */}
+      {isSearchActive && ( 
+        <ClearAdvancedSearchButton
+          clearAdvancedSearch={clearAdvancedSearch}
+          loading={loading}
+        />
+      )}
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
 
       <Box mt={4}>

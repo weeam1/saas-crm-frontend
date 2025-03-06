@@ -7,10 +7,12 @@ import missingFilesReducer from './missingFilesSlice';
 import webSocketReducer from './webSocketReducer';
 import positionsReducer from './positionsSlice';
 import usersReducer from './usersSlice';
+import leadsReducer from './leadSlice';
 import { apiSlice } from 'api/apiSlice';
 
 const store = configureStore({
 	reducer: {
+		leads: leadsReducer,
 		roles: roleReducer,
 		positions: positionsReducer,
 		users: usersReducer,

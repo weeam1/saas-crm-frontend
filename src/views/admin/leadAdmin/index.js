@@ -16,9 +16,13 @@ const LeadScreen = () => {
   };
 
   const getInitialPageSize = () => {
-    return sessionStorage.getItem("pageSize")
-      ? parseInt(sessionStorage.getItem("pageSize"))
-      : 50;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sizeFromUrl = urlParams.get("pageSize");
+    return sizeFromUrl
+      ? parseInt(sizeFromUrl)
+      : sessionStorage.getItem("pageSize")
+        ? parseInt(sessionStorage.getItem("pageSize"))
+        : 50;
   };
 
   const getInitialTab = () => {
@@ -52,20 +56,35 @@ const LeadScreen = () => {
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
 
-  const fetchLeads = async () => {
+  const updateUrlAndStorage = () => {
+    const urlParams = new URLSearchParams();
+    urlParams.set("tab", activeTab);
+    urlParams.set("page", currentPage);
+    urlParams.set("pageSize", pageSize);
+    if (searchQuery) urlParams.set("search", searchQuery);
+
+    window.history.replaceState({}, "", `?${urlParams.toString()}`);
+    sessionStorage.setItem("activeTab", activeTab);
+    sessionStorage.setItem("currentPage", currentPage);
+    sessionStorage.setItem("pageSize", pageSize);
+    sessionStorage.setItem("searchQuery", searchQuery);
+  };
+
+  const fetchLeads = async (tab = activeTab) => {
+    // Add tab parameter with default value
     try {
       setLoading(true);
       setError(null);
 
       const queryParams = new URLSearchParams();
 
-      if (activeTab !== "All") {
+      if (tab !== "All") {
         const statusMap = {
           Pending: "pending",
           Approved: "accepted",
           Rejected: "rejected",
         };
-        queryParams.append("approvalStatus", statusMap[activeTab]);
+        queryParams.append("approvalStatus", statusMap[tab]);
       }
       queryParams.append("page", currentPage);
       queryParams.append("pageSize", pageSize);
@@ -82,6 +101,8 @@ const LeadScreen = () => {
         setSearchQuery("");
         setFormValues({});
         setGetTagValues([]);
+        setActiveTab(tab); // Ensure activeTab is updated here
+        updateUrlAndStorage();
       }
     } catch (err) {
       setError(err.message || "Failed to fetch leads");
@@ -118,9 +139,10 @@ const LeadScreen = () => {
       setTotalPages(result.data?.totalPages || 0);
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
-      setLoading(false);
+      updateUrlAndStorage();
     } catch (err) {
       setError(err.message || "Failed to fetch searched leads");
+    } finally {
       setLoading(false);
     }
   };
@@ -159,9 +181,11 @@ const LeadScreen = () => {
       setTotalPages(result.data?.totalPages || 0);
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
-      setLoading(false);
+      setFormValues(data);
+      updateUrlAndStorage();
     } catch (err) {
       setError(err.message || "Failed to fetch advanced search leads");
+    } finally {
       setLoading(false);
     }
   };
@@ -176,10 +200,26 @@ const LeadScreen = () => {
   };
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabFromUrl = urlParams.get("tab");
+    const sizeFromUrl = urlParams.get("pageSize");
+
+    if (!tabFromUrl && !sizeFromUrl) {
+      setActiveTab("All");
+      setPageSize(50);
+      const initialParams = new URLSearchParams();
+      initialParams.set("tab", "All");
+      initialParams.set("page", currentPage);
+      initialParams.set("pageSize", 50);
+      window.history.replaceState({}, "", `?${initialParams.toString()}`);
+      sessionStorage.setItem("activeTab", "All");
+      sessionStorage.setItem("pageSize", "50");
+    }
+
     if (!displayAdvSearchData && !displaySearchData) {
       fetchLeads();
     }
-  }, [currentPage, pageSize, activeTab]);
+  }, [currentPage, pageSize]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -187,6 +227,8 @@ const LeadScreen = () => {
       fetchAdvancedSearch(formValues, newPage, pageSize);
     } else if (displaySearchData) {
       fetchSearchedData(searchQuery, newPage, pageSize);
+    } else {
+      fetchLeads();
     }
   };
 
@@ -197,16 +239,18 @@ const LeadScreen = () => {
       fetchAdvancedSearch(formValues, 1, newSize);
     } else if (displaySearchData) {
       fetchSearchedData(searchQuery, 1, newSize);
+    } else {
+      fetchLeads();
     }
   };
 
   const handleTabChange = (newTab) => {
-    setActiveTab(newTab);
     setCurrentPage(1);
     setDisplayAdvSearchData(false);
     setDisplaySearchData(false);
     setSearchedData([]);
     setSearchQuery("");
+    fetchLeads(newTab); // Pass newTab directly to fetchLeads
   };
 
   const handleSearch = (query) => {
@@ -252,6 +296,7 @@ const LeadScreen = () => {
           setIsFormReset={setIsFormReset}
           setGetTagValues={setGetTagValues}
           clearAdvancedSearch={clearAdvancedSearch}
+          formValues={formValues}
         />
       )}
     </div>
