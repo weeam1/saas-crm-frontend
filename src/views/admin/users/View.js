@@ -31,13 +31,14 @@ import Add from './Add';
 import Delete from './Delete';
 import Edit from './Edit';
 import RoleTable from './components/roleTable';
-import { LiaCriticalRole } from 'react-icons/lia';
 import RoleModal from './components/roleModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { constant } from 'constant';
 
-import DefaultUserImage from 'assets/img/avatars/user.jpg';
+// import DefaultUserImage from 'assets/img/avatars/user.jpg';
+import DefaultUserImage from 'assets/logo/logo.png';
+
 import Loader from 'components/loading/Loader';
 import DisplayField from 'components/displays/DisplayField';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -82,6 +83,22 @@ const View = () => {
 	const [roleModal, setRoleModal] = useState(false);
 	const [isLoding, setIsLoding] = useState(false);
 	const [action, setAction] = useState(false);
+
+	const [preview, setPreview] = useState(DefaultUserImage);
+
+	useEffect(() => {
+		if (data?.profileImage && typeof data?.profileImage === 'string') {
+			const imageUrl = `${constant['baseUrl']}${data?.profileImage}`;
+
+			const img = new window.Image();
+			img.src = imageUrl;
+
+			img.onload = () => setPreview(imageUrl);
+			img.onerror = () => setPreview(DefaultUserImage);
+		} else {
+			setPreview(DefaultUserImage);
+		}
+	}, [data?.profileImage]);
 
 	const size = 'lg';
 
@@ -213,18 +230,14 @@ const View = () => {
 								<Box
 									position='relative'
 									display='inline-block'
-									w={{ base: '80px', md: '120px' }}
-									h={{ base: '80px', md: '120px' }}
+									w={{ base: '80px', md: '160px' }}
+									h={{ base: '80px', md: '160px' }}
 									borderRadius='full'
 									overflow='hidden'
 									boxShadow='lg'
 								>
 									<Image
-										src={
-											data?.profileImage
-												? `${constant['baseUrl']}${data?.profileImage}`
-												: DefaultUserImage
-										}
+										src={preview}
 										alt='Profile'
 										w='full'
 										h='full'

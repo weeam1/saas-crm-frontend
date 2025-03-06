@@ -186,7 +186,7 @@ const Edit = (props) => {
 				</ModalHeader>
 				<ModalBody>
 					<Grid
-						h={isAdmin ? '60vh' : '45vh'}
+						h={isAdmin ? '60vh' : '50vh'}
 						overflow={'scroll'}
 						templateColumns='repeat(12, 1fr)'
 						gap={3}
