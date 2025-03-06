@@ -424,34 +424,31 @@ const Edit = (props) => {
 										))}
 									</Select>
 								</GridItem>
-							</>
-						)}
-						{(user?.role === 'superAdmin' ||
-							user?.roles[0]?.roleName === 'Manager') && (
-							<GridItem colSpan={{ base: 6 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Revenue Target
-								</FormLabel>
-								<InputGroup>
-									<Input
-										type='number'
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
 										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.target}
-										name='target'
 										fontWeight='500'
-										placeholder='Revenue Target'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-							</GridItem>
+										mb='8px'
+									>
+										Revenue Target
+									</FormLabel>
+									<InputGroup>
+										<Input
+											type='number'
+											fontSize='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.target}
+											name='target'
+											fontWeight='500'
+											placeholder='Revenue Target'
+											borderRadius='16px'
+										/>
+									</InputGroup>
+								</GridItem>
+							</>
 						)}
 
 						{isAdmin && (

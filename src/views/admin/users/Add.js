@@ -25,16 +25,44 @@ import React, { useEffect, useState } from 'react';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
-import { userSchema } from 'schema';
+// import { userSchema } from 'schema';
 import { useSelector } from 'react-redux';
 import { getApi } from 'services/api';
 import { postApi } from 'services/api';
+import * as Yup from 'yup';
 import { useragencys } from 'utils/options';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { useCreateItemMutation } from 'api/apiSlice';
+import ImageUpload from './components/ImageUpload';
+
+const userValidationSchema = Yup.object().shape({
+	firstName: Yup.string().required('First name is required'),
+	lastName: Yup.string().required('Last name is required'),
+	username: Yup.string()
+		.email('Invalid email format')
+		.required('Email is required'),
+	password: Yup.string()
+		.min(6, 'Password must be at least 6 characters')
+		.required('Password is required'),
+	role: Yup.string().required('Role is required'),
+	agency: Yup.string().required('Agency is required'),
+
+	phoneNumber: Yup.string(),
+	parent: Yup.string(),
+	nationality: Yup.string(),
+	dob: Yup.date(),
+	educationDegree: Yup.string(),
+	passportNum: Yup.string(),
+	uaeIdNum: Yup.string(),
+	dubaiHomeAddress: Yup.string(),
+	drivingLicense: Yup.string(),
+	countryHomeAddress: Yup.string(),
+	countryPhoneNum: Yup.string(),
+	profileImage: Yup.string(),
+});
 
 const AddUser = (props) => {
 	const { onClose, isOpen, setAction } = props;
-	const [isLoding, setIsLoding] = useState(false);
 	const [roles, setRoles] = useState([]);
 
 	const tree = useSelector((state) => state.user);
@@ -51,6 +79,7 @@ const AddUser = (props) => {
 		lastName: '',
 		username: '',
 		phoneNumber: '',
+		profileImage: '',
 		password: '',
 		role: '',
 		parent: '',
@@ -68,7 +97,7 @@ const AddUser = (props) => {
 
 	const formik = useFormik({
 		initialValues: initialValues,
-		validationSchema: userSchema,
+		validationSchema: userValidationSchema,
 		onSubmit: (values, { resetForm }) => {
 			AddData();
 			resetForm();
@@ -88,33 +117,41 @@ const AddUser = (props) => {
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
+	const [createItemMutation, { isLoading }] = useCreateItemMutation();
+
+	console.log({ errors });
+
 	const AddData = async () => {
 		try {
-			setIsLoding(true);
-			const formValues = { ...values };
-
+			const valuesObj = { ...values };
 			if (user?.roles[0]?.roleName === 'Manager') {
-				formValues['parent'] = user?._id?.toString();
-				formValues['role'] = roles
-					?.find((role) => role?.roleName === 'Agent')
-					?._id?.toString();
-			} else {
-				if (
-					roles.find((role) => role?._id === values.role)?.roleName === 'Agent'
-				) {
-					formValues['parent'] = values.parent;
+				delete valuesObj['parent'];
+			}
+
+			console.log({ valuesObj });
+
+			const formData = new FormData();
+
+			Object.keys(valuesObj).forEach((key) => {
+				if (key === 'profileImage' && valuesObj[key] instanceof File) {
+					formData.append(key, valuesObj[key]);
+				} else if (key === 'roles' && Array.isArray(valuesObj[key])) {
+					valuesObj[key].forEach((role, index) => {
+						formData.append(`roles[${index}]`, role.roleName);
+					});
+				} else {
+					formData.append(key, valuesObj[key]);
 				}
-			}
+			});
 
-			if (!formValues['parent']) {
-				delete formValues['parent'];
-			}
+			// let response = await postApi('api/user/register', formValues);
 
-			if (values['role']) {
-				formValues['roles'] = [values.role?.toString()];
-			}
+			let response = await createItemMutation({
+				path: '/user/v2/register',
+				body: formData,
+				formData: true,
+			});
 
-			let response = await postApi('api/user/register', formValues);
 			if (response && response.status === 200) {
 				props.onClose();
 				setAction((pre) => !pre);
@@ -123,8 +160,6 @@ const AddUser = (props) => {
 			}
 		} catch (e) {
 			console.log(e);
-		} finally {
-			setIsLoding(false);
 		}
 	};
 
@@ -149,10 +184,16 @@ const AddUser = (props) => {
 					<Grid
 						h={'60vh'}
 						overflow={'scroll'}
-						pr={'4'}
 						templateColumns='repeat(12, 1fr)'
 						gap={3}
+						p={4}
 					>
+						<GridItem colSpan={12}>
+							<ImageUpload
+								profileImage={values?.profileImage}
+								formik={formik}
+							/>
+						</GridItem>
 						<GridItem colSpan={{ base: 12 }}>
 							<FormLabel
 								display='flex'
@@ -288,6 +329,8 @@ const AddUser = (props) => {
 									onChange={handleChange}
 									onBlur={handleBlur}
 									placeholder='Select Role'
+									borderColor={errors.role && touched.role ? 'red.300' : null}
+									className={errors.role && touched.role ? 'isInvalid' : null}
 								>
 									{roles?.map((role) => (
 										<option key={role?._id} value={role?._id}>
@@ -295,6 +338,9 @@ const AddUser = (props) => {
 										</option>
 									))}
 								</Select>
+								<Text mb='10px' color='red'>
+									{errors.role && touched.role && errors.role}
+								</Text>
 							</GridItem>
 						)}
 						{roles.find((role) => role?._id === values.role)?.roleName ===
@@ -693,10 +739,10 @@ const AddUser = (props) => {
 					<Button
 						variant='brand'
 						size='sm'
-						disabled={isLoding ? true : false}
+						disabled={isLoading ? true : false}
 						onClick={handleSubmit}
 					>
-						{isLoding ? <Spinner /> : 'Save'}
+						{isLoading ? <Spinner /> : 'Save'}
 					</Button>
 					<Button
 						sx={{

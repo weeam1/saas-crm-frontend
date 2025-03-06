@@ -194,6 +194,8 @@ export default function CheckTable(props) {
 	});
 	const handleClear = () => {
 		setDisplaySearchData(false);
+		setSearchbox('');
+		setGetTagValues([]);
 	};
 
 	useEffect(() => {
@@ -318,8 +320,6 @@ export default function CheckTable(props) {
 									ms={2}
 									onClick={() => {
 										handleClear();
-										setSearchbox('');
-										setGetTagValues([]);
 									}}
 								>
 									clear
@@ -332,6 +332,7 @@ export default function CheckTable(props) {
 									onClick={() => setDelete(true)}
 									color={'red'}
 									ms={2}
+									cursor='pointer'
 								/>
 							)}
 						</Flex>
@@ -415,6 +416,9 @@ export default function CheckTable(props) {
 						url='api/user/deleteMany'
 						data={selectedValues}
 						method='many'
+						const
+						handleClear={handleClear}
+						fetchData={fetchData}
 					/>
 				)}
 
