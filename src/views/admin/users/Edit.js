@@ -109,14 +109,20 @@ const Edit = (props) => {
 			const formData = new FormData();
 
 			Object.keys(valuesObj).forEach((key) => {
-				if (key === 'profileImage' && valuesObj[key] instanceof File) {
-					formData.append(key, valuesObj[key]);
-				} else if (key === 'roles' && Array.isArray(valuesObj[key])) {
-					valuesObj[key].forEach((role, index) => {
-						formData.append(`roles[${index}]`, role.roleName);
+				const value = valuesObj[key];
+
+				if (value === undefined || value === null || value === '') return;
+
+				if (key === 'profileImage' && value instanceof File) {
+					formData.append(key, value);
+				} else if (key === 'roles' && Array.isArray(value)) {
+					value.forEach((role, index) => {
+						if (role.roleName) {
+							formData.append(`roles[${index}]`, role.roleName);
+						}
 					});
 				} else {
-					formData.append(key, valuesObj[key]);
+					formData.append(key, value);
 				}
 			});
 
@@ -124,6 +130,8 @@ const Edit = (props) => {
 			// 	`api/user/edit/${props.selectedId}`,
 			// 	valuesObj
 			// );
+
+			console.log({ formData });
 
 			let response = await updateItemMutation({
 				path: `/user/v2/edit/${props.selectedId}`,
@@ -133,7 +141,7 @@ const Edit = (props) => {
 
 			if (response && response.data.modifiedCount) {
 				setEdit(false);
-				let updatedUserData = userData; // Create a copy of userData
+				let updatedUserData = userData;
 				if (user?._id === props.selectedId) {
 					if (updatedUserData && typeof updatedUserData === 'object') {
 						// Create a new object with the updated firstName
@@ -149,7 +157,7 @@ const Edit = (props) => {
 					dispatch(setUser(updatedDataString));
 				}
 
-				if (user?.role === 'superAdmin' && user?._id === props.selectedId) {
+				if (user?._id === props.selectedId && values.password) {
 					window.location.reload();
 					localStorage.removeItem('token');
 					localStorage.removeItem('user');
@@ -418,7 +426,7 @@ const Edit = (props) => {
 										placeholder='Select Manager'
 									>
 										{tree?.tree?.managers?.map((manager) => (
-											<option value={manager?._id}>
+											<option key={manager?._id} value={manager?._id}>
 												{manager?.firstName + ' ' + manager?.lastName}
 											</option>
 										))}
