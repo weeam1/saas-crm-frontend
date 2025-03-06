@@ -5,7 +5,6 @@ import Leads from './components/Leads';
 import {
 	Box,
 	Button,
-	Checkbox,
 	Flex,
 	HStack,
 	IconButton,
@@ -23,13 +22,7 @@ import { updateLeads } from '../../../redux/leadsSlice';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import ManageColumns from './components/ManageColumns';
-import {
-	MdCheck,
-	MdCheckBox,
-	MdCheckBoxOutlineBlank,
-	MdSettings,
-} from 'react-icons/md';
-import { useSearchParams } from 'react-router-dom';
+import { MdSettings } from 'react-icons/md';
 import usePaginationParams from './usePaginationParams';
 import AllCheckBox from './AllCheckBox';
 // import CardsLoading from 'components/loading/CardsLoading';

@@ -100,7 +100,7 @@ const LeadCard = memo(
 							as={FaPen}
 							boxSize='14px'
 							onClick={() => setAddNote(true)}
-							color='gray.400'
+							color='gray.500'
 							cursor='pointer'
 						/>
 

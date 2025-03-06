@@ -100,7 +100,6 @@ const AddUser = (props) => {
 		validationSchema: userValidationSchema,
 		onSubmit: (values, { resetForm }) => {
 			AddData();
-			resetForm();
 		},
 	});
 
@@ -119,16 +118,31 @@ const AddUser = (props) => {
 
 	const [createItemMutation, { isLoading }] = useCreateItemMutation();
 
-	console.log({ errors });
-
 	const AddData = async () => {
 		try {
 			const valuesObj = { ...values };
+
+			// Assign 'parent' and 'role' based on user role
 			if (user?.roles[0]?.roleName === 'Manager') {
+				valuesObj['parent'] = user?._id?.toString();
+				valuesObj['role'] = roles
+					?.find((role) => role?.roleName === 'Agent')
+					?._id?.toString();
+			} else if (
+				roles.find((role) => role?._id === values.role)?.roleName === 'Agent'
+			) {
+				valuesObj['parent'] = values.parent;
+			}
+
+			// Remove 'parent' if not set
+			if (!valuesObj['parent']) {
 				delete valuesObj['parent'];
 			}
 
-			console.log({ valuesObj });
+			// Ensure 'roles' is an array
+			if (valuesObj['role']) {
+				valuesObj['roles'] = [valuesObj.role?.toString()];
+			}
 
 			const formData = new FormData();
 
@@ -137,7 +151,7 @@ const AddUser = (props) => {
 					formData.append(key, valuesObj[key]);
 				} else if (key === 'roles' && Array.isArray(valuesObj[key])) {
 					valuesObj[key].forEach((role, index) => {
-						formData.append(`roles[${index}]`, role.roleName);
+						formData.append(`roles[${index}]`, role);
 					});
 				} else {
 					formData.append(key, valuesObj[key]);
@@ -152,14 +166,17 @@ const AddUser = (props) => {
 				formData: true,
 			});
 
-			if (response && response.status === 200) {
+			if (response?.data?.status === 200) {
 				props.onClose();
+				props.fetchData();
+				resetForm();
 				setAction((pre) => !pre);
 			} else {
-				toast.error(response.response.data?.message);
+				toast.error(response.error?.data?.message || 'User not added.');
 			}
 		} catch (e) {
 			console.log(e);
+			toast.error('Something went very wrong.');
 		}
 	};
 

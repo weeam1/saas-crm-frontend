@@ -190,7 +190,7 @@ const Pagination = ({
 					border='2px solid'
 					_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
 					onChange={handlePageSize}
-					isDisabled={!leads?.totalLeads} // Disable if totalLeads is 0
+					isDisabled={!leads?.totalLeads || loading || refetching}
 				>
 					{leads?.totalLeads > 0 ? (
 						[
@@ -202,18 +202,20 @@ const Pagination = ({
 							80,
 							100,
 							leads.totalLeads < 200 ? leads.totalLeads : 200,
+							leads.pageSize,
 						]
 							.filter(
 								(size, index, self) =>
 									size <= leads.totalLeads && self.indexOf(size) === index
 							)
+							.sort((a, b) => a - b) // Sorting in ascending order
 							.map((size) => (
 								<option key={size} value={size}>
 									Show {size}
 								</option>
 							))
 					) : (
-						<option value='0'>No data available</option>
+						<option value='0'>""</option>
 					)}
 				</Select>
 

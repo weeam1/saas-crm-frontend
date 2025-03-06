@@ -739,6 +739,7 @@ export default function CheckTable(props) {
 					size={'lg'}
 					setAction={setAction}
 					onClose={onClose}
+					fetchData={fetchData}
 				/>
 			)}
 
