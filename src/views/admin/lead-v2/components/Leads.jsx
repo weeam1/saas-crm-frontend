@@ -13,6 +13,7 @@ import SearchTags from './SearchTags';
 import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
+import { DeleteIcon } from '@chakra-ui/icons';
 // import VirtualLeads from './VirtualLeads';
 
 const Leads = ({
@@ -193,6 +194,27 @@ const Leads = ({
 						</Button>
 					)}
 				</Flex>
+			)}
+
+			{selectedValues.length > 0 && permission?.delete && (
+				<Button
+					{...buttonStyle}
+					variant='solid'
+					bg='red.400'
+					w='fit-content'
+					color='white'
+					my='2'
+					sx={{
+						svg: {
+							fill: 'white',
+						},
+					}}
+					leftIcon={<DeleteIcon />}
+					aria-label='Delete'
+					onClick={() => setDeleteLead(true)}
+				>
+					Delete
+				</Button>
 			)}
 
 			{/* divider  */}

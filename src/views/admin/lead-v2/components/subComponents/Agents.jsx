@@ -11,6 +11,7 @@ import { fetchAgentLeadsSats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { format } from 'date-fns';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -91,7 +92,11 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 				{/* Info Icon with Tooltip */}
 				<Tooltip
-					label={`Assign Date:\n${lead?.agentAssignedDate ? formattedDate(lead?.agentAssignedDate) : 'N/A'}`}
+					label={`Assign Date:\n${
+						lead?.agentAssignedDate
+							? format(new Date(lead?.agentAssignedDate), 'MMM d, yyyy h:mm a')
+							: 'N/A'
+					}`}
 					hasArrow
 					whiteSpace='pre-line'
 				>

@@ -14,6 +14,7 @@ import { formattedDate } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { format } from 'date-fns';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
@@ -85,7 +86,14 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 
 				{/* Info Icon with Tooltip */}
 				<Tooltip
-					label={`Assign Date:\n${lead?.managerAssignedDate ? formattedDate(lead?.managerAssignedDate) : 'N/A'}`}
+					label={`Assign Date:\n${
+						lead?.managerAssignedDate
+							? format(
+									new Date(lead?.managerAssignedDate),
+									'MMM d, yyyy h:mm a'
+								)
+							: 'N/A'
+					}`}
 					hasArrow
 					whiteSpace='pre-line'
 				>

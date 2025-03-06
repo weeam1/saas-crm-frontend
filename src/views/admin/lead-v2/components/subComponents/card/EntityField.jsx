@@ -35,7 +35,7 @@ const EntityField = ({
 		<Box
 			display='flex'
 			width='fit-content'
-			maxWidth={isInfo ? '100px' : '200px'}
+			maxWidth={isInfo || isCopy ? '100px' : '200px'}
 			flexDir='column'
 			justifyContent='flex-start'
 			justifySelf='stretch'

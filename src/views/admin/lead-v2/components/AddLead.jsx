@@ -19,7 +19,7 @@ import RenderFields from 'components/shared/RenderFields';
 import { useDispatch } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 
-const AddLead = ({ isOpen, onClose, refreshData, size }) => {
+const AddLead = ({ isOpen, onClose, size }) => {
 	// Initial values for Formik
 	const initialValues = {
 		leadName: '',
@@ -32,15 +32,18 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		eLeadStatus: '',
 		leadStatus: '',
 		leadLang: '',
-		// lastNote: '',
+		lastNote: '',
 		leadCountry: '',
 		leadSourceDetails: '',
+		leadSourceChannel: '',
 		leadSourceMedium: '',
 		leadCampaign: '',
 		pageUrl: '',
 		leadAddress: '',
 		leadEmail: '',
 		r_u_in_uae: '',
+		attendanceDay: '',
+		adset: '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -59,12 +62,15 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		{ name: 'leadSourceDetails', label: 'Source Details', type: 'text' },
+		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
-		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'leadAddress', label: 'Address', type: 'text' },
+		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
+		{ name: 'adset', label: 'Adset', type: 'text' },
 		// Adding the new 'status' field with select type
 		{
 			name: 'eLeadStatus',
@@ -78,6 +84,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 			type: 'select',
 			options: leadStatus,
 		},
+		{ name: 'lastNote', label: 'Last Note', type: 'text' },
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();
@@ -203,7 +210,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='70vh'
+									height={{ base: '60vh', md: '80vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />

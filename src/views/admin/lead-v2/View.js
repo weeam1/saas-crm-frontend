@@ -677,6 +677,26 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														fontSize='sm'
 														fontWeight='bold'
 													>
+														Adset
+													</Text>
+													<Text>{data?.adset ? data?.adset : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Lead Language
+													</Text>
+													<Text>{data?.leadLang ? data?.leadLang : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
 														Page URL
 													</Text>
 													<Text color='blue'>

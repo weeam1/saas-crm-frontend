@@ -1,6 +1,6 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Leads from './components/Leads';
 import {
 	Box,
@@ -120,14 +120,13 @@ const LeadsCards = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [queryParams, leadsRefetch]);
 
-	console.log('data search: ', queryParams.data);
-	// Refresh data
-	const refreshLeads = () => {
+	const refreshLeads = useCallback(() => {
 		leadsRefetch({
 			path: '/lead/v2',
 			params: queryParams,
 		});
-	};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	useEffect(() => {
 		if (leads?.doc) {

@@ -44,7 +44,7 @@ const CardLoader = ({ count = 3 }) => {
 				},
 			}}
 			gap='2'
-			minH='100vh'
+			// minH='100vh'
 		>
 			{[...Array(count)].map((_, index) => (
 				<Skeleton

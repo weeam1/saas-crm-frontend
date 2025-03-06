@@ -10,6 +10,7 @@ import {
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
 import { leadValueFontSize } from './constants';
+import { useSelector } from 'react-redux';
 
 const Pagination = ({
 	currentPage,
@@ -23,6 +24,8 @@ const Pagination = ({
 	handlePageSize,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
+
+	const leads = useSelector((state) => state.leads);
 
 	useEffect(() => {
 		setGotoPage(currentPage);
@@ -137,7 +140,7 @@ const Pagination = ({
 							setGotoPage(value);
 						}
 					}}
-					onBlur={(e) => e.key === 'Enter' && handleGoToBlur()} // Only trigger on Enter
+					onBlur={(e) => e.key === 'Enter' && handleGoToBlur()}
 					min={1}
 					max={totalPages ?? 999999999}
 					size='sm'
@@ -147,13 +150,13 @@ const Pagination = ({
 					border='1px solid softGray.600'
 					allowMouseWheel={false}
 					clampValueOnBlur={false}
-					isDisabled={refetching || loading} // Disable when loading
+					isDisabled={refetching || loading}
 				>
 					<NumberInputField
 						aria-label='Go to page'
 						textAlign='center'
 						borderRadius='md'
-						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()} // Trigger only on Enter
+						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
 						border='2px solid'
 						borderColor='softGray.600'
 						_focus={{
@@ -181,18 +184,37 @@ const Pagination = ({
 					size='sm'
 					w={{ base: '32' }}
 					value={itemsPerPage}
-					color={'gray.800'}
-					bg={'softGray.400'}
+					color='gray.800'
+					bg='softGray.400'
 					borderRadius='md'
 					border='2px solid'
-					_focus={{ boxShadow: `0 0 0 1px softGray.500` }}
+					_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
 					onChange={handlePageSize}
+					isDisabled={!leads?.totalLeads} // Disable if totalLeads is 0
 				>
-					{[6, 12, 32, 50, 60, 80, 100, 150, 200].map((size) => (
-						<option key={size} value={size}>
-							Show {size}
-						</option>
-					))}
+					{leads?.totalLeads > 0 ? (
+						[
+							6,
+							12,
+							32,
+							50,
+							60,
+							80,
+							100,
+							leads.totalLeads < 200 ? leads.totalLeads : 200,
+						]
+							.filter(
+								(size, index, self) =>
+									size <= leads.totalLeads && self.indexOf(size) === index
+							)
+							.map((size) => (
+								<option key={size} value={size}>
+									Show {size}
+								</option>
+							))
+					) : (
+						<option value='0'>No data available</option>
+					)}
 				</Select>
 
 				<Button

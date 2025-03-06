@@ -8,6 +8,7 @@ const ToggleSwitch = ({ isTableView, handleToggle }) => {
 			bg='white'
 			p={3}
 			borderRadius='md'
+			alignSelf='end'
 			boxShadow='sm'
 			w='fit-content'
 			fontFamily="'DM Sans', sans-serif"

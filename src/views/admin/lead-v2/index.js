@@ -1,7 +1,8 @@
 import { useState, lazy, Suspense } from 'react';
 import Loader from 'components/loading/Loader';
 import ToggleSwitch from './TogleSwitch';
-import { VStack } from '@chakra-ui/react';
+import { HStack, VStack } from '@chakra-ui/react';
+import PageSizeAlert from './components/subComponents/PageSizeAlert';
 
 const LeadsCards = lazy(() => import('./LeadsCards'));
 const LeadsTable = lazy(() => import('./../lead'));
@@ -18,7 +19,8 @@ const Index = () => {
 	};
 
 	return (
-		<VStack align='end' justifyContent='flex-start' gap='2'>
+		<VStack justifyContent='flex-start' gap='2'>
+			{!isTableView && <PageSizeAlert />}
 			<ToggleSwitch handleToggle={handleToggle} isTableView={isTableView} />
 			<Suspense fallback={<Loader />}>
 				{isTableView ? <LeadsTable /> : <LeadsCards />}

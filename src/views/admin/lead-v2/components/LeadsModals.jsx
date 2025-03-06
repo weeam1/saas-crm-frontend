@@ -23,6 +23,8 @@ const LeadsModals = (props) => {
 		setDeleteLead,
 	} = props;
 
+	console.log({ data: refetchData });
+
 	return (
 		<>
 			{viewLead && (
@@ -37,32 +39,28 @@ const LeadsModals = (props) => {
 				<EditLead
 					isOpen={editLead}
 					size='xl'
-					refreshData={refetchData}
 					leadData={lead}
 					onClose={() => setEditLead(false)}
 				/>
 			)}
 
 			{addLead && (
-				<AddLead
-					isOpen={addLead}
-					onClose={() => setAddLead(false)}
-					size='xl'
-					refreshData={refetchData}
-				/>
+				<AddLead isOpen={addLead} onClose={() => setAddLead(false)} size='xl' />
 			)}
 
 			{/* Delete model */}
-			<Delete
-				isOpen={deleteLead}
-				onClose={setDeleteLead}
-				data={selectedValues}
-				refreshData={refetchData}
-				setSelectedValues={setSelectedValues}
-				url='api/lead/deleteMany'
-				method='many'
-				// setSelectAllChecked={setSelectAllChecked}
-			/>
+			{deleteLead && (
+				<Delete
+					isOpen={deleteLead}
+					onClose={() => setDeleteLead(false)}
+					data={selectedValues}
+					refetchData={refetchData}
+					setSelectedValues={setSelectedValues}
+					url='api/lead/deleteMany'
+					method='many'
+					// setSelectAllChecked={setSelectAllChecked}
+				/>
+			)}
 
 			{/* 
 			<AddPhoneCall

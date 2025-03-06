@@ -17,7 +17,7 @@ import RenderFields from 'components/shared/RenderFields';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
 
-const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
+const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
@@ -30,13 +30,16 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		leadCountry: leadData.leadCountry || '',
 		timetocall: leadData.timetocall || '',
 		leadSourceDetails: leadData.leadSourceDetails || '',
+		leadSourceChannel: leadData.leadSourceChannel || '',
 		leadCampaign: leadData.leadCampaign || '',
 		pageUrl: leadData.pageUrl || '',
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
 		r_u_in_uae: leadData.r_u_in_uae || '',
+		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
+		adset: leadData.adset || '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -56,12 +59,15 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
 		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
-		{ name: 'lastNote', label: 'Last Note', type: 'textarea' },
+		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
+		{ name: 'lastNote', label: 'Last Note', type: 'text' },
+		{ name: 'adset', label: 'Adset', type: 'text' },
 		// {
 		// 	name: 'eLeadStatus',
 		// 	label: 'Select Main Status',
@@ -92,8 +98,6 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 			onClose();
 			actions.resetForm();
 			dispatch(addOrUpdateLead(res));
-
-			// refreshData();
 		} catch (error) {
 			console.error(error);
 			toast.error(error.data.message || 'Lead not added');
@@ -121,7 +125,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='70vh'
+									height={{ base: '60vh', md: '80vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />

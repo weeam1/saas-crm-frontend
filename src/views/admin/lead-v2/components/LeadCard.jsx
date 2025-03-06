@@ -1,15 +1,14 @@
-import { formattedDate } from 'utils/helpers';
-import { leadlabelFontSize } from './constants';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { FaPen } from 'react-icons/fa';
+import { format } from 'date-fns';
+import { Box, Flex, Icon, useBreakpointValue } from '@chakra-ui/react';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
-import { Box, Flex, Icon, Tooltip, useBreakpointValue } from '@chakra-ui/react';
 import LeadMenu from './subComponents/card/LeadMenu';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { leadlabelFontSize } from './constants';
+import NewNoteModal from './NewNoteModal';
 
 import './checkbox.css';
-import { MdNoteAdd } from 'react-icons/md';
-import NewNoteModal from './NewNoteModal';
-import { FaPen } from 'react-icons/fa';
 
 const LeadCard = memo(
 	({
@@ -47,17 +46,15 @@ const LeadCard = memo(
 			(event) => {
 				const isChecked = event.target.checked;
 
-				// ✅ Instant UI update
 				setLocalChecked(isChecked);
 
-				// ✅ Background state update (does not block UI)
 				setTimeout(() => {
 					setSelectedValues((prev = []) =>
 						isChecked
 							? [...prev, lead?._id]
 							: prev.filter((id) => id !== lead?._id)
 					);
-				}, 0); // Runs in the background immediately
+				}, 0);
 			},
 			[setSelectedValues, lead?._id]
 		);
@@ -156,7 +153,7 @@ const LeadCard = memo(
 							<span style={{ color: 'softGray.200', marginRight: '4px' }}>
 								Lead time
 							</span>
-							{formattedDate(lead?.createdDate) || 'N/A'}
+							{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
 						</Box>
 					)}
 
