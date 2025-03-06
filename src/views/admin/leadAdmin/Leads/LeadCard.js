@@ -12,9 +12,11 @@ import {
   InputRightElement,
 } from "@chakra-ui/react";
 import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { useSelector } from "react-redux";
 import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
+import { getUserNameById } from "utils";
 
 const CardHeader = ({ id }) => (
   <HStack justify="space-between" w="100%" mb={1}>
@@ -118,15 +120,19 @@ const LeadCard = ({
   timeToCall,
   mStatus,
   approvalStatus,
+  agentId,
   // leadPhoneNumber,
   approved,
   // whatsapp,
   createdDate,
-  requested,
   tab = "All",
   onAccept,
   onReject,
 }) => {
+  // const users = useSelector((state) => state.user?.users);
+  // console.log(getUserNameById(agentId, users));
+  const users = useSelector((state) => state.user?.users) || [];
+  const agentName = getUserNameById(agentId, users);
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -346,7 +352,7 @@ const LeadCard = ({
               fontFamily="DM Sans"
               isTruncated
             >
-              {requested || "N/A"}
+              {agentName || "N/A"}
             </Text>
           </VStack>
           <Box flex="1" w="100%" display="flex" alignItems="flex-end">

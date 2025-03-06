@@ -10,7 +10,7 @@ const LeadGrid = ({ leads, isLoading }) => {
 	// });
 
 	const singleLeadMaxWidth = useBreakpointValue({
-		base: '100%', // Full width on mobile
+		base: '100%',
 		// sm: '48%', // Two cards per row on small screens
 		md: '33.33%', // Three cards per row on medium screens
 		lg: '25%', // Three cards per row on larger screens
@@ -84,7 +84,7 @@ const LeadGrid = ({ leads, isLoading }) => {
 						<Box
 							key={index}
 							w='100%'
-							maxW={leads.length === 1 ? singleLeadMaxWidth : 'none'}
+							// maxW={leads.length === 1 ? singleLeadMaxWidth : 'none'}
 						>
 							<LeadCard {...lead} />
 						</Box>

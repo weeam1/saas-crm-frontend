@@ -39,7 +39,7 @@ const Pagination = ({
   setIsFormReset,
   setGetTagValues,
   clearAdvancedSearch,
-  formValues = {}, 
+  formValues = {},
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || "");
 
@@ -237,7 +237,9 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={currentPage === totalPagesForTab || totalItems === 0}
+                isDisabled={
+                  currentPage === totalPagesForTab || totalItems === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -251,7 +253,9 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={currentPage === totalPagesForTab || totalItems === 0}
+                isDisabled={
+                  currentPage === totalPagesForTab || totalItems === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -293,7 +297,7 @@ const Pagination = ({
           />
         </Box>
       </Flex>
-      {isSearchActive && ( 
+      {isSearchActive && (
         <ClearAdvancedSearchButton
           clearAdvancedSearch={clearAdvancedSearch}
           loading={loading}

@@ -106,11 +106,10 @@ const SearchBox = ({
               px={4}
               borderRadius="0"
               fontSize="xs"
-              height="100%" // Match Input height
+              height="100%" 
               _hover={{ bg: "gray.50" }}
               _active={{ bg: "gray.100" }}
               onClick={handleSearch}
-              isLoading={loading}
             >
               Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
             </Button>
