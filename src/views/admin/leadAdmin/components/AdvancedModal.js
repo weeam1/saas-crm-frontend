@@ -211,7 +211,7 @@ const AdvancedSearchModal = ({
               onClick={handleSubmit}
               disabled={isLoading || !dirty ? true : false}
             >
-              {isLoading ? <Spinner /> : "Search"}
+              {isLoading ? "Search" : "Search"}
             </Button>
           </ModalFooter>
         </ModalContent>

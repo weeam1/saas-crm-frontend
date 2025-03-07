@@ -1,8 +1,5 @@
 import { useMemo } from "react";
-import { mainLeadStatus } from "utils/options";
-import { leadStatus } from "utils/options";
-
-const {
+import {
   Grid,
   GridItem,
   FormLabel,
@@ -10,27 +7,31 @@ const {
   Text,
   Select,
   Box,
-} = require("@chakra-ui/react");
+} from "@chakra-ui/react";
+import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 
 const AdvancedSearchForm = (props) => {
-  const { values, errors, touched, handleChange, handleBlur, user, tree } =
-    props;
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    user: userProp,
+    tree,
+  } = props;
+
+  const user = JSON.parse(localStorage.getItem('user')) || userProp;
+  const { agents } = useFetchUserHierarchy(user);
+
+  const isSuperAdmin = user?.role === "superAdmin";
+  const isAgent = user?.roles?.[0]?.roleName === "Agent";
 
   // Define field configurations
-  const fields = useMemo(
+  const allFields = useMemo(
     () => [
       { name: "leadName", label: "Name", placeholder: "Enter Lead Name" },
       { name: "leadEmail", label: "Email", placeholder: "Enter Lead Email" },
-      {
-        name: "leadPhoneNumber",
-        label: "Phone Number",
-        placeholder: "Enter Lead Phone Number",
-      },
-      {
-        name: "leadWhatsappNumber",
-        label: "Whatsapp Number",
-        placeholder: "Search by Whatsapp Number",
-      },
       {
         name: "nationality",
         label: "Nationality",
@@ -95,9 +96,32 @@ const AdvancedSearchForm = (props) => {
     []
   );
 
+  // Define fields to display based on roles
+  const displayedFields = useMemo(() => {
+    if (isAgent) {
+      return allFields; // Show all fields to agents
+    }
+
+    if (isSuperAdmin) {
+      // Show only specific fields to super admins
+      return allFields.filter((field) =>
+        [
+          "leadName",
+          "requestedByAgent",
+          "nationality",
+          "leadEmail",
+          "status",
+        ].includes(field.name)
+      );
+    }
+
+    // Default: Show all fields for other roles
+    return allFields;
+  }, [isSuperAdmin, isAgent, allFields]);
+
   // Utility function for rendering fields
   const renderField = (field) => (
-    <GridItem colSpan={{ base: 12, md: 6 }} key={field.name}>
+    <GridItem key={field.name}>
       <FormLabel
         display="flex"
         ms="4px"
@@ -113,7 +137,7 @@ const AdvancedSearchForm = (props) => {
         fontSize="sm"
         onChange={handleChange}
         onBlur={handleBlur}
-        value={values[field.name]}
+        value={values[field.name] || ""}
         name={field.name}
         placeholder={field.placeholder}
         fontWeight="500"
@@ -127,16 +151,20 @@ const AdvancedSearchForm = (props) => {
   return (
     <Grid
       overflow="scroll"
-      height="65vh"
+      height={isSuperAdmin ? "30vh" : "45vh"}
       p="2"
-      templateColumns="repeat(24, 1fr)"
+      templateColumns={{
+        base: "repeat(1, 1fr)",
+        md: "repeat(3,1fr)",
+        lg: isSuperAdmin ? "repeat(3,1fr)" : "repeat(4,1fr)",
+      }}
       mb={3}
-      gap={2}
+      gap={3}
     >
-      {fields.map(renderField)}
+      {displayedFields.map(renderField)}
 
       {/* Lead Status Field */}
-      <GridItem colSpan={{ base: 12, md: 6 }}>
+      <GridItem>
         <FormLabel
           display="flex"
           ms="4px"
@@ -149,58 +177,46 @@ const AdvancedSearchForm = (props) => {
           Status
         </FormLabel>
         <Select
-          value={values?.leadStatus}
+          value={values?.leadStatus || ""}
           fontSize="sm"
           name="leadStatus"
           onChange={handleChange}
           fontWeight="500"
           placeholder="Select Lead Status"
         >
-          {leadStatus.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
+          <option value="active">Interested</option>
+          <option value="sold">Sold</option>
+          <option value="pending">Not interested</option>
+          <option value="reassigned">Reassigned</option>
+          <option value="new">New</option>
+          <option value="no_answer">No Answer</option>
+          <option value="unreachable">Unreachable</option>
+          <option value="waiting">Waiting</option>
+          <option value="follow_up">Follow Up</option>
+          <option value="meeting">Meeting</option>
+          <option value="follow_up_after_meeting">
+            Follow Up After Meeting
+          </option>
+          <option value="junk">Junk</option>
+          <option value="whatsapp_send">Whatsapp Send</option>
+          <option value="whatsapp_rec">Whatsapp Rec</option>
+          <option value="deal_out">Deal Out</option>
+          <option value="shift_project">Shift Project</option>
+          <option value="wrong_number">Wrong Number</option>
+          <option value="broker">Broker</option>
+          <option value="voice_mail">Voice Mail</option>
+          <option value="request">Request</option>
+          <option value="will_attend_the_show">Will attend the show</option>
+          <option value="attended_the_show">Attended the show</option>
+          <option value="callback">Callback</option>
         </Select>
         <Text mb="10px" color="red">
           {errors.leadStatus && touched.leadStatus && errors.leadStatus}
         </Text>
       </GridItem>
 
-      {/* Extra Status Field */}
-      <GridItem colSpan={{ base: 12, md: 6 }}>
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="600"
-          color="#000"
-          mb="0"
-          mt={2}
-        >
-          Main Status
-        </FormLabel>
-        <Select
-          value={values?.eLeadStatus}
-          fontSize="sm"
-          name="eLeadStatus"
-          onChange={handleChange}
-          fontWeight="500"
-          placeholder="Select Main Lead Status"
-        >
-          {mainLeadStatus?.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-          <option value="-1">No E.Status</option>
-        </Select>
-        <Text mb="10px" color="red">
-          {errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
-        </Text>
-      </GridItem>
-      {user?.roles[0]?.roleName !== "Agent" && (
-        <GridItem colSpan={{ base: 12, md: 6 }}>
+      {isSuperAdmin && (
+        <GridItem>
           <FormLabel
             display="flex"
             ms="4px"
@@ -210,20 +226,27 @@ const AdvancedSearchForm = (props) => {
             mb="0"
             mt={2}
           >
-            Rleased
+            Requested By Agent
           </FormLabel>
-          <Select
-            value={values?.isReleased}
-            fontSize="sm"
-            name="isReleased"
-            onChange={handleChange}
-            fontWeight="500"
-            placeholder="Select Released Status"
-          >
-            <option value={true}>Released Leads</option>
-          </Select>
+          <Box>
+            <Select
+              name="agentAssigned"
+              onChange={handleChange}
+              value={values["agentAssigned"] || ""}
+            >
+              <option value="">Select agent</option>
+              {agents?.map((agent) => (
+                <option key={agent._id} value={agent._id}>
+                  {agent?.name}
+                </option>
+              ))}
+              <option value={-1}>No Agent</option>
+            </Select>
+          </Box>
           <Text mb="10px" color="red">
-            {errors.isReleased && touched.isReleased && errors.isReleased}
+            {errors.agentAssigned &&
+              touched.agentAssigned &&
+              errors.agentAssigned}
           </Text>
         </GridItem>
       )}

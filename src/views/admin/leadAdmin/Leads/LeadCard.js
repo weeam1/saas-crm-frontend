@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -18,98 +18,6 @@ import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 import { getUserNameById } from "utils";
 
-const CardHeader = ({ id }) => (
-  <HStack justify="space-between" w="100%" mb={1}>
-    <HStack spacing={1}>
-      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
-      {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
-        {id || "N/A"}
-      </Text> */}
-    </HStack>
-    <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
-  </HStack>
-);
-
-const InfoPair = ({ label, value, color = "#ff0307" }) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <Text fontSize="10px" color={color} fontFamily="DM Sans" isTruncated>
-      {value || "N/A"}
-    </Text>
-  </VStack>
-);
-
-const InputPair = ({
-  label,
-  value,
-  bg,
-  color,
-  width = { base: "60px", md: "70px" },
-}) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <InputGroup w={width}>
-      <Input
-        size="xs"
-        value={value || "N/A"}
-        h="1.3rem"
-        bg={bg}
-        color={color}
-        border="1px solid"
-        borderRadius="5px"
-        borderColor="gray.300"
-        fontSize="xs"
-        fontFamily="DM Sans"
-        _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
-        _hover={{ borderColor: "#B79045" }}
-        pr="1.5rem"
-        isDisabled
-        pl={label === "Status" ? "3px" : undefined}
-      />
-      <InputRightElement
-        pointerEvents="none"
-        h="1.3rem"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        w="1.5rem"
-      >
-        <Icon as={ChevronDownIcon} color={color} boxSize={4} />
-      </InputRightElement>
-    </InputGroup>
-  </VStack>
-);
-
-const ContactPair = ({ label, value, color }) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <HStack spacing={1}>
-      <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
-        {label}
-      </Text>
-      <Tooltip label={`Copy ${label}`}>
-        <Icon
-          as={CopyIcon}
-          color="gray.500"
-          cursor="pointer"
-          boxSize={3}
-          onClick={() => handleCopy(value)}
-        />
-      </Tooltip>
-    </HStack>
-    <Text
-      fontSize={label === "Phone" ? "12px" : "xs"}
-      color={color}
-      fontFamily="DM Sans"
-      isTruncated
-    >
-      {value || "N/A"}
-    </Text>
-  </VStack>
-);
 
 const LeadCard = ({
   leadId,
@@ -119,20 +27,28 @@ const LeadCard = ({
   sourceContent,
   timeToCall,
   mStatus,
-  approvalStatus,
+  leadStatus,
+  approvalStatus: initialApprovalStatus,
   agentId,
-  // leadPhoneNumber,
   approved,
-  // whatsapp,
   createdDate,
   tab = "All",
   approveChangeHandler,
   _id,
 }) => {
-  // const users = useSelector((state) => state.user?.users);
-  // console.log(getUserNameById(agentId, users));
   const users = useSelector((state) => state.user?.users) || [];
   const agentName = getUserNameById(agentId, users);
+
+  const [localApprovalStatus, setLocalApprovalStatus] = useState(
+    initialApprovalStatus
+  );
+  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
+
+  useEffect(() => {
+    setLocalApprovalStatus(initialApprovalStatus);
+  }, [initialApprovalStatus]);
+
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -167,17 +83,32 @@ const LeadCard = ({
   };
 
   const { borderColor, buttonBg, buttonHoverBg, buttonColor } =
-    getStatusStyles(approvalStatus);
+    getStatusStyles(localApprovalStatus);
+
+  const handleApprovalChange = async (action) => {
+    if (action === "accept") {
+      setIsAcceptLoading(true);
+    } else {
+      setIsRejectLoading(true);
+    }
+
+    try {
+      await approveChangeHandler(action, leadId, agentId, _id);
+      setLocalApprovalStatus(action === "accept" ? "accepted" : "rejected");
+    } catch (error) {
+      console.error("Approval change failed:", error);
+    } finally {
+      if (action === "accept") {
+        setIsAcceptLoading(false);
+      } else {
+        setIsRejectLoading(false);
+      }
+    }
+  };
 
   const renderActionSection = () => {
-    const statusLower = approvalStatus?.toLowerCase();
-    const onAccept = (leadId, agentId, approvalId) => {
-      approveChangeHandler("accept", leadId, agentId, approvalId);
-    };
+    const statusLower = localApprovalStatus?.toLowerCase();
 
-    const onReject = (leadId, agentId, approvalId) => {
-      approveChangeHandler("reject", leadId, agentId, approvalId);
-    };
     if (tab === "All") {
       if (statusLower === "accepted") {
         return (
@@ -237,13 +168,9 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#32BD00" }}
-              onClick={() => {
-                console.log(
-                  "Accept button clicked in renderActionSection for leadId:",
-                  leadId
-                );
-                onAccept(leadId, agentId, _id);
-              }}
+              onClick={() => handleApprovalChange("accept")}
+              isLoading={isAcceptLoading}
+              isDisabled={isAcceptLoading || isRejectLoading}
             >
               Accept
             </Button>
@@ -256,13 +183,9 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#D32F2F" }}
-              onClick={() => {
-                console.log(
-                  "Reject button clicked in renderActionSection for leadId:",
-                  leadId
-                );
-                onReject(leadId, agentId, _id);
-              }}
+              onClick={() => handleApprovalChange("reject")}
+              isLoading={isRejectLoading}
+              isDisabled={isAcceptLoading || isRejectLoading}
             >
               Reject
             </Button>
@@ -315,7 +238,6 @@ const LeadCard = ({
     <Box
       borderRadius="lg"
       p={3}
-      车型
       w="100%"
       h="320px"
       overflow="hidden"
@@ -351,15 +273,11 @@ const LeadCard = ({
             />
             <InputPair
               label="Status"
-              value={approvalStatus}
+              value={leadStatus}
               bg="#FEEFEE"
               color="black"
             />
           </HStack>
-          {/* <HStack spacing={2} w="100%">
-            <ContactPair label="Phone" value={leadPhoneNumber} color="#7869FF" />
-            <ContactPair label="WhatsApp" value={whatsapp} color="#32BD00" />
-          </HStack> */}
           <VStack align="start" spacing={0} height="3rem" w="100%">
             <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
               Requested by
@@ -476,5 +394,96 @@ const LeadCard = ({
     </Box>
   );
 };
+
+// Sub-components remain unchanged
+const CardHeader = ({ id }) => (
+  <HStack justify="space-between" w="100%" mb={1}>
+    <HStack spacing={1}>
+      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
+    </HStack>
+    <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
+  </HStack>
+);
+
+const InfoPair = ({ label, value, color = "#ff0307" }) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
+      {label}
+    </Text>
+    <Text fontSize="10px" color={color} fontFamily="DM Sans" isTruncated>
+      {value || "N/A"}
+    </Text>
+  </VStack>
+);
+
+const InputPair = ({
+  label,
+  value,
+  bg,
+  color,
+  width = { base: "60px", md: "70px" },
+}) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
+      {label}
+    </Text>
+    <InputGroup w={width}>
+      <Input
+        size="xs"
+        value={value || "N/A"}
+        h="1.3rem"
+        bg={bg}
+        color={color}
+        border="1px solid"
+        borderRadius="5px"
+        borderColor="gray.300"
+        fontSize="xs"
+        fontFamily="DM Sans"
+        _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
+        _hover={{ borderColor: "#B79045" }}
+        pr="1.5rem"
+        isDisabled
+        pl={label === "Status" ? "3px" : undefined}
+      />
+      <InputRightElement
+        pointerEvents="none"
+        h="1.3rem"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        w="1.5rem"
+      >
+        <Icon as={ChevronDownIcon} color={color} boxSize={4} />
+      </InputRightElement>
+    </InputGroup>
+  </VStack>
+);
+
+const ContactPair = ({ label, value, color }) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <HStack spacing={1}>
+      <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
+        {label}
+      </Text>
+      <Tooltip label={`Copy ${label}`}>
+        <Icon
+          as={CopyIcon}
+          color="gray.500"
+          cursor="pointer"
+          boxSize={3}
+          onClick={() => handleCopy(value)}
+        />
+      </Tooltip>
+    </HStack>
+    <Text
+      fontSize={label === "Phone" ? "12px" : "xs"}
+      color={color}
+      fontFamily="DM Sans"
+      isTruncated
+    >
+      {value || "N/A"}
+    </Text>
+  </VStack>
+);
 
 export default LeadCard;

@@ -48,11 +48,6 @@ const SearchBox = ({
       onSearch("");
     }
   };
-
-  // Debugging: Log formValues to verify it’s updating
-  console.log("SearchBox - formValues:", formValues);
-
-  // Check if an advanced search is active
   const isAdvancedSearchActive =
     formValues && Object.keys(formValues).length > 0;
 
@@ -73,9 +68,9 @@ const SearchBox = ({
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          w={{ base: "100%", md: "280px" }}
+          w={{ base: "100%", md: "280px" }} //
           overflow="hidden"
-          position="relative" // Ensure InputGroup is a containing block
+          position="relative"
         >
           <Input
             placeholder="Search by lead name..."
@@ -83,20 +78,21 @@ const SearchBox = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             border="none"
-            minW={{ base: "100%", md: "400px" }}
+            w="100%"
             fontSize="xs"
             height="2.2rem"
+            textOverflow="ellipsis"
             _focus={{ boxShadow: "none" }}
           />
           <InputRightElement
             width="auto"
-            height="100%" // Match the height of the Input
+            height="100%"
             display="flex"
             alignItems="center"
-            position="absolute" // Default positioning, but constrained by parent
+            position="absolute"
             right="0"
             top="0"
-            zIndex="2" // Ensure it stays above the input but below navbar
+            zIndex="2"
           >
             <Button
               size="md"
@@ -106,7 +102,7 @@ const SearchBox = ({
               px={4}
               borderRadius="0"
               fontSize="xs"
-              height="100%" 
+              height="100%"
               _hover={{ bg: "gray.50" }}
               _active={{ bg: "gray.100" }}
               onClick={handleSearch}
