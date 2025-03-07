@@ -117,6 +117,7 @@ import { Box, Grid, Text } from "@chakra-ui/react";
 import LeadCard from "../Leads/LeadCard";
 
 const LeadGrid = ({ leads, isLoading, approveChangeHandler }) => {
+  
   if (isLoading) {
     return (
       <Box
@@ -141,7 +142,7 @@ const LeadGrid = ({ leads, isLoading, approveChangeHandler }) => {
   // Define grid columns based on number of leads
   const gridColumns = leads.length === 1
     ? {
-        base: "minmax(280px, 350px)", 
+        base: "minmax(280px, 350px)", // Fixed width for single card
         md: "minmax(320px, 350px)",
         lg: "minmax(350px, 350px)",
       }

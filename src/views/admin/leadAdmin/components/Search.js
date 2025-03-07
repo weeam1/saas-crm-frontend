@@ -68,7 +68,7 @@ const SearchBox = ({
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          w={{ base: "100%", md: "280px" }} //
+          w={{ base: "100%", md: "280px" }} 
           overflow="hidden"
           position="relative"
         >

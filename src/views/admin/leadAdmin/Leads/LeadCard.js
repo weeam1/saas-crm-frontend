@@ -36,6 +36,7 @@ const LeadCard = ({
   approveChangeHandler,
   _id,
 }) => {
+  
   const users = useSelector((state) => state.user?.users) || [];
   const agentName = getUserNameById(agentId, users);
 
@@ -48,7 +49,6 @@ const LeadCard = ({
   useEffect(() => {
     setLocalApprovalStatus(initialApprovalStatus);
   }, [initialApprovalStatus]);
-
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
