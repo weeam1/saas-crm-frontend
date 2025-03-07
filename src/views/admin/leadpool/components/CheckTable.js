@@ -692,7 +692,7 @@ export default function CheckTable(props) {
 			toast.success('You have successfully purchased');
 			// fetchData();
 
-			// refreshData();
+			refreshData();
 		} catch (error) {
 			if (error.response?.status === 400) {
 				const errorDetails =
