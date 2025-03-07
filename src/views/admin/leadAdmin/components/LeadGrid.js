@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Grid, Text, useBreakpointValue } from '@chakra-ui/react';
 import LeadCard from '../Leads/LeadCard';
-const LeadGrid = ({ leads, isLoading }) => {
+const LeadGrid = ({ leads, isLoading,onAccept, onReject }) => {
 	// const templateColumns = useBreakpointValue({
 	// 	base: 'repeat(1, minmax(280px, 400px))',
 	// 	sm: 'repeat(1, minmax(320px, 450px))',
@@ -86,7 +86,7 @@ const LeadGrid = ({ leads, isLoading }) => {
 							w='100%'
 							// maxW={leads.length === 1 ? singleLeadMaxWidth : 'none'}
 						>
-							<LeadCard {...lead} />
+							<LeadCard {...lead} onAccept={onAccept} onReject={onReject} />
 						</Box>
 					))}
 				</Grid>

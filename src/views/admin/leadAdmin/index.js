@@ -305,11 +305,12 @@
 // };
 
 // export default LeadScreen;
-
 import { useState, useEffect } from "react";
 import Pagination from "./components/Pagination";
-import { getApi } from "services/api";
-
+import { getApi, putApi } from "services/api";
+import { toast } from "react-toastify"; // Ensure react-toastify is installed
+import axios from "axios";
+import { constant } from 'constant';
 const LeadScreen = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isSuperAdmin = user?.role === "superAdmin";
@@ -343,9 +344,7 @@ const LeadScreen = () => {
 
   const getInitialSearchQuery = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    return (
-      urlParams.get("search") || sessionStorage.getItem("searchQuery") || ""
-    );
+    return urlParams.get("search") || sessionStorage.getItem("searchQuery") || "";
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -373,7 +372,7 @@ const LeadScreen = () => {
     urlParams.set("pageSize", pageSize);
     if (searchQuery) urlParams.set("search", searchQuery);
 
-    console.log("Updating URL with activeTab:", activeTab); // Debug
+    console.log("Updating URL with activeTab:", activeTab);
     window.history.replaceState({}, "", `?${urlParams.toString()}`);
     sessionStorage.setItem("activeTab", activeTab);
     sessionStorage.setItem("currentPage", currentPage);
@@ -387,7 +386,6 @@ const LeadScreen = () => {
       setError(null);
 
       const queryParams = new URLSearchParams();
-
       if (tab !== "All") {
         const statusMap = {
           Pending: "pending",
@@ -400,7 +398,6 @@ const LeadScreen = () => {
       queryParams.append("pageSize", pageSize);
 
       const result = await getApi(`api/adminApproval/get?${queryParams}`);
-
       if (result.status === 200) {
         setLeads(result.data);
         setTotalPages(result.data.totalPages || 0);
@@ -411,7 +408,6 @@ const LeadScreen = () => {
         setSearchQuery("");
         setFormValues({});
         setGetTagValues([]);
-        // updateUrlAndStorage called via useEffect
       }
     } catch (err) {
       setError(err.message || "Failed to fetch leads");
@@ -448,7 +444,6 @@ const LeadScreen = () => {
       setTotalPages(result.data?.totalPages || 0);
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
-      // updateUrlAndStorage called via useEffect
     } catch (err) {
       setError(err.message || "Failed to fetch searched leads");
     } finally {
@@ -491,7 +486,6 @@ const LeadScreen = () => {
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
       setFormValues(data);
-      // updateUrlAndStorage called via useEffect
     } catch (err) {
       setError(err.message || "Failed to fetch advanced search leads");
     } finally {
@@ -507,6 +501,69 @@ const LeadScreen = () => {
     setIsFormReset(true);
     fetchLeads();
   };
+  const approveChangeHandler = async (
+    e,
+    leadId,
+    agentId,
+    approvalId
+) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (e === 'none') return;
+    try {
+        const res = await axios.put(
+            constant['baseUrl'] + 'api/adminApproval/update',
+            {
+                isApproved: e === 'accept' ? true : false,
+                objectId: approvalId,
+                agentId,
+            },
+            {
+                headers: {
+                    Authorization:
+                        localStorage.getItem('token') || sessionStorage.getItem('token'),
+                },
+            }
+        );
+
+        if (res?.data?.status) {
+            try {
+                const data = {
+                    agentAssigned: agentId,
+                    leadType: 'leadpool',
+                };
+
+                await putApi(`api/lead/edit/${leadId}`, data);
+                toast.success('Agent updated successfully');
+                // fetchData();
+            } catch (error) {
+                console.log(error);
+                toast.error('Failed to update the agent');
+            }
+        } else {
+            try {
+                if (agentId) {
+                    const lead = await getApi(`api/lead/view/${leadId}`);
+                    const r = await getApi(`api/user/view/${agentId}`);
+                    await putApi(`api/user/edit/${agentId}`, {
+                        coins:
+                            lead?.data?.lead?.leadStatus === 'new'
+                                ? r?.data?.coins + 300
+                                : r?.data?.coins + 50,
+                    });
+                }
+                toast.success('Request Rejected successfully');
+                // fetchData();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    } catch (error) {
+        console.log('error', error);
+        toast.error(
+            error.response?.data?.message || 'Failed to process lead request'
+        );
+    }
+};
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -516,7 +573,6 @@ const LeadScreen = () => {
     if (!tabFromUrl && !sizeFromUrl) {
       setActiveTab("All");
       setPageSize(50);
-      // updateUrlAndStorage called via useEffect below
     }
 
     if (!displayAdvSearchData && !displaySearchData) {
@@ -524,7 +580,6 @@ const LeadScreen = () => {
     }
   }, [currentPage, pageSize]);
 
-  // Sync URL whenever relevant state changes
   useEffect(() => {
     updateUrlAndStorage();
   }, [activeTab, currentPage, pageSize, searchQuery]);
@@ -553,13 +608,13 @@ const LeadScreen = () => {
   };
 
   const handleTabChange = (newTab) => {
-    console.log("Tab clicked:", newTab); // Debug
+    console.log("Tab clicked:", newTab);
     setCurrentPage(1);
     setDisplayAdvSearchData(false);
     setDisplaySearchData(false);
     setSearchedData([]);
     setSearchQuery("");
-    setActiveTab(newTab); // Set activeTab, URL updated via useEffect
+    setActiveTab(newTab);
     fetchLeads(newTab);
   };
 
@@ -608,6 +663,7 @@ const LeadScreen = () => {
         formValues={formValues}
         isAgent={isAgent}
         isSuperAdmin={isSuperAdmin}
+        approveChangeHandler={approveChangeHandler}
       />
     </div>
   );

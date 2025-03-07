@@ -22,9 +22,9 @@ const CardHeader = ({ id }) => (
   <HStack justify="space-between" w="100%" mb={1}>
     <HStack spacing={1}>
       <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
-      <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
+      {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
         {id || "N/A"}
-      </Text>
+      </Text> */}
     </HStack>
     <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
   </HStack>
@@ -126,8 +126,8 @@ const LeadCard = ({
   // whatsapp,
   createdDate,
   tab = "All",
-  onAccept,
-  onReject,
+  approveChangeHandler,
+  _id,
 }) => {
   // const users = useSelector((state) => state.user?.users);
   // console.log(getUserNameById(agentId, users));
@@ -171,7 +171,13 @@ const LeadCard = ({
 
   const renderActionSection = () => {
     const statusLower = approvalStatus?.toLowerCase();
+    const onAccept = (leadId, agentId, approvalId) => {
+      approveChangeHandler("accept", leadId, agentId, approvalId);
+    };
 
+    const onReject = (leadId, agentId, approvalId) => {
+      approveChangeHandler("reject", leadId, agentId, approvalId);
+    };
     if (tab === "All") {
       if (statusLower === "accepted") {
         return (
@@ -231,7 +237,13 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#32BD00" }}
-              onClick={onAccept}
+              onClick={() => {
+                console.log(
+                  "Accept button clicked in renderActionSection for leadId:",
+                  leadId
+                );
+                onAccept(leadId, agentId, _id);
+              }}
             >
               Accept
             </Button>
@@ -244,7 +256,13 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#D32F2F" }}
-              onClick={onReject}
+              onClick={() => {
+                console.log(
+                  "Reject button clicked in renderActionSection for leadId:",
+                  leadId
+                );
+                onReject(leadId, agentId, _id);
+              }}
             >
               Reject
             </Button>

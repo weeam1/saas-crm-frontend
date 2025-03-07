@@ -38,7 +38,7 @@ const Pagination = ({
   isFormReset,
   setIsFormReset,
   setGetTagValues,
-  clearAdvancedSearch,
+  clearAdvancedSearch,approveChangeHandler,
   formValues = {},
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || "");
@@ -306,7 +306,7 @@ const Pagination = ({
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
 
       <Box mt={4}>
-        <TabContent activeTab={activeTab} leadsdata={leads} loading={loading} />
+        <TabContent activeTab={activeTab} leadsdata={leads} loading={loading} approveChangeHandler={approveChangeHandler}/>
       </Box>
     </Box>
   );
