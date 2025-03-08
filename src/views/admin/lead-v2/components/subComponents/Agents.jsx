@@ -1,5 +1,5 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useMemo, useState, useEffect } from 'react';
 import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
@@ -10,8 +10,12 @@ import { toast } from 'react-toastify';
 import { fetchAgentLeadsSats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
-import { updateLeadField } from '../../../../../redux/leadsSlice';
+import {
+	updateLeadField,
+	updateLeadFields,
+} from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
+import CustomTooltip from './CustomTooltip';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -33,8 +37,10 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 		try {
 			setLoading(true);
 
+			const agentAssignedValue = e.target.value;
+
 			const data = {
-				agentAssigned: e.target.value,
+				agentAssigned: agentAssignedValue,
 			};
 
 			if (data.agentAssigned) {
@@ -56,11 +62,34 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				toast.success('Agent updated successfully');
 				// refreshLeads();
 
+				console.log({ agentAssignedValue });
+
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssigned',
+				// 		value: agentAssignedValue,
+				// 	})
+				// );
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssignedDate',
+				// 		value: agentAssignedValue !== '' ? new Date() : null,
+				// 	})
+				// );
+
 				dispatch(
-					updateLeadField({
+					updateLeadFields({
 						id: lead?._id,
-						key: 'agentAssigned',
-						value: agentAssigned,
+						updates: [
+							{ key: 'agentAssigned', value: agentAssignedValue },
+							{
+								key: 'agentAssignedDate',
+								value:
+									agentAssignedValue !== '' ? new Date().toISOString() : null,
+							},
+						],
 					})
 				);
 			}
@@ -91,7 +120,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				</Text>
 
 				{/* Info Icon with Tooltip */}
-				<Tooltip
+				{/* <Tooltip
 					label={`Assign Date:\n${
 						lead?.agentAssignedDate
 							? format(new Date(lead?.agentAssignedDate), 'MMM d, yyyy h:mm a')
@@ -99,9 +128,22 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 					}`}
 					hasArrow
 					whiteSpace='pre-line'
+					closeOnClick={false}
+				>
+					<Box as='button'>
+						<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					</Box>
+				</Tooltip> */}
+
+				<CustomTooltip
+					label={`Assign Date:\n${
+						lead?.agentAssignedDate
+							? new Date(lead?.agentAssignedDate).toLocaleString()
+							: 'N/A'
+					}`}
 				>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</Flex>
 			<SelectInput
 				name='agentAssigned'

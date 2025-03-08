@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { leadIconSize, leadlabelFontSize } from '../../constants';
+import CustomTooltip from '../CustomTooltip';
 
 const InfoItem = ({
 	label,
@@ -35,7 +36,7 @@ const InfoItem = ({
 			</Text>
 
 			{/* Info Icon with Tooltip */}
-			<Tooltip label={value || 'N/A'} hasArrow {...tooltipProps}>
+			{/* <Tooltip label={value || 'N/A'} hasArrow {...tooltipProps}>
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}
@@ -43,7 +44,17 @@ const InfoItem = ({
 					cursor='pointer'
 					{...iconProps}
 				/>
-			</Tooltip>
+			</Tooltip> */}
+
+			<CustomTooltip label={label || 'N/A'}>
+				<Icon
+					as={InfoIcon}
+					boxSize={leadIconSize}
+					color='blue.300'
+					cursor='pointer'
+					{...iconProps}
+				/>
+			</CustomTooltip>
 		</Flex>
 	);
 };

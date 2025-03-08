@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
+import CustomTooltip from './CustomTooltip';
 
 const Status = ({ lead, refreshLeads }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
@@ -75,9 +76,13 @@ const Status = ({ lead, refreshLeads }) => {
 				>
 					Status
 				</Text>
+				{/* 
 				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</Tooltip> */}
+				<CustomTooltip label={label}>
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+				</CustomTooltip>
 			</HStack>
 			<SelectInput
 				name='leadStatus'

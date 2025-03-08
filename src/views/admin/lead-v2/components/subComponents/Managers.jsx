@@ -10,11 +10,15 @@ import {
 	mergeSort,
 } from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
-import { formattedDate } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
-import { updateLeadField } from '../../../../../redux/leadsSlice';
+import {
+	updateLeadField,
+	updateLeadFields,
+	updateMultipleLeadFields,
+} from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
+import CustomTooltip from './CustomTooltip';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
@@ -25,15 +29,21 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 		setSelected(managerAssigned);
 	}, [managerAssigned]);
 
+	console.log({ selected, managerAssigned, lead });
+
 	const dispatch = useDispatch();
 
+	// console.log(managerAssigned, lead);
+
 	const handleChangeManager = async (e) => {
-		const managerAssigned = e.target.value;
+		const managerAssignedValue = e.target.value;
 
 		const dataObj = {
-			managerAssigned: managerAssigned || '',
+			managerAssigned: managerAssignedValue || '',
 			agentAssigned: managerAssigned ? '' : undefined,
 		};
+
+		console.log(managerAssignedValue);
 
 		try {
 			setLoading(true);
@@ -42,13 +52,52 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			if (res.status === 200) {
 				setSelected(managerAssigned);
 				// refreshLeads();
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'managerAssigned',
+				// 		value: managerAssignedValue,
+				// 	})
+				// );
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'managerAssignedDate',
+				// 		value:
+				// 			managerAssignedValue !== '' ? new Date().toISOString() : null,
+				// 	})
+				// );
+
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssigned',
+				// 		value: '',
+				// 	})
+				// );
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssignedDate',
+				// 		value: null,
+				// 	})
+				// );
 				dispatch(
-					updateLeadField({
+					updateLeadFields({
 						id: lead?._id,
-						key: 'managerAssigned',
-						value: managerAssigned,
+						updates: [
+							{ key: 'managerAssigned', value: managerAssignedValue },
+							{
+								key: 'managerAssignedDate',
+								value:
+									managerAssignedValue !== '' ? new Date().toISOString() : null,
+							},
+							{ key: 'agentAssigned', value: '' },
+							{ key: 'agentAssignedDate', value: null },
+						],
 					})
 				);
+
 				toast.success('Manager updated successfully');
 			}
 		} catch (error) {
@@ -85,7 +134,11 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				</Text>
 
 				{/* Info Icon with Tooltip */}
-				<Tooltip
+				{/* <Tooltip hasArrow whiteSpace='pre-line'>
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+				</Tooltip> */}
+
+				<CustomTooltip
 					label={`Assign Date:\n${
 						lead?.managerAssignedDate
 							? format(
@@ -94,11 +147,9 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 								)
 							: 'N/A'
 					}`}
-					hasArrow
-					whiteSpace='pre-line'
 				>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</Flex>
 
 			{['Manager', 'Agent'].includes(role) ? (

@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { Box, Button, Flex, Grid } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
@@ -14,6 +14,8 @@ import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { useSearchParams } from 'react-router-dom';
+import useFilteredQueryParams from '../useFilteredQueryParams';
 // import VirtualLeads from './VirtualLeads';
 
 const Leads = ({
@@ -21,11 +23,11 @@ const Leads = ({
 	leadsLoading,
 	leadsRefetching,
 	refreshLeads,
-	currentPage,
-	setCurrentPage,
-	pageSize,
-	setPageSize,
-	setQueryParams,
+	// currentPage,
+	// setCurrentPage,
+	// pageSize,
+	// setPageSize,
+	// setQueryParams,
 	addLead,
 	setAddLead,
 	selectedValues,
@@ -34,7 +36,7 @@ const Leads = ({
 	setSelectAllChecked,
 	dateTimeIsOpen,
 	dateTimeOnClose,
-	queryParams,
+	// queryParams,
 }) => {
 	const [permission, emailAccess, callAccess] = HasAccess([
 		'Lead',
@@ -42,13 +44,32 @@ const Leads = ({
 		'Call',
 	]);
 
-	const leads = useSelector(
-		(state) => state.leads,
-		(prev, next) => prev === next
-	);
+	const {
+		currentPage,
+		setCurrentPage,
+		pageSize,
+		setPageSize,
+		queryParams,
+		setQueryParams,
+		setSearchQueryParams,
+		searchTags,
+		setSearchTags,
+		searchClear,
+		setSearchClear,
+		clearSearchParams,
+		refetchLoading,
+		setRefetchLoading,
+	} = useFilteredQueryParams();
+
+	// const leads = useSelector(
+	// 	(state) => state.leads,
+	// 	(prev, next) => prev === next
+	// );
+
+	const leads = useSelector((state) => state.leads, shallowEqual);
 
 	const [isLoaded, setIsLoaded] = useState(false);
-	const [refetchLoading, setRefetchLoading] = useState(false);
+	// const [refetchLoading, setRefetchLoading] = useState(false);
 
 	useEffect(() => {
 		if (leadsLoading) {
@@ -60,9 +81,19 @@ const Leads = ({
 	}, [leadsLoading, currentPage]);
 
 	useEffect(() => {
-		if (!leadsRefetching) {
+		if (leadsRefetching) {
+			setRefetchLoading(true); // Set loading to true when refetching starts
+
+			// Cleanup timeout if state changes
+		} else {
 			setRefetchLoading(false);
 		}
+
+		const timeout = setTimeout(() => {
+			setRefetchLoading(false); // Auto-disable loading after 3 seconds
+		}, 3000);
+
+		return () => clearTimeout(timeout);
 	}, [leadsRefetching]);
 
 	// Modals states
@@ -79,8 +110,8 @@ const Leads = ({
 
 	// const [formValues, setFormValues] = useState([]);
 	const [isFormReset, setIsFormReset] = useState(false);
-	const [searchTags, setSearchTags] = useState([]);
-	const [searchClear, setSearchClear] = useState(false);
+	// const [searchTags, setSearchTags] = useState([]);
+	// const [searchClear, setSearchClear] = useState(false);
 	// const [searchTerm, setSearchTerm] = useState('');
 
 	const searchTermRef = useRef('');
@@ -92,14 +123,16 @@ const Leads = ({
 		setIsFormReset(true);
 		setSearchClear(false);
 		setRefetchLoading(true);
-		setQueryParams((prev) => {
-			const { data, dateTime, name, ...rest } = prev;
 
-			// Only remove keys if they exist
-			const updatedParams = { ...rest, page: 1 };
+		clearSearchParams();
+		// setQueryParams((prev) => {
+		// 	const { data, dateTime, name, ...rest } = prev;
 
-			return updatedParams;
-		});
+		// 	// Only remove keys if they exist
+		// 	const updatedParams = { ...rest, page: 1 };
+
+		// 	return updatedParams;
+		// });
 	};
 
 	const handleSearchByName = useCallback(() => {
@@ -107,13 +140,15 @@ const Leads = ({
 		if (!term) return;
 
 		setSearchClear(true);
-		setSearchTags([`leadName: ${term}`]);
+		// setSearchTags([`search: ${term}`]);
 
-		setQueryParams((prev) => ({
-			...prev,
-			page: 1,
-			name: term,
-		}));
+		setSearchQueryParams({ search: term });
+
+		// setQueryParams((prev) => ({
+		// 	...prev,
+		// 	page: 1,
+		// 	search: term,
+		// }));
 
 		setRefetchLoading(true);
 	}, [setQueryParams, setRefetchLoading]);
@@ -336,6 +371,7 @@ const Leads = ({
 					isOpen={dateTimeIsOpen}
 					setSearchClear={setSearchClear}
 					setSearchTags={setSearchTags}
+					setSearchQueryParams={setSearchQueryParams}
 				/>
 			)}
 
@@ -351,6 +387,7 @@ const Leads = ({
 					isFormReset={isFormReset}
 					setIsFormReset={setIsFormReset}
 					setRefetchLoading={setRefetchLoading}
+					setSearchQueryParams={setSearchQueryParams}
 				/>
 			)}
 		</Box>

@@ -6,9 +6,9 @@ import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
 import LeadMenu from './subComponents/card/LeadMenu';
 import { leadlabelFontSize } from './constants';
-import NewNoteModal from './NewNoteModal';
 
 import './checkbox.css';
+import LeadNotesModal from './LeadNotesModal';
 
 const LeadCard = memo(
 	({
@@ -36,7 +36,7 @@ const LeadCard = memo(
 
 		const user = JSON.parse(localStorage.getItem('user'));
 
-		const [addNote, setAddNote] = useState(false);
+		const [leadNotes, setLeadNotes] = useState(false);
 
 		const [localChecked, setLocalChecked] = useState(
 			selectedValues.includes(lead?._id)
@@ -99,7 +99,7 @@ const LeadCard = memo(
 						<Icon
 							as={FaPen}
 							boxSize='14px'
-							onClick={() => setAddNote(true)}
+							onClick={() => setLeadNotes(true)}
 							color='gray.500'
 							cursor='pointer'
 						/>
@@ -156,17 +156,15 @@ const LeadCard = memo(
 							{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
 						</Box>
 					)}
-
-					{addNote && (
-						<NewNoteModal
-							isOpen={addNote}
-							onClose={() => setAddNote(false)}
-							paramId={lead._id}
-							setNoteAdded={setAddNote}
-							reFreshData={refreshLeads}
-						/>
-					)}
 				</Box>
+
+				{leadNotes && (
+					<LeadNotesModal
+						leadId={lead?._id}
+						isOpen={leadNotes}
+						onClose={() => setLeadNotes(false)}
+					/>
+				)}
 			</>
 		);
 	}

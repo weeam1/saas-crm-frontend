@@ -15,6 +15,7 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
+import CustomTooltip from '../CustomTooltip';
 
 const EntityField = ({
 	label,
@@ -72,14 +73,14 @@ const EntityField = ({
 					</Tooltip>
 				)}
 				{isInfo && value && (
-					<Tooltip label={value || 'N/A'} hasArrow>
+					<CustomTooltip label={value || 'N/A'}>
 						<Icon
 							as={InfoIcon}
 							boxSize={leadIconSize}
 							color='blue.300'
 							cursor='pointer'
 						/>
-					</Tooltip>
+					</CustomTooltip>
 				)}
 			</HStack>
 

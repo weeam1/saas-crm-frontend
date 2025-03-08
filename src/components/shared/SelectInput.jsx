@@ -1,18 +1,12 @@
-/* eslint-disable react/prop-types */
-// import Select from 'react-select';
-
 import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constants';
 import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
 
 import {
-	CircularProgress,
 	FormControl,
 	FormLabel,
 	Select,
 	useColorModeValue,
 } from '@chakra-ui/react';
-import BoxLoading from './BoxLoading';
-import SelectLoading from './SelectLoading';
 
 // const SelectInput = ({
 // 	name,
@@ -315,7 +309,7 @@ const SelectInput = ({
 				{...props}
 			>
 				{loading ? (
-					<option value='' disabled selected>
+					<option value='' disabled>
 						Updating...
 					</option>
 				) : (

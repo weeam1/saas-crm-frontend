@@ -214,3 +214,59 @@ export const findManagerForAgent = (agentId, tree) => {
 	// Return null if no manager is found
 	return null;
 };
+
+export const generateSearchTags = (filters, tree) => {
+	const tags = [];
+
+	if (filters.leadName) tags.push(`Lead: ${filters.leadName}`);
+	if (filters.dateTime?.from) tags.push(`Start: ${filters.dateTime.from}`);
+	if (filters.dateTime?.to) tags.push(`End: ${filters.dateTime.to}`);
+
+	Object.entries(filters).forEach(([key, value]) => {
+		let displayValue = value;
+
+		// 🔹 Special formatting rules
+		if (key === 'fromLeadScore' || key === 'toLeadScore') {
+			displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || 'max'}`;
+		}
+		if (key === 'leadStatus') {
+			displayValue =
+				value === 'active'
+					? 'Interested'
+					: value === 'pending'
+						? 'Not Interested'
+						: value;
+		}
+		if (key === 'eLeadStatus') {
+			displayValue = value === '-1' ? 'No E.Status' : value;
+		}
+		if (key === 'agentAssigned') {
+			const agentsArray = Object.values(tree.agents).flatMap(
+				(managerArray) => managerArray
+			);
+			const assignedAgent = agentsArray.find(
+				(agent) => agent?._id?.toString() === value
+			);
+			displayValue = assignedAgent
+				? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+				: value === '-1'
+					? 'No Agent'
+					: value;
+		}
+		if (key === 'managerAssigned') {
+			const assignedManager = tree.managers.find(
+				(user) => user?._id?.toString() === value
+			);
+			displayValue = assignedManager
+				? `${assignedManager.firstName} ${assignedManager.lastName}`
+				: value === '-1'
+					? 'No Manager'
+					: value;
+		}
+
+		// Add formatted value to tags
+		tags.push(`${key}: ${displayValue}`);
+	});
+
+	return tags;
+};

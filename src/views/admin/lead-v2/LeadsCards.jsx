@@ -23,8 +23,8 @@ import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import ManageColumns from './components/ManageColumns';
 import { MdSettings } from 'react-icons/md';
-import usePaginationParams from './usePaginationParams';
 import AllCheckBox from './AllCheckBox';
+import useFilteredQueryParams from './useFilteredQueryParams';
 // import CardsLoading from 'components/loading/CardsLoading';
 
 const LeadsCards = () => {
@@ -34,16 +34,33 @@ const LeadsCards = () => {
 			? 'superAdmin'
 			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
-	const { currentPage, setCurrentPage, pageSize, setPageSize } =
-		usePaginationParams();
+	// const { currentPage, setCurrentPage, pageSize, setPageSize } =
+	// 	usePaginationParams();
+
+	const {
+		currentPage,
+		setCurrentPage,
+		pageSize,
+		setPageSize,
+		queryParams,
+		setQueryParams,
+		setSearchQueryParams,
+		searchTags,
+		setSearchTags,
+		searchClear,
+		setSearchClear,
+		clearSearchParams,
+		setRefetchLoading,
+		refetchLoading,
+	} = useFilteredQueryParams();
 
 	// const [currentPage, setCurrentPage] = useState(null);
 	// const [searchParams, setSearchParams] = useSearchParams();
 	// const [pageSize, setPageSize] = useState(null);
-	const [queryParams, setQueryParams] = useState({
-		page: currentPage,
-		pageSize,
-	});
+	// const [queryParams, setQueryParams] = useState({
+	// 	page: currentPage,
+	// 	pageSize,
+	// });
 
 	const [addLead, setAddLead] = useState(false);
 	const [selectedValues, setSelectedValues] = useState([]);
@@ -67,6 +84,40 @@ const LeadsCards = () => {
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
 
+	// const {
+	// 	data: leads,
+	// 	isLoading: leadsLoading,
+	// 	error: leadsError,
+	// 	refetch: leadsRefetch,
+	// 	isFetching: leadsRefetching,
+	// } = useFetchItemsQuery(
+	// 	{
+	// 		path: '/lead/v2',
+	// 		params: queryParams,
+	// 	},
+	// 	{
+	// 		// skip: !queryParams || Object.keys(queryParams).length === 0,
+	// 		refetchOnMountOrArgChange: true,
+	// 	}
+	// );
+
+	// useEffect(() => {
+	// 	setQueryParams((prev) => ({
+	// 		...prev,
+	// 		page: currentPage,
+	// 	}));
+
+	// 	setCurrentPage(currentPage);
+	// }, [currentPage]);
+
+	// useEffect(() => {
+	// 	setQueryParams((prev) => ({
+	// 		...prev,
+	// 		pageSize,
+	// 	}));
+	// 	setPageSize(pageSize);
+	// }, [pageSize]);
+
 	const {
 		data: leads,
 		isLoading: leadsLoading,
@@ -78,60 +129,61 @@ const LeadsCards = () => {
 			path: '/lead/v2',
 			params: queryParams,
 		},
-		{ refetchOnMountOrArgChange: true }
+		{
+			skip: !queryParams,
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true, // Refetch when user comes back to tab
+			refetchOnReconnect: true, // Refetch on internet reconnection
+		}
 	);
 
-	useEffect(() => {
-		setQueryParams((prev) => ({
-			...prev,
-			page: currentPage,
-		}));
+	// useEffect(() => {
+	// 	leadsRefetch();
 
-		setCurrentPage(currentPage);
-	}, [currentPage]);
+	// 	if (queryParams?.page === 1) {
+	// 		setCurrentPage(1);
+	// 	}
 
-	useEffect(() => {
-		setQueryParams((prev) => ({
-			...prev,
-			pageSize,
-		}));
-		setPageSize(pageSize);
-	}, [pageSize]);
+	// 	setSelectAllChecked(false);
+	// 	setSelectedValues([]);
+	// }, [queryParams]);
 
-	useEffect(() => {
-		leadsRefetch({
-			path: '/lead/v2',
-			params: queryParams,
-		});
+	// useEffect(() => {
+	// 	leadsRefetch({
+	// 		path: '/lead/v2',
+	// 		params: queryParams,
+	// 	});
 
-		if (queryParams?.page === 1) {
-			setCurrentPage(1);
-		}
+	// 	if (queryParams?.page === 1) {
+	// 		setCurrentPage(1);
+	// 	}
 
-		setSelectAllChecked(false);
-		setSelectedValues([]);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [queryParams, leadsRefetch]);
+	// 	console.log({ queryParams });
+
+	// 	setSelectAllChecked(false);
+	// 	setSelectedValues([]);
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [queryParams, leadsRefetch]);
 
 	const refreshLeads = useCallback(() => {
 		leadsRefetch({
 			path: '/lead/v2',
 			params: queryParams,
+			force: true,
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [leadsRefetch, queryParams]);
 
 	useEffect(() => {
-		if (leads?.doc) {
+		if (leads) {
 			dispatch(
 				updateLeads({
-					leads: leads,
+					leads,
 					currentPage,
 					pageSize,
 				})
 			);
 		}
-	}, [currentPage, dispatch, leads, leadsRefetch, pageSize]);
+	}, [leads, currentPage, pageSize, dispatch]);
 
 	const saveManageCols = async () => {
 		try {
@@ -139,8 +191,6 @@ const LeadsCards = () => {
 				userId: user._id,
 				columns: hiddenCols,
 			};
-
-			console.log({ userHideColsData, hiddenCols });
 
 			await postApi(`api/customColumns`, userHideColsData);
 

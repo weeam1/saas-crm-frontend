@@ -21,6 +21,7 @@ import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
+import CustomTooltip from './CustomTooltip';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -96,9 +97,9 @@ const MainStatus = ({ lead, role }) => {
 				>
 					M Status
 				</Text>
-				<Tooltip label={label} closeOnClick={false} hasArrow>
+				<CustomTooltip label={label}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</HStack>
 			<SelectInput
 				name='eLeadStatus'

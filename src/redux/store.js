@@ -6,6 +6,7 @@ import announcementsReducer from './announcementsSlice';
 import missingFilesReducer from './missingFilesSlice';
 import webSocketReducer from './webSocketReducer';
 import positionsReducer from './positionsSlice';
+import filtersReducer from './filtersSlice';
 import countriesReducer, {
 	setCountries,
 	setCountryNames,
@@ -18,6 +19,7 @@ import countriesData from 'data/countries.json';
 const store = configureStore({
 	reducer: {
 		roles: roleReducer,
+		filters: filtersReducer,
 		positions: positionsReducer,
 		countries: countriesReducer,
 		leads: leadsReducer,

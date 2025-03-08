@@ -65,7 +65,6 @@ const BulkAssignModal = (props) => {
 				formData: values,
 			};
 
-			console.log({ values });
 			setIsLoading(true);
 
 			if (values?.agentAssigned) {

@@ -34,6 +34,28 @@ const leadsSlice = createSlice({
 				state.doc = state.doc?.map((lead, index) =>
 					index === leadIndex ? { ...lead, [key]: value } : lead
 				);
+
+				console.log(state.doc);
+			}
+		},
+
+		updateLeadFields: (state, action) => {
+			const { id, updates } = action.payload; // updates is an array of { key, value }
+			const leadIndex = state.doc.findIndex((lead) => lead._id === id);
+
+			if (leadIndex !== -1) {
+				// Update multiple fields (Immutable Update)
+				state.doc = state.doc.map((lead, index) =>
+					index === leadIndex
+						? {
+								...lead,
+								...updates.reduce((acc, { key, value }) => {
+									acc[key] = value;
+									return acc;
+								}, {}),
+							}
+						: lead
+				);
 			}
 		},
 
@@ -77,6 +99,7 @@ const leadsSlice = createSlice({
 export const {
 	updateLeads,
 	updateLeadField,
+	updateLeadFields,
 	updateMultipleLeadFields,
 	addOrUpdateLead,
 } = leadsSlice.actions;

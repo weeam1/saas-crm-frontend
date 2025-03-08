@@ -23,8 +23,6 @@ const LeadsModals = (props) => {
 		setDeleteLead,
 	} = props;
 
-	console.log({ data: refetchData });
-
 	return (
 		<>
 			{viewLead && (

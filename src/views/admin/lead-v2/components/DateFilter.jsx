@@ -131,6 +131,7 @@ import CustomDatePicker from 'components/datetime/CustomDatePicker';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import moment from 'moment';
+import useFilteredQueryParams from '../useFilteredQueryParams';
 
 const DateFilter = ({
 	setQueryParams,
@@ -138,6 +139,7 @@ const DateFilter = ({
 	setCurrentPage,
 	onClose,
 	isOpen,
+	setSearchQueryParams,
 	setSearchTags,
 	setSearchClear,
 }) => {
@@ -168,21 +170,25 @@ const DateFilter = ({
 			const from = toUTCString(values.startDate);
 			const to = toUTCString(values.endDate);
 
-			// Update query params for RTK Query
-			setQueryParams((prev) => ({
-				...prev,
-				dateTime: from && to ? `${from}|${to}` : from || to,
-				page: 1,
-			}));
-			setCurrentPage(1);
+			// // Update query params for RTK Query
+			// setQueryParams((prev) => ({
+			// 	...prev,
+			// 	page: 1,
+			// 	dateTime: from && to ? `${from}|${to}` : from || to,
+			// }));
 
-			const searchValues = [
-				`Start: ${formattedDate(from)}`,
-				`End: ${formattedDate(to)}`,
-			];
-			setSearchTags(searchValues);
+			setSearchQueryParams({
+				dateTime: from && to ? `${from}|${to}` : from || to,
+			});
+			// setCurrentPage(1);
+
+			// const searchValues = [
+			// 	`Start: ${formattedDate(from)}`,
+			// 	`End: ${formattedDate(to)}`,
+			// ];
+			// setSearchTags(searchValues);
 			setRefetchLoading(true);
-			setSearchClear(true);
+			// setSearchClear(true);
 			onClose();
 		},
 	});
