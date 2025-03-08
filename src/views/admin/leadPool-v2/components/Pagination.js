@@ -342,18 +342,11 @@ const Pagination = ({
           />
         </Box>
       </Flex>
-      <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
-      <Box mt={4}>
-        <TabContent activeTab={activeTab} data={data} isLoading={isLoading} pageSize={pageSize} sendRequest={sendRequest} buyLoading={buyLoading}  />
-      </Box>
       {displaySearchData && (
         <Flex
           justifyContent="space-between"
           alignItems="center"
           p={3}
-          mt={4}
-          borderTop="1px solid"
-          borderColor="softGray.600"
         >
           <HStack spacing={2}>
             <Text fontSize="sm" fontWeight="medium" color="gray.800">
@@ -373,6 +366,11 @@ const Pagination = ({
           </Button>
         </Flex>
       )}
+      <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
+      <Box mt={4}>
+        <TabContent activeTab={activeTab} data={data} isLoading={isLoading} pageSize={pageSize} sendRequest={sendRequest} buyLoading={buyLoading}  />
+      </Box>
+
     </Box>
   );
 };

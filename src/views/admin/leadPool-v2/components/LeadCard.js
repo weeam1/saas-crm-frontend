@@ -225,11 +225,11 @@ const LeadCard = ({
             />
           </HStack>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
-            {/* <ContactPair
+            <ContactPair
               label="Phone"
-              value={leadPhoneNumber}
+              // value={leadPhoneNumber}
               color="#7869FF"
-            /> */}
+            />
             <ContactPair
               label="WhatsApp"
               value={leadWhatsappNumber}

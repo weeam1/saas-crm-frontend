@@ -56,7 +56,6 @@ const Index = () => {
         });
       }
 
-
       let newData = [];
       if (Array.isArray(result.data?.result)) {
         newData = result.data.result;
@@ -371,25 +370,48 @@ const Index = () => {
     };
   };
 
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   const source = axios.CancelToken.source();
+
+  //   let timer = setTimeout(() => {
+  //     if (!displaySearchData && isMounted) {
+  //       setData([]);
+  //       if (activeTab === "All") {
+  //         fetchData(currentPage, pageSize, source);
+  //       } else if (activeTab === "Pending" || activeTab === "Rejected") {
+  //         fetchLeads(activeTab, currentPage, pageSize);
+  //       }
+  //     }
+  //     if (isMounted) {
+  //       fetchUserData();
+  //     }
+  //   }, 300); // Debounce the request by 300ms
+
+  //   return () => {
+  //     isMounted = false;
+  //     source.cancel("Component unmounted");
+  //     clearTimeout(timer); // Clear timeout to prevent unnecessary calls
+  //   };
+  // }, [activeTab, currentPage, pageSize, displaySearchData]);
   useEffect(() => {
     let isMounted = true;
     const source = axios.CancelToken.source();
+
     if (!displaySearchData && isMounted) {
-      setData([]);
+      setData([]); // Clear data to avoid UI flickering
       if (activeTab === "All") {
-        fetchData(1, pageSize, source);
+        fetchData(currentPage, pageSize, source); // Only fetch for the current page
       } else if (activeTab === "Pending" || activeTab === "Rejected") {
         fetchLeads(activeTab, currentPage, pageSize);
       }
     }
-    if (isMounted) {
-      fetchUserData();
-    }
+
     return () => {
       isMounted = false;
       source.cancel("Component unmounted");
     };
-  }, [activeTab, currentPage, pageSize, displaySearchData]);
+  }, [activeTab, currentPage, pageSize, displaySearchData]); // Depend only on these to avoid duplicate calls
 
   return (
     <PaginationPage
