@@ -1,6 +1,6 @@
 import { Box, Text, Flex } from "@chakra-ui/react";
 
-const LeadsProgress = ({ totalLeads }) => {
+const LeadsProgress = ({ totalLeads, userData }) => {
   return (
     <Box w={{ base: "100%", lg: "80%" }}>
       <Flex justify="space-between" align="center" mb={1}>
@@ -8,7 +8,7 @@ const LeadsProgress = ({ totalLeads }) => {
           Leads {totalLeads}
         </Text>
         <Text fontSize="24px" fontFamily="DM Sans" mt={{ base: 0, lg: 10 }}>
-          300 coins
+          {userData?.coins} coins
         </Text>
       </Flex>
     </Box>

@@ -111,6 +111,8 @@ const LeadScreen = () => {
     }
   };
 
+  // ... (other imports and code remain unchanged)
+
   const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
     try {
       setLoading(true);
@@ -127,15 +129,19 @@ const LeadScreen = () => {
       );
 
       setDisplaySearchData(true);
-      const newData = result.data?.result?.map((lead) => {
-        if (lead?.ip) {
-          const parts = lead.ip.split("-");
-          lead.ip = parts?.length > 0 ? parts[1] : parts[0];
-        }
-        return { ...lead };
-      });
+      const newData =
+        result.data?.result?.map((lead) => {
+          if (lead?.ip) {
+            const parts = lead.ip.split("-");
+            lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+          }
+          return {
+            ...lead,
+            agentId: lead.agentAssigned, // Map agentAssigned to agentId explicitly
+          };
+        }) || [];
 
-      setSearchedData(newData || []);
+      setSearchedData(newData);
       setTotalPages(result.data?.totalPages || 0);
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
@@ -168,15 +174,19 @@ const LeadScreen = () => {
       );
 
       setDisplayAdvSearchData(true);
-      const newData = result.data?.result?.map((lead) => {
-        if (lead?.ip) {
-          const parts = lead.ip.split("-");
-          lead.ip = parts?.length > 0 ? parts[1] : parts[0];
-        }
-        return { ...lead };
-      });
+      const newData =
+        result.data?.result?.map((lead) => {
+          if (lead?.ip) {
+            const parts = lead.ip.split("-");
+            lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+          }
+          return {
+            ...lead,
+            agentId: lead.agentAssigned, // Map agentAssigned to agentId explicitly
+          };
+        }) || [];
 
-      setSearchedData(newData || []);
+      setSearchedData(newData);
       setTotalPages(result.data?.totalPages || 0);
       setTotalLeads(result.data?.totalLeads || 0);
       setLeads({ ...leads, approvals: newData });
@@ -187,6 +197,8 @@ const LeadScreen = () => {
       setLoading(false);
     }
   };
+
+  // ... (rest of the code remains unchanged)
   // const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
   //   try {
   //     setLoading(true);

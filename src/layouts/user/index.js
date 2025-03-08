@@ -49,7 +49,6 @@ export default function User(props) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
-  // functions for changing the states from components
   const getRoute = () => {
     return window.location.pathname !== "/admin/full-screen-maps";
   };

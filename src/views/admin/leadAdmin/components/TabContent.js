@@ -5,7 +5,12 @@ import PendingItems from "../Leads/PendingItems";
 import RejectedItems from "../Leads/RejectedItems";
 import ApprovedItems from "../Leads/ApprovedItems";
 
-const TabContent = ({ activeTab, leadsdata, loading,approveChangeHandler }) => {
+const TabContent = ({
+  activeTab,
+  leadsdata,
+  loading,
+  approveChangeHandler,
+}) => {
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
     sm: "repeat(1, 1fr)",
@@ -41,8 +46,18 @@ const TabContent = ({ activeTab, leadsdata, loading,approveChangeHandler }) => {
         </Grid>
       ) : (
         <Grid {...gridProps}>
-          {activeTab === "All" && <AllItems data={filteredData} approveChangeHandler={approveChangeHandler} />}
-          {activeTab === "Pending" && <PendingItems data={filteredData} approveChangeHandler={approveChangeHandler} />}
+          {activeTab === "All" && (
+            <AllItems
+              data={filteredData}
+              approveChangeHandler={approveChangeHandler}
+            />
+          )}
+          {activeTab === "Pending" && (
+            <PendingItems
+              data={filteredData}
+              approveChangeHandler={approveChangeHandler}
+            />
+          )}
           {activeTab === "Approved" && <ApprovedItems data={filteredData} />}
           {activeTab === "Rejected" && <RejectedItems data={filteredData} />}
         </Grid>

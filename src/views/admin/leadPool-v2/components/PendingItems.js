@@ -3,8 +3,8 @@ import { Box, Text } from "@chakra-ui/react";
 import LeadGrid from "./LeadGrid";
 import { pendingLeadsData } from "../data/pending";
 
-const PendingItems = () => {
-  return <LeadGrid leads={pendingLeadsData} />;
+const PendingItems = ({data}) => {
+  return <LeadGrid leads={data} />;
 };
 
 export default PendingItems;

@@ -8,47 +8,92 @@ import {
   Flex,
   Box,
   Divider,
+  Select,
 } from "@chakra-ui/react";
 import { FaPlay } from "react-icons/fa";
 import { IoPlaySkipForwardSharp } from "react-icons/io5";
 import SearchBox from "./Search";
 import Tabs from "./Tabs";
 import TabContent from "./TabContent";
-import SearchTags from "./searchTags";
-import { leadValueFontSize } from "./constants";
 import LeadsProgress from "./LeadProgress";
 
-const Pagination = () => {
-  const totalPages = 10;
-  const totalItems = 100;
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
+const Pagination = ({
+  data,
+  totalPages,
+  totalLeads,
+  isLoading,
+  fetchData,
+  fetchSearchedData,
+  fetchAdvancedSearch,
+  setCurrentState,
+  currentState,
+  pageSize,
+  userData,
+  user,
+  dateTime,
+  activeTab,
+  setActiveTab,
+  currentPage,
+  setCurrentPage,
+  setPageSize,
+  setData,
+  setTotalPages,
+  setTotalLeads,
+  setIsLoading,
+  displaySearchData,
+  setDisplaySearchData,sendRequest, buyLoading,
+}) => {
+  
   const [gotoPage, setGotoPage] = useState(currentPage || "");
-  const [activeTab, setActiveTab] = useState("All");
-  const [totalLeads, setTotalLeads] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tags, setTags] = useState([]);
+  const pageSizeOptions = [10, 25, 50, 100];
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+  const startIndex = (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, totalLeads);
 
   const handleFirst = () => {
     setCurrentPage(1);
     setGotoPage(1);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, 1, pageSize);
+    } else {
+      fetchData(activeTab, 1, pageSize);
+    }
   };
+
   const handlePrevious = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       setGotoPage(currentPage - 1);
+      if (displaySearchData) {
+        fetchSearchedData(searchTerm, currentPage - 1, pageSize);
+      } else {
+        fetchData(activeTab, currentPage - 1, pageSize);
+      }
     }
   };
+
   const handleNext = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
       setGotoPage(currentPage + 1);
+      if (displaySearchData) {
+        fetchSearchedData(searchTerm, currentPage + 1, pageSize);
+      } else {
+        fetchData(activeTab, currentPage + 1, pageSize);
+      }
     }
   };
+
   const handleLast = () => {
     setCurrentPage(totalPages);
     setGotoPage(totalPages);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, totalPages, pageSize);
+    } else {
+      fetchData(activeTab, totalPages, pageSize);
+    }
   };
 
   const handleGoToChange = (value) => {
@@ -59,6 +104,33 @@ const Pagination = () => {
     const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
     setCurrentPage(page);
     setGotoPage(page);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, page, pageSize);
+    } else {
+      fetchData(activeTab, page, pageSize);
+    }
+  };
+
+  const handlePageSizeChange = (event) => {
+    const newPageSize = Number(event.target.value);
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+    setGotoPage(1);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, 1, newPageSize);
+    } else {
+      fetchData(activeTab, 1, newPageSize);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setData([]);
+    setTotalPages(0);
+    setTotalLeads(0);
+    setDisplaySearchData(false);
+    setSearchTerm("");
+    setTags([]);
+    fetchData(activeTab, 1, pageSize);
   };
 
   const buttonStyle = {
@@ -71,9 +143,8 @@ const Pagination = () => {
 
   return (
     <Box width="100%" bg="white" p={5} borderRadius="10px">
-      <LeadsProgress totalLeads={totalLeads} />
+      <LeadsProgress totalLeads={totalLeads} userData={userData} />
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
       <Flex
         direction={{ base: "column", md: "column", lg: "row" }}
         justifyContent={{ base: "center", md: "space-between" }}
@@ -92,6 +163,7 @@ const Pagination = () => {
           flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "300px" }}
         >
+          {/* Pagination controls */}
           <Flex
             direction={{ base: "column", md: "row" }}
             justifyContent={{ base: "center", md: "space-between" }}
@@ -110,11 +182,7 @@ const Pagination = () => {
                 color="black"
                 py={{ base: 1, md: 2 }}
                 px={{ base: 2, md: 4 }}
-                leftIcon={
-                  <IoPlaySkipForwardSharp
-                    style={{ transform: "rotate(180deg)" }}
-                  />
-                }
+                leftIcon={<IoPlaySkipForwardSharp style={{ transform: "rotate(180deg)" }} />}
                 aria-label="First Page"
               >
                 First
@@ -148,9 +216,7 @@ const Pagination = () => {
                 <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
-                  onChange={(valueString) =>
-                    setGotoPage(Number(valueString) || "")
-                  }
+                  onChange={(valueString) => setGotoPage(Number(valueString) || "")}
                   onBlur={handleGoToBlur}
                   min={1}
                   size="sm"
@@ -179,12 +245,30 @@ const Pagination = () => {
                       borderColor: "brand.500",
                     }}
                     _active={{ bg: "softGray.400" }}
-                    fontSize={leadValueFontSize}
                   />
                 </NumberInput>
                 <Text fontSize={{ base: "xs", md: "sm" }}>
                   of {Number(totalPages).toLocaleString()}
                 </Text>
+              </HStack>
+
+              <HStack spacing={1} fontWeight="medium" color="gray.800">
+                <Text fontSize={{ base: "xs", md: "sm" }}>Items per page:</Text>
+                <Select
+                  value={pageSize}
+                  onChange={handlePageSizeChange}
+                  size="sm"
+                  width="5rem"
+                  bg="softGray.50"
+                  border="1px solid softGray.600"
+                  borderRadius="md"
+                >
+                  {pageSizeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
               </HStack>
 
               <Text
@@ -193,7 +277,7 @@ const Pagination = () => {
                 color="gray.800"
                 textAlign={{ base: "center", md: "left" }}
               >
-                Showing {startIndex} - {endIndex} of {totalItems}
+                Showing {startIndex} - {endIndex} of {totalLeads}
               </Text>
             </Flex>
 
@@ -242,15 +326,53 @@ const Pagination = () => {
           maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
-          <SearchBox />
+          <SearchBox
+            fetchSearchedData={fetchSearchedData}
+            fetchAdvancedSearch={fetchAdvancedSearch}
+            pageSize={pageSize}
+            setData={setData}
+            setTotalPages={setTotalPages}
+            setTotalLeads={setTotalLeads}
+            setIsLoading={setIsLoading}
+            setDisplaySearchData={setDisplaySearchData}
+            onClearSearch={handleClearSearch}
+            isLoading={isLoading}
+            setSearchTerm={setSearchTerm}
+            setTags={setTags}
+          />
         </Box>
       </Flex>
-
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
-
       <Box mt={4}>
-        <TabContent activeTab={activeTab} onTotalLeadsChange={setTotalLeads} />
+        <TabContent activeTab={activeTab} data={data} isLoading={isLoading} pageSize={pageSize} sendRequest={sendRequest} buyLoading={buyLoading}  />
       </Box>
+      {displaySearchData && (
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          p={3}
+          mt={4}
+          borderTop="1px solid"
+          borderColor="softGray.600"
+        >
+          <HStack spacing={2}>
+            <Text fontSize="sm" fontWeight="medium" color="gray.800">
+              Lead Search:
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              {searchTerm || (tags.length > 0 ? tags.join(", ") : "No filters applied")}
+            </Text>
+          </HStack>
+          <Button
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            onClick={handleClearSearch}
+          >
+            Clear
+          </Button>
+        </Flex>
+      )}
     </Box>
   );
 };

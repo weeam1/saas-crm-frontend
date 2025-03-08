@@ -1,26 +1,91 @@
 import React from "react";
-import { Box, Grid, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Grid, Text } from "@chakra-ui/react";
 import LeadCard from "./LeadCard";
 
-const LeadGrid = ({ leads }) => {
-  const templateColumns = useBreakpointValue({
-    base: "repeat(1, 1fr)",
-    sm: "repeat(1, 1fr)",
-    md: "repeat(auto-fit, minmax(320px, 1fr))",
-    lg: "repeat(auto-fit, minmax(350px, 1fr))",
-  });
+const LeadGrid = ({
+  leads,
+  isLoading,
+  approveChangeHandler,
+  buyLoading,
+  sendRequest,
+}) => {
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minH="200px"
+        p={4}
+      >
+        <Text
+          fontSize="lg"
+          color="gray.500"
+          fontFamily="DM Sans"
+          textAlign="center"
+        >
+          Loading...
+        </Text>
+      </Box>
+    );
+  }
+
+  // Define grid columns based on number of leads
+  const gridColumns =
+    leads.length === 1
+      ? {
+          base: "minmax(280px, 350px)", // Fixed width for single card
+          md: "minmax(320px, 350px)",
+          lg: "minmax(350px, 350px)",
+        }
+      : {
+          base: "repeat(auto-fit, minmax(280px, 1fr))",
+          md: "repeat(auto-fit, minmax(320px, 1fr))",
+          lg: "repeat(auto-fit, minmax(350px, 1fr))",
+        };
 
   return (
-    <Box minH="100vh">
-      <Grid
-        templateColumns={templateColumns}
-        gap={{ base: 2, md: 2, lg: 2 }}
-        p={{ base: 2, md: 2 }}
-      >
-        {leads.map((lead, index) => (
-          <LeadCard key={index} {...lead} />
-        ))}
-      </Grid>
+    <Box minH="100vh" overflowX="hidden">
+      {leads.length > 0 ? (
+        <Grid
+          sx={{
+            gridTemplateColumns: gridColumns,
+            gap: { base: 3, md: 4, lg: 4 },
+            p: { base: 2, md: 4 },
+            width: "100%",
+            maxW: "100%",
+            overflowX: "hidden",
+          }}
+        >
+          {leads.map((lead, index) => (
+            <Box key={index} w="100%" maxW="auto" minW="280px">
+              <LeadCard
+                {...lead}
+                approveChangeHandler={approveChangeHandler}
+                sendRequest={sendRequest}
+                buyLoading={buyLoading}
+              />
+            </Box>
+          ))}
+        </Grid>
+      ) : (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minH="200px"
+          p={4}
+        >
+          <Text
+            fontSize="lg"
+            color="gray.500"
+            fontFamily="DM Sans"
+            textAlign="center"
+          >
+            No data found
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 };
