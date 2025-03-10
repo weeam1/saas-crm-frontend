@@ -10,6 +10,7 @@ const TabContent = ({
   leadsdata,
   loading,
   approveChangeHandler,
+  pageSize,
 }) => {
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
@@ -27,41 +28,49 @@ const TabContent = ({
     p: { base: 2, md: 2 },
   };
 
+  const skeletonCount = loading
+    ? filteredData.length > 0
+      ? filteredData.length
+      : pageSize
+    : 0;
+
+  if (loading) {
+    return (
+      <Grid {...gridProps} minW="300px">
+        {Array(skeletonCount)
+          .fill(0)
+          .map((_, index) => (
+            <Skeleton
+              key={index}
+              height="320px"
+              borderRadius="lg"
+              startColor="gray.100"
+              endColor="gray.200"
+              width="100%"
+            />
+          ))}
+      </Grid>
+    );
+  }
+
   return (
     <Box>
-      {loading ? (
-        <Grid {...gridProps} minW="300px">
-          {Array(filteredData.length > 0 ? filteredData.length : 1)
-            .fill(0)
-            .map((_, index) => (
-              <Skeleton
-                key={index}
-                height="320px"
-                borderRadius="lg"
-                startColor="gray.100"
-                endColor="gray.200"
-                width="100%"
-              />
-            ))}
-        </Grid>
-      ) : (
-        <Grid {...gridProps}>
-          {activeTab === "All" && (
-            <AllItems
-              data={filteredData}
-              approveChangeHandler={approveChangeHandler}
-            />
-          )}
-          {activeTab === "Pending" && (
-            <PendingItems
-              data={filteredData}
-              approveChangeHandler={approveChangeHandler}
-            />
-          )}
-          {activeTab === "Approved" && <ApprovedItems data={filteredData} />}
-          {activeTab === "Rejected" && <RejectedItems data={filteredData} />}
-        </Grid>
-      )}
+      <Grid {...gridProps}>
+        {activeTab === "All" && (
+          <AllItems
+            data={filteredData}
+            approveChangeHandler={approveChangeHandler}
+          />
+        )}
+        {activeTab === "Pending" && (
+          <PendingItems
+            data={filteredData}
+            approveChangeHandler={approveChangeHandler}
+          />
+        )}
+        {activeTab === "Approved" && <ApprovedItems data={filteredData} />}
+        {activeTab === "Rejected" && <RejectedItems data={filteredData} />}
+      </Grid>
     </Box>
   );
 };

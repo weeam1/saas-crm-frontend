@@ -21,7 +21,7 @@ const AdvancedSearchForm = (props) => {
     tree,
   } = props;
 
-  const user = JSON.parse(localStorage.getItem('user')) || userProp;
+  const user = JSON.parse(localStorage.getItem("user")) || userProp;
   const { agents } = useFetchUserHierarchy(user);
 
   const isSuperAdmin = user?.role === "superAdmin";

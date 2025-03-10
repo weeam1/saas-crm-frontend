@@ -17,8 +17,7 @@ import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 import { getUserNameById } from "utils";
-
-
+import { formattedDate } from "utils/helpers";
 const LeadCard = ({
   leadId,
   leadName,
@@ -31,12 +30,32 @@ const LeadCard = ({
   approvalStatus: initialApprovalStatus,
   agentId,
   approved,
+  approvedDate,
+  rejectedDate,
   createdDate,
   tab = "All",
   approveChangeHandler,
   _id,
 }) => {
-  
+  // const formatDate = (date) => {
+  //   return date
+  //     ? new Intl.DateTimeFormat("en-US", {
+  //         year: "numeric",
+  //         month: "short",
+  //         day: "numeric",
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //         // second: "2-digit",
+  //         hour12: true,
+  //         timeZone: "Asia/Dubai",
+  //       }).format(new Date(date))
+  //     : "N/A";
+  // };
+
+  const formattedCreatedDate = formattedDate(createdDate);
+  const formattedApprovedDate = formattedDate(approvedDate);
+  const formattedRejectedDate = formattedDate(rejectedDate);
+
   const users = useSelector((state) => state.user?.users) || [];
   const agentName = getUserNameById(agentId, users);
 
@@ -117,7 +136,7 @@ const LeadCard = ({
               Approved on
             </Text>
             <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
-              {approved || "N/A"}
+              {formattedApprovedDate || "N/A"}
             </Text>
             <Box
               bg="#4BFF79"
@@ -139,22 +158,30 @@ const LeadCard = ({
         );
       } else if (statusLower === "rejected") {
         return (
-          <Box
-            bg="#FF4B4B"
-            w="100%"
-            p={1}
-            borderRadius="5px"
-            textAlign="center"
-          >
-            <Text
-              fontSize="xs"
-              color="white"
-              fontWeight="bold"
-              fontFamily="DM Sans"
-            >
-              Rejected
+          <VStack w="100%" spacing={1} align="start">
+            <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
+              Rejected on
             </Text>
-          </Box>
+            <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
+              {formattedRejectedDate || "N/A"}
+            </Text>
+            <Box
+              bg="#FF4B4B"
+              w="100%"
+              p={1}
+              borderRadius="5px"
+              textAlign="center"
+            >
+              <Text
+                fontSize="xs"
+                color="white"
+                fontWeight="bold"
+                fontFamily="DM Sans"
+              >
+                Rejected
+              </Text>
+            </Box>
+          </VStack>
         );
       } else {
         return (
@@ -207,16 +234,30 @@ const LeadCard = ({
       );
     } else if (tab === "Rejected") {
       return (
-        <Box bg="#FF4B4B" w="100%" p={1} borderRadius="5px" textAlign="center">
-          <Text
-            fontSize="xs"
-            color="white"
-            fontWeight="bold"
-            fontFamily="DM Sans"
-          >
-            Rejected
+        <VStack w="100%" spacing={1} align="start">
+          <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
+            Rejected on
           </Text>
-        </Box>
+          <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
+            {formattedRejectedDate || "N/A"}
+          </Text>
+          <Box
+            bg="#FF4B4B"
+            w="100%"
+            p={1}
+            borderRadius="5px"
+            textAlign="center"
+          >
+            <Text
+              fontSize="xs"
+              color="white"
+              fontWeight="bold"
+              fontFamily="DM Sans"
+            >
+              Rejected
+            </Text>
+          </Box>
+        </VStack>
       );
     } else if (tab === "Pending") {
       return (
@@ -388,7 +429,7 @@ const LeadCard = ({
       </HStack>
       <HStack w="100%" justify="flex-end" mt={1}>
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {createdDate || "N/A"}
+          Lead time: {formattedCreatedDate}
         </Text>
       </HStack>
     </Box>

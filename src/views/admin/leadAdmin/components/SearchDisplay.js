@@ -6,7 +6,7 @@ const SearchDisplay = ({ searchQuery, advancedSearchValues, onClear }) => {
   const displayText = isAdvancedSearch
     ? "Advanced Search: " +
       Object.entries(advancedSearchValues)
-        .filter(([_, value]) => value) // Only show non-empty values
+        .filter(([_, value]) => value) 
         .map(([key, value]) => `${key}: ${value}`)
         .join(", ")
     : `Simple Search: ${searchQuery}`;

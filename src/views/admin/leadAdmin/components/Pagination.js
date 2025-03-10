@@ -41,6 +41,8 @@
 //   clearAdvancedSearch,
 //   approveChangeHandler,
 //   formValues = {},
+//   isAgent,
+//   isSuperAdmin,
 // }) => {
 //   const [gotoPage, setGotoPage] = useState(currentPage || "");
 
@@ -94,7 +96,12 @@
 
 //   return (
 //     <Box width="100%" bg="white" p={5} borderRadius="10px">
-//       <LeadsProgress totalLeads={totalItems} />
+//       <LeadsProgress
+//         totalLeads={totalItems}
+//         searchQuery={searchQuery}
+//         formValues={formValues}
+//         isSearchActive={isSearchActive}
+//       />
 //       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
 //       <Flex
@@ -127,7 +134,7 @@
 //               <Button
 //                 {...buttonStyle}
 //                 onClick={handleFirst}
-//                 isDisabled={currentPage === 1}
+//                 isDisabled={loading || currentPage === 1}
 //                 variant="solid"
 //                 bg="softGray.600"
 //                 color="black"
@@ -145,7 +152,7 @@
 //               <Button
 //                 {...buttonStyle}
 //                 onClick={handlePrevious}
-//                 isDisabled={currentPage === 1}
+//                 isDisabled={loading || currentPage === 1}
 //                 variant="solid"
 //                 bg="softGray.600"
 //                 color="black"
@@ -239,7 +246,9 @@
 //                 {...buttonStyle}
 //                 onClick={handleNext}
 //                 isDisabled={
-//                   currentPage === totalPagesForTab || totalItems === 0
+//                   loading ||
+//                   currentPage === totalPagesForTab ||
+//                   totalItems === 0
 //                 }
 //                 variant="solid"
 //                 bg="softGray.600"
@@ -255,7 +264,9 @@
 //                 {...buttonStyle}
 //                 onClick={handleLast}
 //                 isDisabled={
-//                   currentPage === totalPagesForTab || totalItems === 0
+//                   loading ||
+//                   currentPage === totalPagesForTab ||
+//                   totalItems === 0
 //                 }
 //                 variant="solid"
 //                 bg="softGray.600"
@@ -298,10 +309,13 @@
 //           />
 //         </Box>
 //       </Flex>
+
 //       {isSearchActive && (
 //         <ClearAdvancedSearchButton
 //           clearAdvancedSearch={clearAdvancedSearch}
 //           loading={loading}
+//           searchQuery={searchQuery}
+//           formValues={formValues}
 //         />
 //       )}
 //       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
@@ -310,9 +324,9 @@
 //         <TabContent
 //           activeTab={activeTab}
 //           leadsdata={leads}
-//           loading={loading}
+//           loading={loading || !leads} // Keep this to ensure skeletons on initial load
 //           approveChangeHandler={approveChangeHandler}
-//           isSearchActive={isSearchActive}
+//           pageSize={pageSize} // Pass pageSize to TabContent
 //         />
 //       </Box>
 //     </Box>
@@ -365,6 +379,7 @@ const Pagination = ({
   approveChangeHandler,
   formValues = {},
   isAgent,
+  searchNotFound,
   isSuperAdmin,
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || "");
@@ -457,7 +472,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleFirst}
-                isDisabled={currentPage === 1}
+                isDisabled={loading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -475,7 +490,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handlePrevious}
-                isDisabled={currentPage === 1}
+                isDisabled={loading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -569,7 +584,9 @@ const Pagination = ({
                 {...buttonStyle}
                 onClick={handleNext}
                 isDisabled={
-                  currentPage === totalPagesForTab || totalItems === 0
+                  loading ||
+                  currentPage === totalPagesForTab ||
+                  totalItems === 0
                 }
                 variant="solid"
                 bg="softGray.600"
@@ -585,7 +602,9 @@ const Pagination = ({
                 {...buttonStyle}
                 onClick={handleLast}
                 isDisabled={
-                  currentPage === totalPagesForTab || totalItems === 0
+                  loading ||
+                  currentPage === totalPagesForTab ||
+                  totalItems === 0
                 }
                 variant="solid"
                 bg="softGray.600"
@@ -610,7 +629,7 @@ const Pagination = ({
           width={{ base: "100%", md: "100%", lg: "auto" }}
           flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "200px" }}
-          maxWidth={{ lg: "470px" }}
+          maxWidth={{ base: "auto", lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
           <SearchBox
@@ -639,14 +658,29 @@ const Pagination = ({
       )}
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
 
-      <Box mt={4}>
+      {/* <Box mt={4}>
         <TabContent
           activeTab={activeTab}
           leadsdata={leads}
-          loading={loading}
+          loading={loading || !leads}
           approveChangeHandler={approveChangeHandler}
-          isSearchActive={isSearchActive}
+          pageSize={pageSize}
         />
+      </Box> */}
+      <Box mt={4}>
+        {searchNotFound && !loading ? (
+          <Text color="red.500" fontSize="md" textAlign="center">
+            {searchNotFound}
+          </Text>
+        ) : (
+          <TabContent
+            activeTab={activeTab}
+            leadsdata={leads}
+            loading={loading || !leads}
+            approveChangeHandler={approveChangeHandler}
+            pageSize={pageSize}
+          />
+        )}
       </Box>
     </Box>
   );

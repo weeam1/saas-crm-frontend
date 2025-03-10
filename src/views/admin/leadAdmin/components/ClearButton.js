@@ -1,42 +1,8 @@
-// import React from "react";
-// import { Button, Flex } from "@chakra-ui/react";
-// import { BiX } from "react-icons/bi";
-
-// const ClearAdvancedSearchButton = ({ clearAdvancedSearch, loading }) => {
-//   const handleClear = () => {
-//     clearAdvancedSearch();
-//   };
-
-//   return (
-//     <Flex width="100%" justifyContent="flex-end">
-//       <Button
-//         border="1px solid"
-//         mt="4px"
-//         borderColor="softGray.600"
-//         bg="white"
-//         borderRadius="md"
-//         p={4}
-//         fontSize="xs"
-//         w="100px"
-//         minW="max-content"
-//         height="2.2rem"
-//         onClick={handleClear}
-//         _hover={{ bg: "gray.50" }}
-//         _active={{ bg: "gray.100" }}
-//         isDisabled={loading}
-//         leftIcon={<BiX />}
-//       >
-//         Clear
-//       </Button>
-//     </Flex>
-//   );
-// };
-
-// export default ClearAdvancedSearchButton;
-
 import React from "react";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { BiX } from "react-icons/bi";
+import { getUserNameById } from "utils";
+import { useSelector } from "react-redux";
 
 const ClearAdvancedSearchButton = ({
   clearAdvancedSearch,
@@ -48,9 +14,13 @@ const ClearAdvancedSearchButton = ({
     clearAdvancedSearch();
   };
 
-  // Determine the search label to display
+  const users = useSelector((state) => state.user?.users) || [];
   const getSearchLabel = () => {
-    // Simple search via input
+    const agentName = formValues?.agentAssigned
+      ? getUserNameById(formValues.agentAssigned, users) ||
+        formValues.agentAssigned
+      : null;
+
     if (searchQuery && Object.keys(formValues).length === 0) {
       return `Lead Name: ${searchQuery}`;
     }
@@ -64,7 +34,7 @@ const ClearAdvancedSearchButton = ({
             value !== undefined &&
             key !== "agentAssigned" &&
             key !== "managerAssigned"
-        ) // Exclude raw IDs
+        )
         .map(([key, value]) => {
           switch (key) {
             case "leadName":
@@ -81,9 +51,9 @@ const ClearAdvancedSearchButton = ({
               return `Phone: ${value}`;
             case "leadWhatsappNumber":
               return `WhatsApp: ${value}`;
-            case "agentName": // Use agentName from enhancedValues
-              return `Agent: ${value}`;
-            case "managerName": // Use managerName from enhancedValues
+            case "agentName":
+              return `Agent: ${value}`; // Use agentName if provided (unlikely in this case)
+            case "managerName":
               return `Manager: ${value}`;
             case "ip":
               return `IP: ${value}`;
@@ -112,12 +82,16 @@ const ClearAdvancedSearchButton = ({
           }
         });
 
-      // Fallback to agentAssigned if agentName isn’t provided (backward compatibility)
-      if (formValues.agentAssigned && !formValues.agentName) {
-        searchFields.push(`Agent: ${formValues.agentAssigned}`);
+      // Add agent name if agentAssigned exists, using getUserNameById result
+      if (formValues.agentAssigned && agentName) {
+        searchFields.push(`Agent: ${agentName}`);
       }
-      if (formValues.managerAssigned && !formValues.managerName) {
-        searchFields.push(`Manager: ${formValues.managerAssigned}`);
+      // Add manager name if needed (assuming similar utility exists, or fallback to ID)
+      if (formValues.managerAssigned) {
+        const managerName =
+          getUserNameById(formValues.managerAssigned) ||
+          formValues.managerAssigned;
+        searchFields.push(`Manager: ${managerName}`);
       }
 
       return searchFields.join(", ") || null;

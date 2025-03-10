@@ -1,4 +1,4 @@
-// import { useState } from "react";
+// import { useState, useEffect } from "react"; // Added useEffect
 // import {
 //   Input,
 //   InputGroup,
@@ -9,7 +9,6 @@
 // } from "@chakra-ui/react";
 // import { SearchIcon } from "@chakra-ui/icons";
 // import AdvancedSearchModal from "./AdvancedModal";
-// // import ClearAdvancedSearchButton from "./ClearButton";
 
 // const SearchBox = ({
 //   onSearch,
@@ -27,6 +26,11 @@
 // }) => {
 //   const [isAdvanceOpen, setIsAdvanceOpen] = useState(false);
 //   const [inputValue, setInputValue] = useState(searchQuery || "");
+
+//   // Sync inputValue with searchQuery from parent
+//   useEffect(() => {
+//     setInputValue(searchQuery);
+//   }, [searchQuery]);
 
 //   const toggleAdvanceSearch = () => {
 //     setIsAdvanceOpen((prev) => !prev);
@@ -48,6 +52,7 @@
 //       onSearch("");
 //     }
 //   };
+
 //   const isAdvancedSearchActive =
 //     formValues && Object.keys(formValues).length > 0;
 
@@ -59,8 +64,8 @@
 //       display="flex"
 //       flexDirection="column"
 //       alignItems="center"
-//       position="relative" // Ensure SearchBox is a positioning context
-//       zIndex="1" // Lower than navbar (assuming navbar has higher z-index, e.g., 1000)
+//       position="relative"
+//       zIndex="1"
 //     >
 //       <HStack spacing={1} flexDirection={{ base: "column", md: "row" }}>
 //         <InputGroup
@@ -68,7 +73,7 @@
 //           border="1px solid"
 //           borderColor="softGray.600"
 //           borderRadius="md"
-//           w={{ base: "100%", md: "280px" }} 
+//           w={{ base: "100%", md: "280px" }}
 //           overflow="hidden"
 //           position="relative"
 //         >
@@ -130,12 +135,6 @@
 //           >
 //             Advanced Search
 //           </Button>
-//           {/* {isAdvancedSearchActive && (
-//             <ClearAdvancedSearchButton
-//               clearAdvancedSearch={clearAdvancedSearch}
-//               loading={loading}
-//             />
-//           )} */}
 //         </HStack>
 //       </HStack>
 
@@ -156,8 +155,7 @@
 // };
 
 // export default SearchBox;
-
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import {
   Input,
   InputGroup,
@@ -217,7 +215,7 @@ const SearchBox = ({
 
   return (
     <Box
-      width={{ base: "100%", lg: "fit-content" }}
+      width={{ base: "100%", lg: "fit-content" }} // Full width on base, fit-content on lg
       bg="softGray.50"
       borderRadius="md"
       display="flex"
@@ -225,14 +223,19 @@ const SearchBox = ({
       alignItems="center"
       position="relative"
       zIndex="1"
+      px={{ base: 2, md: 0 }} // Add padding on small screens for better spacing
     >
-      <HStack spacing={1} flexDirection={{ base: "column", md: "row" }}>
+      <HStack
+        spacing={1}
+        flexDirection={{ base: "column", md: "row" }}
+        w="100%" // Ensure HStack takes full width
+      >
         <InputGroup
           bg="white"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          w={{ base: "100%", md: "280px" }}
+          w={{ base: "100%", lg: "280px" }} // Full width on base, 280px on md+
           overflow="hidden"
           position="relative"
         >
@@ -242,7 +245,7 @@ const SearchBox = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             border="none"
-            w="100%"
+            w="100%" // Ensure Input takes full width of InputGroup
             fontSize="xs"
             height="2.2rem"
             textOverflow="ellipsis"
@@ -276,7 +279,9 @@ const SearchBox = ({
           </InputRightElement>
         </InputGroup>
 
-        <HStack gap="1">
+        <HStack gap="1" w={{ base: "100%", md: "auto" }}>
+          {" "}
+          {/* Full width on base */}
           <Button
             border="1px solid"
             borderColor="softGray.600"
@@ -284,7 +289,8 @@ const SearchBox = ({
             borderRadius="md"
             p={4}
             fontSize="xs"
-            w="150px"
+            mx="auto"
+            w={{ base: "150px", md: "150px" }} // Full width on base, 150px on md+
             minW="max-content"
             height="2.2rem"
             onClick={toggleAdvanceSearch}
