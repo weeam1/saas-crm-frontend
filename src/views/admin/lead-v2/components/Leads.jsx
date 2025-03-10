@@ -14,9 +14,7 @@ import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
 import { DeleteIcon } from '@chakra-ui/icons';
-import { useSearchParams } from 'react-router-dom';
 import useFilteredQueryParams from '../useFilteredQueryParams';
-// import VirtualLeads from './VirtualLeads';
 
 const Leads = ({
 	data,
@@ -82,21 +80,13 @@ const Leads = ({
 
 	useEffect(() => {
 		if (leadsRefetching) {
-			setRefetchLoading(true); // Set loading to true when refetching starts
-
-			// Cleanup timeout if state changes
+			setRefetchLoading(true);
 		} else {
-			setRefetchLoading(false);
+			const timer = setTimeout(() => setRefetchLoading(false), 2000);
+			return () => clearTimeout(timer);
 		}
+	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
 
-		const timeout = setTimeout(() => {
-			setRefetchLoading(false); // Auto-disable loading after 3 seconds
-		}, 3000);
-
-		return () => clearTimeout(timeout);
-	}, [leadsRefetching]);
-
-	// Modals states
 	const [viewLead, setViewLead] = useState({
 		isOpen: false,
 		lid: null,
