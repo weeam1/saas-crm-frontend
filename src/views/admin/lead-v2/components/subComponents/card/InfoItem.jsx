@@ -46,7 +46,7 @@ const InfoItem = ({
 				/>
 			</Tooltip> */}
 
-			<CustomTooltip label={label || 'N/A'}>
+			<CustomTooltip label={value || 'N/A'}>
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}
