@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import PaginationPage from "./components/Pagination";
 import { getApi, postApi, putApi } from "services/api";
 import { constant } from "constant";
@@ -7,13 +8,14 @@ import { toast } from "react-toastify";
 
 const Index = () => {
   const user = JSON.parse(localStorage.getItem("user"));
+  const location = useLocation();
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [currentState, setCurrentState] = useState("all_leads");
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [activeTab, setActiveTab] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
@@ -22,9 +24,20 @@ const Index = () => {
   const [userData, setUserData] = useState(null);
   const [buyLoading, setBuyLoading] = useState({});
 
+  // Debounce utility function
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
   const fetchData = async (pageNo = 1, size = pageSize, source) => {
+    if (isLoading) return; // Prevent multiple fetches
     let isMounted = true;
     setIsLoading(true);
+    setError(null);
     try {
       let result;
       if (
@@ -40,6 +53,7 @@ const Index = () => {
           source
         );
       } else {
+        // Fixed: Removed invalid character ''
         result = await axios.get(`${constant.baseUrl}api/adminApproval/get`, {
           headers: {
             Authorization:
@@ -62,10 +76,7 @@ const Index = () => {
       } else if (Array.isArray(result.data?.approvals)) {
         newData = result.data.approvals;
       } else {
-        console.error(
-          "Unexpected response format for pageSize=" + size + ":",
-          result.data
-        );
+        console.error("Unexpected response format:", result.data);
         throw new Error("API returned invalid data format");
       }
 
@@ -85,14 +96,14 @@ const Index = () => {
         );
       }
     } catch (error) {
-      console.error("Fetch Error for pageSize=" + size + ":", error);
-      if (axios.isCancel(error)) {
-        console.log("Fetch cancelled for pageSize=" + size);
-      }
-      if (isMounted) {
-        setData([]);
-        setTotalPages(0);
-        setTotalLeads(0);
+      if (!axios.isCancel(error)) {
+        console.error("Fetch Error:", error);
+        if (isMounted) {
+          setError(error.message || "Failed to fetch data");
+          setData([]);
+          setTotalPages(0);
+          setTotalLeads(0);
+        }
       }
     } finally {
       if (isMounted) {
@@ -126,20 +137,17 @@ const Index = () => {
       isMounted = false;
     };
   };
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   const fetchLeads = async (
     tab = activeTab,
     page = currentPage,
     size = pageSize
   ) => {
+    if (isLoading) return; // Prevent multiple fetches
     let isMounted = true;
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
-
       const queryParams = new URLSearchParams();
       if (tab !== "All") {
         const statusMap = {
@@ -185,11 +193,11 @@ const Index = () => {
   };
 
   const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
+    if (isLoading) return; // Prevent multiple fetches
     let isMounted = true;
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
-
       let result = await getApi(
         user.role === "superAdmin"
           ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
@@ -235,11 +243,11 @@ const Index = () => {
     pageNo = 1,
     size = pageSize
   ) => {
+    if (isLoading) return; // Prevent multiple fetches
     let isMounted = true;
+    setIsLoading(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
-
       let result = await getApi(
         user.role === "superAdmin"
           ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
@@ -294,6 +302,82 @@ const Index = () => {
     }
   };
 
+  // const sendRequest = async (leadId) => {
+  //   let isMounted = true;
+  //   setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
+
+  //   try {
+  //     const stats = await fetchAgentLeadsSats(user._id);
+  //     if (!stats.canAddLeads) {
+  //       toast.error("You cannot add more leads at this time.", {
+  //         position: toast.POSITION.TOP_RIGHT,
+  //         autoClose: 3000,
+  //       });
+  //       return;
+  //     }
+
+  //     let payload = {
+  //       leadId,
+  //       agentId: user._id,
+  //       approvalStatus: "pending",
+  //     };
+
+  //     const approvalResponse = await postApi("api/adminApproval/add", payload);
+  //     if (approvalResponse.status !== 200) {
+  //       throw new Error("Failed to send lead for approval");
+  //     }
+
+  //     const userResponse = await getApi(`api/user/view/${user._id}`);
+  //     const lead = data.find((l) => l._id === leadId);
+  //     const coinCost = lead?.leadStatus === "new" ? 300 : 50;
+  //     const currentCoins = userResponse?.data?.coins || 0;
+  //     const updatedCoins = currentCoins - coinCost;
+
+  //     if (updatedCoins < 0) {
+  //       throw new Error("Insufficient coins to purchase this lead");
+  //     }
+
+  //     const updateResponse = await putApi(`api/user/edit/${user._id}`, {
+  //       coins: updatedCoins,
+  //     });
+
+  //     if (updateResponse.status === 200 && isMounted) {
+  //       // Update user data
+  //       setUserData((prev) => ({ ...prev, coins: updatedCoins }));
+
+  //       // Remove the purchased lead from the current data
+  //       const updatedData = data.filter((lead) => lead._id !== leadId);
+  //       setData(updatedData);
+
+  //       // Show success toast
+  //       toast.success("Lead purchased and sent for approval", {
+  //         position: toast.POSITION.TOP_RIGHT,
+  //         autoClose: 3000,
+  //       });
+
+  //       // Optionally, update the "Pending" leads section
+  //       // If you have a separate state for pending leads, add the purchased lead to it
+  //       // Example:
+  //       // setPendingLeads((prev) => [...prev, lead]);
+  //     }
+  //   } catch (error) {
+  //     console.error("Send Request Error:", error);
+  //     if (isMounted) {
+  //       toast.error(error.message || "Failed to purchase lead", {
+  //         position: toast.POSITION.TOP_RIGHT,
+  //         autoClose: 3000,
+  //       });
+  //     }
+  //   } finally {
+  //     if (isMounted) {
+  //       setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
+  //     }
+  //   }
+
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // };
   const sendRequest = async (leadId) => {
     let isMounted = true;
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
@@ -301,12 +385,9 @@ const Index = () => {
     try {
       const stats = await fetchAgentLeadsSats(user._id);
       if (!stats.canAddLeads) {
-        toast({
-          title: "Error",
-          description: "You cannot add more leads at this time.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
+        toast.error("You cannot add more leads at this time.", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
         });
         return;
       }
@@ -337,29 +418,33 @@ const Index = () => {
       });
 
       if (updateResponse.status === 200 && isMounted) {
+        // Update user data
         setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-        fetchData(currentPage, pageSize);
-        setTimeout(() => {
-          if (isMounted) {
-            toast({
-              title: "Success",
-              description: "Lead purchased and sent for approval",
-              status: "success",
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-        }, 0);
+
+        // Remove the purchased lead from the current data
+        const updatedData = data.filter((lead) => lead._id !== leadId);
+        setData(updatedData);
+
+        // Decrement the total leads count by 1
+        setTotalLeads((prev) => prev - 1);
+
+        // Show success toast
+        toast.success("Lead purchased and sent for approval", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+
+        // Optionally, update the "Pending" leads section
+        // If you have a separate state for pending leads, add the purchased lead to it
+        // Example:
+        // setPendingLeads((prev) => [...prev, lead]);
       }
     } catch (error) {
       console.error("Send Request Error:", error);
       if (isMounted) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to purchase lead",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
+        toast.error(error.message || "Failed to purchase lead", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
         });
       }
     } finally {
@@ -372,49 +457,44 @@ const Index = () => {
       isMounted = false;
     };
   };
+  // Memoized debounced fetch functions
+  const debouncedFetchData = useCallback(debounce(fetchData, 300), [
+    dateTime,
+    user,
+    currentState,
+  ]);
+  const debouncedFetchLeads = useCallback(debounce(fetchLeads, 300), [user]);
+  const debouncedFetchSearchedData = useCallback(
+    debounce(fetchSearchedData, 300),
+    [dateTime, user]
+  );
+  const debouncedFetchAdvancedSearch = useCallback(
+    debounce(fetchAdvancedSearch, 300),
+    [dateTime, user]
+  );
 
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   const source = axios.CancelToken.source();
-
-  //   let timer = setTimeout(() => {
-  //     if (!displaySearchData && isMounted) {
-  //       setData([]);
-  //       if (activeTab === "All") {
-  //         fetchData(currentPage, pageSize, source);
-  //       } else if (activeTab === "Pending" || activeTab === "Rejected") {
-  //         fetchLeads(activeTab, currentPage, pageSize);
-  //       }
-  //     }
-  //     if (isMounted) {
-  //       fetchUserData();
-  //     }
-  //   }, 300); // Debounce the request by 300ms
-
-  //   return () => {
-  //     isMounted = false;
-  //     source.cancel("Component unmounted");
-  //     clearTimeout(timer); // Clear timeout to prevent unnecessary calls
-  //   };
-  // }, [activeTab, currentPage, pageSize, displaySearchData]);
   useEffect(() => {
-    let isMounted = true;
     const source = axios.CancelToken.source();
+    setCurrentPage(1);
+    setPageSize(50);
+    setActiveTab("All");
+    setDisplaySearchData(false);
+    setData([]);
+    setTotalPages(0);
+    setTotalLeads(0);
+    setError(null);
 
-    if (!displaySearchData && isMounted) {
-      setData([]); // Clear data to avoid UI flickering
-      if (activeTab === "All") {
-        fetchData(currentPage, pageSize, source); // Only fetch for the current page
-      } else if (activeTab === "Pending" || activeTab === "Rejected") {
-        fetchLeads(activeTab, currentPage, pageSize);
-      }
-    }
+    fetchUserData();
+    debouncedFetchData(1, 50, source); // Initial fetch only on route change
 
     return () => {
-      isMounted = false;
       source.cancel("Component unmounted");
     };
-  }, [activeTab, currentPage, pageSize, displaySearchData]); // Depend only on these to avoid duplicate calls
+  }, [location.pathname]); // Only trigger on route change
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <PaginationPage
@@ -425,13 +505,13 @@ const Index = () => {
       fetchData={(tab, page, size) => {
         setData([]);
         if (tab === "All" && !displaySearchData) {
-          fetchData(page, size);
+          debouncedFetchData(page, size);
         } else if (!displaySearchData) {
-          fetchLeads(tab, page, size);
+          debouncedFetchLeads(tab, page, size);
         }
       }}
-      fetchSearchedData={fetchSearchedData}
-      fetchAdvancedSearch={fetchAdvancedSearch}
+      fetchSearchedData={debouncedFetchSearchedData}
+      fetchAdvancedSearch={debouncedFetchAdvancedSearch}
       setCurrentState={setCurrentState}
       currentState={currentState}
       pageSize={pageSize}

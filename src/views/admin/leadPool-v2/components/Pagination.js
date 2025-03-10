@@ -41,9 +41,10 @@ const Pagination = ({
   setTotalLeads,
   setIsLoading,
   displaySearchData,
-  setDisplaySearchData,sendRequest, buyLoading,
+  setDisplaySearchData,
+  sendRequest,
+  buyLoading,
 }) => {
-  
   const [gotoPage, setGotoPage] = useState(currentPage || "");
   const [searchTerm, setSearchTerm] = useState("");
   const [tags, setTags] = useState([]);
@@ -53,6 +54,7 @@ const Pagination = ({
   const endIndex = Math.min(currentPage * pageSize, totalLeads);
 
   const handleFirst = () => {
+    if (isLoading) return; // Prevent action while loading
     setCurrentPage(1);
     setGotoPage(1);
     if (displaySearchData) {
@@ -63,30 +65,29 @@ const Pagination = ({
   };
 
   const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      setGotoPage(currentPage - 1);
-      if (displaySearchData) {
-        fetchSearchedData(searchTerm, currentPage - 1, pageSize);
-      } else {
-        fetchData(activeTab, currentPage - 1, pageSize);
-      }
+    if (isLoading || currentPage <= 1) return; // Prevent action while loading or at first page
+    setCurrentPage(currentPage - 1);
+    setGotoPage(currentPage - 1);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, currentPage - 1, pageSize);
+    } else {
+      fetchData(activeTab, currentPage - 1, pageSize);
     }
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      setGotoPage(currentPage + 1);
-      if (displaySearchData) {
-        fetchSearchedData(searchTerm, currentPage + 1, pageSize);
-      } else {
-        fetchData(activeTab, currentPage + 1, pageSize);
-      }
+    if (isLoading || currentPage >= totalPages) return; // Prevent action while loading or at last page
+    setCurrentPage(currentPage + 1);
+    setGotoPage(currentPage + 1);
+    if (displaySearchData) {
+      fetchSearchedData(searchTerm, currentPage + 1, pageSize);
+    } else {
+      fetchData(activeTab, currentPage + 1, pageSize);
     }
   };
 
   const handleLast = () => {
+    if (isLoading) return; // Prevent action while loading
     setCurrentPage(totalPages);
     setGotoPage(totalPages);
     if (displaySearchData) {
@@ -101,6 +102,7 @@ const Pagination = ({
   };
 
   const handleGoToBlur = () => {
+    if (isLoading) return; // Prevent action while loading
     const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
     setCurrentPage(page);
     setGotoPage(page);
@@ -112,6 +114,7 @@ const Pagination = ({
   };
 
   const handlePageSizeChange = (event) => {
+    if (isLoading) return; // Prevent action while loading
     const newPageSize = Number(event.target.value);
     setPageSize(newPageSize);
     setCurrentPage(1);
@@ -124,6 +127,7 @@ const Pagination = ({
   };
 
   const handleClearSearch = () => {
+    if (isLoading) return; // Prevent action while loading
     setData([]);
     setTotalPages(0);
     setTotalLeads(0);
@@ -163,7 +167,6 @@ const Pagination = ({
           flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "300px" }}
         >
-          {/* Pagination controls */}
           <Flex
             direction={{ base: "column", md: "row" }}
             justifyContent={{ base: "center", md: "space-between" }}
@@ -176,13 +179,17 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleFirst}
-                isDisabled={currentPage === 1}
+                isDisabled={isLoading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
                 py={{ base: 1, md: 2 }}
                 px={{ base: 2, md: 4 }}
-                leftIcon={<IoPlaySkipForwardSharp style={{ transform: "rotate(180deg)" }} />}
+                leftIcon={
+                  <IoPlaySkipForwardSharp
+                    style={{ transform: "rotate(180deg)" }}
+                  />
+                }
                 aria-label="First Page"
               >
                 First
@@ -190,7 +197,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handlePrevious}
-                isDisabled={currentPage === 1}
+                isDisabled={isLoading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -216,7 +223,9 @@ const Pagination = ({
                 <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
-                  onChange={(valueString) => setGotoPage(Number(valueString) || "")}
+                  onChange={(valueString) =>
+                    handleGoToChange(Number(valueString) || "")
+                  }
                   onBlur={handleGoToBlur}
                   min={1}
                   size="sm"
@@ -226,13 +235,14 @@ const Pagination = ({
                   border="1px solid softGray.600"
                   allowMouseWheel={false}
                   clampValueOnBlur={false}
+                  isDisabled={isLoading}
                 >
                   <NumberInputField
                     aria-label="Go to page"
                     textAlign="center"
                     borderRadius="md"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                      if (e.key === "Enter" && !isLoading) {
                         handleGoToBlur();
                       }
                     }}
@@ -262,6 +272,7 @@ const Pagination = ({
                   bg="softGray.50"
                   border="1px solid softGray.600"
                   borderRadius="md"
+                  isDisabled={isLoading}
                 >
                   {pageSizeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -285,7 +296,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={currentPage === totalPages}
+                isDisabled={isLoading || currentPage === totalPages}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -299,7 +310,7 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={currentPage === totalPages}
+                isDisabled={isLoading || currentPage === totalPages}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -343,17 +354,14 @@ const Pagination = ({
         </Box>
       </Flex>
       {displaySearchData && (
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          p={3}
-        >
+        <Flex justifyContent="space-between" alignItems="center" p={3}>
           <HStack spacing={2}>
             <Text fontSize="sm" fontWeight="medium" color="gray.800">
               Lead Search:
             </Text>
             <Text fontSize="sm" color="gray.600">
-              {searchTerm || (tags.length > 0 ? tags.join(", ") : "No filters applied")}
+              {searchTerm ||
+                (tags.length > 0 ? tags.join(", ") : "No filters applied")}
             </Text>
           </HStack>
           <Button
@@ -361,6 +369,7 @@ const Pagination = ({
             variant="outline"
             size="sm"
             onClick={handleClearSearch}
+            isDisabled={isLoading}
           >
             Clear
           </Button>
@@ -368,9 +377,15 @@ const Pagination = ({
       )}
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
       <Box mt={4}>
-        <TabContent activeTab={activeTab} data={data} isLoading={isLoading} pageSize={pageSize} sendRequest={sendRequest} buyLoading={buyLoading}  />
+        <TabContent
+          activeTab={activeTab}
+          data={data}
+          isLoading={isLoading}
+          pageSize={pageSize}
+          sendRequest={sendRequest}
+          buyLoading={buyLoading}
+        />
       </Box>
-
     </Box>
   );
 };

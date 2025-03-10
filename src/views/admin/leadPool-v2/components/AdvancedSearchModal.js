@@ -74,15 +74,15 @@ const AdvancedSearchModal = ({
                 value === "active"
                   ? "Interested"
                   : value === "pending"
-                  ? "Not Interested"
-                  : value;
+                    ? "Not Interested"
+                    : value;
             }
             if (key === "eLeadStatus") {
               displayValue = value === "-1" ? "No E.Status" : value;
             }
             if (key === "agentAssigned") {
-              const agentsArray = Object.values(tree.agents).flatMap((managerArray) =>
-                managerArray
+              const agentsArray = Object.values(tree.agents).flatMap(
+                (managerArray) => managerArray
               );
               const assignedAgent = agentsArray.find(
                 (agent) => agent?._id?.toString() === value
@@ -90,8 +90,8 @@ const AdvancedSearchModal = ({
               displayValue = assignedAgent
                 ? `${assignedAgent.firstName} ${assignedAgent.lastName}`
                 : value === "-1"
-                ? "No Agent"
-                : value;
+                  ? "No Agent"
+                  : value;
             }
             if (key === "managerAssigned") {
               const assignedManager = tree.managers.find(
@@ -100,8 +100,8 @@ const AdvancedSearchModal = ({
               displayValue = assignedManager
                 ? `${assignedManager.firstName} ${assignedManager.lastName}`
                 : value === "-1"
-                ? "No Manager"
-                : value;
+                  ? "No Manager"
+                  : value;
             }
 
             acc.tags.push(`${key}: ${displayValue}`);
@@ -120,8 +120,16 @@ const AdvancedSearchModal = ({
     },
   });
 
-  const { errors, touched, values, handleBlur, handleChange, handleSubmit, resetForm, dirty } =
-    formik;
+  const {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    resetForm,
+    dirty,
+  } = formik;
 
   const formClearHandler = () => {
     resetForm();

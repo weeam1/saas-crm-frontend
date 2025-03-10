@@ -16,6 +16,7 @@ import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 import { getApi } from "services/api";
+import { formattedDate } from "utils/helpers";
 
 const CardHeader = ({ id }) => (
   <HStack justifyContent="space-between" w="100%" mb={1}>
@@ -131,6 +132,7 @@ const LeadCard = ({
   // buyLoading,
   sendRequest,
 }) => {
+  const formattedCreatedDate = formattedDate(createdDate);
   const displayButtonText = () => {
     switch (approvalStatus?.toLowerCase()) {
       case "pending":
@@ -224,7 +226,7 @@ const LeadCard = ({
               color="black"
             />
           </HStack>
-          <HStack spacing={0.5} w="100%" flexWrap="wrap">
+          {/* <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <ContactPair
               label="Phone"
               // value={leadPhoneNumber}
@@ -235,7 +237,7 @@ const LeadCard = ({
               value={leadWhatsappNumber}
               color="#32BD00"
             />
-          </HStack>
+          </HStack> */}
           <VStack align="start" spacing={0} width="100%">
             <HStack>
               <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
@@ -252,7 +254,11 @@ const LeadCard = ({
                 </span>
               </Tooltip>
             </HStack>
-            <Text fontSize="xs" color="gray.500" fontFamily="DM Sans">
+            <Text
+              fontSize={lastNote?.length > 100 ? "xx-small" : "xs"}
+              color="gray.500"
+              fontFamily="DM Sans"
+            >
               {lastNote || "N/A"}
             </Text>
           </VStack>
@@ -338,7 +344,7 @@ const LeadCard = ({
               { label: "Campaign", value: leadCampaign || "N/A" },
               { label: "Campaign Url", value: "N/A" },
               { label: "Medium", value: "N/A" },
-              // { label: "In UAE?", value: r_u_in_uae || "N/A" },
+              { label: "In UAE?", value: r_u_in_uae || "N/A" },
             ].map((item) => (
               <HStack
                 key={item.label}
@@ -374,7 +380,7 @@ const LeadCard = ({
       </HStack>
       <HStack width="100%" justifyContent="flex-end" mt={1}>
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {createdDate || "N/A"}
+          Lead time: {formattedCreatedDate || "N/A"}
         </Text>
       </HStack>
     </Box>
