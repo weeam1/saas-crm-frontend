@@ -126,6 +126,9 @@ const Index = () => {
       isMounted = false;
     };
   };
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const fetchLeads = async (
     tab = activeTab,

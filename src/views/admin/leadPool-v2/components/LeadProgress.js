@@ -1,6 +1,7 @@
 import { Box, Text, Flex } from "@chakra-ui/react";
 
 const LeadsProgress = ({ totalLeads, userData }) => {
+  
   return (
     <Box w={{ base: "100%", lg: "80%" }}>
       <Flex justify="space-between" align="center" mb={1}>
