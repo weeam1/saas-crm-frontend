@@ -38,6 +38,7 @@ import logo from 'assets/img/app-logo.jpeg';
 // Import your audio file
 import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
 import { requestNotificationPermission } from 'services/NotificationService';
+import Loader from 'components/loading/Loader';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -360,7 +361,7 @@ function App() {
 					width='100%'
 					height={'100vh'}
 				>
-					<Spinner />
+					<Loader />
 				</Flex>
 			</>
 		);

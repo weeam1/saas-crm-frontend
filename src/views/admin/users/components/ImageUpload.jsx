@@ -11,7 +11,9 @@ import {
 	FormErrorMessage,
 	Input,
 	Button,
+	Spinner,
 } from '@chakra-ui/react';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const compressImage = async (file) => {
 	const options = {
@@ -22,8 +24,10 @@ const compressImage = async (file) => {
 	return await imageCompression(file, options);
 };
 
-const ImageUpload = ({ profileImage, formik }) => {
+const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 	const [preview, setPreview] = useState(DefaultUserImage);
+
+	const [createItemMutation, { isLoading }] = useCreateItemMutation();
 
 	useEffect(() => {
 		if (profileImage && typeof profileImage === 'string') {
@@ -31,8 +35,6 @@ const ImageUpload = ({ profileImage, formik }) => {
 
 			const img = new window.Image();
 			img.src = imageUrl;
-
-			console.log({ imageUrl, img });
 
 			img.onload = () => setPreview(imageUrl);
 			img.onerror = () => setPreview(DefaultUserImage);
@@ -60,7 +62,25 @@ const ImageUpload = ({ profileImage, formik }) => {
 					lastModified: Date.now(),
 				});
 
-				formik.setFieldValue('profileImage', compressedFile);
+				const imageData = new FormData();
+
+				if (user) {
+					imageData.append('userId', user._id);
+				}
+
+				imageData.append('profileImage', compressedFile);
+
+				const res = await createItemMutation({
+					path: '/v2/user/upload/profile-image',
+					body: imageData,
+					formData: true,
+				});
+
+				if (res?.data?.imageUrl && res.data.success) {
+					formik.setFieldValue('profileImage', res?.data?.imageUrl);
+					setUploadImage(true);
+				}
+
 				setPreview(URL.createObjectURL(compressedFile));
 			} catch (error) {
 				toast.error('Error processing image file!');
@@ -82,6 +102,24 @@ const ImageUpload = ({ profileImage, formik }) => {
 					position='relative'
 					_hover={{ borderColor: 'gray.300' }}
 				>
+					{/* Show loading spinner over image while uploading */}
+					{isLoading && (
+						<Box
+							position='absolute'
+							top='0'
+							left='0'
+							w='full'
+							h='full'
+							display='flex'
+							alignItems='center'
+							justifyContent='center'
+							bg='rgba(0, 0, 0, 0.5)'
+							zIndex='10'
+						>
+							<Spinner size='xl' color='white' />
+						</Box>
+					)}
+
 					<Image
 						src={preview || '/default-avatar.png'}
 						alt='Profile'
@@ -111,6 +149,8 @@ const ImageUpload = ({ profileImage, formik }) => {
 						borderRadius='full'
 						fontWeight='medium'
 						_hover={{ bg: 'green.500', color: 'white' }}
+						isLoading={isLoading} // Button shows loading when uploading
+						loadingText='Uploading...'
 					>
 						{preview ? 'Change Photo' : 'Upload Photo'}
 					</Button>
