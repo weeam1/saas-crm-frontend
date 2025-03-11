@@ -95,13 +95,7 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: MainDashboard,
 		},
-		// {
-		// 	name: 'Lead',
-		// 	layout: [ROLE_PATH.user],
-		// 	path: '/lead',
-		// 	icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-		// 	component: Lead,
-		// },
+
 		{
 			name: 'Lead',
 			layout: [ROLE_PATH.user],
@@ -119,56 +113,6 @@ export default function User(props) {
 				<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
 			),
 			component: HRModule,
-		},
-		{
-			name: 'Leads Pool',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/pool',
-			icon: (
-				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadPool,
-		},
-		{
-			name: 'Sign In',
-			layout: '/auth',
-			path: '/sign-in',
-			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
-			component: SignInCentered,
-		},
-		{
-			name: 'Points',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/points',
-			icon: (
-				<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
-			),
-			component: CurrencyPoints,
-		},
-	];
-	let routes = [
-		{
-			name: 'Dashboard',
-			layout: [ROLE_PATH.user],
-			path: '/default',
-			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-			component: MainDashboard,
-		},
-		{
-			name: 'Lead',
-			layout: [ROLE_PATH.user],
-			path: '/lead',
-			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-			component: Lead,
-		},
-		{
-			name: 'New Lead',
-			layout: [ROLE_PATH.user],
-			path: '/new-lead',
-			icon: (
-				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadScreen,
 		},
 		{
 			name: 'Leads Pool v2',
@@ -178,15 +122,6 @@ export default function User(props) {
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
 			component: LeadPoolVersion2,
-		},
-		{
-			name: 'HR Module',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/hrmodule',
-			icon: (
-				<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
-			),
-			component: HRModule,
 		},
 		{
 			name: 'Leads Pool',
