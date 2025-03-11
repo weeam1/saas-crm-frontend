@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Box,
@@ -15,7 +16,6 @@ import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
 import { FaEye } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
-import { getApi } from "services/api";
 import { formattedDate } from "utils/helpers";
 
 const CardHeader = ({ id }) => (
@@ -114,6 +114,7 @@ const ContactPair = ({ label, value, color }) => (
 const LeadCard = ({
   _id,
   intID,
+  leadId,
   leadName,
   city,
   nationality,
@@ -129,10 +130,14 @@ const LeadCard = ({
   leadWhatsappNumber,
   createdDate,
   lastNote,
-  // buyLoading,
   sendRequest,
+  cancelRequest,
+  buyLoading,
 }) => {
   const formattedCreatedDate = formattedDate(createdDate);
+  const user = JSON.parse(localStorage.getItem("user") || "{}"); 
+  const userId = user?._id; 
+
   const displayButtonText = () => {
     switch (approvalStatus?.toLowerCase()) {
       case "pending":
@@ -145,16 +150,27 @@ const LeadCard = ({
         return "Buy for 50 coins";
     }
   };
+
   const handleBuyClick = () => {
+    console.log("Buy clicked for lead:", _id);
     if (
-      leadStatus?.toLowerCase() !== "pending" &&
-      leadStatus?.toLowerCase() !== "rejected"
+      approvalStatus?.toLowerCase() !== "pending" &&
+      approvalStatus?.toLowerCase() !== "rejected"
     ) {
       sendRequest(_id);
     }
   };
-  const getStatusStyles = (leadStatus) => {
-    switch (leadStatus?.toLowerCase()) {
+
+  const handleCancelClick = () => {
+    if (approvalStatus?.toLowerCase() === "pending" && cancelRequest) {
+      cancelRequest(_id, leadId || _id, userId);
+    } else {
+      console.log("Cancel condition not met or cancelRequest missing");
+    }
+  };
+
+  const getStatusStyles = (approvalStatus) => {
+    switch (approvalStatus?.toLowerCase()) {
       case "pending":
         return {
           borderColor: "#FFEB3B",
@@ -226,18 +242,6 @@ const LeadCard = ({
               color="black"
             />
           </HStack>
-          {/* <HStack spacing={0.5} w="100%" flexWrap="wrap">
-            <ContactPair
-              label="Phone"
-              // value={leadPhoneNumber}
-              color="#7869FF"
-            />
-            <ContactPair
-              label="WhatsApp"
-              value={leadWhatsappNumber}
-              color="#32BD00"
-            />
-          </HStack> */}
           <VStack align="start" spacing={0} width="100%">
             <HStack>
               <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
@@ -270,28 +274,59 @@ const LeadCard = ({
             flex="1"
             spacing={0}
           >
-            <Button
-              bg={dynamicButtonBg}
-              color={dynamicButtonColor}
-              size="xs"
-              width="100%"
-              maxWidth="200px"
-              fontFamily="DM Sans"
-              borderRadius="5px"
-              _hover={{ bg: dynamicButtonHoverBg }}
-              flexShrink={0}
-              onClick={handleBuyClick}
-              // isLoading={buyLoading}
-              isDisabled={
-                approvalStatus?.toLowerCase() === "pending" ||
-                approvalStatus?.toLowerCase() === "rejected"
-              }
-            >
-              {displayButtonText()}
-            </Button>
+            {approvalStatus?.toLowerCase() === "pending" ? (
+              <HStack w="100%" maxWidth="200px" spacing={2}>
+                <Button
+                  bg="red.500"
+                  color="white"
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: "red.600" }}
+                  onClick={handleCancelClick}
+                  isLoading={buyLoading}
+                  isDisabled={buyLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  bg={dynamicButtonBg}
+                  color={dynamicButtonColor}
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: dynamicButtonHoverBg }}
+                  isDisabled={true}
+                >
+                  {displayButtonText()}
+                </Button>
+              </HStack>
+            ) : (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                onClick={handleBuyClick}
+                isLoading={buyLoading[_id]}
+                // isDisabled={
+                //   buyLoading ||
+                //   approvalStatus?.toLowerCase() === "pending" ||
+                //   approvalStatus?.toLowerCase() === "rejected"
+                // }
+              >
+                {displayButtonText()}
+              </Button>
+            )}
           </VStack>
         </VStack>
-        {/* Right Side */}
         <VStack
           align="start"
           spacing={2}
@@ -388,3 +423,28 @@ const LeadCard = ({
 };
 
 export default LeadCard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

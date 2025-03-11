@@ -43,6 +43,7 @@ const Pagination = ({
   displaySearchData,
   setDisplaySearchData,
   sendRequest,
+  cancelRequest,
   buyLoading,
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || "");
@@ -54,7 +55,7 @@ const Pagination = ({
   const endIndex = Math.min(currentPage * pageSize, totalLeads);
 
   const handleFirst = () => {
-    if (isLoading) return; // Prevent action while loading
+    if (isLoading) return;
     setCurrentPage(1);
     setGotoPage(1);
     if (displaySearchData) {
@@ -65,7 +66,7 @@ const Pagination = ({
   };
 
   const handlePrevious = () => {
-    if (isLoading || currentPage <= 1) return; // Prevent action while loading or at first page
+    if (isLoading || currentPage <= 1) return;
     setCurrentPage(currentPage - 1);
     setGotoPage(currentPage - 1);
     if (displaySearchData) {
@@ -76,7 +77,7 @@ const Pagination = ({
   };
 
   const handleNext = () => {
-    if (isLoading || currentPage >= totalPages) return; // Prevent action while loading or at last page
+    if (isLoading || currentPage >= totalPages) return;
     setCurrentPage(currentPage + 1);
     setGotoPage(currentPage + 1);
     if (displaySearchData) {
@@ -87,7 +88,7 @@ const Pagination = ({
   };
 
   const handleLast = () => {
-    if (isLoading) return; // Prevent action while loading
+    if (isLoading) return;
     setCurrentPage(totalPages);
     setGotoPage(totalPages);
     if (displaySearchData) {
@@ -102,7 +103,7 @@ const Pagination = ({
   };
 
   const handleGoToBlur = () => {
-    if (isLoading) return; // Prevent action while loading
+    if (isLoading) return;
     const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
     setCurrentPage(page);
     setGotoPage(page);
@@ -114,7 +115,7 @@ const Pagination = ({
   };
 
   const handlePageSizeChange = (event) => {
-    if (isLoading) return; // Prevent action while loading
+    if (isLoading) return;
     const newPageSize = Number(event.target.value);
     setPageSize(newPageSize);
     setCurrentPage(1);
@@ -127,14 +128,18 @@ const Pagination = ({
   };
 
   const handleClearSearch = () => {
-    if (isLoading) return; // Prevent action while loading
+    if (isLoading) return;
     setData([]);
     setTotalPages(0);
     setTotalLeads(0);
     setDisplaySearchData(false);
     setSearchTerm("");
     setTags([]);
-    fetchData(activeTab, 1, pageSize);
+    setCurrentPage(1);
+    setPageSize(50);
+    setActiveTab("All");
+    setIsLoading(true);
+    fetchData("All", 1, 50);
   };
 
   const buttonStyle = {
@@ -148,7 +153,8 @@ const Pagination = ({
   return (
     <Box width="100%" bg="white" p={5} borderRadius="10px">
       <LeadsProgress totalLeads={totalLeads} userData={userData} />
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} 
+          isLoading={isLoading}/>
       <Flex
         direction={{ base: "column", md: "column", lg: "row" }}
         justifyContent={{ base: "center", md: "space-between" }}
@@ -383,7 +389,9 @@ const Pagination = ({
           isLoading={isLoading}
           pageSize={pageSize}
           sendRequest={sendRequest}
+          cancelRequest={cancelRequest}
           buyLoading={buyLoading}
+          displaySearchData={displaySearchData}
         />
       </Box>
     </Box>

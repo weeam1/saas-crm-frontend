@@ -3,7 +3,7 @@ import { Box, Text } from "@chakra-ui/react";
 import LeadGrid from "./LeadGrid";
 
 const RejectedItems = ({ data }) => {
-  return <LeadGrid leads={data} />;
+  return <LeadGrid leads={data}  />;
 };
 
 export default RejectedItems;

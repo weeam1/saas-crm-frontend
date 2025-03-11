@@ -5,6 +5,7 @@ import { getApi, postApi, putApi } from "services/api";
 import { constant } from "constant";
 import axios from "axios";
 import { toast } from "react-toastify";
+import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 
 const Index = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -23,8 +24,10 @@ const Index = () => {
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [userData, setUserData] = useState(null);
   const [buyLoading, setBuyLoading] = useState({});
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorLeadData, setErrorLeadData] = useState(null);
+  const [lastFetchedTab, setLastFetchedTab] = useState(null);
 
-  // Debounce utility function
   const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -34,7 +37,7 @@ const Index = () => {
   };
 
   const fetchData = async (pageNo = 1, size = pageSize, source) => {
-    if (isLoading) return; // Prevent multiple fetches
+    if (isLoading) return;
     let isMounted = true;
     setIsLoading(true);
     setError(null);
@@ -53,7 +56,6 @@ const Index = () => {
           source
         );
       } else {
-        // Fixed: Removed invalid character ''
         result = await axios.get(`${constant.baseUrl}api/adminApproval/get`, {
           headers: {
             Authorization:
@@ -143,7 +145,7 @@ const Index = () => {
     page = currentPage,
     size = pageSize
   ) => {
-    if (isLoading) return; // Prevent multiple fetches
+    if (isLoading) return;
     let isMounted = true;
     setIsLoading(true);
     setError(null);
@@ -155,12 +157,19 @@ const Index = () => {
           Approved: "accepted",
           Rejected: "rejected",
         };
-        queryParams.append("approvalStatus", statusMap[tab]);
+        const status = statusMap[tab];
+        if (!status) {
+          console.error(`Invalid tab value: ${tab}`);
+          throw new Error("Invalid tab value");
+        }
+        queryParams.append("approvalStatus", status);
       }
       queryParams.append("page", page);
       queryParams.append("pageSize", size);
+      console.log("fetchLeads query:", `api/adminApproval/get?${queryParams}`);
 
       const result = await getApi(`api/adminApproval/get?${queryParams}`);
+      console.log("fetchLeads result:", result);
       if (result.status === 200 && isMounted) {
         const newData = (result.data.approvals || result.data).map((lead) => {
           if (lead?.ip) {
@@ -193,32 +202,80 @@ const Index = () => {
   };
 
   const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
-    if (isLoading) return; // Prevent multiple fetches
+    if (isLoading) return;
     let isMounted = true;
     setIsLoading(true);
     setError(null);
     try {
-      let result = await getApi(
-        user.role === "superAdmin"
-          ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
-          : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
-      );
+      let result;
+      // If in "Pending" or "Rejected" tab, search within that approval status
+      if (activeTab === "Pending" || activeTab === "Rejected") {
+        const statusMap = {
+          Pending: "pending",
+          Rejected: "rejected",
+        };
+        const approvalStatus = statusMap[activeTab];
+        const queryParams = new URLSearchParams();
+        queryParams.append("approvalStatus", approvalStatus);
+        queryParams.append("term", term); // Changed to "term" to match api/lead/search
+        queryParams.append("page", pageNo);
+        queryParams.append("pageSize", size);
 
-      const newData =
-        result.data?.result?.map((lead) => {
+        console.log(
+          "Searching in tab:",
+          activeTab,
+          "query:",
+          `api/adminApproval/get?${queryParams}`
+        );
+        result = await getApi(`api/adminApproval/get?${queryParams}`);
+
+        // If API doesn't filter by term, filter client-side
+        let newData = (result.data?.approvals || result.data) || [];
+        if (newData.length > 0 && term.trim() !== "") {
+          newData = newData.filter((lead) =>
+            lead.leadName?.toLowerCase().includes(term.toLowerCase())
+          );
+        }
+
+        newData = newData.map((lead) => {
           if (lead?.ip) {
             const parts = lead.ip.split("-");
-            lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
           }
-          return { ...lead, agentId: lead.agentAssigned };
-        }) || [];
+          return { ...lead };
+        });
 
-      if (isMounted) {
-        setDisplaySearchData(true);
-        setSearchedData(newData);
-        setData(newData);
-        setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(result.data?.totalLeads || 0);
+        if (isMounted) {
+          setDisplaySearchData(true);
+          setSearchedData(newData);
+          setData(newData);
+          setTotalPages(result.data?.totalPages || Math.ceil(newData.length / size));
+          setTotalLeads(newData.length); // Use filtered length
+        }
+      } else {
+        // Default search behavior for "All" or other tabs
+        result = await getApi(
+          user.role === "superAdmin"
+            ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
+            : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+        );
+
+        const newData =
+          result.data?.result?.map((lead) => {
+            if (lead?.ip) {
+              const parts = lead.ip.split("-");
+              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+            }
+            return { ...lead, agentId: lead.agentAssigned };
+          }) || [];
+
+        if (isMounted) {
+          setDisplaySearchData(true);
+          setSearchedData(newData);
+          setData(newData);
+          setTotalPages(result.data?.totalPages || 0);
+          setTotalLeads(result.data?.totalLeads || newData.length);
+        }
       }
     } catch (err) {
       console.error("Fetch Searched Data Error:", err);
@@ -243,7 +300,7 @@ const Index = () => {
     pageNo = 1,
     size = pageSize
   ) => {
-    if (isLoading) return; // Prevent multiple fetches
+    if (isLoading) return;
     let isMounted = true;
     setIsLoading(true);
     setError(null);
@@ -268,7 +325,7 @@ const Index = () => {
         setSearchedData(newData);
         setData(newData);
         setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(result.data?.totalLeads || 0);
+        setTotalLeads(result.data?.totalLeads || newData.length);
       }
     } catch (err) {
       console.error("Fetch Advanced Search Error:", err);
@@ -295,6 +352,7 @@ const Index = () => {
     }
     try {
       const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+      console.log("fetchAgentLeadsSats response:", data);
       return data?.doc || { canAddLeads: false };
     } catch (error) {
       console.error("Error fetching agent lead stats:", error);
@@ -302,93 +360,29 @@ const Index = () => {
     }
   };
 
-  // const sendRequest = async (leadId) => {
-  //   let isMounted = true;
-  //   setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
-
-  //   try {
-  //     const stats = await fetchAgentLeadsSats(user._id);
-  //     if (!stats.canAddLeads) {
-  //       toast.error("You cannot add more leads at this time.", {
-  //         position: toast.POSITION.TOP_RIGHT,
-  //         autoClose: 3000,
-  //       });
-  //       return;
-  //     }
-
-  //     let payload = {
-  //       leadId,
-  //       agentId: user._id,
-  //       approvalStatus: "pending",
-  //     };
-
-  //     const approvalResponse = await postApi("api/adminApproval/add", payload);
-  //     if (approvalResponse.status !== 200) {
-  //       throw new Error("Failed to send lead for approval");
-  //     }
-
-  //     const userResponse = await getApi(`api/user/view/${user._id}`);
-  //     const lead = data.find((l) => l._id === leadId);
-  //     const coinCost = lead?.leadStatus === "new" ? 300 : 50;
-  //     const currentCoins = userResponse?.data?.coins || 0;
-  //     const updatedCoins = currentCoins - coinCost;
-
-  //     if (updatedCoins < 0) {
-  //       throw new Error("Insufficient coins to purchase this lead");
-  //     }
-
-  //     const updateResponse = await putApi(`api/user/edit/${user._id}`, {
-  //       coins: updatedCoins,
-  //     });
-
-  //     if (updateResponse.status === 200 && isMounted) {
-  //       // Update user data
-  //       setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-
-  //       // Remove the purchased lead from the current data
-  //       const updatedData = data.filter((lead) => lead._id !== leadId);
-  //       setData(updatedData);
-
-  //       // Show success toast
-  //       toast.success("Lead purchased and sent for approval", {
-  //         position: toast.POSITION.TOP_RIGHT,
-  //         autoClose: 3000,
-  //       });
-
-  //       // Optionally, update the "Pending" leads section
-  //       // If you have a separate state for pending leads, add the purchased lead to it
-  //       // Example:
-  //       // setPendingLeads((prev) => [...prev, lead]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Send Request Error:", error);
-  //     if (isMounted) {
-  //       toast.error(error.message || "Failed to purchase lead", {
-  //         position: toast.POSITION.TOP_RIGHT,
-  //         autoClose: 3000,
-  //       });
-  //     }
-  //   } finally {
-  //     if (isMounted) {
-  //       setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
-  //     }
-  //   }
-
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // };
   const sendRequest = async (leadId) => {
     let isMounted = true;
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
 
     try {
       const stats = await fetchAgentLeadsSats(user._id);
+      console.log("Stats in sendRequest:", stats);
       if (!stats.canAddLeads) {
-        toast.error("You cannot add more leads at this time.", {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000,
+        if (!stats || typeof stats !== "object") {
+          console.error("Invalid stats object:", stats);
+          toast.error("Failed to retrieve lead stats", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+          return;
+        }
+        setErrorLeadData({
+          assignedLeads: stats.assignedLeads || 0,
+          pendingApprovals: stats.pendingApprovals || 0,
+          totalLeads: stats.totalLeads || 0,
+          maxLeadLimit: stats.maxLeadLimit || 0,
         });
+        setIsErrorModalOpen(true);
         return;
       }
 
@@ -418,26 +412,14 @@ const Index = () => {
       });
 
       if (updateResponse.status === 200 && isMounted) {
-        // Update user data
         setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-
-        // Remove the purchased lead from the current data
         const updatedData = data.filter((lead) => lead._id !== leadId);
         setData(updatedData);
-
-        // Decrement the total leads count by 1
         setTotalLeads((prev) => prev - 1);
-
-        // Show success toast
         toast.success("Lead purchased and sent for approval", {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
         });
-
-        // Optionally, update the "Pending" leads section
-        // If you have a separate state for pending leads, add the purchased lead to it
-        // Example:
-        // setPendingLeads((prev) => [...prev, lead]);
       }
     } catch (error) {
       console.error("Send Request Error:", error);
@@ -457,7 +439,83 @@ const Index = () => {
       isMounted = false;
     };
   };
-  // Memoized debounced fetch functions
+
+  const cancelRequest = async (id, leadId, userId) => {
+    let isMounted = true;
+    setBuyLoading((prev) => ({ ...prev, [id]: true }));
+
+    try {
+      if (!leadId || !userId) {
+        console.error("leadId or userId is missing:", { leadId, userId });
+        toast.error("Error: Lead ID or User ID is missing.");
+        return;
+      }
+
+      const res = await axios.post(
+        `${constant.baseUrl}api/adminApproval/delete`,
+        { id },
+        {
+          headers: {
+            Authorization:
+              localStorage.getItem("token") || sessionStorage.getItem("token"),
+          },
+        }
+      );
+
+      if (res.status !== 200) {
+        throw new Error("Failed to delete approval request");
+      }
+
+      const leadResponse = await getApi(`api/lead/view/${leadId}`);
+      if (!leadResponse?.data?.lead) {
+        console.error("Lead not found:", leadId);
+        throw new Error("Lead not found");
+      }
+
+      const userResponse = await getApi(`api/user/view/${userId}`);
+      if (!userResponse?.data) {
+        console.error("User not found:", userId);
+        throw new Error("User not found");
+      }
+
+      const coinRefund =
+        leadResponse.data.lead.leadStatus === "new" ? 300 : 50;
+      const currentCoins = userResponse.data.coins || 0;
+      const updatedCoins = currentCoins + coinRefund;
+
+      const updateResponse = await putApi(`api/user/edit/${userId}`, {
+        coins: updatedCoins,
+      });
+
+      if (updateResponse.status === 200 && isMounted) {
+        setUserData((prev) => ({ ...prev, coins: updatedCoins }));
+        const updatedData = data.filter((lead) => lead._id !== id);
+        setData(updatedData);
+        setTotalLeads((prev) => prev - 1);
+        toast.success("Request canceled successfully. Coins refunded.", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Cancel Request Error:", error);
+      if (isMounted) {
+        toast.error(error.message || "Unable to cancel request", {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
+    } finally {
+      if (isMounted) {
+        setBuyLoading((prev) => ({ ...prev, [id]: false }));
+      }
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  };
+
   const debouncedFetchData = useCallback(debounce(fetchData, 300), [
     dateTime,
     user,
@@ -466,12 +524,37 @@ const Index = () => {
   const debouncedFetchLeads = useCallback(debounce(fetchLeads, 300), [user]);
   const debouncedFetchSearchedData = useCallback(
     debounce(fetchSearchedData, 300),
-    [dateTime, user]
+    [dateTime, user, activeTab]
   );
   const debouncedFetchAdvancedSearch = useCallback(
     debounce(fetchAdvancedSearch, 300),
     [dateTime, user]
   );
+
+  useEffect(() => {
+    console.log(
+      "activeTab changed to:",
+      activeTab,
+      "lastFetchedTab:",
+      lastFetchedTab
+    );
+    if (!displaySearchData && activeTab !== lastFetchedTab) {
+      setCurrentPage(1);
+      if (activeTab === "All") {
+        debouncedFetchData(1, pageSize);
+      } else {
+        debouncedFetchLeads(activeTab, 1, pageSize);
+      }
+      setLastFetchedTab(activeTab);
+    }
+  }, [
+    activeTab,
+    pageSize,
+    displaySearchData,
+    debouncedFetchData,
+    debouncedFetchLeads,
+    lastFetchedTab,
+  ]);
 
   useEffect(() => {
     const source = axios.CancelToken.source();
@@ -483,55 +566,80 @@ const Index = () => {
     setTotalPages(0);
     setTotalLeads(0);
     setError(null);
+    setLastFetchedTab(null);
+    setBuyLoading({});
 
     fetchUserData();
-    debouncedFetchData(1, 50, source); // Initial fetch only on route change
+    debouncedFetchData(1, 50, source);
 
     return () => {
       source.cancel("Component unmounted");
     };
-  }, [location.pathname]); // Only trigger on route change
+  }, [location.pathname]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   return (
-    <PaginationPage
-      data={data}
-      totalPages={totalPages}
-      totalLeads={totalLeads}
-      isLoading={isLoading}
-      fetchData={(tab, page, size) => {
-        setData([]);
-        if (tab === "All" && !displaySearchData) {
-          debouncedFetchData(page, size);
-        } else if (!displaySearchData) {
-          debouncedFetchLeads(tab, page, size);
-        }
-      }}
-      fetchSearchedData={debouncedFetchSearchedData}
-      fetchAdvancedSearch={debouncedFetchAdvancedSearch}
-      setCurrentState={setCurrentState}
-      currentState={currentState}
-      pageSize={pageSize}
-      setPageSize={setPageSize}
-      user={user}
-      dateTime={dateTime}
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      currentPage={currentPage}
-      setCurrentPage={setCurrentPage}
-      setData={setData}
-      setTotalPages={setTotalPages}
-      setTotalLeads={setTotalLeads}
-      setIsLoading={setIsLoading}
-      displaySearchData={displaySearchData}
-      setDisplaySearchData={setDisplaySearchData}
-      userData={userData}
-      sendRequest={sendRequest}
-      buyLoading={buyLoading}
-    />
+    <>
+      <PaginationPage
+        data={data}
+        totalPages={totalPages}
+        totalLeads={totalLeads}
+        isLoading={isLoading}
+        fetchData={(tab, page, size) => {
+          console.log(
+            "fetchData called with tab:",
+            tab,
+            "page:",
+            page,
+            "size:",
+            size
+          );
+          setData([]);
+          setActiveTab(tab);
+          setCurrentPage(page);
+          if (tab === "All") {
+            setDateTime({ from: "", to: "" });
+            setDisplaySearchData(false);
+            debouncedFetchData(page, size);
+          } else {
+            debouncedFetchLeads(tab, page, size);
+          }
+          setLastFetchedTab(tab);
+        }}
+        fetchSearchedData={debouncedFetchSearchedData}
+        fetchAdvancedSearch={debouncedFetchAdvancedSearch}
+        setCurrentState={setCurrentState}
+        currentState={currentState}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        user={user}
+        dateTime={dateTime}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        setData={setData}
+        setTotalPages={setTotalPages}
+        setTotalLeads={setTotalLeads}
+        setIsLoading={setIsLoading}
+        displaySearchData={displaySearchData}
+        setDisplaySearchData={setDisplaySearchData}
+        userData={userData}
+        sendRequest={sendRequest}
+        cancelRequest={cancelRequest}
+        buyLoading={buyLoading}
+      />
+      {isErrorModalOpen && (
+        <ErrorLeadLimitMessage
+          isOpen={isErrorModalOpen}
+          onClose={() => setIsErrorModalOpen(false)}
+          errorLeadData={errorLeadData}
+        />
+      )}
+    </>
   );
 };
 
