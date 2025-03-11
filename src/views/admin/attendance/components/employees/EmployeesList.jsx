@@ -1,6 +1,7 @@
 import { Box, Grid, Avatar, Text } from '@chakra-ui/react';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import { constant } from 'constant';
+import { Link } from 'react-router-dom';
 
 const EmployeesList = ({ employees, tab }) => {
 	return employees?.length > 0 ? (
@@ -8,7 +9,7 @@ const EmployeesList = ({ employees, tab }) => {
 			<Grid
 				templateColumns={{
 					base: '1fr',
-					sm: 'repeat(2, 1fr)',
+					md: 'repeat(2, 1fr)',
 					lg: 'repeat(auto-fill, minmax(360px, 1fr))',
 				}}
 				height='fit-content'
@@ -17,11 +18,12 @@ const EmployeesList = ({ employees, tab }) => {
 				{employees?.map((emp, index) => (
 					<Box
 						key={index}
-						p={4}
+						as={Link}
+						to={`/attendance/employees/${emp._id}`}
+						px={4}
+						py='8'
 						borderRadius='lg'
 						bg='white'
-						// border='1px solid #e2e8f0'
-						h='202px'
 						shadow='md'
 						display='flex'
 						flexDirection='column'

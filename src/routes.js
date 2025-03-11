@@ -235,7 +235,7 @@ const routes = [
 	{
 		name: 'My Attendance',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendance/my-attendance',
+		path: '/attendance/employees/:id',
 		under: 'my-attendance',
 		parentName: 'Attendance',
 		component: MyAttendance,

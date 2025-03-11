@@ -17,11 +17,11 @@ const NavigationBoxes = () => {
 			route: '/attendance/dashboard',
 		},
 		{ label: 'Employees', icon: FaUsers, route: '/attendance/employees' },
-		{
-			label: 'My Attendance',
-			icon: FaUserCheck,
-			route: '/attendance/my-attendance',
-		},
+		// {
+		// 	label: 'My Attendance',
+		// 	icon: FaUserCheck,
+		// 	route: '/attendance/my-attendance',
+		// },
 		{ label: 'Records', icon: FaClipboardList, route: '/attendance/records' },
 	];
 
