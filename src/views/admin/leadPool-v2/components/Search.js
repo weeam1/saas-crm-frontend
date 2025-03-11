@@ -94,7 +94,7 @@ const SearchBox = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={handleKeyPress}
-              pr="4.5rem" // Padding to prevent text from overlapping with the button
+              pr="4.5rem"
             />
             <InputRightElement width="auto" height="100%" pr={1}>
               {searchTerm && (
