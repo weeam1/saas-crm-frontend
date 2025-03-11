@@ -6,6 +6,7 @@ import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import Loader from 'components/loading/Loader';
 import PendingInvitedCandidates from './PendingInvitedCandidates';
 import SearchTags from 'components/shared/SearchTags';
+import { experienceYearsOptions } from '../helpers';
 
 const PendingInvitedData = ({ invitedRefetch }) => {
 	const [showContent, setShowContent] = useState(false);
@@ -15,6 +16,9 @@ const PendingInvitedData = ({ invitedRefetch }) => {
 		key: null,
 		direction: null,
 	});
+
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
 
 	const [data, setData] = useState([]);
 
@@ -45,6 +49,15 @@ const PendingInvitedData = ({ invitedRefetch }) => {
 	const { data: positionOptions } = useFetchItemsQuery({
 		path: `/positions/options`,
 	});
+
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
@@ -118,6 +131,28 @@ const PendingInvitedData = ({ invitedRefetch }) => {
 				if (matchedOption) {
 					formattedValue = matchedOption.label; // Use label for UI
 					advancedSearch.position = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			if (key === 'agency') {
+				const matchedOption = agencies?.doc?.find(
+					(option) => option._id === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.name; // Use label for UI
+					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			if (key === 'experienceYears') {
+				const matchedOption = experienceYearsOptions?.find(
+					(option) => option.value === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.label;
+					advancedSearch.experienceYears = matchedOption.value;
 				}
 			}
 

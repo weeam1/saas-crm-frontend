@@ -18,6 +18,9 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { MdTask } from 'react-icons/md';
 import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
+import { useStateContext } from 'contexts/store';
+
+import ReleaseLead from '../../ReleaseLead';
 
 const LeadMenu = ({
 	lead,
@@ -29,7 +32,6 @@ const LeadMenu = ({
 	setLeadDetails,
 	setAddPhoneCall,
 	setCallSelectedId,
-	setIsLeadCycle,
 	setTaskInits,
 	onTaskOpen,
 
@@ -37,13 +39,16 @@ const LeadMenu = ({
 	setSendEmail,
 	setSelectedValues,
 	setDeleteLead,
+	refreshData,
 }) => {
 	const navigate = useNavigate();
 	const leadId = lead?._id;
 	const phoneNumber = lead?.leadPhoneNumber;
 
+	const { setIsLeadCycle } = useStateContext();
+
 	return (
-		<Menu isLazy>
+		<Menu isLazy closeOnSelect={false}>
 			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
 			<MenuList minW='fit-content'>
 				{access?.update && user?.role === 'superAdmin' && (
@@ -58,6 +63,17 @@ const LeadMenu = ({
 						Edit
 					</MenuItem>
 				)}
+
+				{['Manager', 'Agent'].includes(user?.roles[0]?.roleName) && (
+					<ReleaseLead
+						isReleased={lead?.isReleased}
+						role={user?.roles[0]?.roleName}
+						leadId={lead?._id}
+						as={MenuItem}
+						refreshData={refreshData}
+					/>
+				)}
+
 				{callAccess?.create && (
 					<MenuItem
 						py={2.5}

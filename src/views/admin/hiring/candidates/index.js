@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import Loader from 'components/loading/Loader';
 import { IoArrowBack } from 'react-icons/io5';
 import SearchTags from 'components/shared/SearchTags';
+import { experienceYearsOptions } from '../helpers';
 
 const Candidates = () => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
@@ -170,6 +171,17 @@ const Candidates = () => {
 				if (matchedOption) {
 					formattedValue = matchedOption.name; // Use label for UI
 					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			if (key === 'experienceYears') {
+				const matchedOption = experienceYearsOptions?.find(
+					(option) => option.value === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.label; // Use label for UI
+					advancedSearch.experienceYears = matchedOption.value; // Keep ID for actual search
 				}
 			}
 

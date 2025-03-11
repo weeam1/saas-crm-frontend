@@ -47,7 +47,10 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		pageUrl: '',
 		leadAddress: '',
 		leadEmail: '',
+		attendanceDay: '',
 		r_u_in_uae: '',
+		leadSourceChannel: '',
+		adset: '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -66,12 +69,17 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		{ name: 'leadSourceDetails', label: 'Source Details', type: 'text' },
+		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
+
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
+		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'adset', label: 'Adset', type: 'text' },
+
 		// Adding the new 'status' field with select type
 		{
 			name: 'eLeadStatus',
@@ -207,7 +215,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='80vh'
+									height={{ base: '60vh', md: '80vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />

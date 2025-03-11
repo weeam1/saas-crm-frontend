@@ -19,6 +19,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
+import { experienceYearsOptions, genderOptions } from '../../helpers';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -29,6 +30,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		phone: '',
 		nationality: '',
 		experienceYears: '',
+		gender: '',
 		status: '',
 		agency: '',
 		inviteAccepted: '',
@@ -85,30 +87,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			'WhatsApp number must only contain digits'
 		),
 		nationality: Yup.string(),
-		experienceYears: Yup.string()
-			.matches(/^\d+$/, 'Experience must be a valid integer') // Only allows whole numbers (no decimals)
-			.typeError('Experience must be a valid number'), // Handles invalid type input
 		position: Yup.string(),
 	});
-
-	// const fields = [
-	// 	{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
-	// 	{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
-	// 	{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
-	// 	{ name: 'whatsApp', label: 'WhatsApp No', placeholder: 'WhatsApp Number' },
-
-	// 	{ name: 'points', label: 'Points', placeholder: 'Enter Points' },
-	// 	{
-	// 		name: 'experienceYears',
-	// 		label: 'Experience in Years',
-	// 		placeholder: 'Years of Experience',
-	// 	},
-	// 	// {
-	// 	// 	name: 'position',
-	// 	// 	label: 'Applied For',
-	// 	// 	placeholder: 'Enter the role',
-	// 	// },
-	// ];
 
 	const getFields = (type) => {
 		const baseFields = [
@@ -120,11 +100,11 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 				label: 'WhatsApp No',
 				placeholder: 'WhatsApp Number',
 			},
-			{
-				name: 'experienceYears',
-				label: 'Experience in Years',
-				placeholder: 'Years of Experience',
-			},
+			// {
+			// 	name: 'experienceYears',
+			// 	label: 'Experience in Years',
+			// 	placeholder: 'Years of Experience',
+			// },
 		];
 
 		return baseFields;
@@ -237,6 +217,78 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											{positionOptions?.doc?.map((item) => (
 												<option value={item._id} key={item._id}>
 													{item.value}
+												</option>
+											))}
+										</Select>
+									</GridItem>
+									<GridItem>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='md'
+											fontWeight='500'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Gender
+										</FormLabel>
+										<Select
+											fontSize='sm'
+											name='gender'
+											fontWeight='400'
+											defaultValue={''}
+											rounded='md'
+											shadow='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values['gender']}
+											borderColor='gray.300'
+											_focus={{
+												borderColor: 'brand.500', // Apply brand color on focus
+												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+											}}
+											placeholder='Search by gender'
+										>
+											{genderOptions?.map((item) => (
+												<option value={item.value} key={item.value}>
+													{item.label}
+												</option>
+											))}
+										</Select>
+									</GridItem>
+									<GridItem>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='md'
+											fontWeight='500'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Experience Years
+										</FormLabel>
+										<Select
+											fontSize='sm'
+											name='experienceYears'
+											fontWeight='400'
+											defaultValue={''}
+											rounded='md'
+											shadow='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values['experienceYears']}
+											borderColor='gray.300'
+											_focus={{
+												borderColor: 'brand.500', // Apply brand color on focus
+												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+											}}
+											placeholder='Search by experience years'
+										>
+											{experienceYearsOptions?.map((item) => (
+												<option value={item.value} key={item.value}>
+													{item.label}
 												</option>
 											))}
 										</Select>

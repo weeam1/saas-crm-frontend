@@ -10,13 +10,18 @@ import {
 } from '../constants';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
+import CustomTooltip from './CustomTooltip';
 
-const Status = ({ lead, refresh }) => {
+const Status = ({ lead, refreshLeads }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
 	const [loading, setLoading] = useState(false);
+
+	const dispatch = useDispatch();
 
 	const handleStatus = async (e) => {
 		try {
@@ -28,6 +33,15 @@ const Status = ({ lead, refresh }) => {
 			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
 			if (response.status === 200) {
 				setSelected(data.leadStatus);
+				// if (data.leadStatus === 'new') refreshLeads();
+
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'leadStatus',
+						value: data.leadStatus,
+					})
+				);
 				toast.success('Lead Status Updated!');
 			}
 		} catch (e) {
@@ -62,9 +76,13 @@ const Status = ({ lead, refresh }) => {
 				>
 					Status
 				</Text>
+				{/* 
 				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</Tooltip> */}
+				<CustomTooltip label={label}>
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+				</CustomTooltip>
 			</HStack>
 			<SelectInput
 				name='leadStatus'

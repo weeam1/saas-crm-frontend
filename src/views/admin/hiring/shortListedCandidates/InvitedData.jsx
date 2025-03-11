@@ -6,6 +6,7 @@ import ErrorMessage from 'components/Message/ErrorMessage';
 import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import Loader from 'components/loading/Loader';
 import SearchTags from 'components/shared/SearchTags';
+import { experienceYearsOptions } from '../helpers';
 
 const InvitedData = () => {
 	const [showContent, setShowContent] = useState(false);
@@ -15,6 +16,9 @@ const InvitedData = () => {
 		key: null,
 		direction: null,
 	});
+
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
 
 	const [data, setData] = useState([]);
 
@@ -45,6 +49,15 @@ const InvitedData = () => {
 	const { data: positionOptions } = useFetchItemsQuery({
 		path: `/positions/options`,
 	});
+
+	const { data: agencies } = useFetchItemsQuery(
+		{
+			path: '/agencies',
+		},
+		{
+			skip: !isAdmin,
+		}
+	);
 
 	const handleGotoPage = (page) => {
 		setCurrentPage(page + 1);
@@ -141,11 +154,31 @@ const InvitedData = () => {
 				}
 			}
 
+			if (key === 'agency') {
+				const matchedOption = agencies?.doc?.find(
+					(option) => option._id === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.name; // Use label for UI
+					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			if (key === 'experienceYears') {
+				const matchedOption = experienceYearsOptions?.find(
+					(option) => option.value === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.label;
+					advancedSearch.experienceYears = matchedOption.value;
+				}
+			}
+
 			// if (key === 'inviteAccepted') {
 			// 	formattedValue = value === true ? 'Accepted' : 'Not Accepted';
 			// }
-
-			console.log({ key, formattedValue, originalKey });
 
 			return {
 				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
@@ -167,32 +200,6 @@ const InvitedData = () => {
 		setQueryParams((prev) => ({ ...prev, ...queryParams }));
 		setCurrentPage(1);
 	};
-
-	// const removeTag = (key) => {
-	// 	// Remove the tag with the specified key
-	// 	const updatedTags = searchTags.filter((tag) => tag.key !== key);
-	// 	setSearchTags(updatedTags);
-
-	// 	console.log({ updatedTags });
-
-	// 	// Convert the updated tags back into query parameters
-	// 	const updatedParams = updatedTags.reduce(
-	// 		(acc, { key, value }) => ({ ...acc, [key]: value }),
-	// 		{}
-	// 	);
-
-	// 	const { ...advancedSearch } = updatedParams;
-
-	// 	// Prepare the query parameters
-	// 	const queryParams = {
-	// 		advancedSearch: JSON.stringify(advancedSearch),
-	// 		page: 1,
-	// 		limit: pageSize,
-	// 	};
-	// 	// update query parameters
-	// 	setQueryParams(queryParams);
-	// 	setCurrentPage(1);
-	// };
 
 	const removeTag = (key) => {
 		// Find the exact key (case-sensitive)

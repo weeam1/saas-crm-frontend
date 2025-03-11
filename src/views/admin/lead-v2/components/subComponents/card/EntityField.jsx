@@ -15,6 +15,7 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
+import CustomTooltip from '../CustomTooltip';
 
 const EntityField = ({
 	label,
@@ -35,7 +36,7 @@ const EntityField = ({
 		<Box
 			display='flex'
 			width='fit-content'
-			maxWidth={isInfo ? '100px' : '200px'}
+			maxWidth={isInfo || isCopy ? '100px' : '200px'}
 			flexDir='column'
 			justifyContent='flex-start'
 			justifySelf='stretch'
@@ -72,14 +73,14 @@ const EntityField = ({
 					</Tooltip>
 				)}
 				{isInfo && value && (
-					<Tooltip label={value || 'N/A'} hasArrow>
+					<CustomTooltip label={value || 'N/A'}>
 						<Icon
 							as={InfoIcon}
 							boxSize={leadIconSize}
 							color='blue.300'
 							cursor='pointer'
 						/>
-					</Tooltip>
+					</CustomTooltip>
 				)}
 			</HStack>
 
@@ -88,7 +89,8 @@ const EntityField = ({
 				fontSize={leadValueFontSize}
 				fontWeight='medium'
 				color={valueColor}
-				isTruncated={isInfo}
+				textTransform='capitalize'
+				isTruncated={isInfo || isCopy}
 				{...valueProps}
 			>
 				{value || 'N/A'}

@@ -1,11 +1,11 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
-import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { fetchAgentLeadsSats } from 'api';
+import { updateMultipleLeadFields } from '../../../../redux/leadsSlice';
 
 const {
 	Modal,
@@ -18,6 +18,16 @@ const {
 	Button,
 	Spinner,
 } = require('@chakra-ui/react');
+
+const createUpdates = (selectedValues, values) => {
+	return selectedValues.flatMap((id) =>
+		Object.entries(values).map(([key, value]) => ({
+			id,
+			key,
+			value,
+		}))
+	);
+};
 
 const BulkAssignModal = (props) => {
 	const {
@@ -45,6 +55,8 @@ const BulkAssignModal = (props) => {
 		agentAssigned: '',
 	};
 
+	const dispatch = useDispatch();
+
 	const handleFormSubmit = async (values) => {
 		try {
 			// Collect selected leads and form data
@@ -52,6 +64,7 @@ const BulkAssignModal = (props) => {
 				selectedLeads: selectedValues,
 				formData: values,
 			};
+
 			setIsLoading(true);
 
 			if (values?.agentAssigned) {
@@ -65,10 +78,18 @@ const BulkAssignModal = (props) => {
 				}
 			}
 
+			const updates = createUpdates(selectedValues, values);
+
 			let res = await putApi(`api/lead/bulk-assign`, payload);
 
 			if (res.status === 200) {
-				refreshData();
+				// refreshData();
+
+				dispatch(
+					updateMultipleLeadFields({
+						updates,
+					})
+				);
 				toast.success('Leads updated successfully');
 				formikResetForm();
 				setSelectedValues([]);
@@ -117,7 +138,9 @@ const BulkAssignModal = (props) => {
 			>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Bulk Assign</ModalHeader>
+					<ModalHeader>
+						Bulk Assign ({selectedValues?.length} Leads)
+					</ModalHeader>
 					<ModalBody>
 						<ModalCloseButton onClick={closeHandler} />
 						<ManagerAgentImport

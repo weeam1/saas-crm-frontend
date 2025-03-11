@@ -14,8 +14,10 @@ import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import RenderFields from 'components/shared/RenderFields';
+import { addOrUpdateLead } from '../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
 
-const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
+const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
@@ -28,13 +30,16 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		leadCountry: leadData.leadCountry || '',
 		timetocall: leadData.timetocall || '',
 		leadSourceDetails: leadData.leadSourceDetails || '',
+		leadSourceChannel: leadData.leadSourceChannel || '',
 		leadCampaign: leadData.leadCampaign || '',
 		pageUrl: leadData.pageUrl || '',
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
 		r_u_in_uae: leadData.r_u_in_uae || '',
+		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
+		adset: leadData.adset || '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -53,13 +58,16 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		{ name: 'leadSourceDetails', label: 'Source Details', type: 'text' },
+		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'lastNote', label: 'Last Note', type: 'text' },
+		{ name: 'adset', label: 'Adset', type: 'text' },
 		// {
 		// 	name: 'eLeadStatus',
 		// 	label: 'Select Main Status',
@@ -76,11 +84,12 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
+	const dispatch = useDispatch();
+
 	// The submit handler is similar to your provided AddData function.
 	const handleSubmit = async (values, actions) => {
 		try {
-			console.log({ values });
-			await updateItemMuation({
+			const res = await updateItemMuation({
 				path: `/lead/edit-lead/${leadData._id}`,
 				body: values,
 			}).unwrap();
@@ -88,70 +97,12 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 			toast.success('Lead updated successfully.');
 			onClose();
 			actions.resetForm();
-			refreshData();
+			dispatch(addOrUpdateLead(res));
 		} catch (error) {
 			console.error(error);
 			toast.error(error.data.message || 'Lead not added');
 		}
 	};
-
-	// Helper to render each field using Chakra UI and Formik's Field.
-	// const renderField = (field) => (
-	// 	<Field name={field.name} key={field.name}>
-	// 		{({ field: formikField, meta }) => (
-	// 			<FormControl mb={4} isInvalid={meta.touched && meta.error}>
-	// 				{/* For checkboxes, the label is rendered differently */}
-	// 				{field.type !== 'checkbox' && (
-	// 					<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-	// 				)}
-	// 				{field.type === 'textarea' ? (
-	// 					<Textarea
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				) : field.type === 'checkbox' ? (
-	// 					<Checkbox
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						isChecked={formikField.value}
-	// 					>
-	// 						{field.label}
-	// 					</Checkbox>
-	// 				) : (
-	// 					<Input
-	// 						id={field.name}
-	// 						type={field.type}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				)}
-	// 				{meta.touched && meta.error && (
-	// 					<div style={{ color: 'red', fontSize: '0.8em' }}>{meta.error}</div>
-	// 				)}
-	// 			</FormControl>
-	// 		)}
-	// 	</Field>
-	// );
-
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
 			<DrawerOverlay />
@@ -174,7 +125,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='70vh'
+									height={{ base: '60vh', md: '80vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />
