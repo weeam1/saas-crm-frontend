@@ -29,8 +29,6 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 		setSelected(managerAssigned);
 	}, [managerAssigned]);
 
-	console.log({ selected, managerAssigned, lead });
-
 	const dispatch = useDispatch();
 
 	// console.log(managerAssigned, lead);
@@ -42,8 +40,6 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			managerAssigned: managerAssignedValue || '',
 			agentAssigned: managerAssigned ? '' : undefined,
 		};
-
-		console.log(managerAssignedValue);
 
 		try {
 			setLoading(true);

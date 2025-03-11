@@ -7,7 +7,6 @@ import { extractLocationData } from 'utils/helpers';
 
 const RightCard = ({ lead }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
-
 	const { city, country } = extractLocationData(lead?.ip, countries);
 
 	return (

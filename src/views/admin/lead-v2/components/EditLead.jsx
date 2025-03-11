@@ -15,9 +15,13 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import RenderFields from 'components/shared/RenderFields';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { extractLocationData } from 'utils/helpers';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
+	const countries = useSelector((state) => state.countries.countryNames);
+	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
+
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
@@ -25,9 +29,10 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadPhoneNumber: leadData.leadPhoneNumber || '',
 		nationality: leadData.nationality || '',
 		budget: leadData.budget || '',
-		ip: leadData.ip || '',
+		ip: ip || '',
+		city: city || '',
+		country: country || '',
 		leadLang: leadData.leadLang || '',
-		leadCountry: leadData.leadCountry || '',
 		timetocall: leadData.timetocall || '',
 		leadSourceDetails: leadData.leadSourceDetails || '',
 		leadSourceChannel: leadData.leadSourceChannel || '',
@@ -56,7 +61,9 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
-		{ name: 'ip', label: 'Country', type: 'text' },
+		{ name: 'ip', label: 'IP', type: 'text' },
+		{ name: 'city', label: 'City', type: 'text' },
+		{ name: 'country', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
 		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
 		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
@@ -82,16 +89,32 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		// },
 	];
 
+	console.log({ initialValues });
+
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
 	const dispatch = useDispatch();
 
-	// The submit handler is similar to your provided AddData function.
 	const handleSubmit = async (values, actions) => {
 		try {
+			const formattedIp = [
+				values.ip || '',
+				values.city || '',
+				values.country || '',
+			]
+				.join('-')
+				.trim();
+
+			const updatedValues = {
+				...values,
+				ip: formattedIp,
+			};
+			delete updatedValues.city;
+			delete updatedValues.country;
+
 			const res = await updateItemMuation({
 				path: `/lead/edit-lead/${leadData._id}`,
-				body: values,
+				body: updatedValues,
 			}).unwrap();
 
 			toast.success('Lead updated successfully.');
