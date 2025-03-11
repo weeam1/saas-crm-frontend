@@ -42,7 +42,7 @@ export const extractLocationData = (ipString, countryNames) => {
 	};
 
 	// If first part is a valid IPv4 address or a pure number, set it as IP
-	if (isValidIPv4(parts[0]) || /^\d+$/.test(parts[0])) {
+	if (isValidIPv4(parts[0]) || /^\d*$/.test(parts[0])) {
 		ip = parts.shift(); // Remove IP so remaining parts are city & country
 	}
 

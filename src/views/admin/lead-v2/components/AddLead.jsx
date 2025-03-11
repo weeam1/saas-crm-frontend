@@ -28,12 +28,13 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		nationality: '',
 		timetocall: '',
 		budget: '',
-		ip: '',
+		ip: '0.0.0.0',
+		city: '',
+		country: '',
 		eLeadStatus: '',
 		leadStatus: '',
 		leadLang: '',
 		lastNote: '',
-		leadCountry: '',
 		leadSourceDetails: '',
 		leadSourceChannel: '',
 		leadSourceMedium: '',
@@ -60,7 +61,9 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
-		{ name: 'ip', label: 'Country', type: 'text' },
+		{ name: 'ip', label: 'IP', type: 'text' },
+		{ name: 'city', label: 'City', type: 'text' },
+		{ name: 'country', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
 		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
 		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
@@ -91,13 +94,26 @@ const AddLead = ({ isOpen, onClose, size }) => {
 
 	const dispatch = useDispatch();
 
-	// The submit handler is similar to your provided AddData function.
 	const handleSubmit = async (values, actions) => {
 		try {
-			// Call the API – adjust the endpoint/path as needed.
+			const formattedIp = [
+				values.ip || '',
+				values.city || '',
+				values.country || '',
+			]
+				.join('-')
+				.trim();
+
+			const updatedValues = {
+				...values,
+				ip: formattedIp,
+			};
+			delete updatedValues.city;
+			delete updatedValues.country;
+
 			const res = await createItemMuation({
 				path: '/lead/add-lead',
-				body: values,
+				body: updatedValues,
 			}).unwrap();
 
 			toast.success('Lead added successfully.');
@@ -210,7 +226,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height={{ base: '60vh', md: '80vh' }}
+									height={{ base: '60vh', md: '75vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />
