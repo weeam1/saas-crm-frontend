@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Box, SimpleGrid, Text, Icon } from '@chakra-ui/react';
 import {
 	FaTachometerAlt,
@@ -6,10 +6,6 @@ import {
 	FaClipboardList,
 	FaUserCheck,
 } from 'react-icons/fa';
-import Dashboard from './components/dashboard/index';
-import Employees from './components/employees/index';
-import MyAttendance from './components/myAttendence/index';
-import Records from './components/records/index';
 
 const NavigationBoxes = () => {
 	const navigate = useNavigate();
@@ -18,15 +14,15 @@ const NavigationBoxes = () => {
 		{
 			label: 'Dashboard',
 			icon: FaTachometerAlt,
-			route: '/attendence/dashboard',
+			route: '/attendance/dashboard',
 		},
-		{ label: 'Employees', icon: FaUsers, route: '/attendence/employees' },
+		{ label: 'Employees', icon: FaUsers, route: '/attendance/employees' },
 		{
 			label: 'My Attendance',
 			icon: FaUserCheck,
-			route: '/attendence/my-attendence',
+			route: '/attendance/my-attendance',
 		},
-		{ label: 'Records', icon: FaClipboardList, route: '/attendence/records' },
+		{ label: 'Records', icon: FaClipboardList, route: '/attendance/records' },
 	];
 
 	return (

@@ -37,9 +37,9 @@ import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
 import { FaClipboardUser } from 'react-icons/fa6';
-// import Employees from 'views/admin/attendenceEmp/components/employees';
-// import Attendance from 'views/admin/attendenceEmp/components/myAttendence';
-// import Records from 'views/admin/attendenceEmp/components/records';
+// import Employees from 'views/admin/attendanceEmp/components/employees';
+// import Attendance from 'views/admin/attendanceEmp/components/myAttendance';
+// import Records from 'views/admin/attendanceEmp/components/records';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -122,19 +122,19 @@ const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
-// Attendence module
-const AttendenceEmp = React.lazy(() => import('views/admin/attendenceEmp'));
+// Attendance module
+const Attendance = React.lazy(() => import('views/admin/attendance'));
 const Employees = React.lazy(
-	() => import('views/admin/attendenceEmp/components/employees')
+	() => import('views/admin/attendance/components/employees')
 );
 const Records = React.lazy(
-	() => import('views/admin/attendenceEmp/components/records')
+	() => import('views/admin/attendance/components/records')
 );
-const Attendance = React.lazy(
-	() => import('views/admin/attendenceEmp/components/myAttendence')
+const MyAttendance = React.lazy(
+	() => import('views/admin/attendance/components/myAttendance')
 );
 const AttendanceDashboard = React.lazy(
-	() => import('views/admin/attendenceEmp/components/dashboard')
+	() => import('views/admin/attendance/components/dashboard')
 );
 //leadpool v2
 // const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
@@ -193,11 +193,11 @@ const routes = [
 		component: HRModule,
 	},
 
-	// Attendence Routes
+	// Attendance Routes
 	{
-		name: 'Attendence',
+		name: 'Attendance',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendence_employees',
+		path: '/attendance',
 		icon: (
 			<Icon
 				as={FaRegCalendarCheck}
@@ -206,39 +206,39 @@ const routes = [
 				color='inherit'
 			/>
 		),
-		component: AttendenceEmp,
+		component: Attendance,
 	},
 	{
 		name: 'Attendance Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendence/dashboard',
+		path: '/attendance/dashboard',
 		under: 'employees',
-		parentName: 'Attendence',
+		parentName: 'Attendance',
 		component: AttendanceDashboard,
 	},
 	{
 		name: 'Employees',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendence/employees',
+		path: '/attendance/employees',
 		under: 'employees',
-		parentName: 'Attendence',
+		parentName: 'Attendance',
 		component: Employees,
 	},
 	{
 		name: 'My Records',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendence/records',
+		path: '/attendance/records',
 		under: 'my-records',
 		parentName: 'MyRecords',
 		component: Records,
 	},
 	{
-		name: 'My Attendence',
+		name: 'My Attendance',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendence/my-attendence',
-		under: 'my-attendence',
-		parentName: 'Attendence',
-		component: Attendance,
+		path: '/attendance/my-attendance',
+		under: 'my-attendance',
+		parentName: 'Attendance',
+		component: MyAttendance,
 	},
 
 	{
