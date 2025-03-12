@@ -274,13 +274,14 @@ export default function HeaderLinks(props) {
 					/> */}
 					<Avatar
 						_hover={{ cursor: 'pointer' }}
-						color='white'
+						color={loginUser?.profileImage ? '#333' : 'white'}
 						name={user || 'User'}
-						bg={loginUser?.profileImage ? 'white' : 'brand.500'}
+						bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
 						size='sm'
 						w='40px'
 						h='40px'
 						mx={1}
+						shadow='sm'
 						src={
 							loginUser?.profileImage
 								? `${constant['baseUrl']}${loginUser?.profileImage}`

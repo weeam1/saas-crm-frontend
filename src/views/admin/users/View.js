@@ -86,7 +86,7 @@ const View = () => {
 	const handleOpenModal = (userData) => {
 		setEdit(true);
 		// dispatch(setIsOpen(true));
-		dispatch(setUser(userData));
+		// dispatch(setUser(userData));
 	};
 
 	// const [data, setData] = useState();
