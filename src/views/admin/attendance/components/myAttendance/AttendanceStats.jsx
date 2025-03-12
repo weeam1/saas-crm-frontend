@@ -12,12 +12,6 @@ const AttendanceStats = ({ stats, employee }) => {
 	return (
 		<Box bg='white' p={5} borderRadius='md' shadow='sm'>
 			<Box display='flex' mb={4}>
-				<Avatar
-					src={`${constant['baseUrl']}${employee.profileImage}`}
-					size='lg'
-					bg='brand.500'
-					mr={3}
-				/>
 				<Box display='flex' alignItems='center' mb={3}>
 					<Avatar
 						src={`${constant['baseUrl']}${employee.profileImage}`}

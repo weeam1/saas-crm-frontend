@@ -140,7 +140,7 @@ const Attendance = () => {
 				<Box bg='white' p={5} borderRadius='md' shadow='sm' overflowX='scroll'>
 					<Header />
 					<Divider color='#D5D9DD' mb={4} />
-					<AttendanceTable attendanceRecord={data?.doc} />
+					<AttendanceTable attendanceRecord={data?.doc} timezone={timezone} />
 				</Box>
 			</Grid>
 		</Box>

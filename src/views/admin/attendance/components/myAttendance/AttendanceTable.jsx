@@ -10,9 +10,10 @@ import {
 	Divider,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
+import moment from 'moment';
 import { IoMdArrowDropdown } from 'react-icons/io';
 
-const AttendanceTable = ({ attendanceRecord }) => {
+const AttendanceTable = ({ attendanceRecord, timezone }) => {
 	return (
 		<Box overflowX='auto'>
 			<Table variant='simple' size='sm' bg='white' borderRadius='md'>
@@ -97,7 +98,7 @@ const AttendanceTable = ({ attendanceRecord }) => {
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
 								>
-									{entry.day}
+									{moment.tz(timezone).day(entry.day).format('dddd')}
 								</Td>
 								<Td
 									borderBottom='none'
