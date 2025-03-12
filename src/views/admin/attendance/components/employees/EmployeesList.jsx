@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const EmployeesList = ({ employees, tab }) => {
 	return employees?.length > 0 ? (
-		<Box height='70vh' overflowY='scroll' p='4'>
+		<Box p='4'>
 			<Grid
 				templateColumns={{
 					base: '1fr',
