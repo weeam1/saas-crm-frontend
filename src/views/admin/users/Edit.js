@@ -152,6 +152,8 @@ const Edit = (props) => {
 
 					const updatedDataString = JSON.stringify(updatedUserData);
 
+					console.log({ updatedDataString });
+
 					dispatch(setUser(updatedDataString));
 				}
 
