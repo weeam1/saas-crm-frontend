@@ -56,7 +56,7 @@ export default function HeaderLinks(props) {
 	const userData = useSelector((state) => state.user.user);
 
 	const data = typeof userData === 'string' ? JSON.parse(userData) : userData;
-	const user = data?.firstName + ' ' + data?.lastName;
+	const user = loginUser?.fullName;
 	const userId = JSON.parse(localStorage.getItem('user'))?._id;
 
 	const fetchData = async () => {
@@ -276,7 +276,7 @@ export default function HeaderLinks(props) {
 						_hover={{ cursor: 'pointer' }}
 						color='white'
 						name={user || 'User'}
-						bg='brand.500'
+						bg={loginUser?.profileImage ? 'white' : 'brand.500'}
 						size='sm'
 						w='40px'
 						h='40px'
