@@ -1,4 +1,4 @@
-// import { useState, useEffect } from "react"; // Added useEffect
+// import { useState, useEffect } from "react";
 // import {
 //   Input,
 //   InputGroup,
@@ -58,7 +58,7 @@
 
 //   return (
 //     <Box
-//       width={{ base: "100%", lg: "fit-content" }}
+//       width={{ base: "100%", lg: "fit-content" }} // Full width on base, fit-content on lg
 //       bg="softGray.50"
 //       borderRadius="md"
 //       display="flex"
@@ -66,14 +66,19 @@
 //       alignItems="center"
 //       position="relative"
 //       zIndex="1"
+//       px={{ base: 2, md: 0 }} // Add padding on small screens for better spacing
 //     >
-//       <HStack spacing={1} flexDirection={{ base: "column", md: "row" }}>
+//       <HStack
+//         spacing={1}
+//         flexDirection={{ base: "column", md: "row" }}
+//         w="100%" // Ensure HStack takes full width
+//       >
 //         <InputGroup
 //           bg="white"
 //           border="1px solid"
 //           borderColor="softGray.600"
 //           borderRadius="md"
-//           w={{ base: "100%", md: "280px" }}
+//           w={{ base: "100%", lg: "280px" }} // Full width on base, 280px on md+
 //           overflow="hidden"
 //           position="relative"
 //         >
@@ -83,7 +88,7 @@
 //             onChange={handleInputChange}
 //             onKeyDown={handleKeyDown}
 //             border="none"
-//             w="100%"
+//             w="100%" // Ensure Input takes full width of InputGroup
 //             fontSize="xs"
 //             height="2.2rem"
 //             textOverflow="ellipsis"
@@ -117,7 +122,9 @@
 //           </InputRightElement>
 //         </InputGroup>
 
-//         <HStack gap="1">
+//         <HStack gap="1" w={{ base: "100%", md: "auto" }}>
+//           {" "}
+//           {/* Full width on base */}
 //           <Button
 //             border="1px solid"
 //             borderColor="softGray.600"
@@ -125,7 +132,8 @@
 //             borderRadius="md"
 //             p={4}
 //             fontSize="xs"
-//             w="150px"
+//             mx="auto"
+//             w={{ base: "150px", md: "150px" }} // Full width on base, 150px on md+
 //             minW="max-content"
 //             height="2.2rem"
 //             onClick={toggleAdvanceSearch}
@@ -155,6 +163,7 @@
 // };
 
 // export default SearchBox;
+
 import { useState, useEffect } from "react";
 import {
   Input,
@@ -163,8 +172,9 @@ import {
   Button,
   HStack,
   Box,
+  IconButton,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons"; // Add CloseIcon
 import AdvancedSearchModal from "./AdvancedModal";
 
 const SearchBox = ({
@@ -210,12 +220,17 @@ const SearchBox = ({
     }
   };
 
+  const handleClearSearch = () => {
+    setInputValue(""); // Clear the input
+    onSearch(""); // Notify parent to clear the search
+  };
+
   const isAdvancedSearchActive =
     formValues && Object.keys(formValues).length > 0;
 
   return (
     <Box
-      width={{ base: "100%", lg: "fit-content" }} // Full width on base, fit-content on lg
+      width={{ base: "100%", lg: "fit-content" }}
       bg="softGray.50"
       borderRadius="md"
       display="flex"
@@ -223,19 +238,19 @@ const SearchBox = ({
       alignItems="center"
       position="relative"
       zIndex="1"
-      px={{ base: 2, md: 0 }} // Add padding on small screens for better spacing
+      px={{ base: 2, md: 0 }}
     >
       <HStack
         spacing={1}
         flexDirection={{ base: "column", md: "row" }}
-        w="100%" // Ensure HStack takes full width
+        w="100%"
       >
         <InputGroup
           bg="white"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          w={{ base: "100%", lg: "280px" }} // Full width on base, 280px on md+
+          w={{ base: "100%", lg: "280px" }}
           overflow="hidden"
           position="relative"
         >
@@ -245,11 +260,12 @@ const SearchBox = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             border="none"
-            w="100%" // Ensure Input takes full width of InputGroup
+            w="100%"
             fontSize="xs"
             height="2.2rem"
             textOverflow="ellipsis"
             _focus={{ boxShadow: "none" }}
+            pr={inputValue ? "4rem" : "2.5rem"} // Adjust padding for clear icon
           />
           <InputRightElement
             width="auto"
@@ -261,6 +277,17 @@ const SearchBox = ({
             top="0"
             zIndex="2"
           >
+            {inputValue && ( // Show clear icon only when input has value
+              <IconButton
+                aria-label="Clear search"
+                icon={<CloseIcon />}
+                size="xs"
+                bg="transparent"
+                _hover={{ bg: "gray.100" }}
+                onClick={handleClearSearch}
+                mr={1} // Margin to separate from search button
+              />
+            )}
             <Button
               size="md"
               bg="softGray.700"
@@ -280,8 +307,6 @@ const SearchBox = ({
         </InputGroup>
 
         <HStack gap="1" w={{ base: "100%", md: "auto" }}>
-          {" "}
-          {/* Full width on base */}
           <Button
             border="1px solid"
             borderColor="softGray.600"
@@ -290,7 +315,7 @@ const SearchBox = ({
             p={4}
             fontSize="xs"
             mx="auto"
-            w={{ base: "150px", md: "150px" }} // Full width on base, 150px on md+
+            w={{ base: "150px", md: "150px" }}
             minW="max-content"
             height="2.2rem"
             onClick={toggleAdvanceSearch}

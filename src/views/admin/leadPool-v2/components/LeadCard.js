@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Text,
@@ -135,8 +134,10 @@ const LeadCard = ({
   buyLoading,
 }) => {
   const formattedCreatedDate = formattedDate(createdDate);
-  const user = JSON.parse(localStorage.getItem("user") || "{}"); 
-  const userId = user?._id; 
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user?._id;
+
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   const displayButtonText = () => {
     switch (approvalStatus?.toLowerCase()) {
@@ -161,9 +162,16 @@ const LeadCard = ({
     }
   };
 
-  const handleCancelClick = () => {
+  const handleCancelClick = async () => {
     if (approvalStatus?.toLowerCase() === "pending" && cancelRequest) {
-      cancelRequest(_id, leadId || _id, userId);
+      setCancelLoading(true); // Show loader
+      try {
+        await cancelRequest(_id, leadId || _id, userId); // Wait for cancellation
+        setCancelLoading(false); // Hide loader on success
+      } catch (error) {
+        console.error("Cancel failed:", error);
+        setCancelLoading(false); // Hide loader on error
+      }
     } else {
       console.log("Cancel condition not met or cancelRequest missing");
     }
@@ -201,6 +209,8 @@ const LeadCard = ({
     buttonHoverBg: dynamicButtonHoverBg,
     buttonColor: dynamicButtonColor,
   } = getStatusStyles(approvalStatus);
+
+  const isRejected = approvalStatus?.toLowerCase() === "rejected"; // Check if status is "rejected"
 
   return (
     <Box
@@ -285,8 +295,8 @@ const LeadCard = ({
                   borderRadius="5px"
                   _hover={{ bg: "red.600" }}
                   onClick={handleCancelClick}
-                  isLoading={buyLoading}
-                  isDisabled={buyLoading}
+                  isLoading={cancelLoading}
+                  isDisabled={cancelLoading}
                 >
                   Cancel
                 </Button>
@@ -316,11 +326,7 @@ const LeadCard = ({
                 flexShrink={0}
                 onClick={handleBuyClick}
                 isLoading={buyLoading[_id]}
-                // isDisabled={
-                //   buyLoading ||
-                //   approvalStatus?.toLowerCase() === "pending" ||
-                //   approvalStatus?.toLowerCase() === "rejected"
-                // }
+                isDisabled={buyLoading[_id] || isRejected} // Disable if rejected
               >
                 {displayButtonText()}
               </Button>
@@ -423,28 +429,3 @@ const LeadCard = ({
 };
 
 export default LeadCard;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

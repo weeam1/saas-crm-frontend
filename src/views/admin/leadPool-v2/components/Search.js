@@ -76,7 +76,7 @@ const SearchBox = ({
           flexDirection={{ base: "column", md: "row" }}
           justifyContent="center"
         >
-          <InputGroup
+          {/* <InputGroup
             bg="white"
             border="1px solid"
             borderColor="softGray.600"
@@ -113,6 +113,55 @@ const SearchBox = ({
                 borderColor="softGray.600"
                 px={4}
                 borderRadius="0"
+                fontSize="xs"
+                height="100%"
+                _hover={{ bg: "gray.50" }}
+                _active={{ bg: "gray.100" }}
+                onClick={handleSearch}
+                isDisabled={isLoading}
+              >
+                Search
+              </Button>
+            </InputRightElement>
+          </InputGroup> */}
+          <InputGroup
+            bg="white"
+            border="1px solid"
+            borderColor="softGray.600"
+            borderRadius="md"
+            w={{ base: "100%", md: "280px" }}
+            pr="0"
+            overflow="hidden"
+          >
+            <Input
+              placeholder="name.."
+              border="none"
+              fontSize="xs"
+              height="2.2rem"
+              _focus={{ boxShadow: "none" }}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={handleKeyPress}
+              pr="4.5rem"
+            />
+            <InputRightElement width="auto" height="100%">
+              {searchTerm && (
+                <CloseIcon
+                  fontSize="xs"
+                  color="gray.500"
+                  cursor="pointer"
+                  onClick={handleClear}
+                  mr={2}
+                />
+              )}
+              <Button
+                size="md"
+                bg="softGray.700"
+                borderLeft="1px solid"
+                borderColor="softGray.600"
+                px={4}
+                borderLeftRadius="0"
+                borderRadius="0px"
                 fontSize="xs"
                 height="100%"
                 _hover={{ bg: "gray.50" }}
