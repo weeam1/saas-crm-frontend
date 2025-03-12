@@ -44,8 +44,6 @@ const Employees = () => {
 				newParams.set('agency', firstAgency.name);
 				return newParams;
 			});
-
-			console.log('render ');
 		}
 	}, [agencies]);
 
