@@ -9,7 +9,15 @@ const LeadsProgress = ({ totalLeads, userData }) => {
           Leads: <CountUpComponent targetNumber={totalLeads} />
         </Text>
         {userData?.coins !== undefined && (
-          <Text fontSize="24px" fontFamily="DM Sans" mt={{ base: 0, lg: 10 }}>
+          <Text
+            fontSize="24px"
+            fontFamily="DM Sans"
+            mt={{ base: 0, lg: 10 }}
+            backgroundColor="#B79045"
+            textColor="white"
+            p="5px"
+            borderRadius="5px"
+          >
             Coins: <CountUpComponent targetNumber={userData.coins} />
           </Text>
         )}

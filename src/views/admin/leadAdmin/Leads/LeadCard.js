@@ -10,14 +10,20 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
 import { CiMenuKebab } from "react-icons/ci";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaHistory } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 import { getUserNameById } from "utils";
 import { formattedDate } from "utils/helpers";
+import LeadCycleModal from "../components/LeadCard/LeadCycleModal";
+import LeadsModal from "../../lead/LeadsModal";
 const LeadCard = ({
   leadId,
   leadName,
@@ -36,22 +42,8 @@ const LeadCard = ({
   tab = "All",
   approveChangeHandler,
   _id,
+  refreshData,
 }) => {
-  // const formatDate = (date) => {
-  //   return date
-  //     ? new Intl.DateTimeFormat("en-US", {
-  //         year: "numeric",
-  //         month: "short",
-  //         day: "numeric",
-  //         hour: "2-digit",
-  //         minute: "2-digit",
-  //         // second: "2-digit",
-  //         hour12: true,
-  //         timeZone: "Asia/Dubai",
-  //       }).format(new Date(date))
-  //     : "N/A";
-  // };
-
   const formattedCreatedDate = formattedDate(createdDate);
   const formattedApprovedDate = formattedDate(approvedDate);
   const formattedRejectedDate = formattedDate(rejectedDate);
@@ -64,10 +56,13 @@ const LeadCard = ({
   );
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
+  const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
 
   useEffect(() => {
     setLocalApprovalStatus(initialApprovalStatus);
   }, [initialApprovalStatus]);
+
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -80,7 +75,7 @@ const LeadCard = ({
       case "rejected":
         return {
           borderColor: "#c73434",
-          buttonBg: "#FF3B3B",
+          buttonBg: "#FF4B4B",
           buttonHoverBg: "#D32F2F",
           buttonColor: "white",
         };
@@ -123,6 +118,23 @@ const LeadCard = ({
         setIsRejectLoading(false);
       }
     }
+  };
+
+  const handleViewLeadCycle = () => {
+    console.log("Opening LeadCycleModal for lead:", leadId || _id);
+    setIsCycleModalOpen(true);
+  };
+
+  const handleCloseCycleModal = () => {
+    setIsCycleModalOpen(false);
+  };
+
+  const handleLeadsModal = (lid) => {
+    console.log("Opening LeadsModal with lid:", lid);
+    setLeadsModal({
+      isOpen: true,
+      lid,
+    });
   };
 
   const renderActionSection = () => {
@@ -290,7 +302,7 @@ const LeadCard = ({
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
     >
-      <CardHeader id={leadId} />
+      <CardHeader id={leadId} onViewLeadCycle={handleViewLeadCycle} />
       <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="1">
         <VStack align="start" spacing={2} flex="2" w="60%" minW={0}>
           <Text
@@ -298,6 +310,9 @@ const LeadCard = ({
             fontWeight="bold"
             fontFamily="DM Sans"
             isTruncated
+            cursor="pointer"
+            _hover={{ color: "blue.500" }}
+            onClick={() => handleLeadsModal(leadId || _id)}
           >
             {leadName || "N/A"}
           </Text>
@@ -427,22 +442,52 @@ const LeadCard = ({
           </VStack>
         </VStack>
       </HStack>
-      <HStack w="100%" justify="flex-end" mt={1}>
+      <HStack w="100%" justify="flex-end">
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
           Lead time: {formattedCreatedDate}
         </Text>
       </HStack>
+
+      {/* Modal for Lead Cycle */}
+      {isCycleModalOpen && (
+        <LeadCycleModal
+          isOpen={isCycleModalOpen}
+          onClose={handleCloseCycleModal}
+          leadId={leadId || _id}
+        />
+      )}
+
+      {/* Modal for Leads */}
+      {leadsModal.isOpen && (
+        <LeadsModal
+          leadsModal={leadsModal}
+          onClose={() => setLeadsModal({ isOpen: false, lid: null })}
+          reFreshData={refreshData}
+          isInLeadPool
+        />
+      )}
     </Box>
   );
 };
 
-// Sub-components remain unchanged
-const CardHeader = ({ id }) => (
-  <HStack justify="space-between" w="100%" mb={1}>
-    <HStack spacing={1}>
+const CardHeader = ({ id, onViewLeadCycle }) => (
+  <HStack justifyContent="space-between" w="100%">
+    <HStack>
       <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
+      {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
+          {id || "N/A"}
+        </Text> */}
     </HStack>
-    <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
+    <Menu>
+      <MenuButton>
+        <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
+      </MenuButton>
+      <MenuList>
+        <MenuItem icon={<FaHistory fontSize={15} />} onClick={onViewLeadCycle}>
+          View Lead Cycle
+        </MenuItem>
+      </MenuList>
+    </Menu>
   </HStack>
 );
 
