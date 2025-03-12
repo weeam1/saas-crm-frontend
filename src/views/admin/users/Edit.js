@@ -35,6 +35,8 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
 
+	const [uploadImage, setUploadImage] = useState(false);
+
 	const { data: agencies } = useFetchItemsQuery({
 		path: '/agencies',
 	});
@@ -63,9 +65,7 @@ const Edit = (props) => {
 		validationSchema: userSchema,
 		enableReinitialize: true,
 		onSubmit: (values, { resetForm }) => {
-			console.log(values);
 			EditData();
-			resetForm();
 		},
 	});
 
@@ -93,50 +93,48 @@ const Edit = (props) => {
 		setFieldValue,
 	} = formik;
 
-	const [isLoding, setIsLoding] = useState(false);
-
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
 	const EditData = async () => {
 		try {
-			setIsLoding(true);
-
 			const valuesObj = { ...values };
 			if (data?.roles[0]?.roleName === 'Manager') {
 				delete valuesObj['parent'];
 			}
 
-			const formData = new FormData();
+			// const formData = new FormData();
 
-			Object.keys(valuesObj).forEach((key) => {
-				const value = valuesObj[key];
+			// Object.keys(valuesObj).forEach((key) => {
+			// 	const value = valuesObj[key];
 
-				if (value === undefined || value === null || value === '') return;
+			// 	if (value === undefined || value === null || value === '') return;
 
-				if (key === 'profileImage' && value instanceof File) {
-					formData.append(key, value);
-				} else if (key === 'roles' && Array.isArray(value)) {
-					value.forEach((role, index) => {
-						if (role.roleName) {
-							formData.append(`roles[${index}]`, role.roleName);
-						}
-					});
-				} else {
-					formData.append(key, value);
+			// 	if (key === 'profileImage' && value instanceof File) {
+			// 		formData.append(key, value);
+			// 	} else if (key === 'roles' && Array.isArray(value)) {
+			// 		value.forEach((role, index) => {
+			// 			if (role.roleName) {
+			// 				formData.append(`roles[${index}]`, role.roleName);
+			// 			}
+			// 		});
+			// 	} else {
+			// 		formData.append(key, value);
+			// 	}
+			// });
+
+			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
+				if (value !== undefined && value !== null && value !== '') {
+					acc[key] =
+						key === 'roles' && Array.isArray(value)
+							? value.map((role) => role.roleName).filter(Boolean)
+							: value;
 				}
-			});
-
-			// let response = await putApi(
-			// 	`api/user/edit/${props.selectedId}`,
-			// 	valuesObj
-			// );
-
-			console.log({ formData });
+				return acc;
+			}, {});
 
 			let response = await updateItemMutation({
 				path: `/user/v2/edit/${props.selectedId}`,
-				body: formData,
-				formData: true,
+				body: bodyData,
 			});
 
 			if (response && response.data.modifiedCount) {
@@ -166,13 +164,12 @@ const Edit = (props) => {
 
 				handleCloseModal();
 				fetchData();
+				formik.resetForm();
 				props.setAction((pre) => !pre);
 			}
 		} catch (e) {
 			console.log(e);
 			toast.error(e.data?.message);
-		} finally {
-			setIsLoding(false);
 		}
 	};
 
@@ -182,7 +179,11 @@ const Edit = (props) => {
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Edit User
-					<IconButton onClick={handleCloseModal} icon={<CloseIcon />} />
+					<IconButton
+						onClick={handleCloseModal}
+						isDisabled={uploadImage}
+						icon={<CloseIcon />}
+					/>
 				</ModalHeader>
 				<ModalBody>
 					<Grid
@@ -196,6 +197,8 @@ const Edit = (props) => {
 							<ImageUpload
 								profileImage={values?.profileImage}
 								formik={formik}
+								user={data}
+								setUploadImage={setUploadImage}
 							/>
 						</GridItem>
 						<GridItem colSpan={{ base: 6 }}>
@@ -491,10 +494,10 @@ const Edit = (props) => {
 					<Button
 						size='sm'
 						variant='brand'
-						disabled={isLoding ? true : false}
+						disabled={isLoading ? true : false}
 						onClick={handleSubmit}
 					>
-						{isLoding ? <Spinner /> : 'Update'}
+						{isLoading ? <Spinner /> : 'Update'}
 					</Button>
 					<Button
 						variant='outline'
@@ -504,6 +507,7 @@ const Edit = (props) => {
 							marginLeft: 2,
 							textTransform: 'capitalize',
 						}}
+						isDisabled={uploadImage}
 						onClick={() => handleCloseModal()}
 					>
 						close

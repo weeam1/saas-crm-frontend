@@ -25,12 +25,9 @@ import React, { useEffect, useState } from 'react';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
-// import { userSchema } from 'schema';
 import { useSelector } from 'react-redux';
 import { getApi } from 'services/api';
-import { postApi } from 'services/api';
 import * as Yup from 'yup';
-import { useragencys } from 'utils/options';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useCreateItemMutation } from 'api/apiSlice';
 import ImageUpload from './components/ImageUpload';
@@ -64,6 +61,7 @@ const userValidationSchema = Yup.object().shape({
 const AddUser = (props) => {
 	const { onClose, isOpen, setAction } = props;
 	const [roles, setRoles] = useState([]);
+	const [uploadImage, setUploadImage] = useState(false);
 
 	const tree = useSelector((state) => state.user);
 
@@ -144,26 +142,21 @@ const AddUser = (props) => {
 				valuesObj['roles'] = [valuesObj.role?.toString()];
 			}
 
-			const formData = new FormData();
+			const bodyData = {};
 
 			Object.keys(valuesObj).forEach((key) => {
 				if (key === 'profileImage' && valuesObj[key] instanceof File) {
-					formData.append(key, valuesObj[key]);
+					bodyData[key] = valuesObj[key];
 				} else if (key === 'roles' && Array.isArray(valuesObj[key])) {
-					valuesObj[key].forEach((role, index) => {
-						formData.append(`roles[${index}]`, role);
-					});
+					bodyData[key] = valuesObj[key].map((role) => role);
 				} else {
-					formData.append(key, valuesObj[key]);
+					bodyData[key] = valuesObj[key];
 				}
 			});
 
-			// let response = await postApi('api/user/register', formValues);
-
 			let response = await createItemMutation({
 				path: '/user/v2/register',
-				body: formData,
-				formData: true,
+				body: bodyData,
 			});
 
 			if (response?.data?.status === 200) {
@@ -171,6 +164,7 @@ const AddUser = (props) => {
 				props.fetchData();
 				resetForm();
 				setAction((pre) => !pre);
+				toast.success('User created successfully.');
 			} else {
 				toast.error(response.error?.data?.message || 'User not added.');
 			}
@@ -190,28 +184,33 @@ const AddUser = (props) => {
 	}, []);
 
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
+		<Modal size='4xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Add User
-					<IconButton onClick={onClose} icon={<CloseIcon />} />
+					<IconButton
+						onClick={onClose}
+						isDisabled={uploadImage}
+						icon={<CloseIcon />}
+					/>
 				</ModalHeader>
 				<ModalBody>
 					<Grid
 						h={'60vh'}
 						overflow={'scroll'}
-						templateColumns='repeat(12, 1fr)'
+						templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2,1fr)' }}
 						gap={3}
 						p={4}
 					>
-						<GridItem colSpan={12}>
+						<GridItem colSpan={{ base: 1, md: 2 }}>
 							<ImageUpload
 								profileImage={values?.profileImage}
 								formik={formik}
+								setUploadImage={setUploadImage}
 							/>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -238,7 +237,7 @@ const AddUser = (props) => {
 								{errors.firstName && touched.firstName && errors.firstName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -265,7 +264,7 @@ const AddUser = (props) => {
 								{errors.lastName && touched.lastName && errors.lastName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -293,7 +292,7 @@ const AddUser = (props) => {
 								{errors.username && touched.username && errors.username}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -330,7 +329,7 @@ const AddUser = (props) => {
 							</Text>
 						</GridItem>
 						{user?.roles[0]?.roleName !== 'Manager' && (
-							<GridItem colSpan={{ base: 6 }}>
+							<GridItem>
 								<FormLabel
 									display='flex'
 									ms='4px'
@@ -363,7 +362,7 @@ const AddUser = (props) => {
 						{roles.find((role) => role?._id === values.role)?.roleName ===
 							'Agent' &&
 							user?.roles[0]?.roleName !== 'Manager' && (
-								<GridItem colSpan={{ base: 6 }}>
+								<GridItem>
 									<FormLabel
 										display='flex'
 										ms='4px'
@@ -388,7 +387,7 @@ const AddUser = (props) => {
 									</Select>
 								</GridItem>
 							)}
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -431,7 +430,7 @@ const AddUser = (props) => {
 								{errors.password && touched.password && errors.password}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -460,7 +459,7 @@ const AddUser = (props) => {
 								{errors.agency && touched.agency && errors.agency}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -488,7 +487,7 @@ const AddUser = (props) => {
 									errors.nationality}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -512,7 +511,7 @@ const AddUser = (props) => {
 								{errors.dob && touched.dob && errors.dob}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -542,7 +541,7 @@ const AddUser = (props) => {
 									errors.educationDegree}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -570,7 +569,7 @@ const AddUser = (props) => {
 									errors.passportNum}
 							</Text>
 						</GridItem>
-						{/* <GridItem colSpan={{ base: 6 }}>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       PASSPORT PHOTO
     </FormLabel>
@@ -586,7 +585,7 @@ const AddUser = (props) => {
       {errors.passportPhoto && touched.passportPhoto && errors.passportPhoto}
     </Text>
   </GridItem> */}
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -612,7 +611,7 @@ const AddUser = (props) => {
 								{errors.uaeIdNum && touched.uaeIdNum && errors.uaeIdNum}
 							</Text>
 						</GridItem>
-						{/* <GridItem colSpan={{ base: 6 }}>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       UEA ID PHOTO
     </FormLabel>
@@ -629,7 +628,7 @@ const AddUser = (props) => {
     </Text>
   </GridItem> */}
 
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -659,7 +658,7 @@ const AddUser = (props) => {
 									errors.dubaiHomeAddress}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -689,7 +688,7 @@ const AddUser = (props) => {
 									errors.drivingLicense}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -719,7 +718,7 @@ const AddUser = (props) => {
 									errors.countryHomeAddress}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -769,6 +768,7 @@ const AddUser = (props) => {
 						variant='outline'
 						colorScheme='red'
 						size='sm'
+						isDisabled={uploadImage}
 						onClick={() => {
 							formik.resetForm();
 							onClose();
