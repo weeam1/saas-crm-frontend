@@ -173,8 +173,9 @@ import {
   HStack,
   Box,
   IconButton,
+  Flex,
 } from "@chakra-ui/react";
-import { SearchIcon, CloseIcon } from "@chakra-ui/icons"; // Add CloseIcon
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 import AdvancedSearchModal from "./AdvancedModal";
 
 const SearchBox = ({
@@ -194,7 +195,6 @@ const SearchBox = ({
   const [isAdvanceOpen, setIsAdvanceOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchQuery || "");
 
-  // Sync inputValue with searchQuery from parent
   useEffect(() => {
     setInputValue(searchQuery);
   }, [searchQuery]);
@@ -221,8 +221,8 @@ const SearchBox = ({
   };
 
   const handleClearSearch = () => {
-    setInputValue(""); // Clear the input
-    onSearch(""); // Notify parent to clear the search
+    setInputValue(""); 
+    onSearch(""); 
   };
 
   const isAdvancedSearchActive =
@@ -230,10 +230,8 @@ const SearchBox = ({
 
   return (
     <Box
-      width={{ base: "100%", lg: "fit-content" }}
       bg="softGray.50"
       borderRadius="md"
-      display="flex"
       flexDirection="column"
       alignItems="center"
       position="relative"
@@ -241,6 +239,8 @@ const SearchBox = ({
       px={{ base: 2, md: 0 }}
     >
       <HStack
+        display="flex"
+        justifyContent={{ base: "center", md: "center" }}
         spacing={1}
         flexDirection={{ base: "column", md: "row" }}
         w="100%"
@@ -250,7 +250,7 @@ const SearchBox = ({
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          w={{ base: "100%", lg: "280px" }}
+          w={{ base: "100%", md: "280px" }}
           overflow="hidden"
           position="relative"
         >
@@ -263,9 +263,11 @@ const SearchBox = ({
             w="100%"
             fontSize="xs"
             height="2.2rem"
-            textOverflow="ellipsis"
+            textOverflow="ellipsis" // Already present, ensures truncation
+            overflow="hidden" // Prevent text from overflowing
+            whiteSpace="nowrap" // Keep text on one line
             _focus={{ boxShadow: "none" }}
-            pr={inputValue ? "4rem" : "2.5rem"} // Adjust padding for clear icon
+            pr="116px" // Increased padding for clear icon + search button
           />
           <InputRightElement
             width="auto"
@@ -277,7 +279,7 @@ const SearchBox = ({
             top="0"
             zIndex="2"
           >
-            {inputValue && ( // Show clear icon only when input has value
+            {inputValue && (
               <IconButton
                 aria-label="Clear search"
                 icon={<CloseIcon />}

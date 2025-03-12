@@ -126,9 +126,6 @@ const LeadScreen = () => {
       queryParams.append("page", page);
       queryParams.append("pageSize", size);
 
-      console.log(
-        `Fetching leads for page: ${page}, tab: ${tab}, pageSize: ${size}`
-      );
       const result = await getApi(`api/adminApproval/get?${queryParams}`);
       if (result.status === 200) {
         setLeads(result.data);
@@ -162,10 +159,6 @@ const LeadScreen = () => {
         user.role === "superAdmin"
           ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
           : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
-      );
-
-      console.log(
-        `Fetching searched data for page: ${pageNo}, pageSize: ${size}`
       );
       setDisplaySearchData(true);
       const newData =
@@ -211,9 +204,6 @@ const LeadScreen = () => {
           : `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
       );
 
-      console.log(
-        `Fetching advanced search for page: ${pageNo}, pageSize: ${size}`
-      );
       setDisplayAdvSearchData(true);
       const newData =
         result.data?.result?.map((lead) => {
@@ -404,10 +394,9 @@ const LeadScreen = () => {
   };
 
   useEffect(() => {
-    // Reset to defaults and fetch leads when the component mounts or route changes back
     resetToDefaults();
     fetchLeads(defaultTab, defaultPage, defaultPageSize);
-  }, [location.pathname]); // Trigger when the route changes
+  }, [location.pathname]);
 
   useEffect(() => {
     updateUrlAndStorage();
@@ -438,7 +427,6 @@ const LeadScreen = () => {
   };
 
   const handleTabChange = (newTab) => {
-    console.log("Tab clicked:", newTab);
     setCurrentPage(1);
     setDisplayAdvSearchData(false);
     setDisplaySearchData(false);

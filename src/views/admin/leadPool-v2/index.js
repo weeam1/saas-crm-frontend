@@ -166,10 +166,8 @@ const Index = () => {
       }
       queryParams.append("page", page);
       queryParams.append("pageSize", size);
-      console.log("fetchLeads query:", `api/adminApproval/get?${queryParams}`);
 
       const result = await getApi(`api/adminApproval/get?${queryParams}`);
-      console.log("fetchLeads result:", result);
       if (result.status === 200 && isMounted) {
         const newData = (result.data.approvals || result.data).map((lead) => {
           if (lead?.ip) {
@@ -220,17 +218,10 @@ const Index = () => {
         queryParams.append("term", term); // Changed to "term" to match api/lead/search
         queryParams.append("page", pageNo);
         queryParams.append("pageSize", size);
-
-        console.log(
-          "Searching in tab:",
-          activeTab,
-          "query:",
-          `api/adminApproval/get?${queryParams}`
-        );
         result = await getApi(`api/adminApproval/get?${queryParams}`);
 
         // If API doesn't filter by term, filter client-side
-        let newData = (result.data?.approvals || result.data) || [];
+        let newData = result.data?.approvals || result.data || [];
         if (newData.length > 0 && term.trim() !== "") {
           newData = newData.filter((lead) =>
             lead.leadName?.toLowerCase().includes(term.toLowerCase())
@@ -249,7 +240,9 @@ const Index = () => {
           setDisplaySearchData(true);
           setSearchedData(newData);
           setData(newData);
-          setTotalPages(result.data?.totalPages || Math.ceil(newData.length / size));
+          setTotalPages(
+            result.data?.totalPages || Math.ceil(newData.length / size)
+          );
           setTotalLeads(newData.length); // Use filtered length
         }
       } else {
@@ -352,7 +345,6 @@ const Index = () => {
     }
     try {
       const { data } = await getApi(`api/lead/leads-stats/${userId}`);
-      console.log("fetchAgentLeadsSats response:", data);
       return data?.doc || { canAddLeads: false };
     } catch (error) {
       console.error("Error fetching agent lead stats:", error);
@@ -366,7 +358,6 @@ const Index = () => {
 
     try {
       const stats = await fetchAgentLeadsSats(user._id);
-      console.log("Stats in sendRequest:", stats);
       if (!stats.canAddLeads) {
         if (!stats || typeof stats !== "object") {
           console.error("Invalid stats object:", stats);
@@ -475,11 +466,10 @@ const Index = () => {
       const userResponse = await getApi(`api/user/view/${userId}`);
       if (!userResponse?.data) {
         console.error("User not found:", userId);
-        throw new Error("User not found");
+        // throw new Error("User not found");
       }
 
-      const coinRefund =
-        leadResponse.data.lead.leadStatus === "new" ? 300 : 50;
+      const coinRefund = leadResponse.data.lead.leadStatus === "new" ? 300 : 50;
       const currentCoins = userResponse.data.coins || 0;
       const updatedCoins = currentCoins + coinRefund;
 
@@ -532,12 +522,6 @@ const Index = () => {
   );
 
   useEffect(() => {
-    console.log(
-      "activeTab changed to:",
-      activeTab,
-      "lastFetchedTab:",
-      lastFetchedTab
-    );
     if (!displaySearchData && activeTab !== lastFetchedTab) {
       setCurrentPage(1);
       if (activeTab === "All") {
@@ -589,14 +573,6 @@ const Index = () => {
         totalLeads={totalLeads}
         isLoading={isLoading}
         fetchData={(tab, page, size) => {
-          console.log(
-            "fetchData called with tab:",
-            tab,
-            "page:",
-            page,
-            "size:",
-            size
-          );
           setData([]);
           setActiveTab(tab);
           setCurrentPage(page);

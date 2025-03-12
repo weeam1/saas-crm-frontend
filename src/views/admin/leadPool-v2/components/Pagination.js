@@ -51,8 +51,9 @@ const Pagination = ({
   const [tags, setTags] = useState([]);
   const pageSizeOptions = [10, 25, 50, 100];
 
-  const startIndex = (currentPage - 1) * pageSize + 1;
+  const startIndex = totalLeads > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalLeads);
+  const totalPagesForTab = Math.max(1, totalPages);
 
   const handleFirst = () => {
     if (isLoading) return;
@@ -77,7 +78,7 @@ const Pagination = ({
   };
 
   const handleNext = () => {
-    if (isLoading || currentPage >= totalPages) return;
+    if (isLoading || currentPage >= totalPagesForTab) return;
     setCurrentPage(currentPage + 1);
     setGotoPage(currentPage + 1);
     if (displaySearchData) {
@@ -89,12 +90,12 @@ const Pagination = ({
 
   const handleLast = () => {
     if (isLoading) return;
-    setCurrentPage(totalPages);
-    setGotoPage(totalPages);
+    setCurrentPage(totalPagesForTab);
+    setGotoPage(totalPagesForTab);
     if (displaySearchData) {
-      fetchSearchedData(searchTerm, totalPages, pageSize);
+      fetchSearchedData(searchTerm, totalPagesForTab, pageSize);
     } else {
-      fetchData(activeTab, totalPages, pageSize);
+      fetchData(activeTab, totalPagesForTab, pageSize);
     }
   };
 
@@ -104,7 +105,7 @@ const Pagination = ({
 
   const handleGoToBlur = () => {
     if (isLoading) return;
-    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
+    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPagesForTab));
     setCurrentPage(page);
     setGotoPage(page);
     if (displaySearchData) {
@@ -153,8 +154,12 @@ const Pagination = ({
   return (
     <Box width="100%" bg="white" p={5} borderRadius="10px">
       <LeadsProgress totalLeads={totalLeads} userData={userData} />
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} 
-          isLoading={isLoading}/>
+      <Tabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isLoading={isLoading}
+      />
+
       <Flex
         direction={{ base: "column", md: "column", lg: "row" }}
         justifyContent={{ base: "center", md: "space-between" }}
@@ -229,11 +234,10 @@ const Pagination = ({
                 <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
-                  onChange={(valueString) =>
-                    handleGoToChange(Number(valueString) || "")
-                  }
+                  onChange={handleGoToChange}
                   onBlur={handleGoToBlur}
                   min={1}
+                  max={totalPagesForTab}
                   size="sm"
                   borderRadius="md"
                   width="5rem"
@@ -261,20 +265,21 @@ const Pagination = ({
                       borderColor: "brand.500",
                     }}
                     _active={{ bg: "softGray.400" }}
+                    fontSize="sm" // Consistent with leadadmin
                   />
                 </NumberInput>
                 <Text fontSize={{ base: "xs", md: "sm" }}>
-                  of {Number(totalPages).toLocaleString()}
+                  of {Number(totalPagesForTab).toLocaleString()}
                 </Text>
               </HStack>
 
               <HStack spacing={1} fontWeight="medium" color="gray.800">
                 <Text fontSize={{ base: "xs", md: "sm" }}>Items per page:</Text>
                 <Select
+                  size="sm"
                   value={pageSize}
                   onChange={handlePageSizeChange}
-                  size="sm"
-                  width="5rem"
+                  width="70px"
                   bg="softGray.50"
                   border="1px solid softGray.600"
                   borderRadius="md"
@@ -302,7 +307,11 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={isLoading || currentPage === totalPages}
+                isDisabled={
+                  isLoading ||
+                  currentPage === totalPagesForTab ||
+                  totalLeads === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -316,7 +325,11 @@ const Pagination = ({
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={isLoading || currentPage === totalPages}
+                isDisabled={
+                  isLoading ||
+                  currentPage === totalPagesForTab ||
+                  totalLeads === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
@@ -340,7 +353,7 @@ const Pagination = ({
           width={{ base: "100%", md: "100%", lg: "auto" }}
           flex={{ base: "none", md: "none", lg: "1" }}
           minWidth={{ base: "100%", md: "100%", lg: "200px" }}
-          maxWidth={{ lg: "470px" }}
+          maxWidth={{ base: "auto", lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
           <SearchBox
@@ -359,6 +372,7 @@ const Pagination = ({
           />
         </Box>
       </Flex>
+
       {displaySearchData && (
         <Flex justifyContent="space-between" alignItems="center" p={3}>
           <HStack spacing={2}>
@@ -381,7 +395,9 @@ const Pagination = ({
           </Button>
         </Flex>
       )}
+
       <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
+
       <Box mt={4}>
         <TabContent
           activeTab={activeTab}
