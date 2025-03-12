@@ -12,7 +12,7 @@ import {
 import { toast } from "react-toastify";
 
 import { getApi } from "services/api";
-import LeadHistoryTimeline from "../../leadCycle/components/LeadHistoryTimeline";
+import LeadHistoryTimeline from "../../../leadCycle/components/LeadHistoryTimeline";
 import { HSeparator } from "components/separator/Separator";
 import Spinner from "components/spinner/Spinner";
 
