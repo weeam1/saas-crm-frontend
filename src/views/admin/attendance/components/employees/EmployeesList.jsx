@@ -44,7 +44,7 @@ const EmployeesList = ({ employees, tab }) => {
 									{tab === 'admins' ? 'Admin' : emp.roleName}
 								</Text>
 								<Text fontWeight='medium' fontSize='16px'>
-									{emp.salary ? `AED ${emp.salary}/month` : 'Salary N/A'}
+									{emp.salary ? `${emp.salary}/month` : 'Salary N/A'}
 								</Text>
 							</Box>
 						</Box>

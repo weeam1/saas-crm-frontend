@@ -25,14 +25,39 @@ const Employees = () => {
 	const [activeTab, setActiveTab] = useState(
 		initialTabIndex !== -1 ? initialTabIndex : 0
 	);
+	const [activeAgency, setActiveAgency] = useState(0);
+	const [queryParams, setQueryParams] = useState(null);
 
 	const navigate = useNavigate();
+	const { data: agencies, isLoading: agenciesLoading } = useFetchItemsQuery({
+		path: '/agencies',
+	});
+
+	useEffect(() => {
+		if (agencies?.doc?.length && !activeAgency) {
+			const firstAgency = agencies.doc[0];
+			setActiveAgency(firstAgency.name);
+			setQueryParams({ agency: firstAgency.name });
+
+			setSearchParams((prev) => {
+				const newParams = new URLSearchParams(prev);
+				newParams.set('agency', firstAgency.name);
+				return newParams;
+			});
+
+			console.log('render ');
+		}
+	}, [agencies]);
 
 	const { data, isLoading } = useFetchItemsQuery(
 		{
 			path: `/v2/user/employees`,
+			params: queryParams,
 		},
-		{ refetchOnMountOrArgChange: true }
+		{
+			skip: !queryParams,
+			refetchOnMountOrArgChange: true,
+		}
 	);
 
 	const employees = useMemo(
@@ -54,9 +79,25 @@ const Employees = () => {
 	}, [searchTerm, employees, allUsers]);
 
 	// Handle tab change and update URL
+	const handleAgencyChange = (agency) => {
+		if (!agency) return;
+		setActiveAgency(agency.name);
+		setQueryParams({ agency: agency.name });
+		setSearchParams((prev) => {
+			const newParams = new URLSearchParams(prev);
+			newParams.set('agency', agency.name);
+			return newParams;
+		});
+	};
+
+	// Handle tab change and update URL
 	const handleTabChange = (index) => {
 		setActiveTab(index);
-		setSearchParams({ tab: tabData[index].key });
+		setSearchParams((prev) => {
+			const newParams = new URLSearchParams(prev);
+			newParams.set('tab', tabData[index].key);
+			return newParams;
+		});
 	};
 
 	return (
@@ -75,6 +116,19 @@ const Employees = () => {
 				Back
 			</Button>
 			<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
+				{/* Agencies  */}
+				<Flex gap='2' px='4' mb='4' width='fit-content'>
+					{agencies?.doc?.map((agency) => (
+						<TabButton
+							key={agency._id}
+							isActive={activeAgency === agency.name}
+							onClick={() => handleAgencyChange(agency)}
+						>
+							{agency.name}
+						</TabButton>
+					))}
+				</Flex>
+
 				{/* Header */}
 				<Box
 					px={{ base: 4, md: 6, lg: 12 }}
@@ -149,7 +203,7 @@ const Employees = () => {
 					transform='translateY(0px)'
 					key={activeTab}
 				>
-					{isLoading ? (
+					{isLoading || agenciesLoading ? (
 						<Box h='80vh'>
 							<Loader />
 						</Box>
