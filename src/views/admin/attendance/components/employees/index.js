@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Box, Heading, Input, Icon, Flex, Button } from '@chakra-ui/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Box, Button, Icon } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import EmployeesList from './EmployeesList';
@@ -11,35 +11,43 @@ import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
 
 const Employees = () => {
-	const [searchTerm, setSearchTerm] = useState('');
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchClear, setSearchClear] = useState(false);
 	const navigate = useNavigate();
+	const searchTermRef = useRef('');
 
 	useEffect(() => {
-		if (
-			!searchParams.get('page') ||
-			!searchParams.get('pageSize') ||
-			!searchParams.get('role')
-		) {
-			setSearchParams(
-				(prev) => ({
-					page: Number(prev.get('page')) || 1,
-					pageSize: Number(prev.get('pageSize')) || 24,
-					role: prev.get('role') || 'All',
-				}),
-				{ replace: true }
-			);
-		}
+		const page = Number(searchParams.get('page')) || 1;
+		const pageSize = Number(searchParams.get('pageSize')) || 24;
+		const role = searchParams.get('role') || 'All';
+		const search = searchParams.get('search') || '';
+
+		setSearchParams(
+			(prev) => {
+				const newParams = {
+					page,
+					pageSize,
+					role: search && role === 'manager' ? 'All' : role,
+					...(search && { search }),
+				};
+
+				return newParams;
+			},
+			{ replace: true }
+		);
 	}, [searchParams, setSearchParams]);
 
-	const queryParams = useMemo(
-		() => ({
+	const queryParams = useMemo(() => {
+		const search = searchParams.get('search') || '';
+		const role = searchParams.get('role') || 'All';
+
+		return {
 			page: Number(searchParams.get('page')) || 1,
 			pageSize: Number(searchParams.get('pageSize')) || 24,
-			role: searchParams.get('role') || 'All',
-		}),
-		[searchParams]
-	);
+			role: 'All' || role,
+			...(search && { search }),
+		};
+	}, [searchParams]);
 
 	const {
 		data,
@@ -51,7 +59,6 @@ const Employees = () => {
 		{ refetchOnMountOrArgChange: true }
 	);
 
-	// Update search params & trigger refetch automatically
 	const updateFilters = (newFilters) => {
 		setSearchParams(
 			(prev) => {
@@ -71,21 +78,35 @@ const Employees = () => {
 	};
 
 	const handlePageChange = (page) => {
-		updateFilters({ page: Number(page) });
+		updateFilters({ page: Number(page), pageSize: 24 });
 	};
 
 	useEffect(() => {
 		usersRefetch();
-	}, [searchParams, usersRefetch]); // Auto-refetch on param change
+	}, [searchParams, usersRefetch]);
 
-	// const handleTabChange = (index) => {
-	// 	setActiveTab(index);
-	// 	setSearchParams((prev) => {
-	// 		const newParams = new URLSearchParams(prev);
-	// 		newParams.set('tab', tabData[index].key);
-	// 		return newParams;
-	// 	});
-	// };
+	const handleSearch = () => {
+		const term = searchTermRef.current.trim();
+		if (!term) return;
+
+		updateFilters({ search: term, page: 1, role: 'All' });
+		setSearchClear(true);
+	};
+
+	const handleClear = () => {
+		if (searchTermRef.current) {
+			searchTermRef.current = '';
+			document.getElementById('searchInput').value = '';
+			updateFilters({ page: 1, role: 'All' });
+
+			setSearchParams((prev) => {
+				const newParams = new URLSearchParams(prev);
+				newParams.delete('search');
+				return newParams;
+			});
+			setSearchClear(false);
+		}
+	};
 
 	return (
 		<>
@@ -118,8 +139,10 @@ const Employees = () => {
 				{/* Header */}
 				<EmployeesHeader
 					data={data}
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
+					searchTermRef={searchTermRef}
+					handleSearch={handleSearch}
+					handleClear={handleClear}
+					searchClear={searchClear}
 				/>
 
 				{/* Role Tab Navigation */}
