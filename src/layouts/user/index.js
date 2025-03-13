@@ -34,7 +34,8 @@ import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
-const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Lead = React.lazy(() => import('views/admin/lead'));
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
@@ -126,7 +127,7 @@ export default function User(props) {
 			icon: (
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
-			component: LeadPool,
+			component: LeadPoolAgent,
 		},
 		{
 			name: 'Sign In',
