@@ -21,6 +21,8 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 		}
 	}, [data, today]);
 
+	console.log({ status });
+
 	// for check in and absent
 	const [createItemMutation, { isLoading: isCreating }] =
 		useCreateItemMutation();
@@ -41,8 +43,6 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 	}, []);
 
 	const handleCheckIn = async () => {
-		setStatus(1);
-
 		try {
 			await createItemMutation({
 				path: '/attendance/checkin',
@@ -50,6 +50,8 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 			}).unwrap();
 
 			toast.success('Employee Check in successfully');
+			setStatus(1);
+
 			refetch();
 		} catch (e) {
 			console.log(e);
@@ -58,8 +60,6 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 	};
 
 	const handleAbsence = async () => {
-		setStatus(0);
-
 		try {
 			await createItemMutation({
 				path: '/attendance/absent',
@@ -67,6 +67,7 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 			}).unwrap();
 
 			toast.success('Employee Absent successfully');
+			setStatus(0);
 			refetch();
 		} catch (e) {
 			console.log(e);
@@ -75,8 +76,6 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 	};
 
 	const handleCheckOut = async () => {
-		setStatus(null);
-
 		try {
 			await updateItemMutation({
 				path: '/attendance/checkout',
@@ -84,6 +83,7 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 			}).unwrap();
 
 			toast.success('Employee checkout successfully');
+			setStatus(null);
 			refetch();
 		} catch (e) {
 			console.log(e);
@@ -125,7 +125,7 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 			>
 				{currentTime}
 			</Text>
-			{status === 1 ? (
+			{status === 1 || status === 2 ? (
 				<Button
 					{...buttonStyle}
 					{...buttonVariants.checkOut}
