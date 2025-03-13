@@ -4,7 +4,7 @@ import { Box, Text, Grid, Divider, useBreakpointValue } from '@chakra-ui/react';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import moment from 'moment-timezone';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
 import AttendanceMark from './AttendanceMark';
 import Header from './Header';
@@ -15,8 +15,6 @@ const timezone = 'Asia/Karachi';
 const Attendance = () => {
 	const { id: employeeId } = useParams();
 
-	const validEmployeeId = employeeId?.trim() || null;
-
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
 	);
@@ -24,13 +22,12 @@ const Attendance = () => {
 		Number(moment.tz(timezone).format('YYYY'))
 	);
 
-	const { data, isLoading } = useFetchItemsQuery(
+	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
 			path: '/attendance/employee-record-per-month',
-			params: { employeeId: validEmployeeId, month, year },
+			params: { employeeId: employeeId, month, year },
 		},
 		{
-			skip: !validEmployeeId,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -106,6 +103,8 @@ const Attendance = () => {
 
 	const isSmallDevice = useBreakpointValue({ base: true, md: false });
 
+	const navigate = useNavigate();
+
 	return isLoading ? (
 		<Box h='100vh'>
 			<Loader />
@@ -122,6 +121,7 @@ const Attendance = () => {
 					mr={2}
 					display='flex'
 					alignItems='center'
+					onClick={() => navigate('/attendance/employees')}
 				>
 					<IoIosArrowBack style={{ marginRight: '5px' }} /> Back
 				</Text>
@@ -133,8 +133,12 @@ const Attendance = () => {
 
 			<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
 				<Box>
-					<AttendanceStats stats={data?.stats} employee={data?.employee} />
-					<AttendanceMark data={data} timezone={timezone} />
+					<AttendanceStats
+						stats={data?.stats}
+						employee={data?.employee}
+						refetch={refetch}
+					/>
+					<AttendanceMark data={data} timezone={timezone} refetch={refetch} />
 				</Box>
 
 				<Box bg='white' p={5} borderRadius='md' shadow='sm' overflowX='scroll'>

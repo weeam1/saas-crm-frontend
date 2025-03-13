@@ -63,12 +63,12 @@ const AttendanceTable = ({ attendanceRecord, timezone }) => {
 							statusBgColor = '#FFE5EE';
 							textColor = '#AA0000';
 							statusText = 'Absent';
-						} else if (entry.status === 2) {
+						} else if (entry.status === 1) {
 							statusBgColor = '#E6EFFC';
 							textColor = '#0764E6';
 							statusText = 'Office';
 							rowBgGradient = 'linear(to-r, #E0F7FF, white)';
-						} else if (entry.status === 1) {
+						} else if (entry.status === 2) {
 							statusBgColor = '#FFF8E7';
 							textColor = '#D5B500';
 							statusText = 'Late arrival';

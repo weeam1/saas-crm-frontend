@@ -7,17 +7,19 @@ const AttendanceStats = ({ stats, employee }) => {
 			? 'Super Admin'
 			: employee?.roles[0]?.roleName;
 
-	console.log({ stats });
-
 	return (
 		<Box bg='white' p={5} borderRadius='md' shadow='sm'>
 			<Box display='flex' mb={4}>
 				<Box display='flex' alignItems='center' mb={3}>
 					<Avatar
-						src={`${constant['baseUrl']}${employee.profileImage}`}
+						src={
+							employee?.profileImage
+								? `${constant['baseUrl']}${employee.profileImage}`
+								: ''
+						}
 						size='lg'
-						bg='brand.500'
 						mr={3}
+						// name={employee.fullName}
 					/>
 					<Box>
 						<Text fontWeight='medium' fontSize='24px'>

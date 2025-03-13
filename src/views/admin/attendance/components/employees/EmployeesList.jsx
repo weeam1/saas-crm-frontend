@@ -31,9 +31,12 @@ const EmployeesList = ({ employees, tab }) => {
 					>
 						<Box display='flex' alignItems='center' mb={3}>
 							<Avatar
-								src={`${constant['baseUrl']}${emp.profileImage}`}
+								src={
+									emp?.profileImage
+										? `${constant['baseUrl']}${emp.profileImage}`
+										: ''
+								}
 								size='lg'
-								bg='brand.500'
 								mr={3}
 							/>
 							<Box>
