@@ -1,52 +1,3 @@
-<<<<<<< HEAD
-import React from "react";
-import { Box, Grid, Text } from "@chakra-ui/react";
-import LeadCard from "../Leads/LeadCard";
-
-const LeadGrid = ({ leads, approveChangeHandler }) => {
-  const gridColumns =
-    leads.length === 1
-      ? {
-          base: "minmax(280px, 350px)",
-          md: "minmax(320px, 350px)",
-          lg: "minmax(350px, 350px)",
-        }
-      : leads.length === 2
-        ? {
-            base: "repeat(auto-fit, minmax(280px, 1fr))",
-            md: "repeat(2, minmax(320px, 1fr))",
-            lg: "repeat(auto-fill, minmax(350px, 0.45fr))",
-          }
-        : {
-            base: "repeat(auto-fit, minmax(280px, 1fr))",
-            md: "repeat(auto-fit, minmax(320px, 1fr))",
-            lg: "repeat(auto-fit, minmax(350px, 1fr))",
-          };
-
-  return (
-    <Box minH="100vh" overflowX="hidden" w="100%">
-      {leads.length > 0 ? (
-        <Grid
-          sx={{
-            gridTemplateColumns: gridColumns,
-            gap: { base: 3, md: 4, lg: 4 },
-            p: { base: 2, md: 4 },
-            width: "100%",
-            maxW: "100%",
-            overflowX: "hidden",
-            alignItems: "start",
-          }}
-        >
-          {leads.map((lead, index) => (
-            <Box key={lead._id || index} w="100%" minW="280px">
-              <LeadCard {...lead} approveChangeHandler={approveChangeHandler} />
-            </Box>
-          ))}
-        </Grid>
-      ) : null}{" "}
-    </Box>
-  );
-=======
 // import React from "react";
 // import { Box, Grid, Text, Skeleton } from "@chakra-ui/react";
 // import LeadCard from "./LeadCard";
@@ -228,7 +179,6 @@ const LeadGrid = ({ leads, approveChangeHandler }) => {
 			)}
 		</Box>
 	);
->>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 };
 
 export default LeadGrid;
