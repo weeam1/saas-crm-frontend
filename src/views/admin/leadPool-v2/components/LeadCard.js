@@ -7,22 +7,8 @@ import {
   Button,
   Icon,
   Tooltip,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Flex,
 } from "@chakra-ui/react";
-import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { InfoIcon } from "@chakra-ui/icons";
 import { formattedDate } from "utils/helpers";
 import CardHeader from "./LeadCard/CardHeader";
 import InfoPair from "./LeadCard/InfoPair";
@@ -74,7 +60,7 @@ const LeadCard = ({
   }, [leadsModal]);
 
   const displayButtonText = () => {
-    switch (approvalStatus?.toLowerCase()) {
+    switch (leadStatus?.toLowerCase()) {
       case "pending":
         return "Pending";
       case "rejected":
@@ -89,8 +75,8 @@ const LeadCard = ({
   const handleBuyClick = () => {
     console.log("Buy clicked for lead:", _id);
     if (
-      approvalStatus?.toLowerCase() !== "pending" &&
-      approvalStatus?.toLowerCase() !== "rejected"
+      leadStatus?.toLowerCase() !== "pending" &&
+      leadStatus?.toLowerCase() !== "rejected"
     ) {
       sendRequest(_id);
     }
@@ -168,7 +154,6 @@ const LeadCard = ({
       p="3"
       height="320px"
       overflow="hidden"
-      flex="wrap"
       _hover={{
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
@@ -270,9 +255,24 @@ const LeadCard = ({
                   _hover={{ bg: dynamicButtonHoverBg }}
                   isDisabled={true}
                 >
-                  {displayButtonText()}
+                  Pending
                 </Button>
               </HStack>
+            ) : approvalStatus?.toLowerCase() === "rejected" ? (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                isDisabled={true}
+              >
+                Rejected
+              </Button>
             ) : (
               <Button
                 bg={dynamicButtonBg}

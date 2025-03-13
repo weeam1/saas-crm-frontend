@@ -1,11 +1,12 @@
-import React, { memo } from "react";
+// ContactPair.jsx
+import React from 'react';
 import { VStack, HStack, Text, Icon, Tooltip } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
-import { handleCopy } from "../../utils/utils";
+import { handleCopy } from "../utils/utils";
 
-const ContactPair = memo(({ label, value, color }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
-    <HStack>
+const ContactPair = ({ label, value, color }) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <HStack spacing={1}>
       <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
         {label}
       </Text>
@@ -15,19 +16,19 @@ const ContactPair = memo(({ label, value, color }) => (
           color="gray.500"
           cursor="pointer"
           boxSize={3}
-          ml={0.5}
-          onClick={() => handleCopy(value || "N/A")}
+          onClick={() => handleCopy(value)}
         />
       </Tooltip>
     </HStack>
     <Text
-      fontSize={label === "Phone" ? "sm" : "xs"}
+      fontSize={label === "Phone" ? "12px" : "xs"}
       color={color}
       fontFamily="DM Sans"
+      isTruncated
     >
       {value || "N/A"}
     </Text>
   </VStack>
-));
+);
 
 export default ContactPair;
