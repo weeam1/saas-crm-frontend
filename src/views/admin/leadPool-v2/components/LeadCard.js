@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -7,131 +7,98 @@ import {
   Button,
   Icon,
   Tooltip,
-  Input,
-  InputGroup,
-  InputRightElement,
 } from "@chakra-ui/react";
-import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
-import { CiMenuKebab } from "react-icons/ci";
-import { FaEye } from "react-icons/fa";
-import { handleCopy } from "../utils/utils";
+import { InfoIcon } from "@chakra-ui/icons";
+import { formattedDate } from "utils/helpers";
+import CardHeader from "./LeadCard/CardHeader";
+import InfoPair from "./LeadCard/InfoPair";
+import InputPair from "./LeadCard/InputPair";
+import LeadCycleModal from "./LeadCard/LeadCycleModal";
+import LeadsModal from "../../lead/LeadsModal";
 
-const CardHeader = ({ id }) => (
-  <HStack justifyContent="space-between" w="100%" mb={1}>
-    <HStack>
-      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
-      <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
-        {id}
-      </Text>
-    </HStack>
-    <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
-  </HStack>
-);
-
-const InfoPair = ({ label, value, color = "#ff0307" }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <Text fontSize="10px" color={color} fontFamily="DM Sans">
-      {value}
-    </Text>
-  </VStack>
-);
-
-const InputPair = ({
-  label,
-  value,
-  bg,
-  color,
-  width = { base: "60px", md: "70px" },
-}) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <InputGroup w={width}>
-      <Input
-        size="xs"
-        value={value}
-        h="1.3rem"
-        bg={bg}
-        color={color}
-        border="1px solid"
-        borderRadius="5px"
-        borderColor="gray.300"
-        fontSize="xs"
-        fontFamily="DM Sans"
-        _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
-        _hover={{ borderColor: "#B79045" }}
-        pr="1.5rem"
-        disabled={true}
-        pl={label === "Status" ? "3px" : undefined}
-      />
-      <InputRightElement
-        pointerEvents="none"
-        h="1.3rem"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        w="1.5rem"
-      >
-        <Icon as={ChevronDownIcon} color={color} boxSize={4} />
-      </InputRightElement>
-    </InputGroup>
-  </VStack>
-);
-
-const ContactPair = ({ label, value, color }) => (
-  <VStack align="start" spacing={0} flex="1" minWidth="0">
-    <HStack>
-      <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
-        {label}
-      </Text>
-      <Tooltip label={`Copy ${label}`}>
-        <Icon
-          as={CopyIcon}
-          color="gray.500"
-          cursor="pointer"
-          boxSize={3}
-          ml={0.5}
-          onClick={() => handleCopy(value)}
-        />
-      </Tooltip>
-    </HStack>
-    <Text
-      fontSize={label === "Phone" ? "sm" : "xs"}
-      color={color}
-      fontFamily="DM Sans"
-    >
-      {value}
-    </Text>
-  </VStack>
-);
+class TimelineItem {
+  constructor(type, updatedAt, updatedBy, updatedData) {
+    this.type = type;
+    this.updatedAt = updatedAt;
+    this.updatedBy = updatedBy;
+    this.updatedData = updatedData;
+  }
+}
 
 const LeadCard = ({
-  id,
-  name,
-  country,
+  _id,
+  intID,
+  leadId,
+  leadName,
   city,
+  nationality,
   sourceContent,
-  timeToCall,
+  timetocall,
   mStatus,
-  status,
-  phone,
-  whatsapp,
-  leadTime,
-  note,
-  buttonText = "Buy for 50 coins",
-  buttonBg = "#34C759",
-  buttonColor = "white",
-  buttonHoverBg = "#32BD00",
+  r_u_in_uae,
+  leadCampaign,
+  leadStatus,
+  budget,
+  approvalStatus,
+  createdDate,
+  lastNote,
+  sendRequest,
+  cancelRequest,
+  buyLoading,
+  refreshData,
 }) => {
-  const displayButtonText =
-    status && status.toLowerCase() === "new" ? "Buy for 300 coins" : buttonText;
+  const formattedCreatedDate = formattedDate(createdDate);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user?._id;
 
-  const getStatusStyles = (status) => {
-    switch (status?.toLowerCase()) {
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
+
+  useEffect(() => {
+    console.log("leadsModal state updated:", leadsModal);
+  }, [leadsModal]);
+
+  const displayButtonText = () => {
+    switch (leadStatus?.toLowerCase()) {
+      case "pending":
+        return "Pending";
+      case "rejected":
+        return "Rejected";
+      case "new":
+        return "Buy for 300 coins";
+      default:
+        return "Buy for 50 coins";
+    }
+  };
+
+  const handleBuyClick = () => {
+    console.log("Buy clicked for lead:", _id);
+    if (
+      leadStatus?.toLowerCase() !== "pending" &&
+      leadStatus?.toLowerCase() !== "rejected"
+    ) {
+      sendRequest(_id);
+    }
+  };
+
+  const handleCancelClick = async () => {
+    if (approvalStatus?.toLowerCase() === "pending" && cancelRequest) {
+      setCancelLoading(true);
+      try {
+        await cancelRequest(_id, leadId || _id, userId);
+        setCancelLoading(false);
+      } catch (error) {
+        console.error("Cancel failed:", error);
+        setCancelLoading(false);
+      }
+    } else {
+      console.log("Cancel condition not met or cancelRequest missing");
+    }
+  };
+
+  const getStatusStyles = (approvalStatus) => {
+    switch (approvalStatus?.toLowerCase()) {
       case "pending":
         return {
           borderColor: "#FFEB3B",
@@ -149,9 +116,9 @@ const LeadCard = ({
       default:
         return {
           borderColor: "#D8D8D9",
-          buttonBg: buttonBg,
-          buttonHoverBg: buttonHoverBg,
-          buttonColor: buttonColor,
+          buttonBg: "#34C759",
+          buttonHoverBg: "#32BD00",
+          buttonColor: "white",
         };
     }
   };
@@ -161,7 +128,25 @@ const LeadCard = ({
     buttonBg: dynamicButtonBg,
     buttonHoverBg: dynamicButtonHoverBg,
     buttonColor: dynamicButtonColor,
-  } = getStatusStyles(status);
+  } = getStatusStyles(approvalStatus);
+
+  const isRejected = approvalStatus?.toLowerCase() === "rejected";
+
+  const handleViewLeadCycle = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleLeadsModal = (lid) => {
+    console.log("handleLeadsModal called with lid:", lid);
+    setLeadsModal({
+      isOpen: true,
+      lid,
+    });
+  };
 
   return (
     <Box
@@ -169,7 +154,6 @@ const LeadCard = ({
       p="3"
       height="320px"
       overflow="hidden"
-      flex="wrap"
       _hover={{
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
@@ -179,15 +163,25 @@ const LeadCard = ({
       border="1px solid"
       borderColor={borderColor}
     >
-      <CardHeader id={id} />
+      <CardHeader id={intID} onViewLeadCycle={handleViewLeadCycle} />
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
         <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
-          <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
-            {name}
+          <Text
+            fontSize="12px"
+            fontWeight="bold"
+            fontFamily="DM Sans"
+            cursor="pointer"
+            _hover={{ color: "blue.500" }}
+            onClick={() => {
+              console.log("Name clicked, leadId:", leadId || _id);
+              handleLeadsModal(leadId || _id);
+            }}
+          >
+            {leadName || "N/A"}
           </Text>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <InfoPair label="City" value={city} />
-            <InfoPair label="Country" value={country} />
+            <InfoPair label="Country" value={nationality} />
           </HStack>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <InputPair
@@ -198,24 +192,33 @@ const LeadCard = ({
             />
             <InputPair
               label="Status"
-              value={status}
+              value={leadStatus}
               bg="#FEEFEE"
               color="black"
             />
-          </HStack>
-          <HStack spacing={0.5} w="100%" flexWrap="wrap">
-            <ContactPair label="Phone" value={phone} color="#7869FF" />
-            <ContactPair label="WhatsApp" value={whatsapp} color="#32BD00" />
           </HStack>
           <VStack align="start" spacing={0} width="100%">
             <HStack>
               <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
                 Lead Note
               </Text>
-              <Icon as={InfoIcon} boxSize={3} color="#63B3ED" />
+              <Tooltip label={lastNote || "N/A"} placement="top" hasArrow>
+                <span>
+                  <Icon
+                    as={InfoIcon}
+                    boxSize={3}
+                    color="#63B3ED"
+                    cursor="pointer"
+                  />
+                </span>
+              </Tooltip>
             </HStack>
-            <Text fontSize="xs" color="gray.500" fontFamily="DM Sans">
-              {note}
+            <Text
+              fontSize={lastNote?.length > 100 ? "xx-small" : "xs"}
+              color="gray.500"
+              fontFamily="DM Sans"
+            >
+              {lastNote || "N/A"}
             </Text>
           </VStack>
           <VStack
@@ -226,22 +229,70 @@ const LeadCard = ({
             flex="1"
             spacing={0}
           >
-            <Button
-              bg={dynamicButtonBg}
-              color={dynamicButtonColor}
-              size="xs"
-              width="100%"
-              maxWidth="200px"
-              fontFamily="DM Sans"
-              borderRadius="5px"
-              _hover={{ bg: dynamicButtonHoverBg }}
-              flexShrink={0}
-            >
-              {displayButtonText}
-            </Button>
+            {approvalStatus?.toLowerCase() === "pending" ? (
+              <HStack w="100%" maxWidth="200px" spacing={2}>
+                <Button
+                  bg="red.500"
+                  color="white"
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: "red.600" }}
+                  onClick={handleCancelClick}
+                  isLoading={cancelLoading}
+                  isDisabled={cancelLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  bg={dynamicButtonBg}
+                  color={dynamicButtonColor}
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: dynamicButtonHoverBg }}
+                  isDisabled={true}
+                >
+                  Pending
+                </Button>
+              </HStack>
+            ) : approvalStatus?.toLowerCase() === "rejected" ? (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                isDisabled={true}
+              >
+                Rejected
+              </Button>
+            ) : (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                onClick={handleBuyClick}
+                isLoading={buyLoading[_id]}
+                isDisabled={buyLoading[_id] || isRejected}
+              >
+                {displayButtonText()}
+              </Button>
+            )}
           </VStack>
         </VStack>
-        {/* Right Side */}
         <VStack
           align="start"
           spacing={2}
@@ -249,9 +300,8 @@ const LeadCard = ({
           minWidth="0"
           h="100%"
           ml="15px"
-          justify="space-between" // Push Info to bottom
+          justify="space-between"
         >
-          {/* Top Section: Time To Call and Source Content */}
           <VStack align="start" spacing={2}>
             <VStack align="start" spacing={0}>
               <Text
@@ -263,7 +313,7 @@ const LeadCard = ({
                 Time To Call
               </Text>
               <Text fontSize="10px" color="#32BD00" fontFamily="DM Sans">
-                {timeToCall}
+                {timetocall || "N/A"}
               </Text>
             </VStack>
             <VStack align="start" spacing={0}>
@@ -276,12 +326,10 @@ const LeadCard = ({
                 Source Content
               </Text>
               <Text fontSize="10px" color="#FFBB00" fontFamily="DM Sans">
-                {sourceContent}
+                {sourceContent || "N/A"}
               </Text>
             </VStack>
           </VStack>
-
-          {/* Bottom Section: Info */}
           <VStack align="start" spacing={0} width="100%">
             <Text
               fontSize="xs"
@@ -293,11 +341,11 @@ const LeadCard = ({
               Info
             </Text>
             {[
-              { label: "Budget", value: "N/A" },
-              { label: "Campaign", value: "N/A" },
+              { label: "Budget", value: budget || "N/A" },
+              { label: "Campaign", value: leadCampaign || "N/A" },
               { label: "Campaign Url", value: "N/A" },
               { label: "Medium", value: "N/A" },
-              { label: "In UAE?", value: "Yes" },
+              { label: "In UAE?", value: r_u_in_uae || "N/A" },
             ].map((item) => (
               <HStack
                 key={item.label}
@@ -333,9 +381,31 @@ const LeadCard = ({
       </HStack>
       <HStack width="100%" justifyContent="flex-end" mt={1}>
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {leadTime}
+          Lead time: {formattedCreatedDate || "N/A"}
         </Text>
       </HStack>
+
+      {/* Modal for Lead Cycle */}
+      {isModalOpen && (
+        <LeadCycleModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          leadId={leadId || _id}
+        />
+      )}
+
+      {/* Modal for Leads */}
+      {leadsModal.isOpen && (
+        <LeadsModal
+          leadsModal={leadsModal}
+          onClose={() => {
+            console.log("Closing LeadsModal");
+            setLeadsModal({ isOpen: false, lid: null });
+          }}
+          reFreshData={refreshData}
+          isInLeadPool
+        />
+      )}
     </Box>
   );
 };

@@ -2,10 +2,7 @@ import { useSelector } from "react-redux";
 import { validationLeadSearchSchema } from "schema/leadSchema";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
-
-const LazyAdvancedSearchForm = React.lazy(() => import("./AdvancedForm"));
-
-const {
+import {
   Modal,
   ModalOverlay,
   ModalContent,
@@ -15,11 +12,13 @@ const {
   ModalFooter,
   Button,
   Spinner,
-} = require("@chakra-ui/react");
+} from "@chakra-ui/react";
+
+const LazyAdvancedSearchForm = React.lazy(() => import("./AdvancedForm"));
 
 const AdvancedSearchModal = ({
-  setAdvaceSearch,
-  advaceSearch,
+  setAdvanceSearch,
+  advanceSearch,
   isLoading,
   fetchAdvancedSearch,
   setSearchClear,
@@ -27,15 +26,12 @@ const AdvancedSearchModal = ({
   isFormReset,
   setIsFormReset,
   pageSize,
-  setGetTagValues,
+  setGetTagValues, // Renamed to match prop usage
+  setDisplaySearchData,
+  onClearSearch,
 }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const tree = useSelector((state) => state.user.tree);
-
-  const formClearHanlder = () => {
-    // handleClear();
-    formikResetForm();
-  };
 
   const initialValues = {
     leadName: "",
@@ -63,24 +59,16 @@ const AdvancedSearchModal = ({
   const formik = useFormik({
     initialValues,
     validationSchema: validationLeadSearchSchema,
-    onSubmit: (values, { formikResetForm }) => {
-      // Initialize cleanedData and tags
+    onSubmit: (values) => {
       const { cleanedData, tags } = Object.entries(values).reduce(
         (acc, [key, value]) => {
           if (value !== "" && value !== undefined) {
-            // Add raw value to cleanedData for API
             acc.cleanedData[key] = value;
 
             let displayValue = value;
-
-            // Special formatting rules for score range
             if (key === "fromLeadScore" || key === "toLeadScore") {
-              displayValue = `${values.fromLeadScore || 0}-${
-                values.toLeadScore || "max"
-              }`;
+              displayValue = `${values.fromLeadScore || 0}-${values.toLeadScore || "max"}`;
             }
-
-            // Special formatting for leadStatus
             if (key === "leadStatus") {
               displayValue =
                 value === "active"
@@ -89,13 +77,9 @@ const AdvancedSearchModal = ({
                     ? "Not Interested"
                     : value;
             }
-
-            // Special formatting for leadStatus
             if (key === "eLeadStatus") {
               displayValue = value === "-1" ? "No E.Status" : value;
             }
-
-            // Handle agentAssigned
             if (key === "agentAssigned") {
               const agentsArray = Object.values(tree.agents).flatMap(
                 (managerArray) => managerArray
@@ -103,20 +87,16 @@ const AdvancedSearchModal = ({
               const assignedAgent = agentsArray.find(
                 (agent) => agent?._id?.toString() === value
               );
-
               displayValue = assignedAgent
                 ? `${assignedAgent.firstName} ${assignedAgent.lastName}`
                 : value === "-1"
                   ? "No Agent"
                   : value;
             }
-
-            // Handle managerAssigned
             if (key === "managerAssigned") {
               const assignedManager = tree.managers.find(
                 (user) => user?._id?.toString() === value
               );
-
               displayValue = assignedManager
                 ? `${assignedManager.firstName} ${assignedManager.lastName}`
                 : value === "-1"
@@ -124,23 +104,19 @@ const AdvancedSearchModal = ({
                   : value;
             }
 
-            // Add formatted value to tags for UI
             acc.tags.push(`${key}: ${displayValue}`);
           }
-
           return acc;
         },
         { cleanedData: {}, tags: [] }
       );
 
-      // Call API with cleaned data
       fetchAdvancedSearch(cleanedData, 1, pageSize);
-      setAdvaceSearch(false);
-
-      // Update UI with tags
-      setGetTagValues(tags);
+      setAdvanceSearch(false);
+      setGetTagValues(tags); // Use parent callback
       setSearchClear(true);
       setFormValues(values);
+      setDisplaySearchData(true);
     },
   });
 
@@ -151,39 +127,35 @@ const AdvancedSearchModal = ({
     handleBlur,
     handleChange,
     handleSubmit,
-    resetForm: formikResetForm,
+    resetForm,
     dirty,
   } = formik;
 
-  // Send the reset function to the parent
+  const formClearHandler = () => {
+    resetForm();
+    onClearSearch();
+  };
+
   useEffect(() => {
     if (isFormReset) {
-      formikResetForm();
+      resetForm();
       setIsFormReset(false);
     }
-  }, [isFormReset, formikResetForm, setIsFormReset]);
+  }, [isFormReset, resetForm, setIsFormReset]);
 
   return (
     <React.Suspense fallback={<Spinner />}>
       <Modal
         size="6xl"
-        onClose={() => {
-          setAdvaceSearch(false);
-          // formikResetForm();
-        }}
-        isOpen={advaceSearch}
+        onClose={() => setAdvanceSearch(false)}
+        isOpen={advanceSearch}
         isCentered
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Advance Search</ModalHeader>
-          <ModalCloseButton
-            onClick={() => {
-              setAdvaceSearch(false);
-              formikResetForm();
-            }}
-          />
+          <ModalHeader>Advanced Search</ModalHeader>
+          <ModalCloseButton onClick={() => setAdvanceSearch(false)} />
           <ModalBody width="100%">
             <LazyAdvancedSearchForm
               values={values}
@@ -201,7 +173,7 @@ const AdvancedSearchModal = ({
               variant="outline"
               size="sm"
               mr={2}
-              onClick={formClearHanlder}
+              onClick={formClearHandler}
             >
               Clear
             </Button>
@@ -209,9 +181,9 @@ const AdvancedSearchModal = ({
               colorScheme="brand"
               size="sm"
               onClick={handleSubmit}
-              disabled={isLoading || !dirty ? true : false}
+              disabled={isLoading || !dirty}
             >
-              {isLoading ? "Search" : "Search"}
+              {isLoading ? "Searching..." : "Search"}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -219,4 +191,5 @@ const AdvancedSearchModal = ({
     </React.Suspense>
   );
 };
+
 export default AdvancedSearchModal;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   HStack,
   Button,
@@ -8,57 +8,130 @@ import {
   Flex,
   Box,
   Divider,
+  Select,
 } from "@chakra-ui/react";
 import { FaPlay } from "react-icons/fa";
 import { IoPlaySkipForwardSharp } from "react-icons/io5";
 import SearchBox from "./Search";
 import Tabs from "./Tabs";
 import TabContent from "./TabContent";
-import SearchTags from "./searchTags";
-import { leadValueFontSize } from "./constants";
 import LeadsProgress from "./LeadProgress";
 
-const Pagination = () => {
-  const totalPages = 10;
-  const totalItems = 100;
-  const itemsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [gotoPage, setGotoPage] = useState(currentPage || "");
-  const [activeTab, setActiveTab] = useState("All");
-  const [totalLeads, setTotalLeads] = useState(0);
+const Pagination = ({
+  data,
+  totalPages,
+  totalLeads,
+  isLoading,
+  fetchData,
+  fetchSearchedData,
+  fetchAdvancedSearch,
+  setCurrentState,
+  currentState,
+  pageSize,
+  userData,
+  user,
+  dateTime,
+  activeTab,
+  setActiveTab,
+  currentPage,
+  setCurrentPage,
+  setPageSize,
+  setData,
+  setTotalPages,
+  setTotalLeads,
+  setIsLoading,
+  displaySearchData,
+  setDisplaySearchData,
+  sendRequest,
+  cancelRequest,
+  buyLoading,
+}) => {
+  const [gotoPage, setGotoPage] = useState(currentPage || 1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tags, setTags] = useState([]);
+  const pageSizeOptions = [10, 25, 50, 100];
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+  useEffect(() => {
+    setGotoPage(currentPage);
+  }, [currentPage, activeTab]);
 
-  const handleFirst = () => {
-    setCurrentPage(1);
-    setGotoPage(1);
-  };
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-      setGotoPage(currentPage - 1);
-    }
-  };
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-      setGotoPage(currentPage + 1);
-    }
-  };
-  const handleLast = () => {
-    setCurrentPage(totalPages);
-    setGotoPage(totalPages);
-  };
+  const startIndex = totalLeads > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endIndex = Math.min(currentPage * pageSize, totalLeads);
+  const totalPagesForTab = Math.max(1, totalPages);
 
-  const handleGoToChange = (value) => {
-    setGotoPage(value);
-  };
-
-  const handleGoToBlur = () => {
-    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
+  const handleNavigation = (page, fetchFn) => {
+    if (isLoading) return;
     setCurrentPage(page);
     setGotoPage(page);
+    fetchFn();
+  };
+
+  const handleFirst = () =>
+    handleNavigation(1, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, 1, pageSize)
+        : fetchData(activeTab, 1, pageSize)
+    );
+
+  const handlePrevious = () =>
+    currentPage > 1 &&
+    handleNavigation(currentPage - 1, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, currentPage - 1, pageSize)
+        : fetchData(activeTab, currentPage - 1, pageSize)
+    );
+
+  const handleNext = () =>
+    currentPage < totalPagesForTab &&
+    handleNavigation(currentPage + 1, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, currentPage + 1, pageSize)
+        : fetchData(activeTab, currentPage + 1, pageSize)
+    );
+
+  const handleLast = () =>
+    handleNavigation(totalPagesForTab, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, totalPagesForTab, pageSize)
+        : fetchData(activeTab, totalPagesForTab, pageSize)
+    );
+
+  const handleGoToChange = (value) => setGotoPage(value);
+
+  const handleGoToBlur = () => {
+    if (isLoading) return;
+    const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPagesForTab));
+    handleNavigation(page, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, page, pageSize)
+        : fetchData(activeTab, page, pageSize)
+    );
+  };
+
+  const handlePageSizeChange = (event) => {
+    if (isLoading) return;
+    const newPageSize = Number(event.target.value);
+    setPageSize(newPageSize);
+    handleNavigation(1, () =>
+      displaySearchData
+        ? fetchSearchedData(searchTerm, 1, newPageSize)
+        : fetchData(activeTab, 1, newPageSize)
+    );
+  };
+
+  const handleClearSearch = () => {
+    if (isLoading) return;
+    setData([]);
+    setTotalPages(0);
+    setTotalLeads(0);
+    setDisplaySearchData(false);
+    setSearchTerm("");
+    setTags([]);
+    setCurrentPage(1);
+    setPageSize(50);
+    setActiveTab("All");
+    setIsLoading(true);
+    fetchData("All", 1, 50);
   };
 
   const buttonStyle = {
@@ -71,158 +144,180 @@ const Pagination = () => {
 
   return (
     <Box width="100%" bg="white" p={5} borderRadius="10px">
-      <LeadsProgress totalLeads={totalLeads} />
-      <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <LeadsProgress totalLeads={totalLeads} userData={userData} />
+      <Tabs
+        userData={userData}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isLoading={isLoading}
+      />
 
       <Flex
-        direction={{ base: "column", md: "column", lg: "row" }}
-        justifyContent={{ base: "center", md: "space-between" }}
+        direction={{ base: "column", lg: "row" }}
+        justifyContent="space-between"
         alignItems="center"
-        gap={{ base: 2, lg: 3 }}
+        gap={3}
         width="100%"
-        flexWrap={{ base: "wrap", lg: "nowrap" }}
+        flexWrap="wrap"
       >
         <Box
           bg="softGray.50"
           border="1px solid"
           borderColor="softGray.600"
           borderRadius="md"
-          p={{ base: 2, md: 3 }}
-          width={{ base: "100%", md: "100%", lg: "auto" }}
-          flex={{ base: "none", md: "none", lg: "1" }}
-          minWidth={{ base: "100%", md: "100%", lg: "300px" }}
+          p={{ base: 1, md: 2 }}
+          flex="1"
+          minWidth={{ base: "100%", lg: "300px" }}
+          maxHeight={{ md: "100px" }}
+          overflow="auto"
         >
           <Flex
             direction={{ base: "column", md: "row" }}
-            justifyContent={{ base: "center", md: "space-between" }}
+            justifyContent="space-between"
             alignItems="center"
-            width="100%"
-            gap={{ base: 2, md: 3 }}
-            flexWrap={{ base: "wrap", md: "wrap" }}
+            gap={1.5}
+            flexWrap="wrap"
           >
-            <HStack spacing={2} flexShrink={0}>
+            <HStack spacing={1} flexShrink={0}>
               <Button
                 {...buttonStyle}
                 onClick={handleFirst}
-                isDisabled={currentPage === 1}
+                isDisabled={isLoading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }}
+                px={{ base: 1, md: 2 }}
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
                   />
                 }
                 aria-label="First Page"
+                fontSize={{ base: "xs", md: "sm" }}
               >
                 First
               </Button>
               <Button
                 {...buttonStyle}
                 onClick={handlePrevious}
-                isDisabled={currentPage === 1}
+                isDisabled={isLoading || currentPage === 1}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }}
+                px={{ base: 1, md: 2 }}
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
+                fontSize={{ base: "xs", md: "sm" }}
               >
-                Previous
+                Prev
               </Button>
             </HStack>
 
             <Flex
               direction={{ base: "column", md: "row" }}
               flex="1"
-              justifyContent={{ base: "center", md: "space-around" }}
+              justifyContent="space-around"
               alignItems="center"
-              gap={{ base: 2, md: 3 }}
+              gap={1}
               width={{ base: "100%", md: "auto" }}
-              flexWrap={{ md: "wrap" }}
+              flexWrap="wrap"
             >
-              <HStack spacing={1} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "xs", md: "sm" }}>Go to</Text>
+              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
+                <Text fontSize={{ base: "2xs", md: "xs" }}>Go to</Text>
                 <NumberInput
                   value={gotoPage}
-                  onChange={(valueString) =>
-                    setGotoPage(Number(valueString) || "")
-                  }
+                  onChange={handleGoToChange}
                   onBlur={handleGoToBlur}
                   min={1}
-                  size="sm"
-                  borderRadius="md"
-                  width="5rem"
+                  max={totalPagesForTab}
+                  size="xs"
+                  width="4rem"
                   bg="softGray.50"
                   border="1px solid softGray.600"
-                  allowMouseWheel={false}
-                  clampValueOnBlur={false}
+                  isDisabled={isLoading}
                 >
                   <NumberInputField
                     aria-label="Go to page"
                     textAlign="center"
                     borderRadius="md"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleGoToBlur();
-                      }
-                    }}
-                    border="2px solid"
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && !isLoading && handleGoToBlur()
+                    }
+                    border="1px solid"
                     borderColor="softGray.600"
-                    _focus={{
-                      outline: "none",
-                      bg: "softGray.50",
-                      border: "1px solid",
-                      borderColor: "brand.500",
-                    }}
-                    _active={{ bg: "softGray.400" }}
-                    fontSize={leadValueFontSize}
+                    _focus={{ borderColor: "brand.500" }}
+                    fontSize={{ base: "2xs", md: "xs" }}
+                    p={1}
                   />
                 </NumberInput>
-                <Text fontSize={{ base: "xs", md: "sm" }}>
-                  of {Number(totalPages).toLocaleString()}
+                <Text fontSize={{ base: "2xs", md: "xs" }}>
+                  of {Number(totalPagesForTab).toLocaleString()}
                 </Text>
               </HStack>
 
+              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
+                <Text fontSize={{ base: "2xs", md: "xs" }}>Per page:</Text>
+                <Select
+                  size="xs"
+                  value={pageSize}
+                  onChange={handlePageSizeChange}
+                  width="60px"
+                  bg="softGray.50"
+                  border="1px solid softGray.600"
+                  isDisabled={isLoading}
+                  fontSize={{ base: "2xs", md: "xs" }}
+                >
+                  {pageSizeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+
               <Text
-                fontSize={{ base: "xs", md: "sm" }}
+                fontSize={{ base: "2xs", md: "xs" }}
                 fontWeight="medium"
                 color="gray.800"
-                textAlign={{ base: "center", md: "left" }}
               >
-                Showing {startIndex} - {endIndex} of {totalItems}
+                {startIndex}-{endIndex} of {totalLeads}
               </Text>
             </Flex>
 
-            <HStack spacing={2} flexShrink={0}>
+            <HStack spacing={1} flexShrink={0}>
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={currentPage === totalPages}
+                isDisabled={
+                  isLoading ||
+                  currentPage === totalPagesForTab ||
+                  totalLeads === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }}
+                px={{ base: "1", md: "2" }}
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
+                fontSize={{ base: "xs", md: "sm" }}
               >
                 Next
               </Button>
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={currentPage === totalPages}
+                isDisabled={
+                  isLoading ||
+                  currentPage === totalPagesForTab ||
+                  totalLeads === 0
+                }
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py={{ base: 1, md: 2 }}
-                px={{ base: 2, md: 4 }}
+                px={{ base: 1, md: 2 }}
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
+                fontSize={{ base: "xs", md: "sm" }}
               >
                 Last
               </Button>
@@ -236,21 +331,62 @@ const Pagination = () => {
           borderColor="softGray.600"
           borderRadius="md"
           p={{ base: 2, md: 3 }}
-          width={{ base: "100%", md: "100%", lg: "auto" }}
-          flex={{ base: "none", md: "none", lg: "1" }}
-          minWidth={{ base: "100%", md: "100%", lg: "200px" }}
+          flex="1"
+          minWidth={{ base: "100%", lg: "200px" }}
           maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
         >
-          <SearchBox />
+          <SearchBox
+            fetchSearchedData={fetchSearchedData}
+            fetchAdvancedSearch={fetchAdvancedSearch}
+            pageSize={pageSize}
+            setData={setData}
+            setTotalPages={setTotalPages}
+            setTotalLeads={setTotalLeads}
+            setIsLoading={setIsLoading}
+            setDisplaySearchData={setDisplaySearchData}
+            onClearSearch={handleClearSearch}
+            isLoading={isLoading}
+            setSearchTerm={setSearchTerm}
+            setTags={setTags}
+          />
         </Box>
       </Flex>
 
-      <Divider borderColor="#E7E7E7" borderWidth="1px" my={4} />
+      {displaySearchData && (
+        <Flex justifyContent="space-between" alignItems="center" p={3}>
+          <HStack spacing={2}>
+            <Text fontSize="sm" fontWeight="medium" color="gray.800">
+              Lead Search:
+            </Text>
+            <Text fontSize="sm" color="gray.600">
+              {searchTerm ||
+                (tags.length > 0 ? tags.join(", ") : "No filters applied")}
+            </Text>
+          </HStack>
+          <Button
+            colorScheme="red"
+            variant="outline"
+            size="sm"
+            onClick={handleClearSearch}
+            isDisabled={isLoading}
+          >
+            Clear
+          </Button>
+        </Flex>
+      )}
 
-      <Box mt={4}>
-        <TabContent activeTab={activeTab} onTotalLeadsChange={setTotalLeads} />
-      </Box>
+      <Divider borderColor="#E7E7E7" my={4} />
+      <TabContent
+        activeTab={activeTab}
+        data={data}
+        isLoading={isLoading}
+        pageSize={pageSize}
+        sendRequest={sendRequest}
+        cancelRequest={cancelRequest}
+        buyLoading={buyLoading}
+        displaySearchData={displaySearchData}
+      />
     </Box>
   );
 };

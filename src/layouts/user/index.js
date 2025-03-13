@@ -49,7 +49,6 @@ export default function User(props) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
-  // functions for changing the states from components
   const getRoute = () => {
     return window.location.pathname !== "/admin/full-screen-maps";
   };
@@ -115,7 +114,7 @@ export default function User(props) {
     {
       name: "Leads Pool v2",
       layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/leadpoolv2",
+      path: "/test-v2",
       icon: (
         <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
       ),

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Input,
   InputGroup,
@@ -6,10 +6,11 @@ import {
   Button,
   HStack,
   Box,
+  IconButton,
+  Flex,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 import AdvancedSearchModal from "./AdvancedModal";
-// import ClearAdvancedSearchButton from "./ClearButton";
 
 const SearchBox = ({
   onSearch,
@@ -27,6 +28,10 @@ const SearchBox = ({
 }) => {
   const [isAdvanceOpen, setIsAdvanceOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchQuery || "");
+
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
 
   const toggleAdvanceSearch = () => {
     setIsAdvanceOpen((prev) => !prev);
@@ -49,25 +54,31 @@ const SearchBox = ({
     }
   };
 
-  // Debugging: Log formValues to verify it’s updating
-  console.log("SearchBox - formValues:", formValues);
+  const handleClearSearch = () => {
+    setInputValue("");
+    onSearch("");
+  };
 
-  // Check if an advanced search is active
   const isAdvancedSearchActive =
     formValues && Object.keys(formValues).length > 0;
 
   return (
     <Box
-      width={{ base: "100%", lg: "fit-content" }}
       bg="softGray.50"
       borderRadius="md"
-      display="flex"
       flexDirection="column"
       alignItems="center"
-      position="relative" // Ensure SearchBox is a positioning context
-      zIndex="1" // Lower than navbar (assuming navbar has higher z-index, e.g., 1000)
+      position="relative"
+      zIndex="1"
+      px={{ base: 2, md: 0 }}
     >
-      <HStack spacing={1} flexDirection={{ base: "column", md: "row" }}>
+      <HStack
+        display="flex"
+        justifyContent={{ base: "center", md: "center" }}
+        spacing={1}
+        flexDirection={{ base: "column", md: "row" }}
+        w="100%"
+      >
         <InputGroup
           bg="white"
           border="1px solid"
@@ -75,7 +86,7 @@ const SearchBox = ({
           borderRadius="md"
           w={{ base: "100%", md: "280px" }}
           overflow="hidden"
-          position="relative" // Ensure InputGroup is a containing block
+          position="relative"
         >
           <Input
             placeholder="Search by lead name..."
@@ -83,21 +94,36 @@ const SearchBox = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             border="none"
-            minW={{ base: "100%", md: "400px" }}
+            w="100%"
             fontSize="xs"
             height="2.2rem"
+            textOverflow="ellipsis" // Already present, ensures truncation
+            overflow="hidden" // Prevent text from overflowing
+            whiteSpace="nowrap" // Keep text on one line
             _focus={{ boxShadow: "none" }}
+            pr="116px" // Increased padding for clear icon + search button
           />
           <InputRightElement
             width="auto"
-            height="100%" // Match the height of the Input
+            height="100%"
             display="flex"
             alignItems="center"
-            position="absolute" // Default positioning, but constrained by parent
+            position="absolute"
             right="0"
             top="0"
-            zIndex="2" // Ensure it stays above the input but below navbar
+            zIndex="2"
           >
+            {inputValue && (
+              <IconButton
+                aria-label="Clear search"
+                icon={<CloseIcon />}
+                size="xs"
+                bg="transparent"
+                _hover={{ bg: "gray.100" }}
+                onClick={handleClearSearch}
+                mr={1} 
+              />
+            )}
             <Button
               size="md"
               bg="softGray.700"
@@ -106,7 +132,7 @@ const SearchBox = ({
               px={4}
               borderRadius="0"
               fontSize="xs"
-              height="100%" 
+              height="100%"
               _hover={{ bg: "gray.50" }}
               _active={{ bg: "gray.100" }}
               onClick={handleSearch}
@@ -116,7 +142,7 @@ const SearchBox = ({
           </InputRightElement>
         </InputGroup>
 
-        <HStack gap="1">
+        <HStack gap="1" w={{ base: "100%", md: "auto" }}>
           <Button
             border="1px solid"
             borderColor="softGray.600"
@@ -124,7 +150,8 @@ const SearchBox = ({
             borderRadius="md"
             p={4}
             fontSize="xs"
-            w="150px"
+            mx="auto"
+            w={{ base: "150px", md: "150px" }}
             minW="max-content"
             height="2.2rem"
             onClick={toggleAdvanceSearch}
@@ -134,12 +161,6 @@ const SearchBox = ({
           >
             Advanced Search
           </Button>
-          {/* {isAdvancedSearchActive && (
-            <ClearAdvancedSearchButton
-              clearAdvancedSearch={clearAdvancedSearch}
-              loading={loading}
-            />
-          )} */}
         </HStack>
       </HStack>
 

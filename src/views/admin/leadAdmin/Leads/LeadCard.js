@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -10,107 +10,20 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import { InfoIcon, CopyIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
 import { CiMenuKebab } from "react-icons/ci";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaHistory } from "react-icons/fa";
 import { handleCopy } from "../utils/utils";
 import { getUserNameById } from "utils";
-
-const CardHeader = ({ id }) => (
-  <HStack justify="space-between" w="100%" mb={1}>
-    <HStack spacing={1}>
-      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
-      {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
-        {id || "N/A"}
-      </Text> */}
-    </HStack>
-    <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
-  </HStack>
-);
-
-const InfoPair = ({ label, value, color = "#ff0307" }) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <Text fontSize="10px" color={color} fontFamily="DM Sans" isTruncated>
-      {value || "N/A"}
-    </Text>
-  </VStack>
-);
-
-const InputPair = ({
-  label,
-  value,
-  bg,
-  color,
-  width = { base: "60px", md: "70px" },
-}) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
-      {label}
-    </Text>
-    <InputGroup w={width}>
-      <Input
-        size="xs"
-        value={value || "N/A"}
-        h="1.3rem"
-        bg={bg}
-        color={color}
-        border="1px solid"
-        borderRadius="5px"
-        borderColor="gray.300"
-        fontSize="xs"
-        fontFamily="DM Sans"
-        _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
-        _hover={{ borderColor: "#B79045" }}
-        pr="1.5rem"
-        isDisabled
-        pl={label === "Status" ? "3px" : undefined}
-      />
-      <InputRightElement
-        pointerEvents="none"
-        h="1.3rem"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        w="1.5rem"
-      >
-        <Icon as={ChevronDownIcon} color={color} boxSize={4} />
-      </InputRightElement>
-    </InputGroup>
-  </VStack>
-);
-
-const ContactPair = ({ label, value, color }) => (
-  <VStack align="start" spacing={0} flex="1" minW={0}>
-    <HStack spacing={1}>
-      <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
-        {label}
-      </Text>
-      <Tooltip label={`Copy ${label}`}>
-        <Icon
-          as={CopyIcon}
-          color="gray.500"
-          cursor="pointer"
-          boxSize={3}
-          onClick={() => handleCopy(value)}
-        />
-      </Tooltip>
-    </HStack>
-    <Text
-      fontSize={label === "Phone" ? "12px" : "xs"}
-      color={color}
-      fontFamily="DM Sans"
-      isTruncated
-    >
-      {value || "N/A"}
-    </Text>
-  </VStack>
-);
-
+import { formattedDate } from "utils/helpers";
+import LeadCycleModal from "../components/LeadCard/LeadCycleModal";
+import LeadsModal from "../../lead/LeadsModal";
 const LeadCard = ({
   leadId,
   leadName,
@@ -119,20 +32,37 @@ const LeadCard = ({
   sourceContent,
   timeToCall,
   mStatus,
-  approvalStatus,
+  leadStatus,
+  approvalStatus: initialApprovalStatus,
   agentId,
-  // leadPhoneNumber,
   approved,
-  // whatsapp,
+  approvedDate,
+  rejectedDate,
   createdDate,
   tab = "All",
   approveChangeHandler,
   _id,
+  refreshData,
 }) => {
-  // const users = useSelector((state) => state.user?.users);
-  // console.log(getUserNameById(agentId, users));
+  const formattedCreatedDate = formattedDate(createdDate);
+  const formattedApprovedDate = formattedDate(approvedDate);
+  const formattedRejectedDate = formattedDate(rejectedDate);
+
   const users = useSelector((state) => state.user?.users) || [];
   const agentName = getUserNameById(agentId, users);
+
+  const [localApprovalStatus, setLocalApprovalStatus] = useState(
+    initialApprovalStatus
+  );
+  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [isCycleModalOpen, setIsCycleModalOpen] = useState(false);
+  const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
+
+  useEffect(() => {
+    setLocalApprovalStatus(initialApprovalStatus);
+  }, [initialApprovalStatus]);
+
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
       case "pending":
@@ -145,7 +75,7 @@ const LeadCard = ({
       case "rejected":
         return {
           borderColor: "#c73434",
-          buttonBg: "#FF3B3B",
+          buttonBg: "#FF4B4B",
           buttonHoverBg: "#D32F2F",
           buttonColor: "white",
         };
@@ -167,17 +97,49 @@ const LeadCard = ({
   };
 
   const { borderColor, buttonBg, buttonHoverBg, buttonColor } =
-    getStatusStyles(approvalStatus);
+    getStatusStyles(localApprovalStatus);
+
+  const handleApprovalChange = async (action) => {
+    if (action === "accept") {
+      setIsAcceptLoading(true);
+    } else {
+      setIsRejectLoading(true);
+    }
+
+    try {
+      await approveChangeHandler(action, leadId, agentId, _id);
+      setLocalApprovalStatus(action === "accept" ? "accepted" : "rejected");
+    } catch (error) {
+      console.error("Approval change failed:", error);
+    } finally {
+      if (action === "accept") {
+        setIsAcceptLoading(false);
+      } else {
+        setIsRejectLoading(false);
+      }
+    }
+  };
+
+  const handleViewLeadCycle = () => {
+    console.log("Opening LeadCycleModal for lead:", leadId || _id);
+    setIsCycleModalOpen(true);
+  };
+
+  const handleCloseCycleModal = () => {
+    setIsCycleModalOpen(false);
+  };
+
+  const handleLeadsModal = (lid) => {
+    console.log("Opening LeadsModal with lid:", lid);
+    setLeadsModal({
+      isOpen: true,
+      lid,
+    });
+  };
 
   const renderActionSection = () => {
-    const statusLower = approvalStatus?.toLowerCase();
-    const onAccept = (leadId, agentId, approvalId) => {
-      approveChangeHandler("accept", leadId, agentId, approvalId);
-    };
+    const statusLower = localApprovalStatus?.toLowerCase();
 
-    const onReject = (leadId, agentId, approvalId) => {
-      approveChangeHandler("reject", leadId, agentId, approvalId);
-    };
     if (tab === "All") {
       if (statusLower === "accepted") {
         return (
@@ -186,7 +148,7 @@ const LeadCard = ({
               Approved on
             </Text>
             <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
-              {approved || "N/A"}
+              {formattedApprovedDate || "N/A"}
             </Text>
             <Box
               bg="#4BFF79"
@@ -208,22 +170,30 @@ const LeadCard = ({
         );
       } else if (statusLower === "rejected") {
         return (
-          <Box
-            bg="#FF4B4B"
-            w="100%"
-            p={1}
-            borderRadius="5px"
-            textAlign="center"
-          >
-            <Text
-              fontSize="xs"
-              color="white"
-              fontWeight="bold"
-              fontFamily="DM Sans"
-            >
-              Rejected
+          <VStack w="100%" spacing={1} align="start">
+            <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
+              Rejected on
             </Text>
-          </Box>
+            <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
+              {formattedRejectedDate || "N/A"}
+            </Text>
+            <Box
+              bg="#FF4B4B"
+              w="100%"
+              p={1}
+              borderRadius="5px"
+              textAlign="center"
+            >
+              <Text
+                fontSize="xs"
+                color="white"
+                fontWeight="bold"
+                fontFamily="DM Sans"
+              >
+                Rejected
+              </Text>
+            </Box>
+          </VStack>
         );
       } else {
         return (
@@ -237,13 +207,9 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#32BD00" }}
-              onClick={() => {
-                console.log(
-                  "Accept button clicked in renderActionSection for leadId:",
-                  leadId
-                );
-                onAccept(leadId, agentId, _id);
-              }}
+              onClick={() => handleApprovalChange("accept")}
+              isLoading={isAcceptLoading}
+              isDisabled={isAcceptLoading || isRejectLoading}
             >
               Accept
             </Button>
@@ -256,13 +222,9 @@ const LeadCard = ({
               fontFamily="DM Sans"
               borderRadius="5px"
               _hover={{ bg: "#D32F2F" }}
-              onClick={() => {
-                console.log(
-                  "Reject button clicked in renderActionSection for leadId:",
-                  leadId
-                );
-                onReject(leadId, agentId, _id);
-              }}
+              onClick={() => handleApprovalChange("reject")}
+              isLoading={isRejectLoading}
+              isDisabled={isAcceptLoading || isRejectLoading}
             >
               Reject
             </Button>
@@ -284,16 +246,30 @@ const LeadCard = ({
       );
     } else if (tab === "Rejected") {
       return (
-        <Box bg="#FF4B4B" w="100%" p={1} borderRadius="5px" textAlign="center">
-          <Text
-            fontSize="xs"
-            color="white"
-            fontWeight="bold"
-            fontFamily="DM Sans"
-          >
-            Rejected
+        <VStack w="100%" spacing={1} align="start">
+          <Text fontSize="9px" color="gray.500" fontFamily="DM Sans">
+            Rejected on
           </Text>
-        </Box>
+          <Text fontSize="12px" color="gray.500" fontFamily="DM Sans">
+            {formattedRejectedDate || "N/A"}
+          </Text>
+          <Box
+            bg="#FF4B4B"
+            w="100%"
+            p={1}
+            borderRadius="5px"
+            textAlign="center"
+          >
+            <Text
+              fontSize="xs"
+              color="white"
+              fontWeight="bold"
+              fontFamily="DM Sans"
+            >
+              Rejected
+            </Text>
+          </Box>
+        </VStack>
       );
     } else if (tab === "Pending") {
       return (
@@ -315,7 +291,6 @@ const LeadCard = ({
     <Box
       borderRadius="lg"
       p={3}
-      车型
       w="100%"
       h="320px"
       overflow="hidden"
@@ -327,7 +302,7 @@ const LeadCard = ({
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
     >
-      <CardHeader id={leadId} />
+      <CardHeader id={leadId} onViewLeadCycle={handleViewLeadCycle} />
       <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="1">
         <VStack align="start" spacing={2} flex="2" w="60%" minW={0}>
           <Text
@@ -335,6 +310,9 @@ const LeadCard = ({
             fontWeight="bold"
             fontFamily="DM Sans"
             isTruncated
+            cursor="pointer"
+            _hover={{ color: "blue.500" }}
+            onClick={() => handleLeadsModal(leadId || _id)}
           >
             {leadName || "N/A"}
           </Text>
@@ -351,15 +329,11 @@ const LeadCard = ({
             />
             <InputPair
               label="Status"
-              value={approvalStatus}
+              value={leadStatus}
               bg="#FEEFEE"
               color="black"
             />
           </HStack>
-          {/* <HStack spacing={2} w="100%">
-            <ContactPair label="Phone" value={leadPhoneNumber} color="#7869FF" />
-            <ContactPair label="WhatsApp" value={whatsapp} color="#32BD00" />
-          </HStack> */}
           <VStack align="start" spacing={0} height="3rem" w="100%">
             <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
               Requested by
@@ -468,13 +442,134 @@ const LeadCard = ({
           </VStack>
         </VStack>
       </HStack>
-      <HStack w="100%" justify="flex-end" mt={1}>
+      <HStack w="100%" justify="flex-end">
         <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {createdDate || "N/A"}
+          Lead time: {formattedCreatedDate}
         </Text>
       </HStack>
+
+      {/* Modal for Lead Cycle */}
+      {isCycleModalOpen && (
+        <LeadCycleModal
+          isOpen={isCycleModalOpen}
+          onClose={handleCloseCycleModal}
+          leadId={leadId || _id}
+        />
+      )}
+
+      {/* Modal for Leads */}
+      {leadsModal.isOpen && (
+        <LeadsModal
+          leadsModal={leadsModal}
+          onClose={() => setLeadsModal({ isOpen: false, lid: null })}
+          reFreshData={refreshData}
+          isInLeadPool
+        />
+      )}
     </Box>
   );
 };
+
+const CardHeader = ({ id, onViewLeadCycle }) => (
+  <HStack justifyContent="space-between" w="100%">
+    <HStack>
+      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
+      {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
+          {id || "N/A"}
+        </Text> */}
+    </HStack>
+    <Menu>
+      <MenuButton>
+        <Icon as={CiMenuKebab} color="#C1C1C1" cursor="pointer" boxSize={4} />
+      </MenuButton>
+      <MenuList>
+        <MenuItem icon={<FaHistory fontSize={15} />} onClick={onViewLeadCycle}>
+          View Lead Cycle
+        </MenuItem>
+      </MenuList>
+    </Menu>
+  </HStack>
+);
+
+const InfoPair = ({ label, value, color = "#ff0307" }) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
+      {label}
+    </Text>
+    <Text fontSize="10px" color={color} fontFamily="DM Sans" isTruncated>
+      {value || "N/A"}
+    </Text>
+  </VStack>
+);
+
+const InputPair = ({
+  label,
+  value,
+  bg,
+  color,
+  width = { base: "60px", md: "70px" },
+}) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
+      {label}
+    </Text>
+    <InputGroup w={width}>
+      <Input
+        size="xs"
+        value={value || "N/A"}
+        h="1.3rem"
+        bg={bg}
+        color={color}
+        border="1px solid"
+        borderRadius="5px"
+        borderColor="gray.300"
+        fontSize="xs"
+        fontFamily="DM Sans"
+        _focus={{ borderColor: "#B79045", boxShadow: "0 0 0 1px #B79045" }}
+        _hover={{ borderColor: "#B79045" }}
+        pr="1.5rem"
+        isDisabled
+        pl={label === "Status" ? "3px" : undefined}
+      />
+      <InputRightElement
+        pointerEvents="none"
+        h="1.3rem"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        w="1.5rem"
+      >
+        <Icon as={ChevronDownIcon} color={color} boxSize={4} />
+      </InputRightElement>
+    </InputGroup>
+  </VStack>
+);
+
+const ContactPair = ({ label, value, color }) => (
+  <VStack align="start" spacing={0} flex="1" minW={0}>
+    <HStack spacing={1}>
+      <Text fontSize="12px" color="#C1C1C1" fontFamily="DM Sans">
+        {label}
+      </Text>
+      <Tooltip label={`Copy ${label}`}>
+        <Icon
+          as={CopyIcon}
+          color="gray.500"
+          cursor="pointer"
+          boxSize={3}
+          onClick={() => handleCopy(value)}
+        />
+      </Tooltip>
+    </HStack>
+    <Text
+      fontSize={label === "Phone" ? "12px" : "xs"}
+      color={color}
+      fontFamily="DM Sans"
+      isTruncated
+    >
+      {value || "N/A"}
+    </Text>
+  </VStack>
+);
 
 export default LeadCard;
