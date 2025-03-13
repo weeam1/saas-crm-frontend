@@ -49,9 +49,9 @@ const Pagination = ({
 
   useEffect(() => {
     setGotoPage(currentPage);
-  }, [currentPage, activeTab]);
+  }, [currentPage, activeTab, pageSize]);
 
-  const totalPagesForTab = Math.max(1, totalPages);
+  const totalPagesForTab = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
   const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
@@ -94,20 +94,19 @@ const Pagination = ({
     if (loading) return;
     const newPageSize = Number(event.target.value);
     onPageSizeChange(newPageSize);
-    setCurrentPage(1);
-    setGotoPage(1);
   };
 
   const buttonStyle = {
-    size: "sm",
+    size: { base: "xs", md: "sm" }, // xs for base, sm for md and up
     borderRadius: "lg",
     _hover: { shadow: "sm", transition: "all 0.2s ease-in-out" },
     _active: { bg: "softGray.500" },
     sx: { svg: { fill: "brand.500" } },
+    px: { base: 1, md: 2 },
   };
 
   return (
-    <Box width="100%" bg="white" p={5} borderRadius="10px">
+    <Box width="100%" bg="white" p={5} borderRadius="10px" minHeight="100%">
       <LeadsProgress
         totalLeads={totalItems}
         searchQuery={searchQuery}
@@ -150,7 +149,6 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
@@ -158,6 +156,7 @@ const Pagination = ({
                 }
                 aria-label="First Page"
                 fontSize={{ base: "xs", md: "sm" }}
+                p="8px"
               >
                 First
               </Button>
@@ -168,7 +167,7 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
+                p="8px"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
                 fontSize={{ base: "xs", md: "sm" }}
@@ -259,10 +258,10 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
                 fontSize={{ base: "xs", md: "sm" }}
+                p="8px"
               >
                 Next
               </Button>
@@ -277,10 +276,10 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
                 fontSize={{ base: "xs", md: "sm" }}
+                p="8px"
               >
                 Last
               </Button>
@@ -325,7 +324,7 @@ const Pagination = ({
       )}
       <Divider borderColor="#E7E7E7" my={4} />
 
-      <Box mt={4}>
+      <Box mt={4} flex="1" overflow="auto">
         {searchNotFound && !loading ? (
           <Text color="red.500" fontSize="md" textAlign="center">
             {searchNotFound}
