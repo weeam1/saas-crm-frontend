@@ -139,7 +139,6 @@ const AttendanceDashboard = React.lazy(
 );
 //leadpool v2
 // const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
-const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 
 const routes = [
 	// ========================== Dashboard ==========================
