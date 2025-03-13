@@ -1,26 +1,5 @@
 // import React from "react";
 // import LeadGrid from "./LeadGrid";
-<<<<<<< HEAD
-// import leadsData from "../data/allitems";
-
-// const App = ({data}) => {
-//   return <LeadGrid leads={data}  />;
-// };
-
-// export default App;
-
-import React from "react";
-import LeadGrid from "./LeadGrid";
-
-const AllItems = ({ data, isLoading, sendRequest, buyLoading, pageSize }) => {
-  return (
-    <LeadGrid
-      leads={data}
-      sendRequest={sendRequest}
-      buyLoading={buyLoading}
-      isLoading={isLoading}
-      pageSize={pageSize} 
-=======
 
 // const AllItems = ({ data, isLoading, sendRequest, buyLoading, pageSize }) => {
 //   return (
@@ -55,13 +34,8 @@ const AllItems = ({ data, isLoading, sendRequest, pageSize }) => {
       buyLoading={buyLoading}
       isLoading={isLoading}
       pageSize={pageSize}
->>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
     />
   );
 };
 
-<<<<<<< HEAD
 export default AllItems;
-=======
-export default AllItems;
->>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
