@@ -10,12 +10,18 @@ import {
 	InputLeftElement,
 	InputRightElement,
 	HStack,
+	useDisclosure,
+	Text,
+	IconButton,
 } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { useRef } from 'react';
 import { CiSearch } from 'react-icons/ci';
 import { buttonStyle } from '../../constants';
 import { BiX } from 'react-icons/bi';
+import TabButton from 'components/shared/TabButton';
+import { MdFilter } from 'react-icons/md';
+import { FiFilter } from 'react-icons/fi';
 
 const EmployeesHeader = ({
 	data,
@@ -23,6 +29,8 @@ const EmployeesHeader = ({
 	searchTermRef,
 	handleClear,
 	searchClear,
+	filterOpen,
+	queryParams,
 }) => {
 	const handleInputChange = (event) => {
 		searchTermRef.current = event.target.value;
@@ -42,6 +50,9 @@ const EmployeesHeader = ({
 			mb={4}
 		>
 			<Heading fontSize='24px' fontWeight='600'>
+				{queryParams.agency && (
+					<span style={{ paddingRight: '5px' }}>{queryParams.agency}</span>
+				)}
 				Employees
 				{data && (
 					<span style={{ marginLeft: '6px' }}>
@@ -52,29 +63,9 @@ const EmployeesHeader = ({
 
 			<HStack
 				gap='2'
-				flexDirection={{ base: 'column-reverse', md: 'row' }}
-				alignItems={{ base: 'flex-end' }}
+				flexDirection={{ base: 'column', md: 'row' }}
+				alignItems={{ base: 'flex-end', md: 'center' }}
 			>
-				{searchClear && (
-					<Button
-						{...buttonStyle}
-						variant='solid'
-						bg='red.400'
-						w='fit-content'
-						color='white'
-						sx={{
-							svg: {
-								fill: 'white',
-							},
-						}}
-						leftIcon={<BiX />}
-						aria-label='Clear'
-						onClick={handleClear}
-					>
-						Clear
-					</Button>
-				)}
-
 				{/* Search Input & Button */}
 				<InputGroup
 					bg='white'
@@ -113,6 +104,39 @@ const EmployeesHeader = ({
 						</Flex>
 					</Button>
 				</InputGroup>
+
+				<HStack>
+					<IconButton
+						icon={<FiFilter />}
+						onClick={filterOpen}
+						aria-label='Filter Date'
+						colorScheme='brand'
+						variant='solid'
+						size='sm'
+						borderRadius='full'
+						boxShadow='md'
+					/>
+
+					{searchClear && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='red.400'
+							w='fit-content'
+							color='white'
+							sx={{
+								svg: {
+									fill: 'white',
+								},
+							}}
+							leftIcon={<BiX />}
+							aria-label='Clear'
+							onClick={handleClear}
+						>
+							Clear
+						</Button>
+					)}
+				</HStack>
 			</HStack>
 		</Box>
 	);

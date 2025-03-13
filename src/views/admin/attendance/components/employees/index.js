@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Icon } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import EmployeesList from './EmployeesList';
@@ -9,6 +9,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import EmployeesHeader from './EmployeesHeader';
 import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
+import FilterModal from './FilterModal';
+import TabButton from 'components/shared/TabButton';
 
 const Employees = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -16,11 +18,14 @@ const Employees = () => {
 	const navigate = useNavigate();
 	const searchTermRef = useRef('');
 
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
 	useEffect(() => {
 		const page = Number(searchParams.get('page')) || 1;
 		const pageSize = Number(searchParams.get('pageSize')) || 24;
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
+		const agency = searchParams.get('agency') || '';
 
 		setSearchParams(
 			(prev) => {
@@ -29,6 +34,7 @@ const Employees = () => {
 					pageSize,
 					role: search && role === 'manager' ? 'All' : role,
 					...(search && { search }),
+					...(agency && { agency }),
 				};
 
 				return newParams;
@@ -40,12 +46,14 @@ const Employees = () => {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const role = searchParams.get('role') || 'All';
+		const agency = searchParams.get('agency') || '';
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
 			pageSize: Number(searchParams.get('pageSize')) || 24,
 			role: 'All' || role,
 			...(search && { search }),
+			...(agency && { agency }),
 		};
 	}, [searchParams]);
 
@@ -66,6 +74,8 @@ const Employees = () => {
 					...Object.fromEntries(prev.entries()),
 					...newFilters,
 				};
+
+				console.log(updateFilters);
 
 				if (updatedParams.page) updatedParams.page = Number(updatedParams.page);
 				if (updatedParams.pageSize)
@@ -94,18 +104,17 @@ const Employees = () => {
 	};
 
 	const handleClear = () => {
-		if (searchTermRef.current) {
-			searchTermRef.current = '';
-			document.getElementById('searchInput').value = '';
-			updateFilters({ page: 1, role: 'All' });
+		searchTermRef.current = '';
+		document.getElementById('searchInput').value = '';
+		updateFilters({ page: 1, role: 'All' });
 
-			setSearchParams((prev) => {
-				const newParams = new URLSearchParams(prev);
-				newParams.delete('search');
-				return newParams;
-			});
-			setSearchClear(false);
-		}
+		setSearchParams((prev) => {
+			const newParams = new URLSearchParams(prev);
+			newParams.delete('search');
+			newParams.delete('agency');
+			return newParams;
+		});
+		setSearchClear(false);
 	};
 
 	return (
@@ -124,25 +133,15 @@ const Employees = () => {
 				Back
 			</Button>
 			<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
-				{/* Agencies  */}
-				{/* <Flex gap='2' px='4' mb='4' width='fit-content'>
-					{agencies?.doc?.map((agency) => (
-						<TabButton
-							key={agency._id}
-							isActive={activeAgency === agency.name}
-							onClick={() => handleAgencyChange(agency)}
-						>
-							{agency.name}
-						</TabButton>
-					))}
-				</Flex> */}
 				{/* Header */}
 				<EmployeesHeader
 					data={data}
 					searchTermRef={searchTermRef}
+					queryParams={queryParams}
 					handleSearch={handleSearch}
 					handleClear={handleClear}
 					searchClear={searchClear}
+					filterOpen={onOpen}
 				/>
 
 				{/* Role Tab Navigation */}
@@ -183,6 +182,15 @@ const Employees = () => {
 					)}
 				</Box>
 			</Box>
+
+			{isOpen && (
+				<FilterModal
+					updateFilters={updateFilters}
+					isOpen={isOpen}
+					onClose={onClose}
+					setSearchClear={setSearchClear}
+				/>
+			)}
 		</>
 	);
 };
