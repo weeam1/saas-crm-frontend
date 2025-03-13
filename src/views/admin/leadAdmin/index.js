@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import { useState, useEffect } from "react";
 // import Pagination from "./components/Pagination";
 // import { getApi, putApi } from "services/api";
@@ -585,6 +586,9 @@
 // export default LeadScreen;
 
 import { useState, useEffect } from "react";
+=======
+import { useState, useEffect, useCallback } from "react";
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 import { useLocation } from "react-router-dom";
 import Pagination from "./components/Pagination";
 import { getApi, putApi } from "services/api";
@@ -607,6 +611,7 @@ const LeadScreen = () => {
   const defaultSearchQuery = "";
 
   const getInitialPage = () => {
+<<<<<<< HEAD
     const urlParams = new URLSearchParams(window.location.search);
     const pageFromUrl = urlParams.get("page");
     return pageFromUrl ? parseInt(pageFromUrl) : defaultPage;
@@ -627,6 +632,40 @@ const LeadScreen = () => {
   const getInitialSearchQuery = () => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("search") || defaultSearchQuery;
+=======
+    const pageFromStorage = sessionStorage.getItem("currentPage");
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageFromUrl = urlParams.get("page");
+    return pageFromStorage
+      ? parseInt(pageFromStorage)
+      : pageFromUrl
+        ? parseInt(pageFromUrl)
+        : defaultPage;
+  };
+
+  const getInitialPageSize = () => {
+    const sizeFromStorage = sessionStorage.getItem("pageSize");
+    const urlParams = new URLSearchParams(window.location.search);
+    const sizeFromUrl = urlParams.get("pageSize");
+    return sizeFromStorage
+      ? parseInt(sizeFromStorage)
+      : sizeFromUrl
+        ? parseInt(sizeFromUrl)
+        : defaultPageSize;
+  };
+
+  const getInitialTab = () => {
+    const tabFromStorage = sessionStorage.getItem("activeTab");
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabFromUrl = urlParams.get("tab");
+    return tabFromStorage || tabFromUrl || defaultTab;
+  };
+
+  const getInitialSearchQuery = () => {
+    const searchFromStorage = sessionStorage.getItem("searchQuery");
+    const urlParams = new URLSearchParams(window.location.search);
+    return searchFromStorage || urlParams.get("search") || defaultSearchQuery;
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -669,6 +708,7 @@ const LeadScreen = () => {
     setSearchNotFound(null);
 
     window.history.replaceState({}, "", location.pathname);
+<<<<<<< HEAD
 
     sessionStorage.removeItem("currentPage");
     sessionStorage.removeItem("pageSize");
@@ -839,6 +879,174 @@ const LeadScreen = () => {
   };
 
   const clearAdvancedSearch = () => {
+=======
+    sessionStorage.clear();
+  };
+
+  const updateUrlAndStorage = useCallback(
+    (newPageSize) => {
+      const urlParams = new URLSearchParams();
+      urlParams.set("tab", activeTab);
+      urlParams.set("page", currentPage);
+      urlParams.set("pageSize", newPageSize || pageSize);
+      if (searchQuery) urlParams.set("search", searchQuery);
+
+      const newUrl = `?${urlParams.toString()}`;
+      window.history.replaceState({}, "", newUrl);
+
+      if (sessionStorage.getItem("activeTab") !== activeTab) {
+        sessionStorage.setItem("activeTab", activeTab);
+      }
+      if (sessionStorage.getItem("currentPage") !== String(currentPage)) {
+        sessionStorage.setItem("currentPage", currentPage);
+      }
+      if (
+        sessionStorage.getItem("pageSize") !== String(newPageSize || pageSize)
+      ) {
+        sessionStorage.setItem("pageSize", newPageSize || pageSize);
+      }
+      if (sessionStorage.getItem("searchQuery") !== searchQuery) {
+        sessionStorage.setItem("searchQuery", searchQuery);
+      }
+    },
+    [activeTab, currentPage, pageSize, searchQuery]
+  );
+
+  const fetchLeads = useCallback(
+    async (tab = activeTab, page = currentPage, size = pageSize) => {
+      try {
+        setLoading(true);
+        setError(null);
+        setSearchNotFound(null);
+
+        const queryParams = new URLSearchParams();
+        if (tab !== "All") {
+          const statusMap = {
+            Pending: "pending",
+            Approved: "accepted",
+            Rejected: "rejected",
+          };
+          queryParams.append("approvalStatus", statusMap[tab]);
+        }
+        queryParams.append("page", page);
+        queryParams.append("pageSize", size);
+
+        const result = await getApi(`api/adminApproval/get?${queryParams}`);
+        if (result.status === 200) {
+          setLeads(result.data);
+          setTotalPages(result.data.totalPages || 0);
+          setTotalLeads(result.data.totalApprovals || 0);
+          setSearchedData([]);
+          setDisplayAdvSearchData(false);
+          setDisplaySearchData(false);
+          // Do not reset searchQuery or formValues here to preserve search state
+        }
+      } catch (err) {
+        setError(err.message || "Failed to fetch leads");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [activeTab, currentPage, pageSize]
+  );
+
+  const fetchSearchedData = useCallback(
+    async (term = searchQuery, pageNo = currentPage, size = pageSize) => {
+      try {
+        setLoading(true);
+        setError(null);
+        setSearchNotFound(null);
+
+        let result = await getApi(
+          user.role === "superAdmin"
+            ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
+            : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+        );
+        setDisplaySearchData(true);
+        const newData =
+          result.data?.result?.map((lead) => {
+            if (lead?.ip) {
+              const parts = lead.ip.split("-");
+              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+            }
+            return {
+              ...lead,
+              agentId: lead.agentAssigned,
+            };
+          }) || [];
+
+        if (newData.length === 0) {
+          setSearchNotFound(`Search data not found for: "${term}"`);
+        }
+
+        setSearchedData(newData);
+        setTotalPages(result.data?.totalPages || 0);
+        setTotalLeads(result.data?.totalLeads || 0);
+        setLeads({ ...leads, approvals: newData });
+      } catch (err) {
+        setError(err.message || "Failed to fetch searched leads");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchQuery, currentPage, pageSize, user, dateTime, leads]
+  );
+
+  const fetchAdvancedSearch = useCallback(
+    async (data = formValues, pageNo = currentPage, size = pageSize) => {
+      try {
+        setLoading(true);
+        setError(null);
+        setSearchNotFound(null);
+
+        let result = await getApi(
+          user.role === "superAdmin"
+            ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
+            : `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+        );
+
+        setDisplayAdvSearchData(true);
+        const newData =
+          result.data?.result?.map((lead) => {
+            if (lead?.ip) {
+              const parts = lead.ip.split("-");
+              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+            }
+            return {
+              ...lead,
+              agentId: lead.agentAssigned,
+            };
+          }) || [];
+
+        if (newData.length === 0) {
+          const searchCriteria = Object.entries(data)
+            .filter(([_, value]) => value !== "" && value !== undefined)
+            .map(([key, value]) => {
+              if (key === "agentAssigned") {
+                const agentName = getUserNameById(value, users) || value;
+                return `agentAssigned: ${agentName}`;
+              }
+              return `${key}: ${value}`;
+            })
+            .join(", ");
+          setSearchNotFound(`Search data not found for: ${searchCriteria}`);
+        }
+
+        setSearchedData(newData);
+        setTotalPages(result.data?.totalPages || 0);
+        setTotalLeads(result.data?.totalLeads || 0);
+        setLeads({ ...leads, approvals: newData });
+      } catch (err) {
+        setError(err.message || "Failed to fetch advanced search leads");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [formValues, currentPage, pageSize, user, dateTime, leads, users]
+  );
+
+  const clearAdvancedSearch = useCallback(() => {
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
     setDisplayAdvSearchData(false);
     setSearchedData([]);
     setFormValues({});
@@ -846,7 +1054,11 @@ const LeadScreen = () => {
     setIsFormReset(true);
     setSearchNotFound(null);
     fetchLeads(activeTab, currentPage, pageSize);
+<<<<<<< HEAD
   };
+=======
+  }, [activeTab, currentPage, pageSize, fetchLeads]);
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 
   const approveChangeHandler = async (
     e,
@@ -874,7 +1086,10 @@ const LeadScreen = () => {
       );
 
       if (res?.data?.status) {
+<<<<<<< HEAD
         // Approval successful
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
         try {
           const data = {
             agentAssigned: agentId,
@@ -882,7 +1097,10 @@ const LeadScreen = () => {
           };
           await putApi(`api/lead/edit/${leadId}`, data);
 
+<<<<<<< HEAD
           // Update state based on current tab
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
           if (displayAdvSearchData || displaySearchData) {
             setSearchedData((prev) => {
               const updatedLeads = prev.map((lead) =>
@@ -927,7 +1145,10 @@ const LeadScreen = () => {
           toast.error("Failed to update the lead");
         }
       } else {
+<<<<<<< HEAD
         // Rejection successful
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
         try {
           if (agentId) {
             const lead = await getApi(`api/lead/view/${leadId}`);
@@ -940,7 +1161,10 @@ const LeadScreen = () => {
             });
           }
 
+<<<<<<< HEAD
           // Update state based on current tab
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
           if (displayAdvSearchData || displaySearchData) {
             setSearchedData((prev) => {
               const updatedLeads = prev.map((lead) =>
@@ -989,6 +1213,7 @@ const LeadScreen = () => {
     }
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     // Reset to defaults and fetch leads when the component mounts or route changes back
     resetToDefaults();
@@ -1047,6 +1272,103 @@ const LeadScreen = () => {
       fetchLeads(activeTab, 1, pageSize);
     }
   };
+=======
+  // Initial load respects the current activeTab from session storage or URL
+  useEffect(() => {
+    const initialTab = getInitialTab(); // Get tab from session storage or URL
+    setActiveTab(initialTab); // Set the initial tab explicitly
+    resetToDefaults(); // Reset other states
+    fetchLeads(initialTab, defaultPage, defaultPageSize); // Fetch with the correct tab
+  }, [location.pathname]);
+
+  useEffect(() => {
+    updateUrlAndStorage(pageSize);
+  }, [activeTab, currentPage, pageSize, searchQuery, updateUrlAndStorage]);
+
+  const handlePageChange = useCallback(
+    (newPage) => {
+      setCurrentPage(newPage);
+      updateUrlAndStorage(pageSize);
+      if (displayAdvSearchData) {
+        fetchAdvancedSearch(formValues, newPage, pageSize);
+      } else if (displaySearchData) {
+        fetchSearchedData(searchQuery, newPage, pageSize);
+      } else {
+        fetchLeads(activeTab, newPage, pageSize);
+      }
+    },
+    [
+      activeTab,
+      pageSize,
+      searchQuery,
+      formValues,
+      displayAdvSearchData,
+      displaySearchData,
+      fetchLeads,
+      fetchSearchedData,
+      fetchAdvancedSearch,
+      updateUrlAndStorage,
+    ]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (newSize) => {
+      setPageSize(newSize);
+      setCurrentPage(1);
+      updateUrlAndStorage(newSize);
+      if (displayAdvSearchData) {
+        fetchAdvancedSearch(formValues, 1, newSize);
+      } else if (displaySearchData) {
+        fetchSearchedData(searchQuery, 1, newSize);
+      } else {
+        fetchLeads(activeTab, 1, newSize); // Ensure activeTab is used
+      }
+    },
+    [
+      activeTab,
+      searchQuery,
+      formValues,
+      displayAdvSearchData,
+      displaySearchData,
+      fetchLeads,
+      fetchSearchedData,
+      fetchAdvancedSearch,
+      updateUrlAndStorage,
+    ]
+  );
+
+  const handleTabChange = useCallback(
+    (newTab) => {
+      setCurrentPage(1);
+      setDisplayAdvSearchData(false);
+      setDisplaySearchData(false);
+      setSearchedData([]);
+      setSearchQuery("");
+      setActiveTab(newTab);
+      setSearchNotFound(null);
+      updateUrlAndStorage(pageSize);
+      fetchLeads(newTab, 1, pageSize);
+    },
+    [pageSize, fetchLeads, updateUrlAndStorage]
+  );
+
+  const handleSearch = useCallback(
+    (query) => {
+      setSearchQuery(query);
+      setCurrentPage(1);
+      setDisplayAdvSearchData(false);
+      updateUrlAndStorage(pageSize);
+      if (query) {
+        fetchSearchedData(query, 1, pageSize);
+      } else {
+        setDisplaySearchData(false);
+        setSearchNotFound(null);
+        fetchLeads(activeTab, 1, pageSize);
+      }
+    },
+    [activeTab, pageSize, fetchLeads, fetchSearchedData, updateUrlAndStorage]
+  );
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 
   if (error) {
     return <div>Error: {error}</div>;

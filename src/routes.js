@@ -118,7 +118,8 @@ const Report = React.lazy(() => import('views/admin/reports'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 // admin setting
 const AdminSetting = React.lazy(() => import('views/admin/adminSetting'));
-const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
@@ -262,7 +263,7 @@ const routes = [
 		icon: (
 			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 		),
-		component: LeadPool,
+		component: LeadPoolAdmin,
 	},
 	{
 		name: 'Points',

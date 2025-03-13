@@ -1,6 +1,10 @@
 import { Button, HStack, Box, Flex, Stack } from "@chakra-ui/react";
 
+<<<<<<< HEAD
 const Tabs = ({ activeTab, setActiveTab }) => {
+=======
+const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
   const tabs = ["All", "Pending", "Rejected"];
 
   return (
@@ -26,7 +30,11 @@ const Tabs = ({ activeTab, setActiveTab }) => {
               onClick={() => setActiveTab(tab)}
               bg={activeTab === tab ? "#b79045" : "white"}
               color={activeTab === tab ? "white" : "black"}
+<<<<<<< HEAD
               _hover={{ bg: "gray.200" }}
+=======
+              _hover={{ bg: activeTab === tab ? "#b79045" : "gray.200" }}
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
               border="1px solid"
               borderColor="gray.300"
               fontFamily="DM Sans"
@@ -34,6 +42,10 @@ const Tabs = ({ activeTab, setActiveTab }) => {
               borderRadius="6px"
               w={{ base: "100%", sm: "120px", md: "160px" }}
               h="42px"
+<<<<<<< HEAD
+=======
+              isDisabled={isLoading && activeTab !== tab && tab !== "All"}
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
             >
               {tab}
             </Button>

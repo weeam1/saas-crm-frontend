@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React from "react";
+=======
+import React, { useState, useEffect } from "react";
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 import {
   Box,
   Text,
@@ -7,6 +11,7 @@ import {
   Button,
   Icon,
   Tooltip,
+<<<<<<< HEAD
   Input,
   InputGroup,
   InputRightElement,
@@ -110,10 +115,33 @@ const ContactPair = ({ label, value, color }) => (
     </Text>
   </VStack>
 );
+=======
+} from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
+import { formattedDate } from "utils/helpers";
+import CardHeader from "./LeadCard/CardHeader";
+import InfoPair from "./LeadCard/InfoPair";
+import InputPair from "./LeadCard/InputPair";
+import LeadCycleModal from "./LeadCard/LeadCycleModal";
+import LeadsModal from "../../lead/LeadsModal";
+
+class TimelineItem {
+  constructor(type, updatedAt, updatedBy, updatedData) {
+    this.type = type;
+    this.updatedAt = updatedAt;
+    this.updatedBy = updatedBy;
+    this.updatedData = updatedData;
+  }
+}
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
 
 const LeadCard = ({
   _id,
   intID,
+<<<<<<< HEAD
+=======
+  leadId,
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
   leadName,
   city,
   nationality,
@@ -125,6 +153,7 @@ const LeadCard = ({
   leadStatus,
   budget,
   approvalStatus,
+<<<<<<< HEAD
   leadPhoneNumber,
   leadWhatsappNumber,
   createdDate,
@@ -135,6 +164,29 @@ const LeadCard = ({
   const formattedCreatedDate = formattedDate(createdDate);
   const displayButtonText = () => {
     switch (approvalStatus?.toLowerCase()) {
+=======
+  createdDate,
+  lastNote,
+  sendRequest,
+  cancelRequest,
+  buyLoading,
+  refreshData,
+}) => {
+  const formattedCreatedDate = formattedDate(createdDate);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user?._id;
+
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
+
+  useEffect(() => {
+    console.log("leadsModal state updated:", leadsModal);
+  }, [leadsModal]);
+
+  const displayButtonText = () => {
+    switch (leadStatus?.toLowerCase()) {
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
       case "pending":
         return "Pending";
       case "rejected":
@@ -145,7 +197,13 @@ const LeadCard = ({
         return "Buy for 50 coins";
     }
   };
+<<<<<<< HEAD
   const handleBuyClick = () => {
+=======
+
+  const handleBuyClick = () => {
+    console.log("Buy clicked for lead:", _id);
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
     if (
       leadStatus?.toLowerCase() !== "pending" &&
       leadStatus?.toLowerCase() !== "rejected"
@@ -153,8 +211,29 @@ const LeadCard = ({
       sendRequest(_id);
     }
   };
+<<<<<<< HEAD
   const getStatusStyles = (leadStatus) => {
     switch (leadStatus?.toLowerCase()) {
+=======
+
+  const handleCancelClick = async () => {
+    if (approvalStatus?.toLowerCase() === "pending" && cancelRequest) {
+      setCancelLoading(true);
+      try {
+        await cancelRequest(_id, leadId || _id, userId);
+        setCancelLoading(false);
+      } catch (error) {
+        console.error("Cancel failed:", error);
+        setCancelLoading(false);
+      }
+    } else {
+      console.log("Cancel condition not met or cancelRequest missing");
+    }
+  };
+
+  const getStatusStyles = (approvalStatus) => {
+    switch (approvalStatus?.toLowerCase()) {
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
       case "pending":
         return {
           borderColor: "#FFEB3B",
@@ -186,13 +265,37 @@ const LeadCard = ({
     buttonColor: dynamicButtonColor,
   } = getStatusStyles(approvalStatus);
 
+<<<<<<< HEAD
+=======
+  const isRejected = approvalStatus?.toLowerCase() === "rejected";
+
+  const handleViewLeadCycle = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleLeadsModal = (lid) => {
+    console.log("handleLeadsModal called with lid:", lid);
+    setLeadsModal({
+      isOpen: true,
+      lid,
+    });
+  };
+
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
   return (
     <Box
       borderRadius="lg"
       p="3"
       height="320px"
       overflow="hidden"
+<<<<<<< HEAD
       flex="wrap"
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
       _hover={{
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
@@ -202,10 +305,27 @@ const LeadCard = ({
       border="1px solid"
       borderColor={borderColor}
     >
+<<<<<<< HEAD
       <CardHeader id={intID} />
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
         <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
           <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
+=======
+      <CardHeader id={intID} onViewLeadCycle={handleViewLeadCycle} />
+      <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
+        <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
+          <Text
+            fontSize="12px"
+            fontWeight="bold"
+            fontFamily="DM Sans"
+            cursor="pointer"
+            _hover={{ color: "blue.500" }}
+            onClick={() => {
+              console.log("Name clicked, leadId:", leadId || _id);
+              handleLeadsModal(leadId || _id);
+            }}
+          >
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
             {leadName || "N/A"}
           </Text>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
@@ -226,6 +346,7 @@ const LeadCard = ({
               color="black"
             />
           </HStack>
+<<<<<<< HEAD
           {/* <HStack spacing={0.5} w="100%" flexWrap="wrap">
             <ContactPair
               label="Phone"
@@ -238,6 +359,8 @@ const LeadCard = ({
               color="#32BD00"
             />
           </HStack> */}
+=======
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
           <VStack align="start" spacing={0} width="100%">
             <HStack>
               <Text fontSize="xs" color="#C1C1C1" fontFamily="DM Sans">
@@ -270,6 +393,7 @@ const LeadCard = ({
             flex="1"
             spacing={0}
           >
+<<<<<<< HEAD
             <Button
               bg={dynamicButtonBg}
               color={dynamicButtonColor}
@@ -292,6 +416,72 @@ const LeadCard = ({
           </VStack>
         </VStack>
         {/* Right Side */}
+=======
+            {approvalStatus?.toLowerCase() === "pending" ? (
+              <HStack w="100%" maxWidth="200px" spacing={2}>
+                <Button
+                  bg="red.500"
+                  color="white"
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: "red.600" }}
+                  onClick={handleCancelClick}
+                  isLoading={cancelLoading}
+                  isDisabled={cancelLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  bg={dynamicButtonBg}
+                  color={dynamicButtonColor}
+                  size="xs"
+                  flex="1"
+                  fontFamily="DM Sans"
+                  borderRadius="5px"
+                  _hover={{ bg: dynamicButtonHoverBg }}
+                  isDisabled={true}
+                >
+                  Pending
+                </Button>
+              </HStack>
+            ) : approvalStatus?.toLowerCase() === "rejected" ? (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                isDisabled={true}
+              >
+                Rejected
+              </Button>
+            ) : (
+              <Button
+                bg={dynamicButtonBg}
+                color={dynamicButtonColor}
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: dynamicButtonHoverBg }}
+                flexShrink={0}
+                onClick={handleBuyClick}
+                isLoading={buyLoading[_id]}
+                isDisabled={buyLoading[_id] || isRejected}
+              >
+                {displayButtonText()}
+              </Button>
+            )}
+          </VStack>
+        </VStack>
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
         <VStack
           align="start"
           spacing={2}
@@ -383,6 +573,31 @@ const LeadCard = ({
           Lead time: {formattedCreatedDate || "N/A"}
         </Text>
       </HStack>
+<<<<<<< HEAD
+=======
+
+      {/* Modal for Lead Cycle */}
+      {isModalOpen && (
+        <LeadCycleModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          leadId={leadId || _id}
+        />
+      )}
+
+      {/* Modal for Leads */}
+      {leadsModal.isOpen && (
+        <LeadsModal
+          leadsModal={leadsModal}
+          onClose={() => {
+            console.log("Closing LeadsModal");
+            setLeadsModal({ isOpen: false, lid: null });
+          }}
+          reFreshData={refreshData}
+          isInLeadPool
+        />
+      )}
+>>>>>>> 3f62931e1d0eef0054090539da40fe220b02da11
     </Box>
   );
 };
