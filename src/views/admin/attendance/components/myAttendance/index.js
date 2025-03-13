@@ -22,7 +22,7 @@ const Attendance = () => {
 		Number(moment.tz(timezone).format('YYYY'))
 	);
 
-	const { data, isLoading, refetch } = useFetchItemsQuery(
+	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
 		{
 			path: '/attendance/employee-record-per-month',
 			params: { employeeId: employeeId, month, year },
@@ -32,76 +32,11 @@ const Attendance = () => {
 		}
 	);
 
-	const attendanceData = [
-		{
-			id: '2341421',
-			day: 'Monday',
-			type: 'Web',
-			location: 'Dubai',
-			date: '1 Jun 2025',
-			status: 'Office',
-			checkIn: '00:00',
-			checkOut: '18:00',
-			workHours: '10h 2m',
-		},
-		{
-			id: '3411421',
-			day: 'Tuesday',
-			type: 'Fingerprint',
-			location: 'Dubai',
-			date: '2 Jun 2025',
-			status: 'Absent',
-			checkIn: '00:00',
-			checkOut: '00:00',
-			workHours: '0m',
-		},
-		{
-			id: '2341121',
-			day: 'Wednesday',
-			type: 'Web',
-			location: 'Dubai',
-			date: '3 Jun 2025',
-			status: 'Late arrival',
-			checkIn: '10:30',
-			checkOut: '18:00',
-			workHours: '8h 30m',
-		},
-		{
-			id: '2341421',
-			day: 'Thursday',
-			type: 'Web',
-			location: 'Dubai',
-			date: '4 Jun 2025',
-			status: 'Office',
-			checkIn: '00:00',
-			checkOut: '18:00',
-			workHours: '10h 2m',
-		},
-		{
-			id: '2341421',
-			day: 'Friday',
-			type: 'Web',
-			location: 'Dubai',
-			date: '5 Jun 2025',
-			status: 'Office',
-			checkIn: '00:00',
-			checkOut: '18:00',
-			workHours: '10h 2m',
-		},
-		{
-			id: '2341421',
-			day: 'Saturday',
-			type: 'Fingerprint',
-			location: 'Dubai',
-			date: '6 Jul 2023',
-			status: 'Office',
-			checkIn: '9:00',
-			checkOut: '18:00',
-			workHours: '10h 12m',
-		},
-	];
-
-	const isSmallDevice = useBreakpointValue({ base: true, md: false });
+	const onFilterChange = (value) => {
+		setMonth(Number(value.month));
+		setYear(Number(value.year));
+		refetch();
+	};
 
 	const navigate = useNavigate();
 
@@ -141,10 +76,17 @@ const Attendance = () => {
 					<AttendanceMark data={data} timezone={timezone} refetch={refetch} />
 				</Box>
 
-				<Box bg='white' p={5} borderRadius='md' shadow='sm' overflowX='scroll'>
-					<Header />
-					<Divider color='#D5D9DD' mb={4} />
-					<AttendanceTable attendanceRecord={data?.doc} timezone={timezone} />
+				<Box bg='white' p={5} borderRadius='md' shadow='sm'>
+					<Header onFilterChange={onFilterChange} />
+					<Box overflowX='scroll'>
+						<Divider color='#D5D9DD' mb={4} />
+						<AttendanceTable
+							attendanceRecord={data?.doc}
+							timezone={timezone}
+							isLoading={isLoading}
+							isFetching={isFetching}
+						/>
+					</Box>
 				</Box>
 			</Grid>
 		</Box>

@@ -32,7 +32,7 @@ const Employees = () => {
 				const newParams = {
 					page,
 					pageSize,
-					role: search && role === 'manager' ? 'All' : role,
+					role,
 					...(search && { search }),
 					...(agency && { agency }),
 				};
@@ -51,7 +51,7 @@ const Employees = () => {
 		return {
 			page: Number(searchParams.get('page')) || 1,
 			pageSize: Number(searchParams.get('pageSize')) || 24,
-			role: 'All' || role,
+			role,
 			...(search && { search }),
 			...(agency && { agency }),
 		};
@@ -70,16 +70,17 @@ const Employees = () => {
 	const updateFilters = (newFilters) => {
 		setSearchParams(
 			(prev) => {
-				const updatedParams = {
-					...Object.fromEntries(prev.entries()),
-					...newFilters,
-				};
-
-				console.log(updateFilters);
+				const prevParams = Object.fromEntries(prev.entries());
+				const updatedParams = { ...prevParams, ...newFilters };
 
 				if (updatedParams.page) updatedParams.page = Number(updatedParams.page);
 				if (updatedParams.pageSize)
 					updatedParams.pageSize = Number(updatedParams.pageSize);
+
+				// Prevent updating if nothing has changed
+				if (JSON.stringify(prevParams) === JSON.stringify(updatedParams)) {
+					return prevParams; // No change, avoid state update
+				}
 
 				return updatedParams;
 			},
