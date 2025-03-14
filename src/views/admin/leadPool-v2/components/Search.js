@@ -110,6 +110,7 @@ const SearchBox = ({
                 />
               )}
               <Button
+              w='80px'
                 size="md"
                 bg="softGray.700"
                 borderLeft="1px solid"
@@ -124,7 +125,7 @@ const SearchBox = ({
                 onClick={handleSearch}
                 isDisabled={isLoading}
                 fontFamily="'DM Sans', sans-serif"
-                rightIcon={<SearchIcon />} // Added search icon on the right
+                rightIcon={ <SearchIcon fontSize="xs" color="brand.500" ml={1} />} // Added search icon on the right
               >
                 Search
               </Button>
