@@ -1,44 +1,44 @@
-import { CloseIcon, SearchIcon } from '@chakra-ui/icons';
+import { SearchIcon } from '@chakra-ui/icons';
 import {
 	Box,
 	Heading,
 	Input,
-	Icon,
 	InputGroup,
 	Button,
 	Flex,
-	InputLeftElement,
-	InputRightElement,
 	HStack,
-	useDisclosure,
-	Text,
 	IconButton,
 } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import { useRef } from 'react';
-import { CiSearch } from 'react-icons/ci';
-import { buttonStyle } from '../../constants';
+import { buttonStyle } from '../constants';
 import { BiX } from 'react-icons/bi';
-import TabButton from 'components/shared/TabButton';
-import { MdFilter } from 'react-icons/md';
 import { FiFilter } from 'react-icons/fi';
+import DateFilter from './DateFilter';
 
-const EmployeesHeader = ({
-	data,
+const AttendanceHeader = ({
+	title,
+	totalDocs,
 	handleSearch,
 	searchTermRef,
 	handleClear,
 	searchClear,
 	filterOpen,
 	queryParams,
+	onDateFilterChange,
+	content,
 }) => {
 	const handleInputChange = (event) => {
 		searchTermRef.current = event.target.value;
 	};
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+
 	return (
 		<Box
-			px={{ base: 4, md: 6, lg: 12 }}
+			px={{ base: 4, md: 6 }}
 			py={4}
 			display='flex'
 			bg='white'
@@ -47,18 +47,15 @@ const EmployeesHeader = ({
 			gap='2'
 			alignItems={{ base: 'stretch', md: 'center' }}
 			flexDirection={{ base: 'column', md: 'row' }}
-			mb={4}
 		>
 			<Heading fontSize='24px' fontWeight='600'>
 				{queryParams.agency && (
 					<span style={{ paddingRight: '5px' }}>{queryParams.agency}</span>
 				)}
-				Employees
-				{data && (
-					<span style={{ marginLeft: '6px' }}>
-						({<CountUpComponent targetNumber={data?.totalResults || 0} />})
-					</span>
-				)}
+				{title}
+				<span style={{ marginLeft: '6px' }}>
+					({<CountUpComponent targetNumber={totalDocs || 0} />})
+				</span>
 			</Heading>
 
 			<HStack
@@ -106,16 +103,22 @@ const EmployeesHeader = ({
 				</InputGroup>
 
 				<HStack>
-					<IconButton
-						icon={<FiFilter />}
-						onClick={filterOpen}
-						aria-label='Filter Date'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
+					{content.includes('agencyFilter') && role === 'superAdmin' && (
+						<IconButton
+							icon={<FiFilter />}
+							onClick={filterOpen}
+							aria-label='Filter Date'
+							colorScheme='brand'
+							variant='solid'
+							size='sm'
+							borderRadius='full'
+							boxShadow='md'
+						/>
+					)}
+
+					{content.includes('date') && (
+						<DateFilter onFilterChange={onDateFilterChange} />
+					)}
 
 					{searchClear && (
 						<Button
@@ -142,4 +145,4 @@ const EmployeesHeader = ({
 	);
 };
 
-export default EmployeesHeader;
+export default AttendanceHeader;

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Text, Grid, Divider, useBreakpointValue } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Box, Text, Grid, Divider } from '@chakra-ui/react';
 
 import { IoIosArrowBack } from 'react-icons/io';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -10,6 +10,8 @@ import AttendanceMark from './AttendanceMark';
 import Header from './Header';
 import AttendanceTable from './AttendanceTable';
 import Loader from 'components/loading/Loader';
+import ErrorMessage from 'components/Message/ErrorMessage';
+
 const timezone = 'Asia/Karachi';
 
 const Attendance = () => {
@@ -22,7 +24,7 @@ const Attendance = () => {
 		Number(moment.tz(timezone).format('YYYY'))
 	);
 
-	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
 			path: '/attendance/employee-record-per-month',
 			params: { employeeId: employeeId, month, year },
@@ -66,29 +68,34 @@ const Attendance = () => {
 				</Text>
 			</Box>
 
-			<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
-				<Box>
-					<AttendanceStats
-						stats={data?.stats}
-						employee={data?.employee}
-						refetch={refetch}
-					/>
-					<AttendanceMark data={data} timezone={timezone} refetch={refetch} />
-				</Box>
-
-				<Box bg='white' p={5} borderRadius='md' shadow='sm'>
-					<Header onFilterChange={onFilterChange} />
-					<Box overflowX='scroll'>
-						<Divider color='#D5D9DD' mb={4} />
-						<AttendanceTable
-							attendanceRecord={data?.doc}
-							timezone={timezone}
-							isLoading={isLoading}
-							isFetching={isFetching}
+			{error ? (
+				<ErrorMessage message='No results found. Please check your query.' />
+			) : (
+				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
+					<Box>
+						<AttendanceStats
+							stats={data?.stats}
+							employee={data?.employee}
+							refetch={refetch}
 						/>
+						<AttendanceMark data={data} timezone={timezone} refetch={refetch} />
 					</Box>
-				</Box>
-			</Grid>
+
+					<Box bg='white' p={5} borderRadius='md' shadow='sm'>
+						<Header onFilterChange={onFilterChange} />
+						<Box overflowX='scroll'>
+							<Divider color='#D5D9DD' mb={4} />
+							<AttendanceTable
+								attendanceRecord={data?.doc}
+								timezone={timezone}
+								isLoading={isLoading}
+								isFetching={isFetching}
+								refetch={refetch}
+							/>
+						</Box>
+					</Box>
+				</Grid>
+			)}
 		</Box>
 	);
 };

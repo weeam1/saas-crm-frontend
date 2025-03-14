@@ -1,7 +1,5 @@
-import { Box, Button, Text } from '@chakra-ui/react';
-import { CalendarIcon } from '@chakra-ui/icons';
-import { RiEqualizerLine } from 'react-icons/ri';
-import DateFilter from './DateFilter';
+import { Box, Text } from '@chakra-ui/react';
+import DateFilter from '../DateFilter';
 
 const Header = ({ onFilterChange }) => {
 	return (

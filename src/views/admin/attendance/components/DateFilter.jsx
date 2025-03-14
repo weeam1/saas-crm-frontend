@@ -22,9 +22,9 @@ const DateFilter = ({ onFilterChange }) => {
 	return (
 		<Box position='relative'>
 			<Button
-				h='48px'
 				leftIcon={<CalendarIcon />}
-				bg='#D5D9DD'
+				bg='softGray.50'
+				color='gray.800'
 				borderRadius='md'
 				onClick={() => setShowCalendar(!showCalendar)}
 			>

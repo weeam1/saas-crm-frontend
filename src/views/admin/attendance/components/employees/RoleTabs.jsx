@@ -3,11 +3,31 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, Flex, Box, IconButton } from '@chakra-ui/react';
+import { skipToken } from '@reduxjs/toolkit/query';
 
 const RoleTabs = ({ updateFilters }) => {
 	const [searchParams] = useSearchParams();
 	const currentRole = searchParams.get('role') || 'All';
-	const { data: roles } = useFetchItemsQuery({ path: '/role-access/v2' });
+	const [localRoles, setLocalRoles] = useState(() => {
+		return JSON.parse(localStorage.getItem('roles')) || null;
+	});
+
+	const shouldFetch = !localRoles; // Only fetch if localRoles is not found
+
+	const { data: roles, isSuccess } = useFetchItemsQuery(
+		shouldFetch ? { path: '/role-access/v2' } : skipToken
+	);
+
+	// Update localStorage and state when API fetch is successful
+	useEffect(() => {
+		if (isSuccess && roles) {
+			localStorage.setItem('roles', JSON.stringify(roles));
+			setLocalRoles(roles); // Update state with fetched data
+		}
+	}, [isSuccess, roles]);
+
+	// Use localRoles in your component
+	const roleData = localRoles || roles || [];
 
 	const containerRef = useRef(null);
 	const [showLeft, setShowLeft] = useState(false);
@@ -63,6 +83,7 @@ const RoleTabs = ({ updateFilters }) => {
 					left='0'
 					zIndex='10'
 					bg='gray.100'
+					rounded='full'
 					color='gray.800'
 					onClick={() => scroll(-1)}
 					_hover={{ bg: 'brand.200', color: 'white' }}
@@ -93,7 +114,7 @@ const RoleTabs = ({ updateFilters }) => {
 				>
 					All
 				</TabButton>
-				{roles
+				{roleData
 					?.filter((role) => role.roleName !== 'sadmin')
 					?.map((role) => (
 						<TabButton
@@ -115,6 +136,7 @@ const RoleTabs = ({ updateFilters }) => {
 					right='0'
 					zIndex='10'
 					bg='gray.100'
+					rounded='full'
 					color='gray.800'
 					_hover={{ bg: 'brand.200', color: 'white' }}
 					onClick={() => scroll(1)}

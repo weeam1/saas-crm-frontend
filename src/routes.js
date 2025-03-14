@@ -225,11 +225,11 @@ const routes = [
 		component: Employees,
 	},
 	{
-		name: 'My Records',
+		name: 'Attendance Record',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendance/records',
-		under: 'my-records',
-		parentName: 'MyRecords',
+		path: '/attendance/record',
+		under: 'attendance-record',
+		parentName: 'Attendance',
 		component: Records,
 	},
 	{

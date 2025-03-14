@@ -6,11 +6,11 @@ import EmployeesList from './EmployeesList';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import EmployeesHeader from './EmployeesHeader';
 import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
 import FilterModal from './FilterModal';
 import TabButton from 'components/shared/TabButton';
+import AttendanceHeader from '../AttendanceHeader';
 
 const Employees = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -135,14 +135,16 @@ const Employees = () => {
 			</Button>
 			<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
 				{/* Header */}
-				<EmployeesHeader
-					data={data}
+				<AttendanceHeader
+					title='Employees'
+					totalDocs={data?.totalResults}
 					searchTermRef={searchTermRef}
 					queryParams={queryParams}
 					handleSearch={handleSearch}
 					handleClear={handleClear}
 					searchClear={searchClear}
 					filterOpen={onOpen}
+					content={['agencyFilter']}
 				/>
 
 				{/* Role Tab Navigation */}

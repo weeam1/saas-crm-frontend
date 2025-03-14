@@ -15,7 +15,7 @@ import {
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-import { FaUserCircle, FaDollarSign } from 'react-icons/fa';
+import { FaUserCircle, FaDollarSign, FaRegCalendarCheck } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -42,6 +42,20 @@ const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 
 const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
+
+const Attendance = React.lazy(() => import('views/admin/attendance'));
+const Employees = React.lazy(
+	() => import('views/admin/attendance/components/employees')
+);
+const Records = React.lazy(
+	() => import('views/admin/attendance/components/records')
+);
+const MyAttendance = React.lazy(
+	() => import('views/admin/attendance/components/myAttendance')
+);
+const AttendanceDashboard = React.lazy(
+	() => import('views/admin/attendance/components/dashboard')
+);
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -179,6 +193,52 @@ export default function User(props) {
 					/>
 				),
 				component: Hiring,
+			},
+			{
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Attendance,
+			},
+			{
+				name: 'Attendance Dashboard',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				under: 'employees',
+				parentName: 'Attendance',
+				component: AttendanceDashboard,
+			},
+			{
+				name: 'Employees',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/employees',
+				under: 'employees',
+				parentName: 'Attendance',
+				component: Employees,
+			},
+			{
+				name: 'Attendance Record',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/record',
+				under: 'attendance-record',
+				parentName: 'Attendance',
+				component: Records,
+			},
+			{
+				name: 'My Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/employees/:id',
+				under: 'my-attendance',
+				parentName: 'Attendance',
+				component: MyAttendance,
 			},
 		];
 

@@ -1,33 +1,26 @@
 import {
 	Box,
-	Text,
 	Table,
 	Thead,
 	Tbody,
 	Tr,
 	Th,
 	Td,
-	Divider,
-	useDisclosure,
+	Text,
 	Button,
+	useDisclosure,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
-import moment from 'moment';
 import { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 
-const AttendanceTable = ({
-	attendanceRecord,
-	timezone,
-	isLoading,
-	isFetching,
-	refetch,
-}) => {
+const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 	const columns = [
 		'AID',
-		'Day',
+		'Employee',
+		'Role',
 		'Type',
 		'Location',
 		'Date',
@@ -54,14 +47,14 @@ const AttendanceTable = ({
 	return (
 		<>
 			<Box
-				height='60vh'
+				height='70vh'
 				overflowY='auto'
 				scrollBehavior='smooth'
 				borderRadius='md'
 				boxShadow='sm'
 				bg='white'
 			>
-				<Table variant='simple' size='sm' bg='white'>
+				<Table variant='striped' size='sm' bg='white'>
 					<Thead
 						position='sticky'
 						top={0}
@@ -85,11 +78,12 @@ const AttendanceTable = ({
 							))}
 						</Tr>
 					</Thead>
+
 					<Tbody>
 						{isFetching || isLoading ? (
 							<TableLoading columns={columns} length={11} py='4' />
-						) : attendanceRecord?.length > 0 ? (
-							attendanceRecord?.map((entry, index) => {
+						) : data?.results > 0 ? (
+							data?.doc?.map((entry, index) => {
 								let textColor = 'black';
 								let rowBgGradient = 'none';
 								let statusBgColor = 'transparent';
@@ -110,20 +104,19 @@ const AttendanceTable = ({
 									statusText = 'Late arrival';
 								}
 
+								const roleName =
+									entry.employee?.role === 'superAdmin'
+										? 'Super Admin'
+										: entry.employee?.roles[0]?.roleName;
+
 								return (
 									<Tr
 										key={entry._id}
 										_hover={{ bg: 'gray.50' }}
-										borderBottom={
-											index === attendanceRecord.length - 1
-												? 'none'
-												: '1px solid'
-										}
-										borderColor='gray.200'
+										border='gray.200'
 										bgGradient={rowBgGradient}
 									>
 										<Td
-											borderBottom='none'
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
@@ -131,15 +124,20 @@ const AttendanceTable = ({
 											{entry.aid}
 										</Td>
 										<Td
-											borderBottom='none'
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 										>
-											{moment.tz(timezone).day(entry.day).format('dddd')}
+											{entry.employee?.fullName}
 										</Td>
 										<Td
-											borderBottom='none'
+											py={4}
+											fontSize={{ base: '12px', md: '14px' }}
+											fontWeight='400'
+										>
+											{roleName}
+										</Td>
+										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
@@ -147,18 +145,16 @@ const AttendanceTable = ({
 											{entry.type}
 										</Td>
 										<Td
-											borderBottom='none'
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
 											{entry.agencyName}
 										</Td>
-										<Td borderBottom='none' py={4}>
+										<Td py={4}>
 											{format(new Date(entry.date), 'd MMM, yyyy')}
-											{/* {entry.date} */}
 										</Td>
-										<Td borderBottom='none' py={4}>
+										<Td py={4}>
 											<Box
 												bg={statusBgColor}
 												color={textColor}
@@ -172,29 +168,26 @@ const AttendanceTable = ({
 											</Box>
 										</Td>
 										<Td
-											borderBottom='none'
 											py={4}
 											color={entry.checkIn === '00:00' ? 'red.500' : 'blue.500'}
 										>
 											{entry.checkin ?? 'N/A'}
 										</Td>
 										<Td
-											borderBottom='none'
 											py={4}
 											color={
-												entry.checkout === '00:00' ? 'red.500' : 'blue.500'
+												entry.checkOut === '00:00' ? 'red.500' : 'blue.500'
 											}
 										>
 											{entry.checkout ?? 'N/A'}
 										</Td>
 										<Td
-											borderBottom='none'
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
 											{entry.totalWorkingHours
-												? `${entry.totalWorkingHours?.hours}h ${entry.totalWorkingHours.minutes}m`
+												? `${entry.totalWorkingHours.hours}h ${entry.totalWorkingHours.minutes}m`
 												: '0h 0m'}
 										</Td>
 										<Td py={4}>
@@ -208,7 +201,6 @@ const AttendanceTable = ({
 						) : (
 							<Tr borderColor='gray.200' textAlign='center'>
 								<Td
-									borderBottom='none'
 									py={4}
 									colSpan='9'
 									fontSize={{ base: '12px', md: '15px' }}
@@ -222,7 +214,6 @@ const AttendanceTable = ({
 						)}
 					</Tbody>
 				</Table>
-				<Divider color='#D5D9DD' mb={4} />
 			</Box>
 
 			{isEditOpen && (
@@ -237,4 +228,4 @@ const AttendanceTable = ({
 	);
 };
 
-export default AttendanceTable;
+export default RecordTable;
