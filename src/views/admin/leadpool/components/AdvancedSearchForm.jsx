@@ -124,7 +124,7 @@ const AdvancedSearchForm = (props) => {
 	}, [isSuperAdmin, isAgent, allFields]);
 	// Utility function for rendering fields
 	const renderField = (field) => (
-		<GridItem colSpan={{ base: 12, md: 6 }} key={field.name}>
+		<GridItem key={field.name}>
 			<FormLabel
 				display='flex'
 				ms='4px'
@@ -154,16 +154,20 @@ const AdvancedSearchForm = (props) => {
 	return (
 		<Grid
 			overflow='scroll'
-			height='65vh'
+			height={isSuperAdmin ? '30vh' : '45vh'}
 			p='2'
-			templateColumns='repeat(24, 1fr)'
+			templateColumns={{
+				base: 'repeat(1, 1fr)',
+				md: 'repeat(3,1fr)',
+				lg: isSuperAdmin ? 'repeat(3,1fr)' : 'repeat(4,1fr)',
+			}}
 			mb={3}
 			gap={3}
 		>
 			{displayedFields.map(renderField)}
 
 			{/* Lead Status Field */}
-			<GridItem colSpan={{ base: 12, md: 6 }}>
+			<GridItem>
 				<FormLabel
 					display='flex'
 					ms='4px'
@@ -197,7 +201,7 @@ const AdvancedSearchForm = (props) => {
 					<option value='follow_up_after_meeting'>
 						Follow Up After Meeting
 					</option>
-					<option value='deal'>Deal</option>
+					{/* <option value='deal'>Deal</option> */}
 					<option value='junk'>Junk</option>
 					<option value='whatsapp_send'>Whatsapp Send</option>
 					<option value='whatsapp_rec'>Whatsapp Rec</option>
@@ -249,7 +253,7 @@ const AdvancedSearchForm = (props) => {
 				</GridItem> */}
 
 			{isSuperAdmin && (
-				<GridItem colSpan={{ base: 12, md: 6 }}>
+				<GridItem>
 					<FormLabel
 						display='flex'
 						ms='4px'

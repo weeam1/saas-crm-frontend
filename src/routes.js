@@ -11,7 +11,6 @@ import {
 // icon
 import React from "react";
 import { AiFillFolderOpen, AiOutlineMail } from "react-icons/ai";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import {
   FaCalendarAlt,
   FaFile,
@@ -19,7 +18,6 @@ import {
   FaRupeeSign,
   FaTasks,
   FaWpforms,
-  FaRegCalendarCheck,
   FaUserCircle,
   FaDollarSign,
   FaUserFriends,
@@ -37,9 +35,7 @@ import Validation from "views/admin/validation";
 import CustomField from "views/admin/customField";
 import TableField from "views/admin/tableField";
 import { FaClipboardUser } from "react-icons/fa6";
-// import Employees from 'views/admin/attendenceEmp/components/employees';
-// import Attendance from 'views/admin/attendenceEmp/components/myAttendence';
-// import Records from 'views/admin/attendenceEmp/components/records';
+import OfficeSettings from "views/admin/agencies/OfficeSetting";
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import("views/admin/default"));
@@ -118,27 +114,10 @@ const Report = React.lazy(() => import("views/admin/reports"));
 const SignInCentered = React.lazy(() => import("views/auth/signIn"));
 // admin setting
 const AdminSetting = React.lazy(() => import("views/admin/adminSetting"));
-const LeadPool = React.lazy(() => import("views/admin/leadpool"));
+const LeadPool = React.lazy(() => import("views/admin/leadAdmin"));
 const HRModule = React.lazy(() => import("views/admin/hrModule"));
 const Announcement = React.lazy(() => import("views/admin/announcement"));
 const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
-// Attendence module
-const AttendenceEmp = React.lazy(() => import("views/admin/attendenceEmp"));
-const Employees = React.lazy(
-  () => import("views/admin/attendenceEmp/components/employees")
-);
-const Records = React.lazy(
-  () => import("views/admin/attendenceEmp/components/records")
-);
-const Attendance = React.lazy(
-  () => import("views/admin/attendenceEmp/components/myAttendence")
-);
-const AttendanceDashboard = React.lazy(
-  () => import("views/admin/attendenceEmp/components/dashboard")
-);
-//leadpool v2
-// const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
-const LeadPoolAdmin = React.lazy(() => import("views/admin/leadAdmin"));
 
 const routes = [
   // ========================== Dashboard ==========================
@@ -151,15 +130,22 @@ const routes = [
   },
   // ========================== Admin Layout ==========================
   // ------------- lead Routes ------------------------
-  // {
-  //   name: "Lead",
-  //   layout: [ROLE_PATH.superAdmin],
-  //   path: "/lead",
-  //   icon: (
-  //     <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-  //   ),
-  //   component: Lead,
-  // },
+  {
+    name: "Lead",
+    layout: [ROLE_PATH.superAdmin],
+    path: "/lead",
+    icon: (
+      <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
+    ),
+    component: Lead,
+  },
+  {
+    name: "Office Setting",
+    layout: [ROLE_PATH.superAdmin],
+    path: "/office-setting",
+    under: "office-setting",
+    component: OfficeSettings,
+  },
   {
     name: "New Lead",
     layout: [ROLE_PATH.superAdmin],
@@ -191,69 +177,6 @@ const routes = [
     path: "/hrmodule",
     icon: <Icon as={FaUserCircle} width="20px" height="20px" color="inherit" />,
     component: HRModule,
-  },
-
-  // Attendence Routes
-  {
-    name: "Attendence",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/attendence_employees",
-    icon: (
-      <Icon
-        as={FaRegCalendarCheck}
-        width="20px"
-        height="20px"
-        color="inherit"
-      />
-    ),
-    component: AttendenceEmp,
-  },
-  {
-    name: "Attendance Dashboard",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/attendence/dashboard",
-    under: "employees",
-    parentName: "Attendence",
-    component: AttendanceDashboard,
-  },
-  {
-    name: "Employees",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/attendence/employees",
-    under: "employees",
-    parentName: "Attendence",
-    component: Employees,
-  },
-  {
-    name: "My Records",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/attendence/records",
-    under: "my-records",
-    parentName: "MyRecords",
-    component: Records,
-  },
-  {
-    name: "My Attendence",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/attendence/my-attendence",
-    under: "my-attendence",
-    parentName: "Attendence",
-    component: Attendance,
-  },
-
-  {
-    name: "Leads Pool Admin",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/leadpooladmin",
-    icon: (
-      <Icon
-        as={MdOutlineAdminPanelSettings}
-        width="20px"
-        height="20px"
-        color="inherit"
-      />
-    ),
-    component: LeadPoolAdmin,
   },
   {
     name: "Leads Pool",

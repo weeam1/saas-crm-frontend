@@ -64,6 +64,10 @@ const SearchBox = ({
 
   return (
     <Box
+      display="flex"
+      justifyContent="center"
+      height={{ base: "70px", md: "30px" }}
+      alignContent="center"
       bg="softGray.50"
       borderRadius="md"
       flexDirection="column"
@@ -96,7 +100,7 @@ const SearchBox = ({
             border="none"
             w="100%"
             fontSize="xs"
-            height="2.2rem"
+            height="2.5rem"
             textOverflow="ellipsis" // Already present, ensures truncation
             overflow="hidden" // Prevent text from overflowing
             whiteSpace="nowrap" // Keep text on one line
@@ -121,7 +125,7 @@ const SearchBox = ({
                 bg="transparent"
                 _hover={{ bg: "gray.100" }}
                 onClick={handleClearSearch}
-                mr={1} 
+                mr={1}
               />
             )}
             <Button
@@ -131,7 +135,8 @@ const SearchBox = ({
               borderColor="softGray.600"
               px={4}
               borderRadius="0"
-              fontSize="xs"
+              fontSize="14px"
+              fontFamily="'DM Sans', sans-serif"
               height="100%"
               _hover={{ bg: "gray.50" }}
               _active={{ bg: "gray.100" }}
@@ -149,7 +154,6 @@ const SearchBox = ({
             bg="white"
             borderRadius="md"
             p={4}
-            fontSize="xs"
             mx="auto"
             w={{ base: "150px", md: "150px" }}
             minW="max-content"
@@ -158,6 +162,8 @@ const SearchBox = ({
             _hover={{ bg: "gray.50" }}
             _active={{ bg: "gray.100" }}
             isDisabled={loading}
+            fontSize="14px"
+            fontFamily="'DM Sans', sans-serif"
           >
             Advanced Search
           </Button>

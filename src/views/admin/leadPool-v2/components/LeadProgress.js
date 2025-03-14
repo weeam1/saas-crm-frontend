@@ -8,24 +8,25 @@ const LeadsProgress = ({ totalLeads, userData }) => {
         justify="space-between"
         align="center"
         mb={1}
-        flexDirection={["column", "row"]}
+        flexDirection="row"
+        flexWrap="wrap"
+        gap={2}
       >
         <Text
-          fontSize={["20px", "28px", "32px"]}
+          fontSize={{ base: "15px", md: "22px" }}
           fontWeight="medium"
-          fontFamily="DM Sans"
-          mb={[2, 0]}
+          fontFamily="'DM Sans', sans-serif"
         >
           Leads: <CountUpComponent targetNumber={totalLeads} />
         </Text>
 
         {userData?.coins !== undefined && (
           <Text
-            fontSize={["16px", "20px", "24px"]}
-            fontFamily="DM Sans"
+            fontSize={{ base: "15px", md: "22px" }}
+            fontFamily="'DM Sans', sans-serif"
             backgroundColor="#B79045"
             textColor="white"
-            p="5px"
+            p="3px"
             borderRadius="5px"
           >
             Coins: <CountUpComponent targetNumber={userData.coins} />

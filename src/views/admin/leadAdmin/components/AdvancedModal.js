@@ -15,6 +15,7 @@ const {
   ModalFooter,
   Button,
   Spinner,
+  Flex,
 } = require("@chakra-ui/react");
 
 const AdvancedSearchModal = ({
@@ -155,7 +156,6 @@ const AdvancedSearchModal = ({
     dirty,
   } = formik;
 
-  // Send the reset function to the parent
   useEffect(() => {
     if (isFormReset) {
       formikResetForm();
@@ -164,7 +164,23 @@ const AdvancedSearchModal = ({
   }, [isFormReset, formikResetForm, setIsFormReset]);
 
   return (
-    <React.Suspense fallback={<Spinner />}>
+    <React.Suspense
+      fallback={
+        <Flex
+          position="fixed"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          alignItems="center"
+          justifyContent="center"
+          bg="rgba(0, 0, 0, 0.1)"
+          zIndex={9999}
+        >
+          <Spinner size="xl" color="brand.500" />
+        </Flex>
+      }
+    >
       <Modal
         size="6xl"
         onClose={() => {

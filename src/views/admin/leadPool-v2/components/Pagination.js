@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   HStack,
@@ -129,9 +130,9 @@ const Pagination = ({
     setTags([]);
     setCurrentPage(1);
     setPageSize(50);
-    setActiveTab("All");
+    setActiveTab("Buy Leads"); // Changed from "All" to "Buy Leads"
     setIsLoading(true);
-    fetchData("All", 1, 50);
+    fetchData("Buy Leads", 1, 50); // Changed from "All" to "Buy Leads"
   };
 
   const buttonStyle = {
@@ -140,6 +141,8 @@ const Pagination = ({
     _hover: { shadow: "sm", transition: "all 0.2s ease-in-out" },
     _active: { bg: "softGray.500" },
     sx: { svg: { fill: "brand.500" } },
+    fontFamily: "DM Sans",
+    fontSize: { base: "xs", md: "sm", lg: "14px" }, // Smaller font for base/md, 14px for lg+
   };
 
   return (
@@ -193,7 +196,6 @@ const Pagination = ({
                   />
                 }
                 aria-label="First Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 First
               </Button>
@@ -207,7 +209,6 @@ const Pagination = ({
                 px={{ base: 1, md: 2 }}
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Prev
               </Button>
@@ -223,7 +224,12 @@ const Pagination = ({
               flexWrap="wrap"
             >
               <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Go to</Text>
+                <Text
+                  fontFamily="DM Sans"
+                  fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+                >
+                  Go to
+                </Text>
                 <NumberInput
                   value={gotoPage}
                   onChange={handleGoToChange}
@@ -246,26 +252,38 @@ const Pagination = ({
                     border="1px solid"
                     borderColor="softGray.600"
                     _focus={{ borderColor: "brand.500" }}
-                    fontSize={{ base: "2xs", md: "xs" }}
+                    fontFamily="DM Sans"
+                    fontSize={{ base: "xs", md: "sm", lg: "14px" }}
                     p={1}
                   />
                 </NumberInput>
-                <Text fontSize={{ base: "2xs", md: "xs" }}>
+                <Text
+                  fontFamily="DM Sans"
+                  fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+                >
                   of {Number(totalPagesForTab).toLocaleString()}
                 </Text>
               </HStack>
 
               <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Per page:</Text>
+                <Text
+                  fontFamily="DM Sans"
+                  fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+                >
+                  Per page:
+                </Text>
                 <Select
                   size="xs"
                   value={pageSize}
                   onChange={handlePageSizeChange}
-                  width="60px"
+                  width="70px" // Changed from 60px to 100px
+                  borderRadius="5px"
                   bg="softGray.50"
-                  border="1px solid softGray.600"
+                  border="2px solid" // Added border thickness
+                  borderColor="softGray.600" // Kept existing border color
                   isDisabled={isLoading}
-                  fontSize={{ base: "2xs", md: "xs" }}
+                  fontFamily="DM Sans"
+                  fontSize={{ base: "xs", md: "sm", lg: "14px" }}
                 >
                   {pageSizeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -276,7 +294,8 @@ const Pagination = ({
               </HStack>
 
               <Text
-                fontSize={{ base: "2xs", md: "xs" }}
+                fontFamily="DM Sans"
+                fontSize={{ base: "xs", md: "sm", lg: "14px" }}
                 fontWeight="medium"
                 color="gray.800"
               >
@@ -299,7 +318,6 @@ const Pagination = ({
                 px={{ base: "1", md: "2" }}
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Next
               </Button>
@@ -317,7 +335,6 @@ const Pagination = ({
                 px={{ base: 1, md: 2 }}
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Last
               </Button>
@@ -356,10 +373,19 @@ const Pagination = ({
       {displaySearchData && (
         <Flex justifyContent="space-between" alignItems="center" p={3}>
           <HStack spacing={2}>
-            <Text fontSize="sm" fontWeight="medium" color="gray.800">
+            <Text
+              fontFamily="DM Sans"
+              fontSize={{ base: "sm", md: "md", lg: "14px" }}
+              fontWeight="medium"
+              color="gray.800"
+            >
               Lead Search:
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text
+              fontFamily="DM Sans"
+              fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+              color="gray.600"
+            >
               {searchTerm ||
                 (tags.length > 0 ? tags.join(", ") : "No filters applied")}
             </Text>
@@ -370,6 +396,8 @@ const Pagination = ({
             size="sm"
             onClick={handleClearSearch}
             isDisabled={isLoading}
+            fontFamily="DM Sans"
+            fontSize={{ base: "xs", md: "sm", lg: "14px" }}
           >
             Clear
           </Button>

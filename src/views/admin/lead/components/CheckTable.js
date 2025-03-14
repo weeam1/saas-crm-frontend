@@ -1079,7 +1079,6 @@ const CheckTable = React.memo((props) => {
 							) : data?.length && page && page?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
-									console.log({ row });
 									return (
 										<Tr {...row?.getRowProps()} key={i++} className='leadRow'>
 											{row?.cells?.map((cell, index) => {

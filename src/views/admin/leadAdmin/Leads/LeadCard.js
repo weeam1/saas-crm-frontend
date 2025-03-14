@@ -24,6 +24,7 @@ import { getUserNameById } from "utils";
 import { formattedDate } from "utils/helpers";
 import LeadCycleModal from "../components/LeadCard/LeadCycleModal";
 import LeadsModal from "../../lead/LeadsModal";
+
 const LeadCard = ({
   leadId,
   leadName,
@@ -82,7 +83,7 @@ const LeadCard = ({
       case "accepted":
         return {
           borderColor: "#34c759",
-          buttonBg: "#34C759",
+          buttonBg: "#4BFF79",
           buttonHoverBg: "#32BD00",
           buttonColor: "white",
         };
@@ -302,19 +303,21 @@ const LeadCard = ({
         boxShadow: "0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0",
       }}
     >
-      <CardHeader id={leadId} onViewLeadCycle={handleViewLeadCycle} />
+      <CardHeader
+        id={leadId}
+        onViewLeadCycle={handleViewLeadCycle}
+        onViewLead={handleLeadsModal}
+        leadId={leadId || _id}
+      />
       <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="1">
-        <VStack align="start" spacing={2} flex="2" w="60%" minW={0}>
+        <VStack align="start" spacing={2} flex="1" w="60%" minW={0}>
           <Text
             fontSize="12px"
             fontWeight="bold"
             fontFamily="DM Sans"
             isTruncated
-            cursor="pointer"
-            _hover={{ color: "blue.500" }}
-            onClick={() => handleLeadsModal(leadId || _id)}
           >
-            {leadName || "N/A"}
+            {leadName || "N/A"} {/* Removed onClick handler */}
           </Text>
           <HStack spacing={2} w="100%">
             <InfoPair label="City" value={city} />
@@ -360,12 +363,12 @@ const LeadCard = ({
           h="100%"
           justify="space-between"
         >
-          <VStack align="start" spacing={2}>
-            <VStack align="start" spacing={0}>
+          <VStack align="start" spacing={2} pl={10}>
+            <VStack align="start" spacing={2}>
               <Text
                 fontSize="xs"
                 color="#AEBAC9"
-                fontWeight="bold"
+                // fontWeight="bold"
                 fontFamily="DM Sans"
               >
                 Time To Call
@@ -380,12 +383,7 @@ const LeadCard = ({
               </Text>
             </VStack>
             <VStack align="start" spacing={0}>
-              <Text
-                fontSize="xs"
-                color="#AEBAC9"
-                fontWeight="bold"
-                fontFamily="DM Sans"
-              >
+              <Text fontSize="xs" color="#AEBAC9" fontFamily="DM Sans">
                 Source Content
               </Text>
               <Text
@@ -398,7 +396,7 @@ const LeadCard = ({
               </Text>
             </VStack>
           </VStack>
-          <VStack align="start" spacing={1} w="100%">
+          <VStack align="start" spacing={1} w="100%" pl={10}>
             <Text
               fontSize="xs"
               color="#AEBAC9"
@@ -443,8 +441,13 @@ const LeadCard = ({
         </VStack>
       </HStack>
       <HStack w="100%" justify="flex-end">
-        <Text fontSize="10px" color="#32343D" fontFamily="DM Sans">
-          Lead time: {formattedCreatedDate}
+        <Text fontSize="10px" fontFamily="'DM Sans', sans-serif">
+          <Box as="span" color="#D3D3D3">
+            Lead time:{" "}
+          </Box>
+          <Box as="span" color="black">
+            {formattedCreatedDate}
+          </Box>
         </Text>
       </HStack>
 
@@ -470,10 +473,17 @@ const LeadCard = ({
   );
 };
 
-const CardHeader = ({ id, onViewLeadCycle }) => (
+const CardHeader = ({ id, onViewLeadCycle, onViewLead, leadId }) => (
   <HStack justifyContent="space-between" w="100%">
     <HStack>
-      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
+      <Icon
+        as={FaEye}
+        color="#C1C1C1"
+        boxSize={3}
+        cursor="pointer"
+        onClick={() => onViewLead(leadId)} // Added onClick handler
+        _hover={{ color: "blue.500" }} // Optional: Add hover effect
+      />
       {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
           {id || "N/A"}
         </Text> */}

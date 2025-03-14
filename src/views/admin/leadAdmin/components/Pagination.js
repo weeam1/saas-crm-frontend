@@ -97,16 +97,25 @@ const Pagination = ({
   };
 
   const buttonStyle = {
-    size: { base: "xs", md: "sm" }, // xs for base, sm for md and up
+    size: { base: "xs", sm: "xs", md: "sm" },
     borderRadius: "lg",
     _hover: { shadow: "sm", transition: "all 0.2s ease-in-out" },
     _active: { bg: "softGray.500" },
     sx: { svg: { fill: "brand.500" } },
-    px: { base: 1, md: 2 },
+    px: { base: 1, sm: 1, md: 2 },
+    fontFamily: "DM Sans",
+    fontSize: { base: "sm", sm: "xs", md: "sm" }, // Changed base to "sm", adjusted sm to "xs"
   };
 
   return (
-    <Box width="100%" bg="white" p={5} borderRadius="10px" minHeight="100%">
+    <Box
+      width="100%"
+      bg="white"
+      p={5}
+      borderRadius="10px"
+      minHeight="100%"
+      fontFamily="DM Sans"
+    >
       <LeadsProgress
         totalLeads={totalItems}
         searchQuery={searchQuery}
@@ -133,6 +142,7 @@ const Pagination = ({
           minWidth={{ base: "100%", lg: "300px" }}
           maxHeight={{ md: "100px" }}
           overflow="auto"
+          fontFamily="DM Sans"
         >
           <Flex
             direction={{ base: "column", md: "row" }}
@@ -155,8 +165,8 @@ const Pagination = ({
                   />
                 }
                 aria-label="First Page"
-                fontSize={{ base: "xs", md: "sm" }}
                 p="8px"
+                fontFamily="DM Sans"
               >
                 First
               </Button>
@@ -170,7 +180,7 @@ const Pagination = ({
                 p="8px"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
-                fontSize={{ base: "xs", md: "sm" }}
+                fontFamily="DM Sans"
               >
                 Previous
               </Button>
@@ -186,7 +196,12 @@ const Pagination = ({
               flexWrap="wrap"
             >
               <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Go to</Text>
+                <Text
+                  fontSize={{ base: "sm", sm: "xs", md: "xs" }} // Changed base to "sm"
+                  fontFamily="DM Sans"
+                >
+                  Go to
+                </Text>
                 <NumberInput
                   value={gotoPage}
                   onChange={handleGoToChange}
@@ -198,6 +213,7 @@ const Pagination = ({
                   bg="softGray.50"
                   border="1px solid softGray.600"
                   isDisabled={loading}
+                  fontFamily="DM Sans"
                 >
                   <NumberInputField
                     aria-label="Go to page"
@@ -209,26 +225,38 @@ const Pagination = ({
                     border="1px solid"
                     borderColor="softGray.600"
                     _focus={{ borderColor: "brand.500" }}
-                    fontSize={{ base: "2xs", md: "xs" }}
+                    fontSize={{ base: "sm", sm: "xs", md: "xs" }} // Changed base to "sm"
                     p={1}
                   />
                 </NumberInput>
-                <Text fontSize={{ base: "2xs", md: "xs" }}>
+                <Text
+                  fontSize={{ base: "sm", sm: "xs", md: "xs" }} // Changed base to "sm"
+                  fontFamily="DM Sans"
+                >
                   of {Number(totalPagesForTab).toLocaleString()}
                 </Text>
               </HStack>
 
               <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Per page:</Text>
+                <Text
+                  fontSize={{ base: "sm", sm: "xs", md: "xs" }}
+                  fontFamily="DM Sans"
+                >
+                  Per page:
+                </Text>
                 <Select
+                  w="65px"
+                  borderRadius="5px"
                   size="xs"
                   value={pageSize}
                   onChange={handlePageSizeChange}
                   width="60px"
                   bg="softGray.50"
-                  border="1px solid softGray.600"
+                  border="1px solid"
+                  borderColor="gray.300"
                   isDisabled={loading}
-                  fontSize={{ base: "2xs", md: "xs" }}
+                  fontFamily="DM Sans"
+                  fontSize={{ base: "sm", sm: "xs", md: "xs" }}
                 >
                   <option value={10}>10</option>
                   <option value={25}>25</option>
@@ -238,9 +266,10 @@ const Pagination = ({
               </HStack>
 
               <Text
-                fontSize={{ base: "2xs", md: "xs" }}
+                fontSize={{ base: "sm", sm: "xs", md: "xs" }}
                 fontWeight="medium"
                 color="gray.800"
+                fontFamily="DM Sans"
               >
                 {startIndex}-{endIndex} of {totalItems}
               </Text>
@@ -260,7 +289,7 @@ const Pagination = ({
                 color="black"
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
-                fontSize={{ base: "xs", md: "sm" }}
+                fontFamily="DM Sans"
                 p="8px"
               >
                 Next
@@ -278,8 +307,8 @@ const Pagination = ({
                 color="black"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
-                fontSize={{ base: "xs", md: "sm" }}
                 p="8px"
+                fontFamily="DM Sans"
               >
                 Last
               </Button>
@@ -297,6 +326,7 @@ const Pagination = ({
           minWidth={{ base: "100%", lg: "200px" }}
           maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
+          fontFamily="DM Sans"
         >
           <SearchBox
             onSearch={setSearchQuery}
@@ -324,9 +354,14 @@ const Pagination = ({
       )}
       <Divider borderColor="#E7E7E7" my={4} />
 
-      <Box mt={4} flex="1" overflow="auto">
+      <Box mt={4} flex="1" overflow="auto" fontFamily="DM Sans">
         {searchNotFound && !loading ? (
-          <Text color="red.500" fontSize="md" textAlign="center">
+          <Text
+            color="red.500"
+            fontSize={{ base: "sm", sm: "sm", md: "md" }}
+            textAlign="center"
+            fontFamily="DM Sans"
+          >
             {searchNotFound}
           </Text>
         ) : (

@@ -1,64 +1,92 @@
-import { Box, Flex, Grid, useDisclosure } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
+import { Box, Button, Flex, Grid } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LeadCard from './LeadCard';
 import CardLoader from './CardLoader';
 import Pagination from './Pagination';
 import SearchBox from './SearchBox';
 import DateFilter from './DateFilter';
-import NotFoundMessage from 'components/Message/NotFoundMessage';
 import LeadsModals from './LeadsModals';
 import { HasAccess } from './../../../../redux/accessUtils';
 import AdvancedSearchModal from './AdvancedSearchModal';
 import SearchTags from './SearchTags';
+import { buttonStyle } from './constants';
+import { BiX } from 'react-icons/bi';
+import NoData from './subComponents/NoData';
+import { DeleteIcon } from '@chakra-ui/icons';
+import useFilteredQueryParams from '../useFilteredQueryParams';
 
 const Leads = ({
-	leads,
+	data,
 	leadsLoading,
 	leadsRefetching,
 	refreshLeads,
-	currentPage,
-	setCurrentPage,
-	hanldePage,
-	pageSize,
-	setQueryParams,
+	// currentPage,
+	// setCurrentPage,
+	// pageSize,
+	// setPageSize,
+	// setQueryParams,
 	addLead,
 	setAddLead,
 	selectedValues,
 	setSelectedValues,
 	selectAllChecked,
 	setSelectAllChecked,
-	refetchLoading,
-	setRefetchLoading,
+	dateTimeIsOpen,
+	dateTimeOnClose,
+	// queryParams,
 }) => {
-	const {
-		isOpen: dateTimeIsOpen,
-		onOpen: dateTimeOnOpen,
-		onClose: dateTimeOnClose,
-	} = useDisclosure();
-
 	const [permission, emailAccess, callAccess] = HasAccess([
 		'Lead',
 		'Email',
 		'Call',
 	]);
 
+	const {
+		currentPage,
+		setCurrentPage,
+		pageSize,
+		setPageSize,
+		queryParams,
+		setQueryParams,
+		setSearchQueryParams,
+		searchTags,
+		setSearchTags,
+		searchClear,
+		setSearchClear,
+		clearSearchParams,
+		refetchLoading,
+		setRefetchLoading,
+	} = useFilteredQueryParams();
+
+	// const leads = useSelector(
+	// 	(state) => state.leads,
+	// 	(prev, next) => prev === next
+	// );
+
+	const leads = useSelector((state) => state.leads, shallowEqual);
+
 	const [isLoaded, setIsLoaded] = useState(false);
+	// const [refetchLoading, setRefetchLoading] = useState(false);
 
 	useEffect(() => {
-		setIsLoaded(false); // Reset loading state on page change
-		if (!leadsLoading) {
-			const timer = setTimeout(() => setIsLoaded(true), 1500);
+		if (leadsLoading) {
+			setIsLoaded(false);
+		} else {
+			const timer = setTimeout(() => setIsLoaded(true), 700);
 			return () => clearTimeout(timer);
 		}
-	}, [leadsLoading, currentPage]); // Reacts to both loading state & page change
+	}, [leadsLoading, currentPage]);
 
 	useEffect(() => {
-		if (!leadsRefetching) {
-			setRefetchLoading(false);
+		if (leadsRefetching) {
+			setRefetchLoading(true);
+		} else {
+			const timer = setTimeout(() => setRefetchLoading(false), 2000);
+			return () => clearTimeout(timer);
 		}
-	}, [leadsRefetching]);
+	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
 
-	// Modals states
 	const [viewLead, setViewLead] = useState({
 		isOpen: false,
 		lid: null,
@@ -72,41 +100,60 @@ const Leads = ({
 
 	// const [formValues, setFormValues] = useState([]);
 	const [isFormReset, setIsFormReset] = useState(false);
-	const [searchTags, setSearchTags] = useState([]);
-	const [searchClear, setSearchClear] = useState(false);
-	const [searchTerm, setSearchTerm] = useState('');
+	// const [searchTags, setSearchTags] = useState([]);
+	// const [searchClear, setSearchClear] = useState(false);
+	// const [searchTerm, setSearchTerm] = useState('');
+
+	const searchTermRef = useRef('');
 
 	const handleClear = () => {
 		setSearchTags([]);
-		setSearchTerm('');
+		searchTermRef.current = '';
+		document.getElementById('searchInput').value = '';
 		setIsFormReset(true);
 		setSearchClear(false);
 		setRefetchLoading(true);
-		setQueryParams((prev) => {
-			const { data, dateTime, ...rest } = prev; // Remove 'data' key
-			return {
-				...rest,
-				page: 1,
-			};
+
+		clearSearchParams();
+		// setQueryParams((prev) => {
+		// 	const { data, dateTime, name, ...rest } = prev;
+
+		// 	// Only remove keys if they exist
+		// 	const updatedParams = { ...rest, page: 1 };
+
+		// 	return updatedParams;
+		// });
+	};
+
+	const handleSearchByName = useCallback(() => {
+		const term = searchTermRef.current.trim();
+		if (!term) return;
+
+		setSearchClear(true);
+		// setSearchTags([`search: ${term}`]);
+
+		setSearchQueryParams({ search: term });
+
+		// setQueryParams((prev) => ({
+		// 	...prev,
+		// 	page: 1,
+		// 	search: term,
+		// }));
+
+		setRefetchLoading(true);
+	}, [setQueryParams, setRefetchLoading]);
+
+	// Handle page changes
+	const handlePageChange = (page) => {
+		setCurrentPage((prevPage) => {
+			if (prevPage === page) return prevPage;
+			setRefetchLoading(true);
+			return page;
 		});
 	};
 
-	const handleSearchByName = () => {
-		if (!searchTerm) {
-			return;
-		}
-
-		const searchKey = [`leadName: ${searchTerm}`];
-
-		setSearchClear(true);
-		setSearchTags(searchKey);
-
-		setQueryParams((prev) => ({
-			...prev,
-			page: 1, // Reset to first page on new search
-			data: JSON.stringify({ leadName: searchTerm }),
-		}));
-
+	const handlePageSize = (e) => {
+		setPageSize(Number(e.target.value));
 		setRefetchLoading(true);
 	};
 
@@ -114,50 +161,131 @@ const Leads = ({
 		<Box>
 			<Flex
 				width='full'
-				// justifyContent='space-between'
-				// alignItems='center'
+				justifyContent='space-between'
+				alignItems='center'
 				gap='2'
-				// flexDirection={{ base: 'column', lg: 'row' }}
-				flexDirection='column'
+				flexDirection={{ base: 'column', lg: 'row' }}
 			>
 				{/* Pagination */}
 				<Pagination
 					currentPage={currentPage}
-					totalPages={leads?.totalPages ?? ''}
-					onPageChange={hanldePage}
-					totalItems={leads?.totalLeads ?? ''}
+					totalPages={data?.totalPages ?? ''}
+					onPageChange={handlePageChange}
+					totalItems={data?.totalLeads ?? ''}
 					itemsPerPage={pageSize}
-					leadsRefetching={leadsRefetching}
+					setPageSize={setPageSize}
+					refetching={leadsRefetching}
+					loading={leadsLoading}
+					handlePageSize={handlePageSize}
 				/>
 
+				{/* Search Box */}
 				<SearchBox
-					dateTimeOnOpen={dateTimeOnOpen}
 					setQueryParams={setQueryParams}
 					setAdvanceSearch={setAdvanceSearch}
-					handleClear={handleClear}
-					searchClear={searchClear}
 					handleSearchByName={handleSearchByName}
-					searchTerm={searchTerm}
-					setSearchTerm={setSearchTerm}
+					searchTermRef={searchTermRef}
 				/>
 			</Flex>
 
 			{/* Search tags */}
-			<SearchTags searchTags={searchTags} />
+			{searchClear && searchTags && (
+				<Flex
+					flexDirection={{ base: 'row', lg: 'row' }}
+					justifyContent='space-between'
+					alignItems='center'
+					flexWrap='wrap'
+					py='2'
+				>
+					<SearchTags searchTags={searchTags} />
+
+					{searchClear && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='red.400'
+							w='fit-content'
+							color='white'
+							sx={{
+								svg: {
+									fill: 'white',
+								},
+							}}
+							leftIcon={<BiX />}
+							aria-label='Clear'
+							onClick={handleClear}
+						>
+							Clear
+						</Button>
+					)}
+				</Flex>
+			)}
+
+			{selectedValues.length > 0 && permission?.delete && (
+				<Button
+					{...buttonStyle}
+					variant='solid'
+					bg='red.400'
+					w='fit-content'
+					color='white'
+					my='2'
+					sx={{
+						svg: {
+							fill: 'white',
+						},
+					}}
+					leftIcon={<DeleteIcon />}
+					aria-label='Delete'
+					onClick={() => setDeleteLead(true)}
+				>
+					Delete
+				</Button>
+			)}
 
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
 
 			{!isLoaded || leadsLoading || refetchLoading ? (
 				<CardLoader count={pageSize} />
-			) : leads && leads?.totalLeads > 0 ? (
+			) : leads && leads?.totalLeads ? (
 				<Grid
-					templateColumns={{
-						base: '1fr',
-						md: 'repeat(2, 1fr)',
-						lg: 'repeat(3, 1fr)',
-						xl: 'repeat(4, 1fr)',
-						'2xl': 'repeat(5, 1fr',
+					sx={{
+						// >= 0px
+						'@media (min-width: 0px)': {
+							gridTemplateColumns: '1fr',
+						},
+						// // >= 812px
+						// '@media (min-width: 812px)': {
+						// 	gridTemplateColumns: '1fr',
+						// },
+						// >= 992px
+						'@media (min-width: 700px)': {
+							gridTemplateColumns: 'repeat(2, 1fr)',
+						},
+						// >= 1280px
+						'@media (min-width: 1180px)': {
+							gridTemplateColumns: 'repeat(3, 1fr)',
+						},
+						// >= 1664px
+						'@media (min-width: 1664px)': {
+							gridTemplateColumns: 'repeat(4, 1fr)',
+						},
+						// >= 1920px (e.g., Full HD+)
+						'@media (min-width: 2120px)': {
+							gridTemplateColumns: 'repeat(5, 1fr)',
+						},
+						// >= 2560px (2.5K / QHD)
+						'@media (min-width: 2560px)': {
+							gridTemplateColumns: 'repeat(6, 1fr)',
+						},
+						// >= 3840px (4K)
+						'@media (min-width: 3840px)': {
+							gridTemplateColumns: 'repeat(7, 1fr)',
+						},
+						// >= 7680px (8K)
+						'@media (min-width: 7680px)': {
+							gridTemplateColumns: 'repeat(8, 1fr)',
+						},
 					}}
 					gap='2'
 				>
@@ -171,6 +299,7 @@ const Leads = ({
 							setLeadDetails={setLeadDetails}
 							callAccess={callAccess}
 							setViewLead={setViewLead}
+							queryParams={queryParams}
 							setEditLead={setEditLead}
 							setAddLead={setAddLead}
 							setSendEmail={setSendEmail}
@@ -183,7 +312,25 @@ const Leads = ({
 					))}
 				</Grid>
 			) : (
-				<NotFoundMessage message={'No leads available at the moment.'} />
+				// <VirtualLeads
+				// 	leads={leads}
+				// 	refreshLeads={refreshLeads}
+				// 	emailAccess={emailAccess}
+				// 	permission={permission}
+				// 	setLeadDetails={setLeadDetails}
+				// 	callAccess={callAccess}
+				// 	setViewLead={setViewLead}
+				// 	queryParams={queryParams}
+				// 	setEditLead={setEditLead}
+				// 	setAddLead={setAddLead}
+				// 	setSendEmail={setSendEmail}
+				// 	selectedValues={selectedValues}
+				// 	setSelectedValues={setSelectedValues}
+				// 	setDeleteLead={setDeleteLead}
+				// 	setSelectAllChecked={setSelectAllChecked}
+				// 	selectAllChecked={selectAllChecked}
+				// />
+				<NoData />
 			)}
 
 			{/* Modals */}
@@ -205,22 +352,24 @@ const Leads = ({
 			/>
 
 			{/* Date time filter */}
-			<DateFilter
-				setQueryParams={setQueryParams}
-				setRefetchLoading={setRefetchLoading}
-				setCurrentPage={setCurrentPage}
-				onClose={dateTimeOnClose}
-				isOpen={dateTimeIsOpen}
-				setSearchClear={setSearchClear}
-				setSearchTags={setSearchTags}
-			/>
+			{dateTimeIsOpen && (
+				<DateFilter
+					setQueryParams={setQueryParams}
+					setRefetchLoading={setRefetchLoading}
+					setCurrentPage={setCurrentPage}
+					onClose={dateTimeOnClose}
+					isOpen={dateTimeIsOpen}
+					setSearchClear={setSearchClear}
+					setSearchTags={setSearchTags}
+					setSearchQueryParams={setSearchQueryParams}
+				/>
+			)}
 
 			{/* Advance filter */}
 			{advanceSearch && (
 				<AdvancedSearchModal
 					advanceSearch={advanceSearch}
 					setAdvanceSearch={setAdvanceSearch}
-					// setFormValues={setFormValues}
 					setQueryParams={setQueryParams}
 					setGetTagValues={setSearchTags}
 					setSearchClear={setSearchClear}
@@ -228,6 +377,7 @@ const Leads = ({
 					isFormReset={isFormReset}
 					setIsFormReset={setIsFormReset}
 					setRefetchLoading={setRefetchLoading}
+					setSearchQueryParams={setSearchQueryParams}
 				/>
 			)}
 		</Box>

@@ -62,7 +62,7 @@ const LeadCard = ({
   const displayButtonText = () => {
     switch (leadStatus?.toLowerCase()) {
       case "pending":
-        return "Pending";
+        return "Buy for 50 coins";
       case "rejected":
         return "Rejected";
       case "new":
@@ -74,10 +74,7 @@ const LeadCard = ({
 
   const handleBuyClick = () => {
     console.log("Buy clicked for lead:", _id);
-    if (
-      leadStatus?.toLowerCase() !== "pending" &&
-      leadStatus?.toLowerCase() !== "rejected"
-    ) {
+    if (leadStatus?.toLowerCase() !== "rejected") {
       sendRequest(_id);
     }
   };
@@ -92,8 +89,6 @@ const LeadCard = ({
         console.error("Cancel failed:", error);
         setCancelLoading(false);
       }
-    } else {
-      console.log("Cancel condition not met or cancelRequest missing");
     }
   };
 
@@ -131,6 +126,7 @@ const LeadCard = ({
   } = getStatusStyles(approvalStatus);
 
   const isRejected = approvalStatus?.toLowerCase() === "rejected";
+  const isPending = approvalStatus?.toLowerCase() === "pending";
 
   const handleViewLeadCycle = () => {
     setIsModalOpen(true);
@@ -163,20 +159,15 @@ const LeadCard = ({
       border="1px solid"
       borderColor={borderColor}
     >
-      <CardHeader id={intID} onViewLeadCycle={handleViewLeadCycle} />
+      <CardHeader
+        id={intID}
+        onViewLeadCycle={handleViewLeadCycle}
+        onViewLead={handleLeadsModal}
+        leadId={leadId || _id}
+      />
       <HStack align="start" spacing={1} w="100%" h="calc(100% - 30px)">
-        <VStack align="start" spacing={1} flex="2" minWidth="0" h="100%">
-          <Text
-            fontSize="12px"
-            fontWeight="bold"
-            fontFamily="DM Sans"
-            cursor="pointer"
-            _hover={{ color: "blue.500" }}
-            onClick={() => {
-              console.log("Name clicked, leadId:", leadId || _id);
-              handleLeadsModal(leadId || _id);
-            }}
-          >
+        <VStack align="start" spacing={1} flex="1" minWidth="0" h="100%">
+          <Text fontSize="12px" fontWeight="bold" fontFamily="DM Sans">
             {leadName || "N/A"}
           </Text>
           <HStack spacing={0.5} w="100%" flexWrap="wrap">
@@ -229,36 +220,23 @@ const LeadCard = ({
             flex="1"
             spacing={0}
           >
-            {approvalStatus?.toLowerCase() === "pending" ? (
-              <HStack w="100%" maxWidth="200px" spacing={2}>
-                <Button
-                  bg="red.500"
-                  color="white"
-                  size="xs"
-                  flex="1"
-                  fontFamily="DM Sans"
-                  borderRadius="5px"
-                  _hover={{ bg: "red.600" }}
-                  onClick={handleCancelClick}
-                  isLoading={cancelLoading}
-                  isDisabled={cancelLoading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  bg={dynamicButtonBg}
-                  color={dynamicButtonColor}
-                  size="xs"
-                  flex="1"
-                  fontFamily="DM Sans"
-                  borderRadius="5px"
-                  _hover={{ bg: dynamicButtonHoverBg }}
-                  isDisabled={true}
-                >
-                  Pending
-                </Button>
-              </HStack>
-            ) : approvalStatus?.toLowerCase() === "rejected" ? (
+            {isPending ? (
+              <Button
+                bg="red.500"
+                color="white"
+                size="xs"
+                width="100%"
+                maxWidth="200px"
+                fontFamily="DM Sans"
+                borderRadius="5px"
+                _hover={{ bg: "red.600" }}
+                onClick={handleCancelClick}
+                isLoading={cancelLoading}
+                isDisabled={cancelLoading}
+              >
+                Cancel
+              </Button>
+            ) : isRejected ? (
               <Button
                 bg={dynamicButtonBg}
                 color={dynamicButtonColor}
@@ -286,7 +264,7 @@ const LeadCard = ({
                 flexShrink={0}
                 onClick={handleBuyClick}
                 isLoading={buyLoading[_id]}
-                isDisabled={buyLoading[_id] || isRejected}
+                isDisabled={buyLoading[_id]}
               >
                 {displayButtonText()}
               </Button>
@@ -302,14 +280,9 @@ const LeadCard = ({
           ml="15px"
           justify="space-between"
         >
-          <VStack align="start" spacing={2}>
+          <VStack align="start" spacing={2} ml={10}>
             <VStack align="start" spacing={0}>
-              <Text
-                fontSize="xs"
-                color="#AEBAC9"
-                fontWeight="bold"
-                fontFamily="DM Sans"
-              >
+              <Text fontSize="xs" color="#AEBAC9" fontFamily="DM Sans">
                 Time To Call
               </Text>
               <Text fontSize="10px" color="#32BD00" fontFamily="DM Sans">
@@ -317,12 +290,7 @@ const LeadCard = ({
               </Text>
             </VStack>
             <VStack align="start" spacing={0}>
-              <Text
-                fontSize="xs"
-                color="#AEBAC9"
-                fontWeight="bold"
-                fontFamily="DM Sans"
-              >
+              <Text fontSize="xs" color="#AEBAC9" fontFamily="DM Sans">
                 Source Content
               </Text>
               <Text fontSize="10px" color="#FFBB00" fontFamily="DM Sans">
@@ -330,49 +298,44 @@ const LeadCard = ({
               </Text>
             </VStack>
           </VStack>
-          <VStack align="start" spacing={0} width="100%">
+          <VStack align="start" spacing={1} w="100%" pl={10}>
             <Text
               fontSize="xs"
               color="#AEBAC9"
               fontWeight="bold"
               fontFamily="DM Sans"
-              mb={1}
             >
               Info
             </Text>
             {[
-              { label: "Budget", value: budget || "N/A" },
-              { label: "Campaign", value: leadCampaign || "N/A" },
+              { label: "Budget", value: "N/A" },
+              { label: "Campaign", value: "N/A" },
               { label: "Campaign Url", value: "N/A" },
               { label: "Medium", value: "N/A" },
-              { label: "In UAE?", value: r_u_in_uae || "N/A" },
+              { label: "In UAE?", value: "Yes" },
             ].map((item) => (
               <HStack
                 key={item.label}
-                lineHeight="20px"
-                width="100%"
-                justifyContent="space-between"
+                w="100%"
+                justify="space-between"
                 spacing={0}
-                marginBottom={-1}
+                lineHeight="18px"
               >
                 <Text
                   fontSize="10px"
                   color="black"
                   fontWeight={500}
                   fontFamily="DM Sans"
-                  marginBottom={0}
                 >
                   {item.label}
                 </Text>
                 <Tooltip label={item.value} placement="right" hasArrow>
-                  <span>
-                    <Icon
-                      as={InfoIcon}
-                      color="blue.300"
-                      boxSize={3.5}
-                      cursor="pointer"
-                    />
-                  </span>
+                  <Icon
+                    as={InfoIcon}
+                    color="blue.300"
+                    boxSize={3.5}
+                    cursor="pointer"
+                  />
                 </Tooltip>
               </HStack>
             ))}
@@ -385,7 +348,6 @@ const LeadCard = ({
         </Text>
       </HStack>
 
-      {/* Modal for Lead Cycle */}
       {isModalOpen && (
         <LeadCycleModal
           isOpen={isModalOpen}
@@ -394,7 +356,6 @@ const LeadCard = ({
         />
       )}
 
-      {/* Modal for Leads */}
       {leadsModal.isOpen && (
         <LeadsModal
           leadsModal={leadsModal}

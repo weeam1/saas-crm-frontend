@@ -296,6 +296,7 @@ const LeadScreen = () => {
       );
 
       if (res?.data?.status) {
+        // Approval case
         try {
           const data = {
             agentAssigned: agentId,
@@ -314,9 +315,10 @@ const LeadScreen = () => {
                     }
                   : lead
               );
-              return currentTab === "All"
-                ? updatedLeads
-                : updatedLeads.filter((lead) => lead._id !== leadId);
+              // In "Pending" tab, remove the lead; in "All" tab, keep it
+              return currentTab === "Pending"
+                ? updatedLeads.filter((lead) => lead._id !== leadId)
+                : updatedLeads;
             });
           } else {
             setLeads((prev) => {
@@ -325,18 +327,19 @@ const LeadScreen = () => {
                   ? { ...approval, approvalStatus: "accepted", agentId }
                   : approval
               );
+              // In "Pending" tab, remove the approval; in "All" tab, keep it
               return {
                 ...prev,
                 approvals:
-                  currentTab === "All"
-                    ? updatedApprovals
-                    : updatedApprovals.filter(
+                  currentTab === "Pending"
+                    ? updatedApprovals.filter(
                         (approval) => approval._id !== approvalId
-                      ),
+                      )
+                    : updatedApprovals,
                 totalApprovals:
-                  currentTab === "All"
-                    ? prev.totalApprovals
-                    : prev.totalApprovals - 1,
+                  currentTab === "Pending"
+                    ? prev.totalApprovals - 1
+                    : prev.totalApprovals,
               };
             });
           }
@@ -347,6 +350,7 @@ const LeadScreen = () => {
           toast.error("Failed to update the lead");
         }
       } else {
+        // Rejection case
         try {
           if (agentId) {
             const lead = await getApi(`api/lead/view/${leadId}`);
@@ -366,9 +370,9 @@ const LeadScreen = () => {
                   ? { ...lead, approvalStatus: "rejected" }
                   : lead
               );
-              return currentTab === "All"
-                ? updatedLeads
-                : updatedLeads.filter((lead) => lead._id !== leadId);
+              return currentTab === "Pending"
+                ? updatedLeads.filter((lead) => lead._id !== leadId)
+                : updatedLeads;
             });
           } else {
             setLeads((prev) => {
@@ -380,15 +384,15 @@ const LeadScreen = () => {
               return {
                 ...prev,
                 approvals:
-                  currentTab === "All"
-                    ? updatedApprovals
-                    : updatedApprovals.filter(
+                  currentTab === "Pending"
+                    ? updatedApprovals.filter(
                         (approval) => approval._id !== approvalId
-                      ),
+                      )
+                    : updatedApprovals,
                 totalApprovals:
-                  currentTab === "All"
-                    ? prev.totalApprovals
-                    : prev.totalApprovals - 1,
+                  currentTab === "Pending"
+                    ? prev.totalApprovals - 1
+                    : prev.totalApprovals,
               };
             });
           }
@@ -406,7 +410,6 @@ const LeadScreen = () => {
       );
     }
   };
-
   // Initial load respects the current activeTab from session storage or URL
   useEffect(() => {
     const initialTab = getInitialTab(); // Get tab from session storage or URL

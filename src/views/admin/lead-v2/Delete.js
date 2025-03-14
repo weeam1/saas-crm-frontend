@@ -15,6 +15,7 @@ import { deleteApi, deleteManyApi } from 'services/api';
 
 const Delete = (props) => {
 	const [isLoding, setIsLoding] = useState(false);
+
 	const navigate = useNavigate();
 	const handleDeleteClick = async () => {
 		if (props.method === 'one') {
@@ -28,7 +29,7 @@ const Delete = (props) => {
 				console.log(error);
 			} finally {
 				setIsLoding(false);
-				props.refreshData();
+				props.refetchData();
 			}
 		} else if (props.method === 'many') {
 			try {
@@ -44,7 +45,7 @@ const Delete = (props) => {
 				console.log(error);
 			} finally {
 				setIsLoding(false);
-				props.refreshData();
+				props.refetchData();
 			}
 		}
 	};

@@ -1,6 +1,6 @@
 .env
 build
 node_modules
-new-wm-backend
+new-wm-backend/
 # Local Netlify folder
 .netlify

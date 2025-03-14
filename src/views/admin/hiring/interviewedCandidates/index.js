@@ -9,6 +9,7 @@ import AdvancedSearch from '../candidates/components/AdvancedSearch';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import SearchTags from 'components/shared/SearchTags';
+import { experienceYearsOptions } from '../helpers';
 
 const InterviewedCandidates = () => {
 	const [showContent, setShowContent] = useState(false);
@@ -227,6 +228,17 @@ const InterviewedCandidates = () => {
 				if (matchedOption) {
 					formattedValue = matchedOption.name; // Use label for UI
 					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
+				}
+			}
+
+			if (key === 'experienceYears') {
+				const matchedOption = experienceYearsOptions?.find(
+					(option) => option.value === value
+				);
+
+				if (matchedOption) {
+					formattedValue = matchedOption.label; // Use label for UI
+					advancedSearch.experienceYears = matchedOption.value; // Keep ID for actual search
 				}
 			}
 
