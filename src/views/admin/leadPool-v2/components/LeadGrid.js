@@ -69,7 +69,7 @@ const LeadGrid = ({
         <Grid
           sx={{
             gridTemplateColumns: gridColumns,
-            gap: { base: 3, md: 4, lg: 4 },
+            gap: { base: 2 },
             p: { base: 2, md: 4 },
             width: "100%",
             maxW: "100%",

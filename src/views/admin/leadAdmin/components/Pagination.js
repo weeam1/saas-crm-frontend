@@ -251,7 +251,7 @@ const Pagination = ({
                   value={pageSize}
                   onChange={handlePageSizeChange}
                   width="60px"
-                  bg="softGray.50"
+                  bg="white"
                   border="1px solid"
                   borderColor="gray.300"
                   isDisabled={loading}
@@ -352,7 +352,7 @@ const Pagination = ({
           formValues={formValues}
         />
       )}
-      <Divider borderColor="#E7E7E7" my={4} />
+      <Divider borderColor="#E7E7E7" my={4} borderWidth="1.5px" />
 
       <Box mt={4} flex="1" overflow="auto" fontFamily="DM Sans">
         {searchNotFound && !loading ? (

@@ -198,7 +198,7 @@ const LeadCard = ({
         );
       } else {
         return (
-          <HStack spacing={2} w="100%">
+          <HStack spacing={2} w="100%" mt={10}>
             <Button
               bg="#3FFC6E"
               color="white"
@@ -309,31 +309,69 @@ const LeadCard = ({
         onViewLead={handleLeadsModal}
         leadId={leadId || _id}
       />
-      <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="1">
-        <VStack align="start" spacing={2} flex="1" w="60%" minW={0}>
+      <HStack align="start" spacing={2} w="100%" h="calc(100% - 30px)" flex="2">
+        <VStack align="start" spacing={2} flex="2" w="60%" minW={0}>
           <Text
             fontSize="12px"
             fontWeight="bold"
             fontFamily="DM Sans"
             isTruncated
           >
-            {leadName || "N/A"} {/* Removed onClick handler */}
+            {leadName || "N/A"}
           </Text>
-          <HStack spacing={2} w="100%">
-            <InfoPair label="City" value={city} />
-            <InfoPair label="Country" value={nationality} />
+          <HStack spacing={4} w="100%" alignItems="flex-start">
+            <VStack align="start" spacing={1} flex="1" minW={0}>
+              <Text
+                fontSize="10px"
+                color="#BEBEBE"
+                fontFamily="DM Sans"
+                lineHeight="1.2"
+              >
+                Source Content
+              </Text>
+              <Text
+                fontSize="10px"
+                color="#FFBB00"
+                fontFamily="DM Sans"
+                isTruncated
+                lineHeight="1.2"
+              >
+                {sourceContent || "N/A"}
+              </Text>
+            </VStack>
+            <VStack align="start" spacing={1} flex="1" minW={0}>
+              <Text
+                fontSize="10px"
+                color="#FFBB00"
+                fontFamily="DM Sans"
+                lineHeight="1.2"
+              >
+                Time To Call
+              </Text>
+              <Text
+                fontSize="10px"
+                color="#36BE05"
+                fontFamily="DM Sans"
+                isTruncated
+                lineHeight="1.2"
+              >
+                {timeToCall || "N/A"}
+              </Text>
+            </VStack>
           </HStack>
           <HStack spacing={2} w="100%">
             <InputPair
               label="M Status"
               value={mStatus}
               bg="#E5B668"
+              width="85px"
               color="white"
             />
             <InputPair
               label="Status"
               value={leadStatus}
               bg="#FEEFEE"
+              width="85px"
               color="black"
             />
           </HStack>
@@ -363,40 +401,18 @@ const LeadCard = ({
           h="100%"
           justify="space-between"
         >
-          <VStack align="start" spacing={2} pl={10}>
-            <VStack align="start" spacing={2}>
-              <Text
-                fontSize="xs"
-                color="#AEBAC9"
-                // fontWeight="bold"
-                fontFamily="DM Sans"
-              >
-                Time To Call
-              </Text>
-              <Text
-                fontSize="10px"
-                color="#32BD00"
-                fontFamily="DM Sans"
-                isTruncated
-              >
-                {timeToCall || "N/A"}
-              </Text>
-            </VStack>
-            <VStack align="start" spacing={0}>
-              <Text fontSize="xs" color="#AEBAC9" fontFamily="DM Sans">
-                Source Content
-              </Text>
-              <Text
-                fontSize="10px"
-                color="#FFBB00"
-                fontFamily="DM Sans"
-                isTruncated
-              >
-                {sourceContent || "N/A"}
-              </Text>
-            </VStack>
+          <VStack spacing={2} w="100%" align="start" pl={2}>
+            <InfoPair
+              label="City"
+              value={<Text fontWeight="bold">{city || "N/A"}</Text>}
+            />
+            <InfoPair
+              label="Country"
+              value={<Text fontWeight="bold">{nationality || "N/A"}</Text>}
+            />
           </VStack>
-          <VStack align="start" spacing={1} w="100%" pl={10}>
+
+          <VStack align="start" spacing={1} w="100%" pl={2}>
             <Text
               fontSize="xs"
               color="#AEBAC9"
@@ -440,9 +456,9 @@ const LeadCard = ({
           </VStack>
         </VStack>
       </HStack>
-      <HStack w="100%" justify="flex-end">
+      <HStack w="100%" justify="flex-end" py={1} mb={2}>
         <Text fontSize="10px" fontFamily="'DM Sans', sans-serif">
-          <Box as="span" color="#D3D3D3">
+          <Box as="span" color="#171923">
             Lead time:{" "}
           </Box>
           <Box as="span" color="black">
@@ -450,8 +466,6 @@ const LeadCard = ({
           </Box>
         </Text>
       </HStack>
-
-      {/* Modal for Lead Cycle */}
       {isCycleModalOpen && (
         <LeadCycleModal
           isOpen={isCycleModalOpen}
@@ -460,7 +474,6 @@ const LeadCard = ({
         />
       )}
 
-      {/* Modal for Leads */}
       {leadsModal.isOpen && (
         <LeadsModal
           leadsModal={leadsModal}

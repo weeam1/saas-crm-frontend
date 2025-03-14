@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { RxCountdownTimer } from "react-icons/rx";
 import { ReactComponent as ClockIcon } from "../../../../assets/icons/Clock.svg";
+import { useState, useEffect } from "react";
 
 const AdminSetting = ({
   isDisabled,
@@ -27,6 +28,8 @@ const AdminSetting = ({
   setOffDays,
 }) => {
   const fontSize = useBreakpointValue({ base: "14px", md: "17px" });
+  const [timeZones, setTimeZones] = useState([]); // State to store fetched time zones
+  const [loading, setLoading] = useState(true); // State to handle loading
 
   const generateTimes = () => {
     const times = [];
@@ -40,6 +43,23 @@ const AdminSetting = ({
   };
 
   const timeOptions = generateTimes();
+
+  useEffect(() => {
+    const fetchTimeZones = async () => {
+      try {
+        const response = await fetch("https://timeapi.io/api/timezone/availabletimezones");
+        const data = await response.json();
+        setTimeZones(data); 
+        setLoading(false); 
+      } catch (error) {
+        console.error("Error fetching time zones:", error);
+        setTimeZones(["United Arab Emirates (GMT+4)", "India (GMT+5:30)", "United States (GMT-5)"]); 
+        setLoading(false);
+      }
+    };
+
+    fetchTimeZones();
+  }, []); 
 
   return (
     <Box
@@ -131,11 +151,14 @@ const AdminSetting = ({
           value={timeZone}
           onChange={(e) => setTimeZone(e.target.value)}
           size="sm"
-          isDisabled={isDisabled}
+          isDisabled={isDisabled || loading} // Disable while loading
+          placeholder={loading ? "Loading time zones..." : "Select a time zone"}
         >
-          <option value="United Arab Emirates (GMT+4)">United Arab Emirates (GMT+4)</option>
-          <option value="India (GMT+5:30)">India (GMT+5:30)</option>
-          <option value="United States (GMT-5)">United States (GMT-5)</option>
+          {timeZones.map((tz) => (
+            <option key={tz} value={tz}>
+              {tz}
+            </option>
+          ))}
         </Select>
       </Box>
 

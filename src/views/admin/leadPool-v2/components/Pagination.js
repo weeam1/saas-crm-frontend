@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   HStack,
@@ -278,7 +277,7 @@ const Pagination = ({
                   onChange={handlePageSizeChange}
                   width="70px" // Changed from 60px to 100px
                   borderRadius="5px"
-                  bg="softGray.50"
+                  bg="white"
                   border="2px solid" // Added border thickness
                   borderColor="softGray.600" // Kept existing border color
                   isDisabled={isLoading}
