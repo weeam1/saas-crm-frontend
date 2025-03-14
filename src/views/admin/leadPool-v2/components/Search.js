@@ -66,15 +66,9 @@ const SearchBox = ({
       alignItems="center"
       width="100%"
     >
-      <Box
-        width={{ base: "100%", md: "fit-content" }}
-        bg="softGray.50"
-        p="2"
-        borderRadius="md"
-      >
+      <Box width={{ base: "100%", md: "fit-content" }} p="2" borderRadius="md">
         <HStack
-          spacing={3}
-          gap="2"
+          spacing={1}
           flexDirection={{ base: "column", md: "row" }}
           justifyContent="center"
         >
@@ -83,15 +77,15 @@ const SearchBox = ({
             border="1px solid"
             borderColor="softGray.600"
             borderRadius="md"
-            w={{ base: "100%", md: "280px" }}
+            w={{ base: "100%", md: "280px", lg: "310px" }}
             pr="0"
             overflow="hidden"
           >
             <Input
-              placeholder="name.."
+              placeholder="Search by lead name..."
               border="none"
               fontSize="xs"
-              height="2.2rem"
+              height="2.5rem"
               _focus={{ boxShadow: "none" }}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -120,21 +114,21 @@ const SearchBox = ({
                 fontSize="xs"
                 display="flex"
                 alignItems="center"
-                height="100%" // Ensures the button is smaller vertically
+                height="100%"
                 _hover={{ bg: "gray.50" }}
                 _active={{ bg: "gray.100" }}
                 onClick={handleSearch}
                 isDisabled={isLoading}
                 fontFamily="'DM Sans', sans-serif"
               >
-                <Flex align="center">
+                <Flex align="center" display="inline-flex" alignItems="center">
                   Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
                 </Flex>
               </Button>
             </InputRightElement>
           </InputGroup>
-
-          <HStack gap="2">
+          <HStack>
+            {/* Advance Search Button */}
             <Button
               border="1px solid"
               borderColor="softGray.600"
@@ -149,7 +143,6 @@ const SearchBox = ({
               _active={{ bg: "gray.100" }}
               onClick={() => setIsModalOpen(true)}
               isDisabled={isLoading}
-              fontFamily="'DM Sans', sans-serif"
             >
               Advance Search
             </Button>

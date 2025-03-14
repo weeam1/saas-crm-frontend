@@ -68,7 +68,7 @@ const TabContent = ({
   }
 
   // Render tab content when data is available
-  if (data && data.length > 0) {
+  if (data && data?.length > 0) {
     return (
       <Grid {...gridProps}>
         {activeTab === "Buy Leads" && (

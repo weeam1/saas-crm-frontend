@@ -580,7 +580,7 @@ const Index = () => {
   return (
     <>
       <PaginationPage
-        data={data}
+      data={data || []}
         totalPages={totalPages}
         totalLeads={totalLeads}
         isLoading={isLoading}

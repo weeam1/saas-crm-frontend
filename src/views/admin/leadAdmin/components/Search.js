@@ -61,128 +61,111 @@ const SearchBox = ({
 
   const isAdvancedSearchActive =
     formValues && Object.keys(formValues).length > 0;
-
   return (
-    <Box
+    <Flex
       display="flex"
-      justifyContent="center"
-      height={{ base: "70px", md: "30px" }}
-      alignContent="center"
-      bg="softGray.50"
-      borderRadius="md"
-      flexDirection="column"
+      height={{ base: "80px", md: "30px" }}
+      justifyContent={{ base: "center", md: "center" }}
       alignItems="center"
-      position="relative"
-      zIndex="1"
-      px={{ base: 2, md: 0 }}
+      width="100%"
     >
-      <HStack
-        display="flex"
-        justifyContent={{ base: "center", md: "center" }}
-        spacing={1}
-        flexDirection={{ base: "column", md: "row" }}
-        w="100%"
-      >
-        <InputGroup
-          bg="white"
-          border="1px solid"
-          borderColor="softGray.600"
-          borderRadius="md"
-          w={{ base: "100%", md: "280px" }}
-          overflow="hidden"
-          position="relative"
+      <Box width={{ base: "100%", md: "fit-content" }} p="2" borderRadius="md">
+        <HStack
+          spacing={1}
+          flexDirection={{ base: "column", md: "row" }}
+          justifyContent="center"
         >
-          <Input
-            placeholder="Search by lead name..."
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            border="none"
-            w="100%"
-            fontSize="xs"
-            height="2.5rem"
-            textOverflow="ellipsis" // Already present, ensures truncation
-            overflow="hidden" // Prevent text from overflowing
-            whiteSpace="nowrap" // Keep text on one line
-            _focus={{ boxShadow: "none" }}
-            pr="116px" // Increased padding for clear icon + search button
-          />
-          <InputRightElement
-            width="auto"
-            height="100%"
-            display="flex"
-            alignItems="center"
-            position="absolute"
-            right="0"
-            top="0"
-            zIndex="2"
-          >
-            {inputValue && (
-              <IconButton
-                aria-label="Clear search"
-                icon={<CloseIcon />}
-                size="xs"
-                bg="transparent"
-                _hover={{ bg: "gray.100" }}
-                onClick={handleClearSearch}
-                mr={1}
-              />
-            )}
-            <Button
-              size="md"
-              bg="softGray.700"
-              borderLeft="1px solid"
-              borderColor="softGray.600"
-              px={4}
-              borderRadius="0"
-              fontSize="14px"
-              fontFamily="'DM Sans', sans-serif"
-              height="100%"
-              _hover={{ bg: "gray.50" }}
-              _active={{ bg: "gray.100" }}
-              onClick={handleSearch}
-            >
-              Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-
-        <HStack gap="1" w={{ base: "100%", md: "auto" }}>
-          <Button
+          <InputGroup
+            bg="white"
             border="1px solid"
             borderColor="softGray.600"
-            bg="white"
             borderRadius="md"
-            p={4}
-            mx="auto"
-            w={{ base: "150px", md: "150px" }}
-            minW="max-content"
-            height="2.2rem"
-            onClick={toggleAdvanceSearch}
-            _hover={{ bg: "gray.50" }}
-            _active={{ bg: "gray.100" }}
-            isDisabled={loading}
-            fontSize="14px"
-            fontFamily="'DM Sans', sans-serif"
+            w={{ base: "100%", md: "280px", lg: "310px" }}
+            pr="0"
+            overflow="hidden"
           >
-            Advanced Search
-          </Button>
+            <Input
+              placeholder="Search by lead name..."
+              border="none"
+              fontSize="xs"
+              height="2.5rem"
+              _focus={{ boxShadow: "none" }}
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              pr="4.5rem"
+              fontFamily="'DM Sans', sans-serif"
+            />
+            <InputRightElement width="auto" height="100%" alignItems="center">
+              {inputValue && (
+                <CloseIcon
+                  fontSize="xs"
+                  color="gray.500"
+                  cursor="pointer"
+                  onClick={handleClearSearch}
+                  mr={2}
+                />
+              )}
+              <Button
+                size="sm"
+                w="80px"
+                bg="softGray.700"
+                borderLeft="1px solid"
+                borderColor="softGray.600"
+                px={4}
+                borderRadius="0"
+                fontSize="xs"
+                display="flex"
+                alignItems="center"
+                height="100%"
+                _hover={{ bg: "gray.50" }}
+                _active={{ bg: "gray.100" }}
+                onClick={handleSearch}
+                isDisabled={loading}
+                fontFamily="'DM Sans', sans-serif"
+              >
+                <Flex align="center" display="inline-flex" alignItems="center">
+                  Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
+                </Flex>
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+          <HStack>
+            <Button
+              border="1px solid"
+              borderColor="softGray.600"
+              bg="white"
+              borderRadius="md"
+              px={4}
+              fontSize="xs"
+              w="auto"
+              minW="max-content"
+              height="2.2rem"
+              _hover={{ bg: "gray.50" }}
+              _active={{ bg: "gray.100" }}
+              onClick={toggleAdvanceSearch}
+              isDisabled={loading}
+              fontFamily="'DM Sans', sans-serif"
+            >
+              Advance Search
+            </Button>
+          </HStack>
         </HStack>
-      </HStack>
 
-      <AdvancedSearchModal
-        setAdvaceSearch={setIsAdvanceOpen}
-        advaceSearch={isAdvanceOpen}
-        isLoading={loading}
-        fetchAdvancedSearch={fetchAdvancedSearch}
-        setSearchClear={setSearchClear}
-        setFormValues={setFormValues}
-        isFormReset={isFormReset}
-        setIsFormReset={setIsFormReset}
-        pageSize={pageSize}
-        setGetTagValues={setGetTagValues}
-      />
-    </Box>
+        <AdvancedSearchModal
+          setAdvaceSearch={setIsAdvanceOpen}
+          advaceSearch={isAdvanceOpen}
+          isLoading={loading}
+          fetchAdvancedSearch={fetchAdvancedSearch}
+          setSearchClear={setSearchClear}
+          setFormValues={setFormValues}
+          isFormReset={isFormReset}
+          setIsFormReset={setIsFormReset}
+          pageSize={pageSize}
+          setGetTagValues={setGetTagValues}
+        />
+      </Box>
+    </Flex>
   );
 };
 
