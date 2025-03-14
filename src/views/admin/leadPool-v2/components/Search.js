@@ -99,7 +99,7 @@ const SearchBox = ({
               pr="4.5rem"
               fontFamily="'DM Sans', sans-serif"
             />
-            <InputRightElement width="auto" height="100%">
+            <InputRightElement width="auto" height="100%" alignItems="center">
               {searchTerm && (
                 <CloseIcon
                   fontSize="xs"
@@ -110,24 +110,26 @@ const SearchBox = ({
                 />
               )}
               <Button
-              w='80px'
-                size="md"
+                size="sm"
+                w="80px"
                 bg="softGray.700"
                 borderLeft="1px solid"
                 borderColor="softGray.600"
                 px={4}
-                borderLeftRadius="0"
-                borderRadius="0px"
+                borderRadius="0"
                 fontSize="xs"
-                height="100%"
+                display="flex"
+                alignItems="center"
+                height="100%" // Ensures the button is smaller vertically
                 _hover={{ bg: "gray.50" }}
                 _active={{ bg: "gray.100" }}
                 onClick={handleSearch}
                 isDisabled={isLoading}
                 fontFamily="'DM Sans', sans-serif"
-                rightIcon={ <SearchIcon fontSize="xs" color="brand.500" ml={1} />} // Added search icon on the right
               >
-                Search
+                <Flex align="center">
+                  Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
+                </Flex>
               </Button>
             </InputRightElement>
           </InputGroup>
