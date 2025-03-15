@@ -1,48 +1,43 @@
+import React from "react";
 import {
   Box,
   Text,
   Flex,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
-  IconButton,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
-import { RxCountdownTimer } from "react-icons/rx";
 import { ReactComponent as ClockIcon } from "../../../../assets/icons/Clock.svg";
 import { useBreakpointValue } from "@chakra-ui/react";
 import TimeZoneSelect from "./TimeZone";
 import OffDaysCheckbox from "./OffDaysCheckbox";
 import EditIcon from "./EditIcon";
+import CustomTimePicker from "components/customDatePicker/CustomDatePicker";
+
 const OfficeTiming = ({
   isDisabled,
-  inTime,
-  setInTime,
-  outTime,
-  setOutTime,
-  timeZone,
-  setTimeZone,
+  checkinTime,
+  setCheckinTime,
+  checkoutTime,
+  setCheckoutTime,
+  timezone,
+  setTimezone,
   offDays,
   setOffDays,
+  gracePeriod,
+  setGracePeriod,
 }) => {
   const fontSize = useBreakpointValue({ base: "14px", md: "17px" });
+  const boxHeight = useBreakpointValue({ base: "fit-content", lg: "560px" });
 
-  // Define responsive height: fit-content on base (mobile), 424px on lg and up
-  const boxHeight = useBreakpointValue({ base: "fit-content", lg: "424px" });
-
-  const generateTimes = () => {
-    const times = [];
-    for (let hour = 1; hour <= 12; hour++) {
-      ["00", "30"].forEach((minute) => {
-        times.push(`${hour}:${minute} am`);
-        times.push(`${hour}:${minute} pm`);
-      });
-    }
-    return times;
+  const handleGracePeriodChange = (e) => {
+    let value = parseInt(e.target.value, 10) || 0;
+    if (value > 59) value = 59;
+    if (value < 0) value = 0;
+    setGracePeriod(value);
   };
 
-  const timeOptions = generateTimes();
+  console.log("OfficeTiming offDays:", offDays);
 
   return (
     <Box
@@ -50,11 +45,12 @@ const OfficeTiming = ({
       p={5}
       py={10}
       w={{ base: "100%", lg: "420px" }}
-      height={boxHeight} // Use responsive height
+      height={boxHeight}
       bg="white"
       border="1px solid #cacaca"
       opacity={isDisabled ? 0.5 : 1}
       position="relative"
+      pointerEvents={isDisabled ? "none" : "auto"}
     >
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
         <Text
@@ -71,7 +67,7 @@ const OfficeTiming = ({
         <EditIcon />
       </Flex>
 
-      <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
+      <Flex mb={4} flexWrap="wrap" gap={4}>
         <Box flex="1" minW="150px">
           <Text
             mb={2}
@@ -79,32 +75,12 @@ const OfficeTiming = ({
             fontWeight="400"
             fontSize={fontSize}
           >
-            In timing
+            Check-in Time
           </Text>
-          <Menu>
-            <MenuButton
-              borderRadius="5px"
-              as={Button}
-              size="sm"
-              w="100%"
-              isDisabled={isDisabled}
-              rightIcon={<RxCountdownTimer />}
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {inTime}
-            </MenuButton>
-            <MenuList
-              maxH="200px"
-              overflowY="auto"
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {timeOptions.map((time) => (
-                <MenuItem key={time} onClick={() => setInTime(time)}>
-                  {time}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <CustomTimePicker
+            value={checkinTime || "09:00 AM"}
+            onChange={setCheckinTime}
+          />
         </Box>
 
         <Box flex="1" minW="150px">
@@ -114,40 +90,49 @@ const OfficeTiming = ({
             fontWeight="400"
             fontSize={fontSize}
           >
-            Out timing
+            Check-out Time
           </Text>
-          <Menu>
-            <MenuButton
-              borderRadius="5px"
-              as={Button}
-              size="sm"
-              w="100%"
-              isDisabled={isDisabled}
-              rightIcon={<RxCountdownTimer />}
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {outTime}
-            </MenuButton>
-            <MenuList
-              maxH="200px"
-              overflowY="auto"
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {timeOptions.map((time) => (
-                <MenuItem key={time} onClick={() => setOutTime(time)}>
-                  {time}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <CustomTimePicker
+            value={checkoutTime || "06:00 PM"}
+            onChange={setCheckoutTime}
+          />
         </Box>
       </Flex>
 
-      <TimeZoneSelect
-        isDisabled={isDisabled}
-        timeZone={timeZone}
-        setTimeZone={setTimeZone}
-      />
+      <Box mb={4}>
+        <FormControl>
+          <FormLabel
+            mb={2}
+            fontFamily="'DM Sans', sans-serif"
+            fontWeight="400"
+            fontSize={fontSize}
+          >
+            Grace Period (minutes)
+          </FormLabel>
+          <Input
+            type="number"
+            value={gracePeriod}
+            onChange={handleGracePeriodChange}
+            min="0"
+            max="59"
+            isDisabled={isDisabled}
+            borderRadius="5px"
+            size="sm"
+            w="100%"
+            maxW="150px"
+            fontFamily="'DM Sans', sans-serif"
+            textAlign="center"
+          />
+        </FormControl>
+      </Box>
+
+      <Box mb={4}>
+        <TimeZoneSelect
+          isDisabled={isDisabled}
+          timezone={timezone}
+          setTimezone={setTimezone}
+        />
+      </Box>
 
       <OffDaysCheckbox
         isDisabled={isDisabled}

@@ -2,12 +2,7 @@ import { Tabs, TabList, Tab } from "@chakra-ui/react";
 
 const TabsComponent = ({ selectedTab, onTabChange }) => {
   return (
-    <Tabs
-      index={selectedTab}
-      onChange={onTabChange}
-      mb={5}
-      variant="unstyled"
-    >
+    <Tabs index={selectedTab} onChange={onTabChange} mb={5} variant="unstyled">
       <TabList gap={4} borderBottom="none">
         <Tab
           bg="#EEEEEE"
@@ -15,8 +10,8 @@ const TabsComponent = ({ selectedTab, onTabChange }) => {
           w="156px"
           borderRadius="5px"
           fontFamily="Poppins"
-          fontWeight="300" 
-          fontSize="20px"  
+          fontWeight="300"
+          fontSize="20px"
         >
           Admin
         </Tab>

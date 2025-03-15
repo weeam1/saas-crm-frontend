@@ -2,7 +2,7 @@ import { Box, Text, Select } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useBreakpointValue } from "@chakra-ui/react";
 
-const TimeZoneSelect = ({ isDisabled, timeZone, setTimeZone }) => {
+const TimeZoneSelect = ({ isDisabled, timezone, setTimezone }) => {
   const fontSize = useBreakpointValue({ base: "14px", md: "17px" });
   const [timeZones, setTimeZones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +36,8 @@ const TimeZoneSelect = ({ isDisabled, timeZone, setTimeZone }) => {
         Time zone
       </Text>
       <Select
-        value={timeZone}
-        onChange={(e) => setTimeZone(e.target.value)}
+        value={timezone}
+        onChange={(e) => setTimezone(e.target.value)}
         size="sm"
         isDisabled={isDisabled || loading}
         placeholder={loading ? "Loading time zones..." : "Select a time zone"}

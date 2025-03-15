@@ -23,22 +23,19 @@ import UserList from "./components/UserList";
 const OfficeSettings = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [enabledUsers, setEnabledUsers] = useState({});
-  const [adminInTime, setAdminInTime] = useState("9:00 am");
-  const [adminOutTime, setAdminOutTime] = useState("6:00 pm");
-  const [adminTimeZone, setAdminTimeZone] = useState(
-    "United Arab Emirates (GMT+4)"
-  );
-  const [adminOffDays, setAdminOffDays] = useState(["sunday"]);
-  const [officeInTime, setOfficeInTime] = useState("9:00 am");
-  const [officeOutTime, setOfficeOutTime] = useState("6:00 pm");
-  const [officeTimeZone, setOfficeTimeZone] = useState(
-    "United Arab Emirates (GMT+4)"
-  );
-  const [officeOffDays, setOfficeOffDays] = useState(["sunday"]);
+  const [adminCheckinTime, setAdminCheckinTime] = useState("09:00 AM");
+  const [adminCheckoutTime, setAdminCheckoutTime] = useState("06:00 PM");
+  const [adminTimezone, setAdminTimezone] = useState("Asia/Dubai");
+  const [adminOffDays, setAdminOffDays] = useState([0]);
+  const [officeCheckinTime, setOfficeCheckinTime] = useState("09:00 AM");
+  const [officeCheckoutTime, setOfficeCheckoutTime] = useState("06:00 PM");
+  const [officeTimezone, setOfficeTimezone] = useState("Asia/Karachi");
+  const [officeOffDays, setOfficeOffDays] = useState([6, 0]);
+  const [officeGracePeriod, setOfficeGracePeriod] = useState(15);
   const [rules, setRules] = useState([
-    { label: "Early Check In", action: "Plus", coins: 2, perMin: null },
-    { label: "Late Check In", action: "Minus", coins: 2, perMin: 1 },
-    { label: "Early Check In", action: "Plus", coins: 2, perMin: null },
+    { label: "Early Check In", action: "Plus", coins: 10, perMin: null },
+    { label: "Late Check In", action: "Minus", coins: 2, perMin: 10 },
+    { label: "Early Check In", action: "Minus", coins: 50, perMin: null },
   ]);
 
   const location = useLocation();
@@ -81,23 +78,47 @@ const OfficeSettings = () => {
   };
 
   const handleSave = () => {
+    const transformedRules = rules.map((rule, index) => {
+      if (rule.label === "Early Check In" && rule.action === "Plus") {
+        return {
+          ruleId: 1,
+          name: "earlyCheckIn",
+          description: "Bonus coins for early check-in",
+          coinChange: rule.coins,
+        };
+      } else if (rule.label === "Late Check In" && rule.action === "Minus") {
+        return {
+          ruleId: 2,
+          name: "lateCheckInPenalty",
+          description: "Deduct coins for late check-in based on time intervals",
+          isTimeBased: true,
+          perMinutePenalty: -rule.coins,
+          intervalMinutes: rule.perMin || 10,
+        };
+      } else if (rule.label === "Early Check In" && rule.action === "Minus") {
+        return {
+          ruleId: 0,
+          name: "absentPenalty",
+          description: "Deduct coins for being absent",
+          coinChange: -rule.coins,
+        };
+      }
+      return rule;
+    });
+
     const allData = {
-      tab: currentTab,
-      users: currentData,
-      enabledUsers,
-      adminTiming: {
-        inTime: adminInTime,
-        outTime: adminOutTime,
-        timeZone: adminTimeZone,
-        offDays: adminOffDays,
+      checkinTime: officeCheckinTime,
+      checkoutTime: officeCheckoutTime,
+      timezone: officeTimezone,
+      offDays: officeOffDays,
+      gracePeriod: officeGracePeriod,
+      agency: id || "67b33ca776be2ae78bc7eaa4",
+      rules: transformedRules,
+      specialTiming: {
+        checkinTime: adminCheckinTime,
+        checkoutTime: adminCheckoutTime,
       },
-      officeTiming: {
-        inTime: officeInTime,
-        outTime: officeOutTime,
-        timeZone: officeTimeZone,
-        offDays: officeOffDays,
-      },
-      rules: rules,
+      specialUsers: ["678e50f7ede76edffe120b18"],
     };
     console.log("Saved Data:", JSON.stringify(allData, null, 2));
   };
@@ -139,12 +160,12 @@ const OfficeSettings = () => {
           <Box flex={{ base: "none", md: 1 }} w={{ base: "100%", md: "auto" }}>
             <AdminTiming
               isDisabled={!Object.values(enabledUsers).some(Boolean)}
-              inTime={adminInTime}
-              setInTime={setAdminInTime}
-              outTime={adminOutTime}
-              setOutTime={setAdminOutTime}
-              timeZone={adminTimeZone}
-              setTimeZone={setAdminTimeZone}
+              checkinTime={adminCheckinTime}
+              setCheckinTime={setAdminCheckinTime}
+              checkoutTime={adminCheckoutTime}
+              setCheckoutTime={setAdminCheckoutTime}
+              timezone={adminTimezone} 
+              setTimezone={setAdminTimezone}
               offDays={adminOffDays}
               setOffDays={setAdminOffDays}
             />
@@ -158,14 +179,16 @@ const OfficeSettings = () => {
           justifyContent={{ base: "center", md: "flex-start" }}
         >
           <OfficeTiming
-            inTime={officeInTime}
-            setInTime={setOfficeInTime}
-            outTime={officeOutTime}
-            setOutTime={setOfficeOutTime}
-            timeZone={officeTimeZone}
-            setTimeZone={setOfficeTimeZone}
+            checkinTime={officeCheckinTime}
+            setCheckinTime={setOfficeCheckinTime}
+            checkoutTime={officeCheckoutTime}
+            setCheckoutTime={setOfficeCheckoutTime}
+            timezone={officeTimezone}
+            setTimezone={setOfficeTimezone}
             offDays={officeOffDays}
             setOffDays={setOfficeOffDays}
+            gracePeriod={officeGracePeriod}
+            setGracePeriod={setOfficeGracePeriod}
           />
         </Box>
       </Flex>

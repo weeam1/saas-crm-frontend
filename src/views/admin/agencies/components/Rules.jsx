@@ -73,7 +73,7 @@ const RulesSection = ({ rules, setRules }) => {
               fontFamily="'DM Sans', sans-serif"
               fontSize="16px"
               fontWeight="400"
-              borderRadius="5px" // Added borderRadius
+              borderRadius="5px"
             >
               <option value="Plus">Plus</option>
               <option value="Minus">Minus</option>
@@ -99,7 +99,7 @@ const RulesSection = ({ rules, setRules }) => {
                 fontFamily="'DM Sans', sans-serif"
                 fontSize="16px"
                 fontWeight="400"
-                borderRadius="5px" // Added borderRadius
+                borderRadius="5px"
               />
             </Box>
             <Box
@@ -127,7 +127,7 @@ const RulesSection = ({ rules, setRules }) => {
                 fontFamily="'DM Sans', sans-serif"
                 fontSize="16px"
                 fontWeight="400"
-                borderRadius="5px" // Added borderRadius
+                borderRadius="5px"
               />
             </Box>
           </Flex>

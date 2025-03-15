@@ -1,6 +1,24 @@
 import { Box, Text, Checkbox, CheckboxGroup, Flex } from "@chakra-ui/react";
 
 const OffDaysCheckbox = ({ isDisabled, offDays, setOffDays }) => {
+  const dayMap = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+  };
+  const stringOffDays = offDays.map((dayNum) => {
+    return Object.keys(dayMap).find((key) => dayMap[key] === dayNum) || "";
+  });
+
+  const handleOffDaysChange = (values) => {
+    const numericOffDays = values.map((day) => dayMap[day]);
+    setOffDays(numericOffDays);
+  };
+
   return (
     <Box>
       <Text
@@ -11,7 +29,7 @@ const OffDaysCheckbox = ({ isDisabled, offDays, setOffDays }) => {
       >
         Off days
       </Text>
-      <CheckboxGroup value={offDays} onChange={setOffDays}>
+      <CheckboxGroup value={stringOffDays} onChange={handleOffDaysChange}>
         <Flex wrap="wrap" gap={2}>
           {[
             "Monday",

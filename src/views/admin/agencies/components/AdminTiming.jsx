@@ -1,22 +1,9 @@
-import {
-  Box,
-  Text,
-  Select,
-  Checkbox,
-  CheckboxGroup,
-  Flex,
-  useBreakpointValue,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
-} from "@chakra-ui/react";
-import { RxCountdownTimer } from "react-icons/rx";
+import { Box, Text, Flex, useBreakpointValue } from "@chakra-ui/react";
 import { ReactComponent as ClockIcon } from "../../../../assets/icons/Clock.svg";
 import { useState, useEffect } from "react";
 import OffDaysCheckbox from "./OffDaysCheckbox";
 import TimeZoneSelect from "./TimeZone";
+import CustomTimePicker from "components/customDatePicker/CustomDatePicker";
 
 const AdminSetting = ({
   isDisabled,
@@ -24,27 +11,14 @@ const AdminSetting = ({
   setInTime,
   outTime,
   setOutTime,
-  timeZone,
-  setTimeZone,
+  timezone,
+  setTimezone,
   offDays,
   setOffDays,
 }) => {
   const fontSize = useBreakpointValue({ base: "14px", md: "17px" });
-  const [timeZones, setTimeZones] = useState([]); // State to store fetched time zones
-  const [loading, setLoading] = useState(true); // State to handle loading
-
-  const generateTimes = () => {
-    const times = [];
-    for (let hour = 1; hour <= 12; hour++) {
-      ["00", "30"].forEach((minute) => {
-        times.push(`${hour}:${minute} am`);
-        times.push(`${hour}:${minute} pm`);
-      });
-    }
-    return times;
-  };
-
-  const timeOptions = generateTimes();
+  const [timeZones, setTimeZones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTimeZones = async () => {
@@ -76,6 +50,7 @@ const AdminSetting = ({
       maxW={{ base: "100%", md: "500px" }}
       bg="white"
       opacity={isDisabled ? 0.5 : 1}
+      pointerEvents={isDisabled ? "none" : "auto"}
     >
       <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
         <Text
@@ -100,30 +75,7 @@ const AdminSetting = ({
           >
             In timing
           </Text>
-          <Menu>
-            <MenuButton
-              borderRadius="5px"
-              as={Button}
-              size="sm"
-              w="100%"
-              isDisabled={isDisabled}
-              rightIcon={<RxCountdownTimer />}
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {inTime}
-            </MenuButton>
-            <MenuList
-              maxH="200px"
-              overflowY="auto"
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {timeOptions.map((time) => (
-                <MenuItem key={time} onClick={() => setInTime(time)}>
-                  {time}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <CustomTimePicker value={inTime || "09:00 AM"} onChange={setInTime} />
         </Box>
 
         <Box flex="1" minW="150px">
@@ -135,38 +87,18 @@ const AdminSetting = ({
           >
             Out timing
           </Text>
-          <Menu>
-            <MenuButton
-              borderRadius="5px"
-              as={Button}
-              size="sm"
-              w="100%"
-              isDisabled={isDisabled}
-              rightIcon={<RxCountdownTimer />}
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {outTime}
-            </MenuButton>
-            <MenuList
-              maxH="200px"
-              overflowY="auto"
-              fontFamily="'DM Sans', sans-serif"
-            >
-              {timeOptions.map((time) => (
-                <MenuItem key={time} onClick={() => setOutTime(time)}>
-                  {time}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <CustomTimePicker
+            value={outTime || "05:00 PM"}
+            onChange={setOutTime}
+          />
         </Box>
       </Flex>
 
       <Box mb={4}>
-        <TimeZoneSelect
+      <TimeZoneSelect
           isDisabled={isDisabled}
-          timeZone={timeZone}
-          setTimeZone={setTimeZone}
+          timezone={timezone}
+          setTimezone={setTimezone} 
         />
       </Box>
 
