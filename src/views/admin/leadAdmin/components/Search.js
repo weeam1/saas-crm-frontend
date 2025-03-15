@@ -97,15 +97,7 @@ const SearchBox = ({
               fontFamily="'DM Sans', sans-serif"
             />
             <InputRightElement width="auto" height="100%" alignItems="center">
-              {inputValue && (
-                <CloseIcon
-                  fontSize="xs"
-                  color="gray.500"
-                  cursor="pointer"
-                  onClick={handleClearSearch}
-                  mr={2}
-                />
-              )}
+         
               <Button
                 size="sm"
                 w="80px"

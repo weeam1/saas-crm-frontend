@@ -8,7 +8,7 @@ const RulesSection = ({ rules, setRules }) => {
   };
 
   return (
-    <Box p={5} borderRadius="lg" w={{ base: "100%", md: "437px" }}>
+    <Box p={5} borderRadius="lg" w={{ base: "100%", md: "460px" }}>
       <Text
         fontFamily="Poppins"
         fontWeight="300"
@@ -31,21 +31,31 @@ const RulesSection = ({ rules, setRules }) => {
         Agent
       </Button>
 
-      <Box borderWidth="1px" borderRadius="lg" bg="white" p={4}>
+      <Box
+        borderWidth="1px"
+        borderRadius="lg"
+        bg="white"
+        p={4}
+        border="1px solid #cacaca"
+        h={{ base: "auto", lg: "320px" }}
+        pr="5px"
+      >
         {rules.map((rule, index) => (
           <Flex
             key={index}
             align={{ base: "flex-start", md: "center" }}
             direction={{ base: "column", md: "row" }}
-            gap={2}
-            mb={2}
-            justify="flex-start" 
+            gap={{ base: 2, md: 4 }}
+            mb={4}
+            justify="flex-start"
           >
             <Text
               minW={{ base: "100%", md: "130px" }}
-              maxW={{ base: "100%", md: "130px" }} 
+              maxW={{ base: "100%", md: "130px" }}
               fontWeight="500"
               isTruncated
+              fontFamily="'DM Sans', sans-serif"
+              fontSize="16px"
             >
               {rule.label}
             </Text>
@@ -55,16 +65,27 @@ const RulesSection = ({ rules, setRules }) => {
               onChange={(e) =>
                 handleRuleChange(index, "action", e.target.value)
               }
-              w={{ base: "100%", md: "80px" }}
-              minW={{ base: "100%", md: "80px" }}
-              maxW={{ base: "100%", md: "80px" }} 
+              w={{ base: "100%", md: "100px" }}
+              minW={{ base: "100%", md: "100px" }}
+              maxW={{ base: "100%", md: "100px" }}
               bg="#EEEEEE"
+              mt={{ base: 0, md: "18px" }}
+              fontFamily="'DM Sans', sans-serif"
+              fontSize="16px"
+              fontWeight="400"
+              borderRadius="5px" // Added borderRadius
             >
               <option value="Plus">Plus</option>
               <option value="Minus">Minus</option>
             </Select>
             <Box flexShrink={0}>
-              <Text fontSize="12px">Coins</Text>
+              <Text
+                fontFamily="'DM Sans', sans-serif"
+                fontSize="16px"
+                fontWeight="400"
+              >
+                Coins
+              </Text>
               <Input
                 size="sm"
                 value={rule.coins}
@@ -72,16 +93,26 @@ const RulesSection = ({ rules, setRules }) => {
                   handleRuleChange(index, "coins", Number(e.target.value))
                 }
                 w={{ base: "100%", md: "60px" }}
-                minW={{ base: "100%", md: "60px" }} 
+                minW={{ base: "100%", md: "60px" }}
                 maxW={{ base: "100%", md: "60px" }}
                 type="number"
+                fontFamily="'DM Sans', sans-serif"
+                fontSize="16px"
+                fontWeight="400"
+                borderRadius="5px" // Added borderRadius
               />
             </Box>
             <Box
               display={rule.label === "Late Check In" ? "block" : "none"}
-              flexShrink={0} 
+              flexShrink={0}
             >
-              <Text fontSize="12px">Per Min</Text>
+              <Text
+                fontFamily="'DM Sans', sans-serif"
+                fontSize="16px"
+                fontWeight="400"
+              >
+                Per Min
+              </Text>
               <Input
                 size="sm"
                 value={rule.label === "Late Check In" ? rule.perMin || "" : ""}
@@ -89,10 +120,14 @@ const RulesSection = ({ rules, setRules }) => {
                   handleRuleChange(index, "perMin", Number(e.target.value))
                 }
                 w={{ base: "100%", md: "60px" }}
-                minW={{ base: "100%", md: "60px" }} 
-                maxW={{ base: "100%", md: "60px" }} 
+                minW={{ base: "100%", md: "60px" }}
+                maxW={{ base: "100%", md: "60px" }}
                 type="number"
                 isDisabled={rule.label !== "Late Check In"}
+                fontFamily="'DM Sans', sans-serif"
+                fontSize="16px"
+                fontWeight="400"
+                borderRadius="5px" // Added borderRadius
               />
             </Box>
           </Flex>

@@ -724,7 +724,7 @@ const LeadCard = ({
                 borderRadius="5px"
                 _hover={{ bg: dynamicButtonHoverBg }}
                 flexShrink={0}
-                isDisabled={true}
+                // isDisabled={true}
               >
                 Rejected
               </Button>

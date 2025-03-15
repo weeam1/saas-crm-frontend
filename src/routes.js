@@ -130,15 +130,15 @@ const routes = [
   },
   // ========================== Admin Layout ==========================
   // ------------- lead Routes ------------------------
-  // {
-  //   name: "Lead",
-  //   layout: [ROLE_PATH.superAdmin],
-  //   path: "/lead",
-  //   icon: (
-  //     <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-  //   ),
-  //   component: Lead,
-  // },
+  {
+    name: "Lead",
+    layout: [ROLE_PATH.superAdmin],
+    path: "/lead",
+    icon: (
+      <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
+    ),
+    component: Lead,
+  },
   {
     name: "Office Setting",
     layout: [ROLE_PATH.superAdmin],
@@ -147,9 +147,9 @@ const routes = [
     component: OfficeSettings,
   },
   {
-    name: "Lead",
+    name: "New Lead",
     layout: [ROLE_PATH.superAdmin],
-    path: "/lead",
+    path: "/new-lead",
     icon: (
       <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
     ),

@@ -261,6 +261,7 @@ const LeadScreen = () => {
   );
 
   const clearAdvancedSearch = useCallback(() => {
+    setSearchQuery("");
     setDisplayAdvSearchData(false);
     setSearchedData([]);
     setFormValues({});

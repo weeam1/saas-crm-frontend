@@ -8,7 +8,7 @@ import {
   Box,
   Flex,
 } from "@chakra-ui/react";
-import { CloseIcon, SearchIcon } from "@chakra-ui/icons"; // Added SearchIcon import
+import { SearchIcon } from "@chakra-ui/icons";
 import AdvancedSearchModal from "./AdvancedSearchModal";
 
 const SearchBox = ({
@@ -24,14 +24,17 @@ const SearchBox = ({
   isLoading,
   setSearchTerm: setParentSearchTerm,
   setTags,
+  searchTerm: parentSearchTerm,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(parentSearchTerm || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchClear, setSearchClear] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [isFormReset, setIsFormReset] = useState(false);
   const [getTagValues, setGetTagValues] = useState([]);
-
+  React.useEffect(() => {
+    setSearchTerm(parentSearchTerm || "");
+  }, [parentSearchTerm]);
   const handleSearch = () => {
     if (searchTerm.trim()) {
       fetchSearchedData(searchTerm, 1, pageSize);
@@ -46,7 +49,6 @@ const SearchBox = ({
       handleSearch();
     }
   };
-
   const handleClear = () => {
     setSearchTerm("");
     setSearchClear(false);
@@ -57,7 +59,6 @@ const SearchBox = ({
     setTags([]);
     onClearSearch();
   };
-
   return (
     <Flex
       display="flex"
@@ -94,15 +95,6 @@ const SearchBox = ({
               fontFamily="'DM Sans', sans-serif"
             />
             <InputRightElement width="auto" height="100%" alignItems="center">
-              {searchTerm && (
-                <CloseIcon
-                  fontSize="xs"
-                  color="gray.500"
-                  cursor="pointer"
-                  onClick={handleClear}
-                  mr={2}
-                />
-              )}
               <Button
                 size="sm"
                 w="80px"
@@ -128,7 +120,6 @@ const SearchBox = ({
             </InputRightElement>
           </InputGroup>
           <HStack>
-            {/* Advance Search Button */}
             <Button
               border="1px solid"
               borderColor="softGray.600"

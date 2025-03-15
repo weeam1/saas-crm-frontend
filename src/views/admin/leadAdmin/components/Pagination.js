@@ -104,7 +104,12 @@ const Pagination = ({
     setCurrentPage(1);
     setGotoPage(1);
   };
-
+  const handleClearAdvancedSearch = () => {
+    setSearchQuery(""); 
+    setFormValues({});  
+    setCurrentPage(1);  
+    setGotoPage(1);     
+  };
   const buttonStyle = {
     size: { base: "xs", sm: "xs", md: "sm" },
     borderRadius: "lg",
@@ -179,8 +184,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py="2"
-                px="5"
+               py="1"
+                px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
@@ -196,8 +201,8 @@ const Pagination = ({
                 onClick={handlePrevious}
                 isDisabled={loading || currentPage === 1}
                 variant="solid"
-                  py="2"
-                px="5"
+                   py="1"
+                px="3"
                 bg="softGray.600"
                 color="black"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
@@ -209,7 +214,7 @@ const Pagination = ({
 
             {/* Go To Page */}
             <HStack fontWeight="medium" color="gray.800" spacing={1}>
-              <Text>Go to</Text>
+              <Text fontSize="12px">Go to</Text>
               <NumberInput
                 value={gotoPage}
                 onChange={handleGoToChange}
@@ -248,8 +253,7 @@ const Pagination = ({
             {/* Showing range */}
             <Text
               color="gray.800"
-              fontSize={leadValueFontSize}
-              fontWeight="medium"
+              fontSize="12px"
             >
               Showing {startIndex.toLocaleString()} -{" "}
               {endIndex.toLocaleString()} of {totalItems.toLocaleString()}
@@ -288,8 +292,8 @@ const Pagination = ({
                 isDisabled={loading || currentPage === totalPagesForTab}
                 variant="solid"
                 bg="softGray.600"
-                py="2"
-                px="5"
+                py="1"
+                px="3"
                 color="black"
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
@@ -304,8 +308,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py="2"
-                px="5"
+                 py="1"
+                px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
               >
@@ -349,6 +353,7 @@ const Pagination = ({
           loading={loading}
           searchQuery={searchQuery}
           formValues={formValues}
+          setSearchQuery={setSearchQuery}
         />
       )}
       <Divider borderColor="#E7E7E7" my={4} borderWidth="1.5px" />

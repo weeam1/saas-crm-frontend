@@ -16,7 +16,7 @@ import SearchBox from "./Search";
 import Tabs from "./Tabs";
 import TabContent from "./TabContent";
 import LeadsProgress from "./LeadProgress";
-
+import { CloseIcon } from "@chakra-ui/icons";
 const Pagination = ({
   data,
   totalPages,
@@ -56,7 +56,15 @@ const Pagination = ({
       setIsLoading(true);
       fetchData(activeTab || "Buy Leads", currentPage || 1, pageSize || 50);
     }
-  }, [data, isLoading, fetchData, activeTab, currentPage, pageSize, setIsLoading]);
+  }, [
+    data,
+    isLoading,
+    fetchData,
+    activeTab,
+    currentPage,
+    pageSize,
+    setIsLoading,
+  ]);
 
   useEffect(() => {
     setGotoPage(currentPage);
@@ -142,6 +150,7 @@ const Pagination = ({
     if (isLoading) return;
     setData([]);
     setTotalPages(0);
+    setSearchTerm("");
     setTotalLeads(0);
     setDisplaySearchData(false);
     setSearchTerm("");
@@ -220,8 +229,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py="2"
-                px="5"
+                py="1"
+                px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
@@ -239,6 +248,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
+                py="1"
+                px="3"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
               >
@@ -247,7 +258,7 @@ const Pagination = ({
             </HStack>
 
             <HStack fontWeight="medium" color="gray.800" spacing={1}>
-              <Text>Go to</Text>
+              <Text fontSize="12px">Go to</Text>
               <NumberInput
                 value={gotoPage}
                 onChange={handleGoToChange}
@@ -280,10 +291,12 @@ const Pagination = ({
                   isDisabled={isLoading}
                 />
               </NumberInput>
-              <Text>of {totalPagesForTab.toLocaleString()}</Text>
+              <Text fontSize="12px">
+                of {totalPagesForTab.toLocaleString()}
+              </Text>
             </HStack>
 
-            <Text color="gray.800" fontWeight="medium">
+            <Text color="gray.800" fontWeight="medium" fontSize="12px">
               Showing {startIndex.toLocaleString()} -{" "}
               {endIndex.toLocaleString()} of {totalLeads.toLocaleString()}
             </Text>
@@ -315,8 +328,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py="2"
-                px="5"
+                py="1"
+                px="3"
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
               >
@@ -330,8 +343,8 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                py="2"
-                px="5"
+                py="1"
+                px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
               >
@@ -365,6 +378,7 @@ const Pagination = ({
             isLoading={isLoading}
             setSearchTerm={setSearchTerm}
             setTags={setTags}
+            searchTerm={searchTerm}
           />
         </Box>
       </Flex>
@@ -390,14 +404,27 @@ const Pagination = ({
             </Text>
           </HStack>
           <Button
-            colorScheme="red"
-            variant="outline"
+            bg="#f56565"
+            color="white"
+            w="80px"
+            h="35px"
+            borderRadius="5px"
+            _hover={{
+              bg: "#e53e3e",
+            }}
+            fontWeight="normal"
+            variant="solid"
             size="sm"
             onClick={handleClearSearch}
             isDisabled={isLoading}
             fontFamily="DM Sans"
             fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            lineHeight="1"
           >
+            <CloseIcon fontSize="9px" color="white" mr={2} />
             Clear
           </Button>
         </Flex>

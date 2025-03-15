@@ -6,7 +6,7 @@ const TabsComponent = ({ selectedTab, onTabChange }) => {
       index={selectedTab}
       onChange={onTabChange}
       mb={5}
-      variant="unstyled" 
+      variant="unstyled"
     >
       <TabList gap={4} borderBottom="none">
         <Tab
@@ -14,13 +14,30 @@ const TabsComponent = ({ selectedTab, onTabChange }) => {
           _selected={{ bg: "#EDC270" }}
           w="156px"
           borderRadius="5px"
+          fontFamily="Poppins"
+          fontWeight="300" 
+          fontSize="20px"  
         >
           Admin
         </Tab>
-        <Tab bg="#EEEEEE" _selected={{ bg: "#EDC270" }} borderRadius="5px">
+        <Tab
+          bg="#EEEEEE"
+          _selected={{ bg: "#EDC270" }}
+          borderRadius="5px"
+          fontFamily="Poppins"
+          fontWeight="300"
+          fontSize="20px"
+        >
           Manager
         </Tab>
-        <Tab bg="#EEEEEE" _selected={{ bg: "#EDC270" }} borderRadius="5px">
+        <Tab
+          bg="#EEEEEE"
+          _selected={{ bg: "#EDC270" }}
+          borderRadius="5px"
+          fontFamily="Poppins"
+          fontWeight="300"
+          fontSize="20px"
+        >
           HR
         </Tab>
       </TabList>
