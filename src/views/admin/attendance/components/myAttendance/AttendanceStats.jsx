@@ -73,6 +73,12 @@ const AttendanceStats = ({ stats, employee }) => {
 						{stats.totalLate}
 					</Text>
 				</Text>
+				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
+					Net Salary:{' '}
+					<Text as='span' fontWeight='bold'>
+						{stats.netSalary}
+					</Text>
+				</Text>
 			</Box>
 		</Box>
 	);
