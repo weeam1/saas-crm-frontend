@@ -18,7 +18,7 @@ import AttendanceUpdate from '../AttendanceUpdate';
 
 const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 	const columns = [
-		'AID',
+		// 'S.No',
 		'Employee',
 		'Role',
 		'Type',
@@ -116,13 +116,13 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 										border='gray.200'
 										bgGradient={rowBgGradient}
 									>
-										<Td
+										{/* <Td
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 										>
-											{entry.aid}
-										</Td>
+											{++index}
+										</Td> */}
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}

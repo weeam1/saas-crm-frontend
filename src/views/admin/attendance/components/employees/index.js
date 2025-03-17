@@ -27,6 +27,10 @@ const Employees = () => {
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || '';
 
+		if (agency || search) {
+			setSearchClear(true);
+		}
+
 		setSearchParams(
 			(prev) => {
 				const newParams = {

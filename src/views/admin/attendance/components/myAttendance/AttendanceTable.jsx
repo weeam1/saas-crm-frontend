@@ -26,7 +26,7 @@ const AttendanceTable = ({
 	refetch,
 }) => {
 	const columns = [
-		'AID',
+		'S.No',
 		'Day',
 		'Type',
 		'Location',
@@ -128,7 +128,7 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 										>
-											{entry.aid}
+											{++index}
 										</Td>
 										<Td
 											borderBottom='none'
