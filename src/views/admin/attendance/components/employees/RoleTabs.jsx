@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, Flex, Box, IconButton } from '@chakra-ui/react';
 import { skipToken } from '@reduxjs/toolkit/query';
 
-const RoleTabs = ({ updateFilters }) => {
+const RoleTabs = ({ updateFilters, key }) => {
 	const [searchParams] = useSearchParams();
 	const currentRole = searchParams.get('role') || 'All';
 	const [localRoles, setLocalRoles] = useState(() => {
@@ -114,6 +114,7 @@ const RoleTabs = ({ updateFilters }) => {
 				>
 					All
 				</TabButton>
+
 				{roleData
 					?.filter((role) => role.roleName !== 'sadmin')
 					?.map((role) => (

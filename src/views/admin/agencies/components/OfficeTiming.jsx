@@ -37,7 +37,13 @@ const OfficeTiming = ({
 		setGracePeriod(value);
 	};
 
-	console.log('OfficeTiming offDays:', offDays);
+	console.log('OfficeTiming offDays:', {
+		checkinTime,
+		checkoutTime,
+		timezone,
+		offDays,
+		gracePeriod,
+	});
 
 	return (
 		<Box
@@ -58,7 +64,6 @@ const OfficeTiming = ({
 					display='flex'
 					alignItems='center'
 					gap={2}
-					fontFamily="'DM Sans', sans-serif"
 					fontWeight='400'
 					fontSize={fontSize}
 				>
@@ -69,44 +74,23 @@ const OfficeTiming = ({
 
 			<Flex mb={4} flexWrap='wrap' gap={4}>
 				<Box flex='1' minW='150px'>
-					<Text
-						mb={2}
-						fontFamily="'DM Sans', sans-serif"
-						fontWeight='400'
-						fontSize={fontSize}
-					>
+					<Text mb={2} fontWeight='400' fontSize={fontSize}>
 						Check-in Time
 					</Text>
-					<CustomTimePicker
-						value={checkinTime || '09:00 AM'}
-						onChange={setCheckinTime}
-					/>
+					<CustomTimePicker value={checkinTime} onChange={setCheckinTime} />
 				</Box>
 
 				<Box flex='1' minW='150px'>
-					<Text
-						mb={2}
-						fontFamily="'DM Sans', sans-serif"
-						fontWeight='400'
-						fontSize={fontSize}
-					>
+					<Text mb={2} fontWeight='400' fontSize={fontSize}>
 						Check-out Time
 					</Text>
-					<CustomTimePicker
-						value={checkoutTime || '06:00 PM'}
-						onChange={setCheckoutTime}
-					/>
+					<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
 				</Box>
 			</Flex>
 
 			<Box mb={4}>
 				<FormControl>
-					<FormLabel
-						mb={2}
-						fontFamily="'DM Sans', sans-serif"
-						fontWeight='400'
-						fontSize={fontSize}
-					>
+					<FormLabel mb={2} fontWeight='400' fontSize={fontSize}>
 						Grace Period (minutes)
 					</FormLabel>
 					<Input
@@ -120,7 +104,6 @@ const OfficeTiming = ({
 						size='sm'
 						w='100%'
 						maxW='150px'
-						fontFamily="'DM Sans', sans-serif"
 						textAlign='center'
 					/>
 				</FormControl>

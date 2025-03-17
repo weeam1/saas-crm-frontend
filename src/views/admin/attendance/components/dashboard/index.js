@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	SimpleGrid,
@@ -32,7 +32,7 @@ const Dashboard = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
 
 	const { data, isLoading, isFetching } = useFetchItemsQuery(
-		{ path: '/attendance/dashboard', params: { selectedView } },
+		{ path: `/attendance/dashboard`, params: { timeframe: selectedView } },
 		{ refetchOnMountOrArgChange: true }
 	);
 
@@ -94,50 +94,61 @@ const Dashboard = () => {
 		},
 	];
 
-	const lineChartOptions = {
-		chart: { type: 'line', toolbar: { show: false } },
-		stroke: { curve: 'smooth', width: 3, colors: ['#28A745'] }, // Green line
-		markers: {
-			size: 6,
-			colors: ['#fff'],
-			strokeColors: '#28A745', // Green marker outline
-			strokeWidth: 3,
-		},
-		fill: {
-			type: 'gradient',
-			gradient: {
-				shadeIntensity: 0.4,
-				opacityFrom: 0.3,
-				opacityTo: 0,
-				stops: [0, 90, 100],
-				colorStops: [
-					{ offset: 0, color: 'rgba(40, 167, 69, 0.4)', opacity: 1 },
-					{ offset: 100, color: 'rgba(40, 167, 69, 0)', opacity: 0 },
-				],
+	const lineChartOptions = useMemo(
+		() => ({
+			chart: { type: 'line', toolbar: { show: false } },
+			stroke: {
+				curve: 'smooth',
+				width: 4,
+				colors: ['#D99A36'],
+			}, // Thicker line
+			markers: {
+				size: 8, // Larger markers
+				colors: ['#fff'],
+				strokeColors: '#D99A36', // Brand-colored marker outline
+				strokeWidth: 4,
+				hover: { size: 10 }, // Enlarge on hover
 			},
-		},
-		xaxis: {
-			categories: [
-				'01 Aug',
-				'02 Aug',
-				'03 Aug',
-				'04 Aug',
-				'07 Aug',
-				'08 Aug',
-				'10 Aug',
-				'11 Aug',
-				'14 Aug',
-				'15 Aug',
-				'16 Aug',
-			],
-		},
-		yaxis: { labels: { formatter: (val) => `${val}%` } },
-		tooltip: { enabled: true, theme: 'light' },
-	};
+			fill: {
+				type: 'gradient',
+				gradient: {
+					shade: 'light',
+					shadeIntensity: 0.5,
+					opacityFrom: 0.5, // Stronger gradient at the top
+					opacityTo: 0,
+					stops: [0, 90, 100],
+					colorStops: [
+						{ offset: 0, color: '#F5ECCB', opacity: 1 },
+						{ offset: 100, color: 'rgba(72, 187, 120, 0)', opacity: 0 },
+					],
+				},
+			},
+			xaxis: {
+				categories: data?.labels ?? [],
+				labels: { style: { colors: '#555', fontSize: '14px' } }, // Improved readability
+			},
+			yaxis: {
+				min: 0,
+				max: 100,
+				labels: { formatter: (val) => `${Math.round(val)}%` },
+			},
+			tooltip: {
+				enabled: true,
+				theme: 'light',
+				y: { formatter: (val) => `${val}%` },
+			},
+			grid: {
+				borderColor: '#C4C4C4',
+				strokeDashArray: 4,
+			},
+		}),
+		[data?.labels]
+	);
 
-	const lineChartData = [
-		{ name: 'Attendance', data: [65, 55, 70, 80, 91, 60, 50, 72, 85, 60, 75] },
-	];
+	const lineChartData = useMemo(
+		() => [{ name: 'Attendance', data: data?.attendancePercentages ?? [] }],
+		[data?.attendancePercentages]
+	);
 
 	const barChartOptions = {
 		chart: { type: 'bar' },
@@ -156,9 +167,16 @@ const Dashboard = () => {
 		},
 	];
 
-	console.log({ data });
+	const [loading, setLoading] = useState(true);
 
-	return isLoading ? (
+	useEffect(() => {
+		const timer = setTimeout(() => setLoading(false), 3000);
+		return () => clearTimeout(timer);
+	}, []);
+
+	console.log({ loading });
+
+	return loading ? (
 		<Box h='100vh'>
 			<Loader />
 		</Box>

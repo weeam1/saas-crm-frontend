@@ -121,6 +121,28 @@ export default function User(props) {
 			component: LeadScreen,
 		},
 		{
+			name: 'Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance',
+			icon: (
+				<Icon
+					as={FaRegCalendarCheck}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			component: Attendance,
+		},
+		{
+			name: 'My Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees/:id',
+			under: 'my-attendance',
+			parentName: 'Attendance',
+			component: MyAttendance,
+		},
+		{
 			name: 'HR Module',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/hrmodule',

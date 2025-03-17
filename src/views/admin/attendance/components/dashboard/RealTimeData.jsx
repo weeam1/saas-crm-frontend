@@ -206,7 +206,7 @@ const RealTimeData = ({
 								Attendance Comparison Chart
 							</Text>
 							<ButtonGroup size='sm' isAttached>
-								{['Daily', 'Weekly', 'Monthly'].map((view) => (
+								{['Weekly', 'Monthly', 'Yearly'].map((view) => (
 									<Button
 										key={view}
 										colorScheme={

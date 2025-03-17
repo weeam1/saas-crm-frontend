@@ -152,7 +152,7 @@ const Employees = () => {
 				/>
 
 				{/* Role Tab Navigation */}
-				<RoleTabs updateFilters={updateFilters} />
+				<RoleTabs updateFilters={updateFilters} key='employees' />
 
 				<Box
 					my='4'

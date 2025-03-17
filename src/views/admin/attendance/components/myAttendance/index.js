@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Text, Grid, Divider } from '@chakra-ui/react';
+import { Box, Text, Grid, Divider, Button, Flex } from '@chakra-ui/react';
 
 import { IoIosArrowBack } from 'react-icons/io';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -11,11 +11,17 @@ import Header from './Header';
 import AttendanceTable from './AttendanceTable';
 import Loader from 'components/loading/Loader';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import { buttonStyle } from '../../constants';
 
 const timezone = 'Asia/Karachi';
 
 const Attendance = () => {
 	const { id: employeeId } = useParams();
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
@@ -23,6 +29,12 @@ const Attendance = () => {
 	const [year, setYear] = useState(() =>
 		Number(moment.tz(timezone).format('YYYY'))
 	);
+
+	const { data: officeSettings, isLoading: officeSettingsLoading } =
+		useFetchItemsQuery(
+			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
+			{ refetchOnMountOrArgChange: true }
+		);
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
@@ -42,11 +54,11 @@ const Attendance = () => {
 
 	const navigate = useNavigate();
 
-	return isLoading ? (
+	return isLoading || officeSettingsLoading ? (
 		<Box h='100vh'>
 			<Loader />
 		</Box>
-	) : (
+	) : officeSettings?.doc ? (
 		<Box p={{ base: 4, md: 6 }} minH='100vh' fontFamily="'DM Sans', sans-serif">
 			<Box display='flex' alignItems='center' mb={4} bg='white' p={4}>
 				<Text
@@ -78,7 +90,13 @@ const Attendance = () => {
 							employee={data?.employee}
 							refetch={refetch}
 						/>
-						<AttendanceMark data={data} timezone={timezone} refetch={refetch} />
+						{(role === 'superAdmin' || role === 'HR') && (
+							<AttendanceMark
+								data={data}
+								timezone={timezone}
+								refetch={refetch}
+							/>
+						)}
 					</Box>
 
 					<Box bg='white' p={5} borderRadius='md' shadow='sm'>
@@ -97,6 +115,35 @@ const Attendance = () => {
 				</Grid>
 			)}
 		</Box>
+	) : (
+		<Flex
+			direction='column'
+			align='center'
+			textAlign='center'
+			justify='center'
+			bg='yellow.100'
+			p={4}
+			borderRadius='md'
+			fontFamily="'DM Sans', sans-serif"
+			boxShadow='sm'
+		>
+			<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+				No office settings found!
+			</Text>
+			<Text fontSize='md' color='gray.600'>
+				To ensure smooth attendance tracking, please configure your office
+				settings.
+			</Text>
+			<Button
+				{...buttonStyle}
+				mt={3}
+				bg='green.500'
+				_active={{ bg: 'green.400' }}
+				onClick={() => navigate(`/office-settings/${user?.agency?._id}`)}
+			>
+				Add Office Settings
+			</Button>
+		</Flex>
 	);
 };
 

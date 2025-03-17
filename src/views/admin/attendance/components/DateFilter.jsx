@@ -4,9 +4,17 @@ import 'react-calendar/dist/Calendar.css';
 import { Box, Button } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
 import moment from 'moment';
+import { useSearchParams } from 'react-router-dom';
 
 const DateFilter = ({ onFilterChange }) => {
-	const [date, setDate] = useState(new Date());
+	const [searchParams] = useSearchParams();
+	// Get current date in Asia/Karachi timezone
+	const currentDate = moment().tz('Asia/Karachi');
+
+	const month = searchParams.get('month') || currentDate.format('MM');
+	const year = searchParams.get('year') || currentDate.format('YYYY');
+
+	const [date, setDate] = useState(moment(`${year}-${month}-01`).toDate());
 	const [showCalendar, setShowCalendar] = useState(false);
 	const minSelectableDate = new Date(2025, 2, 28);
 
