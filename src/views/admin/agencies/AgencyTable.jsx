@@ -18,7 +18,7 @@ const AgencyTable = ({ data, handleEdit }) => {
 
 	const handleOfficeSettingsClick = (row) => {
 		navigate(`/office-settings/${row._id}`, {
-			state: { agencyName: row.name, agencyId: row._id }, // Pass agency data
+			state: { agencyName: row.name, agencyId: row._id },
 		});
 	};
 
