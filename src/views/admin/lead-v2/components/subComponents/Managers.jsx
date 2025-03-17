@@ -1,19 +1,26 @@
 import SelectInput from 'components/shared/SelectInput';
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	leadValueFontSize,
 	mergeSort,
 } from '../constants';
-import { useSelector } from 'react-redux';
-import { formattedDate } from 'utils/helpers';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import {
+	updateLeadField,
+	updateLeadFields,
+	updateMultipleLeadFields,
+} from '../../../../../redux/leadsSlice';
+import { format } from 'date-fns';
+import CustomTooltip from './CustomTooltip';
 
-const Managers = ({ lead, managerAssigned, refreshLeads }) => {
+const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
@@ -22,11 +29,15 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 		setSelected(managerAssigned);
 	}, [managerAssigned]);
 
+	const dispatch = useDispatch();
+
+	// console.log(managerAssigned, lead);
+
 	const handleChangeManager = async (e) => {
-		const managerAssigned = e.target.value;
+		const managerAssignedValue = e.target.value;
 
 		const dataObj = {
-			managerAssigned: managerAssigned || '',
+			managerAssigned: managerAssignedValue || '',
 			agentAssigned: managerAssigned ? '' : undefined,
 		};
 
@@ -36,7 +47,53 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 
 			if (res.status === 200) {
 				setSelected(managerAssigned);
-				refreshLeads();
+				// refreshLeads();
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'managerAssigned',
+				// 		value: managerAssignedValue,
+				// 	})
+				// );
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'managerAssignedDate',
+				// 		value:
+				// 			managerAssignedValue !== '' ? new Date().toISOString() : null,
+				// 	})
+				// );
+
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssigned',
+				// 		value: '',
+				// 	})
+				// );
+				// dispatch(
+				// 	updateLeadField({
+				// 		id: lead?._id,
+				// 		key: 'agentAssignedDate',
+				// 		value: null,
+				// 	})
+				// );
+				dispatch(
+					updateLeadFields({
+						id: lead?._id,
+						updates: [
+							{ key: 'managerAssigned', value: managerAssignedValue },
+							{
+								key: 'managerAssignedDate',
+								value:
+									managerAssignedValue !== '' ? new Date().toISOString() : null,
+							},
+							{ key: 'agentAssigned', value: '' },
+							{ key: 'agentAssignedDate', value: null },
+						],
+					})
+				);
+
 				toast.success('Manager updated successfully');
 			}
 		} catch (error) {
@@ -46,6 +103,18 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 			setLoading(false);
 		}
 	};
+
+	const { managerName } = useMemo(() => {
+		if (!['Manager', 'Agent'].includes(role)) return { managerName: 'N/A' };
+
+		// Create a lookup map for fast access
+		const managerMap = new Map(
+			tree?.managers?.map((m) => [m._id, m.fullName]) || []
+		);
+		const managerName = managerMap.get(selected) || 'N/A';
+
+		return { managerName };
+	}, [tree?.managers, role, selected, lead]);
 
 	return (
 		<>
@@ -61,51 +130,48 @@ const Managers = ({ lead, managerAssigned, refreshLeads }) => {
 				</Text>
 
 				{/* Info Icon with Tooltip */}
-				<Tooltip
-					label={`Assign Date:\n${lead?.managerAssignedDate ? formattedDate(lead?.managerAssignedDate) : 'N/A'}`}
-					hasArrow
-					whiteSpace='pre-line'
+				{/* <Tooltip hasArrow whiteSpace='pre-line'>
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+				</Tooltip> */}
+
+				<CustomTooltip
+					label={`Assign Date:\n${
+						lead?.managerAssignedDate
+							? format(
+									new Date(lead?.managerAssignedDate),
+									'MMM d, yyyy h:mm a'
+								)
+							: 'N/A'
+					}`}
 				>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</Flex>
-			<SelectInput
-				name='managerAssigned'
-				options={mergeSort(tree?.managers || [])}
-				placeholder='Select'
-				selectedValue={selected}
-				type='dynamic'
-				size={leadSelectInputSize}
-				loading={loading}
-				onChange={handleChangeManager}
-			/>
-			{/* <FormControl>
-				<Select
-					placeholder={'Select'}
-					size={leadSelectInputSize}
-					fontSize={leadSelectInputFontSize}
-					borderColor={borderColor}
-					focusBorderColor={focusBorderColor}
-					color={textColor}
-					bg={bgColor}
-					_hover={{ borderColor: focusBorderColor }}
-					_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
-					borderRadius='md'
-					sx={{
-						option: {
-							bg: dropdownBg,
-							color: 'gray.800',
-							_hover: { bg: dropdownHoverBg },
-						},
-					}}
+
+			{['Manager', 'Agent'].includes(role) ? (
+				<Text
+					bg='softGray.400'
+					py='2px'
+					px='4px'
+					mt='6px'
+					rounded='md'
+					color='softGray.300'
+					fontSize={leadValueFontSize}
 				>
-					{list?.managers.map((opt) => (
-						<option key={opt._id} value={opt._id}>
-							{opt.name}
-						</option>
-					))}
-				</Select>
-			</FormControl> */}
+					{managerName}
+				</Text>
+			) : (
+				<SelectInput
+					name='managerAssigned'
+					placeholder='Select'
+					options={mergeSort(tree?.managers || [])}
+					selectedValue={selected}
+					type='dynamic'
+					size={leadSelectInputSize}
+					loading={loading}
+					onChange={handleChangeManager}
+				/>
+			)}
 		</>
 	);
 };

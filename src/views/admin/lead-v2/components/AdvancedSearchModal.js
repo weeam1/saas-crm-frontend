@@ -2,6 +2,8 @@ import { useSelector } from 'react-redux';
 import { validationLeadSearchSchema } from 'schema/leadSchema';
 import { useFormik } from 'formik';
 import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import useFilteredQueryParams from '../useFilteredQueryParams';
 
 const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedSearchForm'));
 
@@ -27,16 +29,19 @@ const AdvancedSearchModal = ({
 	setIsFormReset,
 	setGetTagValues,
 	setRefetchLoading,
+	setSearchQueryParams,
 }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
 
 	const updateAdvancedSearchQuery = (advancedSearchData) => {
-		setQueryParams((prev) => ({
-			...prev,
-			page: 1, // Reset to first page on new search
-			data: JSON.stringify(advancedSearchData),
-		}));
+		// setQueryParams((prev) => ({
+		// 	...prev,
+		// 	page: 1,
+		// 	data: JSON.stringify(advancedSearchData),
+		// }));
+
+		setSearchQueryParams({ data: advancedSearchData });
 	};
 
 	const formClearHanlder = () => {
@@ -145,7 +150,7 @@ const AdvancedSearchModal = ({
 			setAdvanceSearch(false);
 
 			// Update UI with tags
-			setGetTagValues(tags);
+			// setGetTagValues(tags);
 			setSearchClear(true);
 			setRefetchLoading(true);
 			// setFormValues(values);

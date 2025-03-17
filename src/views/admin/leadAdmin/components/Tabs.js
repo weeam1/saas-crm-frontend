@@ -11,12 +11,12 @@ const Tabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["All", "Pending", "Approved", "Rejected"];
 
   const resolvedWidth = useBreakpointValue({
-    base: "100%",
-    sm: "140px",
-    md: "160px",
+    base: "90px",
+    sm: "100px",
+    md: "120px",
   });
 
-  const [buttonWidth, setButtonWidth] = useState("160px");
+  const [buttonWidth, setButtonWidth] = useState("120px");
 
   useEffect(() => {
     if (resolvedWidth) {
@@ -35,9 +35,12 @@ const Tabs = ({ activeTab, setActiveTab }) => {
         gap={{ base: 2, md: 0 }}
         flexDirection={{ base: "column", md: "row" }}
       >
-        {/* Tabs Section */}
         <HStack
-          spacing={2}
+          gap={{
+            base: { column: 2, row: 2 },
+            sm: { column: 4, row: 6 },
+            md: { column: 3, row: 4 },
+          }}
           flexWrap="wrap"
           justify={{ base: "center", md: "start" }}
           width="100%"
@@ -45,9 +48,17 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           {tabs.map((tab) => (
             <Button
               key={tab}
+              sx={{
+                ...(tab !== "All" && {
+                  "@media screen and (max-width: 30em)": {
+                    marginTop: "5px !important",
+                    marginBottom: "0px !important",
+                  },
+                }),
+              }}
               borderRadius="6px"
               w={buttonWidth}
-              minWidth="140px"
+              minWidth={resolvedWidth}
               h="42px"
               onClick={() => setActiveTab(tab)}
               bg={activeTab === tab ? "#b79045" : "white"}

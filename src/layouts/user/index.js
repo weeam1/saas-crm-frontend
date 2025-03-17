@@ -31,16 +31,14 @@ import InterviewScreen from "views/admin/hiring/interview/InterviewScreen";
 import InterviewedCandidates from "views/admin/hiring/interviewedCandidates";
 import OfferLetter from "views/admin/hiring/interviewedCandidates/OfferLetter";
 
-const MainDashboard = React.lazy(() => import("views/admin/default"));
-const SignInCentered = React.lazy(() => import("views/auth/signIn"));
-const UserPage = React.lazy(() => import("views/admin/users"));
-const LeadPool = React.lazy(() => import("views/admin/leadpool"));
-const HRModule = React.lazy(() => import("views/admin/hrModule"));
-const Lead = React.lazy(() => import("views/admin/lead"));
-const LeadScreen = React.lazy(() => import("views/admin/lead-v2"));
-
-const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
-const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
+const MainDashboard = React.lazy(() => import('views/admin/default'));
+const SignInCentered = React.lazy(() => import('views/auth/signIn'));
+const UserPage = React.lazy(() => import('views/admin/users'));
+const LeadPool = React.lazy(() => import('views/admin/leadPool-v2'));
+const HRModule = React.lazy(() => import('views/admin/hrModule'));
+const Lead = React.lazy(() => import('views/admin/lead-v2'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
+const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 
 export default function User(props) {
   const { ...rest } = props;
@@ -87,74 +85,65 @@ export default function User(props) {
     }
   });
 
-  let routes = [
-    {
-      name: "Dashboard",
-      layout: [ROLE_PATH.user],
-      path: "/default",
-      icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-      component: MainDashboard,
-    },
-    {
-      name: "Lead",
-      layout: [ROLE_PATH.user],
-      path: "/lead",
-      icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-      component: Lead,
-    },
-    {
-      name: "New Lead",
-      layout: [ROLE_PATH.user],
-      path: "/new-lead",
-      icon: (
-        <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-      ),
-      component: LeadScreen,
-    },
-    {
-      name: "Leads Pool v2",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/test-v2",
-      icon: (
-        <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
-      ),
-      component: LeadPoolVersion2,
-    },
-    {
-      name: "HR Module",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/hrmodule",
-      icon: (
-        <Icon as={FaUserCircle} width="20px" height="20px" color="inherit" />
-      ),
-      component: HRModule,
-    },
-    {
-      name: "Leads Pool",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/pool",
-      icon: (
-        <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
-      ),
-      component: LeadPool,
-    },
-    {
-      name: "Sign In",
-      layout: "/auth",
-      path: "/sign-in",
-      icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-      component: SignInCentered,
-    },
-    {
-      name: "Points",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/points",
-      icon: (
-        <Icon as={FaDollarSign} width="20px" height="20px" color="inherit" />
-      ),
-      component: CurrencyPoints,
-    },
-  ];
+	let routes = [
+		{
+			name: 'Dashboard',
+			layout: [ROLE_PATH.user],
+			path: '/default',
+			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+			component: MainDashboard,
+		},
+		{
+			name: 'Lead',
+			layout: [ROLE_PATH.user],
+			path: '/lead',
+			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+			component: Lead,
+		},
+		{
+			name: 'New Lead',
+			layout: [ROLE_PATH.user],
+			path: '/new-lead',
+			icon: (
+				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadScreen,
+		},
+		{
+			name: 'HR Module',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hrmodule',
+			icon: (
+				<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+			),
+			component: HRModule,
+		},
+		{
+			name: 'Leads Pool',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/pool',
+			icon: (
+				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadPool,
+		},
+		{
+			name: 'Sign In',
+			layout: '/auth',
+			path: '/sign-in',
+			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+			component: SignInCentered,
+		},
+		{
+			name: 'Points',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/points',
+			icon: (
+				<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
+			),
+			component: CurrencyPoints,
+		},
+	];
 
   if (user?.roles[0]?.roleName === "Manager") {
     routes.push({

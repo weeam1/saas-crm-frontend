@@ -676,18 +676,23 @@ export default function CheckTable(props) {
 			);
 
 			const r = await getApi(`api/user/view/${user?._id}`);
+
+			const coinsDeduct =
+				allData?.find((lead) => lead?._id === leadID)?.leadStatus === 'new'
+					? r?.data?.coins - 300
+					: r?.data?.coins - 50;
+
 			const response = await putApi(`api/user/edit/${user?._id}`, {
 				// ...r?.data,
-				coins:
-					allData?.find((lead) => lead?._id === leadID)?.leadStatus === 'new'
-						? r?.data?.coins - 300
-						: r?.data?.coins - 50,
+				coins: coinsDeduct,
 			});
+
+			setUserCoins(coinsDeduct);
 
 			toast.success('You have successfully purchased');
 			// fetchData();
 
-			// refreshData();
+			refreshData();
 		} catch (error) {
 			if (error.response?.status === 400) {
 				const errorDetails =
@@ -2529,6 +2534,7 @@ export default function CheckTable(props) {
 				}}
 				isOpen={manageColumns}
 				isCentered
+				size='4xl'
 			>
 				<ModalOverlay />
 				<ModalContent>
@@ -2539,9 +2545,23 @@ export default function CheckTable(props) {
 						}}
 					/>
 					<ModalBody>
-						<div>
+						<Grid
+							templateColumns={{
+								base: 'repeat(1,1fr)',
+								md: 'repeat(2,1fr)',
+								lg: 'repeat(3,1fr)',
+							}}
+							overflow='scroll'
+							height='40vh'
+							gap='2'
+						>
 							{dynamicColumns?.map((column, index) => (
-								<Text display={'flex'} key={column.accessor + index} py={2}>
+								<Text
+									display='flex'
+									alignItems='center'
+									key={column.accessor + index}
+									py={2}
+								>
 									<Checkbox
 										value={selectedColumns.some(
 											(selectedColumn) =>
@@ -2557,7 +2577,7 @@ export default function CheckTable(props) {
 									{column.Header}
 								</Text>
 							))}
-						</div>
+						</Grid>
 					</ModalBody>
 					<ModalFooter>
 						<Button

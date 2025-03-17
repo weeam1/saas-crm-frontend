@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	Drawer,
 	DrawerOverlay,
@@ -8,14 +7,7 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Button,
-	FormControl,
-	FormLabel,
-	Input,
-	Textarea,
-	Checkbox,
 	Grid,
-	Box,
-	Select,
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -24,9 +16,10 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
-import { useFetchItemsQuery } from 'api/apiSlice';
+import { useDispatch } from 'react-redux';
+import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 
-const AddLead = ({ isOpen, onClose, refreshData, size }) => {
+const AddLead = ({ isOpen, onClose, size }) => {
 	// Initial values for Formik
 	const initialValues = {
 		leadName: '',
@@ -35,19 +28,23 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		nationality: '',
 		timetocall: '',
 		budget: '',
-		ip: '',
+		ip: '0.0.0.0',
+		city: '',
+		country: '',
 		eLeadStatus: '',
 		leadStatus: '',
 		leadLang: '',
-		// lastNote: '',
-		leadCountry: '',
+		lastNote: '',
 		leadSourceDetails: '',
+		leadSourceChannel: '',
 		leadSourceMedium: '',
 		leadCampaign: '',
 		pageUrl: '',
 		leadAddress: '',
 		leadEmail: '',
 		r_u_in_uae: '',
+		attendanceDay: '',
+		adset: '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -64,14 +61,19 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
-		{ name: 'ip', label: 'Country', type: 'text' },
+		{ name: 'ip', label: 'IP', type: 'text' },
+		{ name: 'city', label: 'City', type: 'text' },
+		{ name: 'country', label: 'Country', type: 'text' },
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		{ name: 'leadSourceDetails', label: 'Source Details', type: 'text' },
+		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
-		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'leadAddress', label: 'Address', type: 'text' },
+		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
+		{ name: 'adset', label: 'Adset', type: 'text' },
 		// Adding the new 'status' field with select type
 		{
 			name: 'eLeadStatus',
@@ -85,23 +87,40 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 			type: 'select',
 			options: leadStatus,
 		},
+		{ name: 'lastNote', label: 'Last Note', type: 'text' },
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();
 
-	// The submit handler is similar to your provided AddData function.
+	const dispatch = useDispatch();
+
 	const handleSubmit = async (values, actions) => {
 		try {
-			// Call the API – adjust the endpoint/path as needed.
-			await createItemMuation({
+			const formattedIp = [
+				values.ip || '',
+				values.city || '',
+				values.country || '',
+			]
+				.join('-')
+				.trim();
+
+			const updatedValues = {
+				...values,
+				ip: formattedIp,
+			};
+			delete updatedValues.city;
+			delete updatedValues.country;
+
+			const res = await createItemMuation({
 				path: '/lead/add-lead',
-				body: values,
+				body: updatedValues,
 			}).unwrap();
 
 			toast.success('Lead added successfully.');
 			onClose();
 			actions.resetForm();
-			refreshData();
+			dispatch(addOrUpdateLead(res));
+			// refreshData();
 		} catch (error) {
 			console.error(error);
 			toast.error(error.data.message || 'Lead not added');
@@ -207,7 +226,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height='70vh'
+									height={{ base: '60vh', md: '75vh' }}
 									p='4'
 								>
 									<RenderFields fields={fields} />

@@ -3,10 +3,17 @@ import { HStack, Text, Icon, Menu, MenuButton, MenuList, MenuItem } from "@chakr
 import { FaEye, FaHistory } from "react-icons/fa";
 import { CiMenuKebab } from "react-icons/ci";
 
-const CardHeader = memo(({ id, onViewLeadCycle }) => (
+const CardHeader = memo(({ id, onViewLeadCycle ,onViewLead, leadId}) => (
   <HStack justifyContent="space-between" w="100%" mb={1}>
     <HStack>
-      <Icon as={FaEye} color="#C1C1C1" boxSize={3} />
+    <Icon
+        as={FaEye}
+        color="#C1C1C1"
+        boxSize={3}
+        cursor="pointer"
+        onClick={() => onViewLead(leadId)} 
+        _hover={{ color: "blue.500" }}
+      />
       {/* <Text color="#BEBEBE" fontSize="12px" fontFamily="DM Sans">
         {id || "N/A"}
       </Text> */}

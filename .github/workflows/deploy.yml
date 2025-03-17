@@ -1,0 +1,41 @@
+name: Deploy React Frontend
+
+on:
+  push:
+    branches:
+      - new-code  # Runs when pushing to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: main
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 46.202.140.221 >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: 46.202.140.221
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/html/weeam-crm-frontend
+            git reset --hard
+            git pull origin new-code
+            
+            # Ensure NVM and Node.js are loaded
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 22
+            
+            npm install --force
+            NODE_OPTIONS="--max-old-space-size=4096" npm run build

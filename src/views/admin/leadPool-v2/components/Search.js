@@ -8,7 +8,7 @@ import {
   Box,
   Flex,
 } from "@chakra-ui/react";
-import { CloseIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import AdvancedSearchModal from "./AdvancedSearchModal";
 
 const SearchBox = ({
@@ -24,14 +24,17 @@ const SearchBox = ({
   isLoading,
   setSearchTerm: setParentSearchTerm,
   setTags,
+  searchTerm: parentSearchTerm,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(parentSearchTerm || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchClear, setSearchClear] = useState(false);
   const [formValues, setFormValues] = useState({});
   const [isFormReset, setIsFormReset] = useState(false);
   const [getTagValues, setGetTagValues] = useState([]);
-
+  React.useEffect(() => {
+    setSearchTerm(parentSearchTerm || "");
+  }, [parentSearchTerm]);
   const handleSearch = () => {
     if (searchTerm.trim()) {
       fetchSearchedData(searchTerm, 1, pageSize);
@@ -46,7 +49,6 @@ const SearchBox = ({
       handleSearch();
     }
   };
-
   const handleClear = () => {
     setSearchTerm("");
     setSearchClear(false);
@@ -57,124 +59,67 @@ const SearchBox = ({
     setTags([]);
     onClearSearch();
   };
-
   return (
     <Flex
+      display="flex"
+      height={{ base: "80px", md: "30px" }}
       justifyContent={{ base: "center", md: "center" }}
       alignItems="center"
       width="100%"
     >
-      <Box
-        width={{ base: "100%", md: "fit-content" }}
-        bg="softGray.50"
-        p="2"
-        borderRadius="md"
-      >
+      <Box width={{ base: "100%", md: "fit-content" }} p="2" borderRadius="md">
         <HStack
-          spacing={3}
-          gap="2"
+          spacing={1}
           flexDirection={{ base: "column", md: "row" }}
           justifyContent="center"
         >
-          {/* <InputGroup
+          <InputGroup
             bg="white"
             border="1px solid"
             borderColor="softGray.600"
             borderRadius="md"
-            w={{ base: "100%", md: "280px" }}
-            pr="30px"
+            w={{ base: "100%", md: "280px", lg: "310px" }}
+            pr="0"
             overflow="hidden"
           >
             <Input
-              placeholder="name.."
+              placeholder="Search by lead name..."
               border="none"
               fontSize="xs"
-              height="2.2rem"
+              height="2.5rem"
               _focus={{ boxShadow: "none" }}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={handleKeyPress}
               pr="4.5rem"
+              fontFamily="'DM Sans', sans-serif"
             />
-            <InputRightElement width="auto" height="100%" pr={1}>
-              {searchTerm && (
-                <CloseIcon
-                  fontSize="xs"
-                  color="gray.500"
-                  cursor="pointer"
-                  onClick={handleClear}
-                  mr={2}
-                />
-              )}
+            <InputRightElement width="auto" height="100%" alignItems="center">
               <Button
-                size="md"
+                size="sm"
+                w="80px"
                 bg="softGray.700"
                 borderLeft="1px solid"
                 borderColor="softGray.600"
                 px={4}
                 borderRadius="0"
                 fontSize="xs"
+                display="flex"
+                alignItems="center"
                 height="100%"
                 _hover={{ bg: "gray.50" }}
                 _active={{ bg: "gray.100" }}
                 onClick={handleSearch}
                 isDisabled={isLoading}
+                fontFamily="'DM Sans', sans-serif"
               >
-                Search
-              </Button>
-            </InputRightElement>
-          </InputGroup> */}
-          <InputGroup
-            bg="white"
-            border="1px solid"
-            borderColor="softGray.600"
-            borderRadius="md"
-            w={{ base: "100%", md: "280px" }}
-            pr="0"
-            overflow="hidden"
-          >
-            <Input
-              placeholder="name.."
-              border="none"
-              fontSize="xs"
-              height="2.2rem"
-              _focus={{ boxShadow: "none" }}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={handleKeyPress}
-              pr="4.5rem"
-            />
-            <InputRightElement width="auto" height="100%">
-              {searchTerm && (
-                <CloseIcon
-                  fontSize="xs"
-                  color="gray.500"
-                  cursor="pointer"
-                  onClick={handleClear}
-                  mr={2}
-                />
-              )}
-              <Button
-                size="md"
-                bg="softGray.700"
-                borderLeft="1px solid"
-                borderColor="softGray.600"
-                px={4}
-                borderLeftRadius="0"
-                borderRadius="0px"
-                fontSize="xs"
-                height="100%"
-                _hover={{ bg: "gray.50" }}
-                _active={{ bg: "gray.100" }}
-                onClick={handleSearch}
-                isDisabled={isLoading}
-              >
-                Search
+                <Flex align="center" display="inline-flex" alignItems="center">
+                  Search <SearchIcon fontSize="xs" color="brand.500" ml={1} />
+                </Flex>
               </Button>
             </InputRightElement>
           </InputGroup>
-
-          <HStack gap="2">
+          <HStack>
             <Button
               border="1px solid"
               borderColor="softGray.600"

@@ -1,7 +1,7 @@
 import { Button, HStack, Box, Flex, Stack } from "@chakra-ui/react";
 
 const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
-  const tabs = ["All", "Pending", "Rejected"];
+  const tabs = ["Buy Leads", "Pending", "Rejected"]; 
 
   return (
     <Box width="100%">
@@ -32,9 +32,9 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
               fontFamily="DM Sans"
               fontWeight="400"
               borderRadius="6px"
-              w={{ base: "100%", sm: "120px", md: "160px" }}
-              h="42px"
-              isDisabled={isLoading && activeTab !== tab && tab !== "All"}
+              w={{ base: "90px", sm: "100px", md: "120px" }}
+              h="40px"
+              isDisabled={isLoading && activeTab !== tab && tab !== "Buy Leads"} // Updated condition
             >
               {tab}
             </Button>

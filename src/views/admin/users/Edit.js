@@ -28,26 +28,36 @@ import { putApi } from 'services/api';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { jobTypes } from 'utils/options';
+import ImageUpload from './components/ImageUpload';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+
+	const [uploadImage, setUploadImage] = useState(false);
 
 	const { data: agencies } = useFetchItemsQuery({
 		path: '/agencies',
 	});
 
 	const initialValues = {
-		firstName: data ? data?.firstName : '',
-		lastName: data ? data?.lastName : '',
-		username: data ? data?.username : '',
-		agency: data ? data?.agency : '',
-		phoneNumber: data ? data?.phoneNumber : '',
-		parent: data ? data?.parent || '' : '',
-		target: data ? data?.target : '',
-		roles: data ? data?.roles : [],
+		firstName: data?.firstName ?? '',
+		lastName: data?.lastName ?? '',
+		username: data?.username ?? '',
+		agency: data?.agency?._id ?? '',
+		salary: data?.salary ?? '',
+		salaryType: data?.salaryType ?? '',
+		phoneNumber: data?.phoneNumber ?? '',
+		profileImage: data?.profileImage ?? '',
+		parent: data?.parent ?? '',
+		target: data?.target ?? '',
+		roles: data?.roles ?? [],
 	};
 
 	const user = JSON.parse(window.localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
+
 	const tree = useSelector((state) => state.user);
 
 	const formik = useFormik({
@@ -56,7 +66,6 @@ const Edit = (props) => {
 		enableReinitialize: true,
 		onSubmit: (values, { resetForm }) => {
 			EditData();
-			resetForm();
 		},
 	});
 
@@ -84,23 +93,53 @@ const Edit = (props) => {
 		setFieldValue,
 	} = formik;
 
-	const [isLoding, setIsLoding] = useState(false);
+	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
 	const EditData = async () => {
 		try {
-			setIsLoding(true);
-
 			const valuesObj = { ...values };
 			if (data?.roles[0]?.roleName === 'Manager') {
 				delete valuesObj['parent'];
 			}
-			let response = await putApi(
-				`api/user/edit/${props.selectedId}`,
-				valuesObj
-			);
-			if (response && response.status === 200) {
+
+			// const formData = new FormData();
+
+			// Object.keys(valuesObj).forEach((key) => {
+			// 	const value = valuesObj[key];
+
+			// 	if (value === undefined || value === null || value === '') return;
+
+			// 	if (key === 'profileImage' && value instanceof File) {
+			// 		formData.append(key, value);
+			// 	} else if (key === 'roles' && Array.isArray(value)) {
+			// 		value.forEach((role, index) => {
+			// 			if (role.roleName) {
+			// 				formData.append(`roles[${index}]`, role.roleName);
+			// 			}
+			// 		});
+			// 	} else {
+			// 		formData.append(key, value);
+			// 	}
+			// });
+
+			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
+				if (value !== undefined && value !== null && value !== '') {
+					acc[key] =
+						key === 'roles' && Array.isArray(value)
+							? value.map((role) => role.roleName).filter(Boolean)
+							: value;
+				}
+				return acc;
+			}, {});
+
+			let response = await updateItemMutation({
+				path: `/user/v2/edit/${props.selectedId}`,
+				body: bodyData,
+			});
+
+			if (response && response.data.modifiedCount) {
 				setEdit(false);
-				let updatedUserData = userData; // Create a copy of userData
+				let updatedUserData = userData;
 				if (user?._id === props.selectedId) {
 					if (updatedUserData && typeof updatedUserData === 'object') {
 						// Create a new object with the updated firstName
@@ -112,40 +151,57 @@ const Edit = (props) => {
 					}
 
 					const updatedDataString = JSON.stringify(updatedUserData);
-					localStorage.setItem('user', updatedDataString);
+
 					dispatch(setUser(updatedDataString));
+				}
+
+				if (user?._id === props.selectedId && values.password) {
+					window.location.reload();
+					localStorage.removeItem('token');
+					localStorage.removeItem('user');
+					localStorage.removeItem('accessToken');
 				}
 
 				handleCloseModal();
 				fetchData();
+				formik.resetForm();
 				props.setAction((pre) => !pre);
-			} else {
-				toast.error(response.response.data?.message);
 			}
 		} catch (e) {
 			console.log(e);
-		} finally {
-			setIsLoding(false);
+			toast.error(e.data?.message);
 		}
 	};
 
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
+		<Modal size='4xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Edit User
-					<IconButton onClick={handleCloseModal} icon={<CloseIcon />} />
+					<IconButton
+						onClick={handleCloseModal}
+						isDisabled={uploadImage}
+						icon={<CloseIcon />}
+					/>
 				</ModalHeader>
 				<ModalBody>
 					<Grid
-						h={'60vh'}
+						h={isAdmin ? '60vh' : '50vh'}
 						overflow={'scroll'}
 						templateColumns='repeat(12, 1fr)'
 						gap={3}
 						p={4}
 					>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={12}>
+							<ImageUpload
+								profileImage={values?.profileImage}
+								formik={formik}
+								user={data}
+								setUploadImage={setUploadImage}
+							/>
+						</GridItem>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -168,11 +224,10 @@ const Edit = (props) => {
 								}
 							/>
 							<Text mb='10px' color={'red'}>
-								{' '}
 								{errors.firstName && touched.firstName && errors.firstName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -195,39 +250,10 @@ const Edit = (props) => {
 								}
 							/>
 							<Text mb='10px' color={'red'}>
-								{' '}
 								{errors.lastName && touched.lastName && errors.lastName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Email
-							</FormLabel>
-							<Input
-								fontSize='sm'
-								type='email'
-								onChange={handleChange}
-								onBlur={handleBlur}
-								value={values.username}
-								name='username'
-								placeholder='Email Address'
-								fontWeight='500'
-								borderColor={
-									errors.username && touched.username ? 'red.300' : null
-								}
-							/>
-							<Text mb='10px' color={'red'}>
-								{' '}
-								{errors.username && touched.username && errors.username}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 6 }}>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -263,39 +289,129 @@ const Edit = (props) => {
 									errors.phoneNumber}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Select agency <Text color={'red'}>*</Text>
-							</FormLabel>
-							<Select
-								name='agency'
-								value={values.agency?._id}
-								onChange={handleChange}
-								onBlur={handleBlur}
-								placeholder='Select agency'
-								borderColor={errors.agency && touched.agency ? 'red.300' : null}
-							>
-								{agencies?.doc?.map((agency) => (
-									<option key={agency._id} value={agency._id}>
-										{agency.name}
-									</option>
-								))}
-							</Select>
-							<Text mb='10px' color={'red'}>
-								{errors.agency && touched.agency && errors.agency}
-							</Text>
-						</GridItem>
+						{isAdmin && (
+							<>
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Email
+									</FormLabel>
+									<Input
+										fontSize='sm'
+										type='email'
+										onChange={handleChange}
+										onBlur={handleBlur}
+										value={values.username}
+										name='username'
+										placeholder='Email Address'
+										fontWeight='500'
+										borderColor={
+											errors.username && touched.username ? 'red.300' : null
+										}
+									/>
+									<Text mb='10px' color={'red'}>
+										{errors.username && touched.username && errors.username}
+									</Text>
+								</GridItem>
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Salary Type
+									</FormLabel>
+									<Select
+										name='salaryType'
+										value={values.salaryType}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										placeholder='Select salary type'
+										borderColor={
+											errors.salaryType && touched.salaryType ? 'red.300' : null
+										}
+									>
+										{jobTypes?.map((job) => (
+											<option key={job.value} value={job.value}>
+												{job.label}
+											</option>
+										))}
+									</Select>
 
-						{values &&
-							values?.roles &&
-							values?.roles[0]?.roleName === 'Agent' && (
-								<GridItem colSpan={{ base: 12 }}>
+									<Text mb='10px' color={'red'}>
+										{errors.salaryType &&
+											touched.salaryType &&
+											errors.salaryType}
+									</Text>
+								</GridItem>
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Salary
+									</FormLabel>
+									<Input
+										fontSize='sm'
+										type='number'
+										min={0}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										value={values.salary}
+										name='salary'
+										fontWeight='500'
+										borderColor={
+											errors.salary && touched.salary ? 'red.300' : null
+										}
+									/>
+									<Text mb='10px' color={'red'}>
+										{errors.salary && touched.salary && errors.salary}
+									</Text>
+								</GridItem>
+
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Select agency <Text color={'red'}>*</Text>
+									</FormLabel>
+									<Select
+										name='agency'
+										value={values.agency}
+										onChange={handleChange}
+										onBlur={handleBlur}
+										placeholder='Select agency'
+										borderColor={
+											errors.agency && touched.agency ? 'red.300' : null
+										}
+									>
+										{agencies?.doc?.map((agency) => (
+											<option key={agency._id} value={agency._id}>
+												{agency.name}
+											</option>
+										))}
+									</Select>
+
+									<Text mb='10px' color={'red'}>
+										{errors.agency && touched.agency && errors.agency}
+									</Text>
+								</GridItem>
+
+								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'
 										ms='4px'
@@ -313,43 +429,41 @@ const Edit = (props) => {
 										placeholder='Select Manager'
 									>
 										{tree?.tree?.managers?.map((manager) => (
-											<option value={manager?._id}>
+											<option key={manager?._id} value={manager?._id}>
 												{manager?.firstName + ' ' + manager?.lastName}
 											</option>
 										))}
 									</Select>
 								</GridItem>
-							)}
-						{(user?.role === 'superAdmin' ||
-							user?.roles[0]?.roleName === 'Manager') && (
-							<GridItem colSpan={{ base: 12 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Revenue Target
-								</FormLabel>
-								<InputGroup>
-									<Input
-										type='number'
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
 										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.target}
-										name='target'
 										fontWeight='500'
-										placeholder='Revenue Target'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-							</GridItem>
+										mb='8px'
+									>
+										Revenue Target
+									</FormLabel>
+									<InputGroup>
+										<Input
+											type='number'
+											fontSize='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.target}
+											name='target'
+											fontWeight='500'
+											placeholder='Revenue Target'
+											borderRadius='16px'
+										/>
+									</InputGroup>
+								</GridItem>
+							</>
 						)}
 
-						{user?.role === 'superAdmin' && (
-							<GridItem colSpan={{ base: 12 }}>
+						{isAdmin && (
+							<GridItem colSpan={{ base: 6 }}>
 								<FormLabel
 									display='flex'
 									ms='4px'
@@ -380,10 +494,10 @@ const Edit = (props) => {
 					<Button
 						size='sm'
 						variant='brand'
-						disabled={isLoding ? true : false}
+						disabled={isLoading ? true : false}
 						onClick={handleSubmit}
 					>
-						{isLoding ? <Spinner /> : 'Update'}
+						{isLoading ? <Spinner /> : 'Update'}
 					</Button>
 					<Button
 						variant='outline'
@@ -393,6 +507,7 @@ const Edit = (props) => {
 							marginLeft: 2,
 							textTransform: 'capitalize',
 						}}
+						isDisabled={uploadImage}
 						onClick={() => handleCloseModal()}
 					>
 						close
