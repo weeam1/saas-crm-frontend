@@ -77,6 +77,9 @@ const BankAccounts = React.lazy(() => import('views/admin/bankAccounts'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
+const OfficeSettings = React.lazy(
+	() => import('views/admin/agencies/OfficeSetting')
+);
 const TaskView = React.lazy(
 	() => import('views/admin/task/components/taskView')
 );
@@ -700,6 +703,13 @@ const routes = [
 		path: '/agencies',
 		under: 'agencies',
 		component: Agency,
+	},
+	{
+		name: 'Office Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/office-settings/:id',
+		under: 'office-settings',
+		component: OfficeSettings,
 	},
 	// ========================== User layout ==========================
 
