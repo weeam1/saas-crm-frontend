@@ -158,15 +158,6 @@ export default function User(props) {
 			icon: (
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
-			component: LeadPoolVersion2,
-		},
-		{
-			name: 'Leads Pool',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/pool',
-			icon: (
-				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-			),
 			component: LeadPoolAgent,
 		},
 		{

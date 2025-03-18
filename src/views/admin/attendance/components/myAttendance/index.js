@@ -17,8 +17,6 @@ const Attendance = () => {
 	const { id: employeeId } = useParams();
 	const user = JSON.parse(localStorage.getItem('user'));
 
-	const settings = JSON.parse(localStorage.getItem('officeSettings')) ?? null;
-
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -26,21 +24,11 @@ const Attendance = () => {
 		useFetchItemsQuery(
 			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
 			{
-				skip: settings,
 				refetchOnMountOrArgChange: true,
 			}
 		);
 
-	useEffect(() => {
-		if (officeSettings?.doc) {
-			localStorage.setItem(
-				'officeSettings',
-				JSON.stringify(officeSettings?.doc)
-			);
-		}
-	}, [officeSettings?.doc]);
-
-	const timezone = settings?.timezone ?? 'Asia/Karachi';
+	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Karachi';
 
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
@@ -140,7 +128,7 @@ const Attendance = () => {
 			fontFamily="'DM Sans', sans-serif"
 			boxShadow='sm'
 		>
-			{role === 'superAadmin' ? (
+			{role === 'superAdmin' ? (
 				<>
 					<Text fontSize='lg' fontWeight='bold' color='gray.700'>
 						No office settings found!

@@ -256,15 +256,6 @@ const routes = [
 		component: LeadPoolAdmin,
 	},
 	{
-		name: 'Leads Pool',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/pool',
-		icon: (
-			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-		),
-		component: LeadPoolAdmin,
-	},
-	{
 		name: 'Points',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/points',
