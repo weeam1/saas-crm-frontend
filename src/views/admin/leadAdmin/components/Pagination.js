@@ -47,15 +47,18 @@ const Pagination = ({
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
 
+  // Sync gotoPage with currentPage when it changes
   useEffect(() => {
     setGotoPage(currentPage);
   }, [currentPage, activeTab, pageSize]);
 
+  // Calculate total pages based on totalItems and pageSize
   const totalPagesForTab = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
   const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
 
+  // Pagination handlers
   const handleFirst = () => {
     setCurrentPage(1);
     setGotoPage(1);
@@ -81,7 +84,10 @@ const Pagination = ({
   };
 
   const handleGoToChange = (value) => {
-    setGotoPage(value);
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      setGotoPage(numValue);
+    }
   };
 
   const handleGoToBlur = () => {
@@ -94,19 +100,36 @@ const Pagination = ({
     if (loading) return;
     const newPageSize = Number(event.target.value);
     onPageSizeChange(newPageSize);
+    // Reset to first page when page size changes
+    setCurrentPage(1);
+    setGotoPage(1);
   };
-
+  const handleClearAdvancedSearch = () => {
+    setSearchQuery(""); 
+    setFormValues({});  
+    setCurrentPage(1);  
+    setGotoPage(1);     
+  };
   const buttonStyle = {
-    size: { base: "xs", md: "sm" }, // xs for base, sm for md and up
+    size: { base: "xs", sm: "xs", md: "sm" },
     borderRadius: "lg",
     _hover: { shadow: "sm", transition: "all 0.2s ease-in-out" },
     _active: { bg: "softGray.500" },
     sx: { svg: { fill: "brand.500" } },
-    px: { base: 1, md: 2 },
+    px: { base: 1, sm: 1, md: 2 },
+    fontFamily: "DM Sans",
+    fontSize: { base: "sm", sm: "xs", md: "sm" },
   };
 
   return (
-    <Box width="100%" bg="white" p={5} borderRadius="10px" minHeight="100%">
+    <Box
+      width="100%"
+      bg="white"
+      p={5}
+      borderRadius="10px"
+      minHeight="100%"
+      fontFamily="DM Sans"
+    >
       <LeadsProgress
         totalLeads={totalItems}
         searchQuery={searchQuery}
@@ -131,17 +154,29 @@ const Pagination = ({
           p={{ base: 1, md: 2 }}
           flex="1"
           minWidth={{ base: "100%", lg: "300px" }}
-          maxHeight={{ md: "100px" }}
           overflow="auto"
+          fontFamily="DM Sans"
         >
-          <Flex
-            direction={{ base: "column", md: "row" }}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={1.5}
+          <HStack
+            spacing={3}
+            p={2}
+            gap="2"
+            flexDirection={{ base: "row", md: "row", lg: "row" }}
             flexWrap="wrap"
+            bg="softGray.50"
+            borderRadius="md"
+            align="center"
+            justifyContent={{
+              base: "center",
+              md: "space-between",
+              lg: "space-between",
+            }}
+            width="100%"
+            maxWidth="100%"
+            fontSize={leadValueFontSize}
           >
-            <HStack spacing={1} flexShrink={0}>
+            {/* First & Previous Buttons */}
+            <HStack flexDirection="row" flexWrap="wrap" justifyContent="center">
               <Button
                 {...buttonStyle}
                 onClick={handleFirst}
@@ -149,142 +184,139 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
+               py="1"
+                px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
                   />
                 }
                 aria-label="First Page"
-                fontSize={{ base: "xs", md: "sm" }}
-                p="8px"
               >
                 First
               </Button>
+
               <Button
                 {...buttonStyle}
                 onClick={handlePrevious}
                 isDisabled={loading || currentPage === 1}
                 variant="solid"
+                   py="1"
+                px="3"
                 bg="softGray.600"
                 color="black"
-                p="8px"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Previous
               </Button>
             </HStack>
 
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              flex="1"
-              justifyContent="space-around"
-              alignItems="center"
-              gap={1}
-              width={{ base: "100%", md: "auto" }}
-              flexWrap="wrap"
-            >
-              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Go to</Text>
-                <NumberInput
-                  value={gotoPage}
-                  onChange={handleGoToChange}
-                  onBlur={handleGoToBlur}
-                  min={1}
-                  max={totalPagesForTab}
-                  size="xs"
-                  width="4rem"
-                  bg="softGray.50"
-                  border="1px solid softGray.600"
-                  isDisabled={loading}
-                >
-                  <NumberInputField
-                    aria-label="Go to page"
-                    textAlign="center"
-                    borderRadius="md"
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && !loading && handleGoToBlur()
-                    }
-                    border="1px solid"
-                    borderColor="softGray.600"
-                    _focus={{ borderColor: "brand.500" }}
-                    fontSize={{ base: "2xs", md: "xs" }}
-                    p={1}
-                  />
-                </NumberInput>
-                <Text fontSize={{ base: "2xs", md: "xs" }}>
-                  of {Number(totalPagesForTab).toLocaleString()}
-                </Text>
-              </HStack>
-
-              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Per page:</Text>
-                <Select
-                  size="xs"
-                  value={pageSize}
-                  onChange={handlePageSizeChange}
-                  width="60px"
-                  bg="softGray.50"
-                  border="1px solid softGray.600"
-                  isDisabled={loading}
-                  fontSize={{ base: "2xs", md: "xs" }}
-                >
-                  <option value={10}>10</option>
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </Select>
-              </HStack>
-
-              <Text
-                fontSize={{ base: "2xs", md: "xs" }}
-                fontWeight="medium"
-                color="gray.800"
+            {/* Go To Page */}
+            <HStack fontWeight="medium" color="gray.800" spacing={1}>
+              <Text fontSize="12px">Go to</Text>
+              <NumberInput
+                value={gotoPage}
+                onChange={handleGoToChange}
+                onBlur={handleGoToBlur}
+                min={1}
+                max={totalPagesForTab}
+                size="sm"
+                borderRadius="md"
+                width="5rem"
+                bg="softGray.50"
+                border="1px solid softGray.600"
+                allowMouseWheel={false}
+                clampValueOnBlur={false}
+                isDisabled={loading}
               >
-                {startIndex}-{endIndex} of {totalItems}
-              </Text>
-            </Flex>
+                <NumberInputField
+                  aria-label="Go to page"
+                  textAlign="center"
+                  borderRadius="md"
+                  onKeyDown={(e) => e.key === "Enter" && handleGoToBlur()}
+                  border="2px solid"
+                  borderColor="softGray.600"
+                  _focus={{
+                    outline: "none",
+                    bg: "softGray.50",
+                    border: "1px solid",
+                    borderColor: "brand.500",
+                  }}
+                  _active={{ bg: "softGray.400" }}
+                  isDisabled={loading}
+                />
+              </NumberInput>
+              <Text>of {totalPagesForTab.toLocaleString()}</Text>
+            </HStack>
 
-            <HStack spacing={1} flexShrink={0}>
+            {/* Showing range */}
+            <Text
+              color="gray.800"
+              fontSize="12px"
+            >
+              Showing {startIndex.toLocaleString()} -{" "}
+              {endIndex.toLocaleString()} of {totalItems.toLocaleString()}
+            </Text>
+
+            {/* Page Size Selector and Next/Last Buttons */}
+            <HStack flexDirection="row" flexWrap="wrap" justifyContent="center">
+              <Select
+                size="sm"
+                w={{ base: "32" }}
+                value={pageSize}
+                color="gray.800"
+                bg="softGray.400"
+                borderRadius="md"
+                border="2px solid"
+                _focus={{ boxShadow: "0 0 0 1px softGray.500" }}
+                onChange={handlePageSizeChange}
+                isDisabled={loading || !totalItems}
+              >
+                {totalItems > 0 ? (
+                  [25, 50, 80, 100]
+                    .filter((size) => size <= totalItems)
+                    .map((size) => (
+                      <option key={size} value={size}>
+                        Show {size}
+                      </option>
+                    ))
+                ) : (
+                  <option value={pageSize}>Show {pageSize}</option>
+                )}
+              </Select>
+
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={
-                  loading ||
-                  currentPage === totalPagesForTab ||
-                  totalItems === 0
-                }
+                isDisabled={loading || currentPage === totalPagesForTab}
                 variant="solid"
                 bg="softGray.600"
+                py="1"
+                px="3"
                 color="black"
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
-                fontSize={{ base: "xs", md: "sm" }}
-                p="8px"
               >
                 Next
               </Button>
+
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={
-                  loading ||
-                  currentPage === totalPagesForTab ||
-                  totalItems === 0
-                }
+                isDisabled={loading || currentPage === totalPagesForTab}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
+                 py="1"
+                px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
-                fontSize={{ base: "xs", md: "sm" }}
-                p="8px"
               >
                 Last
               </Button>
             </HStack>
-          </Flex>
+          </HStack>
         </Box>
 
         <Box
@@ -297,6 +329,7 @@ const Pagination = ({
           minWidth={{ base: "100%", lg: "200px" }}
           maxWidth={{ lg: "470px" }}
           mt={{ base: 2, lg: 0 }}
+          fontFamily="DM Sans"
         >
           <SearchBox
             onSearch={setSearchQuery}
@@ -320,13 +353,19 @@ const Pagination = ({
           loading={loading}
           searchQuery={searchQuery}
           formValues={formValues}
+          setSearchQuery={setSearchQuery}
         />
       )}
-      <Divider borderColor="#E7E7E7" my={4} />
+      <Divider borderColor="#E7E7E7" my={4} borderWidth="1.5px" />
 
-      <Box mt={4} flex="1" overflow="auto">
+      <Box mt={4} flex="1" overflow="auto" fontFamily="DM Sans">
         {searchNotFound && !loading ? (
-          <Text color="red.500" fontSize="md" textAlign="center">
+          <Text
+            color="red.500"
+            fontSize={{ base: "sm", sm: "sm", md: "md" }}
+            textAlign="center"
+            fontFamily="DM Sans"
+          >
             {searchNotFound}
           </Text>
         ) : (

@@ -16,7 +16,7 @@ import SearchBox from "./Search";
 import Tabs from "./Tabs";
 import TabContent from "./TabContent";
 import LeadsProgress from "./LeadProgress";
-
+import { CloseIcon } from "@chakra-ui/icons";
 const Pagination = ({
   data,
   totalPages,
@@ -52,18 +52,40 @@ const Pagination = ({
   const pageSizeOptions = [10, 25, 50, 100];
 
   useEffect(() => {
+    if (!data && !isLoading) {
+      setIsLoading(true);
+      fetchData(activeTab || "Buy Leads", currentPage || 1, pageSize || 50);
+    }
+  }, [
+    data,
+    isLoading,
+    fetchData,
+    activeTab,
+    currentPage,
+    pageSize,
+    setIsLoading,
+  ]);
+
+  useEffect(() => {
     setGotoPage(currentPage);
-  }, [currentPage, activeTab]);
+  }, [currentPage]);
 
   const startIndex = totalLeads > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalLeads);
-  const totalPagesForTab = Math.max(1, totalPages);
+  const totalPagesForTab = Math.max(1, Math.ceil(totalLeads / pageSize));
 
-  const handleNavigation = (page, fetchFn) => {
+  const handleNavigation = async (page, fetchFn) => {
     if (isLoading) return;
+    setIsLoading(true);
     setCurrentPage(page);
     setGotoPage(page);
-    fetchFn();
+    try {
+      await fetchFn();
+    } catch (error) {
+      console.error("Navigation error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFirst = () =>
@@ -96,7 +118,12 @@ const Pagination = ({
         : fetchData(activeTab, totalPagesForTab, pageSize)
     );
 
-  const handleGoToChange = (value) => setGotoPage(value);
+  const handleGoToChange = (value) => {
+    const numValue = Number(value);
+    if (!isNaN(numValue)) {
+      setGotoPage(numValue);
+    }
+  };
 
   const handleGoToBlur = () => {
     if (isLoading) return;
@@ -123,15 +150,15 @@ const Pagination = ({
     if (isLoading) return;
     setData([]);
     setTotalPages(0);
+    setSearchTerm("");
     setTotalLeads(0);
     setDisplaySearchData(false);
     setSearchTerm("");
     setTags([]);
     setCurrentPage(1);
     setPageSize(50);
-    setActiveTab("All");
-    setIsLoading(true);
-    fetchData("All", 1, 50);
+    setActiveTab("Buy Leads");
+    handleNavigation(1, () => fetchData("Buy Leads", 1, 50));
   };
 
   const buttonStyle = {
@@ -140,6 +167,8 @@ const Pagination = ({
     _hover: { shadow: "sm", transition: "all 0.2s ease-in-out" },
     _active: { bg: "softGray.500" },
     sx: { svg: { fill: "brand.500" } },
+    fontFamily: "DM Sans",
+    fontSize: { base: "xs", md: "sm", lg: "14px" },
   };
 
   return (
@@ -148,7 +177,11 @@ const Pagination = ({
       <Tabs
         userData={userData}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setCurrentPage(1);
+          handleNavigation(1, () => fetchData(tab, 1, pageSize));
+        }}
         isLoading={isLoading}
       />
 
@@ -168,17 +201,27 @@ const Pagination = ({
           p={{ base: 1, md: 2 }}
           flex="1"
           minWidth={{ base: "100%", lg: "300px" }}
-          maxHeight={{ md: "100px" }}
           overflow="auto"
+          fontFamily="DM Sans"
         >
-          <Flex
-            direction={{ base: "column", md: "row" }}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={1.5}
+          <HStack
+            spacing={3}
+            p={2}
+            gap="2"
+            flexDirection={{ base: "row", md: "row", lg: "row" }}
             flexWrap="wrap"
+            bg="softGray.50"
+            borderRadius="md"
+            align="center"
+            justifyContent={{
+              base: "center",
+              md: "space-between",
+              lg: "space-between",
+            }}
+            width="100%"
+            maxWidth="100%"
           >
-            <HStack spacing={1} flexShrink={0}>
+            <HStack flexDirection="row" flexWrap="wrap" justifyContent="center">
               <Button
                 {...buttonStyle}
                 onClick={handleFirst}
@@ -186,17 +229,18 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
+                py="1"
+                px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
                     style={{ transform: "rotate(180deg)" }}
                   />
                 }
                 aria-label="First Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 First
               </Button>
+
               <Button
                 {...buttonStyle}
                 onClick={handlePrevious}
@@ -204,125 +248,110 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
+                py="1"
+                px="3"
                 leftIcon={<FaPlay style={{ transform: "rotate(180deg)" }} />}
                 aria-label="Previous Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
-                Prev
+                Previous
               </Button>
             </HStack>
 
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              flex="1"
-              justifyContent="space-around"
-              alignItems="center"
-              gap={1}
-              width={{ base: "100%", md: "auto" }}
-              flexWrap="wrap"
-            >
-              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Go to</Text>
-                <NumberInput
-                  value={gotoPage}
-                  onChange={handleGoToChange}
-                  onBlur={handleGoToBlur}
-                  min={1}
-                  max={totalPagesForTab}
-                  size="xs"
-                  width="4rem"
-                  bg="softGray.50"
-                  border="1px solid softGray.600"
-                  isDisabled={isLoading}
-                >
-                  <NumberInputField
-                    aria-label="Go to page"
-                    textAlign="center"
-                    borderRadius="md"
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && !isLoading && handleGoToBlur()
-                    }
-                    border="1px solid"
-                    borderColor="softGray.600"
-                    _focus={{ borderColor: "brand.500" }}
-                    fontSize={{ base: "2xs", md: "xs" }}
-                    p={1}
-                  />
-                </NumberInput>
-                <Text fontSize={{ base: "2xs", md: "xs" }}>
-                  of {Number(totalPagesForTab).toLocaleString()}
-                </Text>
-              </HStack>
-
-              <HStack spacing={0.5} fontWeight="medium" color="gray.800">
-                <Text fontSize={{ base: "2xs", md: "xs" }}>Per page:</Text>
-                <Select
-                  size="xs"
-                  value={pageSize}
-                  onChange={handlePageSizeChange}
-                  width="60px"
-                  bg="softGray.50"
-                  border="1px solid softGray.600"
-                  isDisabled={isLoading}
-                  fontSize={{ base: "2xs", md: "xs" }}
-                >
-                  {pageSizeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-              </HStack>
-
-              <Text
-                fontSize={{ base: "2xs", md: "xs" }}
-                fontWeight="medium"
-                color="gray.800"
+            <HStack fontWeight="medium" color="gray.800" spacing={1}>
+              <Text fontSize="12px">Go to</Text>
+              <NumberInput
+                value={gotoPage}
+                onChange={handleGoToChange}
+                onBlur={handleGoToBlur}
+                min={1}
+                max={totalPagesForTab}
+                size="sm"
+                borderRadius="md"
+                width="5rem"
+                bg="softGray.50"
+                border="1px solid softGray.600"
+                allowMouseWheel={false}
+                clampValueOnBlur={false}
+                isDisabled={isLoading}
               >
-                {startIndex}-{endIndex} of {totalLeads}
+                <NumberInputField
+                  aria-label="Go to page"
+                  textAlign="center"
+                  borderRadius="md"
+                  onKeyDown={(e) => e.key === "Enter" && handleGoToBlur()}
+                  border="2px solid"
+                  borderColor="softGray.600"
+                  _focus={{
+                    outline: "none",
+                    bg: "softGray.50",
+                    border: "1px solid",
+                    borderColor: "brand.500",
+                  }}
+                  _active={{ bg: "softGray.400" }}
+                  isDisabled={isLoading}
+                />
+              </NumberInput>
+              <Text fontSize="12px">
+                of {totalPagesForTab.toLocaleString()}
               </Text>
-            </Flex>
+            </HStack>
 
-            <HStack spacing={1} flexShrink={0}>
+            <Text color="gray.800" fontWeight="medium" fontSize="12px">
+              Showing {startIndex.toLocaleString()} -{" "}
+              {endIndex.toLocaleString()} of {totalLeads.toLocaleString()}
+            </Text>
+
+            <HStack flexDirection="row" flexWrap="wrap" justifyContent="center">
+              <Select
+                size="sm"
+                w={{ base: "32" }}
+                value={pageSize}
+                color="gray.800"
+                bg="softGray.400"
+                borderRadius="md"
+                border="2px solid"
+                _focus={{ boxShadow: "0 0 0 1px softGray.500" }}
+                onChange={handlePageSizeChange}
+                isDisabled={isLoading || totalLeads === 0}
+              >
+                {pageSizeOptions.map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
+                  </option>
+                ))}
+              </Select>
+
               <Button
                 {...buttonStyle}
                 onClick={handleNext}
-                isDisabled={
-                  isLoading ||
-                  currentPage === totalPagesForTab ||
-                  totalLeads === 0
-                }
+                isDisabled={isLoading || currentPage >= totalPagesForTab}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: "1", md: "2" }}
+                py="1"
+                px="3"
                 rightIcon={<FaPlay />}
                 aria-label="Next Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Next
               </Button>
+
               <Button
                 {...buttonStyle}
                 onClick={handleLast}
-                isDisabled={
-                  isLoading ||
-                  currentPage === totalPagesForTab ||
-                  totalLeads === 0
-                }
+                isDisabled={isLoading || currentPage >= totalPagesForTab}
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                px={{ base: 1, md: 2 }}
+                py="1"
+                px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"
-                fontSize={{ base: "xs", md: "sm" }}
               >
                 Last
               </Button>
             </HStack>
-          </Flex>
+          </HStack>
         </Box>
 
         <Box
@@ -349,6 +378,7 @@ const Pagination = ({
             isLoading={isLoading}
             setSearchTerm={setSearchTerm}
             setTags={setTags}
+            searchTerm={searchTerm}
           />
         </Box>
       </Flex>
@@ -356,21 +386,45 @@ const Pagination = ({
       {displaySearchData && (
         <Flex justifyContent="space-between" alignItems="center" p={3}>
           <HStack spacing={2}>
-            <Text fontSize="sm" fontWeight="medium" color="gray.800">
+            <Text
+              fontFamily="DM Sans"
+              fontSize={{ base: "sm", md: "md", lg: "14px" }}
+              fontWeight="medium"
+              color="gray.800"
+            >
               Lead Search:
             </Text>
-            <Text fontSize="sm" color="gray.600">
+            <Text
+              fontFamily="DM Sans"
+              fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+              color="gray.600"
+            >
               {searchTerm ||
                 (tags.length > 0 ? tags.join(", ") : "No filters applied")}
             </Text>
           </HStack>
           <Button
-            colorScheme="red"
-            variant="outline"
+            bg="#f56565"
+            color="white"
+            w="80px"
+            h="35px"
+            borderRadius="5px"
+            _hover={{
+              bg: "#e53e3e",
+            }}
+            fontWeight="normal"
+            variant="solid"
             size="sm"
             onClick={handleClearSearch}
             isDisabled={isLoading}
+            fontFamily="DM Sans"
+            fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            lineHeight="1"
           >
+            <CloseIcon fontSize="9px" color="white" mr={2} />
             Clear
           </Button>
         </Flex>
@@ -379,7 +433,7 @@ const Pagination = ({
       <Divider borderColor="#E7E7E7" my={4} />
       <TabContent
         activeTab={activeTab}
-        data={data}
+        data={data || []}
         isLoading={isLoading}
         pageSize={pageSize}
         sendRequest={sendRequest}

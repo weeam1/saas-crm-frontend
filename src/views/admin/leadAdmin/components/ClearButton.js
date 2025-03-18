@@ -9,9 +9,11 @@ const ClearAdvancedSearchButton = ({
   loading,
   searchQuery,
   formValues,
+  setSearchQuery
 }) => {
   const handleClear = () => {
     clearAdvancedSearch();
+    setSearchQuery("");
   };
 
   const users = useSelector((state) => state.user?.users) || [];
@@ -115,22 +117,27 @@ const ClearAdvancedSearchButton = ({
           {searchLabel}
         </Text>
       ) : (
-        <Box /> // Placeholder to maintain layout when no search
+        <Box /> 
       )}
       <Button
-        border="1px solid"
-        borderColor="softGray.600"
-        bg="white"
-        borderRadius="md"
-        p={4}
-        fontSize="xs"
-        w="100px"
-        minW="max-content"
-        height="2.2rem"
+        bg="#f56565"
+        color="white"
+        w="80px"
+        h="35px"
+        borderRadius="5px"
+        _hover={{
+          bg: "#e53e3e",
+        }}
+        fontWeight="normal"
+        variant="solid"
+        size="sm"
+        fontFamily="DM Sans"
+        fontSize={{ base: "xs", md: "sm", lg: "14px" }}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        lineHeight="1"
         onClick={handleClear}
-        _hover={{ bg: "gray.50" }}
-        _active={{ bg: "gray.100" }}
-        isDisabled={loading}
         leftIcon={<BiX />}
       >
         Clear

@@ -14,10 +14,10 @@ const Index = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentState, setCurrentState] = useState("all_leads");
+  const [currentState, setCurrentState] = useState("buy_leads"); 
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
   const [pageSize, setPageSize] = useState(50);
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState("Buy Leads"); 
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
   const [searchedData, setSearchedData] = useState([]);
@@ -35,7 +35,6 @@ const Index = () => {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
-
   const fetchData = async (pageNo = 1, size = pageSize, source) => {
     if (isLoading) return;
     let isMounted = true;
@@ -43,14 +42,9 @@ const Index = () => {
     setError(null);
     try {
       let result;
-      if (
-        user.role !== "superAdmin" &&
-        (currentState === "all_leads" || currentState === "Accepted")
-      ) {
+      if (user.role !== "superAdmin" && currentState === "buy_leads") {
         result = await getApi(
-          currentState === "all_leads"
-            ? `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
-            : `api/lead/?user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}`,
+          `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=pending`, 
           null,
           "baseUrl",
           source
@@ -62,7 +56,7 @@ const Index = () => {
               localStorage.getItem("token") || sessionStorage.getItem("token"),
           },
           params: {
-            approvalStatus: currentState === "all_leads" ? "" : currentState,
+            approvalStatus: currentState === "buy_leads" ? "" : currentState,
             page: pageNo,
             pageSize: size,
             managerId: user?.roles[0]?.roleName === "Manager" ? user?._id : "",
@@ -116,7 +110,6 @@ const Index = () => {
       isMounted = false;
     };
   };
-
   const fetchUserData = async () => {
     let isMounted = true;
     setIsLoading(true);
@@ -151,35 +144,55 @@ const Index = () => {
     setError(null);
     try {
       const queryParams = new URLSearchParams();
-      if (tab !== "All") {
+      if (tab === "Buy Leads") {
+        // Fetch leads available for purchase (in lead pool, not requested by user)
+        queryParams.append("isInLeadPool", "true");
+        queryParams.append("excludeUser", user._id); // Exclude leads already requested by user
+      } else {
         const statusMap = {
           Pending: "pending",
-          Approved: "accepted",
           Rejected: "rejected",
         };
         const status = statusMap[tab];
-        if (!status) {
+        if (!status && tab !== "Buy Leads") {
           console.error(`Invalid tab value: ${tab}`);
           throw new Error("Invalid tab value");
         }
-        queryParams.append("approvalStatus", status);
+        if (status) {
+          queryParams.append("approvalStatus", status);
+          queryParams.append("agentId", user._id); // Show only user's requests
+        }
       }
       queryParams.append("page", page);
       queryParams.append("pageSize", size);
 
-      const result = await getApi(`api/adminApproval/get?${queryParams}`);
-      if (result.status === 200 && isMounted) {
-        const newData = (result.data.approvals || result.data).map((lead) => {
-          if (lead?.ip) {
-            const parts = lead.ip.split("-");
-            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-          }
-          return { ...lead };
-        });
+      const endpoint =
+        tab === "Buy Leads" ? "api/lead/" : "api/adminApproval/get";
+      const result = await getApi(`${endpoint}?${queryParams}`);
 
+      let newData = [];
+      if (tab === "Buy Leads") {
+        newData = result.data?.result || [];
+      } else {
+        newData = result.data?.approvals || result.data || [];
+      }
+
+      newData = newData.map((lead) => {
+        if (lead?.ip) {
+          const parts = lead.ip.split("-");
+          lead.ip = parts?.length > 1 ? parts[1] : parts[0];
+        }
+        return { ...lead };
+      });
+
+      if (isMounted) {
         setData(newData);
-        setTotalPages(result.data.totalPages || 0);
-        setTotalLeads(result.data.totalApprovals || 0);
+        setTotalPages(result.data?.totalPages || 0);
+        setTotalLeads(
+          result.data?.totalLeads ||
+            result.data?.totalApprovals ||
+            newData.length
+        );
       }
     } catch (err) {
       console.error("Fetch Leads Error:", err);
@@ -206,7 +219,6 @@ const Index = () => {
     setError(null);
     try {
       let result;
-      // If in "Pending" or "Rejected" tab, search within that approval status
       if (activeTab === "Pending" || activeTab === "Rejected") {
         const statusMap = {
           Pending: "pending",
@@ -215,12 +227,12 @@ const Index = () => {
         const approvalStatus = statusMap[activeTab];
         const queryParams = new URLSearchParams();
         queryParams.append("approvalStatus", approvalStatus);
-        queryParams.append("term", term); // Changed to "term" to match api/lead/search
+        queryParams.append("agentId", user._id);
+        queryParams.append("term", term);
         queryParams.append("page", pageNo);
         queryParams.append("pageSize", size);
         result = await getApi(`api/adminApproval/get?${queryParams}`);
 
-        // If API doesn't filter by term, filter client-side
         let newData = result.data?.approvals || result.data || [];
         if (newData.length > 0 && term.trim() !== "") {
           newData = newData.filter((lead) =>
@@ -243,21 +255,19 @@ const Index = () => {
           setTotalPages(
             result.data?.totalPages || Math.ceil(newData.length / size)
           );
-          setTotalLeads(newData.length); // Use filtered length
+          setTotalLeads(newData.length);
         }
-      } else {
-        // Default search behavior for "All" or other tabs
+      } else if (activeTab === "Buy Leads") {
+        // Search within available leads for purchase
         result = await getApi(
-          user.role === "superAdmin"
-            ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
-            : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+          `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
         );
 
         const newData =
           result.data?.result?.map((lead) => {
             if (lead?.ip) {
               const parts = lead.ip.split("-");
-              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+              lead.ip = parts?.length > 1 ? parts[1] : parts[0];
             }
             return { ...lead, agentId: lead.agentAssigned };
           }) || [];
@@ -299,16 +309,19 @@ const Index = () => {
     setError(null);
     try {
       let result = await getApi(
-        user.role === "superAdmin"
-          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
-          : `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+        activeTab === "Buy Leads"
+          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
+          : `api/adminApproval/get?data=${JSON.stringify(data)}&agentId=${user._id}&page=${pageNo}&pageSize=${size}`
       );
 
       const newData =
-        result.data?.result?.map((lead) => {
+        (activeTab === "Buy Leads"
+          ? result.data?.result
+          : result.data?.approvals || result.data
+        )?.map((lead) => {
           if (lead?.ip) {
             const parts = lead.ip.split("-");
-            lead.ip = parts?.length > 0 ? parts[1] : parts[0];
+            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
           }
           return { ...lead, agentId: lead.agentAssigned };
         }) || [];
@@ -466,7 +479,6 @@ const Index = () => {
       const userResponse = await getApi(`api/user/view/${userId}`);
       if (!userResponse?.data) {
         console.error("User not found:", userId);
-        // throw new Error("User not found");
       }
 
       const coinRefund = leadResponse.data.lead.leadStatus === "new" ? 300 : 50;
@@ -524,10 +536,10 @@ const Index = () => {
   useEffect(() => {
     if (!displaySearchData && activeTab !== lastFetchedTab) {
       setCurrentPage(1);
-      if (activeTab === "All") {
-        debouncedFetchData(1, pageSize);
+      if (activeTab === "Buy Leads") {
+        debouncedFetchData(1, pageSize); // Fetch available leads
       } else {
-        debouncedFetchLeads(activeTab, 1, pageSize);
+        debouncedFetchLeads(activeTab, 1, pageSize); // Fetch user's requests
       }
       setLastFetchedTab(activeTab);
     }
@@ -544,7 +556,7 @@ const Index = () => {
     const source = axios.CancelToken.source();
     setCurrentPage(1);
     setPageSize(50);
-    setActiveTab("All");
+    setActiveTab("Buy Leads"); // Default to "Buy Leads"
     setDisplaySearchData(false);
     setData([]);
     setTotalPages(0);
@@ -568,7 +580,7 @@ const Index = () => {
   return (
     <>
       <PaginationPage
-        data={data}
+      data={data || []}
         totalPages={totalPages}
         totalLeads={totalLeads}
         isLoading={isLoading}
@@ -576,7 +588,7 @@ const Index = () => {
           setData([]);
           setActiveTab(tab);
           setCurrentPage(page);
-          if (tab === "All") {
+          if (tab === "Buy Leads") {
             setDateTime({ from: "", to: "" });
             setDisplaySearchData(false);
             debouncedFetchData(page, size);
