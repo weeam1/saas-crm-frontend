@@ -18,11 +18,11 @@ import countriesData from 'data/countries.json';
 
 const store = configureStore({
 	reducer: {
+		leads: leadsReducer,
 		roles: roleReducer,
 		filters: filtersReducer,
 		positions: positionsReducer,
 		countries: countriesReducer,
-		leads: leadsReducer,
 		users: usersReducer,
 		images: imageReducer,
 		user: userReducer,

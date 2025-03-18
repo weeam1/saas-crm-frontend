@@ -122,7 +122,6 @@ const AdvancedSearchForm = (props) => {
 		// Default: Show all fields for other roles
 		return allFields;
 	}, [isSuperAdmin, isAgent, allFields]);
-
 	// Utility function for rendering fields
 	const renderField = (field) => (
 		<GridItem key={field.name}>
