@@ -69,7 +69,11 @@ const Agency = () => {
 						Create Agency
 					</AppButton>
 				</HStack>
-				<AgencyTable handleEdit={handleEdit} data={data?.doc} />
+				<AgencyTable
+					handleEdit={handleEdit}
+					data={data?.doc}
+					isLoading={isLoading}
+				/>
 			</Box>
 		</div>
 	);

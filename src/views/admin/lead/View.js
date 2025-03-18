@@ -348,9 +348,9 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																Lead Phone Number
 															</Text>
 															<Text>
-																{data?.leadPhoneNumber
-																	? data?.leadPhoneNumber
-																	: 'N/A'}
+																{typeof data?.leadPhoneNumber === 'object'
+																	? data?.leadPhoneNumber?.result
+																	: (data?.leadPhoneNumber ?? 'N/A')}
 															</Text>
 														</GridItem>
 														<GridItem colSpan={{ base: 12, md: 6 }}>
@@ -363,9 +363,9 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																Lead Whatsapp Number
 															</Text>
 															<Text>
-																{data?.leadWhatsappNumber
-																	? data?.leadWhatsappNumber
-																	: 'N/A'}
+																{typeof data?.leadWhatsapp === 'object'
+																	? data?.leadWhatsapp?.result
+																	: (data?.leadWhatsapp ?? 'N/A')}
 															</Text>
 														</GridItem>
 													</>
