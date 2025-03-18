@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Text, Grid, Divider, Button, Flex } from '@chakra-ui/react';
 
 import { IoIosArrowBack } from 'react-icons/io';
@@ -13,15 +13,34 @@ import Loader from 'components/loading/Loader';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { buttonStyle } from '../../constants';
 
-const timezone = 'Asia/Karachi';
-
 const Attendance = () => {
 	const { id: employeeId } = useParams();
-
 	const user = JSON.parse(localStorage.getItem('user'));
+
+	const settings = JSON.parse(localStorage.getItem('officeSettings')) ?? null;
 
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+
+	const { data: officeSettings, isLoading: officeSettingsLoading } =
+		useFetchItemsQuery(
+			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
+			{
+				skip: settings,
+				refetchOnMountOrArgChange: true,
+			}
+		);
+
+	useEffect(() => {
+		if (officeSettings?.doc) {
+			localStorage.setItem(
+				'officeSettings',
+				JSON.stringify(officeSettings?.doc)
+			);
+		}
+	}, [officeSettings?.doc]);
+
+	const timezone = settings?.timezone ?? 'Asia/Karachi';
 
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
@@ -29,12 +48,6 @@ const Attendance = () => {
 	const [year, setYear] = useState(() =>
 		Number(moment.tz(timezone).format('YYYY'))
 	);
-
-	const { data: officeSettings, isLoading: officeSettingsLoading } =
-		useFetchItemsQuery(
-			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-			{ refetchOnMountOrArgChange: true }
-		);
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{

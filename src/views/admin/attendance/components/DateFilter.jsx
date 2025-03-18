@@ -8,8 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 
 const DateFilter = ({ onFilterChange }) => {
 	const [searchParams] = useSearchParams();
-	// Get current date in Asia/Karachi timezone
-	const currentDate = moment().tz('Asia/Karachi');
+	const currentDate = moment();
 
 	const month = searchParams.get('month') || currentDate.format('MM');
 	const year = searchParams.get('year') || currentDate.format('YYYY');

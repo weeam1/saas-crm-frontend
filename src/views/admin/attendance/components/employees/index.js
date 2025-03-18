@@ -9,7 +9,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
 import FilterModal from './FilterModal';
-import TabButton from 'components/shared/TabButton';
 import AttendanceHeader from '../AttendanceHeader';
 
 const Employees = () => {
