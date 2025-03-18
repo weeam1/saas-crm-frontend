@@ -1,13 +1,16 @@
 import {
-  Box, Button, Checkbox,
-  Flex, Table,
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  Table,
   Tbody,
   Td,
   Text,
   Th,
   Thead,
   Tr,
-  useColorModeValue
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
@@ -28,17 +31,27 @@ import RoleModal from "./roleModal";
 import DataNotFound from "components/notFoundData";
 
 export default function RoleTable(props) {
-  const { columnsData, tableData, title, fetchData, selectedValues, setSelectedValues, roleModal, setRoleModal } = props;
+  const {
+    columnsData,
+    tableData,
+    title,
+    fetchData,
+    selectedValues,
+    setSelectedValues,
+    roleModal,
+    setRoleModal,
+  } = props;
 
   const columns = useMemo(() => columnsData, [columnsData]);
   const data = useMemo(() => tableData, [tableData]);
-  const user = JSON.parse(localStorage.getItem("user"))
-  const [gopageValue, setGopageValue] = useState()
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [gopageValue, setGopageValue] = useState();
 
   const tableInstance = useTable(
     {
-      columns, data,
-      initialState: { pageIndex: 0 }
+      columns,
+      data,
+      initialState: { pageIndex: 0 },
     },
     useGlobalFilter,
     useSortBy,
@@ -52,11 +65,11 @@ export default function RoleTable(props) {
     prepareRow,
     page,
     pageOptions,
-    state: { pageIndex, pageSize }
+    state: { pageIndex, pageSize },
   } = tableInstance;
 
   if (pageOptions.length < gopageValue) {
-    setGopageValue(pageOptions.length)
+    setGopageValue(pageOptions.length);
   }
 
   const textColor = useColorModeValue("secondaryGray.900", "white");
@@ -64,39 +77,52 @@ export default function RoleTable(props) {
 
   return (
     <Card
-      direction='column'
-      w='100%'
-      padding='0'
-      px='0px'
-      style={{ border: '1px solid gray.200' }
-      }
-      overflowX={{ sm: "scroll", lg: "hidden" }}>
-      <Flex px='25px' justify='space-between' mb='20px' align='center'>
+      direction="column"
+      w="100%"
+      padding="0"
+      px="0px"
+      style={{ border: "1px solid gray.200" }}
+      overflowX={{ sm: "scroll", lg: "hidden" }}
+    >
+      <Flex px="25px" justify="space-between" mb="20px" align="center">
         <Text
           color={textColor}
-          fontSize='22px'
-          fontWeight='700'
-          lineHeight='100%'>
-          {title}  (<CountUpComponent key={data?.length} targetNumber={data?.length} />)
+          fontSize="22px"
+          fontWeight="700"
+          lineHeight="100%"
+        >
+          {title} (
+          <CountUpComponent key={data?.length} targetNumber={data?.length} />)
         </Text>
-     {user?.role === 'superAdmin' &&   <Button onClick={() => setRoleModal(true)} leftIcon={<LiaCriticalRole />} size="sm" colorScheme="gray" >Change Role</Button>}
+        {user?.role === "superAdmin" && (
+          <Button
+            onClick={() => setRoleModal(true)}
+            leftIcon={<LiaCriticalRole />}
+            size="sm"
+            colorScheme="gray"
+          >
+            Change Role
+          </Button>
+        )}
       </Flex>
-      <Box overflowY={'auto'} className="table-container-property" >
-        <Table  {...getTableProps()} variant='simple' color='gray.500' mb='24px'>
-          <Thead >
+      <Box overflowY={"auto"} className="table-container-property">
+        <Table {...getTableProps()} variant="simple" color="gray.500" mb="24px">
+          <Thead>
             {headerGroups?.map((headerGroup, index) => (
               <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
                 {headerGroup.headers.map((column, index) => (
                   <Th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    pe='10px'
+                    pe="10px"
                     key={index}
-                    borderColor={borderColor}>
+                    borderColor={borderColor}
+                  >
                     <Flex
-                      justify='space-between'
-                      align='center'
+                      justify="space-between"
+                      align="center"
                       fontSize={{ sm: "10px", lg: "12px" }}
-                      color='gray.400'>
+                      color="gray.400"
+                    >
                       {column.render("Header")}
                     </Flex>
                   </Th>
@@ -104,11 +130,17 @@ export default function RoleTable(props) {
               </Tr>
             ))}
           </Thead>
-          <Tbody  {...getTableBodyProps()}>
+          <Tbody {...getTableBodyProps()}>
             {data?.length === 0 && (
               <Tr>
                 <Td colSpan={columns.length}>
-                  <Text textAlign={'center'} width="100%" color={textColor} fontSize="sm" fontWeight="700">
+                  <Text
+                    textAlign={"center"}
+                    width="100%"
+                    color={textColor}
+                    fontSize="sm"
+                    fontWeight="700"
+                  >
                     <DataNotFound />
                   </Text>
                 </Td>
@@ -123,7 +155,11 @@ export default function RoleTable(props) {
                     if (cell?.column.Header === "#") {
                       data = (
                         <Flex align="center">
-                          <Text color={textColor} fontSize="sm" fontWeight="700">
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
                             {cell?.row?.index + 1}
                           </Text>
                         </Flex>
@@ -141,7 +177,6 @@ export default function RoleTable(props) {
                       );
                     } else if (cell?.column.Header === "Description") {
                       data = (
-
                         <Text
                           me="10px"
                           //   sx={{ '&:hover': { color: 'blue.500', textDecoration: 'underline' } }}
@@ -160,7 +195,8 @@ export default function RoleTable(props) {
                         key={index}
                         fontSize={{ sm: "14px" }}
                         minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                        borderColor='transparent'>
+                        borderColor="transparent"
+                      >
                         {data}
                       </Td>
                     );
@@ -170,11 +206,9 @@ export default function RoleTable(props) {
             })}
           </Tbody>
         </Table>
-
       </Box>
 
       {/* {data?.length > 5 && <Pagination gotoPage={gotoPage} gopageValue={gopageValue} setGopageValue={setGopageValue} pageCount={pageCount} canPreviousPage={canPreviousPage} previousPage={previousPage} canNextPage={canNextPage} pageOptions={pageOptions} setPageSize={setPageSize} nextPage={nextPage} pageSize={pageSize} pageIndex={pageIndex} />} */}
-
     </Card>
   );
 }

@@ -83,12 +83,16 @@ export default function CheckTable(props) {
     setAction,
     action,
   } = props;
-
+  console.log("CheckTable props:", props);
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   // const columns = useMemo(() => columnsData, [columnsData]);
   const columns = useMemo(() => dataColumn, [dataColumn]);
-  const data = useMemo(() => tableData, [tableData]);
+  const data = useMemo(
+    () => (Array.isArray(tableData) ? tableData : []),
+    [tableData]
+  );
+  console.log("tableData:", tableData);
   const [selectedValues, setSelectedValues] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
   const [deleteModel, setDelete] = useState(false);
@@ -242,9 +246,9 @@ export default function CheckTable(props) {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [action]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [action]);
 
   const handleSearch = (results) => {
     setSearchedData(results);
@@ -345,7 +349,6 @@ export default function CheckTable(props) {
                   {" "}
                   Manage Columns
                 </MenuItem>
-                
               </MenuList>
             </Menu>
             <Button
@@ -384,7 +387,7 @@ export default function CheckTable(props) {
           </HStack>
         </Grid>
         {/* Delete model */}
-        {/* <Delete
+        <Delete
           isOpen={deleteModel}
           onClose={setDelete}
           setAction={setAction}
@@ -392,7 +395,7 @@ export default function CheckTable(props) {
           url="api/user/deleteMany"
           data={selectedValues}
           method="many"
-        /> */}
+        />
 
         <Box overflowY={"auto"} className="table-fix-container">
           <Table
@@ -496,35 +499,18 @@ export default function CheckTable(props) {
                               </Text>
                             </Flex>
                           );
-                        }
-                         else if (cell?.column.Header === "TRN") {
+                        } else if (cell?.column.Header === "TRN") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Developer Name") {
                           data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        }
-                         else if (cell?.column.Header === "Developer Name") {
-                          data = (
-                            <Text
-                              me="10px"
-                              fontSize="sm"
-                              fontWeight="700"
-                            
-                            >{cell?.value || "-"}</Text> 
+                            <Text me="10px" fontSize="sm" fontWeight="700">
+                              {cell?.value || "-"}
+                            </Text>
                           );
                         } else if (cell?.column.Header === "Address") {
-                          data = (
-                            <Text
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
+                          data = <Text>{cell?.value || "-"}</Text>;
                         } else if (cell?.column.Header === "Email ID") {
-                          data = (
-                            <Text
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
+                          data = <Text>{cell?.value || "-"}</Text>;
                         } else if (cell?.column.Header === "Action") {
                           data = (
                             <Text
@@ -623,12 +609,13 @@ export default function CheckTable(props) {
         )}
       </Card>
       <AddUser
+      fetchData={fetchData}
         isOpen={isOpen}
         size={"lg"}
         setAction={setAction}
         onClose={onClose}
       />
-      {/* <Edit
+      <Edit
         isOpen={edit}
         size={"sm"}
         setAction={setAction}
@@ -637,7 +624,7 @@ export default function CheckTable(props) {
         data={editData}
         setEdit={setEdit}
         selectedId={selectedId}
-      /> */}
+      />
       {/* Advance filter */}
       <Modal
         onClose={() => {
@@ -668,20 +655,21 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  First Name
+                  Developer Name
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.firstName}
-                  name="firstName"
-                  placeholder="Enter First Name"
+                  value={values?.developer_name}
+                  name="developer_name"
+                  placeholder="Enter Developer Name"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.firstName && touched.firstName && errors.firstName}
+                  {errors.developer_name &&
+                    touched.developer_name &&
+                    errors.developer_name}
                 </Text>
               </GridItem>
               <GridItem colSpan={{ base: 12 }}>
@@ -694,20 +682,19 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  Last Name
+                  Email ID
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.lastName}
-                  name="lastName"
-                  placeholder="Enter Last Name"
+                  value={values?.email}
+                  name="email"
+                  placeholder="Enter Email ID"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.lastName && touched.lastName && errors.lastName}
+                  {errors.email && touched.email && errors.email}
                 </Text>
               </GridItem>
               <GridItem colSpan={{ base: 12 }}>
@@ -720,20 +707,19 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  Email Id
+                  TRN
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.username}
-                  name="username"
-                  placeholder="Enter User Name"
+                  value={values?.trn}
+                  name="trn"
+                  placeholder="Enter TRN"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.username && touched.username && errors.username}
+                  {errors.trn && touched.trn && errors.trn}
                 </Text>
               </GridItem>
             </Grid>

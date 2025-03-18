@@ -1,16 +1,12 @@
+
 import { useDisclosure } from "@chakra-ui/react";
 import CheckTable from "./components/CheckTable";
 import { useEffect, useState } from "react";
-import { getApi } from "services/api";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const Index = () => {
   const tableColumns = [
-    {
-      Header: "#",
-      accessor: "_id",
-      isSortable: false,
-      width: 10,
-    },
+    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
     { Header: "Account Name", accessor: "account_holder_name" },
     { Header: "Account Number", accessor: "account_number" },
     { Header: "IBAN", accessor: "iban", isSortable: false },
@@ -19,46 +15,58 @@ const Index = () => {
     { Header: "Bank Address", accessor: "branch_address" },
     { Header: "Action", isSortable: false, center: true },
   ];
+
+  const {
+    data = [],
+    isLoading,
+    refetch,
+    isSuccess,
+  } = useFetchItemsQuery({
+    path: "/bankAccount/get",
+  });
+
   const [action, setAction] = useState(false);
   const [dynamicColumns, setDynamicColumns] = useState([...tableColumns]);
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
   const [columns, setColumns] = useState([]);
-  const [isLoding, setIsLoding] = useState(false);
-  const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
   const { isOpen } = useDisclosure();
-
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(`api/bank_accounts`, null, "server2");
-    setData(result.data || []);
-    setIsLoding(false);
-  };
 
   useEffect(() => {
     setColumns(tableColumns);
   }, [action]);
 
+  // ✅ Only refetch if the query is successfully initialized
+  const handleRefetch = () => {
+    if (isSuccess) {
+      refetch();
+    }
+  };
+
   const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
+    selectedColumns?.find((column) => column?.Header === item.Header)
   );
 
   return (
     <div>
       <CheckTable
-        // isOpen={isOpen} setAction={setAction} action={action} columnsData={columns}
-        isLoding={isLoding}
+        isLoding={isLoading}
         columnsData={columns}
         isOpen={isOpen}
         setAction={setAction}
         action={action}
         setSearchedData={setSearchedData}
-        allData={data}
         displaySearchData={displaySearchData}
-        tableData={displaySearchData ? searchedData : data}
-        fetchData={fetchData}
+        tableData={
+          Array.isArray(displaySearchData ? searchedData : data)
+            ? displaySearchData
+              ? searchedData
+              : data
+            : []
+        }
+        allData={data}
+        fetchData={handleRefetch}
         dataColumn={dataColumn}
         setDisplaySearchData={setDisplaySearchData}
         setDynamicColumns={setDynamicColumns}
@@ -66,7 +74,6 @@ const Index = () => {
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      {/* Add Form */}
     </div>
   );
 };

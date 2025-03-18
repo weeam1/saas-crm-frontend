@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import { userSchema } from "schema";
 import { getApi } from "services/api";
 import { postApi } from "services/api";
-
+import { useCreateItemMutation } from "api/apiSlice";
 const AddUser = (props) => {
   const { onClose, isOpen, setAction } = props;
   const [isLoding, setIsLoding] = useState(false);
@@ -46,18 +46,17 @@ const AddUser = (props) => {
   });
   const { errors, touched, values, handleBlur, handleChange, handleSubmit } =
     formik;
-
+  const [createItemMuation, { isLoading }] = useCreateItemMutation();
   const AddData = async () => {
     try {
       setIsLoding(true);
       const formValues = { ...values };
 
-      let response = await postApi(
-        "api/bank_accounts",
-        formValues,
-        false,
-        "server2"
-      );
+      let response = await createItemMuation({
+        path: "/bankAccount/add",
+        body: formValues,
+      }).unwrap();
+
       if (response && response.status === 200) {
         props.onClose();
         setAction((pre) => !pre);
@@ -66,12 +65,11 @@ const AddUser = (props) => {
       }
     } catch (e) {
       console.log(e);
-        toast.error("Something went wrong!");
+      toast.error("Something went wrong!");
     } finally {
       setIsLoding(false);
     }
   };
-
   const fetchRoles = async () => {
     let result = await getApi("api/role-access");
     setRoles(result.data);

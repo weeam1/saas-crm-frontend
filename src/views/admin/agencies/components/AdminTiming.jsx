@@ -95,10 +95,10 @@ const AdminSetting = ({
       </Flex>
 
       <Box mb={4}>
-      <TimeZoneSelect
+        <TimeZoneSelect
           isDisabled={isDisabled}
           timezone={timezone}
-          setTimezone={setTimezone} 
+          setTimezone={setTimezone}
         />
       </Box>
 

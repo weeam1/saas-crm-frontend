@@ -1,4 +1,4 @@
-import { CloseIcon, PhoneIcon } from "@chakra-ui/icons";
+import { CloseIcon } from "@chakra-ui/icons";
 import {
   Button,
   FormLabel,
@@ -6,60 +6,48 @@ import {
   GridItem,
   IconButton,
   Input,
-  InputGroup,
-  InputLeftElement,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Text,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { userSchema } from "schema";
-import { putApi } from "services/api";
-import { useDispatch } from "react-redux";
-import { setUser } from "../../../redux/localSlice";
+import { developerSchema } from "schema/developerSchema";
+import { useUpdateItemMutation } from "api/apiSlice";
+
+// Ensure "DM Sans" is imported
+// @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap');
 
 const Edit = (props) => {
-  const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+  const { onClose, isOpen, fetchData, data, setEdit, selectedId, setAction } =
+    props;
 
   const initialValues = {
-    firstName: data ? data?.firstName : "",
-    lastName: data ? data?.lastName : "",
-    username: data ? data?.username : "",
-    phoneNumber: data ? data?.phoneNumber : "",
-    parent: data ? data?.parent || "" : "",
-    target: data ? data?.target : "",
-    roles: data ? data?.roles : []
+    developer_name: data?.developer_name || "",
+    address: data?.address || "",
+    trn: data?.trn || "",
+    email: data?.email || "",
   };
 
-  const user = JSON.parse(window.localStorage.getItem("user"));
-  const tree = useSelector((state) => state.user);
+  const [updateItemMutation, { isLoading: mutationLoading }] =
+    useUpdateItemMutation();
+  const [isLoading, setIsLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: initialValues,
-    validationSchema: userSchema,
+    validationSchema: developerSchema,
     enableReinitialize: true,
-    onSubmit: (values, { resetForm }) => {
-      EditData();
-      resetForm();
+    onSubmit: (values) => {
+      EditData(values);
     },
   });
 
-
-  const dispatch = useDispatch();
-  
-  const handleCloseModal = () => {
-    setEdit(false);
-    // Dispatch setUser action to set user data
-  };
   const {
     errors,
     touched,
@@ -67,283 +55,289 @@ const Edit = (props) => {
     handleBlur,
     handleChange,
     handleSubmit,
-    setFieldValue,
+    resetForm,
   } = formik;
 
-  const [isLoding, setIsLoding] = useState(false);
-
-  const EditData = async () => {
+  const EditData = async (formValues) => {
     try {
-      setIsLoding(true);
+      setIsLoading(true);
+      const response = await updateItemMutation({
+        path: `/developer/edit/${selectedId}`,
+        body: formValues,
+      }).unwrap();
 
-      const valuesObj = {...values}; 
-      if(data?.roles[0]?.roleName === "Manager") {
-        delete valuesObj["parent"]; 
-      }
-      let response = await putApi(`api/user/edit/${props.selectedId}`, valuesObj);
-      if (response && response.status === 200) {
+      console.log("Update Response:", response);
+
+      if (response.status === "success") {
         setEdit(false);
-        let updatedUserData = userData; // Create a copy of userData
-        if (user?._id === props.selectedId) {
-          if (updatedUserData && typeof updatedUserData === "object") {
-            // Create a new object with the updated firstName
-            updatedUserData = {
-              ...updatedUserData,
-              firstName: values?.firstName,
-              lastName: values?.lastName,
-            };
-          }
-
-          const updatedDataString = JSON.stringify(updatedUserData);
-          localStorage.setItem("user", updatedDataString);
-          dispatch(setUser(updatedDataString));
-        }
-
-        handleCloseModal();
         fetchData();
-        props.setAction((pre) => !pre);
+        setAction((prev) => !prev);
+        toast.success("Developer updated successfully!");
+        resetForm();
+        onClose();
       } else {
-        toast.error(response.response.data?.message);
+        toast.error(response?.message || "Failed to update developer");
       }
     } catch (e) {
-      console.log(e);
+      console.error("Edit Error:", e);
+      toast.error(e?.data?.message || "Something went wrong!");
     } finally {
-      setIsLoding(false);
+      setIsLoading(false);
     }
   };
 
+  const handleCloseModal = () => {
+    setEdit(false);
+    resetForm();
+    onClose();
+  };
+
   return (
-    <Modal size="2xl" isOpen={isOpen} isCentered>
+    <Modal isOpen={isOpen} isCentered onClose={handleCloseModal} size="xl">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader justifyContent="space-between" display="flex">
-          Edit User
-          <IconButton onClick={() => setEdit(false)} icon={<CloseIcon />} />
+      <ModalContent
+        boxShadow="lg"
+        borderRadius="md"
+        p={4}
+        bg="white"
+        maxW={{ base: "90%", md: "550px" }}
+        fontFamily="'DM Sans', sans-serif"
+        fontWeight="500"
+      >
+        <ModalHeader
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          pb={2}
+          fontSize="24px"
+          fontFamily="'DM Sans', sans-serif"
+          fontWeight="500"
+        >
+          Edit Developer
+          <IconButton
+            icon={<CloseIcon />}
+            size="sm"
+            variant="ghost"
+            onClick={handleCloseModal}
+            aria-label="Close"
+          />
         </ModalHeader>
-        <ModalBody>
-          <Grid templateColumns="repeat(12, 1fr)" gap={3}>
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                mb="8px"
-              >
-                First Name
-              </FormLabel>
-              <Input
-                fontSize="sm"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.firstName}
-                name="firstName"
-                placeholder="firstName"
-                fontWeight="500"
-                borderColor={
-                  errors.firstName && touched.firstName ? "red.300" : null
-                }
-              />
-              <Text mb="10px" color={"red"}>
-                {" "}
-                {errors.firstName && touched.firstName && errors.firstName}
-              </Text>
-            </GridItem>
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                mb="8px"
-              >
-                Last Name
-              </FormLabel>
-              <Input
-                fontSize="sm"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.lastName}
-                name="lastName"
-                placeholder="Last Name"
-                fontWeight="500"
-                borderColor={
-                  errors.lastName && touched.lastName ? "red.300" : null
-                }
-              />
-              <Text mb="10px" color={"red"}>
-                {" "}
-                {errors.lastName && touched.lastName && errors.lastName}
-              </Text>
-            </GridItem>
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                mb="8px"
-              >
-                Email
-              </FormLabel>
-              <Input
-                fontSize="sm"
-                type="email"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.username}
-                name="username"
-                placeholder="Email Address"
-                fontWeight="500"
-                borderColor={
-                  errors.username && touched.username ? "red.300" : null
-                }
-              />
-              <Text mb="10px" color={"red"}>
-                {" "}
-                {errors.username && touched.username && errors.username}
-              </Text>
-            </GridItem>
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                mb="8px"
-              >
-                Phone Number<Text color={"red"}>*</Text>
-              </FormLabel>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  children={<PhoneIcon color="gray.300" borderRadius="16px" />}
-                />
+        <ModalBody pt={4}>
+          <form onSubmit={handleSubmit}>
+            <Grid gap={4} templateColumns="1fr">
+              <GridItem>
+                <FormLabel
+                  fontSize="16px"
+                  color="gray.600"
+                  mb={1}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                >
+                  Developer Name
+                </FormLabel>
                 <Input
-                  type="tel"
-                  fontSize="sm"
+                  fontSize="16px"
+                  placeholder="Enter Name"
+                  value={values.developer_name}
+                  name="developer_name"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values.phoneNumber}
-                  name="phoneNumber"
-                  fontWeight="500"
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
                   borderColor={
-                    errors.phoneNumber && touched.phoneNumber ? "red.300" : null
+                    errors.developer_name && touched.developer_name
+                      ? "red.300"
+                      : null
                   }
-                  placeholder="Phone number"
-                  borderRadius="16px"
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
                 />
-              </InputGroup>
-              <Text mb="10px" color={"red"}>
-                {errors.phoneNumber &&
-                  touched.phoneNumber &&
-                  errors.phoneNumber}
-              </Text>
-            </GridItem>
-            {values && values?.roles && values?.roles[0]?.roleName === "Agent" &&
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
+                {errors.developer_name && touched.developer_name && (
+                  <Text
+                    color="red"
+                    fontSize="14px"
+                    mt={1}
+                    fontFamily="'DM Sans', sans-serif"
+                    fontWeight="500"
+                    textAlign="left"
+                  >
+                    {errors.developer_name}
+                  </Text>
+                )}
+              </GridItem>
+              <GridItem>
+                <FormLabel
+                  fontSize="16px"
+                  color="gray.600"
+                  mb={1}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                >
+                  Address
+                </FormLabel>
+                <Input
+                  fontSize="16px"
+                  placeholder="Enter Address"
+                  value={values.address}
+                  name="address"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
+                  borderColor={
+                    errors.address && touched.address ? "red.300" : null
+                  }
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                />
+                {errors.address && touched.address && (
+                  <Text
+                    color="red"
+                    fontSize="14px"
+                    mt={1}
+                    fontFamily="'DM Sans', sans-serif"
+                    fontWeight="500"
+                    textAlign="left"
+                  >
+                    {errors.address}
+                  </Text>
+                )}
+              </GridItem>
+              <GridItem>
+                <FormLabel
+                  fontSize="16px"
+                  color="gray.600"
+                  mb={1}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                >
+                  TRN
+                </FormLabel>
+                <Input
+                  fontSize="16px"
+                  placeholder="Enter TRN"
+                  value={values.trn}
+                  name="trn"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
+                  borderColor={errors.trn && touched.trn ? "red.300" : null}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                />
+                {errors.trn && touched.trn && (
+                  <Text
+                    color="red"
+                    fontSize="14px"
+                    mt={1}
+                    fontFamily="'DM Sans', sans-serif"
+                    fontWeight="500"
+                    textAlign="left"
+                  >
+                    {errors.trn}
+                  </Text>
+                )}
+              </GridItem>
+              <GridItem>
+                <FormLabel
+                  fontSize="16px"
+                  color="gray.600"
+                  mb={1}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                >
+                  E mail Id
+                </FormLabel>
+                <Input
+                  fontSize="16px"
+                  type="email"
+                  placeholder="Enter E mail Id"
+                  value={values.email}
+                  name="email"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
+                  borderColor={errors.email && touched.email ? "red.300" : null}
+                  fontFamily="'DM Sans', sans-serif"
+                  fontWeight="500"
+                  textAlign="left"
+                />
+                {errors.email && touched.email && (
+                  <Text
+                    color="red"
+                    fontSize="14px"
+                    mt={1}
+                    fontFamily="'DM Sans', sans-serif"
+                    fontWeight="500"
+                    textAlign="left"
+                  >
+                    {errors.email}
+                  </Text>
+                )}
+              </GridItem>
+            </Grid>
+            <ModalFooter
+              mt={6}
+              justifyContent="flex-end"
+              pb={4} // Added padding-bottom for space from the bottom
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                mr={3}
+                onClick={handleCloseModal}
+                borderRadius="md"
+                bg="#CCCACA"
+                color="black"
+                _hover={{ bg: "#B8B0B0" }}
+                fontSize="16px"
+                fontFamily="'DM Sans', sans-serif"
                 fontWeight="500"
-                mb="8px"
+                minWidth="100px" // Increased button width
               >
-                Select Manager
-              </FormLabel>
-              <Select
-                name="parent"
-                value={values.parent}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Select Manager"
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                variant="solid"
+                bg="#B79045"
+                color="white"
+                _hover={{ bg: "#A07723" }}
+                isLoading={isLoading || mutationLoading}
+                disabled={isLoading || mutationLoading}
+                borderRadius="md"
+                fontSize="16px"
+                fontFamily="'DM Sans', sans-serif"
+                fontWeight="500"
+                minWidth="100px" // Increased button width
               >
-                {tree?.tree?.managers?.map((manager) => (
-                  <option value={manager?._id}>
-                    {manager?.firstName + " " + manager?.lastName}
-                  </option>
-                ))}
-              </Select>
-            </GridItem>
-            }
-            {(user?.role === "superAdmin" ||
-              user?.roles[0]?.roleName === "Manager") && (
-              <GridItem colSpan={{ base: 12 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
-                  Revenue Target
-                </FormLabel>
-                <InputGroup>
-                  <Input
-                    type="number"
-                    fontSize="sm"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.target}
-                    name="target"
-                    fontWeight="500"
-                    placeholder="Revenue Target"
-                    borderRadius="16px"
-                  />
-                </InputGroup>
-              </GridItem>
-            )}
-
-             {(user?.role === "superAdmin" && (
-              <GridItem colSpan={{ base: 12 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
-                  New Password
-                </FormLabel>
-                <InputGroup>
-                  <Input
-                    type="text"
-                    fontSize="sm"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.password}
-                    name="password"
-                    fontWeight="500"
-                    placeholder="New Password"
-                    borderRadius="16px"
-                  />
-                </InputGroup>
-              </GridItem>
-            ))}
-          </Grid>
+                {isLoading || mutationLoading ? <Spinner size="sm" /> : "Save"}
+              </Button>
+            </ModalFooter>
+          </form>
         </ModalBody>
-        <ModalFooter>
-          <Button
-            size="sm"
-            variant="brand"
-            disabled={isLoding ? true : false}
-            onClick={handleSubmit}
-          >
-            {isLoding ? <Spinner /> : "Update"}
-          </Button>
-          <Button
-            variant="outline"
-            colorScheme="red"
-            size="sm"
-            sx={{
-              marginLeft: 2,
-              textTransform: "capitalize",
-            }}
-            onClick={() => handleCloseModal()}
-          >
-            close
-          </Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

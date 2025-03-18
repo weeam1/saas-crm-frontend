@@ -29,19 +29,21 @@ import { userSchema } from "schema";
 import { useSelector } from "react-redux";
 import { getApi } from "services/api";
 import { postApi } from "services/api";
+import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 
 const AddUser = (props) => {
-  const { onClose, isOpen, setAction } = props;
+  const { onClose, isOpen, setAction, fetchData } = props;
   const [isLoding, setIsLoding] = useState(false);
   const [roles, setRoles] = useState([]);
-
+  const [createItemMutation, { isLoading: mutationLoading }] =
+    useCreateItemMutation();
   const tree = useSelector((state) => state.user);
 
   const initialValues = {
-    trn: "", 
-    developer_name: "", 
-    address: "", 
-    email :""
+    trn: "",
+    developer_name: "",
+    address: "",
+    email: "",
   };
 
   const formik = useFormik({
@@ -51,6 +53,7 @@ const AddUser = (props) => {
       resetForm();
     },
   });
+
   const {
     errors,
     touched,
@@ -61,31 +64,31 @@ const AddUser = (props) => {
     setFieldValue,
     resetForm,
   } = formik;
-
- const AddData = async () => {
+  const AddData = async () => {
     try {
       setIsLoding(true);
       const formValues = { ...values };
+      const response = await createItemMutation({
+        path: "/developer/add",
+        body: formValues,
+      }).unwrap();
 
-      let response = await postApi(
-        "api/developers",
-        formValues,
-        false,
-        "server2"
-      );
-      if (response && response.status === 200) {
-        props.onClose();
-        setAction((pre) => !pre);
+      if (response.status === "success") {
+        fetchData();
+        setAction((prev) => !prev);
+        toast.success("Developer Added successfully!");
+        resetForm();
+        onClose();
       } else {
-        toast.error(response.response.data?.message);
+        toast.error(response?.message || "Failed to Add developer");
       }
     } catch (e) {
-      console.log(e);
-        toast.error("Something went wrong!");
+      console.error("Edit Error:", e);
+      toast.error(e?.data?.message || "Something went wrong!");
     } finally {
       setIsLoding(false);
     }
-  }; 
+  };
 
   const fetchRoles = async () => {
     let result = await getApi("api/role-access");
@@ -101,19 +104,14 @@ const AddUser = (props) => {
   return (
     <Modal size="2xl" isOpen={isOpen} isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent w="550px" fontFamily="'DM Sans', sans-serif">
         <ModalHeader justifyContent="space-between" display="flex">
           Add Developer
           <IconButton onClick={onClose} icon={<CloseIcon />} />
         </ModalHeader>
         <ModalBody>
-          <Grid
-            overflow={"scroll"}
-            pr={"4"}
-            templateColumns="repeat(12, 1fr)"
-            gap={3}
-          >
-            <GridItem colSpan={{ base: 12, md: 6 }}>
+          <Grid templateColumns="1fr" gap={3}>
+            <GridItem>
               <FormLabel
                 display="flex"
                 ms="4px"
@@ -121,7 +119,7 @@ const AddUser = (props) => {
                 fontWeight="500"
                 mb="8px"
               >
-                TRN 
+                TRN
               </FormLabel>
               <Input
                 fontSize="sm"
@@ -132,16 +130,15 @@ const AddUser = (props) => {
                 name="trn"
                 placeholder="TRN"
                 fontWeight="500"
-                borderColor={
-                  errors.trn && touched.trn ? "red.300" : null
-                }
+                fontFamily="'DM Sans', sans-serif"
+                borderColor={errors.trn && touched.trn ? "red.300" : null}
               />
-              <Text mb="10px" color={"red"}>
-                {" "}
+              <Text mb="10px" color="red" fontSize="sm">
                 {errors.trn && touched.trn && errors.trn}
               </Text>
             </GridItem>
-            <GridItem colSpan={{ base: 12, md:6 }}>
+
+            <GridItem>
               <FormLabel
                 display="flex"
                 ms="4px"
@@ -159,16 +156,21 @@ const AddUser = (props) => {
                 name="developer_name"
                 placeholder="Developer Name"
                 fontWeight="500"
+                fontFamily="'DM Sans', sans-serif"
                 borderColor={
-                  errors.developer_name && touched.developer_name ? "red.300" : null
+                  errors.developer_name && touched.developer_name
+                    ? "red.300"
+                    : null
                 }
               />
-              <Text mb="10px" color={"red"}>
-                {" "}
-                {errors.developer_name && touched.developer_name && errors.developer_name}
+              <Text mb="10px" color="red" fontSize="sm">
+                {errors.developer_name &&
+                  touched.developer_name &&
+                  errors.developer_name}
               </Text>
             </GridItem>
-            <GridItem colSpan={{ base: 6, md: 6 }}>
+
+            <GridItem>
               <FormLabel
                 display="flex"
                 ms="4px"
@@ -187,17 +189,15 @@ const AddUser = (props) => {
                 name="email"
                 placeholder="Email Address"
                 fontWeight="500"
-                borderColor={
-                  errors.email && touched.email ? "red.300" : null
-                }
+                fontFamily="'DM Sans', sans-serif"
+                borderColor={errors.email && touched.email ? "red.300" : null}
               />
-              <Text mb="10px" color={"red"}>
-                {" "}
+              <Text mb="10px" color="red" fontSize="sm">
                 {errors.email && touched.email && errors.email}
               </Text>
             </GridItem>
-       
-            <GridItem colSpan={{ base: 12, md: 6 }}>
+
+            <GridItem>
               <FormLabel
                 display="flex"
                 ms="4px"
@@ -215,42 +215,50 @@ const AddUser = (props) => {
                 name="address"
                 placeholder="Address"
                 fontWeight="500"
+                fontFamily="'DM Sans', sans-serif"
                 borderColor={
                   errors.address && touched.address ? "red.300" : null
                 }
               />
-              <Text mb="10px" color={"red"}>
-                {errors.address &&
-                  touched.address &&
-                  errors.address}
+              <Text mb="10px" color="red" fontSize="sm">
+                {errors.address && touched.address && errors.address}
               </Text>
             </GridItem>
-      
           </Grid>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter
+          justifyContent="flex-end"
+          pt={8} // Padding top for space from content
+          pb={6} // Padding bottom for space from bottom edge
+        >
           <Button
-            variant="brand"
+            bg="#CCCACA"
+            color="black"
             size="sm"
-            disabled={isLoding ? true : false}
-            onClick={AddData}
-          >
-            {isLoding ? <Spinner /> : "Save"}
-          </Button>
-          <Button
-            sx={{
-              marginLeft: 2,
-              textTransform: "capitalize",
-            }}
-            variant="outline"
-            colorScheme="red"
-            size="sm"
+            borderRadius="5px"
             onClick={() => {
               formik.resetForm();
               onClose();
             }}
+            _hover={{ bg: "#B5B3B3" }}
+            fontFamily="'DM Sans', sans-serif"
+            minWidth="100px"
+            mr={3} // Margin right to separate buttons
           >
-            Close
+            Cancel
+          </Button>
+          <Button
+            bg="#B79045"
+            color="white"
+            size="sm"
+            borderRadius="5px"
+            disabled={isLoding}
+            onClick={AddData}
+            _hover={{ bg: "#A77F3A" }}
+            fontFamily="'DM Sans', sans-serif"
+            minWidth="100px"
+          >
+            {isLoding ? <Spinner /> : "Save"}
           </Button>
         </ModalFooter>
       </ModalContent>

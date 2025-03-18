@@ -1,7 +1,7 @@
-import { useDisclosure } from "@chakra-ui/react";
-import CheckTable from "./components/CheckTable";
 import { useEffect, useState } from "react";
-import { getApi } from "services/api";
+import { Box, Alert, AlertIcon, Spinner,Text } from "@chakra-ui/react";
+import CheckTable from "./components/CheckTable";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const Index = () => {
   const tableColumns = [
@@ -17,47 +17,73 @@ const Index = () => {
     { Header: "Email ID", accessor: "email" },
     { Header: "Action", isSortable: false, center: true },
   ];
+
   const [action, setAction] = useState(false);
   const [dynamicColumns, setDynamicColumns] = useState([...tableColumns]);
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
-  const [columns, setColumns] = useState([]);
-  const [isLoding, setIsLoding] = useState(false);
-  const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const { isOpen } = useDisclosure();
 
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(
-         `api/developers`, null, "server2"
-    );
-    setData(result.data || []);
-    setIsLoding(false);
-  };
+  const {
+    data: developerResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchItemsQuery({
+    path: "/developer/get",
+  });
 
-  useEffect(() => {
-    setColumns(tableColumns);
-  }, [action]);
-
-  const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
+  const data = developerResponse?.data || [];
+  const dataColumn = dynamicColumns.filter((item) =>
+    selectedColumns.some((column) => column.Header === item.Header)
   );
 
+  useEffect(() => {
+    setDynamicColumns([...tableColumns]);
+  }, [action]);
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching developers:", error);
+    }
+  }, [error]);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" h="200px">
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Alert status="error" borderRadius="md">
+          <AlertIcon />
+          <Box>
+            <Text fontWeight="bold">Error</Text>
+            <Text>
+              {error?.data?.message || "Failed to load developers. Please try again."}
+            </Text>
+          </Box>
+        </Alert>
+      </Box>
+    );
+  }
+
   return (
-    <div>
+    <Box p={4}>
       <CheckTable
-        // isOpen={isOpen} setAction={setAction} action={action} columnsData={columns}
-        isLoding={isLoding}
-        columnsData={columns}
-        isOpen={isOpen}
+        isLoading={isLoading}
+        columnsData={tableColumns}
         setAction={setAction}
         action={action}
         setSearchedData={setSearchedData}
         allData={data}
         displaySearchData={displaySearchData}
         tableData={displaySearchData ? searchedData : data}
-        fetchData={fetchData}
+        fetchData={refetch}
         dataColumn={dataColumn}
         setDisplaySearchData={setDisplaySearchData}
         setDynamicColumns={setDynamicColumns}
@@ -65,8 +91,7 @@ const Index = () => {
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
       />
-      {/* Add Form */}
-    </div>
+    </Box>
   );
 };
 

@@ -84,7 +84,7 @@ export default function CheckTable(props) {
     setAction,
     action,
   } = props;
-
+console.log(tableData,"tabledata")
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   // const columns = useMemo(() => columnsData, [columnsData]);
@@ -211,6 +211,7 @@ export default function CheckTable(props) {
     useSortBy,
     usePagination
   );
+  console.log(data, "data check table");
 
   const {
     getTableProps,
@@ -516,40 +517,21 @@ export default function CheckTable(props) {
                               </Text>
                             </Flex>
                           );
-                        }
-                         else if (cell?.column.Header === "Account Name") {
+                        } else if (cell?.column.Header === "Account Name") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Account Number") {
                           data = (
-                              <Text>{cell?.value || "-"}</Text>
+                            <Text color="brand.600">{cell?.value || "-"}</Text>
                           );
-                        }
-                        else if (cell?.column.Header === "Account Number") {
-                          data = (
-                              <Text
-                                color="brand.600"
-                              >{cell?.value || "-"}</Text>
-                          );
-                        } 
-                        else if (cell?.column.Header === "IBAN") {
-                          data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        } 
-                        else if (cell?.column.Header === "Swift Code") {
-                          data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        } 
-                        else if (cell?.column.Header === "Bank Name") {
-                          data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        } 
-                        else if (cell?.column.Header === "Bank Address") {
-                          data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        } 
-                         else if (cell?.column.Header === "Action") {
+                        } else if (cell?.column.Header === "IBAN") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Swift Code") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Bank Name") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Bank Address") {
+                          data = <Text>{cell?.value || "-"}</Text>;
+                        } else if (cell?.column.Header === "Action") {
                           data = (
                             <Text
                               fontSize="md"
@@ -575,7 +557,7 @@ export default function CheckTable(props) {
                                   >
                                     Edit
                                   </MenuItem>
-                                  
+
                                   {cell?.row?.original?.role ===
                                   "superAdmin" ? (
                                     ""

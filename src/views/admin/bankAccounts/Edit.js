@@ -37,7 +37,7 @@ const Edit = (props) => {
     phoneNumber: data ? data?.phoneNumber : "",
     parent: data ? data?.parent || "" : "",
     target: data ? data?.target : "",
-    roles: data ? data?.roles : []
+    roles: data ? data?.roles : [],
   };
 
   const user = JSON.parse(window.localStorage.getItem("user"));
@@ -53,9 +53,8 @@ const Edit = (props) => {
     },
   });
 
-
   const dispatch = useDispatch();
-  
+
   const handleCloseModal = () => {
     setEdit(false);
     // Dispatch setUser action to set user data
@@ -76,11 +75,14 @@ const Edit = (props) => {
     try {
       setIsLoding(true);
 
-      const valuesObj = {...values}; 
-      if(data?.roles[0]?.roleName === "Manager") {
-        delete valuesObj["parent"]; 
+      const valuesObj = { ...values };
+      if (data?.roles[0]?.roleName === "Manager") {
+        delete valuesObj["parent"];
       }
-      let response = await putApi(`api/user/edit/${props.selectedId}`, valuesObj);
+      let response = await putApi(
+        `api/user/edit/${props.selectedId}`,
+        valuesObj
+      );
       if (response && response.status === 200) {
         setEdit(false);
         let updatedUserData = userData; // Create a copy of userData
@@ -240,32 +242,34 @@ const Edit = (props) => {
                   errors.phoneNumber}
               </Text>
             </GridItem>
-            {values && values?.roles && values?.roles[0]?.roleName === "Agent" &&
-            <GridItem colSpan={{ base: 12 }}>
-              <FormLabel
-                display="flex"
-                ms="4px"
-                fontSize="sm"
-                fontWeight="500"
-                mb="8px"
-              >
-                Select Manager
-              </FormLabel>
-              <Select
-                name="parent"
-                value={values.parent}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Select Manager"
-              >
-                {tree?.tree?.managers?.map((manager) => (
-                  <option value={manager?._id}>
-                    {manager?.firstName + " " + manager?.lastName}
-                  </option>
-                ))}
-              </Select>
-            </GridItem>
-            }
+            {values &&
+              values?.roles &&
+              values?.roles[0]?.roleName === "Agent" && (
+                <GridItem colSpan={{ base: 12 }}>
+                  <FormLabel
+                    display="flex"
+                    ms="4px"
+                    fontSize="sm"
+                    fontWeight="500"
+                    mb="8px"
+                  >
+                    Select Manager
+                  </FormLabel>
+                  <Select
+                    name="parent"
+                    value={values.parent}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Select Manager"
+                  >
+                    {tree?.tree?.managers?.map((manager) => (
+                      <option value={manager?._id}>
+                        {manager?.firstName + " " + manager?.lastName}
+                      </option>
+                    ))}
+                  </Select>
+                </GridItem>
+              )}
             {(user?.role === "superAdmin" ||
               user?.roles[0]?.roleName === "Manager") && (
               <GridItem colSpan={{ base: 12 }}>
@@ -294,7 +298,7 @@ const Edit = (props) => {
               </GridItem>
             )}
 
-             {(user?.role === "superAdmin" && (
+            {user?.role === "superAdmin" && (
               <GridItem colSpan={{ base: 12 }}>
                 <FormLabel
                   display="flex"
@@ -319,7 +323,7 @@ const Edit = (props) => {
                   />
                 </InputGroup>
               </GridItem>
-            ))}
+            )}
           </Grid>
         </ModalBody>
         <ModalFooter>
