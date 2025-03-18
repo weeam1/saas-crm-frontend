@@ -1,23 +1,12 @@
 import { Icon } from '@chakra-ui/react';
 import { HiUsers } from 'react-icons/hi';
 import {
-	MdContacts,
 	MdHome,
 	MdInsertChartOutlined,
 	MdLeaderboard,
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-// icon
-import React from 'react';
-import { AiFillFolderOpen, AiOutlineMail } from 'react-icons/ai';
-  MdContacts,
-  MdHome,
-  MdInsertChartOutlined,
-  MdLeaderboard,
-  MdLock,
-  MdPeopleOutline,
-} from "react-icons/md";
 
 import React from 'react';
 import { AiFillFolderOpen, AiOutlineMail } from 'react-icons/ai';
@@ -25,31 +14,12 @@ import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import {
 	FaCalendarAlt,
 	FaFile,
-	FaHistory,
-	FaRupeeSign,
-	FaTasks,
-	FaWpforms,
-	FaUserCircle,
-	FaDollarSign,
-	FaUserFriends,
-	FaUsers,
-} from 'react-icons/fa';
-import { LuBuilding2 } from 'react-icons/lu';
-import { PiPhoneCallBold } from 'react-icons/pi';
-import { FaCreativeCommonsBy } from 'react-icons/fa';
-import { SiGooglemeet } from 'react-icons/si';
-import { MdCampaign } from 'react-icons/md';
-	FaCalendarAlt,
-	FaFile,
-	FaHistory,
 	FaRupeeSign,
 	FaTasks,
 	FaWpforms,
 	FaRegCalendarCheck,
 	FaUserCircle,
 	FaDollarSign,
-	FaUserFriends,
-	FaUsers,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -57,12 +27,6 @@ import { FaCreativeCommonsBy } from 'react-icons/fa';
 import { SiGooglemeet } from 'react-icons/si';
 import { MdCampaign } from 'react-icons/md';
 
-import { ROLE_PATH } from './roles';
-import ChangeImage from 'views/admin/image';
-import Validation from 'views/admin/validation';
-import CustomField from 'views/admin/customField';
-import TableField from 'views/admin/tableField';
-import { FaClipboardUser } from 'react-icons/fa6';
 import { ROLE_PATH } from './roles';
 import ChangeImage from 'views/admin/image';
 import Validation from 'views/admin/validation';
@@ -100,18 +64,9 @@ const LeadView = React.lazy(() => import('views/admin/lead/View'));
 const LeadImport = React.lazy(
 	() => import('views/admin/lead/components/LeadImport')
 );
+
 const InvoiceView = React.lazy(() => import('views/admin/invoice'));
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
-
-const Task = React.lazy(() => import('views/admin/task'));
-const Developers = React.lazy(() => import('views/admin/developers'));
-const BankAccounts = React.lazy(() => import('views/admin/bankAccounts'));
-const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
-const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
-const Agency = React.lazy(() => import('views/admin/agencies'));
-
-const InvoiceView = React.lazy(() => import("views/admin/invoice"));
-const SingleInvoice = React.lazy(() => import("views/admin/invoice/View"));
 const Task = React.lazy(() => import('views/admin/task'));
 const Developers = React.lazy(() => import('views/admin/developers'));
 const BankAccounts = React.lazy(() => import('views/admin/bankAccounts'));
@@ -168,13 +123,6 @@ const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
-const OfficeSetting = React.lazy(
-	() => import('views/admin/agencies/OfficeSetting')
-);
-const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
-const HRModule = React.lazy(() => import('views/admin/hrModule'));
-const Announcement = React.lazy(() => import('views/admin/announcement'));
-const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
 const Employees = React.lazy(
@@ -204,182 +152,6 @@ const routes = [
 	// ========================== Admin Layout ==========================
 	// ------------- lead Routes ------------------------
 	// {
-	// 	name: 'Lead',
-	// 	layout: [ROLE_PATH.superAdmin],
-	// 	path: '/new-lead',
-	// 	icon: (
-	// 		<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-	// 	),
-	// 	component: Lead,
-	// },
-	{
-		name: 'Lead',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/lead',
-		icon: (
-			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-		),
-		component: LeadScreen,
-	},
-	{
-		name: 'Announcement',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/announcements',
-		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
-		component: Announcement,
-	},
-	{
-		name: 'Hiring',
-		path: '/hiring',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: (
-			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
-		),
-		component: Hiring,
-	},
-	{
-		name: 'HR Module',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/hrmodule',
-		icon: <Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />,
-		component: HRModule,
-	},
-	{
-		name: 'Leads Pool',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/pool',
-		icon: (
-			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-		),
-		component: LeadPoolAdmin,
-	},
-	{
-		name: 'Points',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/points',
-		icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
-		component: CurrencyPoints,
-	},
-
-	{
-		name: 'Lead history',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/leadHistory/:lid',
-		icon: <Icon as={FaHistory} width='20px' height='20px' color='inherit' />,
-		component: CallHistory,
-		under: 'lead',
-		parentName: 'Lead',
-	},
-	// {
-	//   name: "Lead Cycle",
-	//   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	//   path: "/leadCycle/:lid",
-	//   icon: <Icon as={FaHistory} width='20px' height='20px' color='inherit' />,
-	//   component: LeadCycle,
-	//   under: "lead",
-	//   parentName: "Lead",
-	// },
-	{
-		name: 'Lead',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'lead',
-		parentName: 'Lead',
-		path: '/leadView/:id',
-		component: LeadView,
-	},
-	{
-		name: 'Lead Import',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'lead',
-		parentName: 'Lead',
-		path: '/leadImport',
-		component: LeadImport,
-	},
-	// --------------- contact Routes --------------------
-	{
-		name: 'Contacts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/contacts',
-		icon: <Icon as={MdContacts} width='20px' height='20px' color='inherit' />,
-		component: Contact,
-	},
-	{
-		name: 'Contacts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'contacts',
-		parentName: 'Contacts',
-		path: '/contactView/:id',
-		component: ContactView,
-	},
-
-	{
-		name: 'Contact Import',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		both: true,
-		under: 'contacts',
-		parentName: 'Contacts',
-		path: '/contactImport',
-		component: ContactImport,
-	},
-	// ------------- Property Routes ------------------------
-	{
-		name: 'Property',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/properties',
-		icon: <Icon as={LuBuilding2} width='20px' height='20px' color='inherit' />,
-		component: Property,
-	},
-	{
-		name: 'Property ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		parentName: 'Property',
-		under: 'properties',
-		path: '/propertyView/:id',
-		component: PropertyView,
-	},
-	{
-		name: 'Property Import',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		both: true,
-		under: 'properties',
-		parentName: 'Property',
-		path: '/propertyImport',
-		component: PropertyImport,
-	},
-	{
-		name: 'Invoice',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: <Icon as={FaFile} width='20px' height='20px' color='inherit' />,
-		path: '/invoice',
-		component: InvoiceView,
-	},
-	{
-		name: 'Invoice',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'invoice',
-		path: '/invoiceView/:id',
-		component: SingleInvoice,
-	},
-	// -----------------------------Admin setting-------------------------------------
-	{
-		name: 'Admin Setting',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		parentName: 'admin',
-		under: 'admin',
-		path: '/admin-setting',
-		component: AdminSetting,
-	},
-	// ========================== Dashboard ==========================
-	{
-		name: 'Dashboard',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/default',
-		icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-		component: MainDashboard,
-	},
-	// ========================== Admin Layout ==========================
-	// ------------- lead Routes ------------------------
-	// {
 	//   name: "Lead",
 	//   layout: [ROLE_PATH.superAdmin],
 	//   path: "/lead",
@@ -389,9 +161,9 @@ const routes = [
 	//   component: Lead,
 	// },
 	{
-		name: 'New Lead',
+		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin],
-		path: '/new-lead',
+		path: '/lead',
 		icon: (
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
@@ -499,63 +271,63 @@ const routes = [
 		icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
 		component: CurrencyPoints,
 	},
-  {
-    name: "Contact Import",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    both: true,
-    under: "contacts",
-    parentName: "Contacts",
-    path: "/contactImport",
-    component: ContactImport,
-  },
-  // ------------- Property Routes ------------------------
-  {
-    name: "Property",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/properties",
-    icon: <Icon as={LuBuilding2} width="20px" height="20px" color="inherit" />,
-    component: Property,
-  },
-  {
-    name: "Property ",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    parentName: "Property",
-    under: "properties",
-    path: "/propertyView/:id",
-    component: PropertyView,
-  },
-  {
-    name: "Property Import",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    both: true,
-    under: "properties",
-    parentName: "Property",
-    path: "/propertyImport",
-    component: PropertyImport,
-  },
-  {
-    name: "Invoice",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    icon: <Icon as={FaFile} width="20px" height="20px" color="inherit" />,
-    path: "/invoice",
-    component: InvoiceView,
-  },
-  {
-    name: "Invoice",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "invoice",
-    path: "/invoiceView/:id",
-    component: SingleInvoice,
-  },
-  // -----------------------------Admin setting-------------------------------------
-  {
-    name: "Admin Setting",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    parentName: "admin",
-    under: "admin",
-    path: "/admin-setting",
-    component: AdminSetting,
-  },
+	{
+		name: 'Contact Import',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		both: true,
+		under: 'contacts',
+		parentName: 'Contacts',
+		path: '/contactImport',
+		component: ContactImport,
+	},
+	// ------------- Property Routes ------------------------
+	{
+		name: 'Property',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/properties',
+		icon: <Icon as={LuBuilding2} width='20px' height='20px' color='inherit' />,
+		component: Property,
+	},
+	{
+		name: 'Property ',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		parentName: 'Property',
+		under: 'properties',
+		path: '/propertyView/:id',
+		component: PropertyView,
+	},
+	{
+		name: 'Property Import',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		both: true,
+		under: 'properties',
+		parentName: 'Property',
+		path: '/propertyImport',
+		component: PropertyImport,
+	},
+	{
+		name: 'Invoice',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		icon: <Icon as={FaFile} width='20px' height='20px' color='inherit' />,
+		path: '/invoice',
+		component: InvoiceView,
+	},
+	{
+		name: 'Invoice',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'invoice',
+		path: '/invoiceView/:id',
+		component: SingleInvoice,
+	},
+	// -----------------------------Admin setting-------------------------------------
+	{
+		name: 'Admin Setting',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		parentName: 'admin',
+		under: 'admin',
+		path: '/admin-setting',
+		component: AdminSetting,
+	},
 
 	// {
 	// 	name: "Announcement",
@@ -729,7 +501,6 @@ const routes = [
 		),
 		component: Role,
 	},
-
 	{
 		name: 'Custom Fields',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -858,27 +629,27 @@ const routes = [
 		component: Developers,
 	},
 
-  {
-    name: "Bank Accounts",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/bank-accounts",
-    under: "bank-accounts",
-    component: BankAccounts,
-  },
-  {
-    name: "Lead Settings",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/lead-settings",
-    under: "lead-settings",
-    component: LeadSetting,
-  },
-  {
-    name: "Agencies",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/agencies",
-    under: "agencies",
-    component: Agency,
-  },
+	{
+		name: 'Bank Accounts',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/bank-accounts',
+		under: 'bank-accounts',
+		component: BankAccounts,
+	},
+	{
+		name: 'Lead Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead-settings',
+		under: 'lead-settings',
+		component: LeadSetting,
+	},
+	{
+		name: 'Agencies',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/agencies',
+		under: 'agencies',
+		component: Agency,
+	},
 	{
 		name: 'Bank Accounts',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -907,15 +678,14 @@ const routes = [
 		under: 'office-settings',
 		component: OfficeSettings,
 	},
-  // ========================== auth layout ==========================
-  {
-    name: "Sign In",
-    layout: "/auth",
-    path: "/sign-in",
-    icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-    component: SignInCentered,
-  },
-  
+	// ========================== auth layout ==========================
+	{
+		name: 'Sign In',
+		layout: '/auth',
+		path: '/sign-in',
+		icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+		component: SignInCentered,
+	},
 ];
 
 export default routes;

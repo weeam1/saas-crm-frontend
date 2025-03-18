@@ -37,7 +37,7 @@ const UserPage = React.lazy(() => import('views/admin/users'));
 // const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
-const Lead = React.lazy(() => import('views/admin/lead'));
+// const Lead = React.lazy(() => import('views/admin/lead'));
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 
 const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
@@ -152,9 +152,9 @@ export default function User(props) {
 			component: HRModule,
 		},
 		{
-			name: 'Leads Pool v2',
+			name: 'Leads Pool',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/test-v2',
+			path: '/pool',
 			icon: (
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
