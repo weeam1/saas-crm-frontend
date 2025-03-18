@@ -9,49 +9,49 @@ import {
 	ModalBody,
 	ModalFooter,
 	VStack,
+	Box,
 } from '@chakra-ui/react';
-import moment from 'moment-timezone';
-import TimePicker from './TimePicker';
+// import moment from 'moment-timezone';
+// import TimePicker from './TimePicker';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { buttonStyle } from '../constants';
+import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
-	const parseTime = (time) => {
-		const momentTime = moment(time, 'hh:mm A');
-		return {
-			hour: momentTime.format('hh'),
-			minute: momentTime.format('mm'),
-			period: momentTime.format('A'),
-		};
-	};
+	// const parseTime = (time) => {
+	// 	const momentTime = moment(time, 'hh:mm A');
+	// 	return {
+	// 		hour: momentTime.format('hh'),
+	// 		minute: momentTime.format('mm'),
+	// 		period: momentTime.format('A'),
+	// 	};
+	// };
 
 	const [checkInTime, setCheckInTime] = useState(
-		data.checkin
-			? parseTime(data.checkin)
-			: { hour: '09', minute: '00', period: 'AM' }
+		data.checkin ?? '09:00 AM'
+		// ? parseTime(data.checkin)
+		// : { hour: '09', minute: '00', period: 'AM' }
 	);
 
 	const [checkOutTime, setCheckOutTime] = useState(
-		data.checkout
-			? parseTime(data.checkout)
-			: { hour: '06', minute: '00', period: 'PM' }
+		data.checkout ?? '06:00 PM'
+		// ? parseTime(data.checkout)
+		// : { hour: '06', minute: '00', period: 'PM' }
 	);
-
-	console.log({ checkInTime, checkOutTime });
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
 	const handleSave = async () => {
-		const checkin = `${checkInTime.hour}:${checkInTime.minute} ${checkInTime.period}`;
-		const checkout = `${checkOutTime.hour}:${checkOutTime.minute} ${checkOutTime.period}`;
+		// const checkin = `${checkInTime.hour}:${checkInTime.minute} ${checkInTime.period}`;
+		// const checkout = `${checkOutTime.hour}:${checkOutTime.minute} ${checkOutTime.period}`;
 
 		try {
 			if (data?._id) {
 				await updateItemMutation({
 					path: `/attendance/${data?._id}`,
-					body: { checkin, checkout },
+					body: { checkin: checkInTime, checkout: checkOutTime },
 				}).unwrap();
 
 				toast.success('Attendance record update successfully');
@@ -70,7 +70,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
 			<ModalContent>
 				<ModalHeader>Edit Attendance Timing</ModalHeader>
 				<ModalBody>
-					<VStack spacing={4} p='4' alignItems='flex-start'>
+					{/* <VStack spacing={4} p='4' alignItems='flex-start'>
 						<Text fontSize='lg' fontWeight='semibold'>
 							Check in
 						</Text>
@@ -80,6 +80,25 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
 							Check out
 						</Text>
 						<TimePicker value={checkOutTime} onChange={setCheckOutTime} />
+					</VStack> */}
+
+					<VStack justify='space-between' gap={4}>
+						<Box flex='1'>
+							<Text mb={2} fontWeight='400' fontSize='lg'>
+								Check In
+							</Text>
+							<CustomTimePicker value={checkInTime} onChange={setCheckInTime} />
+						</Box>
+
+						<Box flex='1'>
+							<Text mb={2} fontWeight='400' fontSize='lg'>
+								Check Out
+							</Text>
+							<CustomTimePicker
+								value={checkOutTime}
+								onChange={setCheckOutTime}
+							/>
+						</Box>
 					</VStack>
 				</ModalBody>
 				<ModalFooter>

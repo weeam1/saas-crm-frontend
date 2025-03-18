@@ -127,22 +127,36 @@ const Attendance = () => {
 			fontFamily="'DM Sans', sans-serif"
 			boxShadow='sm'
 		>
-			<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-				No office settings found!
-			</Text>
-			<Text fontSize='md' color='gray.600'>
-				To ensure smooth attendance tracking, please configure your office
-				settings.
-			</Text>
-			<Button
-				{...buttonStyle}
-				mt={3}
-				bg='green.500'
-				_active={{ bg: 'green.400' }}
-				onClick={() => navigate(`/office-settings/${user?.agency?._id}`)}
-			>
-				Add Office Settings
-			</Button>
+			{role === 'superAadmin' ? (
+				<>
+					<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+						No office settings found!
+					</Text>
+					<Text fontSize='md' color='gray.600'>
+						To ensure smooth attendance tracking, please configure your office
+						settings.
+					</Text>
+					<Button
+						{...buttonStyle}
+						mt={3}
+						bg='green.500'
+						_active={{ bg: 'green.400' }}
+						onClick={() => navigate(`/office-settings/${user?.agency?._id}`)}
+					>
+						Add Office Settings
+					</Button>
+				</>
+			) : (
+				<>
+					<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+						Office settings not configured!
+					</Text>
+					<Text fontSize='md' color='gray.600'>
+						Please contact your administrator to set up office settings for
+						attendance tracking.
+					</Text>
+				</>
+			)}
 		</Flex>
 	);
 };
