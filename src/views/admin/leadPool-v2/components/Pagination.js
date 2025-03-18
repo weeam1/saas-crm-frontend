@@ -44,10 +44,12 @@ const Pagination = ({
   setDisplaySearchData,
   sendRequest,
   cancelRequest,
+  searchTerm,
+  setSearchTerm,
   buyLoading,
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
   const [tags, setTags] = useState([]);
   const pageSizeOptions = [10, 25, 50, 100];
 
@@ -160,7 +162,7 @@ const Pagination = ({
     setActiveTab("Buy Leads");
     handleNavigation(1, () => fetchData("Buy Leads", 1, 50));
   };
-
+  console.log("Pagination render - searchTerm:", searchTerm);
   const buttonStyle = {
     size: "sm",
     borderRadius: "lg",
@@ -386,14 +388,24 @@ const Pagination = ({
       {displaySearchData && (
         <Flex justifyContent="space-between" alignItems="center" p={3}>
           <HStack spacing={2}>
-            <Text
+            {/* <Text
               fontFamily="DM Sans"
               fontSize={{ base: "sm", md: "md", lg: "14px" }}
               fontWeight="medium"
               color="gray.800"
             >
               Lead Search:
-            </Text>
+            </Text> */}
+            {displaySearchData && searchTerm && (
+              <Text
+                fontFamily="DM Sans"
+                fontSize={{ base: "sm", md: "md", lg: "14px" }}
+                fontWeight="medium"
+                color="gray.800"
+              >
+                Lead Search:
+              </Text>
+            )}
             <Text
               fontFamily="DM Sans"
               fontSize={{ base: "xs", md: "sm", lg: "14px" }}
