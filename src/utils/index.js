@@ -1,6 +1,5 @@
-import * as yup from 'yup'
-import { useSelector } from "react-redux";
-
+import * as yup from 'yup';
+import { useSelector } from 'react-redux';
 
 // export const generateValidationSchema = (fields) => {
 //     return fields.reduce((acc, field) => {
@@ -41,109 +40,124 @@ import { useSelector } from "react-redux";
 // };
 
 export const generateValidationSchema = (fields) => {
-    return fields?.reduce((acc, field) => {
-        // let formikValObj = field?.validation?.find(obj => obj?.hasOwnProperty('formikType'));
+	return fields?.reduce((acc, field) => {
+		// let formikValObj = field?.validation?.find(obj => obj?.hasOwnProperty('formikType'));
 
-        acc[field.name] = field.validation.reduce((fieldAcc, rule) => {
-            if (rule.require) {
-                fieldAcc = fieldAcc.required(rule.message);
-            }
-            if (rule.min) {
-                fieldAcc = fieldAcc.min(rule.value, rule.message);
-            }
-            if (rule.max) {
-                fieldAcc = fieldAcc.max(rule.value, rule.message);
-            }
-            if (rule.match) {
-                const regexPattern = rule?.value?.replace(/^\/|\/$/g, ''); // Remove leading and trailing slashes
-                const regex = new RegExp(regexPattern);
-                fieldAcc = fieldAcc.matches(regex, rule.message);
-            }
-            if (rule.formikType === 'date') {
-                fieldAcc = fieldAcc.required(rule.message);
-            }
-            // Add other formikType cases as needed
+		acc[field.name] = field.validation.reduce((fieldAcc, rule) => {
+			if (rule.require) {
+				fieldAcc = fieldAcc.required(rule.message);
+			}
+			if (rule.min) {
+				fieldAcc = fieldAcc.min(rule.value, rule.message);
+			}
+			if (rule.max) {
+				fieldAcc = fieldAcc.max(rule.value, rule.message);
+			}
+			if (rule.match) {
+				const regexPattern = rule?.value?.replace(/^\/|\/$/g, ''); // Remove leading and trailing slashes
+				const regex = new RegExp(regexPattern);
+				fieldAcc = fieldAcc.matches(regex, rule.message);
+			}
+			if (rule.formikType === 'date') {
+				fieldAcc = fieldAcc.required(rule.message);
+			}
+			// Add other formikType cases as needed
 
-            return fieldAcc;
-        }, yup.string());
-        // }, (formikValObj && formikValObj?.formikType) ? yup?.[formikValObj?.formikType]() : yup.string());
+			return fieldAcc;
+		}, yup.string());
+		// }, (formikValObj && formikValObj?.formikType) ? yup?.[formikValObj?.formikType]() : yup.string());
 
-        let fieldValidation;
-        let formikValidation = field?.validation?.find(obj => obj?.hasOwnProperty('formikType'));
-        let fieldFormikType = formikValidation?.formikType?.toLowerCase();
+		let fieldValidation;
+		let formikValidation = field?.validation?.find((obj) =>
+			obj?.hasOwnProperty('formikType')
+		);
+		let fieldFormikType = formikValidation?.formikType?.toLowerCase();
 
-        if (fieldFormikType === 'string') {
-            fieldValidation = yup.string()
-        } else if (fieldFormikType === 'email') {
-            fieldValidation = yup.string().email()
-        } else if (fieldFormikType === 'date') {
-            fieldValidation = yup.date()
-        } else if (fieldFormikType === 'number') {
-            fieldValidation = yup.number()
-        } else if (fieldFormikType === 'object') {
-            fieldValidation = yup.object()
-        } else if (fieldFormikType === 'array') {
-            fieldValidation = yup.array()
-        } else if (fieldFormikType === 'url') {
-            fieldValidation = yup.string().url()
-        } else if (fieldFormikType === 'boolean') {
-            fieldValidation = yup.boolean()
-        } else if (fieldFormikType === 'positive') {
-            fieldValidation = yup.number().positive()
-        } else if (fieldFormikType === "negative") {
-            fieldValidation = yup.number().negative()
-        } else if (fieldFormikType === "integer") {
-            fieldValidation = yup.number().integer()
-        } else {
-            fieldValidation = yup.string()
-        }
+		if (fieldFormikType === 'string') {
+			fieldValidation = yup.string();
+		} else if (fieldFormikType === 'email') {
+			fieldValidation = yup.string().email();
+		} else if (fieldFormikType === 'date') {
+			fieldValidation = yup.date();
+		} else if (fieldFormikType === 'number') {
+			fieldValidation = yup.number();
+		} else if (fieldFormikType === 'object') {
+			fieldValidation = yup.object();
+		} else if (fieldFormikType === 'array') {
+			fieldValidation = yup.array();
+		} else if (fieldFormikType === 'url') {
+			fieldValidation = yup.string().url();
+		} else if (fieldFormikType === 'boolean') {
+			fieldValidation = yup.boolean();
+		} else if (fieldFormikType === 'positive') {
+			fieldValidation = yup.number().positive();
+		} else if (fieldFormikType === 'negative') {
+			fieldValidation = yup.number().negative();
+		} else if (fieldFormikType === 'integer') {
+			fieldValidation = yup.number().integer();
+		} else {
+			fieldValidation = yup.string();
+		}
 
-        if (field.validation && Array.isArray(field.validation)) {
-            field.validation.forEach((validationRule) => {
+		if (field.validation && Array.isArray(field.validation)) {
+			field.validation.forEach((validationRule) => {
+				if (validationRule.require) {
+					fieldValidation = fieldValidation.required(
+						validationRule.message || 'This field is required'
+					);
+				}
+				if (validationRule.min) {
+					fieldValidation = fieldValidation.min(
+						validationRule.value,
+						validationRule.message ||
+							(fieldFormikType === 'date'
+								? 'Date is too small'
+								: 'Value is too small')
+					);
+				}
+				if (validationRule.max) {
+					fieldValidation = fieldValidation.max(
+						validationRule.value,
+						validationRule.message ||
+							(fieldFormikType === 'date'
+								? 'Date is too large'
+								: 'Value is too large')
+					);
+				}
+				if (validationRule.match) {
+					fieldValidation = fieldValidation.matches(
+						new RegExp(validationRule.match),
+						validationRule.message || 'Value does not match the pattern'
+					);
+				}
+				if (validationRule?.formikType && validationRule?.message) {
+					fieldValidation = fieldValidation.typeError(validationRule.message);
+				}
+			});
+		}
 
-                if (validationRule.require) {
-                    fieldValidation = fieldValidation.required(validationRule.message || 'This field is required');
-                }
-                if (validationRule.min) {
-                    fieldValidation = fieldValidation.min(validationRule.value, validationRule.message || (fieldFormikType === 'date' ? "Date is too small" : 'Value is too small'));
-                }
-                if (validationRule.max) {
-                    fieldValidation = fieldValidation.max(validationRule.value, validationRule.message || (fieldFormikType === 'date' ? "Date is too large" : 'Value is too large'));
-                }
-                if (validationRule.match) {
-                    fieldValidation = fieldValidation.matches(
-                        new RegExp(validationRule.match),
-                        validationRule.message || 'Value does not match the pattern'
-                    );
-                }
-                if (validationRule?.formikType && validationRule?.message) {
-                    fieldValidation = fieldValidation.typeError(validationRule.message)
-                }
-            });
-        }
-
-        return {
-            ...acc,
-            [field.name]: fieldValidation,
-        };
-
-    }, {})
+		return {
+			...acc,
+			[field.name]: fieldValidation,
+		};
+	}, {});
 };
 
-export   const getUserNameById = (id,tree) =>{
-    // const tree = useSelector((state) => state.user.tree);
+export const getUserNameById = (id, tree) => {
+	// const tree = useSelector((state) => state.user.tree);
 
-//     const manager =  tree?.managers?.find(manager=>{
-//           return manager?._id == id  ;  
-//   });
+	//     const manager =  tree?.managers?.find(manager=>{
+	//           return manager?._id == id  ;
+	//   });
 
-const item = tree?.find(item=>item?._id == id);
-console.log(item,"find user")
-console.log(tree,"it is a user tree")
+	const item = tree?.find((item) => item?._id === id);
+	console.log(item, 'find user: ', id);
+	console.log(tree, 'it is a user tree');
 
-  return item?item?.firstName + " " + item?.lastName:""
+	const userName = item ? item?.firstName + ' ' + item?.lastName : '';
 
-  }
+	return userName;
+};
 //   export   const getAgentNameById = (id,tree) =>{
 // //   const tree = useSelector((state) => state.user.tree);
 
@@ -155,3 +169,104 @@ console.log(tree,"it is a user tree")
 //   return agent?agent?.firstName + " " +agent?.lastName:"";
 
 //   }
+
+// modulo that supports negative numbers (so that e.g. -5 % 4 = 3)
+export const modulo = (a, n) => ((a % n) + n) % n;
+
+export const findManagerForAgent = (agentId, tree) => {
+	const { agents, managers } = tree; // Fix typo: 'mangers' -> 'managers'
+
+	// Loop through all managers in the agents object
+	for (const managerKey in agents) {
+		if (Object.hasOwn(agents, managerKey)) {
+			const managerAgents = agents[managerKey];
+
+			// Debugging log to inspect manager's agents
+			console.log('managerAgents', managerAgents);
+
+			// Check if the agent ID exists in the manager's agents list
+			const agentFound = managerAgents.find(
+				(agent) => agent._id.toString() === agentId.toString() // Convert IDs to string for reliable comparison
+			);
+
+			if (agentFound) {
+				// Extract manager ID from the key (e.g., "manager-<id>")
+				const managerId = managerKey.split('-')[1];
+
+				// Find the manager's details in the managers array
+				const managerDetails = managers.find(
+					(manager) => manager._id.toString() === managerId.toString()
+				);
+
+				if (managerDetails) {
+					// Return both manager ID and name
+					const managerName =
+						managerDetails.firstName + ' ' + managerDetails.lastName;
+					return {
+						managerId,
+						managerName,
+					};
+				}
+			}
+		}
+	}
+
+	// Return null if no manager is found
+	return null;
+};
+
+export const generateSearchTags = (filters, tree) => {
+	const tags = [];
+
+	if (filters.leadName) tags.push(`Lead: ${filters.leadName}`);
+	if (filters.dateTime?.from) tags.push(`Start: ${filters.dateTime.from}`);
+	if (filters.dateTime?.to) tags.push(`End: ${filters.dateTime.to}`);
+
+	Object.entries(filters).forEach(([key, value]) => {
+		let displayValue = value;
+
+		// 🔹 Special formatting rules
+		if (key === 'fromLeadScore' || key === 'toLeadScore') {
+			displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || 'max'}`;
+		}
+		if (key === 'leadStatus') {
+			displayValue =
+				value === 'active'
+					? 'Interested'
+					: value === 'pending'
+						? 'Not Interested'
+						: value;
+		}
+		if (key === 'eLeadStatus') {
+			displayValue = value === '-1' ? 'No E.Status' : value;
+		}
+		if (key === 'agentAssigned') {
+			const agentsArray = Object.values(tree.agents).flatMap(
+				(managerArray) => managerArray
+			);
+			const assignedAgent = agentsArray.find(
+				(agent) => agent?._id?.toString() === value
+			);
+			displayValue = assignedAgent
+				? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+				: value === '-1'
+					? 'No Agent'
+					: value;
+		}
+		if (key === 'managerAssigned') {
+			const assignedManager = tree.managers.find(
+				(user) => user?._id?.toString() === value
+			);
+			displayValue = assignedManager
+				? `${assignedManager.firstName} ${assignedManager.lastName}`
+				: value === '-1'
+					? 'No Manager'
+					: value;
+		}
+
+		// Add formatted value to tags
+		tags.push(`${key}: ${displayValue}`);
+	});
+
+	return tags;
+};

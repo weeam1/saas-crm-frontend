@@ -1,0 +1,58 @@
+.slider-container {
+	height: 30vh;
+	width: 80%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	background: white;
+}
+
+.glass-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	padding: 20px;
+	width: 100%;
+	background-color: #ffffff;
+}
+
+.glass-box {
+	width: 100%;
+	background: rgba(255, 255, 255, 0.2);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.09);
+}
+
+.announcement-header {
+	font-size: 1.5rem;
+	font-weight: bold;
+	color: #ffffff;
+	margin-bottom: 8px;
+}
+
+.announcement-message {
+	font-size: 1rem;
+	color: #222;
+}
+
+.acknowledge-button {
+	background: linear-gradient(90deg, #007bff, #0056b3);
+	color: #ffffff;
+	padding: 10px 20px;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-size: 1rem;
+	border: none;
+}
+
+.acknowledge-button:hover {
+	background: linear-gradient(90deg, #0056b3, #003f7f);
+	transform: translateY(-2px);
+}

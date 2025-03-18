@@ -1,5 +1,24 @@
 import { CloseIcon, PhoneIcon } from '@chakra-ui/icons';
-import { Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, FormLabel, Grid, GridItem, Heading, IconButton, Input, InputGroup, InputLeftElement, Select, Text } from '@chakra-ui/react';
+import {
+	Button,
+	Drawer,
+	DrawerBody,
+	DrawerContent,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerOverlay,
+	Flex,
+	FormLabel,
+	Grid,
+	GridItem,
+	Heading,
+	IconButton,
+	Input,
+	InputGroup,
+	InputLeftElement,
+	Select,
+	Text,
+} from '@chakra-ui/react';
 import { HSeparator } from 'components/separator/Separator';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -11,135 +30,164 @@ import { putApi } from 'services/api';
 import { getApi } from 'services/api';
 import { generateValidationSchema } from '../../../utils';
 import CustomForm from '../../../utils/customForm';
-import * as yup from 'yup'
+import * as yup from 'yup';
 
 const Edit = (props) => {
-    const [isLoding, setIsLoding] = useState(false);
-    const initialFieldValues = Object.fromEntries(
-        (props?.leadData?.fields || []).map(field => [field?.name, ''])
-    );
-    // const [initialValues, setInitialValues] = useState({
-    //     // Lead Information:
-    //     leadName: '',
-    //     leadEmail: '',
-    //     leadPhoneNumber: '',
-    //     leadAddress: '',
-    //     // Lead Source and Details:
-    //     leadSource: '',
-    //     leadStatus: '',
-    //     leadSourceDetails: '',
-    //     leadCampaign: '',
-    //     leadSourceChannel: '',
-    //     leadSourceMedium: '',
-    //     leadSourceCampaign: '',
-    //     leadSourceReferral: '',
-    //     // Lead Assignment and Ownership:
-    //     leadAssignedAgent: '',
-    //     leadOwner: '',
-    //     leadCommunicationPreferences: '',
-    //     // Lead Dates and Follow-up:
-    //     leadCreationDate: '',
-    //     leadConversionDate: '',
-    //     leadFollowUpDate: '',
-    //     leadFollowUpStatus: '',
-    //     // Lead Scoring and Nurturing:
-    //     leadScore: '',
-    //     leadNurturingWorkflow: '',
-    //     leadEngagementLevel: '',
-    //     leadConversionRate: '',
-    //     leadNurturingStage: '',
-    //     leadNextAction: '',
-    //     createBy: JSON.parse(localStorage.getItem('user'))._id,
-    // });
-    const [initialValues, setInitialValues] = useState({
-        ...initialFieldValues,
-        createBy: JSON.parse(localStorage.getItem('user'))._id
-    })
-    const param = useParams()
-    console.log(props?.leadData,"fields of form")
-    const formik = useFormik({
-        initialValues: initialValues,
-        enableReinitialize: true,
-        validationSchema: leadSchema,
-        // validationSchema: yup.object().shape(generateValidationSchema(props?.leadData?.fields)),
-        onSubmit: (values, { resetForm }) => {
-            EditData();
-        },
-    });
+	const [isLoding, setIsLoding] = useState(false);
+	const initialFieldValues = Object.fromEntries(
+		(props?.leadData?.fields || []).map((field) => [field?.name, ''])
+	);
+	// const [initialValues, setInitialValues] = useState({
+	//     // Lead Information:
+	//     leadName: '',
+	//     leadEmail: '',
+	//     leadPhoneNumber: '',
+	//     leadAddress: '',
+	//     // Lead Source and Details:
+	//     leadSource: '',
+	//     leadStatus: '',
+	//     leadSourceDetails: '',
+	//     leadCampaign: '',
+	//     leadSourceChannel: '',
+	//     leadSourceMedium: '',
+	//     leadSourceCampaign: '',
+	//     leadSourceReferral: '',
+	//     // Lead Assignment and Ownership:
+	//     leadAssignedAgent: '',
+	//     leadOwner: '',
+	//     leadCommunicationPreferences: '',
+	//     // Lead Dates and Follow-up:
+	//     leadCreationDate: '',
+	//     leadConversionDate: '',
+	//     leadFollowUpDate: '',
+	//     leadFollowUpStatus: '',
+	//     // Lead Scoring and Nurturing:
+	//     leadScore: '',
+	//     leadNurturingWorkflow: '',
+	//     leadEngagementLevel: '',
+	//     leadConversionRate: '',
+	//     leadNurturingStage: '',
+	//     leadNextAction: '',
+	//     createBy: JSON.parse(localStorage.getItem('user'))._id,
+	// });
+	const [initialValues, setInitialValues] = useState({
+		...initialFieldValues,
+		createBy: JSON.parse(localStorage.getItem('user'))._id,
+	});
 
-    const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue, } = formik
+	const param = useParams();
+	console.log('fields of form edit ', props);
+	const formik = useFormik({
+		initialValues: initialValues,
+		enableReinitialize: true,
+		validationSchema: leadSchema,
+		// validationSchema: yup.object().shape(generateValidationSchema(props?.leadData?.fields)),
+		onSubmit: (values, { resetForm }) => {
+			EditData();
+		},
+	});
 
-    const EditData = async () => {
-        try {
-            setIsLoding(true)
-            // let response = await putApi(`api/lead/edit/${props?.selectedId || param.id}`, values)
-            let response = await putApi(`api/form/edit/${props?.selectedId || param.id}`, { ...values, moduleId: props.moduleId })
-            if (response.status === 200) {
-                props.onClose();
-                props.setAction((pre) => !pre)
-            }
-        } catch (e) {
-            console.log(e);
-        }
-        finally {
-            setIsLoding(false)
-        }
-    };
+	const {
+		errors,
+		touched,
+		values,
+		handleBlur,
+		handleChange,
+		handleSubmit,
+		setFieldValue,
+	} = formik;
 
-    const handleClose = () => {
-        props.onClose(false)
-        props.setSelectedId && props?.setSelectedId()
-        formik.resetForm();
-    }
+	const EditData = async () => {
+		try {
+			setIsLoding(true);
+			// let response = await putApi(`api/lead/edit/${props?.selectedId || param.id}`, values)
+			let response = await putApi(
+				`api/form/edit/${props?.selectedId || param.id}`,
+				{ ...values, moduleId: props.moduleId }
+			);
+			if (response.status === 200) {
+				props.onClose();
+				props.setAction((pre) => !pre);
+			}
+		} catch (e) {
+			console.log(e);
+		} finally {
+			setIsLoding(false);
+		}
+	};
 
-    let response
-    const fetchData = async () => {
-        if (props?.selectedId || param.id) {
-            try {
-                setIsLoding(true)
-                response = await getApi('api/lead/view/', props?.selectedId ? props?.selectedId : param.id)
-                let editData = response?.data?.lead
-                editData.leadCreationDate = moment(response?.data?.lead?.leadCreationDate).format('YYYY-MM-DD');
-                editData.leadConversionDate = moment(response?.data?.lead?.leadConversionDate).format('YYYY-MM-DD');
-                editData.leadFollowUpDate = moment(response?.data?.lead?.leadFollowUpDate).format('YYYY-MM-DD');
-                setInitialValues(editData)
-            } catch (e) {
-                console.error(e)
-            } finally {
-                setIsLoding(false)
-            }
-        }
-    }
+	const handleClose = () => {
+		props.onClose(false);
+		props.setSelectedId && props?.setSelectedId();
+		formik.resetForm();
+	};
 
-    useEffect(() => {
-        console.log("data::", props.selectedId) 
-        if(props.isOpen) {
-            fetchData()
-        }
-    }, [props.isOpen])
+	let response;
+	const fetchData = async () => {
+		if (props?.selectedId || param.id) {
+			try {
+				setIsLoding(true);
+				response = await getApi(
+					'api/lead/view/',
+					props?.selectedId ? props?.selectedId : param.id
+				);
+				let editData = response?.data?.lead;
+				editData.leadCreationDate = moment(
+					response?.data?.lead?.leadCreationDate
+				).format('YYYY-MM-DD');
+				editData.leadConversionDate = moment(
+					response?.data?.lead?.leadConversionDate
+				).format('YYYY-MM-DD');
+				editData.leadFollowUpDate = moment(
+					response?.data?.lead?.leadFollowUpDate
+				).format('YYYY-MM-DD');
+				setInitialValues(editData);
+			} catch (e) {
+				console.error(e);
+			} finally {
+				setIsLoding(false);
+			}
+		}
+	};
 
-    return (
-        <div>
-            <Drawer isOpen={props.isOpen} size={props.size}>
-                <DrawerOverlay />
-                <DrawerContent>
-                    <DrawerHeader justifyContent='space-between' display='flex' >
-                        Edit leads
-                        <IconButton onClick={handleClose} icon={<CloseIcon />} />
-                    </DrawerHeader>
-                    <DrawerBody>
+	useEffect(() => {
+		if (props.isOpen) {
+			fetchData();
+		}
+	}, [props.isOpen]);
 
-                        {isLoding ?
-                            <Flex justifyContent={'center'} alignItems={'center'} width="100%" >
-                                <Spinner />
-                            </Flex>
-                            :
-                            <CustomForm leadData={props.leadData} values={values} setFieldValue={setFieldValue} handleChange={handleChange} handleBlur={handleBlur} errors={errors} touched={touched} />
+	return (
+		<div>
+			<Drawer isOpen={props.isOpen} size={props.size}>
+				<DrawerOverlay />
+				<DrawerContent>
+					<DrawerHeader justifyContent='space-between' display='flex'>
+						Edit leads
+						<IconButton onClick={handleClose} icon={<CloseIcon />} />
+					</DrawerHeader>
+					<DrawerBody>
+						{isLoding ? (
+							<Flex
+								justifyContent={'center'}
+								alignItems={'center'}
+								width='100%'
+							>
+								<Spinner />
+							</Flex>
+						) : (
+							<CustomForm
+								leadData={props.leadData}
+								values={values}
+								setFieldValue={setFieldValue}
+								handleChange={handleChange}
+								handleBlur={handleBlur}
+								errors={errors}
+								touched={touched}
+							/>
+						)}
+					</DrawerBody>
 
-                        }
-                    </DrawerBody>
-
-                    {/* <Grid templateColumns="repeat(12, 1fr)" gap={3}>
+					{/* <Grid templateColumns="repeat(12, 1fr)" gap={3}>
                                 <GridItem colSpan={{ base: 12 }}>
                                     <Heading as="h1" size="md" >
                                         1. Basic Lead Information
@@ -574,33 +622,34 @@ const Edit = (props) => {
 
 
                             </Grid> */}
-                    <DrawerFooter>
-                        <Button
-                            sx={{ textTransform: "capitalize" }}
-                            variant="brand" size="sm"
-                            type="submit"
-                            disabled={isLoding ? true : false}
-                            onClick={handleSubmit}
-                        >
-                            {isLoding ? <Spinner /> : 'Update'}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            colorScheme='red' size="sm"
-                            sx={{
-                                marginLeft: 2,
-                                textTransform: "capitalize",
-                            }}
-                            onClick={handleClose}
-                        >
-                            Close
-                        </Button>
-                    </DrawerFooter>
+					<DrawerFooter>
+						<Button
+							sx={{ textTransform: 'capitalize' }}
+							variant='brand'
+							size='sm'
+							type='submit'
+							disabled={isLoding ? true : false}
+							onClick={handleSubmit}
+						>
+							{isLoding ? <Spinner /> : 'Update'}
+						</Button>
+						<Button
+							variant='outline'
+							colorScheme='red'
+							size='sm'
+							sx={{
+								marginLeft: 2,
+								textTransform: 'capitalize',
+							}}
+							onClick={handleClose}
+						>
+							Close
+						</Button>
+					</DrawerFooter>
+				</DrawerContent>
+			</Drawer>
+		</div>
+	);
+};
 
-                </DrawerContent>
-            </Drawer>
-        </div>
-    )
-}
-
-export default Edit
+export default Edit;

@@ -1,259 +1,418 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
 
-body, html {
-  font-family: "DM Sans", sans-serif;
+body,
+html {
+	font-family: 'DM Sans', sans-serif;
 }
 
 option {
-  color: black;
+	color: black;
 }
 
 * {
-  letter-spacing: 0.3px;
-  outline: none;
+	letter-spacing: 0.3px;
+	outline: none;
 }
 
 ::-webkit-scrollbar {
-  height: 4px !important;
-  width: 7px;
+	height: 12px !important;
+	width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b9b9b9;
-  border-radius: 20px;
+	background: #e5e7eb;
+	border-radius: 20px;
 }
 
 .css-70fard,
 .apexcharts-toolbar {
-  z-index: 0 !important;
+	z-index: 0 !important;
 }
 
 .fc-bg-event {
-  opacity: 1 !important;
+	opacity: 1 !important;
 }
 
 .p0 {
-  margin-top: 0;
+	margin-top: 0;
 }
 
 /* TABLE  */
 .table-container {
-  min-height: 23vh;
-  max-height: 23vh;
-  overflow-y: auto;
+	min-height: 23vh;
+	max-height: 23vh;
+	overflow-y: auto;
 }
 
 .table-container thead {
-  border-bottom: 1px solid black;
-  box-shadow: -2px 0px 4px -2px #5c5d5efa;
-  position: sticky;
-  top: 0;
-  height: 25px;
-  background: #ffffff;
+	border-bottom: 1px solid black;
+	box-shadow: -2px 0px 4px -2px #5c5d5efa;
+	position: sticky;
+	top: 0;
+	height: 25px;
+	background: #ffffff;
 }
 
 .table-container-property {
-  min-height: auto;
-  max-height: 68vh;
-  overflow-y: auto;
+	min-height: auto;
+	max-height: 68vh;
+	overflow-y: auto;
 }
 
 .css-efk3t2 {
-  max-height: 15rem !important;
-  overflow-y: scroll !important;
+	max-height: 15rem !important;
+	overflow-y: scroll !important;
 }
 
 .table-container-property thead {
-  position: sticky;
-  top: 0;
-  height: 25px;
-  background: #ffffff;
+	position: sticky;
+	top: 0;
+	height: 25px;
+	background: #ffffff;
 }
 
 .table-fix-container {
-  min-height: 63vh;
-  max-height: 63vh;
-  overflow-y: auto;
+	min-height: 63vh;
+	max-height: 63vh;
+	overflow-y: auto;
 }
 
 .table-fix-container thead {
-  border-bottom: 1px solid black;
-  box-shadow: -2px 0px 4px -2px #5c5d5efa;
-  position: sticky;
-  top: 0;
-  height: 25px;
-  background: #ffffff;
+	border-bottom: 1px solid black;
+	box-shadow: -2px 0px 4px -2px #5c5d5efa;
+	position: sticky;
+	top: 0;
+	height: 20px;
+	background: #ffffff;
+	text-align: center;
 }
 
 .importTable {
-  min-height: auto;
-  max-height: 82vh;
-  overflow-y: auto;
+	min-height: auto;
+	max-height: 82vh;
+	overflow-y: auto;
 }
 
 .tableData {
-  padding: 10px !important;
+	padding: 10px !important;
 }
 
-/* .leadRow td {
-  border-bottom: 1px solid #e2e8f0;
-} */
+.leadRow td {
+	/* border-bottom: 1px solid #e2e8f0b9; */
+	text-align: center;
+	vertical-align: middle;
+	padding: 5px;
+}
 
 .datePickerBorder {
-  border: 1px solid #e2e8f0;
-  padding: 0 5px;
-  border-radius: 5px;
-  margin: 0 10px !important;
+	border: 1px solid #e2e8f0;
+	padding: 0 5px;
+	border-radius: 5px;
+	margin: 0 10px !important;
 }
 
 .imageCard {
-  position: relative;
-  overflow: hidden;
-  margin-right: 12px;
-  /* height: 200px;
+	position: relative;
+	overflow: hidden;
+	margin-right: 12px;
+	/* height: 200px;
   width: 400px; */
 }
 
 .imageContent {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color: #00000096;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #00000096;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 0;
 }
 
 .imageCard:hover .imageContent {
-  opacity: 1;
+	opacity: 1;
 }
 
 .EditDelete {
-  display: none;
+	display: none;
 }
 
 .CustomFieldName {
-  border-bottom: 1px solid rgba(128, 128, 128, 0.705);
+	border-bottom: 1px solid rgba(128, 128, 128, 0.705);
 }
 
 .CustomFieldName:hover .EditDelete {
-  display: block;
+	display: block;
 }
-
+/* Pending */
 .pending {
-  background-color: #fbf4dd !important;
-  color: #a37f08 !important;
-  border: 1px solid #a37f08 !important;
+	background-color: #fff4e5; /* Light peach */
+	color: #d67a00; /* Dark orange */
+	border: 1px solid #d67a00;
 }
 
-.onHold {
-  background-color: #ffeeeb !important;
-  color: #db5436 !important;
-  border: 1px solid #db5436 !important;
+/* Interested */
+.interested {
+	background-color: #fff3e0; /* Light orange */
+	color: #fb8c00; /* Dark orange */
+	border: 1px solid #fb8c00;
 }
 
-.completed {
-  background-color: #eaf9e6 !important;
-  color: #4d8f3a !important;
-  border: 1px solid #4d8f3a !important;
+/* Sold */
+.sold {
+	background-color: #e0f7fa; /* Light cyan */
+	color: #00796b; /* Dark cyan */
+	border: 1px solid #00796b;
 }
 
-.toDo {
-  background-color: #ebf5ff !important;
-  color: #1f7eeb !important;
-  border: 1px solid #1f7eeb !important;
+/* Not Interested */
+.notInterested {
+	background-color: #ffe0b2; /* Light orange */
+	color: #fb8c00; /* Dark orange */
+	border: 1px solid #fb8c00;
 }
 
-.inProgress {
-  background-color: #eee7fc !important;
-  color: #7038db !important;
-  border: 1px solid #7038db !important;
+/* Interested Seller */
+.interestedSeller {
+	background-color: #ffecb3; /* Light yellow */
+	color: #f57f17; /* Dark yellow */
+	border: 1px solid #f57f17;
+}
+
+/* Interested Buyer */
+.interestedBuyer {
+	background-color: #e3f2fd; /* Very light blue */
+	color: #1976d2; /* Blue */
+	border: 1px solid #1976d2;
+}
+
+/* Reassigned */
+.reassigned {
+	background-color: #f3e5f5; /* Light lavender */
+	color: #8e24aa; /* Dark lavender */
+	border: 1px solid #8e24aa;
+}
+
+/* New */
+.new {
+	background-color: #f0f4c3; /* Light lime */
+	color: #7cb342; /* Lime green */
+	border: 1px solid #7cb342;
+}
+
+/* No Answer */
+.noAnswer {
+	background-color: #fff9c4; /* Light pale yellow */
+	color: #fbc02d; /* Dark yellow */
+	border: 1px solid #fbc02d;
+}
+
+/* Unreachable */
+.unreachable {
+	background-color: #ffe0b2; /* Light orange */
+	color: #fb8c00; /* Dark orange */
+	border: 1px solid #fb8c00;
+}
+
+/* Waiting */
+.waiting {
+	background-color: #ffecb3; /* Light yellow */
+	color: #f57f17; /* Dark yellow */
+	border: 1px solid #f57f17;
+}
+
+/* Follow Up */
+.followUp {
+	background-color: #b2ebf2; /* Light cyan */
+	color: #0097a7; /* Dark cyan */
+	border: 1px solid #0097a7;
+}
+
+/* Meeting */
+.meeting {
+	background-color: #fffde7; /* Very light yellow */
+	color: #fbc02d; /* Gold */
+	border: 1px solid #fbc02d;
+}
+
+/* Follow Up After Meeting */
+.followUpAfterMeeting {
+	background-color: #b2ebf2; /* Light cyan */
+	color: #0097a7; /* Dark cyan */
+	border: 1px solid #0097a7;
+}
+
+/* Deal */
+.deal {
+	background-color: #e8f5e9; /* Very light green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Junk */
+.junk {
+	background-color: #f8bbd0; /* Light pink */
+	color: #d81b60; /* Dark pink */
+	border: 1px solid #d81b60;
+}
+
+/* WhatsApp Send */
+.whatsappSend {
+	background-color: #d0f4f7; /* Very light teal */
+	color: #009688; /* Teal */
+	border: 1px solid #009688;
+}
+
+/* WhatsApp Rec */
+.whatsappRec {
+	background-color: #b2dfdb; /* Light teal */
+	color: #00796b; /* Dark teal */
+	border: 1px solid #00796b;
+}
+
+/* Deal Out */
+.dealOut {
+	background-color: #e1bee7; /* Light purple */
+	color: #6a1b9a; /* Dark purple */
+	border: 1px solid #6a1b9a;
+}
+
+/* Shift Project */
+.shiftProject {
+	background-color: #f3e5f5; /* Light lavender */
+	color: #8e24aa; /* Dark lavender */
+	border: 1px solid #8e24aa;
+}
+
+/* Wrong Number */
+.wrongNumber {
+	background-color: #fff9c4; /* Light pale yellow */
+	color: #fbc02d; /* Dark yellow */
+	border: 1px solid #fbc02d;
+}
+
+/* Broker */
+.broker {
+	background-color: #e1f5fe; /* Light sky blue */
+	color: #0288d1; /* Dark blue */
+	border: 1px solid #0288d1;
+}
+
+/* Voice Mail */
+.voiceMail {
+	background-color: #f1f8e9; /* Light olive green */
+	color: #689f38; /* Dark olive green */
+	border: 1px solid #689f38;
+}
+
+/* Request */
+.request {
+	background-color: #e3f2fd; /* Very light blue */
+	color: #1976d2; /* Blue */
+	border: 1px solid #1976d2;
+}
+
+/* Will Attend the Show */
+.willAttendTheShow {
+	background-color: #e8f5e9; /* Very light green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Attended the Show */
+.attendedTheShow {
+	background-color: #c8e6c9; /* Light pastel green */
+	color: #388e3c; /* Dark green */
+	border: 1px solid #388e3c;
+}
+
+/* Callback */
+.callback {
+	background-color: #e8eaf6; /* Light blue-grey */
+	color: #3f51b5; /* Dark blue */
+	border: 1px solid #3f51b5;
 }
 
 progress {
-  box-sizing: border-box;
-  border: solid 0.15em white;
-  width: 100%;
-  margin: 5px 0 20px 0; 
-  height: 1em;
-  border-radius: 0.5em;
-  background: #92abe7bd;
-  font: clamp(0.625em, 7.5vw, 5em) monospace;
-  position: relative; 
+	box-sizing: border-box;
+	border: solid 0.15em white;
+	width: 100%;
+	margin: 5px 0 20px 0;
+	height: 1em;
+	border-radius: 0.5em;
+	background: #92abe7bd;
+	font: clamp(0.625em, 7.5vw, 5em) monospace;
+	position: relative;
 }
 
-progress.mini.navbar{
-  vertical-align: revert;
+progress.mini.navbar {
+	vertical-align: revert;
 }
 
 progress.mini {
-  height: 30px; 
-  border: solid 4px white; 
-  margin: 0; 
+	height: 30px;
+	border: solid 4px white;
+	margin: 0;
 }
 
 progress::before {
-  content: attr(data-content); 
-  position: absolute; 
-  left: 50%; 
-  top: 50%; 
-  transform: translate(-50%, -50%);
-  color: white; 
-  font-weight: bold;
-  font-size: 28px;
+	content: attr(data-content);
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-weight: bold;
+	font-size: 28px;
 }
 
 progress.mini.navbar::before {
-  font-size: 16px; 
+	font-size: 16px;
 }
-
 
 progress::-webkit-progress-bar {
-  background: transparent;
+	background: transparent;
 }
 progress::-webkit-progress-value {
-  border-radius: 0.35em;
-  box-shadow: inset 0 0.05em 0.05em rgba(255, 255, 255, 0.35);
-  background: var(--fill);
+	border-radius: 0.35em;
+	box-shadow: inset 0 0.05em 0.05em rgba(255, 255, 255, 0.35);
+	background: var(--fill);
 }
 progress::-moz-progress-bar {
-  border-radius: 0.35em;
-  box-shadow: inset 0 0.05em 0.05em rgba(255, 255, 255, 0.35);
-  background: var(--fill);
+	border-radius: 0.35em;
+	box-shadow: inset 0 0.05em 0.05em rgba(255, 255, 255, 0.35);
+	background: var(--fill);
 }
 progress {
-  --fill: linear-gradient(#1b00e5, transparent),
-    repeating-linear-gradient(135deg, #2b14db 0 0.25em, #1f0da8 0 0.5em);
+	--fill: linear-gradient(#1b00e5, transparent),
+		repeating-linear-gradient(135deg, #2b14db 0 0.25em, #1f0da8 0 0.5em);
 }
 
-
 .chakra-ui-dark input {
-  color: white; 
+	color: white;
 }
 
 .chakra-ui-dark .chakra-tabs__tab-panel button {
-  color: #B79045; 
+	color: #b79045;
 }
-
 
 #generate-proposal-btn:hover {
-  background-image: linear-gradient(to right, #34ca00, #00ee47);
+	background-image: linear-gradient(to right, #34ca00, #00ee47);
 }
 
-
-  .auth-form {
-    width: 50%; 
-  }
+.auth-form {
+	width: 50%;
+}
 
 @media all and (max-width: 560px) {
-  .auth-image {
-    display: none; 
-  }
-  .auth-form {
-    width: 100%; 
-  }
+	.auth-image {
+		display: none;
+	}
+	.auth-form {
+		width: 100%;
+	}
 }
