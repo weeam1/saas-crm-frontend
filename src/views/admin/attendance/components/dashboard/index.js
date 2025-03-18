@@ -152,18 +152,34 @@ const Dashboard = () => {
 
 	const barChartOptions = {
 		chart: { type: 'bar' },
-		plotOptions: { bar: { columnWidth: '50%', distributed: true } },
+		plotOptions: {
+			bar: {
+				columnWidth: '50%',
+				distributed: true,
+				colors: {
+					ranges: [
+						{ from: 0, to: 1, color: '#E5E7EB' },
+						{ from: 2, to: 2, color: '#3B82F6' },
+						{ from: 3, to: 3, color: '#a07d2e' },
+						{ from: 4, to: 4, color: '#9f7329' },
+						{ from: 5, to: 5, color: '#10B981' },
+					],
+				},
+			},
+		},
 		xaxis: { categories: data?.roleNames ?? [] },
-		yaxis: { labels: { formatter: (val) => `${val}%` } },
+		yaxis: {
+			// min: 0,
+			// max: 100,
+			labels: { formatter: (val) => `${Math.round(val)}%` },
+		},
 		tooltip: { enabled: true, theme: 'light' },
-		colors: ['#CBD5E0', '#CBD5E0', '#28A745', '#CBD5E0', '#CBD5E0'],
 	};
 
 	const barChartData = [
 		{
 			name: 'Attendance %',
 			data: data?.roleCounts ?? [],
-			colors: ['#CBD5E0', '#CBD5E0', '#8D6729', '#CBD5E0', '#CBD5E0'],
 		},
 	];
 
@@ -173,8 +189,6 @@ const Dashboard = () => {
 		const timer = setTimeout(() => setLoading(false), 3000);
 		return () => clearTimeout(timer);
 	}, []);
-
-	console.log({ loading });
 
 	return loading ? (
 		<Box h='100vh'>

@@ -71,7 +71,13 @@ const Attendance = () => {
 					mr={2}
 					display='flex'
 					alignItems='center'
-					onClick={() => navigate('/attendance/employees')}
+					onClick={() =>
+						navigate(
+							['superAdmin', 'HR'].includes(role)
+								? '/attendance/employees'
+								: '/attendance'
+						)
+					}
 				>
 					<IoIosArrowBack style={{ marginRight: '5px' }} /> Back
 				</Text>

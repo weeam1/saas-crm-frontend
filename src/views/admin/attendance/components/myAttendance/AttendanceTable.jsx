@@ -38,6 +38,16 @@ const AttendanceTable = ({
 		'Action',
 	];
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+
+	const filterdColumns =
+		role === 'superAdmin'
+			? columns
+			: columns.filter((column) => column !== 'Action');
+
 	const [editData, setEditData] = useState(null);
 
 	const {
@@ -70,7 +80,7 @@ const AttendanceTable = ({
 						boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
 					>
 						<Tr>
-							{columns.map((header, index) => (
+							{filterdColumns?.map((header, index) => (
 								<Th key={index} bg='brand.200' whiteSpace='nowrap' py={4}>
 									<Box display='flex' alignItems='center'>
 										<Text
@@ -87,7 +97,7 @@ const AttendanceTable = ({
 					</Thead>
 					<Tbody>
 						{isFetching || isLoading ? (
-							<TableLoading columns={columns} length={11} py='4' />
+							<TableLoading columns={filterdColumns} length={11} py='4' />
 						) : attendanceRecord?.length > 0 ? (
 							attendanceRecord?.map((entry, index) => {
 								let textColor = 'black';
@@ -197,11 +207,16 @@ const AttendanceTable = ({
 												? `${entry.totalWorkingHours?.hours}h ${entry.totalWorkingHours.minutes}m`
 												: '0h 0m'}
 										</Td>
-										<Td py={4}>
-											<Button rounded='full' onClick={() => handleEdit(entry)}>
-												<FaEdit color='green' />
-											</Button>
-										</Td>
+										{role === 'superAdmin' && (
+											<Td py={4}>
+												<Button
+													rounded='full'
+													onClick={() => handleEdit(entry)}
+												>
+													<FaEdit color='green' />
+												</Button>
+											</Td>
+										)}
 									</Tr>
 								);
 							})

@@ -57,6 +57,8 @@ const AttendanceDashboard = React.lazy(
 	() => import('views/admin/attendance/components/dashboard')
 );
 
+const UserView = React.lazy(() => import('views/admin/users/View'));
+
 export default function User(props) {
 	const { ...rest } = props;
 	// states and functions
@@ -151,6 +153,7 @@ export default function User(props) {
 			),
 			component: HRModule,
 		},
+
 		{
 			name: 'Leads Pool',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -252,6 +255,14 @@ export default function User(props) {
 				under: 'my-attendance',
 				parentName: 'Attendance',
 				component: MyAttendance,
+			},
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
 			},
 		];
 
