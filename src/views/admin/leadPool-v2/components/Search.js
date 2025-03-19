@@ -39,7 +39,7 @@ const SearchBox = ({
     if (searchTerm.trim()) {
       fetchSearchedData(searchTerm, 1, pageSize);
       setSearchClear(true);
-      setParentSearchTerm(searchTerm);
+      setParentSearchTerm(parentSearchTerm);
       setTags([]);
     }
   };
@@ -88,8 +88,8 @@ const SearchBox = ({
               fontSize="xs"
               height="2.5rem"
               _focus={{ boxShadow: "none" }}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={parentSearchTerm} 
+              onChange={(e) => setParentSearchTerm(e.target.value)}
               onKeyPress={handleKeyPress}
               pr="4.5rem"
               fontFamily="'DM Sans', sans-serif"

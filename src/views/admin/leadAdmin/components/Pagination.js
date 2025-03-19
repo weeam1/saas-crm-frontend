@@ -44,6 +44,8 @@ const Pagination = ({
   isAgent,
   searchNotFound,
   isSuperAdmin,
+  displaySearchData,
+  displayAdvSearchData,
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
 
@@ -56,8 +58,8 @@ const Pagination = ({
   const totalPagesForTab = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
-  const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
-
+  // const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
+  const isSearchActive = displaySearchData || displayAdvSearchData;
   // Pagination handlers
   const handleFirst = () => {
     setCurrentPage(1);
@@ -105,10 +107,10 @@ const Pagination = ({
     setGotoPage(1);
   };
   const handleClearAdvancedSearch = () => {
-    setSearchQuery(""); 
-    setFormValues({});  
-    setCurrentPage(1);  
-    setGotoPage(1);     
+    setSearchQuery("");
+    setFormValues({});
+    setCurrentPage(1);
+    setGotoPage(1);
   };
   const buttonStyle = {
     size: { base: "xs", sm: "xs", md: "sm" },
@@ -130,12 +132,13 @@ const Pagination = ({
       minHeight="100%"
       fontFamily="DM Sans"
     >
-      <LeadsProgress
+      {/* <LeadsProgress
         totalLeads={totalItems}
         searchQuery={searchQuery}
         formValues={formValues}
         isSearchActive={isSearchActive}
-      />
+      /> */}
+
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <Flex
@@ -184,7 +187,7 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-               py="1"
+                py="1"
                 px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
@@ -201,7 +204,7 @@ const Pagination = ({
                 onClick={handlePrevious}
                 isDisabled={loading || currentPage === 1}
                 variant="solid"
-                   py="1"
+                py="1"
                 px="3"
                 bg="softGray.600"
                 color="black"
@@ -251,10 +254,7 @@ const Pagination = ({
             </HStack>
 
             {/* Showing range */}
-            <Text
-              color="gray.800"
-              fontSize="12px"
-            >
+            <Text color="gray.800" fontSize="12px">
               Showing {startIndex.toLocaleString()} -{" "}
               {endIndex.toLocaleString()} of {totalItems.toLocaleString()}
             </Text>
@@ -308,7 +308,7 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                 py="1"
+                py="1"
                 px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"

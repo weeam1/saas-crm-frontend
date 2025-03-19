@@ -542,6 +542,8 @@ const LeadScreen = () => {
 				isSuperAdmin={isSuperAdmin}
 				approveChangeHandler={approveChangeHandler}
 				searchNotFound={searchNotFound}
+				displaySearchData={displaySearchData} 
+      displayAdvSearchData={displayAdvSearchData} 
 			/>
 		</div>
 	);
