@@ -9,20 +9,24 @@ import {
 	Text,
 	Button,
 	useDisclosure,
+	Avatar,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
+import { constant } from 'constant';
+
+import moment from 'moment-timezone';
 
 const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 	const columns = [
-		// 'S.No',
 		'Employee',
 		'Role',
 		'Type',
 		'Location',
+		'Time',
 		'Date',
 		'Status',
 		'Check-in',
@@ -30,6 +34,16 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 		'Work hours',
 		'Action',
 	];
+
+	const getTimeAgo = (createdAt) => {
+		const now = moment().tz(timezone);
+		const createdMoment = moment(createdAt).tz(timezone);
+		const diffInMinutes = now.diff(createdMoment, 'minutes');
+
+		return diffInMinutes < 60
+			? `${diffInMinutes} minutes ago`
+			: createdMoment.format('h:mm A');
+	};
 
 	const [editData, setEditData] = useState(null);
 
@@ -85,7 +99,7 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 						) : data?.results > 0 ? (
 							data?.doc?.map((entry, index) => {
 								let textColor = 'black';
-								let rowBgGradient = 'none';
+								// let rowBgGradient = 'none';
 								let statusBgColor = 'transparent';
 								let statusText = '';
 
@@ -97,11 +111,11 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 									statusBgColor = '#E6EFFC';
 									textColor = '#0764E6';
 									statusText = 'Office';
-									rowBgGradient = 'linear(to-r, #E0F7FF, white)';
+									// rowBgGradient = 'linear(to-r, #E0F7FF, white)';
 								} else if (entry.status === 2) {
 									statusBgColor = '#FFF8E7';
 									textColor = '#D5B500';
-									statusText = 'Late arrival';
+									statusText = 'Late';
 								}
 
 								const roleName =
@@ -114,7 +128,7 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 										key={entry._id}
 										_hover={{ bg: 'gray.50' }}
 										border='gray.200'
-										bgGradient={rowBgGradient}
+										// bgGradient={rowBgGradient}
 									>
 										{/* <Td
 											py={4}
@@ -127,33 +141,53 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
+											minWidth='200px'
+											display='flex'
+											alignItems='center'
+											gap={2}
 										>
+											<Avatar
+												src={
+													entry?.employee?.profileImage
+														? `${constant['baseUrl']}${entry?.employee.profileImage}`
+														: ''
+												}
+												size='sm'
+												name={entry?.employee?.fullName ?? 'User'}
+											/>
 											{entry.employee?.fullName}
 										</Td>
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
+											minWidth='100px'
 										>
-											{roleName}
+											{roleName ?? 'N/A'}
 										</Td>
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
+											minWidth='100px'
 										>
-											{entry.type}
+											{entry.type ?? 'N/A'}
 										</Td>
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
+											minWidth='100px'
 										>
-											{entry.agencyName}
+											{entry.agencyName ?? 'N/A'}
 										</Td>
-										<Td py={4}>
-											{format(new Date(entry.date), 'd MMM, yyyy')}
+										<Td py={4} minWidth='150px'>
+											{getTimeAgo(entry?.createdAt)}
 										</Td>
+										<Td py={4} minWidth='150px'>
+											{format(new Date(entry?.date), 'd MMM, yyyy')}
+										</Td>
+
 										<Td py={4}>
 											<Box
 												bg={statusBgColor}
@@ -163,18 +197,21 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 												py={1}
 												borderRadius='md'
 												display='inline-block'
+												minWidth='fit-content'
 											>
 												{statusText}
 											</Box>
 										</Td>
 										<Td
 											py={4}
+											minWidth='100px'
 											color={entry.checkIn === '00:00' ? 'red.500' : 'blue.500'}
 										>
 											{entry.checkin ?? 'N/A'}
 										</Td>
 										<Td
 											py={4}
+											minWidth='100px'
 											color={
 												entry.checkOut === '00:00' ? 'red.500' : 'blue.500'
 											}
@@ -183,6 +220,7 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 										</Td>
 										<Td
 											py={4}
+											minWidth='100px'
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>

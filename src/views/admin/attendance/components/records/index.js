@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,14 +8,37 @@ import AttendanceHeader from '../AttendanceHeader';
 import RecordTable from './RecordTable';
 import TablePagination from 'components/pagination/TablePagination';
 import moment from 'moment-timezone';
-
-const timezone = 'Asia/Karachi';
+import { buttonStyle } from '../../constants';
+import Loader from 'components/loading/Loader';
+import FilterModal from '../employees/FilterModal';
+import AppButton from 'components/shared/AppButton';
 
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchClear, setSearchClear] = useState(false);
 	const navigate = useNavigate();
 	const searchTermRef = useRef('');
+
+	const {
+		isOpen: filterIsOpen,
+		onOpen: filterOnOpen,
+		onClose: filterOnClose,
+	} = useDisclosure();
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+
+	const { data: officeSettings, isLoading: officeSettingsLoading } =
+		useFetchItemsQuery(
+			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
+			{
+				refetchOnMountOrArgChange: true,
+			}
+		);
+
+	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Dubai';
 
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
@@ -36,7 +59,7 @@ export default function Records() {
 		);
 
 		const search = searchParams.get('search') || '';
-		const agency = searchParams.get('agency') || '';
+		const agency = searchParams.get('agency') || 'All';
 
 		setSearchParams(
 			(prev) => {
@@ -58,7 +81,7 @@ export default function Records() {
 
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
-		const agency = searchParams.get('agency') || '';
+		const agency = searchParams.get('agency') || 'All';
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
@@ -119,6 +142,10 @@ export default function Records() {
 		setMonth(queryParams.month);
 		setYear(queryParams.year);
 
+		if (queryParams.agency === 'All' && !queryParams.search) {
+			setSearchClear(false);
+		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams, attendanceRefetch]);
 
@@ -159,21 +186,14 @@ export default function Records() {
 
 	return (
 		<Box p={{ base: 4, md: 6 }} minH='100vh' fontFamily="'DM Sans', sans-serif">
-			<Button
-				colorScheme='gray'
-				borderRadius='5px'
-				size={{ base: 'sm', md: 'md' }}
-				px={{ base: 4, md: 6 }}
-				py={{ base: 2, md: 3 }}
-				fontSize={{ base: 'sm', md: 'md' }}
-				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
+			<AppButton
+				leftIcon={<IoArrowBack />}
 				onClick={() => navigate('/attendance')}
-				mb={4}
 			>
 				Back
-			</Button>
+			</AppButton>
 
-			<Box display='flex' alignItems='center' mb={4} bg='white' p={4}>
+			<Box display='flex' alignItems='center' mb={4} bg='white' mt='2' p={4}>
 				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					Attendance Records
 				</Text>
@@ -189,34 +209,95 @@ export default function Records() {
 					handleSearch={handleSearch}
 					handleClear={handleClear}
 					searchClear={searchClear}
-					content={['date']}
+					content={['date', 'agencyFilter']}
+					filterOpen={filterOnOpen}
 					onDateFilterChange={onFilterChange}
 				/>
 
-				<RecordTable
-					data={data}
-					timezone={timezone}
-					isLoading={isLoading}
-					isFetching={isFetching}
-					refetch={attendanceRefetch}
-				/>
+				{officeSettingsLoading ? (
+					<Loader />
+				) : officeSettings?.doc ? (
+					<>
+						<RecordTable
+							data={data}
+							timezone={timezone}
+							isLoading={isLoading}
+							isFetching={isFetching}
+							refetch={attendanceRefetch}
+						/>
 
-				{data?.doc && (
-					<TablePagination
-						gotoPage={handleGotoPage}
-						gopageValue={gopageValue}
-						setGopageValue={setGopageValue}
-						pageCount={data?.totalPages}
-						canPreviousPage={currentPage > 1}
-						previousPage={() => handleGotoPage(currentPage - 2)}
-						canNextPage={currentPage < data?.totalPages}
-						nextPage={() => handleGotoPage(currentPage)}
-						pageOptions={Array.from({ length: data?.totalPages })}
-						setPageSize={handlePageSizeChange}
-						pageSize={pageSize}
-						pageIndex={currentPage - 1}
-						totalDocs={data?.totalDocs}
-					/>
+						{data?.doc && (
+							<TablePagination
+								gotoPage={handleGotoPage}
+								gopageValue={gopageValue}
+								setGopageValue={setGopageValue}
+								pageCount={data?.totalPages}
+								canPreviousPage={currentPage > 1}
+								previousPage={() => handleGotoPage(currentPage - 2)}
+								canNextPage={currentPage < data?.totalPages}
+								nextPage={() => handleGotoPage(currentPage)}
+								pageOptions={Array.from({ length: data?.totalPages })}
+								setPageSize={handlePageSizeChange}
+								pageSize={pageSize}
+								pageIndex={currentPage - 1}
+								totalDocs={data?.totalDocs}
+							/>
+						)}
+
+						{filterIsOpen && (
+							<FilterModal
+								updateFilters={updateFilters}
+								isOpen={filterIsOpen}
+								onClose={filterOnClose}
+								setSearchClear={setSearchClear}
+							/>
+						)}
+					</>
+				) : (
+					<Flex
+						direction='column'
+						align='center'
+						textAlign='center'
+						justify='center'
+						bg='yellow.100'
+						p={4}
+						borderRadius='md'
+						fontFamily="'DM Sans', sans-serif"
+						boxShadow='sm'
+					>
+						{role === 'superAdmin' ? (
+							<>
+								<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+									No office settings found!
+								</Text>
+								<Text fontSize='md' color='gray.600'>
+									To ensure smooth attendance tracking, please configure your
+									office settings.
+								</Text>
+								<Button
+									{...buttonStyle}
+									mt={3}
+									bg='green.500'
+									_active={{ bg: 'green.400' }}
+									onClick={() =>
+										navigate(`/office-settings/${user?.agency?._id}`)
+									}
+								>
+									Add Office Settings
+								</Button>
+							</>
+						) : (
+							<>
+								<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+									Office settings not configured!
+								</Text>
+								<Text fontSize='md' color='gray.600'>
+									Please contact your administrator to set up office settings
+									for attendance tracking.
+								</Text>
+							</>
+						)}
+					</Flex>
 				)}
 			</Box>
 		</Box>

@@ -19,16 +19,16 @@ const AttendanceStats = ({ stats, employee }) => {
 						}
 						size='lg'
 						mr={3}
-						// name={employee.fullName}
+						name={employee?.fullName}
 					/>
 					<Box>
-						<Text fontWeight='medium' fontSize='24px'>
+						<Text fontWeight='medium' fontSize={{ base: 'md', md: 'lg' }}>
 							{employee.fullName}
 						</Text>
-						<Text color='#C4C4C4' fontWeight='medium' fontSize='18px'>
+						<Text color='#C4C4C4' fontWeight='medium' fontSize='sm'>
 							{roleName}
 						</Text>
-						<Text fontWeight='medium' fontSize='16px'>
+						<Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
 							{employee.salary ? `${employee.salary}/month` : 'Salary N/A'}
 						</Text>
 					</Box>

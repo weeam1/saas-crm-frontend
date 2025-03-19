@@ -28,7 +28,7 @@ const Attendance = () => {
 			}
 		);
 
-	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Karachi';
+	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Dubai';
 
 	const [month, setMonth] = useState(() =>
 		Number(moment.tz(timezone).format('M'))
@@ -90,8 +90,8 @@ const Attendance = () => {
 			{error ? (
 				<ErrorMessage message='No results found. Please check your query.' />
 			) : (
-				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
-					<Box>
+				<Flex flexDirection={{ base: 'column', lg: 'row' }} gap={6}>
+					<Box minWidth={{ base: '100%', lg: '400px' }}>
 						<AttendanceStats
 							stats={data?.stats}
 							employee={data?.employee}
@@ -106,7 +106,7 @@ const Attendance = () => {
 						)}
 					</Box>
 
-					<Box bg='white' p={5} borderRadius='md' shadow='sm'>
+					<Box flex='1' bg='white' p={5} borderRadius='md' shadow='sm'>
 						<Header onFilterChange={onFilterChange} />
 						<Box overflowX='scroll'>
 							<Divider color='#D5D9DD' mb={4} />
@@ -119,7 +119,7 @@ const Attendance = () => {
 							/>
 						</Box>
 					</Box>
-				</Grid>
+				</Flex>
 			)}
 		</Box>
 	) : (

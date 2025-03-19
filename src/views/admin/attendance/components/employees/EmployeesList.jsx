@@ -38,6 +38,7 @@ const EmployeesList = ({ employees, tab }) => {
 								}
 								size='lg'
 								mr={3}
+								name={emp?.fullName}
 							/>
 							<Box>
 								<Text fontWeight='medium' fontSize='24px'>

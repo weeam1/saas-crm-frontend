@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Flex, Icon, useDisclosure } from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import EmployeesList from './EmployeesList';
@@ -10,6 +10,7 @@ import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
 import FilterModal from './FilterModal';
 import AttendanceHeader from '../AttendanceHeader';
+import AppButton from 'components/shared/AppButton';
 
 const Employees = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const Employees = () => {
 		const pageSize = Number(searchParams.get('pageSize')) || 24;
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
-		const agency = searchParams.get('agency') || '';
+		const agency = searchParams.get('agency') || 'All';
 
 		if (agency || search) {
 			setSearchClear(true);
@@ -49,7 +50,7 @@ const Employees = () => {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const role = searchParams.get('role') || 'All';
-		const agency = searchParams.get('agency') || '';
+		const agency = searchParams.get('agency') || 'All';
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
@@ -97,6 +98,11 @@ const Employees = () => {
 
 	useEffect(() => {
 		usersRefetch();
+
+		if (queryParams.agency === 'All' && !queryParams.search) {
+			setSearchClear(false);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams, usersRefetch]);
 
 	const handleSearch = () => {
@@ -123,20 +129,13 @@ const Employees = () => {
 
 	return (
 		<>
-			<Button
-				colorScheme='gray'
-				borderRadius='5px'
-				size={{ base: 'sm', md: 'md' }}
-				px={{ base: 4, md: 6 }}
-				py={{ base: 2, md: 3 }}
-				fontSize={{ base: 'sm', md: 'md' }}
-				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
+			<AppButton
+				leftIcon={<IoArrowBack />}
 				onClick={() => navigate('/attendance')}
-				mb={4}
 			>
 				Back
-			</Button>
-			<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
+			</AppButton>
+			<Box minH='100vh' py='2' fontFamily="'DM Sans', sans-serif">
 				{/* Header */}
 				<AttendanceHeader
 					title='Employees'

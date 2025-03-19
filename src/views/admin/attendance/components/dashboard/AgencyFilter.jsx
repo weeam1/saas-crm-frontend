@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
 	Modal,
 	ModalOverlay,
@@ -13,19 +12,21 @@ import {
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { buttonStyle } from '../../constants';
-import { useSearchParams } from 'react-router-dom';
 
-const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
+const AgencyFilter = ({
+	isOpen,
+	onClose,
+	handleApplyFilter,
+	selectedAgency,
+	setSelectedAgency,
+}) => {
 	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
 
-	const [searchParams] = useSearchParams();
-	const currentAgency = searchParams.get('agency') || '';
-	const [selectedAgency, setSelectedAgency] = useState(currentAgency);
-
-	const handleApplyFilters = () => {
-		updateFilters({ agency: selectedAgency });
-		selectedAgency !== '' && setSearchClear(true);
-		onClose();
+	const handleChange = (e) => {
+		const selectedId = e.target.value;
+		setSelectedAgency(
+			agencies?.doc?.find((agency) => agency._id === selectedId) || null
+		);
 	};
 
 	return (
@@ -43,13 +44,10 @@ const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
 					<ModalCloseButton />
 					<ModalBody>
 						<FormLabel fontSize='md'>Select Agency</FormLabel>
-						<Select
-							value={selectedAgency}
-							onChange={(e) => setSelectedAgency(e.target.value)}
-						>
+						<Select value={selectedAgency?._id ?? ''} onChange={handleChange}>
 							<option value=''>All</option>
 							{agencies?.doc?.map((agency) => (
-								<option key={agency._id} value={agency.name}>
+								<option key={agency._id} value={agency._id}>
 									{agency.name}
 								</option>
 							))}
@@ -79,7 +77,7 @@ const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
 							px='8'
 							fontSize='lg'
 							aria-label='update'
-							onClick={handleApplyFilters}
+							onClick={() => handleApplyFilter(selectedAgency?._id)}
 						>
 							Apply
 						</Button>
@@ -90,4 +88,4 @@ const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
 	);
 };
 
-export default FilterModal;
+export default AgencyFilter;
