@@ -1,4 +1,3 @@
-
 import {
   Button,
   Modal,
@@ -8,7 +7,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useToast,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useState } from "react";
@@ -39,116 +37,57 @@ const Delete = (props) => {
           body: { ids: props.data },
         }).unwrap();
 
-        console.log("Delete Many Response:", response);
-        console.log("Checking condition:", {
-          status: response.status,
-          success: response.success,
-        });
-
-        if (response.status === 200 || response.success) {
-          toast({
-            title: "Success",
-            description: `${props.data.length} invoice(s) deleted successfully.`,
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top-right",
-          });
+        if (
+          response?.status === "success" ||
+          response?.code === 200 ||
+          response?.status === 200
+        ) {
+          toast.success(
+            `${props.data.length} invoice(s) deleted successfully!`
+          );
           props.setSelectedValues([]);
-          if (props.fetchData) props.fetchData();
+          if (props.fetchData) props.fetchData(); 
           if (props.setAction) props.setAction((prev) => !prev);
-          console.log("Closing modal after deleting many...");
-          props.onClose();
+          props.onClose(); 
         } else {
-          console.log("Success condition not met:", response);
-          toast({
-            title: "Warning",
-            description:
-              "Delete operation completed but no success confirmation.",
-            status: "warning",
-            duration: 3000,
-            isClosable: true,
-          });
+          toast.error(response?.message || "Failed to delete invoices");
         }
       } catch (error) {
         console.error("Error deleting multiple invoices:", error);
-        toast({
-          title: "Error",
-          description: error?.data?.message || "Failed to delete invoices.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "top-right",
-        });
+        toast.error(error?.data?.message || "Failed to delete invoices!");
       } finally {
         setIsLoading(false);
       }
     } else if (props.method === "one" && props.id) {
       try {
         setIsLoading(true);
-        console.log("Sending delete request:", {
-          path: `/invoice/delete/${props.id}`,
-          method: "DELETE",
-        });
         const response = await deleteItem({
           path: `/invoice/delete/${props.id}`,
           method: "DELETE",
         }).unwrap();
 
         console.log("Delete Single Response:", response);
-        console.log("Checking condition:", {
-          status: response.status,
-          success: response.success,
-        });
-
-        // Adjust this based on your API response structure
-        if (response.status === 200 || response.success) {
-          toast({
-            title: "Success",
-            description: "Invoice deleted successfully.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-            position: "top-right",
-          });
-          if (props.fetchData) props.fetchData();
-          if (props.setAction) props.setAction((prev) => !prev);
-          console.log("Closing modal after deleting one...");
-          props.onClose();
+        if (
+          response?.status === "success" ||
+          response?.code === 200 ||
+          response?.status === 200
+        ) {
+          toast.success("Invoice deleted successfully!");
+          if (props.fetchData) props.fetchData(); 
+          if (props.setAction) props.setAction((prev) => !prev); 
+          props.onClose(); // Close modal
         } else {
-          console.log("Success condition not met:", response);
-          toast({
-            title: "Warning",
-            description:
-              "Delete operation completed but no success confirmation.",
-            status: "warning",
-            duration: 3000,
-            isClosable: true,
-          });
+          toast.error(response?.message || "Failed to delete invoice");
         }
       } catch (error) {
         console.error("Error deleting invoice:", error);
-        toast({
-          title: "Error",
-          description: error?.data?.message || "Failed to delete invoice.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "top-right",
-        });
+        toast.error(error?.data?.message || "Failed to delete invoice!");
       } finally {
         setIsLoading(false);
       }
     } else {
       console.error("Invalid delete props:", props);
-      toast({
-        title: "Invalid Request",
-        description: "No valid data provided for deletion.",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right",
-      });
+      toast.error("No valid data provided for deletion!");
     }
   };
 

@@ -20,6 +20,28 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import * as yup from "yup";
+
+const invoiceSchema = yup.object().shape({
+  unit_no: yup.number().nullable(),
+  invoice_number: yup.string().nullable(),
+  total_amount: yup
+    .number()
+    .required("Total amount is required")
+    .min(0, "Total amount cannot be negative"),
+  developer_id: yup.string().required("Developer is required"),
+  bank_account_id: yup.string().required("Bank account is required"),
+  unit_name: yup.string().required("Unit name is required"),
+  unit_price: yup
+    .number()
+    .required("Unit price is required")
+    .min(0, "Unit price cannot be negative"),
+  commission: yup
+    .number()
+    .required("Commission is required")
+    .min(0, "Commission cannot be negative"),
+  claim_type: yup.string().required("Claim type is required"),
+});
 
 const Add = (props) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -55,6 +77,7 @@ const Add = (props) => {
 
   const formik = useFormik({
     initialValues: initialValues,
+    validationSchema: invoiceSchema,
     onSubmit: (values, { resetForm }) => {
       AddData(values);
       resetForm();
@@ -74,14 +97,18 @@ const Add = (props) => {
         body: formValues,
       }).unwrap();
 
+      console.log("API Response:", response);
+
       if (
-        response &&
-        (response.status === 200 || response.status === 201) &&
-        response.status === "success"
+        response?.status === "success" ||
+        response?.code === 200 ||
+        response?.code === 201
       ) {
         toast.success("Invoice added successfully!");
-        props.onClose();
+        props.setAction((prev) => !prev);
         if (props.fetchData) props.fetchData();
+        formik.resetForm();
+        props.onClose();
       } else {
         toast.error(response?.message || "Failed to add invoice");
       }
@@ -98,7 +125,6 @@ const Add = (props) => {
     props.onClose();
   };
 
-  // Responsive modal size
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
     md: { width: "602px", height: "600px" },
@@ -109,7 +135,7 @@ const Add = (props) => {
       <Modal
         isOpen={props.isOpen}
         onClose={props.onClose}
-        size="custom" // Custom size handled via CSS
+        size="custom"
         motionPreset="slideInBottom"
       >
         <ModalOverlay />
@@ -117,7 +143,7 @@ const Add = (props) => {
           width={modalSize.width}
           height={modalSize.height}
           fontFamily="DM Sans, sans-serif"
-          maxW="100vw" // Ensures it doesn't overflow on small screens
+          maxW="100vw"
           mx="auto"
         >
           <ModalHeader
@@ -139,7 +165,6 @@ const Add = (props) => {
           <ModalBody overflowY="auto">
             <form onSubmit={handleSubmit}>
               <Grid templateColumns="repeat(12, 1fr)" gap={3}>
-                {/* Developer and Claim Type side by side */}
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
                     Select Developer
@@ -169,13 +194,9 @@ const Add = (props) => {
                       </option>
                     ))}
                   </Select>
-                  {developersError && (
-                    <FormLabel
-                      color="red.500"
-                      fontSize="16px"
-                      fontFamily="DM Sans, sans-serif"
-                    >
-                      Error loading developers
+                  {errors.developer_id && touched.developer_id && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.developer_id}
                     </FormLabel>
                   )}
                 </GridItem>
@@ -200,9 +221,12 @@ const Add = (props) => {
                     <option value="full">Full</option>
                     <option value="half">Half</option>
                   </Select>
+                  {errors.claim_type && touched.claim_type && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.claim_type}
+                    </FormLabel>
+                  )}
                 </GridItem>
-
-                {/* Other fields on separate lines */}
                 <GridItem colSpan={{ base: 12, md: 12 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
                     Unit Name
@@ -222,6 +246,11 @@ const Add = (props) => {
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
+                  {errors.unit_name && touched.unit_name && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.unit_name}
+                    </FormLabel>
+                  )}
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 12 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
@@ -242,6 +271,11 @@ const Add = (props) => {
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
+                  {errors.unit_price && touched.unit_price && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.unit_price}
+                    </FormLabel>
+                  )}
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 12 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
@@ -262,6 +296,11 @@ const Add = (props) => {
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
+                  {errors.commission && touched.commission && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.commission}
+                    </FormLabel>
+                  )}
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 12 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
@@ -293,13 +332,9 @@ const Add = (props) => {
                       </option>
                     ))}
                   </Select>
-                  {bankAccountsError && (
-                    <FormLabel
-                      color="red.500"
-                      fontSize="16px"
-                      fontFamily="DM Sans, sans-serif"
-                    >
-                      Error loading bank accounts
+                  {errors.bank_account_id && touched.bank_account_id && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.bank_account_id}
                     </FormLabel>
                   )}
                 </GridItem>

@@ -69,7 +69,7 @@ const SingleInvoice = React.lazy(() => import("views/admin/invoice/View"));
 
 const Task = React.lazy(() => import("views/admin/task"));
 const Developers = React.lazy(() => import("views/admin/developers"));
-const BankAccounts = React.lazy(() => import("views/admin/bankAccounts"));
+const BankAccounts = React.lazy(() => import("views/admin/bankAccountsV2"));
 const DailyReport = React.lazy(() => import("views/admin/dailyReport"));
 const LeadSetting = React.lazy(() => import("views/admin/leadSetting"));
 const Agency = React.lazy(() => import("views/admin/agencies"));

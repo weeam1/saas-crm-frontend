@@ -20,7 +20,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
-import { getApi } from "services/api";
+import { toast } from "react-toastify";
 
 const Edit = (props) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,23 @@ const Edit = (props) => {
     commission: "",
     bank_account_id: "",
   });
+
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const {
+    data: invoiceList,
+    isLoading: invoiceLoading,
+    isFetching,
+    error,
+  } = useFetchItemsQuery(
+    {
+      path: `/invoice/get?user=${user._id}`,
+    },
+    {
+      skip: !props.isOpen || !props.selectedId || !user._id,
+      refetchOnMountOrArgChange: false,
+    }
+  );
 
   const { data: developersData, isLoading: developersLoading } =
     useFetchItemsQuery({ path: "/developer/get" });
@@ -53,7 +70,6 @@ const Edit = (props) => {
       bank_account_id: yup.string(),
     }),
     onSubmit: (values) => {
-      // Filter out empty strings from the form values
       const filteredValues = Object.fromEntries(
         Object.entries(values).filter(([_, value]) => value !== "")
       );
@@ -61,12 +77,20 @@ const Edit = (props) => {
     },
   });
 
-  const { errors, touched, values, handleBlur, handleChange, handleSubmit } =
-    formik;
+  const {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setValues,
+  } = formik;
 
   const EditData = async (formValues) => {
     try {
       setIsLoading(true);
+      console.log("Sending Update Payload:", formValues);
       const response = await updateItem({
         path: `/invoice/edit/${props?.selectedId}`,
         method: "PUT",
@@ -74,55 +98,61 @@ const Edit = (props) => {
       }).unwrap();
       console.log("Edit API Response:", response);
 
-      if (response.status === 200) {
-        props.onClose();
+      if (
+        response?.status === "success" ||
+        response?.code === 200 ||
+        response?.status === 200
+      ) {
+        toast.success("Invoice updated successfully!");
         props.setAction((prev) => !prev);
+        if (props.fetchData) props.fetchData();
+        formik.resetForm();
+        props.onClose();
+      } else {
+        toast.error(response?.message || "Failed to update invoice");
       }
     } catch (e) {
       console.error("Error updating invoice:", e);
+      toast.error(e?.data?.message || "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    props.onClose(false);
+    props.onClose();
     if (props.setSelectedId) props.setSelectedId(null);
     formik.resetForm();
   };
 
-  const fetchData = async () => {
-    if (props?.selectedId) {
-      try {
-        setIsLoading(true);
-        const response = await getApi("api/invoice/view/", props?.selectedId);
-        const editData = response?.data?.invoice || response?.data;
-        console.log("Fetched Data:", editData);
+  useEffect(() => {
+    console.log("Fetched Invoice List:", invoiceList?.data);
+    if (invoiceList && !isFetching && props.selectedId) {
+      const editData = invoiceList?.data?.find(
+        (invoice) => invoice._id === props.selectedId
+      );
+      console.log("Selected Invoice Data:", editData);
 
+      if (editData) {
         const updatedValues = {
           developer_id:
             editData?.developer_id?._id || editData?.developer_id || "",
           claim_type: editData?.claim_type || "",
           unit_name: editData?.unit_name || "",
-          unit_price: editData?.unit_price || "",
-          commission: editData?.commission || "",
+          unit_price: editData?.unit_price?.toString() || "",
+          commission: editData?.commission_percentage?.toString() || "",
           bank_account_id:
             editData?.bank_account_id?._id || editData?.bank_account_id || "",
         };
+        console.log("Updated Values for Form:", updatedValues);
         setInitialValues(updatedValues);
-      } catch (e) {
-        console.error("Error fetching invoice data:", e);
-      } finally {
-        setIsLoading(false);
+        setValues(updatedValues);
+      } else {
+        console.error("Invoice not found in list for ID:", props.selectedId);
+        toast.error("Invoice not found!");
       }
     }
-  };
-
-  useEffect(() => {
-    if (props.isOpen && props.selectedId) {
-      fetchData();
-    }
-  }, [props.isOpen, props.selectedId]);
+  }, [invoiceList, isFetching, props.selectedId, setValues]);
 
   return (
     <Modal
@@ -137,11 +167,8 @@ const Edit = (props) => {
           <IconButton onClick={handleClose} icon={<CloseIcon />} />
         </ModalHeader>
         <ModalBody>
-          {isLoading || developersLoading || bankAccountsLoading ? (
-            <Flex justifyContent="center" alignItems="center" width="100%">
-              <Spinner />
-            </Flex>
-          ) : developersData && bankAccountsData ? (
+          {/* Always render the form, no spinner here */}
+          {developersData && bankAccountsData && invoiceList ? (
             <form onSubmit={handleSubmit}>
               <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
                 <FormControl flex={1}>
@@ -153,6 +180,7 @@ const Edit = (props) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     isInvalid={touched.developer_id && !!errors.developer_id}
+                    disabled={developersLoading} // Disable during loading
                   >
                     {developersData?.data?.map((developer) => (
                       <option key={developer._id} value={developer._id}>
@@ -252,6 +280,7 @@ const Edit = (props) => {
                   isInvalid={
                     touched.bank_account_id && !!errors.bank_account_id
                   }
+                  disabled={bankAccountsLoading} // Disable during loading
                 >
                   {bankAccountsData?.data?.map((bank) => (
                     <option key={bank._id} value={bank._id}>
@@ -267,7 +296,11 @@ const Edit = (props) => {
               </FormControl>
             </form>
           ) : (
-            <Text>Error loading developers or bank accounts</Text>
+            <Text>
+              {error
+                ? "Error loading invoice data"
+                : "Loading data or no invoices found"}
+            </Text>
           )}
         </ModalBody>
         <ModalFooter>
@@ -279,7 +312,7 @@ const Edit = (props) => {
             disabled={isLoading || mutationLoading}
             onClick={handleSubmit}
           >
-            {isLoading || mutationLoading ? <Spinner /> : "Update"}
+            {isLoading || mutationLoading ? <Spinner size="sm" /> : "Update"}
           </Button>
           <Button
             variant="outline"

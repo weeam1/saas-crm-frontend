@@ -41,11 +41,7 @@ import {
   useTable,
 } from "react-table";
 import * as XLSX from "xlsx";
-import {
-  DeleteIcon,
-  EditIcon,
-  SearchIcon,
-} from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "components/pagination/Pagination";
@@ -95,7 +91,8 @@ export default function CheckTable(props) {
   const [selectedId, setSelectedId] = useState(null);
   const [searchbox, setSearchbox] = useState("");
   const [manageColumns, setManageColumns] = useState(false);
-  const [tempSelectedColumns, setTempSelectedColumns] = useState(selectedColumns);
+  const [tempSelectedColumns, setTempSelectedColumns] =
+    useState(selectedColumns);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -167,15 +164,21 @@ export default function CheckTable(props) {
       const searchResult = allData?.filter(
         (item) =>
           (!values.unit_name ||
-            item.unit_name?.toLowerCase().includes(values.unit_name.toLowerCase())) &&
+            item.unit_name
+              ?.toLowerCase()
+              .includes(values.unit_name.toLowerCase())) &&
           (!values.claim_type ||
-            item.claim_type?.toLowerCase().includes(values.claim_type.toLowerCase())) &&
+            item.claim_type
+              ?.toLowerCase()
+              .includes(values.claim_type.toLowerCase())) &&
           (!values.developer_id ||
             item.developer_id?._id === values.developer_id) &&
           (!values.bank_account_id ||
             item.bank_account_id?._id === values.bank_account_id) &&
           (!values.total_amount ||
-            item.total_amount?.toString().includes(values.total_amount.toString()))
+            item.total_amount
+              ?.toString()
+              .includes(values.total_amount.toString()))
       );
 
       const getValue = [
@@ -192,7 +195,15 @@ export default function CheckTable(props) {
     },
   });
 
-  const { errors, touched, values, handleBlur, handleChange, handleSubmit, resetForm } = formik;
+  const {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    resetForm,
+  } = formik;
 
   const handleCheckboxChange = (event, value) => {
     if (event.target.checked) {
@@ -211,15 +222,18 @@ export default function CheckTable(props) {
         prev.filter((col) => col.accessor !== columnKey)
       );
     } else {
-      const columnToAdd = dynamicColumns.find((col) => col.accessor === columnKey);
+      const columnToAdd = dynamicColumns.find(
+        (col) => col.accessor === columnKey
+      );
       setTempSelectedColumns((prev) => [...prev, columnToAdd]);
     }
   };
 
   const handleExportLeads = (extension) => {
-    const dataToExport = selectedValues.length > 0
-      ? tableData.filter((rec) => selectedValues.includes(rec._id))
-      : tableData;
+    const dataToExport =
+      selectedValues.length > 0
+        ? tableData.filter((rec) => selectedValues.includes(rec._id))
+        : tableData;
 
     const formattedData = dataToExport.map((rec) => ({
       unit_name: rec.unit_name || "-",
@@ -238,13 +252,20 @@ export default function CheckTable(props) {
     setSelectedValues([]);
   };
 
-  useEffect(() => {
-    if (fetchData) fetchData();
-  }, [action, dateTime]);
+  // useEffect(() => {
+  //   if (fetchData) fetchData();
+  // }, [action, dateTime]);
 
+  useEffect(() => {
+    if (fetchData && action) fetchData(); // Only call after an action
+  }, [action, fetchData]);
   return (
     <>
-      <Card direction="column" w="100%" overflowX={{ sm: "scroll", lg: "hidden" }}>
+      <Card
+        direction="column"
+        w="100%"
+        overflowX={{ sm: "scroll", lg: "hidden" }}
+      >
         <Grid templateColumns="repeat(12, 1fr)" gap={2} p={4}>
           <GridItem colSpan={{ base: 8 }} display="flex" alignItems="center">
             <Flex alignItems="center" flexWrap="wrap">
@@ -315,10 +336,14 @@ export default function CheckTable(props) {
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={() => handleExportLeads("csv")}>
-                  {selectedValues.length > 0 ? "Export Selected as CSV" : "Export as CSV"}
+                  {selectedValues.length > 0
+                    ? "Export Selected as CSV"
+                    : "Export as CSV"}
                 </MenuItem>
                 <MenuItem onClick={() => handleExportLeads("xlsx")}>
-                  {selectedValues.length > 0 ? "Export Selected as Excel" : "Export as Excel"}
+                  {selectedValues.length > 0
+                    ? "Export Selected as Excel"
+                    : "Export as Excel"}
                 </MenuItem>
               </MenuList>
             </Menu>
@@ -352,7 +377,12 @@ export default function CheckTable(props) {
         </HStack>
 
         <Box overflowY="auto">
-          <Table {...getTableProps()} variant="simple" color="gray.500" mb="24px">
+          <Table
+            {...getTableProps()}
+            variant="simple"
+            color="gray.500"
+            mb="24px"
+          >
             <Thead>
               {headerGroups.map((headerGroup, index) => (
                 <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -369,13 +399,22 @@ export default function CheckTable(props) {
                         fontSize={{ sm: "14px", lg: "16px" }}
                         color="secondaryGray.900"
                       >
-                        <span style={{ textTransform: "capitalize", marginRight: "8px" }}>
+                        <span
+                          style={{
+                            textTransform: "capitalize",
+                            marginRight: "8px",
+                          }}
+                        >
                           {column.render("Header")}
                         </span>
                         {column.isSortable !== false && (
                           <span>
                             {column.isSorted ? (
-                              column.isSortedDesc ? <FaSortDown /> : <FaSortUp />
+                              column.isSortedDesc ? (
+                                <FaSortDown />
+                              ) : (
+                                <FaSortUp />
+                              )
                             ) : (
                               <FaSort />
                             )}
@@ -391,7 +430,11 @@ export default function CheckTable(props) {
               {isLoding ? (
                 <Tr>
                   <Td colSpan={columns.length}>
-                    <Flex justifyContent="center" alignItems="center" width="100%">
+                    <Flex
+                      justifyContent="center"
+                      alignItems="center"
+                      width="100%"
+                    >
                       <Spinner />
                     </Flex>
                   </Td>
@@ -415,10 +458,16 @@ export default function CheckTable(props) {
                               <Checkbox
                                 colorScheme="brandScheme"
                                 isChecked={selectedValues.includes(cell.value)}
-                                onChange={(e) => handleCheckboxChange(e, cell.value)}
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, cell.value)
+                                }
                                 me="10px"
                               />
-                              <Text color={textColor} fontSize="sm" fontWeight="700">
+                              <Text
+                                color={textColor}
+                                fontSize="sm"
+                                fontWeight="700"
+                              >
                                 {cell.row.index + 1}
                               </Text>
                             </Flex>
@@ -445,7 +494,11 @@ export default function CheckTable(props) {
                           );
                         } else if (cell.column.Header === "Total Amount") {
                           data = (
-                            <Text color={textColor} fontSize="sm" fontWeight="700">
+                            <Text
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
                               {cell.value || 0} AED
                             </Text>
                           );
@@ -535,14 +588,14 @@ export default function CheckTable(props) {
           setAction={setAction}
         />
 
-<Edit
-  isOpen={edit}
-  size="xl"
-  onClose={() => setEdit(false)}
-  selectedId={selectedId}
-  setSelectedId={setSelectedId}
-  setAction={setAction}
-/>
+        <Edit
+          isOpen={edit}
+          size="xl"
+          onClose={() => setEdit(false)}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          setAction={setAction}
+        />
         <Delete
           isOpen={deleteModel}
           onClose={() => setDeleteModel(false)}
@@ -555,7 +608,11 @@ export default function CheckTable(props) {
         />
 
         {/* Advanced Search Modal */}
-        <Modal onClose={() => setAdvaceSearch(false)} isOpen={advaceSearch} isCentered>
+        <Modal
+          onClose={() => setAdvaceSearch(false)}
+          isOpen={advaceSearch}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>Advanced Search</ModalHeader>
@@ -563,7 +620,9 @@ export default function CheckTable(props) {
             <ModalBody>
               <Grid templateColumns="repeat(12, 1fr)" gap={2}>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">Unit Name</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="600">
+                    Unit Name
+                  </FormLabel>
                   <Input
                     fontSize="sm"
                     name="unit_name"
@@ -573,11 +632,15 @@ export default function CheckTable(props) {
                     placeholder="Enter Unit Name"
                   />
                   {touched.unit_name && errors.unit_name && (
-                    <Text color="red" fontSize="sm">{errors.unit_name}</Text>
+                    <Text color="red" fontSize="sm">
+                      {errors.unit_name}
+                    </Text>
                   )}
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">Claim Type</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="600">
+                    Claim Type
+                  </FormLabel>
                   <Select
                     fontSize="sm"
                     name="claim_type"
@@ -591,7 +654,9 @@ export default function CheckTable(props) {
                   </Select>
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">Developer</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="600">
+                    Developer
+                  </FormLabel>
                   <Input
                     fontSize="sm"
                     name="developer_id"
@@ -602,7 +667,9 @@ export default function CheckTable(props) {
                   />
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">Bank Account</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="600">
+                    Bank Account
+                  </FormLabel>
                   <Input
                     fontSize="sm"
                     name="bank_account_id"
@@ -613,7 +680,9 @@ export default function CheckTable(props) {
                   />
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">Total Amount</FormLabel>
+                  <FormLabel fontSize="sm" fontWeight="600">
+                    Total Amount
+                  </FormLabel>
                   <Input
                     fontSize="sm"
                     name="total_amount"
@@ -624,13 +693,20 @@ export default function CheckTable(props) {
                     type="number"
                   />
                   {touched.total_amount && errors.total_amount && (
-                    <Text color="red" fontSize="sm">{errors.total_amount}</Text>
+                    <Text color="red" fontSize="sm">
+                      {errors.total_amount}
+                    </Text>
                   )}
                 </GridItem>
               </Grid>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="brand" size="sm" mr={2} onClick={handleSubmit}>
+              <Button
+                colorScheme="brand"
+                size="sm"
+                mr={2}
+                onClick={handleSubmit}
+              >
                 Search
               </Button>
               <Button
@@ -646,7 +722,11 @@ export default function CheckTable(props) {
         </Modal>
 
         {/* Manage Columns Modal */}
-        <Modal onClose={() => setManageColumns(false)} isOpen={manageColumns} isCentered>
+        <Modal
+          onClose={() => setManageColumns(false)}
+          isOpen={manageColumns}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>Manage Columns</ModalHeader>
@@ -655,7 +735,9 @@ export default function CheckTable(props) {
               {dynamicColumns.map((column) => (
                 <Text display="flex" key={column.accessor} py={2}>
                   <Checkbox
-                    isChecked={tempSelectedColumns.some((c) => c.accessor === column.accessor)}
+                    isChecked={tempSelectedColumns.some(
+                      (c) => c.accessor === column.accessor
+                    )}
                     onChange={() => toggleColumnVisibility(column.accessor)}
                     pe={2}
                   />

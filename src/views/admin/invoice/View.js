@@ -21,7 +21,7 @@ import { useFetchItemsQuery } from "api/apiSlice";
 
 const SingleInvoice = () => {
   const { id } = useParams();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user")) || {};
   const [bankAccountId, setBankAccountId] = useState(null);
   const [developerId, setDeveloperId] = useState(null);
 
@@ -34,6 +34,7 @@ const SingleInvoice = () => {
     path: `/invoice/get/${user?._id}/${id}`,
   });
 
+  // Fetch bank account data
   const {
     data: bankAccountData,
     isLoading: bankLoading,
@@ -43,10 +44,11 @@ const SingleInvoice = () => {
       path: `/bankAccount/get/${bankAccountId}`,
     },
     {
-      skip: !bankAccountId,
+      skip: !bankAccountId || bankAccountId === null,
     }
   );
 
+  // Fetch developer data
   const {
     data: developerData,
     isLoading: developerLoading,
@@ -56,18 +58,30 @@ const SingleInvoice = () => {
       path: `/developer/get/${developerId}`,
     },
     {
-      skip: !developerId,
+      skip: !developerId || developerId === null,
     }
   );
 
   useEffect(() => {
-    if (invoiceData?.data?.bank_account_id) {
-      setBankAccountId(invoiceData.data.bank_account_id);
-    }
-    if (invoiceData?.data?.developer_id) {
-      setDeveloperId(invoiceData.data.developer_id);
+    if (invoiceData?.data) {
+      console.log("Invoice Data:", invoiceData.data);
+      const bankId =
+        typeof invoiceData.data.bank_account_id === "object"
+          ? invoiceData.data.bank_account_id?._id
+          : invoiceData.data.bank_account_id;
+      const devId =
+        typeof invoiceData.data.developer_id === "object"
+          ? invoiceData.data.developer_id?._id
+          : invoiceData.data.developer_id;
+      setBankAccountId(bankId || null);
+      setDeveloperId(devId || null);
     }
   }, [invoiceData]);
+
+  useEffect(() => {
+    console.log("Bank Account Path:", `/bankAccount/get/${bankAccountId}`);
+    console.log("Developer Path:", `/developer/get/${developerId}`);
+  }, [bankAccountId, developerId]);
 
   const downloadInvoice = () => {
     const invoiceElement = document.getElementById("invoice-pdf");
@@ -76,8 +90,7 @@ const SingleInvoice = () => {
       .toPng(invoiceElement, { quality: 1, pixelRatio: 2 })
       .then((dataUrl) => {
         const pdf = new jsPDF("p", "mm", "a4");
-
-        const imgWidth = 210; // A4 width in mm (210 x 297)
+        const imgWidth = 210;
         const imgHeight =
           (invoiceElement.scrollHeight * imgWidth) / invoiceElement.scrollWidth;
 
@@ -129,40 +142,35 @@ const SingleInvoice = () => {
   const nameOfReferringParty = invoice.name_of_referring_party || "-";
   const claimType = invoice.claim_type || "-";
   const commissionPercentage =
-    invoice.commission_percentage || invoice.commission || 0; // Default to 0 if not available
-  const unitPrice = invoice.unit_price || 0; // Default to 0 for calculation
+    invoice.commission_percentage || invoice.commission || 0;
+  const unitPrice = invoice.unit_price || 0;
   const totalCommissionExclVat =
     invoice.total_commission_excl_vat ||
-    unitPrice * (commissionPercentage / 100); // Calculate if null
-  const vatPercentage = invoice.vat_percentage || 5; // Default to 5%
+    unitPrice * (commissionPercentage / 100);
+  const vatPercentage = invoice.vat_percentage || 5;
   const vatAmount =
-    invoice.vat_amount || totalCommissionExclVat * (vatPercentage / 100); // Calculate if null
+    invoice.vat_amount || totalCommissionExclVat * (vatPercentage / 100);
   const totalCommissionInclVat =
-    invoice.total_commission_incl_vat || totalCommissionExclVat + vatAmount; // Calculate if null
+    invoice.total_commission_incl_vat || totalCommissionExclVat + vatAmount;
 
   return (
     <Box bg="gray.50" p={8}>
-      {/* Download PDF Button */}
       <Flex mb={4} justifyContent={"flex-end"}>
         <Button onClick={downloadInvoice} colorScheme="brand" size="sm">
           Download PDF
         </Button>
       </Flex>
 
-      {/* Invoice Content */}
       <Skeleton isLoaded={!isLoading}>
         <VStack id="invoice-pdf" bg="white" p={8} shadow="lg">
-          {/* Invoice Header */}
           <Box bg="#B79045" w="100%" textAlign="center" p={4} color="white">
             <Text fontSize="xl" fontWeight="bold">
               Tax Invoice
             </Text>
           </Box>
 
-          {/* Company and Invoice Details */}
           <Flex justify="space-between" w="100%">
             <Box>
-              {/* Company Logo */}
               <svg
                 width="150"
                 height="150"
@@ -170,7 +178,7 @@ const SingleInvoice = () => {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* SVG Paths */}
+                {/* SVG Paths omitted for brevity */}
               </svg>
               <Text fontSize="lg" fontWeight="bold" mb={2}>
                 WEAM ELNAGGAR REAL ESTATE
@@ -193,7 +201,6 @@ const SingleInvoice = () => {
             </Box>
           </Flex>
 
-          {/* Invoiced To Section */}
           <Box
             border={"1px solid #eee"}
             my={"20px"}
@@ -202,12 +209,11 @@ const SingleInvoice = () => {
             color="black"
           >
             <Text fontWeight="bold">Invoiced To</Text>
-            <Text>{developerData?.data?.developer_name || "Bilal2"}</Text>
+            <Text>{developerData?.data?.developer_name || "N/A"}</Text>
             <Text>{developerData?.data?.address || "-"}</Text>
             <Text>TRN: {developerData?.data?.trn || "-"}</Text>
           </Box>
 
-          {/* Invoice Table */}
           <Table variant="simple" size="sm" mt={4}>
             <Thead color={"white"} bg={"#B79045"}>
               <Tr>
@@ -217,10 +223,10 @@ const SingleInvoice = () => {
                 <Th color={"white"}>Claim Type</Th>
                 <Th color={"white"}>Commission %</Th>
                 <Th color={"white"}>Unit Price</Th>
-                <Th color={"white"}>Total Commission EXCL. vat</Th>
-                <Th color={"white"}>Vat %</Th>
-                <Th color={"white"}>Vat Amount</Th>
-                <Th color={"white"}>Total Commission include vat</Th>
+                <Th color={"white"}>Total Commission EXCL. VAT</Th>
+                <Th color={"white"}>VAT %</Th>
+                <Th color={"white"}>VAT Amount</Th>
+                <Th color={"white"}>Total Commission incl. VAT</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -267,7 +273,6 @@ const SingleInvoice = () => {
             </Tbody>
           </Table>
 
-          {/* Total Commission Section */}
           <Flex
             justify="space-between"
             w="100%"
@@ -287,24 +292,22 @@ const SingleInvoice = () => {
             </Text>
           </Flex>
 
-          {/* Bank Account Details */}
           <Box border={"1px solid #eee"} w="100%" p={4} color="black">
             <Text fontWeight="bold">Bank Account Details:</Text>
             <Text>
-              Account Name : {bankAccountData?.data?.account_holder_name || "-"}
+              Account Name: {bankAccountData?.data?.account_holder_name || "-"}
             </Text>
             <Text>
-              Account Number : {bankAccountData?.data?.account_number || "-"}
+              Account Number: {bankAccountData?.data?.account_number || "-"}
             </Text>
-            <Text>IBAN : {bankAccountData?.data?.iban || "-"}</Text>
-            <Text>Swift Code : {bankAccountData?.data?.swift_code || "-"}</Text>
-            <Text>Bank : {bankAccountData?.data?.bank_name || "-"}</Text>
+            <Text>IBAN: {bankAccountData?.data?.iban || "-"}</Text>
+            <Text>Swift Code: {bankAccountData?.data?.swift_code || "-"}</Text>
+            <Text>Bank: {bankAccountData?.data?.bank_name || "-"}</Text>
             <Text>
-              Bank Address : {bankAccountData?.data?.branch_address || "-"}
+              Bank Address: {bankAccountData?.data?.branch_address || "-"}
             </Text>
           </Box>
 
-          {/* Total Amount Section */}
           <Box
             textAlign="right"
             w="100%"
