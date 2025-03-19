@@ -84,7 +84,11 @@ const RulesSection = ({ rules, setRules }) => {
 								size='sm'
 								value={rule.coins}
 								onChange={(e) =>
-									handleRuleChange(index, 'coins', Number(e.target.value))
+									handleRuleChange(
+										index,
+										'coins',
+										e.target.value === '' ? '' : Number(e.target.value)
+									)
 								}
 								w={{ base: '100%', md: '60px' }}
 								minW={{ base: '100%', md: '60px' }}
