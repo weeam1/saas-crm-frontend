@@ -158,11 +158,11 @@ const Dashboard = () => {
 				distributed: true,
 				colors: {
 					ranges: [
-						{ from: 0, to: 1, color: '#E5E7EB' },
-						{ from: 2, to: 2, color: '#3B82F6' },
+						{ from: 0, to: 1, color: '#9f7329' },
+						{ from: 2, to: 2, color: '#9f7329' },
 						{ from: 3, to: 3, color: '#a07d2e' },
 						{ from: 4, to: 4, color: '#9f7329' },
-						{ from: 5, to: 5, color: '#10B981' },
+						{ from: 5, to: 5, color: '#9f7329' },
 					],
 				},
 			},
