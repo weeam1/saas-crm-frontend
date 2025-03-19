@@ -66,7 +66,7 @@ const RealTimeData = ({
 	const navigate = useNavigate();
 	return (
 		<>
-			<Box p={6} minH='100vh'>
+			<Box minH='100vh'>
 				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
 					<Box
 						p={6}

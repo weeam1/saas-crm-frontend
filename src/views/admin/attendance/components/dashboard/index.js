@@ -47,12 +47,19 @@ const Dashboard = () => {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
+	useEffect(() => {
+		if (user?.agency && role !== 'superAdmin') {
+			setSelectedAgency(user.agency);
+			setAgency(user?.agency?.name);
+		}
+	}, []);
+
 	const [queryParams, setQueryParams] = useState({
 		timeframe: selectedView,
 		agency: '',
 	});
 
-	const { data, isLoading, refetch } = useFetchItemsQuery(
+	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
 		{ path: `/attendance/dashboard`, params: queryParams },
 		{ refetchOnMountOrArgChange: true }
 	);
@@ -276,16 +283,21 @@ const Dashboard = () => {
 	];
 
 	const [loading, setLoading] = useState(true);
+	const [refetching, setRefetching] = useState(false);
 
 	useEffect(() => {
-		const timer = setTimeout(() => setLoading(false), 3000);
+		const timer = setTimeout(() => setLoading(false), 2500);
 		return () => clearTimeout(timer);
 	}, []);
+
+	useEffect(() => {
+		if (!isFetching) setRefetching(false);
+	}, [isFetching]);
 
 	const handleApplyFilter = (newAgency) => {
 		setQueryParams((prev) => ({ ...prev, agency: newAgency }));
 		onClose();
-		setLoading(true);
+		setRefetching(true);
 		setAgency(selectedAgency?.name ?? null);
 	};
 
@@ -295,18 +307,27 @@ const Dashboard = () => {
 		</Box>
 	) : (
 		<>
+			<AppButton
+				ml='2'
+				leftIcon={<IoArrowBack />}
+				onClick={() => navigate('/attendance')}
+			>
+				Back
+			</AppButton>
+
 			<Flex
-				fontFamily="'DM Sans', sans-serif"
-				px='10'
+				bg='white'
 				justifyContent='space-between'
+				py='2'
+				px='4'
+				mx='2'
+				my='2'
+				rounded='md'
 				alignItems='center'
 			>
-				<AppButton
-					leftIcon={<IoArrowBack />}
-					onClick={() => navigate('/attendance')}
-				>
-					Back
-				</AppButton>
+				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+					{agency ? `${agency} Agency` : 'All Agencies'}
+				</Heading>
 				{role === 'superAdmin' && (
 					<IconButton
 						icon={<FiFilter />}
@@ -321,19 +342,12 @@ const Dashboard = () => {
 				)}
 			</Flex>
 
-			{loading ? (
+			{loading || refetching ? (
 				<Box h='100vh'>
 					<Loader />
 				</Box>
 			) : (
 				<Box p='2' fontFamily="'DM Sans', sans-serif">
-					<Heading
-						px='10'
-						fontSize={{ base: 'md', md: 'lg' }}
-						fontWeight='bold'
-					>
-						{agency ? `${agency} Agency` : 'All Agencies'}
-					</Heading>
 					<RealTimeData
 						stats={stats}
 						lineChartData={lineChartData}
