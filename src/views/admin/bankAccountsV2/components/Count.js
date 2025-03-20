@@ -3,7 +3,7 @@ import { Text } from "@chakra-ui/react";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const AccountCount = ({ count }) => {
-  const formattedCount = count.toString().padStart(2);
+  const formattedCount = count.toString().padStart(2, "0"); // Ensure 2 digits
 
   return (
     <Text
@@ -12,7 +12,7 @@ const AccountCount = ({ count }) => {
       fontFamily="DM Sans"
       color="#333"
     >
-      All Accounts (<CountUpComponent targetNumber={formattedCount} />)
+      All Accounts (<CountUpComponent targetNumber={Number(formattedCount)} />)
     </Text>
   );
 };

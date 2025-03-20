@@ -8,7 +8,6 @@ function Search({ onSearchResults }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebounce(query, 300);
   const userId = localStorage.getItem("user");
-  console.log(userId, "userId");
 
   const { data, isLoading, error } = useFetchItemsQuery(
     {

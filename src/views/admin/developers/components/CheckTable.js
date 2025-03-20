@@ -130,6 +130,12 @@ export default function CheckTable(props) {
       setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
     }
   };
+  const clearSearch = () => {
+    setSearchbox(""); // Clear search input
+    setDisplaySearchData(false); // Hide search results
+    setSearchedData(allData); // Reset searched data to full dataset
+    setGetTagValues([]); // Clear advanced search tags
+  };
   const handleColumnClear = () => {
     isColumnSelected = selectedColumns?.some(
       (selectedColumn) => selectedColumn?.accessor === column?.accessor
@@ -317,13 +323,13 @@ export default function CheckTable(props) {
               ) : (
                 ""
               )}
-              {selectedValues.length > 0 && (
+              {/* {selectedValues.length > 0 && (
                 <DeleteIcon
                   onClick={() => setDelete(true)}
                   color={"red"}
                   ms={2}
                 />
-              )}
+              )} */}
             </Flex>
           </GridItem>
           <GridItem
@@ -389,12 +395,14 @@ export default function CheckTable(props) {
         {/* Delete model */}
         <Delete
           isOpen={deleteModel}
-          onClose={setDelete}
+          onClose={() => setDelete(false)} // Pass a function to setDelete(false)
           setAction={setAction}
           setSelectedValues={setSelectedValues}
           url="api/user/deleteMany"
           data={selectedValues}
           method="many"
+          fetchData={fetchData}
+          clearSearch={clearSearch}
         />
 
         <Box overflowY={"auto"} className="table-fix-container">
@@ -609,7 +617,7 @@ export default function CheckTable(props) {
         )}
       </Card>
       <AddUser
-      fetchData={fetchData}
+        fetchData={fetchData}
         isOpen={isOpen}
         size={"lg"}
         setAction={setAction}
