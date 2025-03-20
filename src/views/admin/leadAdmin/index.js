@@ -24,35 +24,40 @@ const LeadScreen = () => {
     const pageFromStorage = sessionStorage.getItem("currentPage");
     const urlParams = new URLSearchParams(window.location.search);
     const pageFromUrl = urlParams.get("page");
-    return pageFromStorage
+    const page = pageFromStorage
       ? parseInt(pageFromStorage)
       : pageFromUrl
         ? parseInt(pageFromUrl)
         : defaultPage;
+    return page;
   };
 
   const getInitialPageSize = () => {
     const sizeFromStorage = sessionStorage.getItem("pageSize");
     const urlParams = new URLSearchParams(window.location.search);
     const sizeFromUrl = urlParams.get("pageSize");
-    return sizeFromStorage
+    const size = sizeFromStorage
       ? parseInt(sizeFromStorage)
       : sizeFromUrl
         ? parseInt(sizeFromUrl)
         : defaultPageSize;
+    return size;
   };
 
   const getInitialTab = () => {
     const tabFromStorage = sessionStorage.getItem("activeTab");
     const urlParams = new URLSearchParams(window.location.search);
     const tabFromUrl = urlParams.get("tab");
-    return tabFromStorage || tabFromUrl || defaultTab;
+    const tab = tabFromStorage || tabFromUrl || defaultTab;
+    return tab;
   };
 
   const getInitialSearchQuery = () => {
     const searchFromStorage = sessionStorage.getItem("searchQuery");
     const urlParams = new URLSearchParams(window.location.search);
-    return searchFromStorage || urlParams.get("search") || defaultSearchQuery;
+    const search =
+      searchFromStorage || urlParams.get("search") || defaultSearchQuery;
+    return search;
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -123,6 +128,12 @@ const LeadScreen = () => {
       if (sessionStorage.getItem("searchQuery") !== searchQuery) {
         sessionStorage.setItem("searchQuery", searchQuery);
       }
+      console.log(
+        "updateUrlAndStorage: page =",
+        currentPage,
+        "pageSize =",
+        newPageSize || pageSize
+      ); // Debug log
     },
     [activeTab, currentPage, pageSize, searchQuery]
   );
@@ -154,7 +165,6 @@ const LeadScreen = () => {
           setSearchedData([]);
           setDisplayAdvSearchData(false);
           setDisplaySearchData(false);
-          // Do not reset searchQuery or formValues here to preserve search state
         }
       } catch (err) {
         setError(err.message || "Failed to fetch leads");
@@ -297,7 +307,6 @@ const LeadScreen = () => {
       );
 
       if (res?.data?.status) {
-        // Approval case
         try {
           const data = {
             agentAssigned: agentId,
@@ -316,7 +325,6 @@ const LeadScreen = () => {
                     }
                   : lead
               );
-              // In "Pending" tab, remove the lead; in "All" tab, keep it
               return currentTab === "Pending"
                 ? updatedLeads.filter((lead) => lead._id !== leadId)
                 : updatedLeads;
@@ -328,7 +336,6 @@ const LeadScreen = () => {
                   ? { ...approval, approvalStatus: "accepted", agentId }
                   : approval
               );
-              // In "Pending" tab, remove the approval; in "All" tab, keep it
               return {
                 ...prev,
                 approvals:
@@ -351,7 +358,6 @@ const LeadScreen = () => {
           toast.error("Failed to update the lead");
         }
       } else {
-        // Rejection case
         try {
           if (agentId) {
             const lead = await getApi(`api/lead/view/${leadId}`);
@@ -411,12 +417,28 @@ const LeadScreen = () => {
       );
     }
   };
-  // Initial load respects the current activeTab from session storage or URL
+
+  // Initial load with persisted state
   useEffect(() => {
-    const initialTab = getInitialTab(); // Get tab from session storage or URL
-    setActiveTab(initialTab); // Set the initial tab explicitly
-    resetToDefaults(); // Reset other states
-    fetchLeads(initialTab, defaultPage, defaultPageSize); // Fetch with the correct tab
+    const initialTab = getInitialTab();
+    const initialPage = getInitialPage();
+    const initialPageSize = getInitialPageSize();
+    const initialSearchQuery = getInitialSearchQuery();
+
+    // Set states from persisted values
+    setActiveTab(initialTab);
+    setCurrentPage(initialPage);
+    setPageSize(initialPageSize);
+    setSearchQuery(initialSearchQuery);
+
+    // Fetch data based on persisted state
+    if (initialSearchQuery) {
+      fetchSearchedData(initialSearchQuery, initialPage, initialPageSize);
+    } else if (Object.keys(formValues).length > 0) {
+      fetchAdvancedSearch(formValues, initialPage, initialPageSize);
+    } else {
+      fetchLeads(initialTab, initialPage, initialPageSize);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -459,7 +481,7 @@ const LeadScreen = () => {
       } else if (displaySearchData) {
         fetchSearchedData(searchQuery, 1, newSize);
       } else {
-        fetchLeads(activeTab, 1, newSize); // Ensure activeTab is used
+        fetchLeads(activeTab, 1, newSize);
       }
     },
     [

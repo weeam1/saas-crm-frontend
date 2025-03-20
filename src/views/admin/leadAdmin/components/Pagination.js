@@ -100,16 +100,17 @@ const Pagination = ({
     if (loading) return;
     const newPageSize = Number(event.target.value);
     onPageSizeChange(newPageSize);
-    // Reset to first page when page size changes
     setCurrentPage(1);
     setGotoPage(1);
   };
+
   const handleClearAdvancedSearch = () => {
-    setSearchQuery(""); 
-    setFormValues({});  
-    setCurrentPage(1);  
-    setGotoPage(1);     
+    setSearchQuery("");
+    setFormValues({});
+    setCurrentPage(1);
+    setGotoPage(1);
   };
+
   const buttonStyle = {
     size: { base: "xs", sm: "xs", md: "sm" },
     borderRadius: "lg",
@@ -184,7 +185,7 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-               py="1"
+                py="1"
                 px="3"
                 leftIcon={
                   <IoPlaySkipForwardSharp
@@ -201,7 +202,7 @@ const Pagination = ({
                 onClick={handlePrevious}
                 isDisabled={loading || currentPage === 1}
                 variant="solid"
-                   py="1"
+                py="1"
                 px="3"
                 bg="softGray.600"
                 color="black"
@@ -251,10 +252,7 @@ const Pagination = ({
             </HStack>
 
             {/* Showing range */}
-            <Text
-              color="gray.800"
-              fontSize="12px"
-            >
+            <Text color="gray.800" fontSize="12px">
               Showing {startIndex.toLocaleString()} -{" "}
               {endIndex.toLocaleString()} of {totalItems.toLocaleString()}
             </Text>
@@ -270,20 +268,16 @@ const Pagination = ({
                 borderRadius="md"
                 border="2px solid"
                 _focus={{ boxShadow: "0 0 0 1px softGray.500" }}
-                onChange={handlePageSizeChange}
-                isDisabled={loading || !totalItems}
+                onChange={(e) => {
+                  onPageSizeChange(Number(e.target.value));
+                }}
+                isDisabled={loading}
               >
-                {totalItems > 0 ? (
-                  [25, 50, 80, 100]
-                    .filter((size) => size <= totalItems)
-                    .map((size) => (
-                      <option key={size} value={size}>
-                        Show {size}
-                      </option>
-                    ))
-                ) : (
-                  <option value={pageSize}>Show {pageSize}</option>
-                )}
+                {[25, 50, 80, 100].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
+                  </option>
+                ))}
               </Select>
 
               <Button
@@ -308,7 +302,7 @@ const Pagination = ({
                 variant="solid"
                 bg="softGray.600"
                 color="black"
-                 py="1"
+                py="1"
                 px="3"
                 rightIcon={<IoPlaySkipForwardSharp />}
                 aria-label="Last Page"

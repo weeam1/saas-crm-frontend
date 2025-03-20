@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PaginationPage from "./components/Pagination";
 import { getApi, postApi, putApi } from "services/api";
 import { constant } from "constant";
@@ -10,14 +10,15 @@ import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 const Index = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentState, setCurrentState] = useState("buy_leads"); 
+  const [currentState, setCurrentState] = useState("buy_leads");
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
   const [pageSize, setPageSize] = useState(50);
-  const [activeTab, setActiveTab] = useState("Buy Leads"); 
+  const [activeTab, setActiveTab] = useState("Buy Leads");
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);
   const [searchedData, setSearchedData] = useState([]);
@@ -35,6 +36,25 @@ const Index = () => {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
+
+  // Function to update URL with current state
+  const updateUrl = (newPage, newSize, newTab) => {
+    const params = new URLSearchParams(location.search);
+    params.set("page", newPage || currentPage);
+    params.set("pageSize", newSize || pageSize);
+    params.set("tab", newTab || activeTab);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  // Read initial state from URL
+  const getInitialStateFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    const page = parseInt(params.get("page")) || 1;
+    const size = parseInt(params.get("pageSize")) || 50;
+    const tab = params.get("tab") || "Buy Leads";
+    return { page, size, tab };
+  };
+
   const fetchData = async (pageNo = 1, size = pageSize, source) => {
     if (isLoading) return;
     let isMounted = true;
@@ -44,7 +64,7 @@ const Index = () => {
       let result;
       if (user.role !== "superAdmin" && currentState === "buy_leads") {
         result = await getApi(
-          `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=pending`, 
+          `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=pending`,
           null,
           "baseUrl",
           source
@@ -110,6 +130,7 @@ const Index = () => {
       isMounted = false;
     };
   };
+
   const fetchUserData = async () => {
     let isMounted = true;
     setIsLoading(true);
@@ -145,9 +166,8 @@ const Index = () => {
     try {
       const queryParams = new URLSearchParams();
       if (tab === "Buy Leads") {
-        // Fetch leads available for purchase (in lead pool, not requested by user)
         queryParams.append("isInLeadPool", "true");
-        queryParams.append("excludeUser", user._id); // Exclude leads already requested by user
+        queryParams.append("excludeUser", user._id);
       } else {
         const statusMap = {
           Pending: "pending",
@@ -160,7 +180,7 @@ const Index = () => {
         }
         if (status) {
           queryParams.append("approvalStatus", status);
-          queryParams.append("agentId", user._id); // Show only user's requests
+          queryParams.append("agentId", user._id);
         }
       }
       queryParams.append("page", page);
@@ -258,7 +278,6 @@ const Index = () => {
           setTotalLeads(newData.length);
         }
       } else if (activeTab === "Buy Leads") {
-        // Search within available leads for purchase
         result = await getApi(
           `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
         );
@@ -533,45 +552,46 @@ const Index = () => {
     [dateTime, user]
   );
 
+  // Initial load with URL state
+  useEffect(() => {
+    const { page, size, tab } = getInitialStateFromUrl();
+    setCurrentPage(page);
+    setPageSize(size);
+    setActiveTab(tab);
+    setLastFetchedTab(null); // Reset lastFetchedTab to ensure fetch happens
+
+    const source = axios.CancelToken.source();
+    fetchUserData();
+    if (tab === "Buy Leads") {
+      fetchData(page, size, source); // Use fetchData directly to avoid debounce delay on initial load
+    } else {
+      fetchLeads(tab, page, size); // Use fetchLeads directly
+    }
+
+    return () => {
+      source.cancel("Component unmounted");
+    };
+  }, [location.search]); // Only trigger on URL change
+
+  // Handle tab changes without resetting page unnecessarily
   useEffect(() => {
     if (!displaySearchData && activeTab !== lastFetchedTab) {
-      setCurrentPage(1);
+      const { page, size } = getInitialStateFromUrl(); // Get current URL state
+      updateUrl(page, size, activeTab); // Update URL with new tab
       if (activeTab === "Buy Leads") {
-        debouncedFetchData(1, pageSize); // Fetch available leads
+        debouncedFetchData(page, size);
       } else {
-        debouncedFetchLeads(activeTab, 1, pageSize); // Fetch user's requests
+        debouncedFetchLeads(activeTab, page, size);
       }
       setLastFetchedTab(activeTab);
     }
   }, [
     activeTab,
-    pageSize,
     displaySearchData,
     debouncedFetchData,
     debouncedFetchLeads,
     lastFetchedTab,
   ]);
-
-  useEffect(() => {
-    const source = axios.CancelToken.source();
-    setCurrentPage(1);
-    setPageSize(50);
-    setActiveTab("Buy Leads"); // Default to "Buy Leads"
-    setDisplaySearchData(false);
-    setData([]);
-    setTotalPages(0);
-    setTotalLeads(0);
-    setError(null);
-    setLastFetchedTab(null);
-    setBuyLoading({});
-
-    fetchUserData();
-    debouncedFetchData(1, 50, source);
-
-    return () => {
-      source.cancel("Component unmounted");
-    };
-  }, [location.pathname]);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -580,7 +600,7 @@ const Index = () => {
   return (
     <>
       <PaginationPage
-      data={data || []}
+        data={data || []}
         totalPages={totalPages}
         totalLeads={totalLeads}
         isLoading={isLoading}
@@ -588,6 +608,8 @@ const Index = () => {
           setData([]);
           setActiveTab(tab);
           setCurrentPage(page);
+          setPageSize(size);
+          updateUrl(page, size, tab);
           if (tab === "Buy Leads") {
             setDateTime({ from: "", to: "" });
             setDisplaySearchData(false);
@@ -602,13 +624,38 @@ const Index = () => {
         setCurrentState={setCurrentState}
         currentState={currentState}
         pageSize={pageSize}
-        setPageSize={setPageSize}
+        setPageSize={(size) => {
+          setPageSize(size);
+          updateUrl(currentPage, size, activeTab);
+          if (activeTab === "Buy Leads") {
+            debouncedFetchData(currentPage, size);
+          } else {
+            debouncedFetchLeads(activeTab, currentPage, size);
+          }
+        }}
         user={user}
         dateTime={dateTime}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          updateUrl(1, pageSize, tab); // Reset to page 1 on tab change
+          setCurrentPage(1); // Reset currentPage
+          if (tab === "Buy Leads") {
+            debouncedFetchData(1, pageSize);
+          } else {
+            debouncedFetchLeads(tab, 1, pageSize);
+          }
+        }}
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={(page) => {
+          setCurrentPage(page);
+          updateUrl(page, pageSize, activeTab);
+          if (activeTab === "Buy Leads") {
+            debouncedFetchData(page, pageSize);
+          } else {
+            debouncedFetchLeads(activeTab, page, pageSize);
+          }
+        }}
         setData={setData}
         setTotalPages={setTotalPages}
         setTotalLeads={setTotalLeads}
