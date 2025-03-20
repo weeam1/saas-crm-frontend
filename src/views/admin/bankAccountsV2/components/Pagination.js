@@ -62,7 +62,7 @@ const Pagination = ({
   const handlePageSizeChange = (event) => {
     if (isLoading) return;
     const newPageSize = Number(event.target.value);
-    fetchData("", 1, newPageSize);
+    fetchData("", 1, newPageSize); // Update state via fetchData
   };
 
   const buttonStyle = {

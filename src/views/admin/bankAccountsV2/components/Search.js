@@ -4,7 +4,7 @@ import { SearchIcon } from "@chakra-ui/icons";
 import { useFetchItemsQuery } from "api/apiSlice";
 import { useDebounce } from "use-debounce";
 
-function Search({ onSearchResults }) {
+function Search({    }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebounce(query, 300);
   const userId = localStorage.getItem("user");
@@ -18,11 +18,11 @@ function Search({ onSearchResults }) {
     { skip: false }
   );
 
-  React.useEffect(() => {
-    if (data) {
-      onSearchResults(data.data);
-    }
-  }, [data, onSearchResults]);
+  // React.useEffect(() => {
+  //   if (data) {
+  //     onSearchResults(data.data);
+  //   }
+  // }, [data, onSearchResults]);
 
   return (
     <InputGroup

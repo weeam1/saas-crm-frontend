@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 const AccountsView = ({ accounts = [], refetch }) => {
   const [updateItemMutation, { isLoading: isUpdating }] = useUpdateItemMutation();
   const [deleteItemMutation, { isLoading: isDeleting }] = useDeleteItemMutation();
-console.log(accounts,"acoounts view");
+  console.log(accounts, "accounts view");
 
   const handleUpdate = async (updatedAccount, accountId) => {
     try {
@@ -60,7 +60,7 @@ console.log(accounts,"acoounts view");
         </Text>
       ) : (
         <SimpleGrid
-          columns={{ base: 1, sm: 1, md: 2, lg: 3 }}
+        columns={{ base: 1, sm: 1, md: 2, lg: 3 }}
           spacing={{ base: 4, md: 6 }}
           mt={8}
         >
