@@ -57,7 +57,7 @@ import { CiMenuKebab } from "react-icons/ci";
 import Edit from "../Edit";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import CustomSearchInput from "components/search/search";
+import CustomSearchInput from "./Search";
 import DataNotFound from "components/notFoundData";
 
 export default function CheckTable(props) {

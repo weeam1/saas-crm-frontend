@@ -5,7 +5,13 @@ import AddAccountModal from "./AddAccount";
 import AccountCount from "./Count";
 import Search from "./Search";
 
-const Header = ({ accountCount, onAdd, isAdding, onSearchResults }) => {
+const Header = ({
+  accountCount,
+  onAdd,
+  isAdding,
+  onSearchResults,
+  onQueryChange,
+}) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -30,7 +36,10 @@ const Header = ({ accountCount, onAdd, isAdding, onSearchResults }) => {
         w={{ base: "100%", sm: "100%", md: "auto" }}
       >
         <AccountCount count={accountCount} />
-        <Search onSearchResults={onSearchResults} /> 
+        <Search
+          onSearchResults={onSearchResults}
+          onQueryChange={onQueryChange}
+        />
       </Flex>
 
       <Flex

@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Box, Flex, VStack, IconButton, Text, Divider, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  VStack,
+  IconButton,
+  Text,
+  Divider,
+  Tooltip,
+} from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { CiEdit } from "react-icons/ci";
 import EditAccountModal from "./EditModal";
@@ -34,7 +42,7 @@ const AccountCard = ({
       position="relative"
       bg="white"
       transition="transform 0.2s"
-      _hover={{ transform: "translateY(-5px)", boxShadow: "lg" }}
+      _hover={{ boxShadow: "lg" }}
       overflow="hidden" // Prevent content from spilling out
     >
       <Flex position="absolute" top={4} right={4} alignItems="center" gap={2}>
@@ -193,7 +201,7 @@ const AccountCard = ({
             fontSize={{ base: "14px", md: "16px" }}
             fontWeight="bold"
             fontFamily="DM Sans"
-            wordBreak="break-word" // Break words for address
+            wordBreak="break-word"
           >
             {account.branch_address || "N/A"}
           </Text>

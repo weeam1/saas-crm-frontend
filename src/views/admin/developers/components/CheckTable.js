@@ -144,41 +144,40 @@ export default function CheckTable(props) {
     setManageColumns(!manageColumns ? !manageColumns : false);
   };
   const initialValues = {
-    firstName: "",
-    username: "",
-    lastName: "",
+    developer_name: "",
+    email: "",
+    trn: "",
   };
   const validationSchema = yup.object({
-    firstName: yup.string(),
-    username: yup.string().email("User Email is invalid"),
-    lastName: yup.string(),
+    developer_name: yup.string(),
+    email: yup.string().email("Invalid email format"),
+    trn: yup.string(), // Assuming TRN is a string (e.g., Tax Registration Number)
   });
   const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: validationSchema,
+    initialValues,
+    validationSchema,
     onSubmit: (values, { resetForm }) => {
       const searchResult = allData?.filter(
         (item) =>
-          (!values?.firstName ||
-            (item?.firstName &&
-              item?.firstName
+          (!values?.developer_name ||
+            (item?.developer_name &&
+              item?.developer_name
                 .toLowerCase()
-                .includes(values?.firstName?.toLowerCase()))) &&
-          (!values?.username ||
-            (item?.username &&
-              item?.username
+                .includes(values?.developer_name?.toLowerCase()))) &&
+          (!values?.email ||
+            (item?.email &&
+              item?.email
                 .toLowerCase()
-                .includes(values?.username?.toLowerCase()))) &&
-          (!values?.lastName ||
-            (item?.lastName &&
-              item?.lastName
-                .toLowerCase()
-                .includes(values?.lastName?.toLowerCase())))
+                .includes(values?.email?.toLowerCase()))) &&
+          (!values?.trn ||
+            (item?.trn &&
+              item?.trn.toLowerCase().includes(values?.trn?.toLowerCase())))
       );
-      let getValue = [
-        values.firstName,
-        values?.username,
-        values?.lastName,
+
+      const getValue = [
+        values.developer_name,
+        values?.email,
+        values?.trn,
       ].filter((value) => value);
       setGetTagValues(getValue);
       setSearchedData(searchResult);

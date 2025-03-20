@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Modal,
@@ -13,8 +14,10 @@ import {
   Input,
   FormErrorMessage,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
+
 const AddAccountModal = ({ onAdd, isAdding }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +36,17 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     bank_name: "",
     branch_address: "",
   });
+  const [backendErrors, setBackendErrors] = useState({
+    account_holder_name: "",
+    account_number: "",
+    iban: "",
+    swift_code: "",
+    bank_name: "",
+    branch_address: "",
+    general: "",
+  });
+
+  const toast = useToast();
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => {
@@ -53,6 +67,15 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
       bank_name: "",
       branch_address: "",
     });
+    setBackendErrors({
+      account_holder_name: "",
+      account_number: "",
+      iban: "",
+      swift_code: "",
+      bank_name: "",
+      branch_address: "",
+      general: "",
+    });
   };
 
   const validateField = (name, value) => {
@@ -69,8 +92,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
         if (!value.trim()) {
           error = "Account number is required";
         } else if (!/^[0-9- ]+$/.test(value)) {
-          error =
-            "Account number must contain only numbers, spaces, or hyphens";
+          error = "Account number must contain only numbers, spaces, or hyphens";
         }
         break;
       case "iban":
@@ -126,12 +148,63 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     const error = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: error }));
+    // Clear backend error for this field when user starts typing
+    setBackendErrors((prev) => ({ ...prev, [name]: "", general: "" }));
   };
 
   const handleSubmit = async () => {
     if (validateForm()) {
-      await onAdd(formData);
-      handleClose();
+      try {
+        const result = await onAdd(formData);
+        console.log('Result from onAdd:', result); // Log the result to inspect its structure
+        if (result) {
+          // Backend returned errors
+          // Normalize the error format to match backendErrors state
+          const normalizedErrors = {
+            account_holder_name: "",
+            account_number: "",
+            iban: "",
+            swift_code: "",
+            bank_name: "",
+            branch_address: "",
+            general: "",
+          };
+
+          if (typeof result === "object") {
+            // Map the errors to the corresponding fields
+            Object.keys(result).forEach((key) => {
+              if (normalizedErrors.hasOwnProperty(key)) {
+                normalizedErrors[key] = result[key];
+              } else {
+                // If the key doesn't match a field, treat it as a general error
+                normalizedErrors.general = result[key] || "An error occurred. Please try again.";
+              }
+            });
+          } else {
+            // If result is not an object, treat it as a general error
+            normalizedErrors.general = result || "An error occurred. Please try again.";
+          }
+
+          setBackendErrors(normalizedErrors);
+        } else {
+          // Success: Show toast and close modal
+          toast({
+            title: "Account Added",
+            description: "The bank account has been successfully added.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          handleClose();
+        }
+      } catch (error) {
+        // Handle unexpected errors
+        console.error('Unexpected error in handleSubmit:', error);
+        setBackendErrors((prev) => ({
+          ...prev,
+          general: "An unexpected error occurred. Please try again.",
+        }));
+      }
     }
   };
 
@@ -144,19 +217,19 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
 
   return (
     <>
-     <Button
-  onClick={handleOpen}
-  bg="#B79045"
-  color="white"
-  fontFamily="DM Sans"
-  borderRadius="8px"
-  leftIcon={<AddIcon />}
-  _hover={{
-    bg: "#9E7A3B",
-  }}
->
-  Add Account
-</Button>
+      <Button
+        onClick={handleOpen}
+        bg="#B79045"
+        color="white"
+        fontFamily="DM Sans"
+        borderRadius="8px"
+        leftIcon={<AddIcon />}
+        _hover={{
+          bg: "#9E7A3B",
+        }}
+      >
+        Add Account
+      </Button>
 
       <Modal isOpen={isOpen} onClose={handleClose} isCentered>
         <ModalOverlay />
@@ -164,7 +237,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
           <ModalHeader>Add New Account</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl mb={3} isInvalid={!!errors.account_holder_name}>
+            <FormControl mb={3} isInvalid={!!errors.account_holder_name || !!backendErrors.account_holder_name}>
               <FormLabel>
                 Account Holder Name{" "}
                 <Text as="span" color="red.500">
@@ -176,9 +249,11 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.account_holder_name}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.account_holder_name}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.account_holder_name || backendErrors.account_holder_name}
+              </FormErrorMessage>
             </FormControl>
-            <FormControl mb={3} isInvalid={!!errors.account_number}>
+            <FormControl mb={3} isInvalid={!!errors.account_number || !!backendErrors.account_number}>
               <FormLabel>
                 Account Number{" "}
                 <Text as="span" color="red.500">
@@ -190,9 +265,11 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.account_number}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.account_number}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.account_number || backendErrors.account_number}
+              </FormErrorMessage>
             </FormControl>
-            <FormControl mb={3} isInvalid={!!errors.iban}>
+            <FormControl mb={3} isInvalid={!!errors.iban || !!backendErrors.iban}>
               <FormLabel>
                 IBAN{" "}
                 <Text as="span" color="red.500">
@@ -204,9 +281,11 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.iban}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.iban}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.iban || backendErrors.iban}
+              </FormErrorMessage>
             </FormControl>
-            <FormControl mb={3} isInvalid={!!errors.swift_code}>
+            <FormControl mb={3} isInvalid={!!errors.swift_code || !!backendErrors.swift_code}>
               <FormLabel>
                 Swift Code{" "}
                 <Text as="span" color="red.500">
@@ -218,9 +297,11 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.swift_code}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.swift_code}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.swift_code || backendErrors.swift_code}
+              </FormErrorMessage>
             </FormControl>
-            <FormControl mb={3} isInvalid={!!errors.bank_name}>
+            <FormControl mb={3} isInvalid={!!errors.bank_name || !!backendErrors.bank_name}>
               <FormLabel>
                 Bank Name{" "}
                 <Text as="span" color="red.500">
@@ -232,9 +313,11 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.bank_name}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.bank_name}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.bank_name || backendErrors.bank_name}
+              </FormErrorMessage>
             </FormControl>
-            <FormControl mb={3} isInvalid={!!errors.branch_address}>
+            <FormControl mb={3} isInvalid={!!errors.branch_address || !!backendErrors.branch_address}>
               <FormLabel>
                 Branch Address{" "}
                 <Text as="span" color="red.500">
@@ -246,8 +329,15 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 value={formData.branch_address}
                 onChange={handleChange}
               />
-              <FormErrorMessage>{errors.branch_address}</FormErrorMessage>
+              <FormErrorMessage>
+                {errors.branch_address || backendErrors.branch_address}
+              </FormErrorMessage>
             </FormControl>
+            {backendErrors.general && (
+              <Text color="red.500" fontSize="sm" mt={2}>
+                {backendErrors.general}
+              </Text>
+            )}
           </ModalBody>
 
           <ModalFooter>
