@@ -12,6 +12,8 @@ import AttendanceTable from './AttendanceTable';
 import Loader from 'components/loading/Loader';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { buttonStyle } from '../../constants';
+import { IoArrowBack } from 'react-icons/io5';
+import AppButton from 'components/shared/AppButton';
 
 const Attendance = () => {
 	const { id: employeeId } = useParams();
@@ -61,27 +63,19 @@ const Attendance = () => {
 		</Box>
 	) : officeSettings?.doc ? (
 		<Box p={{ base: 4, md: 6 }} minH='100vh' fontFamily="'DM Sans', sans-serif">
-			<Box display='flex' alignItems='center' mb={4} bg='white' p={4}>
-				<Text
-					fontSize={{ base: 'sm', md: 'md' }}
-					fontWeight='bold'
-					color='blue.500'
-					cursor='pointer'
-					_hover={{ textDecoration: 'underline' }}
-					mr={2}
-					display='flex'
-					alignItems='center'
-					onClick={() =>
-						navigate(
-							['superAdmin', 'HR'].includes(role)
-								? '/attendance/employees'
-								: '/attendance'
-						)
-					}
-				>
-					<IoIosArrowBack style={{ marginRight: '5px' }} /> Back
-				</Text>
-
+			<AppButton
+				leftIcon={<IoArrowBack />}
+				onClick={() =>
+					navigate(
+						['superAdmin', 'HR'].includes(role)
+							? '/attendance/employees'
+							: '/attendance'
+					)
+				}
+			>
+				Back
+			</AppButton>
+			<Box display='flex' alignItems='center' mt={2} mb='4' bg='white' p={4}>
 				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					Attendance Record
 				</Text>
@@ -102,6 +96,7 @@ const Attendance = () => {
 								data={data}
 								timezone={timezone}
 								refetch={refetch}
+								officeSettings={officeSettings}
 							/>
 						)}
 					</Box>

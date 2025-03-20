@@ -33,9 +33,11 @@ import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
 import { FaClipboardUser } from 'react-icons/fa6';
-// import Employees from 'views/admin/attendanceEmp/components/employees';
-// import Attendance from 'views/admin/attendanceEmp/components/myAttendance';
-// import Records from 'views/admin/attendanceEmp/components/records';
+
+import Employees from 'views/admin/attendance/components/employees';
+import Records from 'views/admin/attendance/components/records';
+import MyAttendance from 'views/admin/attendance/components/myAttendance';
+import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -125,18 +127,19 @@ const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
-const Employees = React.lazy(
-	() => import('views/admin/attendance/components/employees')
-);
-const Records = React.lazy(
-	() => import('views/admin/attendance/components/records')
-);
-const MyAttendance = React.lazy(
-	() => import('views/admin/attendance/components/myAttendance')
-);
-const AttendanceDashboard = React.lazy(
-	() => import('views/admin/attendance/components/dashboard')
-);
+// const Employees = React.lazy(
+// 	() => import('views/admin/attendance/components/employees')
+// );
+// const Records = React.lazy(
+// 	() => import('views/admin/attendance/components/records')
+// );
+// const MyAttendance = React.lazy(
+// 	() => import('views/admin/attendance/components/myAttendance')
+// );
+// const AttendanceDashboard = React.lazy(
+// 	() => import('views/admin/attendance/components/dashboard')
+// );
+
 //leadpool v2
 // const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
 

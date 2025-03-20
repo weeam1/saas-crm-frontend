@@ -1,46 +1,46 @@
-import { Box, Text, Flex, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Text, Flex, useBreakpointValue, Button } from '@chakra-ui/react';
 import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
-import { useState, useEffect } from 'react';
-import OffDaysCheckbox from './OffDaysCheckbox';
-import TimeZoneSelect from './TimeZone';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
+import { buttonStyle } from 'views/admin/attendance/constants';
 
 const AdminSetting = ({
 	checkinTime,
 	setCheckinTime,
 	checkoutTime,
 	setCheckoutTime,
-	timezone,
-	setTimezone,
-	offDays,
-	setOffDays,
+	selectedUser,
+	setSpecialUsers,
+	setSelectedUser,
 }) => {
 	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
-	const [timeZones, setTimeZones] = useState([]);
-	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const fetchTimeZones = async () => {
-			try {
-				const response = await fetch(
-					'https://timeapi.io/api/timezone/availabletimezones'
+	const handleSave = () => {
+		if (!selectedUser) return;
+
+		setSpecialUsers((prev) => {
+			const exists = prev.some((su) => su.user === selectedUser._id);
+			if (exists) {
+				// Update existing special user timing
+				return prev.map((su) =>
+					su.user === selectedUser._id
+						? { ...su, specialTiming: { checkinTime, checkoutTime } }
+						: su
 				);
-				const data = await response.json();
-				setTimeZones(data);
-				setLoading(false);
-			} catch (error) {
-				console.error('Error fetching time zones:', error);
-				setTimeZones([
-					'United Arab Emirates (GMT+4)',
-					'India (GMT+5:30)',
-					'United States (GMT-5)',
-				]);
-				setLoading(false);
 			}
-		};
 
-		fetchTimeZones();
-	}, []);
+			// Add new special user
+			return [
+				...prev,
+				{
+					user: selectedUser._id,
+					specialTiming: { checkinTime, checkoutTime },
+				},
+			];
+		});
+
+		// Reset selected user
+		setSelectedUser(null);
+	};
 
 	return (
 		<Box
@@ -58,26 +58,59 @@ const AdminSetting = ({
 					fontWeight='400'
 					fontSize={fontSize}
 				>
-					<ClockIcon color='blue.400' /> Admin Timing
+					<ClockIcon color='blue.400' />{' '}
+					{`${selectedUser?.fullName ?? 'Special'}`} Timing
 				</Text>
 			</Flex>
-			<Flex justify='space-between' mb={4} flexWrap='wrap' gap={4}>
-				<Box flex='1' minW='150px'>
-					<Text mb={2} fontWeight='400' fontSize={fontSize}>
-						In timing
-					</Text>
-					<CustomTimePicker value={checkinTime} onChange={setCheckinTime} />
-				</Box>
+			<Flex
+				flexDirection='column'
+				justifyContent='space-between'
+				alignItems='flex-end'
+				opacity={!selectedUser ? 0.5 : 1}
+				pointerEvents={!selectedUser ? 'none' : 'auto'}
+			>
+				<Flex justify='space-between' mb={4} flexWrap='wrap' gap={4}>
+					<Box flex='1' minW='150px'>
+						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+							In timing
+						</Text>
+						<CustomTimePicker
+							value={checkinTime}
+							onChange={setCheckinTime}
+							isDisabled={!selectedUser}
+						/>
+					</Box>
 
-				<Box flex='1' minW='150px'>
-					<Text mb={2} fontWeight='400' fontSize={fontSize}>
-						Out timing
-					</Text>
-					<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
-				</Box>
+					<Box flex='1' minW='150px'>
+						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+							Out timing
+						</Text>
+						<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
+					</Box>
+				</Flex>
+
+				<Button
+					{...buttonStyle}
+					variant='solid'
+					bg='brand.400'
+					py='5'
+					px='8'
+					fontSize='lg'
+					aria-label='update'
+					isDisabled={!selectedUser}
+					onClick={handleSave}
+					width='fit-content'
+				>
+					Update
+				</Button>
 			</Flex>
+		</Box>
+	);
+};
 
-			{/* <Box mb={4}>
+export default AdminSetting;
+
+/* <Box mb={4}>
       <TimeZoneSelect
           isDisabled={isDisabled}
           timezone={timezone}
@@ -89,9 +122,4 @@ const AdminSetting = ({
         isDisabled={isDisabled}
         offDays={offDays}
         setOffDays={setOffDays}
-      /> */}
-		</Box>
-	);
-};
-
-export default AdminSetting;
+      /> */

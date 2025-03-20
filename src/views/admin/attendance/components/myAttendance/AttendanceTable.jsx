@@ -17,6 +17,7 @@ import moment from 'moment';
 import { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
 const AttendanceTable = ({
 	attendanceRecord,
@@ -212,9 +213,9 @@ const AttendanceTable = ({
 												fontWeight='400'
 												minWidth='120px'
 											>
-												{entry.totalWorkingHours
+												{entry.totalWorkingHours?.minutes > 0
 													? `${entry.totalWorkingHours?.hours}h ${entry.totalWorkingHours.minutes}m`
-													: '0h 0m'}
+													: 'Pending'}
 											</Td>
 											{role === 'superAdmin' && (
 												<Td py={4}>
@@ -240,7 +241,7 @@ const AttendanceTable = ({
 										color='gray.500'
 										textAlign='center'
 									>
-										No record found!
+										<NoData label='attendance record' />
 									</Td>
 								</Tr>
 							)}

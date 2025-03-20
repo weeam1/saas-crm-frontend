@@ -50,7 +50,8 @@ const DateFilter = ({ onFilterChange }) => {
 						onChange={handleDateChange}
 						value={date}
 						view='year'
-						minDate={minSelectableDate}
+						// minDate={minSelectableDate}
+						maxDate={new Date()}
 						onClickMonth={handleDateChange}
 						tileDisabled={({ date }) => date.getDate() !== 1}
 					/>

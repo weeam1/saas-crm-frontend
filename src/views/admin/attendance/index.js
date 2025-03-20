@@ -11,7 +11,6 @@ const NavigationBoxes = () => {
 	const navigate = useNavigate();
 
 	const user = JSON.parse(localStorage.getItem('user'));
-
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -38,8 +37,6 @@ const NavigationBoxes = () => {
 				? allMenuItems
 				: allMenuItems.filter((item) => item.label === 'My Attendance');
 
-	console.log(menuItems);
-
 	return (
 		<SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} p={6}>
 			{menuItems.map((item) => (
@@ -50,7 +47,7 @@ const NavigationBoxes = () => {
 					borderRadius='lg'
 					textAlign='center'
 					cursor='pointer'
-					_hover={{ bg: 'green.400', color: 'white' }}
+					_hover={{ bg: 'brand.400', color: 'white' }}
 					onClick={() => navigate(item.route)}
 				>
 					<Icon as={item.icon} boxSize={8} mb={2} />
@@ -64,18 +61,3 @@ const NavigationBoxes = () => {
 };
 
 export default NavigationBoxes;
-// const App = () => {
-//   return (
-//     <>
-//       <NavigationBoxes />
-//       <Routes>
-//         <Route path="/employee-dashboard" element={<Dashboard />} />
-//         <Route path="/employees" element={<Employees />} />
-//         <Route path="/my-attendance" element={<MyAttendance />} />
-//         <Route path="/employees-records" element={<Records />} />
-//       </Routes>
-//     </>
-//   );
-// };
-
-// export default App;

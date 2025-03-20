@@ -115,7 +115,7 @@ const CustomTimePicker = ({ value, onChange }) => {
 	return (
 		<Box
 			fontFamily='DM Sans'
-			bg='#ECE6EE'
+			bg='softGray.100'
 			p={2}
 			borderRadius='8px'
 			position='relative'
@@ -128,7 +128,7 @@ const CustomTimePicker = ({ value, onChange }) => {
 						value={hour}
 						onChange={handleHourInputChange}
 						placeholder='HH'
-						bgColor='#C8B3FD'
+						bgColor='brand.200'
 						isHour={true}
 						clockItems={clockHours}
 						selectedValue={hour}
@@ -149,7 +149,7 @@ const CustomTimePicker = ({ value, onChange }) => {
 						value={minute}
 						onChange={handleMinuteInputChange}
 						placeholder='MM'
-						bgColor='#E6E0E9'
+						bgColor='brand.200'
 						isHour={false}
 						clockItems={clockMinutes}
 						selectedValue={minute}
@@ -168,17 +168,18 @@ const CustomTimePicker = ({ value, onChange }) => {
 						ml={1}
 						borderRadius='6px'
 						overflow='hidden'
-						border='1px solid #C8B3FD'
+						border='1px solid brand.300'
 						w='30px'
 					>
 						<Button
 							borderRadius='0'
 							w='100%'
 							size='xs'
-							bg={period === 'AM' ? '#FBAFFE' : '#ECE6EE'}
-							color='black'
+							bg={period === 'AM' ? 'brand.400' : 'brand.200'}
+							color='white'
 							onClick={() => handlePeriodToggle('AM')}
-							_hover={{ bg: '#FBAFFE' }}
+							_hover={{ bg: 'brand.400' }}
+							_active={{ bg: 'brand.400' }}
 							borderTopRadius='6px'
 							fontSize='xs'
 							py={1}
@@ -189,10 +190,11 @@ const CustomTimePicker = ({ value, onChange }) => {
 							borderRadius='0'
 							w='100%'
 							size='xs'
-							bg={period === 'PM' ? '#FBAFFE' : '#ECE6EE'}
-							color='black'
+							bg={period === 'PM' ? 'brand.400' : 'brand.200'}
+							color='white'
 							onClick={() => handlePeriodToggle('PM')}
-							_hover={{ bg: '#FBAFFE' }}
+							_hover={{ bg: 'brand.400' }}
+							_active={{ bg: 'brand.400' }}
 							borderBottomRadius='6px'
 							fontSize='xs'
 							py={1}
@@ -203,12 +205,19 @@ const CustomTimePicker = ({ value, onChange }) => {
 				</HStack>
 			</Flex>
 
-			<Flex color='#6B7280' justify='center' gap={4} mb={1}>
+			<Flex
+				color='#6B7280'
+				justify='space-around'
+				px='2'
+				width='fit-content'
+				gap={4}
+				mb={1}
+			>
 				<Text fontSize='xs'>Hour</Text>
 				<Text fontSize='xs'>Minute</Text>
 			</Flex>
 
-			<IconButton
+			{/* <IconButton
 				aria-label='Select time with clock'
 				icon={<FaClock />}
 				size='9px'
@@ -218,8 +227,8 @@ const CustomTimePicker = ({ value, onChange }) => {
 				color='black'
 				borderRadius='6px'
 				onClick={onOpen}
-				_hover={{ bg: '#B57EDC' }}
-			/>
+				_hover={{ bg: 'gray.100' }}
+			/> */}
 		</Box>
 	);
 };

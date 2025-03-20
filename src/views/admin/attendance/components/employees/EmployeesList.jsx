@@ -2,6 +2,7 @@ import { Box, Grid, Avatar, Text } from '@chakra-ui/react';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import { constant } from 'constant';
 import { Link } from 'react-router-dom';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
 const EmployeesList = ({ employees, tab }) => {
 	return employees?.length > 0 ? (
@@ -57,7 +58,7 @@ const EmployeesList = ({ employees, tab }) => {
 			</Grid>
 		</Box>
 	) : (
-		<NotFoundMessage message='Employees not found!' />
+		<NoData label='employees' />
 	);
 };
 

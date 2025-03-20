@@ -35,9 +35,10 @@ const OfficeSettings = () => {
 	const [searchClear, setSearchClear] = useState(false);
 
 	const [specialUsers, setSpecialUsers] = useState([]);
+	const [selectedUser, setSelectedUser] = useState(null);
 
-	const [adminCheckinTime, setAdminCheckinTime] = useState('');
-	const [adminCheckoutTime, setAdminCheckoutTime] = useState('');
+	const [specialCheckinTime, setSpecialCheckinTime] = useState('9:00 AM');
+	const [specialCheckoutTime, setSpecialCheckoutTime] = useState('6: 00 PM');
 	// const [adminTimezone, setAdminTimezone] = useState('Asia/Dubai');
 	// const [adminOffDays, setAdminOffDays] = useState([0]);
 	const [officeCheckinTime, setOfficeCheckinTime] = useState('');
@@ -98,8 +99,6 @@ const OfficeSettings = () => {
 					...(search && { search }),
 				};
 
-				console.log({ newParams });
-
 				return newParams;
 			},
 			{ replace: true }
@@ -132,17 +131,16 @@ const OfficeSettings = () => {
 		useUpdateItemMutation();
 
 	useEffect(() => {
-		console.log({ queryParams });
 		usersRefetch();
 	}, [searchParams, usersRefetch]);
 
 	useEffect(() => {
 		if (officeSettings?.doc) {
 			const settings = officeSettings?.doc;
-			setAdminCheckinTime(settings?.specialTiming?.checkinTime || '09: 00 AM');
-			setAdminCheckoutTime(
-				settings?.specialTiming?.checkoutTime || '06: 00 PM'
-			);
+			// setAdminCheckinTime(settings?.specialTiming?.checkinTime || '09: 00 AM');
+			// setAdminCheckoutTime(
+			// 	settings?.specialTiming?.checkoutTime || '06: 00 PM'
+			// );
 			setOfficeCheckinTime(settings?.checkinTime || '09: 00 AM');
 			setOfficeCheckoutTime(settings?.checkoutTime || '06: 00 PM');
 			setOfficeTimezone(settings?.timezone || 'Asia/Karachi');
@@ -233,10 +231,6 @@ const OfficeSettings = () => {
 				gracePeriod: officeGracePeriod,
 				agency: agencyId,
 				rules: transformedRules,
-				specialTiming: {
-					checkinTime: adminCheckinTime,
-					checkoutTime: adminCheckoutTime,
-				},
 				specialUsers,
 			};
 
@@ -350,19 +344,21 @@ const OfficeSettings = () => {
 							usersLoading={usersLoading}
 							usersFetching={usersFetching}
 							setSpecialUsers={setSpecialUsers}
+							setSelectedUser={setSelectedUser}
+							setCheckinTime={setSpecialCheckinTime}
+							setCheckoutTime={setSpecialCheckoutTime}
 						/>
 					</Box>
 
 					<Box flex={{ base: 'none', md: 1 }} w={{ base: '100%', md: 'auto' }}>
 						<AdminTiming
-							checkinTime={adminCheckinTime}
-							setCheckinTime={setAdminCheckinTime}
-							checkoutTime={adminCheckoutTime}
-							setCheckoutTime={setAdminCheckoutTime}
-							// timezone={adminTimezone}
-							// setTimezone={setAdminTimezone}
-							// offDays={adminOffDays}
-							// setOffDays={setAdminOffDays}
+							checkinTime={specialCheckinTime}
+							setCheckinTime={setSpecialCheckinTime}
+							checkoutTime={specialCheckoutTime}
+							setCheckoutTime={setSpecialCheckoutTime}
+							selectedUser={selectedUser}
+							setSelectedUser={setSelectedUser}
+							setSpecialUsers={setSpecialUsers}
 						/>
 					</Box>
 				</Flex>

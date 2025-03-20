@@ -7,7 +7,7 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 
-const AttendanceMark = ({ timezone, data, refetch }) => {
+const AttendanceMark = ({ timezone, data, refetch, officeSettings }) => {
 	const [status, setStatus] = useState(null);
 	const [time, setTime] = useState(moment().tz(timezone));
 
@@ -28,6 +28,11 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 
 	const timeString = useMemo(() => time.format('hh:mm:ss  A'), [time]);
 	const today = moment().tz(timezone).format('YYYY-MM-DD');
+
+	const currentDayIndex = moment().tz(timezone).day(); // Returns day index (0-6)
+	const offDays = officeSettings?.doc?.offDays || [];
+
+	const isOffDay = offDays.includes(currentDayIndex);
 
 	const currentDate = moment().tz(timezone);
 	const currentMonth = currentDate.format('MM');
@@ -141,53 +146,61 @@ const AttendanceMark = ({ timezone, data, refetch }) => {
 			shadow='sm'
 			textAlign='center'
 		>
-			<Text fontWeight='medium' fontSize={{ base: '20px', md: '24px' }}>
-				Mark Attendance
-			</Text>
-			<Text
-				fontWeight='medium'
-				textColor='#A07723'
-				fontSize={{ base: '20px', md: '24px' }}
-			>
-				{timeString}
-			</Text>
-			{status === 1 || status === 2 ? (
-				<Button
-					{...buttonStyle}
-					{...buttonVariants.checkOut}
-					w={{ base: '100%', md: '208px' }}
-					h='43px'
-					isDisabled={checkoutLoading}
-					leftIcon={<IoMdExit size={20} />}
-				>
-					{checkoutLoading ? 'Loading...' : buttonVariants.checkOut.text}
-				</Button>
+			{isOffDay ? (
+				<Text fontSize='lg' fontWeight='bold' color='red.500'>
+					🚫 Office Closed Today!
+				</Text>
 			) : (
-				![-1, 1, 2].includes(status) && (
-					<>
+				<>
+					<Text fontWeight='medium' fontSize={{ base: '20px', md: '24px' }}>
+						Mark Attendance
+					</Text>
+					<Text
+						fontWeight='medium'
+						textColor='#A07723'
+						fontSize={{ base: '20px', md: '24px' }}
+					>
+						{timeString}
+					</Text>
+					{status === 1 || status === 2 ? (
 						<Button
 							{...buttonStyle}
-							{...buttonVariants.checkIn}
+							{...buttonVariants.checkOut}
 							w={{ base: '100%', md: '208px' }}
 							h='43px'
-							mb='4'
-							isDisabled={absentLoading || checkinLoading}
+							isDisabled={checkoutLoading}
 							leftIcon={<IoMdExit size={20} />}
 						>
-							{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
+							{checkoutLoading ? 'Loading...' : buttonVariants.checkOut.text}
 						</Button>
-						<Button
-							{...buttonStyle}
-							{...buttonVariants.absent}
-							w={{ base: '100%', md: '208px' }}
-							h='43px'
-							mb='4'
-							isDisabled={absentLoading || checkinLoading}
-						>
-							{absentLoading ? 'Loading...' : buttonVariants.absent.text}
-						</Button>
-					</>
-				)
+					) : (
+						![-1, 1, 2].includes(status) && (
+							<>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.checkIn}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									mb='4'
+									isDisabled={absentLoading || checkinLoading}
+									leftIcon={<IoMdExit size={20} />}
+								>
+									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
+								</Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.absent}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									mb='4'
+									isDisabled={absentLoading || checkinLoading}
+								>
+									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
+								</Button>
+							</>
+						)
+					)}
+				</>
 			)}
 		</Box>
 	) : null;

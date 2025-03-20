@@ -1,4 +1,4 @@
-import { Box, Text, Avatar, Divider } from '@chakra-ui/react';
+import { Box, Text, Avatar, Divider, VStack } from '@chakra-ui/react';
 import { constant } from 'constant';
 
 const AttendanceStats = ({ stats, employee }) => {
@@ -36,52 +36,30 @@ const AttendanceStats = ({ stats, employee }) => {
 			</Box>
 
 			<Divider borderColor='#A07723' my={4} />
-			<Box>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Total Days:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.totalDaysInMonth}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Working Days:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.totalWorkingDays}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Total Present:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.totalPresent}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Absent:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.totalAbsent}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Remaining Days:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.remainingDays}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Late:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.totalLate}
-					</Text>
-				</Text>
-				<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
-					Net Salary:{' '}
-					<Text as='span' fontWeight='bold'>
-						{stats.netSalary}
-					</Text>
-				</Text>
-			</Box>
+			<VStack alignItems='flex-start'>
+				<StatsCard label='Total Days' value={stats.totalDaysInMonth} />
+				<StatsCard label='Working Days' value={stats.totalWorkingDays} />
+				<StatsCard label='Remaining Days' value={stats.remainingDays} />
+				<StatsCard label='Total Present' value={stats.totalPresent} />
+				<StatsCard label='Total Absent' value={stats.totalAbsent} />
+				<StatsCard label='Total Late' value={stats.totalLate} />
+				<StatsCard label='Total Deduction' value={stats?.salaryDeduction} />
+				<StatsCard label='Per Day Salary' value={stats?.perDaySalary} />
+				<StatsCard label='Net Salary' value={stats?.netSalary} />
+			</VStack>
 		</Box>
 	);
 };
+
+const StatsCard = ({ label, value }) => (
+	<>
+		<Text fontSize={{ base: '14px', md: '16px' }} fontWeight='400'>
+			{label}:{' '}
+			<Text as='span' fontWeight='bold'>
+				{value}
+			</Text>
+		</Text>
+	</>
+);
 
 export default AttendanceStats;

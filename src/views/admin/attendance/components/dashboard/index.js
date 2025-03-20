@@ -79,6 +79,7 @@ const Dashboard = () => {
 					? `${data?.newEmployeesToday} new employees added`
 					: '',
 			changeColor: 'green.500',
+			link: '/attendance/employees',
 		},
 		{
 			label: 'On Time',
@@ -88,6 +89,7 @@ const Dashboard = () => {
 
 			change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'green.500',
+			link: '/attendance/record',
 		},
 		{
 			label: 'Absent',
@@ -97,6 +99,7 @@ const Dashboard = () => {
 
 			change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'red.500',
+			link: '/attendance/record',
 		},
 		{
 			label: 'Late Arrival',
@@ -107,6 +110,7 @@ const Dashboard = () => {
 				data?.lateArrival?.change > 0 ? 'more' : 'less'
 			} than yesterday`,
 			changeColor: 'red.500',
+			link: '/attendance/record',
 		},
 		{
 			label: 'Early Departures',
@@ -115,6 +119,7 @@ const Dashboard = () => {
 			icon: FaMoon,
 			change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'green.500',
+			link: '/attendance/record',
 		},
 		{
 			label: 'Time-off',
@@ -123,6 +128,7 @@ const Dashboard = () => {
 			icon: FaFileAlt,
 			change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'blue.500',
+			link: '/attendance/record',
 		},
 	];
 

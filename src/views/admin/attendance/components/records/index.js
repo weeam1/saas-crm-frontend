@@ -219,7 +219,7 @@ export default function Records() {
 				) : officeSettings?.doc ? (
 					<>
 						<RecordTable
-							data={data}
+							records={data}
 							timezone={timezone}
 							isLoading={isLoading}
 							isFetching={isFetching}

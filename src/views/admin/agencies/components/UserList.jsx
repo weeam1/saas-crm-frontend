@@ -1,26 +1,36 @@
-import { Box, Flex, Text, IconButton } from '@chakra-ui/react';
+import { Box, Flex, Text, IconButton, Tooltip } from '@chakra-ui/react';
 import Loader from 'components/loading/Loader';
-import { BiX } from 'react-icons/bi';
-import { FaPlus } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
 const UserList = ({
 	users,
 	usersLoading,
 	usersFetching,
 	specialUsers,
+	setSelectedUser,
+	setCheckinTime,
+	setCheckoutTime,
 	setSpecialUsers,
 }) => {
-	const handleEditClick = (id, action) => {
+	const handleEditClick = (user) => {
+		setSelectedUser(user);
+		const specialUser = specialUsers.find((su) => su.user === user._id);
+
+		setCheckinTime(specialUser?.specialTiming.checkinTime || '10:00 AM');
+		setCheckoutTime(specialUser?.specialTiming.checkoutTime || '07:00 PM');
+	};
+
+	const handleRemove = (user) => {
+		if (!user) return;
+
 		setSpecialUsers((prev) => {
-			if (action === 'add') {
-				// Add the ID only if it doesn't exist
-				return prev.includes(id) ? prev : [...prev, id];
-			} else if (action === 'remove') {
-				// Remove the ID if it exists
-				return prev.filter((userId) => userId !== id);
-			}
-			return prev;
+			const exists = prev.some((su) => su.user === user._id);
+			return exists ? prev.filter((su) => su.user !== user._id) : prev;
 		});
+
+		setSelectedUser(null);
 	};
 
 	return (
@@ -35,7 +45,7 @@ const UserList = ({
 				<Loader />
 			) : users?.results > 0 ? (
 				users?.doc?.map((item, index) => {
-					const isSpecialUser = specialUsers.includes(item._id);
+					const isSpecialUser = specialUsers.find((u) => u.user === item._id);
 
 					return (
 						<Flex
@@ -62,39 +72,42 @@ const UserList = ({
 									{item.username}
 								</Text>
 							</Box>
-
 							<Flex gap={2}>
-								{isSpecialUser ? (
-									<IconButton
-										aria-label='Remove User'
-										icon={<BiX size='24' />}
-										size='sm'
-										color='white'
-										variant='ghost'
-										borderRadius='100%'
-										bg='red.400'
-										_hover={{ bg: 'red.500' }}
-										onClick={() => handleEditClick(item._id, 'remove')}
-									/>
-								) : (
-									<IconButton
-										aria-label='Add User'
-										icon={<FaPlus />}
-										size='sm'
-										color='white'
-										variant='ghost'
-										borderRadius='100%'
-										bg='green.400'
-										_hover={{ bg: 'green.500' }}
-										onClick={() => handleEditClick(item._id, 'add')}
-									/>
+								{isSpecialUser && (
+									<Tooltip label='Remove User' hasArrow>
+										<IconButton
+											aria-label='Remove User'
+											icon={<MdDelete />}
+											size='sm'
+											color='white'
+											variant='ghost'
+											borderRadius='100%'
+											bg='red.400'
+											_hover={{ bg: 'red.500' }}
+											onClick={() => handleRemove(item)}
+										/>
+									</Tooltip>
 								)}
+
+								<Tooltip label='Edit User' hasArrow>
+									<IconButton
+										aria-label='Edit User'
+										icon={<FaEdit />}
+										size='sm'
+										color='white'
+										variant='ghost'
+										borderRadius='100%'
+										bg='brand.200'
+										_hover={{ bg: 'brand.300' }}
+										onClick={() => handleEditClick(item)}
+									/>
+								</Tooltip>
 							</Flex>
 						</Flex>
 					);
 				})
 			) : (
-				<Text>Employees not found!</Text>
+				<NoData label='employees' />
 			)}
 		</Box>
 	);

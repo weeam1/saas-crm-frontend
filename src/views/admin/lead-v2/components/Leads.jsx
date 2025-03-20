@@ -330,7 +330,7 @@ const Leads = ({
 				// 	setSelectAllChecked={setSelectAllChecked}
 				// 	selectAllChecked={selectAllChecked}
 				// />
-				<NoData />
+				<NoData label='leads' />
 			)}
 
 			{/* Modals */}

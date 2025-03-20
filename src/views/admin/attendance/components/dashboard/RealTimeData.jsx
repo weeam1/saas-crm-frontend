@@ -24,7 +24,7 @@ import { PiSunLight } from 'react-icons/pi';
 import { FaArrowTrendUp } from 'react-icons/fa6';
 import { IoMdTrendingDown } from 'react-icons/io';
 import Chart from 'react-apexcharts';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment-timezone';
 import DateFilter from '../DateFilter';
@@ -104,6 +104,9 @@ const RealTimeData = ({
 						{stats.map((stat, index) => (
 							<Box
 								key={index}
+								as={RouterLink}
+								to={stat.link}
+								cursor='pointer'
 								p={6}
 								borderWidth={1}
 								borderRadius='lg'

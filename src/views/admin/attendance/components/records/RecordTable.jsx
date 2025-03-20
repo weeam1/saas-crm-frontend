@@ -13,20 +13,21 @@ import {
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 import { constant } from 'constant';
 
 import moment from 'moment-timezone';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
-const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
+const RecordTable = ({ records, timezone, isLoading, isFetching }) => {
 	const columns = [
 		'Employee',
 		'Role',
 		'Type',
 		'Location',
-		'Time',
+		'Attendance Time',
 		'Date',
 		'Status',
 		'Check-in',
@@ -35,13 +36,21 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 		'Action',
 	];
 
+	const [data, setData] = useState([]);
+
+	useEffect(() => {
+		if (records?.doc) setData(records?.doc);
+	}, [records?.doc]);
+
 	const getTimeAgo = (createdAt) => {
 		const now = moment().tz(timezone);
 		const createdMoment = moment(createdAt).tz(timezone);
 		const diffInMinutes = now.diff(createdMoment, 'minutes');
 
 		return diffInMinutes < 60
-			? `${diffInMinutes} minutes ago`
+			? diffInMinutes === 0
+				? 'now'
+				: `${diffInMinutes} minutes ago`
 			: createdMoment.format('h:mm A');
 	};
 
@@ -56,6 +65,16 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 	const handleEdit = (data) => {
 		setEditData(data);
 		onEditOpen();
+	};
+
+	const handleRefetchUpdate = (id, updatedFields) => {
+		setData(
+			(prevData) =>
+				prevData?.map((item) =>
+					// eslint-disable-next-line eqeqeq
+					item?._id == id ? Object.assign({}, item, updatedFields) : item
+				) || prevData
+		);
 	};
 
 	return (
@@ -96,8 +115,8 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 					<Tbody>
 						{isFetching || isLoading ? (
 							<TableLoading columns={columns} length={11} py='4' />
-						) : data?.results > 0 ? (
-							data?.doc?.map((entry, index) => {
+						) : records?.results > 0 && data ? (
+							data?.map((entry, index) => {
 								let textColor = 'black';
 								// let rowBgGradient = 'none';
 								let statusBgColor = 'transparent';
@@ -182,7 +201,7 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 											{entry.agencyName ?? 'N/A'}
 										</Td>
 										<Td py={4} minWidth='150px'>
-											{getTimeAgo(entry?.createdAt)}
+											{getTimeAgo(entry?.updatedAt)}
 										</Td>
 										<Td py={4} minWidth='150px'>
 											{format(new Date(entry?.date), 'd MMM, yyyy')}
@@ -224,9 +243,10 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
-											{entry.totalWorkingHours
+											{entry.totalWorkingHours?.minutes > 0 ||
+											entry.totalWorkingHours.hours > 0
 												? `${entry.totalWorkingHours.hours}h ${entry.totalWorkingHours.minutes}m`
-												: '0h 0m'}
+												: 'Pending'}
 										</Td>
 										<Td py={4}>
 											<Button rounded='full' onClick={() => handleEdit(entry)}>
@@ -246,7 +266,7 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 									color='gray.500'
 									textAlign='center'
 								>
-									No record found!
+									<NoData label='attendance record' />
 								</Td>
 							</Tr>
 						)}
@@ -259,7 +279,8 @@ const RecordTable = ({ data, timezone, isLoading, isFetching, refetch }) => {
 					isOpen={isEditOpen}
 					onClose={onEditClose}
 					data={editData}
-					refetch={refetch}
+					refetch={handleRefetchUpdate}
+					updateKey='record'
 				/>
 			)}
 		</>

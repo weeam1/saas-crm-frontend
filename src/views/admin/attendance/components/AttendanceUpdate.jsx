@@ -10,30 +10,51 @@ import {
 	ModalFooter,
 	VStack,
 	Box,
+	HStack,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { buttonStyle } from '../constants';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
+import moment from 'moment';
 
-const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
+const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
-
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
+
+	console.log(updateKey);
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
 	const handleSave = async () => {
+		const checkIn = moment(checkInTime, 'hh:mm A');
+		const checkOut = moment(checkOutTime, 'hh:mm A');
+
+		if (checkOut.isBefore(checkIn)) {
+			toast.error('Check-Out time must be greater than Check-In time!');
+			return;
+		}
+
 		try {
 			if (data?._id) {
-				await updateItemMutation({
+				const res = await updateItemMutation({
 					path: `/attendance/${data?._id}`,
 					body: { checkin: checkInTime, checkout: checkOutTime },
 				}).unwrap();
 
 				toast.success('Attendance record update successfully');
-				refetch();
+				if (updateKey === 'record') {
+					const updatedFields = {
+						checkin: checkInTime,
+						checkout: checkOutTime,
+						status: res?.doc?.status,
+						updatedAt: res?.doc?.updatedAt,
+						totalWorkingHours: res?.doc?.totalWorkingHours,
+					};
+
+					refetch(data?._id, updatedFields);
+				} else refetch();
 			}
 		} catch (e) {
 			console.log(e);
@@ -43,12 +64,17 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
+		<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Edit Attendance Timing</ModalHeader>
 				<ModalBody>
-					<VStack justify='space-between' gap={4}>
+					<HStack
+						flexDir={{ base: 'column', md: 'row' }}
+						justify='space-around'
+						alignItems='center'
+						gap={2}
+					>
 						<Box flex='1'>
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check In
@@ -65,7 +91,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch }) => {
 								onChange={setCheckOutTime}
 							/>
 						</Box>
-					</VStack>
+					</HStack>
 				</ModalBody>
 				<ModalFooter>
 					<Button
