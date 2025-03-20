@@ -31,19 +31,20 @@ const OfficeTiming = ({
 	const boxHeight = useBreakpointValue({ base: 'fit-content', lg: '560px' });
 
 	const handleGracePeriodChange = (e) => {
-		let value = parseInt(e.target.value, 10) || 0;
-		if (value > 59) value = 59;
-		if (value < 0) value = 0;
-		setGracePeriod(value);
-	};
+		let { value } = e.target;
 
-	console.log('OfficeTiming offDays:', {
-		checkinTime,
-		checkoutTime,
-		timezone,
-		offDays,
-		gracePeriod,
-	});
+		// Allow clearing input (don't force "0" immediately)
+		if (value === '') {
+			setGracePeriod('');
+			return;
+		}
+
+		// Convert to integer, ensuring it's within range 0-59
+		let numValue = parseInt(value, 10) || 0;
+		numValue = Math.max(0, Math.min(numValue, 59));
+
+		setGracePeriod(numValue);
+	};
 
 	return (
 		<Box
@@ -69,7 +70,7 @@ const OfficeTiming = ({
 				>
 					<ClockIcon color='blue.400' /> Office Timing
 				</Text>
-				<EditIcon />
+				{/* <EditIcon /> */}
 			</Flex>
 
 			<Flex mb={4} flexWrap='wrap' gap={4}>

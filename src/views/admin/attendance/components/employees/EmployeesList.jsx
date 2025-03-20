@@ -1,4 +1,4 @@
-import { Box, Grid, Avatar, Text } from '@chakra-ui/react';
+import { Box, Grid, Avatar, Text, Badge } from '@chakra-ui/react';
 import NotFoundMessage from 'components/Message/NotFoundMessage';
 import { constant } from 'constant';
 import { Link } from 'react-router-dom';
@@ -25,11 +25,28 @@ const EmployeesList = ({ employees, tab }) => {
 						py='8'
 						borderRadius='lg'
 						bg='white'
-						shadow='md'
+						// shadow='md'
 						display='flex'
 						flexDirection='column'
 						justifyContent='center'
+						position='relative'
+						boxShadow='0px 0px 60px rgba(217, 154, 54, 0.2)'
 					>
+						{/* Agency Badge on Top-Right */}
+						{emp.agencyName && (
+							<Badge
+								colorScheme='brand'
+								position='absolute'
+								top={2}
+								right={2}
+								fontSize='12px'
+								px={3}
+								py={1}
+								borderRadius='full'
+							>
+								{emp.agencyName}
+							</Badge>
+						)}
 						<Box display='flex' alignItems='center' mb={3}>
 							<Avatar
 								src={
@@ -45,11 +62,15 @@ const EmployeesList = ({ employees, tab }) => {
 								<Text fontWeight='medium' fontSize='24px'>
 									{emp.fullName}
 								</Text>
-								<Text color='#C4C4C4' fontWeight='medium' fontSize='18px'>
+
+								<Text color='#C4C4C4' fontWeight='medium' fontSize='14px'>
 									{tab === 'admins' ? 'Admin' : emp.roleName}
 								</Text>
 								<Text fontWeight='medium' fontSize='16px'>
 									{emp.salary ? `${emp.salary}/month` : 'Salary N/A'}
+								</Text>
+								<Text fontWeight='medium' fontSize='12px' color='softGray.200'>
+									{emp.username}
 								</Text>
 							</Box>
 						</Box>

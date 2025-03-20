@@ -22,22 +22,17 @@ const Attendance = () => {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	const { data: officeSettings, isLoading: officeSettingsLoading } =
-		useFetchItemsQuery(
-			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-			{
-				refetchOnMountOrArgChange: true,
-			}
-		);
+	// const { data: officeSettings, isLoading: officeSettingsLoading } =
+	// 	useFetchItemsQuery(
+	// 		{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
+	// 		{
+	// 			refetchOnMountOrArgChange: true,
+	// 		}
+	// 	);
 
-	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Dubai';
-
-	const [month, setMonth] = useState(() =>
-		Number(moment.tz(timezone).format('M'))
-	);
-	const [year, setYear] = useState(() =>
-		Number(moment.tz(timezone).format('YYYY'))
-	);
+	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	const [year, setYear] = useState(() => new Date().getFullYear());
+	const [timezone, setTimezone] = useState('Asia/Dubai');
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
@@ -49,6 +44,12 @@ const Attendance = () => {
 		}
 	);
 
+	useEffect(() => {
+		if (data?.officeSettings) {
+			setTimezone(data?.officeSettings?.timezone ?? 'Asia/Dubai');
+		}
+	}, [data?.officeSettings]);
+
 	const onFilterChange = (value) => {
 		setMonth(Number(value.month));
 		setYear(Number(value.year));
@@ -57,11 +58,11 @@ const Attendance = () => {
 
 	const navigate = useNavigate();
 
-	return isLoading || officeSettingsLoading ? (
+	return isLoading ? (
 		<Box h='100vh'>
 			<Loader />
 		</Box>
-	) : officeSettings?.doc ? (
+	) : data?.officeSettings ? (
 		<Box p={{ base: 4, md: 6 }} minH='100vh' fontFamily="'DM Sans', sans-serif">
 			<AppButton
 				leftIcon={<IoArrowBack />}
@@ -85,7 +86,7 @@ const Attendance = () => {
 				<ErrorMessage message='No results found. Please check your query.' />
 			) : (
 				<Flex flexDirection={{ base: 'column', lg: 'row' }} gap={6}>
-					<Box minWidth={{ base: '100%', lg: '400px' }}>
+					<Box minWidth={{ base: '100%', lg: '350px' }}>
 						<AttendanceStats
 							stats={data?.stats}
 							employee={data?.employee}
@@ -96,7 +97,7 @@ const Attendance = () => {
 								data={data}
 								timezone={timezone}
 								refetch={refetch}
-								officeSettings={officeSettings}
+								officeSettings={data?.officeSettings}
 							/>
 						)}
 					</Box>

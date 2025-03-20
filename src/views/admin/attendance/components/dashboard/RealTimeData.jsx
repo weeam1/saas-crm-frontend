@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	Box,
 	SimpleGrid,
@@ -45,18 +45,9 @@ const RealTimeData = ({
 }) => {
 	const currentDate = moment().tz(timezone).format('dddd, DD MMMM YYYY');
 
-	const [time, setTime] = useState(moment().tz(timezone));
-
-	const tick = useCallback(() => {
-		setTime(moment().tz(timezone));
-	}, [timezone]);
-
-	useEffect(() => {
-		const timerID = setInterval(tick, 1000);
-		return () => clearInterval(timerID);
-	}, [tick]);
-
-	const timeString = useMemo(() => time.format('hh:mm:ss  A'), [time]);
+	// Set initial time without updating it
+	const [time] = useState(moment().tz(timezone));
+	const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
 
 	const handleCharView = (view) => {
 		const timeframe = view.toLowerCase();
@@ -64,21 +55,62 @@ const RealTimeData = ({
 		setQueryParams((prev) => ({ ...prev, timeframe }));
 	};
 	const navigate = useNavigate();
+
+	// Adjusted lineChartOptions with continuous line and hollow dot markers
+	const adjustedLineChartOptions = {
+		...lineChartOptions,
+		colors: ['#B68F46'],
+		stroke: {
+			...lineChartOptions.stroke,
+			width: 2,
+			curve: 'smooth',
+			lineCap: 'butt',
+		},
+		fill: {
+			...lineChartOptions.fill,
+			type: 'solid',
+			opacity: 1,
+		},
+		markers: {
+			size: 5, // Size of the dot markers
+			shape: 'circle', // Circular markers
+			strokeWidth: 2, // Border width of the dots
+			strokeColor: '#B68F46', // Border color matching the line
+			// Removed fillOpacity and colors to keep markers hollow
+			hover: {
+				size: 7, // Slightly larger on hover
+			},
+		},
+		chart: {
+			...lineChartOptions.chart,
+			connectNullData: true, // Ensure null values don't break the line
+		},
+		yaxis: {
+			...lineChartOptions.yaxis,
+			max: 10,
+			min: 0,
+			tickAmount: 5,
+			labels: {
+				formatter: (val) => val.toFixed(1),
+			},
+		},
+	};
+
 	return (
 		<>
-			<Box minH='100vh'>
+			<Box minH='100vh' bg='white' p='6' rounded='md'>
 				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
 					<Box
 						p={6}
-						borderWidth={1}
+						// borderWidth={1}
 						borderRadius='lg'
 						bg='white'
-						boxShadow='sm'
+						boxShadow='md'
 						minH='150px'
+						// boxShadow='0px 0px 60px rgba(217, 154, 54, 0.2)'
 					>
 						<Flex align='center'>
 							<Icon as={PiSunLight} boxSize={12} color='#9295ab' mr={3} />
-
 							<Text fontSize='2xl' fontWeight='bold' color='#9295ab'>
 								{timeString}
 							</Text>
@@ -100,19 +132,112 @@ const RealTimeData = ({
 							</Text>
 						</Box>
 					</Box>
-					<SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
+					<SimpleGrid columns={{ base: '1fr', md: 2, lg: 3 }} spacing={5}>
 						{stats.map((stat, index) => (
+							// <Box
+							// 	key={index}
+							// 	as={RouterLink}
+							// 	to={stat.link}
+							// 	cursor='pointer'
+							// 	p={6}
+							// 	// borderWidth={1}
+							// 	borderRadius='lg'
+							// 	bg='white'
+							// 	_hover={{ bg: 'brand.400', color: 'white' }}
+							// 	// boxShadow='sm'
+							// 	minH='150px'
+							// 	boxShadow='0px 0px 60px rgba(217, 154, 54, 0.2)'
+							// >
+							// 	<Flex justify='space-between' align='center'>
+							// 		<Text fontSize='2xl' fontWeight='bold'>
+							// 			{stat.value}
+							// 		</Text>
+							// 		<Box
+							// 			p={2}
+							// 			borderWidth={2}
+							// 			borderRadius='full'
+							// 			borderColor='goldenrod'
+							// 			display='flex'
+							// 			alignItems='center'
+							// 			justifyContent='center'
+							// 		>
+							// 			<Icon as={stat.icon} boxSize={6} color='goldenrod' />
+							// 		</Box>
+							// 	</Flex>
+							// 	<Text fontSize='md' color='gray.600' mt={2}>
+							// 		{stat.label}
+							// 	</Text>
+							// 	<Text
+							// 		fontSize='sm'
+							// 		color={stat.changeColor}
+							// 		mt={1}
+							// 		display='flex'
+							// 		alignItems='center'
+							// 	>
+							// 		{stat.label === 'Total Employees' && (
+							// 			<Box
+							// 				p={1}
+							// 				borderWidth={2}
+							// 				borderRadius='full'
+							// 				borderColor='#97CE71'
+							// 				display='flex'
+							// 				alignItems='center'
+							// 				justifyContent='center'
+							// 				mr={1}
+							// 			>
+							// 				<Icon
+							// 					as={IoIosAddCircleOutline}
+							// 					boxSize={4}
+							// 					color='#97CE71'
+							// 				/>
+							// 			</Box>
+							// 		)}
+							// 		{stat.change.includes('increase') && (
+							// 			<Box
+							// 				p={1}
+							// 				borderWidth={2}
+							// 				borderRadius='full'
+							// 				borderColor='green.500'
+							// 				display='flex'
+							// 				alignItems='center'
+							// 				justifyContent='center'
+							// 				mr={1}
+							// 			>
+							// 				<Icon as={FaArrowTrendUp} boxSize={4} color='green.500' />
+							// 			</Box>
+							// 		)}
+							// 		{stat.change.includes('Less') && (
+							// 			<Box
+							// 				p={1}
+							// 				borderWidth={2}
+							// 				borderRadius='full'
+							// 				borderColor='red.500'
+							// 				display='flex'
+							// 				alignItems='center'
+							// 				justifyContent='center'
+							// 				mr={1}
+							// 			>
+							// 				<Icon as={IoMdTrendingDown} boxSize={4} color='red.500' />
+							// 			</Box>
+							// 		)}
+							// 		{stat?.changePercentage !== 0 && stat.change}
+							// 	</Text>
+							// </Box>
 							<Box
 								key={index}
 								as={RouterLink}
 								to={stat.link}
 								cursor='pointer'
 								p={6}
-								borderWidth={1}
 								borderRadius='lg'
 								bg='white'
-								boxShadow='sm'
+								shadow='md'
+								// boxShadow='0px 0px 60px rgba(217, 154, 54, 0.2)'
 								minH='150px'
+								transition='all 0.3s ease-in-out'
+								_hover={{
+									transform: 'scale(1.02)',
+								}}
 							>
 								<Flex justify='space-between' align='center'>
 									<Text fontSize='2xl' fontWeight='bold'>
@@ -126,6 +251,8 @@ const RealTimeData = ({
 										display='flex'
 										alignItems='center'
 										justifyContent='center'
+										bg='rgba(218, 165, 32, 0.1)'
+										// _hover={{ bg: 'rgba(218, 165, 32, 0.3)' }}
 									>
 										<Icon as={stat.icon} boxSize={6} color='goldenrod' />
 									</Box>
@@ -150,6 +277,8 @@ const RealTimeData = ({
 											alignItems='center'
 											justifyContent='center'
 											mr={1}
+											transition='all 0.2s ease-in-out'
+											_hover={{ bg: '#97CE71', color: 'white' }}
 										>
 											<Icon
 												as={IoIosAddCircleOutline}
@@ -168,6 +297,8 @@ const RealTimeData = ({
 											alignItems='center'
 											justifyContent='center'
 											mr={1}
+											transition='all 0.2s ease-in-out'
+											_hover={{ bg: 'green.500', color: 'white' }}
 										>
 											<Icon as={FaArrowTrendUp} boxSize={4} color='green.500' />
 										</Box>
@@ -182,6 +313,8 @@ const RealTimeData = ({
 											alignItems='center'
 											justifyContent='center'
 											mr={1}
+											transition='all 0.2s ease-in-out'
+											_hover={{ bg: 'red.500', color: 'white' }}
 										>
 											<Icon as={IoMdTrendingDown} boxSize={4} color='red.500' />
 										</Box>
@@ -194,18 +327,37 @@ const RealTimeData = ({
 				</Grid>
 				<Box py={6}>
 					<Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-						<Box bg='white' p={6} borderRadius='lg' boxShadow='sm'>
+						<Box
+							bg='white'
+							p={6}
+							borderRadius='lg'
+							shadow='md'
+							// boxShadow='0px 0px 60px rgba(217, 154, 54, 0.2)'
+						>
 							<Flex justify='space-between' align='center' mb={4}>
 								<Text fontSize='lg' fontWeight='bold'>
 									Attendance Comparison Chart
 								</Text>
-								<ButtonGroup colorScheme='brand' size='sm' isAttached>
+								<ButtonGroup size='sm' isAttached>
 									{['Weekly', 'Monthly', 'Yearly'].map((view) => (
 										<Button
 											key={view}
-											colorScheme={
-												selectedView === view.toLowerCase() ? 'blue' : 'gray'
+											bg={
+												selectedView === view.toLowerCase()
+													? '#DAA520'
+													: '#FDD68F'
 											}
+											color={
+												selectedView === view.toLowerCase()
+													? 'white'
+													: 'gray.800'
+											}
+											_hover={{
+												bg:
+													selectedView === view.toLowerCase()
+														? '#C6951B'
+														: '#EEC577',
+											}}
 											onClick={() => handleCharView(view)}
 										>
 											{view}
@@ -214,13 +366,19 @@ const RealTimeData = ({
 								</ButtonGroup>
 							</Flex>
 							<Chart
-								options={lineChartOptions}
+								options={adjustedLineChartOptions}
 								series={lineChartData}
 								type='line'
 								height={300}
 							/>
 						</Box>
-						<Box bg='white' p={6} borderRadius='lg' boxShadow='sm'>
+						<Box
+							bg='white'
+							p={6}
+							borderRadius='lg'
+							shadow='md'
+							// boxShadow='0px 0px 60px rgba(217, 154, 54, 0.3)'
+						>
 							<Text fontSize='lg' fontWeight='bold' mb={4}>
 								Weekly Attendance
 							</Text>

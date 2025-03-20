@@ -137,26 +137,12 @@ const OfficeSettings = () => {
 	useEffect(() => {
 		if (officeSettings?.doc) {
 			const settings = officeSettings?.doc;
-			// setAdminCheckinTime(settings?.specialTiming?.checkinTime || '09: 00 AM');
-			// setAdminCheckoutTime(
-			// 	settings?.specialTiming?.checkoutTime || '06: 00 PM'
-			// );
 			setOfficeCheckinTime(settings?.checkinTime || '09: 00 AM');
 			setOfficeCheckoutTime(settings?.checkoutTime || '06: 00 PM');
 			setOfficeTimezone(settings?.timezone || 'Asia/Karachi');
 			setOfficeOffDays(settings?.offDays || [0]);
 			setOfficeGracePeriod(settings?.gracePeriod || 0);
 			setSpecialUsers(settings?.specialUsers || []);
-
-			console.log({
-				settings,
-				spcieal: settings?.specialTiming,
-				officeCheckinTime,
-				officeCheckoutTime,
-				officeTimezone,
-				officeOffDays,
-				officeGracePeriod,
-			});
 
 			if (settings?.rules) {
 				const transformedRules = settings?.rules.map((rule) => {
@@ -231,7 +217,7 @@ const OfficeSettings = () => {
 				gracePeriod: officeGracePeriod,
 				agency: agencyId,
 				rules: transformedRules,
-				specialUsers,
+				// specialUsers,
 			};
 
 			await updateItemMutation({
@@ -326,9 +312,11 @@ const OfficeSettings = () => {
 					p={{ base: 3, md: 5 }}
 					borderRadius='5px'
 					flex='1'
+					// maxWidth='fit-content'
 					border='1px solid #cacaca'
 					direction={{ base: 'column', md: 'row' }}
 					gap={{ base: 3, md: 5 }}
+					justifyContent='space-between'
 				>
 					<Box flex={{ base: 'none', md: 1 }} w={{ base: '100%', md: 'auto' }}>
 						<Search
@@ -339,6 +327,7 @@ const OfficeSettings = () => {
 						/>
 
 						<UserList
+							agencyId={agencyId}
 							users={users}
 							specialUsers={specialUsers}
 							usersLoading={usersLoading}
@@ -350,8 +339,9 @@ const OfficeSettings = () => {
 						/>
 					</Box>
 
-					<Box flex={{ base: 'none', md: 1 }} w={{ base: '100%', md: 'auto' }}>
+					<Box minWidth={{ base: '100%', md: '300px' }}>
 						<AdminTiming
+							agencyId={agencyId}
 							checkinTime={specialCheckinTime}
 							setCheckinTime={setSpecialCheckinTime}
 							checkoutTime={specialCheckoutTime}

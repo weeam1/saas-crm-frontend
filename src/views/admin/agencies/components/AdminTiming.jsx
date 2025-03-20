@@ -2,8 +2,11 @@ import { Box, Text, Flex, useBreakpointValue, Button } from '@chakra-ui/react';
 import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import { buttonStyle } from 'views/admin/attendance/constants';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
 
 const AdminSetting = ({
+	agencyId,
 	checkinTime,
 	setCheckinTime,
 	checkoutTime,
@@ -14,42 +17,48 @@ const AdminSetting = ({
 }) => {
 	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
 
-	const handleSave = () => {
+	const [updateItemMutation, { isLoading: isUpdating }] =
+		useUpdateItemMutation();
+
+	const handleSave = async () => {
 		if (!selectedUser) return;
 
+		let updatedSpecialUsers;
 		setSpecialUsers((prev) => {
 			const exists = prev.some((su) => su.user === selectedUser._id);
-			if (exists) {
-				// Update existing special user timing
-				return prev.map((su) =>
-					su.user === selectedUser._id
-						? { ...su, specialTiming: { checkinTime, checkoutTime } }
-						: su
-				);
-			}
-
-			// Add new special user
-			return [
-				...prev,
-				{
-					user: selectedUser._id,
-					specialTiming: { checkinTime, checkoutTime },
-				},
-			];
+			updatedSpecialUsers = exists
+				? prev.map((su) =>
+						su.user === selectedUser._id
+							? { ...su, specialTiming: { checkinTime, checkoutTime } }
+							: su
+					)
+				: [
+						...prev,
+						{
+							user: selectedUser._id,
+							specialTiming: { checkinTime, checkoutTime },
+						},
+					];
+			return updatedSpecialUsers;
 		});
 
-		// Reset selected user
-		setSelectedUser(null);
+		try {
+			await updateItemMutation({
+				path: `/attendance/office-settings/${agencyId}`,
+				body: { specialUsers: updatedSpecialUsers },
+			}).unwrap();
+
+			toast.success('Special Users updated successfully');
+			setSelectedUser(null);
+		} catch (error) {
+			console.log(error);
+			toast.error(error?.data?.message || 'Special Users not updated!');
+		}
 	};
 
 	return (
-		<Box
-			borderRadius='lg'
-			p={5}
-			maxW={{ base: '100%', md: '500px' }}
-			bg='white'
-		>
-			<Flex justify='space-between' align='center' mb={4} flexWrap='wrap'>
+		<Box borderRadius='lg' p={5}>
+			<Flex justify='space-between' align='center' mb={4}>
 				<Text
 					as='h2'
 					display='flex'
@@ -65,11 +74,11 @@ const AdminSetting = ({
 			<Flex
 				flexDirection='column'
 				justifyContent='space-between'
-				alignItems='flex-end'
+				// alignItems={{ base: 'flex-start', md: 'flex-end' }}
 				opacity={!selectedUser ? 0.5 : 1}
 				pointerEvents={!selectedUser ? 'none' : 'auto'}
 			>
-				<Flex justify='space-between' mb={4} flexWrap='wrap' gap={4}>
+				<Flex justify='space-between' mb={4} flexDirection='column' gap={4}>
 					<Box flex='1' minW='150px'>
 						<Text mb={2} fontWeight='400' fontSize={fontSize}>
 							In timing
@@ -101,7 +110,7 @@ const AdminSetting = ({
 					onClick={handleSave}
 					width='fit-content'
 				>
-					Update
+					{isUpdating ? 'Updating...' : 'Update'}
 				</Button>
 			</Flex>
 		</Box>

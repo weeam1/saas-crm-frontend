@@ -198,12 +198,12 @@ const Dashboard = () => {
 			stroke: {
 				curve: 'smooth',
 				width: 4,
-				colors: ['#D99A36'], // Brand color for the line
+				colors: ['#D99A36'],
 			},
 			markers: {
 				size: 6,
 				colors: ['#fff'],
-				strokeColors: '#D99A36', // Border color matches the line
+				strokeColors: '#D99A36',
 				strokeWidth: 3,
 				hover: { size: 8 },
 			},
@@ -236,6 +236,7 @@ const Dashboard = () => {
 			yaxis: {
 				min: 0,
 				max: 100,
+				tickAmount: 5,
 				labels: {
 					formatter: (val) => `${Math.round(val)}%`,
 					style: {
@@ -245,6 +246,7 @@ const Dashboard = () => {
 					},
 				},
 			},
+
 			tooltip: {
 				enabled: true,
 				theme: 'dark',
@@ -253,9 +255,9 @@ const Dashboard = () => {
 			},
 			grid: {
 				borderColor: '#EAEAEA',
-				strokeDashArray: 4, // Soft dashed grid for aesthetics
+				strokeDashArray: 4,
 			},
-			legend: { show: false }, // Removes unnecessary legend
+			legend: { show: false },
 		}),
 		[data?.labels]
 	);

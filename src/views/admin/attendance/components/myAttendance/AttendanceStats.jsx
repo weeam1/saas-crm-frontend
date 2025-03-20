@@ -1,4 +1,4 @@
-import { Box, Text, Avatar, Divider, VStack } from '@chakra-ui/react';
+import { Box, Text, Avatar, Divider, VStack, Badge } from '@chakra-ui/react';
 import { constant } from 'constant';
 
 const AttendanceStats = ({ stats, employee }) => {
@@ -8,7 +8,22 @@ const AttendanceStats = ({ stats, employee }) => {
 			: employee?.roles[0]?.roleName;
 
 	return (
-		<Box bg='white' p={5} borderRadius='md' shadow='sm'>
+		<Box bg='white' p={5} borderRadius='md' shadow='sm' position='relative'>
+			{/* Agency Badge on Top-Right */}
+			{employee.agency?.name && (
+				<Badge
+					colorScheme='brand'
+					position='absolute'
+					top={2}
+					right={2}
+					fontSize='12px'
+					px={3}
+					py={1}
+					borderRadius='full'
+				>
+					{employee.agency?.name}
+				</Badge>
+			)}
 			<Box display='flex' mb={4}>
 				<Box display='flex' alignItems='center' mb={3}>
 					<Avatar
@@ -30,6 +45,9 @@ const AttendanceStats = ({ stats, employee }) => {
 						</Text>
 						<Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
 							{employee.salary ? `${employee.salary}/month` : 'Salary N/A'}
+						</Text>
+						<Text fontWeight='medium' fontSize='12px' color='softGray.200'>
+							{employee.username}
 						</Text>
 					</Box>
 				</Box>

@@ -29,10 +29,10 @@ const AttendanceMark = ({ timezone, data, refetch, officeSettings }) => {
 	const timeString = useMemo(() => time.format('hh:mm:ss  A'), [time]);
 	const today = moment().tz(timezone).format('YYYY-MM-DD');
 
-	const currentDayIndex = moment().tz(timezone).day(); // Returns day index (0-6)
-	const offDays = officeSettings?.doc?.offDays || [];
+	const todayIndex = moment().tz(timezone).day();
+	const offDays = officeSettings?.offDays || [];
 
-	const isOffDay = offDays.includes(currentDayIndex);
+	const isOffDay = offDays.includes(todayIndex);
 
 	const currentDate = moment().tz(timezone);
 	const currentMonth = currentDate.format('MM');

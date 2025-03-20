@@ -215,7 +215,9 @@ export default function Records() {
 				/>
 
 				{officeSettingsLoading ? (
-					<Loader />
+					<Box h='100vh'>
+						<Loader />
+					</Box>
 				) : officeSettings?.doc ? (
 					<>
 						<RecordTable
