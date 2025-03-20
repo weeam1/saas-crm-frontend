@@ -5,11 +5,17 @@ import { useUpdateItemMutation, useDeleteItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
 const AccountsView = ({ accounts = [], refetch }) => {
+<<<<<<< HEAD
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 	const [deleteItemMutation, { isLoading: isDeleting }] =
 		useDeleteItemMutation();
 	console.log(accounts, 'acoounts view');
+=======
+  const [updateItemMutation, { isLoading: isUpdating }] = useUpdateItemMutation();
+  const [deleteItemMutation, { isLoading: isDeleting }] = useDeleteItemMutation();
+  console.log(accounts, "accounts view");
+>>>>>>> 0dedbcfdf5d47ebe22a5e31836e3d8348f454f9a
 
 	const handleUpdate = async (updatedAccount, accountId) => {
 		try {
@@ -51,6 +57,7 @@ const AccountsView = ({ accounts = [], refetch }) => {
 		}
 	};
 
+<<<<<<< HEAD
 	return (
 		<Box p={6} fontFamily='DM Sans'>
 			{accounts.length === 0 ? (
@@ -82,6 +89,39 @@ const AccountsView = ({ accounts = [], refetch }) => {
 			)}
 		</Box>
 	);
+=======
+  return (
+    <Box p={6} fontFamily="DM Sans">
+      {accounts.length === 0 ? (
+        <Text
+          textAlign="center"
+          color="#666"
+          fontSize="lg"
+          fontFamily="DM Sans"
+        >
+          No accounts available.
+        </Text>
+      ) : (
+        <SimpleGrid
+        columns={{ base: 1, sm: 1, md: 2, lg: 3 }}
+          spacing={{ base: 4, md: 6 }}
+          mt={8}
+        >
+          {accounts?.map((account) => (
+            <AccountCard
+              key={account._id}
+              account={account}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+              isUpdating={isUpdating}
+              isDeleting={isDeleting}
+            />
+          ))}
+        </SimpleGrid>
+      )}
+    </Box>
+  );
+>>>>>>> 0dedbcfdf5d47ebe22a5e31836e3d8348f454f9a
 };
 
 export default AccountsView;
