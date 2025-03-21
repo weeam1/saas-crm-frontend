@@ -13,13 +13,16 @@ import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
 import CustomTooltip from './CustomTooltip';
+import InvitationModal from './InvitationModal';
 
 const Status = ({ lead, refreshLeads }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+
 	const [loading, setLoading] = useState(false);
+	const [inviteModal, setInviteModal] = useState(false);
 
 	const dispatch = useDispatch();
 
@@ -43,6 +46,10 @@ const Status = ({ lead, refreshLeads }) => {
 					})
 				);
 				toast.success('Lead Status Updated!');
+
+				if (data.leadStatus === 'will_attend_the_show') {
+					setInviteModal(true);
+				}
 			}
 		} catch (e) {
 			console.log(e);
@@ -95,6 +102,15 @@ const Status = ({ lead, refreshLeads }) => {
 				textColorCustom={textColor}
 				size={leadSelectInputSize}
 			/>
+
+			{inviteModal && (
+				<InvitationModal
+					onClose={() => setInviteModal(false)}
+					isOpen={inviteModal}
+					leadName={lead?.leadName}
+					leadId={lead?._id}
+				/>
+			)}
 		</>
 	);
 };

@@ -84,13 +84,13 @@ export const useFilteredQueryParams = () => {
 	const tree = useSelector((state) => state.user.tree);
 
 	// const updateSearchParams = (params) => {
-	// 	setSearchParams((prev) => {
-	// 		const updatedParams = new URLSearchParams(prev);
+	// 	setSearchParams(() => {
+	// 		const updatedParams = new URLSearchParams();
 
-	// 		console.log('update search params: ', params, prev);
+	// 		// Only add keys that exist in new params
 	// 		Object.entries(params).forEach(([key, value]) => {
 	// 			if (value !== undefined && value !== null) {
-	// 				console.log(key, value);
+	// 				console.log('Updating key:', key, 'Value:', value);
 	// 				updatedParams.set(
 	// 					key,
 	// 					typeof value === 'object' ? JSON.stringify(value) : value
@@ -101,34 +101,8 @@ export const useFilteredQueryParams = () => {
 	// 		return updatedParams;
 	// 	});
 
-	// 	setQueryParams((prev) => ({
-	// 		...prev,
-	// 		...params,
-	// 	}));
+	// 	setQueryParams(params);
 	// };
-
-	const updateSearchParams = (params) => {
-		setSearchParams(() => {
-			const updatedParams = new URLSearchParams();
-
-			console.log('Updating search params: ', params);
-
-			// Only add keys that exist in new params
-			Object.entries(params).forEach(([key, value]) => {
-				if (value !== undefined && value !== null) {
-					console.log('Updating key:', key, 'Value:', value);
-					updatedParams.set(
-						key,
-						typeof value === 'object' ? JSON.stringify(value) : value
-					);
-				}
-			});
-
-			return updatedParams;
-		});
-
-		setQueryParams(params);
-	};
 
 	// useEffect(() => {
 	// 	const { page, pageSize } = getPageParams();
@@ -177,9 +151,41 @@ export const useFilteredQueryParams = () => {
 	// Utility function for safe JSON parsing
 	// Utility function for safe JSON parsing
 
+	const updateSearchParams = (params) => {
+		setSearchParams(() => {
+			const updatedParams = new URLSearchParams();
+
+			// Only add keys that exist in new params
+			Object.entries(params).forEach(([key, value]) => {
+				if (value !== undefined && value !== null) {
+					console.log('Updating key:', key, 'Value:', value);
+					updatedParams.set(
+						key,
+						typeof value === 'object' ? JSON.stringify(value) : value
+					);
+				}
+			});
+
+			return updatedParams;
+		});
+
+		// Exclude invite_id from queryParams
+		const filteredParams = Object.fromEntries(
+			Object.entries(params).filter(([key]) => key !== 'invite')
+		);
+
+		setQueryParams(filteredParams);
+	};
+
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
+
+		const invite = searchParams.get('invite');
+
+		if (invite) {
+			updatedParams.invite = invite;
+		}
 
 		// Handle 'data' parameter
 		const dataParam = searchParams.get('data');
@@ -228,7 +234,6 @@ export const useFilteredQueryParams = () => {
 
 		// If parameters have changed, update state & URL
 		if (JSON.stringify(queryParams) !== JSON.stringify(updatedParams)) {
-			console.log('changes query params', queryParams);
 			updateSearchParams(updatedParams);
 		}
 

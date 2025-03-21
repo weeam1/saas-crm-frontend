@@ -4,6 +4,7 @@ import EditLead from './EditLead';
 import AddLead from './AddLead';
 import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
 import Delete from '../Delete';
+import { useSearchParams } from 'react-router-dom';
 
 const LeadsModals = (props) => {
 	const {
@@ -23,12 +24,22 @@ const LeadsModals = (props) => {
 		setDeleteLead,
 	} = props;
 
+	const [setSearchParams] = useSearchParams();
+
+	const handleViewClose = () => {
+		setSearchParams((prev) => {
+			prev.delete('invite');
+			return prev;
+		});
+		setViewLead({ isOpen: false, lid: null });
+	};
+
 	return (
 		<>
-			{viewLead && (
+			{viewLead?.isOpen && (
 				<LeadsModal
 					leadsModal={viewLead}
-					onClose={() => setViewLead({ isOpen: false, lid: null })}
+					onClose={handleViewClose}
 					reFreshData={refetchData}
 				/>
 			)}
