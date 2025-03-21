@@ -36,6 +36,7 @@ const Delete = (props) => {
           method: "POST",
           body: { ids: props.data },
         }).unwrap();
+        console.log("Payload sent to deleteMany:", props.data);
 
         if (
           response?.status === "success" ||
@@ -46,9 +47,9 @@ const Delete = (props) => {
             `${props.data.length} invoice(s) deleted successfully!`
           );
           props.setSelectedValues([]);
-          if (props.fetchData) props.fetchData(); 
+          if (props.fetchData) props.fetchData();
           if (props.setAction) props.setAction((prev) => !prev);
-          props.onClose(); 
+          props.onClose();
         } else {
           toast.error(response?.message || "Failed to delete invoices");
         }
@@ -73,8 +74,8 @@ const Delete = (props) => {
           response?.status === 200
         ) {
           toast.success("Invoice deleted successfully!");
-          if (props.fetchData) props.fetchData(); 
-          if (props.setAction) props.setAction((prev) => !prev); 
+          if (props.fetchData) props.fetchData();
+          if (props.setAction) props.setAction((prev) => !prev);
           props.onClose(); // Close modal
         } else {
           toast.error(response?.message || "Failed to delete invoice");
