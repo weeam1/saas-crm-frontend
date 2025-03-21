@@ -3,14 +3,14 @@ import { Flex, Button } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import AddAccountModal from "./AddAccount";
 import AccountCount from "./Count";
-import Search from "./Search";
 
 const Header = ({
   accountCount,
   onAdd,
   isAdding,
-  onSearchResults,
-  onQueryChange,
+  searchComponent,
+  onClear,
+  searchQuery,
 }) => {
   const navigate = useNavigate();
 
@@ -28,26 +28,37 @@ const Header = ({
       borderRadius="md"
       boxShadow="sm"
       direction={{ base: "column", md: "row" }}
+      w="100%"
     >
       <Flex
         align="center"
-        gap={3}
+        gap={{ base: 2 }}
         justify={{ base: "flex-start", sm: "space-between", md: "flex-start" }}
-        w={{ base: "100%", sm: "100%", md: "auto" }}
+        w={{ base: "100%", md: "auto" }}
+        flexWrap={{ base: "wrap", md: "nowrap" }}
       >
         <AccountCount count={accountCount} />
-        <Search
-          onSearchResults={onSearchResults}
-          onQueryChange={onQueryChange}
-        />
+        {searchComponent}
+        {searchQuery && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onClear}
+            ml={{ base: 0, md: 2 }}
+            mt={{ base: 2, md: 0 }}
+          >
+            Clear
+          </Button>
+        )}
       </Flex>
 
       <Flex
-        gap={3}
+        gap={{ base: 2, md: 4 }}
         align="center"
         direction={{ base: "row", md: "row" }}
         justify={{ base: "space-between", md: "flex-end" }}
         w={{ base: "100%", md: "auto" }}
+        mt={{ base: 4, md: 0 }}
       >
         <AddAccountModal onAdd={onAdd} isAdding={isAdding} />
         <Button

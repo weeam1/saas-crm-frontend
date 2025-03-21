@@ -4,16 +4,31 @@ import Header from "./components/Header";
 import Pagination from "./components/Pagination";
 import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { Box, Grid, Skeleton, useBreakpointValue } from "@chakra-ui/react";
+import CustomSearchInput from "./components/Search";
 
 export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [accountsArray, setAccountsArray] = useState([]);
+  const [allAccounts, setAllAccounts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
-  const [searchQuery, setSearchQuery] = useState(""); // Track the search query
+  const [searchQuery, setSearchQuery] = useState("");
+  const [displaySearchData, setDisplaySearchData] = useState(false);
 
   const [createItemMutation, { isLoading: isAdding }] = useCreateItemMutation();
+  const {
+    data,
+    error,
+    isLoading: isGetting,
+    refetch,
+  } = useFetchItemsQuery(
+    {
+      path: "/bankAccount/get",
+      params: { page: currentPage, pageSize: pageSize },
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
@@ -28,36 +43,39 @@ export default function Index() {
     p: { base: 4, md: 6 },
   };
 
-  const {
-    data,
-    error,
-    isLoading: isGetting,
-    refetch,
-  } = useFetchItemsQuery(
-    {
-      path: "/bankAccount/get",
-      params: {
-        searchTerm: "",
-        page: currentPage,
-        pageSize: pageSize,
-      },
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  );
-
   useEffect(() => {
     if (data) {
-      setAccountsArray(data.data || []);
+      const fetchedAccounts = data.data || [];
+      setAllAccounts((prev) => {
+        const existingIds = new Set(prev.map((acc) => acc._id));
+        const newAccounts = fetchedAccounts.filter(
+          (acc) => !existingIds.has(acc._id)
+        );
+        return [...prev, ...newAccounts];
+      });
+      if (!searchQuery || searchQuery === "") {
+        setAccountsArray(fetchedAccounts);
+        setTotalLeads(data.total || 0);
+      } else {
+        const filtered = allAccounts.filter((item) =>
+          dataColumns.some((column) => {
+            const value = item[column.accessor];
+            return (
+              value &&
+              String(value).toLowerCase().includes(searchQuery.toLowerCase())
+            );
+          })
+        );
+        setAccountsArray(filtered);
+        setTotalLeads(filtered.length);
+      }
       setTotalPages(data.totalPages || 1);
-      setTotalLeads(data.total || 0);
     }
-  }, [data]);
+  }, [data, searchQuery]);
 
   useEffect(() => {
     refetch();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, refetch]);
 
   const handleAdd = async (newAccount) => {
     try {
@@ -86,12 +104,11 @@ export default function Index() {
   };
 
   const handleSearchResults = (results) => {
-    console.log("search set");
     setAccountsArray(results || []);
+    setTotalLeads(results ? results.length : 0);
   };
 
   const handleFetchData = (searchTerm, page, size) => {
-    console.log("fetch data");
     setCurrentPage(page);
     setPageSize(size);
   };
@@ -99,6 +116,70 @@ export default function Index() {
   const handleQueryChange = (query) => {
     setSearchQuery(query);
   };
+
+  const handleClear = () => {
+    setSearchQuery("");
+    setDisplaySearchData(false);
+    setAccountsArray(
+      allAccounts.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    );
+    setTotalLeads(data ? data.total || 0 : 0);
+  };
+
+  const handleUpdate = (updatedAccount) => {
+    setAccountsArray((prev) =>
+      prev.map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
+    );
+    setAllAccounts((prev) =>
+      prev.map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
+    );
+    if (searchQuery) {
+      const filtered = allAccounts
+        .map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
+        .filter((item) =>
+          dataColumns.some((column) => {
+            const value = item[column.accessor];
+            return (
+              value &&
+              String(value).toLowerCase().includes(searchQuery.toLowerCase())
+            );
+          })
+        );
+      setAccountsArray(filtered);
+      setTotalLeads(filtered.length);
+    }
+  };
+
+  const handleDelete = (accountId) => {
+    setAccountsArray((prev) => prev.filter((acc) => acc._id !== accountId));
+    setAllAccounts((prev) => prev.filter((acc) => acc._id !== accountId));
+    if (searchQuery) {
+      const filtered = allAccounts
+        .filter((acc) => acc._id !== accountId)
+        .filter((item) =>
+          dataColumns.some((column) => {
+            const value = item[column.accessor];
+            return (
+              value &&
+              String(value).toLowerCase().includes(searchQuery.toLowerCase())
+            );
+          })
+        );
+      setAccountsArray(filtered);
+      setTotalLeads(filtered.length);
+    } else {
+      setTotalLeads((prev) => prev - 1);
+    }
+  };
+
+  const dataColumns = [
+    { accessor: "account_holder_name" },
+    { accessor: "bank_name" },
+    { accessor: "account_number" },
+    { accessor: "iban" },
+    { accessor: "branch_address" },
+    { accessor: "swift_code" },
+  ];
 
   const skeletonCount = isGetting
     ? accountsArray.length > 0
@@ -116,8 +197,19 @@ export default function Index() {
         accountCount={totalLeads}
         onAdd={handleAdd}
         isAdding={isAdding}
-        onSearchResults={handleSearchResults}
-        onQueryChange={handleQueryChange}
+        searchComponent={
+          <CustomSearchInput
+            allData={allAccounts}
+            setSearchbox={handleQueryChange}
+            isPaginated={false}
+            setDisplaySearchData={setDisplaySearchData}
+            searchbox={searchQuery}
+            dataColumn={dataColumns}
+            onSearch={handleSearchResults}
+          />
+        }
+        onClear={handleClear}
+        searchQuery={searchQuery}
       />
       <Pagination
         data={accountsArray}
@@ -151,6 +243,9 @@ export default function Index() {
           setAccounts={setAccountsArray}
           searchQuery={searchQuery}
           refetch={refetch}
+          isGetting={isGetting}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
       )}
     </Box>

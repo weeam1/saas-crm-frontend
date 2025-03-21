@@ -83,7 +83,6 @@ export default function CheckTable(props) {
     setAction,
     action,
   } = props;
-  console.log("CheckTable props:", props);
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   // const columns = useMemo(() => columnsData, [columnsData]);
@@ -92,7 +91,6 @@ export default function CheckTable(props) {
     () => (Array.isArray(tableData) ? tableData : []),
     [tableData]
   );
-  console.log("tableData:", tableData);
   const [selectedValues, setSelectedValues] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
   const [deleteModel, setDelete] = useState(false);

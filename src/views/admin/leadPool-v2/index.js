@@ -93,7 +93,6 @@ const Index = () => {
         newData = result.data.approvals;
       } else {
         console.error("Unexpected response format:", result.data);
-        throw new Error("API returned invalid data format");
       }
 
       newData = newData.map((lead) => {

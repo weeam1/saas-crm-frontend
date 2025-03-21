@@ -1,60 +1,69 @@
-import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useRef } from "react";
+import { InputGroup, Input, InputLeftElement } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { useFetchItemsQuery } from "api/apiSlice";
-import { useDebounce } from "use-debounce";
 
-function Search({ onSearchResults }) {
-  const [query, setQuery] = useState(null);
-  const [debouncedQuery] = useDebounce(query, 300);
-  const userId = localStorage.getItem("user");
+const CustomSearchInput = ({
+  allData,
+  setSearchbox,
+  isPaginated = false,
+  setDisplaySearchData,
+  searchbox,
+  dataColumn,
+  onSearch,
+}) => {
+  const handleInputChange = (e) => {
+    if (!isPaginated) {
+      const searchTerm = e.target.value;
 
-  const { data, isLoading, error } = useFetchItemsQuery(
-    {
-      path: debouncedQuery
-        ? `/bankAccount/search?search=${debouncedQuery}`
-        : `/bankAccount/get`,
-    },
-    { skip: !query }
-  );
-
-  React.useEffect(() => {
-    if (data) {
-      onSearchResults(data.data);
+      const results = allData.filter((item) => {
+        return dataColumn.some((column) => {
+          const columnValue = item[column.accessor];
+          return columnValue && typeof columnValue === "string"
+            ? columnValue.toLowerCase().includes(searchTerm.toLowerCase())
+            : typeof columnValue === "number" &&
+                columnValue.toString().includes(searchTerm);
+        });
+      });
+      setSearchbox(searchTerm ? searchTerm : "");
+      setDisplaySearchData(e.target.value === "" ? false : true);
+      onSearch(results);
     }
-  }, [data, onSearchResults]);
+  };
+
+  const justARef = useRef();
+
+  const extraProps = {};
+
+  if (!isPaginated) {
+    extraProps.value = searchbox;
+  }
 
   return (
     <InputGroup
-      mb={{ base: "5px", md: "0px" }}
-      border="1px solid black"
-      borderRadius="9999px"
-      w={{ base: "200px", md: "300px" }}
-      h={{ base: "32px", md: "40px" }}
-      bg="white"
-      overflow="hidden"
+      width={{ sm: "100%", md: "40%" }}
+      mx={{ sm: 0, md: 3 }}
+      my={{ sm: "8px", md: "0" }}
     >
       <InputLeftElement
+        size="sm"
+        top="-3px"
         pointerEvents="none"
-        color="gray.400"
-        h="full"
-        alignItems="center"
-      >
-        <SearchIcon />
-      </InputLeftElement>
+        zIndex="0"
+        children={<SearchIcon color="gray.300" borderRadius="16px" />}
+      />
       <Input
-        placeholder="Search..."
-        fontFamily="DM Sans"
-        bg="white"
-        border="none"
-        _focus={{ boxShadow: "none" }}
-        borderRadius="9999px"
-        h="full"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        type="text"
+        size="sm"
+        fontSize="sm"
+        {...extraProps}
+        onChange={handleInputChange}
+        fontWeight="500"
+        ref={isPaginated ? searchbox : justARef}
+        placeholder="Search by bank name..."
+        borderRadius="16px"
       />
     </InputGroup>
   );
-}
+};
 
-export default Search;
+export default CustomSearchInput;

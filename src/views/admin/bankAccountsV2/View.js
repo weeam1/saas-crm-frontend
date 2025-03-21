@@ -4,9 +4,18 @@ import AccountCard from "./components/AccountCard";
 import { useUpdateItemMutation, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 
-const AccountsView = ({ accounts = [], refetch, isGetting }) => {
-  const [updateItemMutation, { isLoading: isUpdating }] = useUpdateItemMutation();
-  const [deleteItemMutation, { isLoading: isDeleting }] = useDeleteItemMutation();
+const AccountsView = ({
+  accounts = [],
+  setAccounts,
+  refetch,
+  isGetting,
+  onUpdate,
+  onDelete,
+}) => {
+  const [updateItemMutation, { isLoading: isUpdating }] =
+    useUpdateItemMutation();
+  const [deleteItemMutation, { isLoading: isDeleting }] =
+    useDeleteItemMutation();
 
   const handleUpdate = async (updatedAccount, accountId) => {
     try {
@@ -14,12 +23,16 @@ const AccountsView = ({ accounts = [], refetch, isGetting }) => {
         path: `/bankAccount/edit/${accountId}`,
         body: updatedAccount,
       }).unwrap();
-      toast.success("The account has been updated successfully.", { autoClose: 3000 });
+      toast.success("The account has been updated successfully.", {
+        autoClose: 3000,
+      });
+      onUpdate(updatedAccount);
       if (refetch) refetch();
     } catch (error) {
       console.error("Failed to update account:", error);
       toast.error(
-        error.data?.message || "Failed to update the account. Please try again.",
+        error.data?.message ||
+          "Failed to update the account. Please try again.",
         { autoClose: 3000 }
       );
     }
@@ -31,12 +44,16 @@ const AccountsView = ({ accounts = [], refetch, isGetting }) => {
         path: `/bankAccount/delete/${accountId}`,
         body: {},
       }).unwrap();
-      toast.success("The account has been deleted successfully.", { autoClose: 3000 });
+      toast.success("The account has been deleted successfully.", {
+        autoClose: 3000,
+      });
+      onDelete(accountId);
       if (refetch) refetch();
     } catch (error) {
       console.error("Failed to delete account:", error);
       toast.error(
-        error.data?.message || "Failed to delete the account. Please try again.",
+        error.data?.message ||
+          "Failed to delete the account. Please try again.",
         { autoClose: 3000 }
       );
     }
@@ -51,8 +68,11 @@ const AccountsView = ({ accounts = [], refetch, isGetting }) => {
           No accounts available.
         </Text>
       ) : (
-        <SimpleGrid minChildWidth="450px" spacing={{ base: 2, md: 3 }} mt={8}>
-          {/* Skeleton Loader */}
+        <SimpleGrid
+          columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4 }}
+          spacing={{ base: 2 }}
+          mt={8}
+        >
           {isGetting &&
             Array.from({ length: skeletonCount }).map((_, index) => (
               <Skeleton
@@ -64,7 +84,6 @@ const AccountsView = ({ accounts = [], refetch, isGetting }) => {
               />
             ))}
 
-          {/* Actual Account Cards */}
           {!isGetting &&
             accounts.map((account) => (
               <AccountCard

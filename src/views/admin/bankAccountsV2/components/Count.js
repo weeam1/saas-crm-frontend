@@ -3,11 +3,11 @@ import { Text } from "@chakra-ui/react";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const AccountCount = ({ count }) => {
-  const formattedCount = count.toString().padStart(2, "0"); // Ensure 2 digits
+  const formattedCount = count.toString().padStart(2, "0"); 
 
   return (
     <Text
-      fontSize={{ base: "15px", md: "xl", lg: "32px" }}
+      fontSize={{ base: "18px", md: "xl", lg: "28px" }}
       fontWeight="medium"
       fontFamily="DM Sans"
       color="#333"
