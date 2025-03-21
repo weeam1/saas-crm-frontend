@@ -9,6 +9,7 @@ const AttendanceStats = ({ stats, employee }) => {
 
 	return (
 		<Box bg='white' p={5} borderRadius='md' shadow='sm' position='relative'>
+			
 			{/* Agency Badge on Top-Right */}
 			{employee.agency?.name && (
 				<Badge
