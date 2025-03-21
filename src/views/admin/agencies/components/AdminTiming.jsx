@@ -4,6 +4,7 @@ import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import { buttonStyle } from 'views/admin/attendance/constants';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+import moment from 'moment';
 
 const AdminSetting = ({
 	agencyId,
@@ -22,6 +23,14 @@ const AdminSetting = ({
 
 	const handleSave = async () => {
 		if (!selectedUser) return;
+
+		const checkIn = moment(checkinTime, 'hh:mm A');
+		const checkOut = moment(checkoutTime, 'hh:mm A');
+
+		if (checkOut.isBefore(checkIn)) {
+			toast.error('Check-Out time must be greater than Check-In time!');
+			return;
+		}
 
 		let updatedSpecialUsers;
 		setSpecialUsers((prev) => {
