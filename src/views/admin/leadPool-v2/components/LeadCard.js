@@ -16,6 +16,7 @@ import InputPair from "./LeadCard/InputPair";
 import LeadCycleModal from "./LeadCard/LeadCycleModal";
 import LeadsModal from "../../lead/LeadsModal";
 import { leadStatus } from "utils/options";
+
 class TimelineItem {
   constructor(type, updatedAt, updatedBy, updatedData) {
     this.type = type;
@@ -24,10 +25,12 @@ class TimelineItem {
     this.updatedData = updatedData;
   }
 }
+
 const getLabelByValue = (value) => {
   const status = leadStatus.find((status) => status.value === value);
   return status ? status.label : "N/A";
 };
+
 const LeadCard = ({
   _id,
   intID,
@@ -40,7 +43,7 @@ const LeadCard = ({
   mStatus,
   r_u_in_uae,
   leadCampaign,
-  leadStatus: leadStatusValue,
+  leadStatus: leadStatusValue, // This is the actual status value
   budget,
   approvalStatus,
   createdDate,
@@ -77,7 +80,8 @@ const LeadCard = ({
 
   const handleBuyClick = () => {
     console.log("Buy clicked for lead:", _id);
-    if (leadStatus?.toLowerCase() !== "rejected") {
+    // Fix: Use leadStatusValue instead of leadStatus
+    if (leadStatusValue?.toLowerCase() !== "rejected") {
       sendRequest(_id);
     }
   };
