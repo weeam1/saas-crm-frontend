@@ -8,7 +8,6 @@ import {
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
-	VStack,
 	Box,
 	HStack,
 } from '@chakra-ui/react';
@@ -21,8 +20,6 @@ import moment from 'moment';
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
-
-	console.log(updateKey);
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();

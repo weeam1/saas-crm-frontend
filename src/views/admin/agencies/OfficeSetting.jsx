@@ -29,6 +29,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
+import moment from 'moment';
 
 const OfficeSettings = () => {
 	const searchTermRef = useRef('');
@@ -178,6 +179,14 @@ const OfficeSettings = () => {
 	}, [officeSettings?.doc]);
 
 	const handleSave = async () => {
+		const checkIn = moment(officeCheckinTime, 'hh:mm A');
+		const checkOut = moment(officeCheckoutTime, 'hh:mm A');
+
+		if (checkOut.isBefore(checkIn)) {
+			toast.error('Check-Out time must be greater than Check-In time!');
+			return;
+		}
+
 		try {
 			const transformedRules = rules.map((rule, index) => {
 				if (rule.label === 'Early Check In') {
