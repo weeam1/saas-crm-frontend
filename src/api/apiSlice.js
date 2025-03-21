@@ -73,6 +73,14 @@ export const apiSlice = createApi({
 				method: 'DELETE',
 			}),
 		}),
+
+		deleteManyInvoices: builder.mutation({
+			query: ({ path, body }) => ({
+			  url: path,
+			  method: 'POST', // Use POST since it naturally supports a body
+			  body,
+			}),
+		  }),
 	}),
 });
 
@@ -81,4 +89,5 @@ export const {
 	useCreateItemMutation,
 	useUpdateItemMutation,
 	useDeleteItemMutation,
+	useDeleteManyInvoicesMutation
 } = apiSlice;

@@ -10,33 +10,31 @@ import {
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useState } from "react";
-import { useDeleteItemMutation } from "api/apiSlice";
+import {
+  useDeleteItemMutation,
+  useDeleteManyInvoicesMutation,
+} from "api/apiSlice";
 import { toast } from "react-toastify";
 
 const Delete = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteItem, { isLoading: deleteLoading }] = useDeleteItemMutation();
+  const [deleteManyInvoices] = useDeleteManyInvoicesMutation();
 
   const handleDeleteClick = async () => {
-    console.log("Delete Props:", {
-      method: props.method,
-      data: props.data,
-      id: props.id,
-    });
-
     if (
       props.method === "many" &&
       Array.isArray(props.data) &&
       props.data.length > 0
     ) {
       try {
+        console.log("Payload sent to deleteMany:", props.data);
         setIsLoading(true);
-        const response = await deleteItem({
+        const response = await deleteManyInvoices({
           path: "/invoice/deleteMany",
           method: "POST",
           body: { ids: props.data },
         }).unwrap();
-        console.log("Payload sent to deleteMany:", props.data);
 
         if (
           response?.status === "success" ||
@@ -46,10 +44,10 @@ const Delete = (props) => {
           toast.success(
             `${props.data.length} invoice(s) deleted successfully!`
           );
-          props.setSelectedValues([]);
           if (props.fetchData) props.fetchData();
           if (props.setAction) props.setAction((prev) => !prev);
-          props.onClose();
+          props.onClose(); // Close modal
+          props.setSelectedValues([]);
         } else {
           toast.error(response?.message || "Failed to delete invoices");
         }
@@ -67,7 +65,6 @@ const Delete = (props) => {
           method: "DELETE",
         }).unwrap();
 
-        console.log("Delete Single Response:", response);
         if (
           response?.status === "success" ||
           response?.code === 200 ||
@@ -93,7 +90,6 @@ const Delete = (props) => {
   };
 
   const handleClose = () => {
-    console.log("Manual close triggered");
     props.onClose();
   };
 
