@@ -44,8 +44,6 @@ const Pagination = ({
   isAgent,
   searchNotFound,
   isSuperAdmin,
-  displaySearchData,
-  displayAdvSearchData,
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
 
@@ -58,8 +56,8 @@ const Pagination = ({
   const totalPagesForTab = Math.max(1, Math.ceil(totalItems / pageSize));
   const startIndex = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
   const endIndex = Math.min(currentPage * pageSize, totalItems);
-  // const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
-  const isSearchActive = displaySearchData || displayAdvSearchData;
+  const isSearchActive = !!searchQuery || Object.keys(formValues).length > 0;
+
   // Pagination handlers
   const handleFirst = () => {
     setCurrentPage(1);
@@ -102,16 +100,17 @@ const Pagination = ({
     if (loading) return;
     const newPageSize = Number(event.target.value);
     onPageSizeChange(newPageSize);
-    // Reset to first page when page size changes
     setCurrentPage(1);
     setGotoPage(1);
   };
+
   const handleClearAdvancedSearch = () => {
     setSearchQuery("");
     setFormValues({});
     setCurrentPage(1);
     setGotoPage(1);
   };
+
   const buttonStyle = {
     size: { base: "xs", sm: "xs", md: "sm" },
     borderRadius: "lg",
@@ -132,13 +131,12 @@ const Pagination = ({
       minHeight="100%"
       fontFamily="DM Sans"
     >
-      {/* <LeadsProgress
+      <LeadsProgress
         totalLeads={totalItems}
         searchQuery={searchQuery}
         formValues={formValues}
         isSearchActive={isSearchActive}
-      /> */}
-
+      />
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <Flex
@@ -270,20 +268,16 @@ const Pagination = ({
                 borderRadius="md"
                 border="2px solid"
                 _focus={{ boxShadow: "0 0 0 1px softGray.500" }}
-                onChange={handlePageSizeChange}
-                isDisabled={loading || !totalItems}
+                onChange={(e) => {
+                  onPageSizeChange(Number(e.target.value));
+                }}
+                isDisabled={loading}
               >
-                {totalItems > 0 ? (
-                  [25, 50, 80, 100]
-                    .filter((size) => size <= totalItems)
-                    .map((size) => (
-                      <option key={size} value={size}>
-                        Show {size}
-                      </option>
-                    ))
-                ) : (
-                  <option value={pageSize}>Show {pageSize}</option>
-                )}
+                {[25, 50, 80, 100].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
+                  </option>
+                ))}
               </Select>
 
               <Button

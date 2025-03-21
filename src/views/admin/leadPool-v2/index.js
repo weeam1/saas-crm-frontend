@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import PaginationPage from "./components/Pagination";
 import { getApi, postApi, putApi } from "services/api";
 import { constant } from "constant";
@@ -9,11 +9,8 @@ import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
 
 const Index = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-
-  const roleName =
-    user?.role === "superAdmin" ? "superAdmin" : user?.roles[0]?.roleName;
-
   const location = useLocation();
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
@@ -31,8 +28,7 @@ const Index = () => {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorLeadData, setErrorLeadData] = useState(null);
   const [lastFetchedTab, setLastFetchedTab] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [tags, setTags] = useState([]);
+
   const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -40,6 +36,25 @@ const Index = () => {
       timeoutId = setTimeout(() => func(...args), delay);
     };
   };
+
+  // Function to update URL with current state
+  const updateUrl = (newPage, newSize, newTab) => {
+    const params = new URLSearchParams(location.search);
+    params.set("page", newPage || currentPage);
+    params.set("pageSize", newSize || pageSize);
+    params.set("tab", newTab || activeTab);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  // Read initial state from URL
+  const getInitialStateFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    const page = parseInt(params.get("page")) || 1;
+    const size = parseInt(params.get("pageSize")) || 50;
+    const tab = params.get("tab") || "Buy Leads";
+    return { page, size, tab };
+  };
+
   const fetchData = async (pageNo = 1, size = pageSize, source) => {
     if (isLoading) return;
     let isMounted = true;
@@ -78,7 +93,6 @@ const Index = () => {
         newData = result.data.approvals;
       } else {
         console.error("Unexpected response format:", result.data);
-        throw new Error("API returned invalid data format");
       }
 
       newData = newData.map((lead) => {
@@ -115,6 +129,7 @@ const Index = () => {
       isMounted = false;
     };
   };
+
   const fetchUserData = async () => {
     let isMounted = true;
     setIsLoading(true);
@@ -150,9 +165,8 @@ const Index = () => {
     try {
       const queryParams = new URLSearchParams();
       if (tab === "Buy Leads") {
-        // Fetch leads available for purchase (in lead pool, not requested by user)
         queryParams.append("isInLeadPool", "true");
-        queryParams.append("excludeUser", user._id); // Exclude leads already requested by user
+        queryParams.append("excludeUser", user._id);
       } else {
         const statusMap = {
           Pending: "pending",
@@ -165,7 +179,7 @@ const Index = () => {
         }
         if (status) {
           queryParams.append("approvalStatus", status);
-          queryParams.append("agentId", user._id); // Show only user's requests
+          queryParams.append("agentId", user._id);
         }
       }
       queryParams.append("page", page);
@@ -225,46 +239,46 @@ const Index = () => {
     try {
       let result;
       if (activeTab === "Pending" || activeTab === "Rejected") {
-        // const statusMap = {
-        // 	Pending: 'pending',
-        // 	Rejected: 'rejected',
-        // };
-        // const approvalStatus = statusMap[activeTab];
+        const statusMap = {
+          Pending: "pending",
+          Rejected: "rejected",
+        };
+        const approvalStatus = statusMap[activeTab];
         const queryParams = new URLSearchParams();
-        queryParams.append("activeTab", activeTab);
+        queryParams.append("approvalStatus", approvalStatus);
         queryParams.append("agentId", user._id);
         queryParams.append("term", term);
         queryParams.append("page", pageNo);
         queryParams.append("pageSize", size);
-        result = await getApi(`api/adminApproval/search?${queryParams}`);
+        result = await getApi(`api/adminApproval/get?${queryParams}`);
 
-        let newData = result?.data?.result || [];
-        // if (newData.length > 0 && term.trim() !== '') {
-        // 	newData = newData.filter((lead) =>
-        // 		lead.leadName?.toLowerCase().includes(term.toLowerCase())
-        // 	);
-        // }
+        let newData = result.data?.approvals || result.data || [];
+        if (newData.length > 0 && term.trim() !== "") {
+          newData = newData.filter((lead) =>
+            lead.leadName?.toLowerCase().includes(term.toLowerCase())
+          );
+        }
 
-        // newData = newData.map((lead) => {
-        // 	if (lead?.ip) {
-        // 		const parts = lead.ip.split('-');
-        // 		lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-        // 	}
-        // 	return { ...lead };
-        // });
+        newData = newData.map((lead) => {
+          if (lead?.ip) {
+            const parts = lead.ip.split("-");
+            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
+          }
+          return { ...lead };
+        });
 
         if (isMounted) {
           setDisplaySearchData(true);
           setSearchedData(newData);
           setData(newData);
-          setTotalPages(result.data?.totalPages || 0);
-          setTotalLeads(result.data?.totalLeads || 0);
+          setTotalPages(
+            result.data?.totalPages || Math.ceil(newData.length / size)
+          );
+          setTotalLeads(newData.length);
         }
       } else if (activeTab === "Buy Leads") {
-        // Search within available leads for purchase
         result = await getApi(
-          `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}
-          &role=${roleName}&isInLeadPool=true&excludeUser=${user._id}`
+          `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
         );
 
         const newData =
@@ -314,15 +328,14 @@ const Index = () => {
     try {
       let result = await getApi(
         activeTab === "Buy Leads"
-          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from}|${dateTime?.to}
-          &page=${pageNo}&role=${roleName}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
-          : `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&agentId=${user._id}&activeTab=${activeTab}&page=${pageNo}&pageSize=${size}`
+          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
+          : `api/adminApproval/get?data=${JSON.stringify(data)}&agentId=${user._id}&page=${pageNo}&pageSize=${size}`
       );
 
       const newData =
         (activeTab === "Buy Leads"
           ? result.data?.result
-          : result.data?.result || result.data
+          : result.data?.approvals || result.data
         )?.map((lead) => {
           if (lead?.ip) {
             const parts = lead.ip.split("-");
@@ -538,49 +551,46 @@ const Index = () => {
     [dateTime, user]
   );
 
+  // Initial load with URL state
+  useEffect(() => {
+    const { page, size, tab } = getInitialStateFromUrl();
+    setCurrentPage(page);
+    setPageSize(size);
+    setActiveTab(tab);
+    setLastFetchedTab(null); // Reset lastFetchedTab to ensure fetch happens
+
+    const source = axios.CancelToken.source();
+    fetchUserData();
+    if (tab === "Buy Leads") {
+      fetchData(page, size, source); // Use fetchData directly to avoid debounce delay on initial load
+    } else {
+      fetchLeads(tab, page, size); // Use fetchLeads directly
+    }
+
+    return () => {
+      source.cancel("Component unmounted");
+    };
+  }, [location.search]); // Only trigger on URL change
+
+  // Handle tab changes without resetting page unnecessarily
   useEffect(() => {
     if (!displaySearchData && activeTab !== lastFetchedTab) {
-      setCurrentPage(1);
-      setSearchTerm("");
-      setTags([]);
+      const { page, size } = getInitialStateFromUrl(); // Get current URL state
+      updateUrl(page, size, activeTab); // Update URL with new tab
       if (activeTab === "Buy Leads") {
-        debouncedFetchData(1, pageSize);
+        debouncedFetchData(page, size);
       } else {
-        debouncedFetchLeads(activeTab, 1, pageSize);
+        debouncedFetchLeads(activeTab, page, size);
       }
       setLastFetchedTab(activeTab);
     }
   }, [
     activeTab,
-    pageSize,
     displaySearchData,
     debouncedFetchData,
     debouncedFetchLeads,
     lastFetchedTab,
   ]);
-
-  useEffect(() => {
-    const source = axios.CancelToken.source();
-    setCurrentPage(1);
-    setPageSize(50);
-    setActiveTab("Buy Leads");
-    setDisplaySearchData(false);
-    setData([]);
-    setTotalPages(0);
-    setTotalLeads(0);
-    setSearchTerm("");
-    setTags([]);
-    setError(null);
-    setLastFetchedTab(null);
-    setBuyLoading({});
-
-    fetchUserData();
-    debouncedFetchData(1, 50, source);
-
-    return () => {
-      source.cancel("Component unmounted");
-    };
-  }, [location.pathname]);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -597,9 +607,8 @@ const Index = () => {
           setData([]);
           setActiveTab(tab);
           setCurrentPage(page);
-          setSearchTerm("");
-          setTags([]);
-          setDisplaySearchData(false);
+          setPageSize(size);
+          updateUrl(page, size, tab);
           if (tab === "Buy Leads") {
             setDateTime({ from: "", to: "" });
             setDisplaySearchData(false);
@@ -608,20 +617,44 @@ const Index = () => {
             debouncedFetchLeads(tab, page, size);
           }
           setLastFetchedTab(tab);
-          console.log("After reset - searchTerm:", searchTerm);
         }}
         fetchSearchedData={debouncedFetchSearchedData}
         fetchAdvancedSearch={debouncedFetchAdvancedSearch}
         setCurrentState={setCurrentState}
         currentState={currentState}
         pageSize={pageSize}
-        setPageSize={setPageSize}
+        setPageSize={(size) => {
+          setPageSize(size);
+          updateUrl(currentPage, size, activeTab);
+          if (activeTab === "Buy Leads") {
+            debouncedFetchData(currentPage, size);
+          } else {
+            debouncedFetchLeads(activeTab, currentPage, size);
+          }
+        }}
         user={user}
         dateTime={dateTime}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          updateUrl(1, pageSize, tab); // Reset to page 1 on tab change
+          setCurrentPage(1); // Reset currentPage
+          if (tab === "Buy Leads") {
+            debouncedFetchData(1, pageSize);
+          } else {
+            debouncedFetchLeads(tab, 1, pageSize);
+          }
+        }}
         currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={(page) => {
+          setCurrentPage(page);
+          updateUrl(page, pageSize, activeTab);
+          if (activeTab === "Buy Leads") {
+            debouncedFetchData(page, pageSize);
+          } else {
+            debouncedFetchLeads(activeTab, page, pageSize);
+          }
+        }}
         setData={setData}
         setTotalPages={setTotalPages}
         setTotalLeads={setTotalLeads}
@@ -632,10 +665,6 @@ const Index = () => {
         sendRequest={sendRequest}
         cancelRequest={cancelRequest}
         buyLoading={buyLoading}
-        searchTerm={searchTerm} // Pass search term
-        setSearchTerm={setSearchTerm} // Pass setter
-        tags={tags} // Pass tags
-        setTags={setTags} // Pass setter
       />
       {isErrorModalOpen && (
         <ErrorLeadLimitMessage
