@@ -553,11 +553,11 @@ export default function CheckTable(props) {
 																me='10px'
 																sx={{
 																	'&:hover': {
-																		color: 'blue.500',
+																		color: 'blue.400',
 																		textDecoration: 'underline',
 																	},
 																}}
-																color='brand.600'
+																color='brand.500'
 																fontSize='sm'
 																fontWeight='700'
 															>
@@ -599,7 +599,11 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === 'Coins') {
 													data = (
-														<Text color={'blue'} fontSize='sm' fontWeight='700'>
+														<Text
+															color='blue.400'
+															fontSize='sm'
+															fontWeight='700'
+														>
 															{cell?.value}
 														</Text>
 													);

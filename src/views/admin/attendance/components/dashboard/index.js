@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
-	SimpleGrid,
-	Text,
-	Icon,
 	Flex,
-	Grid,
-	Button,
-	ButtonGroup,
 	IconButton,
 	useDisclosure,
 	Heading,
@@ -20,11 +14,7 @@ import {
 	FaMoon,
 	FaFileAlt,
 } from 'react-icons/fa';
-import { IoIosAddCircleOutline } from 'react-icons/io';
-import { PiSunLight } from 'react-icons/pi';
-import { FaArrowTrendUp } from 'react-icons/fa6';
-import { IoMdTrendingDown } from 'react-icons/io';
-import Chart from 'react-apexcharts';
+
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import RealTimeData from './RealTimeData';
@@ -40,7 +30,6 @@ const Dashboard = () => {
 	const [agency, setAgency] = useState(null);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
-
 	const navigate = useNavigate();
 
 	const user = JSON.parse(localStorage.getItem('user'));

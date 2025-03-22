@@ -16,7 +16,7 @@ const LeadScreen = () => {
   const location = useLocation();
 
   const defaultPage = 1;
-  const defaultPageSize = 50;
+  const defaultPageSize = 25;
   const defaultTab = "All";
   const defaultSearchQuery = "";
 
@@ -24,40 +24,35 @@ const LeadScreen = () => {
     const pageFromStorage = sessionStorage.getItem("currentPage");
     const urlParams = new URLSearchParams(window.location.search);
     const pageFromUrl = urlParams.get("page");
-    const page = pageFromStorage
+    return pageFromStorage
       ? parseInt(pageFromStorage)
       : pageFromUrl
         ? parseInt(pageFromUrl)
         : defaultPage;
-    return page;
   };
 
   const getInitialPageSize = () => {
     const sizeFromStorage = sessionStorage.getItem("pageSize");
     const urlParams = new URLSearchParams(window.location.search);
     const sizeFromUrl = urlParams.get("pageSize");
-    const size = sizeFromStorage
+    return sizeFromStorage
       ? parseInt(sizeFromStorage)
       : sizeFromUrl
         ? parseInt(sizeFromUrl)
         : defaultPageSize;
-    return size;
   };
 
   const getInitialTab = () => {
     const tabFromStorage = sessionStorage.getItem("activeTab");
     const urlParams = new URLSearchParams(window.location.search);
     const tabFromUrl = urlParams.get("tab");
-    const tab = tabFromStorage || tabFromUrl || defaultTab;
-    return tab;
+    return tabFromStorage || tabFromUrl || defaultTab;
   };
 
   const getInitialSearchQuery = () => {
     const searchFromStorage = sessionStorage.getItem("searchQuery");
     const urlParams = new URLSearchParams(window.location.search);
-    const search =
-      searchFromStorage || urlParams.get("search") || defaultSearchQuery;
-    return search;
+    return searchFromStorage || urlParams.get("search") || defaultSearchQuery;
   };
 
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -170,76 +165,133 @@ const LeadScreen = () => {
   );
 
   const fetchSearchedData = useCallback(
-    async (term = searchQuery, pageNo = currentPage, size = pageSize) => {
+    async (
+      term = searchQuery,
+      page = currentPage,
+      size = pageSize,
+      activeTabParam = activeTab
+    ) => {
       try {
         setLoading(true);
         setError(null);
         setSearchNotFound(null);
 
-        let result = await getApi(
-          user.role === "superAdmin"
-            ? `api/lead/search?term=${term}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
-            : `api/lead/search?term=${term}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
-        );
-        setDisplaySearchData(true);
-        const newData =
-          result.data?.result?.map((lead) => {
-            if (lead?.ip) {
-              const parts = lead.ip.split("-");
-              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
-            }
-            return {
-              ...lead,
-              agentId: lead.agentAssigned,
-            };
-          }) || [];
+        const queryParams = new URLSearchParams({
+          term: term || "",
+          page: page.toString(),
+          pageSize: size.toString(),
+          activeTab: activeTabParam,
+        });
 
-        if (newData.length === 0) {
-          setSearchNotFound(`Search data not found for: "${term}"`);
+        if (user.role !== "superAdmin") {
+          queryParams.append("user", user._id);
+          queryParams.append("role", user.roles?.[0]?.roleName || "");
+          if (dateTime?.from && dateTime?.to) {
+            queryParams.append("dateTime", `${dateTime.from}|${dateTime.to}`);
+          }
+          queryParams.append("isInLeadPool", "true");
         }
 
-        setSearchedData(newData);
+        console.log(
+          "Fetching Search with URL:",
+          `api/adminApproval/search?${queryParams}`
+        );
+
+        const result = await getApi(`api/adminApproval/search?${queryParams}`);
+
+        console.log("Search API Response:", result);
+
+        const newData = result.data?.result || [];
+        const validatedData = Array.isArray(newData) ? newData : [];
+
+        console.log("Validated Search Data:", validatedData);
+
+        setDisplaySearchData(true);
+        setSearchedData(validatedData);
         setTotalPages(result.data?.totalPages || 0);
         setTotalLeads(result.data?.totalLeads || 0);
-        setLeads({ ...leads, approvals: newData });
+
+        // Handle empty search results
+        if (validatedData.length === 0) {
+          if (page === 1) {
+            setSearchNotFound(`Search data not found for: "${term}"`);
+          } else {
+            setSearchNotFound(
+              `No more results found for: "${term}" on page ${page}`
+            );
+          }
+        }
+
+        setLeads((prevLeads) => ({ ...prevLeads, approvals: validatedData }));
       } catch (err) {
+        console.error("Fetch Searched Data Error:", err);
         setError(err.message || "Failed to fetch searched leads");
+        setSearchedData([]);
+        setTotalPages(0);
+        setTotalLeads(0);
+        setLeads((prevLeads) => ({ ...prevLeads, approvals: [] }));
       } finally {
         setLoading(false);
       }
     },
-    [searchQuery, currentPage, pageSize, user, dateTime, leads]
+    [searchQuery, currentPage, pageSize, activeTab, user, dateTime]
   );
 
   const fetchAdvancedSearch = useCallback(
-    async (data = formValues, pageNo = currentPage, size = pageSize) => {
+    async (
+      data = formValues,
+      page = currentPage,
+      size = pageSize,
+      activeTabParam = activeTab
+    ) => {
       try {
         setLoading(true);
         setError(null);
         setSearchNotFound(null);
 
-        let result = await getApi(
-          user.role === "superAdmin"
-            ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}`
-            : `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${user._id}&role=${user.roles[0]?.roleName}&dateTime=${dateTime?.from + "|" + dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true`
+        const cleanedData = Object.fromEntries(
+          Object.entries(data).filter(
+            ([_, value]) =>
+              value !== "" && value !== undefined && value !== null
+          )
         );
 
-        setDisplayAdvSearchData(true);
-        const newData =
-          result.data?.result?.map((lead) => {
-            if (lead?.ip) {
-              const parts = lead.ip.split("-");
-              lead.ip = parts?.length > 0 ? parts[1] : parts[0];
-            }
-            return {
-              ...lead,
-              agentId: lead.agentAssigned,
-            };
-          }) || [];
+        const queryParams = new URLSearchParams({
+          data: JSON.stringify(cleanedData),
+          page: page.toString(),
+          pageSize: size.toString(),
+          activeTab: activeTabParam,
+        });
 
-        if (newData.length === 0) {
-          const searchCriteria = Object.entries(data)
-            .filter(([_, value]) => value !== "" && value !== undefined)
+        if (user.role !== "superAdmin") {
+          queryParams.append("user", user._id);
+          queryParams.append("role", user.roles?.[0]?.roleName || "");
+          if (dateTime?.from && dateTime?.to) {
+            queryParams.append("dateTime", `${dateTime.from}|${dateTime.to}`);
+          }
+          queryParams.append("isInLeadPool", "true");
+        }
+
+        const url = `api/adminApproval/advanced-search?${queryParams}`;
+        console.log("Fetching Advanced Search with URL:", url);
+
+        const result = await getApi(url);
+
+        console.log("Advanced Search API Response:", result);
+
+        const newData = result.data?.result || [];
+        const validatedData = Array.isArray(newData) ? newData : [];
+
+        console.log("Validated Advanced Search Data:", validatedData);
+
+        setDisplayAdvSearchData(true);
+        setDisplaySearchData(false);
+        setSearchedData(validatedData);
+        setTotalPages(result.data?.totalPages || 0);
+        setTotalLeads(result.data?.totalLeads || 0);
+
+        if (validatedData.length === 0 && result.data?.totalLeads === 0) {
+          const searchCriteria = Object.entries(cleanedData)
             .map(([key, value]) => {
               if (key === "agentAssigned") {
                 const agentName = getUserNameById(value, users) || value;
@@ -251,22 +303,24 @@ const LeadScreen = () => {
           setSearchNotFound(`Search data not found for: ${searchCriteria}`);
         }
 
-        setSearchedData(newData);
-        setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(result.data?.totalLeads || 0);
-        setLeads({ ...leads, approvals: newData });
+        setLeads((prevLeads) => ({ ...prevLeads, approvals: validatedData }));
       } catch (err) {
+        console.error("Fetch Advanced Search Error:", err);
         setError(err.message || "Failed to fetch advanced search leads");
+        setSearchedData([]);
+        setTotalPages(0);
+        setTotalLeads(0);
+        setLeads((prevLeads) => ({ ...prevLeads, approvals: [] }));
       } finally {
         setLoading(false);
       }
     },
-    [formValues, currentPage, pageSize, user, dateTime, leads, users]
+    [activeTab, currentPage, pageSize, user, dateTime, formValues, users]
   );
-
   const clearAdvancedSearch = useCallback(() => {
     setSearchQuery("");
     setDisplayAdvSearchData(false);
+    setDisplaySearchData(false);
     setSearchedData([]);
     setFormValues({});
     setGetTagValues([]);
@@ -284,7 +338,7 @@ const LeadScreen = () => {
   ) => {
     if (e === "none") return;
 
-    const currentDate = new Date().toISOString(); // Set current date for immediate UI update
+    const currentDate = new Date().toISOString();
 
     try {
       const res = await axios.put(
@@ -318,7 +372,7 @@ const LeadScreen = () => {
                       ...lead,
                       agentAssigned: agentId,
                       approvalStatus: "accepted",
-                      approvedDate: currentDate, // Set immediately for real-time UI
+                      approvedDate: currentDate,
                     }
                   : lead
               );
@@ -334,7 +388,7 @@ const LeadScreen = () => {
                       ...approval,
                       approvalStatus: "accepted",
                       agentId,
-                      approvedDate: currentDate, // Set immediately for real-time UI
+                      approvedDate: currentDate,
                     }
                   : approval
               );
@@ -379,7 +433,7 @@ const LeadScreen = () => {
                   ? {
                       ...lead,
                       approvalStatus: "rejected",
-                      rejectedDate: currentDate, // Set immediately for real-time UI
+                      rejectedDate: currentDate,
                     }
                   : lead
               );
@@ -394,7 +448,7 @@ const LeadScreen = () => {
                   ? {
                       ...approval,
                       approvalStatus: "rejected",
-                      rejectedDate: currentDate, // Set immediately for real-time UI
+                      rejectedDate: currentDate,
                     }
                   : approval
               );
@@ -428,7 +482,6 @@ const LeadScreen = () => {
     }
   };
 
-  // Initial load with persisted state
   useEffect(() => {
     const initialTab = getInitialTab();
     const initialPage = getInitialPage();
@@ -441,9 +494,14 @@ const LeadScreen = () => {
     setSearchQuery(initialSearchQuery);
 
     if (initialSearchQuery) {
-      fetchSearchedData(initialSearchQuery, initialPage, initialPageSize);
+      fetchSearchedData(
+        initialSearchQuery,
+        initialPage,
+        initialPageSize,
+        initialTab
+      );
     } else if (Object.keys(formValues).length > 0) {
-      fetchAdvancedSearch(formValues, initialPage, initialPageSize);
+      fetchAdvancedSearch(formValues, initialPage, initialPageSize, initialTab);
     } else {
       fetchLeads(initialTab, initialPage, initialPageSize);
     }
@@ -457,10 +515,10 @@ const LeadScreen = () => {
     (newPage) => {
       setCurrentPage(newPage);
       updateUrlAndStorage(pageSize);
-      if (displayAdvSearchData) {
-        fetchAdvancedSearch(formValues, newPage, pageSize);
-      } else if (displaySearchData) {
-        fetchSearchedData(searchQuery, newPage, pageSize);
+      if (displayAdvSearchData && Object.keys(formValues).length > 0) {
+        fetchAdvancedSearch(formValues, newPage, pageSize, activeTab);
+      } else if (displaySearchData && searchQuery) {
+        fetchSearchedData(searchQuery, newPage, pageSize, activeTab);
       } else {
         fetchLeads(activeTab, newPage, pageSize);
       }
@@ -484,10 +542,10 @@ const LeadScreen = () => {
       setPageSize(newSize);
       setCurrentPage(1);
       updateUrlAndStorage(newSize);
-      if (displayAdvSearchData) {
-        fetchAdvancedSearch(formValues, 1, newSize);
-      } else if (displaySearchData) {
-        fetchSearchedData(searchQuery, 1, newSize);
+      if (displayAdvSearchData && Object.keys(formValues).length > 0) {
+        fetchAdvancedSearch(formValues, 1, newSize, activeTab);
+      } else if (displaySearchData && searchQuery) {
+        fetchSearchedData(searchQuery, 1, newSize, activeTab);
       } else {
         fetchLeads(activeTab, 1, newSize);
       }
@@ -505,21 +563,37 @@ const LeadScreen = () => {
     ]
   );
 
+  // const handleTabChange = useCallback(
+  //   (newTab) => {
+  //     setCurrentPage(1);
+  //     setDisplayAdvSearchData(false);
+  //     setDisplaySearchData(false);
+  //     setSearchedData([]);
+  //     setSearchQuery("");
+  //     setActiveTab(newTab);
+  //     setSearchNotFound(null);
+  //     updateUrlAndStorage(pageSize);
+  //     fetchLeads(newTab, 1, pageSize);
+  //   },
+  //   [pageSize, fetchLeads, updateUrlAndStorage]
+  // );
   const handleTabChange = useCallback(
     (newTab) => {
       setCurrentPage(1);
+      setActiveTab(newTab);
+      setSearchQuery("");
+      setFormValues({});
+      setSearchedData([]);
       setDisplayAdvSearchData(false);
       setDisplaySearchData(false);
-      setSearchedData([]);
-      setSearchQuery("");
-      setActiveTab(newTab);
       setSearchNotFound(null);
+      setGetTagValues([]);
+      setIsFormReset(true);
       updateUrlAndStorage(pageSize);
       fetchLeads(newTab, 1, pageSize);
     },
     [pageSize, fetchLeads, updateUrlAndStorage]
   );
-
   const handleSearch = useCallback(
     (query) => {
       setSearchQuery(query);
@@ -527,7 +601,7 @@ const LeadScreen = () => {
       setDisplayAdvSearchData(false);
       updateUrlAndStorage(pageSize);
       if (query) {
-        fetchSearchedData(query, 1, pageSize);
+        fetchSearchedData(query, 1, pageSize, activeTab);
       } else {
         setDisplaySearchData(false);
         setSearchNotFound(null);

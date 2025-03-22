@@ -9,7 +9,6 @@ const AttendanceStats = ({ stats, employee }) => {
 
 	return (
 		<Box bg='white' p={5} borderRadius='md' shadow='sm' position='relative'>
-			
 			{/* Agency Badge on Top-Right */}
 			{employee.agency?.name && (
 				<Badge
@@ -38,7 +37,12 @@ const AttendanceStats = ({ stats, employee }) => {
 						name={employee?.fullName}
 					/>
 					<Box>
-						<Text fontWeight='medium' fontSize={{ base: 'md', md: 'lg' }}>
+						<Text
+							fontWeight='medium'
+							maxWidth={{ base: 'full', md: '150px' }}
+							fontSize={{ base: 'md', md: 'lg' }}
+							isTruncated
+						>
 							{employee.fullName}
 						</Text>
 						<Text color='#C4C4C4' fontWeight='medium' fontSize='sm'>

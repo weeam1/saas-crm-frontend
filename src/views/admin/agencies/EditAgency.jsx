@@ -56,7 +56,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 			<DrawerOverlay />
 			<DrawerContent>
 				<DrawerCloseButton />
-				<DrawerHeader>Create New Agency</DrawerHeader>
+				<DrawerHeader>Edit Agency</DrawerHeader>
 				<Formik
 					initialValues={initialValues}
 					validationSchema={validationSchema}
@@ -85,10 +85,10 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 								<AppButton
 									colorScheme='brand'
 									isLoading={isLoading}
-									loadingText='Submitting'
+									loadingText='Updating'
 									type='submit'
 								>
-									Submit
+									Update
 								</AppButton>
 							</DrawerFooter>
 						</Form>

@@ -85,7 +85,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 								<AppButton
 									colorScheme='brand'
 									isLoading={isLoading}
-									loadingText='Submitting'
+									loadingText='Loading'
 									type='submit'
 								>
 									Submit

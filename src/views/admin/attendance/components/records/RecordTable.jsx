@@ -260,7 +260,7 @@ const RecordTable = ({ records, timezone, isLoading, isFetching }) => {
 							<Tr borderColor='gray.200' textAlign='center'>
 								<Td
 									py={4}
-									colSpan='9'
+									colSpan='11'
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
 									color='gray.500'
