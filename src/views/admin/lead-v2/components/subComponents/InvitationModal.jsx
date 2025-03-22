@@ -28,8 +28,6 @@ const InvitationModal = ({ isOpen, onClose, leadName, leadId }) => {
 				url: QRCodeUrl,
 			};
 
-			console.log({ inviteData });
-
 			const { data } = await axios.post(
 				`${keys.socketUrl}/pdf/generate_invite`,
 				inviteData
@@ -43,31 +41,13 @@ const InvitationModal = ({ isOpen, onClose, leadName, leadId }) => {
 					throw new Error('Invalid download URL');
 				}
 
-				axios({
-					url: downloadURL,
-					method: 'GET',
-					responseType: 'blob', // Ensures the file is treated as binary
-				})
-					.then((response) => {
-						const blobURL = window.URL.createObjectURL(
-							new Blob([response.data])
-						);
-						const link = document.createElement('a');
-						link.href = blobURL;
-						link.download = `${leadName}-invite.pdf`; // Forces filename in all browsers
-						document.body.appendChild(link);
-						link.click();
-						link.remove();
-						window.URL.revokeObjectURL(blobURL);
-					})
-					.catch((error) => console.error('Download failed:', error));
 				// Trigger file download
-				// const link = document.createElement('a');
-				// link.href = downloadURL;
-				// link.setAttribute('download', `${leadName}-invite.pdf`);
-				// document.body.appendChild(link);
-				// link.click();
-				// link.parentNode.removeChild(link);
+				const link = document.createElement('a');
+				link.href = downloadURL;
+				link.setAttribute('download', `${leadName}-invite.pdf`);
+				document.body.appendChild(link);
+				link.click();
+				link.parentNode.removeChild(link);
 			}
 		} catch (err) {
 			console.log(err);
@@ -81,7 +61,7 @@ const InvitationModal = ({ isOpen, onClose, leadName, leadId }) => {
 	// Helper function to validate URL
 	const isValidUrl = (url) => {
 		try {
-			new URL(url); // This will throw an error if the URL is invalid
+			new URL(url);
 			return true;
 		} catch (error) {
 			return false;
