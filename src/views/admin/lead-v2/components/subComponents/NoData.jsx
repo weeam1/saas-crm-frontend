@@ -1,7 +1,7 @@
 import { Box, Image, Text } from '@chakra-ui/react';
 import NoDataImg from 'assets/icons/not-found.png';
 
-const NoData = () => {
+const NoData = ({ label }) => {
 	return (
 		<Box
 			display='flex'
@@ -13,7 +13,7 @@ const NoData = () => {
 		>
 			<Image src={NoDataImg} alt='No Data' boxSize='150px' mb={4} />
 			<Text fontSize={{ base: 'sm', md: 'lg' }} color='gray.500'>
-				No leads available at the moment.
+				{`No ${label} available at the moment.`}
 			</Text>
 		</Box>
 	);

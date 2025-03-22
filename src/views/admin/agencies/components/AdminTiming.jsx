@@ -1,104 +1,138 @@
-import { Box, Text, Flex, useBreakpointValue } from "@chakra-ui/react";
-import { ReactComponent as ClockIcon } from "../../../../assets/icons/Clock.svg";
-import { useState, useEffect } from "react";
-import OffDaysCheckbox from "./OffDaysCheckbox";
-import TimeZoneSelect from "./TimeZone";
-import CustomTimePicker from "components/customDatePicker/CustomDatePicker";
+import { Box, Text, Flex, useBreakpointValue, Button } from '@chakra-ui/react';
+import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
+import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
+import { buttonStyle } from 'views/admin/attendance/constants';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
+import moment from 'moment';
 
 const AdminSetting = ({
-  isDisabled,
-  inTime,
-  setInTime,
-  outTime,
-  setOutTime,
-  timezone,
-  setTimezone,
-  offDays,
-  setOffDays,
+	agencyId,
+	checkinTime,
+	setCheckinTime,
+	checkoutTime,
+	setCheckoutTime,
+	selectedUser,
+	setSpecialUsers,
+	setSelectedUser,
 }) => {
-  const fontSize = useBreakpointValue({ base: "14px", md: "17px" });
-  const [timeZones, setTimeZones] = useState([]);
-  const [loading, setLoading] = useState(true);
+	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
 
-  useEffect(() => {
-    const fetchTimeZones = async () => {
-      try {
-        const response = await fetch(
-          "https://timeapi.io/api/timezone/availabletimezones"
-        );
-        const data = await response.json();
-        setTimeZones(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching time zones:", error);
-        setTimeZones([
-          "United Arab Emirates (GMT+4)",
-          "India (GMT+5:30)",
-          "United States (GMT-5)",
-        ]);
-        setLoading(false);
-      }
-    };
+	const [updateItemMutation, { isLoading: isUpdating }] =
+		useUpdateItemMutation();
 
-    fetchTimeZones();
-  }, []);
+	const handleSave = async () => {
+		if (!selectedUser) return;
 
-  return (
-    <Box
-      borderRadius="lg"
-      p={5}
-      maxW={{ base: "100%", md: "500px" }}
-      bg="white"
-      opacity={isDisabled ? 0.5 : 1}
-      pointerEvents={isDisabled ? "none" : "auto"}
-    >
-      <Flex justify="space-between" align="center" mb={4} flexWrap="wrap">
-        <Text
-          as="h2"
-          display="flex"
-          alignItems="center"
-          gap={2}
-          fontFamily="'DM Sans', sans-serif"
-          fontWeight="400"
-          fontSize={fontSize}
-        >
-          <ClockIcon color="blue.400" /> Admin Timing
-        </Text>
-      </Flex>
-      <Flex justify="space-between" mb={4} flexWrap="wrap" gap={4}>
-        <Box flex="1" minW="150px">
-          <Text
-            mb={2}
-            fontFamily="'DM Sans', sans-serif"
-            fontWeight="400"
-            fontSize={fontSize}
-          >
-            In timing
-          </Text>
-          <CustomTimePicker value={inTime || "09:00 AM"} onChange={setInTime} />
-        </Box>
+		const checkIn = moment(checkinTime, 'hh:mm A');
+		const checkOut = moment(checkoutTime, 'hh:mm A');
 
-        <Box flex="1" minW="150px">
-          <Text
-            mb={2}
-            fontFamily="'DM Sans', sans-serif"
-            fontWeight="400"
-            fontSize={fontSize}
-          >
-            Out timing
-          </Text>
-          <CustomTimePicker
-            value={outTime || "05:00 PM"}
-            onChange={setOutTime}
-          />
-        </Box>
-      </Flex>
+		if (checkOut.isBefore(checkIn)) {
+			toast.error('Check-Out time must be greater than Check-In time!');
+			return;
+		}
 
-      <Box mb={4}>
-        <TimeZoneSelect
+		let updatedSpecialUsers;
+		setSpecialUsers((prev) => {
+			const exists = prev.some((su) => su.user === selectedUser._id);
+			updatedSpecialUsers = exists
+				? prev.map((su) =>
+						su.user === selectedUser._id
+							? { ...su, specialTiming: { checkinTime, checkoutTime } }
+							: su
+					)
+				: [
+						...prev,
+						{
+							user: selectedUser._id,
+							specialTiming: { checkinTime, checkoutTime },
+						},
+					];
+			return updatedSpecialUsers;
+		});
+
+		try {
+			await updateItemMutation({
+				path: `/attendance/office-settings/${agencyId}`,
+				body: { specialUsers: updatedSpecialUsers },
+			}).unwrap();
+
+			toast.success('Special Users updated successfully');
+			setSelectedUser(null);
+		} catch (error) {
+			console.log(error);
+			toast.error(error?.data?.message || 'Special Users not updated!');
+		}
+	};
+
+	return (
+		<Box borderRadius='lg' p={5}>
+			<Flex justify='space-between' align='center' mb={4}>
+				<Text
+					as='h2'
+					display='flex'
+					alignItems='center'
+					gap={2}
+					fontWeight='400'
+					fontSize={fontSize}
+				>
+					<ClockIcon color='blue.400' />{' '}
+					{`${selectedUser?.fullName ?? 'Special'}`} Timing
+				</Text>
+			</Flex>
+			<Flex
+				flexDirection='column'
+				justifyContent='space-between'
+				// alignItems={{ base: 'flex-start', md: 'flex-end' }}
+				opacity={!selectedUser ? 0.5 : 1}
+				pointerEvents={!selectedUser ? 'none' : 'auto'}
+			>
+				<Flex justify='space-between' mb={4} flexDirection='column' gap={4}>
+					<Box flex='1' minW='150px'>
+						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+							In timing
+						</Text>
+						<CustomTimePicker
+							value={checkinTime}
+							onChange={setCheckinTime}
+							isDisabled={!selectedUser}
+						/>
+					</Box>
+
+					<Box flex='1' minW='150px'>
+						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+							Out timing
+						</Text>
+						<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
+					</Box>
+				</Flex>
+
+				<Button
+					{...buttonStyle}
+					variant='solid'
+					bg='brand.400'
+					py='5'
+					px='8'
+					fontSize='lg'
+					aria-label='update'
+					isDisabled={!selectedUser}
+					onClick={handleSave}
+					width='fit-content'
+				>
+					{isUpdating ? 'Updating...' : 'Update'}
+				</Button>
+			</Flex>
+		</Box>
+	);
+};
+
+export default AdminSetting;
+
+/* <Box mb={4}>
+      <TimeZoneSelect
           isDisabled={isDisabled}
           timezone={timezone}
-          setTimezone={setTimezone}
+          setTimezone={setTimezone} 
         />
       </Box>
 
@@ -106,9 +140,4 @@ const AdminSetting = ({
         isDisabled={isDisabled}
         offDays={offDays}
         setOffDays={setOffDays}
-      />
-    </Box>
-  );
-};
-
-export default AdminSetting;
+      /> */

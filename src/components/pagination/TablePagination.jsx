@@ -95,10 +95,15 @@ const TablePagination = ({
 									min={1}
 									max={pageOptions?.length}
 									value={gopageValue === 0 ? 1 : gopageValue}
-									onChange={(value) => {
-										const page = value ? value - 1 : 0;
-										gotoPage(page);
-										setGopageValue(value);
+									onChange={(valueAsString, valueAsNumber) => {
+										if (!valueAsNumber || valueAsNumber < 1) {
+											valueAsNumber = 1; // Set min value
+										} else if (valueAsNumber > pageOptions?.length) {
+											valueAsNumber = pageOptions.length; // Set max value
+										}
+
+										setGopageValue(valueAsNumber);
+										gotoPage(valueAsNumber - 1);
 									}}
 								>
 									<NumberInputField

@@ -15,6 +15,7 @@ import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
 import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
+import { useSearchParams } from 'react-router-dom';
 
 const Leads = ({
 	data,
@@ -105,6 +106,17 @@ const Leads = ({
 	// const [searchTerm, setSearchTerm] = useState('');
 
 	const searchTermRef = useRef('');
+
+	const [searchParams] = useSearchParams();
+	const inviteId = searchParams.get('invite');
+
+	useEffect(() => {
+		if (inviteId) {
+			setViewLead({ isOpen: true, lid: inviteId });
+		} else {
+			setViewLead({ isOpen: false, lid: null });
+		}
+	}, [inviteId]);
 
 	const handleClear = () => {
 		setSearchTags([]);
@@ -330,7 +342,7 @@ const Leads = ({
 				// 	setSelectAllChecked={setSelectAllChecked}
 				// 	selectAllChecked={selectAllChecked}
 				// />
-				<NoData />
+				<NoData label='leads' />
 			)}
 
 			{/* Modals */}

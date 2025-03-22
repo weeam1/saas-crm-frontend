@@ -16,7 +16,8 @@ import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 // import { extractLocationData } from 'utils/helpers';
 // import { useSelector } from 'react-redux';
 

@@ -23,7 +23,6 @@ const store = configureStore({
 		filters: filtersReducer,
 		positions: positionsReducer,
 		countries: countriesReducer,
-		leads: leadsReducer,
 		users: usersReducer,
 		images: imageReducer,
 		user: userReducer,

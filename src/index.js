@@ -39,10 +39,14 @@ import logo from 'assets/img/app-logo.jpeg';
 import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
 import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
+import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
 function App() {
+	// chunk handler
+	useChunkErrorHandler();
+
 	const token = localStorage.getItem('token') || null;
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);

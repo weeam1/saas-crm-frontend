@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import RenderFields from 'components/shared/RenderFields';
