@@ -128,12 +128,6 @@ const LeadScreen = () => {
       if (sessionStorage.getItem("searchQuery") !== searchQuery) {
         sessionStorage.setItem("searchQuery", searchQuery);
       }
-      console.log(
-        "updateUrlAndStorage: page =",
-        currentPage,
-        "pageSize =",
-        newPageSize || pageSize
-      ); // Debug log
     },
     [activeTab, currentPage, pageSize, searchQuery]
   );
@@ -290,6 +284,8 @@ const LeadScreen = () => {
   ) => {
     if (e === "none") return;
 
+    const currentDate = new Date().toISOString(); // Set current date for immediate UI update
+
     try {
       const res = await axios.put(
         constant["baseUrl"] + "api/adminApproval/update",
@@ -322,6 +318,7 @@ const LeadScreen = () => {
                       ...lead,
                       agentAssigned: agentId,
                       approvalStatus: "accepted",
+                      approvedDate: currentDate, // Set immediately for real-time UI
                     }
                   : lead
               );
@@ -333,7 +330,12 @@ const LeadScreen = () => {
             setLeads((prev) => {
               const updatedApprovals = prev.approvals.map((approval) =>
                 approval._id === approvalId
-                  ? { ...approval, approvalStatus: "accepted", agentId }
+                  ? {
+                      ...approval,
+                      approvalStatus: "accepted",
+                      agentId,
+                      approvedDate: currentDate, // Set immediately for real-time UI
+                    }
                   : approval
               );
               return {
@@ -374,7 +376,11 @@ const LeadScreen = () => {
             setSearchedData((prev) => {
               const updatedLeads = prev.map((lead) =>
                 lead._id === leadId
-                  ? { ...lead, approvalStatus: "rejected" }
+                  ? {
+                      ...lead,
+                      approvalStatus: "rejected",
+                      rejectedDate: currentDate, // Set immediately for real-time UI
+                    }
                   : lead
               );
               return currentTab === "Pending"
@@ -385,7 +391,11 @@ const LeadScreen = () => {
             setLeads((prev) => {
               const updatedApprovals = prev.approvals.map((approval) =>
                 approval._id === approvalId
-                  ? { ...approval, approvalStatus: "rejected" }
+                  ? {
+                      ...approval,
+                      approvalStatus: "rejected",
+                      rejectedDate: currentDate, // Set immediately for real-time UI
+                    }
                   : approval
               );
               return {
@@ -425,13 +435,11 @@ const LeadScreen = () => {
     const initialPageSize = getInitialPageSize();
     const initialSearchQuery = getInitialSearchQuery();
 
-    // Set states from persisted values
     setActiveTab(initialTab);
     setCurrentPage(initialPage);
     setPageSize(initialPageSize);
     setSearchQuery(initialSearchQuery);
 
-    // Fetch data based on persisted state
     if (initialSearchQuery) {
       fetchSearchedData(initialSearchQuery, initialPage, initialPageSize);
     } else if (Object.keys(formValues).length > 0) {
