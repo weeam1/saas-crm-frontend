@@ -107,17 +107,6 @@ const Leads = ({
 
 	const searchTermRef = useRef('');
 
-	const [searchParams] = useSearchParams();
-	const inviteId = searchParams.get('invite');
-
-	useEffect(() => {
-		if (inviteId) {
-			setViewLead({ isOpen: true, lid: inviteId });
-		} else {
-			setViewLead({ isOpen: false, lid: null });
-		}
-	}, [inviteId]);
-
 	const handleClear = () => {
 		setSearchTags([]);
 		searchTermRef.current = '';

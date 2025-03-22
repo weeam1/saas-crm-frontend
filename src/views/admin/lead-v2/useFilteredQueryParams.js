@@ -170,11 +170,11 @@ export const useFilteredQueryParams = () => {
 		});
 
 		// Exclude invite_id from queryParams
-		const filteredParams = Object.fromEntries(
-			Object.entries(params).filter(([key]) => key !== 'invite')
-		);
+		// const filteredParams = Object.fromEntries(
+		// 	Object.entries(params).filter(([key]) => key !== 'invite')
+		// );
 
-		setQueryParams(filteredParams);
+		setQueryParams(params);
 	};
 
 	useEffect(() => {
@@ -185,6 +185,7 @@ export const useFilteredQueryParams = () => {
 
 		if (invite) {
 			updatedParams.invite = invite;
+			setSearchClear(true);
 		}
 
 		// Handle 'data' parameter
