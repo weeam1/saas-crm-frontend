@@ -1,9 +1,4 @@
-import {
-	AddIcon,
-	ChevronDownIcon,
-	DeleteIcon,
-	EditIcon,
-} from '@chakra-ui/icons';
+import { ChevronDownIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
 	Box,
 	Button,
@@ -18,7 +13,6 @@ import {
 	MenuItem,
 	MenuList,
 	Text,
-	useDisclosure,
 } from '@chakra-ui/react';
 import Card from 'components/card/Card';
 import { HSeparator } from 'components/separator/Separator';
@@ -68,6 +62,7 @@ const View = () => {
 		},
 		{
 			skip: !param.id,
+			refetchOnMountOrArgChange: true,
 		}
 	);
 

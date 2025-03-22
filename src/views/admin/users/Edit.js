@@ -98,7 +98,7 @@ const Edit = (props) => {
 	const EditData = async () => {
 		try {
 			const valuesObj = { ...values };
-			if (data?.roles[0]?.roleName === 'Manager') {
+			if (data?.roles[0]?.roleName !== 'Agent') {
 				delete valuesObj['parent'];
 			}
 
@@ -123,7 +123,7 @@ const Edit = (props) => {
 			// });
 
 			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
-				if (value !== undefined && value !== null && value !== '') {
+				if (value !== undefined && value !== null) {
 					acc[key] =
 						key === 'roles' && Array.isArray(value)
 							? value.map((role) => role.roleName).filter(Boolean)
@@ -411,30 +411,33 @@ const Edit = (props) => {
 									</Text>
 								</GridItem>
 
-								<GridItem colSpan={{ base: 6 }}>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='500'
-										mb='8px'
-									>
-										Select Manager
-									</FormLabel>
-									<Select
-										name='parent'
-										value={values.parent}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Select Manager'
-									>
-										{tree?.tree?.managers?.map((manager) => (
-											<option key={manager?._id} value={manager?._id}>
-												{manager?.firstName + ' ' + manager?.lastName}
-											</option>
-										))}
-									</Select>
-								</GridItem>
+								{values && values?.roles[0]?.roleName === 'Agent' && (
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Select Manager
+										</FormLabel>
+										<Select
+											name='parent'
+											value={values.parent}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Select Manager'
+										>
+											{tree?.tree?.managers?.map((manager) => (
+												<option key={manager?._id} value={manager?._id}>
+													{manager?.firstName + ' ' + manager?.lastName}
+												</option>
+											))}
+										</Select>
+									</GridItem>
+								)}
+
 								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'

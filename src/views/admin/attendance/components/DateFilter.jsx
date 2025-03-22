@@ -8,14 +8,13 @@ import { useSearchParams } from 'react-router-dom';
 
 const DateFilter = ({ onFilterChange }) => {
 	const [searchParams] = useSearchParams();
-	const currentDate = moment();
+	const currentDate = moment().startOf('month');
 
 	const month = searchParams.get('month') || currentDate.format('MM');
 	const year = searchParams.get('year') || currentDate.format('YYYY');
 
 	const [date, setDate] = useState(moment(`${year}-${month}-01`).toDate());
 	const [showCalendar, setShowCalendar] = useState(false);
-	const minSelectableDate = new Date(2025, 2, 28);
 
 	const handleDateChange = (selectedDate) => {
 		setDate(selectedDate);
@@ -51,7 +50,8 @@ const DateFilter = ({ onFilterChange }) => {
 						value={date}
 						view='year'
 						// minDate={minSelectableDate}
-						maxDate={new Date()}
+						// maxDate={new Date()}
+						maxDate={moment().endOf('month').toDate()}
 						onClickMonth={handleDateChange}
 						tileDisabled={({ date }) => date.getDate() !== 1}
 					/>

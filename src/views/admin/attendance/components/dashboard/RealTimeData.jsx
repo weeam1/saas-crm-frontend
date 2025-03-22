@@ -8,28 +8,14 @@ import {
 	Grid,
 	Button,
 	ButtonGroup,
-	IconButton,
-	useDisclosure,
 } from '@chakra-ui/react';
-import {
-	FaUsers,
-	FaClock,
-	FaUserSlash,
-	FaSearch,
-	FaMoon,
-	FaFileAlt,
-} from 'react-icons/fa';
 import { IoIosAddCircleOutline } from 'react-icons/io';
 import { PiSunLight } from 'react-icons/pi';
 import { FaArrowTrendUp } from 'react-icons/fa6';
 import { IoMdTrendingDown } from 'react-icons/io';
 import Chart from 'react-apexcharts';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment-timezone';
-import DateFilter from '../DateFilter';
-import { FiFilter } from 'react-icons/fi';
-import FilterModal from '../employees/FilterModal';
 
 const timezone = 'Asia/Karachi';
 
