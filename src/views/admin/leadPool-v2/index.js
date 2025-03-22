@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PaginationPage from "./components/Pagination";
 import { getApi, postApi, putApi } from "services/api";
@@ -27,7 +27,10 @@ const Index = () => {
   const [buyLoading, setBuyLoading] = useState({});
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorLeadData, setErrorLeadData] = useState(null);
-  const [lastFetchedTab, setLastFetchedTab] = useState(null);
+
+  // Ref to prevent duplicate fetches
+  const fetchLockRef = useRef(false);
+  const lastFetchRef = useRef(null);
 
   const debounce = (func, delay) => {
     let timeoutId;
@@ -37,7 +40,6 @@ const Index = () => {
     };
   };
 
-  // Function to update URL with current state
   const updateUrl = (newPage, newSize, newTab) => {
     const params = new URLSearchParams(location.search);
     params.set("page", newPage || currentPage);
@@ -46,203 +48,109 @@ const Index = () => {
     navigate(`${location.pathname}?${params.toString()}`, { replace: true });
   };
 
-  // Read initial state from URL
   const getInitialStateFromUrl = () => {
     const params = new URLSearchParams(location.search);
     const page = parseInt(params.get("page")) || 1;
     const size = parseInt(params.get("pageSize")) || 50;
     const tab = params.get("tab") || "Buy Leads";
+
     return { page, size, tab };
   };
+  const fetchTabData = async (tab, page = 1, size = pageSize, source) => {
+    if (fetchLockRef.current) {
+      return;
+    }
+    const fetchKey = `${tab}_${page}_${size}`;
+    if (lastFetchRef.current === fetchKey) {
+      return;
+    }
 
-  const fetchData = async (pageNo = 1, size = pageSize, source) => {
-    if (isLoading) return;
-    let isMounted = true;
+    fetchLockRef.current = true;
     setIsLoading(true);
     setError(null);
+    lastFetchRef.current = fetchKey;
+
     try {
       let result;
-      if (user.role !== "superAdmin" && currentState === "buy_leads") {
+      if (tab === "Buy Leads") {
+        // Always use the /api/lead/ endpoint for "Buy Leads"
         result = await getApi(
-          `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=pending`,
+          `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${page}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=buy_leads`,
           null,
           "baseUrl",
           source
         );
       } else {
-        result = await axios.get(`${constant.baseUrl}api/adminApproval/get`, {
-          headers: {
-            Authorization:
-              localStorage.getItem("token") || sessionStorage.getItem("token"),
-          },
-          params: {
-            approvalStatus: currentState === "buy_leads" ? "" : currentState,
-            page: pageNo,
-            pageSize: size,
-            managerId: user?.roles[0]?.roleName === "Manager" ? user?._id : "",
-            agentId: user?.roles[0]?.roleName === "Agent" ? user?._id : "",
-          },
-          cancelToken: source?.token,
-        });
-      }
-
-      let newData = [];
-      if (Array.isArray(result.data?.result)) {
-        newData = result.data.result;
-      } else if (Array.isArray(result.data?.approvals)) {
-        newData = result.data.approvals;
-      } else {
-        console.error("Unexpected response format:", result.data);
-      }
-
-      newData = newData.map((lead) => {
-        if (lead?.ip) {
-          const parts = lead.ip.split("-");
-          lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-        }
-        return { ...lead };
-      });
-
-      if (isMounted) {
-        setData(newData);
-        setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(
-          result.data?.totalLeads || result.data?.totalApprovals || 0
-        );
-      }
-    } catch (error) {
-      if (!axios.isCancel(error)) {
-        console.error("Fetch Error:", error);
-        if (isMounted) {
-          setError(error.message || "Failed to fetch data");
-          setData([]);
-          setTotalPages(0);
-          setTotalLeads(0);
-        }
-      }
-    } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    }
-    return () => {
-      isMounted = false;
-    };
-  };
-
-  const fetchUserData = async () => {
-    let isMounted = true;
-    setIsLoading(true);
-    try {
-      const response = await getApi(`api/user/view/${user._id}`);
-      if (isMounted) {
-        setUserData(response.data);
-      }
-    } catch (error) {
-      console.error("Fetch User Data Error:", error);
-      if (isMounted) {
-        setUserData(null);
-      }
-    } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
-    }
-    return () => {
-      isMounted = false;
-    };
-  };
-
-  const fetchLeads = async (
-    tab = activeTab,
-    page = currentPage,
-    size = pageSize
-  ) => {
-    if (isLoading) return;
-    let isMounted = true;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const queryParams = new URLSearchParams();
-      if (tab === "Buy Leads") {
-        queryParams.append("isInLeadPool", "true");
-        queryParams.append("excludeUser", user._id);
-      } else {
-        const statusMap = {
-          Pending: "pending",
-          Rejected: "rejected",
-        };
+        // Use /api/adminApproval/get for "Pending" and "Rejected"
+        const statusMap = { Pending: "pending", Rejected: "rejected" };
         const status = statusMap[tab];
-        if (!status && tab !== "Buy Leads") {
-          console.error(`Invalid tab value: ${tab}`);
-          throw new Error("Invalid tab value");
-        }
+        const queryParams = new URLSearchParams();
         if (status) {
           queryParams.append("approvalStatus", status);
           queryParams.append("agentId", user._id);
         }
-      }
-      queryParams.append("page", page);
-      queryParams.append("pageSize", size);
-
-      const endpoint =
-        tab === "Buy Leads" ? "api/lead/" : "api/adminApproval/get";
-      const result = await getApi(`${endpoint}?${queryParams}`);
-
-      let newData = [];
-      if (tab === "Buy Leads") {
-        newData = result.data?.result || [];
-      } else {
-        newData = result.data?.approvals || result.data || [];
+        queryParams.append("page", page);
+        queryParams.append("pageSize", size);
+        result = await getApi(`api/adminApproval/get?${queryParams}`);
       }
 
-      newData = newData.map((lead) => {
-        if (lead?.ip) {
-          const parts = lead.ip.split("-");
-          lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-        }
-        return { ...lead };
-      });
+      let newData =
+        tab === "Buy Leads"
+          ? Array.isArray(result.data?.result)
+            ? result.data.result
+            : result.data?.approvals || []
+          : result.data?.approvals || result.data || [];
+      newData = newData.map((lead) => ({
+        ...lead,
+        ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+      }));
 
-      if (isMounted) {
-        setData(newData);
-        setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(
-          result.data?.totalLeads ||
-            result.data?.totalApprovals ||
-            newData.length
-        );
-      }
-    } catch (err) {
-      console.error("Fetch Leads Error:", err);
-      if (isMounted) {
-        setError(err.message || "Failed to fetch leads");
+      setData(newData);
+      setTotalPages(result.data?.totalPages || 0);
+      const totalLeadCount =
+        result.data?.totalLeads || result.data?.totalApprovals || 0;
+      setTotalLeads(totalLeadCount);
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        console.error("FetchTabData Error:", error);
+        setError(error.message || "Failed to fetch tab data");
         setData([]);
         setTotalPages(0);
         setTotalLeads(0);
       }
     } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
+      fetchLockRef.current = false;
     }
-    return () => {
-      isMounted = false;
-    };
+  };
+
+  const fetchUserData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getApi(`api/user/view/${user._id}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Fetch User Data Error:", error);
+      setUserData(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
     if (isLoading) return;
-    let isMounted = true;
+    const fetchKey = `search_${activeTab}_${pageNo}_${size}`;
+    if (lastFetchRef.current === fetchKey) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
+    lastFetchRef.current = fetchKey;
     try {
       let result;
       if (activeTab === "Pending" || activeTab === "Rejected") {
-        const statusMap = {
-          Pending: "pending",
-          Rejected: "rejected",
-        };
+        const statusMap = { Pending: "pending", Rejected: "rejected" };
         const approvalStatus = statusMap[activeTab];
         const queryParams = new URLSearchParams();
         queryParams.append("approvalStatus", approvalStatus);
@@ -259,61 +167,45 @@ const Index = () => {
           );
         }
 
-        newData = newData.map((lead) => {
-          if (lead?.ip) {
-            const parts = lead.ip.split("-");
-            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-          }
-          return { ...lead };
-        });
+        newData = newData.map((lead) => ({
+          ...lead,
+          ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+        }));
 
-        if (isMounted) {
-          setDisplaySearchData(true);
-          setSearchedData(newData);
-          setData(newData);
-          setTotalPages(
-            result.data?.totalPages || Math.ceil(newData.length / size)
-          );
-          setTotalLeads(newData.length);
-        }
+        setDisplaySearchData(true);
+        setSearchedData(newData);
+        setData(newData);
+        setTotalPages(
+          result.data?.totalPages || Math.ceil(newData.length / size)
+        );
+        setTotalLeads(newData.length);
       } else if (activeTab === "Buy Leads") {
         result = await getApi(
           `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
         );
 
         const newData =
-          result.data?.result?.map((lead) => {
-            if (lead?.ip) {
-              const parts = lead.ip.split("-");
-              lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-            }
-            return { ...lead, agentId: lead.agentAssigned };
-          }) || [];
+          result.data?.result?.map((lead) => ({
+            ...lead,
+            ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+            agentId: lead.agentAssigned,
+          })) || [];
 
-        if (isMounted) {
-          setDisplaySearchData(true);
-          setSearchedData(newData);
-          setData(newData);
-          setTotalPages(result.data?.totalPages || 0);
-          setTotalLeads(result.data?.totalLeads || newData.length);
-        }
+        setDisplaySearchData(true);
+        setSearchedData(newData);
+        setData(newData);
+        setTotalPages(result.data?.totalPages || 0);
+        setTotalLeads(result.data?.totalLeads || newData.length);
       }
     } catch (err) {
       console.error("Fetch Searched Data Error:", err);
-      if (isMounted) {
-        setError(err.message || "Failed to fetch searched leads");
-        setData([]);
-        setTotalPages(0);
-        setTotalLeads(0);
-      }
+      setError(err.message || "Failed to fetch searched leads");
+      setData([]);
+      setTotalPages(0);
+      setTotalLeads(0);
     } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-    return () => {
-      isMounted = false;
-    };
   };
 
   const fetchAdvancedSearch = async (
@@ -322,9 +214,13 @@ const Index = () => {
     size = pageSize
   ) => {
     if (isLoading) return;
-    let isMounted = true;
+    const fetchKey = `advanced_${activeTab}_${pageNo}_${size}`;
+    if (lastFetchRef.current === fetchKey) {
+      return;
+    }
     setIsLoading(true);
     setError(null);
+    lastFetchRef.current = fetchKey;
     try {
       let result = await getApi(
         activeTab === "Buy Leads"
@@ -336,37 +232,26 @@ const Index = () => {
         (activeTab === "Buy Leads"
           ? result.data?.result
           : result.data?.approvals || result.data
-        )?.map((lead) => {
-          if (lead?.ip) {
-            const parts = lead.ip.split("-");
-            lead.ip = parts?.length > 1 ? parts[1] : parts[0];
-          }
-          return { ...lead, agentId: lead.agentAssigned };
-        }) || [];
+        )?.map((lead) => ({
+          ...lead,
+          ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+          agentId: lead.agentAssigned,
+        })) || [];
 
-      if (isMounted) {
-        setDisplaySearchData(true);
-        setSearchedData(newData);
-        setData(newData);
-        setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(result.data?.totalLeads || newData.length);
-      }
+      setDisplaySearchData(true);
+      setSearchedData(newData);
+      setData(newData);
+      setTotalPages(result.data?.totalPages || 0);
+      setTotalLeads(result.data?.totalLeads || newData.length);
     } catch (err) {
       console.error("Fetch Advanced Search Error:", err);
-      if (isMounted) {
-        setError(err.message || "Failed to fetch advanced search leads");
-        setData([]);
-        setTotalPages(0);
-        setTotalLeads(0);
-      }
+      setError(err.message || "Failed to fetch advanced search leads");
+      setData([]);
+      setTotalPages(0);
+      setTotalLeads(0);
     } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-    return () => {
-      isMounted = false;
-    };
   };
 
   const fetchAgentLeadsSats = async (userId) => {
@@ -384,20 +269,10 @@ const Index = () => {
   };
 
   const sendRequest = async (leadId) => {
-    let isMounted = true;
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
-
     try {
       const stats = await fetchAgentLeadsSats(user._id);
       if (!stats.canAddLeads) {
-        if (!stats || typeof stats !== "object") {
-          console.error("Invalid stats object:", stats);
-          toast.error("Failed to retrieve lead stats", {
-            position: toast.POSITION.TOP_RIGHT,
-            autoClose: 3000,
-          });
-          return;
-        }
         setErrorLeadData({
           assignedLeads: stats.assignedLeads || 0,
           pendingApprovals: stats.pendingApprovals || 0,
@@ -408,16 +283,10 @@ const Index = () => {
         return;
       }
 
-      let payload = {
-        leadId,
-        agentId: user._id,
-        approvalStatus: "pending",
-      };
-
+      const payload = { leadId, agentId: user._id, approvalStatus: "pending" };
       const approvalResponse = await postApi("api/adminApproval/add", payload);
-      if (approvalResponse.status !== 200) {
+      if (approvalResponse.status !== 200)
         throw new Error("Failed to send lead for approval");
-      }
 
       const userResponse = await getApi(`api/user/view/${user._id}`);
       const lead = data.find((l) => l._id === leadId);
@@ -425,18 +294,15 @@ const Index = () => {
       const currentCoins = userResponse?.data?.coins || 0;
       const updatedCoins = currentCoins - coinCost;
 
-      if (updatedCoins < 0) {
+      if (updatedCoins < 0)
         throw new Error("Insufficient coins to purchase this lead");
-      }
 
       const updateResponse = await putApi(`api/user/edit/${user._id}`, {
         coins: updatedCoins,
       });
-
-      if (updateResponse.status === 200 && isMounted) {
+      if (updateResponse.status === 200) {
         setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-        const updatedData = data.filter((lead) => lead._id !== leadId);
-        setData(updatedData);
+        setData(data.filter((lead) => lead._id !== leadId));
         setTotalLeads((prev) => prev - 1);
         toast.success("Lead purchased and sent for approval", {
           position: toast.POSITION.TOP_RIGHT,
@@ -445,33 +311,19 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Send Request Error:", error);
-      if (isMounted) {
-        toast.error(error.message || "Failed to purchase lead", {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000,
-        });
-      }
+      toast.error(error.message || "Failed to purchase lead", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
     } finally {
-      if (isMounted) {
-        setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
-      }
+      setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
     }
-
-    return () => {
-      isMounted = false;
-    };
   };
 
   const cancelRequest = async (id, leadId, userId) => {
-    let isMounted = true;
     setBuyLoading((prev) => ({ ...prev, [id]: true }));
-
     try {
-      if (!leadId || !userId) {
-        console.error("leadId or userId is missing:", { leadId, userId });
-        toast.error("Error: Lead ID or User ID is missing.");
-        return;
-      }
+      if (!leadId || !userId) throw new Error("Lead ID or User ID is missing");
 
       const res = await axios.post(
         `${constant.baseUrl}api/adminApproval/delete`,
@@ -483,22 +335,13 @@ const Index = () => {
           },
         }
       );
-
-      if (res.status !== 200) {
+      if (res.status !== 200)
         throw new Error("Failed to delete approval request");
-      }
 
       const leadResponse = await getApi(`api/lead/view/${leadId}`);
-      if (!leadResponse?.data?.lead) {
-        console.error("Lead not found:", leadId);
-        throw new Error("Lead not found");
-      }
+      if (!leadResponse?.data?.lead) throw new Error("Lead not found");
 
       const userResponse = await getApi(`api/user/view/${userId}`);
-      if (!userResponse?.data) {
-        console.error("User not found:", userId);
-      }
-
       const coinRefund = leadResponse.data.lead.leadStatus === "new" ? 300 : 50;
       const currentCoins = userResponse.data.coins || 0;
       const updatedCoins = currentCoins + coinRefund;
@@ -506,11 +349,9 @@ const Index = () => {
       const updateResponse = await putApi(`api/user/edit/${userId}`, {
         coins: updatedCoins,
       });
-
-      if (updateResponse.status === 200 && isMounted) {
+      if (updateResponse.status === 200) {
         setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-        const updatedData = data.filter((lead) => lead._id !== id);
-        setData(updatedData);
+        setData(data.filter((lead) => lead._id !== id));
         setTotalLeads((prev) => prev - 1);
         toast.success("Request canceled successfully. Coins refunded.", {
           position: toast.POSITION.TOP_RIGHT,
@@ -519,82 +360,53 @@ const Index = () => {
       }
     } catch (error) {
       console.error("Cancel Request Error:", error);
-      if (isMounted) {
-        toast.error(error.message || "Unable to cancel request", {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000,
-        });
-      }
+      toast.error(error.message || "Unable to cancel request", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
     } finally {
-      if (isMounted) {
-        setBuyLoading((prev) => ({ ...prev, [id]: false }));
-      }
+      setBuyLoading((prev) => ({ ...prev, [id]: false }));
     }
-
-    return () => {
-      isMounted = false;
-    };
   };
 
-  const debouncedFetchData = useCallback(debounce(fetchData, 300), [
+  const debouncedFetchTabData = useCallback(debounce(fetchTabData, 300), [
     dateTime,
     user,
     currentState,
+    activeTab,
   ]);
-  const debouncedFetchLeads = useCallback(debounce(fetchLeads, 300), [user]);
   const debouncedFetchSearchedData = useCallback(
     debounce(fetchSearchedData, 300),
     [dateTime, user, activeTab]
   );
   const debouncedFetchAdvancedSearch = useCallback(
     debounce(fetchAdvancedSearch, 300),
-    [dateTime, user]
+    [dateTime, user, activeTab]
   );
 
-  // Initial load with URL state
+  // Sync currentState with activeTab
+  useEffect(() => {
+    const newState =
+      activeTab === "Buy Leads" ? "buy_leads" : activeTab.toLowerCase();
+
+    setCurrentState(newState);
+  }, [activeTab]);
+
+  // Initial load
   useEffect(() => {
     const { page, size, tab } = getInitialStateFromUrl();
     setCurrentPage(page);
     setPageSize(size);
     setActiveTab(tab);
-    setLastFetchedTab(null); // Reset lastFetchedTab to ensure fetch happens
 
     const source = axios.CancelToken.source();
     fetchUserData();
-    if (tab === "Buy Leads") {
-      fetchData(page, size, source); // Use fetchData directly to avoid debounce delay on initial load
-    } else {
-      fetchLeads(tab, page, size); // Use fetchLeads directly
-    }
+    fetchTabData(tab, page, size, source);
 
-    return () => {
-      source.cancel("Component unmounted");
-    };
-  }, [location.search]); // Only trigger on URL change
+    return () => source.cancel("Component unmounted");
+  }, []);
 
-  // Handle tab changes without resetting page unnecessarily
-  useEffect(() => {
-    if (!displaySearchData && activeTab !== lastFetchedTab) {
-      const { page, size } = getInitialStateFromUrl(); // Get current URL state
-      updateUrl(page, size, activeTab); // Update URL with new tab
-      if (activeTab === "Buy Leads") {
-        debouncedFetchData(page, size);
-      } else {
-        debouncedFetchLeads(activeTab, page, size);
-      }
-      setLastFetchedTab(activeTab);
-    }
-  }, [
-    activeTab,
-    displaySearchData,
-    debouncedFetchData,
-    debouncedFetchLeads,
-    lastFetchedTab,
-  ]);
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <>
@@ -609,14 +421,8 @@ const Index = () => {
           setCurrentPage(page);
           setPageSize(size);
           updateUrl(page, size, tab);
-          if (tab === "Buy Leads") {
-            setDateTime({ from: "", to: "" });
-            setDisplaySearchData(false);
-            debouncedFetchData(page, size);
-          } else {
-            debouncedFetchLeads(tab, page, size);
-          }
-          setLastFetchedTab(tab);
+          setDisplaySearchData(false);
+          fetchTabData(tab, page, size);
         }}
         fetchSearchedData={debouncedFetchSearchedData}
         fetchAdvancedSearch={debouncedFetchAdvancedSearch}
@@ -626,34 +432,30 @@ const Index = () => {
         setPageSize={(size) => {
           setPageSize(size);
           updateUrl(currentPage, size, activeTab);
-          if (activeTab === "Buy Leads") {
-            debouncedFetchData(currentPage, size);
-          } else {
-            debouncedFetchLeads(activeTab, currentPage, size);
-          }
+          debouncedFetchTabData(activeTab, currentPage, size);
         }}
         user={user}
         dateTime={dateTime}
         activeTab={activeTab}
         setActiveTab={(tab) => {
-          setActiveTab(tab);
-          updateUrl(1, pageSize, tab); // Reset to page 1 on tab change
-          setCurrentPage(1); // Reset currentPage
-          if (tab === "Buy Leads") {
-            debouncedFetchData(1, pageSize);
-          } else {
-            debouncedFetchLeads(tab, 1, pageSize);
+          if (
+            activeTab === tab &&
+            lastFetchRef.current === `${tab}_1_${pageSize}`
+          ) {
+            return;
           }
+          setData([]);
+          setActiveTab(tab);
+          setCurrentPage(1);
+          setDisplaySearchData(false);
+          updateUrl(1, pageSize, tab);
+          fetchTabData(tab, 1, pageSize);
         }}
         currentPage={currentPage}
         setCurrentPage={(page) => {
           setCurrentPage(page);
           updateUrl(page, pageSize, activeTab);
-          if (activeTab === "Buy Leads") {
-            debouncedFetchData(page, pageSize);
-          } else {
-            debouncedFetchLeads(activeTab, page, pageSize);
-          }
+          debouncedFetchTabData(activeTab, page, pageSize);
         }}
         setData={setData}
         setTotalPages={setTotalPages}
