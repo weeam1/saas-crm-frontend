@@ -153,49 +153,51 @@ const Index = () => {
         const statusMap = { Pending: "pending", Rejected: "rejected" };
         const approvalStatus = statusMap[activeTab];
         const queryParams = new URLSearchParams();
-        queryParams.append("approvalStatus", approvalStatus);
-        queryParams.append("agentId", user._id);
         queryParams.append("term", term);
         queryParams.append("page", pageNo);
         queryParams.append("pageSize", size);
-        result = await getApi(`api/adminApproval/get?${queryParams}`);
+        queryParams.append("activeTab", activeTab);
+        result = await getApi(`api/adminApproval/search?${queryParams}`);
 
-        let newData = result.data?.approvals || result.data || [];
-        if (newData.length > 0 && term.trim() !== "") {
-          newData = newData.filter((lead) =>
-            lead.leadName?.toLowerCase().includes(term.toLowerCase())
-          );
-        }
+        console.log("Pending/Rejected API Response:", result);
 
-        newData = newData.map((lead) => ({
-          ...lead,
-          ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
-        }));
+        const rawData = result.data?.result || result.data || [];
+        console.log("Pending/Rejected Raw Data:", rawData);
+        const newData = Array.isArray(rawData)
+          ? rawData.map((lead) => ({
+              ...lead,
+              ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+            }))
+          : [];
 
         setDisplaySearchData(true);
         setSearchedData(newData);
         setData(newData);
         setTotalPages(
-          result.data?.totalPages || Math.ceil(newData.length / size)
+          result.data?.totalPages || Math.ceil(newData.length / size) || 0
         );
-        setTotalLeads(newData.length);
+        setTotalLeads(result.data?.totalLeads || newData.length || 0);
       } else if (activeTab === "Buy Leads") {
         result = await getApi(
           `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
         );
 
-        const newData =
-          result.data?.result?.map((lead) => ({
-            ...lead,
-            ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
-            agentId: lead.agentAssigned,
-          })) || [];
+        console.log("Buy Leads API Response:", result);
+        const rawData = result.data?.result || [];
+        console.log("Buy Leads Raw Data:", rawData);
+        const newData = Array.isArray(rawData)
+          ? rawData.map((lead) => ({
+              ...lead,
+              ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+              agentId: lead.agentAssigned,
+            }))
+          : [];
 
         setDisplaySearchData(true);
         setSearchedData(newData);
         setData(newData);
         setTotalPages(result.data?.totalPages || 0);
-        setTotalLeads(result.data?.totalLeads || newData.length);
+        setTotalLeads(result.data?.totalLeads || newData.length || 0);
       }
     } catch (err) {
       console.error("Fetch Searched Data Error:", err);
@@ -207,7 +209,6 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-
   const fetchAdvancedSearch = async (
     data = {},
     pageNo = 1,
@@ -225,24 +226,23 @@ const Index = () => {
       let result = await getApi(
         activeTab === "Buy Leads"
           ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
-          : `api/adminApproval/get?data=${JSON.stringify(data)}&agentId=${user._id}&page=${pageNo}&pageSize=${size}`
+          : `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&page=${pageNo}&pageSize=${size}&activeTab=${activeTab}`
       );
 
+      console.log("Advanced Search API Response:", result);
       const newData =
-        (activeTab === "Buy Leads"
-          ? result.data?.result
-          : result.data?.approvals || result.data
-        )?.map((lead) => ({
-          ...lead,
-          ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
-          agentId: lead.agentAssigned,
-        })) || [];
+        activeTab === "Buy Leads"
+          ? result.data?.result || []
+          : result.data?.result || result.data || [];
+      const validatedData = Array.isArray(newData) ? newData : [];
+
+      console.log("Validated Data:", validatedData);
 
       setDisplaySearchData(true);
-      setSearchedData(newData);
-      setData(newData);
+      setSearchedData(validatedData);
+      setData(validatedData);
       setTotalPages(result.data?.totalPages || 0);
-      setTotalLeads(result.data?.totalLeads || newData.length);
+      setTotalLeads(result.data?.totalLeads || validatedData.length);
     } catch (err) {
       console.error("Fetch Advanced Search Error:", err);
       setError(err.message || "Failed to fetch advanced search leads");
@@ -253,7 +253,6 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-
   const fetchAgentLeadsSats = async (userId) => {
     if (!userId) {
       console.error("User ID is missing");
