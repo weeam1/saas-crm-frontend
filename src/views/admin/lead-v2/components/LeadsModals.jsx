@@ -27,13 +27,6 @@ const LeadsModals = (props) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const handleViewClose = () => {
-		const newParams = new URLSearchParams(searchParams);
-
-		if (newParams.has('invite')) {
-			newParams.delete('invite');
-			setSearchParams(newParams);
-		}
-
 		setViewLead({ isOpen: false, lid: null });
 	};
 
