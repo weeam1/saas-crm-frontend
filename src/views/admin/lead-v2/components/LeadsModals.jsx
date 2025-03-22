@@ -24,13 +24,16 @@ const LeadsModals = (props) => {
 		setDeleteLead,
 	} = props;
 
-	const [setSearchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const handleViewClose = () => {
-		setSearchParams((prev) => {
-			prev.delete('invite');
-			return prev;
-		});
+		const newParams = new URLSearchParams(searchParams);
+
+		if (newParams.has('invite')) {
+			newParams.delete('invite');
+			setSearchParams(newParams);
+		}
+
 		setViewLead({ isOpen: false, lid: null });
 	};
 
