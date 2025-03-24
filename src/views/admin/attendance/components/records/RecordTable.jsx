@@ -18,10 +18,9 @@ import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 import { constant } from 'constant';
 
-import moment from 'moment-timezone';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
-const RecordTable = ({ records, timezone, isLoading, isFetching }) => {
+const RecordTable = ({ records, isLoading, isFetching }) => {
 	const columns = [
 		'Employee',
 		'Role',
@@ -42,16 +41,36 @@ const RecordTable = ({ records, timezone, isLoading, isFetching }) => {
 		if (records?.doc) setData(records?.doc);
 	}, [records?.doc]);
 
-	const getTimeAgo = (createdAt) => {
-		const now = moment().tz(timezone);
-		const createdMoment = moment(createdAt).tz(timezone);
-		const diffInMinutes = now.diff(createdMoment, 'minutes');
+	// const getTimeAgo = (createdAt) => {
+	// 	const now = moment();
+	// 	const createdMoment = moment(createdAt);
+	// 	const diffInMinutes = now.diff(createdMoment, 'minutes');
 
-		return diffInMinutes < 60
-			? diffInMinutes === 0
-				? 'now'
-				: `${diffInMinutes} minutes ago`
-			: createdMoment.format('h:mm A');
+	// 	return diffInMinutes < 60
+	// 		? diffInMinutes === 0
+	// 			? 'now'
+	// 			: `${diffInMinutes} minutes ago`
+	// 		: createdMoment.format('h:mm A');
+	// };
+
+	const getTimeAgo = (createdAt) => {
+		if (!createdAt) return 'Invalid date';
+
+		const createdDate = new Date(createdAt);
+		if (isNaN(createdDate.getTime())) return 'Invalid date';
+
+		const now = new Date();
+		const diffInMinutes = Math.floor((now - createdDate) / (1000 * 60));
+
+		if (diffInMinutes < 1) return 'now';
+		if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+
+		// Always return time format
+		return createdDate.toLocaleTimeString(undefined, {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: true,
+		});
 	};
 
 	const [editData, setEditData] = useState(null);

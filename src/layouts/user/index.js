@@ -30,6 +30,7 @@ import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
 import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
 import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
+import OfficeSettings from 'views/admin/agencies/OfficeSetting';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -211,6 +212,13 @@ export default function User(props) {
 				component: Hiring,
 			},
 			{
+				name: 'Office Settings',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/office-settings/:id',
+				under: 'office-settings',
+				component: OfficeSettings,
+			},
+			{
 				name: 'Attendance',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 				path: '/attendance',
@@ -224,6 +232,7 @@ export default function User(props) {
 				),
 				component: Attendance,
 			},
+
 			{
 				name: 'Attendance Dashboard',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

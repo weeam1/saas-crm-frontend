@@ -7,9 +7,6 @@ import { IoArrowBack } from 'react-icons/io5';
 import AttendanceHeader from '../AttendanceHeader';
 import RecordTable from './RecordTable';
 import TablePagination from 'components/pagination/TablePagination';
-import moment from 'moment-timezone';
-import { buttonStyle } from '../../constants';
-import Loader from 'components/loading/Loader';
 import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
 import RecordShimmer from './RecordShimmer';
@@ -31,22 +28,18 @@ export default function Records() {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	const { data: officeSettings, isLoading: officeSettingsLoading } =
-		useFetchItemsQuery(
-			{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-			{
-				refetchOnMountOrArgChange: true,
-			}
-		);
+	// const { data: officeSettings, isLoading: officeSettingsLoading } =
+	// 	useFetchItemsQuery(
+	// 		{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
+	// 		{
+	// 			refetchOnMountOrArgChange: true,
+	// 		}
+	// 	);
 
-	const timezone = officeSettings?.doc?.timezone ?? 'Asia/Dubai';
+	// const timezone =  officeSettings?.doc?.timezone ?? 'Asia/Dubai';
 
-	const [month, setMonth] = useState(() =>
-		Number(moment.tz(timezone).format('M'))
-	);
-	const [year, setYear] = useState(() =>
-		Number(moment.tz(timezone).format('YYYY'))
-	);
+	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	const [year, setYear] = useState(() => new Date().getFullYear());
 
 	const [pageSize, setPageSize] = useState(10);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -194,119 +187,61 @@ export default function Records() {
 				Back
 			</AppButton>
 
-			{officeSettingsLoading ? (
-				<RecordShimmer />
-			) : officeSettings?.doc ? (
-				<>
-					<Box
-						display='flex'
-						alignItems='center'
-						mb={4}
-						bg='white'
-						mt='2'
-						p={4}
-					>
-						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-							Attendance Records
-						</Text>
-					</Box>
-					<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
-						{/* Header */}
-						<AttendanceHeader
-							title='Attendance Overview'
-							totalDocs={data?.totalDocs}
-							searchTermRef={searchTermRef}
-							queryParams={queryParams}
-							handleSearch={handleSearch}
-							handleClear={handleClear}
-							searchClear={searchClear}
-							content={['date', 'agencyFilter']}
-							filterOpen={filterOnOpen}
-							onDateFilterChange={onFilterChange}
-						/>
+			<Box display='flex' alignItems='center' mb={4} bg='white' mt='2' p={4}>
+				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+					Attendance Records
+				</Text>
+			</Box>
+			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
+				{/* Header */}
+				<AttendanceHeader
+					title='Attendance Overview'
+					totalDocs={data?.totalDocs}
+					searchTermRef={searchTermRef}
+					queryParams={queryParams}
+					handleSearch={handleSearch}
+					handleClear={handleClear}
+					searchClear={searchClear}
+					content={['date', 'agencyFilter']}
+					filterOpen={filterOnOpen}
+					onDateFilterChange={onFilterChange}
+				/>
 
-						<RecordTable
-							records={data}
-							timezone={timezone}
-							isLoading={isLoading}
-							isFetching={isFetching}
-							refetch={attendanceRefetch}
-						/>
+				<RecordTable
+					records={data}
+					// timezone={timezone}
+					isLoading={isLoading}
+					isFetching={isFetching}
+					refetch={attendanceRefetch}
+				/>
 
-						{data?.doc && (
-							<TablePagination
-								gotoPage={handleGotoPage}
-								gopageValue={gopageValue}
-								setGopageValue={setGopageValue}
-								pageCount={data?.totalPages}
-								canPreviousPage={currentPage > 1}
-								previousPage={() => handleGotoPage(currentPage - 2)}
-								canNextPage={currentPage < data?.totalPages}
-								nextPage={() => handleGotoPage(currentPage)}
-								pageOptions={Array.from({ length: data?.totalPages })}
-								setPageSize={handlePageSizeChange}
-								pageSize={pageSize}
-								pageIndex={currentPage - 1}
-								totalDocs={data?.totalDocs}
-							/>
-						)}
+				{data?.doc && (
+					<TablePagination
+						gotoPage={handleGotoPage}
+						gopageValue={gopageValue}
+						setGopageValue={setGopageValue}
+						pageCount={data?.totalPages}
+						canPreviousPage={currentPage > 1}
+						previousPage={() => handleGotoPage(currentPage - 2)}
+						canNextPage={currentPage < data?.totalPages}
+						nextPage={() => handleGotoPage(currentPage)}
+						pageOptions={Array.from({ length: data?.totalPages })}
+						setPageSize={handlePageSizeChange}
+						pageSize={pageSize}
+						pageIndex={currentPage - 1}
+						totalDocs={data?.totalDocs}
+					/>
+				)}
 
-						{filterIsOpen && (
-							<FilterModal
-								updateFilters={updateFilters}
-								isOpen={filterIsOpen}
-								onClose={filterOnClose}
-								setSearchClear={setSearchClear}
-							/>
-						)}
-					</Box>
-				</>
-			) : (
-				<Flex
-					direction='column'
-					align='center'
-					textAlign='center'
-					justify='center'
-					bg='yellow.100'
-					p={4}
-					borderRadius='md'
-					fontFamily="'DM Sans', sans-serif"
-					boxShadow='sm'
-				>
-					{role === 'superAdmin' ? (
-						<>
-							<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-								No office settings found!
-							</Text>
-							<Text fontSize='md' color='gray.600'>
-								To ensure smooth attendance tracking, please configure your
-								office settings.
-							</Text>
-							<Button
-								{...buttonStyle}
-								mt={3}
-								bg='green.500'
-								_active={{ bg: 'green.400' }}
-								onClick={() =>
-									navigate(`/office-settings/${user?.agency?._id}`)
-								}
-							>
-								Add Office Settings
-							</Button>
-						</>
-					) : (
-						<>
-							<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-								Office settings not configured!
-							</Text>
-							<Text fontSize='md' color='gray.600'>
-								Please contact your administrator to set up office settings for
-								attendance tracking.
-							</Text>
-						</>
-					)}
-				</Flex>
-			)}
+				{filterIsOpen && (
+					<FilterModal
+						updateFilters={updateFilters}
+						isOpen={filterIsOpen}
+						onClose={filterOnClose}
+						setSearchClear={setSearchClear}
+					/>
+				)}
+			</Box>
 		</Box>
 	);
 }

@@ -8,11 +8,7 @@ import {
 	TableContainer,
 	Icon,
 	Button,
-	Box,
-	VStack,
-	Text,
 } from '@chakra-ui/react';
-import Loader from 'components/loading/Loader';
 import TableLoading from 'components/loading/TableLoading';
 import { FiEdit } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +17,7 @@ const AgencyTable = ({ data, handleEdit, isLoading }) => {
 	const navigate = useNavigate();
 
 	const handleOfficeSettingsClick = (row) => {
+		console.log({ row });
 		navigate(`/office-settings/${row._id}`, {
 			state: { agencyName: row.name, agencyId: row._id },
 		});

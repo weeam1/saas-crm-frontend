@@ -6,6 +6,7 @@ import {
 	FaClipboardList,
 	FaUserCheck,
 } from 'react-icons/fa';
+import { FiSettings } from 'react-icons/fi';
 
 const NavigationBoxes = () => {
 	const navigate = useNavigate();
@@ -25,7 +26,12 @@ const NavigationBoxes = () => {
 		{
 			label: 'My Attendance',
 			icon: FaUserCheck,
-			route: `/attendance/employees/${user._id}`,
+			route: `/attendance/employees/${user?._id}`,
+		},
+		{
+			label: 'Office Settings',
+			icon: FiSettings,
+			route: `/office-settings/${user?.agency?._id}`,
 		},
 	];
 

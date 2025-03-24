@@ -24,7 +24,6 @@ import Buttons from './components/Buttons';
 import UserList from './components/UserList';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import RoleTabs from '../attendance/components/employees/RoleTabs';
-import Loader from 'components/loading/Loader';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
@@ -35,6 +34,10 @@ import OfficeShimmer from './OfficeShimmer';
 const OfficeSettings = () => {
 	const searchTermRef = useRef('');
 	const [searchClear, setSearchClear] = useState(false);
+
+	const user = JSON.parse(localStorage.getItem('user'));
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
 	const [specialUsers, setSpecialUsers] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
@@ -91,8 +94,6 @@ const OfficeSettings = () => {
 	useEffect(() => {
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
-
-		console.log({ role });
 
 		setSearchParams(
 			(prev) => {
@@ -236,7 +237,8 @@ const OfficeSettings = () => {
 			}).unwrap();
 
 			toast.success('Office settings updated successfully');
-			navigate(`/agencies`);
+			const redirectUrl = role === 'superAdmin' ? '/agencies' : '/attendance';
+			navigate(redirectUrl);
 		} catch (error) {
 			console.log(error);
 		}
