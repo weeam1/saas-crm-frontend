@@ -46,7 +46,11 @@ const View = () => {
 
   const param = useParams();
 
-  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -125,7 +129,7 @@ const View = () => {
             setAction={setAction}
           />
           <Delete
-          fetchData={fetchData}
+            fetchData={fetchData}
             isOpen={isDeleteOpen}
             onClose={() => setIsDeleteOpen(false)}
             method="one"
@@ -152,7 +156,9 @@ const View = () => {
                 </Heading>
               </GridItem>
               <GridItem colSpan={{ base: 12, md: 6 }}>
-                <Flex justifyContent={{ base: "start", sm: "start", md: "end" }}>
+                <Flex
+                  justifyContent={{ base: "start", sm: "start", md: "end" }}
+                >
                   {data?.role === "superAdmin" && (
                     <Menu>
                       <MenuButton

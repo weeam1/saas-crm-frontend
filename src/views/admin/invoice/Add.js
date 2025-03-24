@@ -14,6 +14,7 @@ import {
   ModalBody,
   Select,
   useBreakpointValue,
+  Icon,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
@@ -21,6 +22,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
+import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
 const invoiceSchema = yup.object().shape({
   unit_no: yup.number().nullable(),
@@ -41,6 +43,7 @@ const invoiceSchema = yup.object().shape({
     .required("Commission is required")
     .min(0, "Commission cannot be negative"),
   claim_type: yup.string().required("Claim type is required"),
+  name_of_referring_party: yup.string().required("Referring party is required"),
 });
 
 const Add = (props) => {
@@ -71,6 +74,7 @@ const Add = (props) => {
     unit_price: 0,
     commission: 0,
     claim_type: "",
+    name_of_referring_party: "",
     developer_name: "",
     bank_details: "",
   };
@@ -127,8 +131,12 @@ const Add = (props) => {
 
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
-    md: { width: "602px", height: "600px" },
+    md: { width: "602px", height: "650px" },
   });
+
+  const customDropdownIcon = (
+    <Icon as={() => <img src={DropdownImg} alt="dropdown" />} boxSize={6} />
+  );
 
   return (
     <div>
@@ -137,6 +145,7 @@ const Add = (props) => {
         onClose={props.onClose}
         size="custom"
         motionPreset="slideInBottom"
+        isCentered
       >
         <ModalOverlay />
         <ModalContent
@@ -187,6 +196,7 @@ const Add = (props) => {
                         : null
                     }
                     fontFamily="DM Sans, sans-serif"
+                    icon={customDropdownIcon}
                   >
                     {developersData?.data?.map((developer) => (
                       <option key={developer._id} value={developer._id}>
@@ -217,6 +227,7 @@ const Add = (props) => {
                         : null
                     }
                     fontFamily="DM Sans, sans-serif"
+                    icon={customDropdownIcon}
                   >
                     <option value="full">Full</option>
                     <option value="half">Half</option>
@@ -251,6 +262,33 @@ const Add = (props) => {
                       {errors.unit_name}
                     </FormLabel>
                   )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 12 }}>
+                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
+                    Name of Referring Party
+                  </FormLabel>
+                  <Input
+                    fontSize="16px"
+                    type="text"
+                    name="name_of_referring_party"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values["name_of_referring_party"] || ""}
+                    placeholder="Enter Referring Party"
+                    borderColor={
+                      errors?.["name_of_referring_party"] &&
+                      touched?.["name_of_referring_party"]
+                        ? "red.300"
+                        : null
+                    }
+                    fontFamily="DM Sans, sans-serif"
+                  />
+                  {errors.name_of_referring_party &&
+                    touched.name_of_referring_party && (
+                      <FormLabel color="red.500" fontSize="14px">
+                        {errors.name_of_referring_party}
+                      </FormLabel>
+                    )}
                 </GridItem>
                 <GridItem colSpan={{ base: 12, md: 12 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
@@ -307,28 +345,20 @@ const Add = (props) => {
                     Bank Account
                   </FormLabel>
                   <Select
-                    fontSize="16px"
+                    placeholder="Choose Bank Account"
                     name="bank_account_id"
+                    value={values.bank_account_id}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    disabled={bankAccountsLoading || bankAccountsError}
-                    placeholder={
-                      bankAccountsLoading
-                        ? "Loading bank accounts..."
-                        : "Select bank account"
+                    isInvalid={
+                      touched.bank_account_id && !!errors.bank_account_id
                     }
-                    value={values["bank_account_id"] || ""}
-                    borderColor={
-                      errors?.["bank_account_id"] &&
-                      touched?.["bank_account_id"]
-                        ? "red.300"
-                        : null
-                    }
-                    fontFamily="DM Sans, sans-serif"
+                    disabled={bankAccountsLoading}
+                    icon={<img src={DropdownImg} alt="Dropdown" />}
                   >
-                    {bankAccountsData?.data?.map((bankAccount) => (
-                      <option key={bankAccount._id} value={bankAccount._id}>
-                        {bankAccount.account_holder_name}
+                    {bankAccountsData?.data?.map((bank) => (
+                      <option key={bank._id} value={bank._id}>
+                        {bank.account_holder_name} - {bank.account_number}
                       </option>
                     ))}
                   </Select>
@@ -348,6 +378,7 @@ const Add = (props) => {
               width="83px"
               height="46px"
               fontSize="16px"
+              borderRadius="6px"
               fontFamily="DM Sans, sans-serif"
               sx={{ textTransform: "capitalize" }}
               onClick={handleCancel}
@@ -362,6 +393,7 @@ const Add = (props) => {
               height="46px"
               fontSize="16px"
               fontFamily="DM Sans, sans-serif"
+              borderRadius="6px"
               sx={{ textTransform: "capitalize" }}
               disabled={isLoading || mutationLoading}
               type="submit"

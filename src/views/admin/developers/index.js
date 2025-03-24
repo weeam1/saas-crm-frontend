@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Alert, AlertIcon, Spinner,Text } from "@chakra-ui/react";
+import { Box, Alert, AlertIcon, Spinner, Text } from "@chakra-ui/react";
 import CheckTable from "./components/CheckTable";
 import { useFetchItemsQuery } from "api/apiSlice";
 
@@ -9,11 +9,10 @@ const Index = () => {
       Header: "#",
       accessor: "_id",
       isSortable: false,
-      width: 10,
+      width: 5,
     },
-    { Header: "TRN", accessor: "trn" },
     { Header: "Developer Name", accessor: "developer_name" },
-    { Header: "Address", accessor: "address" },
+    { Header: "TRN", accessor: "trn" },
     { Header: "Email ID", accessor: "email" },
     { Header: "Action", isSortable: false, center: true },
   ];
@@ -64,7 +63,8 @@ const Index = () => {
           <Box>
             <Text fontWeight="bold">Error</Text>
             <Text>
-              {error?.data?.message || "Failed to load developers. Please try again."}
+              {error?.data?.message ||
+                "Failed to load developers. Please try again."}
             </Text>
           </Box>
         </Alert>

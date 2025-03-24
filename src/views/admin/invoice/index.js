@@ -18,31 +18,56 @@ const Index = () => {
     "Email",
     "Call",
   ]);
+
   const tableColumns = [
-    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at" },
+    {
+      Header: "Date",
+      accessor: "created_at",
+      Cell: ({ row, value }) => ({
+        row,
+        value,
+        checkbox: true,
+      }),
+    },
+    { Header: "Invoice No", accessor: "invoice_number" },
+    { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
-    { Header: "Bank Account", accessor: "bank_account_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
+    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
   ];
 
   const tableColumnsManager = [
-    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at" },
+    {
+      Header: "Date",
+      accessor: "created_at",
+      Cell: ({ row, value }) => ({
+        row,
+        value,
+        checkbox: true,
+      }),
+    },
+    { Header: "Invoice No", accessor: "invoice_number" },
+    { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
-    { Header: "Bank Account", accessor: "bank_account_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
+    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
   ];
 
   const tableColumnsAgent = [
-    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at" },
+    {
+      Header: "Date",
+      accessor: "created_at",
+      Cell: ({ row, value }) => ({
+        row,
+        value,
+        checkbox: true,
+      }),
+    },
+    { Header: "Invoice No", accessor: "invoice_number" },
+    { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
-    { Header: "Bank Account", accessor: "bank_account_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
+    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
   ];
 
   const roleColumns = {
@@ -89,6 +114,9 @@ const Index = () => {
       setIsLoading(true);
     } else if (invoiceData) {
       console.log("Updated Invoice Data:", invoiceData.data);
+      if (invoiceData.data && invoiceData.data.length > 0) {
+        console.log("Sample Invoice Data:", invoiceData.data[0]);
+      }
       setData(invoiceData.data || []);
       setIsLoading(false);
     } else if (error) {
@@ -102,7 +130,6 @@ const Index = () => {
     setColumns(tableColumns);
   }, [action]);
 
-  // Debounced fetchData to prevent rapid repeated calls
   const fetchData = useMemo(() => {
     let timeoutId;
     return () => {
@@ -111,7 +138,7 @@ const Index = () => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           refetch();
-        }, 500); // Debounce by 500ms
+        }, 500);
       } else {
         console.warn("Cannot refetch: Query not started or user ID missing");
       }

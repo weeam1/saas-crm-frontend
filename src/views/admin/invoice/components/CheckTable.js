@@ -41,12 +41,11 @@ import {
   useTable,
 } from "react-table";
 import * as XLSX from "xlsx";
-import { DeleteIcon, EditIcon, SearchIcon } from "@chakra-ui/icons";
+import { DeleteIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "components/pagination/Pagination";
 import Spinner from "components/spinner/Spinner";
-import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getApi } from "services/api";
@@ -59,13 +58,16 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import CustomSearchInput from "./Search";
 import DataNotFound from "components/notFoundData";
+import Breadcrumb from "./BreadCrumb";
+import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
+import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
 
 export default function CheckTable(props) {
   const {
     tableData,
     dataColumn,
     fetchData,
-    isLoding, // Consider renaming to isLoading
+    isLoding,
     allData,
     access,
     setSearchedData,
@@ -101,7 +103,13 @@ export default function CheckTable(props) {
   const columns = useMemo(() => dataColumn, [dataColumn]);
   const data = useMemo(() => tableData, [tableData]);
 
-  // Invoice-specific CSV columns
+  useEffect(() => {
+    console.log("Table Data in CheckTable:", tableData);
+    if (tableData && tableData.length > 0) {
+      console.log("Sample Row Data:", tableData[0]);
+    }
+  }, [tableData]);
+
   const csvColumns = [
     { Header: "Unit Name", accessor: "unit_name" },
     { Header: "Unit Price", accessor: "unit_price" },
@@ -140,7 +148,6 @@ export default function CheckTable(props) {
     state: { pageIndex, pageSize },
   } = tableInstance;
 
-  // Formik for advanced search (invoice-specific)
   const initialValues = {
     unit_name: "",
     claim_type: "",
@@ -215,15 +222,15 @@ export default function CheckTable(props) {
 
   const toggleColumnVisibility = (columnKey) => {
     const isColumnSelected = tempSelectedColumns.some(
-      (col) => col.accessor === columnKey
+      (col) => col.accessor === columnKey || col.id === columnKey
     );
     if (isColumnSelected) {
       setTempSelectedColumns((prev) =>
-        prev.filter((col) => col.accessor !== columnKey)
+        prev.filter((col) => (col.accessor || col.id) !== columnKey)
       );
     } else {
       const columnToAdd = dynamicColumns.find(
-        (col) => col.accessor === columnKey
+        (col) => (col.accessor || col.id) === columnKey
       );
       setTempSelectedColumns((prev) => [...prev, columnToAdd]);
     }
@@ -252,15 +259,13 @@ export default function CheckTable(props) {
     setSelectedValues([]);
   };
 
-  // useEffect(() => {
-  //   if (fetchData) fetchData();
-  // }, [action, dateTime]);
-
   useEffect(() => {
-    if (fetchData && action) fetchData(); // Only call after an action
+    if (fetchData && action) fetchData();
   }, [action, fetchData]);
+
   return (
     <>
+      <Breadcrumb />
       <Card
         direction="column"
         w="100%"
@@ -284,16 +289,6 @@ export default function CheckTable(props) {
                 dataColumn={dataColumn}
                 onSearch={(results) => setSearchedData(results)}
               />
-              <Button
-                variant="outline"
-                colorScheme="brand"
-                leftIcon={<SearchIcon />}
-                onClick={() => setAdvaceSearch(true)}
-                mt={{ sm: "5px", md: "0" }}
-                size="sm"
-              >
-                Advanced Search
-              </Button>
               {displaySearchData && (
                 <Button
                   variant="outline"
@@ -326,32 +321,15 @@ export default function CheckTable(props) {
             justifyContent="end"
             alignItems="center"
           >
-            <Menu>
-              <MenuButton p={4}>
-                <CiMenuKebab />
-              </MenuButton>
-              <MenuList>
-                <MenuItem onClick={() => setManageColumns(true)}>
-                  Manage Columns
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem onClick={() => handleExportLeads("csv")}>
-                  {selectedValues.length > 0
-                    ? "Export Selected as CSV"
-                    : "Export as CSV"}
-                </MenuItem>
-                <MenuItem onClick={() => handleExportLeads("xlsx")}>
-                  {selectedValues.length > 0
-                    ? "Export Selected as Excel"
-                    : "Export as Excel"}
-                </MenuItem>
-              </MenuList>
-            </Menu>
             {access?.create && (
               <Button
                 onClick={onOpen}
                 size="sm"
-                variant="brand"
+                w="128px"
+                borderRadius="6px"
+                h="40px"
+                bg="#B79045"
+                color="white"
                 leftIcon={<AddIcon />}
                 ml={2}
               >
@@ -388,10 +366,11 @@ export default function CheckTable(props) {
                 <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
                   {headerGroup.headers.map((column, index) => (
                     <Th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      {...column.getHeaderProps(column.getSortByToggleProps())} // Keep sorting functionality
                       pe="10px"
                       key={index}
                       borderColor={borderColor}
+                      bg="#EBD3A7" // Background color from previous change
                     >
                       <Flex
                         align="center"
@@ -407,19 +386,7 @@ export default function CheckTable(props) {
                         >
                           {column.render("Header")}
                         </span>
-                        {column.isSortable !== false && (
-                          <span>
-                            {column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <FaSortDown />
-                              ) : (
-                                <FaSortUp />
-                              )
-                            ) : (
-                              <FaSort />
-                            )}
-                          </span>
-                        )}
+                        {/* Removed the sort icons */}
                       </Flex>
                     </Th>
                   ))}
@@ -452,44 +419,52 @@ export default function CheckTable(props) {
                     <Tr {...row.getRowProps()} key={i}>
                       {row.cells.map((cell, index) => {
                         let data = "";
-                        if (cell.column.Header === "#") {
+                        if (cell.column.Header === "Date") {
                           data = (
                             <Flex align="center">
                               <Checkbox
                                 colorScheme="brandScheme"
-                                isChecked={selectedValues.includes(cell.value)}
+                                isChecked={selectedValues.includes(
+                                  row.original._id
+                                )}
                                 onChange={(e) =>
-                                  handleCheckboxChange(e, cell.value)
+                                  handleCheckboxChange(e, row.original._id)
                                 }
                                 me="10px"
                               />
-                              <Text
-                                color={textColor}
-                                fontSize="sm"
-                                fontWeight="700"
-                              >
-                                {cell.row.index + 1}
+                              <Text color="brand.600" fontSize="sm">
+                              <Text color="brand.600" fontSize="sm">
+  {new Date(cell.value).toISOString().split("T")[0] || "-"}
+</Text>
+
                               </Text>
                             </Flex>
                           );
-                        } else if (cell.column.Header === "Date") {
+                        } else if (cell.column.Header === "Invoice No") {
                           data = (
-                            <Text color="brand.600" fontSize="sm">
-                              {new Date(cell.value).toLocaleString() || "-"}
+                            <Text
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell.value || "-"}
+                            </Text>
+                          );
+                        } else if (cell.column.Header === "Unit No") {
+                          console.log("Unit No (unit_name) Value:", cell.value);
+                          data = (
+                            <Text
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell.value || "-"}
                             </Text>
                           );
                         } else if (cell.column.Header === "Developer") {
                           data = (
                             <Text fontSize="sm" fontWeight="700">
                               {cell.value?.developer_name || "-"}
-                            </Text>
-                          );
-                        } else if (cell.column.Header === "Bank Account") {
-                          data = (
-                            <Text fontSize="sm">
-                              {cell.value?.account_number
-                                ? `${cell.value.account_number} (${cell.value.bank_name || "N/A"})`
-                                : "-"}
                             </Text>
                           );
                         } else if (cell.column.Header === "Total Amount") {
@@ -502,44 +477,55 @@ export default function CheckTable(props) {
                               {cell.value || 0} AED
                             </Text>
                           );
-                        } else if (cell.column.Header === "Action") {
+                        } else if (cell.column.id === "action") {
                           data = (
-                            <Flex alignItems="center">
+                            <Flex alignItems="center" gap={2}>
                               <Link to={`/invoiceView/${row.original._id}`}>
-                                <Button size="sm" colorScheme="brand" mr={2}>
+                                <Button
+                                  size="sm"
+                                  bg="#EBD3A7"
+                                  w="100px"
+                                  fontSize="12px"
+                                  borderRadius="3px"
+                                  py="10px"
+                                  color="black"
+                                  px="16px"
+                                >
                                   View Invoice
                                 </Button>
                               </Link>
-                              <Menu>
-                                <MenuButton>
-                                  <CiMenuKebab />
-                                </MenuButton>
-                                <MenuList>
-                                  {access?.update && (
-                                    <MenuItem
-                                      onClick={() => {
-                                        setEdit(true);
-                                        setSelectedId(row.original._id);
-                                      }}
-                                      icon={<EditIcon />}
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                  )}
-                                  {access?.delete && (
-                                    <MenuItem
-                                      color="red"
-                                      onClick={() => {
-                                        setSelectedId(row.original._id);
-                                        setDeleteModel(true);
-                                      }}
-                                      icon={<DeleteIcon />}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  )}
-                                </MenuList>
-                              </Menu>
+                              {access?.update && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    setEdit(true);
+                                    setSelectedId(row.original._id);
+                                  }}
+                                >
+                                  <img
+                                    src={EditIconSvg}
+                                    alt="Edit"
+                                    width="16px"
+                                    height="16px"
+                                  />
+                                </Button>
+                              )}
+                              {access?.delete && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedId(row.original._id);
+                                    setDeleteModel(true);
+                                  }}
+                                >
+                                  <img
+                                    src={DeleteIconSvg}
+                                    alt="Delete"
+                                    width="16px"
+                                    height="16px"
+                                  />
+                                </Button>
+                              )}
                             </Flex>
                           );
                         }
@@ -607,7 +593,6 @@ export default function CheckTable(props) {
           setAction={setAction}
         />
 
-        {/* Advanced Search Modal */}
         <Modal
           onClose={() => setAdvaceSearch(false)}
           isOpen={advaceSearch}
@@ -721,7 +706,6 @@ export default function CheckTable(props) {
           </ModalContent>
         </Modal>
 
-        {/* Manage Columns Modal */}
         <Modal
           onClose={() => setManageColumns(false)}
           isOpen={manageColumns}
@@ -733,15 +717,15 @@ export default function CheckTable(props) {
             <ModalCloseButton />
             <ModalBody>
               {dynamicColumns.map((column) => (
-                <Text display="flex" key={column.accessor} py={2}>
+                <Text display="flex" key={column.accessor || column.id} py={2}>
                   <Checkbox
                     isChecked={tempSelectedColumns.some(
-                      (c) => c.accessor === column.accessor
+                      (c) => (c.accessor || c.id) === (column.accessor || column.id)
                     )}
-                    onChange={() => toggleColumnVisibility(column.accessor)}
+                    onChange={() => toggleColumnVisibility(column.accessor || column.id)}
                     pe={2}
                   />
-                  {column.Header}
+                  {column.Header || "Actions"}
                 </Text>
               ))}
             </ModalBody>

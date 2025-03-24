@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
 import { toast } from "react-toastify";
+import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg"; 
 
 const Edit = (props) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -159,6 +160,7 @@ const Edit = (props) => {
       isOpen={props.isOpen}
       onClose={handleClose}
       size={props.size || "xl"}
+      isCentered
     >
       <ModalOverlay />
       <ModalContent fontFamily="'DM Sans', sans-serif">
@@ -167,12 +169,11 @@ const Edit = (props) => {
           <IconButton onClick={handleClose} icon={<CloseIcon />} />
         </ModalHeader>
         <ModalBody>
-          {/* Always render the form, no spinner here */}
           {developersData && bankAccountsData && invoiceList ? (
             <form onSubmit={handleSubmit}>
               <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
                 <FormControl flex={1}>
-                  <FormLabel>Developer</FormLabel>
+                  <FormLabel>Developer Name</FormLabel>
                   <Select
                     placeholder="Choose Developer"
                     name="developer_id"
@@ -180,7 +181,8 @@ const Edit = (props) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     isInvalid={touched.developer_id && !!errors.developer_id}
-                    disabled={developersLoading} // Disable during loading
+                    disabled={developersLoading}
+                    icon={<img src={DropdownImg} alt="Dropdown" />}
                   >
                     {developersData?.data?.map((developer) => (
                       <option key={developer._id} value={developer._id}>
@@ -196,14 +198,15 @@ const Edit = (props) => {
                 </FormControl>
 
                 <FormControl flex={1}>
-                  <FormLabel>Claim Type</FormLabel>
                   <Select
+                    mt={8}
                     placeholder="Choose Claim Type"
                     name="claim_type"
                     value={values.claim_type}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     isInvalid={touched.claim_type && !!errors.claim_type}
+                    icon={<img src={DropdownImg} alt="Dropdown" />}
                   >
                     <option value="FULL">FULL</option>
                     <option value="PARTIAL">PARTIAL</option>
@@ -280,7 +283,8 @@ const Edit = (props) => {
                   isInvalid={
                     touched.bank_account_id && !!errors.bank_account_id
                   }
-                  disabled={bankAccountsLoading} // Disable during loading
+                  disabled={bankAccountsLoading}
+                  icon={<img src={DropdownImg} alt="Dropdown" />}
                 >
                   {bankAccountsData?.data?.map((bank) => (
                     <option key={bank._id} value={bank._id}>
@@ -305,23 +309,30 @@ const Edit = (props) => {
         </ModalBody>
         <ModalFooter>
           <Button
+            w="104px"
+            h="46px"
+            bg="#CCCACA"
+            borderRadius="6px"
+            size="sm"
+            sx={{ marginLeft: 2, textTransform: "capitalize" }}
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+          <Button
             sx={{ textTransform: "capitalize" }}
-            variant="brand"
+            bg="#B79045"
+            color="white"
+            w="104px"
+            h="46px"
+            ml={2}
+            borderRadius="6px"
             size="sm"
             type="submit"
             disabled={isLoading || mutationLoading}
             onClick={handleSubmit}
           >
-            {isLoading || mutationLoading ? <Spinner size="sm" /> : "Update"}
-          </Button>
-          <Button
-            variant="outline"
-            colorScheme="red"
-            size="sm"
-            sx={{ marginLeft: 2, textTransform: "capitalize" }}
-            onClick={handleClose}
-          >
-            Close
+            {isLoading || mutationLoading ? <Spinner size="sm" /> : "Save"}
           </Button>
         </ModalFooter>
       </ModalContent>

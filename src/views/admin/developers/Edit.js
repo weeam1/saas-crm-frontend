@@ -1,17 +1,13 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
   Button,
+  Flex,
   FormLabel,
   Grid,
   GridItem,
   IconButton,
   Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  Box,
   Text,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
@@ -20,9 +16,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { developerSchema } from "schema/developerSchema";
 import { useUpdateItemMutation } from "api/apiSlice";
-
-// Ensure "DM Sans" is imported
-// @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap');
 
 const Edit = (props) => {
   const { onClose, isOpen, fetchData, data, setEdit, selectedId, setAction } =
@@ -92,28 +85,42 @@ const Edit = (props) => {
     onClose();
   };
 
+  if (!isOpen) return null; 
+
   return (
-    <Modal isOpen={isOpen} isCentered onClose={handleCloseModal} size="xl">
-      <ModalOverlay />
-      <ModalContent
+    <Flex
+      position="fixed"
+      top="0"
+      left="0"
+      w="100vw"
+      h="100vh"
+      bg="rgba(0, 0, 0, 0.4)" 
+      zIndex={14000} 
+      alignItems="center"
+      justifyContent="center"
+      onClick={handleCloseModal} 
+    >
+      <Box
         boxShadow="lg"
-        borderRadius="md"
+        borderRadius="lg"
         p={4}
         bg="white"
-        maxW={{ base: "90%", md: "550px" }}
+        maxW={{ base: "90%", md: "500px" }}
+        w="100%"
         fontFamily="'DM Sans', sans-serif"
         fontWeight="500"
+        onClick={(e) => e.stopPropagation()} 
       >
-        <ModalHeader
-          display="flex"
+        {/* Header */}
+        <Flex
           justifyContent="space-between"
           alignItems="center"
           pb={2}
-          fontSize="24px"
+          fontSize="20px"
           fontFamily="'DM Sans', sans-serif"
           fontWeight="500"
         >
-          Edit Developer
+          <Text>Edit Developer</Text>
           <IconButton
             icon={<CloseIcon />}
             size="sm"
@@ -121,15 +128,16 @@ const Edit = (props) => {
             onClick={handleCloseModal}
             aria-label="Close"
           />
-        </ModalHeader>
-        <ModalBody pt={4}>
+        </Flex>
+
+        {/* Body */}
+        <Box pt={4}>
           <form onSubmit={handleSubmit}>
             <Grid gap={4} templateColumns="1fr">
               <GridItem>
                 <FormLabel
-                  fontSize="16px"
+                  fontSize="14px"
                   color="gray.600"
-                  mb={1}
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
@@ -137,7 +145,7 @@ const Edit = (props) => {
                   Developer Name
                 </FormLabel>
                 <Input
-                  fontSize="16px"
+                  fontSize="14px"
                   placeholder="Enter Name"
                   value={values.developer_name}
                   name="developer_name"
@@ -156,11 +164,12 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
+                  w="100%" // Increased width
                 />
                 {errors.developer_name && touched.developer_name && (
                   <Text
                     color="red"
-                    fontSize="14px"
+                    fontSize="12px"
                     mt={1}
                     fontFamily="'DM Sans', sans-serif"
                     fontWeight="500"
@@ -172,9 +181,8 @@ const Edit = (props) => {
               </GridItem>
               <GridItem>
                 <FormLabel
-                  fontSize="16px"
+                  fontSize="14px"
                   color="gray.600"
-                  mb={1}
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
@@ -182,7 +190,7 @@ const Edit = (props) => {
                   Address
                 </FormLabel>
                 <Input
-                  fontSize="16px"
+                  fontSize="14px"
                   placeholder="Enter Address"
                   value={values.address}
                   name="address"
@@ -199,11 +207,12 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
+                  w="100%" // Increased width
                 />
                 {errors.address && touched.address && (
                   <Text
                     color="red"
-                    fontSize="14px"
+                    fontSize="12px"
                     mt={1}
                     fontFamily="'DM Sans', sans-serif"
                     fontWeight="500"
@@ -215,9 +224,8 @@ const Edit = (props) => {
               </GridItem>
               <GridItem>
                 <FormLabel
-                  fontSize="16px"
+                  fontSize="14px"
                   color="gray.600"
-                  mb={1}
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
@@ -225,7 +233,7 @@ const Edit = (props) => {
                   TRN
                 </FormLabel>
                 <Input
-                  fontSize="16px"
+                  fontSize="14px"
                   placeholder="Enter TRN"
                   value={values.trn}
                   name="trn"
@@ -240,11 +248,12 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
+                  w="100%" // Increased width
                 />
                 {errors.trn && touched.trn && (
                   <Text
                     color="red"
-                    fontSize="14px"
+                    fontSize="12px"
                     mt={1}
                     fontFamily="'DM Sans', sans-serif"
                     fontWeight="500"
@@ -256,9 +265,8 @@ const Edit = (props) => {
               </GridItem>
               <GridItem>
                 <FormLabel
-                  fontSize="16px"
+                  fontSize="14px"
                   color="gray.600"
-                  mb={1}
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
@@ -266,7 +274,7 @@ const Edit = (props) => {
                   E mail Id
                 </FormLabel>
                 <Input
-                  fontSize="16px"
+                  fontSize="14px"
                   type="email"
                   placeholder="Enter E mail Id"
                   value={values.email}
@@ -282,11 +290,12 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
+                  w="100%" // Increased width
                 />
                 {errors.email && touched.email && (
                   <Text
                     color="red"
-                    fontSize="14px"
+                    fontSize="12px"
                     mt={1}
                     fontFamily="'DM Sans', sans-serif"
                     fontWeight="500"
@@ -297,24 +306,22 @@ const Edit = (props) => {
                 )}
               </GridItem>
             </Grid>
-            <ModalFooter
-              mt={6}
-              justifyContent="flex-end"
-              pb={4} // Added padding-bottom for space from the bottom
-            >
+
+            {/* Footer */}
+            <Flex mt={6} justifyContent="flex-end" pb={4} gap={3}>
               <Button
                 variant="outline"
                 size="sm"
-                mr={3}
+                h="40px"
                 onClick={handleCloseModal}
                 borderRadius="md"
                 bg="#CCCACA"
                 color="black"
                 _hover={{ bg: "#B8B0B0" }}
-                fontSize="16px"
+                fontSize="14px"
                 fontFamily="'DM Sans', sans-serif"
                 fontWeight="500"
-                minWidth="100px" // Increased button width
+                minWidth="90px"
               >
                 Cancel
               </Button>
@@ -328,18 +335,19 @@ const Edit = (props) => {
                 isLoading={isLoading || mutationLoading}
                 disabled={isLoading || mutationLoading}
                 borderRadius="md"
-                fontSize="16px"
+                fontSize="14px"
+                h="40px"
                 fontFamily="'DM Sans', sans-serif"
                 fontWeight="500"
-                minWidth="100px" // Increased button width
+                minWidth="90px"
               >
                 {isLoading || mutationLoading ? <Spinner size="sm" /> : "Save"}
               </Button>
-            </ModalFooter>
+            </Flex>
           </form>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </Box>
+      </Box>
+    </Flex>
   );
 };
 

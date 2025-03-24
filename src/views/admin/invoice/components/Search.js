@@ -37,7 +37,7 @@ const CustomSearchInput = ({
 
   return (
     <InputGroup
-      width={{ sm: "100%", md: "30%" }}
+      width={{ sm: "100%", md: "40%" }}
       mx={{ sm: 0, md: 3 }}
       my={{ sm: "8px", md: "0" }}
     >
