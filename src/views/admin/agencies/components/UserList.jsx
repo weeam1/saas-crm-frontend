@@ -6,7 +6,9 @@ import { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from 'react-icons/md';
 import { toast } from 'react-toastify';
+import EmployeeLoading from 'views/admin/attendance/components/employees/EmployeeLoading';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import UsersShimmer from './UsersShimmer';
 
 const UserList = ({
 	agencyId,
@@ -73,7 +75,7 @@ const UserList = ({
 				borderRadius='md'
 			>
 				{usersLoading || usersFetching ? (
-					<Loader />
+					<UsersShimmer size={7} />
 				) : users?.results > 0 ? (
 					users?.doc?.map((item, index) => {
 						const isSpecialUser = specialUsers.find((u) => u.user === item._id);

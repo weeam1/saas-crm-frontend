@@ -11,6 +11,7 @@ import Pagination from './Pagination';
 import FilterModal from './FilterModal';
 import AttendanceHeader from '../AttendanceHeader';
 import AppButton from 'components/shared/AppButton';
+import EmployeeLoading from './EmployeeLoading';
 
 const Employees = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -166,9 +167,7 @@ const Employees = () => {
 					{/* Employees List */}
 					<Box mt='4' p='4'>
 						{isLoading || isFetching ? (
-							<Box h='70vh'>
-								<Loader />
-							</Box>
+							<EmployeeLoading size={queryParams.pageSize} />
 						) : data && data?.doc ? (
 							<>
 								<EmployeesList employees={data?.doc || []} />

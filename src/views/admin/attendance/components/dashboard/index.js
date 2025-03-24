@@ -23,6 +23,7 @@ import Loader from 'components/loading/Loader';
 import { FiFilter } from 'react-icons/fi';
 import AgencyFilter from './AgencyFilter';
 import AppButton from 'components/shared/AppButton';
+import DashboardShimmer from './DashboardShimmer';
 
 const Dashboard = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
@@ -300,7 +301,7 @@ const Dashboard = () => {
 
 	return loading ? (
 		<Box h='100vh'>
-			<Loader />
+			<DashboardShimmer />
 		</Box>
 	) : (
 		<>

@@ -5,9 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import CreateAgency from './CreateAgency';
 import AgencyTable from './AgencyTable';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { Box, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import EditAgency from './EditAgency';
+import { buttonStyle } from '../lead-v2/components/constants';
 
 const Agency = () => {
 	const navigate = useNavigate();
@@ -65,9 +66,15 @@ const Agency = () => {
 							</span>
 						)}
 					</Heading>
-					<AppButton colorScheme='brand' onClick={() => setOpenModal(true)}>
-						Create Agency
-					</AppButton>
+					<Button
+						{...buttonStyle}
+						mt={3}
+						bg='brand.500'
+						colorScheme='brand'
+						onClick={() => setOpenModal(true)}
+					>
+						Add Agency
+					</Button>
 				</HStack>
 				<AgencyTable
 					handleEdit={handleEdit}

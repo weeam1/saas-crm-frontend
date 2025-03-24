@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, Flex, Box, IconButton } from '@chakra-ui/react';
+import { Button, Flex, Box, IconButton, Skeleton } from '@chakra-ui/react';
 import { skipToken } from '@reduxjs/toolkit/query';
 
 const RoleTabs = ({ updateFilters, key }) => {
@@ -12,21 +12,21 @@ const RoleTabs = ({ updateFilters, key }) => {
 		return JSON.parse(localStorage.getItem('roles')) || null;
 	});
 
-	const shouldFetch = !localRoles; // Only fetch if localRoles is not found
+	const shouldFetch = !localRoles;
 
-	const { data: roles, isSuccess } = useFetchItemsQuery(
-		shouldFetch ? { path: '/role-access/v2' } : skipToken
-	);
+	const {
+		data: roles,
+		isLoading,
+		isSuccess,
+	} = useFetchItemsQuery(shouldFetch ? { path: '/role-access/v2' } : skipToken);
 
-	// Update localStorage and state when API fetch is successful
 	useEffect(() => {
 		if (isSuccess && roles) {
 			localStorage.setItem('roles', JSON.stringify(roles));
-			setLocalRoles(roles); // Update state with fetched data
+			setLocalRoles(roles);
 		}
 	}, [isSuccess, roles]);
 
-	// Use localRoles in your component
 	const roleData = localRoles || roles || [];
 
 	const containerRef = useRef(null);
@@ -73,7 +73,15 @@ const RoleTabs = ({ updateFilters, key }) => {
 	};
 
 	return (
-		<Flex align='center' position='relative' bg='white' p={2}>
+		<Flex
+			align='center'
+			position='relative'
+			rounded='md'
+			shadow='sm'
+			bg='white'
+			p={2}
+			my='2'
+		>
 			{/* Left Scroll Button */}
 			{showLeft && (
 				<IconButton
@@ -106,26 +114,41 @@ const RoleTabs = ({ updateFilters, key }) => {
 					'scrollbar-width': 'none',
 				}}
 			>
-				<TabButton
-					flex='0 0 auto'
-					key={currentRole}
-					isActive={currentRole === 'All'}
-					onClick={() => handleRoleChange('All')}
-				>
-					All
-				</TabButton>
-
-				{roleData
-					?.filter((role) => role.roleName !== 'sadmin')
-					?.map((role) => (
+				{isLoading ? (
+					[...Array(10)].map((_, index) => (
+						<Skeleton
+							key={index}
+							height='40px'
+							width='120px'
+							borderRadius='md'
+							startColor='gray.100'
+							endColor='gray.200'
+						/>
+					))
+				) : (
+					<>
 						<TabButton
-							key={role._id}
-							isActive={currentRole === role.roleName}
-							onClick={() => handleRoleChange(role.roleName)}
+							flex='0 0 auto'
+							key={currentRole}
+							isActive={currentRole === 'All'}
+							onClick={() => handleRoleChange('All')}
 						>
-							{role.roleName}
+							All
 						</TabButton>
-					))}
+
+						{roleData
+							?.filter((role) => role.roleName !== 'sadmin')
+							?.map((role) => (
+								<TabButton
+									key={role._id}
+									isActive={currentRole === role.roleName}
+									onClick={() => handleRoleChange(role.roleName)}
+								>
+									{role.roleName}
+								</TabButton>
+							))}
+					</>
+				)}
 			</Flex>
 
 			{/* Right Scroll Button */}

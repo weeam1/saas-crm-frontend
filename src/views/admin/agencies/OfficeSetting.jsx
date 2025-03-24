@@ -30,6 +30,7 @@ import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment';
+import OfficeShimmer from './OfficeShimmer';
 
 const OfficeSettings = () => {
 	const searchTermRef = useRef('');
@@ -282,15 +283,9 @@ const OfficeSettings = () => {
 	};
 
 	return officeSettingsLoading ? (
-		<Box>
-			<Loader />
-		</Box>
+		<OfficeShimmer />
 	) : officeSettings ? (
-		<Box
-			p={{ base: 3, md: 5 }}
-			borderRadius='lg'
-			fontFamily="'DM Sans', sans-serif"
-		>
+		<>
 			<AppButton
 				leftIcon={<IoArrowBack />}
 				onClick={() => navigate('/agencies')}
@@ -298,98 +293,108 @@ const OfficeSettings = () => {
 				Back
 			</AppButton>
 
-			<Text
-				size='md'
-				mb={{ base: 3, md: 5 }}
-				fontWeight='400'
-				fontSize='32px'
-				textAlign={{ base: 'center', md: 'left' }}
+			<Box
+				p={{ base: 3, md: 5 }}
+				borderRadius='lg'
+				fontFamily="'DM Sans', sans-serif"
 			>
-				{officeSettings?.doc?.agency?.name} Agency – Office Settings
-			</Text>
+				<Box bg='white' p='2' shadow='sm' rounded='md'>
+					<Text
+						size='md'
+						fontWeight='semibold'
+						fontSize={{ base: '20px', md: '32px' }}
+						textAlign={{ base: 'center', md: 'left' }}
+					>
+						{officeSettings?.doc?.agency?.name} Agency – Office Settings
+					</Text>
+				</Box>
 
-			<RoleTabs updateFilters={updateFilters} key='office' />
+				<RoleTabs updateFilters={updateFilters} key='office' />
 
-			<Flex
-				direction={{ base: 'column', md: 'column', lg: 'row' }}
-				alignItems={{ base: 'stretch', md: 'stretch' }}
-				gap={{ base: 3, md: 5 }}
-				py='2'
-			>
 				<Flex
-					bg='white'
-					p={{ base: 3, md: 5 }}
-					borderRadius='5px'
-					flex='1'
-					// maxWidth='fit-content'
-					border='1px solid #cacaca'
-					direction={{ base: 'column', md: 'row' }}
+					direction={{ base: 'column', md: 'column', lg: 'row' }}
+					alignItems={{ base: 'stretch', md: 'stretch' }}
 					gap={{ base: 3, md: 5 }}
-					justifyContent='space-between'
+					py='2'
 				>
-					<Box flex={{ base: 'none', md: 1 }} w={{ base: '100%', md: 'auto' }}>
-						<Search
-							handleSearch={handleSearch}
-							searchTermRef={searchTermRef}
-							handleClear={handleClear}
-							searchClear={searchClear}
-						/>
+					<Flex
+						bg='white'
+						p={{ base: 3, md: 5 }}
+						borderRadius='5px'
+						flex='1'
+						// maxWidth='fit-content'
+						border='1px solid #cacaca'
+						direction={{ base: 'column', md: 'row' }}
+						gap={{ base: 3, md: 5 }}
+						justifyContent='space-between'
+					>
+						<Box
+							flex={{ base: 'none', md: 1 }}
+							w={{ base: '100%', md: 'auto' }}
+						>
+							<Search
+								handleSearch={handleSearch}
+								searchTermRef={searchTermRef}
+								handleClear={handleClear}
+								searchClear={searchClear}
+							/>
 
-						<UserList
-							agencyId={agencyId}
-							users={users}
-							specialUsers={specialUsers}
-							usersLoading={usersLoading}
-							usersFetching={usersFetching}
-							setSpecialUsers={setSpecialUsers}
-							setSelectedUser={setSelectedUser}
-							setCheckinTime={setSpecialCheckinTime}
-							setCheckoutTime={setSpecialCheckoutTime}
-						/>
-					</Box>
+							<UserList
+								agencyId={agencyId}
+								users={users}
+								specialUsers={specialUsers}
+								usersLoading={usersLoading}
+								usersFetching={usersFetching}
+								setSpecialUsers={setSpecialUsers}
+								setSelectedUser={setSelectedUser}
+								setCheckinTime={setSpecialCheckinTime}
+								setCheckoutTime={setSpecialCheckoutTime}
+							/>
+						</Box>
 
-					<Box minWidth={{ base: '100%', md: '300px' }}>
-						<AdminTiming
-							agencyId={agencyId}
-							checkinTime={specialCheckinTime}
-							setCheckinTime={setSpecialCheckinTime}
-							checkoutTime={specialCheckoutTime}
-							setCheckoutTime={setSpecialCheckoutTime}
-							selectedUser={selectedUser}
-							setSelectedUser={setSelectedUser}
-							setSpecialUsers={setSpecialUsers}
+						<Box minWidth={{ base: '100%', md: '300px' }}>
+							<AdminTiming
+								agencyId={agencyId}
+								checkinTime={specialCheckinTime}
+								setCheckinTime={setSpecialCheckinTime}
+								checkoutTime={specialCheckoutTime}
+								setCheckoutTime={setSpecialCheckoutTime}
+								selectedUser={selectedUser}
+								setSelectedUser={setSelectedUser}
+								setSpecialUsers={setSpecialUsers}
+							/>
+						</Box>
+					</Flex>
+
+					<Box
+						flex={{ base: 'none', md: 1 }}
+						w={{ base: '100%', md: 'auto' }}
+						display='flex'
+						justifyContent={{ base: 'center', md: 'flex-start' }}
+					>
+						<OfficeTiming
+							checkinTime={officeCheckinTime}
+							setCheckinTime={setOfficeCheckinTime}
+							checkoutTime={officeCheckoutTime}
+							setCheckoutTime={setOfficeCheckoutTime}
+							timezone={officeTimezone}
+							setTimezone={setOfficeTimezone}
+							offDays={officeOffDays}
+							setOffDays={setOfficeOffDays}
+							gracePeriod={officeGracePeriod}
+							setGracePeriod={setOfficeGracePeriod}
 						/>
 					</Box>
 				</Flex>
 
-				<Box
-					flex={{ base: 'none', md: 1 }}
-					w={{ base: '100%', md: 'auto' }}
-					display='flex'
-					justifyContent={{ base: 'center', md: 'flex-start' }}
-				>
-					<OfficeTiming
-						checkinTime={officeCheckinTime}
-						setCheckinTime={setOfficeCheckinTime}
-						checkoutTime={officeCheckoutTime}
-						setCheckoutTime={setOfficeCheckoutTime}
-						timezone={officeTimezone}
-						setTimezone={setOfficeTimezone}
-						offDays={officeOffDays}
-						setOffDays={setOfficeOffDays}
-						gracePeriod={officeGracePeriod}
-						setGracePeriod={setOfficeGracePeriod}
-					/>
-				</Box>
-			</Flex>
-
-			<RulesSection rules={rules} setRules={setRules} />
-			<Buttons
-				onCancel={handleCancel}
-				onSave={handleSave}
-				isUpdating={isUpdating}
-			/>
-		</Box>
+				<RulesSection rules={rules} setRules={setRules} />
+				<Buttons
+					onCancel={handleCancel}
+					onSave={handleSave}
+					isUpdating={isUpdating}
+				/>
+			</Box>
+		</>
 	) : (
 		<Text>Office Settings not found! </Text>
 	);

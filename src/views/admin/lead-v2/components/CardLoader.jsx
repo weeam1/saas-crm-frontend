@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Grid, Skeleton } from '@chakra-ui/react';
+import { Grid, Skeleton } from '@chakra-ui/react';
 
 const CardLoader = ({ count = 3 }) => {
 	return (

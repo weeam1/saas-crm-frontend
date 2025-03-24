@@ -12,6 +12,7 @@ import { buttonStyle } from '../../constants';
 import Loader from 'components/loading/Loader';
 import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
+import RecordShimmer from './RecordShimmer';
 
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -193,33 +194,37 @@ export default function Records() {
 				Back
 			</AppButton>
 
-			<Box display='flex' alignItems='center' mb={4} bg='white' mt='2' p={4}>
-				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-					Attendance Records
-				</Text>
-			</Box>
-
-			<Box bg='white' p={5} borderRadius='md' shadow='sm'>
-				{/* Header */}
-				<AttendanceHeader
-					title='Attendance Overview'
-					totalDocs={data?.totalDocs}
-					searchTermRef={searchTermRef}
-					queryParams={queryParams}
-					handleSearch={handleSearch}
-					handleClear={handleClear}
-					searchClear={searchClear}
-					content={['date', 'agencyFilter']}
-					filterOpen={filterOnOpen}
-					onDateFilterChange={onFilterChange}
-				/>
-
-				{officeSettingsLoading ? (
-					<Box h='100vh'>
-						<Loader />
+			{officeSettingsLoading ? (
+				<RecordShimmer />
+			) : officeSettings?.doc ? (
+				<>
+					<Box
+						display='flex'
+						alignItems='center'
+						mb={4}
+						bg='white'
+						mt='2'
+						p={4}
+					>
+						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+							Attendance Records
+						</Text>
 					</Box>
-				) : officeSettings?.doc ? (
-					<>
+					<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
+						{/* Header */}
+						<AttendanceHeader
+							title='Attendance Overview'
+							totalDocs={data?.totalDocs}
+							searchTermRef={searchTermRef}
+							queryParams={queryParams}
+							handleSearch={handleSearch}
+							handleClear={handleClear}
+							searchClear={searchClear}
+							content={['date', 'agencyFilter']}
+							filterOpen={filterOnOpen}
+							onDateFilterChange={onFilterChange}
+						/>
+
 						<RecordTable
 							records={data}
 							timezone={timezone}
@@ -254,54 +259,54 @@ export default function Records() {
 								setSearchClear={setSearchClear}
 							/>
 						)}
-					</>
-				) : (
-					<Flex
-						direction='column'
-						align='center'
-						textAlign='center'
-						justify='center'
-						bg='yellow.100'
-						p={4}
-						borderRadius='md'
-						fontFamily="'DM Sans', sans-serif"
-						boxShadow='sm'
-					>
-						{role === 'superAdmin' ? (
-							<>
-								<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-									No office settings found!
-								</Text>
-								<Text fontSize='md' color='gray.600'>
-									To ensure smooth attendance tracking, please configure your
-									office settings.
-								</Text>
-								<Button
-									{...buttonStyle}
-									mt={3}
-									bg='green.500'
-									_active={{ bg: 'green.400' }}
-									onClick={() =>
-										navigate(`/office-settings/${user?.agency?._id}`)
-									}
-								>
-									Add Office Settings
-								</Button>
-							</>
-						) : (
-							<>
-								<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-									Office settings not configured!
-								</Text>
-								<Text fontSize='md' color='gray.600'>
-									Please contact your administrator to set up office settings
-									for attendance tracking.
-								</Text>
-							</>
-						)}
-					</Flex>
-				)}
-			</Box>
+					</Box>
+				</>
+			) : (
+				<Flex
+					direction='column'
+					align='center'
+					textAlign='center'
+					justify='center'
+					bg='yellow.100'
+					p={4}
+					borderRadius='md'
+					fontFamily="'DM Sans', sans-serif"
+					boxShadow='sm'
+				>
+					{role === 'superAdmin' ? (
+						<>
+							<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+								No office settings found!
+							</Text>
+							<Text fontSize='md' color='gray.600'>
+								To ensure smooth attendance tracking, please configure your
+								office settings.
+							</Text>
+							<Button
+								{...buttonStyle}
+								mt={3}
+								bg='green.500'
+								_active={{ bg: 'green.400' }}
+								onClick={() =>
+									navigate(`/office-settings/${user?.agency?._id}`)
+								}
+							>
+								Add Office Settings
+							</Button>
+						</>
+					) : (
+						<>
+							<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+								Office settings not configured!
+							</Text>
+							<Text fontSize='md' color='gray.600'>
+								Please contact your administrator to set up office settings for
+								attendance tracking.
+							</Text>
+						</>
+					)}
+				</Flex>
+			)}
 		</Box>
 	);
 }
