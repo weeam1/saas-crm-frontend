@@ -271,6 +271,7 @@ const AddEmailHistory = (props) => {
 		message: '',
 		createBy: '',
 		createByLead: '',
+		files: '',
 		// startDate: '',
 		// endDate: '',
 	};
@@ -298,10 +299,18 @@ const AddEmailHistory = (props) => {
 	const AddData = async (formValues) => {
 		try {
 			setIsLoading(true);
-			let response = await postApi('api/email/add', formValues);
+			let url = '';
+			if (props.topic === 'attend_show') {
+				url = 'api/email/add?topic=attend_show';
+				values.files = props.files;
+			} else url = 'api/email/add';
+
+			console.log({ url, values });
+
+			let response = await postApi(url, formValues);
 			if (response.status === 200) {
 				onClose();
-				fetchData();
+				// fetchData();
 				setAction((prev) => !prev);
 			}
 		} catch (e) {

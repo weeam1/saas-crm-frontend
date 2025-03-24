@@ -1,12 +1,4 @@
-import {
-	Box,
-	Flex,
-	HStack,
-	Icon,
-	Text,
-	Tooltip,
-	VStack,
-} from '@chakra-ui/react';
+import { HStack, Icon, Text } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useEffect, useState } from 'react';
 

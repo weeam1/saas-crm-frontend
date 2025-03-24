@@ -1,6 +1,6 @@
 import SelectInput from 'components/shared/SelectInput';
 import { leadStatus } from 'utils/options';
-import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { HStack, Icon, Text } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import {
@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import CustomTooltip from './CustomTooltip';
 import InvitationModal from './InvitationModal';
 
-const Status = ({ lead, refreshLeads }) => {
+const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
@@ -107,8 +107,7 @@ const Status = ({ lead, refreshLeads }) => {
 				<InvitationModal
 					onClose={() => setInviteModal(false)}
 					isOpen={inviteModal}
-					leadName={lead?.leadName}
-					leadId={lead?._id}
+					lead={lead}
 				/>
 			)}
 		</>
