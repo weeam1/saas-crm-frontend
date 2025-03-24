@@ -205,7 +205,7 @@ const AttendanceTable = ({
 											fontWeight='400'
 											minWidth='120px'
 										>
-											{entry.totalWorkingHours?.minutes > 0
+											{entry.checkin && entry.checkout
 												? `${entry.totalWorkingHours?.hours}h ${entry.totalWorkingHours.minutes}m`
 												: 'Pending'}
 										</Td>

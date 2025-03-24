@@ -251,7 +251,7 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 											py={4}
 											minWidth='100px'
 											color={
-												entry.checkOut === '00:00' ? 'red.500' : 'blue.500'
+												entry.checkout === '00:00' ? 'red.500' : 'blue.500'
 											}
 										>
 											{entry.checkout ?? 'N/A'}
@@ -262,8 +262,7 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
-											{entry.totalWorkingHours?.minutes > 0 ||
-											entry.totalWorkingHours.hours > 0
+											{entry.checkin && entry.checkout
 												? `${entry.totalWorkingHours.hours}h ${entry.totalWorkingHours.minutes}m`
 												: 'Pending'}
 										</Td>

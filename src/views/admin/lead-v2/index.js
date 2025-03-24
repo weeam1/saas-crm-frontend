@@ -1,7 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import Loader from 'components/loading/Loader';
 import ToggleSwitch from './TogleSwitch';
-import { HStack, VStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import PageSizeAlert from './components/subComponents/PageSizeAlert';
 
 const LeadsCards = lazy(() => import('./LeadsCards'));
