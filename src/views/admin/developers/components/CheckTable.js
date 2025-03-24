@@ -320,13 +320,13 @@ export default function CheckTable(props) {
               ) : (
                 ""
               )}
-              {/* {selectedValues.length > 0 && (
+              {selectedValues.length > 0 && (
                 <DeleteIcon
                   onClick={() => setDelete(true)}
                   color={"red"}
                   ms={2}
                 />
-              )} */}
+              )}
             </Flex>
           </GridItem>
           <GridItem
@@ -340,16 +340,11 @@ export default function CheckTable(props) {
               <MenuButton p={4}>
                 <BsColumnsGap />
               </MenuButton>
-              <MenuList
-                minW={"fit-content"}
-                transform={"translate(1670px, 60px)"}
-                zIndex={2}
-              >
+              <MenuList minW={"fit-content"} zIndex={1500}>
                 <MenuItem
                   onClick={() => setManageColumns(true)}
                   width={"165px"}
                 >
-                  {" "}
                   Manage Columns
                 </MenuItem>
               </MenuList>
@@ -494,13 +489,30 @@ export default function CheckTable(props) {
                         let data = "";
                         if (cell?.column.Header === "#") {
                           data = (
+                            // <Flex align="center">
+                            //   <Text
+                            //     color={textColor}
+                            //     fontSize="sm"
+                            //     fontWeight="700"
+                            //   >
+                            //     {cell?.row?.index + 1}
+                            //   </Text>
+                            // </Flex>
                             <Flex align="center">
+                              <Checkbox
+                                colorScheme="brandScheme"
+                                isChecked={selectedValues.includes(cell.value)}
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, cell.value)
+                                }
+                                me="10px"
+                              />
                               <Text
                                 color={textColor}
                                 fontSize="sm"
                                 fontWeight="700"
                               >
-                                {cell?.row?.index + 1}
+                                {cell.row.index + 1}
                               </Text>
                             </Flex>
                           );
