@@ -49,17 +49,29 @@ const invoiceSchema = yup.object().shape({
 const Add = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch developers data only when modal is open
   const {
     data: developersData,
     isLoading: developersLoading,
     error: developersError,
-  } = useFetchItemsQuery({ path: "/developer/get" });
+  } = useFetchItemsQuery(
+    { path: "/developer/getALL" },
+    {
+      skip: !props.isOpen,
+    }
+  );
 
+  // Fetch bank accounts data only when modal is open
   const {
     data: bankAccountsData,
     isLoading: bankAccountsLoading,
     error: bankAccountsError,
-  } = useFetchItemsQuery({ path: "/bankAccount/get" });
+  } = useFetchItemsQuery(
+    { path: "/bankAccount/get" },
+    {
+      skip: !props.isOpen,
+    }
+  );
 
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();
@@ -94,14 +106,11 @@ const Add = (props) => {
   const AddData = async (formValues) => {
     try {
       setIsLoading(true);
-      console.log("Form Values on Submit:", formValues);
 
       const response = await createItemMutation({
         path: "/invoice/add",
         body: formValues,
       }).unwrap();
-
-      console.log("API Response:", response);
 
       if (
         response?.status === "success" ||
@@ -109,12 +118,17 @@ const Add = (props) => {
         response?.code === 201
       ) {
         toast.success("Invoice added successfully!");
-        props.setAction((prev) => !prev);
-        if (props.fetchData) props.fetchData();
+        if (props.fetchData) {
+          props.fetchData({
+            pageIndex: props.pageIndex || 0,
+            pageSize: props.pageSize || 4,
+          });
+        }
+        if (props.setAction) props.setAction((prev) => !prev);
         formik.resetForm();
         props.onClose();
       } else {
-        toast.error(response?.message || "Failed to add invoice");
+        throw new Error(response?.message || "Failed to add invoice");
       }
     } catch (e) {
       console.error("Error adding invoice:", e);

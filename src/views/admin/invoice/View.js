@@ -445,8 +445,12 @@ const SingleInvoice = () => {
                       <Td textAlign="center" border="1px solid #CDCDCD">
                         {index + 1}
                       </Td>
-                      <Td border="1px solid #CDCDCD">{invoice.unit_name || "-"}</Td>
-                      <Td border="1px solid #CDCDCD">{invoice.name_of_referring_party || "-"}</Td>
+                      <Td border="1px solid #CDCDCD">
+                        {invoice.unit_name || "-"}
+                      </Td>
+                      <Td border="1px solid #CDCDCD">
+                        {invoice.name_of_referring_party || "-"}
+                      </Td>
                       <Td textAlign="center" border="1px solid #CDCDCD">
                         {invoice.claim_type || "-"}
                       </Td>
@@ -460,7 +464,9 @@ const SingleInvoice = () => {
                         })}
                       </Td>
                       <Td textAlign="right" border="1px solid #CDCDCD">
-                        {(invoice.total_commission_excl_vat || 0).toLocaleString("en-US", {
+                        {(
+                          invoice.total_commission_excl_vat || 0
+                        ).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -475,7 +481,9 @@ const SingleInvoice = () => {
                         })}
                       </Td>
                       <Td textAlign="right" border="1px solid #CDCDCD">
-                        {(invoice.total_commission_incl_vat || 0).toLocaleString("en-US", {
+                        {(
+                          invoice.total_commission_incl_vat || 0
+                        ).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
@@ -600,10 +608,13 @@ const SingleInvoice = () => {
                       fontSize={{ base: "xs", md: "sm" }}
                     >
                       {typeof totals.total_commission_excl_vat === "number"
-                        ? totals.total_commission_excl_vat.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
+                        ? totals.total_commission_excl_vat.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
                         : "N/A"}{" "}
                       AED
                     </Td>
@@ -644,10 +655,13 @@ const SingleInvoice = () => {
                       fontSize={{ base: "xs", md: "sm" }}
                     >
                       {typeof totals.total_commission_incl_vat === "number"
-                        ? totals.total_commission_incl_vat.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
+                        ? totals.total_commission_incl_vat.toLocaleString(
+                            "en-US",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
                         : "N/A"}{" "}
                       AED
                     </Td>

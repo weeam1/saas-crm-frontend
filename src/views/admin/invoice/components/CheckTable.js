@@ -34,21 +34,14 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  useGlobalFilter,
-  usePagination,
-  useSortBy,
-  useTable,
-} from "react-table";
 import * as XLSX from "xlsx";
 import { DeleteIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
-import Pagination from "components/pagination/Pagination";
+import Pagination from "./Pagination";
 import Spinner from "components/spinner/Spinner";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getApi } from "services/api";
 import Delete from "../Delete";
 import Add from "../Add";
 import { AddIcon } from "@chakra-ui/icons";
@@ -80,6 +73,11 @@ export default function CheckTable(props) {
     action,
     dateTime,
     setDateTime,
+    pageIndex,
+    pageSize,
+    totalItems,
+    totalPages,
+    currentPage,
   } = props;
 
   const textColor = useColorModeValue("gray.500", "white");
@@ -87,7 +85,6 @@ export default function CheckTable(props) {
 
   const [selectedValues, setSelectedValues] = useState([]);
   const [getTagValues, setGetTagValues] = useState([]);
-  const [gopageValue, setGopageValue] = useState();
   const [deleteModel, setDeleteModel] = useState(false);
   const [advaceSearch, setAdvaceSearch] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -104,9 +101,7 @@ export default function CheckTable(props) {
   const data = useMemo(() => tableData, [tableData]);
 
   useEffect(() => {
-    console.log("Table Data in CheckTable:", tableData);
     if (tableData && tableData.length > 0) {
-      console.log("Sample Row Data:", tableData[0]);
     }
   }, [tableData]);
 
@@ -119,34 +114,6 @@ export default function CheckTable(props) {
     { Header: "Bank Account", accessor: "bank_account_id" },
     { Header: "Total Amount", accessor: "total_amount" },
   ];
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0 },
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = tableInstance;
 
   const initialValues = {
     unit_name: "",
@@ -259,9 +226,18 @@ export default function CheckTable(props) {
     setSelectedValues([]);
   };
 
+  const handlePageChange = (page) => {
+    fetchData({ pageIndex: page - 1, pageSize });
+  };
+
+  const handlePageSizeChange = (e) => {
+    const newSize = Number(e.target.value);
+    fetchData({ pageIndex: 0, pageSize: newSize });
+  };
+
   useEffect(() => {
-    if (fetchData && action) fetchData();
-  }, [action, fetchData]);
+    if (fetchData && action) fetchData({ pageIndex, pageSize });
+  }, [action, fetchData, pageIndex, pageSize]);
 
   return (
     <>
@@ -279,7 +255,7 @@ export default function CheckTable(props) {
                 fontSize="22px"
                 fontWeight="700"
               >
-                Invoices (<CountUpComponent targetNumber={data?.length} />)
+                Invoices (<CountUpComponent targetNumber={totalItems} />)
               </Text>
               <CustomSearchInput
                 setSearchbox={setSearchbox}
@@ -353,47 +329,51 @@ export default function CheckTable(props) {
             </Tag>
           ))}
         </HStack>
-
+        <Box mb={2}>
+          {totalItems > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              handlePageSize={handlePageSizeChange}
+              refetching={isLoding}
+              loading={isLoding}
+            />
+          )}
+        </Box>
         <Box overflowY="auto">
-          <Table
-            {...getTableProps()}
-            variant="simple"
-            color="gray.500"
-            mb="24px"
-          >
+          <Table variant="simple" color="gray.500" mb="24px">
             <Thead>
-              {headerGroups.map((headerGroup, index) => (
-                <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers.map((column, index) => (
-                    <Th
-                      {...column.getHeaderProps(column.getSortByToggleProps())} // Keep sorting functionality
-                      pe="10px"
-                      key={index}
-                      borderColor={borderColor}
-                      bg="#EBD3A7" // Background color from previous change
+              <Tr>
+                {columns.map((column, index) => (
+                  <Th
+                    key={index}
+                    pe="10px"
+                    borderColor={borderColor}
+                    bg="#EBD3A7"
+                  >
+                    <Flex
+                      align="center"
+                      justifyContent={column.center ? "center" : "start"}
+                      fontSize={{ sm: "14px", lg: "16px" }}
+                      color="secondaryGray.900"
                     >
-                      <Flex
-                        align="center"
-                        justifyContent={column.center ? "center" : "start"}
-                        fontSize={{ sm: "14px", lg: "16px" }}
-                        color="secondaryGray.900"
+                      <span
+                        style={{
+                          textTransform: "capitalize",
+                          marginRight: "8px",
+                        }}
                       >
-                        <span
-                          style={{
-                            textTransform: "capitalize",
-                            marginRight: "8px",
-                          }}
-                        >
-                          {column.render("Header")}
-                        </span>
-                        {/* Removed the sort icons */}
-                      </Flex>
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
+                        {column.Header}
+                      </span>
+                    </Flex>
+                  </Th>
+                ))}
+              </Tr>
             </Thead>
-            <Tbody {...getTableBodyProps()}>
+            <Tbody>
               {isLoding ? (
                 <Tr>
                   <Td colSpan={columns.length}>
@@ -413,158 +393,131 @@ export default function CheckTable(props) {
                   </Td>
                 </Tr>
               ) : (
-                page.map((row, i) => {
-                  prepareRow(row);
-                  return (
-                    <Tr {...row.getRowProps()} key={i}>
-                      {row.cells.map((cell, index) => {
-                        let data = "";
-                        if (cell.column.Header === "Date") {
-                          data = (
-                            <Flex align="center">
-                              <Checkbox
-                                colorScheme="brandScheme"
-                                isChecked={selectedValues.includes(
-                                  row.original._id
-                                )}
-                                onChange={(e) =>
-                                  handleCheckboxChange(e, row.original._id)
-                                }
-                                me="10px"
-                              />
-                              <Text color="brand.600" fontSize="sm">
-                              <Text color="brand.600" fontSize="sm">
-  {new Date(cell.value).toISOString().split("T")[0] || "-"}
-</Text>
-
-                              </Text>
-                            </Flex>
-                          );
-                        } else if (cell.column.Header === "Invoice No") {
-                          data = (
-                            <Text
-                              color={textColor}
-                              fontSize="sm"
-                              fontWeight="700"
-                            >
-                              {cell.value || "-"}
+                data.map((row, i) => (
+                  <Tr key={i}>
+                    {columns.map((column, index) => {
+                      let cellData = "";
+                      if (column.Header === "Date") {
+                        cellData = (
+                          <Flex align="center">
+                            <Checkbox
+                              colorScheme="brandScheme"
+                              isChecked={selectedValues.includes(row._id)}
+                              onChange={(e) => handleCheckboxChange(e, row._id)}
+                              me="10px"
+                            />
+                            <Text color="brand.600" fontSize="sm">
+                              {new Date(row.created_at)
+                                .toISOString()
+                                .split("T")[0] || "-"}
                             </Text>
-                          );
-                        } else if (cell.column.Header === "Unit No") {
-                          console.log("Unit No (unit_name) Value:", cell.value);
-                          data = (
-                            <Text
-                              color={textColor}
-                              fontSize="sm"
-                              fontWeight="700"
-                            >
-                              {cell.value || "-"}
-                            </Text>
-                          );
-                        } else if (cell.column.Header === "Developer") {
-                          data = (
-                            <Text fontSize="sm" fontWeight="700">
-                              {cell.value?.developer_name || "-"}
-                            </Text>
-                          );
-                        } else if (cell.column.Header === "Total Amount") {
-                          data = (
-                            <Text
-                              color={textColor}
-                              fontSize="sm"
-                              fontWeight="700"
-                            >
-                              {cell.value || 0} AED
-                            </Text>
-                          );
-                        } else if (cell.column.id === "action") {
-                          data = (
-                            <Flex alignItems="center" gap={2}>
-                              <Link to={`/invoiceView/${row.original._id}`}>
-                                <Button
-                                  size="sm"
-                                  bg="#EBD3A7"
-                                  w="100px"
-                                  fontSize="12px"
-                                  borderRadius="3px"
-                                  py="10px"
-                                  color="black"
-                                  px="16px"
-                                >
-                                  View Invoice
-                                </Button>
-                              </Link>
-                              {access?.update && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    setEdit(true);
-                                    setSelectedId(row.original._id);
-                                  }}
-                                >
-                                  <img
-                                    src={EditIconSvg}
-                                    alt="Edit"
-                                    width="16px"
-                                    height="16px"
-                                  />
-                                </Button>
-                              )}
-                              {access?.delete && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedId(row.original._id);
-                                    setDeleteModel(true);
-                                  }}
-                                >
-                                  <img
-                                    src={DeleteIconSvg}
-                                    alt="Delete"
-                                    width="16px"
-                                    height="16px"
-                                  />
-                                </Button>
-                              )}
-                            </Flex>
-                          );
-                        }
-                        return (
-                          <Td
-                            {...cell.getCellProps()}
-                            key={index}
-                            fontSize={{ sm: "14px" }}
-                            minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                            borderColor="transparent"
-                          >
-                            {data}
-                          </Td>
+                          </Flex>
                         );
-                      })}
-                    </Tr>
-                  );
-                })
+                      } else if (column.Header === "Invoice No") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.invoice_number || "-"}
+                          </Text>
+                        );
+                      } else if (column.Header === "Unit No") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.unit_name || "-"}
+                          </Text>
+                        );
+                      } else if (column.Header === "Developer") {
+                        cellData = (
+                          <Text fontSize="sm" fontWeight="700">
+                            {row.developer_id?.developer_name || "-"}
+                          </Text>
+                        );
+                      } else if (column.Header === "Total Amount") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.total_amount || 0} AED
+                          </Text>
+                        );
+                      } else if (column.id === "action") {
+                        cellData = (
+                          <Flex alignItems="center" gap={2}>
+                            <Link to={`/invoiceView/${row._id}`}>
+                              <Button
+                                size="sm"
+                                bg="#EBD3A7"
+                                w="100px"
+                                fontSize="12px"
+                                borderRadius="3px"
+                                py="10px"
+                                color="black"
+                                px="16px"
+                              >
+                                View Invoice
+                              </Button>
+                            </Link>
+                            {access?.update && (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setEdit(true);
+                                  setSelectedId(row._id);
+                                }}
+                              >
+                                <img
+                                  src={EditIconSvg}
+                                  alt="Edit"
+                                  width="16px"
+                                  height="16px"
+                                />
+                              </Button>
+                            )}
+                            {access?.delete && (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedId(row._id);
+                                  setDeleteModel(true);
+                                }}
+                              >
+                                <img
+                                  src={DeleteIconSvg}
+                                  alt="Delete"
+                                  width="16px"
+                                  height="16px"
+                                />
+                              </Button>
+                            )}
+                          </Flex>
+                        );
+                      }
+                      return (
+                        <Td
+                          key={index}
+                          fontSize={{ sm: "14px" }}
+                          minW={{ sm: "150px", md: "200px", lg: "auto" }}
+                          borderColor="transparent"
+                        >
+                          {cellData}
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                ))
               )}
             </Tbody>
           </Table>
         </Box>
-
-        {data?.length > 5 && (
-          <Pagination
-            gotoPage={gotoPage}
-            gopageValue={gopageValue}
-            setGopageValue={setGopageValue}
-            pageCount={pageCount}
-            canPreviousPage={canPreviousPage}
-            previousPage={previousPage}
-            canNextPage={canNextPage}
-            pageOptions={pageOptions}
-            setPageSize={setPageSize}
-            nextPage={nextPage}
-            pageSize={pageSize}
-            pageIndex={pageIndex}
-          />
-        )}
 
         <Add
           isOpen={isOpen}
@@ -591,6 +544,8 @@ export default function CheckTable(props) {
           id={selectedValues.length === 1 ? selectedValues[0] : selectedId}
           fetchData={fetchData}
           setAction={setAction}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
         />
 
         <Modal
@@ -720,9 +675,12 @@ export default function CheckTable(props) {
                 <Text display="flex" key={column.accessor || column.id} py={2}>
                   <Checkbox
                     isChecked={tempSelectedColumns.some(
-                      (c) => (c.accessor || c.id) === (column.accessor || column.id)
+                      (c) =>
+                        (c.accessor || c.id) === (column.accessor || column.id)
                     )}
-                    onChange={() => toggleColumnVisibility(column.accessor || column.id)}
+                    onChange={() =>
+                      toggleColumnVisibility(column.accessor || column.id)
+                    }
                     pe={2}
                   />
                   {column.Header || "Actions"}

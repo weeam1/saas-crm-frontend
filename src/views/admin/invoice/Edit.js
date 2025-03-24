@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg"; 
+import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
 const Edit = (props) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,7 @@ const Edit = (props) => {
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
+  // Fetch invoice data only when modal is open and selectedId is provided
   const {
     data: invoiceList,
     isLoading: invoiceLoading,
@@ -47,15 +48,26 @@ const Edit = (props) => {
     },
     {
       skip: !props.isOpen || !props.selectedId || !user._id,
-      refetchOnMountOrArgChange: false,
     }
   );
 
+  // Fetch developers data only when modal is open
   const { data: developersData, isLoading: developersLoading } =
-    useFetchItemsQuery({ path: "/developer/get" });
+    useFetchItemsQuery(
+      { path: "/developer/getALL" },
+      {
+        skip: !props.isOpen,
+      }
+    );
 
+  // Fetch bank accounts data only when modal is open
   const { data: bankAccountsData, isLoading: bankAccountsLoading } =
-    useFetchItemsQuery({ path: "/bankAccount/get" });
+    useFetchItemsQuery(
+      { path: "/bankAccount/get" },
+      {
+        skip: !props.isOpen,
+      }
+    );
 
   const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
 
@@ -91,13 +103,11 @@ const Edit = (props) => {
   const EditData = async (formValues) => {
     try {
       setIsLoading(true);
-      console.log("Sending Update Payload:", formValues);
       const response = await updateItem({
         path: `/invoice/edit/${props?.selectedId}`,
         method: "PUT",
         body: formValues,
       }).unwrap();
-      console.log("Edit API Response:", response);
 
       if (
         response?.status === "success" ||
@@ -105,12 +115,17 @@ const Edit = (props) => {
         response?.status === 200
       ) {
         toast.success("Invoice updated successfully!");
-        props.setAction((prev) => !prev);
-        if (props.fetchData) props.fetchData();
+        if (props.fetchData) {
+          props.fetchData({
+            pageIndex: props.pageIndex || 0,
+            pageSize: props.pageSize || 4,
+          });
+        }
+        if (props.setAction) props.setAction((prev) => !prev);
         formik.resetForm();
         props.onClose();
       } else {
-        toast.error(response?.message || "Failed to update invoice");
+        throw new Error(response?.message || "Failed to update invoice");
       }
     } catch (e) {
       console.error("Error updating invoice:", e);
@@ -127,12 +142,10 @@ const Edit = (props) => {
   };
 
   useEffect(() => {
-    console.log("Fetched Invoice List:", invoiceList?.data);
     if (invoiceList && !isFetching && props.selectedId) {
       const editData = invoiceList?.data?.find(
         (invoice) => invoice._id === props.selectedId
       );
-      console.log("Selected Invoice Data:", editData);
 
       if (editData) {
         const updatedValues = {
@@ -145,7 +158,6 @@ const Edit = (props) => {
           bank_account_id:
             editData?.bank_account_id?._id || editData?.bank_account_id || "",
         };
-        console.log("Updated Values for Form:", updatedValues);
         setInitialValues(updatedValues);
         setValues(updatedValues);
       } else {
@@ -169,7 +181,7 @@ const Edit = (props) => {
           <IconButton onClick={handleClose} icon={<CloseIcon />} />
         </ModalHeader>
         <ModalBody>
-          {developersData && bankAccountsData && invoiceList ? (
+          {developersData && bankAccountsData && !invoiceLoading ? (
             <form onSubmit={handleSubmit}>
               <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
                 <FormControl flex={1}>

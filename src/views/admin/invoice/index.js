@@ -33,7 +33,7 @@ const Index = () => {
     { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
+    { Header: "", id: "action", isSortable: false, center: true },
   ];
 
   const tableColumnsManager = [
@@ -50,7 +50,7 @@ const Index = () => {
     { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
+    { Header: "", id: "action", isSortable: false, center: true },
   ];
 
   const tableColumnsAgent = [
@@ -67,7 +67,7 @@ const Index = () => {
     { Header: "Unit No", accessor: "unit_name" },
     { Header: "Developer", accessor: "developer_id" },
     { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "", id: "action", isSortable: false, center: true }, // Added id: "action"
+    { Header: "", id: "action", isSortable: false, center: true },
   ];
 
   const roleColumns = {
@@ -88,9 +88,15 @@ const Index = () => {
   const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
   const { isOpen } = useDisclosure();
 
+  // Add pagination state
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(25); 
+
   const queryArgs = useMemo(
-    () => ({ path: `/invoice/get?user=${user._id}` }),
-    [user._id]
+    () => ({
+      path: `/invoice/get?user=${user._id}&page=${pageIndex + 1}&pageSize=${pageSize}`,
+    }),
+    [user._id, pageIndex, pageSize]
   );
 
   const {
@@ -113,9 +119,7 @@ const Index = () => {
     if (queryLoading) {
       setIsLoading(true);
     } else if (invoiceData) {
-      console.log("Updated Invoice Data:", invoiceData.data);
       if (invoiceData.data && invoiceData.data.length > 0) {
-        console.log("Sample Invoice Data:", invoiceData.data[0]);
       }
       setData(invoiceData.data || []);
       setIsLoading(false);
@@ -132,8 +136,9 @@ const Index = () => {
 
   const fetchData = useMemo(() => {
     let timeoutId;
-    return () => {
-      console.log("fetchData called in Index");
+    return ({ pageIndex: newPageIndex, pageSize: newPageSize }) => {
+      setPageIndex(newPageIndex);
+      setPageSize(newPageSize);
       if (!isUninitialized && user._id) {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
@@ -172,6 +177,11 @@ const Index = () => {
             setSelectedColumns={setSelectedColumns}
             emailAccess={emailAccess}
             callAccess={callAccess}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            totalItems={invoiceData?.totalItems || 0}
+            totalPages={invoiceData?.totalPages || 1}
+            currentPage={invoiceData?.currentPage || 1}
           />
         </GridItem>
       </Grid>
