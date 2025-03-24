@@ -30,10 +30,10 @@ const Attendance = () => {
 
 	const { data: employee, isLoading: employeeLoading } = useFetchItemsQuery(
 		{
-			path: `/user/v2/view/${user._id}`,
+			path: `/user/v2/view/${employeeId}`,
 		},
 		{
-			skip: !user._id,
+			skip: !employeeId,
 			refetchOnMountOrArgChange: true,
 		}
 	);
