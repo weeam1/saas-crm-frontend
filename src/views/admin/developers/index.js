@@ -32,13 +32,12 @@ const Index = () => {
     error,
     refetch,
   } = useFetchItemsQuery({
-    path: "/developer/get", // Base path without query params
+    path: `/developer/get?page=${pageIndex + 1}&pageSize=${pageSize}`,
     pageIndex,
     pageSize,
   });
 
   const fetchData = ({ pageIndex: newPageIndex, pageSize: newPageSize }) => {
-    // Validate newPageIndex and newPageSize
     if (newPageIndex < 0) {
       console.warn("Invalid pageIndex in fetchData:", newPageIndex);
       return;
@@ -50,7 +49,7 @@ const Index = () => {
 
     setPageIndex(newPageIndex);
     setPageSize(newPageSize);
-    refetch(); // Force refetch to ensure data is fresh
+    refetch();
   };
 
   useEffect(() => {

@@ -185,8 +185,6 @@ const Pagination = ({
         >
           {totalItems > 0 ? (
             [
-              6,
-              12,
               32,
               50,
               60,

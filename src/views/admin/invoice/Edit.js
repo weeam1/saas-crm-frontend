@@ -15,7 +15,7 @@ import {
   Select,
   Text,
 } from "@chakra-ui/react";
-import Spinner from "components/spinner/Spinner";
+import Spinner from "components/spinner/Spinner"; // Your custom spinner for save button
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
@@ -36,12 +36,11 @@ const Edit = (props) => {
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  // Fetch invoice data only when modal is open and selectedId is provided
+  // Fetch invoice data when modal is open and selectedId is provided
   const {
     data: invoiceList,
-    isLoading: invoiceLoading,
-    isFetching,
-    error,
+    isFetching: invoiceFetching,
+    error: invoiceError,
   } = useFetchItemsQuery(
     {
       path: `/invoice/get?user=${user._id}`,
@@ -51,23 +50,27 @@ const Edit = (props) => {
     }
   );
 
-  // Fetch developers data only when modal is open
-  const { data: developersData, isLoading: developersLoading } =
-    useFetchItemsQuery(
-      { path: "/developer/getALL" },
-      {
-        skip: !props.isOpen,
-      }
-    );
+  // Fetch developers data when modal is open
+  const {
+    data: developersData,
+    error: developersError,
+  } = useFetchItemsQuery(
+    { path: "/developer/getALL" },
+    {
+      skip: !props.isOpen,
+    }
+  );
 
-  // Fetch bank accounts data only when modal is open
-  const { data: bankAccountsData, isLoading: bankAccountsLoading } =
-    useFetchItemsQuery(
-      { path: "/bankAccount/get" },
-      {
-        skip: !props.isOpen,
-      }
-    );
+  // Fetch bank accounts data when modal is open
+  const {
+    data: bankAccountsData,
+    error: bankAccountsError,
+  } = useFetchItemsQuery(
+    { path: "/bankAccount/get" },
+    {
+      skip: !props.isOpen,
+    }
+  );
 
   const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
 
@@ -142,7 +145,7 @@ const Edit = (props) => {
   };
 
   useEffect(() => {
-    if (invoiceList && !isFetching && props.selectedId) {
+    if (invoiceList && !invoiceFetching && props.selectedId) {
       const editData = invoiceList?.data?.find(
         (invoice) => invoice._id === props.selectedId
       );
@@ -165,7 +168,7 @@ const Edit = (props) => {
         toast.error("Invoice not found!");
       }
     }
-  }, [invoiceList, isFetching, props.selectedId, setValues]);
+  }, [invoiceList, invoiceFetching, props.selectedId, setValues]);
 
   return (
     <Modal
@@ -181,143 +184,139 @@ const Edit = (props) => {
           <IconButton onClick={handleClose} icon={<CloseIcon />} />
         </ModalHeader>
         <ModalBody>
-          {developersData && bankAccountsData && !invoiceLoading ? (
-            <form onSubmit={handleSubmit}>
-              <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
-                <FormControl flex={1}>
-                  <FormLabel>Developer Name</FormLabel>
-                  <Select
-                    placeholder="Choose Developer"
-                    name="developer_id"
-                    value={values.developer_id}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={touched.developer_id && !!errors.developer_id}
-                    disabled={developersLoading}
-                    icon={<img src={DropdownImg} alt="Dropdown" />}
-                  >
-                    {developersData?.data?.map((developer) => (
-                      <option key={developer._id} value={developer._id}>
-                        {developer.developer_name}
-                      </option>
-                    ))}
-                  </Select>
-                  {touched.developer_id && errors.developer_id && (
-                    <Text color="red.500" fontSize="sm">
-                      {errors.developer_id}
-                    </Text>
-                  )}
-                </FormControl>
-
-                <FormControl flex={1}>
-                  <Select
-                    mt={8}
-                    placeholder="Choose Claim Type"
-                    name="claim_type"
-                    value={values.claim_type}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    isInvalid={touched.claim_type && !!errors.claim_type}
-                    icon={<img src={DropdownImg} alt="Dropdown" />}
-                  >
-                    <option value="FULL">FULL</option>
-                    <option value="PARTIAL">PARTIAL</option>
-                  </Select>
-                  {touched.claim_type && errors.claim_type && (
-                    <Text color="red.500" fontSize="sm">
-                      {errors.claim_type}
-                    </Text>
-                  )}
-                </FormControl>
-              </Flex>
-
-              <FormControl mb={4}>
-                <FormLabel>Unit Name</FormLabel>
-                <Input
-                  placeholder="Enter Unit Name"
-                  name="unit_name"
-                  value={values.unit_name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.unit_name && !!errors.unit_name}
-                />
-                {touched.unit_name && errors.unit_name && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.unit_name}
-                  </Text>
-                )}
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Unit Price</FormLabel>
-                <Input
-                  placeholder="Enter Unit Price"
-                  name="unit_price"
-                  type="number"
-                  value={values.unit_price}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.unit_price && !!errors.unit_price}
-                />
-                {touched.unit_price && errors.unit_price && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.unit_price}
-                  </Text>
-                )}
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Commission (%)</FormLabel>
-                <Input
-                  placeholder="Enter Commission"
-                  name="commission"
-                  type="number"
-                  value={values.commission}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.commission && !!errors.commission}
-                />
-                {touched.commission && errors.commission && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.commission}
-                  </Text>
-                )}
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Bank Account</FormLabel>
+          <form onSubmit={handleSubmit}>
+            <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
+              <FormControl flex={1}>
+                <FormLabel>Developer Name</FormLabel>
                 <Select
-                  placeholder="Choose Bank Account"
-                  name="bank_account_id"
-                  value={values.bank_account_id}
+                  placeholder={
+                    developersData?.data?.length > 0
+                      ? "Choose Developer"
+                      : "No developer added"
+                  }
+                  name="developer_id"
+                  value={values.developer_id}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  isInvalid={
-                    touched.bank_account_id && !!errors.bank_account_id
-                  }
-                  disabled={bankAccountsLoading}
+                  isInvalid={touched.developer_id && !!errors.developer_id}
                   icon={<img src={DropdownImg} alt="Dropdown" />}
                 >
-                  {bankAccountsData?.data?.map((bank) => (
-                    <option key={bank._id} value={bank._id}>
-                      {bank.account_holder_name} - {bank.account_number}
+                  {developersData?.data?.map((developer) => (
+                    <option key={developer._id} value={developer._id}>
+                      {developer.developer_name}
                     </option>
                   ))}
                 </Select>
-                {touched.bank_account_id && errors.bank_account_id && (
+                {touched.developer_id && errors.developer_id && (
                   <Text color="red.500" fontSize="sm">
-                    {errors.bank_account_id}
+                    {errors.developer_id}
                   </Text>
                 )}
               </FormControl>
-            </form>
-          ) : (
-            <Text>
-              {error
-                ? "Error loading invoice data"
-                : "Loading data or no invoices found"}
-            </Text>
-          )}
+
+              <FormControl flex={1}>
+                <Select
+                  mt={{ base: 0, md: 8 }}
+                  placeholder="Choose Claim Type"
+                  name="claim_type"
+                  value={values.claim_type}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  isInvalid={touched.claim_type && !!errors.claim_type}
+                  icon={<img src={DropdownImg} alt="Dropdown" />}
+                >
+                  <option value="FULL">FULL</option>
+                  <option value="PARTIAL">PARTIAL</option>
+                </Select>
+                {touched.claim_type && errors.claim_type && (
+                  <Text color="red.500" fontSize="sm">
+                    {errors.claim_type}
+                  </Text>
+                )}
+              </FormControl>
+            </Flex>
+
+            <FormControl mb={4}>
+              <FormLabel>Unit Name</FormLabel>
+              <Input
+                placeholder="Enter Unit Name"
+                name="unit_name"
+                value={values.unit_name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.unit_name && !!errors.unit_name}
+              />
+              {touched.unit_name && errors.unit_name && (
+                <Text color="red.500" fontSize="sm">
+                  {errors.unit_name}
+                </Text>
+              )}
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Unit Price</FormLabel>
+              <Input
+                placeholder="Enter Unit Price"
+                name="unit_price"
+                type="number"
+                value={values.unit_price}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.unit_price && !!errors.unit_price}
+              />
+              {touched.unit_price && errors.unit_price && (
+                <Text color="red.500" fontSize="sm">
+                  {errors.unit_price}
+                </Text>
+              )}
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Commission (%)</FormLabel>
+              <Input
+                placeholder="Enter Commission"
+                name="commission"
+                type="number"
+                value={values.commission}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.commission && !!errors.commission}
+              />
+              {touched.commission && errors.commission && (
+                <Text color="red.500" fontSize="sm">
+                  {errors.commission}
+                </Text>
+              )}
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Bank Account</FormLabel>
+              <Select
+                placeholder={
+                  bankAccountsData?.data?.length > 0
+                    ? "Choose Bank Account"
+                    : "No bank account added"
+                }
+                name="bank_account_id"
+                value={values.bank_account_id}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                isInvalid={touched.bank_account_id && !!errors.bank_account_id}
+                icon={<img src={DropdownImg} alt="Dropdown" />}
+              >
+                {bankAccountsData?.data?.map((bank) => (
+                  <option key={bank._id} value={bank._id}>
+                    {bank.account_holder_name} - {bank.account_number}
+                  </option>
+                ))}
+              </Select>
+              {touched.bank_account_id && errors.bank_account_id && (
+                <Text color="red.500" fontSize="sm">
+                  {errors.bank_account_id}
+                </Text>
+              )}
+            </FormControl>
+          </form>
         </ModalBody>
         <ModalFooter>
           <Button

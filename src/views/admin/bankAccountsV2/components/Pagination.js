@@ -119,7 +119,11 @@ const Pagination = ({
                 color="black"
                 py="1"
                 px="3"
-                leftIcon={<IoPlaySkipForwardSharp style={{ transform: "rotate(180deg)" }} />}
+                leftIcon={
+                  <IoPlaySkipForwardSharp
+                    style={{ transform: "rotate(180deg)" }}
+                  />
+                }
                 aria-label="First Page"
               >
                 First
@@ -177,8 +181,8 @@ const Pagination = ({
             </HStack>
 
             <Text color="gray.800" fontWeight="medium" fontSize="12px">
-              Showing {startIndex.toLocaleString()} - {endIndex.toLocaleString()} of{" "}
-              {totalLeads.toLocaleString()}
+              Showing {startIndex.toLocaleString()} -{" "}
+              {endIndex.toLocaleString()} of {totalLeads.toLocaleString()}
             </Text>
 
             <HStack flexDirection="row" flexWrap="wrap" justifyContent="center">

@@ -297,15 +297,15 @@ export default function CheckTable(props) {
                   cursor="pointer"
                   onClick={() => setDeleteModel(true)}
                   color="red"
-                  mt={{ base: 2, md: 0 }} // Margin top on base for spacing
-                  ms={{ base: 0, md: 2 }} // Margin start only on md+
+                  mt={{ base: 2 }}
+                  ms={{ base: 0, md: 2 }}
                 />
               )}
             </Flex>
           </GridItem>
 
           <GridItem
-            colSpan={{ base: 12, md: 4 }} // Full width on base, 4 columns on md+
+            colSpan={{ base: 12, md: 4 }}
             display="flex"
             justifyContent={{ base: "center", md: "end" }} // Center on base, end on md+
             alignItems="center"

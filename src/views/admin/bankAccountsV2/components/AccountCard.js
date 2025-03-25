@@ -8,8 +8,8 @@ import {
   Divider,
   Tooltip,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
-import { CiEdit } from "react-icons/ci";
+import DeleteIconSvg from "../../../../assets/img/bankaccount/Vector.png";
+import EditIconSvg from "../../../../assets/img/bankaccount/ic_baseline-edit.png";
 import EditAccountModal from "./EditModal";
 import DeleteConfirmationModal from "./DeletePopup";
 
@@ -43,7 +43,7 @@ const AccountCard = ({
       bg="white"
       transition="transform 0.2s"
       _hover={{ boxShadow: "lg" }}
-      overflow="hidden" // Prevent content from spilling out
+      overflow="hidden"
     >
       <Flex position="absolute" top={4} right={4} alignItems="center" gap={2}>
         <EditAccountModal
@@ -53,7 +53,13 @@ const AccountCard = ({
         >
           <Tooltip label="Edit" hasArrow>
             <IconButton
-              icon={<CiEdit size={22} color="#B79045" />}
+              icon={
+                <img
+                  src={EditIconSvg}
+                  alt="Edit"
+                  style={{ width: 22, height: 22 }}
+                />
+              }
               size="md"
               variant="ghost"
               aria-label="Edit account"
@@ -64,8 +70,15 @@ const AccountCard = ({
 
         <Tooltip label="Delete" hasArrow>
           <IconButton
-            icon={<DeleteIcon boxSize={4} color="#B79045" />}
-            size="sm"
+            icon={
+              <img
+                src={DeleteIconSvg}
+                color="#B79045"
+                alt="Delete"
+                style={{ width: 22, height: 22 }}
+              />
+            }
+            size="md"
             variant="ghost"
             onClick={handleOpenDeleteModal}
             aria-label="Delete account"
@@ -99,7 +112,7 @@ const AccountCard = ({
         <Flex
           w="100%"
           gap={{ base: 4, md: 6 }}
-          direction={{ base: "column", md: "row", lg: "row" }} // Stack on base, row on md and lg
+          direction={{ base: "column", md: "row", lg: "row" }}
         >
           <Flex flex="1" direction="column">
             <Text
@@ -115,7 +128,7 @@ const AccountCard = ({
               fontSize={{ base: "14px", md: "16px" }}
               fontWeight="bold"
               fontFamily="DM Sans"
-              wordBreak="break-all" // Allow breaking for long numbers
+              wordBreak="break-all"
             >
               {account.account_number || "N/A"}
             </Text>
@@ -135,7 +148,7 @@ const AccountCard = ({
               fontSize={{ base: "14px", md: "16px" }}
               fontWeight="bold"
               fontFamily="DM Sans"
-              wordBreak="break-all" // Allow IBAN to break onto multiple lines
+              wordBreak="break-all"
             >
               {account.iban || "N/A"}
             </Text>
@@ -218,191 +231,5 @@ const AccountCard = ({
     </Box>
   );
 };
+
 export default AccountCard;
-
-// import React, { useState } from "react";
-// import {
-//   Box,
-//   Flex,
-//   VStack,
-//   IconButton,
-//   Text,
-//   Divider,
-//   Tooltip,
-//   Badge,
-// } from "@chakra-ui/react";
-// import { DeleteIcon } from "@chakra-ui/icons";
-// import { CiEdit } from "react-icons/ci";
-// import EditAccountModal from "./EditModal";
-// import DeleteConfirmationModal from "./DeletePopup";
-
-// const AccountCard = ({ account, onUpdate, onDelete, isUpdating, isDeleting }) => {
-//   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-//   const handleOpenDeleteModal = () => setIsDeleteModalOpen(true);
-//   const handleCloseDeleteModal = () => setIsDeleteModalOpen(false);
-
-//   const handleConfirmDelete = async () => {
-//     await onDelete(account._id);
-//     handleCloseDeleteModal();
-//   };
-
-//   return (
-//     <Box
-//       w="100%"
-//       minH={{ base: "auto", md: "360px" }}
-//       p={{ base: 4, md: 6 }}
-//       borderWidth="1px"
-//       borderColor="gray.200"
-//       borderRadius="16px"
-//       boxShadow="sm"
-//       position="relative"
-//       bg="white"
-//       transition="all 0.3s ease"
-//       _hover={{ boxShadow: "md", transform: "translateY(-4px)" }}
-//       overflow="hidden"
-//     >
-//       {/* Header Section */}
-//       <Flex justify="space-between" align="center" mb={4}>
-//         <Badge
-//           colorScheme="blue"
-//           variant="subtle"
-//           px={2}
-//           py={1}
-//           borderRadius="full"
-//           fontSize="xs"
-//           textTransform="uppercase"
-//         >
-//           {account.bank_name || "Bank"}
-//         </Badge>
-//         <Flex gap={2}>
-//           <Tooltip label="Edit" hasArrow>
-//             <IconButton
-//               icon={<CiEdit size={20} />}
-//               size="sm"
-//               variant="ghost"
-//               colorScheme="teal"
-//               aria-label="Edit account"
-//               isDisabled={isUpdating || isDeleting}
-//             />
-//           </Tooltip>
-//           <Tooltip label="Delete" hasArrow>
-//             <IconButton
-//               icon={<DeleteIcon boxSize={4} />}
-//               size="sm"
-//               variant="ghost"
-//               colorScheme="red"
-//               onClick={handleOpenDeleteModal}
-//               aria-label="Delete account"
-//               isDisabled={isUpdating || isDeleting}
-//             />
-//           </Tooltip>
-//         </Flex>
-//       </Flex>
-
-//       {/* Account Name */}
-//       <Text
-//         fontSize={{ base: "lg", md: "xl" }}
-//         fontWeight="bold"
-//         color="teal.600"
-//         mb={2}
-//         fontFamily="DM Sans"
-//       >
-//         {account.account_holder_name || "N/A"}
-//       </Text>
-
-//       <Divider borderColor="gray.200" mb={4} />
-
-//       {/* Details Section */}
-//       <VStack align="start" spacing={4}>
-//         <Flex w="100%" justify="space-between" wrap="wrap" gap={4}>
-//           <Box flex="1" minW="0">
-//             <Text fontSize="sm" color="gray.600" fontFamily="DM Sans">
-//               Account Number
-//             </Text>
-//             <Text
-//               fontSize="md"
-//               fontWeight="semibold"
-//               color="gray.800"
-//               wordBreak="break-all"
-//               fontFamily="DM Sans"
-//             >
-//               {account.account_number || "N/A"}
-//             </Text>
-//           </Box>
-//           <Box flex="1" minW="0">
-//             <Text fontSize="sm" color="gray.600" fontFamily="DM Sans">
-//               IBAN
-//             </Text>
-//             <Text
-//               fontSize="md"
-//               fontWeight="semibold"
-//               color="gray.800"
-//               wordBreak="break-all"
-//               fontFamily="DM Sans"
-//             >
-//               {account.iban || "N/A"}
-//             </Text>
-//           </Box>
-//         </Flex>
-
-//         <Flex w="100%" justify="space-between" wrap="wrap" gap={4}>
-//           <Box flex="1" minW="0">
-//             <Text fontSize="sm" color="gray.600" fontFamily="DM Sans">
-//               Swift Code
-//             </Text>
-//             <Text
-//               fontSize="md"
-//               fontWeight="semibold"
-//               color="gray.800"
-//               wordBreak="break-all"
-//               fontFamily="DM Sans"
-//             >
-//               {account.swift_code || "N/A"}
-//             </Text>
-//           </Box>
-//           <Box flex="1" minW="0">
-//             <Text fontSize="sm" color="gray.600" fontFamily="DM Sans">
-//               Branch
-//             </Text>
-//             <Text
-//               fontSize="md"
-//               fontWeight="semibold"
-//               color="gray.800"
-//               fontFamily="DM Sans"
-//             >
-//               {account.bank_name || "N/A"}
-//             </Text>
-//           </Box>
-//         </Flex>
-
-//         <Box w="100%">
-//           <Text fontSize="sm" color="gray.600" fontFamily="DM Sans">
-//             Address
-//           </Text>
-//           <Text
-//             fontSize="md"
-//             fontWeight="semibold"
-//             color="gray.800"
-//             wordBreak="break-word"
-//             fontFamily="DM Sans"
-//           >
-//             {account.branch_address || "N/A"}
-//           </Text>
-//         </Box>
-//       </VStack>
-
-//       {/* Edit and Delete Modals */}
-//       <EditAccountModal account={account} onUpdate={onUpdate} isUpdating={isUpdating} />
-//       <DeleteConfirmationModal
-//         isOpen={isDeleteModalOpen}
-//         onClose={handleCloseDeleteModal}
-//         onConfirm={handleConfirmDelete}
-//         itemName={account.account_holder_name}
-//         isDeleting={isDeleting}
-//       />
-//     </Box>
-//   );
-// };
-
-// export default AccountCard;

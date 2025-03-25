@@ -1,5 +1,6 @@
 import { Grid, GridItem, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { HasAccess } from "../../../redux/accessUtils";
 import CheckTable from "./components/CheckTable";
 import { useSelector } from "react-redux";
@@ -12,6 +13,7 @@ const Index = () => {
   const [searchedData, setSearchedData] = useState([]);
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const tree = useSelector((state) => state.user.tree);
+  const location = useLocation();
 
   const [permission, emailAccess, callAccess] = HasAccess([
     "Lead",
@@ -88,9 +90,8 @@ const Index = () => {
   const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
   const { isOpen } = useDisclosure();
 
-  // Add pagination state
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(25); 
+  const [pageSize, setPageSize] = useState(25);
 
   const queryArgs = useMemo(
     () => ({
@@ -119,8 +120,6 @@ const Index = () => {
     if (queryLoading) {
       setIsLoading(true);
     } else if (invoiceData) {
-      if (invoiceData.data && invoiceData.data.length > 0) {
-      }
       setData(invoiceData.data || []);
       setIsLoading(false);
     } else if (error) {
@@ -133,6 +132,13 @@ const Index = () => {
   useEffect(() => {
     setColumns(tableColumns);
   }, [action]);
+  useEffect(() => {
+    if (location.state?.refetch && !isUninitialized && user._id) {
+      refetch();
+      // Clear the state to prevent repeated refetching
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, refetch, isUninitialized, user._id]);
 
   const fetchData = useMemo(() => {
     let timeoutId;

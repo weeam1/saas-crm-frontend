@@ -19,13 +19,11 @@ const AccountsView = ({
     useDeleteItemMutation();
   const [isDataReady, setIsDataReady] = useState(false);
 
-  // Sync isDataReady with isGetting and accounts availability
   useEffect(() => {
     if (!isGetting) {
-      // Add a small delay to ensure state has settled
       const timer = setTimeout(() => {
         setIsDataReady(true);
-      }, 100); // 100ms delay to allow state updates to propagate
+      }, 100);
       return () => clearTimeout(timer);
     } else {
       setIsDataReady(false);

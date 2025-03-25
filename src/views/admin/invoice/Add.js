@@ -36,12 +36,17 @@ const invoiceSchema = yup.object().shape({
   unit_name: yup.string().required("Unit name is required"),
   unit_price: yup
     .number()
+    .strict(true) // Enforce strict number validation
+    .typeError("Unit price must be a valid number")
     .required("Unit price is required")
     .min(0, "Unit price cannot be negative"),
   commission: yup
     .number()
+    .strict(true) // Enforce strict number validation
+    .typeError("Commission must be a valid number")
     .required("Commission is required")
-    .min(0, "Commission cannot be negative"),
+    .min(0.01, "Commission must be greater than 0")
+    .max(99, "Commission must be less than 100"),
   claim_type: yup.string().required("Claim type is required"),
   name_of_referring_party: yup.string().required("Referring party is required"),
 });
@@ -80,11 +85,11 @@ const Add = (props) => {
     unit_no: null,
     invoice_number: null,
     total_amount: 0,
-    developer_id: null,
-    bank_account_id: null,
+    developer_id: "",
+    bank_account_id: "",
     unit_name: "",
-    unit_price: 0,
-    commission: 0,
+    unit_price: "",
+    commission: "",
     claim_type: "",
     name_of_referring_party: "",
     developer_name: "",
@@ -96,12 +101,19 @@ const Add = (props) => {
     validationSchema: invoiceSchema,
     onSubmit: (values, { resetForm }) => {
       AddData(values);
-      resetForm();
     },
+    enableReinitialize: true, // Ensures form resets when initialValues change
   });
 
-  const { errors, touched, values, handleBlur, handleChange, handleSubmit } =
-    formik;
+  const {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    resetForm,
+  } = formik;
 
   const AddData = async (formValues) => {
     try {
@@ -125,7 +137,7 @@ const Add = (props) => {
           });
         }
         if (props.setAction) props.setAction((prev) => !prev);
-        formik.resetForm();
+        resetForm(); // Reset form after successful submission
         props.onClose();
       } else {
         throw new Error(response?.message || "Failed to add invoice");
@@ -139,7 +151,7 @@ const Add = (props) => {
   };
 
   const handleCancel = () => {
-    formik.resetForm();
+    resetForm(); // Reset form on cancel
     props.onClose();
   };
 
@@ -198,14 +210,14 @@ const Add = (props) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={
-                      developersLoading
-                        ? "Loading developers..."
-                        : "Select developer"
+                      developersData?.data?.length > 0
+                        ? "Select developer"
+                        : "No developers available"
                     }
-                    value={values["developer_id"] || ""}
+                    value={values.developer_id || ""}
                     disabled={developersLoading || developersError}
                     borderColor={
-                      errors?.["developer_id"] && touched?.["developer_id"]
+                      errors.developer_id && touched.developer_id
                         ? "red.300"
                         : null
                     }
@@ -233,12 +245,10 @@ const Add = (props) => {
                     name="claim_type"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values["claim_type"] || ""}
+                    value={values.claim_type || ""}
                     placeholder="Select Claim Type"
                     borderColor={
-                      errors?.["claim_type"] && touched?.["claim_type"]
-                        ? "red.300"
-                        : null
+                      errors.claim_type && touched.claim_type ? "red.300" : null
                     }
                     fontFamily="DM Sans, sans-serif"
                     icon={customDropdownIcon}
@@ -262,12 +272,10 @@ const Add = (props) => {
                     name="unit_name"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values["unit_name"] || ""}
+                    value={values.unit_name || ""}
                     placeholder="Enter Unit Name"
                     borderColor={
-                      errors?.["unit_name"] && touched?.["unit_name"]
-                        ? "red.300"
-                        : null
+                      errors.unit_name && touched.unit_name ? "red.300" : null
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
@@ -287,11 +295,11 @@ const Add = (props) => {
                     name="name_of_referring_party"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values["name_of_referring_party"] || ""}
+                    value={values.name_of_referring_party || ""}
                     placeholder="Enter Referring Party"
                     borderColor={
-                      errors?.["name_of_referring_party"] &&
-                      touched?.["name_of_referring_party"]
+                      errors.name_of_referring_party &&
+                      touched.name_of_referring_party
                         ? "red.300"
                         : null
                     }
@@ -314,12 +322,10 @@ const Add = (props) => {
                     name="unit_price"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values["unit_price"] || ""}
+                    value={values.unit_price || ""}
                     placeholder="Enter Unit Price"
                     borderColor={
-                      errors?.["unit_price"] && touched?.["unit_price"]
-                        ? "red.300"
-                        : null
+                      errors.unit_price && touched.unit_price ? "red.300" : null
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
@@ -339,12 +345,10 @@ const Add = (props) => {
                     name="commission"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values["commission"] || ""}
+                    value={values.commission || ""}
                     placeholder="Enter Commission"
                     borderColor={
-                      errors?.["commission"] && touched?.["commission"]
-                        ? "red.300"
-                        : null
+                      errors.commission && touched.commission ? "red.300" : null
                     }
                     fontFamily="DM Sans, sans-serif"
                   />
@@ -359,16 +363,24 @@ const Add = (props) => {
                     Bank Account
                   </FormLabel>
                   <Select
-                    placeholder="Choose Bank Account"
+                    fontSize="16px"
                     name="bank_account_id"
-                    value={values.bank_account_id}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    isInvalid={
-                      touched.bank_account_id && !!errors.bank_account_id
+                    placeholder={
+                      bankAccountsData?.data?.length > 0
+                        ? "Choose Bank Account"
+                        : "No bank accounts available"
                     }
-                    disabled={bankAccountsLoading}
-                    icon={<img src={DropdownImg} alt="Dropdown" />}
+                    value={values.bank_account_id || ""}
+                    disabled={bankAccountsLoading || bankAccountsError}
+                    borderColor={
+                      errors.bank_account_id && touched.bank_account_id
+                        ? "red.300"
+                        : null
+                    }
+                    fontFamily="DM Sans, sans-serif"
+                    icon={customDropdownIcon}
                   >
                     {bankAccountsData?.data?.map((bank) => (
                       <option key={bank._id} value={bank._id}>
