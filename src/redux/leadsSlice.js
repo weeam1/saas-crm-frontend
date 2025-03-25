@@ -34,8 +34,6 @@ const leadsSlice = createSlice({
 				state.doc = state.doc?.map((lead, index) =>
 					index === leadIndex ? { ...lead, [key]: value } : lead
 				);
-
-				console.log(state.doc);
 			}
 		},
 

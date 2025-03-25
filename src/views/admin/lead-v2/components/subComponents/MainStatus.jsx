@@ -2,7 +2,7 @@ import { HStack, Icon, Text } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useEffect, useState } from 'react';
 
-import { mainLeadStatus } from 'utils/options';
+import { mainLeadStatus, eventMainLeadStatus } from 'utils/options';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
 import CustomTooltip from './CustomTooltip';
+import { sendLeadFeedback } from 'api';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -45,6 +46,22 @@ const MainStatus = ({ lead, role }) => {
 						value: data.eLeadStatus,
 					})
 				);
+
+				console.log(eventMainLeadStatus, data.eLeadStatus);
+				// check if status is event lead status
+				if (eventMainLeadStatus.includes(data.eLeadStatus)) {
+					const leadEmail = lead?.leadEmail ?? '';
+					const leadPhone =
+						typeof lead?.leadPhoneNumber === 'object'
+							? lead?.leadPhoneNumber?.result
+							: lead?.leadPhoneNumber;
+
+					sendLeadFeedback({
+						email: leadEmail,
+						phone: leadPhone,
+						status: data.eLeadStatus,
+					});
+				}
 			} else if (response.status === 400) {
 				// Handle 400 Bad Request specifically
 

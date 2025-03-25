@@ -1,4 +1,8 @@
 import axios from 'axios';
+import keys from 'config/keys';
+import SHA256 from 'crypto-js/sha256';
+import encHex from 'crypto-js/enc-hex';
+
 import { constant } from 'constant';
 
 const { getApi } = require('services/api');
@@ -70,6 +74,54 @@ export const getApplications = async (
 		throw new Error(
 			error?.message ||
 				'An unexpected error occurred while fetching candidates applications.'
+		);
+	}
+};
+
+// Hash function for security
+const hash = (data) => {
+	if (!data) return null;
+	return SHA256(data?.trim()?.toLowerCase()).toString(encHex);
+};
+
+// send lead feedback
+export const sendLeadFeedback = async ({ email, phone, status }) => {
+	try {
+		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
+
+		const eventNameMap = {
+			interested: 'Lead_Interested',
+			'not-interested': 'Lead_Not_Interested',
+			junk: 'Lead_Unqualified',
+			deal: 'Lead_Qualified',
+		};
+
+		const event_name = eventNameMap[status];
+
+		const user_data = {};
+		const hashedEmail = hash(email);
+		const hashedPhone = hash(phone);
+
+		if (hashedEmail) user_data.em = [hashedEmail];
+		if (hashedPhone) user_data.ph = [hashedPhone];
+
+		const eventData = {
+			data: [
+				{
+					event_name,
+					event_time: Math.floor(Date.now() / 1000),
+					user_data,
+					action_source: 'website',
+				},
+			],
+		};
+
+		await axios.post(url, eventData);
+		// console.log(`Lead feedback sent: ${event_name}`, data, eventData);
+	} catch (error) {
+		console.error(
+			'Error sending lead feedback:',
+			error.response?.data || error.message
 		);
 	}
 };
