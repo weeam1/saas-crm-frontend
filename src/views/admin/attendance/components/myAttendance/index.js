@@ -111,6 +111,7 @@ const Attendance = () => {
 									data={data}
 									timezone={timezone}
 									refetch={refetch}
+									employeeId={employeeId}
 									officeSettings={data?.officeSettings}
 								/>
 							)}

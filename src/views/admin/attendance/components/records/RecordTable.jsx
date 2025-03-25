@@ -262,9 +262,14 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
-											{entry.checkin && entry.checkout
-												? `${entry.totalWorkingHours.hours}h ${entry.totalWorkingHours.minutes}m`
-												: 'Pending'}
+											{entry.status === 0
+												? '0m'
+												: entry.checkin && entry.checkout
+													? entry.totalWorkingHours?.hours ||
+														entry.totalWorkingHours?.minutes
+														? `${entry.totalWorkingHours.hours ? `${entry.totalWorkingHours.hours}h ` : ''}${entry.totalWorkingHours.minutes ? `${entry.totalWorkingHours.minutes}m` : ''}`
+														: '0m'
+													: 'Pending'}
 										</Td>
 										<Td py={4}>
 											<Button rounded='full' onClick={() => handleEdit(entry)}>

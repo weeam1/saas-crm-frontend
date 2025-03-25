@@ -51,7 +51,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					};
 
 					refetch(data?._id, updatedFields);
-				} else refetch();
+				} else refetch({ force: true });
 			}
 		} catch (e) {
 			console.log(e);

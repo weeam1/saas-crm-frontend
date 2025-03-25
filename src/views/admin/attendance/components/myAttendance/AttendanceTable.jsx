@@ -70,7 +70,6 @@ const AttendanceTable = ({
 				scrollBehavior='smooth'
 				borderRadius='md'
 				boxShadow='sm'
-				bg='white'
 			>
 				{/* <Box overflowX='auto'> */}
 				<Table variant='striped' size='sm' bg='white' minWidth='100%'>
@@ -205,9 +204,14 @@ const AttendanceTable = ({
 											fontWeight='400'
 											minWidth='120px'
 										>
-											{entry.checkin && entry.checkout
-												? `${entry.totalWorkingHours?.hours}h ${entry.totalWorkingHours.minutes}m`
-												: 'Pending'}
+											{entry.status === 0
+												? '0m'
+												: entry.checkin && entry.checkout
+													? entry.totalWorkingHours?.hours ||
+														entry.totalWorkingHours?.minutes
+														? `${entry.totalWorkingHours.hours ? `${entry.totalWorkingHours.hours}h ` : ''}${entry.totalWorkingHours.minutes ? `${entry.totalWorkingHours.minutes}m` : ''}`
+														: '0m'
+													: 'Pending'}
 										</Td>
 										{role === 'superAdmin' && (
 											<Td py={4}>
@@ -249,6 +253,7 @@ const AttendanceTable = ({
 					onClose={onEditClose}
 					data={editData}
 					refetch={refetch}
+					updateKey='myAttendance'
 				/>
 			)}
 		</>
