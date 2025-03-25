@@ -4,7 +4,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   Button,
@@ -12,6 +11,7 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
+  Text,
   Flex,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
@@ -61,9 +61,9 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     switch (name) {
       case "account_holder_name":
         if (!value.trim()) {
-          error = "Account holder name is required";
+          error = "Account name is required";
         } else if (value.trim().length < 2) {
-          error = "Account holder name must be at least 2 characters long";
+          error = "Account name must be at least 2 characters long";
         }
         break;
       case "account_number":
@@ -166,134 +166,116 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
         <ModalContent
           fontFamily="DM Sans"
           maxW={{ base: "90%", md: "550px" }}
-          borderRadius="12px"
+          borderRadius="12px" // Added border radius to modal
         >
-          <ModalHeader fontFamily="DM Sans">Add Account</ModalHeader>
+          <ModalHeader>Add New Account</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody pb={6}>
             <FormControl mb={3} isInvalid={!!errors.account_holder_name}>
-              <FormLabel fontFamily="DM Sans">Account Name</FormLabel>
+              <FormLabel>Account Name </FormLabel>
               <Input
                 name="account_holder_name"
                 value={formData.account_holder_name}
                 onChange={handleChange}
                 placeholder="Enter Account Name"
                 borderRadius="8px"
-                fontFamily="DM Sans"
               />
-              <FormErrorMessage fontFamily="DM Sans">
-                {errors.account_holder_name}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors.account_holder_name}</FormErrorMessage>
             </FormControl>
 
             <FormControl mb={3} isInvalid={!!errors.account_number}>
-              <FormLabel fontFamily="DM Sans">Account Number</FormLabel>
+              <FormLabel>Account Number</FormLabel>
               <Input
                 name="account_number"
                 value={formData.account_number}
                 onChange={handleChange}
                 placeholder="Enter account number"
                 borderRadius="8px"
-                fontFamily="DM Sans"
               />
-              <FormErrorMessage fontFamily="DM Sans">
-                {errors.account_number}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors.account_number}</FormErrorMessage>
             </FormControl>
 
             <FormControl mb={3} isInvalid={!!errors.iban}>
-              <FormLabel fontFamily="DM Sans">IBAN</FormLabel>
+              <FormLabel>IBAN</FormLabel>
               <Input
                 name="iban"
                 value={formData.iban}
                 onChange={handleChange}
                 placeholder="Enter IBAN"
                 borderRadius="8px"
-                fontFamily="DM Sans"
               />
-              <FormErrorMessage fontFamily="DM Sans">
-                {errors.iban}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors.iban}</FormErrorMessage>
             </FormControl>
 
             {/* Swift Code and Bank Name Side by Side */}
             <Flex direction={{ base: "column", md: "row" }} gap={4} mb={3}>
               <FormControl isInvalid={!!errors.swift_code} flex="1">
-                <FormLabel fontFamily="DM Sans">Swift Code</FormLabel>
+                <FormLabel>Swift Code</FormLabel>
                 <Input
                   name="swift_code"
                   value={formData.swift_code}
                   onChange={handleChange}
                   placeholder="Enter Swift Code"
                   borderRadius="8px"
-                  fontFamily="DM Sans"
                 />
-                <FormErrorMessage fontFamily="DM Sans">
-                  {errors.swift_code}
-                </FormErrorMessage>
+                <FormErrorMessage>{errors.swift_code}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.bank_name} flex="1">
-                <FormLabel fontFamily="DM Sans">Bank Name</FormLabel>
+                <FormLabel>Bank Name</FormLabel>
                 <Input
                   name="bank_name"
                   value={formData.bank_name}
                   onChange={handleChange}
                   placeholder="Enter bank name"
                   borderRadius="8px"
-                  fontFamily="DM Sans"
                 />
-                <FormErrorMessage fontFamily="DM Sans">
-                  {errors.bank_name}
-                </FormErrorMessage>
+                <FormErrorMessage>{errors.bank_name}</FormErrorMessage>
               </FormControl>
             </Flex>
 
-            <FormControl mb={3} isInvalid={!!errors.branch_address}>
-              <FormLabel fontFamily="DM Sans">Branch Address</FormLabel>
+            <FormControl mb={6} isInvalid={!!errors.branch_address}>
+              <FormLabel>Branch Address</FormLabel>
               <Input
                 name="branch_address"
                 value={formData.branch_address}
                 onChange={handleChange}
                 placeholder="Enter Bank Address"
                 borderRadius="8px"
-                fontFamily="DM Sans"
               />
-              <FormErrorMessage fontFamily="DM Sans">
-                {errors.branch_address}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors.branch_address}</FormErrorMessage>
             </FormControl>
-          </ModalBody>
 
-          <ModalFooter>
-            <Button
-              variant="ghost"
-              onClick={handleClose}
-              bg="#CCCACA"
-              color="black"
-              borderRadius="6px"
-              px={6}
-              py={3}
-              mr={3}
-              fontFamily="DM Sans"
-            >
-              Cancel
-            </Button>
-            <Button
-              bg="#B79045"
-              color="white"
-              onClick={handleSubmit}
-              borderRadius="6px"
-              px={6}
-              py={3}
-              isLoading={isAdding}
-              isDisabled={isAdding || !isFormValid()}
-              _hover={{ bg: "#9E7A3B" }}
-              fontFamily="DM Sans"
-            >
-              Save
-            </Button>
-          </ModalFooter>
+            {/* Buttons */}
+            <Flex justify="flex-end" gap={3}>
+              <Button
+                variant="ghost"
+                onClick={handleClose}
+                bg="#CCCACA"
+                color="black"
+                borderRadius="6px"
+                px={6}
+                py={3}
+              >
+                Cancel
+              </Button>
+              <Button
+                bg="#B79045"
+                color="white"
+                onClick={handleSubmit}
+                borderRadius="6px"
+                px={6}
+                py={3}
+                isLoading={isAdding}
+                isDisabled={isAdding || !isFormValid()}
+                _hover={{
+                  bg: "#9E7A3B",
+                }}
+              >
+                Save
+              </Button>
+            </Flex>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </>

@@ -16,10 +16,29 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { developerSchema } from "schema/developerSchema";
 import { useUpdateItemMutation } from "api/apiSlice";
+import { useDispatch } from "react-redux";
+import { apiSlice } from "api/apiSlice";
 
 const Edit = (props) => {
-  const { onClose, isOpen, fetchData, data, setEdit, selectedId, setAction } =
-    props;
+  const {
+    onClose,
+    isOpen,
+    fetchData,
+    data,
+    setEdit,
+    selectedId,
+    setAction,
+    pageIndex,
+    pageSize: pageSizeProp,
+  } = props;
+
+  const dispatch = useDispatch();
+
+  // Debug: Log pageSize in Edit.js
+  console.log("Edit.js - pageSizeProp:", pageSizeProp);
+
+  // Provide a fallback for pageSize if it's undefined
+  const pageSize = pageSizeProp && pageSizeProp > 0 ? pageSizeProp : 10;
 
   const initialValues = {
     developer_name: data?.developer_name || "",
@@ -28,8 +47,7 @@ const Edit = (props) => {
     email: data?.email || "",
   };
 
-  const [updateItemMutation, { isLoading: mutationLoading }] =
-    useUpdateItemMutation();
+  const [updateItemMutation, { isLoading: mutationLoading }] = useUpdateItemMutation();
   const [isLoading, setIsLoading] = useState(false);
 
   const formik = useFormik({
@@ -63,7 +81,8 @@ const Edit = (props) => {
 
       if (response.status === "success") {
         setEdit(false);
-        fetchData();
+        fetchData({ pageIndex, pageSize });
+        dispatch(apiSlice.util.invalidateTags(["Developers"])); // Invalidate tags to refetch data
         setAction((prev) => !prev);
         toast.success("Developer updated successfully!");
         resetForm();
@@ -85,7 +104,7 @@ const Edit = (props) => {
     onClose();
   };
 
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   return (
     <Flex
@@ -94,11 +113,11 @@ const Edit = (props) => {
       left="0"
       w="100vw"
       h="100vh"
-      bg="rgba(0, 0, 0, 0.4)" 
-      zIndex={14000} 
+      bg="rgba(0, 0, 0, 0.4)"
+      zIndex={14000}
       alignItems="center"
       justifyContent="center"
-      onClick={handleCloseModal} 
+      onClick={handleCloseModal}
     >
       <Box
         boxShadow="lg"
@@ -109,7 +128,7 @@ const Edit = (props) => {
         w="100%"
         fontFamily="'DM Sans', sans-serif"
         fontWeight="500"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <Flex
@@ -164,7 +183,7 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
-                  w="100%" // Increased width
+                  w="100%"
                 />
                 {errors.developer_name && touched.developer_name && (
                   <Text
@@ -207,7 +226,7 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
-                  w="100%" // Increased width
+                  w="100%"
                 />
                 {errors.address && touched.address && (
                   <Text
@@ -248,7 +267,7 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
-                  w="100%" // Increased width
+                  w="100%"
                 />
                 {errors.trn && touched.trn && (
                   <Text
@@ -290,7 +309,7 @@ const Edit = (props) => {
                   fontFamily="'DM Sans', sans-serif"
                   fontWeight="500"
                   textAlign="left"
-                  w="100%" // Increased width
+                  w="100%"
                 />
                 {errors.email && touched.email && (
                   <Text

@@ -15,25 +15,87 @@ import {
   useDeleteManyInvoicesMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { apiSlice } from "api/apiSlice";
 
 const Delete = (props) => {
+  const {
+    isOpen,
+    onClose,
+    id,
+    method,
+    data,
+    fetchData,
+    setAction,
+    setSelectedValues,
+    pageIndex,
+    pageSize: pageSizeProp,
+    totalItems,
+    currentPage,
+    refetch, // Receive refetch prop
+  } = props;
+
+  const dispatch = useDispatch();
+
+  // Debug: Log pageSize in Delete.js
+  console.log("Delete.js - pageSizeProp:", pageSizeProp);
+
+  // Provide a fallback for pageSize if it's undefined
+  const pageSize = pageSizeProp && pageSizeProp > 0 ? pageSizeProp : 10;
+
   const [isLoading, setIsLoading] = useState(false);
   const [deleteItem, { isLoading: deleteLoading }] = useDeleteItemMutation();
-  const [deleteManyDevelopers] = useDeleteManyInvoicesMutation(); // Updated variable name for clarity
+  const [deleteManyDevelopers] = useDeleteManyInvoicesMutation();
 
   const handleDeleteClick = async () => {
-    if (
-      props.method === "many" &&
-      Array.isArray(props.data) &&
-      props.data.length > 0
-    ) {
+    // Validate pageSize and pageIndex
+    if (!pageSize || pageSize <= 0) {
+      console.error("Invalid pageSize after fallback:", pageSize);
+      toast.error("Invalid page size. Unable to fetch updated data.");
+      return;
+    }
+
+    if (pageIndex < 0) {
+      console.error("Invalid pageIndex:", pageIndex);
+      toast.error("Invalid page index. Unable to fetch updated data.");
+      return;
+    }
+
+    // Calculate the new pageIndex after deletion
+    let newPageIndex = pageIndex;
+
+    // Ensure totalItems is a valid number
+    const safeTotalItems = totalItems >= 0 ? totalItems : 0;
+    const itemsBeingDeleted =
+      method === "many" ? (Array.isArray(data) ? data.length : 0) : 1;
+    const itemsAfterDeletion = Math.max(0, safeTotalItems - itemsBeingDeleted);
+
+    // Calculate the number of items on the current page
+    const startIndex = pageIndex * pageSize;
+    const itemsOnCurrentPage = Math.min(pageSize, safeTotalItems - startIndex);
+    const remainingItemsOnPage = Math.max(
+      0,
+      itemsOnCurrentPage - itemsBeingDeleted
+    );
+
+    // If the current page will be empty after deletion, adjust the pageIndex
+    if (remainingItemsOnPage <= 0 && itemsAfterDeletion > 0) {
+      newPageIndex = Math.max(0, Math.ceil(itemsAfterDeletion / pageSize) - 1);
+    } else if (itemsAfterDeletion === 0) {
+      newPageIndex = 0;
+    }
+
+    // Ensure newPageIndex is not negative
+    newPageIndex = Math.max(0, newPageIndex);
+
+    if (method === "many" && Array.isArray(data) && data.length > 0) {
       try {
-        console.log("Payload sent to deleteMany:", props.data);
+        console.log("Payload sent to deleteMany:", data);
         setIsLoading(true);
         const response = await deleteManyDevelopers({
-          path: "/developer/deleteMany", // Updated endpoint to reflect "developer"
+          path: "/developer/deleteMany",
           method: "POST",
-          body: { ids: props.data },
+          body: { ids: data },
         }).unwrap();
 
         if (
@@ -41,13 +103,13 @@ const Delete = (props) => {
           response?.code === 200 ||
           response?.status === 200
         ) {
-          toast.success(
-            `${props.data.length} developer(s) deleted successfully!`
-          );
-          if (props.fetchData) props.fetchData();
-          if (props.setAction) props.setAction((prev) => !prev);
-          props.onClose(); // Close modal
-          props.setSelectedValues([]);
+          toast.success(`${data.length} developer(s) deleted successfully!`);
+          if (fetchData) fetchData({ pageIndex: newPageIndex, pageSize });
+          dispatch(apiSlice.util.invalidateTags(["Developers"]));
+          if (refetch) refetch(); // Force refetch
+          if (setAction) setAction((prev) => !prev);
+          onClose();
+          setSelectedValues([]);
         } else {
           toast.error(response?.message || "Failed to delete developers");
         }
@@ -57,11 +119,11 @@ const Delete = (props) => {
       } finally {
         setIsLoading(false);
       }
-    } else if (props.method === "one" && props.id) {
+    } else if (method === "one" && id) {
       try {
         setIsLoading(true);
         const response = await deleteItem({
-          path: `/developer/delete/${props.id}`, // Updated endpoint to reflect "developer"
+          path: `/developer/delete/${id}`,
           method: "DELETE",
         }).unwrap();
 
@@ -71,9 +133,11 @@ const Delete = (props) => {
           response?.status === 200
         ) {
           toast.success("Developer deleted successfully!");
-          if (props.fetchData) props.fetchData();
-          if (props.setAction) props.setAction((prev) => !prev);
-          props.onClose(); // Close modal
+          if (fetchData) fetchData({ pageIndex: newPageIndex, pageSize });
+          dispatch(apiSlice.util.invalidateTags(["Developers"]));
+          if (refetch) refetch(); // Force refetch
+          if (setAction) setAction((prev) => !prev);
+          onClose();
         } else {
           toast.error(response?.message || "Failed to delete developer");
         }
@@ -90,20 +154,18 @@ const Delete = (props) => {
   };
 
   const handleClose = () => {
-    props.onClose();
+    onClose();
   };
 
   return (
-    <Modal onClose={props.onClose} isOpen={props.isOpen} isCentered>
+    <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          Delete Developer{props.method === "one" ? "" : "s"}
-        </ModalHeader>
+        <ModalHeader>Delete Developer{method === "one" ? "" : "s"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           Are you sure you want to delete the selected developer
-          {props.method === "one" ? "" : "s"}?
+          {method === "one" ? "" : "s"}?
         </ModalBody>
         <ModalFooter>
           <Button

@@ -248,12 +248,23 @@ export default function CheckTable(props) {
         overflowX={{ sm: "scroll", lg: "hidden" }}
       >
         <Grid templateColumns="repeat(12, 1fr)" gap={2} p={4}>
-          <GridItem colSpan={{ base: 8 }} display="flex" alignItems="center">
-            <Flex alignItems="center" flexWrap="wrap">
+          <GridItem
+            colSpan={{ base: 12, md: 8 }}
+            display="flex"
+            alignItems="center"
+          >
+            <Flex
+              alignItems={{ base: "flex-start" }}
+              flexWrap="wrap"
+              direction={{ base: "column", md: "row" }}
+              width="100%"
+              gap={2}
+            >
               <Text
                 color={useColorModeValue("secondaryGray.900", "white")}
                 fontSize="22px"
                 fontWeight="700"
+                mb={{ base: 2, md: 0 }}
               >
                 Invoices (<CountUpComponent targetNumber={totalItems} />)
               </Text>
@@ -264,18 +275,19 @@ export default function CheckTable(props) {
                 allData={allData}
                 dataColumn={dataColumn}
                 onSearch={(results) => setSearchedData(results)}
+                width={{ base: "100%", md: "auto" }} // Full width on base, auto on md+
               />
               {displaySearchData && (
                 <Button
                   variant="outline"
                   size="sm"
                   colorScheme="red"
-                  ms={2}
                   onClick={() => {
                     setDisplaySearchData(false);
                     setSearchbox("");
                     setGetTagValues([]);
                   }}
+                  mt={{ base: 2, md: 0 }} // Margin top on base for spacing
                 >
                   Clear
                 </Button>
@@ -285,17 +297,19 @@ export default function CheckTable(props) {
                   cursor="pointer"
                   onClick={() => setDeleteModel(true)}
                   color="red"
-                  ms={2}
+                  mt={{ base: 2, md: 0 }} // Margin top on base for spacing
+                  ms={{ base: 0, md: 2 }} // Margin start only on md+
                 />
               )}
             </Flex>
           </GridItem>
 
           <GridItem
-            colSpan={{ base: 4 }}
+            colSpan={{ base: 12, md: 4 }} // Full width on base, 4 columns on md+
             display="flex"
-            justifyContent="end"
+            justifyContent={{ base: "center", md: "end" }} // Center on base, end on md+
             alignItems="center"
+            mt={{ base: 2, md: 0 }} // Margin top on base to separate from above
           >
             {access?.create && (
               <Button
@@ -307,7 +321,7 @@ export default function CheckTable(props) {
                 bg="#B79045"
                 color="white"
                 leftIcon={<AddIcon />}
-                ml={2}
+                ml={{ base: 0, md: 2 }} // Margin left only on md+
               >
                 Add New
               </Button>

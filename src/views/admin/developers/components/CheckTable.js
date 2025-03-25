@@ -35,7 +35,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
 import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
-import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "./Pagination";
@@ -100,6 +100,9 @@ export default function CheckTable(props) {
   const [editData, setEditData] = useState({});
   const navigate = useNavigate();
   const [column, setColumn] = useState("");
+
+  // Debug: Log pageIndex and pageSize in CheckTable
+  console.log("CheckTable - pageIndex:", pageIndex, "pageSize:", pageSize);
 
   let isColumnSelected;
   const toggleColumnVisibility = (columnKey) => {
@@ -223,7 +226,27 @@ export default function CheckTable(props) {
 
   const handlePageSizeChange = (e) => {
     const newSize = Number(e.target.value);
+    if (!newSize || newSize <= 0) {
+      console.warn("Invalid pageSize in handlePageSizeChange:", newSize);
+      return;
+    }
+    setPageSize(newSize);
     fetchData({ pageIndex: 0, pageSize: newSize });
+  };
+
+  const handleDeleteClose = () => {
+    setDelete(false);
+    setSelectedValues([]); // Clear selected values on close
+  };
+
+  const handleAddClose = () => {
+    onClose();
+  };
+
+  const handleEditClose = () => {
+    setEdit(false);
+    setSelectedId(null);
+    setEditData({});
   };
 
   return (
@@ -310,9 +333,10 @@ export default function CheckTable(props) {
               bg="#B79045"
               color="white"
               size="sm"
-              w="108px"
+              w="118px"
               h="40px"
               leftIcon={<AddIcon />}
+              borderRadius="6px"
             >
               Add New
             </Button>
@@ -324,7 +348,7 @@ export default function CheckTable(props) {
               w="84px"
               h="40px"
               ml={2}
-              leftIcon={<IoIosArrowBack />}
+              borderRadius="6px"
             >
               Back
             </Button>
@@ -348,14 +372,17 @@ export default function CheckTable(props) {
 
         <Delete
           isOpen={deleteModel}
-          onClose={() => setDelete(false)}
+          onClose={handleDeleteClose}
+          id={selectedValues.length === 1 ? selectedValues[0] : null}
+          method={selectedValues.length > 1 ? "many" : "one"}
+          data={selectedValues}
+          fetchData={fetchData}
           setAction={setAction}
           setSelectedValues={setSelectedValues}
-          url="api/developer/deleteManyDeveloper"
-          data={selectedValues}
-          method="many"
-          fetchData={fetchData}
-          clearSearch={clearSearch}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          currentPage={currentPage}
         />
         <Box mb={2}>
           {totalItems > 0 && (
@@ -378,8 +405,22 @@ export default function CheckTable(props) {
           position="relative"
           zIndex={0}
         >
-          <Table variant="simple" color="black" mb="24px">
-            <Thead bg="#EBD3A7" zIndex={0}>
+          <Table
+            variant="simple"
+            color="black"
+            mb="24px"
+            fontFamily="'DM Sans', sans-serif"
+          >
+            <Thead
+              sx={{
+                "& th": {
+                  bg: "#EBD3A7 !important",
+                  paddingY: "15px",
+                  fontWeight: "500 !important",
+                },
+              }}
+              zIndex={0}
+            >
               {columns.map((column, index) => (
                 <Th
                   key={index}
@@ -464,9 +505,13 @@ export default function CheckTable(props) {
                       } else if (column.Header === "Developer Name") {
                         data = (
                           <Flex align="center" gap={2}>
-                            <Text fontSize="sm" fontWeight="700">
-                              {cellValue || "-"}
-                            </Text>
+                            <Text fontSize="sm">{cellValue || "-"}</Text>
+                          </Flex>
+                        );
+                      } else if (column.Header === "Address") {
+                        data = (
+                          <Flex align="center" gap={2}>
+                            <Text fontSize="sm">{cellValue || "-"}</Text>
                           </Flex>
                         );
                       } else if (column.Header === "Email ID") {
@@ -475,8 +520,14 @@ export default function CheckTable(props) {
                         data = (
                           <Flex justifyContent="center" gap={2}>
                             <IconButton
-                              icon={<img src={EditIconSvg} alt="Edit" />}
-                              size="sm"
+                              icon={
+                                <img
+                                  src={EditIconSvg}
+                                  alt="Edit"
+                                  style={{ width: "17px", height: "17px" }}
+                                />
+                              }
+                              size="xs"
                               onClick={() => {
                                 setEdit(true);
                                 setSelectedId(row._id);
@@ -485,13 +536,28 @@ export default function CheckTable(props) {
                             />
                             {row?.role !== "superAdmin" && (
                               <IconButton
-                                icon={<img src={DeleteIconSvg} alt="Delete" />}
-                                size="sm"
+                                icon={
+                                  <img
+                                    src={DeleteIconSvg}
+                                    alt="Delete"
+                                    style={{ width: "17px", height: "17px" }}
+                                  />
+                                }
+                                size="xs"
                                 onClick={() => {
                                   setSelectedValues([row._id]);
                                   setDelete(true);
                                 }}
                               />
+                            )}
+                            {row?.role !== "superAdmin" && (
+                            <IconButton
+                            icon={<ViewIcon boxSize="17px" />}
+                            size="xs"
+                            onClick={() => {
+                              navigate(`/developer/${row._id}`); 
+                            }}
+                          />
                             )}
                           </Flex>
                         );
@@ -524,19 +590,21 @@ export default function CheckTable(props) {
       <AddUser
         fetchData={fetchData}
         isOpen={isOpen}
-        size={"lg"}
         setAction={setAction}
-        onClose={onClose}
+        onClose={handleAddClose}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
       />
       <Edit
         isOpen={edit}
-        size={"sm"}
         setAction={setAction}
-        onClose={() => setEdit(false)}
+        onClose={handleEditClose}
         fetchData={fetchData}
         data={editData}
         setEdit={setEdit}
         selectedId={selectedId}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
       />
       <Modal
         onClose={() => {

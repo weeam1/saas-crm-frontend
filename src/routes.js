@@ -33,6 +33,7 @@ import Validation from "views/admin/validation";
 import CustomField from "views/admin/customField";
 import TableField from "views/admin/tableField";
 import { FaClipboardUser } from "react-icons/fa6";
+import DeveloperDetails from "views/admin/developers/components/DeveloperView";
 
 import Employees from "views/admin/attendance/components/employees";
 import Records from "views/admin/attendance/components/records";
@@ -51,6 +52,7 @@ const ContactImport = React.lazy(
 
 const User = React.lazy(() => import("views/admin/users"));
 const UserView = React.lazy(() => import("views/admin/users/View"));
+
 
 const Property = React.lazy(() => import("views/admin/property"));
 const PropertyView = React.lazy(() => import("views/admin/property/View"));
@@ -127,6 +129,7 @@ const Announcement = React.lazy(() => import("views/admin/announcement"));
 const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
 // Attendance module
 const Attendance = React.lazy(() => import("views/admin/attendance"));
+
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -243,7 +246,14 @@ const routes = [
     parentName: "Attendance",
     component: MyAttendance,
   },
-
+  {
+    name: "Developer Details",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/developer/:id",
+    under: "developer",
+    parentName: "develoeper",
+    component: DeveloperDetails,
+  },
   {
     name: "Leads Pool",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
