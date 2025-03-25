@@ -3,7 +3,7 @@ import AccountsView from "./View";
 import Header from "./components/Header";
 import Pagination from "./components/Pagination";
 import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
-import { Box, Grid, Skeleton, useBreakpointValue } from "@chakra-ui/react";
+import { Box, useBreakpointValue } from "@chakra-ui/react";
 import CustomSearchInput from "./components/Search";
 
 export default function Index() {
@@ -29,6 +29,14 @@ export default function Index() {
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const skeletonCount = useBreakpointValue({
+    base: 1,
+    sm: 2,
+    md: 4,
+    lg: 6,
+    xl: 9,
+  });
 
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
@@ -181,12 +189,6 @@ export default function Index() {
     { accessor: "swift_code" },
   ];
 
-  const skeletonCount = isGetting
-    ? accountsArray.length > 0
-      ? accountsArray.length
-      : 9
-    : 0;
-
   if (error) {
     console.error("Error fetching accounts:", error);
   }
@@ -225,29 +227,16 @@ export default function Index() {
         setTotalPages={setTotalPages}
         setTotalLeads={setTotalLeads}
       />
-      {isGetting && accountsArray.length === 0 ? (
-        <Grid {...gridProps}>
-          {Array.from({ length: skeletonCount }).map((_, index) => (
-            <Skeleton
-              key={index}
-              height="350px"
-              borderRadius="md"
-              startColor="gray.100"
-              endColor="gray.200"
-            />
-          ))}
-        </Grid>
-      ) : (
-        <AccountsView
-          accounts={accountsArray}
-          setAccounts={setAccountsArray}
-          searchQuery={searchQuery}
-          refetch={refetch}
-          isGetting={isGetting}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
-        />
-      )}
+      <AccountsView
+        accounts={accountsArray}
+        setAccounts={setAccountsArray}
+        searchQuery={searchQuery}
+        refetch={refetch}
+        isGetting={isGetting}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+        skeletonCount={skeletonCount}
+      />
     </Box>
   );
 }

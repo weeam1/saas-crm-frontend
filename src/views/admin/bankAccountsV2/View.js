@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, SimpleGrid, Skeleton, Text } from "@chakra-ui/react";
 import AccountCard from "./components/AccountCard";
 import { useUpdateItemMutation, useDeleteItemMutation } from "api/apiSlice";
@@ -11,11 +11,26 @@ const AccountsView = ({
   isGetting,
   onUpdate,
   onDelete,
+  skeletonCount,
 }) => {
   const [updateItemMutation, { isLoading: isUpdating }] =
     useUpdateItemMutation();
   const [deleteItemMutation, { isLoading: isDeleting }] =
     useDeleteItemMutation();
+  const [isDataReady, setIsDataReady] = useState(false);
+
+  // Sync isDataReady with isGetting and accounts availability
+  useEffect(() => {
+    if (!isGetting) {
+      // Add a small delay to ensure state has settled
+      const timer = setTimeout(() => {
+        setIsDataReady(true);
+      }, 100); // 100ms delay to allow state updates to propagate
+      return () => clearTimeout(timer);
+    } else {
+      setIsDataReady(false);
+    }
+  }, [isGetting, accounts]);
 
   const handleUpdate = async (updatedAccount, accountId) => {
     try {
@@ -59,11 +74,33 @@ const AccountsView = ({
     }
   };
 
-  const skeletonCount = accounts.length > 0 ? accounts.length : 9;
+  const renderSkeletons = () => {
+    const count =
+      accounts.length > 0
+        ? Math.min(accounts.length, skeletonCount)
+        : skeletonCount;
+    return Array.from({ length: count }).map((_, index) => (
+      <Skeleton
+        key={`skeleton-${index}`}
+        height="350px"
+        borderRadius="md"
+        startColor="gray.100"
+        endColor="gray.200"
+      />
+    ));
+  };
 
   return (
     <Box p={6} fontFamily="DM Sans">
-      {accounts.length === 0 && !isGetting ? (
+      {isGetting || !isDataReady ? (
+        <SimpleGrid
+          columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
+          spacing={{ base: 2 }}
+          mt={8}
+        >
+          {renderSkeletons()}
+        </SimpleGrid>
+      ) : accounts.length === 0 ? (
         <Text textAlign="center" color="#666" fontSize="lg">
           No accounts available.
         </Text>
@@ -73,28 +110,16 @@ const AccountsView = ({
           spacing={{ base: 2 }}
           mt={8}
         >
-          {isGetting &&
-            Array.from({ length: skeletonCount }).map((_, index) => (
-              <Skeleton
-                key={`skeleton-${index}`}
-                height="350px"
-                borderRadius="md"
-                startColor="gray.100"
-                endColor="gray.200"
-              />
-            ))}
-
-          {!isGetting &&
-            accounts.map((account) => (
-              <AccountCard
-                key={account._id}
-                account={account}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
-                isUpdating={isUpdating}
-                isDeleting={isDeleting}
-              />
-            ))}
+          {accounts.map((account) => (
+            <AccountCard
+              key={account._id}
+              account={account}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+              isUpdating={isUpdating}
+              isDeleting={isDeleting}
+            />
+          ))}
         </SimpleGrid>
       )}
     </Box>
