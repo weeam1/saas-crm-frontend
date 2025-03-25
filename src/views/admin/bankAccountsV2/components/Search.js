@@ -3,64 +3,46 @@ import { InputGroup, Input, InputLeftElement } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 
 const CustomSearchInput = ({
-  allData,
-  setSearchbox,
-  isPaginated = false,
-  setDisplaySearchData,
   searchbox,
-  dataColumn,
+  setSearchbox,
   onSearch,
+  isLoading = false,
 }) => {
-  const handleInputChange = (e) => {
-    if (!isPaginated) {
-      const searchTerm = e.target.value;
+  const inputRef = useRef(null);
 
-      const results = allData.filter((item) => {
-        return dataColumn.some((column) => {
-          const columnValue = item[column.accessor];
-          return columnValue && typeof columnValue === "string"
-            ? columnValue.toLowerCase().includes(searchTerm.toLowerCase())
-            : typeof columnValue === "number" &&
-                columnValue.toString().includes(searchTerm);
-        });
-      });
-      setSearchbox(searchTerm ? searchTerm : "");
-      setDisplaySearchData(e.target.value === "" ? false : true);
-      onSearch(results);
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      const searchTerm = e.target.value.trim();
+      onSearch(searchTerm);
     }
   };
 
-  const justARef = useRef();
-
-  const extraProps = {};
-
-  if (!isPaginated) {
-    extraProps.value = searchbox;
-  }
+  const handleChange = (e) => {
+    setSearchbox(e.target.value);
+  };
 
   return (
     <InputGroup
-      width={{ sm: "100%", md: "40%" }}
-      mx={{ sm: 0, md: 3 }}
-      my={{ sm: "8px", md: "0" }}
+      width={{ base: "100%", md: "40%" }}
+      mx={{ base: 0, md: 3 }}
+      my={{ base: "8px", md: "0" }}
     >
       <InputLeftElement
-        size="sm"
-        top="-3px"
         pointerEvents="none"
-        zIndex="0"
-        children={<SearchIcon color="gray.300" borderRadius="16px" />}
+        children={<SearchIcon color="gray.300" />}
       />
       <Input
         type="text"
         size="sm"
         fontSize="sm"
-        {...extraProps}
-        onChange={handleInputChange}
-        fontWeight="500"
-        ref={isPaginated ? searchbox : justARef}
-        placeholder="Search by bank name..."
+        value={searchbox}
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+        ref={inputRef}
+        placeholder="Search by bank name... (Press Enter to search)"
         borderRadius="16px"
+        isDisabled={isLoading}
+        _focus={{ borderColor: "blue.500" }}
       />
     </InputGroup>
   );

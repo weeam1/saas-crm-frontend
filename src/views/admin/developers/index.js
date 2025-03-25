@@ -5,12 +5,7 @@ import { useFetchItemsQuery } from "api/apiSlice";
 
 const Index = () => {
   const tableColumns = [
-    {
-      Header: "#",
-      accessor: "_id",
-      isSortable: false,
-      width: 5,
-    },
+    { Header: "#", accessor: "_id", isSortable: false, width: 5 },
     { Header: "Developer Name", accessor: "developer_name" },
     { Header: "Address", accessor: "address" },
     { Header: "TRN", accessor: "trn" },
@@ -25,6 +20,15 @@ const Index = () => {
   const [searchedData, setSearchedData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [searchField, setSearchField] = useState();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const buildQueryPath = () => {
+    if (!searchTerm) {
+      return `/developer/get?page=${pageIndex + 1}&pageSize=${pageSize}`;
+    }
+    return `/developer/search?page=${pageIndex + 1}&pageSize=${pageSize}&${searchField}=${encodeURIComponent(searchTerm)}`;
+  };
 
   const {
     data: developerResponse,
@@ -32,12 +36,19 @@ const Index = () => {
     error,
     refetch,
   } = useFetchItemsQuery({
-    path: `/developer/get?page=${pageIndex + 1}&pageSize=${pageSize}`,
+    path: buildQueryPath(),
     pageIndex,
     pageSize,
+    searchField,
+    searchTerm,
   });
 
-  const fetchData = ({ pageIndex: newPageIndex, pageSize: newPageSize }) => {
+  const fetchData = ({
+    pageIndex: newPageIndex,
+    pageSize: newPageSize,
+    search,
+    field,
+  }) => {
     if (newPageIndex < 0) {
       console.warn("Invalid pageIndex in fetchData:", newPageIndex);
       return;
@@ -49,7 +60,8 @@ const Index = () => {
 
     setPageIndex(newPageIndex);
     setPageSize(newPageSize);
-    refetch();
+    setSearchTerm(search || "");
+    if (field) setSearchField(field); // Update search field if provided
   };
 
   useEffect(() => {
@@ -61,6 +73,12 @@ const Index = () => {
       console.error("Error fetching developers:", error);
     }
   }, [error]);
+
+  useEffect(() => {
+    if (developerResponse?.developers) {
+      setSearchedData(developerResponse.developers);
+    }
+  }, [developerResponse]);
 
   if (isLoading) {
     return (

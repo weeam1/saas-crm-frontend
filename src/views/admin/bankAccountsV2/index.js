@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import AccountsView from "./View";
 import Header from "./components/Header";
 import Pagination from "./components/Pagination";
@@ -10,24 +10,47 @@ export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [accountsArray, setAccountsArray] = useState([]);
-  const [allAccounts, setAllAccounts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [displaySearchData, setDisplaySearchData] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [createItemMutation, { isLoading: isAdding }] = useCreateItemMutation();
+
   const {
-    data,
-    error,
+    data: searchData,
+    error: searchError,
+    isLoading: isSearching,
+    refetch: refetchSearch,
+  } = useFetchItemsQuery(
+    {
+      path: "/bankAccount/search",
+      params: {
+        page: currentPage,
+        pageSize: pageSize,
+        search: searchTerm,
+      },
+    },
+    {
+      skip: !searchTerm, // Skip if no search term
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  const {
+    data: allData,
+    error: fetchError,
     isLoading: isGetting,
-    refetch,
+    refetch: refetchAll,
   } = useFetchItemsQuery(
     {
       path: "/bankAccount/get",
       params: { page: currentPage, pageSize: pageSize },
     },
-    { refetchOnMountOrArgChange: true }
+    {
+      skip: !!searchTerm, // Skip if there’s a search term
+      refetchOnMountOrArgChange: true,
+    }
   );
 
   const skeletonCount = useBreakpointValue({
@@ -52,38 +75,25 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (data) {
-      const fetchedAccounts = data.data || [];
-      setAllAccounts((prev) => {
-        const existingIds = new Set(prev.map((acc) => acc._id));
-        const newAccounts = fetchedAccounts.filter(
-          (acc) => !existingIds.has(acc._id)
-        );
-        return [...prev, ...newAccounts];
-      });
-      if (!searchQuery || searchQuery === "") {
-        setAccountsArray(fetchedAccounts);
-        setTotalLeads(data.total || 0);
-      } else {
-        const filtered = allAccounts.filter((item) =>
-          dataColumns.some((column) => {
-            const value = item[column.accessor];
-            return (
-              value &&
-              String(value).toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          })
-        );
-        setAccountsArray(filtered);
-        setTotalLeads(filtered.length);
-      }
-      setTotalPages(data.totalPages || 1);
+    const activeData = searchTerm ? searchData : allData;
+    if (activeData?.data) {
+      setAccountsArray(activeData.data);
+      setTotalLeads(activeData.total || 0);
+      setTotalPages(activeData.totalPages || 1);
     }
-  }, [data, searchQuery]);
+  }, [searchData, allData, searchTerm]);
 
+  // Add this useEffect to handle refetching when searchTerm changes
   useEffect(() => {
-    refetch();
-  }, [currentPage, pageSize, refetch]);
+    if (!searchTerm) {
+      refetchAll(); // Safe to call here because this runs after state updates
+    }
+  }, [searchTerm, refetchAll]);
+
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Reset to page 1 on new search
+  }, []);
 
   const handleAdd = async (newAccount) => {
     try {
@@ -92,34 +102,20 @@ export default function Index() {
         body: newAccount,
       }).unwrap();
       setCurrentPage(1);
-      refetch();
+      searchTerm ? refetchSearch() : refetchAll();
       return null;
     } catch (error) {
-      console.error("Failed to add account - Full Error:", error);
+      console.error("Failed to add account:", error);
       const errorMessage =
-        error?.data?.message ||
-        error?.message ||
-        "Failed to add the account. Please try again.";
-      if (errorMessage.includes("account number, IBAN, or SWIFT code")) {
-        return {
-          account_number: "Bank account number is already added",
-          iban: "IBAN is already added",
-          swift_code: "SWIFT code is already added",
-        };
-      }
+        error?.data?.message || "Failed to add the account. Please try again.";
       return { general: errorMessage };
     }
   };
 
-  const handleSearchResults = (results) => {
-    setAccountsArray(results || []);
-    setTotalLeads(results ? results.length : 0);
-  };
-
-  const handleFetchData = (searchTerm, page, size) => {
+  const handleFetchData = useCallback((searchTerm, page, size) => {
     setCurrentPage(page);
     setPageSize(size);
-  };
+  }, []);
 
   const handleQueryChange = (query) => {
     setSearchQuery(query);
@@ -127,70 +123,24 @@ export default function Index() {
 
   const handleClear = () => {
     setSearchQuery("");
-    setDisplaySearchData(false);
-    setAccountsArray(
-      allAccounts.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-    );
-    setTotalLeads(data ? data.total || 0 : 0);
+    setSearchTerm("");
+    setCurrentPage(1);
+    // Remove refetchAll() here; handled by useEffect
   };
 
   const handleUpdate = (updatedAccount) => {
     setAccountsArray((prev) =>
       prev.map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
     );
-    setAllAccounts((prev) =>
-      prev.map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
-    );
-    if (searchQuery) {
-      const filtered = allAccounts
-        .map((acc) => (acc._id === updatedAccount._id ? updatedAccount : acc))
-        .filter((item) =>
-          dataColumns.some((column) => {
-            const value = item[column.accessor];
-            return (
-              value &&
-              String(value).toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          })
-        );
-      setAccountsArray(filtered);
-      setTotalLeads(filtered.length);
-    }
   };
 
   const handleDelete = (accountId) => {
     setAccountsArray((prev) => prev.filter((acc) => acc._id !== accountId));
-    setAllAccounts((prev) => prev.filter((acc) => acc._id !== accountId));
-    if (searchQuery) {
-      const filtered = allAccounts
-        .filter((acc) => acc._id !== accountId)
-        .filter((item) =>
-          dataColumns.some((column) => {
-            const value = item[column.accessor];
-            return (
-              value &&
-              String(value).toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          })
-        );
-      setAccountsArray(filtered);
-      setTotalLeads(filtered.length);
-    } else {
-      setTotalLeads((prev) => prev - 1);
-    }
+    setTotalLeads((prev) => prev - 1);
   };
 
-  const dataColumns = [
-    { accessor: "account_holder_name" },
-    { accessor: "bank_name" },
-    { accessor: "account_number" },
-    { accessor: "iban" },
-    { accessor: "branch_address" },
-    { accessor: "swift_code" },
-  ];
-
-  if (error) {
-    console.error("Error fetching accounts:", error);
+  if (searchError || fetchError) {
+    console.error("Error:", searchError || fetchError);
   }
 
   return (
@@ -201,13 +151,10 @@ export default function Index() {
         isAdding={isAdding}
         searchComponent={
           <CustomSearchInput
-            allData={allAccounts}
-            setSearchbox={handleQueryChange}
-            isPaginated={false}
-            setDisplaySearchData={setDisplaySearchData}
             searchbox={searchQuery}
-            dataColumn={dataColumns}
-            onSearch={handleSearchResults}
+            setSearchbox={handleQueryChange}
+            onSearch={handleSearch}
+            isLoading={isSearching || isGetting}
           />
         }
         onClear={handleClear}
@@ -217,7 +164,7 @@ export default function Index() {
         data={accountsArray}
         totalPages={totalPages}
         totalLeads={totalLeads}
-        isLoading={isGetting}
+        isLoading={isGetting || isSearching}
         fetchData={handleFetchData}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
@@ -231,8 +178,8 @@ export default function Index() {
         accounts={accountsArray}
         setAccounts={setAccountsArray}
         searchQuery={searchQuery}
-        refetch={refetch}
-        isGetting={isGetting}
+        refetch={searchTerm ? refetchSearch : refetchAll}
+        isGetting={isGetting || isSearching}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
         skeletonCount={skeletonCount}
