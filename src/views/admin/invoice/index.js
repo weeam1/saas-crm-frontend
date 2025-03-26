@@ -25,6 +25,10 @@ const Index = () => {
       Cell: ({ value }) => new Date(value).toLocaleDateString(), 
     },
     {
+      Header: "Invoice No",
+      accessor: "invoiceNo", 
+    },
+    {
       Header: "Developer",
       accessor: "developer.developer_name", 
     },

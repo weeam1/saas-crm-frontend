@@ -405,6 +405,10 @@ export default function CheckTable(props) {
                             {row.bank_account?.account_number || "-"}
                           </Text>
                         );
+                      } else if (column.Header === "Invoice No") {
+                        cellData = (
+                          <Text fontSize="sm">{row.invoiceNo || "-"}</Text>
+                        );
                       } else if (column.Header === "Total Amount") {
                         cellData = (
                           <Text
