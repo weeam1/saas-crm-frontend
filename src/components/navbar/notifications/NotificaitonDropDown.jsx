@@ -8,6 +8,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import NotificationBox from './NotificationBox';
+import { useSelector } from 'react-redux';
 
 const NotificationDropDown = ({
 	unreadCount,
@@ -16,6 +17,8 @@ const NotificationDropDown = ({
 	loadMoreNotifications,
 	hideLoadMoreBtn,
 }) => {
+	const users = useSelector((state) => state.user.users);
+
 	return (
 		<>
 			<MenuList
@@ -55,7 +58,7 @@ const NotificationDropDown = ({
 						<Flex direction='column' gap='1'>
 							{notificationList.map((notification, index) => (
 								<MenuItem key={index} p={3} rounded='md'>
-									<NotificationBox notification={notification} />
+									<NotificationBox notification={notification} users={users} />
 								</MenuItem>
 							))}
 						</Flex>

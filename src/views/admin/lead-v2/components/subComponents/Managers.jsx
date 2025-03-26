@@ -1,6 +1,6 @@
 import SelectInput from 'components/shared/SelectInput';
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { Flex, Icon, Text } from '@chakra-ui/react';
 import { useState, useEffect, useMemo } from 'react';
 import {
 	leadIconSize,
@@ -12,26 +12,23 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
-import {
-	updateLeadField,
-	updateLeadFields,
-	updateMultipleLeadFields,
-} from '../../../../../redux/leadsSlice';
+import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import CustomTooltip from './CustomTooltip';
+import { sendLeadNotification } from 'api';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
 	useEffect(() => {
 		setSelected(managerAssigned);
 	}, [managerAssigned]);
 
 	const dispatch = useDispatch();
-
-	// console.log(managerAssigned, lead);
 
 	const handleChangeManager = async (e) => {
 		const managerAssignedValue = e.target.value;
@@ -47,37 +44,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 
 			if (res.status === 200) {
 				setSelected(managerAssigned);
-				// refreshLeads();
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'managerAssigned',
-				// 		value: managerAssignedValue,
-				// 	})
-				// );
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'managerAssignedDate',
-				// 		value:
-				// 			managerAssignedValue !== '' ? new Date().toISOString() : null,
-				// 	})
-				// );
 
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'agentAssigned',
-				// 		value: '',
-				// 	})
-				// );
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'agentAssignedDate',
-				// 		value: null,
-				// 	})
-				// );
 				dispatch(
 					updateLeadFields({
 						id: lead?._id,
@@ -95,6 +62,9 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				);
 
 				toast.success('Manager updated successfully');
+
+				// send lead notification
+				sendLeadNotification(user?._id, managerAssignedValue, lead);
 			}
 		} catch (error) {
 			console.error('Failed to update the manager:', error);

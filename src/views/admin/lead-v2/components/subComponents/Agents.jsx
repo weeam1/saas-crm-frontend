@@ -16,6 +16,7 @@ import {
 } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import CustomTooltip from './CustomTooltip';
+import { sendLeadNotification } from 'api';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -23,9 +24,9 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
-	// const { list } = useSelector((state) => state?.users);
 
 	const tree = useSelector((state) => state.user.tree);
+	const user = JSON.parse(localStorage.getItem('user'));
 
 	useEffect(() => {
 		setSelected(agentAssigned);
@@ -60,24 +61,6 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				setSelected(data.agentAssigned);
 
 				toast.success('Agent updated successfully');
-				// refreshLeads();
-
-				console.log({ agentAssignedValue });
-
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'agentAssigned',
-				// 		value: agentAssignedValue,
-				// 	})
-				// );
-				// dispatch(
-				// 	updateLeadField({
-				// 		id: lead?._id,
-				// 		key: 'agentAssignedDate',
-				// 		value: agentAssignedValue !== '' ? new Date() : null,
-				// 	})
-				// );
 
 				dispatch(
 					updateLeadFields({
@@ -92,6 +75,9 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 						],
 					})
 				);
+
+				// send lead notification
+				sendLeadNotification(user?._id, agentAssignedValue, lead);
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);

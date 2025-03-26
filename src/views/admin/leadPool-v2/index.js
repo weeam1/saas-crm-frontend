@@ -209,6 +209,8 @@ const Index = () => {
 			setIsLoading(false);
 		}
 	};
+
+	console.log({ isLoading });
 	const fetchAdvancedSearch = async (
 		data = {},
 		pageNo = 1,

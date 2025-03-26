@@ -169,11 +169,6 @@ export const useFilteredQueryParams = () => {
 			return updatedParams;
 		});
 
-		// Exclude invite_id from queryParams
-		// const filteredParams = Object.fromEntries(
-		// 	Object.entries(params).filter(([key]) => key !== 'invite')
-		// );
-
 		setQueryParams(params);
 	};
 
@@ -181,10 +176,10 @@ export const useFilteredQueryParams = () => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
 
-		const invite = searchParams.get('invite');
+		const lead = searchParams.get('lead');
 
-		if (invite) {
-			updatedParams.invite = invite;
+		if (lead) {
+			updatedParams.lead = lead;
 			setSearchClear(true);
 		}
 

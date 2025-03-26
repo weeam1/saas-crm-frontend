@@ -125,3 +125,28 @@ export const sendLeadFeedback = async ({ email, phone, status }) => {
 		);
 	}
 };
+
+export const sendLeadNotification = async (senderId, receiverId, leadData) => {
+	try {
+		const notifyData = {
+			receiver_id: receiverId,
+			lead_id: leadData?._id,
+			lead_name: leadData?.leadName,
+			sender_id: senderId,
+		};
+
+		console.log({ notifyData });
+
+		await axios.post(`${keys.socketUrl}/notification`, notifyData);
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+export const readLeadNotification = async (id) => {
+	try {
+		await axios.post(`${keys.socketUrl}/read_notification`, { id });
+	} catch (err) {
+		console.log(err);
+	}
+};

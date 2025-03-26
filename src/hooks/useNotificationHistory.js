@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Ensure you have the react-toastify library
 import keys from 'config/keys';
@@ -55,7 +55,7 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 
 	const dispatch = useDispatch();
 
-	const getHistory = async () => {
+	const getHistory = useCallback(async () => {
 		setLoading(true);
 		try {
 			const { data } = await axios.get(
@@ -63,14 +63,22 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 				{ maxRedirects: 0 } // Prevent auto-following redirects
 			);
 
-			if (data?.total_items > 0) {
-				if (currentPage === 1) {
-					setList([]);
-					setList(data.history);
-				} else setList((prevList) => [...prevList, ...data.history]);
+			console.log('get histroy call', data);
 
-				// For backup
-				setTotalPages(data.total_pages);
+			if (data?.total_items > 0) {
+				// if (currentPage === 1) {
+				// 	setList([]);
+				// 	setList(data.history);
+				// } else setList((prevList) => [...prevList, ...data.history]);
+
+				// // For backup
+				// setTotalPages(data.total_pages);
+
+				setList((prevList) =>
+					currentPage === 1 ? [...data.history] : [...prevList, ...data.history]
+				);
+
+				setTotalPages(data.total_pages || 0);
 			} else {
 				setList([]); // Clear list if no history
 				setTotalPages(0);
@@ -85,7 +93,7 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 			setLoading(false);
 			dispatch(clearNotifyItem());
 		}
-	};
+	}, [userId, currentPage, dispatch]);
 
 	useEffect(() => {
 		if (userId) {

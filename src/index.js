@@ -10,12 +10,7 @@ import {
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
 import UserLayout from 'layouts/user';
-import {
-	ChakraProvider,
-	ColorModeScript,
-	Flex,
-	Spinner,
-} from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript, Flex } from '@chakra-ui/react';
 import theme from 'theme/theme';
 import { ThemeEditorProvider } from '@hypertheme-editor/chakra-ui';
 import { toast, ToastContainer } from 'react-toastify';
@@ -54,6 +49,10 @@ function App() {
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
 
+	// const assignedLeadMessage = (data) => {
+	// 	return ``;
+	// };
+
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
 			theme: 'darkblue',
@@ -83,7 +82,11 @@ function App() {
 
 				let notificationDetails = {};
 				const { type, data } = socketData;
-				const message = data?.message || 'Check out the latest updates!';
+				const message = data?.message
+					? data?.message
+					: data?.lead_id
+						? `You have been assigned a new lead${data?.lead_name && `: ${data?.lead_name}`}`
+						: 'Check out the latest updates!';
 
 				// Handle announcements (type === 1)
 				if (type === 1) {
