@@ -18,82 +18,68 @@ import {
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import { useCreateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
 import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
+import { useParams } from "react-router-dom";
+
+// Validation schema updated to match Postman body
 const invoiceSchema = yup.object().shape({
-  unit_no: yup.number().nullable(),
-  invoice_number: yup.string().nullable(),
-  total_amount: yup
+  unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
+  name_of_referring_party: yup.string().required("Referring party is required"),
+  claim_type: yup.string().required("Claim type is required"),
+  commission_percentage: yup
     .number()
-    .required("Total amount is required")
-    .min(0, "Total amount cannot be negative"),
-  developer_id: yup.string().required("Developer is required"),
-  bank_account_id: yup.string().required("Bank account is required"),
-  unit_name: yup.string().required("Unit name is required"),
+    .typeError("Commission percentage must be a valid number")
+    .required("Commission percentage is required")
+    .min(0.01, "Commission must be greater than 0")
+    .max(99, "Commission must be less than 100"),
   unit_price: yup
     .number()
-    .strict(true) // Enforce strict number validation
     .typeError("Unit price must be a valid number")
     .required("Unit price is required")
     .min(0, "Unit price cannot be negative"),
-  commission: yup
+  vat_percentage: yup
     .number()
-    .strict(true) // Enforce strict number validation
-    .typeError("Commission must be a valid number")
-    .required("Commission is required")
-    .min(0.01, "Commission must be greater than 0")
-    .max(99, "Commission must be less than 100"),
-  claim_type: yup.string().required("Claim type is required"),
-  name_of_referring_party: yup.string().required("Referring party is required"),
+    .typeError("VAT percentage must be a valid number")
+    .required("VAT percentage is required")
+    .min(0, "VAT percentage cannot be negative")
+    .lessThan(100, "VAT percentage must be less than 100"),
 });
+
+// Function to calculate commission, VAT, and total amount
+function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
+  const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
+  const vatAmount = (vatPercentage / 100) * totalCommissionExclVat; // VAT on commission
+  const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
+
+  return {
+    total_commission_excl_vat: totalCommissionExclVat,
+    vat_amount: vatAmount,
+    total_commission_incl_vat: totalCommissionInclVat,
+  };
+}
 
 const Add = (props) => {
   const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch developers data only when modal is open
-  const {
-    data: developersData,
-    isLoading: developersLoading,
-    error: developersError,
-  } = useFetchItemsQuery(
-    { path: "/developer/getALL" },
-    {
-      skip: !props.isOpen,
-    }
-  );
-
-  // Fetch bank accounts data only when modal is open
-  const {
-    data: bankAccountsData,
-    isLoading: bankAccountsLoading,
-    error: bankAccountsError,
-  } = useFetchItemsQuery(
-    { path: "/bankAccount/get" },
-    {
-      skip: !props.isOpen,
-    }
-  );
-
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();
 
   const initialValues = {
-    unit_no: null,
-    invoice_number: null,
+    invoice: props.invoiceId,
+    unit_no: "",
     total_amount: 0,
-    developer_id: "",
-    bank_account_id: "",
-    unit_name: "",
-    unit_price: "",
-    commission: "",
-    claim_type: "",
     name_of_referring_party: "",
-    developer_name: "",
-    bank_details: "",
+    claim_type: "",
+    commission_percentage: "",
+    unit_price: "",
+    vat_percentage: "",
+    total_commission_excl_vat: 0,
+    vat_amount: 0,
+    total_commission_incl_vat: 0,
   };
 
   const formik = useFormik({
@@ -102,7 +88,9 @@ const Add = (props) => {
     onSubmit: (values, { resetForm }) => {
       AddData(values);
     },
-    enableReinitialize: true, // Ensures form resets when initialValues change
+    enableReinitialize: true,
+    validateOnChange: true,
+    validateOnBlur: true,
   });
 
   const {
@@ -112,52 +100,90 @@ const Add = (props) => {
     handleBlur,
     handleChange,
     handleSubmit,
+    setValues,
     resetForm,
+    isValid,
+    dirty,
   } = formik;
+
+  // Recalculate totals when unit_price, commission_percentage, or vat_percentage changes
+  useEffect(() => {
+    if (
+      values.unit_price &&
+      values.commission_percentage &&
+      values.vat_percentage
+    ) {
+      const {
+        total_commission_excl_vat,
+        vat_amount,
+        total_commission_incl_vat,
+      } = calculateTotal(
+        Number(values.unit_price),
+        Number(values.commission_percentage),
+        Number(values.vat_percentage)
+      );
+      setValues({
+        ...values,
+        total_commission_excl_vat,
+        vat_amount,
+        total_commission_incl_vat,
+        total_amount: total_commission_incl_vat,
+      });
+    }
+  }, [
+    values.unit_price,
+    values.commission_percentage,
+    values.vat_percentage,
+    setValues,
+  ]);
 
   const AddData = async (formValues) => {
     try {
       setIsLoading(true);
 
-      const response = await createItemMutation({
-        path: "/invoice/add",
-        body: formValues,
-      }).unwrap();
+      const payload = {
+        invoice: props.invoiceId,
+        unit_no: formValues.unit_no,
+        total_amount: formValues.total_commission_incl_vat,
+        name_of_referring_party: formValues.name_of_referring_party,
+        claim_type: formValues.claim_type,
+        commission_percentage: Number(formValues.commission_percentage),
+        unit_price: Number(formValues.unit_price),
+        total_commission_excl_vat: formValues.total_commission_excl_vat,
+        vat_percentage: Number(formValues.vat_percentage),
+        vat_amount: formValues.vat_amount,
+        total_commission_incl_vat: formValues.total_commission_incl_vat,
+      };
 
-      if (
-        response?.status === "success" ||
-        response?.code === 200 ||
-        response?.code === 201
-      ) {
-        toast.success("Invoice added successfully!");
-        if (props.fetchData) {
-          props.fetchData({
-            pageIndex: props.pageIndex || 0,
-            pageSize: props.pageSize || 4,
-          });
-        }
+      const response = await createItemMutation({
+        path: "/invoices/entries",
+        body: payload,
+      }).unwrap();
+      if (response) {
+        toast.success("Entry added successfully!");
+        if (props.fetchData) props.fetchData(); 
         if (props.setAction) props.setAction((prev) => !prev);
-        resetForm(); // Reset form after successful submission
+        resetForm();
         props.onClose();
       } else {
-        throw new Error(response?.message || "Failed to add invoice");
+        throw new Error("Unexpected response format");
       }
     } catch (e) {
-      console.error("Error adding invoice:", e);
-      toast.error(e?.data?.message || "Something went wrong!");
+      console.error("Error adding entry:", e);
+      toast.error(e?.data?.message || e.message || "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    resetForm(); // Reset form on cancel
+    resetForm();
     props.onClose();
   };
 
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
-    md: { width: "602px", height: "650px" },
+    md: { width: "602px", height: "auto", maxHeight: "80vh" },
   });
 
   const customDropdownIcon = (
@@ -180,250 +206,351 @@ const Add = (props) => {
           fontFamily="DM Sans, sans-serif"
           maxW="100vw"
           mx="auto"
+          borderRadius="10px"
+          boxShadow="lg"
         >
           <ModalHeader
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-            fontSize="24px"
+            fontSize={{ base: "20px", md: "24px" }}
             fontWeight="bold"
             fontFamily="DM Sans, sans-serif"
+            px={6}
+            py={4}
+            borderBottom="1px solid #E2E8F0"
           >
-            Add Invoice
+            Add Entry
             <IconButton
               onClick={props.onClose}
               icon={<CloseIcon />}
               aria-label="Close"
               size="sm"
+              variant="ghost"
+              color="gray.600"
+              _hover={{ color: "gray.800", bg: "gray.100" }}
             />
           </ModalHeader>
-          <ModalBody overflowY="auto">
+          <ModalBody overflowY="auto" px={6} py={4}>
             <form onSubmit={handleSubmit}>
-              <Grid templateColumns="repeat(12, 1fr)" gap={3}>
+              <Grid templateColumns="repeat(12, 1fr)" gap={4}>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Select Developer
-                  </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="developer_id"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={
-                      developersData?.data?.length > 0
-                        ? "Select developer"
-                        : "No developers available"
-                    }
-                    value={values.developer_id || ""}
-                    disabled={developersLoading || developersError}
-                    borderColor={
-                      errors.developer_id && touched.developer_id
-                        ? "red.300"
-                        : null
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
                   >
-                    {developersData?.data?.map((developer) => (
-                      <option key={developer._id} value={developer._id}>
-                        {developer.developer_name}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.developer_id && touched.developer_id && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.developer_id}
-                    </FormLabel>
-                  )}
-                </GridItem>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Claim Type
-                  </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="claim_type"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.claim_type || ""}
-                    placeholder="Select Claim Type"
-                    borderColor={
-                      errors.claim_type && touched.claim_type ? "red.300" : null
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
-                  >
-                    <option value="full">Full</option>
-                    <option value="half">Half</option>
-                  </Select>
-                  {errors.claim_type && touched.claim_type && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.claim_type}
-                    </FormLabel>
-                  )}
-                </GridItem>
-                <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Unit Name
+                    Unit No
                   </FormLabel>
                   <Input
-                    fontSize="16px"
-                    type="text"
-                    name="unit_name"
+                    fontSize="14px"
+                    name="unit_no"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.unit_name || ""}
-                    placeholder="Enter Unit Name"
+                    value={values.unit_no}
+                    placeholder="Enter Unit No (e.g., A-101)"
                     borderColor={
-                      errors.unit_name && touched.unit_name ? "red.300" : null
+                      errors.unit_no && touched.unit_no ? "red.300" : "gray.300"
                     }
-                    fontFamily="DM Sans, sans-serif"
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   />
-                  {errors.unit_name && touched.unit_name && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.unit_name}
+                  {errors.unit_no && touched.unit_no && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.unit_no}
                     </FormLabel>
                   )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
                     Name of Referring Party
                   </FormLabel>
                   <Input
-                    fontSize="16px"
-                    type="text"
+                    fontSize="14px"
                     name="name_of_referring_party"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.name_of_referring_party || ""}
+                    value={values.name_of_referring_party}
                     placeholder="Enter Referring Party"
                     borderColor={
                       errors.name_of_referring_party &&
                       touched.name_of_referring_party
                         ? "red.300"
-                        : null
+                        : "gray.300"
                     }
-                    fontFamily="DM Sans, sans-serif"
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   />
                   {errors.name_of_referring_party &&
                     touched.name_of_referring_party && (
-                      <FormLabel color="red.500" fontSize="14px">
+                      <FormLabel color="red.500" fontSize="12px" mt={1}>
                         {errors.name_of_referring_party}
                       </FormLabel>
                     )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Claim Type
+                  </FormLabel>
+                  <Select
+                    fontSize="14px"
+                    name="claim_type"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.claim_type}
+                    placeholder="Select Claim Type"
+                    borderColor={
+                      errors.claim_type && touched.claim_type
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  >
+                    <option value="FULL">FULL</option>
+                    <option value="HALF">HALF</option>
+                  </Select>
+                  {errors.claim_type && touched.claim_type && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.claim_type}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
                     Unit Price
                   </FormLabel>
                   <Input
-                    fontSize="16px"
+                    fontSize="14px"
                     type="number"
                     name="unit_price"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.unit_price || ""}
+                    value={values.unit_price}
                     placeholder="Enter Unit Price"
                     borderColor={
-                      errors.unit_price && touched.unit_price ? "red.300" : null
+                      errors.unit_price && touched.unit_price
+                        ? "red.300"
+                        : "gray.300"
                     }
-                    fontFamily="DM Sans, sans-serif"
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   />
                   {errors.unit_price && touched.unit_price && (
-                    <FormLabel color="red.500" fontSize="14px">
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
                       {errors.unit_price}
                     </FormLabel>
                   )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Commission
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Commission Percentage (%)
                   </FormLabel>
                   <Input
-                    fontSize="16px"
+                    fontSize="14px"
                     type="number"
-                    name="commission"
+                    name="commission_percentage"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.commission || ""}
-                    placeholder="Enter Commission"
+                    value={values.commission_percentage}
+                    placeholder="Enter Commission %"
                     borderColor={
-                      errors.commission && touched.commission ? "red.300" : null
+                      errors.commission_percentage &&
+                      touched.commission_percentage
+                        ? "red.300"
+                        : "gray.300"
                     }
-                    fontFamily="DM Sans, sans-serif"
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   />
-                  {errors.commission && touched.commission && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.commission}
+                  {errors.commission_percentage &&
+                    touched.commission_percentage && (
+                      <FormLabel color="red.500" fontSize="12px" mt={1}>
+                        {errors.commission_percentage}
+                      </FormLabel>
+                    )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    VAT Percentage (%)
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="number"
+                    name="vat_percentage"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.vat_percentage}
+                    placeholder="Enter VAT %"
+                    borderColor={
+                      errors.vat_percentage && touched.vat_percentage
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.vat_percentage && touched.vat_percentage && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.vat_percentage}
                     </FormLabel>
                   )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 12 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Bank Account
-                  </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="bank_account_id"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={
-                      bankAccountsData?.data?.length > 0
-                        ? "Choose Bank Account"
-                        : "No bank accounts available"
-                    }
-                    value={values.bank_account_id || ""}
-                    disabled={bankAccountsLoading || bankAccountsError}
-                    borderColor={
-                      errors.bank_account_id && touched.bank_account_id
-                        ? "red.300"
-                        : null
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
                   >
-                    {bankAccountsData?.data?.map((bank) => (
-                      <option key={bank._id} value={bank._id}>
-                        {bank.account_holder_name} - {bank.account_number}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.bank_account_id && touched.bank_account_id && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.bank_account_id}
-                    </FormLabel>
-                  )}
+                    Total Commission Excl. VAT
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.total_commission_excl_vat.toLocaleString(
+                      "en-US",
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                    )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    VAT Amount
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.vat_amount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Total Commission Incl. VAT
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.total_commission_incl_vat.toLocaleString(
+                      "en-US",
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                    )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
                 </GridItem>
               </Grid>
             </form>
           </ModalBody>
-          <ModalFooter justifyContent="flex-end">
+          <ModalFooter
+            justifyContent="flex-end"
+            px={6}
+            py={4}
+            borderTop="1px solid #E2E8F0"
+          >
             <Button
               bg="#CCCACA"
               color="black"
-              width="83px"
-              height="46px"
-              fontSize="16px"
+              width={{ base: "80px", md: "100px" }}
+              height="40px"
+              fontSize="14px"
               borderRadius="6px"
               fontFamily="DM Sans, sans-serif"
               sx={{ textTransform: "capitalize" }}
               onClick={handleCancel}
-              mr={2}
+              mr={3}
+              _hover={{ bg: "#B0AEAE" }}
             >
               Cancel
             </Button>
             <Button
               bg="#B79045"
               color="white"
-              width="83px"
-              height="46px"
-              fontSize="16px"
+              width={{ base: "80px", md: "100px" }}
+              height="40px"
+              fontSize="14px"
               fontFamily="DM Sans, sans-serif"
               borderRadius="6px"
               sx={{ textTransform: "capitalize" }}
-              disabled={isLoading || mutationLoading}
+              disabled={isLoading || mutationLoading || !isValid || !dirty}
               type="submit"
               onClick={handleSubmit}
+              _hover={{ bg: "#A47B38" }}
+              _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
             >
               {isLoading || mutationLoading ? <Spinner /> : "Save"}
             </Button>

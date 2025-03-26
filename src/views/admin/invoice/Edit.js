@@ -1,19 +1,20 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
   Button,
+  FormLabel,
+  Grid,
+  GridItem,
+  IconButton,
+  Input,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalBody,
   ModalFooter,
-  Flex,
-  IconButton,
-  FormControl,
-  FormLabel,
-  Input,
+  ModalBody,
   Select,
-  Text,
+  useBreakpointValue,
+  Icon,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
@@ -23,60 +24,85 @@ import * as yup from "yup";
 import { toast } from "react-toastify";
 import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
-const Edit = (props) => {
+// Validation schema aligned with Add component
+const invoiceSchema = yup.object().shape({
+  unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
+  name_of_referring_party: yup.string().required("Referring party is required"),
+  claim_type: yup.string().required("Claim type is required"),
+  commission_percentage: yup
+    .number()
+    .typeError("Commission percentage must be a valid number")
+    .required("Commission percentage is required")
+    .min(0.01, "Commission must be greater than 0")
+    .max(99, "Commission must be less than 100"),
+  unit_price: yup
+    .number()
+    .typeError("Unit price must be a valid number")
+    .required("Unit price is required")
+    .min(0, "Unit price cannot be negative"),
+  vat_percentage: yup
+    .number()
+    .typeError("VAT percentage must be a valid number")
+    .required("VAT percentage is required")
+    .min(0, "VAT percentage cannot be negative")
+    .lessThan(100, "VAT percentage must be less than 100"),
+});
+
+// Function to calculate commission, VAT, and total amount (same as Add)
+function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
+  const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
+  const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
+  const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
+
+  return {
+    total_commission_excl_vat: totalCommissionExclVat,
+    vat_amount: vatAmount,
+    total_commission_incl_vat: totalCommissionInclVat,
+  };
+}
+
+const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [initialValues, setInitialValues] = useState({
-    developer_id: "",
-    claim_type: "",
-    unit_name: "",
-    unit_price: "",
-    commission: "",
-    bank_account_id: "",
-  });
+  const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
 
-  const user = JSON.parse(localStorage.getItem("user")) || {};
-
+  // Fetch existing entry data
   const {
-    data: invoiceList,
-    isFetching: invoiceFetching,
-    error: invoiceError,
-    refetch: refetchInvoices,
+    data: entryData,
+    isFetching: entryFetching,
+    error: entryError,
+    refetch: refetchEntry,
   } = useFetchItemsQuery(
     {
-      path: `/invoice/get?user=${user._id}`,
+      path: `/invoices/entries/${selectedId}`,
     },
     {
-      skip: !props.isOpen || !props.selectedId || !user._id,
+      skip: !isOpen || !selectedId,
     }
   );
 
-  const { data: developersData, error: developersError } = useFetchItemsQuery(
-    { path: "/developer/getALL" },
-    { skip: !props.isOpen }
-  );
-
-  const { data: bankAccountsData, error: bankAccountsError } =
-    useFetchItemsQuery({ path: "/bankAccount/get" }, { skip: !props.isOpen });
-
-  const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
+  const initialValues = {
+    invoice: "",
+    unit_no: "",
+    total_amount: 0,
+    name_of_referring_party: "",
+    claim_type: "",
+    commission_percentage: "",
+    unit_price: "",
+    vat_percentage: "",
+    total_commission_excl_vat: 0,
+    vat_amount: 0,
+    total_commission_incl_vat: 0,
+  };
 
   const formik = useFormik({
     initialValues: initialValues,
-    enableReinitialize: true,
-    validationSchema: yup.object().shape({
-      developer_id: yup.string(),
-      claim_type: yup.string(),
-      unit_name: yup.string(),
-      unit_price: yup.number().typeError("Unit Price must be a number"),
-      commission: yup.number().typeError("Commission must be a number"),
-      bank_account_id: yup.string(),
-    }),
-    onSubmit: (values) => {
-      const filteredValues = Object.fromEntries(
-        Object.entries(values).filter(([_, value]) => value !== "")
-      );
-      EditData(filteredValues);
+    validationSchema: invoiceSchema,
+    onSubmit: (values, { resetForm }) => {
+      EditData(values);
     },
+    enableReinitialize: true,
+    validateOnChange: true, 
+  validateOnBlur: true,
   });
 
   const {
@@ -87,275 +113,507 @@ const Edit = (props) => {
     handleChange,
     handleSubmit,
     setValues,
+    resetForm,
+    isValid,
+    dirty,
   } = formik;
+
+  useEffect(() => {
+    if (entryData?.data && !entryFetching && selectedId) {
+      const editData = entryData.data;
+      const updatedValues = {
+        invoice: editData.invoice || "",
+        unit_no: editData.unit_no || "",
+        total_amount: editData.total_amount || 0,
+        name_of_referring_party: editData.name_of_referring_party || "",
+        claim_type: editData.claim_type || "",
+        commission_percentage: editData.commission_percentage?.toString() || "",
+        unit_price: editData.unit_price?.toString() || "",
+        vat_percentage: editData.vat_percentage?.toString() || "",
+        total_commission_excl_vat: editData.total_commission_excl_vat || 0,
+        vat_amount: editData.vat_amount || 0,
+        total_commission_incl_vat: editData.total_commission_incl_vat || 0,
+      };
+      setValues(updatedValues);
+    }
+  }, [entryData, entryFetching, selectedId, setValues]);
+
+  useEffect(() => {
+    if (
+      values.unit_price &&
+      values.commission_percentage &&
+      values.vat_percentage
+    ) {
+      const {
+        total_commission_excl_vat,
+        vat_amount,
+        total_commission_incl_vat,
+      } = calculateTotal(
+        Number(values.unit_price),
+        Number(values.commission_percentage),
+        Number(values.vat_percentage)
+      );
+      setValues({
+        ...values,
+        total_commission_excl_vat,
+        vat_amount,
+        total_commission_incl_vat,
+        total_amount: total_commission_incl_vat,
+      });
+    }
+  }, [
+    values.unit_price,
+    values.commission_percentage,
+    values.vat_percentage,
+    setValues,
+  ]);
 
   const EditData = async (formValues) => {
     try {
       setIsLoading(true);
+      const payload = {
+        invoice: formValues.invoice,
+        unit_no: formValues.unit_no,
+        total_amount: formValues.total_commission_incl_vat,
+        name_of_referring_party: formValues.name_of_referring_party,
+        claim_type: formValues.claim_type,
+        commission_percentage: Number(formValues.commission_percentage),
+        unit_price: Number(formValues.unit_price),
+        total_commission_excl_vat: formValues.total_commission_excl_vat,
+        vat_percentage: Number(formValues.vat_percentage),
+        vat_amount: formValues.vat_amount,
+        total_commission_incl_vat: formValues.total_commission_incl_vat,
+      };
+      console.log("Payload sent to API:", payload);
+
       const response = await updateItem({
-        path: `/invoice/edit/${props?.selectedId}`,
+        path: `/invoices/entries/${selectedId}`,
         method: "PUT",
-        body: formValues,
+        body: payload,
       }).unwrap();
 
-      if (
-        response?.status === "success" ||
-        response?.code === 200 ||
-        response?.status === 200
-      ) {
-        toast.success("Invoice updated successfully!");
+      console.log("API Response:", response);
 
-        // Refetch the invoice data after successful update
-        refetchInvoices();
-
-        // Update initialValues with the response data if available
-        if (response.data) {
-          const updatedValues = {
-            developer_id:
-              response.data.developer_id?._id ||
-              response.data.developer_id ||
-              "",
-            claim_type: response.data.claim_type?.toUpperCase() || "",
-            unit_name: response.data.unit_name || "",
-            unit_price: response.data.unit_price?.toString() || "",
-            commission: response.data.commission_percentage?.toString() || "",
-            bank_account_id:
-              response.data.bank_account_id?._id ||
-              response.data.bank_account_id ||
-              "",
-          };
-          setInitialValues(updatedValues);
-          setValues(updatedValues); // Sync form values immediately
-        }
-
-        if (props.fetchData) {
-          props.fetchData({
-            pageIndex: props.pageIndex || 0,
-            pageSize: props.pageSize || 4,
-          });
-        }
-        if (props.setAction) props.setAction((prev) => !prev);
-        props.onClose();
+      if (response) {
+        toast.success("Entry updated successfully!");
+        if (fetchData) fetchData();
+        if (setAction) setAction((prev) => !prev);
+        resetForm();
+        onClose();
       } else {
-        throw new Error(response?.message || "Failed to update invoice");
+        throw new Error("Unexpected response format");
       }
     } catch (e) {
-      console.error("Error updating invoice:", e);
-      toast.error(e?.data?.message || "Something went wrong!");
+      console.error("Error updating entry:", e);
+      toast.error(e?.data?.message || e.message || "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    props.onClose();
-    if (props.setSelectedId) props.setSelectedId(null);
-    formik.resetForm();
+    resetForm();
+    onClose();
   };
 
-  useEffect(() => {
-    if (invoiceList && !invoiceFetching && props.selectedId) {
-      const editData = invoiceList?.data?.find(
-        (invoice) => invoice._id === props.selectedId
-      );
-      if (editData) {
-        const updatedValues = {
-          developer_id:
-            editData?.developer_id?._id || editData?.developer_id || "",
-          claim_type: editData?.claim_type?.toUpperCase() || "",
-          unit_name: editData?.unit_name || "",
-          unit_price: editData?.unit_price?.toString() || "",
-          commission: editData?.commission_percentage?.toString() || "",
-          bank_account_id:
-            editData?.bank_account_id?._id || editData?.bank_account_id || "",
-        };
-        setInitialValues(updatedValues);
-        setValues(updatedValues);
-      } else {
-        console.error("Invoice not found in list for ID:", props.selectedId);
-        toast.error("Invoice not found!");
-      }
-    }
-  }, [invoiceList, invoiceFetching, props.selectedId, setValues]);
+  const modalSize = useBreakpointValue({
+    base: { width: "90%", height: "auto" },
+    md: { width: "602px", height: "auto", maxHeight: "80vh" },
+  });
+
+  const customDropdownIcon = (
+    <Icon as={() => <img src={DropdownImg} alt="dropdown" />} boxSize={6} />
+  );
+
+  if (entryError) {
+    return (
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Error</ModalHeader>
+          <ModalBody>Failed to load entry data. Please try again.</ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  }
 
   return (
-    <Modal
-      isOpen={props.isOpen}
-      onClose={handleClose}
-      size={props.size || "xl"}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent fontFamily="'DM Sans', sans-serif">
-        <ModalHeader justifyContent="space-between" display="flex">
-          Edit Invoice
-          <IconButton onClick={handleClose} icon={<CloseIcon />} />
-        </ModalHeader>
-        <ModalBody>
-          <form onSubmit={handleSubmit}>
-            <Flex direction={{ base: "column", md: "row" }} gap={4} mb={4}>
-              <FormControl flex={1}>
-                <FormLabel>Developer Name</FormLabel>
-                <Select
-                  placeholder={
-                    developersData?.data?.length > 0
-                      ? "Choose Developer"
-                      : "No developer added"
-                  }
-                  name="developer_id"
-                  value={values.developer_id}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.developer_id && !!errors.developer_id}
-                  icon={<img src={DropdownImg} alt="Dropdown" />}
-                >
-                  {developersData?.data?.map((developer) => (
-                    <option key={developer._id} value={developer._id}>
-                      {developer.developer_name}
-                    </option>
-                  ))}
-                </Select>
-                {touched.developer_id && errors.developer_id && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.developer_id}
-                  </Text>
-                )}
-              </FormControl>
-
-              <FormControl flex={1}>
-                <Select
-                  mt={{ base: 0, md: 8 }}
-                  placeholder="Choose Claim Type"
-                  name="claim_type"
-                  value={values.claim_type}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.claim_type && !!errors.claim_type}
-                  icon={<img src={DropdownImg} alt="Dropdown" />}
-                >
-                  <option value="FULL">FULL</option>
-                  <option value="HALF">HALF</option>
-                </Select>
-                {touched.claim_type && errors.claim_type && (
-                  <Text color="red.500" fontSize="sm">
-                    {errors.claim_type}
-                  </Text>
-                )}
-              </FormControl>
-            </Flex>
-
-            <FormControl mb={4}>
-              <FormLabel>Unit Name</FormLabel>
-              <Input
-                placeholder="Enter Unit Name"
-                name="unit_name"
-                value={values.unit_name}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.unit_name && !!errors.unit_name}
-              />
-              {touched.unit_name && errors.unit_name && (
-                <Text color="red.500" fontSize="sm">
-                  {errors.unit_name}
-                </Text>
-              )}
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Unit Price</FormLabel>
-              <Input
-                placeholder="Enter Unit Price"
-                name="unit_price"
-                type="number"
-                value={values.unit_price}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.unit_price && !!errors.unit_price}
-              />
-              {touched.unit_price && errors.unit_price && (
-                <Text color="red.500" fontSize="sm">
-                  {errors.unit_price}
-                </Text>
-              )}
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Commission (%)</FormLabel>
-              <Input
-                placeholder="Enter Commission"
-                name="commission"
-                type="number"
-                value={values.commission}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.commission && !!errors.commission}
-              />
-              {touched.commission && errors.commission && (
-                <Text color="red.500" fontSize="sm">
-                  {errors.commission}
-                </Text>
-              )}
-            </FormControl>
-
-            <FormControl mb={4}>
-              <FormLabel>Bank Account</FormLabel>
-              <Select
-                placeholder={
-                  bankAccountsData?.data?.length > 0
-                    ? "Choose Bank Account"
-                    : "No bank account added"
-                }
-                name="bank_account_id"
-                value={values.bank_account_id}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                isInvalid={touched.bank_account_id && !!errors.bank_account_id}
-                icon={<img src={DropdownImg} alt="Dropdown" />}
-              >
-                {bankAccountsData?.data?.map((bank) => (
-                  <option key={bank._id} value={bank._id}>
-                    {bank.account_holder_name} - {bank.account_number}
-                  </option>
-                ))}
-              </Select>
-              {touched.bank_account_id && errors.bank_account_id && (
-                <Text color="red.500" fontSize="sm">
-                  {errors.bank_account_id}
-                </Text>
-              )}
-            </FormControl>
-          </form>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            w="104px"
-            h="46px"
-            bg="#CCCACA"
-            borderRadius="6px"
-            size="sm"
-            sx={{ marginLeft: 2, textTransform: "capitalize" }}
-            onClick={handleClose}
+    <div>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        size="custom"
+        motionPreset="slideInBottom"
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent
+          width={modalSize.width}
+          height={modalSize.height}
+          fontFamily="DM Sans, sans-serif"
+          maxW="100vw"
+          mx="auto"
+          borderRadius="10px"
+          boxShadow="lg"
+        >
+          <ModalHeader
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            fontSize={{ base: "20px", md: "24px" }}
+            fontWeight="bold"
+            fontFamily="DM Sans, sans-serif"
+            px={6}
+            py={4}
+            borderBottom="1px solid #E2E8F0"
           >
-            Cancel
-          </Button>
-          <Button
-            sx={{ textTransform: "capitalize" }}
-            bg="#B79045"
-            color="white"
-            w="104px"
-            h="46px"
-            ml={2}
-            borderRadius="6px"
-            size="sm"
-            type="submit"
-            disabled={isLoading || mutationLoading}
-            onClick={handleSubmit}
+            Edit Entry
+            <IconButton
+              onClick={handleClose}
+              icon={<CloseIcon />}
+              aria-label="Close"
+              size="sm"
+              variant="ghost"
+              color="gray.600"
+              _hover={{ color: "gray.800", bg: "gray.100" }}
+            />
+          </ModalHeader>
+          <ModalBody overflowY="auto" px={6} py={4}>
+            <form onSubmit={handleSubmit}>
+              <Grid templateColumns="repeat(12, 1fr)" gap={4}>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Unit No
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    name="unit_no"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.unit_no}
+                    placeholder="Enter Unit No (e.g., A-101)"
+                    borderColor={
+                      errors.unit_no && touched.unit_no ? "red.300" : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.unit_no && touched.unit_no && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.unit_no}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Name of Referring Party
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    name="name_of_referring_party"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.name_of_referring_party}
+                    placeholder="Enter Referring Party"
+                    borderColor={
+                      errors.name_of_referring_party &&
+                      touched.name_of_referring_party
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.name_of_referring_party &&
+                    touched.name_of_referring_party && (
+                      <FormLabel color="red.500" fontSize="12px" mt={1}>
+                        {errors.name_of_referring_party}
+                      </FormLabel>
+                    )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Claim Type
+                  </FormLabel>
+                  <Select
+                    fontSize="14px"
+                    name="claim_type"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.claim_type}
+                    placeholder="Select Claim Type"
+                    borderColor={
+                      errors.claim_type && touched.claim_type
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  >
+                    <option value="FULL">FULL</option>
+                    <option value="HALF">HALF</option>
+                  </Select>
+                  {errors.claim_type && touched.claim_type && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.claim_type}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Unit Price
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="number"
+                    name="unit_price"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.unit_price}
+                    placeholder="Enter Unit Price"
+                    borderColor={
+                      errors.unit_price && touched.unit_price
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.unit_price && touched.unit_price && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.unit_price}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Commission Percentage (%)
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="number"
+                    name="commission_percentage"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.commission_percentage}
+                    placeholder="Enter Commission %"
+                    borderColor={
+                      errors.commission_percentage &&
+                      touched.commission_percentage
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.commission_percentage &&
+                    touched.commission_percentage && (
+                      <FormLabel color="red.500" fontSize="12px" mt={1}>
+                        {errors.commission_percentage}
+                      </FormLabel>
+                    )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    VAT Percentage (%)
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="number"
+                    name="vat_percentage"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.vat_percentage}
+                    placeholder="Enter VAT %"
+                    borderColor={
+                      errors.vat_percentage && touched.vat_percentage
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  />
+                  {errors.vat_percentage && touched.vat_percentage && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.vat_percentage}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Total Commission Excl. VAT
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.total_commission_excl_vat.toLocaleString(
+                      "en-US",
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                    )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    VAT Amount
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.vat_amount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Total Commission Incl. VAT
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.total_commission_incl_vat.toLocaleString(
+                      "en-US",
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                    )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+              </Grid>
+            </form>
+          </ModalBody>
+          <ModalFooter
+            justifyContent="flex-end"
+            px={6}
+            py={4}
+            borderTop="1px solid #E2E8F0"
           >
-            {isLoading || mutationLoading ? <Spinner size="sm" /> : "Save"}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+            <Button
+              bg="#CCCACA"
+              color="black"
+              width={{ base: "80px", md: "100px" }}
+              height="40px"
+              fontSize="14px"
+              borderRadius="6px"
+              fontFamily="DM Sans, sans-serif"
+              sx={{ textTransform: "capitalize" }}
+              onClick={handleClose}
+              mr={3}
+              _hover={{ bg: "#B0AEAE" }}
+            >
+              Cancel
+            </Button>
+            <Button
+              bg="#B79045"
+              color="white"
+              width={{ base: "80px", md: "100px" }}
+              height="40px"
+              fontSize="14px"
+              fontFamily="DM Sans, sans-serif"
+              borderRadius="6px"
+              sx={{ textTransform: "capitalize" }}
+              disabled={
+                isLoading ||
+                mutationLoading ||
+                !isValid ||
+                !dirty ||
+                entryFetching
+              }
+              type="submit"
+              onClick={handleSubmit}
+              _hover={{ bg: "#A47B38" }}
+              _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
+            >
+              {isLoading || mutationLoading ? <Spinner /> : "Save"}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
   );
 };
 

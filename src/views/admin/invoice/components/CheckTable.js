@@ -43,10 +43,10 @@ import Spinner from "components/spinner/Spinner";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Delete from "../Delete";
-import Add from "../Add";
+import Add from "../AddInvoiceModal";
 import { AddIcon } from "@chakra-ui/icons";
 import { CiMenuKebab } from "react-icons/ci";
-import Edit from "../Edit";
+import Edit from "../EditInvoice";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import CustomSearchInput from "./Search";
@@ -106,26 +106,18 @@ export default function CheckTable(props) {
   }, [tableData]);
 
   const csvColumns = [
-    { Header: "Unit Name", accessor: "unit_name" },
-    { Header: "Unit Price", accessor: "unit_price" },
-    { Header: "Commission", accessor: "commission" },
-    { Header: "Claim Type", accessor: "claim_type" },
     { Header: "Developer", accessor: "developer_id" },
     { Header: "Bank Account", accessor: "bank_account_id" },
     { Header: "Total Amount", accessor: "total_amount" },
   ];
 
   const initialValues = {
-    unit_name: "",
-    claim_type: "",
     developer_id: "",
     bank_account_id: "",
     total_amount: "",
   };
 
   const validationSchema = yup.object({
-    unit_name: yup.string(),
-    claim_type: yup.string(),
     developer_id: yup.string(),
     bank_account_id: yup.string(),
     total_amount: yup.number().typeError("Total Amount must be a number"),
@@ -137,14 +129,6 @@ export default function CheckTable(props) {
     onSubmit: (values) => {
       const searchResult = allData?.filter(
         (item) =>
-          (!values.unit_name ||
-            item.unit_name
-              ?.toLowerCase()
-              .includes(values.unit_name.toLowerCase())) &&
-          (!values.claim_type ||
-            item.claim_type
-              ?.toLowerCase()
-              .includes(values.claim_type.toLowerCase())) &&
           (!values.developer_id ||
             item.developer_id?._id === values.developer_id) &&
           (!values.bank_account_id ||
@@ -156,8 +140,6 @@ export default function CheckTable(props) {
       );
 
       const getValue = [
-        values.unit_name,
-        values.claim_type,
         values.developer_id,
         values.bank_account_id,
         values.total_amount,
@@ -203,28 +185,6 @@ export default function CheckTable(props) {
     }
   };
 
-  const handleExportLeads = (extension) => {
-    const dataToExport =
-      selectedValues.length > 0
-        ? tableData.filter((rec) => selectedValues.includes(rec._id))
-        : tableData;
-
-    const formattedData = dataToExport.map((rec) => ({
-      unit_name: rec.unit_name || "-",
-      unit_price: rec.unit_price || 0,
-      commission: rec.commission || 0,
-      claim_type: rec.claim_type || "-",
-      developer_id: rec.developer_id?.developer_name || "-",
-      bank_account_id: rec.bank_account_id?.account_number || "-",
-      total_amount: rec.total_amount || 0,
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(formattedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
-    XLSX.writeFile(wb, `invoices.${extension}`);
-    setSelectedValues([]);
-  };
 
   const handlePageChange = (page) => {
     fetchData({ pageIndex: page - 1, pageSize });
@@ -275,7 +235,7 @@ export default function CheckTable(props) {
                 allData={allData}
                 dataColumn={dataColumn}
                 onSearch={(results) => setSearchedData(results)}
-                width={{ base: "100%", md: "auto" }} // Full width on base, auto on md+
+                width={{ base: "100%", md: "auto" }}
               />
               {displaySearchData && (
                 <Button
@@ -287,7 +247,7 @@ export default function CheckTable(props) {
                     setSearchbox("");
                     setGetTagValues([]);
                   }}
-                  mt={{ base: 2, md: 0 }} // Margin top on base for spacing
+                  mt={{ base: 2, md: 0 }}
                 >
                   Clear
                 </Button>
@@ -307,9 +267,9 @@ export default function CheckTable(props) {
           <GridItem
             colSpan={{ base: 12, md: 4 }}
             display="flex"
-            justifyContent={{ base: "center", md: "end" }} // Center on base, end on md+
+            justifyContent={{ base: "center", md: "end" }}
             alignItems="center"
-            mt={{ base: 2, md: 0 }} // Margin top on base to separate from above
+            mt={{ base: 2, md: 0 }}
           >
             {access?.create && (
               <Button
@@ -321,7 +281,7 @@ export default function CheckTable(props) {
                 bg="#B79045"
                 color="white"
                 leftIcon={<AddIcon />}
-                ml={{ base: 0, md: 2 }} // Margin left only on md+
+                ml={{ base: 0, md: 2 }}
               >
                 Add New
               </Button>
@@ -412,6 +372,9 @@ export default function CheckTable(props) {
                     {columns.map((column, index) => {
                       let cellData = "";
                       if (column.Header === "Date") {
+                        const date = row.createdAt
+                          ? new Date(row.createdAt)
+                          : null;
                         cellData = (
                           <Flex align="center">
                             <Checkbox
@@ -421,36 +384,26 @@ export default function CheckTable(props) {
                               me="10px"
                             />
                             <Text color="brand.600" fontSize="sm">
-                              {new Date(row.created_at)
-                                .toISOString()
-                                .split("T")[0] || "-"}
+                              {date && !isNaN(date)
+                                ? date.toISOString().split("T")[0]
+                                : "-"}
                             </Text>
                           </Flex>
-                        );
-                      } else if (column.Header === "Invoice No") {
-                        cellData = (
-                          <Text
-                            color={textColor}
-                            fontSize="sm"
-                            fontWeight="700"
-                          >
-                            {row.invoice_number || "-"}
-                          </Text>
-                        );
-                      } else if (column.Header === "Unit No") {
-                        cellData = (
-                          <Text
-                            color={textColor}
-                            fontSize="sm"
-                            fontWeight="700"
-                          >
-                            {row.unit_name || "-"}
-                          </Text>
                         );
                       } else if (column.Header === "Developer") {
                         cellData = (
                           <Text fontSize="sm" fontWeight="700">
-                            {row.developer_id?.developer_name || "-"}
+                            {row.developer?.developer_name || "-"}
+                          </Text>
+                        );
+                      } else if (column.Header === "Bank Account") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.bank_account?.account_number || "-"}
                           </Text>
                         );
                       } else if (column.Header === "Total Amount") {
@@ -460,13 +413,13 @@ export default function CheckTable(props) {
                             fontSize="sm"
                             fontWeight="700"
                           >
-                            {row.total_amount || 0} AED
+                            {row.totalAmount || 0} AED
                           </Text>
                         );
                       } else if (column.id === "action") {
                         cellData = (
                           <Flex alignItems="center" gap={2}>
-                            <Link to={`/invoiceView/${row._id}`}>
+                            <Link to={`/add-entry/${row?._id}`}>
                               <Button
                                 size="sm"
                                 bg="#EBD3A7"
@@ -477,7 +430,7 @@ export default function CheckTable(props) {
                                 color="black"
                                 px="16px"
                               >
-                                View Invoice
+                                Add Entry
                               </Button>
                             </Link>
                             {access?.update && (
@@ -539,9 +492,11 @@ export default function CheckTable(props) {
           onClose={onClose}
           fetchData={fetchData}
           setAction={setAction}
+          
         />
 
         <Edit
+          data={data}
           isOpen={edit}
           size="xl"
           onClose={() => setEdit(false)}
@@ -573,40 +528,6 @@ export default function CheckTable(props) {
             <ModalCloseButton />
             <ModalBody>
               <Grid templateColumns="repeat(12, 1fr)" gap={2}>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">
-                    Unit Name
-                  </FormLabel>
-                  <Input
-                    fontSize="sm"
-                    name="unit_name"
-                    value={values.unit_name}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder="Enter Unit Name"
-                  />
-                  {touched.unit_name && errors.unit_name && (
-                    <Text color="red" fontSize="sm">
-                      {errors.unit_name}
-                    </Text>
-                  )}
-                </GridItem>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="sm" fontWeight="600">
-                    Claim Type
-                  </FormLabel>
-                  <Select
-                    fontSize="sm"
-                    name="claim_type"
-                    value={values.claim_type}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder="Select Claim Type"
-                  >
-                    <option value="FULL">FULL</option>
-                    <option value="PARTIAL">PARTIAL</option>
-                  </Select>
-                </GridItem>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel fontSize="sm" fontWeight="600">
                     Developer

@@ -71,6 +71,7 @@ const LeadImport = React.lazy(
 
 const InvoiceView = React.lazy(() => import("views/admin/invoice"));
 const SingleInvoice = React.lazy(() => import("views/admin/invoice/View"));
+const AddEntry = React.lazy(() => import("views/admin/invoice/AddEntry"));
 const Task = React.lazy(() => import("views/admin/task"));
 const Developers = React.lazy(() => import("views/admin/developers"));
 const BankAccounts = React.lazy(() => import("views/admin/bankAccountsV2"));
@@ -322,6 +323,13 @@ const routes = [
     under: "invoice",
     path: "/invoiceView/:id",
     component: SingleInvoice,
+  },
+  {
+    name: "Add Entry",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "invoice",
+    path: "/add-entry/:id",
+    component: AddEntry,
   },
   // -----------------------------Admin setting-------------------------------------
   {

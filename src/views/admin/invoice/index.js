@@ -15,79 +15,40 @@ const Index = () => {
   const tree = useSelector((state) => state.user.tree);
   const location = useLocation();
 
-  const [permission, emailAccess, callAccess] = HasAccess([
-    "Lead",
-    "Email",
-    "Call",
-  ]);
+  const [permission, emailAccess, callAccess] = HasAccess(["Lead", "Email", "Call"]);
 
+  // Updated table columns to match JSON structure
   const tableColumns = [
     {
       Header: "Date",
-      accessor: "created_at",
-      Cell: ({ row, value }) => ({
-        row,
-        value,
-        checkbox: true,
-      }),
+      accessor: "createdAt",
+      Cell: ({ value }) => new Date(value).toLocaleDateString(), 
     },
-    { Header: "Invoice No", accessor: "invoice_number" },
-    { Header: "Unit No", accessor: "unit_name" },
-    { Header: "Developer", accessor: "developer_id" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "", id: "action", isSortable: false, center: true },
-  ];
-
-  const tableColumnsManager = [
     {
-      Header: "Date",
-      accessor: "created_at",
-      Cell: ({ row, value }) => ({
-        row,
-        value,
-        checkbox: true,
-      }),
+      Header: "Developer",
+      accessor: "developer.developer_name", 
     },
-    { Header: "Invoice No", accessor: "invoice_number" },
-    { Header: "Unit No", accessor: "unit_name" },
-    { Header: "Developer", accessor: "developer_id" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "", id: "action", isSortable: false, center: true },
-  ];
-
-  const tableColumnsAgent = [
     {
-      Header: "Date",
-      accessor: "created_at",
-      Cell: ({ row, value }) => ({
-        row,
-        value,
-        checkbox: true,
-      }),
+      Header: "Bank Account",
+      accessor: "bank_account.account_holder_name",
     },
-    { Header: "Invoice No", accessor: "invoice_number" },
-    { Header: "Unit No", accessor: "unit_name" },
-    { Header: "Developer", accessor: "developer_id" },
-    { Header: "Total Amount", accessor: "total_amount" },
+    {
+      Header: "Total Amount",
+      accessor: "totalAmount",
+    },
     { Header: "", id: "action", isSortable: false, center: true },
   ];
 
   const roleColumns = {
-    Manager: tableColumnsManager,
-    Agent: tableColumnsAgent,
+    Manager: tableColumns,
+    Agent: tableColumns,
   };
 
-  const role = user?.roles?.[0]?.roleName;
-
-  const [dynamicColumns, setDynamicColumns] = useState(
-    roleColumns[role] || tableColumns
-  );
-  const [selectedColumns, setSelectedColumns] = useState(
-    roleColumns[role] || tableColumns
-  );
+  const role = user?.roles?.[0]?.roleName || "Agent";
+  const [dynamicColumns, setDynamicColumns] = useState(roleColumns[role] || tableColumns);
+  const [selectedColumns, setSelectedColumns] = useState(roleColumns[role] || tableColumns);
   const [action, setAction] = useState(false);
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
-  const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
   const { isOpen } = useDisclosure();
 
   const [pageIndex, setPageIndex] = useState(0);
@@ -95,9 +56,10 @@ const Index = () => {
 
   const queryArgs = useMemo(
     () => ({
-      path: `/invoice/get?user=${user._id}&page=${pageIndex + 1}&pageSize=${pageSize}`,
+      path: `/invoices`,
+      params: { page: pageIndex + 1, limit: pageSize }, 
     }),
-    [user._id, pageIndex, pageSize]
+    [pageIndex, pageSize]
   );
 
   const {
@@ -112,30 +74,25 @@ const Index = () => {
     refetchOnReconnect: false,
   });
 
-  const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
+  const dataColumn = useMemo(
+    () => dynamicColumns.filter((item) => selectedColumns.some((col) => col.Header === item.Header)),
+    [dynamicColumns, selectedColumns]
   );
 
   useEffect(() => {
-    if (queryLoading) {
-      setIsLoading(true);
-    } else if (invoiceData) {
-      setData(invoiceData.data || []);
-      setIsLoading(false);
+    setIsLoading(queryLoading);
+    if (invoiceData?.doc) {
+      console.log("API Response:", invoiceData);
+      setData(invoiceData.doc);
     } else if (error) {
-      console.error("Error fetching invoices:", error);
+      console.error("Error fetching data:", error);
       setData([]);
-      setIsLoading(false);
     }
   }, [invoiceData, queryLoading, error]);
 
   useEffect(() => {
-    setColumns(tableColumns);
-  }, [action]);
-  useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
       refetch();
-      // Clear the state to prevent repeated refetching
       window.history.replaceState({}, document.title);
     }
   }, [location.state, refetch, isUninitialized, user._id]);
@@ -150,9 +107,8 @@ const Index = () => {
         timeoutId = setTimeout(() => {
           refetch();
         }, 500);
-      } else {
-        console.warn("Cannot refetch: Query not started or user ID missing");
       }
+      return () => clearTimeout(timeoutId); 
     };
   }, [isUninitialized, user._id, refetch]);
 
@@ -185,7 +141,7 @@ const Index = () => {
             callAccess={callAccess}
             pageIndex={pageIndex}
             pageSize={pageSize}
-            totalItems={invoiceData?.totalItems || 0}
+            totalItems={invoiceData?.totalDocs || 0}
             totalPages={invoiceData?.totalPages || 1}
             currentPage={invoiceData?.currentPage || 1}
           />

@@ -10,39 +10,20 @@ import {
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useState } from "react";
-import {
-  useDeleteItemMutation,
-  useDeleteManyInvoicesMutation,
-} from "api/apiSlice";
+import { useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 
 const Delete = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteItem, { isLoading: deleteLoading }] = useDeleteItemMutation();
-  const [deleteManyInvoices] = useDeleteManyInvoicesMutation();
 
   const handleDeleteClick = async () => {
     try {
       setIsLoading(true);
 
-      let response;
-      if (
-        props.method === "many" &&
-        Array.isArray(props.data) &&
-        props.data.length > 0
-      ) {
-        console.log("Payload sent to deleteMany:", props.data);
-        response = await deleteManyInvoices({
-          path: "/invoice/deleteMany",
-          method: "POST",
-          body: { ids: props.data },
-        }).unwrap();
-
-        console.log("Delete Many Response:", response);
-        toast.success(`${props.data.length} invoice(s) deleted successfully!`);
-      } else if (props.method === "one" && props.id) {
-        response = await deleteItem({
-          path: `/invoices/${props.id}`,
+      if (props.method === "one" && props.id) {
+        const response = await deleteItem({
+          path: `/invoices/entries/${props.id}`,
           method: "DELETE",
         }).unwrap();
 
@@ -61,7 +42,6 @@ const Delete = (props) => {
         });
       }
       if (props.setAction) props.setAction((prev) => !prev);
-      if (props.method === "many") props.setSelectedValues([]);
       props.onClose();
     } catch (error) {
       console.error("Error during deletion:", error);
@@ -83,13 +63,10 @@ const Delete = (props) => {
     <Modal onClose={props.onClose} isOpen={props.isOpen} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          Delete Invoice{props.method === "one" ? "" : "s"}
-        </ModalHeader>
+        <ModalHeader>Delete Invoice</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          Are you sure you want to delete the selected invoice
-          {props.method === "one" ? "" : "s"}?
+          Are you sure you want to delete the selected invoice?
         </ModalBody>
         <ModalFooter>
           <Button
