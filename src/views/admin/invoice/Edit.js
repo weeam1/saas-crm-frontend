@@ -15,7 +15,7 @@ import {
   Select,
   Text,
 } from "@chakra-ui/react";
-import Spinner from "components/spinner/Spinner"; // Your custom spinner for save button
+import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
@@ -36,11 +36,11 @@ const Edit = (props) => {
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  // Fetch invoice data when modal is open and selectedId is provided
   const {
     data: invoiceList,
     isFetching: invoiceFetching,
     error: invoiceError,
+    refetch: refetchInvoices,
   } = useFetchItemsQuery(
     {
       path: `/invoice/get?user=${user._id}`,
@@ -50,27 +50,13 @@ const Edit = (props) => {
     }
   );
 
-  // Fetch developers data when modal is open
-  const {
-    data: developersData,
-    error: developersError,
-  } = useFetchItemsQuery(
+  const { data: developersData, error: developersError } = useFetchItemsQuery(
     { path: "/developer/getALL" },
-    {
-      skip: !props.isOpen,
-    }
+    { skip: !props.isOpen }
   );
 
-  // Fetch bank accounts data when modal is open
-  const {
-    data: bankAccountsData,
-    error: bankAccountsError,
-  } = useFetchItemsQuery(
-    { path: "/bankAccount/get" },
-    {
-      skip: !props.isOpen,
-    }
-  );
+  const { data: bankAccountsData, error: bankAccountsError } =
+    useFetchItemsQuery({ path: "/bankAccount/get" }, { skip: !props.isOpen });
 
   const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
 
@@ -118,6 +104,30 @@ const Edit = (props) => {
         response?.status === 200
       ) {
         toast.success("Invoice updated successfully!");
+
+        // Refetch the invoice data after successful update
+        refetchInvoices();
+
+        // Update initialValues with the response data if available
+        if (response.data) {
+          const updatedValues = {
+            developer_id:
+              response.data.developer_id?._id ||
+              response.data.developer_id ||
+              "",
+            claim_type: response.data.claim_type?.toUpperCase() || "",
+            unit_name: response.data.unit_name || "",
+            unit_price: response.data.unit_price?.toString() || "",
+            commission: response.data.commission_percentage?.toString() || "",
+            bank_account_id:
+              response.data.bank_account_id?._id ||
+              response.data.bank_account_id ||
+              "",
+          };
+          setInitialValues(updatedValues);
+          setValues(updatedValues); // Sync form values immediately
+        }
+
         if (props.fetchData) {
           props.fetchData({
             pageIndex: props.pageIndex || 0,
@@ -125,7 +135,6 @@ const Edit = (props) => {
           });
         }
         if (props.setAction) props.setAction((prev) => !prev);
-        formik.resetForm();
         props.onClose();
       } else {
         throw new Error(response?.message || "Failed to update invoice");
@@ -149,12 +158,11 @@ const Edit = (props) => {
       const editData = invoiceList?.data?.find(
         (invoice) => invoice._id === props.selectedId
       );
-
       if (editData) {
         const updatedValues = {
           developer_id:
             editData?.developer_id?._id || editData?.developer_id || "",
-          claim_type: editData?.claim_type || "",
+          claim_type: editData?.claim_type?.toUpperCase() || "",
           unit_name: editData?.unit_name || "",
           unit_price: editData?.unit_price?.toString() || "",
           commission: editData?.commission_percentage?.toString() || "",
@@ -226,7 +234,7 @@ const Edit = (props) => {
                   icon={<img src={DropdownImg} alt="Dropdown" />}
                 >
                   <option value="FULL">FULL</option>
-                  <option value="PARTIAL">PARTIAL</option>
+                  <option value="HALF">HALF</option>
                 </Select>
                 {touched.claim_type && errors.claim_type && (
                   <Text color="red.500" fontSize="sm">

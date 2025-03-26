@@ -20,7 +20,7 @@ const TabContent = ({
   buyLoading,
   displaySearchData,
 }) => {
-  console.log(data, "all data");
+  console.log(isLoading, "all data");
 
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
