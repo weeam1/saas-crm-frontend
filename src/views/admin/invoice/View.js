@@ -351,7 +351,7 @@ const SingleInvoice = () => {
             </Box>
           </Flex>
 
-          <Box overflowX="auto" w="full">
+          <Box overflowX="auto" overflowY="auto" maxHeight="400px" w="full">
             <Table
               variant="simple"
               size="sm"

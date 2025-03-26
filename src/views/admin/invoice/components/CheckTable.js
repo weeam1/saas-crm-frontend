@@ -185,7 +185,6 @@ export default function CheckTable(props) {
     }
   };
 
-
   const handlePageChange = (page) => {
     fetchData({ pageIndex: page - 1, pageSize });
   };
@@ -252,7 +251,7 @@ export default function CheckTable(props) {
                   Clear
                 </Button>
               )}
-              {selectedValues.length > 0 && access?.delete && (
+              {/* {selectedValues.length > 0 && access?.delete && (
                 <DeleteIcon
                   cursor="pointer"
                   onClick={() => setDeleteModel(true)}
@@ -260,7 +259,7 @@ export default function CheckTable(props) {
                   mt={{ base: 2 }}
                   ms={{ base: 0, md: 2 }}
                 />
-              )}
+              )} */}
             </Flex>
           </GridItem>
 
@@ -492,7 +491,6 @@ export default function CheckTable(props) {
           onClose={onClose}
           fetchData={fetchData}
           setAction={setAction}
-          
         />
 
         <Edit

@@ -220,10 +220,10 @@ const AddEntry = () => {
           </Box>
         ) : (
           <>
-            {/* Table Section */}
             <Box
               overflowX="auto"
-              bg="white"
+              maxH="800px"
+              overflowY="auto"
               borderRadius="10px"
               boxShadow="sm"
               p={4}
@@ -231,6 +231,7 @@ const AddEntry = () => {
             >
               <Table
                 variant="simple"
+                bg="white"
                 size={tableSize}
                 fontFamily="DM Sans"
                 minWidth={{ base: "900px", md: "100%" }}
