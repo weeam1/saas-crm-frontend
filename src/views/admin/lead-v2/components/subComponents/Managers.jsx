@@ -64,7 +64,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				toast.success('Manager updated successfully');
 
 				// send lead notification
-				// sendLeadNotification(user?._id, managerAssignedValue, lead);
+				sendLeadNotification(user?._id, managerAssignedValue, lead);
 			}
 		} catch (error) {
 			console.error('Failed to update the manager:', error);
