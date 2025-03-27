@@ -14,6 +14,8 @@ import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
 import CustomTooltip from './CustomTooltip';
 import InvitationModal from './InvitationModal';
+import { eventLeadStatus } from 'utils/options';
+import { sendLeadFeedback } from 'api';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
@@ -49,6 +51,22 @@ const Status = ({ lead }) => {
 
 				if (data.leadStatus === 'will_attend_the_show') {
 					setInviteModal(true);
+				}
+
+				// check if status is event lead status
+				if (eventLeadStatus.includes(data.leadStatus)) {
+					const leadEmail = lead?.leadEmail ?? '';
+					const leadPhone =
+						typeof lead?.leadPhoneNumber === 'object'
+							? lead?.leadPhoneNumber?.result
+							: lead?.leadPhoneNumber;
+
+					sendLeadFeedback({
+						email: leadEmail,
+						phone: leadPhone,
+						status: data.leadStatus,
+						action: 'Status',
+					});
 				}
 			}
 		} catch (e) {

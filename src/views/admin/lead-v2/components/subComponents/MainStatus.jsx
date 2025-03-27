@@ -59,6 +59,7 @@ const MainStatus = ({ lead, role }) => {
 						email: leadEmail,
 						phone: leadPhone,
 						status: data.eLeadStatus,
+						action: 'MStatus',
 					});
 				}
 			} else if (response.status === 400) {

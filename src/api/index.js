@@ -85,18 +85,27 @@ const hash = (data) => {
 };
 
 // send lead feedback
-export const sendLeadFeedback = async ({ email, phone, status }) => {
+export const sendLeadFeedback = async ({ email, phone, status, action }) => {
 	try {
 		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
 
-		const eventNameMap = {
+		const eventNameMapMStatus = {
 			interested: 'Lead_Interested',
 			'not-interested': 'Lead_Not_Interested',
 			junk: 'Lead_Unqualified',
 			deal: 'Lead_Qualified',
 		};
 
-		const event_name = eventNameMap[status];
+		const eventNameMapStatus = {
+			pending: 'Lead_Unqualified',
+			broker: 'Lead_Unqualified',
+			will_attend_the_show: 'Lead_Qualified',
+		};
+
+		const event_name =
+			action === 'MStatus'
+				? eventNameMapMStatus[status]
+				: eventNameMapStatus[status];
 
 		const user_data = {};
 		const hashedEmail = hash(email);
@@ -116,6 +125,7 @@ export const sendLeadFeedback = async ({ email, phone, status }) => {
 			],
 		};
 
+		console.log(eventData, status, email, phone);
 		await axios.post(url, eventData);
 		// console.log(`Lead feedback sent: ${event_name}`, data, eventData);
 	} catch (error) {
@@ -134,8 +144,6 @@ export const sendLeadNotification = async (senderId, receiverId, leadData) => {
 			lead_name: leadData?.leadName,
 			sender_id: senderId,
 		};
-
-		console.log({ notifyData });
 
 		await axios.post(`${keys.socketUrl}/notification`, notifyData);
 	} catch (err) {

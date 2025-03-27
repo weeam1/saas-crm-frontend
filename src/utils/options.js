@@ -19,6 +19,8 @@ export const eventMainLeadStatus = [
 	'deal',
 ];
 
+export const eventLeadStatus = ['broker', 'pending', 'will_attend_the_show'];
+
 // export const leadStatus = [
 // 	// General Status
 // 	{ label: 'Interested', value: 'active' },
