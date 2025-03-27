@@ -18,9 +18,6 @@ import {
   MenuButton,
   Modal,
 } from "@chakra-ui/react";
-import * as htmlToImage from "html-to-image";
-import { jsPDF } from "jspdf";
-import { toPng } from "html-to-image";
 import { useNavigate, useParams } from "react-router-dom";
 import { BiError } from "react-icons/bi";
 import { useFetchItemsQuery } from "api/apiSlice";
@@ -31,6 +28,7 @@ import BackImg from "../../../assets/img/Invoice/Vector.svg";
 import Edit from "./Edit";
 import Weam from "../../../assets/img/Invoice/weam.png";
 import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 const SingleInvoice = () => {
   const navigate = useNavigate();
@@ -59,7 +57,6 @@ const SingleInvoice = () => {
       0
     ),
     total_commission_incl_vat: invoiceData?.data?.totalAmount || 0,
-
     totalAmount: invoiceData?.data?.totalAmount || 0,
     subTotal: invoiceData?.data?.subTotal || 0,
   };
@@ -67,57 +64,67 @@ const SingleInvoice = () => {
   const developerData = invoiceData?.data?.developer || {};
   const bankAccountData = invoiceData?.data?.bank_account || {};
 
-  const downloadInvoice = () => {
+  const downloadInvoice = async () => {
     const invoiceElement = document.getElementById("invoice-pdf");
     const tableContainer = invoiceElement.querySelector(".table-container");
-    if (!tableContainer) {
-      console.error("Table container not found!");
+
+    if (!invoiceElement || !tableContainer) {
+      console.error("Invoice element or table container not found!");
       return;
     }
+
+    const originalOverflow = tableContainer.style.overflowY;
     const originalMaxHeight = tableContainer.style.maxHeight;
 
-    // Remove scroll limitation to capture full content
+    // Remove scroll limitations
+    tableContainer.style.overflowY = "visible";
     tableContainer.style.maxHeight = "none";
 
-    toPng(invoiceElement, { quality: 1, pixelRatio: 2 })
-      .then((dataUrl) => {
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
-        const imgHeight =
-          (invoiceElement.scrollHeight * imgWidth) / invoiceElement.scrollWidth;
-
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        // Add first page
-        pdf.addImage(dataUrl, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        // Add additional pages if content exceeds one page
-        while (heightLeft > 0) {
-          position -= pageHeight;
-          pdf.addPage();
-          pdf.addImage(dataUrl, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-
-        pdf.save(`invoice_${invoiceNumber}.pdf`);
-
-        // Restore scroll limitation
-        tableContainer.style.maxHeight = originalMaxHeight;
-      })
-      .catch((error) => {
-        console.error("Error generating PDF: ", error);
-        tableContainer.style.maxHeight = originalMaxHeight; // Restore even on error
+    try {
+      const canvas = await html2canvas(invoiceElement, {
+        scale: 2, // Higher resolution
+        useCORS: true, // Handle external images
+        scrollY: -window.scrollY, // Account for page scroll
+        width: invoiceElement.scrollWidth,
+        height: invoiceElement.scrollHeight, // Capture full content
       });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`invoice_${invoiceNumber}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF: ", error);
+    } finally {
+      // Restore original styles
+      tableContainer.style.overflowY = originalOverflow;
+      tableContainer.style.maxHeight = originalMaxHeight;
+    }
   };
 
   const printInvoice = () => {
     const invoiceElement = document.getElementById("invoice-pdf");
-    htmlToImage
-      .toPng(invoiceElement, { quality: 1, pixelRatio: 2 })
-      .then((dataUrl) => {
+    html2canvas(invoiceElement, { quality: 1, scale: 2 })
+      .then((canvas) => {
+        const dataUrl = canvas.toDataURL("image/png");
         const printWindow = window.open("", "_blank");
         printWindow.document.write(`
           <html>
@@ -360,43 +367,54 @@ const SingleInvoice = () => {
             </Box>
           </Flex>
 
-          <Box overflowX="auto" overflowY="auto" maxHeight="400px" w="full">
+          <Box
+            className="table-container"
+            overflowX="auto"
+            overflowY="auto"
+            maxHeight="700px"
+            w="full"
+          >
             <Table
               variant="simple"
               size="sm"
-              // mt={4}
               minWidth={{ base: "800px", md: "100%" }}
             >
-              <Thead bg="#B79045" position="sticky" top="0" zIndex="1">
+              <Thead
+                bg="#B79045 !important"
+                height="70px !important"
+                position="sticky"
+                top="0"
+                zIndex="1"
+              >
                 <Tr>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     SN
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Unit No
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Name of Referring Party
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  {/* <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Claim Type
-                  </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  </Th> */}
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Commission %
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Unit Price
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Total Commission EXCL. VAT
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     VAT %
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     VAT Amount
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
                     Total Commission incl. VAT
                   </Th>
                 </Tr>
@@ -405,28 +423,50 @@ const SingleInvoice = () => {
                 {invoices.length > 0 ? (
                   invoices.map((invoice, index) => (
                     <Tr key={invoice._id}>
-                      <Td textAlign="center" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="center"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {index + 1}
                       </Td>
-                      <Td border="1px solid #CDCDCD">
+                      <Td
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {invoice.unit_no || "-"}
                       </Td>
-                      <Td border="1px solid #CDCDCD">
+                      <Td
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {invoice.name_of_referring_party || "-"}
                       </Td>
-                      <Td textAlign="center" border="1px solid #CDCDCD">
+                      {/* <Td textAlign="center" border="1px solid #CDCDCD">
                         {invoice.claim_type || "-"}
-                      </Td>
-                      <Td textAlign="center" border="1px solid #CDCDCD">
+                      </Td> */}
+                      <Td
+                        textAlign="center"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {`${invoice.commission_percentage || 0}%`}
                       </Td>
-                      <Td textAlign="right" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="right"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {(invoice.unit_price || 0).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
                       </Td>
-                      <Td textAlign="right" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="right"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {(
                           invoice.total_commission_excl_vat || 0
                         ).toLocaleString("en-US", {
@@ -434,16 +474,28 @@ const SingleInvoice = () => {
                           maximumFractionDigits: 2,
                         })}
                       </Td>
-                      <Td textAlign="center" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="center"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {`${invoice.vat_percentage || 5}%`}
                       </Td>
-                      <Td textAlign="right" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="right"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {(invoice.vat_amount || 0).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
                       </Td>
-                      <Td textAlign="right" border="1px solid #CDCDCD">
+                      <Td
+                        textAlign="right"
+                        border="1px solid #CDCDCD"
+                        fontSize={{ base: "xs", md: "lg" }}
+                      >
                         {(
                           invoice.total_commission_incl_vat || 0
                         ).toLocaleString("en-US", {
@@ -557,48 +609,6 @@ const SingleInvoice = () => {
                       border="1px solid #eee"
                       fontSize={{ base: "xs", md: "sm" }}
                     >
-                      Subtotal
-                    </Td>
-                    <Td
-                      textAlign="right"
-                      border="1px solid #eee"
-                      fontSize={{ base: "xs", md: "sm" }}
-                    >
-                      {typeof totals.subTotal === "number"
-                        ? totals.subTotal.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : "N/A"}{" "}
-                      AED
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td
-                      border="1px solid #eee"
-                      fontSize={{ base: "xs", md: "sm" }}
-                    >
-                      Total Amount
-                    </Td>
-                    <Td
-                      textAlign="right"
-                      border="1px solid #eee"
-                      fontSize={{ base: "xs", md: "sm" }}
-                    >
-                      {typeof totals.totalAmount === "number"
-                        ? totals.totalAmount.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : "N/A"}{" "}
-                      AED
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td
-                      border="1px solid #eee"
-                      fontSize={{ base: "xs", md: "sm" }}
-                    >
                       Total Commission EXCL. VAT
                     </Td>
                     <Td
@@ -641,7 +651,6 @@ const SingleInvoice = () => {
                   </Tr>
                   <Tr>
                     <Td
-                      fontWeight="bold"
                       border="1px solid #eee"
                       fontSize={{ base: "xs", md: "sm" }}
                     >
@@ -649,7 +658,6 @@ const SingleInvoice = () => {
                     </Td>
                     <Td
                       textAlign="right"
-                      fontWeight="bold"
                       border="1px solid #eee"
                       fontSize={{ base: "xs", md: "sm" }}
                     >
@@ -661,6 +669,51 @@ const SingleInvoice = () => {
                               maximumFractionDigits: 2,
                             }
                           )
+                        : "N/A"}{" "}
+                      AED
+                    </Td>
+                  </Tr>
+                  <Tr>
+                    <Td
+                      border="1px solid #eee"
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
+                      Subtotal
+                    </Td>
+                    <Td
+                      textAlign="right"
+                      border="1px solid #eee"
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
+                      {typeof totals.subTotal === "number"
+                        ? totals.subTotal.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : "N/A"}{" "}
+                      AED
+                    </Td>
+                  </Tr>
+
+                  <Tr>
+                    <Td
+                      border="1px solid #eee"
+                      fontSize={{ base: "xs", md: "sm" }}
+                      fontWeight="bold"
+                    >
+                      Total Amount
+                    </Td>
+                    <Td
+                      textAlign="right"
+                      border="1px solid #eee"
+                      fontSize={{ base: "xs", md: "sm" }}
+                      fontWeight="bold"
+                    >
+                      {typeof totals.totalAmount === "number"
+                        ? totals.totalAmount.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
                         : "N/A"}{" "}
                       AED
                     </Td>

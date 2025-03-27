@@ -372,7 +372,7 @@ export default function CheckTable(props) {
             </Thead>
             <Tbody>
               {isLoding ? (
-                <TableLoading columns={columns} length='8'/>
+                <TableLoading columns={columns} length="8" />
               ) : data?.length === 0 ? (
                 <Tr>
                   <Td colSpan={columns.length}>

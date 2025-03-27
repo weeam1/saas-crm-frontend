@@ -1,644 +1,641 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-	Box,
-	Flex,
-	Text,
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	Button,
-	Skeleton,
-	HStack,
-	useBreakpointValue,
-} from '@chakra-ui/react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import DeleteIconSvg from '../../../assets/img/bankaccount/Vector.png';
-import EditIconSvg from '../../../assets/img/bankaccount/ic_baseline-edit.png';
-import { BiError } from 'react-icons/bi';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Add from './Add';
-import Edit from './Edit';
-import Delete from './components/DeleteEntry';
-import BackImg from '../../../assets/img/Invoice/Vector.svg';
-import TableLoading from 'components/loading/TableLoading';
+  Box,
+  Flex,
+  Text,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Skeleton,
+  HStack,
+  useBreakpointValue,
+} from "@chakra-ui/react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import DeleteIconSvg from "../../../assets/img/bankaccount/Vector.png";
+import EditIconSvg from "../../../assets/img/bankaccount/ic_baseline-edit.png";
+import { BiError } from "react-icons/bi";
+import { useFetchItemsQuery } from "api/apiSlice";
+import Add from "./Add";
+import Edit from "./Edit";
+import Delete from "./components/DeleteEntry";
+import BackImg from "../../../assets/img/Invoice/Vector.svg";
+import TableLoading from "components/loading/TableLoading";
 
 const AddEntry = () => {
-	const tableSize = useBreakpointValue({ base: 'sm', md: 'md', lg: 'lg' });
-	const fontSizeTh = useBreakpointValue({ base: 'xs', md: 'sm', lg: 'md' });
-	const fontSizeTd = useBreakpointValue({ base: 'xs', md: 'sm', lg: 'md' });
-	const fontSizeSummaryLabel = useBreakpointValue({ base: '12px', md: '14px' });
-	const fontSizeSummaryValue = useBreakpointValue({ base: '14px', md: '16px' });
-	const paddingX = useBreakpointValue({ base: 4, md: 6, lg: 8 });
+  const tableSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
+  const fontSizeTh = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
+  const fontSizeTd = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
+  const fontSizeSummaryLabel = useBreakpointValue({ base: "12px", md: "14px" });
+  const fontSizeSummaryValue = useBreakpointValue({ base: "14px", md: "16px" });
+  const paddingX = useBreakpointValue({ base: 4, md: 6, lg: 8 });
 
-	const navigate = useNavigate();
-	const { id } = useParams();
-	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-	const [selectedId, setSelectedId] = useState(null);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
-	const columns = [
-		'SN',
-		'Unit No',
-		'Name of Referring Party',
-		'Claim Type',
-		'Commission %',
-		'Unit Price',
-		'Total Commission EXCL. VAT',
-		'VAT %',
-		'VAT Amount',
-		'Total Commission incl. VAT',
-		'Action',
-	];
+  const columns = [
+    "SN",
+    "Unit No",
+    "Name of Referring Party",
+    // "Claim Type",
+    "Commission %",
+    "Unit Price",
+    "Total Commission EXCL. VAT",
+    "VAT %",
+    "VAT Amount",
+    "Total Commission incl. VAT",
+    "Action",
+  ];
 
-	const {
-		data: entriesData,
-		isLoading: entriesLoading,
-		error: entriesError,
-		refetch,
-	} = useFetchItemsQuery(
-		{
-			path: `/invoices/entries/invoice/${id}`,
-		},
-		{
-			skip: !id,
-		}
-	);
+  const {
+    data: entriesData,
+    isLoading: entriesLoading,
+    error: entriesError,
+    refetch,
+  } = useFetchItemsQuery(
+    {
+      path: `/invoices/entries/invoice/${id}`,
+    },
+    {
+      skip: !id,
+    }
+  );
 
-	const [tableData, setTableData] = useState([]);
-	const [summary, setSummary] = useState({
-		totalAmount: 0,
-		subTotal: 0,
-		totalCommissionExclVat: 0,
-		totalVatAmount: 0,
-		totalCommissionInclVat: 0,
-	});
+  const [tableData, setTableData] = useState([]);
+  const [summary, setSummary] = useState({
+    totalAmount: 0,
+    subTotal: 0,
+    totalCommissionExclVat: 0,
+    totalVatAmount: 0,
+    totalCommissionInclVat: 0,
+  });
 
-	useEffect(() => {
-		if (entriesData?.doc) {
-			setTableData(entriesData.doc);
+  useEffect(() => {
+    if (entriesData?.doc) {
+      setTableData(entriesData.doc);
 
-			const subTotal = entriesData.doc.reduce(
-				(sum, entry) => sum + (Number(entry.unit_price) || 0),
-				0
-			);
-			const totalCommissionExclVat = entriesData.doc.reduce(
-				(sum, entry) => sum + (Number(entry.total_commission_excl_vat) || 0),
-				0
-			);
-			const totalVatAmount = entriesData.doc.reduce(
-				(sum, entry) => sum + (Number(entry.vat_amount) || 0),
-				0
-			);
-			const totalCommissionInclVat = entriesData.doc.reduce(
-				(sum, entry) => sum + (Number(entry.total_commission_incl_vat) || 0),
-				0
-			);
-			const totalAmount = subTotal + totalVatAmount;
+      const subTotal = entriesData.doc.reduce(
+        (sum, entry) => sum + (Number(entry.unit_price) || 0),
+        0
+      );
+      const totalCommissionExclVat = entriesData.doc.reduce(
+        (sum, entry) => sum + (Number(entry.total_commission_excl_vat) || 0),
+        0
+      );
+      const totalVatAmount = entriesData.doc.reduce(
+        (sum, entry) => sum + (Number(entry.vat_amount) || 0),
+        0
+      );
+      const totalCommissionInclVat = entriesData.doc.reduce(
+        (sum, entry) => sum + (Number(entry.total_commission_incl_vat) || 0),
+        0
+      );
+      const totalAmount = subTotal + totalVatAmount;
 
-			setSummary({
-				totalAmount,
-				subTotal,
-				totalCommissionExclVat,
-				totalVatAmount,
-				totalCommissionInclVat,
-			});
-		} else if (!entriesLoading) {
-			setTableData([]);
-			setSummary({
-				totalAmount: 0,
-				subTotal: 0,
-				totalCommissionExclVat: 0,
-				totalVatAmount: 0,
-				totalCommissionInclVat: 0,
-			});
-		}
-	}, [entriesData, entriesLoading]);
+      setSummary({
+        totalAmount,
+        subTotal,
+        totalCommissionExclVat,
+        totalVatAmount,
+        totalCommissionInclVat,
+      });
+    } else if (!entriesLoading) {
+      setTableData([]);
+      setSummary({
+        totalAmount: 0,
+        subTotal: 0,
+        totalCommissionExclVat: 0,
+        totalVatAmount: 0,
+        totalCommissionInclVat: 0,
+      });
+    }
+  }, [entriesData, entriesLoading]);
 
-	const goBack = () => {
-		navigate('/invoice', { state: { refetch: true } });
-	};
+  const goBack = () => {
+    navigate("/invoice", { state: { refetch: true } });
+  };
 
-	const handleEditClick = (entryId) => {
-		setSelectedId(entryId);
-		setIsEditModalOpen(true);
-	};
+  const handleEditClick = (entryId) => {
+    setSelectedId(entryId);
+    setIsEditModalOpen(true);
+  };
 
-	const handleDeleteClick = (entryId) => {
-		setSelectedId(entryId);
-		setIsDeleteModalOpen(true);
-	};
+  const handleDeleteClick = (entryId) => {
+    setSelectedId(entryId);
+    setIsDeleteModalOpen(true);
+  };
 
-	if (entriesError) {
-		return (
-			<Box
-				minH='400px'
-				display='flex'
-				alignItems='center'
-				justifyContent='center'
-				p={paddingX}
-				bg='white'
-				borderRadius='lg'
-				boxShadow='md'
-			>
-				<HStack spacing={3} color='red.500'>
-					<BiError size={25} />
-					<Text
-						fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
-						fontWeight='medium'
-					>
-						No Entries Found!
-					</Text>
-				</HStack>
-			</Box>
-		);
-	}
+  if (entriesError) {
+    return (
+      <Box
+        minH="700px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        p={paddingX}
+        bg="white"
+        borderRadius="lg"
+        boxShadow="md"
+      >
+        <HStack spacing={3} color="red.500">
+          <BiError size={25} />
+          <Text
+            fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
+            fontWeight="medium"
+          >
+            No Entries Found!
+          </Text>
+        </HStack>
+      </Box>
+    );
+  }
 
-	// Fixed table height constants
-	const fixedTableHeight = '400px'; // Adjust this value as needed
-	const rowHeight = 48;
-	const headerHeight = 48;
-	const maxRows = Math.floor(
-		(parseInt(fixedTableHeight) - headerHeight) / rowHeight
-	);
+  // Fixed table height constants
+  const fixedTableHeight = "700px"; // Adjust this value as needed
+  const rowHeight = 48;
+  const headerHeight = 48;
+  const maxRows = Math.floor(
+    (parseInt(fixedTableHeight) - headerHeight) / rowHeight
+  );
 
-	return (
-		<Box bg='gray.50' p={paddingX} fontFamily='DM Sans' minH='100vh'>
-			{/* Header Section */}
-			<Flex
-				mb={6}
-				justifyContent='space-between'
-				alignItems='center'
-				flexDir={{ base: 'column', sm: 'row' }}
-				bg='white'
-				p={4}
-				borderRadius='lg'
-				boxShadow='sm'
-			>
-				<HStack spacing={3} mb={{ base: 4, sm: 0 }}>
-					<Button
-						variant='ghost'
-						onClick={goBack}
-						leftIcon={<img src={BackImg} alt='Back' />}
-						p={2}
-						_hover={{ bg: 'gray.100' }}
-					/>
-					<Text
-						fontSize={{ base: 'md', md: 'lg', lg: '2xl' }}
-						fontWeight='bold'
-						color='gray.800'
-					>
-						Add Entry
-					</Text>
-				</HStack>
+  return (
+    <Box bg="gray.50" p={paddingX} fontFamily="DM Sans" minH="100vh">
+      {/* Header Section */}
+      <Flex
+        mb={6}
+        justifyContent="space-between"
+        alignItems="center"
+        flexDir={{ base: "column", sm: "row" }}
+        bg="white"
+        p={4}
+        borderRadius="lg"
+        boxShadow="sm"
+      >
+        <HStack spacing={3} mb={{ base: 4, sm: 0 }}>
+          <Button
+            variant="ghost"
+            onClick={goBack}
+            leftIcon={<img src={BackImg} alt="Back" />}
+            p={2}
+            _hover={{ bg: "gray.100" }}
+          />
+          <Text
+            fontSize={{ base: "md", md: "lg", lg: "2xl" }}
+            fontWeight="bold"
+            color="gray.800"
+          >
+            Add Entry
+          </Text>
+        </HStack>
 
-				<HStack spacing={3}>
-					<Button
-						w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
-						h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
-						fontWeight='medium'
-						fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
-						color='white'
-						bg='#B79045'
-						onClick={() => setIsAddModalOpen(true)}
-						borderRadius='6px'
-						_hover={{ bg: '#A47B38' }}
-					>
-						Add Entry
-					</Button>
-					{tableData.length > 0 && (
-						<Link to={`/invoiceView/${tableData[0]?.invoice?.invoiceNo}`}>
-							<Button
-								w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
-								h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
-								fontWeight='medium'
-								fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
-								color='white'
-								bg='#B79045'
-								borderRadius='6px'
-								_hover={{ bg: '#A47B38' }}
-							>
-								View Invoice
-							</Button>
-						</Link>
-					)}
-				</HStack>
-			</Flex>
+        <HStack spacing={3}>
+          <Button
+            w={{ base: "full", sm: "100px", md: "110px", lg: "120px" }}
+            h={{ base: "36px", sm: "40px", md: "42px", lg: "44px" }}
+            fontWeight="medium"
+            fontSize={{ base: "sm", sm: "sm", md: "md", lg: "md" }}
+            color="white"
+            bg="#B79045"
+            onClick={() => setIsAddModalOpen(true)}
+            borderRadius="6px"
+            _hover={{ bg: "#A47B38" }}
+          >
+            Add Entry
+          </Button>
+          {tableData.length > 0 && (
+            <Link to={`/invoiceView/${tableData[0]?.invoice?.invoiceNo}`}>
+              <Button
+                w={{ base: "full", sm: "100px", md: "110px", lg: "120px" }}
+                h={{ base: "36px", sm: "40px", md: "42px", lg: "44px" }}
+                fontWeight="medium"
+                fontSize={{ base: "sm", sm: "sm", md: "md", lg: "md" }}
+                color="white"
+                bg="#B79045"
+                borderRadius="6px"
+                _hover={{ bg: "#A47B38" }}
+              >
+                View Invoice
+              </Button>
+            </Link>
+          )}
+        </HStack>
+      </Flex>
 
-			{/* Table Section */}
-			<Box
-				overflowX='auto'
-				borderRadius='lg'
-				boxShadow='md'
-				bg='white'
-				mb={6}
-				h={fixedTableHeight} // Fixed height
-				position='relative'
-				overflowY='auto' // Enable vertical scrolling
-			>
-				<Table
-					variant='simple'
-					size={tableSize}
-					fontFamily='DM Sans'
-					minWidth={{ base: '900px', md: '100%' }}
-					border='1px solid'
-					borderColor='gray.200'
-				>
-					<Thead
-						position='sticky'
-						top='0'
-						zIndex='10'
-						bg='#B79045'
-						boxShadow='0 1px 2px rgba(0, 0, 0, 0.1)'
-						h={`${headerHeight}px`}
-					>
-						<Tr>
-							{columns.map((header, index) => (
-								<Th
-									key={index}
-									color='white'
-									fontSize={fontSizeTh}
-									fontWeight='medium'
-									py={3}
-									textTransform='capitalize'
-									borderColor='gray.300'
-									textAlign={
-										index === 0 || index === 3 || index === 4 || index === 7
-											? 'center'
-											: 'left'
-									}
-								>
-									{header}
-								</Th>
-							))}
-						</Tr>
-					</Thead>
-					<Tbody>
-						{entriesLoading ? (
-							// Shimmer effect filling the available table height
-							<TableLoading columns={columns} length='' />
-						) : tableData.length === 0 ? (
-							<Tr h={`${rowHeight}px`}>
-								<Td
-									colSpan={11}
-									py={10}
-									textAlign='center'
-									borderColor='gray.200'
-									bg='white'
-									h={fixedTableHeight} // Match table height
-								>
-									<HStack justifyContent='center' spacing={3} color='gray.500'>
-										<BiError size={25} />
-										<Text
-											fontSize={{ base: 'lg', md: 'xl' }}
-											fontWeight='medium'
-										>
-											No Entry Available
-										</Text>
-									</HStack>
-								</Td>
-							</Tr>
-						) : (
-							tableData.map((entry, index) => (
-								<Tr
-									key={entry._id}
-									bg={index % 2 === 0 ? 'white' : 'gray.50'}
-									_hover={{
-										bg: 'gray.100',
-										transition: 'background-color 0.2s',
-									}}
-									h={`${rowHeight}px`}
-								>
-									<Td
-										textAlign='center'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-										width='60px'
-									>
-										{index + 1}
-									</Td>
-									<Td
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{entry.unit_no || '-'}
-									</Td>
-									<Td
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{entry.name_of_referring_party || '-'}
-									</Td>
-									<Td
-										textAlign='center'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{entry.claim_type || '-'}
-									</Td>
-									<Td
-										textAlign='center'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{`${entry.commission_percentage || 0}%`}
-									</Td>
-									<Td
-										textAlign='right'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{(entry.unit_price || 0).toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-									<Td
-										textAlign='right'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{(entry.total_commission_excl_vat || 0).toLocaleString(
-											'en-US',
-											{
-												minimumFractionDigits: 2,
-												maximumFractionDigits: 2,
-											}
-										)}
-									</Td>
-									<Td
-										textAlign='center'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{`${entry.vat_percentage || 5}%`}
-									</Td>
-									<Td
-										textAlign='right'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{(entry.vat_amount || 0).toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-									<Td
-										textAlign='right'
-										borderColor='gray.200'
-										fontSize={fontSizeTd}
-										color='gray.700'
-										py={3}
-									>
-										{(entry.total_commission_incl_vat || 0).toLocaleString(
-											'en-US',
-											{
-												minimumFractionDigits: 2,
-												maximumFractionDigits: 2,
-											}
-										)}
-									</Td>
-									<Td borderColor='gray.200' py={3} width='120px'>
-										<HStack justifyContent='center' spacing={2}>
-											<Button
-												size='sm'
-												onClick={() => handleEditClick(entry._id)}
-												borderRadius='6px'
-												bg='gray.100'
-												_hover={{ bg: 'gray.200' }}
-											>
-												<img src={EditIconSvg} alt='Edit' width='16px' />
-											</Button>
-											<Button
-												size='sm'
-												onClick={() => handleDeleteClick(entry._id)}
-												borderRadius='6px'
-												bg='gray.100'
-												_hover={{ bg: 'gray.200' }}
-											>
-												<img src={DeleteIconSvg} alt='Delete' width='16px' />
-											</Button>
-										</HStack>
-									</Td>
-								</Tr>
-							))
-						)}
-					</Tbody>
-				</Table>
-			</Box>
+      {/* Table Section */}
+      <Box
+        overflowX="auto"
+        borderRadius="lg"
+        boxShadow="md"
+        bg="white"
+        mb={6}
+        h={fixedTableHeight} // Fixed height
+        position="relative"
+        overflowY="auto" // Enable vertical scrolling
+      >
+        <Table
+          variant="simple"
+          size={tableSize}
+          fontFamily="DM Sans"
+          minWidth={{ base: "900px", md: "100%" }}
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <Thead
+            position="sticky"
+            top="0"
+            zIndex="10"
+            bg="#B79045"
+            boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
+            h={`${headerHeight}px`}
+          >
+            <Tr>
+              {columns.map((header, index) => (
+                <Th
+                  key={index}
+                  color="white"
+                  fontSize={fontSizeTh}
+                  fontWeight="medium"
+                  py={3}
+                  textTransform="capitalize"
+                  borderColor="gray.300"
+                  textAlign={
+                    index === 0 || index === 3 || index === 4 || index === 7
+                      ? "center"
+                      : "left"
+                  }
+                >
+                  {header}
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {entriesLoading ? (
+              // Shimmer effect filling the available table height
+              <TableLoading columns={columns} length="" />
+            ) : tableData.length === 0 ? (
+              <Tr h={`${rowHeight}px`}>
+                <Td
+                  colSpan={11}
+                  py={10}
+                  textAlign="center"
+                  borderColor="gray.200"
+                  bg="white"
+                  h={fixedTableHeight} // Match table height
+                >
+                  <HStack justifyContent="center" spacing={3} color="gray.500">
+                    <BiError size={25} />
+                    <Text
+                      fontSize={{ base: "lg", md: "xl" }}
+                      fontWeight="medium"
+                    >
+                      No Entry Available
+                    </Text>
+                  </HStack>
+                </Td>
+              </Tr>
+            ) : (
+              tableData.map((entry, index) => (
+                <Tr
+                  key={entry._id}
+                  bg={index % 2 === 0 ? "white" : "gray.50"}
+                  _hover={{
+                    bg: "gray.100",
+                    transition: "background-color 0.2s",
+                  }}
+                  h={`${rowHeight}px`}
+                >
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                    width="60px"
+                  >
+                    {index + 1}
+                  </Td>
+                  <Td
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.unit_no || "-"}
+                  </Td>
+                  <Td
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.name_of_referring_party || "-"}
+                  </Td>
+                  {/* <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.claim_type || "-"}
+                  </Td> */}
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {`${entry.commission_percentage || 0}%`}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.unit_price || 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.total_commission_excl_vat || 0).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {`${entry.vat_percentage || 5}%`}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.vat_amount || 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.total_commission_incl_vat || 0).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </Td>
+                  <Td borderColor="gray.200" py={3} width="120px">
+                    <HStack justifyContent="center" spacing={2}>
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditClick(entry._id)}
+                        borderRadius="6px"
+                        bg="gray.100"
+                        _hover={{ bg: "gray.200" }}
+                      >
+                        <img src={EditIconSvg} alt="Edit" width="16px" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleDeleteClick(entry._id)}
+                        borderRadius="6px"
+                        bg="gray.100"
+                        _hover={{ bg: "gray.200" }}
+                      >
+                        <img src={DeleteIconSvg} alt="Delete" width="16px" />
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))
+            )}
+          </Tbody>
+        </Table>
+      </Box>
 
-			{/* Summary Table */}
-			{tableData.length > 0 && !entriesLoading && (
-				<Flex justify={{ base: 'center', md: 'flex-end' }}>
-					<Box
-						borderRadius='lg'
-						p={6}
-						maxW={{ base: '100%', md: '500px' }}
-						w={{ base: '100%', md: 'auto' }}
-						boxShadow='md'
-						bg='white'
-					>
-						<Table
-							variant='simple'
-							size={tableSize}
-							fontFamily='DM Sans'
-							border='1px solid'
-							borderColor='gray.200'
-						>
-							<Thead bg='#B79045'>
-								<Tr>
-									<Th
-										fontSize={fontSizeSummaryLabel}
-										fontWeight='medium'
-										color='white'
-										textTransform='capitalize'
-										colSpan={2}
-										py={3}
-									>
-										Invoice Summary
-									</Th>
-								</Tr>
-							</Thead>
-							<Tbody>
-								<Tr>
-									<Td
-										fontSize={fontSizeSummaryLabel}
-										color='gray.600'
-										fontWeight='medium'
-										borderColor='gray.200'
-										py={3}
-									>
-										Subtotal
-									</Td>
-									<Td
-										fontSize={fontSizeSummaryValue}
-										fontWeight='bold'
-										color='gray.800'
-										borderColor='gray.200'
-										py={3}
-										textAlign='right'
-									>
-										{summary.subTotal.toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-								</Tr>
-								<Tr>
-									<Td
-										fontSize={fontSizeSummaryLabel}
-										color='gray.600'
-										fontWeight='medium'
-										borderColor='gray.200'
-										py={3}
-									>
-										Total Amount
-									</Td>
-									<Td
-										fontSize={fontSizeSummaryValue}
-										fontWeight='bold'
-										color='gray.800'
-										borderColor='gray.200'
-										py={3}
-										textAlign='right'
-									>
-										{summary.totalAmount.toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-								</Tr>
-								<Tr>
-									<Td
-										fontSize={fontSizeSummaryLabel}
-										color='gray.600'
-										fontWeight='medium'
-										borderColor='gray.200'
-										py={3}
-									>
-										Total Commission Excl. VAT
-									</Td>
-									<Td
-										fontSize={fontSizeSummaryValue}
-										fontWeight='bold'
-										color='gray.800'
-										borderColor='gray.200'
-										py={3}
-										textAlign='right'
-									>
-										{summary.totalCommissionExclVat.toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-								</Tr>
-								<Tr>
-									<Td
-										fontSize={fontSizeSummaryLabel}
-										color='gray.600'
-										fontWeight='medium'
-										borderColor='gray.200'
-										py={3}
-									>
-										Total VAT Amount
-									</Td>
-									<Td
-										fontSize={fontSizeSummaryValue}
-										fontWeight='bold'
-										color='gray.800'
-										borderColor='gray.200'
-										py={3}
-										textAlign='right'
-									>
-										{summary.totalVatAmount.toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-								</Tr>
-								<Tr>
-									<Td
-										fontSize={fontSizeSummaryLabel}
-										color='gray.600'
-										fontWeight='medium'
-										borderColor='gray.200'
-										py={3}
-									>
-										Total Commission Incl. VAT
-									</Td>
-									<Td
-										fontSize={fontSizeSummaryValue}
-										fontWeight='bold'
-										color='gray.800'
-										borderColor='gray.200'
-										py={3}
-										textAlign='right'
-									>
-										{summary.totalCommissionInclVat.toLocaleString('en-US', {
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										})}
-									</Td>
-								</Tr>
-							</Tbody>
-						</Table>
-					</Box>
-				</Flex>
-			)}
+      {/* Summary Table */}
+      {tableData.length > 0 && !entriesLoading && (
+        <Flex justify={{ base: "center", md: "flex-end" }}>
+          <Box
+            borderRadius="lg"
+            p={6}
+            maxW={{ base: "100%", md: "500px" }}
+            w={{ base: "100%", md: "auto" }}
+            // boxShadow='md'
+            // bg='white'
+          >
+            <Table
+              variant="simple"
+              size={tableSize}
+              fontFamily="DM Sans"
+              border="1px solid"
+              borderColor="gray.200"
+              fontFamily="DM Sans"
+            >
+              <Thead bg="#B79045">
+                <Tr>
+                  <Th
+                    fontSize={fontSizeSummaryLabel}
+                    fontWeight="medium"
+                    color="white"
+                    textTransform="capitalize"
+                    colSpan={2}
+                    py={3}
+                  >
+                    Invoice Summary
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody bg="white" fontFamily="DM Sans">
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Commission Excl. VAT
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalCommissionExclVat.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total VAT Amount
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalVatAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Commission Incl. VAT
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalCommissionInclVat.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Subtotal
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.subTotal.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
 
-			{/* Modals */}
-			<Add
-				isOpen={isAddModalOpen}
-				onClose={() => setIsAddModalOpen(false)}
-				fetchData={refetch}
-				setAction={() => {}}
-				invoiceId={id}
-			/>
-			<Edit
-				isOpen={isEditModalOpen}
-				onClose={() => {
-					setIsEditModalOpen(false);
-					setSelectedId(null);
-				}}
-				selectedId={selectedId}
-				invoiceId={id}
-				fetchData={refetch}
-				setAction={() => {}}
-			/>
-			<Delete
-				isOpen={isDeleteModalOpen}
-				onClose={() => {
-					setIsDeleteModalOpen(false);
-					setSelectedId(null);
-				}}
-				id={selectedId}
-				method='one'
-				fetchData={refetch}
-				setAction={() => {}}
-			/>
-		</Box>
-	);
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    borderColor="gray.200"
+                    py={3}
+                    fontWeight="bold"
+                  >
+                    Total Amount
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+        </Flex>
+      )}
+
+      {/* Modals */}
+      <Add
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        fetchData={refetch}
+        setAction={() => {}}
+        invoiceId={id}
+      />
+      <Edit
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedId(null);
+        }}
+        selectedId={selectedId}
+        invoiceId={id}
+        fetchData={refetch}
+        setAction={() => {}}
+      />
+      <Delete
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedId(null);
+        }}
+        id={selectedId}
+        method="one"
+        fetchData={refetch}
+        setAction={() => {}}
+      />
+    </Box>
+  );
 };
 
 export default AddEntry;
