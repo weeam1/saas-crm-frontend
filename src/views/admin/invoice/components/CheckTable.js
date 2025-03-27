@@ -29,13 +29,13 @@ import {
   Text,
   Th,
   Thead,
-  MenuDivider,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon, AddIcon, CopyIcon } from "@chakra-ui/icons";
+import { IconButton } from "@chakra-ui/react";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "./Pagination";
@@ -44,8 +44,6 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Delete from "../Delete";
 import Add from "../AddInvoiceModal";
-import { AddIcon } from "@chakra-ui/icons";
-import { CiMenuKebab } from "react-icons/ci";
 import Edit from "../EditInvoice";
 import { useFormik } from "formik";
 import * as yup from "yup";
@@ -54,9 +52,7 @@ import DataNotFound from "components/notFoundData";
 import Breadcrumb from "./BreadCrumb";
 import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
 import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
-import { IconButton } from "@chakra-ui/react";
-import { CopyIcon } from "@chakra-ui/icons";
-import { useFetchItemsQuery } from 'api/apiSlice';
+
 export default function CheckTable(props) {
   const {
     tableData,
@@ -80,9 +76,13 @@ export default function CheckTable(props) {
     totalItems,
     totalPages,
     currentPage,
+    searchTerm,
+    setSearchTerm,
   } = props;
 
-
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
@@ -91,7 +91,6 @@ export default function CheckTable(props) {
   const [deleteModel, setDeleteModel] = useState(false);
   const [advaceSearch, setAdvaceSearch] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const [searchbox, setSearchbox] = useState("");
   const [manageColumns, setManageColumns] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
@@ -153,14 +152,6 @@ export default function CheckTable(props) {
       setAdvaceSearch(false);
     },
   });
-  const copyToClipboard = (text) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {})
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-      });
-  };
 
   const {
     errors,
@@ -239,30 +230,30 @@ export default function CheckTable(props) {
                 Invoices (<CountUpComponent targetNumber={totalItems} />)
               </Text>
               <CustomSearchInput
-                setSearchbox={setSearchbox}
+                fetchData={fetchData}
                 setDisplaySearchData={setDisplaySearchData}
-                searchbox={searchbox}
-                allData={allData}
-                dataColumn={dataColumn}
-                onSearch={(results) => setSearchedData(results)}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
                 width={{ base: "100%", md: "auto" }}
               />
-              {displaySearchData && (
+              {displaySearchData && searchTerm && (
                 <Button
                   variant="outline"
                   size="sm"
                   colorScheme="red"
                   onClick={() => {
+                    setSearchTerm("");
                     setDisplaySearchData(false);
-                    setSearchbox("");
-                    setGetTagValues([]);
+                    fetchData({ pageIndex: 0, pageSize, search: "" });
                   }}
                   mt={{ base: 2, md: 0 }}
                 >
                   Clear
                 </Button>
               )}
-              {/* {selectedValues.length > 0 && access?.delete && (
+              {selectedValues.length > 0 && access?.delete && (
                 <DeleteIcon
                   cursor="pointer"
                   onClick={() => setDeleteModel(true)}
@@ -270,7 +261,7 @@ export default function CheckTable(props) {
                   mt={{ base: 2 }}
                   ms={{ base: 0, md: 2 }}
                 />
-              )} */}
+              )}
             </Flex>
           </GridItem>
 
@@ -285,13 +276,16 @@ export default function CheckTable(props) {
               <Button
                 onClick={onOpen}
                 size="sm"
-                w="128px"
+                w={{ base: "100%", sm: "140px", md: "128px" }}
                 borderRadius="6px"
-                h="40px"
+                h={{ base: "36px", md: "40px" }}
                 bg="#B79045"
                 color="white"
                 leftIcon={<AddIcon />}
                 ml={{ base: 0, md: 2 }}
+                fontSize={{ base: "12px", md: "14px" }}
+                py={{ base: "8px", md: "10px" }}
+                _hover={{ bg: "#996F30" }}
               >
                 Add New
               </Button>
@@ -312,6 +306,17 @@ export default function CheckTable(props) {
               <TagLabel>{item}</TagLabel>
             </Tag>
           ))}
+          {searchTerm && (
+            <Tag
+              size="md"
+              p={2}
+              borderRadius="full"
+              variant="solid"
+              colorScheme="gray"
+            >
+              <TagLabel>{searchTerm}</TagLabel>
+            </Tag>
+          )}
         </HStack>
         <Box mb={2}>
           {totalItems > 0 && (
@@ -413,10 +418,10 @@ export default function CheckTable(props) {
                             fontSize="sm"
                             fontWeight="700"
                           >
-                            {row.bank_account?.account_number || "-"}
+                            {row.bank_account?.account_holder_name || "-"}
                           </Text>
                         );
-                      } else if (column.Header === "Invoice No") {
+                      } else if (column.Header === "Invoice Number") {
                         cellData = (
                           <Text fontSize="sm">
                             <Flex alignItems="center">
@@ -442,7 +447,9 @@ export default function CheckTable(props) {
                             fontSize="sm"
                             fontWeight="700"
                           >
-                            {row.totalAmount || 0} AED
+                            {row.totalAmount
+                              ? `${row.totalAmount} AED`
+                              : "Pending"}
                           </Text>
                         );
                       } else if (column.id === "action") {
@@ -453,6 +460,7 @@ export default function CheckTable(props) {
                                 size="sm"
                                 bg="#EBD3A7"
                                 w="100px"
+                                _hover={{ bg: "#D2B07F" }}
                                 fontSize="12px"
                                 borderRadius="3px"
                                 py="10px"
@@ -462,6 +470,7 @@ export default function CheckTable(props) {
                                 Add Entry
                               </Button>
                             </Link>
+
                             {access?.update && (
                               <Button
                                 size="sm"

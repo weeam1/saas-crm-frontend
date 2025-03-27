@@ -1,4 +1,4 @@
-import { Grid, GridItem, useDisclosure } from "@chakra-ui/react";
+import { Grid, GridItem } from "@chakra-ui/react";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { HasAccess } from "../../../redux/accessUtils";
@@ -11,26 +11,31 @@ const Index = () => {
   const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // Local input state
+  const [committedSearchTerm, setCommittedSearchTerm] = useState(""); // Triggers API
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const tree = useSelector((state) => state.user.tree);
   const location = useLocation();
 
-  const [permission, emailAccess, callAccess] = HasAccess(["Lead", "Email", "Call"]);
+  const [permission, emailAccess, callAccess] = HasAccess([
+    "Lead",
+    "Email",
+    "Call",
+  ]);
 
-  // Updated table columns to match JSON structure
   const tableColumns = [
     {
       Header: "Date",
       accessor: "createdAt",
-      Cell: ({ value }) => new Date(value).toLocaleDateString(), 
+      Cell: ({ value }) => new Date(value).toLocaleDateString(),
     },
     {
-      Header: "Invoice No",
-      accessor: "invoiceNo", 
+      Header: "Invoice Number",
+      accessor: "invoiceNo",
     },
     {
       Header: "Developer",
-      accessor: "developer.developer_name", 
+      accessor: "developer.developer_name",
     },
     {
       Header: "Bank Account",
@@ -49,22 +54,41 @@ const Index = () => {
   };
 
   const role = user?.roles?.[0]?.roleName || "Agent";
-  const [dynamicColumns, setDynamicColumns] = useState(roleColumns[role] || tableColumns);
-  const [selectedColumns, setSelectedColumns] = useState(roleColumns[role] || tableColumns);
+  const [dynamicColumns, setDynamicColumns] = useState(
+    roleColumns[role] || tableColumns
+  );
+  const [selectedColumns, setSelectedColumns] = useState(
+    roleColumns[role] || tableColumns
+  );
   const [action, setAction] = useState(false);
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
-  const { isOpen } = useDisclosure();
 
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
 
-  const queryArgs = useMemo(
+  // Base query for normal data
+  const baseQueryArgs = useMemo(
     () => ({
       path: `/invoices`,
-      params: { page: pageIndex + 1, limit: pageSize }, 
+      params: { page: pageIndex + 1, limit: pageSize },
     }),
     [pageIndex, pageSize]
   );
+
+  // Search query when committed search term is present
+  const searchQueryArgs = useMemo(
+    () => ({
+      path: `/invoices`,
+      params: {
+        search: committedSearchTerm,
+        page: pageIndex + 1,
+        limit: pageSize,
+      },
+    }),
+    [committedSearchTerm, pageIndex, pageSize]
+  );
+
+  const queryArgs = committedSearchTerm ? searchQueryArgs : baseQueryArgs;
 
   const {
     data: invoiceData,
@@ -79,7 +103,10 @@ const Index = () => {
   });
 
   const dataColumn = useMemo(
-    () => dynamicColumns.filter((item) => selectedColumns.some((col) => col.Header === item.Header)),
+    () =>
+      dynamicColumns.filter((item) =>
+        selectedColumns.some((col) => col.Header === item.Header)
+      ),
     [dynamicColumns, selectedColumns]
   );
 
@@ -88,11 +115,18 @@ const Index = () => {
     if (invoiceData?.doc) {
       console.log("API Response:", invoiceData);
       setData(invoiceData.doc);
+      if (committedSearchTerm) {
+        setSearchedData(invoiceData.doc);
+        setDisplaySearchData(true);
+      } else {
+        setDisplaySearchData(false);
+      }
     } else if (error) {
       console.error("Error fetching data:", error);
       setData([]);
+      setSearchedData([]);
     }
-  }, [invoiceData, queryLoading, error]);
+  }, [invoiceData, queryLoading, error, committedSearchTerm]);
 
   useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
@@ -102,17 +136,15 @@ const Index = () => {
   }, [location.state, refetch, isUninitialized, user._id]);
 
   const fetchData = useMemo(() => {
-    let timeoutId;
-    return ({ pageIndex: newPageIndex, pageSize: newPageSize }) => {
+    return ({ pageIndex: newPageIndex, pageSize: newPageSize, search }) => {
       setPageIndex(newPageIndex);
       setPageSize(newPageSize);
-      if (!isUninitialized && user._id) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          refetch();
-        }, 500);
+      if (search !== undefined) {
+        setCommittedSearchTerm(search); // Update committed search term
       }
-      return () => clearTimeout(timeoutId); 
+      if (!isUninitialized && user._id) {
+        refetch();
+      }
     };
   }, [isUninitialized, user._id, refetch]);
 
@@ -126,7 +158,6 @@ const Index = () => {
             isLoding={isLoading}
             setIsLoding={setIsLoading}
             columnsData={roleColumns[role] || tableColumns}
-            isOpen={isOpen}
             setAction={setAction}
             dataColumn={dataColumn}
             action={action}
@@ -148,6 +179,8 @@ const Index = () => {
             totalItems={invoiceData?.totalDocs || 0}
             totalPages={invoiceData?.totalPages || 1}
             currentPage={invoiceData?.currentPage || 1}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
           />
         </GridItem>
       </Grid>

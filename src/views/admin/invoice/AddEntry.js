@@ -11,9 +11,8 @@ import {
   Td,
   Button,
   Skeleton,
-  Divider,
-  useBreakpointValue,
   HStack,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import DeleteIconSvg from "../../../assets/img/bankaccount/Vector.png";
@@ -56,6 +55,8 @@ const AddEntry = () => {
 
   const [tableData, setTableData] = useState([]);
   const [summary, setSummary] = useState({
+    totalAmount: 0,
+    subTotal: 0,
     totalCommissionExclVat: 0,
     totalVatAmount: 0,
     totalCommissionInclVat: 0,
@@ -65,6 +66,10 @@ const AddEntry = () => {
     if (entriesData?.doc) {
       setTableData(entriesData.doc);
 
+      const subTotal = entriesData.doc.reduce(
+        (sum, entry) => sum + (Number(entry.unit_price) || 0),
+        0
+      );
       const totalCommissionExclVat = entriesData.doc.reduce(
         (sum, entry) => sum + (Number(entry.total_commission_excl_vat) || 0),
         0
@@ -77,21 +82,26 @@ const AddEntry = () => {
         (sum, entry) => sum + (Number(entry.total_commission_incl_vat) || 0),
         0
       );
+      const totalAmount = subTotal + totalVatAmount;
 
       setSummary({
+        totalAmount,
+        subTotal,
         totalCommissionExclVat,
         totalVatAmount,
         totalCommissionInclVat,
       });
-    } else {
+    } else if (!entriesLoading) {
       setTableData([]);
       setSummary({
+        totalAmount: 0,
+        subTotal: 0,
         totalCommissionExclVat: 0,
         totalVatAmount: 0,
         totalCommissionInclVat: 0,
       });
     }
-  }, [entriesData]);
+  }, [entriesData, entriesLoading]);
 
   const goBack = () => {
     navigate("/invoice", { state: { refetch: true } });
@@ -116,7 +126,7 @@ const AddEntry = () => {
         justifyContent="center"
         p={paddingX}
         bg="white"
-        borderRadius="10px"
+        borderRadius="lg"
         boxShadow="md"
       >
         <HStack spacing={3} color="red.500">
@@ -132,6 +142,14 @@ const AddEntry = () => {
     );
   }
 
+  // Fixed table height constants
+  const fixedTableHeight = "400px"; // Adjust this value as needed
+  const rowHeight = 48;
+  const headerHeight = 48;
+  const maxRows = Math.floor(
+    (parseInt(fixedTableHeight) - headerHeight) / rowHeight
+  );
+
   return (
     <Box bg="gray.50" p={paddingX} fontFamily="DM Sans" minH="100vh">
       {/* Header Section */}
@@ -142,7 +160,7 @@ const AddEntry = () => {
         flexDir={{ base: "column", sm: "row" }}
         bg="white"
         p={4}
-        borderRadius="10px"
+        borderRadius="lg"
         boxShadow="sm"
       >
         <HStack spacing={3} mb={{ base: 4, sm: 0 }}>
@@ -195,452 +213,486 @@ const AddEntry = () => {
         </HStack>
       </Flex>
 
-      <Skeleton isLoaded={!entriesLoading}>
-        {tableData.length === 0 ? (
-          <Box
-            minH="400px"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            p={4}
-            bg="white"
-            borderRadius="10px"
-            boxShadow="md"
+      {/* Table Section */}
+      <Box
+        overflowX="auto"
+        borderRadius="lg"
+        boxShadow="md"
+        bg="white"
+        mb={6}
+        h={fixedTableHeight} // Fixed height
+        position="relative"
+        overflowY="auto" // Enable vertical scrolling
+      >
+        <Table
+          variant="simple"
+          size={tableSize}
+          fontFamily="DM Sans"
+          minWidth={{ base: "900px", md: "100%" }}
+          border="1px solid"
+          borderColor="gray.200"
+        >
+          <Thead
+            position="sticky"
+            top="0"
+            zIndex="10"
+            bg="#B79045"
+            boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
+            h={`${headerHeight}px`}
           >
-            <HStack spacing={3} color="gray.500">
-              <BiError size={25} />
-              <Text
-                fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
-                fontWeight="medium"
-              >
-                No Entry Available
-              </Text>
-            </HStack>
-          </Box>
-        ) : (
-          <>
-            <Box
-              overflowX="auto"
-              maxH="800px"
-              overflowY="auto"
-              borderRadius="10px"
-              boxShadow="sm"
-              p={4}
-              mb={6}
-            >
-              <Table
-                variant="simple"
-                bg="white"
-                size={tableSize}
-                fontFamily="DM Sans"
-                minWidth={{ base: "900px", md: "100%" }}
-                border="1px solid"
-                borderColor="#E2E8F0"
-              >
-                <Thead bg="#B79045">
-                  <Tr>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
+            <Tr>
+              {[
+                "SN",
+                "Unit No",
+                "Name of Referring Party",
+                "Claim Type",
+                "Commission %",
+                "Unit Price",
+                "Total Commission EXCL. VAT",
+                "VAT %",
+                "VAT Amount",
+                "Total Commission incl. VAT",
+                "Action",
+              ].map((header, index) => (
+                <Th
+                  key={index}
+                  color="white"
+                  fontSize={fontSizeTh}
+                  fontWeight="medium"
+                  py={3}
+                  textTransform="capitalize"
+                  borderColor="gray.300"
+                  textAlign={
+                    index === 0 || index === 3 || index === 4 || index === 7
+                      ? "center"
+                      : "left"
+                  }
+                >
+                  {header}
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {entriesLoading ? (
+              // Shimmer effect filling the available table height
+              Array.from({ length: maxRows }).map((_, index) => (
+                <Tr
+                  key={index}
+                  bg={index % 2 === 0 ? "white" : "gray.50"}
+                  h={`${rowHeight}px`}
+                >
+                  <Td
+                    py={3}
+                    borderColor="gray.200"
+                    textAlign="center"
+                    width="60px"
+                  >
+                    <Skeleton
+                      height="20px"
+                      width="20px"
+                      mx="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200">
+                    <Skeleton height="20px" width="80px" borderRadius="4px" />
+                  </Td>
+                  <Td py={3} borderColor="gray.200">
+                    <Skeleton height="20px" width="150px" borderRadius="4px" />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="center">
+                    <Skeleton
+                      height="20px"
+                      width="80px"
+                      mx="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="center">
+                    <Skeleton
+                      height="20px"
+                      width="60px"
+                      mx="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="right">
+                    <Skeleton
+                      height="20px"
+                      width="90px"
+                      ml="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="right">
+                    <Skeleton
+                      height="20px"
+                      width="120px"
+                      ml="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="center">
+                    <Skeleton
+                      height="20px"
+                      width="60px"
+                      mx="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="right">
+                    <Skeleton
+                      height="20px"
+                      width="90px"
+                      ml="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" textAlign="right">
+                    <Skeleton
+                      height="20px"
+                      width="120px"
+                      ml="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                  <Td py={3} borderColor="gray.200" width="120px">
+                    <Skeleton
+                      height="20px"
+                      width="60px"
+                      mx="auto"
+                      borderRadius="4px"
+                    />
+                  </Td>
+                </Tr>
+              ))
+            ) : tableData.length === 0 ? (
+              <Tr h={`${rowHeight}px`}>
+                <Td
+                  colSpan={11}
+                  py={10}
+                  textAlign="center"
+                  borderColor="gray.200"
+                  bg="white"
+                  h={fixedTableHeight} // Match table height
+                >
+                  <HStack justifyContent="center" spacing={3} color="gray.500">
+                    <BiError size={25} />
+                    <Text
+                      fontSize={{ base: "lg", md: "xl" }}
                       fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
                     >
-                      SN
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Unit No
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Name of Referring Party
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Claim Type
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Commission %
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Unit Price
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Total Commission EXCL. VAT
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      VAT %
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      VAT Amount
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Total Commission incl. VAT
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Total Price
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      SubTotal Unit Price
-                    </Th>
-                    <Th
-                      color="white"
-                      fontSize={fontSizeTh}
-                      fontWeight="medium"
-                      py={1.5}
-                      textTransform="capitalize"
-                      borderColor="#E2E8F0"
-                    >
-                      Action
-                    </Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {tableData.map((entry, index) => (
-                    <Tr key={entry._id} _hover={{ bg: "gray.50" }}>
-                      <Td
-                        textAlign="center"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
+                      No Entry Available
+                    </Text>
+                  </HStack>
+                </Td>
+              </Tr>
+            ) : (
+              tableData.map((entry, index) => (
+                <Tr
+                  key={entry._id}
+                  bg={index % 2 === 0 ? "white" : "gray.50"}
+                  _hover={{
+                    bg: "gray.100",
+                    transition: "background-color 0.2s",
+                  }}
+                  h={`${rowHeight}px`}
+                >
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                    width="60px"
+                  >
+                    {index + 1}
+                  </Td>
+                  <Td
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.unit_no || "-"}
+                  </Td>
+                  <Td
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.name_of_referring_party || "-"}
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {entry.claim_type || "-"}
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {`${entry.commission_percentage || 0}%`}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.unit_price || 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.total_commission_excl_vat || 0).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </Td>
+                  <Td
+                    textAlign="center"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {`${entry.vat_percentage || 5}%`}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.vat_amount || 0).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                  <Td
+                    textAlign="right"
+                    borderColor="gray.200"
+                    fontSize={fontSizeTd}
+                    color="gray.700"
+                    py={3}
+                  >
+                    {(entry.total_commission_incl_vat || 0).toLocaleString(
+                      "en-US",
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )}
+                  </Td>
+                  <Td borderColor="gray.200" py={3} width="120px">
+                    <HStack justifyContent="center" spacing={2}>
+                      <Button
+                        size="sm"
+                        onClick={() => handleEditClick(entry._id)}
+                        borderRadius="6px"
+                        bg="gray.100"
+                        _hover={{ bg: "gray.200" }}
                       >
-                        {index + 1}
-                      </Td>
-                      <Td
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
+                        <img src={EditIconSvg} alt="Edit" width="16px" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleDeleteClick(entry._id)}
+                        borderRadius="6px"
+                        bg="gray.100"
+                        _hover={{ bg: "gray.200" }}
                       >
-                        {entry.unit_no || "-"}
-                      </Td>
-                      <Td
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {entry.name_of_referring_party || "-"}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {entry.claim_type || "-"}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {`${entry.commission_percentage || 0}%`}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.unit_price || 0).toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.total_commission_excl_vat || 0).toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {`${entry.vat_percentage || 5}%`}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.vat_amount || 0).toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.total_commission_incl_vat || 0).toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.total_commission_incl_vat || 0).toLocaleString(
-                          "en-US",
-                          {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }
-                        )}
-                      </Td>
-                      <Td
-                        textAlign="right"
-                        border="1px solid #E2E8F0"
-                        fontSize={fontSizeTd}
-                        color="gray.700"
-                        py={3}
-                      >
-                        {(entry.unit_price || 0).toLocaleString("en-US", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Td>
-                      <Td border="1px solid #E2E8F0" py={3}>
-                        <HStack justifyContent="center" spacing={2}>
-                          <Button
-                            size="sm"
-                            onClick={() => handleEditClick(entry._id)}
-                            borderRadius="6px"
-                          >
-                            <img src={EditIconSvg} alt="Edit" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleDeleteClick(entry._id)}
-                            borderRadius="6px"
-                          >
-                            <img src={DeleteIconSvg} alt="Delete" />
-                          </Button>
-                        </HStack>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </Box>
+                        <img src={DeleteIconSvg} alt="Delete" width="16px" />
+                      </Button>
+                    </HStack>
+                  </Td>
+                </Tr>
+              ))
+            )}
+          </Tbody>
+        </Table>
+      </Box>
 
-            <Flex justify={{ base: "center", md: "flex-end" }}>
-              <Box
-                borderRadius="10px"
-                p={6}
-                maxW={{ base: "100%", md: "500px" }}
-                w={{ base: "100%", md: "auto" }}
-              >
-                <Box overflowX="auto">
-                  <Table variant="simple" size={tableSize} fontFamily="DM Sans">
-                    <Thead bg="#B79045">
-                      <Tr>
-                        <Th
-                          fontSize={fontSizeSummaryLabel}
-                          fontWeight="medium"
-                          color="white"
-                          textTransform="capitalize"
-                          colSpan={2}
-                          py={1.5}
-                        >
-                          Invoice Summary
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      <Tr>
-                        <Td
-                          fontSize={fontSizeSummaryLabel}
-                          color="gray.600"
-                          fontWeight="medium"
-                          borderColor="#E2E8F0"
-                          py={3}
-                        >
-                          Total Commission Excl. VAT
-                        </Td>
-                        <Td
-                          fontSize={fontSizeSummaryValue}
-                          fontWeight="bold"
-                          color="gray.800"
-                          borderColor="#E2E8F0"
-                          py={3}
-                          textAlign="right"
-                        >
-                          {summary.totalCommissionExclVat.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )}
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td
-                          fontSize={fontSizeSummaryLabel}
-                          color="gray.600"
-                          fontWeight="medium"
-                          borderColor="#E2E8F0"
-                          py={3}
-                        >
-                          Total VAT Amount
-                        </Td>
-                        <Td
-                          fontSize={fontSizeSummaryValue}
-                          fontWeight="bold"
-                          color="gray.800"
-                          borderColor="#E2E8F0"
-                          py={3}
-                          textAlign="right"
-                        >
-                          {summary.totalVatAmount.toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td
-                          fontSize={fontSizeSummaryLabel}
-                          color="gray.600"
-                          fontWeight="medium"
-                          borderColor="#E2E8F0"
-                          py={3}
-                        >
-                          Total Commission Incl. VAT
-                        </Td>
-                        <Td
-                          fontSize={fontSizeSummaryValue}
-                          fontWeight="bold"
-                          color="gray.800"
-                          borderColor="#E2E8F0"
-                          py={3}
-                          textAlign="right"
-                        >
-                          {summary.totalCommissionInclVat.toLocaleString(
-                            "en-US",
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )}
-                        </Td>
-                      </Tr>
-                    </Tbody>
-                  </Table>
-                </Box>
-              </Box>
-            </Flex>
-          </>
-        )}
-      </Skeleton>
+      {/* Summary Table */}
+      {tableData.length > 0 && !entriesLoading && (
+        <Flex justify={{ base: "center", md: "flex-end" }}>
+          <Box
+            borderRadius="lg"
+            p={6}
+            maxW={{ base: "100%", md: "500px" }}
+            w={{ base: "100%", md: "auto" }}
+            boxShadow="md"
+            bg="white"
+          >
+            <Table
+              variant="simple"
+              size={tableSize}
+              fontFamily="DM Sans"
+              border="1px solid"
+              borderColor="gray.200"
+            >
+              <Thead bg="#B79045">
+                <Tr>
+                  <Th
+                    fontSize={fontSizeSummaryLabel}
+                    fontWeight="medium"
+                    color="white"
+                    textTransform="capitalize"
+                    colSpan={2}
+                    py={3}
+                  >
+                    Invoice Summary
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Subtotal
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.subTotal.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Amount
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Commission Excl. VAT
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalCommissionExclVat.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total VAT Amount
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalVatAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Commission Incl. VAT
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalCommissionInclVat.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </Box>
+        </Flex>
+      )}
 
       {/* Modals */}
       <Add
