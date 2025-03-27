@@ -54,7 +54,9 @@ import DataNotFound from "components/notFoundData";
 import Breadcrumb from "./BreadCrumb";
 import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
 import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
-
+import { IconButton } from "@chakra-ui/react";
+import { CopyIcon } from "@chakra-ui/icons";
+import { useFetchItemsQuery } from 'api/apiSlice';
 export default function CheckTable(props) {
   const {
     tableData,
@@ -79,6 +81,7 @@ export default function CheckTable(props) {
     totalPages,
     currentPage,
   } = props;
+
 
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -150,6 +153,14 @@ export default function CheckTable(props) {
       setAdvaceSearch(false);
     },
   });
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {})
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
+  };
 
   const {
     errors,
@@ -407,7 +418,22 @@ export default function CheckTable(props) {
                         );
                       } else if (column.Header === "Invoice No") {
                         cellData = (
-                          <Text fontSize="sm">{row.invoiceNo || "-"}</Text>
+                          <Text fontSize="sm">
+                            <Flex alignItems="center">
+                              {row.invoiceNo || "-"}
+                              <IconButton
+                                aria-label="Copy invoice number"
+                                icon={<CopyIcon />}
+                                size="sm"
+                                ml={2}
+                                onClick={() =>
+                                  copyToClipboard(row.invoiceNo || "-")
+                                }
+                                variant="ghost"
+                                colorScheme="blue"
+                              />
+                            </Flex>
+                          </Text>
                         );
                       } else if (column.Header === "Total Amount") {
                         cellData = (

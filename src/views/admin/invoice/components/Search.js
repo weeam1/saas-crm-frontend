@@ -15,9 +15,8 @@ const CustomSearchInput = ({
     if (!isPaginated) {
       const searchTerm = e.target.value;
 
-      // Filter allData based on developer_id.developer_name
       const results = allData.filter((item) => {
-        const developerName = item.developer_id?.developer_name || ""; // Fallback to empty string if undefined
+        const developerName = item.developer_id?.developer_name || ""; 
         return developerName.toLowerCase().includes(searchTerm.toLowerCase());
       });
 

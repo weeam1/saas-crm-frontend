@@ -26,7 +26,6 @@ import Delete from "./components/DeleteEntry";
 import BackImg from "../../../assets/img/Invoice/Vector.svg";
 
 const AddEntry = () => {
-  // Responsive values using useBreakpointValue
   const tableSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
   const fontSizeTh = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
   const fontSizeTd = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
@@ -348,6 +347,26 @@ const AddEntry = () => {
                       textTransform="capitalize"
                       borderColor="#E2E8F0"
                     >
+                      Total Price
+                    </Th>
+                    <Th
+                      color="white"
+                      fontSize={fontSizeTh}
+                      fontWeight="medium"
+                      py={1.5}
+                      textTransform="capitalize"
+                      borderColor="#E2E8F0"
+                    >
+                      SubTotal Unit Price
+                    </Th>
+                    <Th
+                      color="white"
+                      fontSize={fontSizeTh}
+                      fontWeight="medium"
+                      py={1.5}
+                      textTransform="capitalize"
+                      borderColor="#E2E8F0"
+                    >
                       Action
                     </Th>
                   </Tr>
@@ -461,6 +480,33 @@ const AddEntry = () => {
                           }
                         )}
                       </Td>
+                      <Td
+                        textAlign="right"
+                        border="1px solid #E2E8F0"
+                        fontSize={fontSizeTd}
+                        color="gray.700"
+                        py={3}
+                      >
+                        {(entry.total_commission_incl_vat || 0).toLocaleString(
+                          "en-US",
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                      </Td>
+                      <Td
+                        textAlign="right"
+                        border="1px solid #E2E8F0"
+                        fontSize={fontSizeTd}
+                        color="gray.700"
+                        py={3}
+                      >
+                        {(entry.unit_price || 0).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Td>
                       <Td border="1px solid #E2E8F0" py={3}>
                         <HStack justifyContent="center" spacing={2}>
                           <Button
@@ -475,7 +521,7 @@ const AddEntry = () => {
                             onClick={() => handleDeleteClick(entry._id)}
                             borderRadius="6px"
                           >
-                            {<img src={DeleteIconSvg} alt="Delete" />}
+                            <img src={DeleteIconSvg} alt="Delete" />
                           </Button>
                         </HStack>
                       </Td>
