@@ -52,6 +52,7 @@ import DataNotFound from "components/notFoundData";
 import Breadcrumb from "./BreadCrumb";
 import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
 import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
+import TableLoading from "components/loading/TableLoading";
 
 export default function CheckTable(props) {
   const {
@@ -364,17 +365,7 @@ export default function CheckTable(props) {
             </Thead>
             <Tbody>
               {isLoding ? (
-                <Tr>
-                  <Td colSpan={columns.length}>
-                    <Flex
-                      justifyContent="center"
-                      alignItems="center"
-                      width="100%"
-                    >
-                      <Spinner />
-                    </Flex>
-                  </Td>
-                </Tr>
+                <TableLoading columns={columns} length='8'/>
               ) : data?.length === 0 ? (
                 <Tr>
                   <Td colSpan={columns.length}>
