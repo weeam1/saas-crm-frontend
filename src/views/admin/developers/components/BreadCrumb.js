@@ -12,7 +12,6 @@ const Breadcrumb = ({ items }) => {
     >
       {items.map((item, index) => (
         <Flex key={item.label} alignItems="center">
-          {/* Breadcrumb Item */}
           <Box
             bg={index === items.length - 1 ? "#B79045" : "gray.200"}
             px={4}
@@ -27,7 +26,8 @@ const Breadcrumb = ({ items }) => {
                     top: 0,
                     width: "15px",
                     height: "100%",
-                    background: index === items.length - 1 ? "#B79045" : "gray.200",
+                    background:
+                      index === items.length - 1 ? "#B79045" : "gray.200",
                     clipPath: "polygon(0 0, 100% 50%, 0 100%)",
                     zIndex: 1,
                   }
@@ -54,7 +54,6 @@ const Breadcrumb = ({ items }) => {
             )}
           </Box>
 
-          {/* Spacer Arrow for Previous Items */}
           {index < items.length - 1 && (
             <Box
               bg="#B79045"

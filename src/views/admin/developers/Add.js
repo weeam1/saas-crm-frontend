@@ -16,43 +16,40 @@ import {
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { useSelector } from "react-redux";
-import { getApi } from "services/api";
 import { useCreateItemMutation } from "api/apiSlice";
 
 const userSchema = Yup.object().shape({
   trn: Yup.string().required("TRN is required"),
   developer_name: Yup.string().required("Developer Name is required"),
-  email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+  email: Yup.string().email("Invalid email format").required("Email is required"),
   address: Yup.string().required("Address is required"),
+  country: Yup.string(), // Optional field
 });
 
 const AddUser = (props) => {
-  const { onClose, isOpen, setAction, fetchData, pageIndex, pageSize } = props;
-  const [isLoding, setIsLoding] = useState(false);
-  const [roles, setRoles] = useState([]);
-  const [createItemMutation, { isLoading: mutationLoading }] =
-    useCreateItemMutation();
-  const tree = useSelector((state) => state.user);
+  const { onClose, isOpen, setAction, fetchData, pageIndex, pageSize, refetch } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const [createItemMutation, { isLoading: mutationLoading }] = useCreateItemMutation();
 
   const initialValues = {
     trn: "",
     developer_name: "",
     address: "",
     email: "",
+    country: "",
   };
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: userSchema,
     onSubmit: (values, { resetForm }) => {
       AddData(values, resetForm);
     },
+    validateOnChange: true, // Validate when a field changes
+    validateOnBlur: true,   // Validate when a field loses focus
   });
 
   const {
@@ -70,7 +67,7 @@ const AddUser = (props) => {
 
   const AddData = async (values, resetForm) => {
     try {
-      setIsLoding(true);
+      setIsLoading(true);
       const formValues = { ...values };
       const response = await createItemMutation({
         path: "/developer/add",
@@ -84,7 +81,6 @@ const AddUser = (props) => {
         resetForm();
         onClose();
       } else {
-        console.log("Server Response (else):", response);
         if (response?.message) {
           const errorMsg = response.message.toLowerCase();
           if (errorMsg.includes("trn")) {
@@ -92,55 +88,41 @@ const AddUser = (props) => {
           } else if (errorMsg.includes("email")) {
             setFieldError("email", "Developer with this email already exists");
           } else {
-            toast.error(response.message); 
+            toast.error(response.message);
           }
-        } else if (response?.errors) {
-          Object.keys(response.errors).forEach((field) => {
-            setFieldError(field, response.errors[field]);
-          });
         } else {
           toast.error("Failed to add developer");
         }
       }
     } catch (e) {
       console.error("Add Error:", e);
-      console.log("Server Response (catch):", e.data);
-      if (e?.data) {
-        const errorData = e.data;
-        if (errorData.message) {
-          const errorMsg = errorData.message.toLowerCase();
-          if (errorMsg.includes("trn")) {
-            setFieldError("trn", "Developer with this TRN already exists");
-          } else if (errorMsg.includes("email")) {
-            setFieldError("email", "Developer with this email already exists");
-          } else {
-            toast.error(errorData.message); 
-          }
-        } else if (errorData.errors) {
-          Object.keys(errorData.errors).forEach((field) => {
-            setFieldError(field, errorData.errors[field]);
-          });
+      if (e?.data?.message) {
+        const errorMsg = e.data.message.toLowerCase();
+        if (errorMsg.includes("trn")) {
+          setFieldError("trn", "Developer with this TRN already exists");
+        } else if (errorMsg.includes("email")) {
+          setFieldError("email", "Developer with this email already exists");
         } else {
-          toast.error("Something went wrong!");
+          toast.error(e.data.message);
         }
       } else {
         toast.error("Something went wrong!");
       }
     } finally {
-      setIsLoding(false);
+      setIsLoading(false);
     }
   };
 
-  const fetchRoles = async () => {
-    let result = await getApi("api/role-access");
-    setRoles(result.data);
+  // Check if all required fields are filled and valid
+  const isFormComplete = () => {
+    return (
+      values.trn.trim() !== "" &&
+      values.developer_name.trim() !== "" &&
+      values.email.trim() !== "" &&
+      values.address.trim() !== "" &&
+      isValid
+    );
   };
-
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  console.log(tree);
 
   return (
     <Modal size="2xl" isOpen={isOpen} isCentered>
@@ -154,13 +136,7 @@ const AddUser = (props) => {
           <ModalBody>
             <Grid templateColumns="1fr" gap={3}>
               <GridItem>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
                   TRN
                 </FormLabel>
                 <Input
@@ -168,28 +144,20 @@ const AddUser = (props) => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.trn}
-                  type="text"
                   name="trn"
                   placeholder="TRN"
                   fontWeight="500"
-                  fontFamily="'DM Sans', sans-serif"
-                  borderColor={
-                    errors.trn && (touched.trn || dirty) ? "red.300" : null
-                  }
+                  borderColor={errors.trn && touched.trn ? "red.300" : null}
                 />
-                <Text mb="10px" color="red" fontSize="sm">
-                  {(touched.trn || dirty) && errors.trn ? errors.trn : null}
-                </Text>
+                {errors.trn && touched.trn && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.trn}
+                  </Text>
+                )}
               </GridItem>
 
               <GridItem>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
                   Developer Name
                 </FormLabel>
                 <Input
@@ -200,28 +168,17 @@ const AddUser = (props) => {
                   name="developer_name"
                   placeholder="Developer Name"
                   fontWeight="500"
-                  fontFamily="'DM Sans', sans-serif"
-                  borderColor={
-                    errors.developer_name && (touched.developer_name || dirty)
-                      ? "red.300"
-                      : null
-                  }
+                  borderColor={errors.developer_name && touched.developer_name ? "red.300" : null}
                 />
-                <Text mb="10px" color="red" fontSize="sm">
-                  {(touched.developer_name || dirty) && errors.developer_name
-                    ? errors.developer_name
-                    : null}
-                </Text>
+                {errors.developer_name && touched.developer_name && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.developer_name}
+                  </Text>
+                )}
               </GridItem>
 
               <GridItem>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
                   Email
                 </FormLabel>
                 <Input
@@ -233,26 +190,17 @@ const AddUser = (props) => {
                   name="email"
                   placeholder="Email Address"
                   fontWeight="500"
-                  fontFamily="'DM Sans', sans-serif"
-                  borderColor={
-                    errors.email && (touched.email || dirty) ? "red.300" : null
-                  }
+                  borderColor={errors.email && touched.email ? "red.300" : null}
                 />
-                <Text mb="10px" color="red" fontSize="sm">
-                  {(touched.email || dirty) && errors.email
-                    ? errors.email
-                    : null}
-                </Text>
+                {errors.email && touched.email && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.email}
+                  </Text>
+                )}
               </GridItem>
 
               <GridItem>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="500"
-                  mb="8px"
-                >
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
                   Address
                 </FormLabel>
                 <Input
@@ -263,18 +211,34 @@ const AddUser = (props) => {
                   name="address"
                   placeholder="Address"
                   fontWeight="500"
-                  fontFamily="'DM Sans', sans-serif"
-                  borderColor={
-                    errors.address && (touched.address || dirty)
-                      ? "red.300"
-                      : null
-                  }
+                  borderColor={errors.address && touched.address ? "red.300" : null}
                 />
-                <Text mb="10px" color="red" fontSize="sm">
-                  {(touched.address || dirty) && errors.address
-                    ? errors.address
-                    : null}
-                </Text>
+                {errors.address && touched.address && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.address}
+                  </Text>
+                )}
+              </GridItem>
+
+              <GridItem>
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                  Country (Optional)
+                </FormLabel>
+                <Input
+                  fontSize="sm"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.country}
+                  name="country"
+                  placeholder="Country"
+                  fontWeight="500"
+                  borderColor={errors.country && touched.country ? "red.300" : null}
+                />
+                {errors.country && touched.country && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.country}
+                  </Text>
+                )}
               </GridItem>
             </Grid>
           </ModalBody>
@@ -301,12 +265,12 @@ const AddUser = (props) => {
               color="white"
               size="sm"
               borderRadius="5px"
-              disabled={isLoding || !isValid || !dirty}
+              disabled={isLoading || mutationLoading || !isFormComplete()}
               _hover={{ bg: "#A77F3A" }}
               fontFamily="'DM Sans', sans-serif"
               minWidth="100px"
             >
-              {isLoding ? <Spinner /> : "Save"}
+              {isLoading || mutationLoading ? <Spinner /> : "Save"}
             </Button>
           </ModalFooter>
         </form>

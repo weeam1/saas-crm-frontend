@@ -61,7 +61,8 @@ const Index = () => {
     setPageIndex(newPageIndex);
     setPageSize(newPageSize);
     setSearchTerm(search || "");
-    if (field) setSearchField(field); // Update search field if provided
+    if (field) setSearchField(field); 
+    refetch();
   };
 
   useEffect(() => {

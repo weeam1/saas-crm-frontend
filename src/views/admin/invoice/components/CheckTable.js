@@ -80,9 +80,6 @@ export default function CheckTable(props) {
     setSearchTerm,
   } = props;
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
@@ -94,6 +91,7 @@ export default function CheckTable(props) {
   const [manageColumns, setManageColumns] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
+  const [copiedPosition, setCopiedPosition] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -200,6 +198,15 @@ export default function CheckTable(props) {
     if (fetchData && action) fetchData({ pageIndex, pageSize });
   }, [action, fetchData, pageIndex, pageSize]);
 
+  const copyToClipboard = (text, event) => {
+    navigator.clipboard.writeText(text);
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    setCopiedPosition({ x: mouseX, y: mouseY - 20 });
+    setTimeout(() => {
+      setCopiedPosition(null);
+    }, 2000);
+  };
   return (
     <>
       <Breadcrumb />
@@ -341,7 +348,7 @@ export default function CheckTable(props) {
                     key={index}
                     pe="10px"
                     borderColor={borderColor}
-                    bg="#EBD3A7"
+                    bg="#EDD199"
                   >
                     <Flex
                       align="center"
@@ -431,8 +438,8 @@ export default function CheckTable(props) {
                                 icon={<CopyIcon />}
                                 size="sm"
                                 ml={2}
-                                onClick={() =>
-                                  copyToClipboard(row.invoiceNo || "-")
+                                onClick={(e) =>
+                                  copyToClipboard(row.invoiceNo || "-", e)
                                 }
                                 variant="ghost"
                                 colorScheme="blue"
@@ -458,13 +465,13 @@ export default function CheckTable(props) {
                             <Link to={`/add-entry/${row?._id}`}>
                               <Button
                                 size="sm"
-                                bg="#EBD3A7"
+                                bg="#B79045"
                                 w="100px"
-                                _hover={{ bg: "#D2B07F" }}
+                                _hover={{ bg: "#996F30" }}
                                 fontSize="12px"
                                 borderRadius="3px"
                                 py="10px"
-                                color="black"
+                                color="white"
                                 px="16px"
                               >
                                 Add Entry
@@ -522,6 +529,23 @@ export default function CheckTable(props) {
               )}
             </Tbody>
           </Table>
+          {copiedPosition && (
+            <Box
+              position="fixed"
+              top={`${copiedPosition.y}px`}
+              left={`${copiedPosition.x}px`}
+              transform="translate(-50%,-50%)"
+              bg="green.500"
+              color="white"
+              px={3}
+              py={1}
+              borderRadius="md"
+              fontSize="sm"
+              zIndex={9999}
+            >
+              Copied
+            </Box>
+          )}
         </Box>
 
         <Add

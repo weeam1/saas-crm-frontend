@@ -36,11 +36,6 @@ const Delete = (props) => {
   } = props;
 
   const dispatch = useDispatch();
-
-  // Debug: Log pageSize in Delete.js
-  console.log("Delete.js - pageSizeProp:", pageSizeProp);
-
-  // Provide a fallback for pageSize if it's undefined
   const pageSize = pageSizeProp && pageSizeProp > 0 ? pageSizeProp : 10;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -61,16 +56,12 @@ const Delete = (props) => {
       return;
     }
 
-    // Calculate the new pageIndex after deletion
     let newPageIndex = pageIndex;
-
-    // Ensure totalItems is a valid number
     const safeTotalItems = totalItems >= 0 ? totalItems : 0;
     const itemsBeingDeleted =
       method === "many" ? (Array.isArray(data) ? data.length : 0) : 1;
     const itemsAfterDeletion = Math.max(0, safeTotalItems - itemsBeingDeleted);
 
-    // Calculate the number of items on the current page
     const startIndex = pageIndex * pageSize;
     const itemsOnCurrentPage = Math.min(pageSize, safeTotalItems - startIndex);
     const remainingItemsOnPage = Math.max(
@@ -78,26 +69,23 @@ const Delete = (props) => {
       itemsOnCurrentPage - itemsBeingDeleted
     );
 
-    // If the current page will be empty after deletion, adjust the pageIndex
     if (remainingItemsOnPage <= 0 && itemsAfterDeletion > 0) {
       newPageIndex = Math.max(0, Math.ceil(itemsAfterDeletion / pageSize) - 1);
     } else if (itemsAfterDeletion === 0) {
       newPageIndex = 0;
     }
 
-    // Ensure newPageIndex is not negative
     newPageIndex = Math.max(0, newPageIndex);
 
     if (method === "many" && Array.isArray(data) && data.length > 0) {
       try {
-        console.log("Payload sent to deleteMany:", data);
         setIsLoading(true);
         const response = await deleteManyDevelopers({
           path: "/developer/deleteMany",
           method: "POST",
           body: { ids: data },
         }).unwrap();
-
+        refetch();
         if (
           response?.status === "success" ||
           response?.code === 200 ||
@@ -106,7 +94,7 @@ const Delete = (props) => {
           toast.success(`${data.length} developer(s) deleted successfully!`);
           if (fetchData) fetchData({ pageIndex: newPageIndex, pageSize });
           dispatch(apiSlice.util.invalidateTags(["Developers"]));
-          if (refetch) refetch(); // Force refetch
+          if (refetch) refetch();
           if (setAction) setAction((prev) => !prev);
           onClose();
           setSelectedValues([]);

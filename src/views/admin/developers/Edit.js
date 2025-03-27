@@ -33,11 +33,6 @@ const Edit = (props) => {
   } = props;
 
   const dispatch = useDispatch();
-
-  // Debug: Log pageSize in Edit.js
-  console.log("Edit.js - pageSizeProp:", pageSizeProp);
-
-  // Provide a fallback for pageSize if it's undefined
   const pageSize = pageSizeProp && pageSizeProp > 0 ? pageSizeProp : 10;
 
   const initialValues = {
@@ -45,13 +40,15 @@ const Edit = (props) => {
     address: data?.address || "",
     trn: data?.trn || "",
     email: data?.email || "",
+    country: data?.country || "",
   };
 
-  const [updateItemMutation, { isLoading: mutationLoading }] = useUpdateItemMutation();
+  const [updateItemMutation, { isLoading: mutationLoading }] =
+    useUpdateItemMutation();
   const [isLoading, setIsLoading] = useState(false);
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: developerSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
@@ -67,6 +64,7 @@ const Edit = (props) => {
     handleChange,
     handleSubmit,
     resetForm,
+    dirty, 
   } = formik;
 
   const EditData = async (formValues) => {
@@ -76,13 +74,10 @@ const Edit = (props) => {
         path: `/developer/edit/${selectedId}`,
         body: formValues,
       }).unwrap();
-
-      console.log("Update Response:", response);
-
       if (response.status === "success") {
         setEdit(false);
         fetchData({ pageIndex, pageSize });
-        dispatch(apiSlice.util.invalidateTags(["Developers"])); // Invalidate tags to refetch data
+        dispatch(apiSlice.util.invalidateTags(["Developers"])); 
         setAction((prev) => !prev);
         toast.success("Developer updated successfully!");
         resetForm();
@@ -117,7 +112,6 @@ const Edit = (props) => {
       zIndex={14000}
       alignItems="center"
       justifyContent="center"
-      onClick={handleCloseModal}
     >
       <Box
         boxShadow="lg"
@@ -131,15 +125,10 @@ const Edit = (props) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          pb={2}
-          fontSize="20px"
-          fontFamily="'DM Sans', sans-serif"
-          fontWeight="500"
-        >
-          <Text>Edit Developer</Text>
+        <Flex justifyContent="space-between" alignItems="center" pb={2}>
+          <Text fontSize="20px" fontWeight="500">
+            Edit Developer
+          </Text>
           <IconButton
             icon={<CloseIcon />}
             size="sm"
@@ -154,13 +143,7 @@ const Edit = (props) => {
           <form onSubmit={handleSubmit}>
             <Grid gap={4} templateColumns="1fr">
               <GridItem>
-                <FormLabel
-                  fontSize="14px"
-                  color="gray.600"
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                >
+                <FormLabel fontSize="14px" color="gray.600">
                   Developer Name
                 </FormLabel>
                 <Input
@@ -180,32 +163,15 @@ const Edit = (props) => {
                       ? "red.300"
                       : null
                   }
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                  w="100%"
                 />
                 {errors.developer_name && touched.developer_name && (
-                  <Text
-                    color="red"
-                    fontSize="12px"
-                    mt={1}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontWeight="500"
-                    textAlign="left"
-                  >
+                  <Text color="red" fontSize="12px" mt={1}>
                     {errors.developer_name}
                   </Text>
                 )}
               </GridItem>
               <GridItem>
-                <FormLabel
-                  fontSize="14px"
-                  color="gray.600"
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                >
+                <FormLabel fontSize="14px" color="gray.600">
                   Address
                 </FormLabel>
                 <Input
@@ -223,32 +189,15 @@ const Edit = (props) => {
                   borderColor={
                     errors.address && touched.address ? "red.300" : null
                   }
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                  w="100%"
                 />
                 {errors.address && touched.address && (
-                  <Text
-                    color="red"
-                    fontSize="12px"
-                    mt={1}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontWeight="500"
-                    textAlign="left"
-                  >
+                  <Text color="red" fontSize="12px" mt={1}>
                     {errors.address}
                   </Text>
                 )}
               </GridItem>
               <GridItem>
-                <FormLabel
-                  fontSize="14px"
-                  color="gray.600"
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                >
+                <FormLabel fontSize="14px" color="gray.600">
                   TRN
                 </FormLabel>
                 <Input
@@ -264,38 +213,21 @@ const Edit = (props) => {
                   _focus={{ borderColor: "gray.300", boxShadow: "none" }}
                   _hover={{ bg: "#E6E6E6" }}
                   borderColor={errors.trn && touched.trn ? "red.300" : null}
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                  w="100%"
                 />
                 {errors.trn && touched.trn && (
-                  <Text
-                    color="red"
-                    fontSize="12px"
-                    mt={1}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontWeight="500"
-                    textAlign="left"
-                  >
+                  <Text color="red" fontSize="12px" mt={1}>
                     {errors.trn}
                   </Text>
                 )}
               </GridItem>
               <GridItem>
-                <FormLabel
-                  fontSize="14px"
-                  color="gray.600"
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                >
-                  E mail Id
+                <FormLabel fontSize="14px" color="gray.600">
+                  Email Id
                 </FormLabel>
                 <Input
                   fontSize="14px"
                   type="email"
-                  placeholder="Enter E mail Id"
+                  placeholder="Enter Email Id"
                   value={values.email}
                   name="email"
                   onChange={handleChange}
@@ -306,27 +238,41 @@ const Edit = (props) => {
                   _focus={{ borderColor: "gray.300", boxShadow: "none" }}
                   _hover={{ bg: "#E6E6E6" }}
                   borderColor={errors.email && touched.email ? "red.300" : null}
-                  fontFamily="'DM Sans', sans-serif"
-                  fontWeight="500"
-                  textAlign="left"
-                  w="100%"
                 />
                 {errors.email && touched.email && (
-                  <Text
-                    color="red"
-                    fontSize="12px"
-                    mt={1}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontWeight="500"
-                    textAlign="left"
-                  >
+                  <Text color="red" fontSize="12px" mt={1}>
                     {errors.email}
+                  </Text>
+                )}
+              </GridItem>
+              <GridItem>
+                <FormLabel fontSize="14px" color="gray.600">
+                  Country
+                </FormLabel>
+                <Input
+                  fontSize="14px"
+                  placeholder="Enter Country"
+                  value={values.country}
+                  name="country"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
+                  borderColor={
+                    errors.country && touched.country ? "red.300" : null
+                  }
+                />
+                {errors.country && touched.country && (
+                  <Text color="red" fontSize="12px" mt={1}>
+                    {errors.country}
                   </Text>
                 )}
               </GridItem>
             </Grid>
 
-            {/* Footer */}
             <Flex mt={6} justifyContent="flex-end" pb={4} gap={3}>
               <Button
                 variant="outline"
@@ -338,8 +284,6 @@ const Edit = (props) => {
                 color="black"
                 _hover={{ bg: "#B8B0B0" }}
                 fontSize="14px"
-                fontFamily="'DM Sans', sans-serif"
-                fontWeight="500"
                 minWidth="90px"
               >
                 Cancel
@@ -352,12 +296,10 @@ const Edit = (props) => {
                 color="white"
                 _hover={{ bg: "#A07723" }}
                 isLoading={isLoading || mutationLoading}
-                disabled={isLoading || mutationLoading}
+                disabled={isLoading || mutationLoading || !dirty} 
                 borderRadius="md"
                 fontSize="14px"
                 h="40px"
-                fontFamily="'DM Sans', sans-serif"
-                fontWeight="500"
                 minWidth="90px"
               >
                 {isLoading || mutationLoading ? <Spinner size="sm" /> : "Save"}

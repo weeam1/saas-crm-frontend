@@ -543,8 +543,8 @@ const AddEntry = () => {
             p={6}
             maxW={{ base: "100%", md: "500px" }}
             w={{ base: "100%", md: "auto" }}
-            boxShadow="md"
-            bg="white"
+            // boxShadow="md"
+            // bg="white"
           >
             <Table
               variant="simple"
@@ -567,55 +567,7 @@ const AddEntry = () => {
                   </Th>
                 </Tr>
               </Thead>
-              <Tbody>
-                <Tr>
-                  <Td
-                    fontSize={fontSizeSummaryLabel}
-                    color="gray.600"
-                    fontWeight="medium"
-                    borderColor="gray.200"
-                    py={3}
-                  >
-                    Subtotal
-                  </Td>
-                  <Td
-                    fontSize={fontSizeSummaryValue}
-                    fontWeight="bold"
-                    color="gray.800"
-                    borderColor="gray.200"
-                    py={3}
-                    textAlign="right"
-                  >
-                    {summary.subTotal.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </Td>
-                </Tr>
-                <Tr>
-                  <Td
-                    fontSize={fontSizeSummaryLabel}
-                    color="gray.600"
-                    fontWeight="medium"
-                    borderColor="gray.200"
-                    py={3}
-                  >
-                    Total Amount
-                  </Td>
-                  <Td
-                    fontSize={fontSizeSummaryValue}
-                    fontWeight="bold"
-                    color="gray.800"
-                    borderColor="gray.200"
-                    py={3}
-                    textAlign="right"
-                  >
-                    {summary.totalAmount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </Td>
-                </Tr>
+              <Tbody bg="white">
                 <Tr>
                   <Td
                     fontSize={fontSizeSummaryLabel}
@@ -683,6 +635,54 @@ const AddEntry = () => {
                     textAlign="right"
                   >
                     {summary.totalCommissionInclVat.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Subtotal
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.subTotal.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </Td>
+                </Tr>
+                <Tr>
+                  <Td
+                    fontSize={fontSizeSummaryLabel}
+                    color="gray.600"
+                    fontWeight="medium"
+                    borderColor="gray.200"
+                    py={3}
+                  >
+                    Total Amount
+                  </Td>
+                  <Td
+                    fontSize={fontSizeSummaryValue}
+                    fontWeight="bold"
+                    color="gray.800"
+                    borderColor="gray.200"
+                    py={3}
+                    textAlign="right"
+                  >
+                    {summary.totalAmount.toLocaleString("en-US", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
