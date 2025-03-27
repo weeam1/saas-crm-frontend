@@ -22,6 +22,13 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin'
+			? 'superAdmin'
+			: (user?.roles?.[0]?.roleName ?? 'unknown');
+
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
@@ -75,21 +82,12 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'lastNote', label: 'Last Note', type: 'text' },
 		{ name: 'adset', label: 'Adset', type: 'text' },
-		// {
-		// 	name: 'eLeadStatus',
-		// 	label: 'Select Main Status',
-		// 	type: 'select',
-		// 	options: mainLeadStatus,
-		// },
-		// {
-		// 	name: 'leadStatus',
-		// 	label: 'Select Lead Status',
-		// 	type: 'select',
-		// 	options: leadStatus,
-		// },
 	];
 
-	console.log({ initialValues });
+	const allowedFields =
+		role === 'Agent' || role === 'Manager'
+			? fields.filter((field) => field.name === 'leadName')
+			: fields;
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
@@ -127,7 +125,12 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		}
 	};
 	return (
-		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
+		<Drawer
+			isOpen={isOpen}
+			placement='right'
+			onClose={onClose}
+			size={allowedFields.length > 1 ? size : 'sm'}
+		>
 			<DrawerOverlay />
 			<DrawerContent>
 				<DrawerCloseButton />
@@ -143,15 +146,18 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 								<Grid
 									templateColumns={{
 										base: '1fr',
-										md: 'repeat(3, 1fr)',
+										md: allowedFields.length > 1 ? 'repeat(3, 1fr)' : '1fr',
 									}}
 									gap={2}
 									w='full'
 									overflow='scroll'
-									height={{ base: '60vh', md: '80vh' }}
+									height={{
+										base: allowedFields?.length > 1 ? '60vh' : '20vh',
+										md: allowedFields?.length > 1 ? '80vh' : '20vh',
+									}}
 									p='4'
 								>
-									<RenderFields fields={fields} />
+									<RenderFields fields={allowedFields} />
 								</Grid>
 							</DrawerBody>
 							<DrawerFooter>

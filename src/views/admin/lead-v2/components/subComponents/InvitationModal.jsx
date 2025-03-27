@@ -28,7 +28,7 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 		try {
 			setLoading(true);
 
-			const QRCodeUrl = `${keys.clientUrl}lead?page=1&pageSize=32&lead=${leadId}`;
+			const QRCodeUrl = `${keys.clientUrl}lead?page=1&pageSize=1&invite=${leadId}`;
 
 			const inviteData = {
 				name: leadName,

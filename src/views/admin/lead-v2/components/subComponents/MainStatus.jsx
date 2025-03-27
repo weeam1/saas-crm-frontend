@@ -62,8 +62,6 @@ const MainStatus = ({ lead, role }) => {
 					});
 				}
 			} else if (response.status === 400) {
-				// Handle 400 Bad Request specifically
-
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);

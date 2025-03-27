@@ -183,6 +183,13 @@ export const useFilteredQueryParams = () => {
 			setSearchClear(true);
 		}
 
+		const invite = searchParams.get('invite');
+
+		if (invite) {
+			updatedParams.invite = invite;
+			setSearchClear(true);
+		}
+
 		// Handle 'data' parameter
 		const dataParam = searchParams.get('data');
 		if (dataParam) {
