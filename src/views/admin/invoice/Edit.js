@@ -12,7 +12,6 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
-  Select,
   useBreakpointValue,
   Icon,
 } from "@chakra-ui/react";
@@ -26,9 +25,8 @@ import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
 // Validation schema aligned with Add component
 const invoiceSchema = yup.object().shape({
-  unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
+  unit_no: yup.string().required("Unit No is required"),
   name_of_referring_party: yup.string().required("Referring party is required"),
-  // claim_type: yup.string().required("Claim type is required"),
   commission_percentage: yup
     .number()
     .typeError("Commission percentage must be a valid number")
@@ -48,16 +46,17 @@ const invoiceSchema = yup.object().shape({
     .lessThan(100, "VAT percentage must be less than 100"),
 });
 
-// Function to calculate commission, VAT, and total amount (same as Add)
+// Function to calculate commission, VAT, and total amount
 function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
   const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
-  const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
+  const vatAmount = (vatPercentage / 100) * unitPrice;
   const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
-
+  const totalAmount = unitPrice + totalCommissionInclVat;
   return {
     total_commission_excl_vat: totalCommissionExclVat,
     vat_amount: vatAmount,
     total_commission_incl_vat: totalCommissionInclVat,
+    totalAmount: totalAmount,
   };
 }
 
@@ -76,7 +75,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
       path: `/invoices/entries/${selectedId}`,
     },
     {
-      skip: !isOpen || !selectedId,
+      skip: !isOpen || !selectedId, // Only fetch when modal is open and ID is provided
     }
   );
 
@@ -85,13 +84,13 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
     unit_no: "",
     total_amount: 0,
     name_of_referring_party: "",
-    // claim_type: "",
     commission_percentage: "",
     unit_price: "",
     vat_percentage: "",
     total_commission_excl_vat: 0,
     vat_amount: 0,
     total_commission_incl_vat: 0,
+    totalAmount: 0,
   };
 
   const formik = useFormik({
@@ -100,7 +99,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
     onSubmit: (values, { resetForm }) => {
       EditData(values);
     },
-    enableReinitialize: true,
+    enableReinitialize: true, // Ensures form reinitializes when initialValues change
     validateOnChange: true,
     validateOnBlur: true,
   });
@@ -118,26 +117,37 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
     dirty,
   } = formik;
 
+  // Refetch data and update form values when modal opens or selectedId changes
   useEffect(() => {
-    if (entryData?.data && !entryFetching && selectedId) {
+    if (isOpen && selectedId) {
+      console.log("Modal opened with selectedId:", selectedId);
+      refetchEntry(); // Force refetch data when modal opens
+    }
+  }, [isOpen, selectedId, refetchEntry]);
+
+  // Update form values when entryData changes
+  useEffect(() => {
+    if (isOpen && entryData?.data && !entryFetching && selectedId) {
       const editData = entryData.data;
       const updatedValues = {
         invoice: editData.invoice || "",
         unit_no: editData.unit_no || "",
         total_amount: editData.total_amount || 0,
         name_of_referring_party: editData.name_of_referring_party || "",
-        // claim_type: editData.claim_type || "",
         commission_percentage: editData.commission_percentage?.toString() || "",
         unit_price: editData.unit_price?.toString() || "",
         vat_percentage: editData.vat_percentage?.toString() || "",
         total_commission_excl_vat: editData.total_commission_excl_vat || 0,
         vat_amount: editData.vat_amount || 0,
         total_commission_incl_vat: editData.total_commission_incl_vat || 0,
+        totalAmount: editData.total_amount || 0,
       };
+      console.log("Setting form values with fetched data:", updatedValues);
       setValues(updatedValues);
     }
-  }, [entryData, entryFetching, selectedId, setValues]);
+  }, [entryData, entryFetching, selectedId, setValues, isOpen]);
 
+  // Recalculate totals when inputs change
   useEffect(() => {
     if (
       values.unit_price &&
@@ -148,6 +158,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         total_commission_excl_vat,
         vat_amount,
         total_commission_incl_vat,
+        totalAmount,
       } = calculateTotal(
         Number(values.unit_price),
         Number(values.commission_percentage),
@@ -158,7 +169,8 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         total_commission_excl_vat,
         vat_amount,
         total_commission_incl_vat,
-        total_amount: total_commission_incl_vat,
+        total_amount: totalAmount,
+        totalAmount: totalAmount,
       });
     }
   }, [
@@ -168,15 +180,22 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
     setValues,
   ]);
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      console.log("Modal closed, resetting form to initial values");
+      resetForm({ values: initialValues });
+    }
+  }, [isOpen, resetForm]);
+
   const EditData = async (formValues) => {
     try {
       setIsLoading(true);
       const payload = {
         invoice: formValues.invoice,
         unit_no: formValues.unit_no,
-        total_amount: formValues.total_commission_incl_vat,
+        total_amount: formValues.totalAmount,
         name_of_referring_party: formValues.name_of_referring_party,
-        // claim_type: formValues.claim_type,
         commission_percentage: Number(formValues.commission_percentage),
         unit_price: Number(formValues.unit_price),
         total_commission_excl_vat: formValues.total_commission_excl_vat,
@@ -196,9 +215,9 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 
       if (response) {
         toast.success("Entry updated successfully!");
-        if (fetchData) fetchData();
+        if (fetchData) fetchData(); // Trigger parent data refresh
         if (setAction) setAction((prev) => !prev);
-        resetForm();
+        resetForm({ values: initialValues }); // Reset form after success
         onClose();
       } else {
         throw new Error("Unexpected response format");
@@ -212,7 +231,8 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   };
 
   const handleClose = () => {
-    resetForm();
+    console.log("Handle close triggered, resetting form");
+    resetForm({ values: initialValues });
     onClose();
   };
 
@@ -282,6 +302,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
             />
           </ModalHeader>
           <ModalBody overflowY="auto" px={6} py={4}>
+            {entryFetching && <div>Loading entry data...</div>}
             <form onSubmit={handleSubmit}>
               <Grid templateColumns="repeat(12, 1fr)" gap={4}>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
@@ -352,44 +373,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
                       </FormLabel>
                     )}
                 </GridItem>
-                {/* <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel
-                    fontSize="14px"
-                    fontWeight="medium"
-                    color="gray.700"
-                    mb={1}
-                  >
-                    Claim Type
-                  </FormLabel>
-                  <Select
-                    fontSize="14px"
-                    name="claim_type"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.claim_type}
-                    placeholder="Select Claim Type"
-                    borderColor={
-                      errors.claim_type && touched.claim_type
-                        ? "red.300"
-                        : "gray.300"
-                    }
-                    icon={customDropdownIcon}
-                    borderRadius="6px"
-                    height="40px"
-                    _focus={{
-                      borderColor: "#B79045",
-                      boxShadow: "0 0 0 1px #B79045",
-                    }}
-                  >
-                    <option value="FULL">FULL</option>
-                    <option value="HALF">HALF</option>
-                  </Select>
-                  {errors.claim_type && touched.claim_type && (
-                    <FormLabel color="red.500" fontSize="12px" mt={1}>
-                      {errors.claim_type}
-                    </FormLabel>
-                  )}
-                </GridItem> */}
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"
@@ -557,6 +540,28 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
                       "en-US",
                       { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                     )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Total Amount
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.totalAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                     isReadOnly
                     borderColor="gray.300"
                     borderRadius="6px"

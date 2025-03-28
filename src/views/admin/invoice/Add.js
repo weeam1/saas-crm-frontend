@@ -24,13 +24,10 @@ import { useCreateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
 import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 
-import { useParams } from "react-router-dom";
-
-// Validation schema updated to match Postman body
+// Validation schema
 const invoiceSchema = yup.object().shape({
-  unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
+  unit_no: yup.string().required("Unit No is required"),
   name_of_referring_party: yup.string().required("Referring party is required"),
-  // claim_type: yup.string().required("Claim type is required"),
   commission_percentage: yup
     .number()
     .typeError("Commission percentage must be a valid number")
@@ -53,13 +50,14 @@ const invoiceSchema = yup.object().shape({
 // Function to calculate commission, VAT, and total amount
 function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
   const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
-  const vatAmount = (vatPercentage / 100) * totalCommissionExclVat; // VAT on commission
+  const vatAmount = (vatPercentage / 100) * unitPrice;
   const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
-
+  const totalAmount = unitPrice + totalCommissionInclVat;
   return {
     total_commission_excl_vat: totalCommissionExclVat,
     vat_amount: vatAmount,
     total_commission_incl_vat: totalCommissionInclVat,
+    totalAmount: totalAmount,
   };
 }
 
@@ -73,13 +71,13 @@ const Add = (props) => {
     unit_no: "",
     total_amount: 0,
     name_of_referring_party: "",
-    // claim_type: "",
     commission_percentage: "",
     unit_price: "",
     vat_percentage: "",
     total_commission_excl_vat: 0,
     vat_amount: 0,
     total_commission_incl_vat: 0,
+    totalAmount: 0,
   };
 
   const formik = useFormik({
@@ -117,6 +115,7 @@ const Add = (props) => {
         total_commission_excl_vat,
         vat_amount,
         total_commission_incl_vat,
+        totalAmount,
       } = calculateTotal(
         Number(values.unit_price),
         Number(values.commission_percentage),
@@ -127,7 +126,8 @@ const Add = (props) => {
         total_commission_excl_vat,
         vat_amount,
         total_commission_incl_vat,
-        total_amount: total_commission_incl_vat,
+        total_amount: totalAmount,
+        totalAmount: totalAmount,
       });
     }
   }, [
@@ -144,9 +144,8 @@ const Add = (props) => {
       const payload = {
         invoice: props.invoiceId,
         unit_no: formValues.unit_no,
-        total_amount: formValues.total_commission_incl_vat,
+        total_amount: formValues.totalAmount,
         name_of_referring_party: formValues.name_of_referring_party,
-        // claim_type: formValues.claim_type,
         commission_percentage: Number(formValues.commission_percentage),
         unit_price: Number(formValues.unit_price),
         total_commission_excl_vat: formValues.total_commission_excl_vat,
@@ -302,44 +301,6 @@ const Add = (props) => {
                       </FormLabel>
                     )}
                 </GridItem>
-                {/* <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel
-                    fontSize="14px"
-                    fontWeight="medium"
-                    color="gray.700"
-                    mb={1}
-                  >
-                    Claim Type
-                  </FormLabel>
-                  <Select
-                    fontSize="14px"
-                    name="claim_type"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.claim_type}
-                    placeholder="Select Claim Type"
-                    borderColor={
-                      errors.claim_type && touched.claim_type
-                        ? "red.300"
-                        : "gray.300"
-                    }
-                    icon={customDropdownIcon}
-                    borderRadius="6px"
-                    height="40px"
-                    _focus={{
-                      borderColor: "#B79045",
-                      boxShadow: "0 0 0 1px #B79045",
-                    }}
-                  >
-                    <option value="FULL">FULL</option>
-                    <option value="Installment">Installment</option>
-                  </Select>
-                  {errors.claim_type && touched.claim_type && (
-                    <FormLabel color="red.500" fontSize="12px" mt={1}>
-                      {errors.claim_type}
-                    </FormLabel>
-                  )}
-                </GridItem> */}
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"
@@ -507,6 +468,28 @@ const Add = (props) => {
                       "en-US",
                       { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                     )}
+                    isReadOnly
+                    borderColor="gray.300"
+                    borderRadius="6px"
+                    height="40px"
+                  />
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Total Amount
+                  </FormLabel>
+                  <Input
+                    fontSize="14px"
+                    type="text"
+                    value={values.totalAmount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                     isReadOnly
                     borderColor="gray.300"
                     borderRadius="6px"
