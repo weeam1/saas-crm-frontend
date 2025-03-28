@@ -6,6 +6,7 @@ import {
 	Box,
 	Button,
 	Flex,
+	Grid,
 	HStack,
 	IconButton,
 	Text,
@@ -154,59 +155,67 @@ const LeadsCards = () => {
 				</Text>
 
 				{/* Action buttons only for Admins */}
-				<HStack gap='2'>
-					<AllCheckBox
-						leads={leads}
-						setSelectAllChecked={setSelectAllChecked}
-						selectedValues={selectedValues}
-						setSelectedValues={setSelectedValues}
-					/>
+				<HStack
+					flexDirection={{ base: 'column', md: 'row' }}
+					gap='2'
+					justifyItems='flex-end'
+					alignItems='end'
+				>
+					<HStack>
+						<AllCheckBox
+							leads={leads}
+							setSelectAllChecked={setSelectAllChecked}
+							selectedValues={selectedValues}
+							setSelectedValues={setSelectedValues}
+						/>
 
-					{['superAdmin', 'Manager'].includes(role) && (
-						<Button
-							{...buttonStyle}
-							onClick={() => setBulkAssign(true)}
-							isDisabled={!(selectedValues && selectedValues?.length > 1)}
+						{['superAdmin', 'Manager'].includes(role) && (
+							<Button
+								{...buttonStyle}
+								onClick={() => setBulkAssign(true)}
+								isDisabled={!(selectedValues && selectedValues?.length > 1)}
+								variant='solid'
+								bg='brand.400'
+								py='2'
+								px='5'
+								aria-label='Bulk Assign'
+							>
+								Bulk Assign
+								{selectedValues?.length > 0
+									? ` (${selectedValues?.length})`
+									: null}
+							</Button>
+						)}
+						{(permission?.create || role === 'superAdmin') && (
+							<Button
+								{...buttonStyle}
+								variant='solid'
+								bg='brand.400'
+								py='2'
+								px='5'
+								leftIcon={<FaPlus />}
+								aria-label='New lead'
+								onClick={() => setAddLead(true)}
+							>
+								New
+							</Button>
+						)}
+					</HStack>
+
+					<HStack>
+						<IconButton
+							icon={<MdSettings />}
+							onClick={() => setManageCols(true)}
+							aria-label='Filter Date'
+							colorScheme='brand'
 							variant='solid'
-							bg='brand.400'
-							py='2'
-							px='5'
-							aria-label='Bulk Assign'
-						>
-							Bulk Assign
-							{selectedValues?.length > 0
-								? ` (${selectedValues?.length})`
-								: null}
-						</Button>
-					)}
+							size='sm'
+							borderRadius='full'
+							boxShadow='md'
+						/>
 
-					{(permission?.create || role === 'superAdmin') && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
-							py='2'
-							px='5'
-							leftIcon={<FaPlus />}
-							aria-label='New lead'
-							onClick={() => setAddLead(true)}
-						>
-							New
-						</Button>
-					)}
-
-					<IconButton
-						icon={<MdSettings />}
-						onClick={() => setManageCols(true)}
-						aria-label='Filter Date'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
-
-					<DateFilterButton onClick={dateTimeOnOpen} />
+						<DateFilterButton onClick={dateTimeOnOpen} />
+					</HStack>
 				</HStack>
 			</Flex>
 
