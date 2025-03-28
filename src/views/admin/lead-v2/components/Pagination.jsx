@@ -132,7 +132,7 @@ const Pagination = ({
 			{/* Go To Page */}
 			<HStack fontWeight='medium' color='gray.800' spacing={1}>
 				<Text>Go to</Text>
-				<NumberInput
+				{/* <NumberInput
 					value={gotoPage ?? 1}
 					onChange={(valueString) => {
 						const value = Number(valueString) || '';
@@ -167,6 +167,44 @@ const Pagination = ({
 						}}
 						_active={{ bg: 'softGray.400' }}
 						isDisabled={refetching || loading} // Disable input when loading
+					/>
+				</NumberInput> */}
+
+				<NumberInput
+					value={gotoPage ?? 1}
+					onChange={(valueString) => {
+						const value = Number(valueString) || '';
+						if (value <= (totalPages ?? 999999999)) {
+							setGotoPage(value);
+						}
+					}}
+					onBlur={handleGoToBlur} // FIX: Remove e.key check
+					min={1}
+					max={totalPages ?? 999999999}
+					size='sm'
+					borderRadius='md'
+					width='5rem'
+					bg='softGray.50'
+					border='1px solid softGray.600'
+					allowMouseWheel={false}
+					clampValueOnBlur={false}
+					isDisabled={refetching || loading}
+				>
+					<NumberInputField
+						aria-label='Go to page'
+						textAlign='center'
+						borderRadius='md'
+						border='2px solid'
+						borderColor='softGray.600'
+						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
+						_focus={{
+							outline: 'none',
+							bg: 'softGray.50',
+							border: '1px solid',
+							borderColor: 'brand.500',
+						}}
+						_active={{ bg: 'softGray.400' }}
+						isDisabled={refetching || loading}
 					/>
 				</NumberInput>
 

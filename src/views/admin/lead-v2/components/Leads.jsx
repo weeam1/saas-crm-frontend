@@ -154,8 +154,12 @@ const Leads = ({
 	};
 
 	const handlePageSize = (e) => {
-		setPageSize(Number(e.target.value));
-		setRefetchLoading(true);
+		const newSize = Number(e.target.value);
+		if (newSize !== pageSize) {
+			setPageSize(newSize);
+			setCurrentPage(1);
+			setRefetchLoading(true);
+		}
 	};
 
 	return (

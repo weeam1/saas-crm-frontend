@@ -54,6 +54,7 @@ const safeJSONParse = (value) => {
 
 export const useFilteredQueryParams = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const isEffectTriggered = useRef(false);
 
 	const getPageParams = () => {
 		try {
@@ -83,74 +84,6 @@ export const useFilteredQueryParams = () => {
 
 	const tree = useSelector((state) => state.user.tree);
 
-	// const updateSearchParams = (params) => {
-	// 	setSearchParams(() => {
-	// 		const updatedParams = new URLSearchParams();
-
-	// 		// Only add keys that exist in new params
-	// 		Object.entries(params).forEach(([key, value]) => {
-	// 			if (value !== undefined && value !== null) {
-	// 				console.log('Updating key:', key, 'Value:', value);
-	// 				updatedParams.set(
-	// 					key,
-	// 					typeof value === 'object' ? JSON.stringify(value) : value
-	// 				);
-	// 			}
-	// 		});
-
-	// 		return updatedParams;
-	// 	});
-
-	// 	setQueryParams(params);
-	// };
-
-	// useEffect(() => {
-	// 	const { page, pageSize } = getPageParams();
-	// 	const dataParam = searchParams.get('data');
-	// 	const searchParam = searchParams.get('search');
-	// 	const datetimeParam = searchParams.get('dateTime');
-
-	// 	const updatedParams = { page, pageSize };
-
-	// 	if (dataParam) {
-	// 		updatedParams.data = dataParam;
-	// 		const parsedData = JSON.parse(dataParam);
-
-	// 		setSearchTags(generateSearchTags(parsedData || {}, searchTags, tree));
-	// 		setSearchClear(true);
-	// 	}
-
-	// 	if (searchParam) {
-	// 		updatedParams.search = searchParam;
-	// 		setSearchTags(generateSearchTags(updatedParams, searchTags));
-	// 		setSearchClear(true);
-	// 	}
-
-	// 	if (datetimeParam) {
-	// 		updatedParams.dateTime = datetimeParam;
-	// 		const datetime = datetimeParam?.split('|');
-
-	// 		setSearchTags(
-	// 			generateSearchTags({ from: datetime[0], to: datetime[1] }, searchTags)
-	// 		);
-	// 		setSearchClear(true);
-	// 	}
-
-	// 	console.log({ updatedParams });
-
-	// 	if (
-	// 		queryParams === null ||
-	// 		JSON.stringify(queryParams) !== JSON.stringify(updatedParams)
-	// 	) {
-	// 		// setQueryParams(updatedParams);
-	// 		updateSearchParams(updatedParams);
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [searchParams]);
-
-	// Utility function for safe JSON parsing
-	// Utility function for safe JSON parsing
-
 	const updateSearchParams = (params) => {
 		setSearchParams(() => {
 			const updatedParams = new URLSearchParams();
@@ -158,7 +91,7 @@ export const useFilteredQueryParams = () => {
 			// Only add keys that exist in new params
 			Object.entries(params).forEach(([key, value]) => {
 				if (value !== undefined && value !== null) {
-					console.log('Updating key:', key, 'Value:', value);
+					console.log({ key, value });
 					updatedParams.set(
 						key,
 						typeof value === 'object' ? JSON.stringify(value) : value
@@ -175,6 +108,8 @@ export const useFilteredQueryParams = () => {
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
+
+		console.log('update ', updatedParams);
 
 		const lead = searchParams.get('lead');
 
@@ -240,23 +175,61 @@ export const useFilteredQueryParams = () => {
 			updateSearchParams(updatedParams);
 		}
 
+		console.log('search params changes ');
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams]);
 
 	useEffect(() => {
-		const pageFromParams = Number(searchParams.get('page')) || DEFAULT_PAGE;
-		const pageSizeFromParams =
-			Number(searchParams.get('pageSize')) || DEFAULT_PAGE_SIZE;
+		const pageFromParams = Number(searchParams.get('page'));
+		const pageSizeFromParams = Number(searchParams.get('pageSize'));
+
+		console.log({ pageSizeFromParams, pageSize });
+
+		if (isEffectTriggered.current) {
+			isEffectTriggered.current = false;
+			return;
+		}
 
 		// Only update searchParams if they are different
 		if (pageFromParams !== currentPage || pageSizeFromParams !== pageSize) {
-			updateSearchParams({ page: currentPage, pageSize });
+			// updateSearchParams({ page: currentPage, pageSize });
+
+			updateSearchParams({
+				...Object.fromEntries(searchParams.entries()),
+				page: currentPage,
+				pageSize,
+			});
 		}
+
+		// If pageSize changes, reset to page 1
+		// if (pageSizeFromParams !== pageSize) {
+		// 	// Use a callback to ensure state updates first
+		// 	setTimeout(() => {
+		// 		updateSearchParams({
+		// 			...Object.fromEntries(searchParams.entries()),
+		// 			page: 1,
+		// 			pageSize,
+		// 		});
+		// 	}, 0);
+		// } else if (pageFromParams !== currentPage) {
+		// 	updateSearchParams({
+		// 		...Object.fromEntries(searchParams.entries()),
+		// 		page: currentPage,
+		// 		pageSize,
+		// 	});
+		// }
+
+		console.log('update pages ');
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentPage, pageSize]);
 
 	const setSearchQueryParams = (params) => {
 		const updatedParams = { ...params, page: 1, pageSize };
+		isEffectTriggered.current = true;
+		console.log('search', updatedParams);
+
 		setCurrentPage(1);
 		updateSearchParams(updatedParams);
 	};
@@ -286,8 +259,6 @@ export const useFilteredQueryParams = () => {
 
 export const generateSearchTags = (filters, prevTags = [], tree) => {
 	const tags = [];
-
-	console.log({ filters });
 
 	if (filters.search) tags.push(`Search: ${filters.search}`);
 	if (filters.from) tags.push(`Start: ${formattedDate(filters.from)}`);
