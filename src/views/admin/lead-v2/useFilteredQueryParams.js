@@ -91,7 +91,6 @@ export const useFilteredQueryParams = () => {
 			// Only add keys that exist in new params
 			Object.entries(params).forEach(([key, value]) => {
 				if (value !== undefined && value !== null) {
-					console.log({ key, value });
 					updatedParams.set(
 						key,
 						typeof value === 'object' ? JSON.stringify(value) : value
@@ -108,8 +107,6 @@ export const useFilteredQueryParams = () => {
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
-
-		console.log('update ', updatedParams);
 
 		const lead = searchParams.get('lead');
 
@@ -175,16 +172,12 @@ export const useFilteredQueryParams = () => {
 			updateSearchParams(updatedParams);
 		}
 
-		console.log('search params changes ');
-
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams]);
 
 	useEffect(() => {
 		const pageFromParams = Number(searchParams.get('page'));
 		const pageSizeFromParams = Number(searchParams.get('pageSize'));
-
-		console.log({ pageSizeFromParams, pageSize });
 
 		if (isEffectTriggered.current) {
 			isEffectTriggered.current = false;
@@ -220,15 +213,12 @@ export const useFilteredQueryParams = () => {
 		// 	});
 		// }
 
-		console.log('update pages ');
-
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentPage, pageSize]);
 
 	const setSearchQueryParams = (params) => {
 		const updatedParams = { ...params, page: 1, pageSize };
 		isEffectTriggered.current = true;
-		console.log('search', updatedParams);
 
 		setCurrentPage(1);
 		updateSearchParams(updatedParams);

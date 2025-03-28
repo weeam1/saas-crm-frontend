@@ -12,6 +12,7 @@ import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import CustomTooltip from './CustomTooltip';
 import { sendLeadNotification } from 'api';
+import { format } from 'date-fns';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -104,7 +105,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				<CustomTooltip
 					label={`Assign Date:\n${
 						lead?.agentAssignedDate
-							? new Date(lead?.agentAssignedDate).toLocaleString()
+							? format(new Date(lead?.agentAssignedDate), 'MMM d, yyyy h:mm a')
 							: 'N/A'
 					}`}
 				>

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
@@ -19,14 +19,37 @@ const {
 	Spinner,
 } = require('@chakra-ui/react');
 
+// const createUpdates = (selectedValues, values) => {
+// 	return selectedValues.flatMap((id) =>
+// 		Object.entries(values).map(([key, value]) => ({
+// 			id,
+// 			key,
+// 			value,
+// 		}))
+// 	);
+// };
+
 const createUpdates = (selectedValues, values) => {
-	return selectedValues.flatMap((id) =>
-		Object.entries(values).map(([key, value]) => ({
-			id,
-			key,
-			value,
-		}))
-	);
+	const updatesMap = new Map();
+
+	selectedValues.forEach((id) => {
+		if (!updatesMap.has(id)) {
+			updatesMap.set(id, { id });
+		}
+
+		Object.entries(values).forEach(([key, value]) => {
+			const updateObj = updatesMap.get(id);
+			updateObj[key] = value;
+
+			// Set date for managerAssignedDate or agentAssignedDate
+			if (key === 'managerAssigned' || key === 'agentAssigned') {
+				updateObj[`${key}Date`] =
+					value === null || value === '' ? null : new Date().toISOString();
+			}
+		});
+	});
+
+	return Array.from(updatesMap.values());
 };
 
 const BulkAssignModal = (props) => {
@@ -40,6 +63,13 @@ const BulkAssignModal = (props) => {
 		refreshData,
 		setSelectAllChecked,
 	} = props;
+
+	const [isMounted, setIsMounted] = useState(true);
+
+	useEffect(() => {
+		setIsMounted(true);
+		return () => setIsMounted(false); // Cleanup on unmount
+	}, []);
 
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -78,18 +108,18 @@ const BulkAssignModal = (props) => {
 				}
 			}
 
-			const updates = createUpdates(selectedValues, values);
-
 			let res = await putApi(`api/lead/bulk-assign`, payload);
 
 			if (res.status === 200) {
 				// refreshData();
+				const updates = createUpdates(selectedValues, values);
 
 				dispatch(
 					updateMultipleLeadFields({
 						updates,
 					})
 				);
+
 				toast.success('Leads updated successfully');
 				formikResetForm();
 				setSelectedValues([]);

@@ -57,16 +57,36 @@ const leadsSlice = createSlice({
 			}
 		},
 
+		// updateMultipleLeadFields: (state, action) => {
+		// 	// Array of updates [{ id, key, value }, ...]
+		// 	const { updates } = action.payload;
+
+		// 	console.log({ updates });
+
+		// 	const updatesMap = updates.reduce((acc, { id, key, value }) => {
+		// 		if (!acc[id]) acc[id] = {};
+		// 		acc[id][key] = value;
+		// 		return acc;
+		// 	}, {});
+
+		// 	state.doc = state.doc.map((lead) =>
+		// 		updatesMap[lead._id] ? { ...lead, ...updatesMap[lead._id] } : lead
+		// 	);
+		// },
+
 		updateMultipleLeadFields: (state, action) => {
-			// Array of updates [{ id, key, value }, ...]
 			const { updates } = action.payload;
 
-			const updatesMap = updates.reduce((acc, { id, key, value }) => {
-				if (!acc[id]) acc[id] = {};
-				acc[id][key] = value;
+			// Convert updates array into a map for easy lookup
+			const updatesMap = updates.reduce((acc, update) => {
+				if (!update.id) {
+					return acc;
+				}
+				acc[update.id] = { ...update }; // Store full update object
 				return acc;
 			}, {});
 
+			// Apply updates
 			state.doc = state.doc.map((lead) =>
 				updatesMap[lead._id] ? { ...lead, ...updatesMap[lead._id] } : lead
 			);
