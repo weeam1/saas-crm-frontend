@@ -30,7 +30,7 @@ import { useParams } from "react-router-dom";
 const invoiceSchema = yup.object().shape({
   unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
   name_of_referring_party: yup.string().required("Referring party is required"),
-  claim_type: yup.string().required("Claim type is required"),
+  // claim_type: yup.string().required("Claim type is required"),
   commission_percentage: yup
     .number()
     .typeError("Commission percentage must be a valid number")
@@ -73,7 +73,7 @@ const Add = (props) => {
     unit_no: "",
     total_amount: 0,
     name_of_referring_party: "",
-    claim_type: "",
+    // claim_type: "",
     commission_percentage: "",
     unit_price: "",
     vat_percentage: "",
@@ -146,7 +146,7 @@ const Add = (props) => {
         unit_no: formValues.unit_no,
         total_amount: formValues.total_commission_incl_vat,
         name_of_referring_party: formValues.name_of_referring_party,
-        claim_type: formValues.claim_type,
+        // claim_type: formValues.claim_type,
         commission_percentage: Number(formValues.commission_percentage),
         unit_price: Number(formValues.unit_price),
         total_commission_excl_vat: formValues.total_commission_excl_vat,
@@ -161,7 +161,7 @@ const Add = (props) => {
       }).unwrap();
       if (response) {
         toast.success("Entry added successfully!");
-        if (props.fetchData) props.fetchData(); 
+        if (props.fetchData) props.fetchData();
         if (props.setAction) props.setAction((prev) => !prev);
         resetForm();
         props.onClose();
@@ -302,7 +302,7 @@ const Add = (props) => {
                       </FormLabel>
                     )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
+                {/* <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"
                     fontWeight="medium"
@@ -332,14 +332,14 @@ const Add = (props) => {
                     }}
                   >
                     <option value="FULL">FULL</option>
-                    <option value="HALF">HALF</option>
+                    <option value="Installment">Installment</option>
                   </Select>
                   {errors.claim_type && touched.claim_type && (
                     <FormLabel color="red.500" fontSize="12px" mt={1}>
                       {errors.claim_type}
                     </FormLabel>
                   )}
-                </GridItem>
+                </GridItem> */}
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"

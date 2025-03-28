@@ -26,10 +26,10 @@ import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 const invoiceSchema = yup.object().shape({
   developer_id: yup.string().required("Developer is required"),
   bank_account_id: yup.string().required("Bank account is required"),
+  claimType: yup.string().required("Claim type is required"), // Added validation for claimType
 });
 
 const Edit = (props) => {
-
   const [isLoading, setIsLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
@@ -65,6 +65,7 @@ const Edit = (props) => {
   const initialValues = {
     developer_id: selectedInvoice?.developer?._id || "",
     bank_account_id: selectedInvoice?.bank_account?._id || "",
+    claimType: selectedInvoice?.claimType || "", // Added claimType to initialValues
   };
 
   const formik = useFormik({
@@ -77,7 +78,7 @@ const Edit = (props) => {
       EditData(filteredValues);
     },
     enableReinitialize: true,
-    validateOnChange: true, 
+    validateOnChange: true,
     validateOnBlur: true,
   });
 
@@ -101,6 +102,7 @@ const Edit = (props) => {
       const payload = {
         developer: formValues.developer_id,
         bank_account: formValues.bank_account_id,
+        claimType: formValues.claimType, // Added claimType to the payload
       };
 
       const response = await updateItem({
@@ -153,6 +155,7 @@ const Edit = (props) => {
         const updatedValues = {
           developer_id: editData?.developer?._id || "",
           bank_account_id: editData?.bank_account?._id || "",
+          claimType: editData?.claimType || "", // Added claimType to updatedValues
         };
         setValues(updatedValues);
       } else {
@@ -306,6 +309,46 @@ const Edit = (props) => {
                   {errors.bank_account_id && touched.bank_account_id && (
                     <FormLabel color="red.500" fontSize="12px" mt={1}>
                       {errors.bank_account_id}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel
+                    fontSize="14px"
+                    fontWeight="medium"
+                    fontFamily="DM Sans, sans-serif"
+                    color="gray.700"
+                    mb={1}
+                  >
+                    Claim Type
+                  </FormLabel>
+                  <Select
+                    fontSize="14px"
+                    name="claimType"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.claimType || ""}
+                    placeholder="Select Claim Type"
+                    borderColor={
+                      errors.claimType && touched.claimType
+                        ? "red.300"
+                        : "gray.300"
+                    }
+                    fontFamily="DM Sans, sans-serif"
+                    icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  >
+                    <option value="Full">Full</option>
+                    <option value="Installment">Installment</option>
+                  </Select>
+                  {errors.claimType && touched.claimType && (
+                    <FormLabel color="red.500" fontSize="12px" mt={1}>
+                      {errors.claimType}
                     </FormLabel>
                   )}
                 </GridItem>

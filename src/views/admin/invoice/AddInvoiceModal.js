@@ -26,6 +26,7 @@ import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 const invoiceSchema = yup.object().shape({
   developer_id: yup.string().required("Developer is required"),
   bank_account_id: yup.string().required("Bank account is required"),
+  claimType: yup.string().required("Claim type is required"),
 });
 
 const Add = (props) => {
@@ -61,6 +62,7 @@ const Add = (props) => {
   const initialValues = {
     developer_id: "",
     bank_account_id: "",
+    claimType: "",
   };
 
   const formik = useFormik({
@@ -70,7 +72,6 @@ const Add = (props) => {
       AddData(values);
     },
     enableReinitialize: true,
-    
   });
 
   const {
@@ -125,7 +126,7 @@ const Add = (props) => {
 
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
-    md: { width: "602px", height: "250px" },
+    md: { width: "602px", height: "300px" },
   });
 
   const customDropdownIcon = (
@@ -191,6 +192,12 @@ const Add = (props) => {
                     }
                     fontFamily="DM Sans, sans-serif"
                     icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   >
                     {developersData?.data?.map((developer) => (
                       <option key={developer._id} value={developer._id}>
@@ -227,6 +234,12 @@ const Add = (props) => {
                     }
                     fontFamily="DM Sans, sans-serif"
                     icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
                   >
                     {bankAccountsData?.data?.map((bank) => (
                       <option key={bank._id} value={bank._id}>
@@ -237,6 +250,38 @@ const Add = (props) => {
                   {errors.bank_account_id && touched.bank_account_id && (
                     <FormLabel color="red.500" fontSize="14px">
                       {errors.bank_account_id}
+                    </FormLabel>
+                  )}
+                </GridItem>
+                <GridItem colSpan={{ base: 12, md: 6 }}>
+                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
+                    Claim Type
+                  </FormLabel>
+                  <Select
+                    fontSize="16px"
+                    name="claimType"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.claimType || ""}
+                    placeholder="Select Claim Type"
+                    borderColor={
+                      errors.claimType && touched.claimType ? "red.300" : null
+                    }
+                    fontFamily="DM Sans, sans-serif"
+                    icon={customDropdownIcon}
+                    borderRadius="6px"
+                    height="40px"
+                    _focus={{
+                      borderColor: "#B79045",
+                      boxShadow: "0 0 0 1px #B79045",
+                    }}
+                  >
+                    <option value="Full">Full</option>
+                    <option value="Installment">Installment</option>
+                  </Select>
+                  {errors.claimType && touched.claimType   && (
+                    <FormLabel color="red.500" fontSize="14px">
+                      {errors.claimType}
                     </FormLabel>
                   )}
                 </GridItem>

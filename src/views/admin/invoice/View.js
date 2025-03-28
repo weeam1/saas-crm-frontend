@@ -158,7 +158,7 @@ const SingleInvoice = () => {
   if (invoiceError) {
     return (
       <Box
-        minH="400px"
+        minH="700px"
         display="flex"
         alignItems="center"
         justifyContent="center"
@@ -371,7 +371,7 @@ const SingleInvoice = () => {
             className="table-container"
             overflowX="auto"
             overflowY="auto"
-            maxHeight="700px"
+            maxHeight="400px"
             w="full"
           >
             <Table
@@ -381,40 +381,40 @@ const SingleInvoice = () => {
             >
               <Thead
                 bg="#B79045 !important"
-                height="70px !important"
+                h="50px !important"
                 position="sticky"
                 top="0"
                 zIndex="1"
               >
                 <Tr>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     SN
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Unit No
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Name of Referring Party
                   </Th>
                   {/* <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Claim Type
                   </Th> */}
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Commission %
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Unit Price
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Total Commission EXCL. VAT
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     VAT %
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     VAT Amount
                   </Th>
-                  <Th color="white" fontSize={{ base: "xs", md: "lg" }}>
+                  <Th color="white" fontSize={{ base: "xs", md: "sm" }}>
                     Total Commission incl. VAT
                   </Th>
                 </Tr>
@@ -426,36 +426,39 @@ const SingleInvoice = () => {
                       <Td
                         textAlign="center"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
+                        fontFamily="DM sans"
                       >
                         {index + 1}
                       </Td>
                       <Td
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {invoice.unit_no || "-"}
                       </Td>
                       <Td
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {invoice.name_of_referring_party || "-"}
                       </Td>
-                      {/* <Td textAlign="center" border="1px solid #CDCDCD">
-                        {invoice.claim_type || "-"}
-                      </Td> */}
                       <Td
                         textAlign="center"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {`${invoice.commission_percentage || 0}%`}
                       </Td>
                       <Td
                         textAlign="right"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {(invoice.unit_price || 0).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
@@ -465,7 +468,8 @@ const SingleInvoice = () => {
                       <Td
                         textAlign="right"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {(
                           invoice.total_commission_excl_vat || 0
@@ -477,14 +481,16 @@ const SingleInvoice = () => {
                       <Td
                         textAlign="center"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {`${invoice.vat_percentage || 5}%`}
                       </Td>
                       <Td
                         textAlign="right"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {(invoice.vat_amount || 0).toLocaleString("en-US", {
                           minimumFractionDigits: 2,
@@ -494,7 +500,8 @@ const SingleInvoice = () => {
                       <Td
                         textAlign="right"
                         border="1px solid #CDCDCD"
-                        fontSize={{ base: "xs", md: "lg" }}
+                        py={4}
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         {(
                           invoice.total_commission_incl_vat || 0
@@ -511,6 +518,8 @@ const SingleInvoice = () => {
                       colSpan={12}
                       textAlign="center"
                       border="1px solid #CDCDCD"
+                      py={4} // Consistent padding for "No data" row
+                      fontSize={{ base: "sm", md: "md" }}
                     >
                       No data available
                     </Td>

@@ -34,6 +34,10 @@ const Index = () => {
 			accessor: 'invoiceNo',
 		},
 		{
+			Header: 'Claim Type',
+			accessor: 'claim_type',
+		},
+		{
 			Header: 'Developer',
 			accessor: 'developer.developer_name',
 		},

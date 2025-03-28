@@ -28,7 +28,7 @@ import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 const invoiceSchema = yup.object().shape({
   unit_no: yup.string().required("Unit No is required"), // Changed to string to match "A-101"
   name_of_referring_party: yup.string().required("Referring party is required"),
-  claim_type: yup.string().required("Claim type is required"),
+  // claim_type: yup.string().required("Claim type is required"),
   commission_percentage: yup
     .number()
     .typeError("Commission percentage must be a valid number")
@@ -85,7 +85,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
     unit_no: "",
     total_amount: 0,
     name_of_referring_party: "",
-    claim_type: "",
+    // claim_type: "",
     commission_percentage: "",
     unit_price: "",
     vat_percentage: "",
@@ -101,8 +101,8 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
       EditData(values);
     },
     enableReinitialize: true,
-    validateOnChange: true, 
-  validateOnBlur: true,
+    validateOnChange: true,
+    validateOnBlur: true,
   });
 
   const {
@@ -126,7 +126,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         unit_no: editData.unit_no || "",
         total_amount: editData.total_amount || 0,
         name_of_referring_party: editData.name_of_referring_party || "",
-        claim_type: editData.claim_type || "",
+        // claim_type: editData.claim_type || "",
         commission_percentage: editData.commission_percentage?.toString() || "",
         unit_price: editData.unit_price?.toString() || "",
         vat_percentage: editData.vat_percentage?.toString() || "",
@@ -176,7 +176,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         unit_no: formValues.unit_no,
         total_amount: formValues.total_commission_incl_vat,
         name_of_referring_party: formValues.name_of_referring_party,
-        claim_type: formValues.claim_type,
+        // claim_type: formValues.claim_type,
         commission_percentage: Number(formValues.commission_percentage),
         unit_price: Number(formValues.unit_price),
         total_commission_excl_vat: formValues.total_commission_excl_vat,
@@ -352,7 +352,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
                       </FormLabel>
                     )}
                 </GridItem>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
+                {/* <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"
                     fontWeight="medium"
@@ -389,7 +389,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
                       {errors.claim_type}
                     </FormLabel>
                   )}
-                </GridItem>
+                </GridItem> */}
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel
                     fontSize="14px"

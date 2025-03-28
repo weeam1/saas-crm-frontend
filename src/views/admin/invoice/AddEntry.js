@@ -13,11 +13,17 @@ import {
   Skeleton,
   HStack,
   useBreakpointValue,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  IconButton,
 } from "@chakra-ui/react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import DeleteIconSvg from "../../../assets/img/bankaccount/Vector.png";
 import EditIconSvg from "../../../assets/img/bankaccount/ic_baseline-edit.png";
 import { BiError } from "react-icons/bi";
+import { FaEllipsisV } from "react-icons/fa";
 import { useFetchItemsQuery } from "api/apiSlice";
 import Add from "./Add";
 import Edit from "./Edit";
@@ -44,7 +50,6 @@ const AddEntry = () => {
     "SN",
     "Unit No",
     "Name of Referring Party",
-    // "Claim Type",
     "Commission %",
     "Unit Price",
     "Total Commission EXCL. VAT",
@@ -158,12 +163,9 @@ const AddEntry = () => {
   }
 
   // Fixed table height constants
-  const fixedTableHeight = "700px"; // Adjust this value as needed
+  const fixedTableHeight = "700px";
   const rowHeight = 48;
   const headerHeight = 48;
-  const maxRows = Math.floor(
-    (parseInt(fixedTableHeight) - headerHeight) / rowHeight
-  );
 
   return (
     <Box bg="gray.50" p={paddingX} fontFamily="DM Sans" minH="100vh">
@@ -206,9 +208,11 @@ const AddEntry = () => {
             onClick={() => setIsAddModalOpen(true)}
             borderRadius="6px"
             _hover={{ bg: "#A47B38" }}
+            _active={{ bg: "#946B2E" }}
           >
             Add Entry
           </Button>
+
           {tableData.length > 0 && (
             <Link to={`/invoiceView/${tableData[0]?.invoice?.invoiceNo}`}>
               <Button
@@ -220,6 +224,7 @@ const AddEntry = () => {
                 bg="#B79045"
                 borderRadius="6px"
                 _hover={{ bg: "#A47B38" }}
+                _active={{ bg: "#946B2E" }}
               >
                 View Invoice
               </Button>
@@ -235,9 +240,9 @@ const AddEntry = () => {
         boxShadow="md"
         bg="white"
         mb={6}
-        h={fixedTableHeight} // Fixed height
+        h={fixedTableHeight}
         position="relative"
-        overflowY="auto" // Enable vertical scrolling
+        overflowY="auto"
       >
         <Table
           variant="simple"
@@ -251,7 +256,7 @@ const AddEntry = () => {
             position="sticky"
             top="0"
             zIndex="10"
-            bg="#B79045"
+            bg="#edd199"
             boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)"
             h={`${headerHeight}px`}
           >
@@ -259,14 +264,14 @@ const AddEntry = () => {
               {columns.map((header, index) => (
                 <Th
                   key={index}
-                  color="white"
+                  color="black"
                   fontSize={fontSizeTh}
                   fontWeight="medium"
                   py={3}
                   textTransform="capitalize"
                   borderColor="gray.300"
                   textAlign={
-                    index === 0 || index === 3 || index === 4 || index === 7
+                    index === 0 || index === 3 || index === 6 || index === 9
                       ? "center"
                       : "left"
                   }
@@ -278,23 +283,23 @@ const AddEntry = () => {
           </Thead>
           <Tbody>
             {entriesLoading ? (
-              // Shimmer effect filling the available table height
-              <TableLoading columns={columns} length="" />
+              <TableLoading columns={columns} length="10" />
             ) : tableData.length === 0 ? (
               <Tr h={`${rowHeight}px`}>
                 <Td
-                  colSpan={11}
-                  py={10}
+                  colSpan={10}
+                  py={12}
                   textAlign="center"
                   borderColor="gray.200"
                   bg="white"
-                  h={fixedTableHeight} // Match table height
+                  h={fixedTableHeight}
                 >
-                  <HStack justifyContent="center" spacing={3} color="gray.500">
-                    <BiError size={25} />
+                  <HStack justifyContent="center" spacing={4} color="gray.500">
+                    <BiError size={30} />
                     <Text
-                      fontSize={{ base: "lg", md: "xl" }}
-                      fontWeight="medium"
+                      fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
+                      fontWeight="semibold"
+                      color="gray.600"
                     >
                       No Entry Available
                     </Text>
@@ -308,51 +313,52 @@ const AddEntry = () => {
                   bg={index % 2 === 0 ? "white" : "gray.50"}
                   _hover={{
                     bg: "gray.100",
-                    transition: "background-color 0.2s",
+                    transition: "background-color 0.3s ease",
                   }}
                   h={`${rowHeight}px`}
+                  borderBottom="1px solid"
+                  borderColor="gray.200"
                 >
                   <Td
                     textAlign="center"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
                     width="60px"
+                    fontWeight="medium"
                   >
                     {index + 1}
                   </Td>
                   <Td
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {entry.unit_no || "-"}
                   </Td>
                   <Td
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {entry.name_of_referring_party || "-"}
                   </Td>
-                  {/* <Td
-                    textAlign="center"
-                    borderColor="gray.200"
-                    fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
-                  >
-                    {entry.claim_type || "-"}
-                  </Td> */}
                   <Td
                     textAlign="center"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {`${entry.commission_percentage || 0}%`}
                   </Td>
@@ -360,8 +366,10 @@ const AddEntry = () => {
                     textAlign="right"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {(entry.unit_price || 0).toLocaleString("en-US", {
                       minimumFractionDigits: 2,
@@ -372,8 +380,10 @@ const AddEntry = () => {
                     textAlign="right"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {(entry.total_commission_excl_vat || 0).toLocaleString(
                       "en-US",
@@ -387,8 +397,10 @@ const AddEntry = () => {
                     textAlign="center"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {`${entry.vat_percentage || 5}%`}
                   </Td>
@@ -396,8 +408,10 @@ const AddEntry = () => {
                     textAlign="right"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {(entry.vat_amount || 0).toLocaleString("en-US", {
                       minimumFractionDigits: 2,
@@ -408,8 +422,10 @@ const AddEntry = () => {
                     textAlign="right"
                     borderColor="gray.200"
                     fontSize={fontSizeTd}
-                    color="gray.700"
-                    py={3}
+                    color="gray.800"
+                    py={4}
+                    px={6}
+                    fontWeight="medium"
                   >
                     {(entry.total_commission_incl_vat || 0).toLocaleString(
                       "en-US",
@@ -419,27 +435,69 @@ const AddEntry = () => {
                       }
                     )}
                   </Td>
-                  <Td borderColor="gray.200" py={3} width="120px">
-                    <HStack justifyContent="center" spacing={2}>
-                      <Button
-                        size="sm"
-                        onClick={() => handleEditClick(entry._id)}
-                        borderRadius="6px"
-                        bg="gray.100"
-                        _hover={{ bg: "gray.200" }}
-                      >
-                        <img src={EditIconSvg} alt="Edit" width="16px" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleDeleteClick(entry._id)}
-                        borderRadius="6px"
-                        bg="gray.100"
-                        _hover={{ bg: "gray.200" }}
-                      >
-                        <img src={DeleteIconSvg} alt="Delete" width="16px" />
-                      </Button>
-                    </HStack>
+                  <Td borderColor="gray.200" py={4} px={6} width="80px">
+                    <Flex justifyContent="center">
+                      <Menu>
+                        <MenuButton
+                          as={IconButton}
+                          aria-label="Options"
+                          icon={<FaEllipsisV />}
+                          variant="ghost"
+                          size="sm"
+                          color="gray.600"
+                          _hover={{ color: "gray.800", bg: "gray.200" }}
+                          transition="all 0.2s ease"
+                        />
+                        <MenuList
+                          minWidth="fit-content"
+                          width="auto"
+                          borderRadius="md"
+                          boxShadow="md"
+                          py={1}
+                        >
+                          <MenuItem
+                            onClick={() => handleEditClick(entry._id)}
+                            icon={
+                              <img
+                                src={EditIconSvg}
+                                alt="Edit"
+                                width="16px"
+                                height="16px"
+                              />
+                            }
+                            minWidth="fit-content"
+                            width="auto"
+                            px={4}
+                            py={2}
+                            fontSize="sm"
+                            color="gray.700"
+                            _hover={{ bg: "gray.100" }}
+                          >
+                            Edit
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => handleDeleteClick(entry._id)}
+                            icon={
+                              <img
+                                src={DeleteIconSvg}
+                                alt="Delete"
+                                width="16px"
+                                height="16px"
+                              />
+                            }
+                            minWidth="fit-content"
+                            width="auto"
+                            px={4}
+                            py={2}
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50" }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </Flex>
                   </Td>
                 </Tr>
               ))
@@ -456,8 +514,6 @@ const AddEntry = () => {
             p={6}
             maxW={{ base: "100%", md: "500px" }}
             w={{ base: "100%", md: "auto" }}
-            // boxShadow='md'
-            // bg='white'
           >
             <Table
               variant="simple"
@@ -467,12 +523,12 @@ const AddEntry = () => {
               borderColor="gray.200"
               fontFamily="DM Sans"
             >
-              <Thead bg="#B79045">
+              <Thead bg="#edd199">
                 <Tr>
                   <Th
                     fontSize={fontSizeSummaryLabel}
                     fontWeight="medium"
-                    color="white"
+                    color="black"
                     textTransform="capitalize"
                     colSpan={2}
                     py={3}
@@ -574,7 +630,6 @@ const AddEntry = () => {
                     })}
                   </Td>
                 </Tr>
-
                 <Tr>
                   <Td
                     fontSize={fontSizeSummaryLabel}
@@ -589,6 +644,7 @@ const AddEntry = () => {
                     fontSize={fontSizeSummaryValue}
                     color="gray.800"
                     borderColor="gray.200"
+                    fontWeight="bold"
                     py={3}
                     textAlign="right"
                   >

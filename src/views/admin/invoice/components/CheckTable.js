@@ -50,9 +50,10 @@ import * as yup from "yup";
 import CustomSearchInput from "./Search";
 import DataNotFound from "components/notFoundData";
 import Breadcrumb from "./BreadCrumb";
-import EditIconSvg from "../../../../assets/img/Invoice/ic_baseline-edit.svg";
-import DeleteIconSvg from "../../../../assets/img/Invoice/weui_delete-filled.svg";
+import DeleteIconSvg from "../../../../assets/img/bankaccount/Vector.png";
+import EditIconSvg from "../../../../assets/img/bankaccount/ic_baseline-edit.png";
 import TableLoading from "components/loading/TableLoading";
+import { FaEllipsisV } from "react-icons/fa";
 
 export default function CheckTable(props) {
   const {
@@ -403,6 +404,16 @@ export default function CheckTable(props) {
                             </Text>
                           </Flex>
                         );
+                      } else if (column.Header === "Claim Type") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.claimType ? `${row.claimType}` : "Pending"}
+                          </Text>
+                        );
                       } else if (column.Header === "Developer") {
                         cellData = (
                           <Text fontSize="sm" fontWeight="700">
@@ -469,37 +480,60 @@ export default function CheckTable(props) {
                               </Button>
                             </Link>
 
-                            {access?.update && (
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setEdit(true);
-                                  setSelectedId(row._id);
-                                }}
-                              >
-                                <img
-                                  src={EditIconSvg}
-                                  alt="Edit"
-                                  width="16px"
-                                  height="16px"
+                            {/* Three-dot menu for Edit and Delete with SVG images */}
+                            {(access?.update || access?.delete) && (
+                              <Menu width="200px">
+                                <MenuButton
+                                  as={IconButton}
+                                  aria-label="Options"
+                                  icon={<FaEllipsisV />}
+                                  variant="ghost"
+                                  size="sm"
                                 />
-                              </Button>
-                            )}
-                            {access?.delete && (
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedId(row._id);
-                                  setDeleteModel(true);
-                                }}
-                              >
-                                <img
-                                  src={DeleteIconSvg}
-                                  alt="Delete"
-                                  width="16px"
-                                  height="16px"
-                                />
-                              </Button>
+                                <MenuList minWidth="fit-content" width="auto">
+                                  {access?.update && (
+                                    <MenuItem
+                                      fontSize="lg"
+                                      fontFamily="DM sans"
+                                      onClick={() => {
+                                        setEdit(true);
+                                        setSelectedId(row._id);
+                                      }}
+                                      icon={
+                                        <img
+                                          src={EditIconSvg}
+                                          alt="Edit"
+                                          width="16px"
+                                          height="16px"
+                                        />
+                                      }
+                                    >
+                                      Edit
+                                    </MenuItem>
+                                  )}
+                                  {access?.delete && (
+                                    <MenuItem
+                                      fontSize="lg"
+                                      fontFamily="DM sans"
+                                      onClick={() => {
+                                        setSelectedId(row._id);
+                                        setDeleteModel(true);
+                                      }}
+                                      icon={
+                                        <img
+                                          src={DeleteIconSvg}
+                                          alt="Delete"
+                                          width="16px"
+                                          height="16px"
+                                        />
+                                      }
+                                      color="red.500"
+                                    >
+                                      Delete
+                                    </MenuItem>
+                                  )}
+                                </MenuList>
+                              </Menu>
                             )}
                           </Flex>
                         );
