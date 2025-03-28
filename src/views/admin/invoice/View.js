@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BiError } from "react-icons/bi";
-import { useFetchItemsQuery } from "api/apiSlice";
+import { useFetchItemsQuery,useDownloadInvoiceMutation } from "api/apiSlice";
 import { FaChevronDown } from "react-icons/fa";
 import convertToWords from "utils/convertToWords";
 import EditImg from "../../../assets/img/Invoice/ic_round-edit.svg";
@@ -29,6 +29,7 @@ import Edit from "./Edit";
 import Weam from "../../../assets/img/Invoice/weam.png";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { toast } from "react-toastify";
 
 const SingleInvoice = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const SingleInvoice = () => {
   const [edit, setEdit] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [action, setAction] = useState(null);
-
+  const [downloadInvoiceMutation, { isLoading: isDownloading }] = useDownloadInvoiceMutation(); 
   const {
     data: invoiceData,
     isLoading: invoiceLoading,
@@ -64,62 +65,79 @@ const SingleInvoice = () => {
   const developerData = invoiceData?.data?.developer || {};
   const bankAccountData = invoiceData?.data?.bank_account || {};
 
+  // const downloadInvoice = async () => {
+  //   const invoiceElement = document.getElementById("invoice-pdf");
+  //   const tableContainer = invoiceElement.querySelector(".table-container");
+
+  //   if (!invoiceElement || !tableContainer) {
+  //     console.error("Invoice element or table container not found!");
+  //     return;
+  //   }
+
+  //   const originalOverflow = tableContainer.style.overflowY;
+  //   const originalMaxHeight = tableContainer.style.maxHeight;
+
+  //   // Remove scroll limitations
+  //   tableContainer.style.overflowY = "visible";
+  //   tableContainer.style.maxHeight = "none";
+
+  //   try {
+  //     const canvas = await html2canvas(invoiceElement, {
+  //       scale: 2,
+  //       useCORS: true,
+  //       scrollY: -window.scrollY,
+  //       width: invoiceElement.scrollWidth,
+  //       height: invoiceElement.scrollHeight,
+  //     });
+
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF("p", "mm", "a4");
+  //     const imgWidth = 210;
+  //     const pageHeight = 297;
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  //     let heightLeft = imgHeight;
+  //     let position = 0;
+
+  //     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  //     heightLeft -= pageHeight;
+
+  //     while (heightLeft > 0) {
+  //       position -= pageHeight;
+  //       pdf.addPage();
+  //       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  //       heightLeft -= pageHeight;
+  //     }
+
+  //     pdf.save(`invoice_${invoiceNumber}.pdf`);
+  //   } catch (error) {
+  //     console.error("Error generating PDF: ", error);
+  //   } finally {
+  //     tableContainer.style.overflowY = originalOverflow;
+  //     tableContainer.style.maxHeight = originalMaxHeight;
+  //   }
+  // };
   const downloadInvoice = async () => {
-    const invoiceElement = document.getElementById("invoice-pdf");
-    const tableContainer = invoiceElement.querySelector(".table-container");
-
-    if (!invoiceElement || !tableContainer) {
-      console.error("Invoice element or table container not found!");
-      return;
-    }
-
-    const originalOverflow = tableContainer.style.overflowY;
-    const originalMaxHeight = tableContainer.style.maxHeight;
-
-    // Remove scroll limitations
-    tableContainer.style.overflowY = "visible";
-    tableContainer.style.maxHeight = "none";
-
     try {
-      const canvas = await html2canvas(invoiceElement, {
-        scale: 2, // Higher resolution
-        useCORS: true, // Handle external images
-        scrollY: -window.scrollY, // Account for page scroll
-        width: invoiceElement.scrollWidth,
-        height: invoiceElement.scrollHeight, // Capture full content
-      });
+      const response = await downloadInvoiceMutation({
+        invoiceNo: id, // Pass invoiceNo from useParams
+      }).unwrap();
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Add additional pages if needed
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`invoice_${invoiceNumber}.pdf`);
+      // Handle the blob response
+      const blob = response; // Already a Blob from responseHandler
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice_${invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error generating PDF: ", error);
-    } finally {
-      // Restore original styles
-      tableContainer.style.overflowY = originalOverflow;
-      tableContainer.style.maxHeight = originalMaxHeight;
+      console.error("Error downloading PDF:", error);
+      toast.error("Failed to download invoice. Please try again.");
     }
   };
-
   const printInvoice = () => {
     const invoiceElement = document.getElementById("invoice-pdf");
     html2canvas(invoiceElement, { quality: 1, scale: 2 })
@@ -371,7 +389,7 @@ const SingleInvoice = () => {
             className="table-container"
             overflowX="auto"
             overflowY="auto"
-            maxHeight="400px"
+            maxHeight="700px"
             w="full"
           >
             <Table
