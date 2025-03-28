@@ -25,7 +25,7 @@ import ManageColumns from './components/ManageColumns';
 import { MdSettings } from 'react-icons/md';
 import AllCheckBox from './AllCheckBox';
 import useFilteredQueryParams from './useFilteredQueryParams';
-// import CardsLoading from 'components/loading/CardsLoading';
+import { HasAccess } from './../../../redux/accessUtils';
 
 const LeadsCards = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
@@ -34,8 +34,7 @@ const LeadsCards = () => {
 			? 'superAdmin'
 			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
-	// const { currentPage, setCurrentPage, pageSize, setPageSize } =
-	// 	usePaginationParams();
+	const [permission] = HasAccess(['Lead']);
 
 	const {
 		currentPage,
@@ -44,23 +43,7 @@ const LeadsCards = () => {
 		setPageSize,
 		queryParams,
 		setQueryParams,
-		setSearchQueryParams,
-		searchTags,
-		setSearchTags,
-		searchClear,
-		setSearchClear,
-		clearSearchParams,
-		setRefetchLoading,
-		refetchLoading,
 	} = useFilteredQueryParams();
-
-	// const [currentPage, setCurrentPage] = useState(null);
-	// const [searchParams, setSearchParams] = useSearchParams();
-	// const [pageSize, setPageSize] = useState(null);
-	// const [queryParams, setQueryParams] = useState({
-	// 	page: currentPage,
-	// 	pageSize,
-	// });
 
 	const [addLead, setAddLead] = useState(false);
 	const [selectedValues, setSelectedValues] = useState([]);
@@ -84,40 +67,6 @@ const LeadsCards = () => {
 		onClose: dateTimeOnClose,
 	} = useDisclosure();
 
-	// const {
-	// 	data: leads,
-	// 	isLoading: leadsLoading,
-	// 	error: leadsError,
-	// 	refetch: leadsRefetch,
-	// 	isFetching: leadsRefetching,
-	// } = useFetchItemsQuery(
-	// 	{
-	// 		path: '/lead/v2',
-	// 		params: queryParams,
-	// 	},
-	// 	{
-	// 		// skip: !queryParams || Object.keys(queryParams).length === 0,
-	// 		refetchOnMountOrArgChange: true,
-	// 	}
-	// );
-
-	// useEffect(() => {
-	// 	setQueryParams((prev) => ({
-	// 		...prev,
-	// 		page: currentPage,
-	// 	}));
-
-	// 	setCurrentPage(currentPage);
-	// }, [currentPage]);
-
-	// useEffect(() => {
-	// 	setQueryParams((prev) => ({
-	// 		...prev,
-	// 		pageSize,
-	// 	}));
-	// 	setPageSize(pageSize);
-	// }, [pageSize]);
-
 	const {
 		data: leads,
 		isLoading: leadsLoading,
@@ -136,34 +85,6 @@ const LeadsCards = () => {
 			refetchOnReconnect: true, // Refetch on internet reconnection
 		}
 	);
-
-	// useEffect(() => {
-	// 	leadsRefetch();
-
-	// 	if (queryParams?.page === 1) {
-	// 		setCurrentPage(1);
-	// 	}
-
-	// 	setSelectAllChecked(false);
-	// 	setSelectedValues([]);
-	// }, [queryParams]);
-
-	// useEffect(() => {
-	// 	leadsRefetch({
-	// 		path: '/lead/v2',
-	// 		params: queryParams,
-	// 	});
-
-	// 	if (queryParams?.page === 1) {
-	// 		setCurrentPage(1);
-	// 	}
-
-	// 	console.log({ queryParams });
-
-	// 	setSelectAllChecked(false);
-	// 	setSelectedValues([]);
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [queryParams, leadsRefetch]);
 
 	const refreshLeads = useCallback(() => {
 		leadsRefetch({
@@ -259,7 +180,7 @@ const LeadsCards = () => {
 						</Button>
 					)}
 
-					{role === 'superAdmin' && (
+					{(permission?.create || role === 'superAdmin') && (
 						<Button
 							{...buttonStyle}
 							variant='solid'

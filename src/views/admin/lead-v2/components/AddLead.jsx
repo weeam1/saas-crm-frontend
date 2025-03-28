@@ -9,7 +9,7 @@ import {
 	Button,
 	Grid,
 } from '@chakra-ui/react';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
@@ -126,83 +126,6 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			toast.error(error.data.message || 'Lead not added');
 		}
 	};
-
-	// Helper to render each field using Chakra UI and Formik's Field.
-	// const renderField = (field) => (
-	// 	<Field name={field.name} key={field.name}>
-	// 		{({ field: formikField, meta }) => (
-	// 			<FormControl mb={4} isInvalid={meta.touched && meta.error}>
-	// 				{/* For checkboxes and select, render differently */}
-	// 				{field.type !== 'checkbox' && (
-	// 					<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-	// 				)}
-
-	// 				{field.type === 'textarea' ? (
-	// 					<Textarea
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				) : field.type === 'checkbox' ? (
-	// 					<Checkbox
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						isChecked={formikField.value}
-	// 					>
-	// 						{field.label}
-	// 					</Checkbox>
-	// 				) : field.type === 'select' ? (
-	// 					<Select
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					>
-	// 						{field.options.map((option) => (
-	// 							<option key={option.value} value={option.value}>
-	// 								{option.label}
-	// 							</option>
-	// 						))}
-	// 					</Select>
-	// 				) : (
-	// 					<Input
-	// 						id={field.name}
-	// 						type={field.type}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				)}
-
-	// 				{meta.touched && meta.error && (
-	// 					<div style={{ color: 'red', fontSize: '0.8em' }}>{meta.error}</div>
-	// 				)}
-	// 			</FormControl>
-	// 		)}
-	// 	</Field>
-	// );
 
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
