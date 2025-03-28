@@ -28,9 +28,10 @@ const Index = () => {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorLeadData, setErrorLeadData] = useState(null);
 
-  // Ref to prevent duplicate fetches
+  // Refs to prevent duplicate fetches
   const fetchLockRef = useRef(false);
   const lastFetchRef = useRef(null);
+  const cancelTokenRef = useRef(null);
 
   const debounce = (func, delay) => {
     let timeoutId;
@@ -53,35 +54,35 @@ const Index = () => {
     const page = parseInt(params.get("page")) || 1;
     const size = parseInt(params.get("pageSize")) || 50;
     const tab = params.get("tab") || "Buy Leads";
-
     return { page, size, tab };
   };
-  const fetchTabData = async (tab, page = 1, size = pageSize, source) => {
-    if (fetchLockRef.current) {
-      return;
-    }
+
+  const fetchTabData = async (tab, page = 1, size = pageSize) => {
+    if (fetchLockRef.current) return;
+
     const fetchKey = `${tab}_${page}_${size}`;
-    if (lastFetchRef.current === fetchKey) {
-      return;
-    }
+    if (lastFetchRef.current === fetchKey) return;
 
     fetchLockRef.current = true;
-    setIsLoading(true);
+    setIsLoading(true); // Set loading true at the start
     setError(null);
     lastFetchRef.current = fetchKey;
+
+    if (cancelTokenRef.current) {
+      cancelTokenRef.current.cancel("New request initiated");
+    }
+    cancelTokenRef.current = axios.CancelToken.source();
 
     try {
       let result;
       if (tab === "Buy Leads") {
-        // Always use the /api/lead/ endpoint for "Buy Leads"
         result = await getApi(
           `api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${page}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=buy_leads`,
           null,
           "baseUrl",
-          source
+          cancelTokenRef.current.token
         );
       } else {
-        // Use /api/adminApproval/get for "Pending" and "Rejected"
         const statusMap = { Pending: "pending", Rejected: "rejected" };
         const status = statusMap[tab];
         const queryParams = new URLSearchParams();
@@ -91,7 +92,12 @@ const Index = () => {
         }
         queryParams.append("page", page);
         queryParams.append("pageSize", size);
-        result = await getApi(`api/adminApproval/get?${queryParams}`);
+        result = await getApi(
+          `api/adminApproval/get?${queryParams}`,
+          null,
+          "baseUrl",
+          cancelTokenRef.current.token
+        );
       }
 
       let newData =
@@ -107,9 +113,9 @@ const Index = () => {
 
       setData(newData);
       setTotalPages(result.data?.totalPages || 0);
-      const totalLeadCount =
-        result.data?.totalLeads || result.data?.totalApprovals || 0;
-      setTotalLeads(totalLeadCount);
+      setTotalLeads(
+        result.data?.totalLeads || result.data?.totalApprovals || 0
+      );
     } catch (error) {
       if (!axios.isCancel(error)) {
         console.error("FetchTabData Error:", error);
@@ -119,34 +125,27 @@ const Index = () => {
         setTotalLeads(0);
       }
     } finally {
-      setIsLoading(false);
       fetchLockRef.current = false;
-    }
-  };
-
-  const fetchUserData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await getApi(`api/user/view/${user._id}`);
-      setUserData(response.data);
-    } catch (error) {
-      console.error("Fetch User Data Error:", error);
-      setUserData(null);
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Set loading false when done
     }
   };
 
   const fetchSearchedData = async (term = "", pageNo = 1, size = pageSize) => {
-    if (isLoading) return;
-    const fetchKey = `search_${activeTab}_${pageNo}_${size}`;
-    if (lastFetchRef.current === fetchKey) {
-      return;
-    }
+    if (fetchLockRef.current) return;
 
-    setIsLoading(true);
+    const fetchKey = `search_${activeTab}_${pageNo}_${size}_${term}`;
+    if (lastFetchRef.current === fetchKey) return;
+
+    fetchLockRef.current = true;
+    setIsLoading(true); // Set loading true
     setError(null);
     lastFetchRef.current = fetchKey;
+
+    if (cancelTokenRef.current) {
+      cancelTokenRef.current.cancel("New search request initiated");
+    }
+    cancelTokenRef.current = axios.CancelToken.source();
+
     try {
       let result;
       if (activeTab === "Pending" || activeTab === "Rejected") {
@@ -157,12 +156,14 @@ const Index = () => {
         queryParams.append("page", pageNo);
         queryParams.append("pageSize", size);
         queryParams.append("activeTab", activeTab);
-        result = await getApi(`api/adminApproval/search?${queryParams}`);
-
-        console.log("Pending/Rejected API Response:", result);
+        result = await getApi(
+          `api/adminApproval/search?${queryParams}`,
+          null,
+          "baseUrl",
+          cancelTokenRef.current.token
+        );
 
         const rawData = result.data?.result || result.data || [];
-        console.log("Pending/Rejected Raw Data:", rawData);
         const newData = Array.isArray(rawData)
           ? rawData.map((lead) => ({
               ...lead,
@@ -179,12 +180,13 @@ const Index = () => {
         setTotalLeads(result.data?.totalLeads || newData.length || 0);
       } else if (activeTab === "Buy Leads") {
         result = await getApi(
-          `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
+          `api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`,
+          null,
+          "baseUrl",
+          cancelTokenRef.current.token
         );
 
-        console.log("Buy Leads API Response:", result);
         const rawData = result.data?.result || [];
-        console.log("Buy Leads Raw Data:", rawData);
         const newData = Array.isArray(rawData)
           ? rawData.map((lead) => ({
               ...lead,
@@ -203,57 +205,88 @@ const Index = () => {
       console.error("Fetch Searched Data Error:", err);
       setError(err.message || "Failed to fetch searched leads");
       setData([]);
+      setSearchedData([]);
       setTotalPages(0);
       setTotalLeads(0);
     } finally {
-      setIsLoading(false);
+      fetchLockRef.current = false;
+      setIsLoading(false); // Set loading false
     }
   };
+
   const fetchAdvancedSearch = async (
     data = {},
     pageNo = 1,
     size = pageSize
   ) => {
-    if (isLoading) return;
-    const fetchKey = `advanced_${activeTab}_${pageNo}_${size}`;
-    if (lastFetchRef.current === fetchKey) {
-      return;
-    }
+    if (fetchLockRef.current) return;
+
+    const fetchKey = `advanced_${activeTab}_${pageNo}_${size}_${JSON.stringify(data)}`;
+    if (lastFetchRef.current === fetchKey) return;
+
+    fetchLockRef.current = true;
     setIsLoading(true);
     setError(null);
     lastFetchRef.current = fetchKey;
+
+    if (cancelTokenRef.current) {
+      cancelTokenRef.current.cancel("New advanced search request initiated");
+    }
+    cancelTokenRef.current = axios.CancelToken.source();
+
     try {
       let result = await getApi(
         activeTab === "Buy Leads"
-          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
-          : `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&page=${pageNo}&pageSize=${size}&activeTab=${activeTab}`
+          ? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&role=Agent&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
+          : `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&page=${pageNo}&pageSize=${size}&activeTab=${activeTab}`,
+        null,
+        "baseUrl",
+        cancelTokenRef.current.token
       );
 
-      console.log("Advanced Search API Response:", result);
       const newData =
         activeTab === "Buy Leads"
           ? result.data?.result || []
           : result.data?.result || result.data || [];
-      const validatedData = Array.isArray(newData) ? newData : [];
-
-      console.log("Validated Data:", validatedData);
+      const validatedData = Array.isArray(newData)
+        ? newData.map((lead) => ({
+            ...lead,
+            ip: lead?.ip?.split("-")?.[1] || lead?.ip || "",
+          }))
+        : [];
 
       setDisplaySearchData(true);
       setSearchedData(validatedData);
       setData(validatedData);
       setTotalPages(result.data?.totalPages || 0);
-      setTotalLeads(result.data?.totalLeads || validatedData.length);
+      setTotalLeads(result.data?.totalLeads || validatedData.length || 0);
     } catch (err) {
       console.error("Fetch Advanced Search Error:", err);
       setError(err.message || "Failed to fetch advanced search leads");
       setData([]);
+      setSearchedData([]);
       setTotalPages(0);
       setTotalLeads(0);
     } finally {
-      setIsLoading(false);
+      fetchLockRef.current = false;
+      setIsLoading(false); // Set loading false
     }
   };
-  const fetchAgentLeadsSats = async (userId) => {
+
+  const fetchUserData = async () => {
+    setIsLoading(true); // Set loading true
+    try {
+      const response = await getApi(`api/user/view/${user._id}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Fetch User Data Error:", error);
+      setUserData(null);
+    } finally {
+      setIsLoading(false); // Set loading false
+    }
+  };
+
+  const fetchAgentLeadsStats = async (userId) => {
     if (!userId) {
       console.error("User ID is missing");
       return { canAddLeads: false };
@@ -270,7 +303,7 @@ const Index = () => {
   const sendRequest = async (leadId) => {
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
     try {
-      const stats = await fetchAgentLeadsSats(user._id);
+      const stats = await fetchAgentLeadsStats(user._id);
       if (!stats.canAddLeads) {
         setErrorLeadData({
           assignedLeads: stats.assignedLeads || 0,
@@ -387,7 +420,6 @@ const Index = () => {
   useEffect(() => {
     const newState =
       activeTab === "Buy Leads" ? "buy_leads" : activeTab.toLowerCase();
-
     setCurrentState(newState);
   }, [activeTab]);
 
@@ -397,12 +429,15 @@ const Index = () => {
     setCurrentPage(page);
     setPageSize(size);
     setActiveTab(tab);
-
-    const source = axios.CancelToken.source();
+    setIsLoading(true);
     fetchUserData();
-    fetchTabData(tab, page, size, source);
+    fetchTabData(tab, page, size);
 
-    return () => source.cancel("Component unmounted");
+    return () => {
+      if (cancelTokenRef.current) {
+        cancelTokenRef.current.cancel("Component unmounted");
+      }
+    };
   }, []);
 
   if (error) return <div>Error: {error}</div>;
@@ -410,18 +445,19 @@ const Index = () => {
   return (
     <>
       <PaginationPage
-        data={data || []}
+        data={displaySearchData ? searchedData : data || []} // Use searchedData when searching
         totalPages={totalPages}
         totalLeads={totalLeads}
         isLoading={isLoading}
         fetchData={(tab, page, size) => {
+          setIsLoading(true);
           setData([]);
           setActiveTab(tab);
           setCurrentPage(page);
           setPageSize(size);
           updateUrl(page, size, tab);
           setDisplaySearchData(false);
-          fetchTabData(tab, page, size);
+          debouncedFetchTabData(tab, page, size);
         }}
         fetchSearchedData={debouncedFetchSearchedData}
         fetchAdvancedSearch={debouncedFetchAdvancedSearch}
@@ -431,6 +467,7 @@ const Index = () => {
         setPageSize={(size) => {
           setPageSize(size);
           updateUrl(currentPage, size, activeTab);
+          setData([]);
           debouncedFetchTabData(activeTab, currentPage, size);
         }}
         user={user}
@@ -448,12 +485,13 @@ const Index = () => {
           setCurrentPage(1);
           setDisplaySearchData(false);
           updateUrl(1, pageSize, tab);
-          fetchTabData(tab, 1, pageSize);
+          debouncedFetchTabData(tab, 1, pageSize);
         }}
         currentPage={currentPage}
         setCurrentPage={(page) => {
           setCurrentPage(page);
           updateUrl(page, pageSize, activeTab);
+          setData([]);
           debouncedFetchTabData(activeTab, page, pageSize);
         }}
         setData={setData}

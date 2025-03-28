@@ -35,9 +35,10 @@ const TabContent = ({
     p: { base: 2, md: 2 },
   };
 
-  // Show skeletons when isLoading is true
+  const skeletonCount = pageSize || 3;
+
+  // Show skeletons while loading
   if (isLoading) {
-    const skeletonCount = pageSize || 3;
     return (
       <Grid {...gridProps} minW="300px">
         {Array(skeletonCount)
@@ -56,8 +57,8 @@ const TabContent = ({
     );
   }
 
-  // Show "No data found" only when it's a search result and no data is returned
-  if (displaySearchData && (!data || data.length === 0)) {
+  // After loading, check if there's data
+  if (!data || data.length === 0) {
     return (
       <Box textAlign="center" py={10}>
         <Text fontSize="lg" color="gray.500">
@@ -68,45 +69,24 @@ const TabContent = ({
   }
 
   // Render tab content when data is available
-  if (data && data?.length > 0) {
-    return (
-      <Grid {...gridProps}>
-        {activeTab === "Buy Leads" && (
-          <AllItems
-            cancelRequest={cancelRequest}
-            data={data}
-            isLoading={isLoading}
-            sendRequest={sendRequest}
-            buyLoading={buyLoading}
-            pageSize={pageSize}
-          />
-        )}
-        {activeTab === "Pending" && (
-          <PendingItems data={data} cancelRequest={cancelRequest} />
-        )}
-        {activeTab === "Rejected" && (
-          <RejectedItems data={data} cancelRequest={cancelRequest} />
-        )}
-      </Grid>
-    );
-  }
-
-  // If not loading, not a search, and no data, keep skeletons (this won't typically happen unless API fails silently)
-  const skeletonCount = pageSize || 3;
   return (
-    <Grid {...gridProps} minW="300px">
-      {Array(skeletonCount)
-        .fill(0)
-        .map((_, index) => (
-          <Skeleton
-            key={index}
-            height="320px"
-            borderRadius="lg"
-            startColor="gray.100"
-            endColor="gray.200"
-            width="100%"
-          />
-        ))}
+    <Grid {...gridProps}>
+      {activeTab === "Buy Leads" && (
+        <AllItems
+          cancelRequest={cancelRequest}
+          data={data}
+          isLoading={isLoading}
+          sendRequest={sendRequest}
+          buyLoading={buyLoading}
+          pageSize={pageSize}
+        />
+      )}
+      {activeTab === "Pending" && (
+        <PendingItems data={data} cancelRequest={cancelRequest} />
+      )}
+      {activeTab === "Rejected" && (
+        <RejectedItems data={data} cancelRequest={cancelRequest} />
+      )}
     </Grid>
   );
 };
