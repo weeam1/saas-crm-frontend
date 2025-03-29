@@ -25,11 +25,18 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 
 	// Using useCallback to memoize getHistory call
 	const fetchNotifications = useCallback(() => {
+		const getCount = async () => {
+			const data = await getNotificationCount(userId);
+			setNotificationCount(data?.count ?? 0);
+		};
+
 		if (newNotifyItem.type !== -1) {
 			setCurrentPage(1);
 			getHistory();
+
+			getCount();
 		}
-	}, [getHistory, newNotifyItem.type]);
+	}, [getHistory, newNotifyItem.type, userId]);
 
 	useEffect(() => {
 		fetchNotifications();
@@ -53,17 +60,6 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 		},
 		[handleClose]
 	);
-
-	useEffect(() => {
-		const getCount = async () => {
-			const data = await getNotificationCount(userId);
-			setNotificationCount(data?.count ?? 0);
-		};
-
-		getCount();
-	}, [userId, newNotifyItem.type]);
-
-	console.log({ notificationCount });
 
 	useEffect(() => {
 		document.addEventListener('mousedown', handleClickOutside);

@@ -48,6 +48,7 @@ const LeadsCards = () => {
 
 	const [addLead, setAddLead] = useState(false);
 	const [selectedValues, setSelectedValues] = useState([]);
+	const [selectedLeads, setSelectedLeads] = useState([]);
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 
 	const [bulkAssign, setBulkAssign] = useState(false);
@@ -235,6 +236,7 @@ const LeadsCards = () => {
 				setAddLead={setAddLead}
 				selectedValues={selectedValues}
 				setSelectedValues={setSelectedValues}
+				setSelectedLeads={setSelectedLeads}
 				setSelectAllChecked={setSelectAllChecked}
 				selectAllChecked={selectAllChecked}
 				dateTimeIsOpen={dateTimeIsOpen}
@@ -247,6 +249,8 @@ const LeadsCards = () => {
 					bulkAssign={bulkAssign}
 					setBulkAssign={setBulkAssign}
 					setSelectedValues={setSelectedValues}
+					setSelectedLeads={setSelectedLeads}
+					selectedLeads={selectedLeads}
 					selectedValues={selectedValues}
 					setSelectAllChecked={setSelectAllChecked}
 					setErrorLeadData={setErrorLeadData}

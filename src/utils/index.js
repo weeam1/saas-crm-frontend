@@ -151,9 +151,6 @@ export const getUserNameById = (id, tree) => {
 	//   });
 
 	const item = tree?.find((item) => item?._id === id);
-	console.log(item, 'find user: ', id);
-	console.log(tree, 'it is a user tree');
-
 	const userName = item ? item?.firstName + ' ' + item?.lastName : '';
 
 	return userName;

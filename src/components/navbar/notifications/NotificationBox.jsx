@@ -86,7 +86,7 @@ const NotificationBox = ({ notification, users }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
-	const handleNotificationOpen = () => {
+	const handleNotificationOpen = async () => {
 		if (notification?.sent === 0) {
 			readNotification(notification.id, type);
 			dispatch(newNotifyItem({ type: messageType, message }));
@@ -98,11 +98,8 @@ const NotificationBox = ({ notification, users }) => {
 
 		if (type === 0) {
 			if (!notification) return;
-
 			navigate(`/lead?page=1&pageSize=1&lead=${notification?.lead_id}`);
 		}
-
-		console.log({ notification });
 	};
 
 	return (

@@ -15,7 +15,7 @@ import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
 import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
-import { useSearchParams } from 'react-router-dom';
+import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
 
 const Leads = ({
 	data,
@@ -31,6 +31,7 @@ const Leads = ({
 	setAddLead,
 	selectedValues,
 	setSelectedValues,
+	setSelectedLeads,
 	selectAllChecked,
 	setSelectAllChecked,
 	dateTimeIsOpen,
@@ -310,31 +311,16 @@ const Leads = ({
 							setSendEmail={setSendEmail}
 							selectedValues={selectedValues}
 							setSelectedValues={setSelectedValues}
+							setSelectedLeads={setSelectedLeads}
 							setDeleteLead={setDeleteLead}
 							setSelectAllChecked={setSelectAllChecked}
 							selectAllChecked={selectAllChecked}
 						/>
 					))}
 				</Grid>
+			) : queryParams?.lead ? (
+				<LeadUnassignedMessage />
 			) : (
-				// <VirtualLeads
-				// 	leads={leads}
-				// 	refreshLeads={refreshLeads}
-				// 	emailAccess={emailAccess}
-				// 	permission={permission}
-				// 	setLeadDetails={setLeadDetails}
-				// 	callAccess={callAccess}
-				// 	setViewLead={setViewLead}
-				// 	queryParams={queryParams}
-				// 	setEditLead={setEditLead}
-				// 	setAddLead={setAddLead}
-				// 	setSendEmail={setSendEmail}
-				// 	selectedValues={selectedValues}
-				// 	setSelectedValues={setSelectedValues}
-				// 	setDeleteLead={setDeleteLead}
-				// 	setSelectAllChecked={setSelectAllChecked}
-				// 	selectAllChecked={selectAllChecked}
-				// />
 				<NoData label='leads' />
 			)}
 

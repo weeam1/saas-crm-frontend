@@ -6,6 +6,7 @@ import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
 import { fetchAgentLeadsSats } from 'api';
 import { updateMultipleLeadFields } from '../../../../redux/leadsSlice';
+import { sendBulkLeadNotification } from 'api';
 
 const {
 	Modal,
@@ -63,7 +64,8 @@ const BulkAssignModal = (props) => {
 		setErrorLeadData,
 		selectedValues,
 		setSelectedValues,
-		refreshData,
+		setSelectedLeads,
+		selectedLeads,
 		setSelectAllChecked,
 	} = props;
 
@@ -71,7 +73,7 @@ const BulkAssignModal = (props) => {
 
 	useEffect(() => {
 		setIsMounted(true);
-		return () => setIsMounted(false); // Cleanup on unmount
+		return () => setIsMounted(false);
 	}, []);
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -123,9 +125,12 @@ const BulkAssignModal = (props) => {
 					})
 				);
 
+				sendBulkLeadNotification(user?._id, values, selectedLeads);
 				toast.success('Leads updated successfully');
+
 				formikResetForm();
 				setSelectedValues([]);
+				setSelectedLeads([]);
 				setSelectAllChecked(false);
 			} else if (res.status === 400) {
 				// const errorDetails =

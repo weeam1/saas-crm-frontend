@@ -151,6 +151,58 @@ export const sendLeadNotification = async (senderId, receiverId, leadData) => {
 	}
 };
 
+export const sendBulkLeadNotification = async (
+	senderId,
+	receiverIds,
+	leads
+) => {
+	try {
+		if (!receiverIds || typeof receiverIds !== 'object') {
+			console.warn('Invalid receiverIds format. Skipping notification.');
+			return;
+		}
+
+		if (!Array.isArray(leads) || leads.length === 0) {
+			console.warn('No leads available to notify.');
+			return;
+		}
+
+		// Extract valid receiver IDs from the object
+		const validReceiverIds = Object.values(receiverIds).filter((id) => id);
+
+		if (validReceiverIds.length === 0) {
+			console.warn('No valid receivers found. Skipping notification.');
+			return;
+		}
+
+		const notifications = [];
+
+		leads.forEach((lead) => {
+			validReceiverIds.forEach((receiverId) => {
+				notifications.push({
+					receiver_id: receiverId,
+					lead_id: lead._id,
+					lead_name: lead.leadName,
+					sender_id: senderId,
+				});
+			});
+		});
+
+		if (notifications.length === 0) {
+			console.warn('No valid notifications to send.');
+			return;
+		}
+
+		await Promise.all(
+			notifications.map((notifyData) =>
+				axios.post(`${keys.socketUrl}/notification`, notifyData)
+			)
+		);
+	} catch (err) {
+		console.error('Failed to send bulk notifications:', err);
+	}
+};
+
 export const readNotification = async (id, type) => {
 	try {
 		await axios.post(`${keys.socketUrl}/read_notification`, { id, type });

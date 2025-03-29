@@ -23,6 +23,7 @@ const LeadCard = memo(
 		setSendEmail,
 		selectedValues,
 		setSelectedValues,
+		setSelectedLeads,
 		setDeleteLead,
 		setLeadDetails,
 		queryParams,
@@ -54,6 +55,13 @@ const LeadCard = memo(
 							? [...prev, lead?._id]
 							: prev.filter((id) => id !== lead?._id)
 					);
+					setSelectedLeads((prev) => {
+						if (!Array.isArray(prev)) prev = [];
+
+						return isChecked
+							? [...prev, lead] // Add the lead
+							: prev.filter((item) => item._id !== lead._id);
+					});
 				}, 0);
 			},
 			[setSelectedValues, lead?._id]
