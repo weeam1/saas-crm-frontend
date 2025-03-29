@@ -151,9 +151,19 @@ export const sendLeadNotification = async (senderId, receiverId, leadData) => {
 	}
 };
 
-export const readLeadNotification = async (id) => {
+export const readNotification = async (id, type) => {
 	try {
-		await axios.post(`${keys.socketUrl}/read_notification`, { id });
+		await axios.post(`${keys.socketUrl}/read_notification`, { id, type });
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+export const getNotificationCount = async (userId) => {
+	try {
+		const res = await axios.get(`${keys.socketUrl}/count?id=${userId}`);
+
+		return res?.data ?? null;
 	} catch (err) {
 		console.log(err);
 	}

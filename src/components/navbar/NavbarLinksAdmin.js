@@ -2,6 +2,7 @@
 import {
 	Avatar,
 	Flex,
+	HStack,
 	Icon,
 	Menu,
 	MenuButton,
@@ -172,97 +173,22 @@ export default function HeaderLinks(props) {
 				openSidebar={openSidebar}
 			/>
 
-			{/* <Menu>
-        <MenuButton p="0px">
-          <Icon
-            mt="6px"
-            as={MdNotificationsNone}
-            color={navbarIcon}
-            w="18px"
-            h="18px"
-            me="10px"
-          />
-        </MenuButton>
-        <MenuList
-          boxShadow={shadow}
-          p="20px"
-          borderRadius="20px"
-          bg={menuBg}
-          border="none"
-          mt="22px"
-          me={{ base: "30px", md: "unset" }}
-          minW={{ base: "unset", md: "400px", xl: "450px" }}
-          maxW={{ base: "360px", md: "unset" }}
-        >
-          <Flex jusitfy="space-between" w="100%" mb="20px">
-            <Text fontSize="md" fontWeight="600" color={textColor}>
-              Notifications
-            </Text>
-            <Text
-              fontSize="sm"
-              fontWeight="500"
-              color={textColorBrand}
-              ms="auto"
-              cursor="pointer"
-            >
-              Mark all read
-            </Text>
-          </Flex>
-          <Flex flexDirection="column">
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent info="Horizon UI Dashboard PRO" aName="Alicia" />
-            </MenuItem>
-            <MenuItem
-              _hover={{ bg: "none" }}
-              _focus={{ bg: "none" }}
-              px="0"
-              borderRadius="8px"
-              mb="10px"
-            >
-              <ItemContent
-                info="Horizon Design System Free"
-                aName="Josh Henry"
-              />
-            </MenuItem>
-          </Flex>
-        </MenuList>
-      </Menu> */}
-			{/* <FixedPlugin /> */}
-			{/* <ThemeEditor navbarIcon={navbarIcon} /> */}
-			{/* <Box
-				boxSize={10}
-				bg="brand.500"
-				pb={2}
-				pt={1}
-				pl={2}
-				pr={2}
-				mx={1}
-				sx={{ clipPath: "circle()" }}
-			>
-				<BellIcon boxSize={6} color="white" />
-			</Box> */}
-			<NotificationIcon userId={userId} />
-			<Box
-				boxSize={10}
-				bg='brand.500'
-				pb={1}
-				pt={1.5}
-				pl={2}
-				pr={2}
-				mx={1}
-				sx={{ clipPath: 'circle()' }} // Applying circular clip path
-			>
-				<TimeIcon boxSize={6} color='white' />
-			</Box>
-			<Menu style={{ zIndex: 1500 }}>
-				<MenuButton p='0px'>
-					{/* <Avatar
+			<HStack gap='2'>
+				<NotificationIcon userId={userId} />
+				<Box
+					boxSize={10}
+					bg='brand.500'
+					pb={1}
+					pt={1.5}
+					pl={2}
+					pr={2}
+					sx={{ clipPath: 'circle()' }} // Applying circular clip path
+				>
+					<TimeIcon boxSize={6} color='white' />
+				</Box>
+				<Menu style={{ zIndex: 1500 }}>
+					<MenuButton p='0px'>
+						{/* <Avatar
 						_hover={{ cursor: "pointer" }}
 						color="white"
 						name={user || "User"}
@@ -272,63 +198,63 @@ export default function HeaderLinks(props) {
 						h="40px"
 						mx={1}
 					/> */}
-					<Avatar
-						_hover={{ cursor: 'pointer' }}
-						color={loginUser?.profileImage ? '#333' : 'white'}
-						name={user || 'User'}
-						bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
-						size='sm'
-						w='40px'
-						h='40px'
-						mx={1}
-						shadow='sm'
-						src={
-							loginUser?.profileImage
-								? `${constant['baseUrl']}${loginUser?.profileImage}`
-								: ''
-						}
-					/>
-				</MenuButton>
+						<Avatar
+							_hover={{ cursor: 'pointer' }}
+							color={loginUser?.profileImage ? '#333' : 'white'}
+							name={user || 'User'}
+							bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
+							size='sm'
+							w='40px'
+							h='40px'
+							mx={1}
+							shadow='sm'
+							src={
+								loginUser?.profileImage
+									? `${constant['baseUrl']}${loginUser?.profileImage}`
+									: ''
+							}
+						/>
+					</MenuButton>
 
-				<MenuList
-					boxShadow={shadow}
-					p='0px'
-					mt='10px'
-					borderRadius='20px'
-					bg={menuBg}
-					border='none'
-				>
-					<Flex w='100%' mb='0px'>
-						<Text
-							ps='20px'
-							pt='16px'
-							pb='10px'
-							w='100%'
-							borderBottom='1px solid'
-							borderColor={borderColor}
-							fontSize='sm'
-							fontWeight='700'
-							textTransform={'capitalize'}
-							color={textColor}
-						>
-							👋&nbsp; Hey, {user}
-						</Text>
-					</Flex>
-
-					<Flex flexDirection='column' p='10px'>
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							_focus={{ bg: 'none' }}
-							borderRadius='8px'
-							px='14px'
-						>
-							<Text fontSize='sm' onClick={() => navigate(`/admin/`)}>
-								Home
+					<MenuList
+						boxShadow={shadow}
+						p='0px'
+						mt='10px'
+						borderRadius='20px'
+						bg={menuBg}
+						border='none'
+					>
+						<Flex w='100%' mb='0px'>
+							<Text
+								ps='20px'
+								pt='16px'
+								pb='10px'
+								w='100%'
+								borderBottom='1px solid'
+								borderColor={borderColor}
+								fontSize='sm'
+								fontWeight='700'
+								textTransform={'capitalize'}
+								color={textColor}
+							>
+								👋&nbsp; Hey, {user}
 							</Text>
-						</MenuItem>
+						</Flex>
 
-						{/* Annouoncements allow for admin and managers */}
-						{/* {(loginUser?.role === "superAdmin" ||
+						<Flex flexDirection='column' p='10px'>
+							<MenuItem
+								_hover={{ bg: 'none' }}
+								_focus={{ bg: 'none' }}
+								borderRadius='8px'
+								px='14px'
+							>
+								<Text fontSize='sm' onClick={() => navigate(`/admin/`)}>
+									Home
+								</Text>
+							</MenuItem>
+
+							{/* Annouoncements allow for admin and managers */}
+							{/* {(loginUser?.role === "superAdmin" ||
 							loginUser?.roles?.[0]?.roleName === "Manager") && (
 							<MenuItem
 								_hover={{ bg: "none" }}
@@ -342,71 +268,75 @@ export default function HeaderLinks(props) {
 							</MenuItem>
 						)} */}
 
-						{loginUser?.role === 'superAdmin' && (
+							{loginUser?.role === 'superAdmin' && (
+								<MenuItem
+									_hover={{ bg: 'none' }}
+									_focus={{ bg: 'none' }}
+									borderRadius='8px'
+									px='14px'
+								>
+									<Text
+										fontSize='sm'
+										onClick={() => navigate('/admin-setting')}
+									>
+										Admin Settings
+									</Text>
+								</MenuItem>
+							)}
+
 							<MenuItem
 								_hover={{ bg: 'none' }}
 								_focus={{ bg: 'none' }}
 								borderRadius='8px'
 								px='14px'
 							>
-								<Text fontSize='sm' onClick={() => navigate('/admin-setting')}>
-									Admin Settings
+								<Text
+									fontSize='sm'
+									onClick={() =>
+										navigate(
+											`/userView/${JSON.parse(localStorage.getItem('user'))?._id}`
+										)
+									}
+								>
+									Profile Settings
 								</Text>
 							</MenuItem>
-						)}
-
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							_focus={{ bg: 'none' }}
-							borderRadius='8px'
-							px='14px'
-						>
-							<Text
-								fontSize='sm'
-								onClick={() =>
-									navigate(
-										`/userView/${JSON.parse(localStorage.getItem('user'))?._id}`
-									)
-								}
+							<MenuItem
+								_hover={{ bg: 'none' }}
+								_focus={{ bg: 'none' }}
+								borderRadius='8px'
+								px='14px'
 							>
-								Profile Settings
-							</Text>
-						</MenuItem>
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							_focus={{ bg: 'none' }}
-							borderRadius='8px'
-							px='14px'
-						>
-							<Flex
-								alignItems={'center'}
-								fontSize='sm'
-								onClick={() => {
-									toggleColorMode();
-								}}
-							>
-								<Text mr={2}>
-									Switch to {colorMode === 'dark' ? 'Light' : 'Dark'} Mode
-								</Text>
-								{colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
-							</Flex>
-						</MenuItem>
-						{/*<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
+								<Flex
+									alignItems={'center'}
+									fontSize='sm'
+									onClick={() => {
+										toggleColorMode();
+									}}
+								>
+									<Text mr={2}>
+										Switch to {colorMode === 'dark' ? 'Light' : 'Dark'} Mode
+									</Text>
+									{colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
+								</Flex>
+							</MenuItem>
+							{/*<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
 							<Text fontSize="sm">Newsletter Settings</Text>
 						</MenuItem> */}
-						<MenuItem
-							_hover={{ bg: 'none' }}
-							onClick={logOut}
-							_focus={{ bg: 'none' }}
-							color='red.400'
-							borderRadius='8px'
-							px='14px'
-						>
-							<Text fontSize='sm'>Log out</Text>
-						</MenuItem>
-					</Flex>
-				</MenuList>
-			</Menu>
+							<MenuItem
+								_hover={{ bg: 'none' }}
+								onClick={logOut}
+								_focus={{ bg: 'none' }}
+								color='red.400'
+								borderRadius='8px'
+								px='14px'
+							>
+								<Text fontSize='sm'>Log out</Text>
+							</MenuItem>
+						</Flex>
+					</MenuList>
+				</Menu>
+			</HStack>
 		</Flex>
 	);
 }

@@ -5,7 +5,7 @@ import NotificationView from './NotificationView';
 import { MdEventAvailable } from 'react-icons/md';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { readLeadNotification } from 'api';
+import { readNotification } from 'api';
 import { useDispatch } from 'react-redux';
 import { newNotifyItem } from './../../../redux/webSocketReducer';
 
@@ -16,11 +16,9 @@ const NotificationBox = ({ notification, users }) => {
 	const [messageType, setMessageType] = useState('notification');
 	const [message, setMessage] = useState('');
 
-	let i = 1;
 	const getSender = useCallback(
 		(sender_id) => {
-			console.log('call: ', i++, sender_id);
-			return users.find((user) => user._id === sender_id);
+			return users?.find((user) => user._id === sender_id);
 		},
 		[users]
 	);
@@ -89,6 +87,11 @@ const NotificationBox = ({ notification, users }) => {
 	const dispatch = useDispatch();
 
 	const handleNotificationOpen = () => {
+		if (notification?.sent === 0) {
+			readNotification(notification.id, type);
+			dispatch(newNotifyItem({ type: messageType, message }));
+		}
+
 		if (type === 1 || type === 2) {
 			return onOpen();
 		}
@@ -96,17 +99,10 @@ const NotificationBox = ({ notification, users }) => {
 		if (type === 0) {
 			if (!notification) return;
 
-			const { id, sent, lead_id } = notification;
-
-			if (sent === 0) {
-				readLeadNotification(id);
-				// fetchNotifications();
-				dispatch(newNotifyItem({ type: messageType, message }));
-			}
-
-			navigate(`/lead?page=1&pageSize=1&lead=${lead_id}`);
-			console.log(notification, sent === 0);
+			navigate(`/lead?page=1&pageSize=1&lead=${notification?.lead_id}`);
 		}
+
+		console.log({ notification });
 	};
 
 	return (
@@ -118,7 +114,7 @@ const NotificationBox = ({ notification, users }) => {
 				display='flex'
 				alignItems='center'
 				gap={3}
-				bg={type === 0 && notification?.sent === 0 && 'green.100'}
+				bg={notification?.sent === 0 && 'green.100'}
 				border='none'
 				outline='none'
 				cursor='pointer'

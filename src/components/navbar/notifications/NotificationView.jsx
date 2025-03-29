@@ -55,19 +55,16 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 					<Flex direction='column' gap={4}>
 						{/* Notification Message */}
 						<Box
-							backgroundColor='softGray.100'
+							bg='softGray.100'
+							maxH='30vh'
+							overflowY='auto'
 							p={3}
 							rounded='md'
-							width='100%'
-							m='0'
-							height='30vh'
-							overflow='scroll'
 						>
-							<Text fontSize='md' wordBreak='break-word'>
+							<Text fontSize='md' wordBreak='break-word' whiteSpace='pre-wrap'>
 								{item.message}
 							</Text>
 						</Box>
-
 						{/* Created At */}
 						<Text fontSize='sm' color='gray.500'>
 							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}

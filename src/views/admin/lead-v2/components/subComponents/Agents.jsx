@@ -81,7 +81,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				);
 
 				// send lead notification
-				// sendLeadNotification(user?._id, agentAssignedValue, lead);
+				sendLeadNotification(user?._id, agentAssignedValue, lead);
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);

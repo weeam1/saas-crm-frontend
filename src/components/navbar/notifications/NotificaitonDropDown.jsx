@@ -53,11 +53,11 @@ const NotificationDropDown = ({
 				</Box>
 
 				{/* Notification List */}
-				<Box p={2}>
+				<Box>
 					{notificationList.length > 0 ? (
 						<Flex direction='column' gap='1'>
 							{notificationList.map((notification, index) => (
-								<MenuItem key={index} p={3} rounded='md'>
+								<MenuItem key={index} rounded='md'>
 									<NotificationBox notification={notification} users={users} />
 								</MenuItem>
 							))}
