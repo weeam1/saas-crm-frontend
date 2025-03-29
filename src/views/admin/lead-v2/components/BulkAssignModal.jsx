@@ -45,6 +45,9 @@ const createUpdates = (selectedValues, values) => {
 			if (key === 'managerAssigned' || key === 'agentAssigned') {
 				updateObj[`${key}Date`] =
 					value === null || value === '' ? null : new Date().toISOString();
+
+				updateObj.leadType = null;
+				updateObj.isReleased = false;
 			}
 		});
 	});

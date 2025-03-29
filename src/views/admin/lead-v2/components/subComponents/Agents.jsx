@@ -68,6 +68,14 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 								value:
 									agentAssignedValue !== '' ? new Date().toISOString() : null,
 							},
+							{
+								key: 'leadType',
+								value: res?.data?.leadType || null,
+							},
+							{
+								key: 'isReleased',
+								value: res?.data?.isReleased,
+							},
 						],
 					})
 				);
