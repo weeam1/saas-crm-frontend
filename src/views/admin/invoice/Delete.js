@@ -33,8 +33,8 @@ const Delete = (props) => {
       ) {
         console.log("Payload sent to deleteMany:", props.data);
         response = await deleteManyInvoices({
-          path: "/invoice/deleteMany",
-          method: "POST",
+          path: "/invoices/delete_many",
+          method: "DELETE",
           body: { ids: props.data },
         }).unwrap();
 

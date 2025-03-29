@@ -133,6 +133,7 @@ const AddEntryModal = (props) => {
     try {
       setIsLoading(true);
 
+      // Prepare combined payload
       const payload = {
         developer_id: props.invoiceData.developer_id,
         bank_account_id: props.invoiceData.bank_account_id,
@@ -154,7 +155,7 @@ const AddEntryModal = (props) => {
       };
 
       const response = await createItemMutation({
-        path: "/invoices/with-entry",
+        path: "/invoices/entries/with-entry",
         body: payload,
       }).unwrap();
 
@@ -165,7 +166,9 @@ const AddEntryModal = (props) => {
       const invoiceId = response.data.invoice._id;
 
       toast.success("Invoice and entry added successfully!");
-      if (props.fetchData) props.fetchData();
+      if (props.fetchData) {
+        props.fetchData();
+      }
       if (props.setAction) props.setAction((prev) => !prev);
       resetForm();
       props.onClose();

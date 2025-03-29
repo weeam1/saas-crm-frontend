@@ -102,7 +102,7 @@ const AddEntry = () => {
         (sum, entry) => sum + (Number(entry.total_commission_incl_vat) || 0),
         0
       );
-      const totalAmount = subTotal + totalVatAmount;
+      const totalAmount = subTotal + totalCommissionInclVat;
 
       setSummary({
         totalAmount,
@@ -124,7 +124,7 @@ const AddEntry = () => {
   }, [entriesData, entriesLoading]);
 
   const goBack = () => {
-    navigate("/invoice", { state: { refetch: true } });
+    navigate("/dev-list", { state: { refetch: true } });
   };
 
   const handleEditClick = (entryId) => {

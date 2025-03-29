@@ -17,59 +17,77 @@ import {
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import { useFetchItemsQuery } from "api/apiSlice";
 import * as yup from "yup";
 import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
+import { setDevelopers, setBankAccounts } from "../../../redux/invoiceSlice";
+import { useParams } from "react-router-dom";
+import AddEntryModal from "./AddInvoiceEntry"; // Import the Add Entry Modal
 
+// Validation schema for invoice
 const invoiceSchema = yup.object().shape({
   developer_id: yup.string().required("Developer is required"),
   bank_account_id: yup.string().required("Bank account is required"),
   claimType: yup.string().required("Claim type is required"),
 });
 
-const Add = (props) => {
+const AddInvoice = (props) => {
+  const { id } = useParams(); // developer_id from URL params
   const [isLoading, setIsLoading] = useState(false);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [invoiceData, setInvoiceData] = useState(null);
+  const dispatch = useDispatch();
 
-  // Fetch developers data only when modal is open
+  const { developers, bankAccounts, isDevelopersLoaded, isBankAccountsLoaded } =
+    useSelector((state) => state.invoiceModalData);
+
   const {
     data: developersData,
     isLoading: developersLoading,
     error: developersError,
   } = useFetchItemsQuery(
     { path: "/developer/getALL" },
-    {
-      skip: !props.isOpen,
-    }
+    { skip: !props.isOpen || isDevelopersLoaded }
   );
 
-  // Fetch bank accounts data only when modal is open
   const {
     data: bankAccountsData,
     isLoading: bankAccountsLoading,
     error: bankAccountsError,
   } = useFetchItemsQuery(
     { path: "/bankAccount/get" },
-    {
-      skip: !props.isOpen,
-    }
+    { skip: !props.isOpen || isBankAccountsLoaded }
   );
 
-  const [createItemMutation, { isLoading: mutationLoading }] =
-    useCreateItemMutation();
+  useEffect(() => {
+    if (developersData?.data && !isDevelopersLoaded) {
+      dispatch(setDevelopers(developersData.data));
+    }
+    if (bankAccountsData?.data && !isBankAccountsLoaded) {
+      dispatch(setBankAccounts(bankAccountsData.data));
+    }
+  }, [
+    developersData,
+    bankAccountsData,
+    isDevelopersLoaded,
+    isBankAccountsLoaded,
+    dispatch,
+  ]);
 
   const initialValues = {
-    developer_id: "",
+    developer_id: id || "",
     bank_account_id: "",
     claimType: "",
   };
 
   const formik = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: invoiceSchema,
-    onSubmit: (values, { resetForm }) => {
-      AddData(values);
+    onSubmit: (values) => {
+      handleNext(values);
     },
     enableReinitialize: true,
   });
@@ -86,37 +104,9 @@ const Add = (props) => {
     dirty,
   } = formik;
 
-  const AddData = async (formValues) => {
-    try {
-      setIsLoading(true);
-
-      const response = await createItemMutation({
-        path: "/invoices",
-        body: formValues,
-      }).unwrap();
-
-      // Log the response to debug its structure
-      console.log("API Response:", response);
-
-      // If unwrap() succeeds, the request was successful (status 2xx)
-      toast.success("Invoice added successfully!");
-      if (props.fetchData) {
-        props.fetchData({
-          pageIndex: props.pageIndex || 0,
-          pageSize: props.pageSize || 4,
-        });
-      }
-      if (props.setAction) props.setAction((prev) => !prev);
-      resetForm();
-      props.onClose();
-    } catch (e) {
-      console.error("Error adding invoice:", e);
-      const errorMessage =
-        e?.data?.message || e?.message || "Failed to add invoice";
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleNext = (formValues) => {
+    setInvoiceData(formValues);
+    setIsEntryModalOpen(true);
   };
 
   const handleCancel = () => {
@@ -126,7 +116,7 @@ const Add = (props) => {
 
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
-    md: { width: "602px", height: "300px" },
+    md: { width: "602px", height: "250px" },
   });
 
   const customDropdownIcon = (
@@ -149,14 +139,19 @@ const Add = (props) => {
           fontFamily="DM Sans, sans-serif"
           maxW="100vw"
           mx="auto"
+          borderRadius="10px"
+          boxShadow="lg"
         >
           <ModalHeader
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-            fontSize="24px"
+            fontSize={{ base: "20px", md: "24px" }}
             fontWeight="bold"
             fontFamily="DM Sans, sans-serif"
+            px={6}
+            py={4}
+            borderBottom="1px solid #E2E8F0"
           >
             Add Invoice
             <IconButton
@@ -164,53 +159,14 @@ const Add = (props) => {
               icon={<CloseIcon />}
               aria-label="Close"
               size="sm"
+              variant="ghost"
+              color="gray.600"
+              _hover={{ color: "gray.800", bg: "gray.100" }}
             />
           </ModalHeader>
-          <ModalBody overflowY="auto">
+          <ModalBody overflowY="auto" px={6} py={4}>
             <form onSubmit={handleSubmit}>
               <Grid templateColumns="repeat(12, 1fr)" gap={3}>
-                <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
-                    Select Developer
-                  </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="developer_id"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={
-                      developersData?.data?.length > 0
-                        ? "Select developer"
-                        : "No developers available"
-                    }
-                    value={values.developer_id || ""}
-                    disabled={developersLoading || developersError}
-                    borderColor={
-                      errors.developer_id && touched.developer_id
-                        ? "red.300"
-                        : null
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
-                    borderRadius="6px"
-                    height="40px"
-                    _focus={{
-                      borderColor: "#B79045",
-                      boxShadow: "0 0 0 1px #B79045",
-                    }}
-                  >
-                    {developersData?.data?.map((developer) => (
-                      <option key={developer._id} value={developer._id}>
-                        {developer.developer_name}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.developer_id && touched.developer_id && (
-                    <FormLabel color="red.500" fontSize="14px">
-                      {errors.developer_id}
-                    </FormLabel>
-                  )}
-                </GridItem>
                 <GridItem colSpan={{ base: 12, md: 6 }}>
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
                     Bank Account
@@ -221,16 +177,18 @@ const Add = (props) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder={
-                      bankAccountsData?.data?.length > 0
-                        ? "Choose Bank Account"
-                        : "No bank accounts available"
+                      bankAccountsLoading
+                        ? "Loading bank accounts..."
+                        : bankAccounts.length > 0
+                          ? "Choose Bank Account"
+                          : "No bank accounts available"
                     }
-                    value={values.bank_account_id || ""}
+                    value={values.bank_account_id}
                     disabled={bankAccountsLoading || bankAccountsError}
                     borderColor={
                       errors.bank_account_id && touched.bank_account_id
                         ? "red.300"
-                        : null
+                        : "gray.300"
                     }
                     fontFamily="DM Sans, sans-serif"
                     icon={customDropdownIcon}
@@ -241,7 +199,7 @@ const Add = (props) => {
                       boxShadow: "0 0 0 1px #B79045",
                     }}
                   >
-                    {bankAccountsData?.data?.map((bank) => (
+                    {bankAccounts.map((bank) => (
                       <option key={bank._id} value={bank._id}>
                         {bank.account_holder_name} - {bank.account_number}
                       </option>
@@ -262,10 +220,12 @@ const Add = (props) => {
                     name="claimType"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.claimType || ""}
+                    value={values.claimType}
                     placeholder="Select Claim Type"
                     borderColor={
-                      errors.claimType && touched.claimType ? "red.300" : null
+                      errors.claimType && touched.claimType
+                        ? "red.300"
+                        : "gray.300"
                     }
                     fontFamily="DM Sans, sans-serif"
                     icon={customDropdownIcon}
@@ -279,7 +239,7 @@ const Add = (props) => {
                     <option value="Full">Full</option>
                     <option value="Installment">Installment</option>
                   </Select>
-                  {errors.claimType && touched.claimType   && (
+                  {errors.claimType && touched.claimType && (
                     <FormLabel color="red.500" fontSize="14px">
                       {errors.claimType}
                     </FormLabel>
@@ -288,11 +248,16 @@ const Add = (props) => {
               </Grid>
             </form>
           </ModalBody>
-          <ModalFooter justifyContent="flex-end">
+          <ModalFooter
+            justifyContent="flex-end"
+            px={6}
+            py={4}
+            borderTop="1px solid #E2E8F0"
+          >
             <Button
               bg="#CCCACA"
               color="black"
-              width="83px"
+              width={{ base: "80px", md: "83px" }}
               height="46px"
               fontSize="16px"
               borderRadius="6px"
@@ -307,24 +272,35 @@ const Add = (props) => {
             <Button
               bg="#B79045"
               color="white"
-              width="83px"
+              width={{ base: "80px", md: "83px" }}
               height="46px"
               fontSize="16px"
               fontFamily="DM Sans, sans-serif"
               borderRadius="6px"
               sx={{ textTransform: "capitalize" }}
-              disabled={isLoading || mutationLoading || !isValid || !dirty}
-              type="submit"
+              disabled={isLoading || !isValid || !dirty}
               onClick={handleSubmit}
               _hover={{ bg: "#A17C3A" }}
+              _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
             >
-              {isLoading || mutationLoading ? <Spinner /> : "Save"}
+              {isLoading ? <Spinner /> : "Next"}
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {isEntryModalOpen && (
+        <AddEntryModal
+          isOpen={isEntryModalOpen}
+          onClose={() => setIsEntryModalOpen(false)}
+          invoiceData={invoiceData}
+          fetchData={props.fetchData}
+          setAction={props.setAction}
+          onInvoiceClose={props.onClose}
+        />
+      )}
     </div>
   );
 };
 
-export default Add;
+export default AddInvoice;

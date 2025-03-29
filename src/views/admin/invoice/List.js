@@ -49,8 +49,6 @@ const SingleInvoice = () => {
   });
 
   const invoices = invoiceData?.data?.entries || [];
-  const agencies = invoices.map((inv) => inv?.invoice?.agency);
-
   const totals = {
     total_commission_excl_vat: invoices.reduce(
       (sum, entry) => sum + (entry.total_commission_excl_vat || 0),
@@ -243,7 +241,7 @@ const SingleInvoice = () => {
             <Box w={{ base: "full", md: "16%" }} gap={3}>
               <img src={Weam} alt="Weam Elnaggar Real Estate" width="200px" />
               <Text fontSize={{ base: "xs", md: "sm" }} mt={4}>
-                {agencies[0]?.location}
+                Office #3102, API World Tower, Sheikh Zayed road, Dubai, UAE
               </Text>
               <Text fontSize={{ base: "xs", md: "sm" }} my={4}>
                 Telephone: +971-58-557-7271 | +971-56-115-0747

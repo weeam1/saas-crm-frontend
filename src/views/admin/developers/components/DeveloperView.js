@@ -37,15 +37,6 @@ const DeveloperDetails = () => {
     refetch: refetchDeveloper,
   } = useFetchItemsQuery({ path: `/developer/get/${id}` }, { skip: !id });
 
-  const {
-    data: bankResponse,
-    isLoading: isBankLoading,
-    refetch: refetchBank,
-  } = useFetchItemsQuery(
-    { path: `/bankAccount/getByDeveloperId/${id}` },
-    { skip: !id }
-  );
-
   const [createBank, { isLoading: isAddingBank }] = useCreateItemMutation();
   const [deleteBank, { isLoading: isDeletingBank }] = useDeleteItemMutation();
 
@@ -61,12 +52,11 @@ const DeveloperDetails = () => {
   const textColor = useColorModeValue("gray.700", "gray.200");
 
   const developer = developerResponse?.data;
-  const bankAccounts = bankResponse?.data || [];
 
   const handleAddBank = async (bankData) => {
     try {
       const response = await createBank({
-        path: `/bankAccount/add/${id}`,
+        path: `/bankAccount/add`,
         body: bankData,
       }).unwrap();
       toast.success("Bank account added successfully!", {
@@ -74,7 +64,6 @@ const DeveloperDetails = () => {
         autoClose: 3000,
       });
       refetchDeveloper();
-      refetchBank();
     } catch (err) {
       toast.error(
         err?.data?.message || "Failed to add bank account. Please try again.",
@@ -94,7 +83,6 @@ const DeveloperDetails = () => {
         position: "top-right",
         autoClose: 3000,
       });
-      refetchBank();
     } catch (err) {
       toast.error(
         err?.data?.message ||
@@ -144,7 +132,7 @@ const DeveloperDetails = () => {
     );
   }
 
-  if (isDeveloperLoading || isBankLoading) {
+  if (isDeveloperLoading) {
     return (
       <Flex justify="center" align="center" h="100vh" bg={bgGradient}>
         <Spinner size="xl" color={accentColor} thickness="4px" />
@@ -227,13 +215,13 @@ const DeveloperDetails = () => {
 
       <DeveloperInfo developer={developer} />
       <BankDetailsSection
-        bankAccounts={bankAccounts}
-        onAddBank={handleAddBank}
-        isAddingBank={isAddingBank}
-        onDeleteBank={openDeleteDialog}
-        isDeletingBank={isDeletingBank}
-        bankToDelete={bankToDelete}
-      />
+  data={developer}
+  onAddBank={handleAddBank}
+  isAddingBank={isAddingBank}
+  onDeleteBank={openDeleteDialog}
+  isDeletingBank={isDeletingBank}
+  bankToDelete={bankToDelete}
+/>
 
       <AlertDialog
         isOpen={isOpen}

@@ -34,7 +34,6 @@ const Delete = (props) => {
         throw new Error("No valid data provided for deletion");
       }
 
-      // On success, refetch data with current pageIndex and pageSize
       if (props.fetchData) {
         props.fetchData({
           pageIndex: props.pageIndex,

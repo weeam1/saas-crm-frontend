@@ -53,7 +53,6 @@ const ContactImport = React.lazy(
 const User = React.lazy(() => import("views/admin/users"));
 const UserView = React.lazy(() => import("views/admin/users/View"));
 
-
 const Property = React.lazy(() => import("views/admin/property"));
 const PropertyView = React.lazy(() => import("views/admin/property/View"));
 const PropertyImport = React.lazy(
@@ -130,6 +129,7 @@ const Announcement = React.lazy(() => import("views/admin/announcement"));
 const CurrencyPoints = React.lazy(() => import("views/admin/currencypoints"));
 // Attendance module
 const Attendance = React.lazy(() => import("views/admin/attendance"));
+const InvoiceDev = React.lazy(() => import("views/admin/invoice/InvoiceIndex"));
 
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
@@ -314,8 +314,15 @@ const routes = [
     name: "Invoice",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
     icon: <Icon as={FaFile} width="20px" height="20px" color="inherit" />,
-    path: "/invoice",
+    path: "/dev-list",
     component: InvoiceView,
+  },
+  {
+    name: "Invoices",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "invoice",
+    path: "/invoices/:id",
+    component: InvoiceDev,
   },
   {
     name: "Invoice",

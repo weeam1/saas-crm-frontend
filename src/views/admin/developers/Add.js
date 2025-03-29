@@ -12,34 +12,55 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Select,
   Text,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { useCreateItemMutation } from "api/apiSlice";
+import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 
 const userSchema = Yup.object().shape({
   trn: Yup.string().required("TRN is required"),
   developer_name: Yup.string().required("Developer Name is required"),
-  email: Yup.string().email("Invalid email format").required("Email is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
   address: Yup.string().required("Address is required"),
-  country: Yup.string(), // Optional field
+  country: Yup.string().required("Country is required"),
+  agency: Yup.string().required("Agency is required"), 
 });
 
 const AddUser = (props) => {
-  const { onClose, isOpen, setAction, fetchData, pageIndex, pageSize, refetch } = props;
+  const {
+    onClose,
+    isOpen,
+    setAction,
+    fetchData,
+    pageIndex,
+    pageSize,
+    refetch,
+  } = props;
   const [isLoading, setIsLoading] = useState(false);
-  const [createItemMutation, { isLoading: mutationLoading }] = useCreateItemMutation();
+  const [createItemMutation, { isLoading: mutationLoading }] =
+    useCreateItemMutation();
 
+  const {
+    data: agenciesResponse,
+    isLoading: isAgenciesLoading,
+    isError: isAgenciesError,
+  } = useFetchItemsQuery({ path: "/agencies" });
+
+  const agencies = agenciesResponse?.doc || [];
   const initialValues = {
     trn: "",
     developer_name: "",
     address: "",
     email: "",
     country: "",
+    agency: "",
   };
 
   const formik = useFormik({
@@ -48,8 +69,8 @@ const AddUser = (props) => {
     onSubmit: (values, { resetForm }) => {
       AddData(values, resetForm);
     },
-    validateOnChange: true, // Validate when a field changes
-    validateOnBlur: true,   // Validate when a field loses focus
+    validateOnChange: true,
+    validateOnBlur: true,
   });
 
   const {
@@ -113,13 +134,13 @@ const AddUser = (props) => {
     }
   };
 
-  // Check if all required fields are filled and valid
   const isFormComplete = () => {
     return (
       values.trn.trim() !== "" &&
       values.developer_name.trim() !== "" &&
       values.email.trim() !== "" &&
       values.address.trim() !== "" &&
+      values.agency.trim() !== "" &&
       isValid
     );
   };
@@ -168,7 +189,11 @@ const AddUser = (props) => {
                   name="developer_name"
                   placeholder="Developer Name"
                   fontWeight="500"
-                  borderColor={errors.developer_name && touched.developer_name ? "red.300" : null}
+                  borderColor={
+                    errors.developer_name && touched.developer_name
+                      ? "red.300"
+                      : null
+                  }
                 />
                 {errors.developer_name && touched.developer_name && (
                   <Text mb="10px" color="red" fontSize="sm">
@@ -211,7 +236,9 @@ const AddUser = (props) => {
                   name="address"
                   placeholder="Address"
                   fontWeight="500"
-                  borderColor={errors.address && touched.address ? "red.300" : null}
+                  borderColor={
+                    errors.address && touched.address ? "red.300" : null
+                  }
                 />
                 {errors.address && touched.address && (
                   <Text mb="10px" color="red" fontSize="sm">
@@ -222,7 +249,7 @@ const AddUser = (props) => {
 
               <GridItem>
                 <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Country (Optional)
+                  Country 
                 </FormLabel>
                 <Input
                   fontSize="sm"
@@ -232,11 +259,51 @@ const AddUser = (props) => {
                   name="country"
                   placeholder="Country"
                   fontWeight="500"
-                  borderColor={errors.country && touched.country ? "red.300" : null}
+                  borderColor={
+                    errors.country && touched.country ? "red.300" : null
+                  }
                 />
                 {errors.country && touched.country && (
                   <Text mb="10px" color="red" fontSize="sm">
                     {errors.country}
+                  </Text>
+                )}
+              </GridItem>
+
+              <GridItem>
+                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                  Agency
+                </FormLabel>
+                <Select
+                  fontSize="sm"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.agency}
+                  name="agency"
+                  placeholder="Select Agency"
+                  fontWeight="500"
+                  borderColor={
+                    errors.agency && touched.agency ? "red.300" : null
+                  }
+                  isDisabled={isAgenciesLoading || isAgenciesError}
+                >
+                  {agencies.map((agency) => (
+                    <option key={agency._id} value={agency._id}>
+                      {agency.name} {/* Adjust based on your agency schema */}
+                    </option>
+                  ))}
+                </Select>
+                {isAgenciesLoading && (
+                  <Text fontSize="sm">Loading agencies...</Text>
+                )}
+                {isAgenciesError && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    Failed to load agencies
+                  </Text>
+                )}
+                {errors.agency && touched.agency && (
+                  <Text mb="10px" color="red" fontSize="sm">
+                    {errors.agency}
                   </Text>
                 )}
               </GridItem>

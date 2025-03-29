@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -13,10 +13,13 @@ import {
   Input,
   FormErrorMessage,
   Flex,
+  Select,
 } from "@chakra-ui/react";
+import { toast } from "react-toastify";
 import { AddIcon } from "@chakra-ui/icons";
+import { useFetchItemsQuery } from "api/apiSlice";
 
-const AddAccountModal = ({ onAdd, isAdding }) => {
+const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     account_holder_name: "",
@@ -25,6 +28,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     swift_code: "",
     bank_name: "",
     branch_address: "",
+    developer_id: "",
   });
   const [errors, setErrors] = useState({
     account_holder_name: "",
@@ -33,9 +37,24 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     swift_code: "",
     bank_name: "",
     branch_address: "",
+    developer_id: "",
   });
+  const [developers, setDevelopers] = useState([]); // Local state for developers
+
+  const shouldFetchDevelopers = isOpen || propsIsOpen;
+
+  const {
+    data: developersData,
+    isLoading: developersLoading,
+    error: developersError,
+    isFetching,
+  } = useFetchItemsQuery(
+    { path: "/developer/getALL" },
+    { skip: !shouldFetchDevelopers }
+  );
 
   const handleOpen = () => setIsOpen(true);
+
   const handleClose = () => {
     setIsOpen(false);
     setFormData({
@@ -45,6 +64,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
       swift_code: "",
       bank_name: "",
       branch_address: "",
+      developer_id: "",
     });
     setErrors({
       account_holder_name: "",
@@ -53,59 +73,123 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
       swift_code: "",
       bank_name: "",
       branch_address: "",
+      developer_id: "",
     });
   };
+
+  // Update local developers state when data is fetched
+  useEffect(() => {
+    if (developersData && developersData.data) {
+      // Map the API response to the expected format
+      const devs = developersData.data.map((dev) => ({
+        id: dev._id, // Map "_id" to "id"
+        name: `${dev.developer_name} (TRN: ${dev.trn})`, // Include TRN in the display name
+      }));
+      setDevelopers(devs);
+    }
+    if (developersError) {
+      toast.error("Failed to load developers. Please try again.");
+      console.error("Developers fetch error:", developersError);
+    }
+  }, [developersData, developersError]);
 
   const validateField = (name, value) => {
     let error = "";
     switch (name) {
       case "account_holder_name":
-        if (!value.trim()) {
-          error = "Account holder name is required";
-        } else if (value.trim().length < 2) {
+        if (!value.trim()) error = "Account holder name is required";
+        else if (value.trim().length < 2)
           error = "Account holder name must be at least 2 characters long";
-        }
         break;
       case "account_number":
-        if (!value.trim()) {
-          error = "Account number is required";
-        } else if (!/^[0-9- ]+$/.test(value)) {
-          error =
-            "Account number must contain only numbers, spaces, or hyphens";
-        }
+        if (!value.trim()) error = "Account number is required";
+        else if (!/^[0-9]+$/.test(value))
+          error = "Account number must contain only numbers";
         break;
       case "iban":
-        if (!value.trim()) {
-          error = "IBAN is required";
-        } else if (!/^[A-Z]{2}[0-9A-Z]{13,30}$/.test(value)) {
-          error = "Invalid IBAN format (e.g., DE89370400440532013000)";
+        if (!value.trim()) error = "IBAN is required";
+        else {
+          const countryCode = value.slice(0, 2);
+          if (!/^[A-Z]{2}$/.test(countryCode)) {
+            error =
+              "IBAN must start with a 2-letter country code (e.g., PK, AE, EG)";
+          } else {
+            const ibanLengths = { PK: 24, AE: 23, EG: 29 };
+            const expectedLength = ibanLengths[countryCode];
+            const remaining = value.slice(2);
+            if (!expectedLength) {
+              if (!/^[A-Za-z0-9]+$/.test(remaining)) {
+                error =
+                  "IBAN must contain only letters and numbers after the country code";
+              }
+            } else if (value.length !== expectedLength) {
+              error = `IBAN for ${countryCode} must be exactly ${expectedLength} characters long`;
+            } else if (!/^[A-Za-z0-9]+$/.test(remaining)) {
+              error =
+                "IBAN must contain only letters and numbers after the country code";
+            }
+          }
         }
         break;
       case "swift_code":
-        if (!value.trim()) {
-          error = "SWIFT code is required";
-        } else if (!/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(value)) {
-          error = "Invalid SWIFT code format (e.g., DEUTDEFF or DEUTDEFF500)";
-        }
+        if (!value.trim()) error = "SWIFT code is required";
+        else if (!/^[A-Za-z0-9]+$/.test(value))
+          error = "SWIFT code must contain only letters and numbers";
+        else if (value.length < 8)
+          error = "SWIFT code must be at least 8 characters long";
         break;
       case "bank_name":
-        if (!value.trim()) {
-          error = "Bank name is required";
-        } else if (value.trim().length < 2) {
+        if (!value.trim()) error = "Bank name is required";
+        else if (value.trim().length < 2)
           error = "Bank name must be at least 2 characters long";
-        }
         break;
       case "branch_address":
-        if (!value.trim()) {
-          error = "Branch address is required";
-        } else if (value.trim().length < 5) {
+        if (!value.trim()) error = "Branch address is required";
+        else if (value.trim().length < 5)
           error = "Branch address must be at least 5 characters long";
-        }
+        break;
+      case "developer_id":
+        if (!value.trim()) error = "Developer selection is required";
         break;
       default:
         break;
     }
     return error;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    switch (name) {
+      case "account_holder_name":
+        filteredValue = value;
+        break;
+      case "account_number":
+        filteredValue = value.replace(/[^0-9- ]/g, "");
+        break;
+      case "iban":
+        const countryCode = value.slice(0, 2).toUpperCase();
+        const remaining = value.slice(2).replace(/[^A-Za-z0-9]/g, "");
+        const ibanLengths = { PK: 24, AE: 23, EG: 29 };
+        const maxLength = ibanLengths[countryCode] || 30;
+        filteredValue = (countryCode + remaining).slice(0, maxLength);
+        break;
+      case "swift_code":
+        filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 11);
+        break;
+      case "bank_name":
+      case "branch_address":
+      case "developer_id":
+        filteredValue = value;
+        break;
+      default:
+        break;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: filteredValue }));
+    const error = validateField(name, filteredValue);
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const validateForm = () => {
@@ -122,17 +206,17 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     return isValid;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
   const handleSubmit = async () => {
     if (validateForm()) {
-      await onAdd(formData);
-      handleClose();
+      try {
+        await onAdd(formData);
+        toast.success("Bank account added successfully!");
+        handleClose();
+      } catch (error) {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } else {
+      toast.warn("Please fill all required fields.");
     }
   };
 
@@ -161,7 +245,12 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
         Add Account
       </Button>
 
-      <Modal isOpen={isOpen} onClose={handleClose} isCentered>
+      <Modal
+        isOpen={isOpen || propsIsOpen}
+        onClose={handleClose}
+        closeOnOverlayClick={false}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent
           fontFamily="DM Sans"
@@ -207,7 +296,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 name="iban"
                 value={formData.iban}
                 onChange={handleChange}
-                placeholder="Enter IBAN"
+                placeholder="Enter IBAN (e.g., PK36SCBL0000001123456702)"
                 borderRadius="8px"
                 fontFamily="DM Sans"
               />
@@ -216,7 +305,6 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
               </FormErrorMessage>
             </FormControl>
 
-            {/* Swift Code and Bank Name Side by Side */}
             <Flex direction={{ base: "column", md: "row" }} gap={4} mb={3}>
               <FormControl isInvalid={!!errors.swift_code} flex="1">
                 <FormLabel fontFamily="DM Sans">Swift Code</FormLabel>
@@ -224,7 +312,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                   name="swift_code"
                   value={formData.swift_code}
                   onChange={handleChange}
-                  placeholder="Enter Swift Code"
+                  placeholder="Enter Swift Code (e.g., DEUTDEFF)"
                   borderRadius="8px"
                   fontFamily="DM Sans"
                 />
@@ -248,6 +336,34 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
                 </FormErrorMessage>
               </FormControl>
             </Flex>
+
+            <FormControl mb={3} isInvalid={!!errors.developer_id}>
+              <FormLabel fontFamily="DM Sans">Developer</FormLabel>
+              <Select
+                name="developer_id"
+                value={formData.developer_id}
+                onChange={handleChange}
+                placeholder={
+                  developersLoading || isFetching
+                    ? "Loading developers..."
+                    : developers.length === 0
+                      ? "No developers available"
+                      : "Select a developer"
+                }
+                borderRadius="8px"
+                fontFamily="DM Sans"
+                isDisabled={developersLoading || isFetching}
+              >
+                {developers.map((developer) => (
+                  <option key={developer.id} value={developer.id}>
+                    {developer.name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.developer_id}
+              </FormErrorMessage>
+            </FormControl>
 
             <FormControl mb={3} isInvalid={!!errors.branch_address}>
               <FormLabel fontFamily="DM Sans">Branch Address</FormLabel>

@@ -9,13 +9,14 @@ import {
   Input,
   Box,
   Text,
+  Select,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { developerSchema } from "schema/developerSchema";
-import { useUpdateItemMutation } from "api/apiSlice";
+import { useUpdateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { useDispatch } from "react-redux";
 import { apiSlice } from "api/apiSlice";
 
@@ -35,12 +36,20 @@ const Edit = (props) => {
   const dispatch = useDispatch();
   const pageSize = pageSizeProp && pageSizeProp > 0 ? pageSizeProp : 10;
 
+  const {
+    data: agenciesResponse,
+    isLoading: isAgenciesLoading,
+    isError: isAgenciesError,
+  } = useFetchItemsQuery({ path: "/agencies" });
+  const agencies = agenciesResponse?.doc || [];
+
   const initialValues = {
     developer_name: data?.developer_name || "",
     address: data?.address || "",
     trn: data?.trn || "",
     email: data?.email || "",
     country: data?.country || "",
+    agency: data?.agency || "",
   };
 
   const [updateItemMutation, { isLoading: mutationLoading }] =
@@ -64,7 +73,7 @@ const Edit = (props) => {
     handleChange,
     handleSubmit,
     resetForm,
-    dirty, 
+    dirty,
   } = formik;
 
   const EditData = async (formValues) => {
@@ -77,7 +86,7 @@ const Edit = (props) => {
       if (response.status === "success") {
         setEdit(false);
         fetchData({ pageIndex, pageSize });
-        dispatch(apiSlice.util.invalidateTags(["Developers"])); 
+        dispatch(apiSlice.util.invalidateTags(["Developers"]));
         setAction((prev) => !prev);
         toast.success("Developer updated successfully!");
         resetForm();
@@ -124,7 +133,6 @@ const Edit = (props) => {
         fontWeight="500"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <Flex justifyContent="space-between" alignItems="center" pb={2}>
           <Text fontSize="20px" fontWeight="500">
             Edit Developer
@@ -138,7 +146,6 @@ const Edit = (props) => {
           />
         </Flex>
 
-        {/* Body */}
         <Box pt={4}>
           <form onSubmit={handleSubmit}>
             <Grid gap={4} templateColumns="1fr">
@@ -271,6 +278,47 @@ const Edit = (props) => {
                   </Text>
                 )}
               </GridItem>
+              <GridItem>
+                <FormLabel fontSize="14px" color="gray.600">
+                  Agency
+                </FormLabel>
+                <Select
+                  fontSize="14px"
+                  placeholder="Select Agency"
+                  value={values.agency}
+                  name="agency"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  bg="#F2F2F2"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{ borderColor: "gray.300", boxShadow: "none" }}
+                  _hover={{ bg: "#E6E6E6" }}
+                  borderColor={
+                    errors.agency && touched.agency ? "red.300" : null
+                  }
+                  isDisabled={isAgenciesLoading || isAgenciesError}
+                >
+                  {agencies.map((agency) => (
+                    <option key={agency._id} value={agency._id}>
+                      {agency.name} {/* Adjust based on your agency schema */}
+                    </option>
+                  ))}
+                </Select>
+                {isAgenciesLoading && (
+                  <Text fontSize="12px">Loading agencies...</Text>
+                )}
+                {isAgenciesError && (
+                  <Text color="red" fontSize="12px" mt={1}>
+                    Failed to load agencies
+                  </Text>
+                )}
+                {errors.agency && touched.agency && (
+                  <Text color="red" fontSize="12px" mt={1}>
+                    {errors.agency}
+                  </Text>
+                )}
+              </GridItem>
             </Grid>
 
             <Flex mt={6} justifyContent="flex-end" pb={4} gap={3}>
@@ -296,7 +344,7 @@ const Edit = (props) => {
                 color="white"
                 _hover={{ bg: "#A07723" }}
                 isLoading={isLoading || mutationLoading}
-                disabled={isLoading || mutationLoading || !dirty} 
+                disabled={isLoading || mutationLoading || !dirty}
                 borderRadius="md"
                 fontSize="14px"
                 h="40px"

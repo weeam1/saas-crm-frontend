@@ -1,12 +1,14 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { HasAccess } from "../../../redux/accessUtils";
-import CheckTable from "./components/CheckTable";
+import CheckTable from "./components/invoiceChecktable";
 import { useSelector } from "react-redux";
 import { useFetchItemsQuery } from "api/apiSlice";
-import { useNavigate } from "react-router-dom";
+import Breadcrumb from "./components/BreadCrumb";
 const Index = () => {
+  const { id } = useParams();
+  const developer_id = id;
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
@@ -15,8 +17,12 @@ const Index = () => {
   const [committedSearchTerm, setCommittedSearchTerm] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const tree = useSelector((state) => state.user.tree);
+  const [queryParams, setQueryParams] = useState({
+    page: 1,
+    limit: 10,
+    developer: developer_id,
+  });
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [permission, emailAccess, callAccess] = HasAccess([
     "Lead",
@@ -24,33 +30,33 @@ const Index = () => {
     "Call",
   ]);
 
-  const tableColumns = useMemo(
-    () => [
-      {
-        Header: "Date",
-        accessor: "createdAt",
-        Cell: ({ value }) => new Date(value).toLocaleDateString(),
-      },
-      {
-        Header: "Developer",
-        accessor: "developer.developer_name",
-      },
-      {
-        Header: "Developer Email",
-        accessor: "developer.email",
-      },
-      {
-        Header: "Trn",
-        accessor: "developer.trn",
-      },
+  const tableColumns = [
+    {
+      Header: "Date",
+      accessor: "createdAt",
+      Cell: ({ value }) => new Date(value).toLocaleDateString(),
+    },
+    {
+      Header: "Invoice Number",
+      accessor: "invoiceNo",
+    },
+    {
+      Header: "Developer",
+      accessor: "developer.developer_name",
+    },
+    {
+      Header: "Bank Account",
+      accessor: "bank_account.account_holder_name",
+    },
 
-      {
-        Header: "Status",
-        accessor: "status",
-      },
-    ],
-    []
-  );
+    // {
+    //   Header: "Total Amount",
+    //   accessor: "totalAmount",
+    //   Cell: ({ value }) =>
+    //     value.toLocaleString("en-US", { minimumFractionDigits: 2 }),
+    // },
+    { Header: "Action", id: "action", isSortable: false, center: true },
+  ];
 
   const roleColumns = {
     Manager: tableColumns,
@@ -69,25 +75,24 @@ const Index = () => {
 
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
-
   const baseQueryArgs = useMemo(
     () => ({
-      path: `/developer/get`,
-      params: { page: pageIndex + 1, limit: pageSize },
+      path: developer_id ? `/invoices` : `/invoices`,
+      params: queryParams,
     }),
-    [pageIndex, pageSize]
+    [pageIndex, pageSize, developer_id]
   );
 
   const searchQueryArgs = useMemo(
     () => ({
-      path: `/developer`,
+      path: developer_id ? `/invoices?developer=${developer_id}` : `/invoices`,
       params: {
         search: committedSearchTerm,
         page: pageIndex + 1,
         limit: pageSize,
       },
     }),
-    [committedSearchTerm, pageIndex, pageSize]
+    [committedSearchTerm, pageIndex, pageSize, developer_id]
   );
 
   const queryArgs = committedSearchTerm ? searchQueryArgs : baseQueryArgs;
@@ -114,10 +119,11 @@ const Index = () => {
 
   useEffect(() => {
     setIsLoading(queryLoading);
-    if (invoiceData?.developers) {
-      setData(invoiceData.developers);
+    if (invoiceData?.doc) {
+      console.log("API Response:", invoiceData);
+      setData(invoiceData.doc);
       if (committedSearchTerm) {
-        setSearchedData(invoiceData.developers);
+        setSearchedData(invoiceData.doc);
         setDisplaySearchData(true);
       } else {
         setDisplaySearchData(false);
@@ -137,9 +143,14 @@ const Index = () => {
   }, [location.state, refetch, isUninitialized, user._id]);
 
   const fetchData = useMemo(() => {
-    return ({ pageIndex: newPageIndex, pageSize: newPageSize, search }) => {
-      setPageIndex(newPageIndex);
-      setPageSize(newPageSize);
+    return (options = {}) => {
+      const {
+        pageIndex: newPageIndex,
+        pageSize: newPageSize,
+        search,
+      } = options;
+      setPageIndex(newPageIndex ?? pageIndex);
+      setPageSize(newPageSize ?? pageSize);
       if (search !== undefined) {
         setCommittedSearchTerm(search);
       }
@@ -147,17 +158,27 @@ const Index = () => {
         refetch();
       }
     };
-  }, [isUninitialized, user._id, refetch]);
+  }, [isUninitialized, user._id, refetch, pageIndex, pageSize]);
+
+  const breadcrumbItems = useMemo(
+    () => [
+      { label: "Home", path: "/" },
+      { label: "Developers List", path: "/dev-list" },
+      { label: "Invoice", path: "/invoice" },
+    ],
+    []
+  );
 
   return (
     <div>
+      <Breadcrumb items={breadcrumbItems} />
       <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
         <GridItem colSpan={6}>
           <CheckTable
             dateTime={dateTime}
             setDateTime={setDateTime}
-            isLoding={isLoading}
-            setIsLoding={setIsLoading}
+            isLoading={isLoading} // Fixed typo
+            setIsLoading={setIsLoading} // Fixed typo
             columnsData={roleColumns[role] || tableColumns}
             setAction={setAction}
             dataColumn={dataColumn}
@@ -177,12 +198,11 @@ const Index = () => {
             callAccess={callAccess}
             pageIndex={pageIndex}
             pageSize={pageSize}
-            totalItems={invoiceData?.totalDevelopers || 0}
+            totalItems={invoiceData?.totalDocs || 0}
             totalPages={invoiceData?.totalPages || 1}
             currentPage={invoiceData?.currentPage || 1}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            navigate={navigate}
           />
         </GridItem>
       </Grid>

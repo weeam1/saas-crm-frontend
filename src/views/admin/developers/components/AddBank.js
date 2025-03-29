@@ -60,47 +60,59 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     let error = "";
     switch (name) {
       case "account_holder_name":
-        if (!value.trim()) {
-          error = "Account name is required";
-        } else if (value.trim().length < 2) {
-          error = "Account name must be at least 2 characters long";
-        }
+        if (!value.trim()) error = "Account holder name is required";
+        else if (value.trim().length < 2)
+          error = "Account holder name must be at least 2 characters long";
         break;
       case "account_number":
-        if (!value.trim()) {
-          error = "Account number is required";
-        } else if (!/^[0-9- ]+$/.test(value)) {
-          error =
-            "Account number must contain only numbers, spaces, or hyphens";
-        }
+        if (!value.trim()) error = "Account number is required";
+        else if (!/^[0-9]+$/.test(value))
+          error = "Account number must contain only numbers";
         break;
       case "iban":
-        if (!value.trim()) {
-          error = "IBAN is required";
-        } else if (!/^[A-Z]{2}[0-9A-Z]{13,30}$/.test(value)) {
-          error = "Invalid IBAN format (e.g., DE89370400440532013000)";
+        if (!value.trim()) error = "IBAN is required";
+        else {
+          const countryCode = value.slice(0, 2);
+          if (!/^[A-Z]{2}$/.test(countryCode)) {
+            error =
+              "IBAN must start with a 2-letter country code (e.g., PK, AE, EG)";
+          } else {
+            const ibanLengths = { PK: 24, AE: 23, EG: 29 };
+            const expectedLength = ibanLengths[countryCode];
+            const remaining = value.slice(2);
+            if (!expectedLength) {
+              if (!/^[A-Za-z0-9]+$/.test(remaining)) {
+                error =
+                  "IBAN must contain only letters and numbers after the country code";
+              }
+            } else if (value.length !== expectedLength) {
+              error = `IBAN for ${countryCode} must be exactly ${expectedLength} characters long`;
+            } else if (!/^[A-Za-z0-9]+$/.test(remaining)) {
+              error =
+                "IBAN must contain only letters and numbers after the country code";
+            }
+          }
         }
         break;
       case "swift_code":
-        if (!value.trim()) {
-          error = "SWIFT code is required";
-        } else if (!/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(value)) {
-          error = "Invalid SWIFT code format (e.g., DEUTDEFF or DEUTDEFF500)";
-        }
+        if (!value.trim()) error = "SWIFT code is required";
+        else if (!/^[A-Za-z0-9]+$/.test(value))
+          error = "SWIFT code must contain only letters and numbers";
+        else if (value.length < 8)
+          error = "SWIFT code must be at least 8 characters long";
         break;
       case "bank_name":
-        if (!value.trim()) {
-          error = "Bank name is required";
-        } else if (value.trim().length < 2) {
+        if (!value.trim()) error = "Bank name is required";
+        else if (value.trim().length < 2)
           error = "Bank name must be at least 2 characters long";
-        }
         break;
       case "branch_address":
-        if (!value.trim()) {
-          error = "Branch address is required";
-        } else if (value.trim().length < 5) {
+        if (!value.trim()) error = "Branch address is required";
+        else if (value.trim().length < 5)
           error = "Branch address must be at least 5 characters long";
-        }
+        break;
+      case "developer_id":
+        if (!value.trim()) error = "Developer selection is required";
         break;
       default:
         break;
