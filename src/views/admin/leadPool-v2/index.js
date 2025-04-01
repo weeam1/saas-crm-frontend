@@ -14,7 +14,8 @@ const Index = () => {
   const [data, setData] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalLeads, setTotalLeads] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [currentState, setCurrentState] = useState("buy_leads");
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
   const [pageSize, setPageSize] = useState(50);
@@ -126,7 +127,8 @@ const Index = () => {
       }
     } finally {
       fetchLockRef.current = false;
-      setIsLoading(false); // Set loading false when done
+      setIsLoading(false);
+      setHasFetched(true);
     }
   };
 
@@ -137,7 +139,7 @@ const Index = () => {
     if (lastFetchRef.current === fetchKey) return;
 
     fetchLockRef.current = true;
-    setIsLoading(true); // Set loading true
+    setIsLoading(true);
     setError(null);
     lastFetchRef.current = fetchKey;
 
@@ -210,7 +212,7 @@ const Index = () => {
       setTotalLeads(0);
     } finally {
       fetchLockRef.current = false;
-      setIsLoading(false); // Set loading false
+      setIsLoading(false);
     }
   };
 
@@ -269,20 +271,17 @@ const Index = () => {
       setTotalLeads(0);
     } finally {
       fetchLockRef.current = false;
-      setIsLoading(false); // Set loading false
+      setIsLoading(false);
     }
   };
 
   const fetchUserData = async () => {
-    setIsLoading(true); // Set loading true
     try {
       const response = await getApi(`api/user/view/${user._id}`);
       setUserData(response.data);
     } catch (error) {
       console.error("Fetch User Data Error:", error);
       setUserData(null);
-    } finally {
-      setIsLoading(false); // Set loading false
     }
   };
 
@@ -303,22 +302,18 @@ const Index = () => {
   const sendRequest = async (leadId) => {
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
     try {
-      // Fetch user data to get current coin balance
       const userResponse = await getApi(`api/user/view/${user._id}`);
       const currentCoins = userResponse?.data?.coins || 0;
 
-      // Determine the coin cost based on lead status
       const lead = data.find((l) => l._id === leadId);
       const coinCost = lead?.leadStatus === "new" ? 300 : 50;
 
-      // Check if user has sufficient coins before proceeding
       if (currentCoins < coinCost) {
         throw new Error(
           `Insufficient coins. You need at least ${coinCost} coins to purchase this lead.`
         );
       }
 
-      // Fetch agent lead stats to check if they can add more leads
       const stats = await fetchAgentLeadsStats(user._id);
       if (!stats.canAddLeads) {
         setErrorLeadData({
@@ -331,14 +326,12 @@ const Index = () => {
         return;
       }
 
-      // Proceed with sending the approval request
       const payload = { leadId, agentId: user._id, approvalStatus: "pending" };
       const approvalResponse = await postApi("api/adminApproval/add", payload);
       if (approvalResponse.status !== 200) {
         throw new Error("Failed to send lead for approval");
       }
 
-      // Deduct coins and update user data
       const updatedCoins = currentCoins - coinCost;
       const updateResponse = await putApi(`api/user/edit/${user._id}`, {
         coins: updatedCoins,
@@ -365,6 +358,7 @@ const Index = () => {
       setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
     }
   };
+
   const cancelRequest = async (id, leadId, userId) => {
     setBuyLoading((prev) => ({ ...prev, [id]: true }));
     try {
@@ -429,20 +423,17 @@ const Index = () => {
     [dateTime, user, activeTab]
   );
 
-  // Sync currentState with activeTab
   useEffect(() => {
     const newState =
       activeTab === "Buy Leads" ? "buy_leads" : activeTab.toLowerCase();
     setCurrentState(newState);
   }, [activeTab]);
 
-  // Initial load
   useEffect(() => {
     const { page, size, tab } = getInitialStateFromUrl();
     setCurrentPage(page);
     setPageSize(size);
     setActiveTab(tab);
-    setIsLoading(true);
     fetchUserData();
     fetchTabData(tab, page, size);
 
@@ -458,10 +449,11 @@ const Index = () => {
   return (
     <>
       <PaginationPage
-        data={displaySearchData ? searchedData : data || []} // Use searchedData when searching
+        data={displaySearchData ? searchedData : data || []}
         totalPages={totalPages}
         totalLeads={totalLeads}
         isLoading={isLoading}
+        hasFetched={hasFetched} // Pass hasFetched to Pagination
         fetchData={(tab, page, size) => {
           setIsLoading(true);
           setData([]);

@@ -14,14 +14,13 @@ const TabContent = ({
   activeTab,
   data,
   isLoading,
+  hasFetched,
   pageSize,
   sendRequest,
   cancelRequest,
   buyLoading,
   displaySearchData,
 }) => {
-  console.log(isLoading, "all data");
-
   const templateColumns = useBreakpointValue({
     base: "repeat(1, 1fr)",
     sm: "repeat(1, 1fr)",
@@ -37,8 +36,7 @@ const TabContent = ({
 
   const skeletonCount = pageSize || 3;
 
-  // Show skeletons while loading
-  if (isLoading) {
+  if (isLoading || !hasFetched) {
     return (
       <Grid {...gridProps} minW="300px">
         {Array(skeletonCount)
@@ -57,8 +55,7 @@ const TabContent = ({
     );
   }
 
-  // After loading, check if there's data
-  if (!data || data.length === 0) {
+  if (!hasFetched || data.length === 0) {
     return (
       <Box textAlign="center" py={10}>
         <Text fontSize="lg" color="gray.500">
@@ -68,7 +65,6 @@ const TabContent = ({
     );
   }
 
-  // Render tab content when data is available
   return (
     <Grid {...gridProps}>
       {activeTab === "Buy Leads" && (
