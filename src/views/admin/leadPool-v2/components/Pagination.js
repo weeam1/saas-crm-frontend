@@ -179,6 +179,7 @@ const Pagination = ({
         userData={userData}
         activeTab={activeTab}
         setActiveTab={(tab) => {
+          if (isLoading || activeTab === tab) return; 
           setActiveTab(tab);
           setCurrentPage(1);
           handleNavigation(1, () => fetchData(tab, 1, pageSize));

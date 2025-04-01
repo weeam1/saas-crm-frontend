@@ -37,7 +37,7 @@ const LeadCard = ({
   leadId,
   leadName,
   city,
-  nationality,
+  nationality,  
   sourceContent,
   timetocall,
   mStatus,

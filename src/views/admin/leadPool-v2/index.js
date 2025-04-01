@@ -64,7 +64,7 @@ const Index = () => {
     if (lastFetchRef.current === fetchKey) return;
 
     fetchLockRef.current = true;
-    setIsLoading(true); // Set loading true at the start
+    setIsLoading(true);
     setError(null);
     lastFetchRef.current = fetchKey;
 
@@ -303,6 +303,22 @@ const Index = () => {
   const sendRequest = async (leadId) => {
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
     try {
+      // Fetch user data to get current coin balance
+      const userResponse = await getApi(`api/user/view/${user._id}`);
+      const currentCoins = userResponse?.data?.coins || 0;
+
+      // Determine the coin cost based on lead status
+      const lead = data.find((l) => l._id === leadId);
+      const coinCost = lead?.leadStatus === "new" ? 300 : 50;
+
+      // Check if user has sufficient coins before proceeding
+      if (currentCoins < coinCost) {
+        throw new Error(
+          `Insufficient coins. You need at least ${coinCost} coins to purchase this lead.`
+        );
+      }
+
+      // Fetch agent lead stats to check if they can add more leads
       const stats = await fetchAgentLeadsStats(user._id);
       if (!stats.canAddLeads) {
         setErrorLeadData({
@@ -315,23 +331,19 @@ const Index = () => {
         return;
       }
 
+      // Proceed with sending the approval request
       const payload = { leadId, agentId: user._id, approvalStatus: "pending" };
       const approvalResponse = await postApi("api/adminApproval/add", payload);
-      if (approvalResponse.status !== 200)
+      if (approvalResponse.status !== 200) {
         throw new Error("Failed to send lead for approval");
+      }
 
-      const userResponse = await getApi(`api/user/view/${user._id}`);
-      const lead = data.find((l) => l._id === leadId);
-      const coinCost = lead?.leadStatus === "new" ? 300 : 50;
-      const currentCoins = userResponse?.data?.coins || 0;
+      // Deduct coins and update user data
       const updatedCoins = currentCoins - coinCost;
-
-      if (updatedCoins < 0)
-        throw new Error("Insufficient coins to purchase this lead");
-
       const updateResponse = await putApi(`api/user/edit/${user._id}`, {
         coins: updatedCoins,
       });
+
       if (updateResponse.status === 200) {
         setUserData((prev) => ({ ...prev, coins: updatedCoins }));
         setData(data.filter((lead) => lead._id !== leadId));
@@ -340,6 +352,8 @@ const Index = () => {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
         });
+      } else {
+        throw new Error("Failed to update user coins");
       }
     } catch (error) {
       console.error("Send Request Error:", error);
@@ -351,7 +365,6 @@ const Index = () => {
       setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
     }
   };
-
   const cancelRequest = async (id, leadId, userId) => {
     setBuyLoading((prev) => ({ ...prev, [id]: true }));
     try {
