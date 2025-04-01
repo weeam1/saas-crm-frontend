@@ -33,6 +33,7 @@ const getLabelByValue = (value) => {
 
 const LeadCard = ({
   _id,
+  userData,
   intID,
   leadId,
   leadName,
@@ -43,7 +44,7 @@ const LeadCard = ({
   mStatus,
   r_u_in_uae,
   leadCampaign,
-  leadStatus: leadStatusValue, // This is the actual status value
+  leadStatus: leadStatusValue,
   budget,
   approvalStatus,
   createdDate,
@@ -62,7 +63,6 @@ const LeadCard = ({
   const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
 
   useEffect(() => {
-    console.log("leadsModal state updated:", leadsModal);
   }, [leadsModal]);
 
   const displayButtonText = () => {
@@ -80,7 +80,6 @@ const LeadCard = ({
 
   const handleBuyClick = () => {
     console.log("Buy clicked for lead:", _id);
-    // Fix: Use leadStatusValue instead of leadStatus
     if (leadStatusValue?.toLowerCase() !== "rejected") {
       sendRequest(_id);
     }
@@ -169,6 +168,12 @@ const LeadCard = ({
     }
     return value || "N/A";
   };
+
+  // Coin-based disabling logic
+  const coinCost = leadStatusValue?.toLowerCase() === "new" ? 300 : 50;
+  const userCoins = userData?.coins || 0;
+  const isBuyDisabled =
+    userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
 
   return (
     <Box
@@ -316,7 +321,7 @@ const LeadCard = ({
                 flexShrink={0}
                 onClick={handleBuyClick}
                 isLoading={buyLoading[_id]}
-                isDisabled={buyLoading[_id]}
+                isDisabled={isBuyDisabled} // Updated to use coin-based logic
               >
                 {displayButtonText()}
               </Button>

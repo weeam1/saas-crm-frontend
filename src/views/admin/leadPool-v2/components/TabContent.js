@@ -11,6 +11,7 @@ import PendingItems from "./PendingItems";
 import RejectedItems from "./RejectedItems";
 
 const TabContent = ({
+  userData,
   activeTab,
   data,
   isLoading,
@@ -55,20 +56,12 @@ const TabContent = ({
     );
   }
 
-  if (!hasFetched || data.length === 0) {
-    return (
-      <Box textAlign="center" py={10}>
-        <Text fontSize="lg" color="gray.500">
-          No data found
-        </Text>
-      </Box>
-    );
-  }
 
   return (
     <Grid {...gridProps}>
       {activeTab === "Buy Leads" && (
         <AllItems
+          userData={userData}
           cancelRequest={cancelRequest}
           data={data}
           isLoading={isLoading}
