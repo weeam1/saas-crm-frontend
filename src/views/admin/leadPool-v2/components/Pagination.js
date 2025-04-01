@@ -17,11 +17,13 @@ import Tabs from "./Tabs";
 import TabContent from "./TabContent";
 import LeadsProgress from "./LeadProgress";
 import { CloseIcon } from "@chakra-ui/icons";
+
 const Pagination = ({
   data,
   totalPages,
   totalLeads,
   isLoading,
+  hasFetched, // Receive hasFetched from Index
   fetchData,
   fetchSearchedData,
   fetchAdvancedSearch,
@@ -52,7 +54,7 @@ const Pagination = ({
   const pageSizeOptions = [10, 25, 50, 100];
 
   useEffect(() => {
-    if (!data && !isLoading) {
+    if (!data && !isLoading && hasFetched) {
       setIsLoading(true);
       fetchData(activeTab || "Buy Leads", currentPage || 1, pageSize || 50);
     }
@@ -64,6 +66,7 @@ const Pagination = ({
     currentPage,
     pageSize,
     setIsLoading,
+    hasFetched,
   ]);
 
   useEffect(() => {
@@ -178,9 +181,13 @@ const Pagination = ({
         userData={userData}
         activeTab={activeTab}
         setActiveTab={(tab) => {
-          setActiveTab(tab);
-          setCurrentPage(1);
-          handleNavigation(1, () => fetchData(tab, 1, pageSize));
+          if (tab !== activeTab && !isLoading) {
+            setData([]);
+            setActiveTab(tab);
+            setCurrentPage(1);
+            setDisplaySearchData(false);
+            handleNavigation(1, () => fetchData(tab, 1, pageSize));
+          }
         }}
         isLoading={isLoading}
       />
@@ -435,6 +442,7 @@ const Pagination = ({
         activeTab={activeTab}
         data={data || []}
         isLoading={isLoading}
+        hasFetched={hasFetched} // Pass hasFetched to TabContent
         pageSize={pageSize}
         sendRequest={sendRequest}
         cancelRequest={cancelRequest}

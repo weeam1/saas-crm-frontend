@@ -1,7 +1,13 @@
 import { Button, HStack, Box, Flex, Stack } from "@chakra-ui/react";
 
 const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
-  const tabs = ["Buy Leads", "Pending", "Rejected"]; 
+  const tabs = ["Buy Leads", "Pending", "Rejected"];
+
+  const handleTabClick = (tab) => {
+    if (tab !== activeTab && !isLoading) {
+      setActiveTab(tab);
+    }
+  };
 
   return (
     <Box width="100%">
@@ -13,7 +19,6 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
         flexWrap="wrap"
         gap={{ base: 2, md: 4 }}
       >
-        {/* Tabs Section */}
         <Stack
           direction={{ base: "column", sm: "row" }}
           spacing={{ base: 2, md: 1 }}
@@ -23,7 +28,7 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
           {tabs.map((tab) => (
             <Button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabClick(tab)}
               bg={activeTab === tab ? "#b79045" : "white"}
               color={activeTab === tab ? "white" : "black"}
               _hover={{ bg: activeTab === tab ? "#b79045" : "gray.200" }}
@@ -34,15 +39,12 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
               borderRadius="6px"
               w={{ base: "90px", sm: "100px", md: "120px" }}
               h="40px"
-              isDisabled={isLoading && activeTab !== tab && tab !== "Buy Leads"} // Updated condition
+              isDisabled={isLoading}
             >
               {tab}
             </Button>
           ))}
         </Stack>
-
-        {/* DatePicker (Uncomment when needed) */}
-        {/* <DatePicker /> */}
       </Flex>
     </Box>
   );
