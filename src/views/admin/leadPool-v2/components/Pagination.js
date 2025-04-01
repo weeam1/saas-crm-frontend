@@ -17,6 +17,7 @@ import Tabs from "./Tabs";
 import TabContent from "./TabContent";
 import LeadsProgress from "./LeadProgress";
 import { CloseIcon } from "@chakra-ui/icons";
+
 const Pagination = ({
   data,
   totalPages,
@@ -46,7 +47,6 @@ const Pagination = ({
   cancelRequest,
   buyLoading,
 }) => {
-  
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
   const [searchTerm, setSearchTerm] = useState("");
   const [tags, setTags] = useState([]);
@@ -179,10 +179,14 @@ const Pagination = ({
         userData={userData}
         activeTab={activeTab}
         setActiveTab={(tab) => {
-          if (isLoading || activeTab === tab) return; 
-          setActiveTab(tab);
-          setCurrentPage(1);
-          handleNavigation(1, () => fetchData(tab, 1, pageSize));
+          // Only proceed if the tab is different and not loading
+          if (tab !== activeTab && !isLoading) {
+            setData([]);
+            setActiveTab(tab);
+            setCurrentPage(1);
+            setDisplaySearchData(false);
+            handleNavigation(1, () => fetchData(tab, 1, pageSize));
+          }
         }}
         isLoading={isLoading}
       />

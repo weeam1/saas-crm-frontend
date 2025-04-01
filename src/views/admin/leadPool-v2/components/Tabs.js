@@ -3,6 +3,12 @@ import { Button, HStack, Box, Flex, Stack } from "@chakra-ui/react";
 const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
   const tabs = ["Buy Leads", "Pending", "Rejected"];
 
+  const handleTabClick = (tab) => {
+    if (tab !== activeTab && !isLoading) {
+      setActiveTab(tab);
+    }
+  };
+
   return (
     <Box width="100%">
       <Flex
@@ -22,7 +28,7 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
           {tabs.map((tab) => (
             <Button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabClick(tab)}
               bg={activeTab === tab ? "#b79045" : "white"}
               color={activeTab === tab ? "white" : "black"}
               _hover={{ bg: activeTab === tab ? "#b79045" : "gray.200" }}
@@ -33,7 +39,7 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
               borderRadius="6px"
               w={{ base: "90px", sm: "100px", md: "120px" }}
               h="40px"
-              isDisabled={isLoading }   
+              isDisabled={isLoading}
             >
               {tab}
             </Button>
