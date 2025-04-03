@@ -58,6 +58,7 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 }
 
 const AddEntryModal = (props) => {
+  console.log(props,'secleted invoice no')
   const [isLoading, setIsLoading] = useState(false);
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();
@@ -134,10 +135,8 @@ const AddEntryModal = (props) => {
       setIsLoading(true);
 
       const payload = {
-        developer_id: props.invoiceData.developer_id,
-        bank_account_id: props.invoiceData.bank_account_id,
-        claimType: props.invoiceData.claimType,
         entryData: {
+          invoice:props.invoiceId,
           unit_no: entryValues.unit_no,
           name_of_referring_party: entryValues.name_of_referring_party,
           commission_percentage: Number(entryValues.commission_percentage),
@@ -154,7 +153,7 @@ const AddEntryModal = (props) => {
       };
 
       const response = await createItemMutation({
-        path: "/invoices/with-entry",
+        path: "/invoices/entries/",
         body: payload,
       }).unwrap();
 

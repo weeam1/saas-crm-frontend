@@ -15,6 +15,7 @@ const Index = () => {
   const [searchedData, setSearchedData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [committedSearchTerm, setCommittedSearchTerm] = useState("");
+  
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const tree = useSelector((state) => state.user.tree);
   const [queryParams, setQueryParams] = useState({
@@ -134,6 +135,7 @@ const Index = () => {
       setSearchedData([]);
     }
   }, [invoiceData, queryLoading, error, committedSearchTerm]);
+  
 
   useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
@@ -177,8 +179,8 @@ const Index = () => {
           <CheckTable
             dateTime={dateTime}
             setDateTime={setDateTime}
-            isLoading={isLoading} // Fixed typo
-            setIsLoading={setIsLoading} // Fixed typo
+            isLoading={isLoading} 
+            setIsLoading={setIsLoading} 
             columnsData={roleColumns[role] || tableColumns}
             setAction={setAction}
             dataColumn={dataColumn}

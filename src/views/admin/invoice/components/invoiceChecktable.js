@@ -91,6 +91,7 @@ export default function InvoiceCheckTable(props) {
   const [advaceSearch, setAdvaceSearch] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [manageColumns, setManageColumns] = useState(false);
+  const [selectedInvoiceNo, setSelectedInvoiceNo] = useState(null);
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
   const [copiedPosition, setCopiedPosition] = useState(null);
@@ -209,6 +210,7 @@ export default function InvoiceCheckTable(props) {
       setCopiedPosition(null);
     }, 2000);
   };
+  console.log(selectedInvoiceNo,"selected invoice no")
   return (
     <>
       <Breadcrumb />
@@ -477,6 +479,10 @@ export default function InvoiceCheckTable(props) {
                                 py="10px"
                                 color="white"
                                 px="16px"
+                                onClick={() => {
+                                  setSelectedInvoiceNo(row.invoiceNo); 
+                                  onOpen(); 
+                                }}
                               >
                                 Add Entry
                               </Button>
@@ -575,14 +581,18 @@ export default function InvoiceCheckTable(props) {
         </Box>
 
         <Add
-          isOpen={isOpen}
-          size="xl"
-          onClose={onClose}
-          fetchData={fetchData}
-          setAction={setAction}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-        />
+  isOpen={isOpen}
+  size="xl"
+  onClose={() => {
+    setSelectedInvoiceNo(null);
+    onClose();
+  }}
+  fetchData={fetchData}
+  setAction={setAction}
+  pageIndex={pageIndex}
+  pageSize={pageSize}
+  invoiceId={selectedInvoiceNo}
+/>
 
         <Edit
           data={data}

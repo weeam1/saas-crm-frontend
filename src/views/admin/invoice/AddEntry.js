@@ -31,7 +31,7 @@ import Delete from "./components/DeleteEntry";
 import BackImg from "../../../assets/img/Invoice/Vector.svg";
 import TableLoading from "components/loading/TableLoading";
 
-const AddEntry = () => {
+const AddEntry = ({props}) => {
   const tableSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
   const fontSizeTh = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
   const fontSizeTd = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });

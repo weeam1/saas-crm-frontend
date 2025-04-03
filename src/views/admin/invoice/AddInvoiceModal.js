@@ -41,6 +41,7 @@ const invoiceSchema = yup.object().shape({
 });
 
 const AddInvoice = (props) => {
+  console.log(props,"props")
   const { id } = useParams();
   const navigate = useNavigate();
 
