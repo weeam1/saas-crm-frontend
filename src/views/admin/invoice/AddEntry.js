@@ -72,6 +72,7 @@ const AddEntry = ({ props }) => {
       skip: !id,
     }
   );
+  const docLength =entriesData?.doc.length;
   const developerId = entriesData?.doc?.[0]?.invoice?.developer?.id;
 
   const [tableData, setTableData] = useState([]);
@@ -689,6 +690,9 @@ const AddEntry = ({ props }) => {
         method="one"
         fetchData={refetch}
         setAction={() => {}}
+        invoiceId={id}
+        developerId={developerId}
+        docLength={docLength}
       />
     </Box>
   );

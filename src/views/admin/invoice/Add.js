@@ -134,21 +134,19 @@ const AddEntryModal = (props) => {
       setIsLoading(true);
 
       const payload = {
-        entryData: {
-          invoice:props.invoiceId,
-          unit_no: entryValues.unit_no,
-          name_of_referring_party: entryValues.name_of_referring_party,
-          commission_percentage: Number(entryValues.commission_percentage),
-          unit_price: Number(entryValues.unit_price),
-          total_commission_excl_vat: Number(
-            entryValues.total_commission_excl_vat
-          ),
-          vat_percentage: Number(entryValues.vat_percentage),
-          vat_amount: Number(entryValues.vat_amount),
-          total_commission_incl_vat: Number(
-            entryValues.total_commission_incl_vat
-          ),
-        },
+        invoice: props.invoiceId,
+        unit_no: entryValues.unit_no,
+        name_of_referring_party: entryValues.name_of_referring_party,
+        commission_percentage: Number(entryValues.commission_percentage),
+        unit_price: Number(entryValues.unit_price),
+        total_commission_excl_vat: Number(
+          entryValues.total_commission_excl_vat
+        ),
+        vat_percentage: Number(entryValues.vat_percentage),
+        vat_amount: Number(entryValues.vat_amount),
+        total_commission_incl_vat: Number(
+          entryValues.total_commission_incl_vat
+        ),
       };
 
       const response = await createItemMutation({

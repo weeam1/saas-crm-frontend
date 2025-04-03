@@ -20,12 +20,12 @@ const Index = () => {
   const [searchedData, setSearchedData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [searchField, setSearchField] = useState();
+  const [searchField, setSearchField] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const buildQueryPath = () => {
     if (!searchTerm) {
-      return `/developer/get?page=${pageIndex + 1}&pageSize=${pageSize}`;
+      return `/developer/get`;
     }
     return `/developer/search?page=${pageIndex + 1}&pageSize=${pageSize}&${searchField}=${encodeURIComponent(searchTerm)}`;
   };
@@ -61,7 +61,7 @@ const Index = () => {
     setPageIndex(newPageIndex);
     setPageSize(newPageSize);
     setSearchTerm(search || "");
-    if (field) setSearchField(field); 
+    if (field) setSearchField(field);
     refetch();
   };
 
@@ -76,15 +76,15 @@ const Index = () => {
   }, [error]);
 
   useEffect(() => {
-    if (developerResponse?.developers) {
-      setSearchedData(developerResponse.developers);
+    if (developerResponse?.doc) {
+      setSearchedData(developerResponse.doc);
     }
   }, [developerResponse]);
 
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" h="200px">
-        <Spinner size="xl" />
+        <Spinner size沦="xl" />
       </Box>
     );
   }
@@ -114,10 +114,10 @@ const Index = () => {
         setAction={setAction}
         action={action}
         setSearchedData={setSearchedData}
-        allData={developerResponse?.developers || []}
+        allData={developerResponse?.doc || []}
         displaySearchData={displaySearchData}
         tableData={
-          displaySearchData ? searchedData : developerResponse?.developers || []
+          displaySearchData ? searchedData : developerResponse?.doc || []
         }
         fetchData={fetchData}
         dataColumn={dynamicColumns.filter((item) =>
@@ -131,7 +131,7 @@ const Index = () => {
         pageIndex={pageIndex}
         pageSize={pageSize}
         setPageSize={setPageSize}
-        totalItems={developerResponse?.totalDevelopers || 0}
+        totalItems={developerResponse?.totalDocs || 0}
         totalPages={developerResponse?.totalPages || 1}
         currentPage={developerResponse?.currentPage || 1}
         refetch={refetch}

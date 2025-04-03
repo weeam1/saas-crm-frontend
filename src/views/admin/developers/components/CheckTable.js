@@ -184,12 +184,12 @@ export default function CheckTable(props) {
     setSearchbox("");
     setSearchTerm("");
     setDisplaySearchData(false);
-    fetchData({ pageIndex: 0, pageSize }); // Reset to regular data
+    fetchData({ pageIndex: 0, pageSize }); 
   };
 
-  useEffect(() => {
-    setSearchedData && setSearchedData(data);
-  }, [data, setSearchedData]);
+  // useEffect(() => {
+  //   setSearchedData && setSearchedData(data);
+  // }, [data, setSearchedData]);
 
   const {
     errors,
