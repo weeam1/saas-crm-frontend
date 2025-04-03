@@ -192,6 +192,7 @@ const LeadCard = ({
     nationality && nationality.length > 30
       ? { base: "5px", md: "10px" }
       : { base: "5px", md: "10px" };
+      
   return (
     <Box
       borderRadius="lg"
