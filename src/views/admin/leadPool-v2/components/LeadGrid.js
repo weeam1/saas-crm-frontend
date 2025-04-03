@@ -11,6 +11,8 @@ const LeadGrid = ({
   pageSize,
   cancelRequest,
   userData,
+  isPurchasing,
+  isCancelling,
 }) => {
   const [showNoData, setShowNoData] = useState(false);
 
@@ -102,6 +104,8 @@ const LeadGrid = ({
                 approveChangeHandler={approveChangeHandler}
                 sendRequest={sendRequest}
                 buyLoading={buyLoading || false}
+                isPurchasing={isPurchasing}
+                isCancelling={isCancelling}
               />
             </Box>
           ))

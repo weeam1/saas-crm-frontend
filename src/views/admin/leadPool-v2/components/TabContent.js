@@ -20,6 +20,8 @@ const TabContent = ({
   sendRequest,
   cancelRequest,
   buyLoading,
+  isPurchasing,
+  isCancelling,
   displaySearchData,
 }) => {
   const templateColumns = useBreakpointValue({
@@ -68,10 +70,11 @@ const TabContent = ({
           sendRequest={sendRequest}
           buyLoading={buyLoading}
           pageSize={pageSize}
+          isPurchasing={isPurchasing}
         />
       )}
       {activeTab === "Pending" && (
-        <PendingItems data={data} cancelRequest={cancelRequest} />
+        <PendingItems data={data} cancelRequest={cancelRequest} isCancelling={isCancelling} />
       )}
       {activeTab === "Rejected" && (
         <RejectedItems data={data} cancelRequest={cancelRequest} />

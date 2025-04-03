@@ -53,6 +53,8 @@ const LeadCard = ({
   cancelRequest,
   buyLoading,
   refreshData,
+  isPurchasing,
+  isCancelling,
 }) => {
   const formattedCreatedDate = formattedDate(createdDate);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -62,8 +64,7 @@ const LeadCard = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
 
-  useEffect(() => {
-  }, [leadsModal]);
+  useEffect(() => {}, [leadsModal]);
 
   const displayButtonText = () => {
     switch (leadStatusValue?.toLowerCase()) {
@@ -170,11 +171,27 @@ const LeadCard = ({
   };
 
   // Coin-based disabling logic
+  // const coinCost = leadStatusValue?.toLowerCase() === "new" ? 300 : 50;
+  // const userCoins = userData?.coins || 0;
+  // const isBuyDisabled =
+  //   userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
   const coinCost = leadStatusValue?.toLowerCase() === "new" ? 300 : 50;
   const userCoins = userData?.coins || 0;
   const isBuyDisabled =
-    userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
-
+    userCoins < coinCost ||
+    buyLoading[_id] ||
+    isRejected ||
+    isPending ||
+    isPurchasing;
+  const isCancelDisabled = buyLoading[_id] || isCancelling;
+  const timeToCallFontSize =
+    timetocall && timetocall.length > 30
+      ? { base: "5px", md: "9px" }
+      : { base: "5px", md: "9px" };
+  const nationalityFontSize =
+    nationality && nationality.length > 30
+      ? { base: "5px", md: "10px" }
+      : { base: "5px", md: "10px" };
   return (
     <Box
       borderRadius="lg"
@@ -220,10 +237,11 @@ const LeadCard = ({
                 Time To Call
               </Text>
               <Text
-                fontSize="10px"
+                fontSize={timeToCallFontSize}
                 color="#32BD00"
                 fontWeight="bold"
                 fontFamily="DM Sans"
+                wordBreak="break-word"
               >
                 {renderValue(timetocall)}
               </Text>
@@ -289,7 +307,8 @@ const LeadCard = ({
                 _hover={{ bg: "red.600" }}
                 onClick={handleCancelClick}
                 isLoading={cancelLoading}
-                isDisabled={cancelLoading}
+                // isDisabled={cancelLoading}
+                isDisabled={isCancelDisabled}
               >
                 Cancel
               </Button>
@@ -349,7 +368,14 @@ const LeadCard = ({
             <InfoPair
               label="Country"
               value={
-                <Text fontWeight="bold" fontFamily="DM Sans">
+                <Text
+                  fontWeight="bold"
+                  fontFamily="DM Sans"
+                  fontSize={nationalityFontSize}
+                  wordBreak="break-word"
+                  whiteSpace="normal"
+                  maxW="100%"
+                >
                   {renderValue(nationality)}
                 </Text>
               }

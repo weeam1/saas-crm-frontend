@@ -23,7 +23,7 @@ const Pagination = ({
   totalPages,
   totalLeads,
   isLoading,
-  hasFetched, // Receive hasFetched from Index
+  hasFetched, 
   fetchData,
   fetchSearchedData,
   fetchAdvancedSearch,
@@ -47,6 +47,8 @@ const Pagination = ({
   sendRequest,
   cancelRequest,
   buyLoading,
+  isPurchasing,
+  isCancelling
 }) => {
   const [gotoPage, setGotoPage] = useState(currentPage || 1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -449,6 +451,8 @@ const Pagination = ({
         cancelRequest={cancelRequest}
         buyLoading={buyLoading}
         displaySearchData={displaySearchData}
+        isPurchasing={isPurchasing}
+        isCancelling={isCancelling}
       />
     </Box>
   );

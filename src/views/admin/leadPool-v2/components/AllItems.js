@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LeadGrid from "./LeadGrid";
 
-const AllItems = ({ data, isLoading, sendRequest, pageSize, userData }) => {
+const AllItems = ({ data, isLoading, sendRequest, pageSize, userData,isPurchasing }) => {
   const [buyLoading, setBuyLoading] = useState({});
 
   const handleSendRequest = async (leadId) => {
@@ -18,6 +18,7 @@ const AllItems = ({ data, isLoading, sendRequest, pageSize, userData }) => {
       buyLoading={buyLoading}
       isLoading={isLoading}
       pageSize={pageSize}
+      isPurchasing={isPurchasing}
     />
   );
 };

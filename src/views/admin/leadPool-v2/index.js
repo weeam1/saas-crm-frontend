@@ -28,7 +28,8 @@ const Index = () => {
   const [buyLoading, setBuyLoading] = useState({});
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorLeadData, setErrorLeadData] = useState(null);
-
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   // Refs to prevent duplicate fetches
   const fetchLockRef = useRef(false);
   const lastFetchRef = useRef(null);
@@ -300,6 +301,8 @@ const Index = () => {
   };
 
   const sendRequest = async (leadId) => {
+    if (isPurchasing) return;
+    setIsPurchasing(true);
     setBuyLoading((prev) => ({ ...prev, [leadId]: true }));
     try {
       const userResponse = await getApi(`api/user/view/${user._id}`);
@@ -356,10 +359,13 @@ const Index = () => {
       });
     } finally {
       setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
+      setIsPurchasing(false);
     }
   };
 
   const cancelRequest = async (id, leadId, userId) => {
+    if (isCancelling) return;
+    setIsCancelling(true);
     setBuyLoading((prev) => ({ ...prev, [id]: true }));
     try {
       if (!leadId || !userId) throw new Error("Lead ID or User ID is missing");
@@ -405,6 +411,7 @@ const Index = () => {
       });
     } finally {
       setBuyLoading((prev) => ({ ...prev, [id]: false }));
+      setIsCancelling(false);
     }
   };
 
@@ -509,6 +516,8 @@ const Index = () => {
         sendRequest={sendRequest}
         cancelRequest={cancelRequest}
         buyLoading={buyLoading}
+        isPurchasing={isPurchasing}
+        isCancelling={isCancelling}
       />
       {isErrorModalOpen && (
         <ErrorLeadLimitMessage
