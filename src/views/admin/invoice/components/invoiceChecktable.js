@@ -60,7 +60,7 @@ export default function InvoiceCheckTable(props) {
     tableData,
     dataColumn,
     fetchData,
-    isLoding,
+    isLoding, // Typo: should be isLoading
     allData,
     access,
     setSearchedData,
@@ -95,6 +95,7 @@ export default function InvoiceCheckTable(props) {
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
   const [copiedPosition, setCopiedPosition] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // New state for initial loading simulation
 
   const user = JSON.parse(localStorage.getItem("user"));
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -197,6 +198,16 @@ export default function InvoiceCheckTable(props) {
     fetchData({ pageIndex: 0, pageSize: newSize });
   };
 
+  // Simulate initial loading with setTimeout
+  useEffect(() => {
+    setIsInitialLoading(true);
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (fetchData && action) fetchData({ pageIndex, pageSize });
   }, [action, fetchData, pageIndex, pageSize]);
@@ -210,6 +221,7 @@ export default function InvoiceCheckTable(props) {
       setCopiedPosition(null);
     }, 2000);
   };
+
   return (
     <>
       <Breadcrumb />
@@ -284,7 +296,10 @@ export default function InvoiceCheckTable(props) {
           >
             {access?.create && (
               <Button
-                onClick={onOpen}
+                onClick={() => {
+                  setSelectedInvoiceNo(null); // Ensure null for new invoice
+                  onOpen();
+                }}
                 size="sm"
                 w={{ base: "100%", sm: "140px", md: "128px" }}
                 borderRadius="6px"
@@ -374,12 +389,14 @@ export default function InvoiceCheckTable(props) {
               </Tr>
             </Thead>
             <Tbody>
-              {isLoding ? (
+              {isLoding || isInitialLoading ? (
                 <TableLoading columns={columns} length="8" />
               ) : data?.length === 0 ? (
                 <Tr>
-                  <Td colSpan={columns.length}>
-                    <DataNotFound />
+                  <Td colSpan={columns.length} textAlign="center">
+                    <Text fontSize="md" color="gray.500">
+                      No invoices found.
+                    </Text>
                   </Td>
                 </Tr>
               ) : (
@@ -486,7 +503,6 @@ export default function InvoiceCheckTable(props) {
                                 Add Entry
                               </Button>
                             </Link>
-
                             {(access?.update || access?.delete) && (
                               <Menu width="200px">
                                 <MenuButton
@@ -505,14 +521,7 @@ export default function InvoiceCheckTable(props) {
                                         setEdit(true);
                                         setSelectedId(row._id);
                                       }}
-                                      icon={
-                                        <img
-                                          src={EditIconSvg}
-                                          alt="Edit"
-                                          width="16px"
-                                          height="16px"
-                                        />
-                                      }
+                                      icon={<img src={EditIconSvg} alt="Edit" width="16px" height="16px" />}
                                     >
                                       Edit
                                     </MenuItem>
