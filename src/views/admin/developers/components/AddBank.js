@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
+  ModalFooter,
   ModalBody,
   ModalCloseButton,
   Button,
@@ -11,21 +12,38 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
-  Text,
   Flex,
+  Select,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
+import { useParams } from "react-router-dom";
+import { useFetchItemsQuery } from "api/apiSlice";
 
-const AddAccountModal = ({ onAdd, isAdding }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    account_holder_name: "",
-    account_number: "",
-    iban: "",
-    swift_code: "",
-    bank_name: "",
-    branch_address: "",
-  });
+const AddAccountModal = ({ onAdd, isAdding, initialData, isEditMode, onClose }) => {
+  const { id } = useParams();
+  const [isOpen, setIsOpen] = useState(!!initialData);
+  const [formData, setFormData] = useState(
+    initialData
+      ? {
+          account_holder_name: initialData.account_holder_name || "",
+          account_number: initialData.account_number || "",
+          iban: initialData.iban || "",
+          swift_code: initialData.swift_code || "",
+          bank_name: initialData.bank_name || "",
+          branch_address: initialData.branch_address || "",
+          developer_id: initialData.developer_id || id || "",
+          ...(isEditMode && { _id: initialData._id }), // Preserve _id for edits
+        }
+      : {
+          account_holder_name: "",
+          account_number: "",
+          iban: "",
+          swift_code: "",
+          bank_name: "",
+          branch_address: "",
+          developer_id: id || "",
+        }
+  );
   const [errors, setErrors] = useState({
     account_holder_name: "",
     account_number: "",
@@ -33,9 +51,55 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     swift_code: "",
     bank_name: "",
     branch_address: "",
+    developer_id: "",
   });
+  const [developers, setDevelopers] = useState([]);
 
-  const handleOpen = () => setIsOpen(true);
+  const {
+    data: developersData,
+    isLoading: developersLoading,
+    error: developersError,
+    isFetching,
+  } = useFetchItemsQuery(
+    { path: "/developer/getALL" },
+    { skip: !isOpen }
+  );
+
+  const handleOpen = () => {
+    setFormData(
+      initialData
+        ? {
+            account_holder_name: initialData.account_holder_name || "",
+            account_number: initialData.account_number || "",
+            iban: initialData.iban || "",
+            swift_code: initialData.swift_code || "",
+            bank_name: initialData.bank_name || "",
+            branch_address: initialData.branch_address || "",
+            developer_id: initialData.developer_id || id || "",
+            ...(isEditMode && { _id: initialData._id }),
+          }
+        : {
+            account_holder_name: "",
+            account_number: "",
+            iban: "",
+            swift_code: "",
+            bank_name: "",
+            branch_address: "",
+            developer_id: id || "",
+          }
+    );
+    setErrors({
+      account_holder_name: "",
+      account_number: "",
+      iban: "",
+      swift_code: "",
+      bank_name: "",
+      branch_address: "",
+      developer_id: "",
+    });
+    setIsOpen(true);
+  };
+
   const handleClose = () => {
     setIsOpen(false);
     setFormData({
@@ -45,6 +109,7 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
       swift_code: "",
       bank_name: "",
       branch_address: "",
+      developer_id: id || "",
     });
     setErrors({
       account_holder_name: "",
@@ -53,8 +118,27 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
       swift_code: "",
       bank_name: "",
       branch_address: "",
+      developer_id: "",
     });
+    if (onClose) onClose();
   };
+
+  useEffect(() => {
+    if (developersData && developersData.data) {
+      const devs = developersData.data.map((dev) => ({
+        id: dev._id,
+        name: `${dev.developer_name} (TRN: ${dev.trn})`,
+      }));
+      setDevelopers(devs);
+    }
+    if (developersError) {
+      console.error("Developers fetch error:", developersError);
+      setErrors((prev) => ({
+        ...prev,
+        general: "Failed to load developers. Please try again.",
+      }));
+    }
+  }, [developersData, developersError]);
 
   const validateField = (name, value) => {
     let error = "";
@@ -120,174 +204,306 @@ const AddAccountModal = ({ onAdd, isAdding }) => {
     return error;
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    let filteredValue = value;
+
+    switch (name) {
+      case "account_holder_name":
+        filteredValue = value;
+        break;
+      case "account_number":
+        filteredValue = value.replace(/[^0-9- ]/g, "");
+        break;
+      case "iban":
+        const countryCode = value.slice(0, 2).toUpperCase();
+        const remaining = value.slice(2).replace(/[^A-Za-z0-9]/g, "");
+        const ibanLengths = { PK: 24, AE: 23, EG: 29 };
+        const maxLength = ibanLengths[countryCode] || 30;
+        filteredValue = (countryCode + remaining).slice(0, maxLength);
+        break;
+      case "swift_code":
+        filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 11);
+        break;
+      case "bank_name":
+      case "branch_address":
+      case "developer_id":
+        filteredValue = value;
+        break;
+      default:
+        break;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: filteredValue }));
+    const error = validateField(name, filteredValue);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
     let isValid = true;
 
     Object.keys(formData).forEach((key) => {
-      const error = validateField(key, formData[key]);
-      newErrors[key] = error;
-      if (error) isValid = false;
+      if (key !== "_id") { // Skip _id validation
+        const error = validateField(key, formData[key]);
+        newErrors[key] = error;
+        if (error) isValid = false;
+      }
     });
 
     setErrors(newErrors);
     return isValid;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    const error = validateField(name, value);
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
   const handleSubmit = async () => {
     if (validateForm()) {
-      await onAdd(formData);
-      handleClose();
+      const result = await onAdd(formData);
+      if (result && result.general) {
+        const errorMessage = result.general;
+        if (errorMessage.includes("account number")) {
+          setErrors((prev) => ({
+            ...prev,
+            account_number: "This account number has already been added",
+          }));
+        } else if (errorMessage.includes("IBAN")) {
+          setErrors((prev) => ({
+            ...prev,
+            iban: "This IBAN has already been added",
+          }));
+        } else if (errorMessage.includes("SWIFT code")) {
+          setErrors((prev) => ({
+            ...prev,
+            swift_code: "This SWIFT code has already been added",
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, general: errorMessage }));
+        }
+      } else {
+        handleClose();
+      }
     }
   };
 
   const isFormValid = () => {
-    return (
-      Object.values(errors).every((error) => !error) &&
-      Object.values(formData).every((value) => value.trim())
+    const requiredFields = [
+      "account_holder_name",
+      "account_number",
+      "iban",
+      "swift_code",
+      "bank_name",
+      "branch_address",
+      "developer_id",
+    ];
+    const isErrorsValid = requiredFields.every((key) => !errors[key]);
+    const isFormDataValid = requiredFields.every((key) =>
+      typeof formData[key] === "string" ? formData[key].trim() : !!formData[key]
     );
+    console.log("Errors:", errors);
+    console.log("FormData:", formData);
+    console.log(
+      "isErrorsValid:",
+      isErrorsValid,
+      "isFormDataValid:",
+      isFormDataValid
+    );
+    return isErrorsValid && isFormDataValid;
   };
 
   return (
     <>
-      <Button
-        onClick={handleOpen}
-        bg="#B79045"
-        color="white"
-        fontFamily="DM Sans"
-        borderRadius="8px"
-        leftIcon={<AddIcon />}
-        _hover={{ bg: "#9E7A3B" }}
-        fontSize={{ base: "sm", md: "md", lg: "lg" }}
-        px={{ base: 3, md: 4, lg: 6 }}
-        py={{ base: 2, md: 3 }}
-        width={{ base: "100%", md: "auto" }}
-      >
-        Add Account
-      </Button>
+      {!isEditMode && (
+        <Button
+          onClick={handleOpen}
+          bg="#B79045"
+          color="white"
+          fontFamily="DM Sans"
+          borderRadius="8px"
+          leftIcon={<AddIcon />}
+          _hover={{ bg: "#9E7A3B" }}
+          fontSize={{ base: "sm", md: "md", lg: "lg" }}
+          px={{ base: 3, md: 4, lg: 6 }}
+          py={{ base: 2, md: 3 }}
+          width={{ base: "100%", md: "auto" }}
+        >
+          Add Account
+        </Button>
+      )}
 
-      <Modal isOpen={isOpen} onClose={handleClose} isCentered>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        closeOnOverlayClick={false}
+        isCentered
+      >
         <ModalOverlay />
         <ModalContent
           fontFamily="DM Sans"
           maxW={{ base: "90%", md: "550px" }}
-          borderRadius="12px" // Added border radius to modal
+          borderRadius="12px"
         >
-          <ModalHeader>Add New Account</ModalHeader>
+          <ModalHeader fontFamily="DM Sans">
+            {isEditMode ? "Edit Bank Account" : "Add Account"}
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
+          <ModalBody>
             <FormControl mb={3} isInvalid={!!errors.account_holder_name}>
-              <FormLabel>Account Name </FormLabel>
+              <FormLabel fontFamily="DM Sans">Account Name</FormLabel>
               <Input
                 name="account_holder_name"
                 value={formData.account_holder_name}
                 onChange={handleChange}
                 placeholder="Enter Account Name"
                 borderRadius="8px"
+                fontFamily="DM Sans"
               />
-              <FormErrorMessage>{errors.account_holder_name}</FormErrorMessage>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.account_holder_name}
+              </FormErrorMessage>
             </FormControl>
 
             <FormControl mb={3} isInvalid={!!errors.account_number}>
-              <FormLabel>Account Number</FormLabel>
+              <FormLabel fontFamily="DM Sans">Account Number</FormLabel>
               <Input
                 name="account_number"
                 value={formData.account_number}
                 onChange={handleChange}
                 placeholder="Enter account number"
                 borderRadius="8px"
+                fontFamily="DM Sans"
               />
-              <FormErrorMessage>{errors.account_number}</FormErrorMessage>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.account_number}
+              </FormErrorMessage>
             </FormControl>
 
             <FormControl mb={3} isInvalid={!!errors.iban}>
-              <FormLabel>IBAN</FormLabel>
+              <FormLabel fontFamily="DM Sans">IBAN</FormLabel>
               <Input
                 name="iban"
                 value={formData.iban}
                 onChange={handleChange}
-                placeholder="Enter IBAN"
+                placeholder="Enter IBAN (e.g., PK36SCBL0000001123456702)"
                 borderRadius="8px"
+                fontFamily="DM Sans"
               />
-              <FormErrorMessage>{errors.iban}</FormErrorMessage>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.iban}
+              </FormErrorMessage>
             </FormControl>
 
-            {/* Swift Code and Bank Name Side by Side */}
             <Flex direction={{ base: "column", md: "row" }} gap={4} mb={3}>
               <FormControl isInvalid={!!errors.swift_code} flex="1">
-                <FormLabel>Swift Code</FormLabel>
+                <FormLabel fontFamily="DM Sans">Swift Code</FormLabel>
                 <Input
                   name="swift_code"
                   value={formData.swift_code}
                   onChange={handleChange}
-                  placeholder="Enter Swift Code"
+                  placeholder="Enter Swift Code (e.g., DEUTDEFF)"
                   borderRadius="8px"
+                  fontFamily="DM Sans"
                 />
-                <FormErrorMessage>{errors.swift_code}</FormErrorMessage>
+                <FormErrorMessage fontFamily="DM Sans">
+                  {errors.swift_code}
+                </FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.bank_name} flex="1">
-                <FormLabel>Bank Name</FormLabel>
+                <FormLabel fontFamily="DM Sans">Bank Name</FormLabel>
                 <Input
                   name="bank_name"
                   value={formData.bank_name}
                   onChange={handleChange}
                   placeholder="Enter bank name"
                   borderRadius="8px"
+                  fontFamily="DM Sans"
                 />
-                <FormErrorMessage>{errors.bank_name}</FormErrorMessage>
+                <FormErrorMessage fontFamily="DM Sans">
+                  {errors.bank_name}
+                </FormErrorMessage>
               </FormControl>
             </Flex>
 
-            <FormControl mb={6} isInvalid={!!errors.branch_address}>
-              <FormLabel>Branch Address</FormLabel>
+            <FormControl mb={3} isInvalid={!!errors.developer_id}>
+              <FormLabel fontFamily="DM Sans">Developer</FormLabel>
+              <Select
+                name="developer_id"
+                value={formData.developer_id}
+                onChange={handleChange}
+                placeholder={
+                  developersLoading || isFetching
+                    ? "Loading developers..."
+                    : developers.length === 0
+                    ? "No developers available"
+                    : "Select a developer"
+                }
+                borderRadius="8px"
+                fontFamily="DM Sans"
+                isDisabled={developersLoading || isFetching}
+              >
+                {developers.map((developer) => (
+                  <option key={developer.id} value={developer.id}>
+                    {developer.name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.developer_id}
+              </FormErrorMessage>
+            </FormControl>
+
+            <FormControl mb={3} isInvalid={!!errors.branch_address}>
+              <FormLabel fontFamily="DM Sans">Branch Address</FormLabel>
               <Input
                 name="branch_address"
                 value={formData.branch_address}
                 onChange={handleChange}
                 placeholder="Enter Bank Address"
                 borderRadius="8px"
+                fontFamily="DM Sans"
               />
-              <FormErrorMessage>{errors.branch_address}</FormErrorMessage>
+              <FormErrorMessage fontFamily="DM Sans">
+                {errors.branch_address}
+              </FormErrorMessage>
             </FormControl>
 
-            {/* Buttons */}
-            <Flex justify="flex-end" gap={3}>
-              <Button
-                variant="ghost"
-                onClick={handleClose}
-                bg="#CCCACA"
-                color="black"
-                borderRadius="6px"
-                px={6}
-                py={3}
-              >
-                Cancel
-              </Button>
-              <Button
-                bg="#B79045"
-                color="white"
-                onClick={handleSubmit}
-                borderRadius="6px"
-                px={6}
-                py={3}
-                isLoading={isAdding}
-                isDisabled={isAdding || !isFormValid()}
-                _hover={{
-                  bg: "#9E7A3B",
-                }}
-              >
-                Save
-              </Button>
-            </Flex>
+            {errors.general && (
+              <FormControl mb={3}>
+                <FormErrorMessage fontFamily="DM Sans">
+                  {errors.general}
+                </FormErrorMessage>
+              </FormControl>
+            )}
           </ModalBody>
+
+          <ModalFooter>
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              bg="#CCCACA"
+              color="black"
+              borderRadius="6px"
+              px={6}
+              py={3}
+              mr={3}
+              fontFamily="DM Sans"
+            >
+              Cancel
+            </Button>
+            <Button
+              bg="#B79045"
+              color="white"
+              onClick={handleSubmit}
+              borderRadius="6px"
+              px={6}
+              py={3}
+              isLoading={isAdding}
+              isDisabled={isAdding || !isFormValid()}
+              _hover={{ bg: "#9E7A3B" }}
+              fontFamily="DM Sans"
+            >
+              {isEditMode ? "Update" : "Save"}
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

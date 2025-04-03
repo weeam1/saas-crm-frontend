@@ -16,6 +16,7 @@ import {
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
+  useUpdateItemMutation,
   useDeleteItemMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
@@ -38,6 +39,7 @@ const DeveloperDetails = () => {
   } = useFetchItemsQuery({ path: `/developer/get/${id}` }, { skip: !id });
 
   const [createBank, { isLoading: isAddingBank }] = useCreateItemMutation();
+  const [updateBank, { isLoading: isUpdatingBank }] = useUpdateItemMutation();
   const [deleteBank, { isLoading: isDeletingBank }] = useDeleteItemMutation();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +74,25 @@ const DeveloperDetails = () => {
       console.error("Failed to add bank:", err);
     }
   };
-
+  const handleEditBank = async (bankData) => {
+    try {
+      const response = await updateBank({
+        path: `/bankAccount/edit/${bankData._id}`, 
+        body: bankData,
+      }).unwrap();
+      toast.success("Bank account updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      refetchDeveloper();
+      return null; 
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message ||
+        "Failed to update bank account. Please try again.";
+      return { general: errorMessage };
+    }
+  };
   const handleDeleteBank = async () => {
     if (!bankToDelete) return;
     try {
@@ -221,6 +241,7 @@ const DeveloperDetails = () => {
         onDeleteBank={openDeleteDialog}
         isDeletingBank={isDeletingBank}
         bankToDelete={bankToDelete}
+        onEditBank={handleEditBank}
       />
 
       <AlertDialog

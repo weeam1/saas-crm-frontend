@@ -6,18 +6,30 @@ import {
   Heading,
   useColorModeValue,
 } from "@chakra-ui/react";
-import AddAccountModal from "./AddBank";
+import AddAccountModal from "./AddBank"; // Assuming AddBank is AddAccountModal
 import BankAccountCard from "./BankAccountCard";
+import { useState } from "react";
 
 const BankDetailsSection = ({
   data,
   onAddBank,
   isAddingBank,
+  onEditBank,
+  isUpdatingBank,
   onDeleteBank,
   isDeletingBank,
   bankToDelete,
 }) => {
+  const [editBank, setEditBank] = useState(null); // State for editing
   const accentColor = "#B79045";
+
+  const handleEditSubmit = async (bankData) => {
+    const result = await onEditBank(bankData);
+    if (!result) {
+      setEditBank(null); // Close modal on success
+    }
+    return result; // Pass error back to modal
+  };
 
   return (
     <Box mb={12} w="full" maxW={{ base: "100%", md: "600px" }} mx="auto">
@@ -35,14 +47,15 @@ const BankDetailsSection = ({
       </Flex>
       {data?.bankAccounts && data.bankAccounts.length > 0 ? (
         <VStack spacing={6} align="stretch">
-          {data.bankAccounts.map((bank, index) => (
+          {data.bankAccounts.map((bank) => (
             <BankAccountCard
-            data={data}
               key={bank._id}
-              bank={bank} // Pass individual bank object
+              bank={bank}
+              onEdit={() => setEditBank(bank)} // Trigger edit
               onDelete={onDeleteBank}
               isDeleting={isDeletingBank}
               isCurrentDeleting={bankToDelete?._id === bank._id}
+              isUpdating={isUpdatingBank}
             />
           ))}
         </VStack>
@@ -65,6 +78,16 @@ const BankDetailsSection = ({
             Add a bank account to get started
           </Text>
         </Box>
+      )}
+
+      {editBank && (
+        <AddAccountModal
+          onAdd={handleEditSubmit}
+          isAdding={isUpdatingBank}
+          initialData={editBank}
+          isEditMode={true}
+          onClose={() => setEditBank(null)}
+        />
       )}
     </Box>
   );
