@@ -215,13 +215,13 @@ const DeveloperDetails = () => {
 
       <DeveloperInfo developer={developer} />
       <BankDetailsSection
-  data={developer}
-  onAddBank={handleAddBank}
-  isAddingBank={isAddingBank}
-  onDeleteBank={openDeleteDialog}
-  isDeletingBank={isDeletingBank}
-  bankToDelete={bankToDelete}
-/>
+        data={developer}
+        onAddBank={handleAddBank}
+        isAddingBank={isAddingBank}
+        onDeleteBank={openDeleteDialog}
+        isDeletingBank={isDeletingBank}
+        bankToDelete={bankToDelete}
+      />
 
       <AlertDialog
         isOpen={isOpen}

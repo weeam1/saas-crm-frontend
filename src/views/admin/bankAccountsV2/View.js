@@ -52,6 +52,7 @@ const AccountsView = ({
   };
 
   const handleDelete = async (accountId) => {
+    console.log(accountId,"accountId")
     try {
       await deleteItemMutation({
         path: `/bankAccount/delete/${accountId}`,

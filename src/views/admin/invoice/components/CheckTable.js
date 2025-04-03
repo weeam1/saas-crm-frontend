@@ -26,6 +26,7 @@ import {
   Thead,
   useColorModeValue,
   useDisclosure,
+  IconButton,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -33,6 +34,7 @@ import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import Pagination from "./Pagination";
 import Spinner from "components/spinner/Spinner";
+import { FiFilter } from "react-icons/fi";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import CustomSearchInput from "./Search";
@@ -65,7 +67,10 @@ export default function CheckTable(props) {
     currentPage,
     searchTerm,
     setSearchTerm,
-    navigate, // Added navigate prop
+    navigate,
+    agencies, // New prop for agency list
+    selectedAgency, // New prop for selected agency
+    setSelectedAgency, // New prop to set selected agency
   } = props;
 
   const textColor = useColorModeValue("gray.500", "white");
@@ -75,6 +80,7 @@ export default function CheckTable(props) {
   const [getTagValues, setGetTagValues] = useState([]);
   const [deleteModel, setDeleteModel] = useState(false);
   const [advaceSearch, setAdvaceSearch] = useState(false);
+  const [agencyFilterOpen, setAgencyFilterOpen] = useState(false); // New state for agency filter modal
   const [selectedId, setSelectedId] = useState(null);
   const [manageColumns, setManageColumns] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] =
@@ -94,9 +100,11 @@ export default function CheckTable(props) {
     trn: yup.string(),
     developer_name: yup.string(),
   });
+
   const handleClick = () => {
     navigate("/developers");
   };
+
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -109,7 +117,6 @@ export default function CheckTable(props) {
               ?.toLowerCase()
               .includes(values.developer_name.toLowerCase()))
       );
-
       const getValue = [values.trn, values.developer_name].filter(
         (value) => value
       );
@@ -163,14 +170,20 @@ export default function CheckTable(props) {
     fetchData({ pageIndex: 0, pageSize: newSize });
   };
 
-  // Click handler for navigation
   const handleRowClick = (developerId) => {
-    navigate(`/invoices/${developerId}`); // Adjust path as needed
+    navigate(`/invoices/${developerId}`);
+  };
+
+  const handleAgencySelect = (agencyId) => {
+    setSelectedAgency(agencyId);
+    fetchData({ pageIndex: 0, pageSize }); // Refetch data with selected agency
+    setAgencyFilterOpen(false); // Close the modal
   };
 
   useEffect(() => {
     if (fetchData && action) fetchData({ pageIndex, pageSize });
   }, [action, fetchData, pageIndex, pageSize]);
+
   const breadcrumbItems = useMemo(
     () => [
       { label: "Home", path: "/" },
@@ -251,6 +264,16 @@ export default function CheckTable(props) {
             alignItems="center"
             mt={{ base: 2, md: 0 }}
           >
+            <IconButton
+              icon={<FiFilter />}
+              onClick={() => setAgencyFilterOpen(true)} // Open agency filter modal
+              aria-label="Filter Date"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
             {access?.create && (
               <Button
                 onClick={handleClick}
@@ -297,7 +320,22 @@ export default function CheckTable(props) {
               <TagLabel>{searchTerm}</TagLabel>
             </Tag>
           )}
+          {selectedAgency && (
+            <Tag
+              size="md"
+              p={2}
+              borderRadius="full"
+              variant="solid"
+              colorScheme="gray"
+            >
+              <TagLabel>
+                {agencies.find((agency) => agency.id === selectedAgency)
+                  ?.name || "Selected Agency"}
+              </TagLabel>
+            </Tag>
+          )}
         </HStack>
+
         <Box mb={2}>
           {totalItems > 0 && (
             <Pagination
@@ -312,6 +350,7 @@ export default function CheckTable(props) {
             />
           )}
         </Box>
+
         <Box overflowY="auto">
           <Table variant="simple" color="gray.500" mb="24px">
             <Thead>
@@ -436,6 +475,7 @@ export default function CheckTable(props) {
           </Table>
         </Box>
 
+        {/* Advanced Search Modal */}
         <Modal
           onClose={() => setAdvaceSearch(false)}
           isOpen={advaceSearch}
@@ -496,6 +536,55 @@ export default function CheckTable(props) {
           </ModalContent>
         </Modal>
 
+        {/* Agency Filter Modal */}
+        <Modal
+          onClose={() => setAgencyFilterOpen(false)}
+          isOpen={agencyFilterOpen}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Select Agency</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {agencies.length > 0 ? (
+                agencies.map(
+                  (
+                    agency // Changed from agencies?.doc?.map to agencies.map
+                  ) => (
+                    <Text
+                      key={agency._id} 
+                      py={2}
+                      cursor="pointer"
+                      onClick={() => handleAgencySelect(agency._id)} // Changed to agency._id
+                      _hover={{ bg: "gray.100" }}
+                    >
+                      {agency.name}
+                    </Text>
+                  )
+                )
+              ) : (
+                <Text>No agencies available</Text>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="outline"
+                colorScheme="red"
+                size="sm"
+                onClick={() => {
+                  setSelectedAgency(""); // Clear agency filter
+                  fetchData({ pageIndex: 0, pageSize });
+                  setAgencyFilterOpen(false);
+                }}
+              >
+                Clear Filter
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Manage Columns Modal */}
         <Modal
           onClose={() => setManageColumns(false)}
           isOpen={manageColumns}
