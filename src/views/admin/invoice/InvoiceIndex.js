@@ -121,7 +121,6 @@ const Index = () => {
   useEffect(() => {
     setIsLoading(queryLoading);
     if (invoiceData?.doc) {
-      console.log("API Response:", invoiceData);
       setData(invoiceData.doc);
       if (committedSearchTerm) {
         setSearchedData(invoiceData.doc);

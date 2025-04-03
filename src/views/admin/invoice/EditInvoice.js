@@ -97,7 +97,6 @@ const Edit = (props) => {
   const EditData = async (formValues) => {
     try {
       setIsLoading(true);
-      console.log("Form values being sent to API:", formValues);
 
       const payload = {
         developer: formValues.developer_id,

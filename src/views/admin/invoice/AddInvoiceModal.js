@@ -41,7 +41,6 @@ const invoiceSchema = yup.object().shape({
 });
 
 const AddInvoice = (props) => {
-  console.log(props,"props")
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -192,10 +191,6 @@ const AddInvoice = (props) => {
                       borderWidth="1px"
                       bg="white"
                       _hover={{ borderColor: "#B79045" }}
-                      _focus={{
-                        borderColor: "#B79045",
-                        boxShadow: "0 0 0 1px #B79045",
-                      }}
                       _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
                       isDisabled={bankAccountsLoading || bankAccountsError}
                     >
@@ -273,10 +268,6 @@ const AddInvoice = (props) => {
                           : "gray.300"
                       }
                       textAlign="left"
-                      _focus={{
-                        borderColor: "#B79045",
-                        boxShadow: "0 0 0 1px #B79045",
-                      }}
                       _hover={{ bg: "gray.100" }}
                     >
                       {values.claimType || "Select Claim Type"}

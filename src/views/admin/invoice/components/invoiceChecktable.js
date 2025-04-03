@@ -210,7 +210,6 @@ export default function InvoiceCheckTable(props) {
       setCopiedPosition(null);
     }, 2000);
   };
-  console.log(selectedInvoiceNo,"selected invoice no")
   return (
     <>
       <Breadcrumb />
@@ -480,8 +479,8 @@ export default function InvoiceCheckTable(props) {
                                 color="white"
                                 px="16px"
                                 onClick={() => {
-                                  setSelectedInvoiceNo(row.invoiceNo); 
-                                  onOpen(); 
+                                  setSelectedInvoiceNo(row.invoiceNo);
+                                  onOpen();
                                 }}
                               >
                                 Add Entry
@@ -581,18 +580,18 @@ export default function InvoiceCheckTable(props) {
         </Box>
 
         <Add
-  isOpen={isOpen}
-  size="xl"
-  onClose={() => {
-    setSelectedInvoiceNo(null);
-    onClose();
-  }}
-  fetchData={fetchData}
-  setAction={setAction}
-  pageIndex={pageIndex}
-  pageSize={pageSize}
-  invoiceId={selectedInvoiceNo}
-/>
+          isOpen={isOpen}
+          size="xl"
+          onClose={() => {
+            setSelectedInvoiceNo(null);
+            onClose();
+          }}
+          fetchData={fetchData}
+          setAction={setAction}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          invoiceId={selectedInvoiceNo}
+        />
 
         <Edit
           data={data}

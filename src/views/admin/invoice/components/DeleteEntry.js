@@ -27,7 +27,6 @@ const Delete = (props) => {
           method: "DELETE",
         }).unwrap();
 
-        console.log("Delete One Response:", response);
         toast.success("Invoice deleted successfully!");
       } else {
         console.error("Invalid delete props:", props);

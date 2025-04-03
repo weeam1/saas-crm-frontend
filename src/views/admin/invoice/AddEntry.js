@@ -31,7 +31,7 @@ import Delete from "./components/DeleteEntry";
 import BackImg from "../../../assets/img/Invoice/Vector.svg";
 import TableLoading from "components/loading/TableLoading";
 
-const AddEntry = ({props}) => {
+const AddEntry = ({ props }) => {
   const tableSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
   const fontSizeTh = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
   const fontSizeTd = useBreakpointValue({ base: "xs", md: "sm", lg: "md" });
@@ -72,6 +72,7 @@ const AddEntry = ({props}) => {
       skip: !id,
     }
   );
+  const developerId = entriesData?.doc?.[0]?.invoice?.developer?.id;
 
   const [tableData, setTableData] = useState([]);
   const [summary, setSummary] = useState({
@@ -122,9 +123,8 @@ const AddEntry = ({props}) => {
       });
     }
   }, [entriesData, entriesLoading]);
-
   const goBack = () => {
-    navigate("/dev-list", { state: { refetch: true } });
+    navigate(`/invoices/${developerId}`, { state: { refetch: true } });
   };
 
   const handleEditClick = (entryId) => {

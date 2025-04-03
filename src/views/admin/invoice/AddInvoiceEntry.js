@@ -172,6 +172,7 @@ const AddEntryModal = (props) => {
       if (props.setAction) props.setAction((prev) => !prev);
       resetForm();
       props.onClose();
+      props.onInvoiceClose();
       if (props.onSuccess) props.onSuccess(invoiceId);
     } catch (e) {
       console.error("Error:", e);
@@ -184,6 +185,7 @@ const AddEntryModal = (props) => {
   const handleCancel = () => {
     resetForm();
     props.onClose();
+    props.onInvoiceClose();
   };
 
   const modalSize = useBreakpointValue({

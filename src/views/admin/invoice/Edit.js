@@ -120,7 +120,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   // Refetch data and update form values when modal opens or selectedId changes
   useEffect(() => {
     if (isOpen && selectedId) {
-      console.log("Modal opened with selectedId:", selectedId);
       refetchEntry(); // Force refetch data when modal opens
     }
   }, [isOpen, selectedId, refetchEntry]);
@@ -142,7 +141,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         total_commission_incl_vat: editData.total_commission_incl_vat || 0,
         totalAmount: editData.total_amount || 0,
       };
-      console.log("Setting form values with fetched data:", updatedValues);
       setValues(updatedValues);
     }
   }, [entryData, entryFetching, selectedId, setValues, isOpen]);
@@ -183,7 +181,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
-      console.log("Modal closed, resetting form to initial values");
       resetForm({ values: initialValues });
     }
   }, [isOpen, resetForm]);
@@ -203,7 +200,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         vat_amount: formValues.vat_amount,
         total_commission_incl_vat: formValues.total_commission_incl_vat,
       };
-      console.log("Payload sent to API:", payload);
 
       const response = await updateItem({
         path: `/invoices/entries/${selectedId}`,
@@ -211,7 +207,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         body: payload,
       }).unwrap();
 
-      console.log("API Response:", response);
 
       if (response) {
         toast.success("Entry updated successfully!");
@@ -231,7 +226,6 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   };
 
   const handleClose = () => {
-    console.log("Handle close triggered, resetting form");
     resetForm({ values: initialValues });
     onClose();
   };

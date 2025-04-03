@@ -58,7 +58,6 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 }
 
 const AddEntryModal = (props) => {
-  console.log(props,'secleted invoice no')
   const [isLoading, setIsLoading] = useState(false);
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();

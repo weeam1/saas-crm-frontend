@@ -31,14 +31,12 @@ const Delete = (props) => {
         Array.isArray(props.data) &&
         props.data.length > 0
       ) {
-        console.log("Payload sent to deleteMany:", props.data);
         response = await deleteManyInvoices({
           path: "/invoices/delete_many",
           method: "DELETE",
           body: { ids: props.data },
         }).unwrap();
 
-        console.log("Delete Many Response:", response);
         toast.success(`${props.data.length} invoice(s) deleted successfully!`);
       } else if (props.method === "one" && props.id) {
         response = await deleteItem({
@@ -46,14 +44,12 @@ const Delete = (props) => {
           method: "DELETE",
         }).unwrap();
 
-        console.log("Delete One Response:", response);
         toast.success("Invoice deleted successfully!");
       } else {
         console.error("Invalid delete props:", props);
         throw new Error("No valid data provided for deletion");
       }
 
-      // On success, refetch data with current pageIndex and pageSize
       if (props.fetchData) {
         props.fetchData({
           pageIndex: props.pageIndex,
