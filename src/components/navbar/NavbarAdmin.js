@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
 import { AiOutlineMenuFold } from 'react-icons/ai';
-import { FaPlus } from 'react-icons/fa';
 import BrandLogo from 'assets/logo/logo.png';
 
 export default function AdminNavbar(props) {

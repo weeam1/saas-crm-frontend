@@ -186,7 +186,7 @@ export default function HeaderLinks(props) {
 				>
 					<TimeIcon boxSize={6} color='white' />
 				</Box>
-				<Menu style={{ zIndex: 1500 }}>
+				<Menu style={{ zIndex: 99999 }}>
 					<MenuButton p='0px'>
 						{/* <Avatar
 						_hover={{ cursor: "pointer" }}
