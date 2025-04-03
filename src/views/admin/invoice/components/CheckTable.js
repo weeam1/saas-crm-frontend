@@ -27,6 +27,7 @@ import {
   useColorModeValue,
   useDisclosure,
   IconButton,
+  Select,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
@@ -68,9 +69,11 @@ export default function CheckTable(props) {
     searchTerm,
     setSearchTerm,
     navigate,
-    agencies, // New prop for agency list
-    selectedAgency, // New prop for selected agency
-    setSelectedAgency, // New prop to set selected agency
+    agencies,
+    selectedAgency,
+    setSelectedAgency,
+    role,
+    fetchAgencies
   } = props;
 
   const textColor = useColorModeValue("gray.500", "white");
@@ -80,9 +83,10 @@ export default function CheckTable(props) {
   const [getTagValues, setGetTagValues] = useState([]);
   const [deleteModel, setDeleteModel] = useState(false);
   const [advaceSearch, setAdvaceSearch] = useState(false);
-  const [agencyFilterOpen, setAgencyFilterOpen] = useState(false); // New state for agency filter modal
+  const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [manageColumns, setManageColumns] = useState(false);
+  const [tempSelectedAgency, setTempSelectedAgency] = useState(selectedAgency);
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
 
@@ -264,16 +268,18 @@ export default function CheckTable(props) {
             alignItems="center"
             mt={{ base: 2, md: 0 }}
           >
-            <IconButton
-              icon={<FiFilter />}
-              onClick={() => setAgencyFilterOpen(true)} // Open agency filter modal
-              aria-label="Filter Date"
-              colorScheme="brand"
-              variant="solid"
-              size="sm"
-              borderRadius="full"
-              boxShadow="md"
-            />
+            {role === "superAdmin" && (
+              <IconButton
+                icon={<FiFilter />}
+                onClick={() => setAgencyFilterOpen(true)}
+                aria-label="Filter Date"
+                colorScheme="brand"
+                variant="solid"
+                size="sm"
+                borderRadius="full"
+                boxShadow="md"
+              />
+            )}
             {access?.create && (
               <Button
                 onClick={handleClick}
@@ -295,47 +301,60 @@ export default function CheckTable(props) {
             )}
           </GridItem>
         </Grid>
-
-        <HStack spacing={4} mb={2} px={4}>
-          {getTagValues.map((item) => (
-            <Tag
-              size="md"
-              p={2}
-              key={item}
-              borderRadius="full"
-              variant="solid"
-              colorScheme="gray"
+        <Flex justifyContent="space-between" alignItems="center" mb={2} px={4}>
+          <HStack spacing={4}>
+            {getTagValues.map((item) => (
+              <Tag
+                size="md"
+                p={2}
+                key={item}
+                borderRadius="full"
+                variant="solid"
+                colorScheme="gray"
+              >
+                <TagLabel>{item}</TagLabel>
+              </Tag>
+            ))}
+            {searchTerm && (
+              <Tag
+                size="md"
+                p={2}
+                borderRadius="full"
+                variant="solid"
+                colorScheme="gray"
+              >
+                <TagLabel>{searchTerm}</TagLabel>
+              </Tag>
+            )}
+            {selectedAgency && selectedAgency !== "All" && (
+              <Tag
+                size="md"
+                p={2}
+                borderRadius="full"
+                variant="solid"
+                colorScheme="gray"
+              >
+                <TagLabel>
+                  {agencies.find((agency) => agency._id === selectedAgency)
+                    ?.name || "Selected Agency"}
+                </TagLabel>
+              </Tag>
+            )}
+          </HStack>
+          {selectedAgency && selectedAgency !== "All" && (
+            <Button
+              variant="outline"
+              size="sm"
+              colorScheme="red"
+              onClick={() => {
+                setSelectedAgency("All");
+                fetchData({ pageIndex: 0, pageSize });
+              }}
             >
-              <TagLabel>{item}</TagLabel>
-            </Tag>
-          ))}
-          {searchTerm && (
-            <Tag
-              size="md"
-              p={2}
-              borderRadius="full"
-              variant="solid"
-              colorScheme="gray"
-            >
-              <TagLabel>{searchTerm}</TagLabel>
-            </Tag>
+              Clear
+            </Button>
           )}
-          {selectedAgency && (
-            <Tag
-              size="md"
-              p={2}
-              borderRadius="full"
-              variant="solid"
-              colorScheme="gray"
-            >
-              <TagLabel>
-                {agencies.find((agency) => agency.id === selectedAgency)
-                  ?.name || "Selected Agency"}
-              </TagLabel>
-            </Tag>
-          )}
-        </HStack>
-
+        </Flex>
         <Box mb={2}>
           {totalItems > 0 && (
             <Pagination
@@ -538,52 +557,71 @@ export default function CheckTable(props) {
 
         {/* Agency Filter Modal */}
         <Modal
+          fontFamily="DM Sans"
           onClose={() => setAgencyFilterOpen(false)}
           isOpen={agencyFilterOpen}
           isCentered
         >
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Select Agency</ModalHeader>
+            <ModalHeader>Agency Filter</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              {agencies.length > 0 ? (
-                agencies.map(
-                  (
-                    agency // Changed from agencies?.doc?.map to agencies.map
-                  ) => (
-                    <Text
-                      key={agency._id} 
-                      py={2}
-                      cursor="pointer"
-                      onClick={() => handleAgencySelect(agency._id)} // Changed to agency._id
-                      _hover={{ bg: "gray.100" }}
-                    >
+              <FormLabel fontSize="sm" fontWeight="600" fontFamily="DM Sans">
+                Select Agency
+              </FormLabel>
+              <Select
+                value={tempSelectedAgency}
+                onChange={(e) => setTempSelectedAgency(e.target.value)}
+                placeholder="Select an agency"
+                mb={4}
+              >
+                <option value="All">All</option>
+                {agencies.length > 0 ? (
+                  agencies.map((agency) => (
+                    <option key={agency._id} value={agency._id}>
                       {agency.name}
-                    </Text>
-                  )
-                )
-              ) : (
-                <Text>No agencies available</Text>
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>No agencies available</option>
+                )}
+              </Select>
+              {agencies.length === 0 && (
+                <Text fontSize="sm" color="gray.500">
+                  No agencies available at the moment.
+                </Text>
               )}
             </ModalBody>
             <ModalFooter>
               <Button
                 variant="outline"
-                colorScheme="red"
-                size="sm"
+                bg="#e2e8f0"
+                size="md"
+                w="100px"
+                borderRadius="3px"
+                mr={2}
+                onClick={() => setAgencyFilterOpen(false)}
+              >
+                Close
+              </Button>
+              <Button
+                bg="#d99a36"
+                color="white"
+                w="100px"
+                borderRadius="3px"
+                size="md"
                 onClick={() => {
-                  setSelectedAgency(""); // Clear agency filter
+                  setSelectedAgency(tempSelectedAgency);
                   fetchData({ pageIndex: 0, pageSize });
                   setAgencyFilterOpen(false);
                 }}
               >
-                Clear Filter
+                Apply
               </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
-
         {/* Manage Columns Modal */}
         <Modal
           onClose={() => setManageColumns(false)}
