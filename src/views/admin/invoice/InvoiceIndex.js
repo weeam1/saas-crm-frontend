@@ -85,7 +85,7 @@ const Index = () => {
 
   const searchQueryArgs = useMemo(
     () => ({
-      path: developer_id ? `/invoices?developer=${developer_id}` : `/invoices`,
+      path: developer_id ? `/invoices` : `/invoices`,
       params: {
         search: committedSearchTerm,
         page: pageIndex + 1,

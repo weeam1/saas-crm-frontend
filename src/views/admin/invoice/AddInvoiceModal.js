@@ -11,9 +11,15 @@ import {
   ModalHeader,
   ModalFooter,
   ModalBody,
-  Select,
   useBreakpointValue,
   Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Box,
+  Text,
+  Select,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
@@ -24,8 +30,8 @@ import { useFetchItemsQuery } from "api/apiSlice";
 import * as yup from "yup";
 import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
 import { setDevelopers, setBankAccounts } from "../../../redux/invoiceSlice";
-import { useParams } from "react-router-dom";
-import AddEntryModal from "./AddInvoiceEntry"; // Import the Add Entry Modal
+import { useParams, useNavigate } from "react-router-dom";
+import AddEntryModal from "./AddInvoiceEntry";
 
 // Validation schema for invoice
 const invoiceSchema = yup.object().shape({
@@ -35,7 +41,9 @@ const invoiceSchema = yup.object().shape({
 });
 
 const AddInvoice = (props) => {
-  const { id } = useParams(); // developer_id from URL params
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(false);
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
@@ -45,37 +53,21 @@ const AddInvoice = (props) => {
     useSelector((state) => state.invoiceModalData);
 
   const {
-    data: developersData,
-    isLoading: developersLoading,
-    error: developersError,
-  } = useFetchItemsQuery(
-    { path: "/developer/getALL" },
-    { skip: !props.isOpen || isDevelopersLoaded }
-  );
-
-  const {
     data: bankAccountsData,
     isLoading: bankAccountsLoading,
     error: bankAccountsError,
-  } = useFetchItemsQuery(
-    { path: "/bankAccount/get" },
-    { skip: !props.isOpen || isBankAccountsLoaded }
-  );
+  } = useFetchItemsQuery({ path: `/developer/get/${id}` });
 
   useEffect(() => {
-    if (developersData?.data && !isDevelopersLoaded) {
-      dispatch(setDevelopers(developersData.data));
+    if (bankAccountsData && bankAccountsData.data) {
+      dispatch(setBankAccounts(bankAccountsData.data.bankAccounts || []));
     }
-    if (bankAccountsData?.data && !isBankAccountsLoaded) {
-      dispatch(setBankAccounts(bankAccountsData.data));
+    if (bankAccountsError) {
+      console.error("Error fetching bank accounts:", bankAccountsError);
+      dispatch(setBankAccounts([]));
+      toast.error("Failed to load bank accounts.");
     }
-  }, [
-    developersData,
-    bankAccountsData,
-    isDevelopersLoaded,
-    isBankAccountsLoaded,
-    dispatch,
-  ]);
+  }, [bankAccountsData, bankAccountsError, dispatch]);
 
   const initialValues = {
     developer_id: id || "",
@@ -100,6 +92,7 @@ const AddInvoice = (props) => {
     handleChange,
     handleSubmit,
     resetForm,
+    setFieldValue,
     isValid,
     dirty,
   } = formik;
@@ -114,13 +107,22 @@ const AddInvoice = (props) => {
     props.onClose();
   };
 
+  const handleAddBankAccount = () => {
+    navigate("/bank-accounts");
+  };
+
   const modalSize = useBreakpointValue({
     base: { width: "90%", height: "auto" },
-    md: { width: "602px", height: "250px" },
+    md: { width: "602px", height: "290px" },
   });
 
   const customDropdownIcon = (
     <Icon as={() => <img src={DropdownImg} alt="dropdown" />} boxSize={6} />
+  );
+
+  // Custom dropdown for bank accounts using Menu
+  const selectedBankAccount = bankAccounts.find(
+    (bank) => (bank._id || bank.account_number) === values.bank_account_id
   );
 
   return (
@@ -171,40 +173,74 @@ const AddInvoice = (props) => {
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
                     Bank Account
                   </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="bank_account_id"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder={
-                      bankAccountsLoading
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      rightIcon={customDropdownIcon}
+                      fontSize="16px"
+                      fontFamily="DM Sans, sans-serif"
+                      borderRadius="6px"
+                      height="40px"
+                      width="100%"
+                      textAlign="left"
+                      borderColor={
+                        errors.bank_account_id && touched.bank_account_id
+                          ? "red.300"
+                          : "gray.300"
+                      }
+                      borderWidth="1px"
+                      bg="white"
+                      _hover={{ borderColor: "#B79045" }}
+                      _focus={{
+                        borderColor: "#B79045",
+                        boxShadow: "0 0 0 1px #B79045",
+                      }}
+                      _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
+                      isDisabled={bankAccountsLoading || bankAccountsError}
+                    >
+                      {bankAccountsLoading
                         ? "Loading bank accounts..."
-                        : bankAccounts.length > 0
-                          ? "Choose Bank Account"
-                          : "No bank accounts available"
-                    }
-                    value={values.bank_account_id}
-                    disabled={bankAccountsLoading || bankAccountsError}
-                    borderColor={
-                      errors.bank_account_id && touched.bank_account_id
-                        ? "red.300"
-                        : "gray.300"
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
-                    borderRadius="6px"
-                    height="40px"
-                    _focus={{
-                      borderColor: "#B79045",
-                      boxShadow: "0 0 0 1px #B79045",
-                    }}
-                  >
-                    {bankAccounts.map((bank) => (
-                      <option key={bank._id} value={bank._id}>
-                        {bank.account_holder_name} - {bank.account_number}
-                      </option>
-                    ))}
-                  </Select>
+                        : selectedBankAccount
+                          ? `${selectedBankAccount.account_holder_name} (${selectedBankAccount.account_number})`
+                          : bankAccounts.length > 0
+                            ? "Choose Bank Account"
+                            : "No bank accounts available"}
+                    </MenuButton>
+                    <MenuList
+                      maxH="200px"
+                      overflowY="auto"
+                      fontFamily="DM Sans, sans-serif"
+                      fontSize="16px"
+                    >
+                      {bankAccounts.length > 0 ? (
+                        bankAccounts.map((bank) => (
+                          <MenuItem
+                            key={bank._id || bank.account_number}
+                            onClick={() => {
+                              setFieldValue(
+                                "bank_account_id",
+                                bank._id || bank.account_number
+                              );
+                            }}
+                          >
+                            {`${bank.account_holder_name} (${bank.account_number})`}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem isDisabled>
+                          No bank accounts available
+                        </MenuItem>
+                      )}
+                      <MenuItem
+                        onClick={handleAddBankAccount}
+                        fontWeight="bold"
+                        borderTop="1px solid"
+                        borderColor="gray.200"
+                      >
+                        Add Bank Account
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
                   {errors.bank_account_id && touched.bank_account_id && (
                     <FormLabel color="red.500" fontSize="14px">
                       {errors.bank_account_id}
@@ -215,30 +251,54 @@ const AddInvoice = (props) => {
                   <FormLabel fontSize="16px" fontFamily="DM Sans, sans-serif">
                     Claim Type
                   </FormLabel>
-                  <Select
-                    fontSize="16px"
-                    name="claimType"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    value={values.claimType}
-                    placeholder="Select Claim Type"
-                    borderColor={
-                      errors.claimType && touched.claimType
-                        ? "red.300"
-                        : "gray.300"
-                    }
-                    fontFamily="DM Sans, sans-serif"
-                    icon={customDropdownIcon}
-                    borderRadius="6px"
-                    height="40px"
-                    _focus={{
-                      borderColor: "#B79045",
-                      boxShadow: "0 0 0 1px #B79045",
-                    }}
-                  >
-                    <option value="Full">Full</option>
-                    <option value="Installment">Installment</option>
-                  </Select>
+
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      rightIcon={
+                        <Icon
+                          as={() => <img src={DropdownImg} alt="dropdown" />}
+                        />
+                      }
+                      width="100%"
+                      fontSize="16px"
+                      fontFamily="DM Sans, sans-serif"
+                      borderRadius="6px"
+                      height="40px"
+                      border="1px solid"
+                      borderColor={
+                        errors.claimType && touched.claimType
+                          ? "red.300"
+                          : "gray.300"
+                      }
+                      textAlign="left"
+                      _focus={{
+                        borderColor: "#B79045",
+                        boxShadow: "0 0 0 1px #B79045",
+                      }}
+                      _hover={{ bg: "gray.100" }}
+                    >
+                      {values.claimType || "Select Claim Type"}
+                    </MenuButton>
+
+                    <MenuList>
+                      <MenuItem
+                        onClick={() =>
+                          formik.setFieldValue("claimType", "Full")
+                        }
+                      >
+                        Full
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() =>
+                          formik.setFieldValue("claimType", "Installment")
+                        }
+                      >
+                        Installment
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+
                   {errors.claimType && touched.claimType && (
                     <FormLabel color="red.500" fontSize="14px">
                       {errors.claimType}
