@@ -429,11 +429,13 @@ const Edit = (props) => {
 												errors.role && touched.role ? 'isInvalid' : null
 											}
 										>
-											{roles?.map((role) => (
-												<option key={role?._id} value={role?._id}>
-													{role?.roleName}
-												</option>
-											))}
+											{roles
+												?.filter((role) => role.roleName !== 'sadmin')
+												?.map((role) => (
+													<option key={role?._id} value={role?._id}>
+														{role?.roleName}
+													</option>
+												))}
 										</Select>
 										<Text mb='10px' color='red'>
 											{errors.role && touched.role && errors.role}
