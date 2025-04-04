@@ -81,7 +81,6 @@ export default function InvoiceCheckTable(props) {
     searchTerm,
     setSearchTerm,
   } = props;
-  console.log(pageIndex, pageSize, "pageIndex, pageSize");
 
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
@@ -479,6 +478,16 @@ export default function InvoiceCheckTable(props) {
                             {row.totalAmount
                               ? `${row.totalAmount} AED`
                               : "Pending"}
+                          </Text>
+                        );
+                      } else if (column.Header === "Status") {
+                        cellData = (
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
+                            {row.status ? `${row.status}` : "Pending"}
                           </Text>
                         );
                       } else if (column.id === "action") {

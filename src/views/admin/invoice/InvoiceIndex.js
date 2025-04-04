@@ -52,7 +52,12 @@ const Index = () => {
       Header: "Bank Account",
       accessor: "bank_account.account_holder_name",
     },
+    {
+      Header: "Status",
+      accessor: "Status",
+    },
     { Header: "Action", id: "action", isSortable: false, center: true },
+  
   ];
 
   const roleColumns = {
@@ -115,21 +120,19 @@ const Index = () => {
 
   const fetchData = (options = {}) => {
     const { pageIndex: newPageIndex, pageSize: newPageSize, search } = options;
-    const updatedPageIndex =
-      newPageIndex !== undefined ? newPageIndex : pageIndex;
+    
+    if (newPageIndex === pageIndex && newPageSize === pageSize && search === committedSearchTerm) {
+      return;  
+    }
+  
+    const updatedPageIndex = newPageIndex !== undefined ? newPageIndex : pageIndex;
     const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
     const updatedSearch = search !== undefined ? search : committedSearchTerm;
-
-    console.log("fetchData called with:", {
-      newPageIndex,
-      newPageSize,
-      search,
-    });
-
+  
     setPageIndex(updatedPageIndex);
     setPageSize(updatedPageSize);
     setCommittedSearchTerm(updatedSearch);
-
+  
     const updatedQueryArgs = {
       path: developer_id ? `/invoices` : `/invoices`,
       params: {
@@ -139,10 +142,10 @@ const Index = () => {
         ...(updatedSearch && { search: updatedSearch }),
       },
     };
-
+  
     setQueryArgs(updatedQueryArgs);
   };
-
+  
   const breadcrumbItems = useMemo(
     () => [
       { label: "Home", path: "/" },

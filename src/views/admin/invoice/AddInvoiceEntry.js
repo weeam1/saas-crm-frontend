@@ -13,13 +13,21 @@ import {
   ModalFooter,
   ModalBody,
   useBreakpointValue,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useCreateItemMutation } from "api/apiSlice";
 import * as yup from "yup";
+import AddEntry from "./Add";
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -59,8 +67,11 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 
 const AddEntryModal = (props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation dialog
+  const [showAddEntryModal, setShowAddEntryModal] = useState(false); // State for nested AddEntry modal
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();
+  const cancelRef = useRef(); // Ref for AlertDialog's least destructive button
 
   const initialValues = {
     unit_no: "",
@@ -133,7 +144,6 @@ const AddEntryModal = (props) => {
     try {
       setIsLoading(true);
 
-      // Prepare combined payload
       const payload = {
         developer_id: props.invoiceData.developer_id,
         bank_account_id: props.invoiceData.bank_account_id,
@@ -166,13 +176,10 @@ const AddEntryModal = (props) => {
       const invoiceId = response.data.invoice._id;
 
       toast.success("Invoice and entry added successfully!");
-      if (props.fetchData) {
-        props.fetchData();
-      }
+      if (props.fetchData) props.fetchData();
       if (props.setAction) props.setAction((prev) => !prev);
       resetForm();
-      props.onClose();
-      props.onInvoiceClose();
+      setShowConfirmation(true); // Show confirmation dialog instead of closing immediately
       if (props.onSuccess) props.onSuccess(invoiceId);
     } catch (e) {
       console.error("Error:", e);
@@ -186,6 +193,17 @@ const AddEntryModal = (props) => {
     resetForm();
     props.onClose();
     props.onInvoiceClose();
+  };
+
+  const handleAddMore = () => {
+    setShowConfirmation(false); // Close confirmation dialog
+    setShowAddEntryModal(true); // Open the nested AddEntry modal
+  };
+
+  const handleClose = () => {
+    setShowConfirmation(false); // Close confirmation dialog
+    props.onClose(); // Close the main modal
+    props.onInvoiceClose(); // Notify parent to close invoice modal if applicable
   };
 
   const modalSize = useBreakpointValue({
@@ -514,7 +532,6 @@ const AddEntryModal = (props) => {
           py={4}
           borderTop="1px solid #E2E8F0"
         >
-      
           <Button
             bg="#CCCACA"
             color="black"
@@ -548,6 +565,58 @@ const AddEntryModal = (props) => {
             {isLoading || mutationLoading ? <Spinner /> : "Save"}
           </Button>
         </ModalFooter>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog
+          isOpen={showConfirmation}
+          leastDestructiveRef={cancelRef}
+          onClose={() => setShowConfirmation(false)}
+          isCentered
+        >
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Add More Entry?
+              </AlertDialogHeader>
+              <AlertDialogBody>
+                Do you want to add another entry?
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={handleClose}>
+                  No
+                </Button>
+                <Button colorScheme="blue" onClick={handleAddMore} ml={3}>
+                  Yes
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+
+        {/* Nested Modal for AddEntry Component */}
+        <Modal
+          isOpen={showAddEntryModal}
+          onClose={() => setShowAddEntryModal(false)}
+          isCentered
+          size="xl"
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Add New Entry</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <AddEntry
+                isOpen={showAddEntryModal} // Pass isOpen to control rendering
+                onClose={() => setShowAddEntryModal(false)} // Close nested modal
+                invoiceData={props.invoiceData} // Pass required props
+                fetchData={props.fetchData}
+                setAction={props.setAction}
+                onSuccess={props.onSuccess}
+                onInvoiceClose={props.onInvoiceClose}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       </ModalContent>
     </Modal>
   );
