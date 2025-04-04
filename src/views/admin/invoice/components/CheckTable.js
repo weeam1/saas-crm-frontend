@@ -443,12 +443,12 @@ export default function CheckTable(props) {
                           : null;
                         cellData = (
                           <Flex align="center">
-                            <Checkbox
+                            {/* <Checkbox
                               colorScheme="brandScheme"
                               isChecked={selectedValues.includes(row._id)}
                               onChange={(e) => handleCheckboxChange(e, row._id)}
                               me="10px"
-                            />
+                            /> */}
                             <Text color="brand.600" fontSize="sm">
                               {date && !isNaN(date)
                                 ? date.toLocaleDateString()

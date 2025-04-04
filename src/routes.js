@@ -269,6 +269,7 @@ const routes = [
     ),
     component: LeadPoolAdmin,
   },
+  
   {
     name: "Points",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
