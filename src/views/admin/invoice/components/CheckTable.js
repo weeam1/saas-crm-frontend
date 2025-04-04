@@ -187,8 +187,9 @@ export default function CheckTable(props) {
   };
 
   const handleAgencySelect = (agencyId) => {
-    setSelectedAgency(agencyId);
-    fetchData({ pageIndex: 0, pageSize });
+    console.log("Selected Agency ID:", agencyId); // Debug log
+    setSelectedAgency(agencyId); // Update state for UI consistency
+    fetchData({ pageIndex: 0, pageSize, agency: agencyId }); // Pass agencyId directly
     setAgencyFilterOpen(false);
   };
 
@@ -366,8 +367,8 @@ export default function CheckTable(props) {
               size="sm"
               colorScheme="red"
               onClick={() => {
-                setSelectedAgency("All");
-                fetchData({ pageIndex: 0, pageSize });
+                setSelectedAgency("All"); // Reset to "All"
+                fetchData({ pageIndex: 0, pageSize, agency: "All" }); // Fetch all data
               }}
             >
               Clear
@@ -611,7 +612,6 @@ export default function CheckTable(props) {
               <Select
                 value={tempSelectedAgency}
                 onChange={(e) => setTempSelectedAgency(e.target.value)}
-                placeholder="Select an agency"
                 mb={4}
               >
                 <option value="All">All</option>

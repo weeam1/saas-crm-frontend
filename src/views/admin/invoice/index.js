@@ -109,15 +109,7 @@ const Index = () => {
       setData([]);
       setSearchedData([]);
     }
-  }, [
-    invoiceData,
-    queryLoading,
-    error,
-    committedSearchTerm,
-    selectedAgency,
-    agencyLoading,
-  ]);
-
+  }, [invoiceData, queryLoading, error, committedSearchTerm, selectedAgency, agencyLoading]);
   useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
       setQueryArgs((prev) => ({ ...prev }));
@@ -137,30 +129,30 @@ const Index = () => {
     pageIndex: newPageIndex,
     pageSize: newPageSize,
     search,
+    agency, // Add agency as an optional parameter
   }) => {
-    const updatedPageIndex =
-      newPageIndex !== undefined ? newPageIndex : pageIndex;
+    const updatedPageIndex = newPageIndex !== undefined ? newPageIndex : pageIndex;
     const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
     const updatedSearch = search !== undefined ? search : committedSearchTerm;
-
+    const updatedAgency = agency !== undefined ? agency : selectedAgency; // Use passed agency if provided
+  
     setPageIndex(updatedPageIndex);
     setPageSize(updatedPageSize);
     setCommittedSearchTerm(updatedSearch);
-
+  
     const newQueryArgs = {
       path: `/developer/get`,
       params: {
         page: updatedPageIndex + 1,
         limit: updatedPageSize,
         ...(updatedSearch && { search: updatedSearch }),
-        ...(selectedAgency &&
-          selectedAgency !== "All" && { agency: selectedAgency }),
+        ...(updatedAgency && updatedAgency !== "All" && { agency: updatedAgency }),
       },
     };
-
+  
+    console.log("fetchData called with:", newQueryArgs); // Debug log
     setQueryArgs(newQueryArgs);
   };
-
   return (
     <div>
       <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
