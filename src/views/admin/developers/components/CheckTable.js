@@ -187,9 +187,9 @@ export default function CheckTable(props) {
     fetchData({ pageIndex: 0, pageSize }); 
   };
 
-  // useEffect(() => {
-  //   setSearchedData && setSearchedData(data);
-  // }, [data, setSearchedData]);
+  useEffect(() => {
+    setSearchedData && setSearchedData(data);
+  }, [data, setSearchedData]);
 
   const {
     errors,

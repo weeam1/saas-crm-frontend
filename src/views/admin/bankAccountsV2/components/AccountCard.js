@@ -219,6 +219,24 @@ const AccountCard = ({
             {account.branch_address || "N/A"}
           </Text>
         </Flex>
+        <Flex flex="1" direction="column">
+          <Text
+            fontWeight="medium"
+            color="#464646"
+            fontSize={{ base: "12px", md: "14px" }}
+            fontFamily="DM Sans"
+          >
+            Developer email
+          </Text>
+          <Text
+            color="#000"
+            fontSize={{ base: "14px", md: "16px" }}
+            fontWeight="bold"
+            fontFamily="DM Sans"
+          >
+            {account.developer_id?.email || "N/A"}
+          </Text>
+        </Flex>
       </VStack>
 
       <DeleteConfirmationModal

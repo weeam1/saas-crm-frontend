@@ -81,6 +81,7 @@ export default function InvoiceCheckTable(props) {
     searchTerm,
     setSearchTerm,
   } = props;
+  console.log(pageIndex, pageSize, "pageIndex, pageSize");
 
   const textColor = useColorModeValue("gray.500", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");

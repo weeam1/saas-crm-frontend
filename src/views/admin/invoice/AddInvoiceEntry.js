@@ -514,6 +514,7 @@ const AddEntryModal = (props) => {
           py={4}
           borderTop="1px solid #E2E8F0"
         >
+      
           <Button
             bg="#CCCACA"
             color="black"

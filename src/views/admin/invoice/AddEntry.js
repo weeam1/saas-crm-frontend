@@ -30,6 +30,7 @@ import Edit from "./Edit";
 import Delete from "./components/DeleteEntry";
 import BackImg from "../../../assets/img/Invoice/Vector.svg";
 import TableLoading from "components/loading/TableLoading";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const AddEntry = ({ props }) => {
   const tableSize = useBreakpointValue({ base: "sm", md: "md", lg: "lg" });
@@ -72,7 +73,7 @@ const AddEntry = ({ props }) => {
       skip: !id,
     }
   );
-  const docLength =entriesData?.doc.length;
+  const docLength = entriesData?.doc.length;
   const developerId = entriesData?.doc?.[0]?.invoice?.developer?.id;
 
   const [tableData, setTableData] = useState([]);
@@ -195,6 +196,13 @@ const AddEntry = ({ props }) => {
             color="gray.800"
           >
             Add Entry
+          </Text>
+          <Text
+            fontSize={{ base: "md", md: "lg", lg: "2xl" }}
+            fontWeight="bold"
+            color="gray.800"
+          >
+            (<CountUpComponent targetNumber={docLength} />)
           </Text>
         </HStack>
 

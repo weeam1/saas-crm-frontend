@@ -42,13 +42,14 @@ import CustomSearchInput from "./Search";
 import DataNotFound from "components/notFoundData";
 import Breadcrumb from "./BreadCrumb";
 import TableLoading from "components/loading/TableLoading";
+import Add from "../../../admin/developers/Add";
 
 export default function CheckTable(props) {
   const {
     tableData,
     dataColumn,
     fetchData,
-    isLoding, // Note: Typo, should be isLoading
+    isLoding,
     allData,
     access,
     setSearchedData,
@@ -87,9 +88,15 @@ export default function CheckTable(props) {
   const [selectedId, setSelectedId] = useState(null);
   const [manageColumns, setManageColumns] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState(selectedAgency);
-  const [tempSelectedColumns, setTempSelectedColumns] = useState(selectedColumns);
-  const [isInitialLoading, setIsInitialLoading] = useState(true); // Simulate initial load
+  const [tempSelectedColumns, setTempSelectedColumns] =
+    useState(selectedColumns);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  const {
+    isOpen: isAddOpen,
+    onOpen: onAddOpen,
+    onClose: onAddClose,
+  } = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const columns = useMemo(() => dataColumn, [dataColumn]);
@@ -106,7 +113,8 @@ export default function CheckTable(props) {
   });
 
   const handleClick = () => {
-    navigate("/developers");
+    console.log("Add New button clicked, opening modal");
+    onAddOpen();
   };
 
   const formik = useFormik({
@@ -121,7 +129,9 @@ export default function CheckTable(props) {
               ?.toLowerCase()
               .includes(values.developer_name.toLowerCase()))
       );
-      const getValue = [values.trn, values.developer_name].filter((value) => value);
+      const getValue = [values.trn, values.developer_name].filter(
+        (value) => value
+      );
       setGetTagValues(getValue);
       setSearchedData(searchResult);
       setDisplaySearchData(true);
@@ -178,17 +188,15 @@ export default function CheckTable(props) {
 
   const handleAgencySelect = (agencyId) => {
     setSelectedAgency(agencyId);
-    fetchData({ pageIndex: 0, pageSize }); // Refetch data with selected agency
-    setAgencyFilterOpen(false); // Close the modal
+    fetchData({ pageIndex: 0, pageSize });
+    setAgencyFilterOpen(false);
   };
 
-  // Simulate initial loading with setTimeout
   useEffect(() => {
     setIsInitialLoading(true);
     const timer = setTimeout(() => {
       setIsInitialLoading(false);
     }, 3000);
-
     return () => clearTimeout(timer);
   }, []);
 
@@ -207,9 +215,17 @@ export default function CheckTable(props) {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      <Card direction="column" w="100%" overflowX={{ sm: "scroll", lg: "hidden" }}>
+      <Card
+        direction="column"
+        w="100%"
+        overflowX={{ sm: "scroll", lg: "hidden" }}
+      >
         <Grid templateColumns="repeat(12, 1fr)" gap={2} p={4}>
-          <GridItem colSpan={{ base: 12, md: 8 }} display="flex" alignItems="center">
+          <GridItem
+            colSpan={{ base: 12, md: 8 }}
+            display="flex"
+            alignItems="center"
+          >
             <Flex
               alignItems={{ base: "flex-start" }}
               flexWrap="wrap"
@@ -301,6 +317,7 @@ export default function CheckTable(props) {
             )}
           </GridItem>
         </Grid>
+
         <Flex justifyContent="space-between" alignItems="center" mb={2} px={4}>
           <HStack spacing={4}>
             {getTagValues.map((item) => (
@@ -335,8 +352,10 @@ export default function CheckTable(props) {
                 colorScheme="gray"
               >
                 <TagLabel>
-                  {agencies.find((agency) => agency._id === selectedAgency)?.name ||
-                    "Selected Agency"}
+                  {
+                    agencies.find((agency) => agency._id === selectedAgency)
+                      ?.name
+                  }
                 </TagLabel>
               </Tag>
             )}
@@ -355,6 +374,7 @@ export default function CheckTable(props) {
             </Button>
           )}
         </Flex>
+
         <Box mb={2}>
           {totalItems > 0 && (
             <Pagination
@@ -387,7 +407,12 @@ export default function CheckTable(props) {
                       fontSize={{ sm: "14px", lg: "16px" }}
                       color="secondaryGray.900"
                     >
-                      <span style={{ textTransform: "capitalize", marginRight: "8px" }}>
+                      <span
+                        style={{
+                          textTransform: "capitalize",
+                          marginRight: "8px",
+                        }}
+                      >
                         {column.Header}
                       </span>
                     </Flex>
@@ -396,7 +421,7 @@ export default function CheckTable(props) {
               </Tr>
             </Thead>
             <Tbody>
-              {(isLoding || isInitialLoading) ? (
+              {isLoding || isInitialLoading ? (
                 <TableLoading columns={columns} length="8" />
               ) : data?.length === 0 ? (
                 <Tr>
@@ -412,7 +437,9 @@ export default function CheckTable(props) {
                     {columns.map((column, index) => {
                       let cellData = "";
                       if (column.Header === "Date") {
-                        const date = row.createdAt ? new Date(row.createdAt) : null;
+                        const date = row.createdAt
+                          ? new Date(row.createdAt)
+                          : null;
                         cellData = (
                           <Flex align="center">
                             <Checkbox
@@ -422,7 +449,9 @@ export default function CheckTable(props) {
                               me="10px"
                             />
                             <Text color="brand.600" fontSize="sm">
-                              {date && !isNaN(date) ? date.toLocaleDateString() : "-"}
+                              {date && !isNaN(date)
+                                ? date.toLocaleDateString()
+                                : "-"}
                             </Text>
                           </Flex>
                         );
@@ -460,7 +489,11 @@ export default function CheckTable(props) {
                         );
                       } else if (column.Header === "Status") {
                         cellData = (
-                          <Text color={textColor} fontSize="sm" fontWeight="700">
+                          <Text
+                            color={textColor}
+                            fontSize="sm"
+                            fontWeight="700"
+                          >
                             {row.status || "-"}
                           </Text>
                         );
@@ -483,8 +516,28 @@ export default function CheckTable(props) {
           </Table>
         </Box>
 
+        {/* Add New Modal */}
+        <Modal isOpen={isAddOpen} onClose={onAddClose} isCentered size="xl">
+          <ModalOverlay />
+          <ModalContent>
+            <Add
+              isOpen={isAddOpen}
+              onClose={onAddClose}
+              fetchData={fetchData}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              setAction={setAction}
+              refetch
+            />
+          </ModalContent>
+        </Modal>
+
         {/* Advanced Search Modal */}
-        <Modal onClose={() => setAdvaceSearch(false)} isOpen={advaceSearch} isCentered>
+        <Modal
+          onClose={() => setAdvaceSearch(false)}
+          isOpen={advaceSearch}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>Advanced Search</ModalHeader>
@@ -520,7 +573,12 @@ export default function CheckTable(props) {
               </Grid>
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="brand" size="sm" mr={2} onClick={handleSubmit}>
+              <Button
+                colorScheme="brand"
+                size="sm"
+                mr={2}
+                onClick={handleSubmit}
+              >
                 Search
               </Button>
               <Button
@@ -591,11 +649,7 @@ export default function CheckTable(props) {
                 w="100px"
                 borderRadius="3px"
                 size="md"
-                onClick={() => {
-                  setSelectedAgency(tempSelectedAgency);
-                  fetchData({ pageIndex: 0, pageSize });
-                  setAgencyFilterOpen(false);
-                }}
+                onClick={() => handleAgencySelect(tempSelectedAgency)}
               >
                 Apply
               </Button>
@@ -604,7 +658,11 @@ export default function CheckTable(props) {
         </Modal>
 
         {/* Manage Columns Modal */}
-        <Modal onClose={() => setManageColumns(false)} isOpen={manageColumns} isCentered>
+        <Modal
+          onClose={() => setManageColumns(false)}
+          isOpen={manageColumns}
+          isCentered
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>Manage Columns</ModalHeader>
@@ -614,9 +672,12 @@ export default function CheckTable(props) {
                 <Text display="flex" key={column.accessor || column.id} py={2}>
                   <Checkbox
                     isChecked={tempSelectedColumns.some(
-                      (c) => (c.accessor || c.id) === (column.accessor || column.id)
+                      (c) =>
+                        (c.accessor || c.id) === (column.accessor || column.id)
                     )}
-                    onChange={() => toggleColumnVisibility(column.accessor || column.id)}
+                    onChange={() =>
+                      toggleColumnVisibility(column.accessor || column.id)
+                    }
                     pe={2}
                   />
                   {column.Header}

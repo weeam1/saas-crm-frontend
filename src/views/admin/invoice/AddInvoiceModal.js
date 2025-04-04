@@ -177,7 +177,7 @@ const AddInvoice = (props) => {
                     <MenuButton
                       as={Button}
                       rightIcon={customDropdownIcon}
-                      fontSize="16px"
+                      fontSize="12px"
                       fontFamily="DM Sans, sans-serif"
                       borderRadius="6px"
                       height="40px"

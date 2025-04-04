@@ -34,7 +34,7 @@ const Index = () => {
       { Header: "Developer", accessor: "developer_name" },
       { Header: "Developer Email", accessor: "email" },
       { Header: "Trn", accessor: "trn" },
-      { Header: "Status", accessor: "status" },
+      // { Header: "Status", accessor: "status" },
     ],
     []
   );
@@ -55,6 +55,15 @@ const Index = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(25);
 
+  const [queryArgs, setQueryArgs] = useState({
+    path: `/developer/get`,
+    params: {
+      page: 1,
+      limit: 25,
+    },
+    refetchOnMountOrArgChange: true,
+  });
+
   const {
     data: agencyData,
     isLoading: agencyLoading,
@@ -64,49 +73,14 @@ const Index = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  const baseQueryArgs = useMemo(() => {
-    const params = {
-      page: pageIndex + 1,
-      limit: pageSize,
-    };
-
-    if (selectedAgency && selectedAgency !== "All") {
-      params.agency = selectedAgency;
-    }
-
-    return {
-      path: `/developer/get`,
-      params,
-    };
-  }, [pageIndex, pageSize, selectedAgency]);
-
-  const searchQueryArgs = useMemo(() => {
-    const params = {
-      search: committedSearchTerm,
-      page: pageIndex + 1,
-      limit: pageSize,
-    };
-
-    if (selectedAgency && selectedAgency !== "All") {
-      params.agency = selectedAgency;
-    }
-
-    return {
-      path: `/developer/get`,
-      params,
-    };
-  }, [committedSearchTerm, pageIndex, pageSize, selectedAgency]);
-  const queryArgs = committedSearchTerm ? searchQueryArgs : baseQueryArgs;
-
   const {
     data: invoiceData,
     isLoading: queryLoading,
     error,
-    refetch,
     isUninitialized,
   } = useFetchItemsQuery(queryArgs, {
     skip: !user._id,
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true,
     refetchOnReconnect: false,
   });
 
@@ -146,10 +120,10 @@ const Index = () => {
 
   useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
-      refetch();
+      setQueryArgs((prev) => ({ ...prev }));
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, refetch, isUninitialized, user._id]);
+  }, [location.state, isUninitialized, user._id]);
 
   const dataColumn = useMemo(
     () =>
@@ -159,18 +133,33 @@ const Index = () => {
     [dynamicColumns, selectedColumns]
   );
 
-  const fetchData = useMemo(() => {
-    return ({ pageIndex: newPageIndex, pageSize: newPageSize, search }) => {
-      setPageIndex(newPageIndex);
-      setPageSize(newPageSize);
-      if (search !== undefined) {
-        setCommittedSearchTerm(search);
-      }
-      if (!isUninitialized && user._id) {
-        refetch();
-      }
+  const fetchData = ({
+    pageIndex: newPageIndex,
+    pageSize: newPageSize,
+    search,
+  }) => {
+    const updatedPageIndex =
+      newPageIndex !== undefined ? newPageIndex : pageIndex;
+    const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
+    const updatedSearch = search !== undefined ? search : committedSearchTerm;
+
+    setPageIndex(updatedPageIndex);
+    setPageSize(updatedPageSize);
+    setCommittedSearchTerm(updatedSearch);
+
+    const newQueryArgs = {
+      path: `/developer/get`,
+      params: {
+        page: updatedPageIndex + 1,
+        limit: updatedPageSize,
+        ...(updatedSearch && { search: updatedSearch }),
+        ...(selectedAgency &&
+          selectedAgency !== "All" && { agency: selectedAgency }),
+      },
     };
-  }, [isUninitialized, user._id, refetch]);
+
+    setQueryArgs(newQueryArgs);
+  };
 
   return (
     <div>

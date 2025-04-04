@@ -6,6 +6,7 @@ import CheckTable from "./components/invoiceChecktable";
 import { useSelector } from "react-redux";
 import { useFetchItemsQuery } from "api/apiSlice";
 import Breadcrumb from "./components/BreadCrumb";
+
 const Index = () => {
   const { id } = useParams();
   const developer_id = id;
@@ -15,14 +16,16 @@ const Index = () => {
   const [searchedData, setSearchedData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [committedSearchTerm, setCommittedSearchTerm] = useState("");
-  
+
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const tree = useSelector((state) => state.user.tree);
-  const [queryParams, setQueryParams] = useState({
-    page: 1,
-    limit: 10,
-    developer: developer_id,
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [queryArgs, setQueryArgs] = useState({
+    path: developer_id ? `/invoices` : `/invoices`,
+    params: { page: 1, limit: 25, developer: developer_id },
   });
+
   const location = useLocation();
 
   const [permission, emailAccess, callAccess] = HasAccess([
@@ -49,13 +52,6 @@ const Index = () => {
       Header: "Bank Account",
       accessor: "bank_account.account_holder_name",
     },
-
-    // {
-    //   Header: "Total Amount",
-    //   accessor: "totalAmount",
-    //   Cell: ({ value }) =>
-    //     value.toLocaleString("en-US", { minimumFractionDigits: 2 }),
-    // },
     { Header: "Action", id: "action", isSortable: false, center: true },
   ];
 
@@ -74,39 +70,14 @@ const Index = () => {
   const [action, setAction] = useState(false);
   const [dateTime, setDateTime] = useState({ from: "", to: "" });
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
-  const baseQueryArgs = useMemo(
-    () => ({
-      path: developer_id ? `/invoices` : `/invoices`,
-      params: queryParams,
-    }),
-    [pageIndex, pageSize, developer_id]
-  );
-
-  const searchQueryArgs = useMemo(
-    () => ({
-      path: developer_id ? `/invoices` : `/invoices`,
-      params: {
-        search: committedSearchTerm,
-        page: pageIndex + 1,
-        limit: pageSize,
-      },
-    }),
-    [committedSearchTerm, pageIndex, pageSize, developer_id]
-  );
-
-  const queryArgs = committedSearchTerm ? searchQueryArgs : baseQueryArgs;
-
   const {
     data: invoiceData,
     isLoading: queryLoading,
     error,
-    refetch,
     isUninitialized,
   } = useFetchItemsQuery(queryArgs, {
     skip: !user._id,
-    refetchOnMountOrArgChange: false,
+    refetchOnMountOrArgChange: true,
     refetchOnReconnect: false,
   });
 
@@ -134,32 +105,43 @@ const Index = () => {
       setSearchedData([]);
     }
   }, [invoiceData, queryLoading, error, committedSearchTerm]);
-  
 
   useEffect(() => {
     if (location.state?.refetch && !isUninitialized && user._id) {
-      refetch();
+      setQueryArgs((prev) => ({ ...prev }));
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, refetch, isUninitialized, user._id]);
+  }, [location.state, isUninitialized, user._id]);
 
-  const fetchData = useMemo(() => {
-    return (options = {}) => {
-      const {
-        pageIndex: newPageIndex,
-        pageSize: newPageSize,
-        search,
-      } = options;
-      setPageIndex(newPageIndex ?? pageIndex);
-      setPageSize(newPageSize ?? pageSize);
-      if (search !== undefined) {
-        setCommittedSearchTerm(search);
-      }
-      if (!isUninitialized && user._id) {
-        refetch();
-      }
+  const fetchData = (options = {}) => {
+    const { pageIndex: newPageIndex, pageSize: newPageSize, search } = options;
+    const updatedPageIndex =
+      newPageIndex !== undefined ? newPageIndex : pageIndex;
+    const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
+    const updatedSearch = search !== undefined ? search : committedSearchTerm;
+
+    console.log("fetchData called with:", {
+      newPageIndex,
+      newPageSize,
+      search,
+    });
+
+    setPageIndex(updatedPageIndex);
+    setPageSize(updatedPageSize);
+    setCommittedSearchTerm(updatedSearch);
+
+    const updatedQueryArgs = {
+      path: developer_id ? `/invoices` : `/invoices`,
+      params: {
+        page: updatedPageIndex + 1,
+        limit: updatedPageSize,
+        developer: developer_id,
+        ...(updatedSearch && { search: updatedSearch }),
+      },
     };
-  }, [isUninitialized, user._id, refetch, pageIndex, pageSize]);
+
+    setQueryArgs(updatedQueryArgs);
+  };
 
   const breadcrumbItems = useMemo(
     () => [
@@ -178,8 +160,8 @@ const Index = () => {
           <CheckTable
             dateTime={dateTime}
             setDateTime={setDateTime}
-            isLoading={isLoading} 
-            setIsLoading={setIsLoading} 
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
             columnsData={roleColumns[role] || tableColumns}
             setAction={setAction}
             dataColumn={dataColumn}
