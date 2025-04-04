@@ -129,6 +129,10 @@ const AddUser = (props) => {
 			} else if (
 				roles.find((role) => role?._id === values.role)?.roleName === 'Agent'
 			) {
+				if (!values.parent) {
+					toast.error('Please select a manager.');
+					return;
+				}
 				valuesObj['parent'] = values.parent;
 			}
 

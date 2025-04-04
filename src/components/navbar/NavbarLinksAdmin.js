@@ -58,11 +58,27 @@ export default function HeaderLinks(props) {
 
 	const data = typeof userData === 'string' ? JSON.parse(userData) : userData;
 	const user = loginUser?.fullName;
-	const userId = JSON.parse(localStorage.getItem('user'))?._id;
+	const localUser = JSON.parse(localStorage.getItem('user'));
+
+	const userId = localUser?._id;
 
 	const fetchData = async () => {
-		let response = await getApi('api/user/view/', userId);
-		setLoginUser(response.data);
+		try {
+			let response = await getApi('api/user/view/', userId);
+
+			if (response?.data) {
+				setLoginUser(response.data);
+
+				// Check role mismatch
+				if (
+					localUser?.roles[0]?.roleName !== response.data?.roles[0]?.roleName
+				) {
+					logOut();
+				}
+			}
+		} catch (error) {
+			console.error('Error fetching user:', error);
+		}
 	};
 
 	useEffect(() => {
@@ -84,6 +100,7 @@ export default function HeaderLinks(props) {
 		} else {
 			toast.success('Log out Successfully');
 		}
+
 		setIsLogoutScheduled(true);
 	};
 

@@ -19,6 +19,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
+	Portal,
 	Table,
 	Tag,
 	TagLabel,
@@ -192,6 +193,7 @@ export default function CheckTable(props) {
 			resetForm();
 		},
 	});
+
 	const handleClear = () => {
 		setDisplaySearchData(false);
 		setSearchbox('');
@@ -266,6 +268,19 @@ export default function CheckTable(props) {
 		setSearchedData(results);
 	};
 
+	const updateUsers = (user) => {
+		// Find the updated document in allData
+		const updatedIndex = data.findIndex((item) => item._id === user?._id);
+
+		if (updatedIndex !== -1) {
+			// Update the found document
+			data[updatedIndex] = user;
+		} else {
+			// If not found, push it to allData (optional, depends on your logic)
+			data.push(user);
+		}
+	};
+
 	return (
 		<>
 			<Card
@@ -302,6 +317,7 @@ export default function CheckTable(props) {
 								allData={allData}
 								dataColumn={dataColumn}
 								onSearch={handleSearch}
+								fetchSearch={handleSearch}
 							/>
 							<Button
 								variant='outline'
@@ -422,14 +438,24 @@ export default function CheckTable(props) {
 					/>
 				)}
 
-				<Box overflowY={'auto'} className='table-fix-container'>
-					<Table
-						{...getTableProps()}
-						variant='simple'
-						color='gray.500'
-						mb='24px'
-					>
-						<Thead>
+				<Box
+					overflowY={'auto'}
+					height='70vh'
+					scrollBehavior='smooth'
+					borderRadius='md'
+					boxShadow='sm'
+					bg='white'
+				>
+					<Table {...getTableProps()} variant='striped'>
+						<Thead
+							color='gray.500'
+							mb='24px'
+							position='sticky'
+							top={0}
+							bg='white'
+							zIndex={2}
+							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+						>
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr {...headerGroup.getHeaderGroupProps()} key={index}>
 									{headerGroup.headers?.map((column, index) => (
@@ -440,6 +466,7 @@ export default function CheckTable(props) {
 											)}
 											pe='10px'
 											key={index}
+											bg='brand.200'
 											borderColor={borderColor}
 										>
 											<Flex
@@ -609,96 +636,107 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === 'Action') {
 													data = (
-														<Text
+														<Box
 															fontSize='md'
 															fontWeight='900'
 															textAlign={'center'}
+															zIndex='popover'
 														>
 															<Menu isLazy>
 																<MenuButton>
 																	<CiMenuKebab />
 																</MenuButton>
-																<MenuList
-																	minW={'fit-content'}
-																	transform={'translate(1520px, 173px);'}
-																>
-																	{isAdmin && (
+
+																<Portal>
+																	<MenuList
+																		minW={'fit-content'}
+																		placement='bottom-end'
+																		// transform={'translate(1520px, 173px);'}
+																	>
+																		{isAdmin && (
+																			<MenuItem
+																				py={2.5}
+																				onClick={() => {
+																					setEdit(true);
+																					setSelectedId(
+																						cell?.row?.original._id
+																					);
+																					setEditData(cell?.row?.original);
+																				}}
+																				icon={<EditIcon mb={1} fontSize={15} />}
+																			>
+																				Edit
+																			</MenuItem>
+																		)}
+
 																		<MenuItem
 																			py={2.5}
-																			onClick={() => {
-																				setEdit(true);
-																				setSelectedId(cell?.row?.original._id);
-																				setEditData(cell?.row?.original);
-																			}}
-																			icon={<EditIcon mb={1} fontSize={15} />}
+																			color={'green'}
+																			onClick={() =>
+																				navigate(
+																					`/userView/${cell?.row?.values._id}`
+																				)
+																			}
+																			icon={<ViewIcon mb={1} fontSize={15} />}
 																		>
-																			Edit
+																			View
 																		</MenuItem>
-																	)}
-
-																	<MenuItem
-																		py={2.5}
-																		color={'green'}
-																		onClick={() =>
-																			navigate(
-																				`/userView/${cell?.row?.values._id}`
-																			)
-																		}
-																		icon={<ViewIcon mb={1} fontSize={15} />}
-																	>
-																		View
-																	</MenuItem>
-																	{isAdmin && (
-																		<>
-																			<MenuItem
-																				py={2.5}
-																				color={'green'}
-																				onClick={() =>
-																					setAddCoinsModal({
-																						user: row?.original?._id,
-																						isOpen: true,
-																					})
-																				}
-																				icon={<FaCoins mb={1} fontSize={15} />}
-																			>
-																				Add Coins
-																			</MenuItem>
-																			<MenuItem
-																				py={2.5}
-																				color={'green'}
-																				onClick={() =>
-																					setRemoveCoinsModal({
-																						user: row?.original,
-																						isOpen: true,
-																					})
-																				}
-																				icon={<FaCoins mb={1} fontSize={15} />}
-																			>
-																				Remove Coins
-																			</MenuItem>
-																			{cell?.row?.original?.role ===
-																			'superAdmin' ? (
-																				''
-																			) : (
+																		{isAdmin && (
+																			<>
 																				<MenuItem
 																					py={2.5}
-																					color={'red'}
-																					onClick={() => {
-																						setSelectedValues([
-																							cell?.row?.original._id,
-																						]);
-																						setDelete(true);
-																					}}
-																					icon={<DeleteIcon fontSize={15} />}
+																					color={'green'}
+																					onClick={() =>
+																						setAddCoinsModal({
+																							user: row?.original?._id,
+																							isOpen: true,
+																						})
+																					}
+																					icon={
+																						<FaCoins mb={1} fontSize={15} />
+																					}
 																				>
-																					Delete
+																					Add Coins
 																				</MenuItem>
-																			)}
-																		</>
-																	)}
-																</MenuList>
+																				<MenuItem
+																					py={2.5}
+																					color={'green'}
+																					onClick={() =>
+																						setRemoveCoinsModal({
+																							user: row?.original,
+																							isOpen: true,
+																						})
+																					}
+																					icon={
+																						<FaCoins mb={1} fontSize={15} />
+																					}
+																				>
+																					Remove Coins
+																				</MenuItem>
+																				{cell?.row?.original?.role ===
+																				'superAdmin' ? (
+																					''
+																				) : (
+																					<MenuItem
+																						py={2.5}
+																						color={'red'}
+																						onClick={() => {
+																							setSelectedValues([
+																								cell?.row?.original._id,
+																							]);
+																							setDelete(true);
+																						}}
+																						icon={<DeleteIcon fontSize={15} />}
+																					>
+																						Delete
+																					</MenuItem>
+																				)}
+																			</>
+																		)}
+																	</MenuList>
+																</Portal>
 															</Menu>
-														</Text>
+														</Box>
 													);
 												}
 												return (
@@ -757,6 +795,8 @@ export default function CheckTable(props) {
 					data={editData}
 					setEdit={setEdit}
 					selectedId={selectedId}
+					refrence='table'
+					updateUsers={updateUsers}
 				/>
 			)}
 			{addCoinsModal?.isOpen && (

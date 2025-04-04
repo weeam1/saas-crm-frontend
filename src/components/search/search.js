@@ -35,7 +35,7 @@ const CustomSearchInput = ({
 	};
 
 	const handleKeyUp = async (e) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Enter' && isPaginated) {
 			fetchSearch();
 		}
 	};

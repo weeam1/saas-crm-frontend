@@ -24,16 +24,18 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
-import { putApi } from 'services/api';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import { getApi } from 'services/api';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+
+	const [roles, setRoles] = useState([]);
 
 	const [uploadImage, setUploadImage] = useState(false);
 
@@ -53,7 +55,10 @@ const Edit = (props) => {
 		parent: data?.parent ?? '',
 		target: data?.target ?? '',
 		roles: data?.roles ?? [],
+		role: data?.roles[0]?._id ?? '',
 	};
+
+	console.log('initialValues', initialValues);
 
 	const user = JSON.parse(window.localStorage.getItem('user'));
 	const isAdmin = user?.role === 'superAdmin';
@@ -97,31 +102,33 @@ const Edit = (props) => {
 
 	const EditData = async () => {
 		try {
+			const role = roles.find((role) => role?._id === values.role);
+
+			const queryParams =
+				role?.roleName === 'Agent' || role?.roleName === 'Manager'
+					? { roleName: role.roleName }
+					: {};
+
 			const valuesObj = { ...values };
-			if (data?.roles[0]?.roleName !== 'Agent') {
+
+			console.log(role, values?.parent);
+
+			if (role?.roleName === 'Agent') {
+				if (!values.parent) {
+					toast.error('Please select a manager.');
+					return;
+				}
+				valuesObj['parent'] = values.parent;
+				queryParams.roleName = role.roleName;
+			} else if (role?.roleName === 'Manager') {
+				console.log('manager');
+				delete valuesObj['parent'];
+				queryParams.roleName = role.roleName;
+			} else {
 				delete valuesObj['parent'];
 			}
 
-			// const formData = new FormData();
-
-			// Object.keys(valuesObj).forEach((key) => {
-			// 	const value = valuesObj[key];
-
-			// 	if (value === undefined || value === null || value === '') return;
-
-			// 	if (key === 'profileImage' && value instanceof File) {
-			// 		formData.append(key, value);
-			// 	} else if (key === 'roles' && Array.isArray(value)) {
-			// 		value.forEach((role, index) => {
-			// 			if (role.roleName) {
-			// 				formData.append(`roles[${index}]`, role.roleName);
-			// 			}
-			// 		});
-			// 	} else {
-			// 		formData.append(key, value);
-			// 	}
-			// });
-
+			console.log('valuesObj', valuesObj, queryParams);
 			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
 				if (value !== undefined && value !== null) {
 					acc[key] =
@@ -132,12 +139,19 @@ const Edit = (props) => {
 				return acc;
 			}, {});
 
+			// Construct the request URL with query parameters
+			const queryString = new URLSearchParams(queryParams).toString();
+			const fullPath = `/user/v2/edit/${props.selectedId}${queryString ? `?${queryString}` : ''}`;
+
 			let response = await updateItemMutation({
-				path: `/user/v2/edit/${props.selectedId}`,
+				path: fullPath,
+				params: queryParams,
 				body: bodyData,
 			});
 
-			if (response && response.data.modifiedCount) {
+			console.log(response);
+
+			if (response) {
 				setEdit(false);
 				let updatedUserData = userData;
 				if (user?._id === props.selectedId) {
@@ -163,7 +177,10 @@ const Edit = (props) => {
 				}
 
 				handleCloseModal();
-				fetchData();
+
+				if (props?.refrence === 'table') {
+					props.updateUsers(response?.data?.user);
+				} else fetchData();
 				formik.resetForm();
 				props.setAction((pre) => !pre);
 			}
@@ -172,6 +189,15 @@ const Edit = (props) => {
 			toast.error(e.data?.message);
 		}
 	};
+
+	const fetchRoles = async () => {
+		let result = await getApi('api/role-access');
+		setRoles(result.data);
+	};
+
+	useEffect(() => {
+		fetchRoles();
+	}, []);
 
 	return (
 		<Modal size='4xl' isOpen={isOpen} isCentered>
@@ -379,6 +405,71 @@ const Edit = (props) => {
 									</Text>
 								</GridItem>
 
+								{user?.roles[0]?.roleName !== 'Manager' && (
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Select Role <Text color={'red'}>*</Text>
+										</FormLabel>
+										<Select
+											name='role'
+											value={values.role}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Select Role'
+											borderColor={
+												errors.role && touched.role ? 'red.300' : null
+											}
+											className={
+												errors.role && touched.role ? 'isInvalid' : null
+											}
+										>
+											{roles?.map((role) => (
+												<option key={role?._id} value={role?._id}>
+													{role?.roleName}
+												</option>
+											))}
+										</Select>
+										<Text mb='10px' color='red'>
+											{errors.role && touched.role && errors.role}
+										</Text>
+									</GridItem>
+								)}
+								{roles.find((role) => role?._id === values.role)?.roleName ===
+									'Agent' && (
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Select Manager <Text color={'red'}>*</Text>
+										</FormLabel>
+										<Select
+											name='parent'
+											value={values.parent}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Select Manager'
+										>
+											{tree?.tree?.managers
+												?.filter((item) => item._id !== data?._id)
+												?.map((manager) => (
+													<option value={manager?._id}>
+														{manager?.firstName + ' ' + manager?.lastName}
+													</option>
+												))}
+										</Select>
+									</GridItem>
+								)}
+
 								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'
@@ -410,33 +501,6 @@ const Edit = (props) => {
 										{errors.agency && touched.agency && errors.agency}
 									</Text>
 								</GridItem>
-
-								{values && values?.roles[0]?.roleName === 'Agent' && (
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Select Manager
-										</FormLabel>
-										<Select
-											name='parent'
-											value={values.parent}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											placeholder='Select Manager'
-										>
-											{tree?.tree?.managers?.map((manager) => (
-												<option key={manager?._id} value={manager?._id}>
-													{manager?.firstName + ' ' + manager?.lastName}
-												</option>
-											))}
-										</Select>
-									</GridItem>
-								)}
 
 								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel

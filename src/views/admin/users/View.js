@@ -267,6 +267,14 @@ const View = () => {
 												value={data?.phoneNumber}
 											/>
 											<DisplayField label='User Email' value={data?.username} />
+											<DisplayField
+												label='Role'
+												value={
+													data?.role === 'superAdmin'
+														? 'Super Admin'
+														: data?.roles[0]?.roleName
+												}
+											/>
 										</Grid>
 									</Box>
 								</GridItem>
@@ -299,7 +307,7 @@ const View = () => {
 							<Text>User data not found.</Text>
 						)}
 					</Card>
-					{data?.role !== 'superAdmin' && !isLoading && (
+					{/* {data?.role !== 'superAdmin' && !isLoading && (
 						<Card mt={3}>
 							<RoleTable
 								fetchData={refetch}
@@ -310,7 +318,7 @@ const View = () => {
 								title={'Role'}
 							/>
 						</Card>
-					)}
+					)} */}
 				</>
 			)}
 
@@ -346,7 +354,7 @@ const View = () => {
 							</Grid>
 						</Card> */}
 
-			{roleModal && (
+			{/* {roleModal && (
 				<RoleModal
 					fetchData={refetch}
 					isOpen={roleModal}
@@ -356,7 +364,7 @@ const View = () => {
 					tableData={roleData}
 					interestRoles={data?.roles.map((item) => item._id)}
 				/>
-			)}
+			)} */}
 
 			{/* {isOpen && <Add isOpen={isOpen} size={size} onClose={onClose} />} */}
 			{edit && (
