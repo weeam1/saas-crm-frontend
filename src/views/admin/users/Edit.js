@@ -26,7 +26,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
 import { useDispatch } from 'react-redux';
-import { setActiveTree, setUser } from '../../../redux/localSlice';
+import { setActiveTree, setTree, setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
@@ -70,8 +70,6 @@ const Edit = (props) => {
 		replacementManager: '',
 	};
 
-	console.log('initialValues', initialValues);
-
 	const user = JSON.parse(window.localStorage.getItem('user'));
 	const isAdmin = user?.role === 'superAdmin';
 
@@ -95,6 +93,13 @@ const Edit = (props) => {
 		const data = response.data || null;
 
 		dispatch(setActiveTree(data));
+	};
+
+	const fetchTree = async () => {
+		const response = await getApi('api/user/tree');
+		const data = response.data || null;
+
+		dispatch(setTree(data));
 	};
 
 	useEffect(() => {
@@ -205,6 +210,9 @@ const Edit = (props) => {
 				} else fetchData();
 				formik.resetForm();
 				props.setAction((pre) => !pre);
+
+				fetchTree();
+				fetchActiveTree();
 			}
 		} catch (e) {
 			console.log(e);
@@ -219,7 +227,6 @@ const Edit = (props) => {
 
 	useEffect(() => {
 		fetchRoles();
-		fetchActiveTree();
 	}, []);
 
 	return (
