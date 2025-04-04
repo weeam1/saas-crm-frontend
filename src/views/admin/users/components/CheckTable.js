@@ -58,7 +58,6 @@ import Delete from '../Delete';
 import AddUser from '../Add';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { BsColumnsGap } from 'react-icons/bs';
 import { CiMenuKebab } from 'react-icons/ci';
 import { IoIosArrowBack } from 'react-icons/io';
 import Edit from '../Edit';
@@ -67,6 +66,7 @@ import CustomSearchInput from 'components/search/search';
 import CopyID from './CopyID';
 import AddCoinsModal from '../AddCoinsModal';
 import RemoveCoinsModal from '../RemoveCoinsModal';
+import StatusToggle from './StatusToogle';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -634,7 +634,21 @@ export default function CheckTable(props) {
 															{cell?.value}
 														</Text>
 													);
-												} else if (cell?.column.Header === 'Action') {
+												}
+												// else if (cell?.column.Header === 'Status') {
+												// 	data = (
+												// 		<StatusToggle
+												// 			userId={row?.original?._id}
+												// 			initialStatus={cell?.value}
+												// 			role={
+												// 				row?.original?.role === 'superAdmin'
+												// 					? 'superAdmin'
+												// 					: row?.original?.roles[0]?.roleName
+												// 			}
+												// 		/>
+												// 	);
+												// }
+												else if (cell?.column.Header === 'Action') {
 													data = (
 														<Box
 															fontSize='md'

@@ -17,6 +17,7 @@ const Index = () => {
 		{ Header: 'last Name', accessor: 'lastName' },
 		{ Header: 'role', accessor: 'roles[0].roleName' },
 		{ Header: 'Coins', accessor: 'coins' },
+		// { Header: 'Status', accessor: 'isActive' },
 		{ Header: 'Action', isSortable: false, center: true },
 	];
 

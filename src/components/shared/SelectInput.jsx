@@ -304,6 +304,10 @@ const SelectInput = ({
 						color: 'gray.800',
 						_hover: { bg: dropdownHoverBg },
 					},
+					'option:disabled': {
+						backgroundColor: 'gray.800 !important',
+						color: 'gray.500 !important',
+					},
 				}}
 				isDisabled={loading || options.length < 1}
 				{...props}
@@ -331,6 +335,11 @@ const SelectInput = ({
 							<option
 								key={type === 'dynamic' ? opt._id : opt.value}
 								value={type === 'dynamic' ? opt._id : opt.value}
+								disabled={opt.isActive === false}
+								style={{
+									backgroundColor: opt.isActive === false ? 'gray.800' : null,
+									color: opt.isActive === false ? 'gray.500' : null,
+								}}
 							>
 								{type === 'dynamic'
 									? `${opt?.firstName} ${opt?.lastName}`

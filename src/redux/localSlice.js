@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
 	user: JSON.parse(window.localStorage.getItem('user')),
 	tree: null,
+	activeTree: null,
 	users: null,
 	leadPoolState: 'all_leads',
 };
@@ -22,6 +23,9 @@ const localSlice = createSlice({
 		setTree: (state, action) => {
 			state.tree = action.payload;
 		},
+		setActiveTree: (state, action) => {
+			state.activeTree = action.payload;
+		},
 		setUsers: (state, action) => {
 			state.users = action?.payload;
 		},
@@ -31,7 +35,13 @@ const localSlice = createSlice({
 	},
 });
 
-export const { setUser, clearUser, setTree, setUsers, setLeadPoolState } =
-	localSlice.actions;
+export const {
+	setUser,
+	clearUser,
+	setTree,
+	setActiveTree,
+	setUsers,
+	setLeadPoolState,
+} = localSlice.actions;
 
 export default localSlice.reducer;

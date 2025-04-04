@@ -19,7 +19,7 @@ import { Provider, useSelector } from 'react-redux';
 import store from './redux/store';
 import { useDispatch } from 'react-redux';
 import { getApi } from 'services/api';
-import { setTree, setUsers } from './redux/localSlice';
+import { setActiveTree, setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
 import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
@@ -303,6 +303,18 @@ function App() {
 		}, 0);
 	};
 
+	const fetchActiveTree = async () => {
+		setAppLoaded(false);
+		const response = await getApi('api/v2/user/active_tree');
+		const data = response.data || null;
+
+		dispatch(setActiveTree(data));
+
+		setTimeout(() => {
+			setAppLoaded(true);
+		}, 0);
+	};
+
 	const fetchUsers = async () => {
 		setAppLoaded(false);
 		const response = await getApi('api/user/');
@@ -317,6 +329,7 @@ function App() {
 	useEffect(() => {
 		if (getToken() && user2) {
 			fetchTree();
+			fetchActiveTree();
 			fetchUsers();
 		} else if (!getToken()) {
 			setAppLoaded(true);

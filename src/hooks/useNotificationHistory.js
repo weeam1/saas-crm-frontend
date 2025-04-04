@@ -63,8 +63,6 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 				{ maxRedirects: 0 } // Prevent auto-following redirects
 			);
 
-			console.log('get histroy call', data);
-
 			if (data?.total_items > 0) {
 				// if (currentPage === 1) {
 				// 	setList([]);

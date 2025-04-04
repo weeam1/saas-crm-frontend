@@ -31,10 +31,11 @@ import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useCreateItemMutation } from 'api/apiSlice';
 import ImageUpload from './components/ImageUpload';
+import { buttonStyle } from 'utils/btn';
 
 const userValidationSchema = Yup.object().shape({
 	firstName: Yup.string().required('First name is required'),
-	lastName: Yup.string().required('Last name is required'),
+	lastName: Yup.string(),
 	username: Yup.string()
 		.email('Invalid email format')
 		.required('Email is required'),
@@ -759,21 +760,14 @@ const AddUser = (props) => {
 				</ModalBody>
 				<ModalFooter>
 					<Button
-						variant='brand'
-						size='sm'
-						disabled={isLoading ? true : false}
-						onClick={handleSubmit}
-					>
-						{isLoading ? <Spinner /> : 'Save'}
-					</Button>
-					<Button
-						sx={{
-							marginLeft: 2,
-							textTransform: 'capitalize',
-						}}
-						variant='outline'
-						colorScheme='red'
-						size='sm'
+						{...buttonStyle}
+						variant='solid'
+						bg='gray.200'
+						color='gray.800'
+						_active={{ bg: 'gray.300' }}
+						mr='3'
+						fontSize='md'
+						aria-label='close'
 						isDisabled={uploadImage}
 						onClick={() => {
 							formik.resetForm();
@@ -781,6 +775,17 @@ const AddUser = (props) => {
 						}}
 					>
 						Close
+					</Button>
+					<Button
+						{...buttonStyle}
+						variant='solid'
+						bg='brand.400'
+						fontSize='md'
+						aria-label='update'
+						disabled={isLoading ? true : false}
+						onClick={handleSubmit}
+					>
+						{isLoading ? <Spinner /> : 'Save'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>

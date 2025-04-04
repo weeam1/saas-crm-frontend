@@ -22,6 +22,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [errorLeadData, setErrorLeadData] = useState({});
 
 	const tree = useSelector((state) => state.user.tree);
+
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	useEffect(() => {
