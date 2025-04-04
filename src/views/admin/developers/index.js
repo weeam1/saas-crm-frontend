@@ -18,16 +18,16 @@ const Index = () => {
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageIndex, setPageIndex] = useState(0); // 0-based index
+  const [pageSize, setPageSize] = useState(25); // Start with 25
   const [searchField, setSearchField] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const buildQueryPath = () => {
-    if (!searchTerm) {
-      return `/developer/get`;
-    }
-    return `/developer/search?page=${pageIndex + 1}&pageSize=${pageSize}&${searchField}=${encodeURIComponent(searchTerm)}`;
+    const basePath = searchTerm ? "/developer/search" : "/developer/get";
+    return `${basePath}?page=${pageIndex + 1}&limit=${pageSize}${
+      searchTerm ? `&${searchField}=${encodeURIComponent(searchTerm)}` : ""
+    }`;
   };
 
   const {
@@ -37,10 +37,6 @@ const Index = () => {
     refetch,
   } = useFetchItemsQuery({
     path: buildQueryPath(),
-    pageIndex,
-    pageSize,
-    searchField,
-    searchTerm,
   });
 
   const fetchData = ({
@@ -62,7 +58,14 @@ const Index = () => {
     setPageSize(newPageSize);
     setSearchTerm(search || "");
     if (field) setSearchField(field);
-    refetch();
+    refetch(); // Trigger API call with updated query
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (e) => {
+    const newSize = Number(e.target.value);
+    setPageSize(newSize); // Update pageSize state immediately
+    fetchData({ pageIndex: 0, pageSize: newSize }); // Fetch data with new size
   };
 
   useEffect(() => {
@@ -84,7 +87,7 @@ const Index = () => {
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" h="200px">
-        <Spinner size沦="xl" />
+        <Spinner size="xl" />
       </Box>
     );
   }
@@ -135,6 +138,7 @@ const Index = () => {
         totalPages={developerResponse?.totalPages || 1}
         currentPage={developerResponse?.currentPage || 1}
         refetch={refetch}
+        handlePageSize={handlePageSizeChange} 
       />
     </Box>
   );

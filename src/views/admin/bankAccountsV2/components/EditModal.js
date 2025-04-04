@@ -33,13 +33,13 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
   };
 
   const [formData, setFormData] = useState({
-    account_holder_name: String(account?.account_holder_name || ""),
-    account_number: String(account?.account_number || ""),
-    iban: String(account?.iban || ""),
-    swift_code: String(account?.swift_code || ""),
-    bank_name: String(account?.bank_name || ""),
-    branch_address: String(account?.branch_address || ""),
-    developer_id: String(account?.developer_id || ""),
+    account_holder_name: "",
+    account_number: "",
+    iban: "",
+    swift_code: "",
+    bank_name: "",
+    branch_address: "",
+    developer_id: "",
   });
 
   const [errors, setErrors] = useState({
@@ -64,7 +64,7 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
         swift_code: String(account.swift_code || ""),
         bank_name: String(account.bank_name || ""),
         branch_address: String(account.branch_address || ""),
-        developer_id: String(account.developer_id || ""),
+        developer_id: String(account.developer_id?._id || ""), // Set to the _id of the developer
       });
     }
   }, [account]);
@@ -100,7 +100,6 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
 
   const handleClose = () => {
     setIsOpen(false);
-    // Reset errors, but keep formData synced with the latest account prop
     setErrors({
       account_holder_name: "",
       account_number: "",
@@ -205,7 +204,6 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
     }
     if (validateForm()) {
       const updatedAccount = { ...formData, _id: account._id };
-
       const response = await onUpdate(updatedAccount, account._id);
       handleClose();
     }

@@ -184,7 +184,7 @@ export default function CheckTable(props) {
     setSearchbox("");
     setSearchTerm("");
     setDisplaySearchData(false);
-    fetchData({ pageIndex: 0, pageSize }); 
+    fetchData({ pageIndex: 0, pageSize });
   };
 
   useEffect(() => {
@@ -468,12 +468,12 @@ export default function CheckTable(props) {
                       if (column.Header === "#") {
                         data = (
                           <Flex align="center">
-                            <Checkbox
+                            {/* <Checkbox
                               colorScheme="brandScheme"
                               isChecked={selectedValues.includes(row._id)}
                               onChange={(e) => handleCheckboxChange(e, row._id)}
                               me="4px"
-                            />
+                            /> */}
                           </Flex>
                         );
                       } else if (column.Header === "TRN") {
