@@ -18,16 +18,16 @@ const Index = () => {
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0); // 0-based index
-  const [pageSize, setPageSize] = useState(25); // Start with 25
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(25); // Changed from 10 to 25
   const [searchField, setSearchField] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const buildQueryPath = () => {
-    const basePath = searchTerm ? "/developer/search" : "/developer/get";
-    return `${basePath}?page=${pageIndex + 1}&limit=${pageSize}${
-      searchTerm ? `&${searchField}=${encodeURIComponent(searchTerm)}` : ""
-    }`;
+    if (!searchTerm) {
+      return `/developer/get?page=${pageIndex + 1}&limit=${pageSize}`;
+    }
+    return `/developer/search?page=${pageIndex + 1}&pageSize=${pageSize}&${searchField}=${encodeURIComponent(searchTerm)}`;
   };
 
   const {
@@ -37,6 +37,10 @@ const Index = () => {
     refetch,
   } = useFetchItemsQuery({
     path: buildQueryPath(),
+    pageIndex,
+    pageSize,
+    searchField,
+    searchTerm,
   });
 
   const fetchData = ({
@@ -54,18 +58,12 @@ const Index = () => {
       return;
     }
 
+    console.log("Fetching with:", { newPageIndex, newPageSize, search, field }); // Debug
     setPageIndex(newPageIndex);
     setPageSize(newPageSize);
     setSearchTerm(search || "");
     if (field) setSearchField(field);
-    refetch(); // Trigger API call with updated query
-  };
-
-  // Handle page size change
-  const handlePageSizeChange = (e) => {
-    const newSize = Number(e.target.value);
-    setPageSize(newSize); // Update pageSize state immediately
-    fetchData({ pageIndex: 0, pageSize: newSize }); // Fetch data with new size
+    refetch();
   };
 
   useEffect(() => {
@@ -80,6 +78,7 @@ const Index = () => {
 
   useEffect(() => {
     if (developerResponse?.doc) {
+      console.log("API Response:", developerResponse.doc); // Debug
       setSearchedData(developerResponse.doc);
     }
   }, [developerResponse]);
@@ -138,7 +137,6 @@ const Index = () => {
         totalPages={developerResponse?.totalPages || 1}
         currentPage={developerResponse?.currentPage || 1}
         refetch={refetch}
-        handlePageSize={handlePageSizeChange} 
       />
     </Box>
   );
