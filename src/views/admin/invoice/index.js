@@ -1,54 +1,48 @@
-import { Grid, GridItem, useDisclosure } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { getApi } from "services/api";
+import { Grid, GridItem } from "@chakra-ui/react";
+import { useEffect, useState, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { HasAccess } from "../../../redux/accessUtils";
 import CheckTable from "./components/CheckTable";
 import { useSelector } from "react-redux";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const Index = () => {
-  const [isLoding, setIsLoding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [agencies, setAgencies] = useState([]);
+  const [selectedAgency, setSelectedAgency] = useState("");
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [searchTerm, setSearchTerm] = useState("");
+  const [committedSearchTerm, setCommittedSearchTerm] = useState("");
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const role =
+    user?.role === "superAdmin" ? "superAdmin" : user?.roles?.[0]?.roleName;
   const tree = useSelector((state) => state.user.tree);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [permission, emailAccess, callAccess] = HasAccess([
     "Lead",
     "Email",
     "Call",
   ]);
-  const tableColumns = [
-    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
-  const tableColumnsManager = [
-        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
-  const tableColumnsAgent = [
-        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
+
+  const tableColumns = useMemo(
+    () => [
+      { Header: "Date", accessor: "createdAt" },
+      { Header: "Developer", accessor: "developer_name" },
+      { Header: "Developer Email", accessor: "email" },
+      { Header: "Trn", accessor: "trn" },
+      // { Header: "Status", accessor: "status" },
+    ],
+    []
+  );
 
   const roleColumns = {
-    Manager: tableColumnsManager,
-    Agent: tableColumnsAgent,
+    Manager: tableColumns,
+    Agent: tableColumns,
   };
-
-  const role = user?.roles[0]?.roleName;
 
   const [dynamicColumns, setDynamicColumns] = useState(
     roleColumns[role] || tableColumns
@@ -57,46 +51,118 @@ const Index = () => {
     roleColumns[role] || tableColumns
   );
   const [action, setAction] = useState(false);
-  const [dateTime, setDateTime] = useState({
-    from: "",
-    to: "",
-  });
-  const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
-  const { isOpen } = useDisclosure();
+  const [dateTime, setDateTime] = useState({ from: "", to: "" });
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
 
-  const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
+  const [queryArgs, setQueryArgs] = useState({
+    path: `/developer/get`,
+    params: {
+      page: 1,
+      limit: 25,
+    },
+    refetchOnMountOrArgChange: true,
+  });
+
+  const {
+    data: agencyData,
+    isLoading: agencyLoading,
+    error: agencyError,
+  } = useFetchItemsQuery(
+    { path: `/agencies` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(
-      user.role === "superAdmin"
-        ? "api/invoices/"
-        : `api/invoices/?user=${user._id}`, null, "server2"
-    );
-    setData(result.data?.invoice_items || []);
-    setIsLoding(false);
-  };
+  const {
+    data: invoiceData,
+    isLoading: queryLoading,
+    error,
+    isUninitialized,
+  } = useFetchItemsQuery(queryArgs, {
+    skip: !user._id,
+    refetchOnMountOrArgChange: true,
+    refetchOnReconnect: false,
+  });
 
   useEffect(() => {
-    setColumns(tableColumns);
-  }, [action]);
+    if (agencyData && agencyData.doc) {
+      setAgencies(agencyData.doc);
+    }
+    if (agencyError) {
+      console.error("Error fetching agencies:", agencyError);
+      setAgencies([]);
+    }
+  }, [agencyData, agencyError]);
 
+  useEffect(() => {
+    setIsLoading(queryLoading || agencyLoading);
+    if (invoiceData?.doc) {
+      setData(invoiceData.doc);
+      if (committedSearchTerm || selectedAgency) {
+        setSearchedData(invoiceData.doc);
+        setDisplaySearchData(true);
+      } else {
+        setDisplaySearchData(false);
+      }
+    } else if (error) {
+      console.error("Error fetching data:", error);
+      setData([]);
+      setSearchedData([]);
+    }
+  }, [invoiceData, queryLoading, error, committedSearchTerm, selectedAgency, agencyLoading]);
+  useEffect(() => {
+    if (location.state?.refetch && !isUninitialized && user._id) {
+      setQueryArgs((prev) => ({ ...prev }));
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, isUninitialized, user._id]);
 
+  const dataColumn = useMemo(
+    () =>
+      dynamicColumns.filter((item) =>
+        selectedColumns.some((col) => col.Header === item.Header)
+      ),
+    [dynamicColumns, selectedColumns]
+  );
 
+  const fetchData = ({
+    pageIndex: newPageIndex,
+    pageSize: newPageSize,
+    search,
+    agency, // Add agency as an optional parameter
+  }) => {
+    const updatedPageIndex = newPageIndex !== undefined ? newPageIndex : pageIndex;
+    const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
+    const updatedSearch = search !== undefined ? search : committedSearchTerm;
+    const updatedAgency = agency !== undefined ? agency : selectedAgency; // Use passed agency if provided
+  
+    setPageIndex(updatedPageIndex);
+    setPageSize(updatedPageSize);
+    setCommittedSearchTerm(updatedSearch);
+  
+    const newQueryArgs = {
+      path: `/developer/get`,
+      params: {
+        page: updatedPageIndex + 1,
+        limit: updatedPageSize,
+        ...(updatedSearch && { search: updatedSearch }),
+        ...(updatedAgency && updatedAgency !== "All" && { agency: updatedAgency }),
+      },
+    };
+  
+    console.log("fetchData called with:", newQueryArgs); // Debug log
+    setQueryArgs(newQueryArgs);
+  };
   return (
     <div>
       <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
         <GridItem colSpan={6}>
-
           <CheckTable
             dateTime={dateTime}
             setDateTime={setDateTime}
-            isLoding={isLoding}
-            setIsLoding={setIsLoding}
+            isLoding={isLoading}
+            setIsLoding={setIsLoading}
             columnsData={roleColumns[role] || tableColumns}
-            isOpen={isOpen}
             setAction={setAction}
             dataColumn={dataColumn}
             action={action}
@@ -113,6 +179,18 @@ const Index = () => {
             setSelectedColumns={setSelectedColumns}
             emailAccess={emailAccess}
             callAccess={callAccess}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            totalItems={invoiceData?.totalDocs || 0}
+            totalPages={invoiceData?.totalPages || 1}
+            currentPage={invoiceData?.currentPage || 1}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            navigate={navigate}
+            agencies={agencies}
+            selectedAgency={selectedAgency}
+            setSelectedAgency={setSelectedAgency}
+            role={role}
           />
         </GridItem>
       </Grid>

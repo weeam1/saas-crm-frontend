@@ -33,7 +33,6 @@ const getLabelByValue = (value) => {
 
 const LeadCard = ({
 	_id,
-	userData,
 	intID,
 	leadId,
 	leadName,
@@ -44,7 +43,7 @@ const LeadCard = ({
 	mStatus,
 	r_u_in_uae,
 	leadCampaign,
-	leadStatus: leadStatusValue,
+	leadStatus: leadStatusValue, // This is the actual status value
 	budget,
 	approvalStatus,
 	createdDate,
@@ -53,8 +52,6 @@ const LeadCard = ({
 	cancelRequest,
 	buyLoading,
 	refreshData,
-	isPurchasing,
-	isCancelling,
 }) => {
 	const formattedCreatedDate = formattedDate(createdDate);
 	const user = JSON.parse(localStorage.getItem('user') || '{}');

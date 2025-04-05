@@ -5,7 +5,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 const CustomSearchInput = ({
 	allData,
 	setSearchbox,
-	fetchSearch,
+	// fetchSearch,
 	isPaginated = false,
 	setDisplaySearchData,
 	searchbox,
@@ -50,7 +50,7 @@ const CustomSearchInput = ({
 
 	return (
 		<InputGroup
-			width={{ sm: '100%', md: '30%' }}
+			width={{ sm: '100%', md: '50%' }}
 			mx={{ sm: 0, md: 3 }}
 			my={{ sm: '8px', md: '0' }}
 		>
@@ -69,7 +69,7 @@ const CustomSearchInput = ({
 				onChange={handleInputChange}
 				fontWeight='500'
 				ref={isPaginated ? searchbox : justARef}
-				onKeyUp={handleKeyUp}
+				// onKeyUp={handleKeyUp}
 				placeholder='Search...'
 				borderRadius='16px'
 			/>

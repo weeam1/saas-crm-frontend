@@ -30,48 +30,34 @@ import {
   Tr,
   useColorModeValue,
   useDisclosure,
+  IconButton,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import {
-  useGlobalFilter,
-  usePagination,
-  useSortBy,
-  useTable,
-} from "react-table";
-
-// Custom components
-import {
-  AddIcon,
-  DeleteIcon,
-  EditIcon,
-  SearchIcon,
-  ViewIcon,
-} from "@chakra-ui/icons";
+import EditIconSvg from "../../../../assets/img/bankaccount/ic_baseline-edit.png";
+import DeleteIconSvg from "../../../../assets/img/bankaccount/Vector.png";
+import { AddIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 import Card from "components/card/Card";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
-import Pagination from "components/pagination/Pagination";
+import Pagination from "./Pagination";
 import Spinner from "components/spinner/Spinner";
-import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Delete from "../Delete";
 import AddUser from "../Add";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { BsColumnsGap } from "react-icons/bs";
-import { CiMenuKebab } from "react-icons/ci";
 import { IoIosArrowBack } from "react-icons/io";
 import Edit from "../Edit";
 import DataNotFound from "components/notFoundData";
-import CustomSearchInput from "components/search/search";
+import CustomSearchInput from "./search";
 
 export default function CheckTable(props) {
-  // const { columnsData, action, setAction } = props;
   const {
     columnsData,
     tableData,
     fetchData,
     dataColumn,
-    isLoding,
+    isLoading: isLoding,
     allData,
     setSearchedData,
     setDisplaySearchData,
@@ -82,24 +68,32 @@ export default function CheckTable(props) {
     setDynamicColumns,
     setAction,
     action,
+    pageIndex,
+    pageSize,
+    setPageSize,
+    totalItems,
+    totalPages,
+    currentPage,
   } = props;
 
-  const textColor = useColorModeValue("gray.500", "white");
+  const textColor = "black";
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
-  // const columns = useMemo(() => columnsData, [columnsData]);
+
   const columns = useMemo(() => dataColumn, [dataColumn]);
-  const data = useMemo(() => tableData, [tableData]);
+  const data = useMemo(
+    () => (Array.isArray(tableData) ? tableData : []),
+    [tableData]
+  );
+
   const [selectedValues, setSelectedValues] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
   const [deleteModel, setDelete] = useState(false);
-  const [gopageValue, setGopageValue] = useState();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [advaceSearch, setAdvaceSearch] = useState(false);
-  const [searchClear, setSearchClear] = useState(false);
   const [searchbox, setSearchbox] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Actual search term for API
   const [manageColumns, setManageColumns] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn);
-  const [getTagValues, setGetTagValues] = useState([]);
   const [edit, setEdit] = useState(false);
   const [selectedId, setSelectedId] = useState();
   const [editData, setEditData] = useState({});
@@ -126,6 +120,7 @@ export default function CheckTable(props) {
       setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
     }
   };
+
   const handleColumnClear = () => {
     isColumnSelected = selectedColumns?.some(
       (selectedColumn) => selectedColumn?.accessor === column?.accessor
@@ -133,58 +128,69 @@ export default function CheckTable(props) {
     setTempSelectedColumns(dynamicColumns);
     setManageColumns(!manageColumns ? !manageColumns : false);
   };
+
   const initialValues = {
-    firstName: "",
-    username: "",
-    lastName: "",
+    developer_name: "",
+    email: "",
+    trn: "",
   };
+
   const validationSchema = yup.object({
-    firstName: yup.string(),
-    username: yup.string().email("User Email is invalid"),
-    lastName: yup.string(),
+    developer_name: yup.string(),
+    email: yup.string().email("Invalid email format"),
+    trn: yup.string(),
   });
+
   const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: validationSchema,
+    initialValues,
+    validationSchema,
     onSubmit: (values, { resetForm }) => {
+      // Advanced search can remain frontend-based or be adapted to API if needed
       const searchResult = allData?.filter(
         (item) =>
-          (!values?.firstName ||
-            (item?.firstName &&
-              item?.firstName
+          (!values?.developer_name ||
+            (item?.developer_name &&
+              item?.developer_name
                 .toLowerCase()
-                .includes(values?.firstName?.toLowerCase()))) &&
-          (!values?.username ||
-            (item?.username &&
-              item?.username
+                .includes(values?.developer_name?.toLowerCase()))) &&
+          (!values?.email ||
+            (item?.email &&
+              item?.email
                 .toLowerCase()
-                .includes(values?.username?.toLowerCase()))) &&
-          (!values?.lastName ||
-            (item?.lastName &&
-              item?.lastName
-                .toLowerCase()
-                .includes(values?.lastName?.toLowerCase())))
+                .includes(values?.email?.toLowerCase()))) &&
+          (!values?.trn ||
+            (item?.trn &&
+              item?.trn.toLowerCase().includes(values?.trn?.toLowerCase())))
       );
-      let getValue = [
-        values.firstName,
-        values?.username,
-        values?.lastName,
-      ].filter((value) => value);
-      setGetTagValues(getValue);
+
       setSearchedData(searchResult);
       setDisplaySearchData(true);
       setAdvaceSearch(false);
-      setSearchClear(true);
       resetForm();
     },
   });
+
+  const handleFetchSearch = (term, field) => {
+    setSearchTerm(term);
+    if (term) {
+      fetchData({ pageIndex: 0, pageSize, search: term, field }); // Pass field
+    } else {
+      fetchData({ pageIndex: 0, pageSize });
+    }
+    setDisplaySearchData(!!term);
+  };
+
   const handleClear = () => {
+    setSearchbox("");
+    setSearchTerm("");
     setDisplaySearchData(false);
+    fetchData({ pageIndex: 0, pageSize });
   };
 
   useEffect(() => {
     setSearchedData && setSearchedData(data);
-  }, []);
+  }, [data, setSearchedData]);
+
   const {
     errors,
     touched,
@@ -192,45 +198,13 @@ export default function CheckTable(props) {
     handleBlur,
     handleChange,
     handleSubmit,
-    setFieldValue,
     resetForm,
     dirty,
   } = formik;
+
   const handleClick = () => {
     onOpen();
   };
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0 },
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = tableInstance;
-
-  if (pageOptions.length < gopageValue) {
-    setGopageValue(pageOptions.length);
-  }
 
   const handleCheckboxChange = (event, value) => {
     if (event.target.checked) {
@@ -242,12 +216,33 @@ export default function CheckTable(props) {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [action]);
+  const handlePageChange = (page) => {
+    fetchData({ pageIndex: page - 1, pageSize, search: searchTerm });
+  };
 
-  const handleSearch = (results) => {
-    setSearchedData(results);
+  const handlePageSizeChange = (e) => {
+    const newSize = Number(e.target.value);
+    if (!newSize || newSize <= 0) {
+      console.warn("Invalid pageSize in handlePageSizeChange:", newSize);
+      return;
+    }
+    setPageSize(newSize);
+    fetchData({ pageIndex: 0, pageSize: newSize, search: searchTerm });
+  };
+
+  const handleDeleteClose = () => {
+    setDelete(false);
+    setSelectedValues([]);
+  };
+
+  const handleAddClose = () => {
+    onClose();
+  };
+
+  const handleEditClose = () => {
+    setEdit(false);
+    setSelectedId(null);
+    setEditData({});
   };
 
   return (
@@ -267,51 +262,30 @@ export default function CheckTable(props) {
           >
             <Flex alignItems={"center"} flexWrap={"wrap"}>
               <Text
-                color={useColorModeValue("secondaryGray.900", "white")}
+                color="black"
                 fontSize="22px"
                 fontWeight="700"
                 lineHeight="100%"
               >
                 Developers (
-                <CountUpComponent
-                  key={data?.length}
-                  targetNumber={data?.length}
-                />
-                )
+                <CountUpComponent key={totalItems} targetNumber={totalItems} />)
               </Text>
               <CustomSearchInput
-                setSearchbox={setSearchbox}
-                setDisplaySearchData={setDisplaySearchData}
                 searchbox={searchbox}
-                allData={allData}
-                dataColumn={dataColumn}
-                onSearch={handleSearch}
+                setSearchbox={setSearchbox}
+                fetchSearch={handleFetchSearch}
+                isLoading={isLoding}
               />
-              <Button
-                variant="outline"
-                colorScheme="brand"
-                leftIcon={<SearchIcon />}
-                onClick={() => setAdvaceSearch(true)}
-                size="sm"
-              >
-                Advance Search
-              </Button>
-              {displaySearchData === true ? (
+              {displaySearchData && (
                 <Button
                   variant="outline"
                   size="sm"
                   colorScheme="red"
                   ms={2}
-                  onClick={() => {
-                    handleClear();
-                    setSearchbox("");
-                    setGetTagValues([]);
-                  }}
+                  onClick={handleClear}
                 >
-                  clear
+                  Clear
                 </Button>
-              ) : (
-                ""
               )}
               {selectedValues.length > 0 && (
                 <DeleteIcon
@@ -329,125 +303,133 @@ export default function CheckTable(props) {
             alignItems={"center"}
             textAlign={"right"}
           >
-            <Menu isLazy>
-              <MenuButton p={4}>
+            {/* <Menu isLazy>
+              <MenuButton p={4} zIndex={10000}>
                 <BsColumnsGap />
               </MenuButton>
-              <MenuList
-                minW={"fit-content"}
-                transform={"translate(1670px, 60px)"}
-                zIndex={2}
-              >
+              <MenuList minW={"fit-content"} zIndex={10000}>
                 <MenuItem
                   onClick={() => setManageColumns(true)}
                   width={"165px"}
                 >
-                  {" "}
                   Manage Columns
                 </MenuItem>
-                
               </MenuList>
-            </Menu>
+            </Menu> */}
             <Button
               onClick={() => handleClick()}
-              variant="brand"
+              bg="#B79045"
+              color="white"
               size="sm"
+              w="118px"
+              h="40px"
               leftIcon={<AddIcon />}
+              borderRadius="6px"
+              _hover={{ bg: "#A77F3A" }}
             >
               Add New
             </Button>
+
             <Button
               onClick={() => navigate("/admin-setting")}
-              variant="brand"
+              bg="#B79045"
+              color="white"
               size="sm"
-              leftIcon={<IoIosArrowBack />}
+              w="84px"
+              h="40px"
               ml={2}
+              borderRadius="6px"
+              _hover={{ bg: "#A77F3A" }}
             >
               Back
             </Button>
           </GridItem>
-          <HStack spacing={4}>
-            {getTagValues &&
-              getTagValues.map((item) => (
-                <Tag
-                  size={"md"}
-                  p={2}
-                  key={item}
-                  borderRadius="full"
-                  variant="solid"
-                  colorScheme="gray"
-                >
-                  <TagLabel>{item}</TagLabel>
-                  {/* <TagCloseButton /> */}
-                </Tag>
-              ))}
-          </HStack>
         </Grid>
-        {/* Delete model */}
-        {/* <Delete
+
+        <Delete
           isOpen={deleteModel}
-          onClose={setDelete}
+          onClose={handleDeleteClose}
+          id={selectedValues.length === 1 ? selectedValues[0] : null}
+          method={selectedValues.length > 1 ? "many" : "one"}
+          data={selectedValues}
+          fetchData={fetchData}
           setAction={setAction}
           setSelectedValues={setSelectedValues}
-          url="api/user/deleteMany"
-          data={selectedValues}
-          method="many"
-        /> */}
-
-        <Box overflowY={"auto"} className="table-fix-container">
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          currentPage={currentPage}
+        />
+        <Box mb={2}>
+          {totalItems > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              totalItems={totalItems}
+              itemsPerPage={pageSize}
+              setPageSize={setPageSize}
+              handlePageSize={handlePageSizeChange}
+              refetching={isLoding}
+              loading={isLoding}
+            />
+          )}
+        </Box>
+        <Box
+          overflowY={"auto"}
+          className="table-fix-container"
+          position="relative"
+          zIndex={0}
+        >
           <Table
-            {...getTableProps()}
             variant="simple"
-            color="gray.500"
+            color="black"
             mb="24px"
+            fontFamily="'DM Sans', sans-serif"
           >
-            <Thead>
-              {headerGroups?.map((headerGroup, index) => (
-                <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers?.map((column, index) => (
-                    <Th
-                      {...column.getHeaderProps(
-                        column.isSortable !== false &&
-                          column.getSortByToggleProps()
-                      )}
-                      pe="10px"
-                      key={index}
-                      borderColor={borderColor}
+            <Thead
+              sx={{
+                "& th": {
+                  bg: "#EDD199 !important",
+                  paddingY: "15px",
+                  fontWeight: "500 !important",
+                },
+              }}
+              zIndex={0}
+            >
+              {columns.map((column, index) => (
+                <Th
+                  key={index}
+                  pe="10px"
+                  borderColor={borderColor}
+                  color="black"
+                  minW={column.Header === "#" ? "30px" : undefined}
+                  maxW={column.Header === "#" ? "30px" : undefined}
+                  w={column.Header === "#" ? "30px" : undefined}
+                >
+                  <Flex
+                    align="center"
+                    justifyContent={column.center ? "center" : "start"}
+                    fontSize={{ sm: "14px", lg: "16px" }}
+                    color="black"
+                  >
+                    <span
+                      style={{
+                        textTransform: "capitalize",
+                        marginRight: "8px",
+                        visibility:
+                          column.Header === "#" || column.Header === "Action"
+                            ? "hidden"
+                            : "visible",
+                      }}
                     >
-                      <Flex
-                        align="center"
-                        justifyContent={column.center ? "center" : "start"}
-                        fontSize={{ sm: "14px", lg: "16px" }}
-                        color=" secondaryGray.900"
-                      >
-                        <span
-                          style={{
-                            textTransform: "capitalize",
-                            marginRight: "8px",
-                          }}
-                        >
-                          {column.render("Header")}
-                        </span>
-                        {column.isSortable !== false && (
-                          <span>
-                            {column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <FaSortDown />
-                              ) : (
-                                <FaSortUp />
-                              )
-                            ) : (
-                              <FaSort />
-                            )}
-                          </span>
-                        )}
-                      </Flex>
-                    </Th>
-                  ))}
-                </Tr>
+                      {column.Header}
+                    </span>
+                  </Flex>
+                </Th>
               ))}
             </Thead>
-            <Tbody {...getTableBodyProps()}>
+            <Tbody>
               {isLoding ? (
                 <Tr>
                   <Td colSpan={columns?.length}>
@@ -478,167 +460,130 @@ export default function CheckTable(props) {
                   </Td>
                 </Tr>
               ) : (
-                page?.map((row, i) => {
-                  prepareRow(row);
-                  return (
-                    <Tr {...row?.getRowProps()} key={i}>
-                      {row?.cells?.map((cell, index) => {
-                        let data = "";
-                        if (cell?.column.Header === "#") {
-                          data = (
-                            <Flex align="center">
-                              <Text
-                                color={textColor}
-                                fontSize="sm"
-                                fontWeight="700"
-                              >
-                                {cell?.row?.index + 1}
-                              </Text>
-                            </Flex>
-                          );
-                        }
-                         else if (cell?.column.Header === "TRN") {
-                          data = (
-                              <Text>{cell?.value || "-"}</Text>
-                          );
-                        }
-                         else if (cell?.column.Header === "Developer Name") {
-                          data = (
-                            <Text
-                              me="10px"
-                              fontSize="sm"
-                              fontWeight="700"
-                            
-                            >{cell?.value || "-"}</Text> 
-                          );
-                        } else if (cell?.column.Header === "Address") {
-                          data = (
-                            <Text
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
-                        } else if (cell?.column.Header === "Email ID") {
-                          data = (
-                            <Text
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
-                        } else if (cell?.column.Header === "Action") {
-                          data = (
-                            <Text
-                              fontSize="md"
-                              fontWeight="900"
-                              textAlign={"center"}
-                            >
-                              <Menu isLazy>
-                                <MenuButton>
-                                  <CiMenuKebab />
-                                </MenuButton>
-                                <MenuList
-                                  minW={"fit-content"}
-                                  transform={"translate(1520px, 173px);"}
-                                >
-                                  <MenuItem
-                                    py={2.5}
-                                    onClick={() => {
-                                      setEdit(true);
-                                      setSelectedId(cell?.row?.original._id);
-                                      setEditData(cell?.row?.original);
-                                    }}
-                                    icon={<EditIcon mb={1} fontSize={15} />}
-                                  >
-                                    Edit
-                                  </MenuItem>
-                                  <MenuItem
-                                    py={2.5}
-                                    color={"green"}
-                                    onClick={() =>
-                                      navigate(
-                                        `/userView/${cell?.row?.values._id}`
-                                      )
-                                    }
-                                    icon={<ViewIcon mb={1} fontSize={15} />}
-                                  >
-                                    View
-                                  </MenuItem>
-                                  {cell?.row?.original?.role ===
-                                  "superAdmin" ? (
-                                    ""
-                                  ) : (
-                                    <MenuItem
-                                      py={2.5}
-                                      color={"red"}
-                                      onClick={() => {
-                                        setSelectedValues([
-                                          cell?.row?.original._id,
-                                        ]);
-                                        setDelete(true);
-                                      }}
-                                      icon={<DeleteIcon fontSize={15} />}
-                                    >
-                                      Delete
-                                    </MenuItem>
-                                  )}
-                                </MenuList>
-                              </Menu>
-                            </Text>
-                          );
-                        }
-                        return (
-                          <Td
-                            {...cell?.getCellProps()}
-                            key={index}
-                            fontSize={{ sm: "14px" }}
-                            minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                            borderColor="transparent"
-                          >
-                            {data}
-                          </Td>
+                data?.map((row, i) => (
+                  <Tr key={i}>
+                    {columns.map((column, index) => {
+                      let cellValue = row[column.accessor];
+                      let data = "";
+                      if (column.Header === "#") {
+                        data = (
+                          <Flex align="center">
+                            {/* <Checkbox
+                              colorScheme="brandScheme"
+                              isChecked={selectedValues.includes(row._id)}
+                              onChange={(e) => handleCheckboxChange(e, row._id)}
+                              me="4px"
+                            /> */}
+                          </Flex>
                         );
-                      })}
-                    </Tr>
-                  );
-                })
+                      } else if (column.Header === "TRN") {
+                        data = <Text>{cellValue || "-"}</Text>;
+                      } else if (column.Header === "Developer Name") {
+                        data = (
+                          <Flex align="center" gap={2}>
+                            <Text fontSize="sm">{cellValue || "-"}</Text>
+                          </Flex>
+                        );
+                      } else if (column.Header === "Address") {
+                        data = (
+                          <Flex align="center" gap={2}>
+                            <Text fontSize="sm">{cellValue || "-"}</Text>
+                          </Flex>
+                        );
+                      } else if (column.Header === "Email ID") {
+                        data = <Text color="#8247FF">{cellValue || "-"}</Text>;
+                      } else if (column.Header === "Action") {
+                        data = (
+                          <Flex justifyContent="center" gap={2}>
+                            <IconButton
+                              icon={
+                                <img
+                                  src={EditIconSvg}
+                                  alt="Edit"
+                                  style={{ width: "17px", height: "17px" }}
+                                />
+                              }
+                              size="xs"
+                              onClick={() => {
+                                setEdit(true);
+                                setSelectedId(row._id);
+                                setEditData(row);
+                              }}
+                            />
+                            {row?.role !== "superAdmin" && (
+                              <IconButton
+                                icon={
+                                  <img
+                                    src={DeleteIconSvg}
+                                    alt="Delete"
+                                    style={{ width: "17px", height: "17px" }}
+                                  />
+                                }
+                                size="xs"
+                                onClick={() => {
+                                  setSelectedValues([row._id]);
+                                  setDelete(true);
+                                }}
+                              />
+                            )}
+                            {row?.role !== "superAdmin" && (
+                              <IconButton
+                                icon={
+                                  <ViewIcon color="#B79045" boxSize="17px" />
+                                }
+                                size="xs"
+                                onClick={() => {
+                                  navigate(`/developer/${row._id}`);
+                                }}
+                              />
+                            )}
+                          </Flex>
+                        );
+                      }
+                      return (
+                        <Td
+                          key={index}
+                          fontSize={{ sm: "14px" }}
+                          minW={
+                            column.Header === "#"
+                              ? "30px"
+                              : { sm: "150px", md: "200px", lg: "auto" }
+                          }
+                          maxW={column.Header === "#" ? "30px" : undefined}
+                          w={column.Header === "#" ? "30px" : undefined}
+                          borderColor="transparent"
+                          color="black"
+                        >
+                          {data}
+                        </Td>
+                      );
+                    })}
+                  </Tr>
+                ))
               )}
             </Tbody>
           </Table>
         </Box>
-        {data?.length > 5 && (
-          <Pagination
-            gotoPage={gotoPage}
-            gopageValue={gopageValue}
-            setGopageValue={setGopageValue}
-            pageCount={pageCount}
-            canPreviousPage={canPreviousPage}
-            previousPage={previousPage}
-            canNextPage={canNextPage}
-            pageOptions={pageOptions}
-            setPageSize={setPageSize}
-            nextPage={nextPage}
-            pageSize={pageSize}
-            pageIndex={pageIndex}
-          />
-        )}
       </Card>
       <AddUser
+        fetchData={fetchData}
         isOpen={isOpen}
-        size={"lg"}
         setAction={setAction}
-        onClose={onClose}
+        onClose={handleAddClose}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
       />
-      {/* <Edit
+      <Edit
         isOpen={edit}
-        size={"sm"}
         setAction={setAction}
-        onClose={onClose}
+        onClose={handleEditClose}
         fetchData={fetchData}
         data={editData}
         setEdit={setEdit}
         selectedId={selectedId}
-      /> */}
-      {/* Advance filter */}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+      />
       <Modal
         onClose={() => {
           setAdvaceSearch(false);
@@ -668,20 +613,21 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  First Name
+                  Developer Name
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.firstName}
-                  name="firstName"
-                  placeholder="Enter First Name"
+                  value={values?.developer_name}
+                  name="developer_name"
+                  placeholder="Enter Developer Name"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.firstName && touched.firstName && errors.firstName}
+                  {errors.developer_name &&
+                    touched.developer_name &&
+                    errors.developer_name}
                 </Text>
               </GridItem>
               <GridItem colSpan={{ base: 12 }}>
@@ -694,20 +640,19 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  Last Name
+                  Email ID
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.lastName}
-                  name="lastName"
-                  placeholder="Enter Last Name"
+                  value={values?.email}
+                  name="email"
+                  placeholder="Enter Email ID"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.lastName && touched.lastName && errors.lastName}
+                  {errors.email && touched.email && errors.email}
                 </Text>
               </GridItem>
               <GridItem colSpan={{ base: 12 }}>
@@ -720,20 +665,19 @@ export default function CheckTable(props) {
                   mb="0"
                   mt={2}
                 >
-                  Email Id
+                  TRN
                 </FormLabel>
                 <Input
                   fontSize="sm"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values?.username}
-                  name="username"
-                  placeholder="Enter User Name"
+                  value={values?.trn}
+                  name="trn"
+                  placeholder="Enter TRN"
                   fontWeight="500"
                 />
                 <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.username && touched.username && errors.username}
+                  {errors.trn && touched.trn && errors.trn}
                 </Text>
               </GridItem>
             </Grid>
@@ -759,7 +703,6 @@ export default function CheckTable(props) {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {/* Manage Columns */}
       <Modal
         onClose={() => {
           setManageColumns(false);
@@ -787,7 +730,7 @@ export default function CheckTable(props) {
                         selectedColumn.accessor === column.accessor
                     )}
                     onChange={() => toggleColumnVisibility(column.accessor)}
-                    pe={2}
+                    pe={4}
                   />
                   {column.Header}
                 </Text>
