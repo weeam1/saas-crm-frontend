@@ -31,7 +31,7 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
 							onClick={() => handleTabClick(tab)}
 							bg={activeTab === tab ? '#b79045' : 'white'}
 							color={activeTab === tab ? 'white' : 'black'}
-							_hover={{ bg: activeTab === tab ? '#b79045' : 'gray.200' }}
+							_hover={{ bg: activeTab === tab ? 'brand.400' : 'white' }}
 							border='1px solid'
 							borderColor='gray.300'
 							fontFamily='DM Sans'
