@@ -7,7 +7,12 @@ import {
 	ModalFooter,
 	Button,
 	Select,
+	Flex,
+	Icon,
+	Text,
+	Box,
 } from '@chakra-ui/react';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
 import { buttonStyle } from 'utils/btn';
 
 const ReplaceManager = ({
@@ -19,11 +24,28 @@ const ReplaceManager = ({
 	handleProceed,
 }) => {
 	return (
-		<Modal isOpen={isOpen} isCentered>
+		<Modal isOpen={isOpen} isCentered size='lg'>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Select Replacement Manager</ModalHeader>
 				<ModalBody>
+					<Box
+						bg='blue.50'
+						border='1px solid'
+						borderColor='blue.200'
+						p={4}
+						mb='4'
+						borderRadius='md'
+					>
+						<Flex align='center' gap={2}>
+							<Icon as={AiOutlineInfoCircle} color='blue.500' boxSize={5} />
+							<Text fontSize='sm' color='blue.800'>
+								You’ve changed the user’s role from <strong>Manager</strong> to
+								another role. Please select a replacement manager to proceed
+								with reassigning their leads.
+							</Text>
+						</Flex>
+					</Box>
 					<Select
 						placeholder='Select a manager'
 						value={replacementManager}
