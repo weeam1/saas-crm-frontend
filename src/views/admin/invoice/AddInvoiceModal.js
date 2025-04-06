@@ -110,7 +110,7 @@ const AddInvoice = (props) => {
 	};
 
 	const handleAddBankAccount = () => {
-		navigate('/bank-accounts');
+		navigate('/invoice/bank-accounts');
 	};
 
 	const modalSize = useBreakpointValue({

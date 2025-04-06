@@ -10,9 +10,9 @@ import {
 	Th,
 	Td,
 	Button,
-	Skeleton,
 	HStack,
 	useBreakpointValue,
+	useColorModeValue,
 	Menu,
 	MenuButton,
 	MenuList,
@@ -35,6 +35,9 @@ import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 
 const AddEntry = ({ props }) => {
+	const textColor = useColorModeValue('gray.500', 'white');
+	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
+
 	const tableSize = useBreakpointValue({ base: 'sm', md: 'md', lg: 'lg' });
 	const fontSizeTh = useBreakpointValue({ base: 'xs', md: 'sm', lg: 'md' });
 	const fontSizeTd = useBreakpointValue({ base: 'xs', md: 'sm', lg: 'md' });
@@ -170,7 +173,7 @@ const AddEntry = ({ props }) => {
 	}
 
 	// Fixed table height constants
-	const fixedTableHeight = '700px';
+	const fixedTableHeight = tableData?.length > 10 ? '700px' : 'fit-content';
 	const rowHeight = 48;
 	const headerHeight = 48;
 
@@ -181,10 +184,12 @@ const AddEntry = ({ props }) => {
 			</AppButton>
 
 			<Box
-				bg='gray.50'
+				bg='white'
 				p={paddingX}
 				fontFamily="'DM Sans', sans-serif"
 				minH='100vh'
+				borderRadius='lg'
+				shadow='sm'
 			>
 				{/* Header Section */}
 				<Flex
@@ -192,27 +197,16 @@ const AddEntry = ({ props }) => {
 					justifyContent='space-between'
 					alignItems='center'
 					flexDir={{ base: 'column', sm: 'row' }}
-					bg='white'
-					p={4}
-					borderRadius='lg'
-					boxShadow='sm'
+					p={2}
 				>
-					<HStack spacing={3} mb={{ base: 4, sm: 0 }}>
-						<Text
-							fontSize={{ base: 'md', md: 'lg', lg: '2xl' }}
-							fontWeight='bold'
-							color='gray.800'
-						>
-							Add Entry
-						</Text>
-						<Text
-							fontSize={{ base: 'md', md: 'lg', lg: '2xl' }}
-							fontWeight='bold'
-							color='gray.800'
-						>
-							(<CountUpComponent targetNumber={docLength} />)
-						</Text>
-					</HStack>
+					<Text
+						color={'secondaryGray.900'}
+						fontSize='22px'
+						fontWeight='700'
+						mb={{ base: 2, md: 0 }}
+					>
+						Entries (<CountUpComponent targetNumber={docLength} />)
+					</Text>
 
 					<HStack spacing={3}>
 						<Button
