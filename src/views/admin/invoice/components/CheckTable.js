@@ -113,7 +113,6 @@ export default function CheckTable(props) {
 	});
 
 	const handleClick = () => {
-		console.log('Add New button clicked, opening modal');
 		onAddOpen();
 	};
 
@@ -187,7 +186,6 @@ export default function CheckTable(props) {
 	};
 
 	const handleAgencySelect = (agencyId) => {
-		console.log('Selected Agency ID:', agencyId); // Debug log
 		setSelectedAgency(agencyId); // Update state for UI consistency
 		fetchData({ pageIndex: 0, pageSize, agency: agencyId }); // Pass agencyId directly
 		setAgencyFilterOpen(false);
@@ -514,195 +512,203 @@ export default function CheckTable(props) {
 				</Box>
 
 				{/* Add New Modal */}
-				<Modal isOpen={isAddOpen} onClose={onAddClose} isCentered size='xl'>
-					<ModalOverlay />
-					<ModalContent>
-						<Add
-							isOpen={isAddOpen}
-							onClose={onAddClose}
-							fetchData={fetchData}
-							pageIndex={pageIndex}
-							pageSize={pageSize}
-							setAction={setAction}
-							refetch
-						/>
-					</ModalContent>
-				</Modal>
+				{isAddOpen && (
+					<Add
+						isOpen={isAddOpen}
+						onClose={onAddClose}
+						fetchData={fetchData}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+						setAction={setAction}
+						refetch
+					/>
+				)}
 
 				{/* Advanced Search Modal */}
-				<Modal
-					onClose={() => setAdvaceSearch(false)}
-					isOpen={advaceSearch}
-					isCentered
-				>
-					<ModalOverlay />
-					<ModalContent>
-						<ModalHeader>Advanced Search</ModalHeader>
-						<ModalCloseButton />
-						<ModalBody>
-							<Grid templateColumns='repeat(12, 1fr)' gap={2}>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel fontSize='sm' fontWeight='600'>
-										TRN
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										name='trn'
-										value={values.trn}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Enter TRN'
-									/>
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel fontSize='sm' fontWeight='600'>
-										Developer Name
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										name='developer_name'
-										value={values.developer_name}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Enter Developer Name'
-									/>
-								</GridItem>
-							</Grid>
-						</ModalBody>
-						<ModalFooter>
-							<Button
-								colorScheme='brand'
-								size='sm'
-								mr={2}
-								onClick={handleSubmit}
-							>
-								Search
-							</Button>
-							<Button
-								colorScheme='red'
-								variant='outline'
-								size='sm'
-								onClick={() => resetForm()}
-							>
-								Clear
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal>
+				{advaceSearch && (
+					<Modal
+						onClose={() => setAdvaceSearch(false)}
+						isOpen={advaceSearch}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Advanced Search</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<Grid templateColumns='repeat(12, 1fr)' gap={2}>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='sm' fontWeight='600'>
+											TRN
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											name='trn'
+											value={values.trn}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Enter TRN'
+										/>
+									</GridItem>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='sm' fontWeight='600'>
+											Developer Name
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											name='developer_name'
+											value={values.developer_name}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Enter Developer Name'
+										/>
+									</GridItem>
+								</Grid>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									colorScheme='brand'
+									size='sm'
+									mr={2}
+									onClick={handleSubmit}
+								>
+									Search
+								</Button>
+								<Button
+									colorScheme='red'
+									variant='outline'
+									size='sm'
+									onClick={() => resetForm()}
+								>
+									Clear
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
 
 				{/* Agency Filter Modal */}
-				<Modal
-					fontFamily="'DM Sans', sans-serif"
-					onClose={() => setAgencyFilterOpen(false)}
-					isOpen={agencyFilterOpen}
-					isCentered
-				>
-					<ModalOverlay />
-					<ModalContent>
-						<ModalHeader>Agency Filter</ModalHeader>
-						<ModalCloseButton />
-						<ModalBody>
-							<FormLabel fontSize='sm' fontWeight='600'>
-								Select Agency
-							</FormLabel>
-							<Select
-								value={tempSelectedAgency}
-								onChange={(e) => setTempSelectedAgency(e.target.value)}
-								mb={4}
-							>
-								<option value='All'>All</option>
-								{agencies.length > 0 ? (
-									agencies.map((agency) => (
-										<option key={agency._id} value={agency._id}>
-											{agency.name}
-										</option>
-									))
-								) : (
-									<option disabled>No agencies available</option>
+				{agencyFilterOpen && (
+					<Modal
+						fontFamily="'DM Sans', sans-serif"
+						onClose={() => setAgencyFilterOpen(false)}
+						isOpen={agencyFilterOpen}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Agency Filter</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<FormLabel fontSize='sm' fontWeight='600'>
+									Select Agency
+								</FormLabel>
+								<Select
+									value={tempSelectedAgency}
+									onChange={(e) => setTempSelectedAgency(e.target.value)}
+									mb={4}
+								>
+									<option value='All'>All</option>
+									{agencies.length > 0 ? (
+										agencies.map((agency) => (
+											<option key={agency._id} value={agency._id}>
+												{agency.name}
+											</option>
+										))
+									) : (
+										<option disabled>No agencies available</option>
+									)}
+								</Select>
+								{agencies.length === 0 && (
+									<Text fontSize='sm' color='gray.500'>
+										No agencies available at the moment.
+									</Text>
 								)}
-							</Select>
-							{agencies.length === 0 && (
-								<Text fontSize='sm' color='gray.500'>
-									No agencies available at the moment.
-								</Text>
-							)}
-						</ModalBody>
-						<ModalFooter>
-							<Button
-								variant='outline'
-								bg='#e2e8f0'
-								size='md'
-								w='100px'
-								borderRadius='3px'
-								mr={2}
-								onClick={() => setAgencyFilterOpen(false)}
-							>
-								Close
-							</Button>
-							<Button
-								bg='#d99a36'
-								color='white'
-								w='100px'
-								borderRadius='3px'
-								size='md'
-								onClick={() => handleAgencySelect(tempSelectedAgency)}
-							>
-								Apply
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									variant='outline'
+									bg='#e2e8f0'
+									size='md'
+									w='100px'
+									borderRadius='3px'
+									mr={2}
+									onClick={() => setAgencyFilterOpen(false)}
+								>
+									Close
+								</Button>
+								<Button
+									bg='#d99a36'
+									color='white'
+									w='100px'
+									borderRadius='3px'
+									size='md'
+									onClick={() => handleAgencySelect(tempSelectedAgency)}
+								>
+									Apply
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
 
 				{/* Manage Columns Modal */}
-				<Modal
-					onClose={() => setManageColumns(false)}
-					isOpen={manageColumns}
-					isCentered
-				>
-					<ModalOverlay />
-					<ModalContent>
-						<ModalHeader>Manage Columns</ModalHeader>
-						<ModalCloseButton />
-						<ModalBody>
-							{dynamicColumns.map((column) => (
-								<Text display='flex' key={column.accessor || column.id} py={2}>
-									<Checkbox
-										isChecked={tempSelectedColumns.some(
-											(c) =>
-												(c.accessor || c.id) === (column.accessor || column.id)
-										)}
-										onChange={() =>
-											toggleColumnVisibility(column.accessor || column.id)
-										}
-										pe={2}
-									/>
-									{column.Header}
-								</Text>
-							))}
-						</ModalBody>
-						<ModalFooter>
-							<Button
-								colorScheme='brand'
-								size='sm'
-								mr={2}
-								onClick={() => {
-									setSelectedColumns(tempSelectedColumns);
-									setManageColumns(false);
-								}}
-							>
-								Save
-							</Button>
-							<Button
-								variant='outline'
-								colorScheme='red'
-								size='sm'
-								onClick={() => setManageColumns(false)}
-							>
-								Close
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal>
+				{manageColumns && (
+					<Modal
+						onClose={() => setManageColumns(false)}
+						isOpen={manageColumns}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Manage Columns</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								{dynamicColumns.map((column) => (
+									<Text
+										display='flex'
+										key={column.accessor || column.id}
+										py={2}
+									>
+										<Checkbox
+											isChecked={tempSelectedColumns.some(
+												(c) =>
+													(c.accessor || c.id) ===
+													(column.accessor || column.id)
+											)}
+											onChange={() =>
+												toggleColumnVisibility(column.accessor || column.id)
+											}
+											pe={2}
+										/>
+										{column.Header}
+									</Text>
+								))}
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									colorScheme='brand'
+									size='sm'
+									mr={2}
+									onClick={() => {
+										setSelectedColumns(tempSelectedColumns);
+										setManageColumns(false);
+									}}
+								>
+									Save
+								</Button>
+								<Button
+									variant='outline'
+									colorScheme='red'
+									size='sm'
+									onClick={() => setManageColumns(false)}
+								>
+									Close
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
 			</Card>
 		</>
 	);

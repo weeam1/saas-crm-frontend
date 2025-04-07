@@ -58,8 +58,6 @@ const AddInvoice = (props) => {
 		error: bankAccountsError,
 	} = useFetchItemsQuery({ path: `/developer/get/${id}` });
 
-	console.log('bankAccountsData', bankAccountsData, id);
-
 	useEffect(() => {
 		if (bankAccountsData && bankAccountsData.data) {
 			dispatch(setBankAccounts(bankAccountsData.data.bankAccounts || []));

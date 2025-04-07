@@ -640,38 +640,46 @@ const AddEntry = ({ props }) => {
 				)}
 
 				{/* Modals */}
-				<Add
-					isOpen={isAddModalOpen}
-					onClose={() => setIsAddModalOpen(false)}
-					fetchData={refetch}
-					setAction={() => {}}
-					invoiceId={id}
-				/>
-				<Edit
-					isOpen={isEditModalOpen}
-					onClose={() => {
-						setIsEditModalOpen(false);
-						setSelectedId(null);
-					}}
-					selectedId={selectedId}
-					invoiceId={id}
-					fetchData={refetch}
-					setAction={() => {}}
-				/>
-				<Delete
-					isOpen={isDeleteModalOpen}
-					onClose={() => {
-						setIsDeleteModalOpen(false);
-						setSelectedId(null);
-					}}
-					id={selectedId}
-					method='one'
-					fetchData={refetch}
-					setAction={() => {}}
-					invoiceId={id}
-					developerId={developerId}
-					docLength={docLength}
-				/>
+				{isAddModalOpen && (
+					<Add
+						isOpen={isAddModalOpen}
+						onClose={() => setIsAddModalOpen(false)}
+						fetchData={refetch}
+						setAction={() => {}}
+						invoiceId={id}
+					/>
+				)}
+
+				{isEditModalOpen && (
+					<Edit
+						isOpen={isEditModalOpen}
+						onClose={() => {
+							setIsEditModalOpen(false);
+							setSelectedId(null);
+						}}
+						selectedId={selectedId}
+						invoiceId={id}
+						fetchData={refetch}
+						setAction={() => {}}
+					/>
+				)}
+
+				{isDeleteModalOpen && (
+					<Delete
+						isOpen={isDeleteModalOpen}
+						onClose={() => {
+							setIsDeleteModalOpen(false);
+							setSelectedId(null);
+						}}
+						id={selectedId}
+						method='one'
+						fetchData={refetch}
+						setAction={() => {}}
+						invoiceId={id}
+						developerId={developerId}
+						docLength={docLength}
+					/>
+				)}
 			</Box>
 		</Box>
 	);

@@ -19,6 +19,9 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 	const initialValues = {
 		name: '',
 		location: '',
+		TRN: '',
+		contactNumberPrimary: '',
+		contactNumberAlternate: '',
 	};
 
 	const validationSchema = Yup.object({
@@ -29,6 +32,17 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 	const fields = [
 		{ name: 'name', label: 'Name', type: 'text', required: true },
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
+		{ name: 'TRN', label: 'TRN', type: 'text' },
+		{
+			name: 'contactNumberPrimary',
+			label: 'Contact',
+			type: 'text',
+		},
+		{
+			name: 'contactNumberAlternate',
+			label: 'Alternate Contact',
+			type: 'text',
+		},
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();

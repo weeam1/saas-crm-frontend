@@ -54,6 +54,7 @@ import DeleteIconSvg from '../../../../assets/img/bankaccount/Vector.png';
 import EditIconSvg from '../../../../assets/img/bankaccount/ic_baseline-edit.png';
 import TableLoading from 'components/loading/TableLoading';
 import { FaEllipsisV } from 'react-icons/fa';
+import { buttonStyle } from 'utils/btn';
 
 export default function InvoiceCheckTable(props) {
 	const {
@@ -90,6 +91,7 @@ export default function InvoiceCheckTable(props) {
 	const [deleteModel, setDeleteModel] = useState(false);
 	const [advaceSearch, setAdvaceSearch] = useState(false);
 	const [selectedId, setSelectedId] = useState(null);
+	const [invoiceData, setInvoiceData] = useState(null);
 	const [manageColumns, setManageColumns] = useState(false);
 	const [selectedInvoiceNo, setSelectedInvoiceNo] = useState(null);
 	const [tempSelectedColumns, setTempSelectedColumns] =
@@ -495,16 +497,10 @@ export default function InvoiceCheckTable(props) {
 															to={`/invoice/developers/invoices/entries/${row?._id}`}
 														>
 															<Button
-																size='sm'
-																bg='#B79045'
-																w='100px'
-																_hover={{ bg: '#996F30' }}
-																_active={{ bg: '#7A5625' }}
-																fontSize='12px'
-																borderRadius='3px'
-																py='10px'
-																color='white'
-																px='16px'
+																{...buttonStyle}
+																colorScheme='brand'
+																_hover={{ bg: '#A47B38' }}
+																_active={{ bg: '#946B2E' }}
 																// onClick={() => {
 																// 	setSelectedInvoiceNo(row.invoiceNo);
 																// 	onOpen();
@@ -513,6 +509,20 @@ export default function InvoiceCheckTable(props) {
 																Add Entry
 															</Button>
 														</Link>
+
+														<Link
+															to={`/invoice/developers/invoices/view/${row?.invoiceNo}`}
+														>
+															<Button
+																{...buttonStyle}
+																colorScheme='brand'
+																_hover={{ bg: '#A47B38' }}
+																_active={{ bg: '#946B2E' }}
+															>
+																View Invoice
+															</Button>
+														</Link>
+
 														<Menu width='200px'>
 															<MenuButton
 																as={IconButton}
@@ -522,19 +532,25 @@ export default function InvoiceCheckTable(props) {
 																size='sm'
 															/>
 															<MenuList minWidth='fit-content' width='auto'>
-																{/* {access?.update && (
-                                    <MenuItem
-                                      fontSize="lg"
-                                      fontFamily="DM sans"
-                                      onClick={() => {
-                                        setEdit(true);
-                                        setSelectedId(row._id);
-                                      }}
-                                      icon={<img src={EditIconSvg} alt="Edit" width="16px" height="16px" />}
-                                    >
-                                      Edit
-                                    </MenuItem>
-                                  )} */}
+																<MenuItem
+																	fontSize='lg'
+																	fontFamily='DM sans'
+																	onClick={() => {
+																		setEdit(true);
+																		setSelectedId(row._id);
+																		setInvoiceData(row);
+																	}}
+																	icon={
+																		<img
+																			src={EditIconSvg}
+																			alt='Edit'
+																			width='16px'
+																			height='16px'
+																		/>
+																	}
+																>
+																	Edit
+																</MenuItem>
 																<MenuItem
 																	fontSize='lg'
 																	fontFamily='DM sans'
@@ -594,41 +610,48 @@ export default function InvoiceCheckTable(props) {
 					)}
 				</Box>
 
-				<Add
-					isOpen={isOpen}
-					size='xl'
-					onClose={() => {
-						setSelectedInvoiceNo(null);
-						onClose();
-					}}
-					fetchData={fetchData}
-					setAction={setAction}
-					pageIndex={pageIndex}
-					pageSize={pageSize}
-					invoiceId={selectedInvoiceNo}
-				/>
+				{isOpen && (
+					<Add
+						isOpen={isOpen}
+						size='xl'
+						onClose={() => {
+							setSelectedInvoiceNo(null);
+							onClose();
+						}}
+						fetchData={fetchData}
+						setAction={setAction}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+						invoiceId={selectedInvoiceNo}
+					/>
+				)}
 
-				<Edit
-					data={data}
-					isOpen={edit}
-					size='xl'
-					onClose={() => setEdit(false)}
-					selectedId={selectedId}
-					setSelectedId={setSelectedId}
-					setAction={setAction}
-				/>
-				<Delete
-					isOpen={deleteModel}
-					onClose={() => setDeleteModel(false)}
-					setSelectedValues={setSelectedValues}
-					data={selectedValues.length > 1 ? selectedValues : []}
-					method={selectedValues.length > 1 ? 'many' : 'one'}
-					id={selectedValues.length === 1 ? selectedValues[0] : selectedId}
-					fetchData={fetchData}
-					setAction={setAction}
-					pageIndex={pageIndex}
-					pageSize={pageSize}
-				/>
+				{edit && (
+					<Edit
+						data={invoiceData}
+						isOpen={edit}
+						size='xl'
+						onClose={() => setEdit(false)}
+						selectedId={selectedId}
+						setSelectedId={setSelectedId}
+						setAction={setAction}
+					/>
+				)}
+
+				{deleteModel && (
+					<Delete
+						isOpen={deleteModel}
+						onClose={() => setDeleteModel(false)}
+						setSelectedValues={setSelectedValues}
+						data={selectedValues.length > 1 ? selectedValues : []}
+						method={selectedValues.length > 1 ? 'many' : 'one'}
+						id={selectedValues.length === 1 ? selectedValues[0] : selectedId}
+						fetchData={fetchData}
+						setAction={setAction}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+					/>
+				)}
 
 				<Modal
 					onClose={() => setAdvaceSearch(false)}

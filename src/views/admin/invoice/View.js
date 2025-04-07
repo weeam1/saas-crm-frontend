@@ -17,6 +17,7 @@ import {
 	Menu,
 	MenuButton,
 	Modal,
+	Image,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BiError } from 'react-icons/bi';
@@ -51,7 +52,7 @@ const SingleInvoice = () => {
 	});
 
 	const invoices = invoiceData?.data?.entries || [];
-	const agencies = invoices.map((inv) => inv?.invoice?.agency);
+	const agency = invoiceData?.data?.agency || [];
 
 	const totals = {
 		total_commission_excl_vat:
@@ -229,20 +230,42 @@ const SingleInvoice = () => {
 							align={{ base: 'stretch', md: 'flex-start' }}
 							gap={4}
 						>
-							<Box w={{ base: 'full', md: '16%' }} gap={3}>
-								<img src={Weam} alt='Weam Elnaggar Real Estate' width='200px' />
-								<Text fontSize={{ base: 'xs', md: 'sm' }} mt={4}>
-									{agencies[0]?.location}
+							<Box
+								w={{ base: 'full', md: '16%' }}
+								display='flex'
+								flexDirection='column'
+								gap={2}
+							>
+								<Image
+									src={Weam}
+									alt='Weam Elnaggar Real Estate'
+									width='200px'
+									mx='auto'
+								/>
+
+								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
+									{agency?.location ?? 'N/A'}
 								</Text>
-								<Text fontSize={{ base: 'xs', md: 'sm' }} my={4}>
-									Telephone: +971-58-557-7271 | +971-56-115-0747
-								</Text>
-								<Text fontSize={{ base: 'xs', md: 'sm' }}>
-									<Text as='span' fontWeight='bold'>
-										TRN:
-									</Text>{' '}
-									104271009300003
-								</Text>
+
+								{agency?.contactNumberPrimary && (
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
+										<Text as='span' fontWeight='bold'>
+											Telephone:
+										</Text>{' '}
+										{agency.contactNumberPrimary}
+										{agency?.contactNumberAlternate &&
+											` | ${agency.contactNumberAlternate}`}
+									</Text>
+								)}
+
+								{agency?.TRN && (
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
+										<Text as='span' fontWeight='bold'>
+											TRN:
+										</Text>{' '}
+										{agency.TRN}
+									</Text>
+								)}
 							</Box>
 
 							<Box w={{ base: 'full', md: '30%' }}>
