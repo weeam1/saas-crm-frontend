@@ -48,12 +48,12 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 	const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
 	const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
 	const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
-	const totalAmount = unitPrice + totalCommissionInclVat;
+	const total_amount = unitPrice + totalCommissionInclVat;
 	return {
 		total_commission_excl_vat: totalCommissionExclVat,
 		vat_amount: vatAmount,
 		total_commission_incl_vat: totalCommissionInclVat,
-		totalAmount: totalAmount,
+		total_amount: total_amount,
 	};
 }
 
@@ -71,7 +71,7 @@ const AddEntryModal = (props) => {
 		total_commission_excl_vat: 0,
 		vat_amount: 0,
 		total_commission_incl_vat: 0,
-		totalAmount: 0,
+		total_amount: 0,
 	};
 
 	const formik = useFormik({
@@ -108,7 +108,7 @@ const AddEntryModal = (props) => {
 				total_commission_excl_vat,
 				vat_amount,
 				total_commission_incl_vat,
-				totalAmount,
+				total_amount,
 			} = calculateTotal(
 				Number(values.unit_price),
 				Number(values.commission_percentage),
@@ -119,7 +119,7 @@ const AddEntryModal = (props) => {
 				total_commission_excl_vat,
 				vat_amount,
 				total_commission_incl_vat,
-				totalAmount,
+				total_amount,
 			});
 		}
 	}, [
@@ -144,7 +144,7 @@ const AddEntryModal = (props) => {
 				),
 				vat_percentage: Number(entryValues.vat_percentage),
 				vat_amount: Number(entryValues.vat_amount),
-				total_amount: Number(entryValues.totalAmount),
+				total_amount: Number(entryValues.total_amount),
 				total_commission_incl_vat: Number(
 					entryValues.total_commission_incl_vat
 				),
@@ -487,7 +487,7 @@ const AddEntryModal = (props) => {
 								<Input
 									fontSize='14px'
 									type='text'
-									value={values.totalAmount.toLocaleString('en-US', {
+									value={values.total_amount.toLocaleString('en-US', {
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2,
 									})}

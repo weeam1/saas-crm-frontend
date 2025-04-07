@@ -18,12 +18,13 @@ import {
 	MenuList,
 	MenuItem,
 	IconButton,
+	Tooltip,
 } from '@chakra-ui/react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import DeleteIconSvg from '../../../assets/img/bankaccount/Vector.png';
 import EditIconSvg from '../../../assets/img/bankaccount/ic_baseline-edit.png';
 import { BiError } from 'react-icons/bi';
-import { FaEllipsisV } from 'react-icons/fa';
+import { FaEllipsisV, FaTrash, FaEdit } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Add from './Add';
 import Edit from './Edit';
@@ -260,7 +261,6 @@ const AddEntry = ({ props }) => {
 					<Table
 						variant='simple'
 						size={tableSize}
-						fontFamily='DM Sans'
 						minWidth={{ base: '900px', md: '100%' }}
 						border='1px solid'
 						borderColor='gray.200'
@@ -452,69 +452,32 @@ const AddEntry = ({ props }) => {
 												}
 											)}
 										</Td>
-										<Td borderColor='gray.200' py={4} px={6} width='80px'>
-											<Flex justifyContent='center'>
-												<Menu>
-													<MenuButton
-														as={IconButton}
-														aria-label='Options'
-														icon={<FaEllipsisV />}
-														variant='ghost'
+										<Td borderColor='gray.200' width='80px'>
+											<HStack spacing={2}>
+												<Tooltip label='Edit' placement='top' hasArrow>
+													<IconButton
+														icon={<FaEdit />}
+														aria-label='Edit'
 														size='sm'
+														variant='ghost'
 														color='gray.600'
-														_hover={{ color: 'gray.800', bg: 'gray.200' }}
-														transition='all 0.2s ease'
+														_hover={{ color: 'blue.600', bg: 'gray.100' }}
+														onClick={() => handleEditClick(entry._id)}
 													/>
-													<MenuList
-														minWidth='fit-content'
-														width='auto'
-														borderRadius='md'
-														boxShadow='md'
-														py={1}
-													>
-														<MenuItem
-															onClick={() => handleEditClick(entry._id)}
-															icon={
-																<img
-																	src={EditIconSvg}
-																	alt='Edit'
-																	width='16px'
-																	height='16px'
-																/>
-															}
-															minWidth='fit-content'
-															width='auto'
-															px={4}
-															py={2}
-															fontSize='sm'
-															color='gray.700'
-															_hover={{ bg: 'gray.100' }}
-														>
-															Edit
-														</MenuItem>
-														<MenuItem
-															onClick={() => handleDeleteClick(entry._id)}
-															icon={
-																<img
-																	src={DeleteIconSvg}
-																	alt='Delete'
-																	width='16px'
-																	height='16px'
-																/>
-															}
-															minWidth='fit-content'
-															width='auto'
-															px={4}
-															py={2}
-															fontSize='sm'
-															color='red.500'
-															_hover={{ bg: 'red.50' }}
-														>
-															Delete
-														</MenuItem>
-													</MenuList>
-												</Menu>
-											</Flex>
+												</Tooltip>
+
+												<Tooltip label='Delete' placement='top' hasArrow>
+													<IconButton
+														icon={<FaTrash />}
+														aria-label='Delete'
+														size='sm'
+														variant='ghost'
+														color='red.500'
+														_hover={{ bg: 'red.50' }}
+														onClick={() => handleDeleteClick(entry._id)}
+													/>
+												</Tooltip>
+											</HStack>
 										</Td>
 									</Tr>
 								))
@@ -535,7 +498,6 @@ const AddEntry = ({ props }) => {
 							<Table
 								variant='simple'
 								size={tableSize}
-								fontFamily='DM Sans'
 								border='1px solid'
 								borderColor='gray.200'
 							>
@@ -553,7 +515,30 @@ const AddEntry = ({ props }) => {
 										</Th>
 									</Tr>
 								</Thead>
-								<Tbody bg='white' fontFamily='DM Sans'>
+								<Tbody bg='white'>
+									<Tr>
+										<Td
+											fontSize={fontSizeSummaryLabel}
+											color='gray.600'
+											fontWeight='medium'
+											borderColor='gray.200'
+											py={3}
+										>
+											Subtotal
+										</Td>
+										<Td
+											fontSize={fontSizeSummaryValue}
+											color='gray.800'
+											borderColor='gray.200'
+											py={3}
+											textAlign='right'
+										>
+											{summary.subTotal.toLocaleString('en-US', {
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											})}
+										</Td>
+									</Tr>
 									<Tr>
 										<Td
 											fontSize={fontSizeSummaryLabel}
@@ -623,29 +608,7 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 									</Tr>
-									<Tr>
-										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											fontWeight='medium'
-											borderColor='gray.200'
-											py={3}
-										>
-											Subtotal
-										</Td>
-										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
-											py={3}
-											textAlign='right'
-										>
-											{summary.subTotal.toLocaleString('en-US', {
-												minimumFractionDigits: 2,
-												maximumFractionDigits: 2,
-											})}
-										</Td>
-									</Tr>
+
 									<Tr>
 										<Td
 											fontSize={fontSizeSummaryLabel}

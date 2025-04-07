@@ -134,7 +134,6 @@ const SingleInvoice = () => {
 					alignItems='center'
 					color='red'
 					fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
-					fontFamily='DM Sans'
 				>
 					<BiError size={25} style={{ marginRight: 5 }} />
 					No Invoice Found!
@@ -157,11 +156,11 @@ const SingleInvoice = () => {
 	};
 
 	return (
-		<Box>
+		<Box fontFamily="'DM Sans', sans-serif">
 			<AppButton leftIcon={<IoArrowBack />} onClick={goBack} mb='4'>
 				Back
 			</AppButton>
-			<Box bg='gray.50' p={{ base: 4, md: 6, lg: 8 }} fontFamily='DM Sans'>
+			<Box bg='gray.50' p={{ base: 4, md: 6, lg: 8 }}>
 				<Flex
 					mb={4}
 					justifyContent='space-between'
@@ -195,7 +194,7 @@ const SingleInvoice = () => {
 							>
 								Export
 							</MenuButton>
-							<MenuList fontFamily='DM Sans'>
+							<MenuList>
 								<MenuItem onClick={() => handleExport('pdf')}>
 									Export as PDF
 								</MenuItem>
@@ -392,7 +391,6 @@ const SingleInvoice = () => {
 													border='1px solid #CDCDCD'
 													py={4}
 													fontSize={{ base: 'sm', md: 'md' }}
-													fontFamily='DM sans'
 												>
 													{index + 1}
 												</Td>
@@ -500,13 +498,11 @@ const SingleInvoice = () => {
 							border='1px solid #CDCDCD'
 							flexDirection='column'
 						>
-							<Text fontWeight='bold'>Total Commission :</Text>
+							<Text fontWeight='bold'>Total Amount :</Text>
 							<Text fontSize={{ base: 'sm', md: 'md' }} wordBreak='break-word'>
-								{typeof totals.total_commission_incl_vat === 'number'
-									? convertToWords(totals.total_commission_incl_vat)
-											.charAt(0)
-											.toUpperCase() +
-										convertToWords(totals.total_commission_incl_vat).slice(1)
+								{typeof totals.totalAmount === 'number'
+									? convertToWords(totals.totalAmount).charAt(0).toUpperCase() +
+										convertToWords(totals.totalAmount).slice(1)
 									: 'N/A'}
 							</Text>
 						</Flex>
@@ -582,6 +578,28 @@ const SingleInvoice = () => {
 												border='1px solid #eee'
 												fontSize={{ base: 'xs', md: 'sm' }}
 											>
+												Subtotal
+											</Td>
+											<Td
+												textAlign='right'
+												border='1px solid #eee'
+												fontSize={{ base: 'xs', md: 'sm' }}
+											>
+												{typeof totals.subTotal === 'number'
+													? totals.subTotal.toLocaleString('en-US', {
+															minimumFractionDigits: 2,
+															maximumFractionDigits: 2,
+														})
+													: 'N/A'}{' '}
+												AED
+											</Td>
+										</Tr>
+
+										<Tr>
+											<Td
+												border='1px solid #eee'
+												fontSize={{ base: 'xs', md: 'sm' }}
+											>
 												Total Commission EXCL. VAT
 											</Td>
 											<Td
@@ -642,27 +660,6 @@ const SingleInvoice = () => {
 																maximumFractionDigits: 2,
 															}
 														)
-													: 'N/A'}{' '}
-												AED
-											</Td>
-										</Tr>
-										<Tr>
-											<Td
-												border='1px solid #eee'
-												fontSize={{ base: 'xs', md: 'sm' }}
-											>
-												Subtotal
-											</Td>
-											<Td
-												textAlign='right'
-												border='1px solid #eee'
-												fontSize={{ base: 'xs', md: 'sm' }}
-											>
-												{typeof totals.subTotal === 'number'
-													? totals.subTotal.toLocaleString('en-US', {
-															minimumFractionDigits: 2,
-															maximumFractionDigits: 2,
-														})
 													: 'N/A'}{' '}
 												AED
 											</Td>

@@ -54,9 +54,10 @@ const entrySchema = yup.object().shape({
 
 function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 	const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
-	const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
+	const vatAmount = (vatPercentage / 100) * unitPrice;
 	const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
 	const totalAmount = unitPrice + totalCommissionInclVat;
+
 	return {
 		total_commission_excl_vat: totalCommissionExclVat,
 		vat_amount: vatAmount,
@@ -158,7 +159,7 @@ const AddEntryModal = (props) => {
 					),
 					vat_percentage: Number(entryValues.vat_percentage),
 					vat_amount: Number(entryValues.vat_amount),
-					totalAmount: Number(entryValues.totalAmount),
+					total_amount: Number(entryValues.totalAmount),
 					total_commission_incl_vat: Number(
 						entryValues.total_commission_incl_vat
 					),
@@ -188,7 +189,7 @@ const AddEntryModal = (props) => {
 
 			setShowConfirmation(true);
 
-			navigate(`/add-entry/${invoiceId}`);
+			navigate(`/invoice/developers/invoices/entries/${invoiceId}`);
 		} catch (e) {
 			console.error('Error:', e);
 			toast.error(e?.data?.message || e.message || 'Operation failed');
