@@ -19,13 +19,18 @@ const InfoSection = ({ lead }) => {
 			value: lead?.attendanceDay,
 		},
 		{
-			key: 'r_u_in_uae',
-			label: 'In UAE?',
-			value:
-				typeof lead?.r_u_in_uae === 'object'
-					? lead?.r_u_in_uae?.text
-					: lead?.r_u_in_uae,
+			key: 'leadLang',
+			label: 'Lead Lang',
+			value: lead?.leadLang,
 		},
+		// {
+		// 	key: 'r_u_in_uae',
+		// 	label: 'In UAE?',
+		// 	value:
+		// 		typeof lead?.r_u_in_uae === 'object'
+		// 			? lead?.r_u_in_uae?.text
+		// 			: lead?.r_u_in_uae,
+		// },
 	];
 
 	const visibleInfoFields = infoFields.filter(
