@@ -25,6 +25,7 @@ const LeftCard = ({
 	refreshLeads,
 	role,
 	queryParams,
+	user,
 	// countryList,
 }) => {
 	const leadType = useMemo(() => {
@@ -35,9 +36,12 @@ const LeftCard = ({
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 
-	const hideContact = queryParams?.invite && role !== 'superAdmin';
-
-	console.log({ hideContact, queryParams });
+	const hideContact =
+		queryParams?.invite && role !== 'superAdmin'
+			? role === 'Manager'
+				? user?._id !== lead?.managerAssigned
+				: user?._id !== lead?.agentAssigned
+			: false;
 
 	return (
 		<Box flex='1' overflow='hidden'>
