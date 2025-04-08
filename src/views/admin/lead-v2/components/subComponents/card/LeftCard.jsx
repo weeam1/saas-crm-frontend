@@ -16,10 +16,8 @@ import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-// import { extractLocationData } from 'utils/helpers';
-// import { useSelector } from 'react-redux';
 
 const LeftCard = ({
 	lead,
@@ -36,6 +34,10 @@ const LeftCard = ({
 	const hiddenFields = JSON.parse(
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
+
+	const hideContact = queryParams?.invite && role !== 'superAdmin';
+
+	console.log({ hideContact, queryParams });
 
 	return (
 		<Box flex='1' overflow='hidden'>
@@ -142,35 +144,37 @@ const LeftCard = ({
 					</GridItem>
 				)}
 
-				<GridItem colSpan={2} display='flex' justifyContent='space-between'>
-					{/* Phone */}
-					{!hiddenFields.includes('leadPhoneNumber') && (
-						<EntityField
-							label='Phone'
-							value={
-								typeof lead?.leadPhoneNumber === 'object'
-									? lead?.leadPhoneNumber?.result
-									: lead?.leadPhoneNumber
-							}
-							isCopy
-							valueProps={{ color: '#7667FF' }}
-						/>
-					)}
+				{!hideContact && (
+					<GridItem colSpan={2} display='flex' justifyContent='space-between'>
+						{/* Phone */}
+						{!hiddenFields.includes('leadPhoneNumber') && (
+							<EntityField
+								label='Phone'
+								value={
+									typeof lead?.leadPhoneNumber === 'object'
+										? lead?.leadPhoneNumber?.result
+										: lead?.leadPhoneNumber
+								}
+								isCopy
+								valueProps={{ color: '#7667FF' }}
+							/>
+						)}
 
-					{/* WhatsApp */}
-					{!hiddenFields.includes('leadWhatsappNumber') && (
-						<EntityField
-							label='WhatsApp'
-							value={
-								typeof lead.leadWhatsappNumber === 'object'
-									? lead.leadWhatsappNumber?.result
-									: lead.leadWhatsappNumber
-							}
-							isCopy
-							valueProps={{ color: 'green.700' }}
-						/>
-					)}
-				</GridItem>
+						{/* WhatsApp */}
+						{!hiddenFields.includes('leadWhatsappNumber') && (
+							<EntityField
+								label='WhatsApp'
+								value={
+									typeof lead.leadWhatsappNumber === 'object'
+										? lead.leadWhatsappNumber?.result
+										: lead.leadWhatsappNumber
+								}
+								isCopy
+								valueProps={{ color: 'green.700' }}
+							/>
+						)}
+					</GridItem>
+				)}
 
 				{/* Last Note (occupy full width) */}
 				{!hiddenFields.includes('lastNote') && (
