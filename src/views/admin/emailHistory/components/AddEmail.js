@@ -339,25 +339,50 @@ const AddEmailHistory = (props) => {
 		setLeadLoading(false);
 	};
 
-	const defaultTemplate = `Hello,
+	// 	const defaultTemplate = `Hello,
 
-Mark your calendar! Weeam Real Estate invites you to our exclusive Property Expo.  
+	// Mark your calendar! Weeam Real Estate invites you to our exclusive Property Expo.
 
-✨ Explore:
-✅ Premier residential & commercial properties  
-✅ Expert market insights  
-✅ Exclusive deals & financing options
-	
+	// ✨ Explore:
+	// ✅ Premier residential & commercial properties
+	// ✅ Expert market insights
+	// ✅ Exclusive deals & financing options
+
+	// Event Details:
+	// 📅 Dates: February 21–23, 2025
+	// ⏰ Time: 10:00 AM – 6:00 PM daily
+	// 📍 Venue: Weam Elnaggar Real Estate Office, 203 API World Tower, Dubai
+
+	// Don’t miss this chance to connect with industry leaders and find your perfect property. Let’s build your future together!
+
+	// Thanks,
+	// Weeam Real Estate
+	// 	`;
+
+	const defaultTemplate = `Dear ${leadDetails?.leadName ?? 'Sir'},
+
+We are delighted to invite you to Weam Elnaggar Real Estate’s Exclusive Property Exhibition in Abu Dhabi—an unmissable opportunity to explore the finest real estate offerings and gain valuable market insights.
+
+What to Expect:
+
+Premium Residential & Commercial Properties from top-tier developers
+
+Exclusive Investment Offers & Flexible Financing Options
+
+Personalized Guidance from real estate experts to match your goals
+
+
 Event Details:
-📅 Dates: February 21–23, 2025
-⏰ Time: 10:00 AM – 6:00 PM daily
-📍 Venue: Weam Elnaggar Real Estate Office, 203 API World Tower, Dubai
+Dates: April 11–13, 2025
+Time: 10:00 AM – 10:00 PM (Daily)
+Venue: Beach Rotana Hotel, Abu Dhabi
 
-Don’t miss this chance to connect with industry leaders and find your perfect property. Let’s build your future together!  
+Whether you're a seasoned investor or looking for your dream home, this event is tailored to help you make informed and rewarding real estate decisions.
 
-Thanks,  
-Weeam Real Estate
-	`;
+We look forward to welcoming you and supporting your journey in property investment and ownership.
+
+Warm regards,
+Weam Elnaggar Real Estate`;
 
 	useEffect(() => {
 		if (isOpen) {
