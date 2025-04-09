@@ -33,34 +33,6 @@ export const leadSelectInputFontSize =
 	'clamp(0.75rem, min(1.2vw, 0.75rem), 1rem)';
 // 12px (large screens) → scales down on mid-sized → increases to 16px on XL screens
 
-export const mergeSort = (arr) => {
-	if (arr.length <= 1) return arr;
-
-	const mid = Math.floor(arr.length / 2);
-	const left = mergeSort(arr.slice(0, mid));
-	const right = mergeSort(arr.slice(mid));
-
-	return merge(left, right);
-};
-
-const merge = (left, right) => {
-	let sortedArr = [];
-	let i = 0,
-		j = 0;
-
-	while (i < left.length && j < right.length) {
-		if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
-			sortedArr.push(left[i]);
-			i++;
-		} else {
-			sortedArr.push(right[j]);
-			j++;
-		}
-	}
-
-	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
-};
-
 export const buttonStyle = {
 	size: 'sm',
 	borderRadius: 'md',

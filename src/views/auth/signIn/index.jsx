@@ -115,12 +115,12 @@ function SignIn() {
 			let response = await postApi('api/user/login', values, true);
 
 			if (response && response.status === 200) {
-				// const userActive = response?.data?.user?.isActive;
+				const userActive = response?.data?.user?.isActive;
 
-				// if (!userActive) {
-				// 	toast.error('Your account is not active. Please contact support.');
-				// 	return;
-				// }
+				if (!userActive) {
+					toast.error('Your account is not active. Please contact support.');
+					return;
+				}
 
 				toast.success('Login Successfully!');
 				resetForm();

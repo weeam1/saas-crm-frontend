@@ -7,7 +7,6 @@ import {
 	leadlabelFontSize,
 	leadSelectInputSize,
 	leadValueFontSize,
-	mergeSort,
 } from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -16,6 +15,7 @@ import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import CustomTooltip from './CustomTooltip';
 import { sendLeadNotification } from 'api';
+import { mergeSort } from 'utils/helpers';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);

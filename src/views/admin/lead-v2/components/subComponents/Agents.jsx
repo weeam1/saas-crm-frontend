@@ -2,7 +2,7 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useMemo, useState, useEffect } from 'react';
-import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
+import { leadIconSize, leadlabelFontSize } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -13,6 +13,7 @@ import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import CustomTooltip from './CustomTooltip';
 import { sendLeadNotification } from 'api';
 import { format } from 'date-fns';
+import { mergeSort } from 'utils/helpers';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');

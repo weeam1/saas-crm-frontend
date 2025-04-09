@@ -34,6 +34,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { getApi } from 'services/api';
 import ReplaceManager from './components/ReplaceManager';
 import { buttonStyle } from 'utils/btn';
+import PasswordPermission from './components/PasswordPermission';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -46,7 +47,16 @@ const Edit = (props) => {
 		onClose: replaceOnClose,
 	} = useDisclosure();
 
+	const {
+		isOpen: passwordIsOpen,
+		onOpen: passwordOnOpen,
+		onClose: passwordOnClose,
+	} = useDisclosure();
+
 	const [replacementManager, setReplacementManager] = useState('');
+	const [securityPassword, setSecurityPassword] = useState('');
+
+	const controller = new AbortController();
 
 	const [uploadImage, setUploadImage] = useState(false);
 
@@ -67,7 +77,6 @@ const Edit = (props) => {
 		target: data?.target ?? '',
 		roles: data?.roles ?? [],
 		role: data?.roles[0]?._id ?? '',
-		replacementManager: '',
 	};
 
 	const user = JSON.parse(window.localStorage.getItem('user'));
@@ -134,8 +143,6 @@ const Edit = (props) => {
 
 			const valuesObj = { ...values };
 
-			console.log(role, values?.parent);
-
 			if (
 				data?.roles[0]?.roleName === 'Manager' &&
 				data?.roles[0]?.roleName !== role?.roleName &&
@@ -163,6 +170,17 @@ const Edit = (props) => {
 				delete valuesObj['parent'];
 			}
 
+			if (
+				!securityPassword &&
+				(data?.roles[0]?.roleName !== role?.roleName || values?.password)
+			) {
+				passwordOnOpen();
+				return;
+			}
+
+			if (securityPassword)
+				valuesObj['securityPassword'] = securityPassword?.trim();
+
 			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
 				if (value !== undefined && value !== null) {
 					acc[key] =
@@ -176,9 +194,9 @@ const Edit = (props) => {
 			let response = await updateItemMutation({
 				path: `/user/v2/edit/${props.selectedId}`,
 				body: bodyData,
-			});
+			}).unwrap();
 
-			if (response) {
+			if (response?.status) {
 				setEdit(false);
 				let updatedUserData = userData;
 				if (user?._id === props.selectedId) {
@@ -203,20 +221,29 @@ const Edit = (props) => {
 					localStorage.removeItem('accessToken');
 				}
 
-				handleCloseModal();
-
 				if (props?.refrence === 'table') {
-					props.updateUsers(response?.data?.user);
+					props.updateUsers(response?.user);
 				} else fetchData();
-				formik.resetForm();
+
+				// formik.resetForm();
 				props.setAction((pre) => !pre);
 
 				fetchTree();
 				fetchActiveTree();
+				if (!controller.signal.aborted) {
+					toast.success('User update successfully');
+					setReplacementManager('');
+					setSecurityPassword('');
+					handleCloseModal();
+				}
 			}
 		} catch (e) {
 			console.log(e);
-			toast.error(e.data?.message);
+			if (!controller.signal.aborted) {
+				toast.error(e?.data?.error || 'User is not updated!');
+				setReplacementManager('');
+				setSecurityPassword('');
+			}
 		}
 	};
 
@@ -227,6 +254,10 @@ const Edit = (props) => {
 
 	useEffect(() => {
 		fetchRoles();
+
+		return () => {
+			controller.abort();
+		};
 	}, []);
 
 	return (
@@ -624,13 +655,32 @@ const Edit = (props) => {
 				</ModalContent>
 			</Modal>
 
-			<ReplaceManager
-				isOpen={replaceIsOpen}
-				onClose={replaceOnClose}
-				managers={filteredManagers}
-				replacementManager={replacementManager}
-				setReplacementManager={setReplacementManager}
-			/>
+			{replaceIsOpen && (
+				<ReplaceManager
+					isOpen={replaceIsOpen}
+					onClose={replaceOnClose}
+					managers={filteredManagers}
+					replacementManager={replacementManager}
+					handleProceed={() => {
+						replaceOnClose();
+						EditData();
+					}}
+					setReplacementManager={setReplacementManager}
+				/>
+			)}
+
+			{passwordIsOpen && (
+				<PasswordPermission
+					isOpen={passwordIsOpen}
+					onClose={passwordOnClose}
+					securityPassword={securityPassword}
+					setSecurityPassword={setSecurityPassword}
+					handleProceed={() => {
+						passwordOnClose();
+						EditData();
+					}}
+				/>
+			)}
 		</>
 	);
 };
