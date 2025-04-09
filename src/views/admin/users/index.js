@@ -1,4 +1,4 @@
-import { useDisclosure } from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 import CheckTable from './components/CheckTable';
 import { useEffect, useState } from 'react';
 import { getApi } from 'services/api';
@@ -17,7 +17,7 @@ const Index = () => {
 		{ Header: 'last Name', accessor: 'lastName' },
 		{ Header: 'role', accessor: 'roles[0].roleName' },
 		{ Header: 'Coins', accessor: 'coins' },
-		// { Header: 'Status', accessor: 'isActive' },
+		{ Header: 'Status', accessor: 'isActive' },
 		{ Header: 'Action', isSortable: false, center: true },
 	];
 
@@ -53,7 +53,7 @@ const Index = () => {
 	);
 
 	return (
-		<div>
+		<Box fontFamily="'DM Sans', sans-serif">
 			<CheckTable
 				// isOpen={isOpen} setAction={setAction} action={action} columnsData={columns}
 				isLoding={isLoding}
@@ -75,7 +75,7 @@ const Index = () => {
 				setSelectedColumns={setSelectedColumns}
 			/>
 			{/* Add Form */}
-		</div>
+		</Box>
 	);
 };
 

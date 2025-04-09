@@ -147,6 +147,7 @@ const LeadCard = memo(
 							setViewLead={setViewLead}
 							refreshLeads={refreshLeads}
 							role={role}
+							user={user}
 							queryParams={queryParams}
 						/>
 						<RightCard lead={lead} />

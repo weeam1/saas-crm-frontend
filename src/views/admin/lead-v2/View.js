@@ -50,6 +50,7 @@ import LeadNotes from './components/LeadNotes';
 import { FaPlus } from 'react-icons/fa';
 import NewNoteModal from './components/NewNoteModal';
 import { useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 
 import EditLead from './components/EditLead';
 import AddLead from './components/AddLead';
@@ -163,7 +164,14 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
 
-	console.log({ leadIp });
+	const [searchParams] = useSearchParams();
+
+	const hideContact =
+		searchParams.get('invite') && user?.role !== 'superAdmin'
+			? user?.roles[0]?.roleName === 'Manager'
+				? user?._id !== data?.managerAssigned
+				: user?._id !== data?.agentAssigned
+			: false;
 
 	return (
 		<>
@@ -362,36 +370,40 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																{data?.leadEmail ? data?.leadEmail : 'N/A'}
 															</Text>
 														</GridItem>
-														<GridItem colSpan={{ base: 12, md: 6 }}>
-															<Text
-																color={'blackAlpha.900'}
-																fontSize='sm'
-																fontWeight='bold'
-															>
-																{' '}
-																Lead Phone Number
-															</Text>
-															<Text>
-																{typeof data?.leadPhoneNumber === 'object'
-																	? data?.leadPhoneNumber?.result
-																	: (data?.leadPhoneNumber ?? 'N/A')}
-															</Text>
-														</GridItem>
-														<GridItem colSpan={{ base: 12, md: 6 }}>
-															<Text
-																color={'blackAlpha.900'}
-																fontSize='sm'
-																fontWeight='bold'
-															>
-																{' '}
-																Lead Whatsapp Number
-															</Text>
-															<Text>
-																{typeof data?.leadWhatsapp === 'object'
-																	? data?.leadWhatsapp?.result
-																	: (data?.leadWhatsapp ?? 'N/A')}
-															</Text>
-														</GridItem>
+														{!hideContact && (
+															<>
+																<GridItem colSpan={{ base: 12, md: 6 }}>
+																	<Text
+																		color={'blackAlpha.900'}
+																		fontSize='sm'
+																		fontWeight='bold'
+																	>
+																		{' '}
+																		Lead Phone Number
+																	</Text>
+																	<Text>
+																		{typeof data?.leadPhoneNumber === 'object'
+																			? data?.leadPhoneNumber?.result
+																			: (data?.leadPhoneNumber ?? 'N/A')}
+																	</Text>
+																</GridItem>
+																<GridItem colSpan={{ base: 12, md: 6 }}>
+																	<Text
+																		color={'blackAlpha.900'}
+																		fontSize='sm'
+																		fontWeight='bold'
+																	>
+																		{' '}
+																		Lead Whatsapp Number
+																	</Text>
+																	<Text>
+																		{typeof data?.leadWhatsapp === 'object'
+																			? data?.leadWhatsapp?.result
+																			: (data?.leadWhatsapp ?? 'N/A')}
+																	</Text>
+																</GridItem>
+															</>
+														)}
 													</>
 												)}
 												<GridItem colSpan={{ base: 12, md: 6 }}>

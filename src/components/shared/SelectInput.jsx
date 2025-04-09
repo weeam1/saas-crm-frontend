@@ -233,59 +233,12 @@ const SelectInput = ({
 	const bgColor = bgColorCustom || defaultBgColor;
 	const dropdownBg = dropdownBgCustom || defaultDropdownBg;
 
+	const disabledBg = useColorModeValue('#EDF2F7', '#2D3748');
+	const disabledColor = useColorModeValue('#A0AEC0', '#718096');
+
 	return (
 		<FormControl>
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
-
-			{/* <Select
-				placeholder={loading ? 'Updating...' : placeholder}
-				size={size}
-				name={name}
-				value={selectedValue ?? ''}
-				fontSize={leadSelectInputFontSize}
-				borderColor={borderColor}
-				focusBorderColor={focusBorderColor}
-				color={type === 'static' ? textColor : 'softGray.300'}
-				bg={type === 'static' ? bgColor : 'softGray.400'}
-				_hover={{ borderColor: focusBorderColor }}
-				_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
-				borderRadius='md'
-				sx={{
-					option: {
-						bg: dropdownBg,
-						color: 'gray.800',
-						_hover: { bg: dropdownHoverBg },
-					},
-				}}
-				isDisabled={loading || options.length < 1}
-				{...props}
-			>
-				{!loading ? (
-					<>
-						{['managerAssigned', 'agentAssigned'].includes(name) && (
-							<option value='3'>
-								Unassigned{' '}
-								{name === 'managerAssigned'
-									? 'Manager'
-									: name === 'agentAssigned'
-										? 'Agent'
-										: ''}
-							</option>
-						)}
-						{options.map((opt) => (
-							<option
-								key={type === 'dynamic' ? opt._id : opt.value}
-								value={type === 'dynamic' ? opt._id : opt.value}
-							>
-								{type === 'dynamic'
-									? opt?.firstName + ' ' + opt?.lastName
-									: opt.label}
-							</option>
-						))}
-					</>
-				) : null}
-			</Select> */}
-
 			<Select
 				size={size}
 				name={name}
@@ -337,8 +290,9 @@ const SelectInput = ({
 								value={type === 'dynamic' ? opt._id : opt.value}
 								disabled={opt.isActive === false}
 								style={{
-									backgroundColor: opt.isActive === false ? 'gray.800' : null,
-									color: opt.isActive === false ? 'gray.500' : null,
+									backgroundColor:
+										opt?.isActive === false ? disabledBg : undefined,
+									color: opt?.isActive === false ? disabledColor : undefined,
 								}}
 							>
 								{type === 'dynamic'
