@@ -15,13 +15,18 @@ import {
 	Textarea,
 	VStack,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import DisplayField from 'components/displays/DisplayField';
 import Loader from 'components/loading/Loader';
+import keys from 'config/keys';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { BsFillSendFill } from 'react-icons/bs';
+import { FiCheck, FiPaperclip } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import { emailSchema } from 'schema';
 import { getApi, postApi } from 'services/api';
+import { buttonStyle } from 'utils/btn';
 
 // const AddEmailHistory = (props) => {
 // 	const { onClose, isOpen, fetchData, leadDetails, setAction } = props;
@@ -262,6 +267,37 @@ const AddEmailHistory = (props) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const [isLoading, setIsLoading] = useState(false);
 	const [leadLoading, setLeadLoading] = useState(false);
+	const [filesLoading, setFilesLoading] = useState(false);
+
+	const [files, setFiles] = useState(null);
+
+	const handleInvite = async () => {
+		try {
+			if (files) return;
+
+			setFilesLoading(true);
+			const QRCodeUrl = `${keys.clientUrl}lead?page=1&pageSize=1&invite=${leadDetails?._id}`;
+
+			const inviteData = {
+				name: leadDetails?.leadName,
+				url: QRCodeUrl,
+			};
+
+			const { data } = await axios.post(
+				`${keys.socketUrl}/pdf/generate_invite`,
+				inviteData
+			);
+
+			if (data?.download_url) {
+				setFiles(data.download_url);
+			}
+		} catch (err) {
+			console.log(err);
+			toast.error(err.message || 'Failed to generate invite.');
+		} finally {
+			setFilesLoading(false);
+		}
+	};
 
 	const initialValues = {
 		sender: user?._id,
@@ -280,7 +316,6 @@ const AddEmailHistory = (props) => {
 		initialValues,
 		validationSchema: emailSchema,
 		onSubmit: async (values, { resetForm }) => {
-			console.log('Form submitted with values:', values);
 			await AddData(values);
 			resetForm();
 		},
@@ -300,12 +335,13 @@ const AddEmailHistory = (props) => {
 		try {
 			setIsLoading(true);
 			let url = '';
-			if (props.topic === 'attend_show') {
+			if (files) {
+				url = 'api/email/add?topic=attend_show';
+				values.files = files;
+			} else if (props.topic === 'attend_show') {
 				url = 'api/email/add?topic=attend_show';
 				values.files = props.files;
 			} else url = 'api/email/add';
-
-			console.log({ url, values });
 
 			let response = await postApi(url, formValues);
 			if (response.status === 200) {
@@ -414,33 +450,7 @@ Weam Elnaggar Real Estate`;
 								<GridItem colSpan={{ base: 12 }}>
 									<DisplayField label='Recipient' value={values.recipient} />
 								</GridItem>
-								{/* <GridItem colSpan={{ base: 12 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Recipient
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.recipient}
-									name='recipient'
-									disabled
-									placeholder='Recipient'
-									fontWeight='500'
-									borderColor={
-										errors.recipient && touched.recipient ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.recipient && touched.recipient && errors.recipient}
-								</Text>
-							</GridItem> */}
+
 								<GridItem colSpan={{ base: 12 }}>
 									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
 										Subject
@@ -485,53 +495,30 @@ Weam Elnaggar Real Estate`;
 										</Text>
 									)}
 								</GridItem>
-								{/* <GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										Start Date
-									</FormLabel>
-									<Input
-										type='datetime-local'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.startDate}
-										name='startDate'
-										fontWeight='500'
-										borderColor={
-											errors.startDate && touched.startDate
-												? 'red.300'
-												: undefined
-										}
-									/>
-									{errors.startDate && touched.startDate && (
-										<Text mb='10px' color='red'>
-											{errors.startDate}
-										</Text>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
-										End Date
-									</FormLabel>
-									<Input
-										type='datetime-local'
-										fontSize='sm'
-										min={values.startDate}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.endDate}
-										name='endDate'
-										fontWeight='500'
-										borderColor={
-											errors.endDate && touched.endDate ? 'red.300' : undefined
-										}
-									/>
-									{errors.endDate && touched.endDate && (
-										<Text mb='10px' color='red'>
-											{errors.endDate}
-										</Text>
-									)}
-								</GridItem> */}
+
+								{props.topic !== 'attend_show' && (
+									<GridItem colSpan={{ base: 12 }}>
+										<Button
+											{...buttonStyle}
+											onClick={handleInvite}
+											isLoading={filesLoading}
+											leftIcon={
+												files ? (
+													<FiCheck size={14} />
+												) : (
+													<FiPaperclip size={14} />
+												)
+											}
+											colorScheme={files ? 'green' : 'brand'}
+											_active={files ? 'green.400' : 'brand.400'}
+											// variant='normal'
+											borderRadius='2xl'
+										>
+											{files ? 'File Attached' : 'Attach Invite Files'}
+										</Button>
+									</GridItem>
+								)}
+
 								<GridItem colSpan={{ base: 12 }}>
 									<FormLabel ms='4px' fontSize='sm' fontWeight='500' mb='8px'>
 										Message
