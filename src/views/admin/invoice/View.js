@@ -231,7 +231,7 @@ const SingleInvoice = () => {
 							gap={4}
 						>
 							<Box
-								w={{ base: 'full', md: '16%' }}
+								w={{ base: 'full', md: '30%' }}
 								display='flex'
 								flexDirection='column'
 								gap={2}
@@ -252,9 +252,12 @@ const SingleInvoice = () => {
 										<Text as='span' fontWeight='bold'>
 											Telephone:
 										</Text>{' '}
-										{agency.contactNumberPrimary}
-										{agency?.contactNumberAlternate &&
-											` | ${agency.contactNumberAlternate}`}
+										{[
+											agency?.contactNumberPrimary,
+											agency?.contactNumberAlternate,
+										]
+											.filter(Boolean)
+											.join(' / ') || 'N/A'}
 									</Text>
 								)}
 
