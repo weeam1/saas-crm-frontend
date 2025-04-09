@@ -7,7 +7,6 @@ import {
 	leadlabelFontSize,
 	leadSelectInputSize,
 	leadValueFontSize,
-	mergeSort,
 } from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -16,6 +15,7 @@ import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import CustomTooltip from './CustomTooltip';
 import { sendLeadNotification } from 'api';
+import { mergeSort } from 'utils/helpers';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
@@ -126,30 +126,16 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				</CustomTooltip>
 			</Flex>
 
-			{['Manager', 'Agent'].includes(role) ? (
-				<Text
-					bg='softGray.400'
-					py='2px'
-					px='4px'
-					mt='6px'
-					rounded='md'
-					color='softGray.300'
-					fontSize={leadValueFontSize}
-				>
-					{managerName}
-				</Text>
-			) : (
-				<SelectInput
-					name='managerAssigned'
-					placeholder='Select'
-					options={mergeSort(tree?.managers || [])}
-					selectedValue={selected}
-					type='dynamic'
-					size={leadSelectInputSize}
-					loading={loading}
-					onChange={handleChangeManager}
-				/>
-			)}
+			<SelectInput
+				name='managerAssigned'
+				placeholder='Select'
+				options={mergeSort(tree?.managers || [])}
+				selectedValue={selected}
+				type='dynamic'
+				size={leadSelectInputSize}
+				loading={loading}
+				onChange={handleChangeManager}
+			/>
 		</>
 	);
 };
