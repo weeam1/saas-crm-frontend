@@ -266,8 +266,8 @@ const AddEmailHistory = (props) => {
 	const initialValues = {
 		sender: user?._id,
 		recipient: '',
-		subject: '',
-		title: '',
+		subject: 'WN VIP invitation',
+		title: 'WN Real Estate Expo ( Abu Dhabi)',
 		message: '',
 		createBy: '',
 		createByLead: '',
