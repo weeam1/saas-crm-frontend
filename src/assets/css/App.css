@@ -85,6 +85,7 @@ option {
 	height: 20px;
 	background: #ffffff;
 	text-align: center;
+	z-index: 10;
 }
 
 .importTable {

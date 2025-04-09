@@ -1,18 +1,12 @@
-/* eslint-disable react/prop-types */
-// import Select from 'react-select';
-
 import { leadSelectInputFontSize } from 'views/admin/lead-v2/components/constants';
 import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
 
 import {
-	CircularProgress,
 	FormControl,
 	FormLabel,
 	Select,
 	useColorModeValue,
 } from '@chakra-ui/react';
-import BoxLoading from './BoxLoading';
-import SelectLoading from './SelectLoading';
 
 // const SelectInput = ({
 // 	name,
@@ -211,8 +205,9 @@ import SelectLoading from './SelectLoading';
 
 const SelectInput = ({
 	label,
+	name,
 	options = [],
-	placeholder = 'Select an option',
+	placeholder = 'Select',
 	size = 'md', // "xs", "sm", "md", "lg"
 	borderColorCustom,
 	textColorCustom,
@@ -242,9 +237,10 @@ const SelectInput = ({
 		<FormControl>
 			{label && <FormLabel fontSize={leadlabelFontSize}>{label}</FormLabel>}
 
-			<Select
+			{/* <Select
 				placeholder={loading ? 'Updating...' : placeholder}
 				size={size}
+				name={name}
 				value={selectedValue ?? ''}
 				fontSize={leadSelectInputFontSize}
 				borderColor={borderColor}
@@ -264,8 +260,19 @@ const SelectInput = ({
 				isDisabled={loading || options.length < 1}
 				{...props}
 			>
-				{!loading
-					? options.map((opt) => (
+				{!loading ? (
+					<>
+						{['managerAssigned', 'agentAssigned'].includes(name) && (
+							<option value='3'>
+								Unassigned{' '}
+								{name === 'managerAssigned'
+									? 'Manager'
+									: name === 'agentAssigned'
+										? 'Agent'
+										: ''}
+							</option>
+						)}
+						{options.map((opt) => (
 							<option
 								key={type === 'dynamic' ? opt._id : opt.value}
 								value={type === 'dynamic' ? opt._id : opt.value}
@@ -274,8 +281,73 @@ const SelectInput = ({
 									? opt?.firstName + ' ' + opt?.lastName
 									: opt.label}
 							</option>
-						))
-					: null}
+						))}
+					</>
+				) : null}
+			</Select> */}
+
+			<Select
+				size={size}
+				name={name}
+				value={loading ? '' : (selectedValue ?? '')}
+				fontSize={leadSelectInputFontSize}
+				borderColor={borderColor}
+				focusBorderColor={focusBorderColor}
+				color={type === 'static' ? textColor : 'softGray.300'}
+				bg={type === 'static' ? bgColor : 'softGray.400'}
+				_hover={{ borderColor: focusBorderColor }}
+				_focus={{ boxShadow: `0 0 0 1px ${focusBorderColor}` }}
+				borderRadius='md'
+				sx={{
+					option: {
+						bg: dropdownBg,
+						color: 'gray.800',
+						_hover: { bg: dropdownHoverBg },
+					},
+					'option:disabled': {
+						backgroundColor: 'gray.800 !important',
+						color: 'gray.500 !important',
+					},
+				}}
+				isDisabled={loading || options.length < 1}
+				{...props}
+			>
+				{loading ? (
+					<option value='' disabled>
+						Updating...
+					</option>
+				) : (
+					<>
+						{/* Placeholder option */}
+						<option value='' disabled selected={selectedValue === ''}>
+							{placeholder}
+						</option>
+
+						{/* "Unassigned" option */}
+						{['managerAssigned', 'agentAssigned'].includes(name) && (
+							<option value=''>
+								Unassigned {name === 'managerAssigned' ? 'Manager' : 'Agent'}
+							</option>
+						)}
+
+						{/* Dynamic options */}
+						{options.map((opt) => (
+							<option
+								key={type === 'dynamic' ? opt._id : opt.value}
+								value={type === 'dynamic' ? opt._id : opt.value}
+								disabled={opt.isActive === false}
+								style={{
+									backgroundColor: opt.isActive === false ? 'gray.800' : null,
+									color: opt.isActive === false ? 'gray.500' : null,
+								}}
+							>
+								{type === 'dynamic'
+									? `${opt?.firstName} ${opt?.lastName}`
+									: opt.label}
+							</option>
+						))}
+					</>
+				)}
 			</Select>
 		</FormControl>
 	);

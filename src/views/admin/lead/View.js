@@ -55,10 +55,11 @@ import LeadNotes from './components/LeadNotes';
 import { FaPlus } from 'react-icons/fa';
 import NewNoteModal from './components/NewNoteModal';
 import { useSelector } from 'react-redux';
+import { extractLocationData } from 'utils/helpers';
 const View = ({ param, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 
-	console.log('View page');
+	const countries = useSelector((state) => state.countries.countryNames);
 
 	const textColor = useColorModeValue('gray.500', 'white');
 
@@ -123,16 +124,27 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		setIsLoding(true);
 		let response = await getApi('api/lead/view/', param.id);
 
-		console.log({ response });
-
 		setData(response.data?.lead);
 		setAllData(response.data);
+
+		const { ip, city, country } = extractLocationData(
+			response?.data?.lead?.ip,
+			countries
+		);
+
+		setLeadIp({ ip, city, country });
 		setIsLoding(false);
 	};
 
 	useEffect(() => {
 		fetchData();
 	}, [action]);
+
+	const [leadIp, setLeadIp] = useState({
+		ip: '',
+		city: '',
+		country: '',
+	});
 
 	// }, [edit, addEmailHistory, addPhoneCall])
 
@@ -148,8 +160,6 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
-
-	console.log({ data });
 
 	return (
 		<>
@@ -338,9 +348,9 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																Lead Phone Number
 															</Text>
 															<Text>
-																{data?.leadPhoneNumber
-																	? data?.leadPhoneNumber
-																	: 'N/A'}
+																{typeof data?.leadPhoneNumber === 'object'
+																	? data?.leadPhoneNumber?.result
+																	: (data?.leadPhoneNumber ?? 'N/A')}
 															</Text>
 														</GridItem>
 														<GridItem colSpan={{ base: 12, md: 6 }}>
@@ -353,9 +363,9 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																Lead Whatsapp Number
 															</Text>
 															<Text>
-																{data?.leadWhatsappNumber
-																	? data?.leadWhatsappNumber
-																	: 'N/A'}
+																{typeof data?.leadWhatsapp === 'object'
+																	? data?.leadWhatsapp?.result
+																	: (data?.leadWhatsapp ?? 'N/A')}
 															</Text>
 														</GridItem>
 													</>
@@ -610,6 +620,50 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														IP Address
 													</Text>
 													<Text>{data?.ip ? data?.ip : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														City
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.city : 'N/A'}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Country
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.country : 'N/A'}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Adset
+													</Text>
+													<Text>{data?.adset ? data?.adset : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Lead Language
+													</Text>
+													<Text>{data?.leadLang ? data?.leadLang : 'N/A'}</Text>
 												</GridItem>
 												<GridItem colSpan={{ base: 12, md: 6 }}>
 													<Text

@@ -6,19 +6,15 @@ import {
 	MenuItem,
 	IconButton,
 } from '@chakra-ui/react';
-import {
-	EditIcon,
-	DeleteIcon,
-	ViewIcon,
-	PhoneIcon,
-	EmailIcon,
-} from '@chakra-ui/icons';
+import { EditIcon, DeleteIcon, PhoneIcon, EmailIcon } from '@chakra-ui/icons';
 import { FaHistory } from 'react-icons/fa';
 import { BsWhatsapp } from 'react-icons/bs';
 import { MdTask } from 'react-icons/md';
 import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 import { useStateContext } from 'contexts/store';
+
+import ReleaseLead from '../../ReleaseLead';
 
 const LeadMenu = ({
 	lead,
@@ -37,18 +33,22 @@ const LeadMenu = ({
 	setSendEmail,
 	setSelectedValues,
 	setDeleteLead,
+	refreshData,
 }) => {
 	const navigate = useNavigate();
 	const leadId = lead?._id;
 	const phoneNumber = lead?.leadPhoneNumber;
 
+	const allowedUserEdit = lead?.eLeadStatus === 'show';
+
 	const { setIsLeadCycle } = useStateContext();
 
 	return (
-		<Menu isLazy>
+		<Menu isLazy closeOnSelect={false}>
 			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
 			<MenuList minW='fit-content'>
-				{access?.update && user?.role === 'superAdmin' && (
+				{(user?.role === 'superAdmin' && access?.update) ||
+				(user?.role !== 'superAdmin' && allowedUserEdit) ? (
 					<MenuItem
 						py={2.5}
 						onClick={() => {
@@ -59,7 +59,18 @@ const LeadMenu = ({
 					>
 						Edit
 					</MenuItem>
+				) : null}
+
+				{['Manager', 'Agent'].includes(user?.roles[0]?.roleName) && (
+					<ReleaseLead
+						isReleased={lead?.isReleased}
+						role={user?.roles[0]?.roleName}
+						leadId={lead?._id}
+						as={MenuItem}
+						refreshData={refreshData}
+					/>
 				)}
+
 				{callAccess?.create && (
 					<MenuItem
 						py={2.5}

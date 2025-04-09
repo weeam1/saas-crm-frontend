@@ -15,7 +15,7 @@ import {
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-import { FaUserCircle, FaDollarSign } from 'react-icons/fa';
+import { FaUserCircle, FaDollarSign, FaRegCalendarCheck } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -30,15 +30,35 @@ import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
 import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
 import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
+import OfficeSettings from 'views/admin/agencies/OfficeSetting';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
-const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const HRModule = React.lazy(() => import('views/admin/hrModule'));
-const Lead = React.lazy(() => import('views/admin/lead'));
+// const Lead = React.lazy(() => import('views/admin/lead'));
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
+
+const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
+
+const Attendance = React.lazy(() => import('views/admin/attendance'));
+const Employees = React.lazy(
+	() => import('views/admin/attendance/components/employees')
+);
+const Records = React.lazy(
+	() => import('views/admin/attendance/components/records')
+);
+const MyAttendance = React.lazy(
+	() => import('views/admin/attendance/components/myAttendance')
+);
+const AttendanceDashboard = React.lazy(
+	() => import('views/admin/attendance/components/dashboard')
+);
+
+const UserView = React.lazy(() => import('views/admin/users/View'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -47,7 +67,6 @@ export default function User(props) {
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(true);
 	const user = JSON.parse(localStorage.getItem('user'));
-	// functions for changing the states from components
 	const getRoute = () => {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
@@ -94,21 +113,37 @@ export default function User(props) {
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: MainDashboard,
 		},
+
 		{
 			name: 'Lead',
 			layout: [ROLE_PATH.user],
 			path: '/lead',
-			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-			component: Lead,
-		},
-		{
-			name: 'Lead',
-			layout: [ROLE_PATH.user],
-			path: '/new-lead',
 			icon: (
 				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 			),
 			component: LeadScreen,
+		},
+		{
+			name: 'Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance',
+			icon: (
+				<Icon
+					as={FaRegCalendarCheck}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			component: Attendance,
+		},
+		{
+			name: 'My Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees/:id',
+			under: 'my-attendance',
+			parentName: 'Attendance',
+			component: MyAttendance,
 		},
 		{
 			name: 'HR Module',
@@ -119,6 +154,7 @@ export default function User(props) {
 			),
 			component: HRModule,
 		},
+
 		{
 			name: 'Leads Pool',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -126,7 +162,7 @@ export default function User(props) {
 			icon: (
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
-			component: LeadPool,
+			component: LeadPoolAgent,
 		},
 		{
 			name: 'Sign In',
@@ -174,6 +210,68 @@ export default function User(props) {
 					/>
 				),
 				component: Hiring,
+			},
+			{
+				name: 'Office Settings',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/office-settings/:id',
+				under: 'office-settings',
+				component: OfficeSettings,
+			},
+			{
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Attendance,
+			},
+
+			{
+				name: 'Attendance Dashboard',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				under: 'employees',
+				parentName: 'Attendance',
+				component: AttendanceDashboard,
+			},
+			{
+				name: 'Employees',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/employees',
+				under: 'employees',
+				parentName: 'Attendance',
+				component: Employees,
+			},
+			{
+				name: 'Attendance Record',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/record',
+				under: 'attendance-record',
+				parentName: 'Attendance',
+				component: Records,
+			},
+			{
+				name: 'My Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/employees/:id',
+				under: 'my-attendance',
+				parentName: 'Attendance',
+				component: MyAttendance,
+			},
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
 			},
 		];
 

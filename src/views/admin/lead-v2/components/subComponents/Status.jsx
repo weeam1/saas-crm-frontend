@@ -1,6 +1,6 @@
 import SelectInput from 'components/shared/SelectInput';
 import { leadStatus } from 'utils/options';
-import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { HStack, Icon, Text } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import {
@@ -10,13 +10,23 @@ import {
 } from '../constants';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
+import CustomTooltip from './CustomTooltip';
+import InvitationModal from './InvitationModal';
+import { eventLeadStatus } from 'utils/options';
+import { sendLeadFeedback } from 'api';
 
-const Status = ({ lead, refreshLeads }) => {
+const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+
 	const [loading, setLoading] = useState(false);
+	const [inviteModal, setInviteModal] = useState(false);
+
+	const dispatch = useDispatch();
 
 	const handleStatus = async (e) => {
 		try {
@@ -28,8 +38,36 @@ const Status = ({ lead, refreshLeads }) => {
 			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
 			if (response.status === 200) {
 				setSelected(data.leadStatus);
-				if (data.leadStatus === 'new') refreshLeads();
+				// if (data.leadStatus === 'new') refreshLeads();
+
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'leadStatus',
+						value: data.leadStatus,
+					})
+				);
 				toast.success('Lead Status Updated!');
+
+				if (data.leadStatus === 'will_attend_the_show') {
+					setInviteModal(true);
+				}
+
+				// check if status is event lead status
+				if (eventLeadStatus.includes(data.leadStatus)) {
+					const leadEmail = lead?.leadEmail ?? '';
+					const leadPhone =
+						typeof lead?.leadPhoneNumber === 'object'
+							? lead?.leadPhoneNumber?.result
+							: lead?.leadPhoneNumber;
+
+					sendLeadFeedback({
+						email: leadEmail,
+						phone: leadPhone,
+						status: data.leadStatus,
+						action: 'Status',
+					});
+				}
 			}
 		} catch (e) {
 			console.log(e);
@@ -63,9 +101,13 @@ const Status = ({ lead, refreshLeads }) => {
 				>
 					Status
 				</Text>
+				{/* 
 				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</Tooltip> */}
+				<CustomTooltip label={label}>
+					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+				</CustomTooltip>
 			</HStack>
 			<SelectInput
 				name='leadStatus'
@@ -78,6 +120,14 @@ const Status = ({ lead, refreshLeads }) => {
 				textColorCustom={textColor}
 				size={leadSelectInputSize}
 			/>
+
+			{inviteModal && (
+				<InvitationModal
+					onClose={() => setInviteModal(false)}
+					isOpen={inviteModal}
+					lead={lead}
+				/>
+			)}
 		</>
 	);
 };

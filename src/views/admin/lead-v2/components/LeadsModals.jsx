@@ -4,6 +4,7 @@ import EditLead from './EditLead';
 import AddLead from './AddLead';
 import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
 import Delete from '../Delete';
+import { useSearchParams } from 'react-router-dom';
 
 const LeadsModals = (props) => {
 	const {
@@ -23,12 +24,18 @@ const LeadsModals = (props) => {
 		setDeleteLead,
 	} = props;
 
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const handleViewClose = () => {
+		setViewLead({ isOpen: false, lid: null });
+	};
+
 	return (
 		<>
-			{viewLead && (
+			{viewLead?.isOpen && (
 				<LeadsModal
 					leadsModal={viewLead}
-					onClose={() => setViewLead({ isOpen: false, lid: null })}
+					onClose={handleViewClose}
 					reFreshData={refetchData}
 				/>
 			)}
@@ -37,32 +44,28 @@ const LeadsModals = (props) => {
 				<EditLead
 					isOpen={editLead}
 					size='xl'
-					refreshData={refetchData}
 					leadData={lead}
 					onClose={() => setEditLead(false)}
 				/>
 			)}
 
 			{addLead && (
-				<AddLead
-					isOpen={addLead}
-					onClose={() => setAddLead(false)}
-					size='xl'
-					refreshData={refetchData}
-				/>
+				<AddLead isOpen={addLead} onClose={() => setAddLead(false)} size='xl' />
 			)}
 
 			{/* Delete model */}
-			<Delete
-				isOpen={deleteLead}
-				onClose={setDeleteLead}
-				data={selectedValues}
-				refreshData={refetchData}
-				setSelectedValues={setSelectedValues}
-				url='api/lead/deleteMany'
-				method='many'
-				// setSelectAllChecked={setSelectAllChecked}
-			/>
+			{deleteLead && (
+				<Delete
+					isOpen={deleteLead}
+					onClose={() => setDeleteLead(false)}
+					data={selectedValues}
+					refetchData={refetchData}
+					setSelectedValues={setSelectedValues}
+					url='api/lead/deleteMany'
+					method='many'
+					// setSelectAllChecked={setSelectAllChecked}
+				/>
+			)}
 
 			{/* 
 			<AddPhoneCall

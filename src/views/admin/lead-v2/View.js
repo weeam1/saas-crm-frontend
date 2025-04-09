@@ -11,7 +11,6 @@ import {
 	Grid,
 	GridItem,
 	Heading,
-	Input,
 	Menu,
 	MenuButton,
 	MenuDivider,
@@ -51,19 +50,29 @@ import LeadNotes from './components/LeadNotes';
 import { FaPlus } from 'react-icons/fa';
 import NewNoteModal from './components/NewNoteModal';
 import { useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 
 import EditLead from './components/EditLead';
 import AddLead from './components/AddLead';
 import { formattedDate } from 'utils/helpers';
 import Loader from 'components/loading/Loader';
+import { extractLocationData } from 'utils/helpers';
 
 const View = ({ param, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	const textColor = useColorModeValue('gray.500', 'white');
 
+	const countries = useSelector((state) => state.countries.countryNames);
+
 	const [data, setData] = useState();
 	const [allData, setAllData] = useState([]);
+	const [leadIp, setLeadIp] = useState({
+		ip: '',
+		city: '',
+		country: '',
+	});
+
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [edit, setEdit] = useState(false);
 	const [deleteModel, setDelete] = useState(false);
@@ -125,6 +134,14 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 		let response = await getApi('api/lead/view/', param.id);
 		setData(response.data?.lead);
 		setAllData(response?.data);
+
+		const { ip, city, country } = extractLocationData(
+			response?.data?.lead?.ip,
+			countries
+		);
+
+		setLeadIp({ ip, city, country });
+
 		setIsLoding(false);
 	};
 
@@ -146,6 +163,15 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
+
+	const [searchParams] = useSearchParams();
+
+	const hideContact =
+		searchParams.get('invite') && user?.role !== 'superAdmin'
+			? user?.roles[0]?.roleName === 'Manager'
+				? user?._id !== data?.managerAssigned
+				: user?._id !== data?.agentAssigned
+			: false;
 
 	return (
 		<>
@@ -242,18 +268,19 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 										{(user.role === 'superAdmin' ||
 											permission?.create ||
 											permission?.update ||
-											permission?.delete) && (
-											<MenuButton
-												size='sm'
-												variant='outline'
-												colorScheme='blackAlpha'
-												mr={2.5}
-												as={Button}
-												rightIcon={<ChevronDownIcon />}
-											>
-												Actions
-											</MenuButton>
-										)}
+											permission?.delete) &&
+											user?.roles[0]?.roleName !== 'Agent' && (
+												<MenuButton
+													size='sm'
+													variant='outline'
+													colorScheme='blackAlpha'
+													mr={2.5}
+													as={Button}
+													rightIcon={<ChevronDownIcon />}
+												>
+													Actions
+												</MenuButton>
+											)}
 										<MenuDivider />
 										<MenuList minWidth={2}>
 											{(user.role === 'superAdmin' || permission?.create) && (
@@ -343,36 +370,40 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																{data?.leadEmail ? data?.leadEmail : 'N/A'}
 															</Text>
 														</GridItem>
-														<GridItem colSpan={{ base: 12, md: 6 }}>
-															<Text
-																color={'blackAlpha.900'}
-																fontSize='sm'
-																fontWeight='bold'
-															>
-																{' '}
-																Lead Phone Number
-															</Text>
-															<Text>
-																{data?.leadPhoneNumber
-																	? data?.leadPhoneNumber
-																	: 'N/A'}
-															</Text>
-														</GridItem>
-														<GridItem colSpan={{ base: 12, md: 6 }}>
-															<Text
-																color={'blackAlpha.900'}
-																fontSize='sm'
-																fontWeight='bold'
-															>
-																{' '}
-																Lead Whatsapp Number
-															</Text>
-															<Text>
-																{data?.leadWhatsappNumber
-																	? data?.leadWhatsappNumber
-																	: 'N/A'}
-															</Text>
-														</GridItem>
+														{!hideContact && (
+															<>
+																<GridItem colSpan={{ base: 12, md: 6 }}>
+																	<Text
+																		color={'blackAlpha.900'}
+																		fontSize='sm'
+																		fontWeight='bold'
+																	>
+																		{' '}
+																		Lead Phone Number
+																	</Text>
+																	<Text>
+																		{typeof data?.leadPhoneNumber === 'object'
+																			? data?.leadPhoneNumber?.result
+																			: (data?.leadPhoneNumber ?? 'N/A')}
+																	</Text>
+																</GridItem>
+																<GridItem colSpan={{ base: 12, md: 6 }}>
+																	<Text
+																		color={'blackAlpha.900'}
+																		fontSize='sm'
+																		fontWeight='bold'
+																	>
+																		{' '}
+																		Lead Whatsapp Number
+																	</Text>
+																	<Text>
+																		{typeof data?.leadWhatsapp === 'object'
+																			? data?.leadWhatsapp?.result
+																			: (data?.leadWhatsapp ?? 'N/A')}
+																	</Text>
+																</GridItem>
+															</>
+														)}
 													</>
 												)}
 												<GridItem colSpan={{ base: 12, md: 6 }}>
@@ -634,6 +665,50 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														fontSize='sm'
 														fontWeight='bold'
 													>
+														City
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.city : 'N/A'}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Country
+													</Text>
+													<Text textTransform='capitalize'>
+														{data?.ip ? leadIp?.country : 'N/A'}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Adset
+													</Text>
+													<Text>{data?.adset ? data?.adset : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
+														Lead Language
+													</Text>
+													<Text>{data?.leadLang ? data?.leadLang : 'N/A'}</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 12, md: 6 }}>
+													<Text
+														color={'blackAlpha.900'}
+														fontSize='sm'
+														fontWeight='bold'
+													>
 														Page URL
 													</Text>
 													<Text color='blue'>
@@ -836,7 +911,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 												alignItems={'center'}
 											>
 												{(currentState === 'Accepted' ||
-													window?.location?.pathname === '/new-lead') && (
+													window?.location?.pathname === '/lead') && (
 													<Button
 														color='white'
 														onClick={() => setNewNoteModal(true)}
@@ -1169,13 +1244,15 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 				</>
 			)}
 
-			<NewNoteModal
-				isOpen={newNoteModal}
-				onClose={() => setNewNoteModal(false)}
-				paramId={param.id}
-				setNoteAdded={setNoteAdded}
-				reFreshData={reFreshData}
-			/>
+			{newNoteModal && (
+				<NewNoteModal
+					isOpen={newNoteModal}
+					onClose={() => setNewNoteModal(false)}
+					paramId={param.id}
+					setNoteAdded={setNoteAdded}
+					reFreshData={reFreshData}
+				/>
+			)}
 		</>
 	);
 };

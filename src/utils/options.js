@@ -12,6 +12,15 @@ export const mainLeadStatus = [
 	{ label: 'Change Agent', value: 'change-agent' },
 ];
 
+export const eventMainLeadStatus = [
+	'interested',
+	'not-interested',
+	'junk',
+	'deal',
+];
+
+export const eventLeadStatus = ['broker', 'pending', 'will_attend_the_show'];
+
 // export const leadStatus = [
 // 	// General Status
 // 	{ label: 'Interested', value: 'active' },

@@ -10,12 +10,7 @@ import {
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
 import UserLayout from 'layouts/user';
-import {
-	ChakraProvider,
-	ColorModeScript,
-	Flex,
-	Spinner,
-} from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript, Flex } from '@chakra-ui/react';
 import theme from 'theme/theme';
 import { ThemeEditorProvider } from '@hypertheme-editor/chakra-ui';
 import { toast, ToastContainer } from 'react-toastify';
@@ -24,7 +19,7 @@ import { Provider, useSelector } from 'react-redux';
 import store from './redux/store';
 import { useDispatch } from 'react-redux';
 import { getApi } from 'services/api';
-import { setTree, setUsers } from './redux/localSlice';
+import { setActiveTree, setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
 import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
@@ -38,16 +33,25 @@ import logo from 'assets/img/app-logo.jpeg';
 // Import your audio file
 import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
 import { requestNotificationPermission } from 'services/NotificationService';
+import Loader from 'components/loading/Loader';
+import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
 function App() {
+	// chunk handler
+	useChunkErrorHandler();
+
 	const token = localStorage.getItem('token') || null;
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
+
+	// const assignedLeadMessage = (data) => {
+	// 	return ``;
+	// };
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
@@ -78,7 +82,11 @@ function App() {
 
 				let notificationDetails = {};
 				const { type, data } = socketData;
-				const message = data?.message || 'Check out the latest updates!';
+				const message = data?.message
+					? data?.message
+					: data?.lead_id
+						? `You have been assigned a new lead${data?.lead_name && `: ${data?.lead_name}`}`
+						: 'Check out the latest updates!';
 
 				// Handle announcements (type === 1)
 				if (type === 1) {
@@ -295,6 +303,18 @@ function App() {
 		}, 0);
 	};
 
+	const fetchActiveTree = async () => {
+		setAppLoaded(false);
+		const response = await getApi('api/v2/user/active_tree');
+		const data = response.data || null;
+
+		dispatch(setActiveTree(data));
+
+		setTimeout(() => {
+			setAppLoaded(true);
+		}, 0);
+	};
+
 	const fetchUsers = async () => {
 		setAppLoaded(false);
 		const response = await getApi('api/user/');
@@ -309,6 +329,7 @@ function App() {
 	useEffect(() => {
 		if (getToken() && user2) {
 			fetchTree();
+			fetchActiveTree();
 			fetchUsers();
 		} else if (!getToken()) {
 			setAppLoaded(true);
@@ -360,7 +381,7 @@ function App() {
 					width='100%'
 					height={'100vh'}
 				>
-					<Spinner />
+					<Loader />
 				</Flex>
 			</>
 		);

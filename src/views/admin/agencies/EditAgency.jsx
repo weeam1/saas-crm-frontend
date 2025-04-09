@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import RenderFields from 'components/shared/RenderFields';
@@ -57,7 +56,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 			<DrawerOverlay />
 			<DrawerContent>
 				<DrawerCloseButton />
-				<DrawerHeader>Create New Agency</DrawerHeader>
+				<DrawerHeader>Edit Agency</DrawerHeader>
 				<Formik
 					initialValues={initialValues}
 					validationSchema={validationSchema}
@@ -86,10 +85,10 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 								<AppButton
 									colorScheme='brand'
 									isLoading={isLoading}
-									loadingText='Submitting'
+									loadingText='Updating'
 									type='submit'
 								>
-									Submit
+									Update
 								</AppButton>
 							</DrawerFooter>
 						</Form>

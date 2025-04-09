@@ -5,17 +5,14 @@ import {
 	Button,
 	HStack,
 	Box,
+	Flex,
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
-import DateFilterButton from './DateFilterButton';
-import { buttonStyle } from './constants';
-import { BiX } from 'react-icons/bi';
+// import DateFilterButton from './DateFilterButton';
 
 const SearchBox = ({
 	dateTimeOnOpen,
 	setAdvanceSearch,
-	searchClear,
-	handleClear,
 	handleSearchByName,
 	searchTermRef,
 }) => {
@@ -31,7 +28,13 @@ const SearchBox = ({
 			p='2'
 			borderRadius='md'
 		>
-			<HStack spacing={3} gap='2' flexDirection={{ base: 'column', md: 'row' }}>
+			<HStack
+				spacing={3}
+				gap='2'
+				display='flex'
+				justifyContent={{ base: 'center' }}
+				flexDirection={{ base: 'column', md: 'row' }}
+			>
 				{/* Search Input & Button */}
 				<InputGroup
 					bg='white'
@@ -43,7 +46,7 @@ const SearchBox = ({
 				>
 					<Input
 						id='searchInput'
-						placeholder='name..'
+						placeholder='search..'
 						border='none'
 						fontSize='xs'
 						height='2.2rem'
@@ -51,22 +54,24 @@ const SearchBox = ({
 						onKeyDown={(e) => e.key === 'Enter' && handleSearchByName()}
 						_focus={{ boxShadow: 'none' }}
 					/>
-					<InputRightElement width='auto'>
-						<Button
-							size='md'
-							bg='softGray.700'
-							borderLeft='1px solid'
-							borderColor='softGray.600'
-							px={4}
-							borderRadius='0'
-							fontSize='xs'
-							_hover={{ bg: 'gray.50' }}
-							_active={{ bg: 'gray.100' }}
-							onClick={handleSearchByName}
-						>
+					<Button
+						size='md'
+						bg='softGray.700'
+						borderLeft='1px solid'
+						borderColor='softGray.600'
+						px={4}
+						borderRadius='0'
+						fontSize='xs'
+						display='flex'
+						alignItems='center'
+						_hover={{ bg: 'gray.50' }}
+						_active={{ bg: 'gray.100' }}
+						onClick={handleSearchByName}
+					>
+						<Flex align='center'>
 							Search <SearchIcon fontSize='xs' color='brand.500' ml={1} />
-						</Button>
-					</InputRightElement>
+						</Flex>
+					</Button>
 				</InputGroup>
 
 				<HStack gap='2'>
@@ -87,27 +92,6 @@ const SearchBox = ({
 					>
 						Advance Search
 					</Button>
-
-					<DateFilterButton onClick={dateTimeOnOpen} />
-
-					{searchClear && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='red.400'
-							color='white'
-							sx={{
-								svg: {
-									fill: 'white',
-								},
-							}}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)}
 				</HStack>
 			</HStack>
 		</Box>

@@ -1,8 +1,8 @@
-import { HStack, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { HStack, Icon, Text } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useEffect, useState } from 'react';
 
-import { mainLeadStatus } from 'utils/options';
+import { mainLeadStatus, eventMainLeadStatus } from 'utils/options';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -11,11 +11,17 @@ import {
 import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
+import CustomTooltip from './CustomTooltip';
+import { sendLeadFeedback } from 'api';
 
-const MainStatus = ({ lead }) => {
+const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 	const [label, setLabel] = useState('');
 	const [loading, setLoading] = useState(false);
+
+	const dispatch = useDispatch();
 
 	const hanldeMainStatus = async (e) => {
 		try {
@@ -32,9 +38,31 @@ const MainStatus = ({ lead }) => {
 			if (response.status === 200) {
 				setSelected(data.eLeadStatus);
 				toast.success('Main Lead Status Updated!');
+
+				dispatch(
+					updateLeadField({
+						id: lead?._id,
+						key: 'eLeadStatus',
+						value: data.eLeadStatus,
+					})
+				);
+
+				// check if status is event lead status
+				if (eventMainLeadStatus.includes(data.eLeadStatus)) {
+					const leadEmail = lead?.leadEmail ?? '';
+					const leadPhone =
+						typeof lead?.leadPhoneNumber === 'object'
+							? lead?.leadPhoneNumber?.result
+							: lead?.leadPhoneNumber;
+
+					sendLeadFeedback({
+						email: leadEmail,
+						phone: leadPhone,
+						status: data.eLeadStatus,
+						action: 'MStatus',
+					});
+				}
 			} else if (response.status === 400) {
-				// Handle 400 Bad Request specifically
-				console.log(response);
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);
@@ -76,18 +104,19 @@ const MainStatus = ({ lead }) => {
 				>
 					M Status
 				</Text>
-				<Tooltip label={label} closeOnClick={false} hasArrow>
+				<CustomTooltip label={label}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</HStack>
 			<SelectInput
 				name='eLeadStatus'
-				options={mainLeadStatus}
+				options={mainLeadStatus || []}
 				placeholder='Select'
 				selectedValue={selected}
 				textColorCustom='white'
 				bgColorCustom='brand.300'
 				loading={loading}
+				isDisabled={(selected === 'deal' && role === 'Agent') || loading}
 				borderColorCustom='brand.600'
 				size={leadSelectInputSize}
 				onChange={hanldeMainStatus}

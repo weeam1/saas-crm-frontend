@@ -364,8 +364,6 @@ const Index = () => {
 		selectedColumns?.find((colum) => colum?.Header === item.Header)
 	);
 
-	console.log({ dataColumn });
-
 	const fetchData = async (pageNo = 1, pageSize = 10, source) => {
 		if (
 			user.role !== 'superAdmin' &&

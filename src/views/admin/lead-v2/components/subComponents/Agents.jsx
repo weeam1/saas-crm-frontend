@@ -1,15 +1,18 @@
 import { InfoIcon } from '@chakra-ui/icons';
-import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
+import { Flex, Icon, Text } from '@chakra-ui/react';
 import SelectInput from 'components/shared/SelectInput';
 import { useMemo, useState, useEffect } from 'react';
 import { leadIconSize, leadlabelFontSize, mergeSort } from '../constants';
 import { leadSelectInputSize } from './../constants';
-import { useSelector } from 'react-redux';
-import { formattedDate } from 'utils/helpers';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { fetchAgentLeadsSats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import { updateLeadFields } from '../../../../../redux/leadsSlice';
+import CustomTooltip from './CustomTooltip';
+import { sendLeadNotification } from 'api';
+import { format } from 'date-fns';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -17,20 +20,25 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
-	// const { list } = useSelector((state) => state?.users);
 
 	const tree = useSelector((state) => state.user.tree);
+
+	const user = JSON.parse(localStorage.getItem('user'));
 
 	useEffect(() => {
 		setSelected(agentAssigned);
 	}, [agentAssigned]);
 
+	const dispatch = useDispatch();
+
 	const handleChangeAgent = async (e) => {
 		try {
 			setLoading(true);
 
+			const agentAssignedValue = e.target.value;
+
 			const data = {
-				agentAssigned: e.target.value,
+				agentAssigned: agentAssignedValue,
 			};
 
 			if (data.agentAssigned) {
@@ -50,7 +58,31 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				setSelected(data.agentAssigned);
 
 				toast.success('Agent updated successfully');
-				refreshLeads();
+
+				dispatch(
+					updateLeadFields({
+						id: lead?._id,
+						updates: [
+							{ key: 'agentAssigned', value: agentAssignedValue },
+							{
+								key: 'agentAssignedDate',
+								value:
+									agentAssignedValue !== '' ? new Date().toISOString() : null,
+							},
+							{
+								key: 'leadType',
+								value: res?.data?.leadType || null,
+							},
+							{
+								key: 'isReleased',
+								value: res?.data?.isReleased,
+							},
+						],
+					})
+				);
+
+				// send lead notification
+				sendLeadNotification(user?._id, agentAssignedValue, lead);
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);
@@ -79,18 +111,20 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				</Text>
 
 				{/* Info Icon with Tooltip */}
-				<Tooltip
-					label={`Assign Date:\n${lead?.agentAssignedDate ? formattedDate(lead?.agentAssignedDate) : 'N/A'}`}
-					hasArrow
-					whiteSpace='pre-line'
+				<CustomTooltip
+					label={`Assign Date:\n${
+						lead?.agentAssignedDate
+							? format(new Date(lead?.agentAssignedDate), 'MMM d, yyyy h:mm a')
+							: 'N/A'
+					}`}
 				>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</Flex>
 			<SelectInput
 				name='agentAssigned'
-				options={agents || []}
 				placeholder='Select'
+				options={agents || []}
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}

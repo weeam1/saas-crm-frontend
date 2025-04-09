@@ -7,28 +7,55 @@ import {
 	Td,
 	TableContainer,
 	Icon,
+	Button,
 } from '@chakra-ui/react';
+import TableLoading from 'components/loading/TableLoading';
 import { FiEdit } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
-const AgencyTable = ({ data, handleEdit }) => {
+const AgencyTable = ({ data, handleEdit, isLoading }) => {
+	const navigate = useNavigate();
+
+	const handleOfficeSettingsClick = (row) => {
+		console.log({ row });
+		navigate(`/office-settings/${row._id}`, {
+			state: { agencyName: row.name, agencyId: row._id },
+		});
+	};
+
+	const columns = ['S.No', 'Name', 'Location', 'Agency Setting', 'Action'];
+
 	return (
 		<TableContainer>
 			<Table variant='striped' size='md'>
 				<Thead bg='brand.200'>
 					<Tr>
-						<Th color='gray.800'>S.No</Th>
-						<Th color='gray.800'>Name</Th>
-						<Th color='gray.800'>Location</Th>
-						<Th color='gray.800'>Action</Th>
+						{columns.map((col, index) => (
+							<Th key={index} color='gray.800'>
+								{col}
+							</Th>
+						))}
 					</Tr>
 				</Thead>
 				<Tbody>
-					{data?.length > 0 ? (
+					{isLoading ? (
+						<TableLoading columns={columns} length={2} py='4' />
+					) : data?.length > 0 ? (
 						data?.map((row, i) => (
 							<Tr key={row._id}>
 								<Td>{++i}</Td>
 								<Td>{row.name}</Td>
 								<Td>{row.location}</Td>
+								<Td>
+									<Button
+										bg='#EDD199'
+										textAlign='center'
+										borderRadius='5px'
+										onClick={() => handleOfficeSettingsClick(row)}
+									>
+										Office Setting
+									</Button>
+								</Td>
 								<Td onClick={() => handleEdit(row)}>
 									<Icon
 										as={FiEdit}
@@ -41,7 +68,7 @@ const AgencyTable = ({ data, handleEdit }) => {
 						))
 					) : (
 						<Tr>
-							<Td>No data found!</Td>
+							<Td colSpan={5}>No data found!</Td>
 						</Tr>
 					)}
 				</Tbody>

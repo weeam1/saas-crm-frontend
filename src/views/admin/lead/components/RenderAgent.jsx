@@ -117,7 +117,7 @@ const RenderAgent = ({
 	updateRowStatus,
 }) => {
 	const [AgentSelected, setAgentSelected] = useState('');
-	const tree = useSelector((state) => state.user.tree);
+	const tree = useSelector((state) => state.user.activeTree);
 	const [loading, setLoading] = useState(false);
 
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);

@@ -1,12 +1,14 @@
-import { formattedDate } from 'utils/helpers';
-import { leadlabelFontSize } from './constants';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { FaPen } from 'react-icons/fa';
+import { format } from 'date-fns';
+import { Box, Flex, Icon, useBreakpointValue } from '@chakra-ui/react';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
-import { Box, Flex, useBreakpointValue } from '@chakra-ui/react';
 import LeadMenu from './subComponents/card/LeadMenu';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { leadlabelFontSize } from './constants';
 
 import './checkbox.css';
+import LeadNotesModal from './LeadNotesModal';
 
 const LeadCard = memo(
 	({
@@ -21,8 +23,10 @@ const LeadCard = memo(
 		setSendEmail,
 		selectedValues,
 		setSelectedValues,
+		setSelectedLeads,
 		setDeleteLead,
 		setLeadDetails,
+		queryParams,
 	}) => {
 		const cardWidth = useBreakpointValue({
 			base: '100%', // Full width on mobile
@@ -33,6 +37,8 @@ const LeadCard = memo(
 
 		const user = JSON.parse(localStorage.getItem('user'));
 
+		const [leadNotes, setLeadNotes] = useState(false);
+
 		const [localChecked, setLocalChecked] = useState(
 			selectedValues.includes(lead?._id)
 		);
@@ -41,17 +47,22 @@ const LeadCard = memo(
 			(event) => {
 				const isChecked = event.target.checked;
 
-				// ✅ Instant UI update
 				setLocalChecked(isChecked);
 
-				// ✅ Background state update (does not block UI)
 				setTimeout(() => {
 					setSelectedValues((prev = []) =>
 						isChecked
 							? [...prev, lead?._id]
 							: prev.filter((id) => id !== lead?._id)
 					);
-				}, 0); // Runs in the background immediately
+					setSelectedLeads((prev) => {
+						if (!Array.isArray(prev)) prev = [];
+
+						return isChecked
+							? [...prev, lead] // Add the lead
+							: prev.filter((item) => item._id !== lead._id);
+					});
+				}, 0);
 			},
 			[setSelectedValues, lead?._id]
 		);
@@ -59,6 +70,15 @@ const LeadCard = memo(
 		useEffect(() => {
 			setLocalChecked(selectedValues.includes(lead?._id));
 		}, [selectedValues, lead?._id]);
+
+		const role =
+			user?.role === 'superAdmin'
+				? 'superAdmin'
+				: (user?.roles?.[0]?.roleName ?? 'unknown');
+
+		const hiddenFields = JSON.parse(
+			localStorage.getItem('userCustomColumns') || '[]'
+		);
 
 		return (
 			<>
@@ -84,12 +104,13 @@ const LeadCard = memo(
 						alignItems='center'
 						gap={2}
 					>
-						{/* <Checkbox
-							colorScheme='brand'
-							value={selectedValues}
-							isChecked={isChecked}
-							onChange={(event) => handleCheckboxChange(event, lead?._id)}
-						/> */}
+						<Icon
+							as={FaPen}
+							boxSize='14px'
+							onClick={() => setLeadNotes(true)}
+							color='gray.500'
+							cursor='pointer'
+						/>
 
 						<label className='custom-checkbox'>
 							<input
@@ -99,12 +120,7 @@ const LeadCard = memo(
 							/>
 							<span className='checkmark'></span>
 						</label>
-						{/* <IconButton
-					aria-label='More options'
-					icon={<TbDotsVertical size='20' />}
-					size='sm'
-					variant='ghost'
-				/> */}
+
 						<LeadMenu
 							user={user}
 							lead={lead}
@@ -117,35 +133,47 @@ const LeadCard = memo(
 							setSelectedValues={setSelectedValues}
 							setDeleteLead={setDeleteLead}
 							setLeadDetails={setLeadDetails}
+							refreshData={refreshLeads}
 						/>
 					</Box>
 					<Flex
-						justify='space-between'
+						justifyContent='space-between'
 						align='stretch'
 						wrap='wrap'
-						// gap={{ base: 2, md: 3 }}
-						gap={2}
+						gap={{ base: 2, md: 3, lg: 6 }}
 					>
 						<LeftCard
 							lead={lead}
-							user={user}
 							setViewLead={setViewLead}
 							refreshLeads={refreshLeads}
+							role={role}
+							user={user}
+							queryParams={queryParams}
 						/>
 						<RightCard lead={lead} />
 					</Flex>
-					<Box
-						textAlign='right'
-						width='full'
-						fontSize={leadlabelFontSize}
-						color='gray.900'
-					>
-						<span style={{ color: 'softGray.200', marginRight: '4px' }}>
-							Lead time
-						</span>
-						{formattedDate(lead?.createdDate) || 'N/A'}
-					</Box>
+					{!hiddenFields.includes('createdDate') && (
+						<Box
+							textAlign='right'
+							width='full'
+							fontSize={leadlabelFontSize}
+							color='gray.900'
+						>
+							<span style={{ color: 'softGray.200', marginRight: '4px' }}>
+								Lead time
+							</span>
+							{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
+						</Box>
+					)}
 				</Box>
+
+				{leadNotes && (
+					<LeadNotesModal
+						leadId={lead?._id}
+						isOpen={leadNotes}
+						onClose={() => setLeadNotes(false)}
+					/>
+				)}
 			</>
 		);
 	}

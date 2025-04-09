@@ -6,13 +6,23 @@ import announcementsReducer from './announcementsSlice';
 import missingFilesReducer from './missingFilesSlice';
 import webSocketReducer from './webSocketReducer';
 import positionsReducer from './positionsSlice';
+import filtersReducer from './filtersSlice';
+import countriesReducer, {
+	setCountries,
+	setCountryNames,
+} from './countriesSlice';
 import usersReducer from './usersSlice';
+import leadsReducer from './leadsSlice';
 import { apiSlice } from 'api/apiSlice';
+import countriesData from 'data/countries.json';
 
 const store = configureStore({
 	reducer: {
+		leads: leadsReducer,
 		roles: roleReducer,
+		filters: filtersReducer,
 		positions: positionsReducer,
+		countries: countriesReducer,
 		users: usersReducer,
 		images: imageReducer,
 		user: userReducer,
@@ -24,5 +34,11 @@ const store = configureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware().concat(apiSlice.middleware),
 });
+
+// Load countries from JSON into Redux store
+store.dispatch(setCountries(countriesData));
+store.dispatch(
+	setCountryNames(countriesData.map((country) => country.name.toLowerCase()))
+);
 
 export default store;

@@ -13,6 +13,8 @@ import { useState } from 'react';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { Textarea } from '@chakra-ui/react';
+import { useDispatch } from 'react-redux';
+import { updateLeadField } from './../../../../redux/leadsSlice';
 
 const NewNoteModal = ({
 	setNoteAdded,
@@ -24,6 +26,8 @@ const NewNoteModal = ({
 	const [noteValue, setNoteValue] = useState('');
 	const [isLoding, setIsLoding] = useState(false);
 
+	const dispatch = useDispatch();
+
 	const handleAddNote = async () => {
 		if (noteValue.trim()) {
 			try {
@@ -32,18 +36,24 @@ const NewNoteModal = ({
 					leadID: paramId,
 					note: noteValue,
 				});
-				toast.success('Note added successfuly', {
-					position: toast.POSITION.TOP_LEFT, // Use TOP_LEFT or BOTTOM_LEFT for left-side positions
-				});
+				toast.success('Note added successfuly');
 				setNoteAdded((noteAdded) => (noteAdded === 0 ? 1 : 0));
 				setNoteValue('');
+
+				dispatch(
+					updateLeadField({
+						id: paramId,
+						key: 'lastNote',
+						value: noteValue,
+					})
+				);
 				onClose();
 			} catch (error) {
 				console.log(error);
 				toast.error('Something went wrong!');
 			} finally {
 				setIsLoding(false);
-				reFreshData();
+				// reFreshData();
 			}
 		}
 	};

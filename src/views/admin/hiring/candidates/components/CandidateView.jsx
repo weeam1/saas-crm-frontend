@@ -73,6 +73,7 @@ const CandidateView = ({
 							<DisplayField label='Date of Birth' value={candidate?.dob} />
 							<DisplayField label='Email' value={candidate?.email} />
 							<DisplayField label='Phone' value={candidate?.phone} />
+							<DisplayField label='Gender' value={candidate?.gender} />
 							<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
 							<DisplayField
 								label='Nationality'
@@ -84,7 +85,11 @@ const CandidateView = ({
 							/>
 							<DisplayField
 								label='Experience Years'
-								value={candidate?.experienceYears}
+								value={
+									candidate?.experienceYears > 9
+										? 'More then 9 Years'
+										: `${candidate?.experienceYears} ${candidate?.experienceYears > 1 ? 'Years' : 'Year'}`
+								}
 							/>
 							<DisplayField
 								label='Applying for'

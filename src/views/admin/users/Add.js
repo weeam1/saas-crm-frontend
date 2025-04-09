@@ -25,17 +25,44 @@ import React, { useEffect, useState } from 'react';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
-import { userSchema } from 'schema';
 import { useSelector } from 'react-redux';
 import { getApi } from 'services/api';
-import { postApi } from 'services/api';
-import { useragencys } from 'utils/options';
+import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { useCreateItemMutation } from 'api/apiSlice';
+import ImageUpload from './components/ImageUpload';
+import { buttonStyle } from 'utils/btn';
+
+const userValidationSchema = Yup.object().shape({
+	firstName: Yup.string().required('First name is required'),
+	lastName: Yup.string(),
+	username: Yup.string()
+		.email('Invalid email format')
+		.required('Email is required'),
+	password: Yup.string()
+		.min(6, 'Password must be at least 6 characters')
+		.required('Password is required'),
+	role: Yup.string().required('Role is required'),
+	agency: Yup.string().required('Agency is required'),
+
+	phoneNumber: Yup.string(),
+	parent: Yup.string(),
+	nationality: Yup.string(),
+	dob: Yup.date(),
+	educationDegree: Yup.string(),
+	passportNum: Yup.string(),
+	uaeIdNum: Yup.string(),
+	dubaiHomeAddress: Yup.string(),
+	drivingLicense: Yup.string(),
+	countryHomeAddress: Yup.string(),
+	countryPhoneNum: Yup.string(),
+	profileImage: Yup.string(),
+});
 
 const AddUser = (props) => {
 	const { onClose, isOpen, setAction } = props;
-	const [isLoding, setIsLoding] = useState(false);
 	const [roles, setRoles] = useState([]);
+	const [uploadImage, setUploadImage] = useState(false);
 
 	const tree = useSelector((state) => state.user);
 
@@ -51,6 +78,7 @@ const AddUser = (props) => {
 		lastName: '',
 		username: '',
 		phoneNumber: '',
+		profileImage: '',
 		password: '',
 		role: '',
 		parent: '',
@@ -68,10 +96,9 @@ const AddUser = (props) => {
 
 	const formik = useFormik({
 		initialValues: initialValues,
-		validationSchema: userSchema,
+		validationSchema: userValidationSchema,
 		onSubmit: (values, { resetForm }) => {
 			AddData();
-			resetForm();
 		},
 	});
 
@@ -88,43 +115,67 @@ const AddUser = (props) => {
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
+	const [createItemMutation, { isLoading }] = useCreateItemMutation();
+
 	const AddData = async () => {
 		try {
-			setIsLoding(true);
-			const formValues = { ...values };
+			const valuesObj = { ...values };
 
+			// Assign 'parent' and 'role' based on user role
 			if (user?.roles[0]?.roleName === 'Manager') {
-				formValues['parent'] = user?._id?.toString();
-				formValues['role'] = roles
+				valuesObj['parent'] = user?._id?.toString();
+				valuesObj['role'] = roles
 					?.find((role) => role?.roleName === 'Agent')
 					?._id?.toString();
-			} else {
-				if (
-					roles.find((role) => role?._id === values.role)?.roleName === 'Agent'
-				) {
-					formValues['parent'] = values.parent;
+			} else if (
+				roles.find((role) => role?._id === values.role)?.roleName === 'Agent'
+			) {
+				if (!values.parent) {
+					toast.error('Please select a manager.');
+					return;
 				}
+				valuesObj['parent'] = values.parent;
 			}
 
-			if (!formValues['parent']) {
-				delete formValues['parent'];
+			// Remove 'parent' if not set
+			if (!valuesObj['parent']) {
+				delete valuesObj['parent'];
 			}
 
-			if (values['role']) {
-				formValues['roles'] = [values.role?.toString()];
+			// Ensure 'roles' is an array
+			if (valuesObj['role']) {
+				valuesObj['roles'] = [valuesObj.role?.toString()];
 			}
 
-			let response = await postApi('api/user/register', formValues);
-			if (response && response.status === 200) {
+			const bodyData = {};
+
+			Object.keys(valuesObj).forEach((key) => {
+				if (key === 'profileImage' && valuesObj[key] instanceof File) {
+					bodyData[key] = valuesObj[key];
+				} else if (key === 'roles' && Array.isArray(valuesObj[key])) {
+					bodyData[key] = valuesObj[key].map((role) => role);
+				} else {
+					bodyData[key] = valuesObj[key];
+				}
+			});
+
+			let response = await createItemMutation({
+				path: '/user/v2/register',
+				body: bodyData,
+			});
+
+			if (response?.data?.status === 200) {
 				props.onClose();
+				props.fetchData();
+				resetForm();
 				setAction((pre) => !pre);
+				toast.success('User created successfully.');
 			} else {
-				toast.error(response.response.data?.message);
+				toast.error(response.error?.data?.message || 'User not added.');
 			}
 		} catch (e) {
 			console.log(e);
-		} finally {
-			setIsLoding(false);
+			toast.error('Something went very wrong.');
 		}
 	};
 
@@ -138,22 +189,33 @@ const AddUser = (props) => {
 	}, []);
 
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
+		<Modal size='4xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Add User
-					<IconButton onClick={onClose} icon={<CloseIcon />} />
+					<IconButton
+						onClick={onClose}
+						isDisabled={uploadImage}
+						icon={<CloseIcon />}
+					/>
 				</ModalHeader>
 				<ModalBody>
 					<Grid
 						h={'60vh'}
 						overflow={'scroll'}
-						pr={'4'}
-						templateColumns='repeat(12, 1fr)'
+						templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2,1fr)' }}
 						gap={3}
+						p={4}
 					>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem colSpan={{ base: 1, md: 2 }}>
+							<ImageUpload
+								profileImage={values?.profileImage}
+								formik={formik}
+								setUploadImage={setUploadImage}
+							/>
+						</GridItem>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -180,7 +242,7 @@ const AddUser = (props) => {
 								{errors.firstName && touched.firstName && errors.firstName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -207,7 +269,7 @@ const AddUser = (props) => {
 								{errors.lastName && touched.lastName && errors.lastName}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -235,7 +297,7 @@ const AddUser = (props) => {
 								{errors.username && touched.username && errors.username}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -272,7 +334,7 @@ const AddUser = (props) => {
 							</Text>
 						</GridItem>
 						{user?.roles[0]?.roleName !== 'Manager' && (
-							<GridItem colSpan={{ base: 6 }}>
+							<GridItem>
 								<FormLabel
 									display='flex'
 									ms='4px'
@@ -288,19 +350,26 @@ const AddUser = (props) => {
 									onChange={handleChange}
 									onBlur={handleBlur}
 									placeholder='Select Role'
+									borderColor={errors.role && touched.role ? 'red.300' : null}
+									className={errors.role && touched.role ? 'isInvalid' : null}
 								>
-									{roles?.map((role) => (
-										<option key={role?._id} value={role?._id}>
-											{role?.roleName}
-										</option>
-									))}
+									{roles
+										?.filter((role) => role.roleName !== 'sadmin')
+										?.map((role) => (
+											<option key={role?._id} value={role?._id}>
+												{role?.roleName}
+											</option>
+										))}
 								</Select>
+								<Text mb='10px' color='red'>
+									{errors.role && touched.role && errors.role}
+								</Text>
 							</GridItem>
 						)}
 						{roles.find((role) => role?._id === values.role)?.roleName ===
 							'Agent' &&
 							user?.roles[0]?.roleName !== 'Manager' && (
-								<GridItem colSpan={{ base: 6 }}>
+								<GridItem>
 									<FormLabel
 										display='flex'
 										ms='4px'
@@ -325,7 +394,7 @@ const AddUser = (props) => {
 									</Select>
 								</GridItem>
 							)}
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -368,7 +437,7 @@ const AddUser = (props) => {
 								{errors.password && touched.password && errors.password}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -397,7 +466,7 @@ const AddUser = (props) => {
 								{errors.agency && touched.agency && errors.agency}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -425,7 +494,7 @@ const AddUser = (props) => {
 									errors.nationality}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -449,7 +518,7 @@ const AddUser = (props) => {
 								{errors.dob && touched.dob && errors.dob}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -479,7 +548,7 @@ const AddUser = (props) => {
 									errors.educationDegree}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -507,7 +576,7 @@ const AddUser = (props) => {
 									errors.passportNum}
 							</Text>
 						</GridItem>
-						{/* <GridItem colSpan={{ base: 6 }}>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       PASSPORT PHOTO
     </FormLabel>
@@ -523,7 +592,7 @@ const AddUser = (props) => {
       {errors.passportPhoto && touched.passportPhoto && errors.passportPhoto}
     </Text>
   </GridItem> */}
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -549,7 +618,7 @@ const AddUser = (props) => {
 								{errors.uaeIdNum && touched.uaeIdNum && errors.uaeIdNum}
 							</Text>
 						</GridItem>
-						{/* <GridItem colSpan={{ base: 6 }}>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       UEA ID PHOTO
     </FormLabel>
@@ -566,7 +635,7 @@ const AddUser = (props) => {
     </Text>
   </GridItem> */}
 
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -596,7 +665,7 @@ const AddUser = (props) => {
 									errors.dubaiHomeAddress}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -626,7 +695,7 @@ const AddUser = (props) => {
 									errors.drivingLicense}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -656,7 +725,7 @@ const AddUser = (props) => {
 									errors.countryHomeAddress}
 							</Text>
 						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
+						<GridItem>
 							<FormLabel
 								display='flex'
 								ms='4px'
@@ -691,27 +760,32 @@ const AddUser = (props) => {
 				</ModalBody>
 				<ModalFooter>
 					<Button
-						variant='brand'
-						size='sm'
-						disabled={isLoding ? true : false}
-						onClick={handleSubmit}
-					>
-						{isLoding ? <Spinner /> : 'Save'}
-					</Button>
-					<Button
-						sx={{
-							marginLeft: 2,
-							textTransform: 'capitalize',
-						}}
-						variant='outline'
-						colorScheme='red'
-						size='sm'
+						{...buttonStyle}
+						variant='solid'
+						bg='gray.200'
+						color='gray.800'
+						_active={{ bg: 'gray.300' }}
+						mr='3'
+						fontSize='md'
+						aria-label='close'
+						isDisabled={uploadImage}
 						onClick={() => {
 							formik.resetForm();
 							onClose();
 						}}
 					>
 						Close
+					</Button>
+					<Button
+						{...buttonStyle}
+						variant='solid'
+						bg='brand.400'
+						fontSize='md'
+						aria-label='update'
+						disabled={isLoading ? true : false}
+						onClick={handleSubmit}
+					>
+						{isLoading ? <Spinner /> : 'Save'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>

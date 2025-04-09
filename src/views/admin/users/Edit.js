@@ -17,6 +17,7 @@ import {
 	ModalOverlay,
 	Select,
 	Text,
+	useDisclosure,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -24,31 +25,59 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
-import { putApi } from 'services/api';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../../../redux/localSlice';
+import { setActiveTree, setTree, setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { jobTypes } from 'utils/options';
+import ImageUpload from './components/ImageUpload';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { getApi } from 'services/api';
+import ReplaceManager from './components/ReplaceManager';
+import { buttonStyle } from 'utils/btn';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+
+	const [roles, setRoles] = useState([]);
+
+	const {
+		isOpen: replaceIsOpen,
+		onOpen: replaceOnOpen,
+		onClose: replaceOnClose,
+	} = useDisclosure();
+
+	const [replacementManager, setReplacementManager] = useState('');
+
+	const [uploadImage, setUploadImage] = useState(false);
 
 	const { data: agencies } = useFetchItemsQuery({
 		path: '/agencies',
 	});
 
 	const initialValues = {
-		firstName: data ? data?.firstName : '',
-		lastName: data ? data?.lastName : '',
-		username: data ? data?.username : '',
-		agency: data ? data?.agency : '',
-		phoneNumber: data ? data?.phoneNumber : '',
-		parent: data ? data?.parent || '' : '',
-		target: data ? data?.target : '',
-		roles: data ? data?.roles : [],
+		firstName: data?.firstName ?? '',
+		lastName: data?.lastName ?? '',
+		username: data?.username ?? '',
+		agency: data?.agency?._id ?? '',
+		salary: data?.salary ?? '',
+		salaryType: data?.salaryType ?? '',
+		phoneNumber: data?.phoneNumber ?? '',
+		profileImage: data?.profileImage ?? '',
+		parent: data?.parent ?? '',
+		target: data?.target ?? '',
+		roles: data?.roles ?? [],
+		role: data?.roles[0]?._id ?? '',
+		replacementManager: '',
 	};
 
 	const user = JSON.parse(window.localStorage.getItem('user'));
-	const tree = useSelector((state) => state.user);
+	const isAdmin = user?.role === 'superAdmin';
+
+	const tree = useSelector((state) => state.user.activeTree);
+
+	const filteredManagers = tree?.managers?.filter(
+		(item) => item._id !== data?._id
+	);
 
 	const formik = useFormik({
 		initialValues: initialValues,
@@ -56,9 +85,22 @@ const Edit = (props) => {
 		enableReinitialize: true,
 		onSubmit: (values, { resetForm }) => {
 			EditData();
-			resetForm();
 		},
 	});
+
+	const fetchActiveTree = async () => {
+		const response = await getApi('api/v2/user/active_tree');
+		const data = response.data || null;
+
+		dispatch(setActiveTree(data));
+	};
+
+	const fetchTree = async () => {
+		const response = await getApi('api/user/tree');
+		const data = response.data || null;
+
+		dispatch(setTree(data));
+	};
 
 	useEffect(() => {
 		if (props.edit) {
@@ -84,23 +126,61 @@ const Edit = (props) => {
 		setFieldValue,
 	} = formik;
 
-	const [isLoding, setIsLoding] = useState(false);
+	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
 	const EditData = async () => {
 		try {
-			setIsLoding(true);
+			const role = roles.find((role) => role?._id === values.role);
 
 			const valuesObj = { ...values };
-			if (data?.roles[0]?.roleName === 'Manager') {
+
+			console.log(role, values?.parent);
+
+			if (
+				data?.roles[0]?.roleName === 'Manager' &&
+				data?.roles[0]?.roleName !== role?.roleName &&
+				!replacementManager &&
+				role?.roleName !== 'Agent'
+			) {
+				replaceOnOpen();
+				return;
+			} else if (replacementManager) {
+				valuesObj['replacementManager'] = replacementManager;
+			}
+
+			if (role?.roleName === 'Agent') {
+				if (!values.parent) {
+					toast.error('Please select a manager.');
+					return;
+				}
+				valuesObj['parent'] = values.parent;
+				valuesObj['replacementManager'] = values.parent;
+
+				setReplacementManager(values.parent);
+			} else if (role?.roleName === 'Manager') {
+				delete valuesObj['parent'];
+			} else {
 				delete valuesObj['parent'];
 			}
-			let response = await putApi(
-				`api/user/edit/${props.selectedId}`,
-				valuesObj
-			);
-			if (response && response.status === 200) {
+
+			const bodyData = Object.entries(valuesObj).reduce((acc, [key, value]) => {
+				if (value !== undefined && value !== null) {
+					acc[key] =
+						key === 'roles' && Array.isArray(value)
+							? value.map((role) => role.roleName).filter(Boolean)
+							: value;
+				}
+				return acc;
+			}, {});
+
+			let response = await updateItemMutation({
+				path: `/user/v2/edit/${props.selectedId}`,
+				body: bodyData,
+			});
+
+			if (response) {
 				setEdit(false);
-				let updatedUserData = userData; // Create a copy of userData
+				let updatedUserData = userData;
 				if (user?._id === props.selectedId) {
 					if (updatedUserData && typeof updatedUserData === 'object') {
 						// Create a new object with the updated firstName
@@ -112,190 +192,382 @@ const Edit = (props) => {
 					}
 
 					const updatedDataString = JSON.stringify(updatedUserData);
-					localStorage.setItem('user', updatedDataString);
+
 					dispatch(setUser(updatedDataString));
 				}
 
+				if (user?._id === props.selectedId && values.password) {
+					window.location.reload();
+					localStorage.removeItem('token');
+					localStorage.removeItem('user');
+					localStorage.removeItem('accessToken');
+				}
+
 				handleCloseModal();
-				fetchData();
+
+				if (props?.refrence === 'table') {
+					props.updateUsers(response?.data?.user);
+				} else fetchData();
+				formik.resetForm();
 				props.setAction((pre) => !pre);
-			} else {
-				toast.error(response.response.data?.message);
+
+				fetchTree();
+				fetchActiveTree();
 			}
 		} catch (e) {
 			console.log(e);
-		} finally {
-			setIsLoding(false);
+			toast.error(e.data?.message);
 		}
 	};
 
+	const fetchRoles = async () => {
+		let result = await getApi('api/role-access');
+		setRoles(result.data);
+	};
+
+	useEffect(() => {
+		fetchRoles();
+	}, []);
+
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader justifyContent='space-between' display='flex'>
-					Edit User
-					<IconButton onClick={handleCloseModal} icon={<CloseIcon />} />
-				</ModalHeader>
-				<ModalBody>
-					<Grid
-						h={'60vh'}
-						overflow={'scroll'}
-						templateColumns='repeat(12, 1fr)'
-						gap={3}
-						p={4}
-					>
-						<GridItem colSpan={{ base: 12 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								First Name
-							</FormLabel>
-							<Input
-								fontSize='sm'
-								onChange={handleChange}
-								onBlur={handleBlur}
-								value={values.firstName}
-								name='firstName'
-								placeholder='firstName'
-								fontWeight='500'
-								borderColor={
-									errors.firstName && touched.firstName ? 'red.300' : null
-								}
-							/>
-							<Text mb='10px' color={'red'}>
-								{' '}
-								{errors.firstName && touched.firstName && errors.firstName}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Last Name
-							</FormLabel>
-							<Input
-								fontSize='sm'
-								onChange={handleChange}
-								onBlur={handleBlur}
-								value={values.lastName}
-								name='lastName'
-								placeholder='Last Name'
-								fontWeight='500'
-								borderColor={
-									errors.lastName && touched.lastName ? 'red.300' : null
-								}
-							/>
-							<Text mb='10px' color={'red'}>
-								{' '}
-								{errors.lastName && touched.lastName && errors.lastName}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Email
-							</FormLabel>
-							<Input
-								fontSize='sm'
-								type='email'
-								onChange={handleChange}
-								onBlur={handleBlur}
-								value={values.username}
-								name='username'
-								placeholder='Email Address'
-								fontWeight='500'
-								borderColor={
-									errors.username && touched.username ? 'red.300' : null
-								}
-							/>
-							<Text mb='10px' color={'red'}>
-								{' '}
-								{errors.username && touched.username && errors.username}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 12 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Phone Number<Text color={'red'}>*</Text>
-							</FormLabel>
-							<InputGroup>
-								<InputLeftElement
-									pointerEvents='none'
-									children={<PhoneIcon color='gray.300' borderRadius='16px' />}
+		<>
+			<Modal size='4xl' isOpen={isOpen} isCentered>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader justifyContent='space-between' display='flex'>
+						Edit User
+						<IconButton
+							onClick={handleCloseModal}
+							isDisabled={uploadImage}
+							icon={<CloseIcon />}
+						/>
+					</ModalHeader>
+					<ModalBody>
+						<Grid
+							h={isAdmin ? '60vh' : '50vh'}
+							overflow={'scroll'}
+							templateColumns='repeat(12, 1fr)'
+							gap={3}
+							p={4}
+						>
+							<GridItem colSpan={12}>
+								<ImageUpload
+									profileImage={values?.profileImage}
+									formik={formik}
+									user={data}
+									setUploadImage={setUploadImage}
 								/>
+							</GridItem>
+							<GridItem colSpan={{ base: 6 }}>
+								<FormLabel
+									display='flex'
+									ms='4px'
+									fontSize='sm'
+									fontWeight='500'
+									mb='8px'
+								>
+									First Name
+								</FormLabel>
 								<Input
-									type='tel'
 									fontSize='sm'
 									onChange={handleChange}
 									onBlur={handleBlur}
-									value={values.phoneNumber}
-									name='phoneNumber'
+									value={values.firstName}
+									name='firstName'
+									placeholder='firstName'
 									fontWeight='500'
 									borderColor={
-										errors.phoneNumber && touched.phoneNumber ? 'red.300' : null
+										errors.firstName && touched.firstName ? 'red.300' : null
 									}
-									placeholder='Phone number'
-									borderRadius='16px'
 								/>
-							</InputGroup>
-							<Text mb='10px' color={'red'}>
-								{errors.phoneNumber &&
-									touched.phoneNumber &&
-									errors.phoneNumber}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 6 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								mb='8px'
-							>
-								Select agency <Text color={'red'}>*</Text>
-							</FormLabel>
-							<Select
-								name='agency'
-								value={values.agency?._id}
-								onChange={handleChange}
-								onBlur={handleBlur}
-								placeholder='Select agency'
-								borderColor={errors.agency && touched.agency ? 'red.300' : null}
-							>
-								{agencies?.doc?.map((agency) => (
-									<option key={agency._id} value={agency._id}>
-										{agency.name}
-									</option>
-								))}
-							</Select>
-							<Text mb='10px' color={'red'}>
-								{errors.agency && touched.agency && errors.agency}
-							</Text>
-						</GridItem>
+								<Text mb='10px' color={'red'}>
+									{errors.firstName && touched.firstName && errors.firstName}
+								</Text>
+							</GridItem>
+							<GridItem colSpan={{ base: 6 }}>
+								<FormLabel
+									display='flex'
+									ms='4px'
+									fontSize='sm'
+									fontWeight='500'
+									mb='8px'
+								>
+									Last Name
+								</FormLabel>
+								<Input
+									fontSize='sm'
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={values.lastName}
+									name='lastName'
+									placeholder='Last Name'
+									fontWeight='500'
+									borderColor={
+										errors.lastName && touched.lastName ? 'red.300' : null
+									}
+								/>
+								<Text mb='10px' color={'red'}>
+									{errors.lastName && touched.lastName && errors.lastName}
+								</Text>
+							</GridItem>
+							<GridItem colSpan={{ base: 6 }}>
+								<FormLabel
+									display='flex'
+									ms='4px'
+									fontSize='sm'
+									fontWeight='500'
+									mb='8px'
+								>
+									Phone Number<Text color={'red'}>*</Text>
+								</FormLabel>
+								<InputGroup>
+									<InputLeftElement
+										pointerEvents='none'
+										children={
+											<PhoneIcon color='gray.300' borderRadius='16px' />
+										}
+									/>
+									<Input
+										type='tel'
+										fontSize='sm'
+										onChange={handleChange}
+										onBlur={handleBlur}
+										value={values.phoneNumber}
+										name='phoneNumber'
+										fontWeight='500'
+										borderColor={
+											errors.phoneNumber && touched.phoneNumber
+												? 'red.300'
+												: null
+										}
+										placeholder='Phone number'
+										borderRadius='16px'
+									/>
+								</InputGroup>
+								<Text mb='10px' color={'red'}>
+									{errors.phoneNumber &&
+										touched.phoneNumber &&
+										errors.phoneNumber}
+								</Text>
+							</GridItem>
+							{isAdmin && (
+								<>
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Email
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											type='email'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.username}
+											name='username'
+											placeholder='Email Address'
+											fontWeight='500'
+											borderColor={
+												errors.username && touched.username ? 'red.300' : null
+											}
+										/>
+										<Text mb='10px' color={'red'}>
+											{errors.username && touched.username && errors.username}
+										</Text>
+									</GridItem>
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Salary Type
+										</FormLabel>
+										<Select
+											name='salaryType'
+											value={values.salaryType}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Select salary type'
+											borderColor={
+												errors.salaryType && touched.salaryType
+													? 'red.300'
+													: null
+											}
+										>
+											{jobTypes?.map((job) => (
+												<option key={job.value} value={job.value}>
+													{job.label}
+												</option>
+											))}
+										</Select>
 
-						{values &&
-							values?.roles &&
-							values?.roles[0]?.roleName === 'Agent' && (
-								<GridItem colSpan={{ base: 12 }}>
+										<Text mb='10px' color={'red'}>
+											{errors.salaryType &&
+												touched.salaryType &&
+												errors.salaryType}
+										</Text>
+									</GridItem>
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Salary
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											type='number'
+											min={0}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.salary}
+											name='salary'
+											fontWeight='500'
+											borderColor={
+												errors.salary && touched.salary ? 'red.300' : null
+											}
+										/>
+										<Text mb='10px' color={'red'}>
+											{errors.salary && touched.salary && errors.salary}
+										</Text>
+									</GridItem>
+
+									{user?.roles[0]?.roleName !== 'Manager' && (
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Select Role <Text color={'red'}>*</Text>
+											</FormLabel>
+											<Select
+												name='role'
+												value={values.role}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												placeholder='Select Role'
+												borderColor={
+													errors.role && touched.role ? 'red.300' : null
+												}
+												className={
+													errors.role && touched.role ? 'isInvalid' : null
+												}
+											>
+												{roles
+													?.filter((role) => role.roleName !== 'sadmin')
+													?.map((role) => (
+														<option key={role?._id} value={role?._id}>
+															{role?.roleName}
+														</option>
+													))}
+											</Select>
+											<Text mb='10px' color='red'>
+												{errors.role && touched.role && errors.role}
+											</Text>
+										</GridItem>
+									)}
+									{roles.find((role) => role?._id === values.role)?.roleName ===
+										'Agent' && (
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Select Manager <Text color={'red'}>*</Text>
+											</FormLabel>
+											<Select
+												name='parent'
+												value={values.parent}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												placeholder='Select Manager'
+											>
+												{filteredManagers?.map((manager) => (
+													<option value={manager?._id}>
+														{manager?.firstName + ' ' + manager?.lastName}
+													</option>
+												))}
+											</Select>
+										</GridItem>
+									)}
+
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Select agency <Text color={'red'}>*</Text>
+										</FormLabel>
+										<Select
+											name='agency'
+											value={values.agency}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Select agency'
+											borderColor={
+												errors.agency && touched.agency ? 'red.300' : null
+											}
+										>
+											{agencies?.doc?.map((agency) => (
+												<option key={agency._id} value={agency._id}>
+													{agency.name}
+												</option>
+											))}
+										</Select>
+
+										<Text mb='10px' color={'red'}>
+											{errors.agency && touched.agency && errors.agency}
+										</Text>
+									</GridItem>
+
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Revenue Target
+										</FormLabel>
+										<InputGroup>
+											<Input
+												type='number'
+												fontSize='sm'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values.target}
+												name='target'
+												fontWeight='500'
+												placeholder='Revenue Target'
+												borderRadius='16px'
+											/>
+										</InputGroup>
+									</GridItem>
+								</>
+							)}
+
+							{isAdmin && (
+								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'
 										ms='4px'
@@ -303,103 +575,63 @@ const Edit = (props) => {
 										fontWeight='500'
 										mb='8px'
 									>
-										Select Manager
+										New Password
 									</FormLabel>
-									<Select
-										name='parent'
-										value={values.parent}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Select Manager'
-									>
-										{tree?.tree?.managers?.map((manager) => (
-											<option value={manager?._id}>
-												{manager?.firstName + ' ' + manager?.lastName}
-											</option>
-										))}
-									</Select>
+									<InputGroup>
+										<Input
+											type='text'
+											fontSize='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.password}
+											name='password'
+											fontWeight='500'
+											placeholder='New Password'
+											borderRadius='16px'
+										/>
+									</InputGroup>
 								</GridItem>
 							)}
-						{(user?.role === 'superAdmin' ||
-							user?.roles[0]?.roleName === 'Manager') && (
-							<GridItem colSpan={{ base: 12 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Revenue Target
-								</FormLabel>
-								<InputGroup>
-									<Input
-										type='number'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.target}
-										name='target'
-										fontWeight='500'
-										placeholder='Revenue Target'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-							</GridItem>
-						)}
+						</Grid>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='gray.200'
+							color='gray.800'
+							_active={{ bg: 'gray.300' }}
+							mr='3'
+							fontSize='md'
+							aria-label='close'
+							isDisabled={uploadImage}
+							onClick={() => handleCloseModal()}
+						>
+							Close
+						</Button>
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							fontSize='md'
+							aria-label='update'
+							disabled={isLoading ? true : false}
+							onClick={handleSubmit}
+						>
+							{isLoading ? <Spinner /> : 'Update'}
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
 
-						{user?.role === 'superAdmin' && (
-							<GridItem colSpan={{ base: 12 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									New Password
-								</FormLabel>
-								<InputGroup>
-									<Input
-										type='text'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.password}
-										name='password'
-										fontWeight='500'
-										placeholder='New Password'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-							</GridItem>
-						)}
-					</Grid>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						size='sm'
-						variant='brand'
-						disabled={isLoding ? true : false}
-						onClick={handleSubmit}
-					>
-						{isLoding ? <Spinner /> : 'Update'}
-					</Button>
-					<Button
-						variant='outline'
-						colorScheme='red'
-						size='sm'
-						sx={{
-							marginLeft: 2,
-							textTransform: 'capitalize',
-						}}
-						onClick={() => handleCloseModal()}
-					>
-						close
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
+			<ReplaceManager
+				isOpen={replaceIsOpen}
+				onClose={replaceOnClose}
+				managers={filteredManagers}
+				replacementManager={replacementManager}
+				setReplacementManager={setReplacementManager}
+			/>
+		</>
 	);
 };
 

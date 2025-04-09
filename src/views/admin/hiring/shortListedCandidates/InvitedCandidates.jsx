@@ -60,9 +60,6 @@ const InvitedCandidates = ({
 	const [selectedTime, setSelectedTime] = useState('');
 
 	const handleScheduleInterview = async () => {
-		console.log('Date:', selectedDate);
-		console.log('Time:', selectedTime);
-
 		try {
 			await updateItemMuation({
 				path: `/applications/schedule-interview/${candidate._id}`,

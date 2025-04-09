@@ -13,6 +13,7 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
+import CustomTooltip from '../CustomTooltip';
 
 const LastNoteField = ({ label, value }) => {
 	const labelColor = useColorModeValue('softGray.200', 'gray.300');
@@ -33,9 +34,9 @@ const LastNoteField = ({ label, value }) => {
 					</Text>
 				)}
 
-				<Tooltip label={value} closeOnClick={false} hasArrow>
+				<CustomTooltip label={value}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip>
+				</CustomTooltip>
 			</HStack>
 
 			{/* Value */}

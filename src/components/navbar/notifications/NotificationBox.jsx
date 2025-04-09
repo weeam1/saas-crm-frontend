@@ -3,21 +3,64 @@ import { FaBell, FaBullhorn } from 'react-icons/fa'; // React icon for announcem
 import { format } from 'date-fns'; // For formatting date and time
 import NotificationView from './NotificationView';
 import { MdEventAvailable } from 'react-icons/md';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { readNotification } from 'api';
+import { useDispatch } from 'react-redux';
+import { newNotifyItem } from './../../../redux/webSocketReducer';
 
-const NotificationBox = ({ notification }) => {
-	const { type, message, created_at } = notification;
+const NotificationBox = ({ notification, users }) => {
+	const { type, created_at } = notification;
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const [messageType, setMessageType] = useState('notification');
+	const [message, setMessage] = useState('');
+
+	const getSender = useCallback(
+		(sender_id) => {
+			return users?.find((user) => user._id === sender_id);
+		},
+		[users]
+	);
 
 	useEffect(() => {
-		if (type === 1) {
-			setMessageType('announcement');
-		} else if (type === 2) {
-			setMessageType('invite');
+		let messageType = '';
+		let message = '';
+
+		switch (type) {
+			case 1:
+				messageType = 'announcement';
+				message = notification?.message;
+				break;
+
+			case 2:
+				messageType = 'invite';
+				message = notification?.message;
+				break;
+
+			case 0:
+				const sender_id = notification?.sender_id;
+				const sender = getSender(sender_id);
+
+				messageType = 'notification';
+				message = `The lead '${notification?.lead_name}' has been assigned ${
+					sender?.fullName ? `by the ${sender.fullName}` : ''
+				}.`;
+				break;
+
+			default:
+				return;
 		}
-	}, [type]);
+
+		setMessageType(messageType);
+		setMessage(message);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		type,
+		notification?.sender_id,
+		notification?.lead_name,
+		notification?.message,
+	]);
 
 	const getIconProps = () => {
 		if (messageType === 'announcement') {
@@ -38,23 +81,41 @@ const NotificationBox = ({ notification }) => {
 	};
 
 	const { icon, bg, title } = getIconProps();
-	// const isNotification = type === 0;
-	// const formattedDate = format(new Date(created_at), "PPP p"); // Format: Jan 8, 2025 11:49 AM
-	const formattedDate = format(new Date(created_at), 'MMM d, yyyy h:mm a');
+	const formattedDate = format(new Date(created_at), ' h:mm a MMM d, yyyy');
+
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
+
+	const handleNotificationOpen = async () => {
+		if (notification?.sent === 0) {
+			readNotification(notification.id, type);
+			dispatch(newNotifyItem({ type: messageType, message }));
+		}
+
+		if (type === 1 || type === 2) {
+			return onOpen();
+		}
+
+		if (type === 0) {
+			if (!notification) return;
+			navigate(`/lead?page=1&pageSize=1&lead=${notification?.lead_id}`);
+		}
+	};
 
 	return (
 		<>
 			<Box
-				onClick={onOpen}
+				onClick={handleNotificationOpen}
 				p={2}
 				borderRadius='md'
 				display='flex'
 				alignItems='center'
 				gap={3}
+				bg={notification?.sent === 0 && 'green.100'}
 				border='none'
 				outline='none'
 				cursor='pointer'
-				transition='background 0.3s ease, box-shadow 0.3s ease' // Smooth transition for hover effects
+				transition='background 0.3s ease, box-shadow 0.3s ease'
 			>
 				{/* Icon */}
 				<Box

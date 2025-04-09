@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	HStack,
 	Button,
 	NumberInput,
 	NumberInputField,
 	Text,
+	Select,
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
 import { leadValueFontSize } from './constants';
+import { useSelector } from 'react-redux';
 
 const Pagination = ({
 	currentPage,
@@ -16,9 +18,18 @@ const Pagination = ({
 	onPageChange,
 	totalItems,
 	itemsPerPage,
-	leadsRefetching,
+	setPageSize,
+	refetching,
+	loading,
+	handlePageSize,
 }) => {
-	const [gotoPage, setGotoPage] = useState(currentPage || '');
+	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
+
+	const leads = useSelector((state) => state.leads);
+
+	useEffect(() => {
+		setGotoPage(currentPage);
+	}, [currentPage]);
 
 	// Calculate indices for the summary
 	const startIndex = (currentPage - 1) * itemsPerPage + 1;
@@ -61,7 +72,7 @@ const Pagination = ({
 		borderRadius: 'lg',
 		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
 		_active: { bg: 'softGray.500' },
-		sx: { svg: { fill: 'brand.500' } }, // ✅ Only changes icon color
+		sx: { svg: { fill: 'brand.500' } },
 	};
 
 	return (
@@ -69,23 +80,28 @@ const Pagination = ({
 			spacing={3}
 			p={2}
 			gap='2'
-			flexDirection={{ base: 'column', lg: 'row' }}
+			flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
+			flexWrap='wrap'
 			bg='softGray.50'
 			border='1px solid'
 			borderColor='softGray.600'
 			borderRadius='md'
 			align='center'
-			// justifyContent='center'
-			width={{ base: '100%', lg: 'fit-content' }}
-			// width='100%'
+			justifyContent={{
+				base: 'center',
+				md: 'space-between',
+				lg: 'space-between',
+			}}
+			width='100%'
+			maxWidth='100%'
 			fontSize={leadValueFontSize}
 		>
-			{/* First Button */}
-			<HStack flexDirection='row'>
+			{/* First & Previous Button */}
+			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
 				<Button
 					{...buttonStyle}
 					onClick={handleFirst}
-					isDisabled={currentPage === 1 || leadsRefetching}
+					isDisabled={currentPage === 1 || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'
@@ -99,13 +115,12 @@ const Pagination = ({
 					First
 				</Button>
 
-				{/* Previous Button */}
 				<Button
 					{...buttonStyle}
 					onClick={handlePrevious}
-					isDisabled={currentPage === 1 || leadsRefetching}
+					isDisabled={currentPage === 1 || refetching}
 					variant='solid'
-					bg='softGray.600' // ✅ Same color as Next
+					bg='softGray.600'
 					color='black'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
@@ -117,29 +132,31 @@ const Pagination = ({
 			{/* Go To Page */}
 			<HStack fontWeight='medium' color='gray.800' spacing={1}>
 				<Text>Go to</Text>
-				<NumberInput
-					value={gotoPage}
-					onChange={(valueString) => setGotoPage(Number(valueString) || '')} // Instantly update value
-					onBlur={handleGoToBlur} // Triggers when input loses focus
+				{/* <NumberInput
+					value={gotoPage ?? 1}
+					onChange={(valueString) => {
+						const value = Number(valueString) || '';
+						if (value <= (totalPages ?? 999999999)) {
+							setGotoPage(value);
+						}
+					}}
+					onBlur={(e) => e.key === 'Enter' && handleGoToBlur()}
 					min={1}
-					// max={totalPages > 0 ? totalPages : null}
+					max={totalPages ?? 999999999}
 					size='sm'
 					borderRadius='md'
 					width='5rem'
 					bg='softGray.50'
 					border='1px solid softGray.600'
 					allowMouseWheel={false}
-					clampValueOnBlur={false} // Prevents auto-clamping before blur
+					clampValueOnBlur={false}
+					isDisabled={refetching || loading}
 				>
 					<NumberInputField
 						aria-label='Go to page'
 						textAlign='center'
 						borderRadius='md'
-						onKeyDown={(e) => {
-							if (e.key === 'Enter') {
-								handleGoToBlur(); // Manually call onBlur function when Enter is pressed
-							}
-						}}
+						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
 						border='2px solid'
 						borderColor='softGray.600'
 						_focus={{
@@ -149,6 +166,45 @@ const Pagination = ({
 							borderColor: 'brand.500',
 						}}
 						_active={{ bg: 'softGray.400' }}
+						isDisabled={refetching || loading} // Disable input when loading
+					/>
+				</NumberInput> */}
+
+				<NumberInput
+					value={gotoPage ?? 1}
+					onChange={(valueString) => {
+						const value = Number(valueString) || '';
+						if (value <= (totalPages ?? 999999999)) {
+							setGotoPage(value);
+						}
+					}}
+					onBlur={handleGoToBlur} // FIX: Remove e.key check
+					min={1}
+					max={totalPages ?? 999999999}
+					size='sm'
+					borderRadius='md'
+					width='5rem'
+					bg='softGray.50'
+					border='1px solid softGray.600'
+					allowMouseWheel={false}
+					clampValueOnBlur={false}
+					isDisabled={refetching || loading}
+				>
+					<NumberInputField
+						aria-label='Go to page'
+						textAlign='center'
+						borderRadius='md'
+						border='2px solid'
+						borderColor='softGray.600'
+						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
+						_focus={{
+							outline: 'none',
+							bg: 'softGray.50',
+							border: '1px solid',
+							borderColor: 'brand.500',
+						}}
+						_active={{ bg: 'softGray.400' }}
+						isDisabled={refetching || loading}
 					/>
 				</NumberInput>
 
@@ -160,14 +216,53 @@ const Pagination = ({
 				Showing {startIndex} - {endIndex} of {totalItems}
 			</Text>
 
-			<HStack flexDirection='row'>
-				{/* Next Button */}
+			{/* Next & Last Button */}
+			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
+				<Select
+					size='sm'
+					w={{ base: '32' }}
+					value={itemsPerPage}
+					color='gray.800'
+					bg='softGray.400'
+					borderRadius='md'
+					border='2px solid'
+					_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
+					onChange={handlePageSize}
+					isDisabled={!leads?.totalLeads || loading || refetching}
+				>
+					{leads?.totalLeads > 0 ? (
+						[
+							6,
+							12,
+							32,
+							50,
+							60,
+							80,
+							100,
+							leads.totalLeads < 200 ? leads.totalLeads : 200,
+							leads.pageSize,
+						]
+							.filter(
+								(size, index, self) =>
+									size <= leads.totalLeads && self.indexOf(size) === index
+							)
+							.sort((a, b) => a - b) // Sorting in ascending order
+							.map((size) => (
+								<option key={size} value={size}>
+									Show {size}
+								</option>
+							))
+					) : (
+						<option value='0'>""</option>
+					)}
+				</Select>
+
 				<Button
 					{...buttonStyle}
 					onClick={handleNext}
-					isDisabled={currentPage === totalPages || leadsRefetching}
+					isDisabled={currentPage === totalPages || refetching}
 					variant='solid'
-					bg='softGray.600' // ✅ Same color as Previous
+					bg='softGray.600'
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
@@ -175,11 +270,10 @@ const Pagination = ({
 					Next
 				</Button>
 
-				{/* Last Button */}
 				<Button
 					{...buttonStyle}
 					onClick={handleLast}
-					isDisabled={currentPage === totalPages || leadsRefetching}
+					isDisabled={currentPage === totalPages || refetching}
 					variant='solid'
 					bg='softGray.600'
 					color='black'

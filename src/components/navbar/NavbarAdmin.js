@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
 import { AiOutlineMenuFold } from 'react-icons/ai';
-import { FaPlus } from 'react-icons/fa';
+import BrandLogo from 'assets/logo/logo.png';
 
 export default function AdminNavbar(props) {
 	const [scrolled, setScrolled] = useState(false);
@@ -150,22 +150,20 @@ export default function AdminNavbar(props) {
 						{openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
 					</Box>
 					<Flex display={{ base: 'none', xl: 'flex' }}>
-						{(largeLogo && largeLogo[0]?.logoLgImg) ||
-						(largeLogo && largeLogo[0]?.logoSmImg) ? (
+						{/* {(largeLogo && largeLogo[0]?.logoLgImg) ||
+						(largeLogo && largeLogo[0]?.logoSmImg) ? ( */}
+						{BrandLogo ? (
 							<Image
 								style={{
-									width: openSidebar ? '165px' : '60px',
-									height: '52px',
+									// width: openSidebar ? 'px' : '60px',
+									height: '40px',
 								}}
-								src={
-									openSidebar === true
-										? largeLogo[0]?.logoLgImg
-										: largeLogo[0]?.logoSmImg
-								} // Set the source path of your image
+								src={BrandLogo} // Set the source path of your image
 								alt='Logo' // Set the alt text for accessibility
 								cursor='pointer'
 								onClick={() => !props.from && setOpenSidebar(!openSidebar)}
 								userSelect='none'
+								objectFit='contain'
 								my={2}
 							/>
 						) : (
@@ -187,12 +185,14 @@ export default function AdminNavbar(props) {
 					</Flex>
 
 					<Link color={mainText} display={{ base: 'flex', xl: 'none' }}>
-						{largeLogo && largeLogo[0]?.logoLgImg ? (
+						{/* {largeLogo && largeLogo[0]?.logoLgImg ? ( */}
+						{BrandLogo ? (
 							<Image
-								style={{ width: '100%', height: '52px' }}
-								src={largeLogo[0]?.logoLgImg}
+								style={{ height: '40px' }}
+								src={BrandLogo}
 								alt='Logo'
 								cursor='pointer'
+								objectFit='contain'
 								userSelect='none'
 								my={2}
 							/>

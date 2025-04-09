@@ -1,11 +1,11 @@
 import { IconButton, Tooltip } from '@chakra-ui/react';
-import { FiFilter } from 'react-icons/fi';
+import { MdDateRange } from 'react-icons/md';
 
 const DateFilterButton = ({ onClick }) => {
 	return (
 		<Tooltip label='Date Filtered' hasArrow>
 			<IconButton
-				icon={<FiFilter />}
+				icon={<MdDateRange />}
 				onClick={onClick}
 				aria-label='Filter Date'
 				colorScheme='brand'

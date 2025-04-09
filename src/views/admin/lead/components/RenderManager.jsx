@@ -1,9 +1,9 @@
-import { Select, Text, useColorModeValue } from "@chakra-ui/react";
-import BoxLoading from "components/shared/BoxLoading";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { putApi } from "services/api";
+import { Select, Text, useColorModeValue } from '@chakra-ui/react';
+import BoxLoading from 'components/shared/BoxLoading';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { putApi } from 'services/api';
 
 const RenderManager = ({
 	id,
@@ -17,15 +17,15 @@ const RenderManager = ({
 	setData,
 	updateRowStatus,
 }) => {
-	const [selectedManager, setSelectedManager] = useState(value || "");
+	const [selectedManager, setSelectedManager] = useState(value || '');
 	const [loading, setLoading] = useState(false);
-	const tree = useSelector((state) => state.user.tree);
+	const tree = useSelector((state) => state.user.activeTree);
 
 	const handleChangeManager = async (e) => {
 		const managerAssigned = e.target.value;
 		const dataObj = {
-			managerAssigned: managerAssigned || "",
-			agentAssigned: managerAssigned ? "" : undefined,
+			managerAssigned: managerAssigned || '',
+			agentAssigned: managerAssigned ? '' : undefined,
 			// agentAssigned: "",
 		};
 
@@ -35,7 +35,7 @@ const RenderManager = ({
 
 			if (res.status === 200) {
 				updateRowStatus(leadID, res.data.leadStatus);
-				toast.success("Manager updated successfully");
+				toast.success('Manager updated successfully');
 			}
 
 			// Update data in the corresponding list (searched or default)
@@ -44,7 +44,7 @@ const RenderManager = ({
 				const updateIdx = newData.findIndex((l) => l._id.toString() === leadID);
 				if (updateIdx !== -1) {
 					newData[updateIdx].managerAssigned = dataObj.managerAssigned;
-					newData[updateIdx].agentAssigned = dataObj.agentAssigned || "";
+					newData[updateIdx].agentAssigned = dataObj.agentAssigned || '';
 					newData[updateIdx].leadType = dataObj.leadType || null;
 					newData[updateIdx].isReleased = dataObj.isReleased;
 				}
@@ -57,8 +57,8 @@ const RenderManager = ({
 				setData(updateListData);
 			}
 		} catch (error) {
-			console.error("Failed to update the manager:", error);
-			toast.error("Failed to update the manager");
+			console.error('Failed to update the manager:', error);
+			toast.error('Failed to update the manager');
 		} finally {
 			setLoading(false);
 		}
@@ -68,18 +68,18 @@ const RenderManager = ({
 		setSelectedManager(value);
 	}, [value]);
 
-	const textColor = useColorModeValue("black", "white");
+	const textColor = useColorModeValue('black', 'white');
 
 	return loading ? (
 		<BoxLoading />
 	) : isAdmin ? (
 		<Select
-			value={selectedManager || ""}
+			value={selectedManager || ''}
 			onChange={handleChangeManager}
-			placeholder="No Manager"
-			color={!selectedManager ? "gray.500" : textColor}
+			placeholder='No Manager'
+			color={!selectedManager ? 'gray.500' : textColor}
 			width={180}
-			size="sm"
+			size='sm'
 		>
 			{tree?.managers?.map((manager) => (
 				<option key={manager?._id?.toString()} value={manager?._id?.toString()}>
@@ -88,12 +88,12 @@ const RenderManager = ({
 			))}
 		</Select>
 	) : (
-		<Text textStyle="sm">
+		<Text textStyle='sm'>
 			{selectedManager
 				? `${
 						tree?.managers?.find((m) => m._id === selectedManager)?.firstName
 					} ${tree?.managers?.find((m) => m._id === selectedManager)?.lastName}`
-				: "No Manager Assigned"}
+				: 'No Manager Assigned'}
 		</Text>
 	);
 };
