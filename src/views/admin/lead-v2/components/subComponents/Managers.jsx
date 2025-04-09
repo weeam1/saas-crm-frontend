@@ -126,30 +126,16 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				</CustomTooltip>
 			</Flex>
 
-			{['Manager', 'Agent'].includes(role) ? (
-				<Text
-					bg='softGray.400'
-					py='2px'
-					px='4px'
-					mt='6px'
-					rounded='md'
-					color='softGray.300'
-					fontSize={leadValueFontSize}
-				>
-					{managerName}
-				</Text>
-			) : (
-				<SelectInput
-					name='managerAssigned'
-					placeholder='Select'
-					options={mergeSort(tree?.managers || [])}
-					selectedValue={selected}
-					type='dynamic'
-					size={leadSelectInputSize}
-					loading={loading}
-					onChange={handleChangeManager}
-				/>
-			)}
+			<SelectInput
+				name='managerAssigned'
+				placeholder='Select'
+				options={mergeSort(tree?.managers || [])}
+				selectedValue={selected}
+				type='dynamic'
+				size={leadSelectInputSize}
+				loading={loading}
+				onChange={handleChangeManager}
+			/>
 		</>
 	);
 };
