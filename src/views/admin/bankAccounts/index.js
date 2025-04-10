@@ -5,12 +5,7 @@ import { getApi } from "services/api";
 
 const Index = () => {
   const tableColumns = [
-    {
-      Header: "#",
-      accessor: "_id",
-      isSortable: false,
-      width: 10,
-    },
+    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
     { Header: "Account Name", accessor: "account_holder_name" },
     { Header: "Account Number", accessor: "account_number" },
     { Header: "IBAN", accessor: "iban", isSortable: false },
@@ -19,28 +14,43 @@ const Index = () => {
     { Header: "Bank Address", accessor: "branch_address" },
     { Header: "Action", isSortable: false, center: true },
   ];
+
   const [action, setAction] = useState(false);
   const [dynamicColumns, setDynamicColumns] = useState([...tableColumns]);
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState([...tableColumns]);
   const [isLoding, setIsLoding] = useState(false);
   const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
+
   const { isOpen } = useDisclosure();
 
+  // Fetch Data only once on component mount
   const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(`api/bank_accounts`, null, "server2");
-    setData(result.data || []);
-    setIsLoding(false);
+    try {
+      setIsLoding(true);
+      let result = await getApi(`api/bankAccount/get`);
+      setData(result.data || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoding(false);
+    }
   };
 
   useEffect(() => {
-    setColumns(tableColumns);
+    fetchData();
+  }, []); // ✅ Runs only once
+
+  // Ensure columns update only when `action` changes
+  useEffect(() => {
+    if (action) {
+      setColumns(tableColumns);
+    }
   }, [action]);
 
+  // Filter dynamic columns
   const dataColumn = dynamicColumns?.filter((item) =>
     selectedColumns?.find((colum) => colum?.Header === item.Header)
   );
@@ -48,7 +58,6 @@ const Index = () => {
   return (
     <div>
       <CheckTable
-        // isOpen={isOpen} setAction={setAction} action={action} columnsData={columns}
         isLoding={isLoding}
         columnsData={columns}
         isOpen={isOpen}

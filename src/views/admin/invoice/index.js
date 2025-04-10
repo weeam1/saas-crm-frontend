@@ -1,123 +1,63 @@
-import { Grid, GridItem, useDisclosure } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { getApi } from "services/api";
-import { HasAccess } from "../../../redux/accessUtils";
-import CheckTable from "./components/CheckTable";
-import { useSelector } from "react-redux";
+import { useNavigate } from 'react-router-dom';
+import { Box, SimpleGrid, Text, Icon, Flex } from '@chakra-ui/react';
+import { FaUniversity } from 'react-icons/fa';
+import { HiOutlineDocumentReport } from 'react-icons/hi';
+import { PiBuildingsBold } from 'react-icons/pi';
 
-const Index = () => {
-  const [isLoding, setIsLoding] = useState(false);
-  const [data, setData] = useState([]);
-  const [displaySearchData, setDisplaySearchData] = useState(false);
-  const [searchedData, setSearchedData] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
-  const tree = useSelector((state) => state.user.tree);
+const InvoiceModule = () => {
+	const navigate = useNavigate();
+	const user = JSON.parse(localStorage.getItem('user'));
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-  const [permission, emailAccess, callAccess] = HasAccess([
-    "Lead",
-    "Email",
-    "Call",
-  ]);
-  const tableColumns = [
-    { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
-  const tableColumnsManager = [
-        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
-  const tableColumnsAgent = [
-        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
-    { Header: "Date", accessor: "created_at"},
-    { Header: "Developer", accessor: "developer.developer_name" },
-    { Header: "Bank Account", accessor: "bank_account.account_holder_name" },
-    { Header: "Total Amount", accessor: "total_amount" },
-    { Header: "Action", isSortable: false, center: true },
-  ];
+	const menuItems = [
+		{
+			label: 'Developers',
+			icon: PiBuildingsBold,
+			route: `/invoice/developers`,
+		},
+		{
+			label: 'Bank Accounts',
+			icon: FaUniversity,
+			route: `/invoice/bank-accounts`,
+		},
+	];
 
-  const roleColumns = {
-    Manager: tableColumnsManager,
-    Agent: tableColumnsAgent,
-  };
+	return (
+		<Box p={4}>
+			<Flex align='center' mb={4} p='4' bg='white' borderRadius='lg'>
+				<Icon
+					as={HiOutlineDocumentReport}
+					boxSize={6}
+					color='brand.500'
+					mr={2}
+				/>
+				<Text fontSize='2xl' fontWeight='bold'>
+					Invoice Management
+				</Text>
+			</Flex>
 
-  const role = user?.roles[0]?.roleName;
-
-  const [dynamicColumns, setDynamicColumns] = useState(
-    roleColumns[role] || tableColumns
-  );
-  const [selectedColumns, setSelectedColumns] = useState(
-    roleColumns[role] || tableColumns
-  );
-  const [action, setAction] = useState(false);
-  const [dateTime, setDateTime] = useState({
-    from: "",
-    to: "",
-  });
-  const [columns, setColumns] = useState(roleColumns[role] || tableColumns);
-  const { isOpen } = useDisclosure();
-
-  const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
-  );
-
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(
-      user.role === "superAdmin"
-        ? "api/invoices/"
-        : `api/invoices/?user=${user._id}`, null, "server2"
-    );
-    setData(result.data?.invoice_items || []);
-    setIsLoding(false);
-  };
-
-  useEffect(() => {
-    setColumns(tableColumns);
-  }, [action]);
-
-
-
-  return (
-    <div>
-      <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={4}>
-        <GridItem colSpan={6}>
-
-          <CheckTable
-            dateTime={dateTime}
-            setDateTime={setDateTime}
-            isLoding={isLoding}
-            setIsLoding={setIsLoding}
-            columnsData={roleColumns[role] || tableColumns}
-            isOpen={isOpen}
-            setAction={setAction}
-            dataColumn={dataColumn}
-            action={action}
-            setSearchedData={setSearchedData}
-            allData={data}
-            displaySearchData={displaySearchData}
-            tableData={displaySearchData ? searchedData : data}
-            fetchData={fetchData}
-            setDisplaySearchData={setDisplaySearchData}
-            setDynamicColumns={setDynamicColumns}
-            dynamicColumns={dynamicColumns}
-            selectedColumns={selectedColumns}
-            access={permission}
-            setSelectedColumns={setSelectedColumns}
-            emailAccess={emailAccess}
-            callAccess={callAccess}
-          />
-        </GridItem>
-      </Grid>
-    </div>
-  );
+			<SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+				{menuItems.map((item) => (
+					<Box
+						key={item.label}
+						p={6}
+						bg='white'
+						borderRadius='lg'
+						textAlign='center'
+						cursor='pointer'
+						_hover={{ bg: 'brand.400', color: 'white' }}
+						onClick={() => navigate(item.route)}
+					>
+						<Icon as={item.icon} boxSize={8} mb={2} />
+						<Text fontSize='md' fontWeight='bold'>
+							{item.label}
+						</Text>
+					</Box>
+				))}
+			</SimpleGrid>
+		</Box>
+	);
 };
 
-export default Index;
+export default InvoiceModule;

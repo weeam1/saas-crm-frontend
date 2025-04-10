@@ -1,72 +1,144 @@
-import { useDisclosure } from "@chakra-ui/react";
-import CheckTable from "./components/CheckTable";
 import { useEffect, useState } from "react";
-import { getApi } from "services/api";
+import { Box, Alert, AlertIcon, Spinner, Text } from "@chakra-ui/react";
+import CheckTable from "./components/CheckTable";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const Index = () => {
   const tableColumns = [
-    {
-      Header: "#",
-      accessor: "_id",
-      isSortable: false,
-      width: 10,
-    },
-    { Header: "TRN", accessor: "trn" },
+    { Header: "#", accessor: "_id", isSortable: false, width: 5 },
     { Header: "Developer Name", accessor: "developer_name" },
     { Header: "Address", accessor: "address" },
+    { Header: "TRN", accessor: "trn" },
     { Header: "Email ID", accessor: "email" },
     { Header: "Action", isSortable: false, center: true },
   ];
+
   const [action, setAction] = useState(false);
   const [dynamicColumns, setDynamicColumns] = useState([...tableColumns]);
   const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
-  const [columns, setColumns] = useState([]);
-  const [isLoding, setIsLoding] = useState(false);
-  const [data, setData] = useState([]);
   const [displaySearchData, setDisplaySearchData] = useState(false);
   const [searchedData, setSearchedData] = useState([]);
-  const { isOpen } = useDisclosure();
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(25); // Changed from 10 to 25
+  const [searchField, setSearchField] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi(
-         `api/developers`, null, "server2"
-    );
-    setData(result.data || []);
-    setIsLoding(false);
+  const buildQueryPath = () => {
+    if (!searchTerm) {
+      return `/developer/get?page=${pageIndex + 1}&limit=${pageSize}`;
+    }
+    return `/developer/search?page=${pageIndex + 1}&pageSize=${pageSize}&${searchField}=${encodeURIComponent(searchTerm)}`;
+  };
+
+  const {
+    data: developerResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useFetchItemsQuery({
+    path: buildQueryPath(),
+    pageIndex,
+    pageSize,
+    searchField,
+    searchTerm,
+  });
+
+  const fetchData = ({
+    pageIndex: newPageIndex,
+    pageSize: newPageSize,
+    search,
+    field,
+  }) => {
+    if (newPageIndex < 0) {
+      console.warn("Invalid pageIndex in fetchData:", newPageIndex);
+      return;
+    }
+    if (!newPageSize || newPageSize <= 0) {
+      console.warn("Invalid pageSize in fetchData:", newPageSize);
+      return;
+    }
+
+    console.log("Fetching with:", { newPageIndex, newPageSize, search, field }); // Debug
+    setPageIndex(newPageIndex);
+    setPageSize(newPageSize);
+    setSearchTerm(search || "");
+    if (field) setSearchField(field);
+    refetch();
   };
 
   useEffect(() => {
-    setColumns(tableColumns);
+    setDynamicColumns([...tableColumns]);
   }, [action]);
 
-  const dataColumn = dynamicColumns?.filter((item) =>
-    selectedColumns?.find((colum) => colum?.Header === item.Header)
-  );
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching developers:", error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (developerResponse?.doc) {
+      console.log("API Response:", developerResponse.doc); // Debug
+      setSearchedData(developerResponse.doc);
+    }
+  }, [developerResponse]);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" h="200px">
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Alert status="error" borderRadius="md">
+          <AlertIcon />
+          <Box>
+            <Text fontWeight="bold">Error</Text>
+            <Text>
+              {error?.data?.message ||
+                "Failed to load developers. Please try again."}
+            </Text>
+          </Box>
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
-    <div>
+    <Box p={4}>
       <CheckTable
-        // isOpen={isOpen} setAction={setAction} action={action} columnsData={columns}
-        isLoding={isLoding}
-        columnsData={columns}
-        isOpen={isOpen}
+        isLoading={isLoading}
+        columnsData={tableColumns}
         setAction={setAction}
         action={action}
         setSearchedData={setSearchedData}
-        allData={data}
+        allData={developerResponse?.doc || []}
         displaySearchData={displaySearchData}
-        tableData={displaySearchData ? searchedData : data}
+        tableData={
+          displaySearchData ? searchedData : developerResponse?.doc || []
+        }
         fetchData={fetchData}
-        dataColumn={dataColumn}
+        dataColumn={dynamicColumns.filter((item) =>
+          selectedColumns.some((column) => column.Header === item.Header)
+        )}
         setDisplaySearchData={setDisplaySearchData}
         setDynamicColumns={setDynamicColumns}
         dynamicColumns={dynamicColumns}
         selectedColumns={selectedColumns}
         setSelectedColumns={setSelectedColumns}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        totalItems={developerResponse?.totalDocs || 0}
+        totalPages={developerResponse?.totalPages || 1}
+        currentPage={developerResponse?.currentPage || 1}
+        refetch={refetch}
       />
-      {/* Add Form */}
-    </div>
+    </Box>
   );
 };
 
