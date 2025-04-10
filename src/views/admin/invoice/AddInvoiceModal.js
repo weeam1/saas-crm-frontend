@@ -197,7 +197,7 @@ const AddInvoice = (props) => {
 											{bankAccountsLoading
 												? 'Loading bank accounts...'
 												: selectedBankAccount
-													? `${selectedBankAccount.account_holder_name} (${selectedBankAccount.account_number})`
+													? `${selectedBankAccount.account_holder_name}`
 													: bankAccounts.length > 0
 														? 'Choose Bank Account'
 														: 'No bank accounts available'}
