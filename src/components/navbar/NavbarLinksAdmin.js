@@ -67,14 +67,15 @@ export default function HeaderLinks(props) {
 			let response = await getApi('api/user/view/', userId);
 
 			if (response?.data) {
-				setLoginUser(response.data);
-
 				// Check role mismatch
 				if (
-					localUser?.roles[0]?.roleName !== response.data?.roles[0]?.roleName
+					localUser?.roles[0]?.roleName !== response.data?.roles[0]?.roleName ||
+					!response.data?.isActive
 				) {
 					logOut();
 				}
+
+				setLoginUser(response.data);
 			}
 		} catch (error) {
 			console.error('Error fetching user:', error);

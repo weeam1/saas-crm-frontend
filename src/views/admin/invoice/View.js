@@ -240,7 +240,6 @@ const SingleInvoice = () => {
 									src={Weam}
 									alt='Weam Elnaggar Real Estate'
 									width='200px'
-									mx='auto'
 								/>
 
 								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>

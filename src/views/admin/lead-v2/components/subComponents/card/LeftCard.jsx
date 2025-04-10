@@ -101,7 +101,7 @@ const LeftCard = ({
 				</GridItem>
 
 				{/* Manager */}
-				{role === 'superAdmin' && !hiddenFields.includes('managerAssigned') && (
+				{/* {role === 'superAdmin' && !hiddenFields.includes('managerAssigned') && (
 					<GridItem
 						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
 					>
@@ -113,14 +113,61 @@ const LeftCard = ({
 							queryParams={queryParams}
 						/>
 					</GridItem>
+				)} */}
+				{queryParams?.invite ? (
+					<GridItem
+						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+					>
+						<Managers
+							managerAssigned={lead?.managerAssigned}
+							lead={lead}
+							refreshLeads={refreshLeads}
+							role={role}
+							queryParams={queryParams}
+						/>
+					</GridItem>
+				) : (
+					role === 'superAdmin' &&
+					!hiddenFields.includes('managerAssigned') && (
+						<GridItem
+							colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+						>
+							<Managers
+								managerAssigned={lead?.managerAssigned}
+								lead={lead}
+								refreshLeads={refreshLeads}
+								role={role}
+								queryParams={queryParams}
+							/>
+						</GridItem>
+					)
 				)}
 
 				{/* Agent */}
-				{['superAdmin', 'Manager'].includes(role) &&
+				{queryParams?.invite ? (
+					<GridItem
+						colSpan={
+							queryParams?.invite
+								? '1'
+								: (!queryParams?.invite && role === 'Manager') ||
+									  hiddenFields.includes('agentAssigned')
+									? '2'
+									: '1'
+						}
+					>
+						<Agents
+							agentAssigned={lead?.agentAssigned}
+							managerAssigned={lead?.managerAssigned}
+							lead={lead}
+							refreshLeads={refreshLeads}
+						/>
+					</GridItem>
+				) : (
+					['superAdmin', 'Manager'].includes(role) &&
 					!hiddenFields.includes('agentAssigned') && (
 						<GridItem
 							colSpan={
-								role === 'Manager' || hiddenFields.includes('managerAssigned')
+								role === 'Manager' || hiddenFields.includes('agentAssigned')
 									? '2'
 									: '1'
 							}
@@ -132,7 +179,8 @@ const LeftCard = ({
 								refreshLeads={refreshLeads}
 							/>
 						</GridItem>
-					)}
+					)
+				)}
 
 				{/* Main lead status */}
 				{!hiddenFields.includes('eLeadStatus') && (

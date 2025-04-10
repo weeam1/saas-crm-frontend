@@ -299,7 +299,7 @@ const AddUser = (props) => {
 									>
 										{agencies.map((agency) => (
 											<option key={agency._id} value={agency._id}>
-												{agency.name} {/* Adjust based on your agency schema */}
+												{agency.name}
 											</option>
 										))}
 									</Select>

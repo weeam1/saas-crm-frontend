@@ -35,8 +35,12 @@ const Developers = () => {
 		() => [
 			{ Header: 'Date', accessor: 'createdAt' },
 			{ Header: 'Developer', accessor: 'developer_name' },
-			{ Header: 'Developer Email', accessor: 'email' },
+			{ Header: 'Email', accessor: 'email' },
 			{ Header: 'Trn', accessor: 'trn' },
+			{ Header: 'Agency', accessor: 'agency' },
+			{ Header: 'Address', accessor: 'address' },
+			{ Header: 'Country', accessor: 'country' },
+			{ Header: 'Action', isSortable: false, center: true },
 			// { Header: "Status", accessor: "status" },
 		],
 		[]
@@ -80,6 +84,7 @@ const Developers = () => {
 		data: invoiceData,
 		isLoading: queryLoading,
 		error,
+		refetch: developersRefetch,
 		isUninitialized,
 	} = useFetchItemsQuery(queryArgs, {
 		skip: !user._id,
@@ -97,12 +102,38 @@ const Developers = () => {
 		}
 	}, [agencyData, agencyError]);
 
+	// useEffect(() => {
+	// 	setIsLoading(queryLoading || agencyLoading);
+	// 	if (invoiceData?.doc) {
+	// 		setData(invoiceData.doc);
+	// 		if (committedSearchTerm || selectedAgency) {
+	// 			setSearchedData(invoiceData.doc);
+	// 			setDisplaySearchData(true);
+	// 		} else {
+	// 			setDisplaySearchData(false);
+	// 		}
+	// 	} else if (error) {
+	// 		console.error('Error fetching data:', error);
+	// 		setData([]);
+	// 		setSearchedData([]);
+	// 	}
+	// }, [
+	// 	invoiceData,
+	// 	queryLoading,
+	// 	error,
+	// 	committedSearchTerm,
+	// 	selectedAgency,
+	// 	agencyLoading,
+	// ]);
+
 	useEffect(() => {
-		setIsLoading(queryLoading || agencyLoading);
+		console.log('invoice use effect ');
 		if (invoiceData?.doc) {
-			setData(invoiceData.doc);
+			const docData = invoiceData.doc;
+			setData(docData);
+
 			if (committedSearchTerm || selectedAgency) {
-				setSearchedData(invoiceData.doc);
+				setSearchedData(docData);
 				setDisplaySearchData(true);
 			} else {
 				setDisplaySearchData(false);
@@ -112,17 +143,16 @@ const Developers = () => {
 			setData([]);
 			setSearchedData([]);
 		}
-	}, [
-		invoiceData,
-		queryLoading,
-		error,
-		committedSearchTerm,
-		selectedAgency,
-		agencyLoading,
-	]);
+	}, [invoiceData?.doc, committedSearchTerm, selectedAgency, error]);
+
+	useEffect(() => {
+		setIsLoading(queryLoading || agencyLoading);
+	}, [queryLoading, agencyLoading]);
+
 	useEffect(() => {
 		if (location.state?.refetch && !isUninitialized && user._id) {
 			setQueryArgs((prev) => ({ ...prev }));
+			console.log('query refresh');
 			window.history.replaceState({}, document.title);
 		}
 	}, [location.state, isUninitialized, user._id]);
@@ -145,7 +175,9 @@ const Developers = () => {
 			newPageIndex !== undefined ? newPageIndex : pageIndex;
 		const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
 		const updatedSearch = search !== undefined ? search : committedSearchTerm;
-		const updatedAgency = agency !== undefined ? agency : selectedAgency; // Use passed agency if provided
+		const updatedAgency = agency !== undefined ? agency : selectedAgency;
+
+		console.log('invoice fetch data  ');
 
 		setPageIndex(updatedPageIndex);
 		setPageSize(updatedPageSize);
@@ -164,6 +196,11 @@ const Developers = () => {
 
 		setQueryArgs(newQueryArgs);
 	};
+
+	useEffect(() => {
+		developersRefetch(queryArgs);
+	}, [queryArgs]);
+
 	return (
 		<Box>
 			<AppButton

@@ -22,6 +22,7 @@ import { useFetchItemsQuery, useUpdateItemMutation } from 'api/apiSlice';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
+import Loader from 'components/loading/Loader';
 
 const invoiceSchema = yup.object().shape({
 	developer_id: yup.string().required('Developer is required'),
@@ -44,13 +45,20 @@ const Edit = (props) => {
 		path: `/developer/get/${props.data.developer._id}`,
 	});
 
-	const { data: developersData, error: developersError } = useFetchItemsQuery(
+	const {
+		data: developersData,
+		isLoading: developersLoading,
+		error: developersError,
+	} = useFetchItemsQuery(
 		{ path: '/developer/getALL' },
 		{ skip: !props.isOpen }
 	);
 
-	const { data: bankAccountsData, error: bankAccountsError } =
-		useFetchItemsQuery({ path: '/bankAccount/get' }, { skip: !props.isOpen });
+	const {
+		data: bankAccountsData,
+		isLoading: banksLoading,
+		error: bankAccountsError,
+	} = useFetchItemsQuery({ path: '/bankAccount/get' }, { skip: !props.isOpen });
 
 	const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
 
@@ -206,144 +214,148 @@ const Edit = (props) => {
 						/>
 					</ModalHeader>
 					<ModalBody overflowY='auto' px={6} py={4}>
-						<form onSubmit={handleSubmit}>
-							<Grid templateColumns='repeat(12, 1fr)' gap={4}>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel
-										fontSize='14px'
-										fontWeight='medium'
-										fontFamily='DM Sans, sans-serif'
-										color='gray.700'
-										mb={1}
-									>
-										Developer Name
-									</FormLabel>
-									<Select
-										fontSize='14px'
-										name='developer_id'
-										onChange={handleDeveloperChange}
-										onBlur={handleBlur}
-										value={values.developer_id || ''}
-										placeholder={
-											developersData?.data?.length > 0
-												? 'Choose Developer'
-												: 'No developer added'
-										}
-										borderColor={
-											errors.developer_id && touched.developer_id
-												? 'red.300'
-												: 'gray.300'
-										}
-										fontFamily='DM Sans, sans-serif'
-										icon={customDropdownIcon}
-										borderRadius='6px'
-										height='40px'
-										_focus={{
-											borderColor: '#B79045',
-											boxShadow: '0 0 0 1px #B79045',
-										}}
-									>
-										{developersData?.data?.map((developer) => (
-											<option key={developer._id} value={developer._id}>
-												{developer.developer_name}
-											</option>
-										))}
-									</Select>
-									{errors.developer_id && touched.developer_id && (
-										<FormLabel color='red.500' fontSize='12px' mt={1}>
-											{errors.developer_id}
+						{developersLoading || banksLoading ? (
+							<Loader />
+						) : (
+							<form onSubmit={handleSubmit}>
+								<Grid templateColumns='repeat(12, 1fr)' gap={4}>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel
+											fontSize='14px'
+											fontWeight='medium'
+											fontFamily='DM Sans, sans-serif'
+											color='gray.700'
+											mb={1}
+										>
+											Developer Name
 										</FormLabel>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel
-										fontSize='14px'
-										fontWeight='medium'
-										fontFamily='DM Sans, sans-serif'
-										color='gray.700'
-										mb={1}
-									>
-										Bank Account
-									</FormLabel>
-									<Select
-										fontSize='14px'
-										name='bank_account_id'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.bank_account_id || ''}
-										placeholder={
-											bankAccountsData?.data?.length > 0
-												? 'Choose Bank Account'
-												: 'No bank account added'
-										}
-										borderColor={
-											errors.bank_account_id && touched.bank_account_id
-												? 'red.300'
-												: 'gray.300'
-										}
-										fontFamily='DM Sans, sans-serif'
-										icon={customDropdownIcon}
-										borderRadius='6px'
-										height='40px'
-										_focus={{
-											borderColor: '#B79045',
-											boxShadow: '0 0 0 1px #B79045',
-										}}
-									>
-										{filteredBankAccounts?.map((bank) => (
-											<option key={bank._id} value={bank._id}>
-												{bank.account_holder_name} - {bank.account_number}
-											</option>
-										))}
-									</Select>
-									{errors.bank_account_id && touched.bank_account_id && (
-										<FormLabel color='red.500' fontSize='12px' mt={1}>
-											{errors.bank_account_id}
+										<Select
+											fontSize='14px'
+											name='developer_id'
+											onChange={handleDeveloperChange}
+											onBlur={handleBlur}
+											value={values.developer_id || ''}
+											placeholder={
+												developersData?.data?.length > 0
+													? 'Choose Developer'
+													: 'No developer added'
+											}
+											borderColor={
+												errors.developer_id && touched.developer_id
+													? 'red.300'
+													: 'gray.300'
+											}
+											fontFamily='DM Sans, sans-serif'
+											icon={customDropdownIcon}
+											borderRadius='6px'
+											height='40px'
+											_focus={{
+												borderColor: '#B79045',
+												boxShadow: '0 0 0 1px #B79045',
+											}}
+										>
+											{developersData?.data?.map((developer) => (
+												<option key={developer._id} value={developer._id}>
+													{developer.developer_name}
+												</option>
+											))}
+										</Select>
+										{errors.developer_id && touched.developer_id && (
+											<FormLabel color='red.500' fontSize='12px' mt={1}>
+												{errors.developer_id}
+											</FormLabel>
+										)}
+									</GridItem>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel
+											fontSize='14px'
+											fontWeight='medium'
+											fontFamily='DM Sans, sans-serif'
+											color='gray.700'
+											mb={1}
+										>
+											Bank Account
 										</FormLabel>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel
-										fontSize='14px'
-										fontWeight='medium'
-										fontFamily='DM Sans, sans-serif'
-										color='gray.700'
-										mb={1}
-									>
-										Claim Type
-									</FormLabel>
-									<Select
-										fontSize='14px'
-										name='claimType'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.claimType || ''}
-										placeholder='Select Claim Type'
-										borderColor={
-											errors.claimType && touched.claimType
-												? 'red.300'
-												: 'gray.300'
-										}
-										fontFamily='DM Sans, sans-serif'
-										icon={customDropdownIcon}
-										borderRadius='6px'
-										height='40px'
-										_focus={{
-											borderColor: '#B79045',
-											boxShadow: '0 0 0 1px #B79045',
-										}}
-									>
-										<option value='Full'>Full</option>
-										<option value='Installment'>Installment</option>
-									</Select>
-									{errors.claimType && touched.claimType && (
-										<FormLabel color='red.500' fontSize='12px' mt={1}>
-											{errors.claimType}
+										<Select
+											fontSize='14px'
+											name='bank_account_id'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.bank_account_id || ''}
+											placeholder={
+												bankAccountsData?.data?.length > 0
+													? 'Choose Bank Account'
+													: 'No bank account added'
+											}
+											borderColor={
+												errors.bank_account_id && touched.bank_account_id
+													? 'red.300'
+													: 'gray.300'
+											}
+											fontFamily='DM Sans, sans-serif'
+											icon={customDropdownIcon}
+											borderRadius='6px'
+											height='40px'
+											_focus={{
+												borderColor: '#B79045',
+												boxShadow: '0 0 0 1px #B79045',
+											}}
+										>
+											{filteredBankAccounts?.map((bank) => (
+												<option key={bank._id} value={bank._id}>
+													{bank.account_holder_name} - {bank.account_number}
+												</option>
+											))}
+										</Select>
+										{errors.bank_account_id && touched.bank_account_id && (
+											<FormLabel color='red.500' fontSize='12px' mt={1}>
+												{errors.bank_account_id}
+											</FormLabel>
+										)}
+									</GridItem>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel
+											fontSize='14px'
+											fontWeight='medium'
+											fontFamily='DM Sans, sans-serif'
+											color='gray.700'
+											mb={1}
+										>
+											Claim Type
 										</FormLabel>
-									)}
-								</GridItem>
-							</Grid>
-						</form>
+										<Select
+											fontSize='14px'
+											name='claimType'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values.claimType || ''}
+											placeholder='Select Claim Type'
+											borderColor={
+												errors.claimType && touched.claimType
+													? 'red.300'
+													: 'gray.300'
+											}
+											fontFamily='DM Sans, sans-serif'
+											icon={customDropdownIcon}
+											borderRadius='6px'
+											height='40px'
+											_focus={{
+												borderColor: '#B79045',
+												boxShadow: '0 0 0 1px #B79045',
+											}}
+										>
+											<option value='Full'>Full</option>
+											<option value='Installment'>Installment</option>
+										</Select>
+										{errors.claimType && touched.claimType && (
+											<FormLabel color='red.500' fontSize='12px' mt={1}>
+												{errors.claimType}
+											</FormLabel>
+										)}
+									</GridItem>
+								</Grid>
+							</form>
+						)}
 					</ModalBody>
 					<ModalFooter
 						justifyContent='flex-end'

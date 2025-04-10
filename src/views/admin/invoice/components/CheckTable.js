@@ -30,11 +30,10 @@ import {
 	Select,
 } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
-import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
+import { DeleteIcon, AddIcon, ViewIcon } from '@chakra-ui/icons';
 import Card from 'components/card/Card';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import Pagination from './Pagination';
-import Spinner from 'components/spinner/Spinner';
 import { FiFilter } from 'react-icons/fi';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -43,6 +42,8 @@ import DataNotFound from 'components/notFoundData';
 import Breadcrumb from './BreadCrumb';
 import TableLoading from 'components/loading/TableLoading';
 import Add from '../../../admin/developers/Add';
+import Edit from 'views/admin/developers/Edit';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 export default function CheckTable(props) {
 	const {
@@ -82,7 +83,10 @@ export default function CheckTable(props) {
 
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [getTagValues, setGetTagValues] = useState([]);
-	const [deleteModel, setDeleteModel] = useState(false);
+	// const [deleteModel, setDeleteModel] = useState(false);
+	const [edit, setEdit] = useState(false);
+	const [editData, setEditData] = useState({});
+
 	const [advaceSearch, setAdvaceSearch] = useState(false);
 	const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
 	const [selectedId, setSelectedId] = useState(null);
@@ -200,13 +204,19 @@ export default function CheckTable(props) {
 	}, []);
 
 	useEffect(() => {
-		if (fetchData && action) fetchData({ pageIndex, pageSize });
-	}, [action, fetchData, pageIndex, pageSize]);
+		fetchData({ pageIndex, pageSize });
+	}, [pageIndex, pageSize]);
 
 	// const breadcrumbItems = useMemo(
 	// 	() => [{ label: 'Developers', path: '/invoice/developers' }],
 	// 	[]
 	// );
+
+	const handleEditClose = () => {
+		setEdit(false);
+		setSelectedId(null);
+		setEditData({});
+	};
 
 	return (
 		<>
@@ -262,7 +272,7 @@ export default function CheckTable(props) {
 									Clear
 								</Button>
 							)}
-							{selectedValues.length > 0 && (
+							{/* {selectedValues.length > 0 && (
 								<DeleteIcon
 									cursor='pointer'
 									onClick={() => setDeleteModel(true)}
@@ -270,7 +280,7 @@ export default function CheckTable(props) {
 									mt={{ base: 2 }}
 									ms={{ base: 0, md: 2 }}
 								/>
-							)}
+							)} */}
 						</Flex>
 					</GridItem>
 
@@ -385,9 +395,22 @@ export default function CheckTable(props) {
 					)}
 				</Box>
 
-				<Box overflowY='auto'>
-					<Table variant='simple' color='gray.500' mb='24px'>
-						<Thead>
+				<Box
+					height='70vh'
+					overflowY='auto'
+					scrollBehavior='smooth'
+					borderRadius='md'
+					boxShadow='sm'
+					bg='white'
+				>
+					<Table variant='striped' color='gray.500' mb='24px'>
+						<Thead
+							position='sticky'
+							top={0}
+							bg='white'
+							zIndex={2}
+							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+						>
 							<Tr>
 								{columns.map((column, index) => (
 									<Th
@@ -417,7 +440,7 @@ export default function CheckTable(props) {
 						</Thead>
 						<Tbody>
 							{isLoding || isInitialLoading ? (
-								<TableLoading columns={columns} length='8' />
+								<TableLoading columns={columns} length={10} py='4' />
 							) : data?.length === 0 ? (
 								<Tr>
 									<Td colSpan={columns.length} textAlign='center'>
@@ -469,7 +492,7 @@ export default function CheckTable(props) {
 														{row.trn || '-'}
 													</Text>
 												);
-											} else if (column.Header === 'Developer Email') {
+											} else if (column.Header === 'Email') {
 												cellData = (
 													<Text
 														fontSize='sm'
@@ -482,6 +505,24 @@ export default function CheckTable(props) {
 														{row.email || '-'}
 													</Text>
 												);
+											} else if (column.Header === 'Agency') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.agency?.name || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Address') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.address || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Country') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.country || 'N/A'}
+													</Text>
+												);
 											} else if (column.Header === 'Status') {
 												cellData = (
 													<Text
@@ -491,6 +532,22 @@ export default function CheckTable(props) {
 													>
 														{row.status || '-'}
 													</Text>
+												);
+											} else if (column.Header === 'Action') {
+												cellData = (
+													<Flex justifyContent='center' gap={2}>
+														<IconButton
+															icon={<FaEdit />}
+															size='sm'
+															colorScheme='brand'
+															aria-label='Edit'
+															onClick={() => {
+																setEdit(true);
+																setSelectedId(row._id);
+																setEditData(row);
+															}}
+														/>
+													</Flex>
 												);
 											}
 											return (
@@ -521,6 +578,20 @@ export default function CheckTable(props) {
 						pageSize={pageSize}
 						setAction={setAction}
 						refetch
+					/>
+				)}
+
+				{edit && (
+					<Edit
+						isOpen={edit}
+						setAction={setAction}
+						onClose={handleEditClose}
+						fetchData={fetchData}
+						data={editData}
+						setEdit={setEdit}
+						selectedId={selectedId}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
 					/>
 				)}
 
