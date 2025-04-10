@@ -564,7 +564,7 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === 'ID') {
 													data = <CopyID value={row?.original?._id || ''} />;
-												} else if (cell?.column.Header === 'email Id') {
+												} else if (cell?.column.Header === 'email') {
 													data = (
 														<Link to={`/userView/${cell?.row?.values._id}`}>
 															<Text

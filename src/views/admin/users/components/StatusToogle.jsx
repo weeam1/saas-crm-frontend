@@ -15,6 +15,10 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	const [replacementManager, setReplacementManager] = useState('');
 	const [securityPassword, setSecurityPassword] = useState('');
 
+	const loginUser = JSON.parse(localStorage.getItem('user'));
+
+	const isAdmin = loginUser?.role === 'superAdmin';
+
 	const {
 		isOpen: replaceIsOpen,
 		onOpen: replaceOnOpen,
@@ -137,13 +141,15 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 				) : (
 					<>
 						{isActive ? 'Enable' : 'Disable'}
-						<Switch
-							ml={2}
-							colorScheme='brand'
-							isChecked={isActive}
-							disabled={role === 'superAdmin'}
-							onChange={handleToggle}
-						/>
+						{isAdmin && (
+							<Switch
+								ml={2}
+								colorScheme='brand'
+								isChecked={isActive}
+								disabled={role === 'superAdmin'}
+								onChange={handleToggle}
+							/>
+						)}
 					</>
 				)}
 			</Text>
