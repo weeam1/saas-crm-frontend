@@ -205,6 +205,7 @@ export default function CheckTable(props) {
 
 	useEffect(() => {
 		fetchData({ pageIndex, pageSize });
+		setIsInitialLoading(true);
 	}, [pageIndex, pageSize]);
 
 	// const breadcrumbItems = useMemo(
@@ -221,7 +222,6 @@ export default function CheckTable(props) {
 	return (
 		<>
 			{/* <Breadcrumb items={breadcrumbItems} /> */}
-
 			<Card
 				direction='column'
 				w='100%'
@@ -337,7 +337,7 @@ export default function CheckTable(props) {
 								<TagLabel>{item}</TagLabel>
 							</Tag>
 						))}
-						{searchTerm && (
+						{displaySearchData && (
 							<Tag
 								size='md'
 								p={2}

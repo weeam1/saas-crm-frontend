@@ -22,6 +22,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 		TRN: '',
 		contactNumberPrimary: '',
 		contactNumberAlternate: '',
+		currency: '',
 	};
 
 	const validationSchema = Yup.object({
@@ -41,6 +42,11 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 		{
 			name: 'contactNumberAlternate',
 			label: 'Alternate Contact',
+			type: 'text',
+		},
+		{
+			name: 'currency',
+			label: 'Currency',
 			type: 'text',
 		},
 	];

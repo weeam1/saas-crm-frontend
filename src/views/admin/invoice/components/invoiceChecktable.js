@@ -332,7 +332,7 @@ export default function InvoiceCheckTable(props) {
 							<TagLabel>{item}</TagLabel>
 						</Tag>
 					))}
-					{searchTerm && (
+					{displaySearchData && (
 						<Tag
 							size='md'
 							p={2}

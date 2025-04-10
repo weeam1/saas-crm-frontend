@@ -22,6 +22,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		TRN: data?.TRN || '',
 		contactNumberPrimary: data?.contactNumberPrimary || '',
 		contactNumberAlternate: data?.contactNumberAlternate || '',
+		currency: data?.currency || '',
 	};
 
 	const validationSchema = Yup.object({
@@ -41,6 +42,11 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		{
 			name: 'contactNumberAlternate',
 			label: 'Alternate Contact',
+			type: 'text',
+		},
+		{
+			name: 'currency',
+			label: 'Currency',
 			type: 'text',
 		},
 	];

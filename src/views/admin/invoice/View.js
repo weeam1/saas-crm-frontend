@@ -593,7 +593,7 @@ const SingleInvoice = () => {
 												w='40%'
 												fontSize={{ base: 'xs', md: 'sm' }}
 											>
-												AED
+												{agency?.currency ?? 'AED'}
 											</Th>
 										</Tr>
 									</Thead>
@@ -616,7 +616,6 @@ const SingleInvoice = () => {
 															maximumFractionDigits: 2,
 														})
 													: 'N/A'}{' '}
-												AED
 											</Td>
 										</Tr>
 
@@ -641,7 +640,6 @@ const SingleInvoice = () => {
 															}
 														)
 													: 'N/A'}{' '}
-												AED
 											</Td>
 										</Tr>
 										<Tr>
@@ -662,7 +660,6 @@ const SingleInvoice = () => {
 															maximumFractionDigits: 2,
 														})
 													: 'N/A'}{' '}
-												AED
 											</Td>
 										</Tr>
 										<Tr>
@@ -686,7 +683,6 @@ const SingleInvoice = () => {
 															}
 														)
 													: 'N/A'}{' '}
-												AED
 											</Td>
 										</Tr>
 
@@ -710,7 +706,6 @@ const SingleInvoice = () => {
 															maximumFractionDigits: 2,
 														})
 													: 'N/A'}{' '}
-												AED
 											</Td>
 										</Tr>
 									</Tbody>
