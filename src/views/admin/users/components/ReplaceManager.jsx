@@ -22,37 +22,60 @@ const ReplaceManager = ({
 	setReplacementManager,
 	replacementManager,
 	handleProceed,
+	type = '',
 }) => {
 	return (
-		<Modal isOpen={isOpen} isCentered size='lg'>
+		<Modal isOpen={isOpen} isCentered size='2xl'>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent fontFamily="'DM Sans', sans-serif">
 				<ModalHeader>Select Replacement Manager</ModalHeader>
 				<ModalBody>
 					<Box
-						bg='blue.50'
+						bg='yellow.50'
 						border='1px solid'
-						borderColor='blue.200'
+						borderColor='yellow.200'
 						p={4}
 						mb='4'
 						borderRadius='md'
 					>
-						<Flex align='center' gap={2}>
-							<Icon as={AiOutlineInfoCircle} color='blue.500' boxSize={5} />
-							<Text fontSize='sm' color='blue.800'>
-								You’ve changed the user’s role from <strong>Manager</strong> to
-								another role. Please select a replacement manager to proceed
-								with reassigning their leads.
-							</Text>
+						<Flex align='start' gap={2}>
+							<Icon
+								as={AiOutlineInfoCircle}
+								color='yellow.600'
+								boxSize={5}
+								mt={1}
+							/>
+							<Box>
+								<Text fontSize='md' color='yellow.800' fontWeight='medium'>
+									{type === 'userStatus'
+										? 'This manager has been disabled. Please review the following actions:'
+										: 'You’ve changed the user’s role from Manager. Please review the following actions:'}
+								</Text>
+								<Box as='ul' pl={4} mt={2} color='yellow.800' fontSize='md'>
+									<li>
+										You must assign a <strong>replacement manager</strong> to
+										continue.
+									</li>
+									<li>
+										All <strong>agents</strong> under this manager will be
+										reassigned to the new manager.
+									</li>
+									<li>
+										All <strong>leads</strong> previously assigned will also be
+										transferred.
+									</li>
+								</Box>
+							</Box>
 						</Flex>
 					</Box>
+
 					<Select
 						placeholder='Select a manager'
 						value={replacementManager}
 						onChange={(e) => setReplacementManager(e.target.value)}
 					>
 						{managers.map((manager) => (
-							<option value={manager?._id}>
+							<option value={manager?._id} key={manager?._id}>
 								{manager?.firstName + ' ' + manager?.lastName}
 							</option>
 						))}
@@ -78,7 +101,7 @@ const ReplaceManager = ({
 						bg='brand.400'
 						fontSize='md'
 						aria-label='update'
-						onClick={onClose}
+						onClick={handleProceed}
 						isDisabled={!replacementManager}
 					>
 						Proceed

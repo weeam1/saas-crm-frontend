@@ -75,3 +75,31 @@ export const renderValue = (value) => {
 	if (typeof value === 'object' && value.text) return value.text;
 	return 'Invalid data';
 };
+
+export const mergeSort = (arr) => {
+	if (arr.length <= 1) return arr;
+
+	const mid = Math.floor(arr.length / 2);
+	const left = mergeSort(arr.slice(0, mid));
+	const right = mergeSort(arr.slice(mid));
+
+	return merge(left, right);
+};
+
+const merge = (left, right) => {
+	let sortedArr = [];
+	let i = 0,
+		j = 0;
+
+	while (i < left.length && j < right.length) {
+		if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
+			sortedArr.push(left[i]);
+			i++;
+		} else {
+			sortedArr.push(right[j]);
+			j++;
+		}
+	}
+
+	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
+};

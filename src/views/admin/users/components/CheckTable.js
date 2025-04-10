@@ -67,6 +67,7 @@ import CopyID from './CopyID';
 import AddCoinsModal from '../AddCoinsModal';
 import RemoveCoinsModal from '../RemoveCoinsModal';
 import StatusToggle from './StatusToogle';
+import TableLoading from 'components/loading/TableLoading';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -97,6 +98,7 @@ export default function CheckTable(props) {
 	// const columns = useMemo(() => columnsData, [columnsData]);
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	const data = useMemo(() => tableData, [tableData]);
+
 	const [selectedValues, setSelectedValues] = useState([]);
 	const [deleteModel, setDelete] = useState(false);
 	const [gopageValue, setGopageValue] = useState();
@@ -120,6 +122,16 @@ export default function CheckTable(props) {
 	const [editData, setEditData] = useState({});
 	const navigate = useNavigate();
 	const [column, setColumn] = useState('');
+
+	const [tableLoading, setTableLoading] = useState(true);
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setTableLoading(false);
+		}, 1500);
+
+		return () => clearTimeout(timeout);
+	}, []);
 
 	let isColumnSelected;
 	const toggleColumnVisibility = (columnKey) => {
@@ -262,21 +274,31 @@ export default function CheckTable(props) {
 
 	useEffect(() => {
 		fetchData();
-	}, [action]);
+	}, []);
+	// }, [action]);
 
 	const handleSearch = (results) => {
 		setSearchedData(results);
 	};
 
 	const updateUsers = (user) => {
-		// Find the updated document in allData
 		const updatedIndex = data.findIndex((item) => item._id === user?._id);
 
 		if (updatedIndex !== -1) {
-			// Update the found document
 			data[updatedIndex] = user;
 		} else {
-			// If not found, push it to allData (optional, depends on your logic)
+			data.push(user);
+		}
+	};
+
+	const statusChange = (user, status) => {
+		const updatedIndex = data?.findIndex((item) => item._id === user?._id);
+
+		if (updatedIndex !== -1) {
+			// user.isActive = status;
+			data[updatedIndex] = { ...user, isActive: status };
+			// data[updatedIndex] = user;
+		} else {
 			data.push(user);
 		}
 	};
@@ -343,14 +365,14 @@ export default function CheckTable(props) {
 							) : (
 								''
 							)}
-							{selectedValues.length > 0 && (
+							{/* {selectedValues.length > 0 && (
 								<DeleteIcon
 									onClick={() => setDelete(true)}
 									color={'red'}
 									ms={2}
 									cursor='pointer'
 								/>
-							)}
+							)} */}
 						</Flex>
 					</GridItem>
 					<GridItem
@@ -423,7 +445,7 @@ export default function CheckTable(props) {
 					</HStack>
 				</Grid>
 				{/* Delete model */}
-				{deleteModel && (
+				{/* {deleteModel && (
 					<Delete
 						isOpen={deleteModel}
 						onClose={setDelete}
@@ -436,7 +458,7 @@ export default function CheckTable(props) {
 						handleClear={handleClear}
 						fetchData={fetchData}
 					/>
-				)}
+				)} */}
 
 				<Box
 					overflowY={'auto'}
@@ -453,7 +475,7 @@ export default function CheckTable(props) {
 							position='sticky'
 							top={0}
 							bg='white'
-							zIndex={2}
+							zIndex={1}
 							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
 						>
 							{headerGroups?.map((headerGroup, index) => (
@@ -503,36 +525,9 @@ export default function CheckTable(props) {
 							))}
 						</Thead>
 						<Tbody {...getTableBodyProps()}>
-							{isLoding ? (
-								<Tr>
-									<Td colSpan={columns?.length}>
-										<Flex
-											justifyContent={'center'}
-											alignItems={'center'}
-											width='100%'
-											color={textColor}
-											fontSize='sm'
-											fontWeight='700'
-										>
-											<Spinner />
-										</Flex>
-									</Td>
-								</Tr>
-							) : data?.length === 0 ? (
-								<Tr>
-									<Td colSpan={columns.length}>
-										<Text
-											textAlign={'center'}
-											width='100%'
-											color={textColor}
-											fontSize='sm'
-											fontWeight='700'
-										>
-											<DataNotFound />
-										</Text>
-									</Td>
-								</Tr>
-							) : (
+							{isLoding || tableLoading ? (
+								<TableLoading columns={columns} length='10' py='4' />
+							) : data?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
 									return (
@@ -542,7 +537,7 @@ export default function CheckTable(props) {
 												if (cell?.column.Header === '#') {
 													data = (
 														<Flex align='center'>
-															{isAdmin &&
+															{/* {isAdmin &&
 															cell?.row?.original?.role !== 'superAdmin' ? (
 																<Checkbox
 																	colorScheme='brandScheme'
@@ -557,7 +552,7 @@ export default function CheckTable(props) {
 																/>
 															) : (
 																<Text me='28px'></Text>
-															)}
+															)} */}
 															<Text
 																color={textColor}
 																fontSize='sm'
@@ -568,12 +563,8 @@ export default function CheckTable(props) {
 														</Flex>
 													);
 												} else if (cell?.column.Header === 'ID') {
-													data = (
-														<Box widt='max-content'>
-															<CopyID value={row?.original?._id || ''} />
-														</Box>
-													);
-												} else if (cell?.column.Header === 'email Id') {
+													data = <CopyID value={row?.original?._id || ''} />;
+												} else if (cell?.column.Header === 'email') {
 													data = (
 														<Link to={`/userView/${cell?.row?.values._id}`}>
 															<Text
@@ -634,21 +625,20 @@ export default function CheckTable(props) {
 															{cell?.value}
 														</Text>
 													);
-												}
-												// else if (cell?.column.Header === 'Status') {
-												// 	data = (
-												// 		<StatusToggle
-												// 			userId={row?.original?._id}
-												// 			initialStatus={cell?.value}
-												// 			role={
-												// 				row?.original?.role === 'superAdmin'
-												// 					? 'superAdmin'
-												// 					: row?.original?.roles[0]?.roleName
-												// 			}
-												// 		/>
-												// 	);
-												// }
-												else if (cell?.column.Header === 'Action') {
+												} else if (cell?.column.Header === 'Status') {
+													data = (
+														<StatusToggle
+															user={row?.original}
+															initialStatus={cell?.value}
+															role={
+																row?.original?.role === 'superAdmin'
+																	? 'superAdmin'
+																	: row?.original?.roles[0]?.roleName
+															}
+															statusChange={statusChange}
+														/>
+													);
+												} else if (cell?.column.Header === 'Action') {
 													data = (
 														<Box
 															fontSize='md'
@@ -702,7 +692,7 @@ export default function CheckTable(props) {
 																					color={'green'}
 																					onClick={() =>
 																						setAddCoinsModal({
-																							user: row?.original?._id,
+																							user: row?.original,
 																							isOpen: true,
 																						})
 																					}
@@ -727,7 +717,7 @@ export default function CheckTable(props) {
 																				>
 																					Remove Coins
 																				</MenuItem>
-																				{cell?.row?.original?.role ===
+																				{/* {cell?.row?.original?.role ===
 																				'superAdmin' ? (
 																					''
 																				) : (
@@ -744,7 +734,7 @@ export default function CheckTable(props) {
 																					>
 																						Delete
 																					</MenuItem>
-																				)}
+																				)} */}
 																			</>
 																		)}
 																	</MenuList>
@@ -768,6 +758,20 @@ export default function CheckTable(props) {
 										</Tr>
 									);
 								})
+							) : (
+								<Tr>
+									<Td colSpan={columns.length}>
+										<Text
+											textAlign={'center'}
+											width='100%'
+											color={textColor}
+											fontSize='sm'
+											fontWeight='700'
+										>
+											<DataNotFound />
+										</Text>
+									</Td>
+								</Tr>
 							)}
 						</Tbody>
 					</Table>
@@ -820,6 +824,7 @@ export default function CheckTable(props) {
 					size={'sm'}
 					onClose={() => setAddCoinsModal({ isOpen: false, user: null })}
 					fetchData={fetchData}
+					updateUsers={updateUsers}
 					selectedUser={addCoinsModal?.user}
 				/>
 			)}
@@ -831,6 +836,7 @@ export default function CheckTable(props) {
 					size={'sm'}
 					onClose={() => setRemoveCoinsModal({ isOpen: false, user: null })}
 					fetchData={fetchData}
+					updateUsers={updateUsers}
 					selectedUser={removeCoinsModal?.user}
 				/>
 			)}
