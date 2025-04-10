@@ -37,13 +37,13 @@ const entrySchema = yup.object().shape({
 		.number()
 		.typeError('Commission percentage must be a valid number')
 		.required('Commission percentage is required')
-		.min(0.01, 'Commission must be greater than 0')
+		.min(0, 'Commission must be positive value.')
 		.max(99, 'Commission must be less than 100'),
 	unit_price: yup
 		.number()
 		.typeError('Unit price must be a valid number')
 		.required('Unit price is required')
-		.min(0, 'Unit price cannot be negative'),
+		.min(1, 'Unit price cannot be negative or zero'),
 	vat_percentage: yup
 		.number()
 		.typeError('VAT percentage must be a valid number')

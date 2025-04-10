@@ -34,6 +34,7 @@ import TableLoading from 'components/loading/TableLoading';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
+import { format } from 'date-fns';
 
 const AddEntry = ({ props }) => {
 	const textColor = useColorModeValue('gray.500', 'white');
@@ -56,13 +57,15 @@ const AddEntry = ({ props }) => {
 	const columns = [
 		'SN',
 		'Unit No',
-		'Name of Referring Party',
+		'Referring Party',
 		'Commission %',
 		'Unit Price',
-		'Total Commission EXCL. VAT',
+		'Commission EXCL. VAT',
 		'VAT %',
 		'VAT Amount',
-		'Total Commission incl. VAT',
+		'Commission incl. VAT',
+		'Total',
+		'Created Date',
 		'Action',
 	];
 
@@ -249,29 +252,20 @@ const AddEntry = ({ props }) => {
 
 				{/* Table Section */}
 				<Box
-					overflowX='auto'
-					borderRadius='lg'
-					boxShadow='md'
-					bg='white'
-					mb={6}
-					h={fixedTableHeight}
-					position='relative'
+					height={tableData.length < 10 ? 'fit-content' : '70vh'}
 					overflowY='auto'
+					scrollBehavior='smooth'
+					borderRadius='md'
+					boxShadow='sm'
+					bg='white'
 				>
-					<Table
-						variant='simple'
-						size={tableSize}
-						minWidth={{ base: '900px', md: '100%' }}
-						border='1px solid'
-						borderColor='gray.200'
-					>
+					<Table variant='striped' size='sm' bg='white'>
 						<Thead
 							position='sticky'
-							top='0'
-							zIndex='10'
-							bg='#edd199'
-							boxShadow='0 1px 2px rgba(0, 0, 0, 0.1)'
-							h={`${headerHeight}px`}
+							top={0}
+							bg='white'
+							zIndex={2}
+							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
 						>
 							<Tr>
 								{columns.map((header, index) => (
@@ -280,14 +274,9 @@ const AddEntry = ({ props }) => {
 										color='black'
 										fontSize={fontSizeTh}
 										fontWeight='medium'
-										py={3}
-										textTransform='capitalize'
-										borderColor='gray.300'
-										textAlign={
-											index === 0 || index === 3 || index === 6 || index === 9
-												? 'center'
-												: 'left'
-										}
+										bg='brand.200'
+										whiteSpace='nowrap'
+										py={4}
 									>
 										{header}
 									</Th>
@@ -380,7 +369,7 @@ const AddEntry = ({ props }) => {
 											{`${entry.commission_percentage || 0}%`}
 										</Td>
 										<Td
-											textAlign='right'
+											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
 											color='gray.800'
@@ -394,7 +383,7 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 										<Td
-											textAlign='right'
+											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
 											color='gray.800'
@@ -419,10 +408,10 @@ const AddEntry = ({ props }) => {
 											px={6}
 											fontWeight='medium'
 										>
-											{`${entry.vat_percentage || 5}%`}
+											{`${entry.vat_percentage}%`}
 										</Td>
 										<Td
-											textAlign='right'
+											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
 											color='gray.800'
@@ -436,7 +425,7 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 										<Td
-											textAlign='right'
+											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
 											color='gray.800'
@@ -451,6 +440,37 @@ const AddEntry = ({ props }) => {
 													maximumFractionDigits: 2,
 												}
 											)}
+										</Td>
+										<Td
+											textAlign='center'
+											borderColor='gray.200'
+											fontSize={fontSizeTd}
+											color='gray.800'
+											py={4}
+											px={6}
+											fontWeight='medium'
+										>
+											{(entry.total_amount || 0).toLocaleString('en-US', {
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											})}
+										</Td>
+										<Td
+											textAlign='center'
+											borderColor='gray.200'
+											fontSize={fontSizeTd}
+											color='gray.800'
+											py={4}
+											// px={6}
+											minWidth='220px'
+											fontWeight='medium'
+										>
+											{entry?.createdAt
+												? format(
+														new Date(entry?.createdAt),
+														'MMM d, yyyy h:mm a'
+													)
+												: 'N/A'}
 										</Td>
 										<Td borderColor='gray.200' width='80px'>
 											<HStack spacing={2}>

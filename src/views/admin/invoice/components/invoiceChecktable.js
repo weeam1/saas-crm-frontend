@@ -55,6 +55,7 @@ import EditIconSvg from '../../../../assets/img/bankaccount/ic_baseline-edit.png
 import TableLoading from 'components/loading/TableLoading';
 import { FaEllipsisV } from 'react-icons/fa';
 import { buttonStyle } from 'utils/btn';
+import { format } from 'date-fns';
 
 export default function InvoiceCheckTable(props) {
 	const {
@@ -417,9 +418,9 @@ export default function InvoiceCheckTable(props) {
 															me='10px'
 														/>
 														<Text color='brand.600' fontSize='sm'>
-															{date && !isNaN(date)
-																? date.toISOString().split('T')[0]
-																: '-'}
+															{date
+																? format(date, 'MMM d, yyyy h:mm a')
+																: 'N/A'}
 														</Text>
 													</Flex>
 												);

@@ -44,6 +44,9 @@ import TableLoading from 'components/loading/TableLoading';
 import Add from '../../../admin/developers/Add';
 import Edit from 'views/admin/developers/Edit';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { buttonStyle } from 'utils/btn';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
 export default function CheckTable(props) {
 	const {
@@ -470,9 +473,9 @@ export default function CheckTable(props) {
                               me="10px"
                             /> */}
 														<Text color='brand.600' fontSize='sm'>
-															{date && !isNaN(date)
-																? date.toLocaleDateString()
-																: '-'}
+															{date
+																? format(date, 'MMM d, yyyy h:mm a')
+																: 'N/A'}
 														</Text>
 													</Flex>
 												);
@@ -539,6 +542,19 @@ export default function CheckTable(props) {
 											} else if (column.Header === 'Action') {
 												cellData = (
 													<Flex justifyContent='center' gap={2}>
+														<Link
+															to={`/invoice/developers/invoices/${row?._id}`}
+														>
+															<Button
+																{...buttonStyle}
+																colorScheme='brand'
+																_hover={{ bg: 'brand.400' }}
+																_active={{ bg: 'brand.400' }}
+															>
+																Invoices
+															</Button>
+														</Link>
+
 														<IconButton
 															icon={<FaEdit />}
 															size='sm'
