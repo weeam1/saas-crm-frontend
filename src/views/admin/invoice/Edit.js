@@ -32,13 +32,13 @@ const invoiceSchema = yup.object().shape({
 		.number()
 		.typeError('Commission percentage must be a valid number')
 		.required('Commission percentage is required')
-		.min(0.01, 'Commission must be greater than 0')
+		.min(0, 'Commission must be positive value.')
 		.max(99, 'Commission must be less than 100'),
 	unit_price: yup
 		.number()
 		.typeError('Unit price must be a valid number')
 		.required('Unit price is required')
-		.min(0, 'Unit price cannot be negative'),
+		.min(1, 'Unit price cannot be negative or zero'),
 	vat_percentage: yup
 		.number()
 		.typeError('VAT percentage must be a valid number')
@@ -149,8 +149,8 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 	// Recalculate totals when inputs change
 	useEffect(() => {
 		if (
-			values.unit_price &&
-			values.commission_percentage &&
+			values.unit_price ||
+			values.commission_percentage ||
 			values.vat_percentage
 		) {
 			const {
@@ -159,9 +159,9 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 				total_commission_incl_vat,
 				totalAmount,
 			} = calculateTotal(
-				Number(values.unit_price),
-				Number(values.commission_percentage),
-				Number(values.vat_percentage)
+				Number(values.unit_price ?? 1),
+				Number(values.commission_percentage ?? 0),
+				Number(values.vat_percentage ?? 0)
 			);
 			setValues({
 				...values,

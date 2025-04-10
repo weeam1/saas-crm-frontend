@@ -102,8 +102,8 @@ const AddEntryModal = (props) => {
 
 	useEffect(() => {
 		if (
-			values.unit_price &&
-			values.commission_percentage &&
+			values.unit_price ||
+			values.commission_percentage ||
 			values.vat_percentage
 		) {
 			const {
@@ -112,9 +112,9 @@ const AddEntryModal = (props) => {
 				total_commission_incl_vat,
 				total_amount,
 			} = calculateTotal(
-				Number(values.unit_price),
-				Number(values.commission_percentage),
-				Number(values.vat_percentage)
+				Number(values.unit_price ?? 1),
+				Number(values.commission_percentage ?? 0),
+				Number(values.vat_percentage ?? 0)
 			);
 			setValues({
 				...values,
