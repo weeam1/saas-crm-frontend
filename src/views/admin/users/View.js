@@ -172,7 +172,7 @@ const View = () => {
 												>
 													Edit
 												</MenuItem>
-												{data?.role !== 'superAdmin' &&
+												{/* {data?.role !== 'superAdmin' &&
 													JSON.parse(localStorage.getItem('user'))?.role ===
 														'superAdmin' && (
 														<>
@@ -185,7 +185,7 @@ const View = () => {
 																Delete
 															</MenuItem>
 														</>
-													)}
+													)} */}
 											</MenuList>
 										</Menu>
 									) : (

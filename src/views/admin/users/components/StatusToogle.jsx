@@ -2,10 +2,11 @@ import { Spinner, Switch, Text, useDisclosure } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ReplaceManager from './ReplaceManager';
 import PasswordPermission from './PasswordPermission';
 import InfoModal from './InfoModal';
+import { fetchActiveTree, fetchTree } from '../userApis';
 
 const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	const [isActive, setIsActive] = useState(initialStatus);
@@ -36,6 +37,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 		useUpdateItemMutation();
 
 	const tree = useSelector((state) => state.user.activeTree);
+	const dispatch = useDispatch();
 
 	const handleToggle = async () => {
 		try {
@@ -82,7 +84,10 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 
 			setIsActive(newStatus);
 			toast.success(`User ${newStatus ? 'enabled' : 'disabled'} successfully`);
+
 			statusChange(user, newStatus);
+			fetchActiveTree(dispatch);
+			fetchTree(dispatch);
 			resetStates();
 		} catch (error) {
 			toast.error(error?.data?.message || 'Error updating user status');

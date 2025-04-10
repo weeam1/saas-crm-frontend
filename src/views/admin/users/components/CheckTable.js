@@ -123,6 +123,16 @@ export default function CheckTable(props) {
 	const navigate = useNavigate();
 	const [column, setColumn] = useState('');
 
+	const [tableLoading, setTableLoading] = useState(true);
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setTableLoading(false);
+		}, 1500);
+
+		return () => clearTimeout(timeout);
+	}, []);
+
 	let isColumnSelected;
 	const toggleColumnVisibility = (columnKey) => {
 		setColumn(columnKey);
@@ -515,7 +525,7 @@ export default function CheckTable(props) {
 							))}
 						</Thead>
 						<Tbody {...getTableBodyProps()}>
-							{isLoding ? (
+							{isLoding || tableLoading ? (
 								<TableLoading columns={columns} length='10' py='4' />
 							) : data?.length > 0 ? (
 								page?.map((row, i) => {

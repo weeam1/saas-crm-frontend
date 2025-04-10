@@ -35,6 +35,7 @@ import { getApi } from 'services/api';
 import ReplaceManager from './components/ReplaceManager';
 import { buttonStyle } from 'utils/btn';
 import PasswordPermission from './components/PasswordPermission';
+import { fetchActiveTree, fetchTree } from './userApis';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -96,20 +97,6 @@ const Edit = (props) => {
 			EditData();
 		},
 	});
-
-	const fetchActiveTree = async () => {
-		const response = await getApi('api/v2/user/active_tree');
-		const data = response.data || null;
-
-		dispatch(setActiveTree(data));
-	};
-
-	const fetchTree = async () => {
-		const response = await getApi('api/user/tree');
-		const data = response.data || null;
-
-		dispatch(setTree(data));
-	};
 
 	useEffect(() => {
 		if (props.edit) {
@@ -228,8 +215,10 @@ const Edit = (props) => {
 				// formik.resetForm();
 				props.setAction((pre) => !pre);
 
-				fetchTree();
-				fetchActiveTree();
+				// get updated users data
+				fetchActiveTree(dispatch);
+				fetchTree(dispatch);
+
 				if (!controller.signal.aborted) {
 					toast.success('User update successfully');
 					setReplacementManager('');
