@@ -211,8 +211,8 @@ export default function InvoiceCheckTable(props) {
 	}, []);
 
 	useEffect(() => {
-		if (fetchData && action) fetchData({ pageIndex, pageSize });
-	}, [action, fetchData, pageIndex, pageSize]);
+		fetchData({ pageIndex, pageSize });
+	}, [pageIndex, pageSize]);
 
 	const copyToClipboard = (text, event) => {
 		navigator.clipboard.writeText(text);
@@ -332,7 +332,7 @@ export default function InvoiceCheckTable(props) {
 							<TagLabel>{item}</TagLabel>
 						</Tag>
 					))}
-					{displaySearchData && (
+					{displaySearchData && searchTerm && (
 						<Tag
 							size='md'
 							p={2}
@@ -635,6 +635,7 @@ export default function InvoiceCheckTable(props) {
 						selectedId={selectedId}
 						setSelectedId={setSelectedId}
 						setAction={setAction}
+						fetchData={fetchData}
 					/>
 				)}
 

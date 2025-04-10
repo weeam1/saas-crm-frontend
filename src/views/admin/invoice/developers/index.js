@@ -127,7 +127,6 @@ const Developers = () => {
 	// ]);
 
 	useEffect(() => {
-		console.log('invoice use effect ');
 		if (invoiceData?.doc) {
 			const docData = invoiceData.doc;
 			setData(docData);
@@ -152,7 +151,6 @@ const Developers = () => {
 	useEffect(() => {
 		if (location.state?.refetch && !isUninitialized && user._id) {
 			setQueryArgs((prev) => ({ ...prev }));
-			console.log('query refresh');
 			window.history.replaceState({}, document.title);
 		}
 	}, [location.state, isUninitialized, user._id]);
@@ -176,8 +174,6 @@ const Developers = () => {
 		const updatedPageSize = newPageSize !== undefined ? newPageSize : pageSize;
 		const updatedSearch = search !== undefined ? search : committedSearchTerm;
 		const updatedAgency = agency !== undefined ? agency : selectedAgency;
-
-		console.log('invoice fetch data  ');
 
 		setPageIndex(updatedPageIndex);
 		setPageSize(updatedPageSize);

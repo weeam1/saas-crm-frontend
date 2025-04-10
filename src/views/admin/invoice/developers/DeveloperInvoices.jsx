@@ -81,6 +81,7 @@ const DeveloperInvoices = () => {
 	const {
 		data: invoiceData,
 		isLoading: queryLoading,
+		refetch: invoicesRefetch,
 		error,
 		isUninitialized,
 	} = useFetchItemsQuery(queryArgs, {
@@ -161,6 +162,10 @@ const DeveloperInvoices = () => {
 		],
 		[]
 	);
+
+	useEffect(() => {
+		invoicesRefetch(queryArgs);
+	}, [queryArgs]);
 
 	const navigate = useNavigate();
 

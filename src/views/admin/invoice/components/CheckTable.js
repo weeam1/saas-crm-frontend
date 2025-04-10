@@ -205,7 +205,6 @@ export default function CheckTable(props) {
 
 	useEffect(() => {
 		fetchData({ pageIndex, pageSize });
-		setIsInitialLoading(true);
 	}, [pageIndex, pageSize]);
 
 	// const breadcrumbItems = useMemo(
@@ -218,6 +217,8 @@ export default function CheckTable(props) {
 		setSelectedId(null);
 		setEditData({});
 	};
+
+	console.log({ getTagValues, displaySearchData, searchTerm });
 
 	return (
 		<>
@@ -325,19 +326,20 @@ export default function CheckTable(props) {
 
 				<Flex justifyContent='space-between' alignItems='center' mb={2} px={4}>
 					<HStack spacing={4}>
-						{getTagValues.map((item) => (
-							<Tag
-								size='md'
-								p={2}
-								key={item}
-								borderRadius='full'
-								variant='solid'
-								colorScheme='gray'
-							>
-								<TagLabel>{item}</TagLabel>
-							</Tag>
-						))}
-						{displaySearchData && (
+						{getTagValues?.length > 0 &&
+							getTagValues.map((item) => (
+								<Tag
+									size='md'
+									p={2}
+									key={item}
+									borderRadius='full'
+									variant='solid'
+									colorScheme='gray'
+								>
+									<TagLabel>{item}</TagLabel>
+								</Tag>
+							))}
+						{displaySearchData && searchTerm && (
 							<Tag
 								size='md'
 								p={2}
@@ -371,6 +373,7 @@ export default function CheckTable(props) {
 							size='sm'
 							colorScheme='red'
 							onClick={() => {
+								setDisplaySearchData(false);
 								setSelectedAgency('All'); // Reset to "All"
 								fetchData({ pageIndex: 0, pageSize, agency: 'All' }); // Fetch all data
 							}}
