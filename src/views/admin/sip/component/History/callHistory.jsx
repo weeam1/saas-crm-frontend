@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   Box,
   Table,
@@ -19,7 +19,6 @@ import {
 import { ChevronDownIcon, ChevronUpIcon, Icon } from "@chakra-ui/icons"
 import { FaPlay, FaPause } from "react-icons/fa"
 
-// Sample data
 const callData = [
   {
     id: "c3cda248-a67a-4844-bcf2-5...",
@@ -28,7 +27,7 @@ const callData = [
     leadName: "Acme Corporation",
     duration: "00:00:11",
     callStatus: "answered",
-    recordingUrl: "/sample-recording-1.mp3",
+    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3",
     summary: "The call was a brief inquiry with the client about their upcoming project.",
   },
   {
@@ -38,7 +37,7 @@ const callData = [
     leadName: "Global Industries",
     duration: "00:00:49",
     callStatus: "no answer",
-    recordingUrl: "/sample-recording-2.mp3",
+    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3",
     summary: "The caller expressed a desire to learn more about our premium services.",
   },
   {
@@ -48,7 +47,7 @@ const callData = [
     leadName: "Tech Solutions Inc.",
     duration: "00:03:22",
     callStatus: "answered",
-    recordingUrl: "/sample-recording-3.mp3",
+    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/menu.ogg",
     summary: "Detailed discussion about implementation timeline and resource allocation.",
   },
   {
@@ -58,12 +57,11 @@ const callData = [
     leadName: "Innovative Startups",
     duration: "00:01:05",
     callStatus: "failed",
-    recordingUrl: "/sample-recording-4.mp3",
+    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/intromusic.ogg",
     summary: "Technical issues prevented full discussion, follow-up scheduled.",
   },
 ]
 
-// Audio Player Component
 const AudioPlayer = ({ url }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = React.useRef(null)
@@ -115,7 +113,6 @@ const AudioPlayer = ({ url }) => {
   )
 }
 
-// Status Badge Component
 const StatusBadge = ({ status }) => {
   let color
   switch (status) {
