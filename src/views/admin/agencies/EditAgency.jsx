@@ -19,6 +19,10 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 	const initialValues = {
 		name: data?.name || '',
 		location: data?.location || '',
+		TRN: data?.TRN || '',
+		contactNumberPrimary: data?.contactNumberPrimary || '',
+		contactNumberAlternate: data?.contactNumberAlternate || '',
+		currency: data?.currency || '',
 	};
 
 	const validationSchema = Yup.object({
@@ -29,6 +33,22 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 	const fields = [
 		{ name: 'name', label: 'Name', type: 'text', required: true },
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
+		{ name: 'TRN', label: 'TRN', type: 'text' },
+		{
+			name: 'contactNumberPrimary',
+			label: 'Contact',
+			type: 'text',
+		},
+		{
+			name: 'contactNumberAlternate',
+			label: 'Alternate Contact',
+			type: 'text',
+		},
+		{
+			name: 'currency',
+			label: 'Currency',
+			type: 'text',
+		},
 	];
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();

@@ -79,7 +79,7 @@ const BulkAssignModal = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const user = JSON.parse(localStorage.getItem('user'));
-	const tree = useSelector((state) => state.user.tree);
+	const tree = useSelector((state) => state.user.activeTree);
 
 	const closeHandler = () => {
 		setBulkAssign(false);

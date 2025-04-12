@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { getApi } from 'services/api';
 
 const Index = () => {
+	const user = JSON.parse(localStorage.getItem('user'));
+
 	const tableColumns = [
 		{
 			Header: '#',
@@ -12,7 +14,7 @@ const Index = () => {
 			width: 10,
 		},
 		{ Header: 'ID', accessor: '', isSortable: false },
-		{ Header: 'email Id', accessor: 'username' },
+		{ Header: 'email', accessor: 'username' },
 		{ Header: 'first Name', accessor: 'firstName' },
 		{ Header: 'last Name', accessor: 'lastName' },
 		{ Header: 'role', accessor: 'roles[0].roleName' },
@@ -29,7 +31,6 @@ const Index = () => {
 	const [data, setData] = useState([]);
 	const [displaySearchData, setDisplaySearchData] = useState(false);
 	const [searchedData, setSearchedData] = useState([]);
-	const user = JSON.parse(localStorage.getItem('user'));
 
 	const { isOpen } = useDisclosure();
 
