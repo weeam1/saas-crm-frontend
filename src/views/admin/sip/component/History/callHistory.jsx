@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import {
   Box,
   Table,
@@ -15,10 +15,13 @@ import {
   Badge,
   useColorModeValue,
   Tooltip,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
 } from "@chakra-ui/react"
 import { ChevronDownIcon, ChevronUpIcon, Icon } from "@chakra-ui/icons"
 import { FaPlay, FaPause } from "react-icons/fa"
-
 const callData = [
   {
     id: "c3cda248-a67a-4844-bcf2-5...",
@@ -62,52 +65,93 @@ const callData = [
   },
 ]
 
+
+const formatTime = (time) => {
+  const minutes = Math.floor(time / 60)
+  const seconds = Math.floor(time % 60)
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`
+}
+
 const AudioPlayer = ({ url }) => {
+  const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const audioRef = React.useRef(null)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [isSeeking, setIsSeeking] = useState(false)
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause()
-      } else {
-        audioRef.current.play()
-      }
-      setIsPlaying(!isPlaying)
+    if (!audioRef.current) return
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play()
     }
+    setIsPlaying(!isPlaying)
   }
 
-  React.useEffect(() => {
-    const audioElement = audioRef.current
-
+  useEffect(() => {
+    const audio = audioRef.current
+    const handleTimeUpdate = () => {
+      if (!isSeeking) setCurrentTime(audio.currentTime)
+    }
+    const handleLoadedMetadata = () => setDuration(audio.duration)
     const handleEnded = () => {
       setIsPlaying(false)
+      setCurrentTime(0)
     }
 
-    if (audioElement) {
-      audioElement.addEventListener("ended", handleEnded)
+    if (audio) {
+      audio.addEventListener("timeupdate", handleTimeUpdate)
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.addEventListener("ended", handleEnded)
     }
 
     return () => {
-      if (audioElement) {
-        audioElement.removeEventListener("ended", handleEnded)
+      if (audio) {
+        audio.removeEventListener("timeupdate", handleTimeUpdate)
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+        audio.removeEventListener("ended", handleEnded)
       }
     }
-  }, [])
+  }, [isSeeking])
+
+  const handleSeek = (value) => {
+    setCurrentTime(value)
+    if (audioRef.current) {
+      audioRef.current.currentTime = value
+    }
+  }
 
   return (
-    <Flex align="center">
-      <audio ref={audioRef} src={url} />
+    <Flex align="center" w="100%" gap={2}>
+      <audio ref={audioRef} src={url} preload="metadata" />
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
-        icon={isPlaying ? <Icon as={FaPause} /> : <Icon as={FaPlay} />}
+        icon={<Icon as={isPlaying ? FaPause : FaPlay} />}
         size="sm"
         onClick={togglePlay}
-        colorScheme="blue"
         variant="ghost"
+        colorScheme="blue"
       />
-      <Text fontSize="xs" ml={2}>
-        {isPlaying ? "Playing..." : "Play recording"}
+      <Slider
+        flex="1"
+        size="lg"
+        value={currentTime}
+        min={0}
+        max={duration}
+        onChangeStart={() => setIsSeeking(true)}
+        onChangeEnd={() => setIsSeeking(false)}
+        onChange={handleSeek}
+        w="30px"
+        h="8px" 
+      >
+        <SliderTrack bg="gray.200">
+          <SliderFilledTrack bg="blue.400" />
+        </SliderTrack>
+        <SliderThumb boxSize={2} />
+      </Slider>
+      <Text fontSize="xs" whiteSpace="nowrap">
+        {formatTime(currentTime)} / {formatTime(duration)}
       </Text>
     </Flex>
   )
