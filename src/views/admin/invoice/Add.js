@@ -49,7 +49,7 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 
 	const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
 
-	const totalCommissionInclVat = totalCommissionExclVat - vatAmount;
+	const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
 	const total_amount = unitPrice + totalCommissionInclVat;
 	return {
 		total_commission_excl_vat: totalCommissionExclVat,
