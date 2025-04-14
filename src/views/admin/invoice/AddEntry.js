@@ -209,7 +209,13 @@ const AddEntry = ({ props }) => {
 						fontWeight='700'
 						mb={{ base: 2, md: 0 }}
 					>
-						Entries (<CountUpComponent targetNumber={docLength} />)
+						Invoice Entries{' '}
+						{docLength > 0 && (
+							<>
+								(
+								<CountUpComponent targetNumber={docLength} />)
+							</>
+						)}
 					</Text>
 
 					<HStack spacing={3}>

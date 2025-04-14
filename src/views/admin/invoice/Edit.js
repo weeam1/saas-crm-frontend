@@ -50,8 +50,9 @@ const invoiceSchema = yup.object().shape({
 // Function to calculate commission, VAT, and total amount
 function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 	const totalCommissionExclVat = (commissionPercentage / 100) * unitPrice;
-	const vatAmount = (vatPercentage / 100) * unitPrice;
-	const totalCommissionInclVat = totalCommissionExclVat + vatAmount;
+	const vatAmount = (vatPercentage / 100) * totalCommissionExclVat;
+
+	const totalCommissionInclVat = totalCommissionExclVat - vatAmount;
 	const totalAmount = unitPrice + totalCommissionInclVat;
 	return {
 		total_commission_excl_vat: totalCommissionExclVat,
