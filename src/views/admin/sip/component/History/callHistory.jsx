@@ -1,6 +1,4 @@
-"use client"
-
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Table,
@@ -13,121 +11,78 @@ import {
   Flex,
   IconButton,
   Badge,
+  Spinner,
   useColorModeValue,
-  Tooltip,
   Slider,
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
-} from "@chakra-ui/react"
-import { ChevronDownIcon, ChevronUpIcon, Icon } from "@chakra-ui/icons"
-import { FaPlay, FaPause } from "react-icons/fa"
-const callData = [
-  {
-    id: "c3cda248-a67a-4844-bcf2-5...",
-    userName: "John Smith",
-    dateOfCall: "04/10/2025 10:47PM",
-    leadName: "Acme Corporation",
-    duration: "00:00:11",
-    callStatus: "answered",
-    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3",
-    summary: "The call was a brief inquiry with the client about their upcoming project.",
-  },
-  {
-    id: "f55dcbee-4aaa-4805-8cd0-...",
-    userName: "Sarah Johnson",
-    dateOfCall: "04/10/2025 10:46PM",
-    leadName: "Global Industries",
-    duration: "00:00:49",
-    callStatus: "no answer",
-    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-__nbsp_.mp3",
-    summary: "The caller expressed a desire to learn more about our premium services.",
-  },
-  {
-    id: "a77bcf12-9e23-4567-b123-...",
-    userName: "Michael Brown",
-    dateOfCall: "04/10/2025 10:30PM",
-    leadName: "Tech Solutions Inc.",
-    duration: "00:03:22",
-    callStatus: "answered",
-    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/menu.ogg",
-    summary: "Detailed discussion about implementation timeline and resource allocation.",
-  },
-  {
-    id: "d45ef789-1a2b-3c4d-5e6f-...",
-    userName: "Emily Davis",
-    dateOfCall: "04/10/2025 09:15PM",
-    leadName: "Innovative Startups",
-    duration: "00:01:05",
-    callStatus: "failed",
-    recordingUrl: "https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/intromusic.ogg",
-    summary: "Technical issues prevented full discussion, follow-up scheduled.",
-  },
-]
-
+} from "@chakra-ui/react";
+import { FaPlay, FaPause } from "react-icons/fa";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { fetchCallHistoryData } from "../../../../../services/sip/index"; 
+import moment from 'moment';
 
 const formatTime = (time) => {
-  const minutes = Math.floor(time / 60)
-  const seconds = Math.floor(time % 60)
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`
-}
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
 
 const AudioPlayer = ({ url }) => {
-  const audioRef = useRef(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [isSeeking, setIsSeeking] = useState(false)
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   const togglePlay = () => {
-    if (!audioRef.current) return
+    if (!audioRef.current) return;
     if (isPlaying) {
-      audioRef.current.pause()
+      audioRef.current.pause();
     } else {
-      audioRef.current.play()
+      audioRef.current.play();
     }
-    setIsPlaying(!isPlaying)
-  }
+    setIsPlaying(!isPlaying);
+  };
 
   useEffect(() => {
-    const audio = audioRef.current
-    const handleTimeUpdate = () => {
-      if (!isSeeking) setCurrentTime(audio.currentTime)
-    }
-    const handleLoadedMetadata = () => setDuration(audio.duration)
+    const audio = audioRef.current;
+    const handleTimeUpdate = () => !isSeeking && setCurrentTime(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleEnded = () => {
-      setIsPlaying(false)
-      setCurrentTime(0)
-    }
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
 
     if (audio) {
-      audio.addEventListener("timeupdate", handleTimeUpdate)
-      audio.addEventListener("loadedmetadata", handleLoadedMetadata)
-      audio.addEventListener("ended", handleEnded)
+      audio.addEventListener("timeupdate", handleTimeUpdate);
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.addEventListener("ended", handleEnded);
     }
 
     return () => {
       if (audio) {
-        audio.removeEventListener("timeupdate", handleTimeUpdate)
-        audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
-        audio.removeEventListener("ended", handleEnded)
+        audio.removeEventListener("timeupdate", handleTimeUpdate);
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.removeEventListener("ended", handleEnded);
       }
-    }
-  }, [isSeeking])
+    };
+  }, [isSeeking]);
 
   const handleSeek = (value) => {
-    setCurrentTime(value)
+    setCurrentTime(value);
     if (audioRef.current) {
-      audioRef.current.currentTime = value
+      audioRef.current.currentTime = value;
     }
-  }
+  };
 
   return (
     <Flex align="center" w="100%" gap={2}>
       <audio ref={audioRef} src={url} preload="metadata" />
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
-        icon={<Icon as={isPlaying ? FaPause : FaPlay} />}
+        icon={isPlaying ? <FaPause /> : <FaPlay />}
         size="sm"
         onClick={togglePlay}
         variant="ghost"
@@ -135,15 +90,13 @@ const AudioPlayer = ({ url }) => {
       />
       <Slider
         flex="1"
-        size="lg"
+        size="sm"
         value={currentTime}
         min={0}
         max={duration}
         onChangeStart={() => setIsSeeking(true)}
         onChangeEnd={() => setIsSeeking(false)}
         onChange={handleSeek}
-        w="30px"
-        h="8px" 
       >
         <SliderTrack bg="gray.200">
           <SliderFilledTrack bg="blue.400" />
@@ -160,138 +113,130 @@ const AudioPlayer = ({ url }) => {
 const StatusBadge = ({ status }) => {
   let color
   switch (status) {
-    case "answered":
-      color = "green"
+    case 0:
+      color = "green";
       break
-    case "no answer":
-      color = "yellow"
+    case 1:
+      color = "yellow";
       break
-    case "failed":
-      color = "red"
+    case -1:
+      color = "red";
       break
     default:
-      color = "gray"
+      color = "gray";
   }
 
   return (
     <Badge colorScheme={color} px={2} py={1} borderRadius="md">
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {status === 0 ?  "Answered " :  status === 1  ? "No Answered" : "Failed"}
     </Badge>
-  )
-}
+  );
+};
 
 export default function CallHistory() {
-  const [sortField, setSortField] = useState("dateOfCall")
-  const [sortDirection, setSortDirection] = useState("desc")
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("asc")
+  const [calls, setCalls] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [totalPage,setTotalPage] = useState("");
+  const loadCalls = async (page) => {
+    try {
+      setLoading(true);
+      const data = await fetchCallHistoryData(page);
+      setTotalPage(data.total_pages);
+      setCalls(data.data || []);
+      console.log("Fetched call data:", data.data);
+    } catch (err) {
+      setError("Failed to fetch call history");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const sortedData = [...callData].sort((a, b) => {
-    if (sortDirection === "asc") {
-      return a[sortField] > b[sortField] ? 1 : -1
-    } else {
-      return a[sortField] < b[sortField] ? 1 : -1
-    }
-  })
+  useEffect(() => {
+    loadCalls(page);
+  }, [page]);
 
-  const borderColor = useColorModeValue("gray.200", "gray.700")
-  const hoverBg = useColorModeValue("gray.50", "gray.700")
+  const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
-    <Box overflowX="auto" borderWidth="1px" borderColor={borderColor} borderRadius="md" my={4}  bg="white">
-      <Table variant="simple" size="md">
-        <Thead>
-          <Tr>
-            <Th cursor="pointer" onClick={() => handleSort("id")} position="relative" pr={10}>
-              CALL ID
-              {sortField === "id" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th cursor="pointer" onClick={() => handleSort("userName")} position="relative" pr={10}>
-              USER NAME
-              {sortField === "userName" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th cursor="pointer" onClick={() => handleSort("dateOfCall")} position="relative" pr={10}>
-              DATE OF CALL
-              {sortField === "dateOfCall" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th cursor="pointer" onClick={() => handleSort("leadName")} position="relative" pr={10}>
-              LEAD NAME
-              {sortField === "leadName" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th cursor="pointer" onClick={() => handleSort("duration")} position="relative" pr={10}>
-              DURATION
-              {sortField === "duration" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th cursor="pointer" onClick={() => handleSort("callStatus")} position="relative" pr={10}>
-              CALL STATUS
-              {sortField === "callStatus" && (
-                <Box position="absolute" right={2} top="50%" transform="translateY(-50%)">
-                  {sortDirection === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </Box>
-              )}
-            </Th>
-            <Th>RECORDING</Th>
-            <Th>SUMMARY</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {sortedData.map((call) => (
-            <Tr key={call.id} _hover={{ bg: hoverBg }}>
-              <Td>
-                <Tooltip label={call.id} placement="top">
-                  <Text isTruncated maxW="200px">
-                    {call.id}
-                  </Text>
-                </Tooltip>
-              </Td>
-              <Td>{call.userName}</Td>
-              <Td>{call.dateOfCall}</Td>
-              <Td>{call.leadName}</Td>
-              <Td>{call.duration}</Td>
-              <Td>
-                <StatusBadge status={call.callStatus} />
-              </Td>
-              <Td>
-                <AudioPlayer url={call.recordingUrl} />
-              </Td>
-              <Td>
-                <Tooltip label={call.summary} placement="top">
-                  <Text isTruncated maxW="200px">
-                    {call.summary}
-                  </Text>
-                </Tooltip>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+    <Box overflowX="auto" borderWidth="1px" borderColor={borderColor} borderRadius="md" my={4} bg="white" p={4}>
+      {loading ? (
+        <Flex justify="center" py={6}>
+          <Spinner size="lg" />
+        </Flex>
+      ) : error ? (
+        <Text color="red.500">{error}</Text>
+      ) : (
+        <>
+          <Table variant="simple" size="md">
+            <Thead>
+              <Tr>
+                <Th>Call Id</Th>
+                <Th>User Name</Th>
+                <Th>Date of Call</Th>
+                <Th>Lead Name</Th>
+                <Th>Duration</Th>
+                <Th>Status</Th>
+                <Th>Recording</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {calls.map((call) => (
+                <Tr key={call.id}>
+                  <Td>{call.uniqueid ? call.uniqueid : "no data found"}</Td>
+                  <Td>{call.call_from ? call.call_from : "no data found"}</Td>
+                  <Td>{call.calldate ? moment(call.calldate).format("MM/DD/YYYY hh:mmA") : "no data found"}</Td>
+                  <Td>{call.call_to ? call.call_to : "no data found"}</Td>
+                  <Td>{call.duration ? call.duration : "no data found"}</Td>
+                  <Td>
+                    <StatusBadge status={call.noanswer_flag} />
+                  </Td>
+                  <Td>
+                    {call.recording ? (
+                      <AudioPlayer url={call.recording} />
+                    ) : (
+                      <Text fontSize="sm" color="gray.500">
+                        no data found
+                      </Text>
+                    )}
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+
+          <Flex align="center" justify="end" gap={1} mt={3}>
+            <IconButton
+              icon={<ChevronLeftIcon boxSize={6} />}
+              onClick={() => {
+                if (page > 1) setPage((p) => p - 1);
+              }}
+              isDisabled={page === 1}
+              aria-label="Previous Page"
+              background="transparent"
+              _hover={{ bg: "transparent" }}
+              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+            />
+
+            <Text fontWeight="medium">
+              Page {page} / {totalPage}
+            </Text>
+
+            <IconButton
+              icon={<ChevronRightIcon boxSize={6} />}
+              onClick={() => {
+                if (page < totalPage) setPage((p) => p + 1);
+              }}
+              isDisabled={page === totalPage}
+              aria-label="Next Page"
+              background="transparent"
+              _hover={{ bg: "transparent" }}
+              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+            />
+          </Flex>
+        </>
+      )}
     </Box>
-  )
+  );
 }

@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import TotalTimeCallsRecordGraph from './TotalTimeCallsRecordGraph';
-import JoinedVsMadeCallGraph from './JoinedVsMadeCallGraph';
 const SipDashboard = () => {
     const navigate = useNavigate();
     return (
@@ -15,7 +14,6 @@ const SipDashboard = () => {
                 Back
             </AppButton>
             <TotalTimeCallsRecordGraph/>
-            <JoinedVsMadeCallGraph/>
         </>
     );
 }
