@@ -56,8 +56,6 @@ const LeftCard = ({
 		// }
 	}
 
-	console.log({ hideContact });
-
 	return (
 		<Box flex='1' overflow='hidden'>
 			<Flex alignItems='center' gap='2'>

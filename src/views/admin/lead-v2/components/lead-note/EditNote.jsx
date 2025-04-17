@@ -43,13 +43,16 @@ const EditNote = ({
 		// Step 3: Update lastNote field in lead
 		const latestNoteText = updatedNotes[0]?.note || '';
 
-		dispatch(
-			updateLeadField({
-				id: leadId,
-				key: 'lastNote',
-				value: latestNoteText,
-			})
-		);
+		if (latestNote) {
+			console.log('latest note');
+			dispatch(
+				updateLeadField({
+					id: leadId,
+					key: 'lastNote',
+					value: latestNoteText,
+				})
+			);
+		}
 	};
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
