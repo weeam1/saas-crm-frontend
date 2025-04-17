@@ -17,7 +17,6 @@ import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 const LeftCard = ({
 	lead,
@@ -36,12 +35,28 @@ const LeftCard = ({
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 
-	const hideContact =
-		queryParams?.invite && role !== 'superAdmin'
-			? role === 'Manager'
-				? user?._id !== lead?.managerAssigned
-				: user?._id !== lead?.agentAssigned
-			: false;
+	// const hideContact =
+	// 	role === 'Manager'
+	// 		? true
+	// 		: queryParams?.invite && role !== 'superAdmin'
+	// 			? role === 'Manager'
+	// 				? user?._id !== lead?.managerAssigned
+	// 				: user?._id !== lead?.agentAssigned
+	// 			: false;
+
+	let hideContact = false;
+
+	if (role === 'Manager') {
+		hideContact = true;
+	} else if (queryParams?.invite && role !== 'superAdmin') {
+		hideContact = user?._id !== lead?.agentAssigned;
+		// if (role === 'Manager') {
+		// 	hideContact = user?._id !== lead?.managerAssigned;
+		// } else {
+		// }
+	}
+
+	console.log({ hideContact });
 
 	return (
 		<Box flex='1' overflow='hidden'>

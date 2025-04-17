@@ -166,12 +166,27 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 
 	const [searchParams] = useSearchParams();
 
-	const hideContact =
-		searchParams.get('invite') && user?.role !== 'superAdmin'
-			? user?.roles[0]?.roleName === 'Manager'
-				? user?._id !== data?.managerAssigned
-				: user?._id !== data?.agentAssigned
-			: false;
+	// const hideContact =
+	// 	searchParams.get('invite') && user?.role !== 'superAdmin'
+	// 		? user?.roles[0]?.roleName === 'Manager'
+	// 			? user?._id !== data?.managerAssigned
+	// 			: user?._id !== data?.agentAssigned
+	// 		: false;
+
+	let hideContact = false;
+
+	if (user?.roles[0]?.roleName === 'Manager') {
+		hideContact = true;
+	} else if (
+		searchParams.get('invite') &&
+		user?.roles[0]?.roleName !== 'superAdmin'
+	) {
+		hideContact = user?._id !== data?.agentAssigned;
+		// if (role === 'Manager') {
+		// 	hideContact = user?._id !== lead?.managerAssigned;
+		// } else {
+		// }
+	}
 
 	return (
 		<>
@@ -355,7 +370,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 													</Text>
 													<Text>{data?.leadName ? data?.leadName : 'N/A'}</Text>
 												</GridItem>
-												{!isInLeadPool && (
+												{!hideContact && !isInLeadPool && (
 													<>
 														<GridItem colSpan={{ base: 12, md: 6 }}>
 															<Text
@@ -370,40 +385,36 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																{data?.leadEmail ? data?.leadEmail : 'N/A'}
 															</Text>
 														</GridItem>
-														{!hideContact && (
-															<>
-																<GridItem colSpan={{ base: 12, md: 6 }}>
-																	<Text
-																		color={'blackAlpha.900'}
-																		fontSize='sm'
-																		fontWeight='bold'
-																	>
-																		{' '}
-																		Lead Phone Number
-																	</Text>
-																	<Text>
-																		{typeof data?.leadPhoneNumber === 'object'
-																			? data?.leadPhoneNumber?.result
-																			: (data?.leadPhoneNumber ?? 'N/A')}
-																	</Text>
-																</GridItem>
-																<GridItem colSpan={{ base: 12, md: 6 }}>
-																	<Text
-																		color={'blackAlpha.900'}
-																		fontSize='sm'
-																		fontWeight='bold'
-																	>
-																		{' '}
-																		Lead Whatsapp Number
-																	</Text>
-																	<Text>
-																		{typeof data?.leadWhatsapp === 'object'
-																			? data?.leadWhatsapp?.result
-																			: (data?.leadWhatsapp ?? 'N/A')}
-																	</Text>
-																</GridItem>
-															</>
-														)}
+														<GridItem colSpan={{ base: 12, md: 6 }}>
+															<Text
+																color={'blackAlpha.900'}
+																fontSize='sm'
+																fontWeight='bold'
+															>
+																{' '}
+																Lead Phone Number
+															</Text>
+															<Text>
+																{typeof data?.leadPhoneNumber === 'object'
+																	? data?.leadPhoneNumber?.result
+																	: (data?.leadPhoneNumber ?? 'N/A')}
+															</Text>
+														</GridItem>
+														<GridItem colSpan={{ base: 12, md: 6 }}>
+															<Text
+																color={'blackAlpha.900'}
+																fontSize='sm'
+																fontWeight='bold'
+															>
+																{' '}
+																Lead Whatsapp Number
+															</Text>
+															<Text>
+																{typeof data?.leadWhatsapp === 'object'
+																	? data?.leadWhatsapp?.result
+																	: (data?.leadWhatsapp ?? 'N/A')}
+															</Text>
+														</GridItem>
 													</>
 												)}
 												<GridItem colSpan={{ base: 12, md: 6 }}>
