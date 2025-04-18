@@ -21,6 +21,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
+import { useLocation, useNavigate  } from "react-router-dom";
 
 const userSchema = Yup.object().shape({
 	trn: Yup.string().required('TRN is required'),
@@ -50,6 +51,10 @@ const AddUser = (props) => {
 	const user = JSON.parse(localStorage.getItem('user')) || {};
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles?.[0]?.roleName;
+	const location = useLocation();
+	const navigate = useNavigate();
+	const queryParams = new URLSearchParams(location.search);
+	const incomingPayment = queryParams.get("incomingPayment");
 
 	const {
 		data: agenciesResponse,

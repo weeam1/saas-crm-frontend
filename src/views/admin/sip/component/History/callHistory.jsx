@@ -113,13 +113,13 @@ const AudioPlayer = ({ url }) => {
 const StatusBadge = ({ status }) => {
   let color
   switch (status) {
-    case 0:
+    case "ANSWERED":
       color = "green";
       break
-    case 1:
+    case "NO ANSWER":
       color = "yellow";
       break
-    case -1:
+    case -"FAILED":
       color = "red";
       break
     default:
@@ -128,7 +128,7 @@ const StatusBadge = ({ status }) => {
 
   return (
     <Badge colorScheme={color} px={2} py={1} borderRadius="md">
-      {status === 0 ?  "Answered " :  status === 1  ? "No Answered" : "Failed"}
+      {status ? status : "no data found"}
     </Badge>
   );
 };
@@ -173,33 +173,39 @@ export default function CallHistory() {
             <Thead>
               <Tr>
                 <Th>Call Id</Th>
-                <Th>User Name</Th>
-                <Th>Date of Call</Th>
-                <Th>Lead Name</Th>
-                <Th>Duration</Th>
-                <Th>Status</Th>
+                <Th>Call date</Th>
+                <Th>Call Mode</Th>
+                <Th>Call from</Th>
+                <Th>Call to</Th>
                 <Th>Recording</Th>
+                <Th>Type</Th>
+                <Th>Call Duration</Th>
+                <Th>Talk Duration</Th>
+                <Th>Status</Th>
               </Tr>
             </Thead>
             <Tbody>
               {calls.map((call) => (
                 <Tr key={call.id}>
                   <Td>{call.uniqueid ? call.uniqueid : "no data found"}</Td>
-                  <Td>{call.call_from ? call.call_from : "no data found"}</Td>
                   <Td>{call.calldate ? moment(call.calldate).format("MM/DD/YYYY hh:mmA") : "no data found"}</Td>
+                  <Td>{call.call_mode ? call.call_mode : "no data found"}</Td>
+                  <Td>{call.call_from ? call.call_from : "no data found"}</Td>
                   <Td>{call.call_to ? call.call_to : "no data found"}</Td>
-                  <Td>{call.duration ? call.duration : "no data found"}</Td>
-                  <Td>
-                    <StatusBadge status={call.noanswer_flag} />
-                  </Td>
                   <Td>
                     {call.recording ? (
-                      <AudioPlayer url={call.recording} />
+                      <AudioPlayer url={`https://webrtc.weeam.info/file/${call.recording}`} />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
                         no data found
                       </Text>
                     )}
+                  </Td>
+                  <Td>{call.lastapp ? call.lastapp : "no data found"}</Td>
+                  <Td>{call.duration ? call.duration : "no data found"}</Td>
+                  <Td>{call.billsec ? call.billsec : "no data found"}</Td>
+                  <Td>
+                    <StatusBadge status={call.disposition} />
                   </Td>
                 </Tr>
               ))}

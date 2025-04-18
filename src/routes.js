@@ -138,7 +138,7 @@ const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
 const Sip = React.lazy(() => import('views/admin/sip'));
-
+const Expenses = React.lazy(() => import('views/admin/expenses'));
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -183,6 +183,15 @@ const routes = [
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
 		component: LeadScreen,
+	},
+	{
+		name: 'Expenses',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/expenses',
+		icon: (
+			<Icon as="/assets/Navbar_Icon/expenses.svg" width='20px' height='20px' color='inherit' />
+		),
+		component: Expenses,
 	},
 	{
 		name: 'Announcement',
