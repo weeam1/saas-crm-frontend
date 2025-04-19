@@ -19,38 +19,67 @@ import {
   ModalHeader,
   ModalOverlay,
   FormLabel,
-  Select
+  Select,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
 import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import moment from "moment";
+import Pagination from "../../developers/components/Pagination";
 
-const OutgoingTable = () => {
+const OutgoingTable = ({ month, year }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState("");
+  const [selectionAgency, setSelectionAgency] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const [agencies, setAgencies] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
 
-  const { data, isLoading, isError,refetch } = useFetchItemsQuery( { path: `/expenses`,params:{agency:tempSelectedAgency} },
-    { refetchOnMountOrArgChange: true, skip: !user._id });
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+    refetch();
+  };
 
-const [createItemMuation] = useCreateItemMutation();
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+    if (selectionAgency) params.agency = selectionAgency;
+    if (month && year) {
+      params.month = month;
+      params.year = year;
+    }
+    return params;
+  };
+  const { data, isLoading, isError, refetch } = useFetchItemsQuery(
+    { path: `/expenses`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
+
+  const [createItemMuation] = useCreateItemMutation();
   const handleAddPayment = async (newPayment) => {
     try {
       await createItemMuation({
-        path: '/expenses',
+        path: "/expenses",
         body: newPayment,
       }).unwrap();
 
-      toast.success('Expense added successfully.');
-      refetch()
+      toast.success("Expense added successfully.");
+      refetch();
     } catch (error) {
       console.error(error);
-      toast.error(error.data.message || 'Lead not added');
+      toast.error(error.data.message || "Lead not added");
     }
   };
 
@@ -74,10 +103,17 @@ const [createItemMuation] = useCreateItemMutation();
   }, [agencyData, agencyError]);
 
   const handlerAgencyFilter = () => {
-    refetch()
-    setAgencyFilterOpen(false)
-  }
-  
+    setSelectionAgency(tempSelectedAgency);
+    refetch();
+    setAgencyFilterOpen(false);
+  };
+  useEffect(() => {
+    if (data) {
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalDocs || 0);
+    }
+  }, [data]);
+
   return (
     <Box
       overflowY="auto"
@@ -85,13 +121,13 @@ const [createItemMuation] = useCreateItemMutation();
       borderRadius="md"
       boxShadow="sm"
       bg="white"
-      px={8}
+      px={2}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={4}>
-        <Text fontSize="30px" fontWeight="bold" color="black" p={4}>
+      <Flex justifyContent="space-between" alignItems="center" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Payments
         </Text>
-        <Box gap={2} display="flex" alignItems="center"> 
+        <Box gap={2} display="flex" alignItems="center">
           <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -104,18 +140,37 @@ const [createItemMuation] = useCreateItemMutation();
           />
 
           <Button
-            size="lg"
+            size="md"
             variant="brand"
             leftIcon={<AddIcon />}
-            py={5}
-            px={10}
+            py={3}
+            px={6}
             onClick={() => setIsModalOpen(true)}
           >
             Add New
           </Button>
         </Box>
       </Flex>
-      <Box borderRadius="lg" boxShadow="sm" bg="white">
+      <Box mx={1} mb={1}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH={"calc(60vh - 100px)"}
+        overflowY="auto"
+      >
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"
@@ -123,39 +178,130 @@ const [createItemMuation] = useCreateItemMutation();
             bg="white"
             zIndex={2}
             boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+            fontSize={"16px"}
+            borderRadius="lg"
           >
             <Tr>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Date
               </Th>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Number
               </Th>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Type
               </Th>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Description
               </Th>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Added By
               </Th>
-              <Th bg="brand.200" whiteSpace="nowrap" py={2} color={"black"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+              >
                 Amount
               </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {data && data.doc.map((row, index) => (
-              <Tr key={index}>
-                <Td>{row.createdAt ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA") : "no data Found"}</Td>
-                <Td>{row.expenseNo ? row.expenseNo : "no data Found" }</Td>
-                <Td>{row.type ? row.type : "no data Found" }</Td>
-                <Td>{row.description ? row.description : "no data Found" }</Td>
-                <Td>{row.addedBy.fullName ? row.addedBy.fullName : "no data Found" }</Td>
-                <Td>{row.amount ? row.amount : "no data Found" }</Td>
-              </Tr>
-            ))}
+            {data &&
+              data.doc.map((row, index) => (
+                <Tr key={index}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.createdAt
+                      ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
+                      : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.expenseNo ? row.expenseNo : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.type ? row.type : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.description ? row.description : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.addedBy.fullName
+                      ? row.addedBy.fullName
+                      : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.amount ? row.amount : "no data Found"}
+                  </Td>
+                </Tr>
+              ))}
           </Tbody>
         </Table>
       </Box>
