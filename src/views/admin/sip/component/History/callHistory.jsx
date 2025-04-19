@@ -20,8 +20,8 @@ import {
 } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { fetchCallHistoryData } from "../../../../../services/sip/index"; 
-import moment from 'moment';
+import { fetchCallHistoryData } from "../../../../../services/sip/index";
+import moment from "moment";
 
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
@@ -48,7 +48,8 @@ const AudioPlayer = ({ url }) => {
 
   useEffect(() => {
     const audio = audioRef.current;
-    const handleTimeUpdate = () => !isSeeking && setCurrentTime(audio.currentTime);
+    const handleTimeUpdate = () =>
+      !isSeeking && setCurrentTime(audio.currentTime);
     const handleLoadedMetadata = () => setDuration(audio.duration);
     const handleEnded = () => {
       setIsPlaying(false);
@@ -107,21 +108,21 @@ const AudioPlayer = ({ url }) => {
         {formatTime(currentTime)} / {formatTime(duration)}
       </Text>
     </Flex>
-  )
-}
+  );
+};
 
 const StatusBadge = ({ status }) => {
-  let color
+  let color;
   switch (status) {
     case "ANSWERED":
       color = "green";
-      break
+      break;
     case "NO ANSWER":
       color = "yellow";
-      break
+      break;
     case -"FAILED":
       color = "red";
-      break
+      break;
     default:
       color = "gray";
   }
@@ -138,7 +139,7 @@ export default function CallHistory() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [totalPage,setTotalPage] = useState("");
+  const [totalPage, setTotalPage] = useState("");
   const loadCalls = async (page) => {
     try {
       setLoading(true);
@@ -160,7 +161,15 @@ export default function CallHistory() {
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
-    <Box overflowX="auto" borderWidth="1px" borderColor={borderColor} borderRadius="md" my={4} bg="white" p={4}>
+    <Box
+      overflowX="auto"
+      borderWidth="1px"
+      borderColor={borderColor}
+      borderRadius="md"
+      my={4}
+      bg="white"
+      p={4}
+    >
       {loading ? (
         <Flex justify="center" py={6}>
           <Spinner size="lg" />
@@ -168,43 +177,206 @@ export default function CallHistory() {
       ) : error ? (
         <Text color="red.500">{error}</Text>
       ) : (
-        <>
-          <Table variant="simple" size="md">
-            <Thead>
+        <Box borderRadius="lg" boxShadow="sm" bg="white" >
+          <Table variant="striped" size="sm" bg="white">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
               <Tr>
-                <Th>Call Id</Th>
-                <Th>Call date</Th>
-                <Th>Call Mode</Th>
-                <Th>Call from</Th>
-                <Th>Call to</Th>
-                <Th>Recording</Th>
-                <Th>Type</Th>
-                <Th>Call Duration</Th>
-                <Th>Talk Duration</Th>
-                <Th>Status</Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call Id
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call date
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call Mode
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call from
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call to
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Recording
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Type
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Call Duration
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Talk Duration
+                </Th>
+                <Th
+                  bg="brand.200"
+                  whiteSpace="nowrap"
+                  py={4}
+                  fontSize={{ base: "12px", md: "14px" }}
+                  fontWeight="500"
+                  color="gray.700"
+                >
+                  Status
+                </Th>
               </Tr>
             </Thead>
             <Tbody>
               {calls.map((call) => (
                 <Tr key={call.id}>
-                  <Td>{call.uniqueid ? call.uniqueid : "no data found"}</Td>
-                  <Td>{call.calldate ? moment(call.calldate).format("MM/DD/YYYY hh:mmA") : "no data found"}</Td>
-                  <Td>{call.call_mode ? call.call_mode : "no data found"}</Td>
-                  <Td>{call.call_from ? call.call_from : "no data found"}</Td>
-                  <Td>{call.call_to ? call.call_to : "no data found"}</Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.uniqueid ? call.uniqueid : "no data found"}
+                  </Td>
                   <Td>
+                    {call.calldate
+                      ? moment(call.calldate).format("MM/DD/YYYY hh:mmA")
+                      : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.call_mode ? call.call_mode : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.call_from ? call.call_from : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.call_to ? call.call_to : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
                     {call.recording ? (
-                      <AudioPlayer url={`https://webrtc.weeam.info/file/${call.recording}`} />
+                      <AudioPlayer
+                        url={`https://webrtc.weeam.info/file/${call.recording}`}
+                      />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
                         no data found
                       </Text>
                     )}
                   </Td>
-                  <Td>{call.lastapp ? call.lastapp : "no data found"}</Td>
-                  <Td>{call.duration ? call.duration : "no data found"}</Td>
-                  <Td>{call.billsec ? call.billsec : "no data found"}</Td>
-                  <Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.lastapp ? call.lastapp : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.duration ? call.duration : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {call.billsec ? call.billsec : "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
                     <StatusBadge status={call.disposition} />
                   </Td>
                 </Tr>
@@ -241,7 +413,7 @@ export default function CallHistory() {
               _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
             />
           </Flex>
-        </>
+        </Box>
       )}
     </Box>
   );
