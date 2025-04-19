@@ -196,6 +196,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call Id
                 </Th>
@@ -206,6 +207,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call date
                 </Th>
@@ -216,6 +218,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call Mode
                 </Th>
@@ -226,6 +229,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call from
                 </Th>
@@ -236,6 +240,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call to
                 </Th>
@@ -246,6 +251,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Recording
                 </Th>
@@ -256,6 +262,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Type
                 </Th>
@@ -266,6 +273,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Call Duration
                 </Th>
@@ -276,6 +284,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Talk Duration
                 </Th>
@@ -286,6 +295,7 @@ export default function CallHistory() {
                   fontSize={{ base: "12px", md: "14px" }}
                   fontWeight="500"
                   color="gray.700"
+                  textTransform={"capitalize"}
                 >
                   Status
                 </Th>

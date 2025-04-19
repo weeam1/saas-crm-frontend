@@ -43,7 +43,7 @@ const IncomingTable = ({month, year}) => {
   const [totalItems, setTotalItems] = useState(0);
 
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
+    setPageSize( newPageSize.target.value);
     setCurrentPage(1); 
     refetch()
   };
@@ -180,25 +180,25 @@ const [createItemMuation] = useCreateItemMutation();
             borderRadius="lg" 
           >
             <Tr>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 Date
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 developer
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 Email
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 TRN
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 Agency
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 country
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700'>
+              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
                 Amount
               </Th>
             </Tr>

@@ -42,7 +42,7 @@ const OutgoingTable = ({ month, year }) => {
   const [totalItems, setTotalItems] = useState(0);
 
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
+    setPageSize( newPageSize.target.value);
     setCurrentPage(1);
     refetch();
   };
@@ -189,6 +189,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Date
               </Th>
@@ -199,6 +200,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Number
               </Th>
@@ -209,6 +211,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Type
               </Th>
@@ -219,6 +222,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Description
               </Th>
@@ -229,6 +233,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Added By
               </Th>
@@ -239,6 +244,7 @@ const OutgoingTable = ({ month, year }) => {
                 fontSize={{ base: "12px", md: "14px" }}
                 fontWeight="500"
                 color="gray.700"
+                textTransform={"capitalize"}
               >
                 Amount
               </Th>
