@@ -19,33 +19,35 @@ import {
   ModalHeader,
   ModalOverlay,
   FormLabel,
-  Select
+  Select,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
-import AddIncomingPaymentModal from "./Sub_Component/AddIncomingPaymentModal";
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
-import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
-import { toast } from 'react-toastify';
+import {
+  useFetchItemsQuery,
+  useDeleteItemMutation,
+} from "api/apiSlice";
+import { toast } from "react-toastify";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../developers/components/Pagination";
-const IncomingTable = ({month, year}) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+const IncomingTable = ({ month, year, refetchSummary }) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState("");
   const [selectionAgency, setSelectionAgency] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const [agencies, setAgencies] = useState([]);
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [pageSize, setPageSize] = useState(10); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
-
+  const [deleteItemMutation] = useDeleteItemMutation();
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize( newPageSize.target.value);
-    setCurrentPage(1); 
-    refetch()
+    setPageSize(newPageSize.target.value);
+    setCurrentPage(1);
+    refetch();
   };
 
   const handlePageChange = (newPage) => {
@@ -58,30 +60,16 @@ const IncomingTable = ({month, year}) => {
       limit: pageSize,
     };
     if (selectionAgency) params.agency = selectionAgency;
-    if(month && year){
+    if (month && year) {
       params.month = month;
       params.year = year;
     }
     return params;
   };
-  const { data, isLoading, isError,refetch } = useFetchItemsQuery( { path: `/invoices/monthly`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true, skip: !user._id });
-
-const [createItemMuation] = useCreateItemMutation();
-  const handleAddPayment = async (newPayment) => {
-    try {
-			await createItemMuation({
-				path: '/invoices',
-				body: newPayment,
-			}).unwrap();
-
-			toast.success('Expense added successfully.');
-      refetch()
-		} catch (error) {
-			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
-		}
-  };
+  const { data, isLoading, isError, refetch } = useFetchItemsQuery(
+    { path: `/invoices/monthly`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
 
   const {
     data: agencyData,
@@ -104,20 +92,40 @@ const [createItemMuation] = useCreateItemMutation();
 
   const handlerAgencyFilter = () => {
     setSelectionAgency(tempSelectedAgency);
-    refetch()
-    setAgencyFilterOpen(false)
-  }
+    refetch();
+    refetchSummary();
+    setAgencyFilterOpen(false);
+  };
 
   const handlerIncomingPaymentAddition = () => {
     navigate(`/invoice/developers`);
-  }
+  };
   useEffect(() => {
     if (data) {
       setTotalPages(data.totalPages || 0);
       setTotalItems(data.totalDocs || 0);
-      refetch()
     }
   }, [data]);
+
+  const HandlerDeletion = async (invoiceId) => {
+    try {
+      await deleteItemMutation({
+        path: `/invoices/${invoiceId}`,
+        body: {},
+      }).unwrap();
+      toast.success("The account has been deleted successfully.", {
+        autoClose: 3000,
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      toast.error(
+        error.data?.message ||
+          "Failed to delete the account. Please try again.",
+        { autoClose: 3000 }
+      );
+    }
+  };
   return (
     <Box
       overflowY="auto"
@@ -131,7 +139,7 @@ const [createItemMuation] = useCreateItemMutation();
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Payments
         </Text>
-        <Box gap={2} display="flex" alignItems="center"> 
+        <Box gap={2} display="flex" alignItems="center">
           <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -168,110 +176,225 @@ const [createItemMuation] = useCreateItemMutation();
           loading={isLoading}
         />
       </Box>
-      <Box borderRadius="lg" boxShadow="sm" bg="white"  maxH={"calc(60vh - 100px)"} overflowY="auto">
-        <Table variant='striped' size='sm' bg='white'>
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH={"calc(60vh - 100px)"}
+        overflowY="auto"
+      >
+        <Table variant="striped" size="sm" bg="white">
           <Thead
-        		position='sticky'
-						top={0}
-						bg='white'
-						zIndex={2}
-						boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+            position="sticky"
+            top={0}
+            bg="white"
+            zIndex={2}
+            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
             fontSize={"16px"}
-            borderRadius="lg" 
+            borderRadius="lg"
           >
             <Tr>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 Date
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 developer
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 Email
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 TRN
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 Agency
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 country
               </Th>
-              <Th bg='brand.200' whiteSpace='nowrap' py={4} 	fontSize={{ base: '12px', md: '14px' }} fontWeight='500' color='gray.700' textTransform={"capitalize"}>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
                 Amount
+              </Th>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
+                Action
               </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {data && data.doc.map((row, index) => (
-              <Tr key={index}>
-                <Td
+            {data &&
+              data.doc.map((row, index) => (
+                <Tr key={index}>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                    {row.createdAt ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA") : "no data Found"}
-                </Td>
-                <Td
+                    {row.createdAt
+                      ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
+                      : "no data Found"}
+                  </Td>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                  {row?.developer?.developer_name ? row.developer.developer_name : "no data Found" }
-                </Td>
-                <Td
+                    {row?.developer?.developer_name
+                      ? row.developer.developer_name
+                      : "no data Found"}
+                  </Td>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                  {row?.developer?.email ? row.developer.email : "no data Found" }
-                </Td>
-                <Td
+                    {row?.developer?.email
+                      ? row.developer.email
+                      : "no data Found"}
+                  </Td>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                  {row?.developer?.trn ? row.developer.trn : "no data Found" }
-                </Td>
-                <Td
+                    {row?.developer?.trn ? row.developer.trn : "no data Found"}
+                  </Td>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                  {row?.agency?.name ? row.agency.name : "no data Found" }
-                </Td>
-                <Td
+                    {row?.agency?.name ? row.agency.name : "no data Found"}
+                  </Td>
+                  <Td
                     py={4}
-                    fontSize={{ base: '12px', md: '14px' }}
-                    fontWeight='400'
-                    minWidth='100px'
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
                   >
-                  {row?.developer?.country ? row.developer.country: "no data Found" }
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: '12px', md: '14px' }}
-                  fontWeight='400'
-                  minWidth='100px'
-                >
-                  {row.totalAmount ? row.totalAmount : "no data Found" }
-                </Td>
-              </Tr>
-            ))}
+                    {row?.developer?.country
+                      ? row.developer.country
+                      : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                  >
+                    {row.totalAmount ? row.totalAmount : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    display={"flex"}
+                    gap={2}
+                  >
+                    <IconButton
+                      aria-label="Edit"
+                      icon={<EditIcon />}
+                      size="sm"
+                      onClick={() =>
+                        navigate(
+                          `/invoice/developers/invoices/${row?.developer?._id}`
+                        )
+                      }
+                    />
+                    <IconButton
+                      aria-label="Delete"
+                      icon={<DeleteIcon />}
+                      size="sm"
+                      colorScheme="red"
+                      onClick={() => HandlerDeletion(row._id)}
+                    />
+                    <IconButton
+                      aria-label="View"
+                      icon={<ViewIcon />}
+                      size="sm"
+                      colorScheme="green"
+                      onClick={() =>
+                        navigate(
+                          `/invoice/developers/invoices/view/${row.invoiceNo}`
+                        )
+                      }
+                    />
+                  </Td>
+                </Tr>
+              ))}
           </Tbody>
         </Table>
       </Box>
-      <AddIncomingPaymentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddPayment}
-      />
+
       {/* Agency Filter Modal */}
       {agencyFilterOpen && (
         <Modal

@@ -15,7 +15,6 @@ import countriesReducer, {
 import usersReducer from './usersSlice';
 import leadsReducer from './leadsSlice';
 import { apiSlice } from 'api/apiSlice';
-import { expensesSlice } from 'api/expenses/index';
 import countriesData from 'data/countries.json';
 
 const store = configureStore({
@@ -33,10 +32,9 @@ const store = configureStore({
 		invoiceModalData: invoiceModalDataReducer,
 		webSocket: webSocketReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
-		[expensesSlice.reducerPath]: expensesSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(apiSlice.middleware, expensesSlice.middleware),
+		getDefaultMiddleware().concat(apiSlice.middleware),
 });
 
 // Load countries from JSON into Redux store

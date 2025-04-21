@@ -79,18 +79,18 @@ const Expenses = () => {
   }
   return (
     <Box>
-      <Tabs variant="unstyled" index={activeTab} onChange={handleTabChange}>
+      <Tabs variant="goldenrod" index={activeTab} onChange={handleTabChange}>
         <TabList gap={3} mx={3} display={"flex"} justifyContent="space-between">
           <Box display={"flex"} gap={3}>
             <Tab
-              _selected={{ bg: "goldenrod", color: "white" }}
+              _selected={{ bg: "#B79045", color: "white" }}
               bg={"white"}
               borderRadius={10}
             >
               Incoming Cash
             </Tab>
             <Tab
-              _selected={{ bg: "goldenrod", color: "black" }}
+              _selected={{ bg: "#B79045", color: "white" }}
               bg={"white"}
               borderRadius={10}
             >
@@ -139,10 +139,10 @@ const Expenses = () => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <IncomingTable month={selectionMonth} year={selectionYear} />
+            <IncomingTable month={selectionMonth} year={selectionYear}  refetchSummary= {refetch}/>
           </TabPanel>
           <TabPanel>
-            <OutgoingTable month={selectionMonth} year={selectionYear} />
+            <OutgoingTable month={selectionMonth} year={selectionYear} refetchSummary= {refetch}/>
           </TabPanel>
         </TabPanels>
       </Tabs>

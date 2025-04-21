@@ -21,15 +21,22 @@ import {
   FormLabel,
   Select,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
 import { FiFilter } from "react-icons/fi";
-import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import {
+  useFetchItemsQuery,
+  useCreateItemMutation,
+  useDeleteItemMutation,
+  useUpdateItemMutation
+} from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
+import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
+import { set } from "date-fns";
 
-const OutgoingTable = ({ month, year }) => {
+const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState("");
@@ -40,11 +47,17 @@ const OutgoingTable = ({ month, year }) => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+  const [deleteItemMutation] = useDeleteItemMutation();
+  const [isOpenExpenseInputModal, setIsOpenExpenseInputModal] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
+  const [OpenExpenseInputModalData, setOpenExpenseInputModalData] = useState(null);
 
+  const [updateItemMuation] = useUpdateItemMutation();
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize( newPageSize.target.value);
+    setPageSize(newPageSize.target.value);
     setCurrentPage(1);
     refetch();
+    refetchSummary();
   };
 
   const handlePageChange = (newPage) => {
@@ -77,6 +90,7 @@ const OutgoingTable = ({ month, year }) => {
 
       toast.success("Expense added successfully.");
       refetch();
+      refetchSummary();
     } catch (error) {
       console.error(error);
       toast.error(error.data.message || "Lead not added");
@@ -105,6 +119,7 @@ const OutgoingTable = ({ month, year }) => {
   const handlerAgencyFilter = () => {
     setSelectionAgency(tempSelectedAgency);
     refetch();
+    refetchSummary();
     setAgencyFilterOpen(false);
   };
   useEffect(() => {
@@ -114,6 +129,47 @@ const OutgoingTable = ({ month, year }) => {
     }
   }, [data]);
 
+  const HandlerDeletion = async (invoiceId) => {
+    try {
+      await deleteItemMutation({
+        path: `/expenses/${invoiceId}`,
+        body: {},
+      }).unwrap();
+      toast.success("The expense has been deleted successfully.", {
+        autoClose: 3000,
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete expense:", error);
+      toast.error(
+        error.data?.message ||
+          "Failed to delete the expense. Please try again.",
+        { autoClose: 3000 }
+      );
+    }
+  };
+
+  const handleUpdatedPayment = async (updatedPayment) => {
+    try{
+      await updateItemMuation({
+				path: `/expenses/${OpenExpenseInputModalData._id}`,
+				body: updatedPayment,
+			}).unwrap();
+      setIsOpenExpenseInputModal(false);
+      setIsEditable(false);
+      setOpenExpenseInputModalData(null);
+      refetch();
+      refetchSummary();
+			toast.success('Expenses updated successfully.');
+    }catch (error) {
+      console.error("Failed to delete expense:", error);
+      toast.error(
+        error.data?.message ||
+          "Failed to delete the expense. Please try again.",
+        { autoClose: 3000 }
+      );
+    }
+   }
   return (
     <Box
       overflowY="auto"
@@ -248,6 +304,17 @@ const OutgoingTable = ({ month, year }) => {
               >
                 Amount
               </Th>
+              <Th
+                bg="brand.200"
+                whiteSpace="nowrap"
+                py={4}
+                fontSize={{ base: "12px", md: "14px" }}
+                fontWeight="500"
+                color="gray.700"
+                textTransform={"capitalize"}
+              >
+                Action
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -305,6 +372,43 @@ const OutgoingTable = ({ month, year }) => {
                     minWidth="100px"
                   >
                     {row.amount ? row.amount : "no data Found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    display={"flex"}
+                    gap={2}
+                  >
+                    <IconButton
+                      aria-label="Edit"
+                      icon={<EditIcon />}
+                      size="sm"
+                      onClick={() => {
+                        setIsEditable(true);
+                        setOpenExpenseInputModalData(row);
+                        setIsOpenExpenseInputModal(true);
+                      }}
+                    />
+                    <IconButton
+                      aria-label="Delete"
+                      icon={<DeleteIcon />}
+                      size="sm"
+                      colorScheme="red"
+                      onClick={() => HandlerDeletion(row._id)}
+                    />
+                    <IconButton
+                      aria-label="View"
+                      icon={<ViewIcon />}
+                      size="sm"
+                      colorScheme="green"
+                      onClick={() => {
+                        setIsEditable(false);
+                        setOpenExpenseInputModalData(row);
+                        setIsOpenExpenseInputModal(true);
+                      }}
+                    />
                   </Td>
                 </Tr>
               ))}
@@ -380,6 +484,15 @@ const OutgoingTable = ({ month, year }) => {
           </ModalContent>
         </Modal>
       )}
+
+      <ExpenseInputModal
+        isOpen = {isOpenExpenseInputModal} 
+        onClose = {()=> setIsOpenExpenseInputModal(false)}
+        data={OpenExpenseInputModalData}
+        isEditable={isEditable}
+        onSubmit={handleUpdatedPayment}
+      />
+
     </Box>
   );
 };
