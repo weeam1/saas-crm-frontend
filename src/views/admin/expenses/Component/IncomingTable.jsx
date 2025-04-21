@@ -108,20 +108,21 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   }, [data]);
 
   const HandlerDeletion = async (invoiceId) => {
+    console.log("invoiceId", invoiceId);
     try {
       await deleteItemMutation({
         path: `/invoices/${invoiceId}`,
         body: {},
       }).unwrap();
-      toast.success("The account has been deleted successfully.", {
+      toast.success("The expenses has been deleted successfully.", {
         autoClose: 3000,
       });
       refetch();
     } catch (error) {
-      console.error("Failed to delete account:", error);
+      console.error("Failed to delete expenses:", error);
       toast.error(
         error.data?.message ||
-          "Failed to delete the account. Please try again.",
+          "Failed to delete the expenses. Please try again.",
         { autoClose: 3000 }
       );
     }
@@ -358,7 +359,6 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                     fontWeight="400"
                     minWidth="100px"
                     display={"flex"}
-                    gap={2}
                   >
                     <IconButton
                       aria-label="Edit"
@@ -369,24 +369,28 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                           `/invoice/developers/invoices/${row?.developer?._id}`
                         )
                       }
+                      color={"#c09f5f"}
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                     />
                     <IconButton
                       aria-label="Delete"
                       icon={<DeleteIcon />}
                       size="sm"
-                      colorScheme="red"
+                      color= {"#c09f5f"}
                       onClick={() => HandlerDeletion(row._id)}
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                     />
                     <IconButton
                       aria-label="View"
                       icon={<ViewIcon />}
                       size="sm"
-                      colorScheme="green"
+                      color= {"#c09f5f"}
                       onClick={() =>
                         navigate(
                           `/invoice/developers/invoices/view/${row.invoiceNo}`
                         )
                       }
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                     />
                   </Td>
                 </Tr>

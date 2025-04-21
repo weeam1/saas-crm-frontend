@@ -139,6 +139,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         autoClose: 3000,
       });
       refetch();
+      refetchSummary();
     } catch (error) {
       console.error("Failed to delete expense:", error);
       toast.error(
@@ -390,19 +391,23 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                         setOpenExpenseInputModalData(row);
                         setIsOpenExpenseInputModal(true);
                       }}
+                      color={"#c09f5f"}
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                     />
                     <IconButton
                       aria-label="Delete"
                       icon={<DeleteIcon />}
                       size="sm"
-                      colorScheme="red"
+                      color={"#c09f5f"}
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                       onClick={() => HandlerDeletion(row._id)}
                     />
                     <IconButton
                       aria-label="View"
                       icon={<ViewIcon />}
                       size="sm"
-                      colorScheme="green"
+                      color={"#c09f5f"}
+                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
                       onClick={() => {
                         setIsEditable(false);
                         setOpenExpenseInputModalData(row);
