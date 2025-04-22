@@ -44,7 +44,7 @@ const Expenses = () => {
     isError,
     refetch,
   } = useFetchItemsQuery(
-    { path: `/expenses/summary`, params: { month: 4, year: 2025 } },
+    { path: `/expenses/summary`, params: { month: month, year: year } },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
   const handleTabChange = (index) => {
@@ -53,13 +53,6 @@ const Expenses = () => {
     setSelectionYear(moment().format("YYYY"));
     setMonth(moment().format("M"));
     setYear(moment().format("YYYY"));
-  };
-
-  const handleClear = () => {
-    setSelectionMonth(null);
-    setSelectionYear(null);
-    setMonth(null);
-    setYear(null);
   };
 
   const getMonthName = (monthNumber) => {
@@ -99,17 +92,6 @@ const Expenses = () => {
           </Box>
           <Box>
             <HStack>
-              {selectionMonth && selectionYear && (
-                <HStack>
-                  <IconButton
-                    icon={<CloseIcon />}
-                    aria-label="Clear date"
-                    size="sm"
-                    onClick={handleClear}
-                    outline
-                  />
-                </HStack>
-              )}
               <Box
                 display={"flex"}
                 alignItems={"center"}

@@ -28,14 +28,13 @@ import {
   useFetchItemsQuery,
   useCreateItemMutation,
   useDeleteItemMutation,
-  useUpdateItemMutation
+  useUpdateItemMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
-import { set } from "date-fns";
-
+import Loader from "components/loading/Loader";
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -50,7 +49,8 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [deleteItemMutation] = useDeleteItemMutation();
   const [isOpenExpenseInputModal, setIsOpenExpenseInputModal] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [OpenExpenseInputModalData, setOpenExpenseInputModalData] = useState(null);
+  const [OpenExpenseInputModalData, setOpenExpenseInputModalData] =
+    useState(null);
 
   const [updateItemMuation] = useUpdateItemMutation();
   const handlePageSizeChange = (newPageSize) => {
@@ -75,7 +75,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     }
     return params;
   };
-  const { data, isLoading, isError, refetch } = useFetchItemsQuery(
+  const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     { path: `/expenses`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
@@ -151,18 +151,18 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
   };
 
   const handleUpdatedPayment = async (updatedPayment) => {
-    try{
+    try {
       await updateItemMuation({
-				path: `/expenses/${OpenExpenseInputModalData._id}`,
-				body: updatedPayment,
-			}).unwrap();
+        path: `/expenses/${OpenExpenseInputModalData._id}`,
+        body: updatedPayment,
+      }).unwrap();
       setIsOpenExpenseInputModal(false);
       setIsEditable(false);
       setOpenExpenseInputModalData(null);
       refetch();
       refetchSummary();
-			toast.success('Expenses updated successfully.');
-    }catch (error) {
+      toast.success("Expenses updated successfully.");
+    } catch (error) {
       console.error("Failed to delete expense:", error);
       toast.error(
         error.data?.message ||
@@ -170,7 +170,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         { autoClose: 3000 }
       );
     }
-   }
+  };
   return (
     <Box
       overflowY="auto"
@@ -318,107 +318,124 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
               </Th>
             </Tr>
           </Thead>
-          <Tbody>
-            {data &&
-              data.doc.map((row, index) => (
-                <Tr key={index}>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.createdAt
-                      ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
-                      : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.expenseNo ? row.expenseNo : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.type ? row.type : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.description ? row.description : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.addedBy.fullName
-                      ? row.addedBy.fullName
-                      : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                  >
-                    {row.amount ? row.amount : "no data Found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    display={"flex"}
-                    gap={2}
-                  >
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<EditIcon />}
-                      size="sm"
-                      onClick={() => {
-                        setIsEditable(true);
-                        setOpenExpenseInputModalData(row);
-                        setIsOpenExpenseInputModal(true);
-                      }}
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                    />
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => HandlerDeletion(row._id)}
-                    />
-                    <IconButton
-                      aria-label="View"
-                      icon={<ViewIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => {
-                        setIsEditable(false);
-                        setOpenExpenseInputModalData(row);
-                        setIsOpenExpenseInputModal(true);
-                      }}
-                    />
-                  </Td>
-                </Tr>
-              ))}
-          </Tbody>
+          {(!isLoading && !isFetching) && (
+            <Tbody>
+              {data &&
+                data.doc.map((row, index) => (
+                  <Tr key={index}>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.createdAt
+                        ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
+                        : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.expenseNo ? row.expenseNo : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.type ? row.type : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.description ? row.description : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.addedBy.fullName
+                        ? row.addedBy.fullName
+                        : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {row.amount ? row.amount : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      display={"flex"}
+                      gap={2}
+                    >
+                      <IconButton
+                        aria-label="Edit"
+                        icon={<EditIcon />}
+                        size="sm"
+                        onClick={() => {
+                          setIsEditable(true);
+                          setOpenExpenseInputModalData(row);
+                          setIsOpenExpenseInputModal(true);
+                        }}
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                      />
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => HandlerDeletion(row._id)}
+                      />
+                      <IconButton
+                        aria-label="View"
+                        icon={<ViewIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => {
+                          setIsEditable(false);
+                          setOpenExpenseInputModalData(row);
+                          setIsOpenExpenseInputModal(true);
+                        }}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+            </Tbody>
+          )}
         </Table>
+        {(!isLoading || !isFetching) && data?.doc?.length === 0 && (
+          <Text textAlign="center" color="gray.500" py={6}>
+            No expenses found.
+          </Text>
+        )}
+        {(isLoading || isFetching) && (
+          <Box
+            display={"flex"}
+            justifyContent={"center"}
+            justifyItems={"center"}
+            py={4}
+          >
+            <Loader />
+          </Box>
+        )}
       </Box>
       <AddOutgoingPaymentModal
         isOpen={isModalOpen}
@@ -491,13 +508,12 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       )}
 
       <ExpenseInputModal
-        isOpen = {isOpenExpenseInputModal} 
-        onClose = {()=> setIsOpenExpenseInputModal(false)}
+        isOpen={isOpenExpenseInputModal}
+        onClose={() => setIsOpenExpenseInputModal(false)}
         data={OpenExpenseInputModalData}
         isEditable={isEditable}
         onSubmit={handleUpdatedPayment}
       />
-
     </Box>
   );
 };
