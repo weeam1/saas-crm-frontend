@@ -14,7 +14,8 @@ import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { Textarea } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
-import { updateLeadField } from './../../../../redux/leadsSlice';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { buttonStyle } from 'utils/btn';
 
 const AddNewNote = ({
 	setNoteAdded,
@@ -84,11 +85,30 @@ const AddNewNote = ({
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme='brand'
-							size='sm'
-							mr={2}
+							{...buttonStyle}
+							variant='solid'
+							bg='gray.200'
+							color='gray.800'
+							_active={{ bg: 'gray.300' }}
+							py='4'
+							px='6'
+							mr='3'
+							fontSize='lg'
+							aria-label='close'
+							onClick={onClose}
+						>
+							Close
+						</Button>
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							py='4'
+							px='6'
+							fontSize='lg'
+							aria-label='add'
 							onClick={handleAddNote}
-							disabled={isLoding ? true : false}
+							disabled={isLoding || !noteValue.trim() ? true : false}
 						>
 							{isLoding ? <Spinner /> : 'Add'}
 						</Button>

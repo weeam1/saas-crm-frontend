@@ -16,6 +16,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import keys from 'config/keys';
 import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
+import { HasAccess } from '../../../../../redux/accessUtils';
 
 const InvitationModal = ({ isOpen, onClose, lead }) => {
 	const { _id: leadId, leadName } = lead;
@@ -23,6 +24,10 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 	const [loading, setLoading] = useState(false);
 	const [files, setFiles] = useState(null);
 	const [sendEmail, setSendEmail] = useState(null);
+
+	const [emailAccess] = HasAccess(['Email']);
+
+	console.log({ emailAccess });
 
 	const handleInvite = async () => {
 		try {
@@ -132,17 +137,19 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 											</HStack>
 										);
 									})}
-									<Button
-										{...buttonStyle}
-										py='5'
-										px='10'
-										w='full'
-										fontSize='lg'
-										bg='brand.400'
-										onClick={handleSendEmail}
-									>
-										Send Email
-									</Button>
+									{emailAccess.create && (
+										<Button
+											{...buttonStyle}
+											py='5'
+											px='10'
+											w='full'
+											fontSize='lg'
+											bg='brand.400'
+											onClick={handleSendEmail}
+										>
+											Send Email
+										</Button>
+									)}
 								</VStack>
 							)}
 						</Box>

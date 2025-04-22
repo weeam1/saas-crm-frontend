@@ -20,6 +20,7 @@ import * as Yup from 'yup';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import { experienceYearsOptions, genderOptions } from '../../helpers';
+import { visaOptions } from 'utils/options';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -34,6 +35,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		status: '',
 		agency: '',
 		inviteAccepted: '',
+		visaType: '',
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
@@ -483,6 +485,43 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											</GridItem>
 										</>
 									)}
+
+									<GridItem>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='md'
+											fontWeight='400'
+											color='gray.800'
+											mt={2}
+											mb='1'
+										>
+											Visa Type
+										</FormLabel>
+										<Select
+											fontSize='sm'
+											name='visaType'
+											fontWeight='400'
+											defaultValue={''}
+											rounded='md'
+											shadow='sm'
+											onChange={handleChange}
+											onBlur={handleBlur}
+											value={values['visaType']}
+											borderColor='gray.300'
+											_focus={{
+												borderColor: 'brand.500',
+												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+											}}
+											placeholder='Search by visa type'
+										>
+											{visaOptions.map((type) => (
+												<option key={type.value} value={type.value}>
+													{type.label}
+												</option>
+											))}
+										</Select>
+									</GridItem>
 								</Grid>
 
 								<Flex mt={4} justifyContent='flex-end'>

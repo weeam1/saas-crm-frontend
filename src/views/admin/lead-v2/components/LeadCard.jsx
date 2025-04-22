@@ -8,7 +8,7 @@ import LeadMenu from './subComponents/card/LeadMenu';
 import { leadlabelFontSize } from './constants';
 
 import './checkbox.css';
-import LeadNotesModal from './LeadNotesModal';
+import LeadNotesModal from './lead-note/LeadNotesModal';
 
 const LeadCard = memo(
 	({

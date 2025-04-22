@@ -16,6 +16,7 @@ import InputPair from './LeadCard/InputPair';
 import LeadCycleModal from './LeadCard/LeadCycleModal';
 import LeadsModal from '../../lead/LeadsModal';
 import { leadStatus } from 'utils/options';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
@@ -268,7 +269,7 @@ const LeadCard = ({
 							<Text fontSize='xs' color='#C1C1C1' fontFamily='DM Sans'>
 								Lead Note
 							</Text>
-							<Tooltip label={renderValue(lastNote)} placement='top' hasArrow>
+							{/* <Tooltip label={renderValue(lastNote)} placement='top' hasArrow>
 								<span>
 									<Icon
 										as={InfoIcon}
@@ -277,12 +278,20 @@ const LeadCard = ({
 										cursor='pointer'
 									/>
 								</span>
-							</Tooltip>
+							</Tooltip> */}
+
+							<CustomTooltip label={renderValue(lastNote)}>
+								<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
+							</CustomTooltip>
 						</HStack>
 						<Text
 							fontSize={lastNote?.length > 100 ? 'xx-small' : 'xs'}
 							color='gray.500'
 							fontFamily='DM Sans'
+							isTruncated
+							noOfLines={2}
+							whiteSpace='normal'
+							maxWidth='200px'
 						>
 							{renderValue(lastNote)}
 						</Text>
@@ -412,14 +421,18 @@ const LeadCard = ({
 								>
 									{item.label}
 								</Text>
-								<Tooltip label={item.value} placement='right' hasArrow>
+								{/* <Tooltip label={} placement='right' hasArrow>
 									<Icon
 										as={InfoIcon}
 										color='blue.300'
 										boxSize={3.5}
 										cursor='pointer'
 									/>
-								</Tooltip>
+								</Tooltip> */}
+
+								<CustomTooltip label={item.value}>
+									<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
+								</CustomTooltip>
 							</HStack>
 						))}
 					</VStack>
