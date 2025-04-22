@@ -44,6 +44,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [deleteItemMutation] = useDeleteItemMutation();
+  
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize.target.value);
     setCurrentPage(1);
@@ -108,7 +109,6 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   }, [data]);
 
   const HandlerDeletion = async (invoiceId) => {
-    console.log("invoiceId", invoiceId);
     try {
       await deleteItemMutation({
         path: `/invoices/${invoiceId}`,
