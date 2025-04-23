@@ -15,7 +15,12 @@ import {
 	MdLock,
 	MdPeopleOutline,
 } from 'react-icons/md';
-import { FaUserCircle, FaDollarSign, FaRegCalendarCheck } from 'react-icons/fa';
+import {
+	FaUserCircle,
+	FaDollarSign,
+	FaRegCalendarCheck,
+	FaRegCopy,
+} from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
@@ -31,6 +36,7 @@ import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
 import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
 import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
 import OfficeSettings from 'views/admin/agencies/OfficeSetting';
+import Expenses from 'views/admin/expenses';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -412,6 +418,16 @@ export default function User(props) {
 				parentName: 'Invoice',
 				path: '/invoice/developers/invoices/entries/:id',
 				component: AddEntry,
+			},
+			{
+				name: 'Expenses',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+
+				path: '/expenses',
+				icon: (
+					<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
+				),
+				component: Expenses,
 			},
 			{
 				name: 'Attendance',
