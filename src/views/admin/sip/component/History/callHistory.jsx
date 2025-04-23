@@ -24,11 +24,12 @@ import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
 
 const formatTime = (time) => {
+  if (!isFinite(time) || time < 0) return "00:00";
+
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
-
 const AudioPlayer = ({ url }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,16 +42,28 @@ const AudioPlayer = ({ url }) => {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play();
+      audioRef.current.play().catch(() => {
+        setIsPlaying(false);
+      });
     }
     setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
     const audio = audioRef.current;
-    const handleTimeUpdate = () =>
-      !isSeeking && setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
+
+    const handleTimeUpdate = () => {
+      if (!isSeeking && !isNaN(audio.currentTime)) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      if (!isNaN(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    };
+
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
@@ -73,7 +86,7 @@ const AudioPlayer = ({ url }) => {
 
   const handleSeek = (value) => {
     setCurrentTime(value);
-    if (audioRef.current) {
+    if (audioRef.current && !isNaN(audioRef.current.duration)) {
       audioRef.current.currentTime = value;
     }
   };
@@ -92,12 +105,13 @@ const AudioPlayer = ({ url }) => {
       <Slider
         flex="1"
         size="sm"
-        value={currentTime}
+        value={isNaN(currentTime) ? 0 : currentTime}
         min={0}
-        max={duration}
+        max={isNaN(duration) ? 1 : duration}
         onChangeStart={() => setIsSeeking(true)}
         onChangeEnd={() => setIsSeeking(false)}
         onChange={handleSeek}
+        isDisabled={isNaN(duration)}
       >
         <SliderTrack bg="gray.200">
           <SliderFilledTrack bg="blue.400" />
