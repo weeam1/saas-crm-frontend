@@ -19,9 +19,9 @@ import {
   SliderThumb,
 } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
+import Pagination from "../../../developers/components/Pagination";
 
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
@@ -137,16 +137,21 @@ const StatusBadge = ({ status }) => {
 export default function CallHistory() {
   const [calls, setCalls] = useState([]);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [totalPage, setTotalPage] = useState("");
+
   const loadCalls = async (page) => {
     try {
       setLoading(true);
-      const data = await fetchCallHistoryData(page);
-      setTotalPage(data.total_pages);
+      const data = await fetchCallHistoryData(page, pageSize);
       setCalls(data.data || []);
-      console.log("Fetched call data:", data.data);
+      setTotalItems(data.page_size);
+      setTotalPages(
+        data.totalPages || Math.ceil((data.total_pages || 0) / pageSize)
+      );
     } catch (err) {
       setError("Failed to fetch call history");
     } finally {
@@ -156,8 +161,16 @@ export default function CallHistory() {
 
   useEffect(() => {
     loadCalls(page);
-  }, [page]);
+  }, [page, pageSize]);
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize.target.value);
+    setPage(1);
+  };
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
@@ -168,8 +181,19 @@ export default function CallHistory() {
       borderRadius="md"
       my={4}
       bg="white"
-      p={4}
+      p={3}
     >
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalItems={totalItems}
+        itemsPerPage={pageSize}
+        setPageSize={setPageSize}
+        handlePageSize={handlePageSizeChange}
+        refetching={loading}
+        loading={loading}
+      />
       {loading ? (
         <Flex justify="center" py={6}>
           <Spinner size="lg" />
@@ -177,7 +201,14 @@ export default function CallHistory() {
       ) : error ? (
         <Text color="red.500">{error}</Text>
       ) : (
-        <Box borderRadius="lg" boxShadow="sm" bg="white" >
+        <Box
+          borderRadius="lg"
+          boxShadow="sm"
+          bg="white"
+          maxH={"calc(70vh - 100px)"}
+          overflowY="auto"
+          mt={3}
+        >
           <Table variant="striped" size="sm" bg="white">
             <Thead
               position="sticky"
@@ -393,36 +424,6 @@ export default function CallHistory() {
               ))}
             </Tbody>
           </Table>
-
-          <Flex align="center" justify="end" gap={1} mt={3}>
-            <IconButton
-              icon={<ChevronLeftIcon boxSize={6} />}
-              onClick={() => {
-                if (page > 1) setPage((p) => p - 1);
-              }}
-              isDisabled={page === 1}
-              aria-label="Previous Page"
-              background="transparent"
-              _hover={{ bg: "transparent" }}
-              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
-            />
-
-            <Text fontWeight="medium">
-              Page {page} / {totalPage}
-            </Text>
-
-            <IconButton
-              icon={<ChevronRightIcon boxSize={6} />}
-              onClick={() => {
-                if (page < totalPage) setPage((p) => p + 1);
-              }}
-              isDisabled={page === totalPage}
-              aria-label="Next Page"
-              background="transparent"
-              _hover={{ bg: "transparent" }}
-              _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
-            />
-          </Flex>
         </Box>
       )}
     </Box>

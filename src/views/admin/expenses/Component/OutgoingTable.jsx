@@ -35,6 +35,7 @@ import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
 import Loader from "components/loading/Loader";
+
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -421,7 +422,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             </Tbody>
           )}
         </Table>
-        {(!isLoading || !isFetching) && data?.doc?.length === 0 && (
+        {(!isLoading && !isFetching) && data?.doc?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6}>
             No expenses found.
           </Text>

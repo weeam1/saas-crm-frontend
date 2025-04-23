@@ -283,7 +283,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
               </Th>
             </Tr>
           </Thead>
-          {(!isLoading || !isFetching) && (
+          {(!isLoading && !isFetching) && (
             <Tbody>
               {data &&
                 data.doc.map((row, index) => (
@@ -400,7 +400,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           )}
         </Table>
 
-        {(!isLoading || !isFetching) && data?.doc?.length === 0 && (
+        {(!isLoading && !isFetching) && data?.doc?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6} my={6}>
             No expenses found.
           </Text>
