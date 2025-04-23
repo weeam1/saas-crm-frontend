@@ -348,7 +348,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontWeight="400"
                       minWidth="100px"
                     >
-                      {row.type ? row.type : "no data Found"}
+                      {row.type ? row.type.name : "no data Found"}
                     </Td>
                     <Td
                       py={4}

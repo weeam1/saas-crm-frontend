@@ -10,16 +10,26 @@ import {
   VStack,
   Button,
   FormLabel,
-  SimpleGrid
+  SimpleGrid,
+  Select
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
+    const user = JSON.parse(localStorage.getItem("user")) || {};
+  
+    const {
+      data: types,
+    } = useFetchItemsQuery(
+      { path: `/expense_types` },
+      { refetchOnMountOrArgChange: true, skip: !user._id }
+    );
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       expenseNo: data?.expenseNo || "",
-      type: data?.type || "",
+      type: data?.type?._id || "",
       description: data?.description || "",
       amount: data?.amount || "",
       username: data?.addedBy?.username || "",
@@ -40,6 +50,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
     },
   });
 
+  console.log("data", data)
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
@@ -58,13 +69,23 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
               <>
                 <div>
                   <FormLabel>Type</FormLabel>
-                  <Input
+                  <Select
                     name="type"
-                    value={formik.values.type}
+                    value={formik.values.type} 
                     onChange={formik.handleChange}
-                    placeholder="e.g., Office expense"
+                    placeholder="Select type"
                     focusBorderColor="brand.500"
-                  />
+                  >
+                    {types?.doc?.length > 0 ? (
+                      types.doc.map((type) => (
+                        <option key={type._id} value={type._id} >
+                          {type.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No types available</option>
+                    )}
+                  </Select>
                 </div>
                 <div>
                   <FormLabel>Description</FormLabel>
@@ -179,9 +200,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
         </ModalBody>
 
         <ModalFooter justifyContent="space-between">
-            <Button variant="outline" onClick={onClose}>
-                Close
-            </Button> 
+          <Button variant="outline" onClick={onClose}>
+            Close
+          </Button>
           {isEditable && (
             <Button type="submit" variant="brand">
               Submit
