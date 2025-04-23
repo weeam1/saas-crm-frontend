@@ -135,7 +135,8 @@ const AdvancedSearchModal = ({
 
 	const formClearHandler = () => {
 		resetForm();
-		onClearSearch();
+		// onClearSearch();
+		// setAdvanceSearch(false);
 	};
 
 	useEffect(() => {

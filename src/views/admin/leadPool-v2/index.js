@@ -115,6 +115,7 @@ const Index = () => {
 
 			setData(newData);
 			setTotalPages(result.data?.totalPages || 0);
+			setCurrentPage(1);
 			setTotalLeads(
 				result.data?.totalLeads || result.data?.totalApprovals || 0
 			);
@@ -177,6 +178,8 @@ const Index = () => {
 				setDisplaySearchData(true);
 				setSearchedData(newData);
 				setData(newData);
+				setCurrentPage(1);
+
 				setTotalPages(
 					result.data?.totalPages || Math.ceil(newData.length / size) || 0
 				);
@@ -261,6 +264,9 @@ const Index = () => {
 			setDisplaySearchData(true);
 			setSearchedData(validatedData);
 			setData(validatedData);
+			setCurrentPage(1);
+			updateUrl(1, size, activeTab);
+
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(result.data?.totalLeads || validatedData.length || 0);
 		} catch (err) {
@@ -429,7 +435,6 @@ const Index = () => {
 		debounce(fetchAdvancedSearch, 300),
 		[dateTime, user, activeTab]
 	);
-
 
 	useEffect(() => {
 		const newState =
