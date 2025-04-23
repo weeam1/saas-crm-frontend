@@ -15,22 +15,29 @@ import {
 	Flex,
 	Button,
 } from '@chakra-ui/react';
-import Spinner from 'components/spinner/Spinner';
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import DataNotFound from 'components/notFoundData';
 import AddNewNote from './AddNewNote';
-import { buttonStyle } from './constants';
+import { buttonStyle } from '../constants';
 import Loader from 'components/loading/Loader';
-import { format } from 'date-fns';
+import NoteCard from './NoteCard';
+import EditNote from './EditNote';
+import { useDeleteItemMutation } from 'api/apiSlice';
+import { useDispatch } from 'react-redux';
+import { updateLeadField } from '../../../../../redux/leadsSlice';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
 	const [notesLoading, setNotesLoading] = useState(false);
 	const [allNotes, setAllNotes] = useState([]);
 	const textColor = useColorModeValue('gray.500', 'white');
 
 	const [addNote, setAddNote] = useState(false);
+	const [editNote, setEditNote] = useState(false);
+	const [leadNote, setLeadNote] = useState(null);
+	const [latestNote, setLatestNote] = useState(null);
+
+	const [deleteItemMutation] = useDeleteItemMutation();
 
 	const fetchLeadNotes = useCallback(async () => {
 		if (!leadId) return;
@@ -49,6 +56,47 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	useEffect(() => {
 		fetchLeadNotes();
 	}, [fetchLeadNotes]);
+
+	const handleEditNote = (note) => {
+		// Implement logic to open edit modal or form with `note` data
+		console.log('Edit note:', note);
+
+		const latestNote = allNotes[0]?._id === note._id;
+
+		latestNote && setLatestNote(latestNote);
+
+		setLeadNote(note);
+		setEditNote(true);
+	};
+
+	const dispatch = useDispatch();
+
+	const handleDeleteNote = async (note) => {
+		try {
+			await deleteItemMutation({
+				path: `/leadnote/${note._id}`,
+			}).unwrap();
+
+			const updatedNotes = allNotes.filter((n) => n._id !== note._id);
+
+			setAllNotes(updatedNotes);
+
+			// Step 3: Update lastNote field in lead
+			const latestNoteText = updatedNotes[0]?.note || '';
+
+			dispatch(
+				updateLeadField({
+					id: leadId,
+					key: 'lastNote',
+					value: latestNoteText,
+				})
+			);
+			toast.success('Note Deleted successfuly');
+		} catch (error) {
+			console.log(error);
+			toast.error('Something went wrong!');
+		}
+	};
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='5xl'>
@@ -98,45 +146,12 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 									mb={2}
 								>
 									{allNotes.map((note, id) => (
-										<GridItem key={id} colSpan={{ base: 12, md: 6, lg: 6 }}>
-											<Box
-												backgroundColor='whitesmoke'
-												borderRadius='10px'
-												p={4}
-												m={1}
-												height='100%'
-											>
-												<Box
-													display='flex'
-													justifyContent='space-between'
-													alignItems='center'
-													color='black'
-												>
-													<Text>
-														{note.addedBy?.firstName +
-															' ' +
-															note.addedBy?.lastName}
-													</Text>
-													<Text fontSize={13}>
-														{format(
-															new Date(note?.createdAt),
-															'MMM d, yyyy h:mm a'
-														)}
-													</Text>
-												</Box>
-												<Box overflowY='auto' height={200}>
-													<Text
-														as='pre'
-														fontWeight='semibold'
-														whiteSpace='pre-wrap'
-														overflowWrap='break-word'
-														wordBreak='break-word'
-													>
-														{note?.note}
-													</Text>
-												</Box>
-											</Box>
-										</GridItem>
+										<NoteCard
+											id={id}
+											note={note}
+											onDelete={handleDeleteNote}
+											onEdit={handleEditNote}
+										/>
 									))}
 								</Grid>
 							) : (
@@ -161,6 +176,19 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 							setNoteAdded={setAddNote}
 							setAllNotes={setAllNotes}
 							refreshNotes={fetchLeadNotes}
+						/>
+					)}
+
+					{editNote && (
+						<EditNote
+							isOpen={editNote}
+							onClose={() => setEditNote(false)}
+							leadNote={leadNote}
+							leadId={leadId}
+							refreshNotes={fetchLeadNotes}
+							setAllNotes={setAllNotes}
+							allNotes={allNotes}
+							latestNote={latestNote}
 						/>
 					)}
 				</ModalBody>

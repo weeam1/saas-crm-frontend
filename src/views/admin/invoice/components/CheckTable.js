@@ -1,1290 +1,805 @@
 import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormLabel,
-  Grid,
-  GridItem,
-  HStack,
-  Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Select,
-  Table,
-  Tag,
-  TagLabel,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  MenuDivider,
-  useColorModeValue,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
-import {
-  useGlobalFilter,
-  usePagination,
-  useSortBy,
-  useTable,
-} from "react-table";
-import * as XLSX from "xlsx";
-
-// Custom components
-import {
-  DeleteIcon,
-  EditIcon,
-  EmailIcon,
-  PhoneIcon,
-  SearchIcon,
-  ViewIcon,
-} from "@chakra-ui/icons";
-import Card from "components/card/Card";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
-import Pagination from "components/pagination/Pagination";
-import Spinner from "components/spinner/Spinner";
-import { FaHistory, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getApi } from "services/api";
-import Delete from "../Delete";
-import Add from "../Add";
-import { AddIcon } from "@chakra-ui/icons";
-import { CiMenuKebab } from "react-icons/ci";
-import Edit from "../Edit";
-import { useFormik } from "formik";
-import { BsColumnsGap, BsWhatsapp } from "react-icons/bs";
-import * as yup from "yup";
-import CustomSearchInput from "components/search/search";
-import DataNotFound from "components/notFoundData";
-import { MdTask } from "react-icons/md";
+	Box,
+	Button,
+	Checkbox,
+	Flex,
+	FormLabel,
+	Grid,
+	GridItem,
+	HStack,
+	Input,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	Table,
+	Tag,
+	TagLabel,
+	Tbody,
+	Td,
+	Tr,
+	Text,
+	Th,
+	Thead,
+	useColorModeValue,
+	useDisclosure,
+	IconButton,
+	Select,
+} from '@chakra-ui/react';
+import { useEffect, useMemo, useState } from 'react';
+import { DeleteIcon, AddIcon, ViewIcon } from '@chakra-ui/icons';
+import Card from 'components/card/Card';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import Pagination from './Pagination';
+import { FiFilter } from 'react-icons/fi';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import CustomSearchInput from './Search';
+import DataNotFound from 'components/notFoundData';
+import Breadcrumb from './BreadCrumb';
+import TableLoading from 'components/loading/TableLoading';
+import Add from '../../../admin/developers/Add';
+import Edit from 'views/admin/developers/Edit';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { buttonStyle } from 'utils/btn';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 
 export default function CheckTable(props) {
-  const {
-    tableData,
-    dataColumn,
-    fetchData,
-    isLoding,
-    allData,
-    access,
-    setSearchedData,
-    setDisplaySearchData,
-    displaySearchData,
-    selectedColumns,
-    setSelectedColumns,
-    dynamicColumns,
-    callAccess,
-    emailAccess,
-    setAction,
-    action,
-    dateTime,
-    setDateTime,
-  } = props;
-  const textColor = useColorModeValue("gray.500", "white");
-  const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
-  const [leadData, setLeadData] = useState([]);
-  const columns = useMemo(() => dataColumn, [dataColumn]);
-  const [selectedValues, setSelectedValues] = useState([]);
-  const [getTagValues, setGetTagValues] = useState([]);
-  const [gopageValue, setGopageValue] = useState();
+	const {
+		tableData,
+		dataColumn,
+		fetchData,
+		isLoding,
+		allData,
+		access,
+		setSearchedData,
+		setDisplaySearchData,
+		displaySearchData,
+		selectedColumns,
+		setSelectedColumns,
+		dynamicColumns,
+		setAction,
+		action,
+		dateTime,
+		setDateTime,
+		pageIndex,
+		pageSize,
+		totalItems,
+		totalPages,
+		currentPage,
+		searchTerm,
+		setSearchTerm,
+		navigate,
+		agencies,
+		selectedAgency,
+		setSelectedAgency,
+		role,
+		fetchAgencies,
+	} = props;
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const tree = useSelector((state) => state.user.tree);
+	const textColor = useColorModeValue('gray.500', 'white');
+	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
 
-  const [deleteModel, setDelete] = useState(false);
-  const [addEmailHistory, setAddEmailHistory] = useState(false);
-  const [addPhoneCall, setAddPhoneCall] = useState(false);
-  const [advaceSearch, setAdvaceSearch] = useState(false);
-  const [setSearchClear] = useState(false);
-  const [selectedId, setSelectedId] = useState();
-  const [callSelectedId, setCallSelectedId] = useState();
-  const navigate = useNavigate();
-  const data = useMemo(() => tableData, [tableData]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isTaskOpen,
-    onOpen: onTaskOpen,
-    onClose: onTaskClose,
-  } = useDisclosure();
-  const [edit, setEdit] = useState(false);
-  const [updatedPage, setUpdatedPage] = useState(0);
-  const [isImportLead, setIsImportLead] = useState(false);
-  const [searchbox, setSearchbox] = useState("");
-  const [column, setColumn] = useState("");
-  const [updatedStatuses, setUpdatedStatuses] = useState([]);
-  const [manageColumns, setManageColumns] = useState(false);
-  const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn); // State to track changes
+	const [selectedValues, setSelectedValues] = useState([]);
+	const [getTagValues, setGetTagValues] = useState([]);
+	// const [deleteModel, setDeleteModel] = useState(false);
+	const [edit, setEdit] = useState(false);
+	const [editData, setEditData] = useState({});
 
-  const csvColumns = [
-    { Header: "Name", accessor: "leadName" },
-    { Header: "Status", accessor: "leadStatus" },
-    { Header: "Whatsapp Number", accessor: "leadWhatsappNumber" },
-    { Header: "Phone Number", accessor: "leadPhoneNumber" },
-    { Header: "Timetocall", accessor: "timetocall" },
-  ];
+	const [advaceSearch, setAdvaceSearch] = useState(false);
+	const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
+	const [selectedId, setSelectedId] = useState(null);
+	const [manageColumns, setManageColumns] = useState(false);
+	const [tempSelectedAgency, setTempSelectedAgency] = useState(selectedAgency);
+	const [tempSelectedColumns, setTempSelectedColumns] =
+		useState(selectedColumns);
+	const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  let isColumnSelected;
-  const toggleColumnVisibility = (columnKey) => {
-    setColumn(columnKey);
-    isColumnSelected = tempSelectedColumns?.some(
-      (column) => column?.accessor === columnKey
-    );
+	const {
+		isOpen: isAddOpen,
+		onOpen: onAddOpen,
+		onClose: onAddClose,
+	} = useDisclosure();
+	const { isOpen, onOpen, onClose } = useDisclosure();
 
-    if (isColumnSelected) {
-      const updatedColumns = tempSelectedColumns?.filter(
-        (column) => column?.accessor !== columnKey
-      );
-      setTempSelectedColumns(updatedColumns);
-    } else {
-      const columnToAdd = dynamicColumns?.find(
-        (column) => column?.accessor === columnKey
-      );
-      setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
-    }
-  };
+	const columns = useMemo(() => dataColumn, [dataColumn]);
+	const data = useMemo(() => tableData, [tableData]);
 
-  const handleColumnClear = () => {
-    isColumnSelected = selectedColumns?.some(
-      (selectedColumn) => selectedColumn?.accessor === column?.accessor
-    );
-    setTempSelectedColumns(dynamicColumns);
-    setManageColumns(!manageColumns ? !manageColumns : false);
-  };
+	const initialValues = {
+		trn: '',
+		developer_name: '',
+	};
 
-  const initialValues = {
-    leadName: "",
-    leadStatus: "",
-    leadEmail: "",
-    leadPhoneNumber: "",
-    leadAddress: "",
-    leadOwner: "",
-    managerAssigned: "",
-    agentAssigned: "",
-    fromLeadScore: "",
-    toLeadScore: "",
-  };
-  const validationSchema = yup.object({
-    leadName: yup.string(),
-    leadStatus: yup.string(),
-    leadEmail: yup.string().email("Lead Email is invalid"),
-    leadPhoneNumber: yup
-      .number()
-      .typeError("Enter Number")
-      .min(0, "Lead Phone Number is invalid")
-      .max(999999999999, "Lead Phone Number is invalid")
-      .notRequired(),
-    leadAddress: yup.string(),
-    agentAssigned: yup.string(),
-    leadOwner: yup.string(),
-    fromLeadScore: yup.number().min(0, "From Lead Score is invalid"),
-  });
-  const formik = useFormik({
-    initialValues: initialValues,
-    validationSchema: validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      const searchResult = allData?.filter(
-        (item) =>
-          (!values?.leadName ||
-            (item?.leadName &&
-              item?.leadName
-                ?.toLowerCase()
-                ?.includes(values?.leadName?.toLowerCase()))) &&
-          (!values?.leadStatus ||
-            (values?.leadStatus === "new"
-              ? item?.leadStatus === "" || item?.leadStatus === "new"
-              : item?.leadStatus
-                  ?.toLowerCase()
-                  ?.includes(values?.leadStatus?.toLowerCase()))) &&
-          (!values?.leadEmail ||
-            (item?.leadEmail &&
-              item?.leadEmail
-                ?.toLowerCase()
-                ?.includes(values?.leadEmail?.toLowerCase()))) &&
-          (!values?.agentAssigned ||
-            (item?.agentAssigned &&
-              item?.agentAssigned
-                ?.toLowerCase()
-                ?.includes(values?.agentAssigned?.toLowerCase()))) &&
-          (!values?.leadPhoneNumber ||
-            (item?.leadPhoneNumber &&
-              item?.leadPhoneNumber
-                ?.toString()
-                ?.includes(values?.leadPhoneNumber))) &&
-          (!values?.leadOwner ||
-            (item?.leadOwner &&
-              item?.leadOwner
-                ?.toLowerCase()
-                ?.includes(values?.leadOwner?.toLowerCase()))) &&
-          ([null, undefined, ""].includes(values?.fromLeadScore) ||
-            [null, undefined, ""].includes(values?.toLeadScore) ||
-            ((item?.leadScore || item?.leadScore === 0) &&
-              (parseInt(item?.leadScore, 10) >=
-                parseInt(values.fromLeadScore, 10) ||
-                0) &&
-              (parseInt(item?.leadScore, 10) <=
-                parseInt(values.toLeadScore, 10) ||
-                0)))
-      );
+	const validationSchema = yup.object({
+		trn: yup.string(),
+		developer_name: yup.string(),
+	});
 
-      let agent = null;
-      if (values?.agentAssigned) {
-        agent = tree["agents"]["manager-" + user?._id?.toString()]?.find(
-          (user) => user?._id?.toString() === values?.agentAssigned
-        );
-      }
+	const handleClick = () => {
+		onAddOpen();
+	};
 
-      let getValue = [
-        values.leadName,
-        values.leadStatus === "active"
-          ? "interested"
-          : values.leadStatus === "pending"
-          ? "not-interested"
-          : values.leadStatus,
-        values?.leadEmail,
-        (agent && agent?.firstName + " " + agent?.lastName) || "",
-        values?.leadPhoneNumber,
-        values?.leadOwner,
-        (![null, undefined, ""].includes(values?.fromLeadScore) &&
-          `${values.fromLeadScore}-${values.toLeadScore}`) ||
-          undefined,
-      ].filter((value) => value);
-      setGetTagValues(getValue);
-      setSearchedData(searchResult);
-      setDisplaySearchData(true);
-      setAdvaceSearch(false);
-      setSearchClear(true);
-      resetForm();
-    },
-  });
-  const handleClear = () => {
-    setDisplaySearchData(false);
-  };
+	const formik = useFormik({
+		initialValues,
+		validationSchema,
+		onSubmit: (values) => {
+			const searchResult = allData?.filter(
+				(item) =>
+					(!values.trn || item.trn === values.trn) &&
+					(!values.developer_name ||
+						item.developer_name
+							?.toLowerCase()
+							.includes(values.developer_name.toLowerCase()))
+			);
+			const getValue = [values.trn, values.developer_name].filter(
+				(value) => value
+			);
+			setGetTagValues(getValue);
+			setSearchedData(searchResult);
+			setDisplaySearchData(true);
+			setAdvaceSearch(false);
+		},
+	});
 
-  useEffect(() => {
-    setSearchedData && setSearchedData(data);
-  }, []);
-  const {
-    errors,
-    touched,
-    values,
-    handleBlur,
-    handleChange,
-    handleSubmit,
-    setFieldValue,
-    resetForm,
-    dirty,
-  } = formik;
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: updatedPage },
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
+	const {
+		errors,
+		touched,
+		values,
+		handleBlur,
+		handleChange,
+		handleSubmit,
+		resetForm,
+	} = formik;
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
-    state: { pageIndex, pageSize },
-  } = tableInstance;
+	const handleCheckboxChange = (event, value) => {
+		if (event.target.checked) {
+			setSelectedValues((prev) => [...prev, value]);
+		} else {
+			setSelectedValues((prev) => prev.filter((v) => v !== value));
+		}
+	};
 
-  if (pageOptions.length < gopageValue) {
-    setGopageValue(pageOptions.length);
-  }
+	const toggleColumnVisibility = (columnKey) => {
+		const isColumnSelected = tempSelectedColumns.some(
+			(col) => col.accessor === columnKey || col.id === columnKey
+		);
+		if (isColumnSelected) {
+			setTempSelectedColumns((prev) =>
+				prev.filter((col) => (col.accessor || col.id) !== columnKey)
+			);
+		} else {
+			const columnToAdd = dynamicColumns.find(
+				(col) => (col.accessor || col.id) === columnKey
+			);
+			setTempSelectedColumns((prev) => [...prev, columnToAdd]);
+		}
+	};
 
-  const handleCheckboxChange = (event, value) => {
-    if (event.target.checked) {
-      setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
-    } else {
-      setSelectedValues((prevSelectedValues) =>
-        prevSelectedValues.filter((selectedValue) => selectedValue !== value)
-      );
-    }
-  };
+	const handlePageChange = (page) => {
+		fetchData({ pageIndex: page - 1, pageSize });
+	};
 
-  const handleClick = () => {
-    onOpen();
-  };
+	const handlePageSizeChange = (e) => {
+		const newSize = Number(e.target.value);
+		fetchData({ pageIndex: 0, pageSize: newSize });
+	};
 
-  const fetchCustomData = async () => {
-    const response = await getApi("api/custom-field?moduleName=Lead");
-    setLeadData(response.data);
-  };
+	const handleRowClick = (developerId) => {
+		navigate(`/invoice/developers/invoices/${developerId}`);
+	};
 
-  useEffect(() => {
-    if (fetchCustomData) fetchCustomData();
-  }, [action]);
+	const handleAgencySelect = (agencyId) => {
+		setSelectedAgency(agencyId); // Update state for UI consistency
+		fetchData({ pageIndex: 0, pageSize, agency: agencyId }); // Pass agencyId directly
+		setAgencyFilterOpen(false);
+	};
 
-  const size = "lg";
+	useEffect(() => {
+		setIsInitialLoading(true);
+		const timer = setTimeout(() => {
+			setIsInitialLoading(false);
+		}, 3000);
+		return () => clearTimeout(timer);
+	}, []);
 
-  const handleExportLeads = (extension) => {
-    if (selectedValues && selectedValues?.length > 0) {
-      downloadCsvOrExcel(extension, selectedValues);
-    } else {
-      downloadCsvOrExcel(extension);
-    }
-  };
+	useEffect(() => {
+		fetchData({ pageIndex, pageSize });
+	}, [pageIndex, pageSize]);
 
-  const downloadCsvOrExcel = async (extension, selectedIds) => {
-    try {
-      if (selectedIds && selectedIds?.length > 0) {
-        const selectedRecordsWithSpecificFileds = tableData
-          ?.filter((rec) => selectedIds.includes(rec._id))
-          ?.map((rec) => {
-            const selectedFieldsData = {};
-            csvColumns.forEach((property) => {
-              if (
-                property.accessor === "leadStatus" &&
-                !rec[property.accessor]
-              ) {
-                selectedFieldsData[property.accessor] = "new";
-              } else {
-                selectedFieldsData[property.accessor] = rec[property.accessor];
-              }
-            });
-            return selectedFieldsData;
-          });
+	// const breadcrumbItems = useMemo(
+	// 	() => [{ label: 'Developers', path: '/invoice/developers' }],
+	// 	[]
+	// );
 
-        convertJsonToCsvOrExcel(
-          selectedRecordsWithSpecificFileds,
-          csvColumns,
-          "lead",
-          extension
-        );
-      } else {
-        const AllRecordsWithSpecificFileds = tableData?.map((rec) => {
-          const selectedFieldsData = {};
-          csvColumns.forEach((property) => {
-            if (property.accessor === "leadStatus" && !rec[property.accessor]) {
-              selectedFieldsData[property.accessor] = "new";
-            } else {
-              selectedFieldsData[property.accessor] = rec[property.accessor];
-            }
-          });
-          return selectedFieldsData;
-        });
-        convertJsonToCsvOrExcel(
-          AllRecordsWithSpecificFileds,
-          csvColumns,
-          "lead",
-          extension
-        );
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+	const handleEditClose = () => {
+		setEdit(false);
+		setSelectedId(null);
+		setEditData({});
+	};
 
-  const convertJsonToCsvOrExcel = (
-    jsonArray,
-    csvColumns,
-    fileName,
-    extension
-  ) => {
-    const csvHeader = csvColumns.map((col) => col.Header);
+	console.log({ getTagValues, displaySearchData, searchTerm });
 
-    const csvContent = [
-      csvHeader,
-      ...jsonArray.map((row) => csvColumns.map((col) => row[col.accessor])),
-    ];
+	return (
+		<>
+			{/* <Breadcrumb items={breadcrumbItems} /> */}
+			<Card
+				direction='column'
+				w='100%'
+				overflowX={{ sm: 'scroll', lg: 'hidden' }}
+			>
+				<Grid templateColumns='repeat(12, 1fr)' gap={2} p={4}>
+					<GridItem
+						colSpan={{ base: 12, md: 8 }}
+						display='flex'
+						alignItems='center'
+					>
+						<Flex
+							alignItems={{ base: 'flex-start' }}
+							flexWrap='wrap'
+							direction={{ base: 'column', md: 'row' }}
+							width='100%'
+							gap={2}
+						>
+							<Text
+								color={useColorModeValue('secondaryGray.900', 'white')}
+								fontSize='22px'
+								fontWeight='700'
+								mb={{ base: 2, md: 0 }}
+							>
+								Developers (<CountUpComponent targetNumber={totalItems} />)
+							</Text>
+							<CustomSearchInput
+								fetchData={fetchData}
+								setDisplaySearchData={setDisplaySearchData}
+								searchTerm={searchTerm}
+								setSearchTerm={setSearchTerm}
+								pageIndex={pageIndex}
+								pageSize={pageSize}
+								width={{ base: '100%', md: 'auto' }}
+							/>
+							{displaySearchData && searchTerm && (
+								<Button
+									variant='outline'
+									size='sm'
+									colorScheme='red'
+									onClick={() => {
+										setSearchTerm('');
+										setDisplaySearchData(false);
+										fetchData({ pageIndex: 0, pageSize, search: '' });
+									}}
+									mt={{ base: 2, md: 0 }}
+								>
+									Clear
+								</Button>
+							)}
+							{/* {selectedValues.length > 0 && (
+								<DeleteIcon
+									cursor='pointer'
+									onClick={() => setDeleteModel(true)}
+									color='red'
+									mt={{ base: 2 }}
+									ms={{ base: 0, md: 2 }}
+								/>
+							)} */}
+						</Flex>
+					</GridItem>
 
-    const ws = XLSX.utils.aoa_to_sheet(csvContent);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
-    XLSX.writeFile(wb, `${fileName}.${extension}`); // .csv, .xlsx
-    setSelectedValues([]);
-  };
+					<GridItem
+						colSpan={{ base: 12, md: 4 }}
+						display='flex'
+						justifyContent={{ base: 'center', md: 'end' }}
+						alignItems='center'
+						mt={{ base: 2, md: 0 }}
+					>
+						{role === 'superAdmin' && (
+							<IconButton
+								icon={<FiFilter />}
+								onClick={() => setAgencyFilterOpen(true)}
+								aria-label='Filter Date'
+								colorScheme='brand'
+								variant='solid'
+								size='sm'
+								borderRadius='full'
+								boxShadow='md'
+							/>
+						)}
+						<Button
+							onClick={handleClick}
+							size='sm'
+							w={{ base: '100%', sm: '140px', md: '128px' }}
+							borderRadius='6px'
+							h={{ base: '36px', md: '40px' }}
+							bg='#B79045'
+							color='white'
+							leftIcon={<AddIcon />}
+							ml={{ base: 0, md: 2 }}
+							fontSize={{ base: '12px', md: '14px' }}
+							py={{ base: '8px', md: '10px' }}
+							_hover={{ bg: '#996F30' }}
+							_active={{ bg: '#7A5625' }}
+						>
+							Add New
+						</Button>
+					</GridItem>
+				</Grid>
 
-  useEffect(() => {
-    if (fetchData) fetchData();
-  }, [action, dateTime]);
+				<Flex justifyContent='space-between' alignItems='center' mb={2} px={4}>
+					<HStack spacing={4}>
+						{getTagValues?.length > 0 &&
+							getTagValues.map((item) => (
+								<Tag
+									size='md'
+									p={2}
+									key={item}
+									borderRadius='full'
+									variant='solid'
+									colorScheme='gray'
+								>
+									<TagLabel>{item}</TagLabel>
+								</Tag>
+							))}
+						{displaySearchData && searchTerm && (
+							<Tag
+								size='md'
+								p={2}
+								borderRadius='full'
+								variant='solid'
+								colorScheme='gray'
+							>
+								<TagLabel>{searchTerm}</TagLabel>
+							</Tag>
+						)}
+						{selectedAgency && selectedAgency !== 'All' && (
+							<Tag
+								size='md'
+								p={2}
+								borderRadius='full'
+								variant='solid'
+								colorScheme='gray'
+							>
+								<TagLabel>
+									{
+										agencies.find((agency) => agency._id === selectedAgency)
+											?.name
+									}
+								</TagLabel>
+							</Tag>
+						)}
+					</HStack>
+					{selectedAgency && selectedAgency !== 'All' && (
+						<Button
+							variant='outline'
+							size='sm'
+							colorScheme='red'
+							onClick={() => {
+								setDisplaySearchData(false);
+								setSelectedAgency('All'); // Reset to "All"
+								fetchData({ pageIndex: 0, pageSize, agency: 'All' }); // Fetch all data
+							}}
+						>
+							Clear
+						</Button>
+					)}
+				</Flex>
 
-  const handleSearch = (results) => {
-    setSearchedData(results);
-  };
+				<Box mb={2}>
+					{totalItems > 0 && (
+						<Pagination
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={handlePageChange}
+							totalItems={totalItems}
+							itemsPerPage={pageSize}
+							handlePageSize={handlePageSizeChange}
+							refetching={isLoding}
+							loading={isLoding}
+						/>
+					)}
+				</Box>
 
-  useEffect(() => {
-    console.log("page changed::", pageIndex);
-    setUpdatedPage(pageIndex);
-  }, [pageIndex]);
-
-  return (
-    <>
-      <Flex
-        p={4}
-        alignItems={"center"}
-        style={{
-          position: "relative",
-          fontSize: 15,
-        }}
-        className="date-range-selector"
-      >
-        {/* <Flex alignItems={"center"}>
-          <p>From:</p>
-          <div style={{ width: 10 }}></div>
-          <input
-            value={dateTime.from}
-            onChange={(e) => {
-              if (e.target.value) {
-                setDateTime({ ...dateTime, from: e.target.value });
-              } else {
-                setDateTime({ to: "", from: "" });
-              }
-            }}
-            style={{ color: "#422afb" }}
-            type="datetime-local"
-          />
-        </Flex> */}
-        {dateTime?.from && (
-          <div>
-            <Flex ms={2} alignItems={"center"}>
-              <p>To:</p>
-              <div style={{ width: 10 }}></div>
-              <input
-                value={dateTime.to}
-                onChange={(e) => {
-                  setDateTime({ ...dateTime, to: e.target.value });
-                }}
-                style={{ color: "#422afb" }}
-                type="datetime-local"
-              />
-            </Flex>
-          </div>
-        )}
-
-        {(dateTime.from || dateTime.to) && (
-          <Button
-            colorScheme="red"
-            variant="outline"
-            ml={3}
-            size="sm"
-            onClick={() =>
-              setDateTime({
-                from: "",
-                to: "",
-              })
-            }
-          >
-            Clear
-          </Button>
-        )}
-      </Flex>
-      <Card
-        direction="column"
-        w="100%"
-        overflowX={{ sm: "scroll", lg: "hidden" }}
-      >
-        <Grid templateColumns="repeat(12, 1fr)" gap={2}>
-          <GridItem
-            colSpan={{ base: 8 }}
-            display={"flex"}
-            alignItems={"center"}
-          >
-            <Flex alignItems={"center"} flexWrap={"wrap"}>
-              <Text
-                color={useColorModeValue("secondaryGray.900", "white")}
-                fontSize="22px"
-                fontWeight="700"
-              >
-                Invoices (
-                <CountUpComponent
-                  key={data?.length}
-                  targetNumber={data?.length}
-                />
-                )
-              </Text>
-              <CustomSearchInput
-                setSearchbox={setSearchbox}
-                setDisplaySearchData={setDisplaySearchData}
-                searchbox={searchbox}
-                allData={allData}
-                dataColumn={dataColumn}
-                onSearch={handleSearch}
-              />
-              <Button
-                variant="outline"
-                colorScheme="brand"
-                leftIcon={<SearchIcon />}
-                onClick={() => setAdvaceSearch(true)}
-                mt={{ sm: "5px", md: "0" }}
-                size="sm"
-              >
-                Advance Search
-              </Button>
-              {displaySearchData ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  colorScheme="red"
-                  ms={2}
-                  onClick={() => {
-                    handleClear();
-                    setSearchbox("");
-                    setGetTagValues([]);
-                  }}
-                >
-                  Clear
-                </Button>
-              ) : (
-                ""
-              )}
-              {selectedValues.length > 0 && access?.delete && (
-                <DeleteIcon
-                  cursor={"pointer"}
-                  onClick={() => setDelete(true)}
-                  color={"red"}
-                  ms={2}
-                />
-              )}
-            </Flex>
-          </GridItem>
-
-          {/* <GridItem
-            display={"flex"}
-            alignItems={"center"}
-            colSpan={{ base: 5 }}
-          >
-            <Flex
-              alignItems={"center"}
-              style={{
-                position: "relative",
-                left: "-15px",
-                fontSize: 15,
-              }}
-              className="date-range-selector"
-            >
-              <Flex alignItems={"center"}>
-                <p>From:</p>
-                <div style={{ width: 10 }}></div>
-                <input
-                  value={dateTime.from}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setDateTime({ ...dateTime, from: e.target.value });
-                    } else {
-                      setDateTime({ to: "", from: "" });
-                    }
-                  }}
-                  style={{ color: "#422afb" }}
-                  type="datetime-local"
-                />
-              </Flex>
-              {dateTime?.from && (
-                <div>
-                  <Flex ms={2} alignItems={"center"}>
-                    <p>To:</p>
-                    <div style={{ width: 10 }}></div>
-                    <input
-                      value={dateTime.to}
-                      onChange={(e) => {
-                        setDateTime({ ...dateTime, to: e.target.value });
-                      }}
-                      style={{ color: "#422afb" }}
-                      type="datetime-local"
-                    />
-                  </Flex>
-                </div>
-              )}
-            </Flex>
-          </GridItem> */}
-
-          <GridItem
-            colSpan={{ base: 4 }}
-            display={"flex"}
-            justifyContent={"end"}
-            alignItems={"center"}
-            textAlign={"right"}
-          >
-            <Menu isLazy>
-              <MenuButton p={4}>
-                <BsColumnsGap />
-              </MenuButton>
-              <MenuList
-                minW={"fit-content"}
-                transform={"translate(1670px, 60px)"}
-                zIndex={2}
-              >
-                <MenuItem
-                  onClick={() => setManageColumns(true)}
-                  width={"165px"}
-                >
-                  {" "}
-                  Manage Columns
-                </MenuItem>
-                <MenuItem width={"165px"} onClick={() => setIsImportLead(true)}>
-                  {" "}
-                  Import Leads
-                </MenuItem>
-                <MenuDivider />
-                <MenuItem
-                  width={"165px"}
-                  onClick={() => handleExportLeads("csv")}
-                >
-                  {selectedValues && selectedValues?.length > 0
-                    ? "Export Selected Data as CSV"
-                    : "Export as CSV"}
-                </MenuItem>
-                <MenuItem
-                  width={"165px"}
-                  onClick={() => handleExportLeads("xlsx")}
-                >
-                  {selectedValues && selectedValues?.length > 0
-                    ? "Export Selected Data as Excel"
-                    : "Export as Excel"}
-                </MenuItem>
-              </MenuList>
-            </Menu>
-            {access?.create && (
-              <Button
-                onClick={() => handleClick()}
-                size="sm"
-                variant="brand"
-                leftIcon={<AddIcon />}
-              >
-                Add New
-              </Button>
-            )}
-          </GridItem>
-          <HStack spacing={4} mb={2}>
-            {getTagValues &&
-              getTagValues.map((item) => (
-                <Tag
-                  size={"md"}
-                  p={2}
-                  key={item}
-                  borderRadius="full"
-                  variant="solid"
-                  colorScheme="gray"
-                >
-                  <TagLabel>{item}</TagLabel>
-                </Tag>
-              ))}
-          </HStack>
-        </Grid>
-
-        <Box overflowY={"auto"} className="table-fix-container">
-          <Table
-            {...getTableProps()}
-            variant="simple"
-            color="gray.500"
-            mb="24px"
-          >
-            <Thead zIndex={1}>
-              {headerGroups?.map((headerGroup, index) => (
-                <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers?.map((column, index) => (
-                    <Th
-                      {...column.getHeaderProps(
-                        column.isSortable !== false &&
-                          column.getSortByToggleProps()
-                      )}
-                      pe="10px"
-                      key={index}
-                      borderColor={borderColor}
-                    >
-                      <Flex
-                        align="center"
-                        justifyContent={column.center ? "center" : "start"}
-                        fontSize={{ sm: "14px", lg: "16px" }}
-                        color="secondaryGray.900"
-                      >
-                        <span
-                          style={{
-                            textTransform: "capitalize",
-                            marginRight: "8px",
-                          }}
-                        >
-                          {column.render("Header")}
-                        </span>
-                        {column.isSortable !== false && (
-                          <span>
-                            {column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <FaSortDown />
-                              ) : (
-                                <FaSortUp />
-                              )
-                            ) : (
-                              <FaSort />
-                            )}
-                          </span>
-                        )}
-                      </Flex>
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
-            </Thead>
-            <Tbody {...getTableBodyProps()}>
-              {isLoding ? (
-                <Tr>
-                  <Td colSpan={columns?.length}>
-                    <Flex
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      width="100%"
-                      color={textColor}
-                      fontSize="sm"
-                      fontWeight="700"
-                    >
-                      <Spinner />
-                    </Flex>
-                  </Td>
-                </Tr>
-              ) : data?.length === 0 ? (
-                <Tr>
-                  <Td colSpan={columns.length}>
-                    <Text
-                      textAlign={"center"}
-                      width="100%"
-                      color={textColor}
-                      fontSize="sm"
-                      fontWeight="700"
-                    >
-                      <DataNotFound />
-                    </Text>
-                  </Td>
-                </Tr>
-              ) : (
-                page?.map((row, i) => {
-                  prepareRow(row);
-                  updatedStatuses?.forEach((status) => {
-                    if (status?.id === row?.original?._id) {
-                      row.cells.find(
-                        (cell) => cell?.column?.Header === "Status"
-                      ).value = status?.status;
-                    }
-                  });
-                  return (
-                    <Tr {...row?.getRowProps()} key={i} className="leadRow">
-                      {row?.cells?.map((cell, index) => {
-                        let data = "";
-                        if (cell?.column.Header === "#") {
-                          data = (
-                            <Flex align="center">
-                              <Checkbox
-                                colorScheme="brandScheme"
-                                value={selectedValues}
-                                isChecked={selectedValues.includes(cell?.value)}
-                                onChange={(event) =>
-                                  handleCheckboxChange(event, cell?.value)
-                                }
-                                me="10px"
-                              />
-                              <Text
-                                color={textColor}
-                                fontSize="sm"
-                                // fontWeight="500"
-                                fontWeight="700"
-                              >
-                                {cell?.row?.index + 1}
-                              </Text>
-                            </Flex>
-                          );
-                        } else if (cell?.column.Header === "Date") {
-                          data = 
-                              <Text
-                                me="10px"
-                                color="brand.600"
-                                fontSize="sm"
-                              >
-                              {new Date(cell?.value).toLocaleString() || "-"}
-                              </Text>; 
-                        } else if (cell?.column.Header === "Developer") {
-                          data = (
-                            <Text
+				<Box
+					height='70vh'
+					overflowY='auto'
+					scrollBehavior='smooth'
+					borderRadius='md'
+					boxShadow='sm'
+					bg='white'
+				>
+					<Table variant='striped' color='gray.500' mb='24px'>
+						<Thead
+							position='sticky'
+							top={0}
+							bg='white'
+							zIndex={2}
+							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+						>
+							<Tr>
+								{columns.map((column, index) => (
+									<Th
+										key={index}
+										pe='10px'
+										borderColor={borderColor}
+										bg='#EDD199'
+									>
+										<Flex
+											align='center'
+											justifyContent={column.center ? 'center' : 'start'}
+											fontSize={{ sm: '14px', lg: '16px' }}
+											color='secondaryGray.900'
+										>
+											<span
+												style={{
+													textTransform: 'capitalize',
+													marginRight: '8px',
+												}}
+											>
+												{column.Header}
+											</span>
+										</Flex>
+									</Th>
+								))}
+							</Tr>
+						</Thead>
+						<Tbody>
+							{isLoding || isInitialLoading ? (
+								<TableLoading columns={columns} length={10} py='4' />
+							) : data?.length === 0 ? (
+								<Tr>
+									<Td colSpan={columns.length} textAlign='center'>
+										<Text fontSize='md' color='gray.500'>
+											No developers found.
+										</Text>
+									</Td>
+								</Tr>
+							) : (
+								data.map((row, i) => (
+									<Tr key={i}>
+										{columns.map((column, index) => {
+											let cellData = '';
+											if (column.Header === 'Date') {
+												const date = row.createdAt
+													? new Date(row.createdAt)
+													: null;
+												cellData = (
+													<Flex align='center'>
+														{/* <Checkbox
+                              colorScheme="brandScheme"
+                              isChecked={selectedValues.includes(row._id)}
+                              onChange={(e) => handleCheckboxChange(e, row._id)}
                               me="10px"
-                              fontSize="sm"
-                              // fontWeight="500"
-                              fontWeight="700"
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
-                        } else if (cell?.column.Header === "Bank Account") {
-                          data = 
-                            <Text
-                              me="10px"
-                              fontSize="sm"
-                              // fontWeight="500"
-                              >
-                              {cell?.value || "-"}
-                            </Text>; 
-                        } else if (cell?.column.Header === "Total Amount") {
-                          data = (
-                            <Text
-                              color={textColor}
-                              fontSize="sm"
-                              // fontWeight="500"
-                              fontWeight="700"
-                            >
-                              {cell?.value || 0} AED
-                            </Text>
-                          );
-                
-                          data = (
-                            <Text
-                              color={
-                                cell?.value < 40
-                                  ? "red.600"
-                                  : cell?.value < 80
-                                  ? "yellow.400"
-                                  : "green.600"
-                              }
-                              fontSize="md"
-                              fontWeight="900"
-                              textAlign={"center"}
-                            >
-                              {cell?.value || "-"}
-                            </Text>
-                          );
-                        } else if (cell?.column.Header === "Action") {
-                          data = (
-                            <Flex alignItems={"center"}>
-                            <Link state={row.original} to={`/invoiceView/${row.original?.id}`}><Button size="sm" colorScheme="brand" marginRight={5}>View Invoice</Button></Link>
-                              <Text
-                                fontSize="md"
-                                fontWeight="900"
-                                textAlign={"center"}
-                              >
-                                <Menu isLazy>
-                                  <MenuButton>
-                                    <CiMenuKebab />
-                                  </MenuButton>
-                                  <MenuList
-                                    minW={"fit-content"}
-                                    transform={"translate(1520px, 173px);"}
-                                  >
-                                      <MenuItem
-                                        py={2.5}
-                                        onClick={() => {
-                                          setEdit(true);
-                                          setSelectedId(cell?.row?.original._id);
-                                        }}
-                                        icon={<EditIcon fontSize={15} mb={1} />}
-                                      >
-                                        Edit
-                                      </MenuItem>
-                                      <MenuItem
-                                        py={2.5}
-                                        color={"red"}
-                                        onClick={() => {
-                                          setSelectedValues([
-                                            cell?.row?.original._id,
-                                          ]);
-                                          setDelete(true);
-                                        }}
-                                        icon={<DeleteIcon fontSize={15} mb={1} />}
-                                      >
-                                        Delete
-                                      </MenuItem>
-                                  </MenuList>
-                                </Menu>
-                              </Text>
-                            </Flex>
-                          );
-                        }
-                        return (
-                          <Td
-                            {...cell?.getCellProps()}
-                            key={index}
-                            style={
-                              cell?.column?.Header === "Manager"
-                                ? { padding: "0 5px 0 0" }
-                                : cell?.column?.Header === "Agent"
-                                ? { padding: 0 }
-                                : {}
-                            }
-                            fontSize={{ sm: "14px" }}
-                            minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                            borderColor="transparent"
-                          >
-                            {data}
-                          </Td>
-                        );
-                      })}
-                    </Tr>
-                  );
-                })
-              )}
-            </Tbody>
-          </Table>
-        </Box>
-        {data?.length > 5 && (
-          <Pagination
-            gotoPage={gotoPage}
-            gopageValue={gopageValue}
-            setGopageValue={setGopageValue}
-            pageCount={pageCount}
-            canPreviousPage={canPreviousPage}
-            previousPage={previousPage}
-            canNextPage={canNextPage}
-            pageOptions={pageOptions}
-            setPageSize={setPageSize}
-            nextPage={nextPage}
-            pageSize={pageSize}
-            pageIndex={pageIndex}
-          />
-        )}
+                            /> */}
+														<Text color='brand.600' fontSize='sm'>
+															{date
+																? format(date, 'MMM d, yyyy h:mm a')
+																: 'N/A'}
+														</Text>
+													</Flex>
+												);
+											} else if (column.Header === 'Developer') {
+												cellData = (
+													<Text
+														fontSize='sm'
+														fontWeight='700'
+														color='blue.500'
+														cursor='pointer'
+														onClick={() => handleRowClick(row._id)}
+														_hover={{ textDecoration: 'underline' }}
+													>
+														{row.developer_name || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Trn') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.trn || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Email') {
+												cellData = (
+													<Text
+														fontSize='sm'
+														fontWeight='700'
+														color='blue.500'
+														cursor='pointer'
+														onClick={() => handleRowClick(row._id)}
+														_hover={{ textDecoration: 'underline' }}
+													>
+														{row.email || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Agency') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.agency?.name || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Address') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.address || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Country') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.country || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Status') {
+												cellData = (
+													<Text
+														color={textColor}
+														fontSize='sm'
+														fontWeight='700'
+													>
+														{row.status || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Action') {
+												cellData = (
+													<Flex justifyContent='center' gap={2}>
+														<Link
+															to={`/invoice/developers/invoices/${row?._id}`}
+														>
+															<Button
+																{...buttonStyle}
+																colorScheme='brand'
+																_hover={{ bg: 'brand.400' }}
+																_active={{ bg: 'brand.400' }}
+															>
+																Invoices
+															</Button>
+														</Link>
 
-        {isOpen && (
-          <Add
-          isOpen={isOpen}
-            size={size}
-            setLeadData={setLeadData}
-            leadData={leadData[0]}
-            onClose={onClose}
-            fetchData={fetchData}
-            setAction={setAction}
-            action={action}
-          />
-        )}
-        {/* <Edit
-          isOpen={edit}
-          size={size}
-          setLeadData={setLeadData}
-          leadData={leadData[0]}
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-          onClose={setEdit}
-          setAction={setAction}
-          moduleId={leadData?.[0]?._id}
-        /> */}
-      
-      </Card>
-      {/* Advance filter */}
-      <Modal
-        onClose={() => {
-          setAdvaceSearch(false);
-          resetForm();
-        }}
-        isOpen={advaceSearch}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Advance Search</ModalHeader>
-          <ModalCloseButton
-            onClick={() => {
-              setAdvaceSearch(false);
-              resetForm();
-            }}
-          />
-          <ModalBody>
-            <Grid templateColumns="repeat(12, 1fr)" mb={3} gap={2}>
-              <GridItem colSpan={{ base: 12, md: 6 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="600"
-                  color={"#000"}
-                  mb="0"
-                  mt={2}
-                >
-                  Name
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values?.leadName}
-                  name="leadName"
-                  placeholder="Enter Lead Name"
-                  fontWeight="500"
-                />
-                <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.leadName && touched.leadName && errors.leadName}
-                </Text>
-              </GridItem>
-              <GridItem colSpan={{ base: 12, md: 6 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="600"
-                  color={"#000"}
-                  mb="0"
-                  mt={2}
-                >
-                  Status
-                </FormLabel>
-                <Select
-                  value={values?.leadStatus}
-                  fontSize="sm"
-                  name="leadStatus"
-                  onChange={handleChange}
-                  fontWeight="500"
-                  placeholder={"Select Lead Status"}
-                >
-                  <option value="active">Interested</option>
-                  <option value="pending">Not-interested</option>
-                  <option value="reassigned">Reassigned</option>
-                  <option value="sold">Sold</option>
-                  <option value="new">New</option>
-                  <option value="no_answer">No answer</option>
-                  <option value="unreachable">Unreachable</option>
+														<IconButton
+															icon={<FaEdit />}
+															size='sm'
+															colorScheme='brand'
+															aria-label='Edit'
+															onClick={() => {
+																setEdit(true);
+																setSelectedId(row._id);
+																setEditData(row);
+															}}
+														/>
+													</Flex>
+												);
+											}
+											return (
+												<Td
+													key={index}
+													fontSize={{ sm: '14px' }}
+													minW={{ sm: '150px', md: '200px', lg: 'auto' }}
+													borderColor='transparent'
+												>
+													{cellData}
+												</Td>
+											);
+										})}
+									</Tr>
+								))
+							)}
+						</Tbody>
+					</Table>
+				</Box>
 
-                  <option value="waiting">Waiting</option>
-                  <option value="follow_up">Follow Up</option>
-                  <option value="meeting">Meeting</option>
-                  <option value="follow_up_after_meeting">Follow Up After Meeting</option>
-                  <option value="deal">Deal</option>
-                  <option value="junk">Junk</option>
-                  <option value="whatsapp_send">Whatsapp Send</option>
-                  <option value="whatsapp_rec">Whatsapp Rec</option>
-                  <option value="deal_out">Deal Out</option>
-                  <option value="shift_project">Shift Project</option>
-                  <option value="wrong_number">Wrong Number</option>
-                  <option value="broker">Broker</option>
-                  <option value="voice_mail">Voice Mail</option>
-                  <option value="request">Request</option>
+				{/* Add New Modal */}
+				{isAddOpen && (
+					<Add
+						isOpen={isAddOpen}
+						onClose={onAddClose}
+						fetchData={fetchData}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+						setAction={setAction}
+						refetch
+					/>
+				)}
 
-                </Select>
-                <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.leadStatus && touched.leadStatus && errors.leadStatus}
-                </Text>
-              </GridItem>
+				{edit && (
+					<Edit
+						isOpen={edit}
+						setAction={setAction}
+						onClose={handleEditClose}
+						fetchData={fetchData}
+						data={editData}
+						setEdit={setEdit}
+						selectedId={selectedId}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+					/>
+				)}
 
-              <GridItem colSpan={{ base: 12, md: 6 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="600"
-                  color={"#000"}
-                  mb="0"
-                  mt={2}
-                >
-                  Email
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values?.leadEmail}
-                  name="leadEmail"
-                  placeholder="Enter Lead Email"
-                  fontWeight="500"
-                />
-                <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.leadEmail && touched.leadEmail && errors.leadEmail}
-                </Text>
-              </GridItem>
-              <GridItem colSpan={{ base: 12, md: 6 }}>
-                <FormLabel
-                  display="flex"
-                  ms="4px"
-                  fontSize="sm"
-                  fontWeight="600"
-                  color={"#000"}
-                  mb="0"
-                  mt={2}
-                >
-                  Phone Number
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values?.leadPhoneNumber}
-                  name="leadPhoneNumber"
-                  placeholder="Enter Lead PhoneNumber"
-                  fontWeight="500"
-                />
-                <Text mb="10px" color={"red"}>
-                  {" "}
-                  {errors.leadPhoneNumber &&
-                    touched.leadPhoneNumber &&
-                    errors.leadPhoneNumber}
-                </Text>
-              </GridItem>
+				{/* Advanced Search Modal */}
+				{advaceSearch && (
+					<Modal
+						onClose={() => setAdvaceSearch(false)}
+						isOpen={advaceSearch}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Advanced Search</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<Grid templateColumns='repeat(12, 1fr)' gap={2}>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='sm' fontWeight='600'>
+											TRN
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											name='trn'
+											value={values.trn}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Enter TRN'
+										/>
+									</GridItem>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='sm' fontWeight='600'>
+											Developer Name
+										</FormLabel>
+										<Input
+											fontSize='sm'
+											name='developer_name'
+											value={values.developer_name}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											placeholder='Enter Developer Name'
+										/>
+									</GridItem>
+								</Grid>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									colorScheme='brand'
+									size='sm'
+									mr={2}
+									onClick={handleSubmit}
+								>
+									Search
+								</Button>
+								<Button
+									colorScheme='red'
+									variant='outline'
+									size='sm'
+									onClick={() => resetForm()}
+								>
+									Clear
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
 
-              {/* <GridItem colSpan={{ base: 12, md: 6 }}>
-                <FormLabel display='flex' ms='4px' fontSize='sm' fontWeight='600' color={"#000"} mb="0" mt={2}>
-                  Owner
-                </FormLabel>
-                <Input
-                  fontSize='sm'
-                  onChange={handleChange} onBlur={handleBlur}
-                  value={values?.leadOwner}
-                  name="leadOwner"
-                  placeholder='Enter Lead Owner'
-                  fontWeight='500'
-                />
-                <Text mb='10px' color={'red'}> {errors.leadOwner && touched.leadOwner && errors.leadOwner}</Text>
+				{/* Agency Filter Modal */}
+				{agencyFilterOpen && (
+					<Modal
+						fontFamily="'DM Sans', sans-serif"
+						onClose={() => setAgencyFilterOpen(false)}
+						isOpen={agencyFilterOpen}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Agency Filter</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<FormLabel fontSize='sm' fontWeight='600'>
+									Select Agency
+								</FormLabel>
+								<Select
+									value={tempSelectedAgency}
+									onChange={(e) => setTempSelectedAgency(e.target.value)}
+									mb={4}
+								>
+									<option value='All'>All</option>
+									{agencies.length > 0 ? (
+										agencies.map((agency) => (
+											<option key={agency._id} value={agency._id}>
+												{agency.name}
+											</option>
+										))
+									) : (
+										<option disabled>No agencies available</option>
+									)}
+								</Select>
+								{agencies.length === 0 && (
+									<Text fontSize='sm' color='gray.500'>
+										No agencies available at the moment.
+									</Text>
+								)}
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									variant='outline'
+									bg='#e2e8f0'
+									size='md'
+									w='100px'
+									borderRadius='3px'
+									mr={2}
+									onClick={() => setAgencyFilterOpen(false)}
+								>
+									Close
+								</Button>
+								<Button
+									bg='#d99a36'
+									color='white'
+									w='100px'
+									borderRadius='3px'
+									size='md'
+									onClick={() => handleAgencySelect(tempSelectedAgency)}
+								>
+									Apply
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
 
-              </GridItem> */}
-              {user?.roles[0]?.roleName === "Manager" && (
-                <GridItem colSpan={{ base: 12, md: 6 }}>
-                  <FormLabel
-                    display="flex"
-                    ms="4px"
-                    fontSize="sm"
-                    fontWeight="600"
-                    color={"#000"}
-                    mb="0"
-                    mt={2}
-                  >
-                    Agent
-                  </FormLabel>
-                  <Box>
-                    <Select
-                      name="agentAssigned"
-                      onChange={handleChange}
-                      value={values["agentAssigned"]}
-                    >
-                      <option selected value={""}>
-                        Select agent
-                      </option>
-                      {tree &&
-                        tree["managers"] &&
-                        tree["agents"]["manager-" + user?._id?.toString()]?.map(
-                          (user) => {
-                            return (
-                              <option
-                                key={user?._id?.toString()}
-                                value={user?._id?.toString()}
-                              >
-                                {user?.firstName + " " + user?.lastName}
-                              </option>
-                            );
-                          }
-                        )}
-                    </Select>
-                  </Box>
-
-                  <Text mb="10px" color={"red"}>
-                    {" "}
-                    {errors.fromLeadScore &&
-                      touched.fromLeadScore &&
-                      errors.fromLeadScore}
-                  </Text>
-                </GridItem>
-              )}
-            </Grid>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="brand"
-              size="sm"
-              mr={2}
-              onClick={handleSubmit}
-              disabled={isLoding || !dirty ? true : false}
-            >
-              {isLoding ? <Spinner /> : "Search"}
-            </Button>
-            <Button
-              colorScheme="red"
-              variant="outline"
-              size="sm"
-              onClick={() => resetForm()}
-            >
-              Clear
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Modal
-        onClose={() => {
-          setManageColumns(false);
-        }}
-        isOpen={manageColumns}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Manage Columns</ModalHeader>
-          <ModalCloseButton
-            onClick={() => {
-              setManageColumns(false);
-            }}
-          />
-          <ModalBody>
-            <div>
-              {dynamicColumns.map((column) => (
-                <Text display={"flex"} key={column.accessor} py={2}>
-                  <Checkbox
-                    value={selectedColumns.some(
-                      (selectedColumn) =>
-                        selectedColumn.accessor === column.accessor
-                    )}
-                    defaultChecked={selectedColumns.some(
-                      (selectedColumn) =>
-                        selectedColumn.accessor === column.accessor
-                    )}
-                    onChange={() => toggleColumnVisibility(column.accessor)}
-                    pe={2}
-                  />
-                  {column.Header}
-                </Text>
-              ))}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="brand"
-              size="sm"
-              mr={2}
-              onClick={() => {
-                setSelectedColumns(tempSelectedColumns);
-                setManageColumns(false);
-                resetForm();
-              }}
-              disabled={isLoding ? true : false}
-            >
-              {isLoding ? <Spinner /> : "Save"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              colorScheme="red"
-              onClick={() => handleColumnClear()}
-            >
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      {/* Delete model */}
-      {/* <Delete
-        isOpen={deleteModel}
-        onClose={setDelete}
-        setSelectedValues={setSelectedValues}
-        url="api/lead/deleteMany"
-        data={selectedValues}
-        method="many"
-        setAction={setAction}
-      /> */}
-    </>
-  );
+				{/* Manage Columns Modal */}
+				{manageColumns && (
+					<Modal
+						onClose={() => setManageColumns(false)}
+						isOpen={manageColumns}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>Manage Columns</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								{dynamicColumns.map((column) => (
+									<Text
+										display='flex'
+										key={column.accessor || column.id}
+										py={2}
+									>
+										<Checkbox
+											isChecked={tempSelectedColumns.some(
+												(c) =>
+													(c.accessor || c.id) ===
+													(column.accessor || column.id)
+											)}
+											onChange={() =>
+												toggleColumnVisibility(column.accessor || column.id)
+											}
+											pe={2}
+										/>
+										{column.Header}
+									</Text>
+								))}
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									colorScheme='brand'
+									size='sm'
+									mr={2}
+									onClick={() => {
+										setSelectedColumns(tempSelectedColumns);
+										setManageColumns(false);
+									}}
+								>
+									Save
+								</Button>
+								<Button
+									variant='outline'
+									colorScheme='red'
+									size='sm'
+									onClick={() => setManageColumns(false)}
+								>
+									Close
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+				)}
+			</Card>
+		</>
+	);
 }

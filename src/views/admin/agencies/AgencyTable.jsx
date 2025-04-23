@@ -8,6 +8,7 @@ import {
 	TableContainer,
 	Icon,
 	Button,
+	HStack,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { FiEdit } from 'react-icons/fi';
@@ -23,7 +24,15 @@ const AgencyTable = ({ data, handleEdit, isLoading }) => {
 		});
 	};
 
-	const columns = ['S.No', 'Name', 'Location', 'Agency Setting', 'Action'];
+	const columns = [
+		'S.No',
+		'Name',
+		'Location',
+		'TRN',
+		'Contact',
+		'Alternate Contact',
+		'Action',
+	];
 
 	return (
 		<TableContainer>
@@ -44,25 +53,29 @@ const AgencyTable = ({ data, handleEdit, isLoading }) => {
 						data?.map((row, i) => (
 							<Tr key={row._id}>
 								<Td>{++i}</Td>
-								<Td>{row.name}</Td>
-								<Td>{row.location}</Td>
-								<Td>
-									<Button
-										bg='#EDD199'
-										textAlign='center'
-										borderRadius='5px'
-										onClick={() => handleOfficeSettingsClick(row)}
-									>
-										Office Setting
-									</Button>
-								</Td>
+								<Td>{row.name ?? 'N/A'}</Td>
+								<Td>{row.location ?? 'N/A'}</Td>
+								<Td>{row.TRN ?? 'N/A'}</Td>
+								<Td>{row.contactNumberPrimary ?? 'N/A'}</Td>
+								<Td>{row.contactNumberAlternate ?? 'N/A'}</Td>
 								<Td onClick={() => handleEdit(row)}>
-									<Icon
-										as={FiEdit}
-										boxSize={4}
-										color='green.400'
-										cursor='pointer'
-									/>
+									<HStack>
+										<Button
+											bg='#EDD199'
+											textAlign='center'
+											borderRadius='5px'
+											mr='2'
+											onClick={() => handleOfficeSettingsClick(row)}
+										>
+											Office Setting
+										</Button>
+										<Icon
+											as={FiEdit}
+											boxSize={4}
+											color='green.400'
+											cursor='pointer'
+										/>
+									</HStack>
 								</Td>
 							</Tr>
 						))

@@ -21,6 +21,12 @@ export const eventMainLeadStatus = [
 
 export const eventLeadStatus = ['broker', 'pending', 'will_attend_the_show'];
 
+export const visaOptions = [
+	{ label: 'Visit Visa', value: 'Visit Visa' },
+	{ label: 'Residential Visa', value: 'Residential Visa' },
+	{ label: 'Canceled Visa', value: 'Canceled Visa' },
+];
+
 // export const leadStatus = [
 // 	// General Status
 // 	{ label: 'Interested', value: 'active' },

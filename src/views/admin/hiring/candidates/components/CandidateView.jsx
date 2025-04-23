@@ -74,6 +74,7 @@ const CandidateView = ({
 							<DisplayField label='Email' value={candidate?.email} />
 							<DisplayField label='Phone' value={candidate?.phone} />
 							<DisplayField label='Gender' value={candidate?.gender} />
+							<DisplayField label='Visa Type' value={candidate?.visaType} />
 							<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
 							<DisplayField
 								label='Nationality'

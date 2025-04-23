@@ -1,5 +1,5 @@
 import { Icon } from '@chakra-ui/react';
-import { HiUsers } from 'react-icons/hi';
+import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import {
 	MdHome,
 	MdInsertChartOutlined,
@@ -33,6 +33,7 @@ import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
 import { FaClipboardUser } from 'react-icons/fa6';
+import DeveloperDetails from 'views/admin/developers/components/DeveloperView';
 
 import Employees from 'views/admin/attendance/components/employees';
 import Records from 'views/admin/attendance/components/records';
@@ -67,11 +68,19 @@ const LeadImport = React.lazy(
 	() => import('views/admin/lead/components/LeadImport')
 );
 
-const InvoiceView = React.lazy(() => import('views/admin/invoice'));
+const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
+const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
+const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+const InvoiceDevelopers = React.lazy(
+	() => import('views/admin/invoice/developers')
+);
+
+const DeveloperInvoices = React.lazy(
+	() => import('views/admin/invoice/developers/DeveloperInvoices')
+);
+
 const Task = React.lazy(() => import('views/admin/task'));
-const Developers = React.lazy(() => import('views/admin/developers'));
-const BankAccounts = React.lazy(() => import('views/admin/bankAccounts'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
@@ -127,6 +136,7 @@ const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
+
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -243,7 +253,14 @@ const routes = [
 		parentName: 'Attendance',
 		component: MyAttendance,
 	},
-
+	{
+		name: 'Developer Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/developer/:id',
+		under: 'developer',
+		parentName: 'develoeper',
+		component: DeveloperDetails,
+	},
 	{
 		name: 'Leads Pool',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -258,6 +275,7 @@ const routes = [
 		),
 		component: LeadPoolAdmin,
 	},
+
 	{
 		name: 'Points',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -299,19 +317,61 @@ const routes = [
 		path: '/propertyImport',
 		component: PropertyImport,
 	},
+
+	// ------------- Invoice Module Routes ------------------------ //
 	{
 		name: 'Invoice',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: <Icon as={FaFile} width='20px' height='20px' color='inherit' />,
+		icon: (
+			<Icon
+				as={HiOutlineDocumentReport}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
 		path: '/invoice',
-		component: InvoiceView,
+		component: InvoiceModule,
 	},
 	{
-		name: 'Invoice',
+		name: 'Bank Accounts',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'invoice',
-		path: '/invoiceView/:id',
+		path: '/invoice/bank-accounts',
+		parentName: 'Invoice',
+		under: 'bank-accounts',
+		component: BankAccounts,
+	},
+	{
+		name: 'Invoice Developers',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'developer-invoices',
+		path: '/invoice/developers',
+		parentName: 'Invoice',
+		component: InvoiceDevelopers,
+	},
+	{
+		name: 'Developer Invoices',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'developer-invoices',
+		path: '/invoice/developers/invoices/:id',
+		parentName: 'Invoice',
+		component: DeveloperInvoices,
+	},
+	{
+		name: 'Single Invoice',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'single-invoice',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/view/:id',
 		component: SingleInvoice,
+	},
+	{
+		name: 'Invoice Entries',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'invoice-entries',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/entries/:id',
+		component: AddEntry,
 	},
 	// -----------------------------Admin setting-------------------------------------
 	{
@@ -615,21 +675,7 @@ const routes = [
 		path: '/userView/:id',
 		component: UserView,
 	},
-	{
-		name: 'Developers',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/developers',
-		under: 'developers',
-		component: Developers,
-	},
 
-	{
-		name: 'Bank Accounts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/bank-accounts',
-		under: 'bank-accounts',
-		component: BankAccounts,
-	},
 	{
 		name: 'Lead Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -644,13 +690,7 @@ const routes = [
 		under: 'agencies',
 		component: Agency,
 	},
-	{
-		name: 'Bank Accounts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/bank-accounts',
-		under: 'bank-accounts',
-		component: BankAccounts,
-	},
+
 	{
 		name: 'Lead Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

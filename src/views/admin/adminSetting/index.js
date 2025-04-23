@@ -110,7 +110,7 @@ const Index = () => {
 					}
 					name='Table Fields'
 				/>
-				<MiniStatistics
+				{/* <MiniStatistics
 					fontsize='md'
 					onClick={() => navigate('/developers')}
 					startContent={
@@ -144,7 +144,7 @@ const Index = () => {
 						/>
 					}
 					name='Bank Accounts'
-				/>
+				/> */}
 				{/* <MiniStatistics
 					fontsize="md"
 					onClick={() => navigate("/announcements")}

@@ -7,6 +7,7 @@ import missingFilesReducer from './missingFilesSlice';
 import webSocketReducer from './webSocketReducer';
 import positionsReducer from './positionsSlice';
 import filtersReducer from './filtersSlice';
+import invoiceModalDataReducer from './invoiceSlice';
 import countriesReducer, {
 	setCountries,
 	setCountryNames,
@@ -28,6 +29,7 @@ const store = configureStore({
 		user: userReducer,
 		announcements: announcementsReducer,
 		missingFiles: missingFilesReducer,
+		invoiceModalData: invoiceModalDataReducer,
 		webSocket: webSocketReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
 	},

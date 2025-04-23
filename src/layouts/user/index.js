@@ -19,7 +19,7 @@ import { FaUserCircle, FaDollarSign, FaRegCalendarCheck } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
-import { HiUsers } from 'react-icons/hi';
+import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import Report from 'views/admin/reports';
 import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
@@ -59,6 +59,18 @@ const AttendanceDashboard = React.lazy(
 );
 
 const UserView = React.lazy(() => import('views/admin/users/View'));
+
+const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
+const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
+const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
+const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+const InvoiceDevelopers = React.lazy(
+	() => import('views/admin/invoice/developers')
+);
+
+const DeveloperInvoices = React.lazy(
+	() => import('views/admin/invoice/developers/DeveloperInvoices')
+);
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -273,11 +285,166 @@ export default function User(props) {
 				path: '/userView/:id',
 				component: UserView,
 			},
+
+			// ------------- Invoice Module Routes ------------------------ //
+			{
+				name: 'Invoice',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				icon: (
+					<Icon
+						as={HiOutlineDocumentReport}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				path: '/invoice',
+				component: InvoiceModule,
+			},
+			{
+				name: 'Bank Accounts',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/invoice/bank-accounts',
+				parentName: 'Invoice',
+				under: 'bank-accounts',
+				component: BankAccounts,
+			},
+			{
+				name: 'Invoice Developers',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'developer-invoices',
+				path: '/invoice/developers',
+				parentName: 'Invoice',
+				component: InvoiceDevelopers,
+			},
+			{
+				name: 'Developer Invoices',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'developer-invoices',
+				path: '/invoice/developers/invoices/:id',
+				parentName: 'Invoice',
+				component: DeveloperInvoices,
+			},
+			{
+				name: 'Single Invoice',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'single-invoice',
+				parentName: 'Invoice',
+				path: '/invoice/developers/invoices/view/:id',
+				component: SingleInvoice,
+			},
+			{
+				name: 'Invoice Entries',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'invoice-entries',
+				parentName: 'Invoice',
+				path: '/invoice/developers/invoices/entries/:id',
+				component: AddEntry,
+			},
 		];
 
 		// 	// Only show the "Hiring" route for HR role
 		routes = hiringRoutes;
 	}
+
+	if (user?.roles[0]?.roleName === 'accountant') {
+		const accountantRoutes = [
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
+			},
+
+			// ------------- Invoice Module Routes ------------------------ //
+			{
+				name: 'Invoice',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				icon: (
+					<Icon
+						as={HiOutlineDocumentReport}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				path: '/invoice',
+				component: InvoiceModule,
+			},
+			{
+				name: 'Bank Accounts',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/invoice/bank-accounts',
+				parentName: 'Invoice',
+				under: 'bank-accounts',
+				component: BankAccounts,
+			},
+			{
+				name: 'Invoice Developers',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'developer-invoices',
+				path: '/invoice/developers',
+				parentName: 'Invoice',
+				component: InvoiceDevelopers,
+			},
+			{
+				name: 'Developer Invoices',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'developer-invoices',
+				path: '/invoice/developers/invoices/:id',
+				parentName: 'Invoice',
+				component: DeveloperInvoices,
+			},
+			{
+				name: 'Single Invoice',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'single-invoice',
+				parentName: 'Invoice',
+				path: '/invoice/developers/invoices/view/:id',
+				component: SingleInvoice,
+			},
+			{
+				name: 'Invoice Entries',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				under: 'invoice-entries',
+				parentName: 'Invoice',
+				path: '/invoice/developers/invoices/entries/:id',
+				component: AddEntry,
+			},
+			{
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Attendance,
+			},
+			{
+				name: 'My Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/employees/:id',
+				under: 'my-attendance',
+				parentName: 'Attendance',
+				component: MyAttendance,
+			},
+		];
+
+		console.log('ACCOUNT ROUTES');
+
+		routes = accountantRoutes;
+
+		console.log({ accountantRoutes });
+	}
+
+	console.log({ routes });
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
@@ -750,6 +917,13 @@ export default function User(props) {
 															element={<OfferLetter />}
 														/>
 													</Route>
+												</>
+											) : user?.roles[0]?.roleName === 'accountant' ? (
+												<>
+													<Route
+														path='/*'
+														element={<Navigate to='/invoice' />}
+													/>
 												</>
 											) : (
 												<Route path='/*' element={<Navigate to='/default' />} />

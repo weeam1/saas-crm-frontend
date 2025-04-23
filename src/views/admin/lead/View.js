@@ -35,7 +35,12 @@ import { constant } from 'constant';
 import moment from 'moment/moment';
 import { useEffect, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import {
+	Link,
+	useParams,
+	useLocation,
+	useSearchParams,
+} from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getApi, postApi } from 'services/api';
 import ColumnsTable from '../contact/components/ColumnsTable';
@@ -83,6 +88,8 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	const { leadPoolState: currentState } = useSelector((state) => state?.user);
 	const [addEmailHistory, setAddEmailHistory] = useState(false);
 	const [addPhoneCall, setAddPhoneCall] = useState(false);
+
+	const [searchParams] = useSearchParams();
 
 	const [permission, callAccess, emailAccess, taskAccess, meetingAccess] =
 		HasAccess(['Lead', 'Task', 'Meeting', 'Call', 'Email', 'Task', 'Meeting']);
@@ -160,6 +167,21 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
 	}, [action]);
+
+	let hideContact = false;
+
+	if (user?.roles[0]?.roleName === 'Manager') {
+		hideContact = true;
+	} else if (
+		searchParams.get('invite') &&
+		user?.roles[0]?.roleName !== 'superAdmin'
+	) {
+		hideContact = user?._id !== data?.agentAssigned;
+		// if (role === 'Manager') {
+		// 	hideContact = user?._id !== lead?.managerAssigned;
+		// } else {
+		// }
+	}
 
 	return (
 		<>
@@ -323,7 +345,7 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 													</Text>
 													<Text>{data?.leadName ? data?.leadName : 'N/A'}</Text>
 												</GridItem>
-												{!isInLeadPool && (
+												{!isInLeadPool && !hideContact && (
 													<>
 														<GridItem colSpan={{ base: 12, md: 6 }}>
 															<Text
@@ -331,7 +353,6 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 																fontSize='sm'
 																fontWeight='bold'
 															>
-																{' '}
 																Lead Email
 															</Text>
 															<Text>
