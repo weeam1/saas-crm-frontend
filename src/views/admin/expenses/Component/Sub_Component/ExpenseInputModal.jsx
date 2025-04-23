@@ -29,7 +29,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
     enableReinitialize: true,
     initialValues: {
       expenseNo: data?.expenseNo || "",
-      type: data?.type?._id || "",
+      type: data?.type._id || "",
       description: data?.description || "",
       amount: data?.amount || "",
       username: data?.addedBy?.username || "",
@@ -45,12 +45,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
         description: values.description,
         amount: values.amount,
       };
-
-      if (onSubmit) onSubmit(updated);
+      if (onSubmit) {onSubmit(updated)};
     },
   });
-
-  console.log("data", data)
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
@@ -124,7 +121,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                   <div>
                     <FormLabel>Type</FormLabel>
                     <Input
-                      value={formik.values.type}
+                      value={data?.type?.name}
                       isReadOnly
                       focusBorderColor="gray.300"
                       bg="gray.50"
