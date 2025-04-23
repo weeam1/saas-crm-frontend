@@ -293,60 +293,60 @@ export default function User(props) {
 			},
 
 			// ------------- Invoice Module Routes ------------------------ //
-			{
-				name: 'Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={HiOutlineDocumentReport}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				path: '/invoice',
-				component: InvoiceModule,
-			},
-			{
-				name: 'Bank Accounts',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/invoice/bank-accounts',
-				parentName: 'Invoice',
-				under: 'bank-accounts',
-				component: BankAccounts,
-			},
-			{
-				name: 'Invoice Developers',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers',
-				parentName: 'Invoice',
-				component: InvoiceDevelopers,
-			},
-			{
-				name: 'Developer Invoices',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers/invoices/:id',
-				parentName: 'Invoice',
-				component: DeveloperInvoices,
-			},
-			{
-				name: 'Single Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'single-invoice',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/view/:id',
-				component: SingleInvoice,
-			},
-			{
-				name: 'Invoice Entries',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'invoice-entries',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/entries/:id',
-				component: AddEntry,
-			},
+			// {
+			// 	name: 'Invoice',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	icon: (
+			// 		<Icon
+			// 			as={HiOutlineDocumentReport}
+			// 			width='20px'
+			// 			height='20px'
+			// 			color='inherit'
+			// 		/>
+			// 	),
+			// 	path: '/invoice',
+			// 	component: InvoiceModule,
+			// },
+			// {
+			// 	name: 'Bank Accounts',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	path: '/invoice/bank-accounts',
+			// 	parentName: 'Invoice',
+			// 	under: 'bank-accounts',
+			// 	component: BankAccounts,
+			// },
+			// {
+			// 	name: 'Invoice Developers',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'developer-invoices',
+			// 	path: '/invoice/developers',
+			// 	parentName: 'Invoice',
+			// 	component: InvoiceDevelopers,
+			// },
+			// {
+			// 	name: 'Developer Invoices',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'developer-invoices',
+			// 	path: '/invoice/developers/invoices/:id',
+			// 	parentName: 'Invoice',
+			// 	component: DeveloperInvoices,
+			// },
+			// {
+			// 	name: 'Single Invoice',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'single-invoice',
+			// 	parentName: 'Invoice',
+			// 	path: '/invoice/developers/invoices/view/:id',
+			// 	component: SingleInvoice,
+			// },
+			// {
+			// 	name: 'Invoice Entries',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'invoice-entries',
+			// 	parentName: 'Invoice',
+			// 	path: '/invoice/developers/invoices/entries/:id',
+			// 	component: AddEntry,
+			// },
 		];
 
 		// 	// Only show the "Hiring" route for HR role
