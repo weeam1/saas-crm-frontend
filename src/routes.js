@@ -20,6 +20,7 @@ import {
 	FaRegCalendarCheck,
 	FaUserCircle,
 	FaDollarSign,
+	FaRegCopy 
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -39,7 +40,8 @@ import Employees from 'views/admin/attendance/components/employees';
 import Records from 'views/admin/attendance/components/records';
 import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-
+import SipDashboard  from 'views/admin/sip/component/Dashboard';
+import SipHistory from 'views/admin/sip/component/History';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 
@@ -136,7 +138,8 @@ const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
-
+const Sip = React.lazy(() => import('views/admin/sip'));
+const Expenses = React.lazy(() => import('views/admin/expenses'));
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -181,6 +184,15 @@ const routes = [
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
 		component: LeadScreen,
+	},
+	{
+		name: 'Expenses',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/expenses',
+		icon: (
+			<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
+		),
+		component: Expenses,
 	},
 	{
 		name: 'Announcement',
@@ -720,6 +732,38 @@ const routes = [
 		icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 		component: SignInCentered,
 	},
+
+	// ========================= sip layout ============================
+	{
+		name: "Sip",
+		layout: [ROLE_PATH.superAdmin],
+		path: "/sip",
+		icon: (
+			<Icon
+				as={FaRegCalendarCheck}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Sip,
+	},
+	{
+		name: 'Sip Dashboard',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/dashboard',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipDashboard,
+	},
+	{
+		name: 'Sip history',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/history',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipHistory,
+	}
 ];
 
 export default routes;

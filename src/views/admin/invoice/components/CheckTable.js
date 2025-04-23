@@ -47,6 +47,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { buttonStyle } from 'utils/btn';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { useLocation } from "react-router-dom";
 
 export default function CheckTable(props) {
 	const {
@@ -105,6 +106,9 @@ export default function CheckTable(props) {
 		onClose: onAddClose,
 	} = useDisclosure();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const location = useLocation();
+	const queryParams = new URLSearchParams(location.search);
+	const incomingPayment = queryParams.get("incomingPayment");
 
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	const data = useMemo(() => tableData, [tableData]);
@@ -122,6 +126,12 @@ export default function CheckTable(props) {
 	const handleClick = () => {
 		onAddOpen();
 	};
+
+	useEffect(() =>{
+		if(incomingPayment) {
+			onAddOpen();
+		}
+	},[])
 
 	const formik = useFormik({
 		initialValues,
