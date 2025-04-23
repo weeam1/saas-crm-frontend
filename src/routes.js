@@ -20,6 +20,7 @@ import {
 	FaRegCalendarCheck,
 	FaUserCircle,
 	FaDollarSign,
+	FaRegCopy 
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -189,7 +190,7 @@ const routes = [
 		layout: [ROLE_PATH.superAdmin],
 		path: '/expenses',
 		icon: (
-			<Icon as="/assets/Navbar_Icon/expenses.svg" width='20px' height='20px' color='inherit' />
+			<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
 		),
 		component: Expenses,
 	},
