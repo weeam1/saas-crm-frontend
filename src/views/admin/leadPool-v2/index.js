@@ -17,7 +17,7 @@ const Index = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasFetched, setHasFetched] = useState(false);
 	const [currentState, setCurrentState] = useState('buy_leads');
-	const [dateTime, setDateTime] = useState({ from: '', to: '' });
+	const [dateTime, setDateTime] = useState('');
 	const [pageSize, setPageSize] = useState(50);
 	const [activeTab, setActiveTab] = useState('Buy Leads');
 	const [currentPage, setCurrentPage] = useState(1);
@@ -79,7 +79,7 @@ const Index = () => {
 			let result;
 			if (tab === 'Buy Leads') {
 				result = await getApi(
-					`api/lead/?dateTime=${dateTime?.from}|${dateTime?.to}&page=${page}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=buy_leads`,
+					`api/lead/?&page=${page}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=buy_leads`,
 					null,
 					'baseUrl',
 					cancelTokenRef.current.token
@@ -183,7 +183,7 @@ const Index = () => {
 				setTotalLeads(result.data?.totalLeads || newData.length || 0);
 			} else if (activeTab === 'Buy Leads') {
 				result = await getApi(
-					`api/lead/search?term=${term}&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&role=Agent`,
+					`api/lead/search?term=${term}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&role=Agent`,
 					null,
 					'baseUrl',
 					cancelTokenRef.current.token
@@ -240,7 +240,7 @@ const Index = () => {
 		try {
 			let result = await getApi(
 				activeTab === 'Buy Leads'
-					? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&role=Agent&dateTime=${dateTime?.from}|${dateTime?.to}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
+					? `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&role=Agent&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}`
 					: `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&page=${pageNo}&pageSize=${size}&activeTab=${activeTab}`,
 				null,
 				'baseUrl',
@@ -430,6 +430,7 @@ const Index = () => {
 		[dateTime, user, activeTab]
 	);
 
+
 	useEffect(() => {
 		const newState =
 			activeTab === 'Buy Leads' ? 'buy_leads' : activeTab.toLowerCase();
@@ -518,6 +519,7 @@ const Index = () => {
 				buyLoading={buyLoading}
 				isPurchasing={isPurchasing}
 				isCancelling={isCancelling}
+				setDateTime={setDateTime}
 			/>
 			{isErrorModalOpen && (
 				<ErrorLeadLimitMessage

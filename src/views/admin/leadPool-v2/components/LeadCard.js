@@ -17,6 +17,7 @@ import LeadCycleModal from './LeadCard/LeadCycleModal';
 import LeadsModal from '../../lead/LeadsModal';
 import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { mainLeadStatus } from 'utils/options';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
@@ -42,7 +43,7 @@ const LeadCard = ({
 	nationality,
 	sourceContent,
 	timetocall,
-	mStatus,
+	eLeadStatus: mStatus,
 	r_u_in_uae,
 	leadCampaign,
 	leadStatus: leadStatusValue,
@@ -252,7 +253,9 @@ const LeadCard = ({
 						<InputPair
 							label='M Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
-							value={renderValue(mStatus)}
+							value={
+								mainLeadStatus.find((item) => item.value === mStatus)?.label
+							}
 							bg='#E5B668'
 							color='white'
 						/>

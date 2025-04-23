@@ -26,6 +26,7 @@ import LeadCycleModal from '../components/LeadCard/LeadCycleModal';
 import LeadsModal from '../../lead/LeadsModal';
 import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { mainLeadStatus } from 'utils/options';
 
 const getLabelByValue = (value) => {
 	const status = leadStatus.find((status) => status.value === value);
@@ -39,7 +40,7 @@ const LeadCard = ({
 	city,
 	sourceContent,
 	timeToCall,
-	mStatus,
+	eLeadStatus: mStatus,
 	leadStatus: leadStatusValue,
 	approvalStatus: initialApprovalStatus,
 	agentId,
@@ -146,7 +147,6 @@ const LeadCard = ({
 	};
 
 	const handleViewLeadCycle = () => {
-		console.log('Opening LeadCycleModal for lead:', leadId || _id);
 		setIsCycleModalOpen(true);
 	};
 
@@ -155,7 +155,6 @@ const LeadCard = ({
 	};
 
 	const handleLeadsModal = (lid) => {
-		console.log('Opening LeadsModal with lid:', lid);
 		setLeadsModal({
 			isOpen: true,
 			lid,
@@ -390,7 +389,9 @@ const LeadCard = ({
 					<HStack spacing={2} w='100%'>
 						<InputPair
 							label='M Status'
-							value={mStatus}
+							value={
+								mainLeadStatus.find((item) => item.value === mStatus)?.label
+							}
 							bg='#E5B668'
 							width='85px'
 							color='white'
