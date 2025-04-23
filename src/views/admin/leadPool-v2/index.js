@@ -62,6 +62,8 @@ const Index = () => {
 	const fetchTabData = async (tab, page = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
 
+		console.log({ page });
+
 		const fetchKey = `${tab}_${page}_${size}`;
 		if (lastFetchRef.current === fetchKey) return;
 
@@ -113,9 +115,10 @@ const Index = () => {
 				ip: lead?.ip?.split('-')?.[1] || lead?.ip || '',
 			}));
 
+			console.log({ newData });
+
 			setData(newData);
 			setTotalPages(result.data?.totalPages || 0);
-			setCurrentPage(1);
 			setTotalLeads(
 				result.data?.totalLeads || result.data?.totalApprovals || 0
 			);
@@ -133,6 +136,8 @@ const Index = () => {
 			setHasFetched(true);
 		}
 	};
+
+	console.log({ data });
 
 	const fetchSearchedData = async (term = '', pageNo = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;

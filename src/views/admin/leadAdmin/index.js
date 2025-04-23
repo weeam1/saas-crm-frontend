@@ -203,6 +203,7 @@ const LeadScreen = () => {
 				setSearchedData(validatedData);
 				setTotalPages(result.data?.totalPages || 0);
 				setTotalLeads(result.data?.totalLeads || 0);
+				setCurrentPage(1);
 
 				// Handle empty search results
 				if (validatedData.length === 0) {
@@ -275,6 +276,8 @@ const LeadScreen = () => {
 				setDisplayAdvSearchData(true);
 				setDisplaySearchData(false);
 				setSearchedData(validatedData);
+				setCurrentPage(1);
+
 				setTotalPages(result.data?.totalPages || 0);
 				setTotalLeads(result.data?.totalLeads || 0);
 
