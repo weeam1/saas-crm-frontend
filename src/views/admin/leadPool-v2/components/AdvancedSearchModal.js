@@ -112,7 +112,6 @@ const AdvancedSearchModal = ({
 				{ cleanedData: {}, tags: [] }
 			);
 
-			console.log({ cleanedData, tags });
 			fetchAdvancedSearch(cleanedData, 1, pageSize);
 			setAdvanceSearch(false);
 			setGetTagValues(tags); // Use parent callback

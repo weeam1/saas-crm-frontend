@@ -452,7 +452,7 @@ export default function CheckTable(props) {
 						// setLoading(true);
 						const dataObj = {
 							managerAssigned: managerId,
-							leadType: 'leadpool',
+							// leadType: 'leadpool',
 						};
 
 						if (e === '') {

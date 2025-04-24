@@ -35,6 +35,8 @@ const Index = () => {
 	const lastFetchRef = useRef(null);
 	const cancelTokenRef = useRef(null);
 
+	const [forceRefresh, setForceRefresh] = useState(false);
+
 	const debounce = (func, delay) => {
 		let timeoutId;
 		return (...args) => {
@@ -42,6 +44,8 @@ const Index = () => {
 			timeoutId = setTimeout(() => func(...args), delay);
 		};
 	};
+
+	console.log('FORCE REFRESH: ', forceRefresh);
 
 	const updateUrl = (newPage, newSize, newTab) => {
 		const params = new URLSearchParams(location.search);
@@ -62,15 +66,17 @@ const Index = () => {
 	const fetchTabData = async (tab, page = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
 
-		console.log({ page });
+		console.log('last fetch: ', lastFetchRef.current, forceRefresh);
 
 		const fetchKey = `${tab}_${page}_${size}`;
-		if (lastFetchRef.current === fetchKey) return;
+		if (lastFetchRef.current === fetchKey && !forceRefresh) return;
 
 		fetchLockRef.current = true;
 		setIsLoading(true);
 		setError(null);
 		lastFetchRef.current = fetchKey;
+
+		console.log({ cancelref: cancelTokenRef.current });
 
 		if (cancelTokenRef.current) {
 			cancelTokenRef.current.cancel('New request initiated');
@@ -134,10 +140,9 @@ const Index = () => {
 			fetchLockRef.current = false;
 			setIsLoading(false);
 			setHasFetched(true);
+			forceRefresh && setForceRefresh(false);
 		}
 	};
-
-	console.log({ data });
 
 	const fetchSearchedData = async (term = '', pageNo = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
@@ -311,6 +316,14 @@ const Index = () => {
 		}
 	};
 
+	const refreshBuyLeads = (leadId) => {
+		const filterLeads = (leads) => leads.filter((lead) => lead._id !== leadId);
+
+		displaySearchData
+			? setSearchedData((prev) => filterLeads(prev))
+			: setData((prev) => filterLeads(prev));
+	};
+
 	const sendRequest = async (leadId) => {
 		if (isPurchasing) return;
 		setIsPurchasing(true);
@@ -341,10 +354,17 @@ const Index = () => {
 			}
 
 			const payload = { leadId, agentId: user._id, approvalStatus: 'pending' };
-			const approvalResponse = await postApi('api/adminApproval/add', payload);
-			if (approvalResponse.status !== 200) {
-				throw new Error('Failed to send lead for approval');
-			}
+
+			await axios.post(constant['baseUrl'] + 'api/adminApproval/add', payload, {
+				headers: {
+					Authorization:
+						localStorage.getItem('token') || sessionStorage.getItem('token'),
+				},
+			});
+			// const approvalResponse = await postApi('api/adminApproval/add', payload);
+			// if (approvalResponse.status !== 200) {
+			// 	throw new Error('Failed to send lead for approval');
+			// }
 
 			const updatedCoins = currentCoins - coinCost;
 			const updateResponse = await putApi(`api/user/edit/${user._id}`, {
@@ -353,7 +373,11 @@ const Index = () => {
 
 			if (updateResponse.status === 200) {
 				setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-				setData(data.filter((lead) => lead._id !== leadId));
+				console.log({ data });
+
+				// filter the leads
+				refreshBuyLeads(leadId);
+
 				setTotalLeads((prev) => prev - 1);
 				toast.success('Lead purchased and sent for approval', {
 					position: toast.POSITION.TOP_RIGHT,
@@ -363,11 +387,25 @@ const Index = () => {
 				throw new Error('Failed to update user coins');
 			}
 		} catch (error) {
-			console.error('Send Request Error:', error);
-			toast.error(error.message || 'Failed to purchase lead', {
-				position: toast.POSITION.TOP_RIGHT,
-				autoClose: 3000,
-			});
+			// console.error('Send Request Error:', error);
+			// toast.error(error?.response?.data?.message || 'Failed to purchase lead', {
+			// 	position: toast.POSITION.TOP_RIGHT,
+			// 	autoClose: 3000,
+			// });
+
+			if (error.response?.status === 400) {
+				const errorDetails =
+					error.response.data?.message || 'Invalid input provided.';
+				toast.error(`${errorDetails}`);
+
+				if (errorDetails?.startsWith(`We're sorry`)) {
+					setForceRefresh(true);
+					debouncedFetchTabData(activeTab, currentPage, pageSize);
+				}
+			} else {
+				console.error('Unexpected error:', error);
+				toast.error('Something went wrong!');
+			}
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
 			setIsPurchasing(false);

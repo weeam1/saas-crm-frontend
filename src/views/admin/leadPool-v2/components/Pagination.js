@@ -158,12 +158,11 @@ const Pagination = ({
 
 	const handleClearSearch = () => {
 		if (isLoading) return;
-		setData([]);
+		// setData([]);
 		setTotalPages(0);
 		setSearchTerm('');
 		setTotalLeads(0);
 		setDisplaySearchData(false);
-		setSearchTerm('');
 		setTags([]);
 		setCurrentPage(1);
 		setDateTime('');
@@ -197,11 +196,13 @@ const Pagination = ({
 			`Start: ${formattedDate(from)}`,
 			`End: ${formattedDate(to)}`,
 		];
-		setTags(searchValues);
+		setSearchTerm('');
 		setTags(searchValues);
 		fetchAdvancedSearch({ from, to }, 1, pageSize);
 		setDisplaySearchData(true);
 	};
+
+	console.log({ tags });
 
 	return (
 		<>

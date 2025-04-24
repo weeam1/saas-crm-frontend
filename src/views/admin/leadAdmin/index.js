@@ -360,7 +360,7 @@ const LeadScreen = () => {
 				try {
 					const data = {
 						agentAssigned: agentId,
-						leadType: 'leadpool',
+						// leadType: 'leadpool',
 					};
 
 					const updatedRes = await putApi(`api/lead/edit/${leadId}`, data);
