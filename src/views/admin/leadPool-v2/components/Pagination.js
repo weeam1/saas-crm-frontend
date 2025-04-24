@@ -48,6 +48,8 @@ const Pagination = ({
 	setIsLoading,
 	displaySearchData,
 	setDisplaySearchData,
+	setDisplayAdvSearchData,
+	displayAdvSearchData,
 	sendRequest,
 	cancelRequest,
 	buyLoading,
@@ -58,7 +60,28 @@ const Pagination = ({
 	const [gotoPage, setGotoPage] = useState(currentPage || 1);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [tags, setTags] = useState([]);
-	const pageSizeOptions = [10, 25, 50, 100];
+	const [queryData, setQueryData] = useState([]);
+
+	const generatePageOptions = (totalLeads, pageSize) => {
+		const maxAllowed = 100;
+		const baseOptions = [10, 20, 50, 100];
+		const intermediateSteps = [20, 40, 60, 80];
+
+		// Always include these:
+		const options = new Set([
+			...baseOptions,
+			pageSize, // current page size must always be available
+			...intermediateSteps.filter((step) => step <= totalLeads),
+			Math.min(totalLeads, maxAllowed), // cap at maxAllowed
+		]);
+
+		// Convert to array and sort
+		return Array.from(options)
+			.filter((size) => size <= totalLeads || size === pageSize)
+			.sort((a, b) => a - b);
+	};
+
+	const pageSizeOptions = generatePageOptions(totalLeads, pageSize);
 
 	useEffect(() => {
 		if (!data && !isLoading && hasFetched) {
@@ -84,13 +107,23 @@ const Pagination = ({
 	const endIndex = Math.min(currentPage * pageSize, totalLeads);
 	const totalPagesForTab = Math.max(1, Math.ceil(totalLeads / pageSize));
 
-	const handleNavigation = async (page, fetchFn) => {
-		if (isLoading) return;
-		setIsLoading(true);
-		setCurrentPage(page);
-		setGotoPage(page);
+	console.log({ displaySearchData, queryData });
+
+	const fetchLeads = (page, size = pageSize) => {
 		try {
-			await fetchFn();
+			setIsLoading(true);
+
+			if (displayAdvSearchData) {
+				console.log('fetch adv search');
+				fetchAdvancedSearch(queryData, page, size);
+			} else if (displaySearchData) {
+				console.log('fetch search');
+
+				fetchSearchedData(searchTerm, page, size);
+			} else {
+				console.log('fetch data');
+				fetchData(activeTab, page, size);
+			}
 		} catch (error) {
 			console.error('Navigation error:', error);
 		} finally {
@@ -98,62 +131,70 @@ const Pagination = ({
 		}
 	};
 
-	const handleFirst = () =>
-		handleNavigation(1, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, 1, pageSize)
-				: fetchData(activeTab, 1, pageSize)
-		);
+	const handleNavigation = async (page, func) => {
+		if (isLoading) return;
+		setIsLoading(true);
+		setCurrentPage(page);
+		setGotoPage(page);
+		try {
+			await func();
+		} catch (error) {
+			console.error('Navigation error:', error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-	const handlePrevious = () =>
-		currentPage > 1 &&
-		handleNavigation(currentPage - 1, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, currentPage - 1, pageSize)
-				: fetchData(activeTab, currentPage - 1, pageSize)
-		);
+	// Pagination handlers
+	const handleFirst = () => {
+		setCurrentPage(1);
+		setGotoPage(1);
+		fetchLeads(1);
+	};
 
-	const handleNext = () =>
-		currentPage < totalPagesForTab &&
-		handleNavigation(currentPage + 1, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, currentPage + 1, pageSize)
-				: fetchData(activeTab, currentPage + 1, pageSize)
-		);
+	const handlePrevious = () => {
+		if (currentPage > 1) {
+			setCurrentPage(currentPage - 1);
+			setGotoPage(currentPage - 1);
+			fetchLeads(currentPage - 1);
+		}
+	};
 
-	const handleLast = () =>
-		handleNavigation(totalPagesForTab, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, totalPagesForTab, pageSize)
-				: fetchData(activeTab, totalPagesForTab, pageSize)
-		);
+	const handleNext = () => {
+		if (currentPage < totalPagesForTab) {
+			setCurrentPage(currentPage + 1);
+			setGotoPage(currentPage + 1);
+			fetchLeads(currentPage + 1);
+		}
+	};
+
+	const handleLast = () => {
+		setCurrentPage(totalPagesForTab);
+		setGotoPage(totalPagesForTab);
+		fetchLeads(totalPagesForTab);
+	};
 
 	const handleGoToChange = (value) => {
 		const numValue = Number(value);
 		if (!isNaN(numValue)) {
 			setGotoPage(numValue);
+			fetchLeads(numValue);
 		}
 	};
 
 	const handleGoToBlur = () => {
-		if (isLoading) return;
 		const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPagesForTab));
-		handleNavigation(page, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, page, pageSize)
-				: fetchData(activeTab, page, pageSize)
-		);
+		setCurrentPage(page);
+		setGotoPage(page);
+		fetchLeads(page);
 	};
 
 	const handlePageSizeChange = (event) => {
 		if (isLoading) return;
 		const newPageSize = Number(event.target.value);
+		console.log('size: ', newPageSize);
 		setPageSize(newPageSize);
-		handleNavigation(1, () =>
-			displaySearchData
-				? fetchSearchedData(searchTerm, 1, newPageSize)
-				: fetchData(activeTab, 1, newPageSize)
-		);
+		fetchLeads(1, newPageSize);
 	};
 
 	const handleClearSearch = () => {
@@ -163,12 +204,15 @@ const Pagination = ({
 		setSearchTerm('');
 		setTotalLeads(0);
 		setDisplaySearchData(false);
+		setDisplayAdvSearchData(false);
+		setQueryData([]);
 		setTags([]);
 		setCurrentPage(1);
 		setDateTime('');
 		setPageSize(50);
 		setActiveTab('Buy Leads');
 		handleNavigation(1, () => fetchData('Buy Leads', 1, 50));
+		fetchLeads(1);
 	};
 
 	const buttonStyle = {
@@ -198,6 +242,7 @@ const Pagination = ({
 		];
 		setSearchTerm('');
 		setTags(searchValues);
+		setQueryData({ from, to });
 		fetchAdvancedSearch({ from, to }, 1, pageSize);
 		setDisplaySearchData(true);
 	};
@@ -433,6 +478,7 @@ const Pagination = ({
 							setTags={setTags}
 							searchTerm={searchTerm}
 							setDateTime={setDateTime}
+							setQueryData={setQueryData}
 						/>
 					</Box>
 				</Flex>

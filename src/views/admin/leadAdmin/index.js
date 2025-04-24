@@ -317,6 +317,7 @@ const LeadScreen = () => {
 		},
 		[activeTab, currentPage, pageSize, user, dateTime, formValues, users]
 	);
+
 	const clearAdvancedSearch = useCallback(() => {
 		setSearchQuery('');
 		setDisplayAdvSearchData(false);

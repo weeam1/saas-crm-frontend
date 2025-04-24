@@ -24,6 +24,7 @@ const Index = () => {
 	const [error, setError] = useState(null);
 	const [searchedData, setSearchedData] = useState([]);
 	const [displaySearchData, setDisplaySearchData] = useState(false);
+	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const [userData, setUserData] = useState(null);
 	const [buyLoading, setBuyLoading] = useState({});
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -44,8 +45,6 @@ const Index = () => {
 			timeoutId = setTimeout(() => func(...args), delay);
 		};
 	};
-
-	console.log('FORCE REFRESH: ', forceRefresh);
 
 	const updateUrl = (newPage, newSize, newTab) => {
 		const params = new URLSearchParams(location.search);
@@ -146,6 +145,8 @@ const Index = () => {
 
 	const fetchSearchedData = async (term = '', pageNo = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
+
+		console.log('FETCH SEARCH DATA');
 
 		const fetchKey = `search_${activeTab}_${pageNo}_${size}_${term}`;
 		if (lastFetchRef.current === fetchKey) return;
@@ -271,7 +272,8 @@ const Index = () => {
 					}))
 				: [];
 
-			setDisplaySearchData(true);
+			// setDisplaySearchData(true);
+			setDisplayAdvSearchData(true);
 			setSearchedData(validatedData);
 			setData(validatedData);
 			setCurrentPage(1);
@@ -465,15 +467,16 @@ const Index = () => {
 	};
 
 	const debouncedFetchTabData = useCallback(debounce(fetchTabData, 300), [
-		dateTime,
 		user,
 		currentState,
 		activeTab,
 	]);
+
 	const debouncedFetchSearchedData = useCallback(
 		debounce(fetchSearchedData, 300),
-		[dateTime, user, activeTab]
+		[user, activeTab]
 	);
+
 	const debouncedFetchAdvancedSearch = useCallback(
 		debounce(fetchAdvancedSearch, 300),
 		[dateTime, user, activeTab]
@@ -492,6 +495,8 @@ const Index = () => {
 		setActiveTab(tab);
 		fetchUserData();
 		fetchTabData(tab, page, size);
+
+		console.log('fetch tab data ');
 
 		return () => {
 			if (cancelTokenRef.current) {
@@ -528,8 +533,8 @@ const Index = () => {
 				setPageSize={(size) => {
 					setPageSize(size);
 					updateUrl(currentPage, size, activeTab);
-					setData([]);
-					debouncedFetchTabData(activeTab, currentPage, size);
+					// setData([]);
+					// debouncedFetchTabData(activeTab, currentPage, size);
 				}}
 				user={user}
 				dateTime={dateTime}
@@ -552,8 +557,8 @@ const Index = () => {
 				setCurrentPage={(page) => {
 					setCurrentPage(page);
 					updateUrl(page, pageSize, activeTab);
-					setData([]);
-					debouncedFetchTabData(activeTab, page, pageSize);
+					// setData([]);
+					// debouncedFetchTabData(activeTab, page, pageSize);
 				}}
 				setData={setData}
 				setTotalPages={setTotalPages}
@@ -561,6 +566,8 @@ const Index = () => {
 				setIsLoading={setIsLoading}
 				displaySearchData={displaySearchData}
 				setDisplaySearchData={setDisplaySearchData}
+				setDisplayAdvSearchData={setDisplayAdvSearchData}
+				displayAdvSearchData={displayAdvSearchData}
 				userData={userData}
 				sendRequest={sendRequest}
 				cancelRequest={cancelRequest}

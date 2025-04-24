@@ -22,6 +22,7 @@ const AdvancedSearchModal = ({
 	advanceSearch,
 	isLoading,
 	fetchAdvancedSearch,
+
 	setSearchClear,
 	setFormValues,
 	isFormReset,
@@ -30,6 +31,7 @@ const AdvancedSearchModal = ({
 	setGetTagValues, // Renamed to match prop usage
 	setDisplaySearchData,
 	onClearSearch,
+	setQueryData,
 }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
@@ -117,9 +119,12 @@ const AdvancedSearchModal = ({
 			setGetTagValues(tags); // Use parent callback
 			setSearchClear(true);
 			setFormValues(values);
+			setQueryData(cleanedData);
 			setDisplaySearchData(true);
 		},
 	});
+
+	console.log({ setQueryData });
 
 	const {
 		errors,
