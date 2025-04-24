@@ -47,7 +47,7 @@ const createUpdates = (selectedValues, values) => {
 				updateObj[`${key}Date`] =
 					value === null || value === '' ? null : new Date().toISOString();
 
-				updateObj.leadType = null;
+				// updateObj.leadType = null;
 				updateObj.isReleased = false;
 			}
 		});
