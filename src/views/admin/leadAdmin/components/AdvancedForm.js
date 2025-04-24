@@ -216,6 +216,41 @@ const AdvancedSearchForm = (props) => {
 				</Text>
 			</GridItem>
 
+			{/* Extra Status Field */}
+			<GridItem>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Main Status
+				</FormLabel>
+				<Select
+					value={values?.eLeadStatus}
+					fontSize='sm'
+					name='eLeadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Main Lead Status'
+				>
+					{mainLeadStatus
+						?.filter((item) => item.value !== 'deal')
+						?.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
+					<option value='-1'>No E.Status</option>
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+
 			{isSuperAdmin && (
 				<GridItem>
 					<FormLabel
