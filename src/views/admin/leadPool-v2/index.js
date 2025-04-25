@@ -65,8 +65,6 @@ const Index = () => {
 	const fetchTabData = async (tab, page = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
 
-		console.log('last fetch: ', lastFetchRef.current, forceRefresh);
-
 		const fetchKey = `${tab}_${page}_${size}`;
 		if (lastFetchRef.current === fetchKey && !forceRefresh) return;
 
@@ -74,8 +72,6 @@ const Index = () => {
 		setIsLoading(true);
 		setError(null);
 		lastFetchRef.current = fetchKey;
-
-		console.log({ cancelref: cancelTokenRef.current });
 
 		if (cancelTokenRef.current) {
 			cancelTokenRef.current.cancel('New request initiated');
@@ -120,8 +116,6 @@ const Index = () => {
 				ip: lead?.ip?.split('-')?.[1] || lead?.ip || '',
 			}));
 
-			console.log({ newData });
-
 			setData(newData);
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(
@@ -145,8 +139,6 @@ const Index = () => {
 
 	const fetchSearchedData = async (term = '', pageNo = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
-
-		console.log('FETCH SEARCH DATA');
 
 		const fetchKey = `search_${activeTab}_${pageNo}_${size}_${term}`;
 		if (lastFetchRef.current === fetchKey) return;
@@ -189,7 +181,7 @@ const Index = () => {
 				setDisplaySearchData(true);
 				setSearchedData(newData);
 				setData(newData);
-				setCurrentPage(1);
+				setCurrentPage(pageNo);
 
 				setTotalPages(
 					result.data?.totalPages || Math.ceil(newData.length / size) || 0
@@ -276,8 +268,8 @@ const Index = () => {
 			setDisplayAdvSearchData(true);
 			setSearchedData(validatedData);
 			setData(validatedData);
-			setCurrentPage(1);
-			updateUrl(1, size, activeTab);
+			setCurrentPage(pageNo);
+			updateUrl(pageNo, size, activeTab);
 
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(result.data?.totalLeads || validatedData.length || 0);
@@ -375,8 +367,6 @@ const Index = () => {
 
 			if (updateResponse.status === 200) {
 				setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-				console.log({ data });
-
 				// filter the leads
 				refreshBuyLeads(leadId);
 
@@ -495,8 +485,6 @@ const Index = () => {
 		setActiveTab(tab);
 		fetchUserData();
 		fetchTabData(tab, page, size);
-
-		console.log('fetch tab data ');
 
 		return () => {
 			if (cancelTokenRef.current) {

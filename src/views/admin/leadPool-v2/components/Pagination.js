@@ -107,21 +107,15 @@ const Pagination = ({
 	const endIndex = Math.min(currentPage * pageSize, totalLeads);
 	const totalPagesForTab = Math.max(1, Math.ceil(totalLeads / pageSize));
 
-	console.log({ displaySearchData, queryData });
-
 	const fetchLeads = (page, size = pageSize) => {
 		try {
 			setIsLoading(true);
 
 			if (displayAdvSearchData) {
-				console.log('fetch adv search');
 				fetchAdvancedSearch(queryData, page, size);
 			} else if (displaySearchData) {
-				console.log('fetch search');
-
 				fetchSearchedData(searchTerm, page, size);
 			} else {
-				console.log('fetch data');
 				fetchData(activeTab, page, size);
 			}
 		} catch (error) {
@@ -176,15 +170,21 @@ const Pagination = ({
 
 	const handleGoToChange = (value) => {
 		const numValue = Number(value);
-		if (!isNaN(numValue)) {
-			setGotoPage(numValue);
+		if (numValue <= (totalPages ?? 999999999)) {
+			setGotoPage(value);
 			fetchLeads(numValue);
 		}
+		// if (!isNaN(numValue)) {
+		// 	setGotoPage(numValue);
+		// 	// setCurrentPage(numValue);
+
+		// }
 	};
 
 	const handleGoToBlur = () => {
-		const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPagesForTab));
-		setCurrentPage(page);
+		// setCurrentPage(page);
+
+		const page = Math.max(1, Math.min(Number(gotoPage) || 1, totalPages));
 		setGotoPage(page);
 		fetchLeads(page);
 	};
@@ -192,7 +192,6 @@ const Pagination = ({
 	const handlePageSizeChange = (event) => {
 		if (isLoading) return;
 		const newPageSize = Number(event.target.value);
-		console.log('size: ', newPageSize);
 		setPageSize(newPageSize);
 		fetchLeads(1, newPageSize);
 	};
@@ -246,8 +245,6 @@ const Pagination = ({
 		fetchAdvancedSearch({ from, to }, 1, pageSize);
 		setDisplaySearchData(true);
 	};
-
-	console.log({ tags });
 
 	return (
 		<>
@@ -358,7 +355,7 @@ const Pagination = ({
 									onChange={handleGoToChange}
 									onBlur={handleGoToBlur}
 									min={1}
-									max={totalPagesForTab}
+									max={totalPages}
 									size='sm'
 									borderRadius='md'
 									width='5rem'
