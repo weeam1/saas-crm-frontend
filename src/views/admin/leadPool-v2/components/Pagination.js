@@ -171,7 +171,6 @@ const Pagination = ({
 	const handleGoToChange = (value) => {
 		const numValue = Number(value);
 
-		console.log({ numValue });
 		if (numValue <= (totalPages ?? 999999999)) {
 			setGotoPage(value);
 			// fetchLeads(numValue);
