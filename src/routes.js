@@ -40,8 +40,6 @@ import Employees from 'views/admin/attendance/components/employees';
 import Records from 'views/admin/attendance/components/records';
 import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-import SipDashboard  from 'views/admin/sip/component/Dashboard';
-import SipHistory from 'views/admin/sip/component/History';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 
@@ -748,22 +746,6 @@ const routes = [
 		),
 		component: Sip,
 	},
-	{
-		name: 'Sip Dashboard',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/dashboard',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipDashboard,
-	},
-	{
-		name: 'Sip history',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/history',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipHistory,
-	}
 ];
 
 export default routes;
