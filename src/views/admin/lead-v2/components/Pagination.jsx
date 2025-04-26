@@ -178,7 +178,7 @@ const Pagination = ({
 							setGotoPage(value);
 						}
 					}}
-					onBlur={handleGoToBlur} // FIX: Remove e.key check
+					onBlur={handleGoToBlur}
 					min={1}
 					max={totalPages ?? 999999999}
 					size='sm'

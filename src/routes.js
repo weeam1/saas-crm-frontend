@@ -20,7 +20,7 @@ import {
 	FaRegCalendarCheck,
 	FaUserCircle,
 	FaDollarSign,
-	FaRegCopy 
+	FaRegCopy,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -40,7 +40,7 @@ import Employees from 'views/admin/attendance/components/employees';
 import Records from 'views/admin/attendance/components/records';
 import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-import SipDashboard  from 'views/admin/sip/component/Dashboard';
+import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -189,9 +189,7 @@ const routes = [
 		name: 'Expenses',
 		layout: [ROLE_PATH.superAdmin],
 		path: '/expenses',
-		icon: (
-			<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
-		),
+		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
 		component: Expenses,
 	},
 	{
@@ -288,13 +286,13 @@ const routes = [
 		component: LeadPoolAdmin,
 	},
 
-	{
-		name: 'Points',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/points',
-		icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
-		component: CurrencyPoints,
-	},
+	// {
+	// 	name: 'Points',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/points',
+	// 	icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
+	// 	component: CurrencyPoints,
+	// },
 	{
 		name: 'Contact Import',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -305,30 +303,30 @@ const routes = [
 		component: ContactImport,
 	},
 	// ------------- Property Routes ------------------------
-	{
-		name: 'Property',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/properties',
-		icon: <Icon as={LuBuilding2} width='20px' height='20px' color='inherit' />,
-		component: Property,
-	},
-	{
-		name: 'Property ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		parentName: 'Property',
-		under: 'properties',
-		path: '/propertyView/:id',
-		component: PropertyView,
-	},
-	{
-		name: 'Property Import',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		both: true,
-		under: 'properties',
-		parentName: 'Property',
-		path: '/propertyImport',
-		component: PropertyImport,
-	},
+	// {
+	// 	name: 'Property',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/properties',
+	// 	icon: <Icon as={LuBuilding2} width='20px' height='20px' color='inherit' />,
+	// 	component: Property,
+	// },
+	// {
+	// 	name: 'Property ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	parentName: 'Property',
+	// 	under: 'properties',
+	// 	path: '/propertyView/:id',
+	// 	component: PropertyView,
+	// },
+	// {
+	// 	name: 'Property Import',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	both: true,
+	// 	under: 'properties',
+	// 	parentName: 'Property',
+	// 	path: '/propertyImport',
+	// 	component: PropertyImport,
+	// },
 
 	// ------------- Invoice Module Routes ------------------------ //
 	{
@@ -413,37 +411,37 @@ const routes = [
 	//   component: Communication,
 	// },
 	// ------------- Task Routes ------------------------
-	{
-		name: 'Task',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/task',
-		icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
-		component: Task,
-	},
-	{
-		name: 'Task ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'task',
-		parentName: 'Task',
-		path: '/view/:id',
-		component: TaskView,
-	},
-	// ------------- Meeting Routes ------------------------
-	{
-		name: 'Meeting',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/metting',
-		icon: <Icon as={SiGooglemeet} width='20px' height='20px' color='inherit' />,
-		component: Meeting,
-	},
-	{
-		name: 'Meeting ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'metting',
-		parentName: 'Meeting',
-		path: '/metting/:id',
-		component: MettingView,
-	},
+	// {
+	// 	name: 'Task',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/task',
+	// 	icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+	// 	component: Task,
+	// },
+	// {
+	// 	name: 'Task ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'task',
+	// 	parentName: 'Task',
+	// 	path: '/view/:id',
+	// 	component: TaskView,
+	// },
+	// // ------------- Meeting Routes ------------------------
+	// {
+	// 	name: 'Meeting',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/metting',
+	// 	icon: <Icon as={SiGooglemeet} width='20px' height='20px' color='inherit' />,
+	// 	component: Meeting,
+	// },
+	// {
+	// 	name: 'Meeting ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'metting',
+	// 	parentName: 'Meeting',
+	// 	path: '/metting/:id',
+	// 	component: MettingView,
+	// },
 
 	// ------------- Hiring Routes -----------------------
 	{
@@ -495,61 +493,61 @@ const routes = [
 		component: Positions,
 	},
 	// ------------- Phone Routes ------------------------
-	{
-		name: 'Call',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/phone-call',
-		icon: (
-			<Icon as={PiPhoneCallBold} width='20px' height='20px' color='inherit' />
-		),
-		component: PhoneCall,
-	},
+	// {
+	// 	name: 'Call',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/phone-call',
+	// 	icon: (
+	// 		<Icon as={PiPhoneCallBold} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: PhoneCall,
+	// },
 
-	{
-		name: 'Call ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'phone-call',
-		parentName: 'Call',
-		path: '/phone-call/:id',
-		component: PhoneCallView,
-	},
+	// {
+	// 	name: 'Call ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'phone-call',
+	// 	parentName: 'Call',
+	// 	path: '/phone-call/:id',
+	// 	component: PhoneCallView,
+	// },
 	// ------------- Email Routes------------------------
-	{
-		// separator: 'History',
-		name: 'Email',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/email',
-		icon: (
-			<Icon as={AiOutlineMail} width='20px' height='20px' color='inherit' />
-		),
-		component: EmailHistory,
-	},
-	{
-		name: 'Email ',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'email',
-		parentName: 'Email',
-		path: '/Email/:id',
-		component: EmailHistoryView,
-	},
-	// ------------- Calender Routes ------------------------
-	{
-		name: 'Calender',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/calender',
-		icon: (
-			<Icon as={FaCalendarAlt} width='20px' height='20px' color='inherit' />
-		),
-		component: Calender,
-	},
-	// ------------- Payments Routes ------------------------
-	{
-		name: 'Payments',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/payments',
-		icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
-		component: Payments,
-	},
+	// {
+	// 	// separator: 'History',
+	// 	name: 'Email',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/email',
+	// 	icon: (
+	// 		<Icon as={AiOutlineMail} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: EmailHistory,
+	// },
+	// {
+	// 	name: 'Email ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'email',
+	// 	parentName: 'Email',
+	// 	path: '/Email/:id',
+	// 	component: EmailHistoryView,
+	// },
+	// // ------------- Calender Routes ------------------------
+	// {
+	// 	name: 'Calender',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/calender',
+	// 	icon: (
+	// 		<Icon as={FaCalendarAlt} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: Calender,
+	// },
+	// // ------------- Payments Routes ------------------------
+	// {
+	// 	name: 'Payments',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/payments',
+	// 	icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
+	// 	component: Payments,
+	// },
 
 	// ------------- Roles Routes ------------------------
 	{
@@ -631,44 +629,44 @@ const routes = [
 	//   component: TextMsgView,
 	// },
 	// ------------- Document Routes ------------------------
-	{
-		name: 'Documents',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/documents',
-		icon: (
-			<Icon as={AiFillFolderOpen} width='20px' height='20px' color='inherit' />
-		),
-		component: Document,
-	},
+	// {
+	// 	name: 'Documents',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/documents',
+	// 	icon: (
+	// 		<Icon as={AiFillFolderOpen} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: Document,
+	// },
 	// ----------------- Reporting Layout -----------------
-	{
-		name: 'Daily Report',
-		layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-		path: '/daily-report',
-		icon: (
-			<Icon
-				as={MdInsertChartOutlined}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: DailyReport,
-	},
-	{
-		name: 'Reporting and Analytics',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/reporting-analytics',
-		icon: (
-			<Icon
-				as={MdInsertChartOutlined}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: Report,
-	},
+	// {
+	// 	name: 'Daily Report',
+	// 	layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 	path: '/daily-report',
+	// 	icon: (
+	// 		<Icon
+	// 			as={MdInsertChartOutlined}
+	// 			width='20px'
+	// 			height='20px'
+	// 			color='inherit'
+	// 		/>
+	// 	),
+	// 	component: DailyReport,
+	// },
+	// {
+	// 	name: 'Reporting and Analytics',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/reporting-analytics',
+	// 	icon: (
+	// 		<Icon
+	// 			as={MdInsertChartOutlined}
+	// 			width='20px'
+	// 			height='20px'
+	// 			color='inherit'
+	// 		/>
+	// 	),
+	// 	component: Report,
+	// },
 
 	// ------------- user Routes ------------------------
 	{
@@ -735,9 +733,9 @@ const routes = [
 
 	// ========================= sip layout ============================
 	{
-		name: "Sip",
+		name: 'Sip',
 		layout: [ROLE_PATH.superAdmin],
-		path: "/sip",
+		path: '/sip',
 		icon: (
 			<Icon
 				as={FaRegCalendarCheck}
@@ -763,7 +761,7 @@ const routes = [
 		under: 'Sip',
 		parentName: 'Sip',
 		component: SipHistory,
-	}
+	},
 ];
 
 export default routes;
