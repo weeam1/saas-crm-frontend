@@ -170,15 +170,12 @@ const Pagination = ({
 
 	const handleGoToChange = (value) => {
 		const numValue = Number(value);
+
+		console.log({ numValue });
 		if (numValue <= (totalPages ?? 999999999)) {
 			setGotoPage(value);
-			fetchLeads(numValue);
+			// fetchLeads(numValue);
 		}
-		// if (!isNaN(numValue)) {
-		// 	setGotoPage(numValue);
-		// 	// setCurrentPage(numValue);
-
-		// }
 	};
 
 	const handleGoToBlur = () => {
@@ -351,7 +348,7 @@ const Pagination = ({
 							<HStack fontWeight='medium' color='gray.800' spacing={1}>
 								<Text fontSize='12px'>Go to</Text>
 								<NumberInput
-									value={gotoPage}
+									value={gotoPage ?? 1}
 									onChange={handleGoToChange}
 									onBlur={handleGoToBlur}
 									min={1}
