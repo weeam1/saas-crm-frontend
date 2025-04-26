@@ -19,7 +19,7 @@ const Sip = () => {
             <Heading size="lg" mb={2}>
               Call Analytics Overview
             </Heading>
-            <Text fontSize="md" color="gray.600">
+            <Text fontSize="md" color="gray.600" my={8}>
               Get a quick summary of your call activity including total time
               spent on calls, number of unique calls, and average call durations
               over the selected period.
@@ -29,7 +29,7 @@ const Sip = () => {
             <Heading size="lg" mb={2}>
               Call History Log
             </Heading>
-            <Text fontSize="md" color="gray.600">
+            <Text fontSize="md" color="gray.600"  my={8}>
               Explore detailed records of each call including timestamps,
               duration, participants, and call modes for a comprehensive
               communication history.
