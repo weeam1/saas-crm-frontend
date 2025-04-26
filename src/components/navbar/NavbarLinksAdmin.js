@@ -31,6 +31,7 @@ import webSocketService from 'services/WebSocketService';
 
 import NotificationIcon from './notifications/NotificationIcon';
 import { constant } from 'constant';
+import DigitalClockDropdown from './clock/DigitalClockDropdown;';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -141,15 +142,9 @@ export default function HeaderLinks(props) {
 			bg={menuBg}
 			flexWrap={secondary ? { base: 'wrap', md: 'nowrap' } : 'unset'}
 			p='6px'
-			borderRadius='30px'
-			boxShadow={shadow}
+			// borderRadius='30px'
+			// boxShadow={shadow}
 		>
-			{/* <SearchBar
-				mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-				me="10px"
-				borderRadius="30px"
-			/> */}
-
 			<Flex
 				bg={ethBg}
 				display={secondary ? 'flex' : 'none'}
@@ -193,7 +188,7 @@ export default function HeaderLinks(props) {
 
 			<HStack gap='2'>
 				<NotificationIcon userId={userId} />
-				<Box
+				{/* <Box
 					boxSize={10}
 					bg='brand.500'
 					pb={1}
@@ -203,7 +198,10 @@ export default function HeaderLinks(props) {
 					sx={{ clipPath: 'circle()' }} // Applying circular clip path
 				>
 					<TimeIcon boxSize={6} color='white' />
-				</Box>
+				</Box> */}
+
+				<DigitalClockDropdown />
+
 				<Menu style={{ zIndex: 99999 }}>
 					<MenuButton p='0px'>
 						{/* <Avatar
@@ -225,7 +223,7 @@ export default function HeaderLinks(props) {
 							w='40px'
 							h='40px'
 							mx={1}
-							shadow='sm'
+							shadow='md'
 							src={
 								loginUser?.profileImage
 									? `${constant['baseUrl']}${loginUser?.profileImage}`
