@@ -16,24 +16,28 @@ const Sip = () => {
       <Tabs variant="goldenrod">
         <TabPanels>
           <TabPanel>
-            <Heading size="lg" mb={2}>
+            <Box py={3} px={5}  bg={"white"} borderRadius={"10px"} Shadow={"sm"}>
+            <Heading size="lg" mb={4}>
               Call Analytics Overview
             </Heading>
-            <Text fontSize="md" color="gray.600" my={8}>
+            <Text fontSize="md" color="gray.600" mb={6}>
               Get a quick summary of your call activity including total time
               spent on calls, number of unique calls, and average call durations
               over the selected period.
             </Text>
+            </Box>
           </TabPanel>
           <TabPanel>
-            <Heading size="lg" mb={2}>
+          <Box py={3} px={5}  bg={"white"} borderRadius={"10px"} Shadow={"sm"}>
+            <Heading size="lg" mb={4}>
               Call History Log
             </Heading>
-            <Text fontSize="md" color="gray.600"  my={8}>
+            <Text fontSize="md" color="gray.600"  mb={6}>
               Explore detailed records of each call including timestamps,
               duration, participants, and call modes for a comprehensive
               communication history.
             </Text>
+            </Box>
           </TabPanel>
         </TabPanels>
         <TabList mx={3}>
@@ -44,9 +48,12 @@ const Sip = () => {
                 bg: "white",
                 fontWeight: "bold",
                 color: "black",
+                outline: "none"
               }}
-              bg={"#e7e7e7"}
+              outline={"none"}
+              bg={"softGray.50"}
               color={"gray.500"}
+              _focus={{outline:"none"}}
             >
               Dashboard
             </Tab>
@@ -57,8 +64,10 @@ const Sip = () => {
                 fontWeight: "bold",
                 color: "black",
               }}
-              bg={"#e7e7e7"}
+              outline={"none"}
+              bg={"softGray.50"}
               color={"gray.500"}
+              _focus={{outline:"none"}}
             >
               History
             </Tab>
