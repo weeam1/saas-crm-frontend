@@ -208,13 +208,13 @@ const routes = [
 		),
 		component: Hiring,
 	},
-	{
-		name: 'HR Module',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/hrmodule',
-		icon: <Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />,
-		component: HRModule,
-	},
+	// {
+	// 	name: 'HR Module',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/hrmodule',
+	// 	icon: <Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />,
+	// 	component: HRModule,
+	// },
 
 	// Attendance Routes
 	{
