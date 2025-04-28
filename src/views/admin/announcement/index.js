@@ -1,39 +1,26 @@
-import { Box, Flex, Icon, Text } from "@chakra-ui/react";
-import { MdCampaign } from "react-icons/md";
 import CreateAnnouncement from "./components/CreateAnnouncement";
 import History from "./components/History";
-
+import TabNavigationDisplay from "../../../components/TabNavigationDisplay/TabNavigationDisplay";
 const Announcements = () => {
-	const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
+  const tabsData = [
+    {
+      label: "Dashboard",
+      title: "Create New Announcement",
+      description:
+        "Quickly create and publish new announcements to keep everyone informed and updated.",
+      component: <CreateAnnouncement user={user} />,
+    },
+    {
+      label: "History",
+      title: "Announcement History",
+      description:
+        "View a history of all published announcements, including their details and posting dates.",
+      component: <History user={user} />,
+    },
+  ];
 
-	return (
-		<Box>
-			{/* Header Section */}
-			<Flex
-				align="center"
-				bg="brand.500"
-				color="white"
-				px={5}
-				py={10}
-				mb={4}
-				borderRadius="md"
-			>
-				<Icon as={MdCampaign} w={10} h={10} mr={2} />
-				<Text fontSize="2xl" fontWeight="bold">
-					Announcements
-				</Text>
-			</Flex>
-
-			{/* Content Section */}
-			<CreateAnnouncement user={user} />
-			<Box padding="6" my="4" boxShadow="lg" rounded="md">
-				<Text fontSize="2xl" color="brand.500" mb="4" fontWeight="bold">
-					Announcements History
-				</Text>
-				<History user={user} />
-			</Box>
-		</Box>
-	);
+  return <TabNavigationDisplay tabsData={tabsData} />;
 };
 
 export default Announcements;

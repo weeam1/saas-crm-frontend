@@ -1,62 +1,31 @@
-import { useNavigate } from 'react-router-dom';
-import { Box, SimpleGrid, Text, Icon, Flex } from '@chakra-ui/react';
-import { FaUniversity } from 'react-icons/fa';
-import { HiOutlineDocumentReport } from 'react-icons/hi';
-import { PiBuildingsBold } from 'react-icons/pi';
-
+import BankAccounts from '../bankAccountsV2/index';
+import InvoiceDevelopers from '../developers/index';
+import TabNavigationDisplay from '../../../components/TabNavigationDisplay/TabNavigationDisplay';
 const InvoiceModule = () => {
-	const navigate = useNavigate();
 	const user = JSON.parse(localStorage.getItem('user'));
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	const menuItems = [
+	const tabsData = [
 		{
-			label: 'Developers',
-			icon: PiBuildingsBold,
-			route: `/invoice/developers`,
+		  label: "Developers",
+		  title: "Developer Information",
+		  description:
+			"View essential details about developers including their names, contact emails, and city locations.",
+		  component: <BankAccounts />,
 		},
 		{
-			label: 'Bank Accounts',
-			icon: FaUniversity,
-			route: `/invoice/bank-accounts`,
+		  label: "Bank Accounts",
+		  title: "Developer Bank Details",
+		  description:
+			"Access bank account information for developers including account names, numbers, IBANs, Swift codes, and associated bank details.",
+		  component: <InvoiceDevelopers />,
 		},
-	];
-
+	  ];
 	return (
-		<Box p={4}>
-			<Flex align='center' mb={4} p='4' bg='white' borderRadius='lg'>
-				<Icon
-					as={HiOutlineDocumentReport}
-					boxSize={6}
-					color='brand.500'
-					mr={2}
-				/>
-				<Text fontSize='2xl' fontWeight='bold'>
-					Invoice Management
-				</Text>
-			</Flex>
-
-			<SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
-				{menuItems.map((item) => (
-					<Box
-						key={item.label}
-						p={6}
-						bg='white'
-						borderRadius='lg'
-						textAlign='center'
-						cursor='pointer'
-						_hover={{ bg: 'brand.400', color: 'white' }}
-						onClick={() => navigate(item.route)}
-					>
-						<Icon as={item.icon} boxSize={8} mb={2} />
-						<Text fontSize='md' fontWeight='bold'>
-							{item.label}
-						</Text>
-					</Box>
-				))}
-			</SimpleGrid>
-		</Box>
+	<>
+	   <TabNavigationDisplay tabsData={tabsData} />
+	</>
 	);
 };
 

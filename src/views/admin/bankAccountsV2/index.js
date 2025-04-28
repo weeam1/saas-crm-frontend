@@ -5,9 +5,7 @@ import Pagination from './components/Pagination';
 import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import { Box, useBreakpointValue } from '@chakra-ui/react';
 import CustomSearchInput from './components/Search';
-import AppButton from 'components/shared/AppButton';
-import { IoArrowBack } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+
 
 export default function Index() {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -145,19 +143,9 @@ export default function Index() {
 	if (searchError || fetchError) {
 		console.error('Error:', searchError || fetchError);
 	}
-
-	const navigate = useNavigate();
-
 	return (
 		<Box>
-			<AppButton
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/invoice')}
-				mb='4'
-			>
-				Back
-			</AppButton>
-			<Box bg='white' borderRadius='8px' minHeight='100vh'>
+			<Box bg='white' borderRadius='0px' minHeight='100vh' mt={"-1.3%"} ml={"-0.3%"}>
 				<Header
 					accountCount={totalLeads}
 					onAdd={handleAdd}

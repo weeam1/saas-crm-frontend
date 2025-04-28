@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Table,
@@ -157,15 +157,15 @@ export default function CallHistory() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const loadCalls = async (page) => {
+  const loadCalls = async (page, pageSize) => {
     try {
       setLoading(true);
       const data = await fetchCallHistoryData(page, pageSize);
       setCalls(data.data || []);
-      setTotalItems(data.page_size);
-      setTotalPages(
-        data.totalPages || Math.ceil((data.total_pages || 0) / pageSize)
-      );
+      setTotalItems(data.total_records);
+      setTotalPages(data.total_pages);
+      setPage(data.page);
+      setPageSize(data.page_size);
     } catch (err) {
       setError("Failed to fetch call history");
     } finally {
@@ -174,19 +174,18 @@ export default function CallHistory() {
   };
 
   useEffect(() => {
-    loadCalls(page);
+    loadCalls(page, pageSize);
   }, [page, pageSize]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
-  };
-
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
-    setPage(1);
-  };
+  }, []);
+  
+  const handlePageSizeChange = useCallback((e) => {
+    setPageSize(e.target.value);
+  }, []);
   const borderColor = useColorModeValue("gray.200", "gray.700");
-
+  console.log("totalPages", totalPages);
   return (
     <Box
       overflowX="auto"
