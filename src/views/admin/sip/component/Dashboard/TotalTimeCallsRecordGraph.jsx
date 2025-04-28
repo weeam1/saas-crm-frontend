@@ -146,7 +146,7 @@ export default function TotalTimeCallsRecordGraph() {
   }, [days]);
 
   return (
-    <Box p={4} bg={bgColor} borderRadius="md" maxW="auto" mx={2} my={4}>
+    <Box p={4} bg={bgColor} borderRadius="md" maxW="auto" mx={2} mt={"-15px"} ml={"-7px"}>
       <Flex justify="space-between" align="center" mb={8}>
         <Heading size="lg" fontWeight="bold">
           Total Time and Calls

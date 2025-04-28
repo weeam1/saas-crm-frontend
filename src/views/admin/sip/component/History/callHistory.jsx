@@ -193,9 +193,10 @@ export default function CallHistory() {
       borderWidth="1px"
       borderColor={borderColor}
       borderRadius="md"
-      my={4}
       bg="white"
       p={3}
+      mt={"-15.5px"}
+      ml={"-5px"}
     >
       <Pagination
         currentPage={page}
@@ -242,6 +243,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call Id
                 </Th>
@@ -253,6 +255,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call date
                 </Th>
@@ -264,6 +267,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call Mode
                 </Th>
@@ -275,6 +279,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call from
                 </Th>
@@ -286,6 +291,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call to
                 </Th>
@@ -297,6 +303,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Recording
                 </Th>
@@ -308,6 +315,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Type
                 </Th>
@@ -319,6 +327,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Call Duration
                 </Th>
@@ -330,6 +339,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Talk Duration
                 </Th>
@@ -341,6 +351,7 @@ export default function CallHistory() {
                   fontWeight="500"
                   color="gray.700"
                   textTransform={"capitalize"}
+                  textAlign={"center"}
                 >
                   Status
                 </Th>
@@ -354,10 +365,17 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.uniqueid ? call.uniqueid : "no data found"}
                   </Td>
-                  <Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     {call.calldate
                       ? moment(call.calldate).format("MM/DD/YYYY hh:mmA")
                       : "no data found"}
@@ -367,6 +385,7 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.call_mode ? call.call_mode : "no data found"}
                   </Td>
@@ -375,6 +394,7 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.call_from ? call.call_from : "no data found"}
                   </Td>
@@ -383,6 +403,7 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.call_to ? call.call_to : "no data found"}
                   </Td>
@@ -391,6 +412,7 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.recording ? (
                       <AudioPlayer
@@ -407,6 +429,7 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     {call.lastapp ? call.lastapp : "no data found"}
                   </Td>
@@ -415,22 +438,25 @@ export default function CallHistory() {
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
-                    {call.duration ? call.duration : "no data found"}
+                    {call.duration ? `${call.duration} sec` : "no data found"}
                   </Td>
                   <Td
                     py={4}
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
-                    {call.billsec ? call.billsec : "no data found"}
+                    {call.billsec ? `${call.billsec} sec` : "no data found"}
                   </Td>
                   <Td
                     py={4}
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
                     minWidth="100px"
+                    textAlign={"center"}
                   >
                     <StatusBadge status={call.disposition} />
                   </Td>
