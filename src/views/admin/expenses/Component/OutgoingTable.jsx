@@ -35,7 +35,7 @@ import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
 import Loader from "components/loading/Loader";
-
+import TableLoading from "components/loading/TableLoading";
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -53,6 +53,15 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [OpenExpenseInputModalData, setOpenExpenseInputModalData] =
     useState(null);
 
+  const columns = [
+    "Date",
+    "Number",
+    "Type",
+    "Description",
+    "Added By",
+    "Amount",
+    "Action",
+  ];
   const [updateItemMuation] = useUpdateItemMutation();
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize.target.value);
@@ -176,10 +185,11 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      borderRadius="md"
       boxShadow="sm"
       bg="white"
       px={2}
+      mt={"-1.3%"}
+      ml={"-0.3%"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -240,86 +250,28 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             borderRadius="lg"
           >
             <Tr>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Date
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Number
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Type
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Description
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Added By
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Amount
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Action
-              </Th>
+              {columns.map((header, index) => (
+                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                    >
+                      {header}
+                    </Text>
+                  </Box>
+                </Th>
+              ))}
             </Tr>
           </Thead>
-          {(!isLoading && !isFetching) && (
+          {isLoading && isFetching ? (
+            <TableLoading columns={columns} length={7} py="4" />
+          ) : (
             <Tbody>
               {data &&
                 data.doc.map((row, index) => (
@@ -422,21 +374,12 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             </Tbody>
           )}
         </Table>
-        {(!isLoading && !isFetching) && data?.doc?.length === 0 && (
+        {!isLoading && !isFetching && data?.doc?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6}>
             No expenses found.
           </Text>
         )}
-        {(isLoading || isFetching) && (
-          <Box
-            display={"flex"}
-            justifyContent={"center"}
-            justifyItems={"center"}
-            py={4}
-          >
-            <Loader />
-          </Box>
-        )}
+
       </Box>
       <AddOutgoingPaymentModal
         isOpen={isModalOpen}

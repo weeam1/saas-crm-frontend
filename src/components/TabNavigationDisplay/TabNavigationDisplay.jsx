@@ -16,14 +16,18 @@ const TabNavigationDisplay = ({ tabsData }) => {
       <TabPanels>
         {tabsData.map((tab, index) => (
           <TabPanel key={index}>
-            <Box py={3} px={5} bg="white" borderRadius="10px" shadow="sm">
-              <Heading size="lg" mb={4}>
-                {tab.title}
-              </Heading>
-              <Text fontSize="md" color="gray.600" mb={6}>
-                {tab.description}
-              </Text>
-            </Box>
+            {tab.title || tab.description ? (
+              <Box py={3} px={5} bg="white" borderRadius="10px" shadow="sm">
+                <Heading size="lg" mb={4}>
+                  {tab.title}
+                </Heading>
+                <Text fontSize="md" color="gray.600" mb={6}>
+                  {tab.description}
+                </Text>
+              </Box>
+            ) : (
+              ""
+            )}
           </TabPanel>
         ))}
       </TabPanels>

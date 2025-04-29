@@ -29,11 +29,11 @@ import OutgoingTable from "./Component/OutgoingTable";
 import { useFetchItemsQuery } from "api/apiSlice";
 import { CalendarIcon, CloseIcon } from "@chakra-ui/icons";
 import moment from "moment";
-
+import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
 const Expenses = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const [month, setMonth] = useState(moment().format("M"));
-  const[selectionMonth, setSelectionMonth] = useState(moment().format("M"));
+  const [selectionMonth, setSelectionMonth] = useState(moment().format("M"));
   const [year, setYear] = useState(moment().format("YYYY"));
   const [selectionYear, setSelectionYear] = useState(moment().format("YYYY"));
   const [activeTab, setActiveTab] = useState(0);
@@ -61,73 +61,73 @@ const Expenses = () => {
       .format("MMMM");
   };
 
-  const HandlerDateFilter = () =>{
+  const HandlerDateFilter = () => {
     if (month && year) {
       setSelectionMonth(month);
       setSelectionYear(year);
       onClose();
-      refetch(); 
+      refetch();
     }
+  };
 
-  }
+  const tabsData = [
+    {
+      label: "Incoming Cash",
+      component: (
+        <IncomingTable
+          month={selectionMonth}
+          year={selectionYear}
+          refetchSummary={refetch}
+        />
+      ),
+    },
+    {
+      label: "Outgoing Cash",
+
+      component: (
+        <OutgoingTable
+          month={selectionMonth}
+          year={selectionYear}
+          refetchSummary={refetch}
+        />
+      ),
+    },
+  ];
+
   return (
     <Box>
-      <Tabs variant="goldenrod" index={activeTab} onChange={handleTabChange}>
-        <TabList gap={3} mx={3} display={"flex"} justifyContent="space-between">
-          <Box display={"flex"} gap={3}>
-            <Tab
-              _selected={{ bg: "#B79045", color: "white" }}
-              bg={"white"}
-              borderRadius={10}
-            >
-              Incoming Cash
-            </Tab>
-            <Tab
-              _selected={{ bg: "#B79045", color: "white" }}
-              bg={"white"}
-              borderRadius={10}
-            >
-              Outgoing Cash
-            </Tab>
+      <Box display={"flex"} justifyContent={"flex-end"} mr={"15px"}>
+        <HStack>
+          <Box
+            display={"flex"}
+            alignItems={"center"}
+            gap={1}
+            px={2}
+            py={1}
+            borderRadius={"10px"}
+            border={"1px solid #D5D9DD"}
+            cursor={"pointer"}
+            onClick={onOpen}
+          >
+            <IconButton
+              icon={<CalendarIcon />}
+              aria-label="Open date filter"
+              color={"lightgray"}
+              bg={"transparent"}
+              _hover={"transparent"}
+              _focus={"transparent"}
+              size="sm"
+            />
+            <Text color={"lightgray"}>
+              {selectionMonth && selectionYear && getMonthName(selectionMonth)}{" "}
+              {selectionYear}
+            </Text>
           </Box>
-          <Box>
-            <HStack>
-              <Box
-                display={"flex"}
-                alignItems={"center"}
-                gap={1}
-                px={2}
-                py={1}
-                borderRadius={"10px"}
-                border={"1px solid #D5D9DD"}
-                cursor={"pointer"}
-                onClick={onOpen}
-              >
-                <IconButton
-                  icon={<CalendarIcon />}
-                  aria-label="Open date filter"
-                  color={"lightgray"}
-                  bg={"transparent"}
-                  _hover={"transparent"}
-                  _focus={"transparent"}
-                  size="sm"
-                />
-                <Text color={"lightgray"}>
-                  {selectionMonth && selectionYear && getMonthName(selectionMonth)} {selectionYear}
-                </Text>
-              </Box>
-            </HStack>
-          </Box>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <IncomingTable month={selectionMonth} year={selectionYear}  refetchSummary= {refetch}/>
-          </TabPanel>
-          <TabPanel>
-            <OutgoingTable month={selectionMonth} year={selectionYear} refetchSummary= {refetch}/>
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+        </HStack>
+      </Box>
+      <Box mt={"-4%"}>
+        <TabNavigationDisplay tabsData={tabsData} />
+      </Box>
       <Flex justifyContent={"end"} mx={4}>
         <Box
           p={1}

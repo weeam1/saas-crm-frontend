@@ -22,7 +22,8 @@ import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
 import Loader from "components/loading/Loader";
-
+import TableLoading from "components/loading/TableLoading";
+import { ca } from "date-fns/locale";
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
 
@@ -156,7 +157,18 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const columns = [
+    "Call id",
+    "Call date",
+    "Call Mode",
+    "Call from",
+    "Call to",
+    "Recording",
+    "Type",
+    "Call Duration",
+    "Talk Duration",
+    "Status",
+  ];
   const loadCalls = async (page, pageSize) => {
     try {
       setLoading(true);
@@ -228,131 +240,30 @@ export default function CallHistory() {
             borderRadius="lg"
           >
             <Tr>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call Id
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call date
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call Mode
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call from
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call to
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Recording
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Type
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Call Duration
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Talk Duration
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-                textAlign={"center"}
-              >
-                Status
-              </Th>
+              {columns.map((header, index) => (
+                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                    >
+                      {header}
+                    </Text>
+                  </Box>
+                </Th>
+              ))}
             </Tr>
           </Thead>
-          {!loading && (
-            <Tbody>
-              {calls.map((call) => (
+          <Tbody>
+            {loading ? (
+              <TableLoading columns={columns} length={10} py="4" />
+            ) : (
+              calls.map((call) => (
                 <Tr key={call.id}>
                   <Td
                     py={4}
@@ -455,24 +366,14 @@ export default function CallHistory() {
                     <StatusBadge status={call.disposition} />
                   </Td>
                 </Tr>
-              ))}
-            </Tbody>
-          )}
+              ))
+            )}
+          </Tbody>
         </Table>
         {!loading && calls?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6}>
             No call history found.
           </Text>
-        )}
-        {loading && (
-          <Box
-            display={"flex"}
-            justifyContent={"center"}
-            justifyItems={"center"}
-            py={4}
-          >
-            <Loader />
-          </Box>
         )}
       </Box>
     </Box>

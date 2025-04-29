@@ -199,13 +199,6 @@ const Developers = () => {
 
 	return (
 		<Box>
-			<AppButton
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/invoice')}
-				mb='4'
-			>
-				Back
-			</AppButton>
 			<Grid
 				fontFamily="'DM Sans', sans-serif"
 				templateColumns='repeat(6, 1fr)'

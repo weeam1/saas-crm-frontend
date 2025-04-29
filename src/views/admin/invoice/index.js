@@ -1,5 +1,5 @@
 import BankAccounts from "../bankAccountsV2/index";
-import InvoiceDevelopers from "../developers/index";
+import InvoiceDevelopers from "./developers/index";
 import TabNavigationDisplay from "../../../components/TabNavigationDisplay/TabNavigationDisplay";
 const InvoiceModule = () => {
   const user = JSON.parse(localStorage.getItem("user"));

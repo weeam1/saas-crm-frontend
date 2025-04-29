@@ -5,7 +5,7 @@ const Announcements = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const tabsData = [
     {
-      label: "Dashboard",
+      label: "Announcement",
       title: "Create New Announcement",
       description:
         "Quickly create and publish new announcements to keep everyone informed and updated.",
