@@ -48,10 +48,10 @@ const Header = () => {
 		<Box
 			mb={8}
 			mt='-15px'
-			h={{ base: 'auto', md: '270px' }}
+			// h={{ base: 'auto', md: '270px' }}
 			w='100%'
 			px={{ base: 6, md: 10 }}
-			py={4}
+			py={6}
 			bg='white'
 			backgroundSize='cover'
 			backgroundPosition='center'

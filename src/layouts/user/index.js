@@ -163,15 +163,15 @@ export default function User(props) {
 			parentName: 'Attendance',
 			component: MyAttendance,
 		},
-		{
-			name: 'HR Module',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/hrmodule',
-			icon: (
-				<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
-			),
-			component: HRModule,
-		},
+		// {
+		// 	name: 'HR Module',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/hrmodule',
+		// 	icon: (
+		// 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: HRModule,
+		// },
 
 		{
 			name: 'Leads Pool',
@@ -189,15 +189,15 @@ export default function User(props) {
 			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 			component: SignInCentered,
 		},
-		{
-			name: 'Points',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/points',
-			icon: (
-				<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
-			),
-			component: CurrencyPoints,
-		},
+		// {
+		// 	name: 'Points',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/points',
+		// 	icon: (
+		// 		<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: CurrencyPoints,
+		// },
 	];
 
 	if (user?.roles[0]?.roleName === 'Manager') {
@@ -453,14 +453,8 @@ export default function User(props) {
 			},
 		];
 
-		console.log('ACCOUNT ROUTES');
-
 		routes = accountantRoutes;
-
-		console.log({ accountantRoutes });
 	}
-
-	console.log({ routes });
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
