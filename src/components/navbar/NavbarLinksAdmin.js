@@ -25,7 +25,13 @@ import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import jwtDecode from 'jwt-decode';
 import { useSelector } from 'react-redux';
-import { MoonIcon, SunIcon, BellIcon, TimeIcon } from '@chakra-ui/icons';
+import {
+	MoonIcon,
+	SunIcon,
+	BellIcon,
+	TimeIcon,
+	ChevronDownIcon,
+} from '@chakra-ui/icons';
 import { Box } from '@chakra-ui/react';
 import webSocketService from 'services/WebSocketService';
 
@@ -203,33 +209,40 @@ export default function HeaderLinks(props) {
 				<DigitalClockDropdown />
 
 				<Menu style={{ zIndex: 99999 }}>
-					<MenuButton p='0px'>
-						{/* <Avatar
-						_hover={{ cursor: "pointer" }}
-						color="white"
-						name={user || "User"}
-						bg="brand.500"
-						size="sm"
-						w="40px"
-						h="40px"
-						mx={1}
-					/> */}
-						<Avatar
-							_hover={{ cursor: 'pointer' }}
-							color={loginUser?.profileImage ? '#333' : 'white'}
-							name={user || 'User'}
-							bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
-							size='sm'
-							w='40px'
-							h='40px'
-							mx={1}
-							shadow='md'
-							src={
-								loginUser?.profileImage
-									? `${constant['baseUrl']}${loginUser?.profileImage}`
-									: ''
-							}
-						/>
+					<MenuButton
+						p='1px'
+						_hover={{ backgroundColor: 'gray.100', rounded: 'full' }}
+					>
+						<HStack spacing='10px' pr='4'>
+							<Avatar
+								size='sm'
+								w='40px'
+								h='40px'
+								name={loginUser?.firstName || 'User'}
+								src={
+									loginUser?.profileImage
+										? `${constant['baseUrl']}${loginUser.profileImage}`
+										: ''
+								}
+								bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
+								color={loginUser?.profileImage ? '#333' : 'white'}
+								shadow='md'
+								_hover={{ cursor: 'pointer' }}
+							/>
+							{loginUser?.firstName && (
+								<>
+									<Text
+										fontWeight='medium'
+										display={{ base: 'none', md: 'block' }}
+										isTruncated={true}
+										maxWidth='200px'
+									>
+										👋 Hey, {loginUser?.firstName || 'User'}
+									</Text>
+									<Icon as={ChevronDownIcon} w={5} h={5} />
+								</>
+							)}
+						</HStack>
 					</MenuButton>
 
 					<MenuList
@@ -240,7 +253,7 @@ export default function HeaderLinks(props) {
 						bg={menuBg}
 						border='none'
 					>
-						<Flex w='100%' mb='0px'>
+						{/* <Flex w='100%' mb='0px'>
 							<Text
 								ps='20px'
 								pt='16px'
@@ -255,7 +268,7 @@ export default function HeaderLinks(props) {
 							>
 								👋&nbsp; Hey, {user}
 							</Text>
-						</Flex>
+						</Flex> */}
 
 						<Flex flexDirection='column' p='10px'>
 							<MenuItem

@@ -4,11 +4,11 @@ import { leadlabelFontSize, leadValueFontSize } from '../constants';
 const LeadTypeBadge = ({ leadType, roleName }) => {
 	const badgeDetails = {
 		leadpool: { role: ['Agent', 'Manager'], color: 'green', text: 'Pool' },
-		release: {
-			role: ['Manager', 'superAdmin'],
-			color: 'pink',
-			text: 'Release',
-		},
+		// release: {
+		// 	role: ['Manager', 'superAdmin'],
+		// 	color: 'pink',
+		// 	text: 'Release',
+		// },
 		new: {
 			role: ['Manager', 'Agent', 'superAdmin'],
 			color: 'brand',
