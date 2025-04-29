@@ -236,6 +236,7 @@ export default function HeaderLinks(props) {
 										display={{ base: 'none', md: 'block' }}
 										isTruncated={true}
 										maxWidth='200px'
+										color='brand.500'
 									>
 										👋 Hey, {loginUser?.firstName || 'User'}
 									</Text>

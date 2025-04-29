@@ -52,7 +52,8 @@ const Header = () => {
 			w='100%'
 			px={{ base: 6, md: 10 }}
 			py={6}
-			bg='white'
+			// bg='white'
+			bg='linear-gradient(90deg, #EDD199 0%, rgb(221, 184, 92) 100%)'
 			backgroundSize='cover'
 			backgroundPosition='center'
 			backgroundBlendMode='overlay'
@@ -74,7 +75,7 @@ const Header = () => {
 			{/* Main Heading */}
 			<Heading
 				fontSize={{ base: '2xl', md: '4xl', lg: '5xl' }}
-				color='brand.500'
+				color='gray.800'
 				fontWeight='semibold'
 			>
 				Weeam Real Estate CRM
@@ -83,7 +84,7 @@ const Header = () => {
 			{/* Subtext */}
 			<Text
 				fontSize={{ base: 'sm', md: 'md' }}
-				color='gray.500'
+				color='gray.700'
 				ml='2'
 				fontWeight='normal'
 			>

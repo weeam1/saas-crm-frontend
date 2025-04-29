@@ -34,6 +34,7 @@ import DashboardStatCards from './components/DashboardStatCards';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import ReportChart from './components/ReportChart';
+import TodaySummary from './components/TodaySummary';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -113,6 +114,15 @@ export default function UserReports() {
 			skip: !userRole === 'superAdmin',
 		}
 	);
+
+	const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
+		useFetchItemsQuery(
+			{ path: '/dashboard/today_summary' },
+			{
+				refetchOnMountOrArgChange: true,
+				skip: !userRole === 'superAdmin',
+			}
+		);
 
 	// const fetchTasks = async () => {
 	// 	let taskData;
@@ -264,20 +274,18 @@ export default function UserReports() {
 		},
 	];
 
-	return isLoading ? (
+	return isLoading || todaySummaryLoading ? (
 		<Loader />
 	) : (
-		<>
+		<Box fontFamily="'DM Sans', sans-serif">
 			<Header />
 			{userRole === 'superAdmin' && (
 				<>
+					<TodaySummary summary={todaySummary?.summary} />
+
 					<DashboardStatCards colorMode={colorMode} stats={stats} />
 
-					<Grid Grid templateColumns='repeat(12, 1fr)' gap={3}>
-						<GridItem rowSpan={2} colSpan={{ base: 12, md: 12 }}>
-							<ReportChart stats={stats} />
-						</GridItem>
-					</Grid>
+					<ReportChart stats={stats} />
 				</>
 			)}
 
@@ -1000,6 +1008,6 @@ export default function UserReports() {
 						))}
 				</Card>
 			</SimpleGrid>
-		</>
+		</Box>
 	);
 }

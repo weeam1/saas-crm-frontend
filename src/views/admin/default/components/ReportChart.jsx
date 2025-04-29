@@ -44,15 +44,15 @@ const ReportChart = ({ stats }) => {
 	);
 
 	return (
-		<Card>
+		<Box bg='white' p={6} borderRadius='2xl'>
 			<Flex mb={5} alignItems={'center'} justifyContent={'space-between'}>
 				<Heading size='md'>Report</Heading>
 			</Flex>
-			<Box mb={3}>
+			{/* <Box mb={3}>
 				<HSeparator />
-			</Box>
+			</Box> */}
 			<Chart dashboard={'dashboard'} data={data} />
-		</Card>
+		</Box>
 	);
 };
 
