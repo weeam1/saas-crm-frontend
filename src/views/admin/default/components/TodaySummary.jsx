@@ -6,6 +6,7 @@ import {
 	MdShoppingBag,
 	MdPersonAdd,
 } from 'react-icons/md';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 
 const TodaySummary = ({ summary }) => {
 	const data = useMemo(
@@ -60,6 +61,10 @@ const TodaySummary = ({ summary }) => {
 };
 
 const SummaryCard = ({ icon, value, label, percentChange, colorScheme }) => {
+	const isPositive = percentChange >= 0;
+	const arrowIcon = isPositive ? TriangleUpIcon : TriangleDownIcon;
+	const percentColor = isPositive ? `${colorScheme}.500` : 'red.500';
+
 	return (
 		<Box
 			bg={`${colorScheme}.100`}
@@ -77,7 +82,15 @@ const SummaryCard = ({ icon, value, label, percentChange, colorScheme }) => {
 			<Text color='gray.800' fontWeight='medium'>
 				{label}
 			</Text>
-			<Text
+
+			<Flex align='center' mt={2}>
+				<Icon as={arrowIcon} color={percentColor} boxSize={4} mr={1} />
+				<Text color={percentColor} fontWeight='semibold' fontSize='sm'>
+					{isPositive ? `+${percentChange}%` : `${percentChange}%`} from
+					yesterday
+				</Text>
+			</Flex>
+			{/* <Text
 				color={`${percentChange >= 0 ? `${colorScheme}.500` : 'red.500'}`}
 				fontWeight='semibold'
 				fontSize='sm'
@@ -85,7 +98,7 @@ const SummaryCard = ({ icon, value, label, percentChange, colorScheme }) => {
 			>
 				{percentChange >= 0 ? `+${percentChange}%` : `${percentChange}%`} from
 				yesterday
-			</Text>
+			</Text> */}
 		</Box>
 	);
 };

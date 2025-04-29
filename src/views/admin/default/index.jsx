@@ -35,6 +35,8 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import ReportChart from './components/ReportChart';
 import TodaySummary from './components/TodaySummary';
+import LeadStatusTable from './components/LeadStatusStats';
+import LeadStatusStats from './components/LeadStatusStats';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -118,6 +120,15 @@ export default function UserReports() {
 	const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
 		useFetchItemsQuery(
 			{ path: '/dashboard/today_summary' },
+			{
+				refetchOnMountOrArgChange: true,
+				skip: !userRole === 'superAdmin',
+			}
+		);
+
+	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
+		useFetchItemsQuery(
+			{ path: '/dashboard/leads/leadStatus_stats' },
 			{
 				refetchOnMountOrArgChange: true,
 				skip: !userRole === 'superAdmin',
@@ -274,7 +285,7 @@ export default function UserReports() {
 		},
 	];
 
-	return isLoading || todaySummaryLoading ? (
+	return isLoading || todaySummaryLoading || leadStatusLoading ? (
 		<Loader />
 	) : (
 		<Box fontFamily="'DM Sans', sans-serif">
@@ -288,6 +299,8 @@ export default function UserReports() {
 					<ReportChart stats={stats} />
 				</>
 			)}
+
+			<LeadStatusStats doc={leadStatusData?.doc} />
 
 			<Grid
 				Grid
