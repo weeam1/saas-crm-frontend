@@ -6,7 +6,7 @@ import { constant } from 'constant';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
-
+// lead pool for agent
 const Index = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const location = useLocation();

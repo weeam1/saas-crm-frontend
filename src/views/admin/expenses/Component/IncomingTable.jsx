@@ -28,7 +28,7 @@ import { toast } from "react-toastify";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../developers/components/Pagination";
-import Loader from "components/loading/Loader";
+import TableLoading from "components/loading/TableLoading";
 
 const IncomingTable = ({ month, year, refetchSummary }) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -42,6 +42,16 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [deleteItemMutation] = useDeleteItemMutation();
+  const columns = [
+    "Date",
+    "developer",
+    "Email",
+    "TRN",
+    "Agency",
+    "country",
+    "Amount",
+    "Action",
+  ];
 
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize.target.value);
@@ -129,10 +139,11 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      borderRadius="md"
       boxShadow="sm"
       bg="white"
       px={2}
+      mt={"-1.3%"}
+      ml={"-0.3%"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -193,97 +204,28 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
             borderRadius="lg"
           >
             <Tr>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Date
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                developer
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Email
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                TRN
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Agency
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                country
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Amount
-              </Th>
-              <Th
-                bg="brand.200"
-                whiteSpace="nowrap"
-                py={4}
-                fontSize={{ base: "12px", md: "14px" }}
-                fontWeight="500"
-                color="gray.700"
-                textTransform={"capitalize"}
-              >
-                Action
-              </Th>
+              {columns.map((header, index) => (
+                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                    >
+                      {header}
+                    </Text>
+                  </Box>
+                </Th>
+              ))}
             </Tr>
           </Thead>
-          {(!isLoading && !isFetching) && (
+          {isLoading && isFetching ? (
+            <TableLoading columns={columns} length={8} py="4" />
+          ) : (
             <Tbody>
               {data &&
                 data.doc.map((row, index) => (
@@ -293,6 +235,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.createdAt
                         ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
@@ -303,6 +246,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row?.developer?.developer_name
                         ? row.developer.developer_name
@@ -313,6 +257,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row?.developer?.email
                         ? row.developer.email
@@ -323,6 +268,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row?.developer?.trn
                         ? row.developer.trn
@@ -333,6 +279,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row?.agency?.name ? row.agency.name : "no data Found"}
                     </Td>
@@ -341,6 +288,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row?.developer?.country
                         ? row.developer.country
@@ -351,6 +299,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.totalAmount ? row.totalAmount : "no data Found"}
                     </Td>
@@ -360,6 +309,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
                       fontWeight="400"
                       minWidth="100px"
                       display={"flex"}
+                      justifyContent={"center"}
                     >
                       <IconButton
                         aria-label="Edit"
@@ -400,21 +350,12 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           )}
         </Table>
 
-        {(!isLoading && !isFetching) && data?.doc?.length === 0 && (
+        {!isLoading && !isFetching && data?.doc?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6} my={6}>
             No expenses found.
           </Text>
         )}
-        {(isLoading || isFetching) && (
-          <Box
-            display={"flex"}
-            justifyContent={"center"}
-            justifyItems={"center"}
-            py={4}
-          >
-            <Loader />
-          </Box>
-        )}
+
       </Box>
 
       {/* Agency Filter Modal */}

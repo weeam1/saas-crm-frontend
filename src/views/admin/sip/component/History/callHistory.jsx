@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Table,
@@ -11,7 +11,6 @@ import {
   Flex,
   IconButton,
   Badge,
-  Spinner,
   useColorModeValue,
   Slider,
   SliderTrack,
@@ -22,7 +21,9 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
-
+import Loader from "components/loading/Loader";
+import TableLoading from "components/loading/TableLoading";
+import { ca } from "date-fns/locale";
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
 
@@ -156,16 +157,27 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const loadCalls = async (page) => {
+  const columns = [
+    "Call id",
+    "Call date",
+    "Call Mode",
+    "Call from",
+    "Call to",
+    "Recording",
+    "Type",
+    "Call Duration",
+    "Talk Duration",
+    "Status",
+  ];
+  const loadCalls = async (page, pageSize) => {
     try {
       setLoading(true);
       const data = await fetchCallHistoryData(page, pageSize);
       setCalls(data.data || []);
-      setTotalItems(data.page_size);
-      setTotalPages(
-        data.totalPages || Math.ceil((data.total_pages || 0) / pageSize)
-      );
+      setTotalItems(data.total_records);
+      setTotalPages(data.total_pages);
+      setPage(data.page);
+      setPageSize(data.page_size);
     } catch (err) {
       setError("Failed to fetch call history");
     } finally {
@@ -174,19 +186,18 @@ export default function CallHistory() {
   };
 
   useEffect(() => {
-    loadCalls(page);
+    loadCalls(page, pageSize);
   }, [page, pageSize]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
-  };
+  }, []);
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
+  const handlePageSizeChange = useCallback((e) => {
+    setPageSize(e.target.value);
     setPage(1);
-  };
+  }, []);
   const borderColor = useColorModeValue("gray.200", "gray.700");
-
   return (
     <Box
       overflowX="auto"
@@ -209,156 +220,50 @@ export default function CallHistory() {
         refetching={loading}
         loading={loading}
       />
-      {loading ? (
-        <Flex justify="center" py={6}>
-          <Spinner size="lg" />
-        </Flex>
-      ) : error ? (
-        <Text color="red.500">{error}</Text>
-      ) : (
-        <Box
-          borderRadius="lg"
-          boxShadow="sm"
-          bg="white"
-          maxH={"calc(70vh - 100px)"}
-          overflowY="auto"
-          mt={3}
-        >
-          <Table variant="striped" size="sm" bg="white">
-            <Thead
-              position="sticky"
-              top={0}
-              bg="white"
-              zIndex={2}
-              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-              fontSize={"16px"}
-              borderRadius="lg"
-            >
-              <Tr>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call Id
+
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH={"calc(70vh - 100px)"}
+        overflowY="auto"
+        mt={3}
+      >
+        <Table variant="striped" size="sm" bg="white">
+          <Thead
+            position="sticky"
+            top={0}
+            bg="white"
+            zIndex={2}
+            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+            fontSize={"16px"}
+            borderRadius="lg"
+          >
+            <Tr>
+              {columns.map((header, index) => (
+                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                    >
+                      {header}
+                    </Text>
+                  </Box>
                 </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call date
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call Mode
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call from
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call to
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Recording
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Type
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Call Duration
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Talk Duration
-                </Th>
-                <Th
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="500"
-                  color="gray.700"
-                  textTransform={"capitalize"}
-                  textAlign={"center"}
-                >
-                  Status
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {calls.map((call) => (
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {loading ? (
+              <TableLoading columns={columns} length={10} py="4" />
+            ) : (
+              calls.map((call) => (
                 <Tr key={call.id}>
                   <Td
                     py={4}
@@ -461,11 +366,16 @@ export default function CallHistory() {
                     <StatusBadge status={call.disposition} />
                   </Td>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
-      )}
+              ))
+            )}
+          </Tbody>
+        </Table>
+        {!loading && calls?.length === 0 && (
+          <Text textAlign="center" color="gray.500" py={6}>
+            No call history found.
+          </Text>
+        )}
+      </Box>
     </Box>
   );
 }

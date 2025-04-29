@@ -9,7 +9,7 @@ import { getUserNameById } from 'utils';
 import { useSelector } from 'react-redux';
 import { sendLeadNotification } from 'api';
 import { formattedDate } from 'utils/helpers';
-
+// lead for admin 
 const LeadScreen = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const isSuperAdmin = user?.role === 'superAdmin';
