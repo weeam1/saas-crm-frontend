@@ -1,5 +1,3 @@
-// import Chart from 'react-apexcharts';
-
 import React, { useEffect, useRef, useCallback } from 'react';
 
 import {
@@ -12,79 +10,6 @@ import {
 	Legend,
 } from 'chart.js';
 import { Box, Text } from '@chakra-ui/react';
-
-import 'chartjs-plugin-datalabels';
-
-// const LeadStatusStats = ({ data }) => {
-// 	const series = [
-// 		{
-// 			name: 'Leads',
-// 			data: data.map((item) => ({
-// 				x: item.label,
-// 				y: item.value,
-// 				fillColor: item.bgColor,
-// 			})),
-// 		},
-// 	];
-
-// 	const options = {
-// 		chart: {
-// 			type: 'bar',
-// 			height: 400,
-// 			toolbar: { show: false },
-// 			animations: {
-// 				enabled: true,
-// 				easing: 'easeinout',
-// 				speed: 800,
-// 			},
-// 		},
-// 		plotOptions: {
-// 			bar: {
-// 				horizontal: false,
-// 				distributed: true,
-// 				columnWidth: '55%',
-// 				dataLabels: {
-// 					position: 'top',
-// 				},
-// 			},
-// 		},
-// 		dataLabels: {
-// 			enabled: true,
-// 			formatter: (val) => val,
-// 			offsetY: -20,
-// 			style: {
-// 				fontSize: '12px',
-// 				colors: ['#333'],
-// 				fontWeight: 'bold',
-// 			},
-// 		},
-// 		xaxis: {
-// 			categories: data.map((item) => item.label),
-// 			labels: {
-// 				rotate: -45,
-// 				style: {
-// 					fontSize: '12px',
-// 					fontWeight: 500,
-// 				},
-// 			},
-// 		},
-// 		yaxis: {
-// 			title: {
-// 				text: 'Lead Status',
-// 			},
-// 		},
-// 		tooltip: {
-// 			y: {
-// 				formatter: (val) => `${val} leads`,
-// 			},
-// 		},
-// 		fill: {
-// 			type: 'solid',
-// 		},
-// 	};
-
-// 	return <Chart options={options} series={series} type='bar' height={450} />;
-// };
 
 // Register Chart.js components
 Chart.register(
