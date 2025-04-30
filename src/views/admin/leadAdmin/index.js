@@ -9,7 +9,7 @@ import { getUserNameById } from 'utils';
 import { useSelector } from 'react-redux';
 import { sendLeadNotification } from 'api';
 import { formattedDate } from 'utils/helpers';
-// lead for admin 
+// lead for admin
 const LeadScreen = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const isSuperAdmin = user?.role === 'superAdmin';
@@ -203,7 +203,7 @@ const LeadScreen = () => {
 				setSearchedData(validatedData);
 				setTotalPages(result.data?.totalPages || 0);
 				setTotalLeads(result.data?.totalLeads || 0);
-				setCurrentPage(1);
+				setCurrentPage(page);
 
 				// Handle empty search results
 				if (validatedData.length === 0) {
@@ -276,7 +276,7 @@ const LeadScreen = () => {
 				setDisplayAdvSearchData(true);
 				setDisplaySearchData(false);
 				setSearchedData(validatedData);
-				setCurrentPage(1);
+				setCurrentPage(page);
 
 				setTotalPages(result.data?.totalPages || 0);
 				setTotalLeads(result.data?.totalLeads || 0);
