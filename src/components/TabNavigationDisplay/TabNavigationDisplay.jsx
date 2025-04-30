@@ -9,9 +9,9 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-const TabNavigationDisplay = ({ tabsData }) => {
+const TabNavigationDisplay = ({ tabsData, activeTab, onTabChange }) => {
   return (
-    <Tabs variant="goldenrod">
+    <Tabs variant="goldenrod" index={activeTab} onChange={onTabChange}>
       {/* Tab panels */}
       <TabPanels>
         {tabsData.map((tab, index) => (
@@ -40,8 +40,8 @@ const TabNavigationDisplay = ({ tabsData }) => {
               key={index}
               _selected={{
                 borderTop: "4px solid #B79045",
-                bg: "white",
-                fontWeight: "bold",
+                bg: "#EDD199",
+                fontWeight: "semi-bold",
                 color: "black",
                 outline: "none",
               }}
@@ -49,6 +49,7 @@ const TabNavigationDisplay = ({ tabsData }) => {
               bg="softGray.50"
               color="gray.500"
               _focus={{ outline: "none" }}
+              borderTop={"4px solid transparent"}
             >
               {tab.label}
             </Tab>

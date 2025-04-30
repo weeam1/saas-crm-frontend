@@ -34,8 +34,8 @@ import { toast } from "react-toastify";
 import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
-import Loader from "components/loading/Loader";
 import TableLoading from "components/loading/TableLoading";
+
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);

@@ -30,9 +30,9 @@ const Tabs = ({ activeTab, setActiveTab, isLoading }) => {
               key={tab}
               variant="unstyled"
               onClick={() => handleTabClick(tab)}
-              bg={activeTab === tab ? "white" : "softGray.50"}
+              bg={activeTab === tab ? "#EDD199" : "softGray.50"}
               color={activeTab === tab ? "black" : "gray.500"}
-              fontWeight={activeTab === tab ? "bold" : "normal"}
+              fontWeight={activeTab === tab ? "semi-bold" : "normal"}
               borderTop={
                 activeTab === tab
                   ? "4px solid #B79045"

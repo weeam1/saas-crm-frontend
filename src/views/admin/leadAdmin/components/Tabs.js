@@ -14,22 +14,26 @@ const Tabs = ({ activeTab, setActiveTab }) => {
 			>
 				{tabs.map((tab, index) => (
 					<Button
-						key={index}
-						variant="unstyled"
-						onClick={() => setActiveTab(tab)}
-						bg={activeTab === tab ? 'white' : 'softGray.50'}
-						color={activeTab === tab ? 'black' : 'gray.500'}
-						fontWeight={activeTab === tab ? 'bold' : 'normal'}
-						borderTop={activeTab === tab ? '4px solid #B79045' : '4px solid transparent'}
-						borderRadius="0"
-						h="42px"
-						minW="100px"
-						_focus={{ outline: 'none' }}
-						outline="none"
-						fontFamily="DM Sans"
-					>
-						{tab}
-					</Button>
+					key={index}
+					variant="unstyled"
+					onClick={() => setActiveTab(tab)}
+					bg={activeTab === tab ? "#EDD199" : "softGray.50"}
+					color={activeTab === tab ? "black" : "gray.500"}
+					fontWeight={activeTab === tab ? "semi-bold" : "normal"}
+					borderTop={
+					  activeTab === tab
+						? "4px solid #B79045"
+						: "4px solid transparent"
+					}
+					borderRadius="0"
+					h="42px"
+					minW="100px"
+					_focus={{ outline: "none" }}
+					outline="none"
+					fontFamily="DM Sans"
+				  >
+					{tab}
+				  </Button>
 				))}
 			</Flex>
 		</Box>
