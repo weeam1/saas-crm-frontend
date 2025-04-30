@@ -310,8 +310,8 @@ const Dashboard = () => {
 				justifyContent='space-between'
 				py='2'
 				px='4'
-				mt={"-1.1%"}
-				ml={"-0.3%"}	
+				marginTop={"-16px"}
+				marginLeft={"-4px"}
 				alignItems='center'
 			>
 				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>

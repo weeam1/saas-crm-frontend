@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Flex,
@@ -32,7 +28,11 @@ export default function TotalTimeCallsRecordGraph() {
   const [uniqueCalls, setUniqueCalls] = useState(0);
   const [avgMinutes, setAvgMinutes] = useState(0);
   const [totalSeconds, setTotalSeconds] = useState(0);
-  const [chartData, setChartData] = useState({ labels: [], totalTime: [], uniqueCalls: [] });
+  const [chartData, setChartData] = useState({
+    labels: [],
+    totalTime: [],
+    uniqueCalls: [],
+  });
 
   const bgColor = useColorModeValue("white", "gray.800");
   const chartRef = useRef(null);
@@ -40,7 +40,9 @@ export default function TotalTimeCallsRecordGraph() {
 
   const updateChart = (data) => {
     const labels = data.daily.map((d) => moment(d.date).format("MMMM D"));
-    const totalTime = data.daily.map((d) => parseFloat(d.duration.replace("s", "")) / 60); // in minutes
+    const totalTime = data.daily.map(
+      (d) => parseFloat(d.duration.replace("s", "")) / 60
+    ); // in minutes
     const uniqueCalls = data.daily.map((d) => d.joinedCount);
 
     setChartData({ labels, totalTime, uniqueCalls });
@@ -130,7 +132,9 @@ export default function TotalTimeCallsRecordGraph() {
         const data = await fetchTotalTimeCallsRecordStats(days);
         setUniqueCalls(data.unique_calls);
         setAvgMinutes(data.average_minutes);
-        const durationInSeconds = parseFloat(data.allTime.duration.replace("s", ""));
+        const durationInSeconds = parseFloat(
+          data.allTime.duration.replace("s", "")
+        );
         setTotalSeconds(durationInSeconds);
         updateChart(data);
       } catch (error) {
@@ -146,7 +150,15 @@ export default function TotalTimeCallsRecordGraph() {
   }, [days]);
 
   return (
-    <Box p={4} bg={bgColor} borderRadius="md" maxW="auto" mx={2} mt={"-15px"} ml={"-7px"}>
+    <Box
+      p={4}
+      bg={bgColor}
+      borderRadius="0px"
+      maxW="auto"
+      mx={2}
+      marginTop={"-16px"}
+      marginLeft={"-4px"}
+    >
       <Flex justify="space-between" align="center" mb={8}>
         <Heading size="lg" fontWeight="bold">
           Total Time and Calls

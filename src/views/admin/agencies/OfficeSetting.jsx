@@ -292,8 +292,8 @@ const OfficeSettings = ({userId}) => {
 
 			<Box
 				fontFamily="'DM Sans', sans-serif"
-				mt={"-1.1%"}
-				ml={"-0.3%"}
+				marginTop={"-16px"}
+				marginLeft={"-4px"}
 			>
 				<RoleTabs updateFilters={updateFilters} key='office' />
 

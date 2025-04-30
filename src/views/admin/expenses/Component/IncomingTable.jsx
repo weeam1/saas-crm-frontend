@@ -142,8 +142,8 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
       boxShadow="sm"
       bg="white"
       px={2}
-      mt={"-1.3%"}
-      ml={"-0.3%"}
+      marginTop={"-16px"}
+			marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>

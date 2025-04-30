@@ -81,8 +81,8 @@ const Attendance = ({ userId }) => {
           <Flex
             flexDirection={{ base: "column", lg: "row" }}
             gap={6}
-            mt={"-1.1%"}
-            ml={"-0.3%"}
+            marginTop={"-16px"}
+            marginLeft={"-4px"}
 			borderRadius={"0px"}
           >
             <Box minWidth={{ base: "100%", lg: "310px" }}>

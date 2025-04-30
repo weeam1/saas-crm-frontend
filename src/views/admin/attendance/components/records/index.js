@@ -185,8 +185,8 @@ export default function Records() {
         bg="white"
         p={5}
         shadow="sm"
-        mt={"-1.1%"}
-        ml={"-0.3%"}
+        marginTop={"-16px"}
+        marginLeft={"-4px"}
       >
         {/* Header */}
         <AttendanceHeader

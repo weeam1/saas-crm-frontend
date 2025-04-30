@@ -46,8 +46,8 @@ const AttendanceHeader = ({
 			gap='2'
 			alignItems={{ base: 'stretch', md: 'center' }}
 			flexDirection={{ base: 'column', md: 'row' }}
-			mt={"-1.6%"}
-			ml={"-0.3%"}	
+			marginTop={"-23px"}
+			marginLeft={"-4px"}
 		>
 			<Heading fontSize='24px' fontWeight='600'>
 				{queryParams.agency && (
