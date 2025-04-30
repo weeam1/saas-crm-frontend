@@ -203,11 +203,11 @@ export default function CallHistory() {
       overflowX="auto"
       borderWidth="1px"
       borderColor={borderColor}
-      borderRadius="md"
+      borderRadius="0px"
       bg="white"
       p={3}
-      mt={"-15.5px"}
-      ml={"-5px"}
+      marginTop={"-16px"}
+			marginLeft={"-4px"}
     >
       <Pagination
         currentPage={page}

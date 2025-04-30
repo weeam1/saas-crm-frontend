@@ -76,11 +76,9 @@ const RoleTabs = ({ updateFilters, key }) => {
 		<Flex
 			align='center'
 			position='relative'
-			rounded='md'
 			shadow='sm'
 			bg='white'
 			p={2}
-			my='2'
 		>
 			{/* Left Scroll Button */}
 			{showLeft && (

@@ -305,22 +305,13 @@ const Dashboard = () => {
 		</Box>
 	) : (
 		<>
-			<AppButton
-				ml='2'
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/attendance')}
-			>
-				Back
-			</AppButton>
-
 			<Flex
 				bg='white'
 				justifyContent='space-between'
 				py='2'
 				px='4'
-				mx='2'
-				my='2'
-				rounded='md'
+				marginTop={"-16px"}
+				marginLeft={"-4px"}
 				alignItems='center'
 			>
 				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>

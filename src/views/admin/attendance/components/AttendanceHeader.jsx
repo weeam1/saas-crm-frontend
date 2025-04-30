@@ -42,11 +42,12 @@ const AttendanceHeader = ({
 			py={4}
 			display='flex'
 			bg='white'
-			borderRadius='md'
 			justifyContent='space-between'
 			gap='2'
 			alignItems={{ base: 'stretch', md: 'center' }}
 			flexDirection={{ base: 'column', md: 'row' }}
+			marginTop={"-23px"}
+			marginLeft={"-4px"}
 		>
 			<Heading fontSize='24px' fontWeight='600'>
 				{queryParams.agency && (

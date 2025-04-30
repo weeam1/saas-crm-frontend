@@ -240,6 +240,9 @@ export default function CheckTable(props) {
 				direction='column'
 				w='100%'
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
+				marginTop={"-16px"}
+				marginLeft={"-4px"}
+				borderRadius={"0px"}
 			>
 				<Grid templateColumns='repeat(12, 1fr)' gap={2} p={4}>
 					<GridItem
