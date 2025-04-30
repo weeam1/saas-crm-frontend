@@ -130,6 +130,12 @@ const Employees = () => {
 
 	return (
 		<>
+			<AppButton
+				leftIcon={<IoArrowBack />}
+				onClick={() => navigate('/attendance')}
+			>
+				Back
+			</AppButton>
 			<Box minH='100vh' py='2' fontFamily="'DM Sans', sans-serif">
 				{/* Header */}
 				<AttendanceHeader

@@ -1,64 +1,72 @@
-import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
-import AttendanceDashboard from "views/admin/attendance/components/dashboard";
-import Employees from "views/admin/attendance/components/employees";
-import Records from "views/admin/attendance/components/records";
-import MyAttendance from "views/admin/attendance/components/myAttendance";
-import OfficeSettings from "views/admin/agencies/OfficeSetting";
+import { useNavigate } from 'react-router-dom';
+import { Box, SimpleGrid, Text, Icon } from '@chakra-ui/react';
+import {
+	FaTachometerAlt,
+	FaUsers,
+	FaClipboardList,
+	FaUserCheck,
+} from 'react-icons/fa';
+import { FiSettings } from 'react-icons/fi';
+
 const NavigationBoxes = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const role =
-    user?.role === "superAdmin" ? "superAdmin" : user?.roles[0]?.roleName;
+	const navigate = useNavigate();
 
-  const allMenuItems = [
-    {
-      label: "Dashboard",
-      title: "Dashboard Overview",
-      description:
-        "View key attendance metrics and a summary of employee check-ins, working hours, and activity trends.",
-      component: <AttendanceDashboard />,
-    },
-    {
-      label: "Employees",
-      title: "Manage Employees",
-      description:
-        "Add, edit, or remove employee records, assign roles, and oversee user access across the platform.",
-      component: <Employees />,
-    },
-    {
-      label: "Records",
-      title: "Attendance Records",
-      description:
-        "Review detailed attendance logs, check-in/check-out times, and generate attendance reports for employees.",
-      component: <Records />,
-    },
-    {
-      label: "My Attendance",
-      title: "Your Attendance History",
-      description:
-        "Track your own attendance including daily check-ins, working hours, late entries, and overall performance.",
-      component: <MyAttendance userId={user?._id} />,
-    },
-    {
-      label: "Office Settings",
-      title: "Office Configuration",
-      description:
-        "Customize settings such as office hours, holidays, policies, and manage agency-specific preferences.",
-      component: <OfficeSettings userId={user?._id} />,
-    },
-  ];
+	const user = JSON.parse(localStorage.getItem('user'));
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-  // Show all items for superAdmin and HR; otherwise, only show "My Attendance"
-  const menuItems =
-    role === "superAdmin"
-      ? allMenuItems.filter(
-          (item) =>
-            item.label !== "My Attendance" && item.label !== "Office Settings"
-        )
-      : role === "HR"
-        ? allMenuItems
-        : allMenuItems.filter((item) => item.label === "My Attendance");
+	const allMenuItems = [
+		{
+			label: 'Dashboard',
+			icon: FaTachometerAlt,
+			route: '/attendance/dashboard',
+		},
+		{ label: 'Employees', icon: FaUsers, route: '/attendance/employees' },
+		{ label: 'Records', icon: FaClipboardList, route: '/attendance/record' },
+		{
+			label: 'My Attendance',
+			icon: FaUserCheck,
+			route: `/attendance/employees/${user?._id}`,
+		},
+		{
+			label: 'Office Settings',
+			icon: FiSettings,
+			route: `/office-settings/${user?.agency?._id}`,
+		},
+	];
 
-  return <TabNavigationDisplay tabsData={menuItems} />;
+	// Show all items for superAdmin and HR; otherwise, only show "My Attendance"
+	const menuItems =
+		role === 'superAdmin'
+			? allMenuItems.filter(
+					(item) =>
+						item.label !== 'My Attendance' && item.label !== 'Office Settings'
+				)
+			: role === 'HR'
+				? allMenuItems
+				: allMenuItems.filter((item) => item.label === 'My Attendance');
+
+	return (
+		<SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} p={6}>
+			{menuItems.map((item) => (
+				<Box
+					key={item.label}
+					p={6}
+					bg='white'
+					borderRadius='lg'
+					textAlign='center'
+					cursor='pointer'
+					_hover={{ bg: 'brand.400', color: 'white' }}
+					onClick={() => navigate(item.route)}
+				>
+					<Icon as={item.icon} boxSize={8} mb={2} />
+					<Text fontSize='md' fontWeight='bold'>
+						{item.label}
+					</Text>
+				</Box>
+			))}
+		</SimpleGrid>
+	);
 };
 
 export default NavigationBoxes;
