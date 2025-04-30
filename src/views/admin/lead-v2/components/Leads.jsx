@@ -128,7 +128,9 @@ const Leads = ({
 	};
 
 	const handleSearchByName = useCallback(() => {
-		const term = searchTermRef.current.trim();
+		// const term = searchTermRef.current.trim();
+		const term = searchTermRef.current.trim().replace(/^\+/, '');
+
 		if (!term) return;
 
 		setSearchClear(true);

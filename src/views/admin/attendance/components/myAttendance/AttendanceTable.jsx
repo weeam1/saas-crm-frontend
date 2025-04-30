@@ -88,6 +88,7 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='600'
 											color='gray.700'
+											textTransform='capitalize'
 										>
 											{header}
 										</Text>

@@ -1,21 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import EmployeesList from './EmployeesList';
-import ErrorMessage from 'components/Message/ErrorMessage';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import RoleTabs from './RoleTabs';
 import Pagination from './Pagination';
 import FilterModal from './FilterModal';
 import AttendanceHeader from '../AttendanceHeader';
+import EmployeesTable from './EmployeesTable';
 import AppButton from 'components/shared/AppButton';
-import EmployeeLoading from './EmployeeLoading';
+import TopPagination from 'components/pagination/TopPagination';
 
 const Employees = () => {
+	const PAGE_SIZE = 20;
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchClear, setSearchClear] = useState(false);
+	const [view, setView] = useState(() => {
+		return localStorage.getItem('employeesView') || 'grid';
+	});
+
+	const [viewLoading, setViewLoading] = useState(false);
+
 	const navigate = useNavigate();
 	const searchTermRef = useRef('');
 
@@ -23,10 +29,11 @@ const Employees = () => {
 
 	useEffect(() => {
 		const page = Number(searchParams.get('page')) || 1;
-		const pageSize = Number(searchParams.get('pageSize')) || 24;
+		const pageSize = Number(searchParams.get('pageSize')) || PAGE_SIZE;
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || 'All';
+		const layout = searchParams.get('layout') || view;
 
 		if (agency || search) {
 			setSearchClear(true);
@@ -38,6 +45,7 @@ const Employees = () => {
 					page,
 					pageSize,
 					role,
+					layout,
 					...(search && { search }),
 					...(agency && { agency }),
 				};
@@ -52,11 +60,13 @@ const Employees = () => {
 		const search = searchParams.get('search') || '';
 		const role = searchParams.get('role') || 'All';
 		const agency = searchParams.get('agency') || 'All';
+		const layout = searchParams.get('layout') || view;
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
-			pageSize: Number(searchParams.get('pageSize')) || 24,
+			pageSize: Number(searchParams.get('pageSize')) || PAGE_SIZE,
 			role,
+			layout,
 			...(search && { search }),
 			...(agency && { agency }),
 		};
@@ -79,6 +89,7 @@ const Employees = () => {
 				const updatedParams = { ...prevParams, ...newFilters };
 
 				if (updatedParams.page) updatedParams.page = Number(updatedParams.page);
+				// if (updatedParams.role) updatedParams.role = Number(updatedParams.role);
 				if (updatedParams.pageSize)
 					updatedParams.pageSize = Number(updatedParams.pageSize);
 
@@ -93,10 +104,6 @@ const Employees = () => {
 		);
 	};
 
-	const handlePageChange = (page) => {
-		updateFilters({ page: Number(page), pageSize: 24 });
-	};
-
 	useEffect(() => {
 		usersRefetch();
 
@@ -105,6 +112,14 @@ const Employees = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams, usersRefetch]);
+
+	const handlePageChange = (page) => {
+		updateFilters({ page: Number(page) });
+	};
+
+	const handlePageSize = (pageSize) => {
+		updateFilters({ pageSize: Number(pageSize), page: 1 });
+	};
 
 	const handleSearch = () => {
 		const term = searchTermRef.current.trim();
@@ -128,6 +143,35 @@ const Employees = () => {
 		setSearchClear(false);
 	};
 
+	const handleViewChange = (newView) => {
+		updateFilters({ layout: view });
+		setView(newView);
+		setViewLoading(true);
+
+		setTimeout(() => {
+			setViewLoading(false);
+		}, 1000);
+	};
+
+	const layoutView =
+		view === 'grid' ? (
+			<EmployeesList
+				data={data}
+				isLoading={isLoading}
+				isFetching={isFetching}
+				viewLoading={viewLoading}
+				queryParams={queryParams}
+			/>
+		) : (
+			<EmployeesTable
+				data={data}
+				isLoading={isLoading}
+				isFetching={isFetching}
+				viewLoading={viewLoading}
+				queryParams={queryParams}
+			/>
+		);
+
 	return (
 		<>
 			<AppButton
@@ -136,6 +180,7 @@ const Employees = () => {
 			>
 				Back
 			</AppButton>
+
 			<Box minH='100vh' py='2' fontFamily="'DM Sans', sans-serif">
 				{/* Header */}
 				<AttendanceHeader
@@ -147,7 +192,9 @@ const Employees = () => {
 					handleClear={handleClear}
 					searchClear={searchClear}
 					filterOpen={onOpen}
-					content={['agencyFilter']}
+					content={['agencyFilter', 'view']}
+					view={view}
+					handleView={handleViewChange}
 				/>
 
 				{/* Role Tab Navigation */}
@@ -164,26 +211,29 @@ const Employees = () => {
 					opacity={1}
 					transform='translateY(0px)'
 				>
-					{/* Employees List */}
-					<Box mt='4' p='4'>
-						{isLoading || isFetching ? (
-							<EmployeeLoading size={queryParams.pageSize} />
-						) : data && data?.doc ? (
-							<>
-								<EmployeesList employees={data?.doc || []} />
-							</>
-						) : (
-							<ErrorMessage message='Something went wrong on the server side.' />
-						)}
-					</Box>
+					{!isLoading && (
+						<TopPagination
+							currentPage={queryParams.page}
+							totalPages={data?.totalPages}
+							onPageChange={handlePageChange}
+							totalItems={data?.totalResults}
+							itemsPerPage={queryParams.pageSize}
+							refetching={isFetching}
+							loading={isLoading}
+							handlePageSize={handlePageSize}
+						/>
+					)}
 
-					{data?.totalResults > queryParams.pageSize && (
+					{/* Employees View layout */}
+					<Box mt='2'>{layoutView}</Box>
+
+					{/* {data?.totalResults > queryParams.pageSize && (
 						<Pagination
 							currentPage={queryParams.page}
 							totalPages={data.totalPages}
 							onPageChange={handlePageChange}
 						/>
-					)}
+					)} */}
 				</Box>
 			</Box>
 

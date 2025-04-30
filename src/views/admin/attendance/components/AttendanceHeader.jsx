@@ -14,6 +14,7 @@ import { buttonStyle } from '../constants';
 import { BiX } from 'react-icons/bi';
 import { FiFilter } from 'react-icons/fi';
 import DateFilter from './DateFilter';
+import ViewToggle from './ViewToggle';
 
 const AttendanceHeader = ({
 	title,
@@ -26,6 +27,8 @@ const AttendanceHeader = ({
 	queryParams,
 	onDateFilterChange,
 	content,
+	view,
+	handleView,
 }) => {
 	const handleInputChange = (event) => {
 		searchTermRef.current = event.target.value;
@@ -118,6 +121,10 @@ const AttendanceHeader = ({
 
 					{content.includes('date') && (
 						<DateFilter onFilterChange={onDateFilterChange} />
+					)}
+
+					{content.includes('view') && (
+						<ViewToggle view={view} handleView={handleView} />
 					)}
 
 					{searchClear && (
