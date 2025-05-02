@@ -50,6 +50,9 @@ const CreateAnnouncement = ({ user }) => {
 			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
 			const { data } = await getApi((isManager || isSuperAdmin) && apiUrl);
 
+			setSelectedManager(selectedValue);
+			setSelectedRole('team');
+
 			if (data.results > 0) {
 				const managerAgentsList = data?.doc?.map((agent) => agent._id);
 				// If there are results, include the manager's own ID as well
@@ -60,7 +63,10 @@ const CreateAnnouncement = ({ user }) => {
 				setReceiverIds(updatedReceiverIds);
 			} else {
 				// If no results, clear the receiver IDs (or just select the manager)
-				setReceiverIds([selectedValue]);
+
+				if (isManager) {
+					setReceiverIds([]);
+				} else setReceiverIds([selectedValue]);
 			}
 		} catch (error) {
 			// Handle any errors that occur during the API call
@@ -96,8 +102,6 @@ const CreateAnnouncement = ({ user }) => {
 					return;
 			}
 
-			console.log({ newReceiverIds });
-
 			setReceiverIds(newReceiverIds); // Update state with new receiver IDs
 		} catch (error) {
 			console.error('Failed to handle role change:', error);
@@ -107,11 +111,12 @@ const CreateAnnouncement = ({ user }) => {
 
 	const handleManager = async (e) => {
 		const selectedValue = e.target.value;
+		setSelectedManager(selectedValue);
 		setSelectedRole('team');
 
 		// Reset receiverIds to an empty array before making any updates
-		fetchMangerAgents(selectedValue);
 		setReceiverIds([]);
+		fetchMangerAgents(selectedValue);
 		const managerReceiverIds = managers?.map((manager) => manager._id);
 
 		setReceiverIds(managerReceiverIds); // Set all manager IDs
@@ -134,7 +139,7 @@ const CreateAnnouncement = ({ user }) => {
 				setOnlineUsers(0);
 				setOfflineUsers(0);
 
-				if (receiverIds.length > 0) {
+				if (receiverIds.length > 0 || isManager) {
 					const announcementData = {
 						message,
 						receiver_ids: receiverIds,
@@ -171,7 +176,7 @@ const CreateAnnouncement = ({ user }) => {
 		}
 	};
 
-	const options = ['all', 'managers', 'agents'];
+	const options = ['all', 'managers', 'agents', 'team'];
 	const { getRootProps, getRadioProps } = useRadioGroup({
 		name: 'roles',
 		value: selectedRole,
@@ -228,8 +233,10 @@ const CreateAnnouncement = ({ user }) => {
 							})}
 							<SelectManager
 								// selectedRole={selectedRole}
+								selectedManager={selectedManager}
 								managerList={managers}
 								handleManager={handleManager}
+								isDisabled={selectedRole !== 'team'}
 							/>
 						</HStack>
 					</>
@@ -248,7 +255,7 @@ const CreateAnnouncement = ({ user }) => {
 					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
 					type='submit'
 					isDisabled={
-						!message.trim() || (!isManager && !selectedRole)
+						!message.trim() || (!isManager && !selectedRole) || !selectedManager
 						// (selectedRole === "managers" && !selectedManager)
 					}
 					leftIcon={<Icon as={MdSend} />}

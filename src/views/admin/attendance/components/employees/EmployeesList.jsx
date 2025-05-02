@@ -3,9 +3,16 @@ import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import EmployeeCard from './EmployeeCard';
 import EmployeeLoading from './EmployeeLoading';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const EmployeesList = ({ data, tab, isLoading, isFetching, queryParams }) => {
-	return isLoading || isFetching ? (
+	const { data: officeSettings, isLoading: officeSettingsLoading } =
+		useFetchItemsQuery(
+			{ path: `/attendance/office-settings` },
+			{ refetchOnMountOrArgChange: true }
+		);
+
+	return isLoading || isFetching || officeSettingsLoading ? (
 		<EmployeeLoading size={queryParams.pageSize} />
 	) : data && data?.doc ? (
 		data?.doc?.length > 0 ? (
@@ -20,7 +27,12 @@ const EmployeesList = ({ data, tab, isLoading, isFetching, queryParams }) => {
 					gap={4}
 				>
 					{data?.doc?.map((emp, index) => (
-						<EmployeeCard index={index} emp={emp} tab={tab} />
+						<EmployeeCard
+							index={index}
+							emp={emp}
+							tab={tab}
+							officeSettings={officeSettings?.doc}
+						/>
 					))}
 				</Grid>
 			</Box>

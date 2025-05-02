@@ -11,8 +11,7 @@ import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg'
 import { useBreakpointValue } from '@chakra-ui/react';
 import TimeZoneSelect from './TimeZone';
 import OffDaysCheckbox from './OffDaysCheckbox';
-import EditIcon from './EditIcon';
-import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
+import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 
 const OfficeTiming = ({
 	isDisabled,
@@ -51,7 +50,7 @@ const OfficeTiming = ({
 			borderRadius='md'
 			p={5}
 			py={10}
-			w={{ base: '100%', lg: '420px' }}
+			w={{ base: '100%', lg: '500px' }}
 			height={boxHeight}
 			bg='white'
 			border='1px solid #cacaca'
@@ -74,18 +73,18 @@ const OfficeTiming = ({
 			</Flex>
 
 			<Flex mb={4} flexWrap='wrap' gap={4}>
-				<Box flex='1' minW='150px'>
+				<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
 					<Text mb={2} fontWeight='400' fontSize={fontSize}>
 						Check-in Time
 					</Text>
-					<CustomTimePicker value={checkinTime} onChange={setCheckinTime} />
+					<NormalTimePicker value={checkinTime} onChange={setCheckinTime} />
 				</Box>
 
-				<Box flex='1' minW='150px'>
+				<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
 					<Text mb={2} fontWeight='400' fontSize={fontSize}>
 						Check-out Time
 					</Text>
-					<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
+					<NormalTimePicker value={checkoutTime} onChange={setCheckoutTime} />
 				</Box>
 			</Flex>
 

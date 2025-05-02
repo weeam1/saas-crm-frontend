@@ -6,55 +6,32 @@ import { buttonStyle } from '../../constants';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
-import { FaBan } from 'react-icons/fa';
+import { FaBan, FaCalendarCheck } from 'react-icons/fa';
 
-const AttendanceMark = ({
-	timezone,
-	data,
-	refetch,
-	officeSettings,
-	employeeId,
-}) => {
+const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
+	const { timezone } = officeSetting;
+
 	const [status, setStatus] = useState(null);
-	const [time, setTime] = useState(moment().tz(timezone));
-
-	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
-
-	const [lastRecord, setLastRecord] = useState(null);
-
 	const [checkinLoading, setCheckinLoading] = useState(false);
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
 
-	const today = moment().tz(timezone).format('YYYY-MM-DD');
-
 	const todayIndex = moment().tz(timezone).day();
-	const offDays = officeSettings?.offDays || [];
+	const offDays = officeSetting?.offDays || [];
 
 	const isOffDay = offDays.includes(todayIndex);
 
-	const currentDate = moment().tz(timezone);
-	const currentMonth = currentDate.format('MM');
-	const currentYear = currentDate.format('YYYY');
-
 	useEffect(() => {
-		if (data?.total > 0) {
-			const todayRecord = data?.doc?.find((item) => item.date === today);
-
-			if (todayRecord) {
-				setLastRecord(todayRecord);
-
-				if (todayRecord?.status === 0) {
-					setStatus(-1);
-				} else if (todayRecord?.checkin && todayRecord?.checkout) {
-					setStatus(-1);
-				} else if (todayRecord?.checkin) {
-					setStatus(1);
-				}
+		if (todayRecord) {
+			if (todayRecord?.status === 0) {
+				setStatus(-1);
+			} else if (todayRecord?.checkin && todayRecord?.checkout) {
+				setStatus(-1);
+			} else if (todayRecord?.checkin) {
+				setStatus(1);
 			}
 		} else setStatus(null);
-	}, [data]);
+	}, []);
 
 	// for check in and absent
 	const [createItemMutation, { isLoading: isCreating }] =
@@ -66,9 +43,7 @@ const AttendanceMark = ({
 
 	const handleCheckIn = async () => {
 		try {
-			// if (timePicker) {
-			const bodyData = { employeeId, selectedTime };
-			// } else bodyData = { employeeId: data.employee._id };
+			const bodyData = { employeeId };
 
 			setCheckinLoading(true);
 			await createItemMutation({
@@ -78,7 +53,6 @@ const AttendanceMark = ({
 
 			toast.success('Employee Check in successfully');
 			setStatus(1);
-			refetch({ force: true });
 		} catch (e) {
 			console.log(e);
 			toast.error(e?.data?.message || 'Error in employee check in');
@@ -97,7 +71,6 @@ const AttendanceMark = ({
 
 			toast.success('Employee Absent successfully');
 			setStatus(-1);
-			refetch({ force: true });
 		} catch (e) {
 			console.log(e);
 			toast.error(e?.data?.message || 'Error in employee absent');
@@ -108,20 +81,7 @@ const AttendanceMark = ({
 
 	const handleCheckOut = async () => {
 		try {
-			if (lastRecord) {
-				const checkIn = moment(lastRecord?.checkin, 'hh:mm A');
-				const checkOut = moment(selectedTime, 'hh:mm A');
-
-				if (checkOut.isBefore(checkIn)) {
-					toast.error('Check-Out time must be greater than Check-In time!');
-					return;
-				}
-			}
-
-			// let bodyData = {};
-			// if (timePicker) {
-			const bodyData = { employeeId, selectedTime };
-			// } else bodyData = { employeeId: data.employee._id };
+			const bodyData = { employeeId };
 
 			setCheckoutLoading(true);
 			await updateItemMutation({
@@ -131,7 +91,6 @@ const AttendanceMark = ({
 
 			toast.success('Employee checkout successfully');
 			setStatus(-1);
-			refetch({ force: true });
 		} catch (e) {
 			console.log(e);
 			toast.error(e?.data?.message || 'Error in employee checkout');
@@ -147,56 +106,33 @@ const AttendanceMark = ({
 	};
 
 	const shouldRender = useMemo(() => {
-		return (
-			status !== -1 &&
-			Number(data.month) === Number(currentMonth) &&
-			Number(data.year) === Number(currentYear)
-		);
-	}, [status, data, currentMonth, currentYear]);
+		return status !== -1;
+	}, [status]);
 
-	return shouldRender && data ? (
+	return shouldRender ? (
 		<Box
 			display='flex'
-			flexDirection='column'
 			justifyContent='center'
 			alignItems='center'
 			gap='2'
-			// h='263px'
-			mt={4}
 			p={4}
-			bg='white'
-			borderRadius='md'
-			shadow='sm'
 			textAlign='center'
 		>
 			{isOffDay ? (
 				<Flex align='center' justify='center' gap={2}>
-					<Icon as={FaBan} color='red.500' boxSize={6} />
-					<Text fontSize='md' fontWeight='semibold' color='red.500'>
-						Office is closed today
+					<Icon as={FaBan} color='red.500' boxSize={4} />
+					<Text fontSize='sm' fontWeight='medium' color='red.500'>
+						Office is closed
 					</Text>
 				</Flex>
 			) : (
 				<>
-					<Text fontWeight='medium' fontSize={{ base: '20px', md: '24px' }}>
-						Mark Attendance
-					</Text>
-
-					<NormalTimePicker value={selectedTime} onChange={setSelectedTime} />
-
-					{/* <Text
-						fontWeight='medium'
-						textColor='#A07723'
-						fontSize={{ base: '20px', md: '24px' }}
-					>
-						{timeString}
-					</Text> */}
 					{status === 1 || status === 2 ? (
 						<Button
 							{...buttonStyle}
 							{...buttonVariants.checkOut}
-							w={{ base: '100%', md: '208px' }}
-							h='43px'
+							// w={{ base: '100%', md: status ? '100%' : '120px' }}
+							// h='43px'
 							isDisabled={checkoutLoading}
 							leftIcon={<IoMdExit size={20} />}
 						>
@@ -208,9 +144,8 @@ const AttendanceMark = ({
 								<Button
 									{...buttonStyle}
 									{...buttonVariants.checkIn}
-									w={{ base: '100%', md: '208px' }}
-									h='43px'
-									mb='4'
+									// w={{ base: '100%', md: '120px' }}
+									// h='43px'
 									isDisabled={absentLoading || checkinLoading}
 									leftIcon={<IoMdExit size={20} />}
 								>
@@ -219,9 +154,8 @@ const AttendanceMark = ({
 								<Button
 									{...buttonStyle}
 									{...buttonVariants.absent}
-									w={{ base: '100%', md: '208px' }}
-									h='43px'
-									mb='4'
+									// w={{ base: '100%', md: '120px' }}
+									// h='43px'
 									isDisabled={absentLoading || checkinLoading}
 								>
 									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
@@ -232,19 +166,98 @@ const AttendanceMark = ({
 				</>
 			)}
 		</Box>
-	) : null;
+	) : (
+		<Flex
+			align='center'
+			p='4'
+			bg='gray.100'
+			rounded='sm'
+			justify='center'
+			gap={2}
+		>
+			<Icon as={FaCalendarCheck} color='green.500' boxSize={4} />
+			<Text fontSize='sm' color='gray.600'>
+				Attendance marked
+			</Text>
+		</Flex>
+	);
+
+	// return (
+	// 	<Box
+	// 		display={'flex'} // Hide completely when not needed
+	// 		flexDirection='column'
+	// 		justifyContent='center'
+	// 		alignItems='center'
+	// 		gap={3}
+	// 		p={4}
+	// 		textAlign='center'
+	// 		borderWidth={shouldRender ? 0 : 1}
+	// 		borderRadius='md'
+	// 		borderColor='gray.100'
+	// 		bg={shouldRender ? 'transparent' : 'gray.50'}
+	// 		minH={shouldRender ? 'auto' : '120px'}
+	// 	>
+	// 		{!shouldRender ? (
+	// 			<Flex
+	// 				direction='column'
+	// 				align='center'
+	// 				justify='center'
+	// 				h='full'
+	// 				gap={2}
+	// 			>
+	// 				<Icon as={FaCalendarCheck} color='green.500' boxSize={6} />
+	// 				<Text fontSize='sm' color='gray.600'>
+	// 					Attendance already marked
+	// 				</Text>
+	// 			</Flex>
+	// 		) : isOffDay ? (
+	// 			<Flex direction='column' align='center' gap={2}>
+	// 				<Icon as={FaBan} color='red.500' boxSize={6} />
+	// 				<Text fontSize='md' fontWeight='semibold' color='red.500'>
+	// 					Office Closed Today
+	// 				</Text>
+	// 			</Flex>
+	// 		) : (
+	// 			<>
+	// 				{[1, 2].includes(status) ? (
+	// 					<Button
+	// 						{...buttonStyle}
+	// 						{...buttonVariants.checkOut}
+	// 						size='md' // Smaller button
+	// 						width={{ base: '100%', md: '180px' }} // Reduced width
+	// 						isLoading={checkoutLoading}
+	// 						loadingText='Processing'
+	// 						leftIcon={<IoMdExit size={18} />}
+	// 					/>
+	// 				) : (
+	// 					![-1, 1, 2].includes(status) && (
+	// 						<Flex direction='column' gap={3} width='full' align='center'>
+	// 							<Button
+	// 								{...buttonStyle}
+	// 								{...buttonVariants.checkIn}
+	// 								size='md'
+	// 								width={{ base: '100%', md: '180px' }}
+	// 								isLoading={checkinLoading}
+	// 								loadingText='Processing'
+	// 								leftIcon={<FaSignInAlt size={16} />} // Better icon
+	// 							/>
+	// 							<Button
+	// 								{...buttonStyle}
+	// 								{...buttonVariants.absent}
+	// 								size='md'
+	// 								width={{ base: '100%', md: '180px' }}
+	// 								isLoading={absentLoading}
+	// 								loadingText='Processing'
+	// 								leftIcon={<FaUserTimes size={16} />} // Better icon
+	// 								variant='outline' // Differentiate from primary button
+	// 							/>
+	// 						</Flex>
+	// 					)
+	// 				)}
+	// 			</>
+	// 		)}
+	// 	</Box>
+	// );
 };
 
-export default AttendanceMark;
-
-// {isTimePickerOpen && (
-// 	<AttendanceTimePicker
-// 		data={lastRecord}
-// 		type={lastRecord ? 'checkout' : 'checkin'}
-// 		onClose={onTimePickerClose}
-// 		isOpen={isTimePickerOpen}
-// 		refetch={refetch}
-// 		employeeId={employeeId}
-// 		setStatus={setStatus}
-// 	/>
-// )}
+export default EmployeeAttendanceMark;
