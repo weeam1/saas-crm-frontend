@@ -48,7 +48,7 @@ const Attendance = () => {
 			params: { employeeId: employeeId, month, year },
 		},
 		{
-			skip: !employee?.agency,
+			skip: !employee,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -67,22 +67,22 @@ const Attendance = () => {
 
 	const navigate = useNavigate();
 
-	if (employee?.agency?._id) {
-		return (
-			<Box
-				alignSelf='center'
-				p='4'
-				bg='gray.100'
-				color='red.400'
-				rounded='sm'
-				as={Link}
-				to={`/userView/${employee._id}`}
-				_hover={{ textDecoration: 'underline' }}
-			>
-				Add Employee agency
-			</Box>
-		);
-	}
+	// if (employee?.agency?._id) {
+	// 	return (
+	// 		<Box
+	// 			alignSelf='center'
+	// 			p='4'
+	// 			bg='gray.100'
+	// 			color='red.400'
+	// 			rounded='sm'
+	// 			as={Link}
+	// 			to={`/userView/${employee._id}`}
+	// 			_hover={{ textDecoration: 'underline' }}
+	// 		>
+	// 			Add Employee agency
+	// 		</Box>
+	// 	);
+	// }
 
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>
