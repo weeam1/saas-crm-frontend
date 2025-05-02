@@ -46,7 +46,6 @@ const CreateAnnouncement = ({ user }) => {
 
 	const fetchMangerAgents = async (selectedValue = '') => {
 		try {
-			// Fetch the hierarchy data for the selected manager
 			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
 			const { data } = await getApi((isManager || isSuperAdmin) && apiUrl);
 
