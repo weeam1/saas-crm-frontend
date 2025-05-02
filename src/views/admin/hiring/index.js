@@ -1,139 +1,75 @@
-import { Box, Button, Flex, Heading, Icon, SimpleGrid } from '@chakra-ui/react';
-import { FaUserCheck, FaUsers } from 'react-icons/fa';
-import IconBox from 'components/icons/IconBox';
-import { useNavigate } from 'react-router-dom';
-import MiniStatistics from 'components/card/MiniStatistics';
-import { MdDashboard } from 'react-icons/md';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import RunningInterviews from './interview/RunningInterviews';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { addPositions } from './../../../redux/positionsSlice';
-import { IoSettings } from 'react-icons/io5';
+// Hiring.js
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
+import HiringDashboard from "./hiringDashboard";
+import Candidates from "./candidates/index";
+import ShortListedCandidates from "./shortListedCandidates/index";
+import InterviewedCandidates from "./interviewedCandidates/index";
 
 const Hiring = () => {
-	const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromParams = searchParams.get("tab");
 
-	const user = JSON.parse(localStorage.getItem('user'));
+  const tabsData = [
+    {
+      label: "Dashboard",
+      title: "Hiring Dashboard Overview",
+      description:
+        "Monitor key recruitment statistics, candidate pipelines, and ongoing interviews.",
+      component: tabFromParams === "dashboard" && <HiringDashboard />,
+    },
+    {
+      label: "Candidates",
+      title: "All Registered Candidates",
+      description:
+        "View a list of all candidates who have applied. Filter, search, and manage candidate profiles here.",
+      component: tabFromParams === "candidates" && <Candidates />,
+    },
+    {
+      label: "Short Listed",
+      title: "Short Listed Candidates",
+      description:
+        "Candidates who have been selected for the next round. Review and manage their progress.",
+      component: tabFromParams === "short listed" && <ShortListedCandidates />,
+    },
+    {
+      label: "Interviewed Candidates",
+      title: "Interviewed Candidates Overview",
+      description:
+        "See candidates who have completed their interviews. Track interview outcomes and feedback.",
+      component: tabFromParams === "interviewed candidates" && (
+        <InterviewedCandidates />
+      ),
+    },
+  ];
 
-	const isAdmin = user?.role === 'superAdmin';
-	const isManager = user?.roles[0]?.roleName === 'Manager';
+  const initialIndex = tabsData.findIndex(
+    (tab) => tab.label.toLowerCase() === tabFromParams?.toLowerCase()
+  );
+  const [activeTabIndex, setActiveTabIndex] = useState(
+    initialIndex !== -1 ? initialIndex : 0
+  );
 
-	const { data, isLoading, refetch } = useFetchItemsQuery(
-		{
-			path: `/hiring/stats`,
-		},
-		{ refetchOnMountOrArgChange: true }
-	);
-	const { data: positionOptions, isLoading: positionsLoading } =
-		useFetchItemsQuery(
-			{
-				path: `/positions/options`,
-			},
-			{ refetchOnMountOrArgChange: true }
-		);
+  useEffect(() => {
+    setSearchParams({
+      tab: tabsData[activeTabIndex].label.toLowerCase(),
+    });
 
-	useEffect(() => {
-		if (!positionsLoading && positionOptions?.doc) {
-			dispatch(addPositions(positionOptions?.doc));
-		}
-	}, [positionsLoading, positionOptions, dispatch]);
+    document.title = tabsData[activeTabIndex].title;
+  }, [activeTabIndex]);
 
-	const { data: runningInterviews, isLoading: interviewLoading } =
-		useFetchItemsQuery(
-			{
-				path: `/interviews/running`,
-			},
-			{ refetchOnMountOrArgChange: true }
-		);
+  const handleTabChange = (index) => {
+    setActiveTabIndex(index);
+  };
 
-	const stats = [
-		{
-			title: 'Candidates',
-			total: data?.doc?.totalCandidates || 0,
-			icon: MdDashboard,
-			path: '/hiring/candidates',
-		},
-		{
-			title: 'Short Listed',
-			total: data?.doc?.totalShortListed || 0,
-			icon: FaUsers,
-			path: '/hiring/short-listed',
-		},
-		{
-			title: 'Interviewed Candidates',
-			total: data?.doc?.totalCompletedInterviews || 0,
-			icon: FaUserCheck,
-			path: '/hiring/interviewed-candidates',
-		},
-		// {
-		// 	title: 'Running Interviews',
-		// 	total: data?.doc?.totalRunningInterviews || 0,
-		// 	icon: FaUserCheck,
-		// 	path: '/hiring/running-interviews',
-		// },
-	];
-
-	const filteredStats = isManager
-		? stats.filter((stat) => stat.title === 'Short Listed')
-		: stats;
-
-	const navigate = useNavigate();
-
-	return isLoading || interviewLoading ? (
-		<Loader />
-	) : (
-		<Box>
-			<Flex justifyContent='space-between' alignItems='center'>
-				<Heading px={5} size='lg' color='gray.800'>
-					Hiring
-				</Heading>
-				{isAdmin && (
-					<Button
-						colorScheme='gray'
-						borderRadius='5px'
-						size={{ base: 'sm', md: 'md' }}
-						px={{ base: 4, md: 6 }}
-						py={{ base: 2, md: 3 }}
-						fontSize={{ base: 'sm', md: 'md' }}
-						leftIcon={<Icon as={IoSettings} boxSize={4} />}
-						onClick={() => navigate('/hiring/settings')}
-						mb={4}
-					>
-						Settings
-					</Button>
-				)}
-			</Flex>
-
-			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
-				{filteredStats.map((stat, index) => (
-					<MiniStatistics
-						key={index}
-						fontsize='md'
-						onClick={() => navigate(stat.path)}
-						startContent={
-							<IconBox
-								w='56px'
-								h='56px'
-								bg='linear-gradient(90deg, #D99A36 0%,rgb(221, 184, 92) 100%)'
-								icon={<Icon w='28px' h='28px' as={stat.icon} color='white' />} // Change icon here
-							/>
-						}
-						name={stat.title}
-						value={stat.total || 0}
-					/>
-				))}
-			</SimpleGrid>
-
-			{runningInterviews?.total > 0 && (
-				<RunningInterviews
-					interviews={runningInterviews?.doc}
-					totals={runningInterviews?.total}
-				/>
-			)}
-		</Box>
-	);
+  return (
+    <TabNavigationDisplay
+      tabsData={tabsData}
+      activeTab={activeTabIndex}
+      onTabChange={handleTabChange}
+    />
+  );
 };
 
 export default Hiring;
