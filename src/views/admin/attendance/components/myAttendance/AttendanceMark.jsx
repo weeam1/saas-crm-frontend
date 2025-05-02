@@ -141,7 +141,7 @@ const AttendanceMark = ({
 	};
 
 	const buttonVariants = {
-		checkIn: { bg: '#D8A541', onClick: handleCheckIn, text: 'Check In' },
+		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'Check In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Check Out' },
 		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
 	};

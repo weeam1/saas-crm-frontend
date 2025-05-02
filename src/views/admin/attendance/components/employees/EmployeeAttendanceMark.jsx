@@ -100,8 +100,8 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	};
 
 	const buttonVariants = {
-		checkIn: { bg: '#D8A541', onClick: handleCheckIn, text: 'Check In' },
-		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Check Out' },
+		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'In' },
+		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Out' },
 		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
 	};
 
