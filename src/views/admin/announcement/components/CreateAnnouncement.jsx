@@ -18,6 +18,7 @@ import { MdSend } from 'react-icons/md';
 import MessageSuccessModal from './MessageSuccessModal';
 import SelectManager from './SelectManager';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
+import { set } from 'date-fns';
 
 const CreateAnnouncement = ({ user }) => {
 	// Fetch the all users data from hook
@@ -46,12 +47,12 @@ const CreateAnnouncement = ({ user }) => {
 
 	const fetchMangerAgents = async (selectedValue = '') => {
 		try {
+			setSelectedManager(selectedValue);
+			setSelectedRole('team');
+
 			// Fetch the hierarchy data for the selected manager
 			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
 			const { data } = await getApi((isManager || isSuperAdmin) && apiUrl);
-
-			setSelectedManager(selectedValue);
-			setSelectedRole('team');
 
 			if (data.results > 0) {
 				const managerAgentsList = data?.doc?.map((agent) => agent._id);
@@ -79,6 +80,7 @@ const CreateAnnouncement = ({ user }) => {
 	const handleRoleChange = (selectedRole) => {
 		try {
 			setSelectedRole(selectedRole);
+			setSelectedManager(null);
 
 			let newReceiverIds = [];
 
@@ -255,8 +257,9 @@ const CreateAnnouncement = ({ user }) => {
 					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
 					type='submit'
 					isDisabled={
-						!message.trim() || (!isManager && !selectedRole) || !selectedManager
-						// (selectedRole === "managers" && !selectedManager)
+						!message.trim() ||
+						(!isManager && !selectedRole) ||
+						(selectedRole === 'team' && !selectedManager)
 					}
 					leftIcon={<Icon as={MdSend} />}
 				>
