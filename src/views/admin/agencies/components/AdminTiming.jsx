@@ -1,10 +1,10 @@
 import { Box, Text, Flex, useBreakpointValue, Button } from '@chakra-ui/react';
 import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
-import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import { buttonStyle } from 'views/admin/attendance/constants';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import moment from 'moment';
+import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 
 const AdminSetting = ({
 	agencyId,
@@ -88,22 +88,24 @@ const AdminSetting = ({
 				pointerEvents={!selectedUser ? 'none' : 'auto'}
 			>
 				<Flex justify='space-between' mb={4} flexDirection='column' gap={4}>
-					<Box flex='1' minW='150px'>
+					<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
 						<Text mb={2} fontWeight='400' fontSize={fontSize}>
 							In timing
 						</Text>
-						<CustomTimePicker
+						{/* <CustomTimePicker
 							value={checkinTime}
 							onChange={setCheckinTime}
 							isDisabled={!selectedUser}
-						/>
+						/> */}
+
+						<NormalTimePicker value={checkinTime} onChange={setCheckinTime} />
 					</Box>
 
-					<Box flex='1' minW='150px'>
+					<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
 						<Text mb={2} fontWeight='400' fontSize={fontSize}>
 							Out timing
 						</Text>
-						<CustomTimePicker value={checkoutTime} onChange={setCheckoutTime} />
+						<NormalTimePicker value={checkoutTime} onChange={setCheckoutTime} />
 					</Box>
 				</Flex>
 
@@ -127,17 +129,3 @@ const AdminSetting = ({
 };
 
 export default AdminSetting;
-
-/* <Box mb={4}>
-      <TimeZoneSelect
-          isDisabled={isDisabled}
-          timezone={timezone}
-          setTimezone={setTimezone} 
-        />
-      </Box>
-
-      <OffDaysCheckbox
-        isDisabled={isDisabled}
-        offDays={offDays}
-        setOffDays={setOffDays}
-      /> */
