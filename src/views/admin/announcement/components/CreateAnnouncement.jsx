@@ -18,7 +18,6 @@ import { MdSend } from 'react-icons/md';
 import MessageSuccessModal from './MessageSuccessModal';
 import SelectManager from './SelectManager';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
-import { set } from 'date-fns';
 
 const CreateAnnouncement = ({ user }) => {
 	// Fetch the all users data from hook
