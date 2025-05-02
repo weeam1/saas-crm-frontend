@@ -212,7 +212,7 @@ const LeadStatusStats = ({ doc }) => {
 	}, []);
 
 	useEffect(() => {
-		if (!chartRef.current || !data.length) return;
+		if (!chartRef.current || !data.length || totalLeads < 1) return;
 
 		const { ctx, dpr } = setupCanvas();
 		const sortedData = [...data].sort((a, b) => b.percent - a.percent);
@@ -379,22 +379,24 @@ const LeadStatusStats = ({ doc }) => {
 	}, [setupCanvas]);
 
 	return (
-		<Box
-			ref={containerRef}
-			position='relative'
-			height='700px'
-			width='100%'
-			bg='white'
-			borderRadius='2xl'
-			p='4'
-			boxShadow='sm'
-			my='2'
-		>
-			<Text fontSize='xl' fontWeight='bold' mb={1}>
-				Lead Status Summary
-			</Text>
-			<canvas ref={chartRef} style={{ display: 'block' }} />
-		</Box>
+		totalLeads > 0 && (
+			<Box
+				ref={containerRef}
+				position='relative'
+				height='700px'
+				width='100%'
+				bg='white'
+				borderRadius='2xl'
+				p='4'
+				boxShadow='sm'
+				my='2'
+			>
+				<Text fontSize='xl' fontWeight='bold' mb={1}>
+					Lead Status Summary
+				</Text>
+				<canvas ref={chartRef} style={{ display: 'block' }} />
+			</Box>
+		)
 	);
 };
 

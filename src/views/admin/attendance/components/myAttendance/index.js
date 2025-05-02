@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Divider, Button, Flex } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
 import AttendanceMark from './AttendanceMark';
 import Header from './Header';
@@ -48,7 +48,7 @@ const Attendance = () => {
 			params: { employeeId: employeeId, month, year },
 		},
 		{
-			skip: !employee,
+			skip: !employee?.agency,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -66,6 +66,23 @@ const Attendance = () => {
 	};
 
 	const navigate = useNavigate();
+
+	if (employee?.agency?._id) {
+		return (
+			<Box
+				alignSelf='center'
+				p='4'
+				bg='gray.100'
+				color='red.400'
+				rounded='sm'
+				as={Link}
+				to={`/userView/${employee._id}`}
+				_hover={{ textDecoration: 'underline' }}
+			>
+				Add Employee agency
+			</Box>
+		);
+	}
 
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>

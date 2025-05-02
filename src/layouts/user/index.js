@@ -589,36 +589,36 @@ export default function User(props) {
 		routes.splice(3, 0, ...newRoutes);
 
 		// Add other routes (e.g., Daily Report, Reporting and Analytics)
-		routes.push(
-			{
-				name: 'Daily Report',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/daily-report',
-				icon: (
-					<Icon
-						as={MdInsertChartOutlined}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: DailyReport,
-			},
-			{
-				name: 'Reporting and Analytics',
-				layout: [ROLE_PATH.user],
-				path: '/reporting-analytics',
-				icon: (
-					<Icon
-						as={MdInsertChartOutlined}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Report,
-			}
-		);
+		// routes.push(
+		// 	{
+		// 		name: 'Daily Report',
+		// 		layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+		// 		path: '/daily-report',
+		// 		icon: (
+		// 			<Icon
+		// 				as={MdInsertChartOutlined}
+		// 				width='20px'
+		// 				height='20px'
+		// 				color='inherit'
+		// 			/>
+		// 		),
+		// 		component: DailyReport,
+		// 	},
+		// 	{
+		// 		name: 'Reporting and Analytics',
+		// 		layout: [ROLE_PATH.user],
+		// 		path: '/reporting-analytics',
+		// 		icon: (
+		// 			<Icon
+		// 				as={MdInsertChartOutlined}
+		// 				width='20px'
+		// 				height='20px'
+		// 				color='inherit'
+		// 			/>
+		// 		),
+		// 		component: Report,
+		// 	}
+		// );
 	}
 
 	const getActiveRoute = (routes) => {

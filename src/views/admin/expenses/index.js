@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -30,13 +30,14 @@ import { useFetchItemsQuery } from "api/apiSlice";
 import { CalendarIcon, CloseIcon } from "@chakra-ui/icons";
 import moment from "moment";
 import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
+import { useSearchParams } from "react-router-dom";
+
 const Expenses = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const [month, setMonth] = useState(moment().format("M"));
   const [selectionMonth, setSelectionMonth] = useState(moment().format("M"));
   const [year, setYear] = useState(moment().format("YYYY"));
   const [selectionYear, setSelectionYear] = useState(moment().format("YYYY"));
-  const [activeTab, setActiveTab] = useState(0);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     data: SummaryData,
@@ -47,6 +48,39 @@ const Expenses = () => {
     { path: `/expenses/summary`, params: { month: month, year: year } },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab");
+  const tabsData = [
+    {
+      label: "Incoming Cash",
+      component: tab === "incoming-cash" && (
+        <IncomingTable
+          month={selectionMonth}
+          year={selectionYear}
+          refetchSummary={refetch}
+        />
+      ),
+    },
+    {
+      label: "Outgoing Cash",
+
+      component: tab === "outgoing-cash" && (
+        <OutgoingTable
+          month={selectionMonth}
+          year={selectionYear}
+          refetchSummary={refetch}
+        />
+      ),
+    },
+  ];
+  const tabFromParams = searchParams.get("tab");
+  const initialIndex = tabsData.findIndex(
+    (tab) => tab.label.toLowerCase().replace(/\s/g, "-") === tabFromParams
+  );
+  const [activeTab, setActiveTab] = useState(
+    initialIndex !== -1 ? initialIndex : 0
+  );
+
   const handleTabChange = (index) => {
     setActiveTab(index);
     setSelectionMonth(moment().format("M"));
@@ -70,30 +104,11 @@ const Expenses = () => {
     }
   };
 
-  const tabsData = [
-    {
-      label: "Incoming Cash",
-      component: (
-        <IncomingTable
-          month={selectionMonth}
-          year={selectionYear}
-          refetchSummary={refetch}
-        />
-      ),
-    },
-    {
-      label: "Outgoing Cash",
-
-      component: (
-        <OutgoingTable
-          month={selectionMonth}
-          year={selectionYear}
-          refetchSummary={refetch}
-        />
-      ),
-    },
-  ];
-
+  useEffect(() => {
+    setSearchParams({
+      tab: tabsData[activeTab].label.toLowerCase().replace(/\s/g, "-"),
+    });
+  }, [activeTab]);
   return (
     <Box>
       <Box display={"flex"} justifyContent={"flex-end"} mr={"15px"}>
@@ -126,7 +141,11 @@ const Expenses = () => {
         </HStack>
       </Box>
       <Box mt={"-4%"}>
-        <TabNavigationDisplay tabsData={tabsData} />
+        <TabNavigationDisplay
+          tabsData={tabsData}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
       </Box>
       <Flex justifyContent={"end"} mx={4}>
         <Box

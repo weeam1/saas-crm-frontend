@@ -1,58 +1,58 @@
-import { memo, useState } from 'react';
-import { Box, Button, Flex, Icon } from '@chakra-ui/react';
-import InvitedData from './InvitedData';
-import ShortListedData from './ShortListedData';
-import { useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
-import { useFetchItemsQuery } from 'api/apiSlice';
+import { memo, useState } from "react";
+import { Box, Button, Flex, Icon } from "@chakra-ui/react";
+import InvitedData from "./InvitedData";
+import ShortListedData from "./ShortListedData";
+import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+import { useFetchItemsQuery } from "api/apiSlice";
 
-import Loader from 'components/loading/Loader';
-import MeetingSection from './components/MeetingSection';
-import PendingInvitedData from './PendingInvitedData';
-import { ItemContent } from './../../../../components/menu/ItemContent';
+import Loader from "components/loading/Loader";
+import MeetingSection from "./components/MeetingSection";
+import PendingInvitedData from "./PendingInvitedData";
+import { ItemContent } from "./../../../../components/menu/ItemContent";
 
 const ShortListedCandidates = memo(() => {
-	const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
 
-	const isManager = user?.roles[0]?.roleName === 'Manager';
+  const isManager = user?.roles[0]?.roleName === "Manager";
 
-	const {
-		data: invitedCandidates,
-		isLoading: invitedCandidatesLoading,
-		refetch: invitedRefetch,
-	} = useFetchItemsQuery({
-		path: `/applications/invited-candidates`,
-		params: {
-			sort: 'interviewDate',
-			limit: 4,
-		},
-	});
+  const {
+    data: invitedCandidates,
+    isLoading: invitedCandidatesLoading,
+    refetch: invitedRefetch,
+  } = useFetchItemsQuery({
+    path: `/applications/invited-candidates`,
+    params: {
+      sort: "interviewDate",
+      limit: 4,
+    },
+  });
 
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const tabData = [
-		{
-			title: 'Short Listed',
-			component: <ShortListedData invitedRefetch={invitedRefetch} />,
-		},
-		{ title: 'Invited Candidates', component: <InvitedData /> },
-		{
-			title: 'Old Pending Interviews',
-			component: <PendingInvitedData invitedRefetch={invitedRefetch} />,
-		},
-	];
+  const tabData = [
+    {
+      title: "Short Listed",
+      component: <ShortListedData invitedRefetch={invitedRefetch} />,
+    },
+    { title: "Invited Candidates", component: <InvitedData /> },
+    {
+      title: "Old Pending Interviews",
+      component: <PendingInvitedData invitedRefetch={invitedRefetch} />,
+    },
+  ];
 
-	const filteredTabData = isManager
-		? tabData.filter((item) => ItemContent.title === 'Short Listed')
-		: tabData;
+  const filteredTabData = isManager
+    ? tabData.filter((item) => ItemContent.title === "Short Listed")
+    : tabData;
 
-	return invitedCandidatesLoading ? (
-		<Loader />
-	) : (
-		<Box>
-			<Button
+  return invitedCandidatesLoading ? (
+    <Loader />
+  ) : (
+    <Box>
+      {/* <Button
 				colorScheme='gray'
 				borderRadius='5px'
 				size={{ base: 'sm', md: 'md' }}
@@ -64,17 +64,17 @@ const ShortListedCandidates = memo(() => {
 				mb={4}
 			>
 				Back
-			</Button>
+			</Button> */}
 
-			{!isManager && (
-				<MeetingSection
-					invitedCandidates={invitedCandidates}
-					refetch={invitedRefetch}
-					setActiveTab={setActiveTab}
-				/>
-			)}
+      {!isManager && (
+        <MeetingSection
+          invitedCandidates={invitedCandidates}
+          refetch={invitedRefetch}
+          setActiveTab={setActiveTab}
+        />
+      )}
 
-			{/* <Box>
+      {/* <Box>
 				<Box display='flex' mb={2}>
 					<Button
 						onClick={() => handleTabChange(0)}
@@ -137,7 +137,7 @@ const ShortListedCandidates = memo(() => {
 				)}
 			</Box> */}
 
-			{/* <Tabs index={activeTab} onChange={setActiveTab} variant='soft-rounded'>
+      {/* <Tabs index={activeTab} onChange={setActiveTab} variant='soft-rounded'>
 				<TabList width='fit-content' px='4' gap='2'>
 					{tabData.map((tab, index) => (
 						<Tab
@@ -163,53 +163,54 @@ const ShortListedCandidates = memo(() => {
 				</TabPanels>
 			</Tabs> */}
 
-			<Box>
-				<Flex gap='2' px='4' width='fit-content'>
-					{filteredTabData.map((tab, index) => (
-						<TabButton
-							key={index}
-							isActive={activeTab === index}
-							onClick={() => setActiveTab(index)}
-						>
-							{tab.title}
-						</TabButton>
-					))}
-				</Flex>
+      <Box>
+        <Flex gap="2"  width="fit-content">
+          {filteredTabData.map((tab, index) => (
+            <TabButton
+              key={index}
+              isActive={activeTab === index}
+              onClick={() => setActiveTab(index)}
+            >
+              {tab.title}
+            </TabButton>
+          ))}
+        </Flex>
 
-				<Box
-					mt='4'
-					p='4'
-					bg='white'
-					shadow='sm'
-					rounded='md'
-					minH='100px'
-					transition='opacity 0.3s ease, transform 0.3s ease'
-					opacity={1}
-					transform='translateY(0px)'
-					key={activeTab}
-				>
-					{tabData[activeTab].component}
-				</Box>
-			</Box>
-		</Box>
-	);
+        <Box
+          mt="4"
+          p="4"
+          bg="white"
+          shadow="sm"
+          minH="100px"
+          transition="opacity 0.3s ease, transform 0.3s ease"
+          opacity={1}
+          transform="translateY(0px)"
+          key={activeTab}
+		  marginTop={"-0px"}
+        >
+          {tabData[activeTab].component}
+        </Box>
+      </Box>
+    </Box>
+  );
 });
 
 const TabButton = ({ isActive, onClick, children }) => (
-	<Button
-		onClick={onClick}
-		bg={isActive ? 'brand.400' : 'white'}
-		color={isActive ? 'white' : 'gray.800'}
-		_hover={{ bg: isActive ? 'brand.500' : 'gray.100' }}
-		_focus={{ boxShadow: 'none' }}
-		rounded='md'
-		shadow='sm'
-		fontSize='lg'
-		fontWeight='normal'
-		transition='all 0.3s ease'
-	>
-		{children}
-	</Button>
+  <Button
+    onClick={onClick}
+    bg={isActive ? "#EDD199" : "softGray.50"}
+    color={isActive ? "black" : "gray.500"}
+    borderTop={isActive ? "4px solid #B79045" : "4px solid transparent"}
+    fontWeight={isActive ? "semi-bold" : "normal"}
+    _focus={{ outline: "none", boxShadow: "none" }}
+    _hover={{ bg: isActive ? "#EDD199" : "gray.100" }}
+    rounded="none"
+    shadow="sm"
+    fontSize="lg"
+    transition="all 0.3s ease"
+  >
+    {children}
+  </Button>
 );
 
 export default ShortListedCandidates;
