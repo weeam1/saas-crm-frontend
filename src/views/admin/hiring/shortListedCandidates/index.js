@@ -1,9 +1,7 @@
 import { memo, useState } from "react";
-import { Box, Button, Flex, Icon } from "@chakra-ui/react";
+import { Box, Button, Flex } from "@chakra-ui/react";
 import InvitedData from "./InvitedData";
 import ShortListedData from "./ShortListedData";
-import { useNavigate } from "react-router-dom";
-import { IoArrowBack } from "react-icons/io5";
 import { useFetchItemsQuery } from "api/apiSlice";
 
 import Loader from "components/loading/Loader";
@@ -29,8 +27,6 @@ const ShortListedCandidates = memo(() => {
       limit: 4,
     },
   });
-
-  const navigate = useNavigate();
 
   const tabData = [
     {
@@ -164,7 +160,7 @@ const ShortListedCandidates = memo(() => {
 			</Tabs> */}
 
       <Box>
-        <Flex gap="2"  width="fit-content">
+        <Flex gap="2" width="fit-content">
           {filteredTabData.map((tab, index) => (
             <TabButton
               key={index}
@@ -186,7 +182,7 @@ const ShortListedCandidates = memo(() => {
           opacity={1}
           transform="translateY(0px)"
           key={activeTab}
-		  marginTop={"-0px"}
+          marginTop={"-0px"}
         >
           {tabData[activeTab].component}
         </Box>

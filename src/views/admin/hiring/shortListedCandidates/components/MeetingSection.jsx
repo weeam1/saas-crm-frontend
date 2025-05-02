@@ -11,7 +11,7 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 	if (invitedCandidates?.doc?.length === 0) return null;
 
 	return (
-		<Box mb={4}>
+		<Box mb={4} marginTop={"-15px"} marginLeft={"-4px"} borderRadius={"0px"}>
 			{/* Header Section - Click to Toggle */}
 			<HStack
 				bg='white'
