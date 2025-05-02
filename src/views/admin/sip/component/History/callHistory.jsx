@@ -301,7 +301,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.call_from ? call.call_from : "no data found"}
+                    {call.src ? call.src : "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -310,7 +310,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.call_to ? call.call_to : "no data found"}
+                    {call.dst ? call.dst : "no data found"}
                   </Td>
                   <Td
                     py={4}
