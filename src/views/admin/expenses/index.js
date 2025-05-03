@@ -8,11 +8,6 @@ import {
   HStack,
   Divider,
   Spacer,
-  Tab,
-  TabList,
-  TabPanels,
-  TabPanel,
-  Tabs,
   IconButton,
   Button,
   useDisclosure,
@@ -24,37 +19,53 @@ import {
   ModalBody,
   Select,
 } from "@chakra-ui/react";
+import { CalendarIcon } from "@chakra-ui/icons";
+import { useSearchParams } from "react-router-dom";
+import moment from "moment";
+
 import IncomingTable from "./Component/IncomingTable";
 import OutgoingTable from "./Component/OutgoingTable";
-import { useFetchItemsQuery } from "api/apiSlice";
-import { CalendarIcon, CloseIcon } from "@chakra-ui/icons";
-import moment from "moment";
 import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
-import { useSearchParams } from "react-router-dom";
+import { useFetchItemsQuery } from "api/apiSlice";
+
+const DEFAULT_TAB = "incoming-cash";
 
 const Expenses = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
   const [month, setMonth] = useState(moment().format("M"));
-  const [selectionMonth, setSelectionMonth] = useState(moment().format("M"));
   const [year, setYear] = useState(moment().format("YYYY"));
+  const [selectionMonth, setSelectionMonth] = useState(moment().format("M"));
   const [selectionYear, setSelectionYear] = useState(moment().format("YYYY"));
+
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromParams = searchParams.get("tab") || DEFAULT_TAB;
+
+  const tabsList = ["incoming-cash", "outgoing-cash"];
+  const initialIndex = tabsList.indexOf(tabFromParams.toLowerCase());
+  const [activeTabIndex, setActiveTabIndex] = useState(
+    initialIndex !== -1 ? initialIndex : 0
+  );
+
+  const [tabKey, setTabKey] = useState(0);
+
   const {
     data: SummaryData,
     isLoading,
     isError,
     refetch,
   } = useFetchItemsQuery(
-    { path: `/expenses/summary`, params: { month: month, year: year } },
+    { path: `/expenses/summary`, params: { month, year } },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab");
+
   const tabsData = [
     {
       label: "Incoming Cash",
-      component: tab === "incoming-cash" && (
+      component: (
         <IncomingTable
+          key={tabKey}
           month={selectionMonth}
           year={selectionYear}
           refetchSummary={refetch}
@@ -63,9 +74,9 @@ const Expenses = () => {
     },
     {
       label: "Outgoing Cash",
-
-      component: tab === "outgoing-cash" && (
+      component: (
         <OutgoingTable
+          key={tabKey}
           month={selectionMonth}
           year={selectionYear}
           refetchSummary={refetch}
@@ -73,26 +84,33 @@ const Expenses = () => {
       ),
     },
   ];
-  const tabFromParams = searchParams.get("tab");
-  const initialIndex = tabsData.findIndex(
-    (tab) => tab.label.toLowerCase().replace(/\s/g, "-") === tabFromParams
-  );
-  const [activeTab, setActiveTab] = useState(
-    initialIndex !== -1 ? initialIndex : 0
-  );
+
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: DEFAULT_TAB });
+    }
+  }, []);
 
   const handleTabChange = (index) => {
-    setActiveTab(index);
-    setSelectionMonth(moment().format("M"));
-    setSelectionYear(moment().format("YYYY"));
-    setMonth(moment().format("M"));
-    setYear(moment().format("YYYY"));
+    const newTab = tabsData[index].label.toLowerCase().replace(/\s/g, "-");
+    setSearchParams({ tab: newTab });
+
+    if (index === activeTabIndex) {
+      setTabKey((prev) => prev + 1);
+    } else {
+      setActiveTabIndex(index);
+    }
+
+    const currentMonth = moment().format("M");
+    const currentYear = moment().format("YYYY");
+    setSelectionMonth(currentMonth);
+    setSelectionYear(currentYear);
+    setMonth(currentMonth);
+    setYear(currentYear);
   };
 
   const getMonthName = (monthNumber) => {
-    return moment()
-      .month(monthNumber - 1)
-      .format("MMMM");
+    return moment().month(monthNumber - 1).format("MMMM");
   };
 
   const HandlerDateFilter = () => {
@@ -104,13 +122,9 @@ const Expenses = () => {
     }
   };
 
-  useEffect(() => {
-    setSearchParams({
-      tab: tabsData[activeTab].label.toLowerCase().replace(/\s/g, "-"),
-    });
-  }, [activeTab]);
   return (
     <Box>
+      {/* Date Filter UI */}
       <Box display={"flex"} justifyContent={"flex-end"} mr={"15px"}>
         <HStack>
           <Box
@@ -140,13 +154,17 @@ const Expenses = () => {
           </Box>
         </HStack>
       </Box>
+
+      {/* Tabs */}
       <Box mt={"-4%"}>
         <TabNavigationDisplay
           tabsData={tabsData}
-          activeTab={activeTab}
+          activeTab={activeTabIndex}
           onTabChange={handleTabChange}
         />
       </Box>
+
+      {/* Summary Cards */}
       <Flex justifyContent={"end"} mx={4}>
         <Box
           p={1}
@@ -162,9 +180,7 @@ const Expenses = () => {
               </Text>
               <Spacer />
               <Text color="green.500">
-                {SummaryData && SummaryData?.data?.totalIncomingAmount
-                  ? SummaryData.data.totalIncomingAmount
-                  : 0}
+                {SummaryData?.data?.totalIncomingAmount || 0}
               </Text>
             </HStack>
             <Divider />
@@ -174,9 +190,7 @@ const Expenses = () => {
               </Text>
               <Spacer />
               <Text color="red.500">
-                {SummaryData && SummaryData?.data?.totalOutgoingAmount
-                  ? SummaryData.data.totalOutgoingAmount
-                  : 0}
+                {SummaryData?.data?.totalOutgoingAmount || 0}
               </Text>
             </HStack>
             <Divider />
@@ -184,16 +198,14 @@ const Expenses = () => {
               <Text fontWeight="bold">Total Profit</Text>
               <Spacer />
               <Text fontWeight="bold">
-                {SummaryData && SummaryData?.data?.totalProfit
-                  ? SummaryData.data.totalProfit
-                  : 0}
+                {SummaryData?.data?.totalProfit || 0}
               </Text>
             </HStack>
           </VStack>
         </Box>
       </Flex>
 
-      {/* Modal for Month and Year selection */}
+      {/* Date Filter Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
@@ -203,17 +215,12 @@ const Expenses = () => {
             <VStack spacing={4}>
               <Select
                 placeholder="Select Month"
-                value={month || ""}
+                value={month}
                 onChange={(e) => setMonth(Number(e.target.value))}
                 focusBorderColor="goldenrod"
-                _hover={{ borderColor: "goldenrod" }}
               >
                 {Array.from({ length: 12 }, (_, i) => (
-                  <option
-                    key={i + 1}
-                    value={i + 1}
-                    _hover={{ backgroundColor: "goldenrod" }}
-                  >
+                  <option key={i + 1} value={i + 1}>
                     {new Date(0, i).toLocaleString("default", {
                       month: "long",
                     })}
@@ -223,19 +230,14 @@ const Expenses = () => {
 
               <Select
                 placeholder="Select Year"
-                value={year || ""}
+                value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
                 focusBorderColor="goldenrod"
-                _hover={{ borderColor: "goldenrod" }}
               >
                 {Array.from({ length: 10 }, (_, i) => {
                   const y = new Date().getFullYear() - i;
                   return (
-                    <option
-                      key={y}
-                      value={y}
-                      _hover={{ backgroundColor: "goldenrod" }}
-                    >
+                    <option key={y} value={y}>
                       {y}
                     </option>
                   );
@@ -247,7 +249,6 @@ const Expenses = () => {
                 color="white"
                 w="100%"
                 _hover={{ bg: "goldenrod", opacity: 0.9 }}
-                _active={{ bg: "goldenrod" }}
                 onClick={HandlerDateFilter}
               >
                 Apply
