@@ -10,7 +10,8 @@ import InterviewedCandidates from "./interviewedCandidates/index";
 const Hiring = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromParams = searchParams.get("tab");
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isManager = user?.roles[0]?.roleName === 'Manager';
   const tabsData = [
     {
       label: "Dashboard",
@@ -43,8 +44,11 @@ const Hiring = () => {
       ),
     },
   ];
+  const filteredTabs = isManager
+        ? tabsData.filter((stat) => stat.title === 'Short Listed Candidates')
+        : tabsData;
 
-  const initialIndex = tabsData.findIndex(
+  const initialIndex = filteredTabs.findIndex(
     (tab) => tab.label.toLowerCase() === tabFromParams?.toLowerCase()
   );
   const [activeTabIndex, setActiveTabIndex] = useState(
@@ -53,10 +57,8 @@ const Hiring = () => {
 
   useEffect(() => {
     setSearchParams({
-      tab: tabsData[activeTabIndex].label.toLowerCase(),
+      tab: filteredTabs[activeTabIndex].label.toLowerCase(),
     });
-
-    document.title = tabsData[activeTabIndex].title;
   }, [activeTabIndex]);
 
   const handleTabChange = (index) => {
@@ -65,7 +67,7 @@ const Hiring = () => {
 
   return (
     <TabNavigationDisplay
-      tabsData={tabsData}
+      tabsData={filteredTabs}
       activeTab={activeTabIndex}
       onTabChange={handleTabChange}
     />
