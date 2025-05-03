@@ -18,7 +18,7 @@ const EmployeeCard = ({ emp, index, tab, officeSettings }) => {
 		<Box
 			key={index}
 			px={4}
-			py='8'
+			py='2'
 			borderRadius='lg'
 			bg='white'
 			display='flex'
