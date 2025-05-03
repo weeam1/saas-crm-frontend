@@ -302,7 +302,7 @@ export default function UserReports() {
 
 			<LeadStatusStats doc={leadStatusData?.doc} />
 
-			<Grid
+			{/* <Grid
 				Grid
 				templateColumns={{ base: 1, xl: 'repeat(12, 1fr)' }}
 				mt={5}
@@ -954,7 +954,7 @@ export default function UserReports() {
 					{/* <Flex mt={5} justifyContent={'center'}>
 						<PieChart leadData={leadData} />
 					</Flex> */}
-				</Card>
+			{/* </Card>
 
 				<Card>
 					<Grid templateColumns='repeat(12, 1fr)' gap={2} mb={2}>
@@ -1020,7 +1020,7 @@ export default function UserReports() {
 							</Box>
 						))}
 				</Card>
-			</SimpleGrid>
+			</SimpleGrid> */}
 		</Box>
 	);
 }

@@ -67,7 +67,7 @@ const SummaryCard = ({ icon, value, label, percentChange, colorScheme }) => {
 
 	return (
 		<Box
-			bg={`${colorScheme}.100`}
+			bg={`${colorScheme}.50`}
 			borderRadius='2xl'
 			p={5}
 			flex='1'
