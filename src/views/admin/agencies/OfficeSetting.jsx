@@ -31,7 +31,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment';
 import OfficeShimmer from './OfficeShimmer';
 
-const OfficeSettings = ({userId}) => {
+const OfficeSettings = ({ userId }) => {
 	const searchTermRef = useRef('');
 	const [searchClear, setSearchClear] = useState(false);
 
@@ -79,7 +79,7 @@ const OfficeSettings = ({userId}) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const navigate = useNavigate();
-	
+
 	let { id } = useParams();
 	const agencyId = id || userId;
 	const { data: officeSettings, isLoading: officeSettingsLoading } =
@@ -143,7 +143,7 @@ const OfficeSettings = ({userId}) => {
 			const settings = officeSettings?.doc;
 			setOfficeCheckinTime(settings?.checkinTime || '09: 00 AM');
 			setOfficeCheckoutTime(settings?.checkoutTime || '06: 00 PM');
-			setOfficeTimezone(settings?.timezone || 'Asia/Karachi');
+			setOfficeTimezone(settings?.timezone || 'Asia/Dubai');
 			setOfficeOffDays(settings?.offDays || [0]);
 			setOfficeGracePeriod(settings?.gracePeriod || 0);
 			setSpecialUsers(settings?.specialUsers || []);
@@ -289,11 +289,10 @@ const OfficeSettings = ({userId}) => {
 		<OfficeShimmer />
 	) : officeSettings ? (
 		<>
-
 			<Box
 				fontFamily="'DM Sans', sans-serif"
-				marginTop={"-16px"}
-				marginLeft={"-4px"}
+				marginTop={'-16px'}
+				marginLeft={'-4px'}
 			>
 				<RoleTabs updateFilters={updateFilters} key='office' />
 
