@@ -118,10 +118,7 @@ const AttendanceMark = ({
 				}
 			}
 
-			// let bodyData = {};
-			// if (timePicker) {
 			const bodyData = { employeeId, selectedTime };
-			// } else bodyData = { employeeId: data.employee._id };
 
 			setCheckoutLoading(true);
 			await updateItemMutation({

@@ -3,9 +3,11 @@ import {
 	Box,
 	Button,
 	Heading,
+	HStack,
 	Icon,
 	Tag,
 	TagCloseButton,
+	Text,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
@@ -274,8 +276,8 @@ const Candidates = () => {
 				// rounded='md'
 				shadow='sm'
 				p='1rem'
-				marginTop={"-16px"}
-				marginLeft={"-4px"}
+				marginTop={'-16px'}
+				marginLeft={'-4px'}
 			>
 				<Heading size='md' color='gray.800'>
 					Candidates
@@ -285,13 +287,21 @@ const Candidates = () => {
 						</span>
 					)}
 				</Heading>
-				<Button
-					colorScheme='brand'
-					rounded='full'
-					onClick={() => setAdvanceSearch(true)}
-				>
-					Advanced Search
-				</Button>
+				<HStack>
+					{data?.results && (
+						<Text fontSize='sm' color='gray.500'>
+							({data?.results} showing)
+						</Text>
+					)}
+
+					<Button
+						colorScheme='brand'
+						rounded='full'
+						onClick={() => setAdvanceSearch(true)}
+					>
+						Advanced Search
+					</Button>
+				</HStack>
 			</Box>
 
 			<SearchTags removeTag={removeTag} searchTags={searchTags} />

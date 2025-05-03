@@ -45,7 +45,7 @@ const Employees = () => {
 					page,
 					pageSize,
 					role,
-					// layout,
+					layout,
 					...(search && { search }),
 					...(agency && { agency }),
 				};
@@ -66,7 +66,7 @@ const Employees = () => {
 			page: Number(searchParams.get('page')) || 1,
 			pageSize: Number(searchParams.get('pageSize')) || PAGE_SIZE,
 			role,
-			// layout,
+			layout,
 			...(search && { search }),
 			...(agency && { agency }),
 		};
@@ -144,7 +144,7 @@ const Employees = () => {
 	};
 
 	const handleViewChange = (newView) => {
-		// updateFilters({ layout: view });
+		updateFilters({ layout: view });
 		setView(newView);
 		setViewLoading(true);
 
