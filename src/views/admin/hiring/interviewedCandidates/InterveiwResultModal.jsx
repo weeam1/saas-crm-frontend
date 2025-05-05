@@ -57,7 +57,7 @@ const InterviewResultModal = ({
 				) : (
 					interview?.doc && (
 						<>
-							<ModalBody>
+							<ModalBody overflow='scroll' height='60vh' p='2'>
 								{pendingEvaluations > 0 && (
 									<IconButton
 										aria-label='Refetch'
@@ -76,7 +76,6 @@ const InterviewResultModal = ({
 										onClick={() => interviewRefetch()}
 									/>
 								)}
-
 								<Flex direction='column' gap='4'>
 									<DisplayField
 										label={`Total Interviewers`}

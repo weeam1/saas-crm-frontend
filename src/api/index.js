@@ -15,9 +15,15 @@ export const setAuthHeader = (headers) => {
 	}
 };
 
-export const fetchAgentLeadsSats = async (userId) => {
+export const fetchAgentLeadsSats = async (
+	userId,
+	type = 'assigned',
+	selectedLeads = 1
+) => {
 	try {
-		const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+		const { data } = await getApi(
+			`api/lead/leads-stats/${userId}?type=${type}&selectedLeads=${selectedLeads}`
+		);
 
 		return data?.doc;
 	} catch (error) {
