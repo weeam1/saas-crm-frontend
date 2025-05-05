@@ -21,13 +21,18 @@ import {
   FormLabel,
   Select,
   Input,
-  useToast,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
+import {
+  useFetchItemsQuery,
+  useCreateItemMutation,
+  useDeleteItemMutation,
+  useUpdateItemMutation,
+} from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
-import Pagination from "../../developers/components/Pagination";
+import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 
 const ListingView = () => {
@@ -37,35 +42,66 @@ const ListingView = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+  const [deleteItemMutation] = useDeleteItemMutation();
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
   
-  // Form states
-  const [unitType, setUnitType] = useState("");
-  const [status, setStatus] = useState("");
-  const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
-  const [size, setSize] = useState("");
-  const [otherDetails, setOtherDetails] = useState("");
-  const [ownerName, setOwnerName] = useState("");
-  const [ownerContact, setOwnerContact] = useState("");
-  const [agentName, setAgentName] = useState("");
-
-  // Mock user data
-  const user = { 
-    _id: "1",
-    role: "admin", // Try changing to "user" to test admin-only fields
-    fullName: "Test User"
-  };
-
-  // Filter states
   const [unitTypeFilter, setUnitTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
 
-  // Dummy data - replace with your actual API data
-  const [listings, setListings] = useState([
+  const user = JSON.parse(localStorage.getItem("user"));
+  const columns = [
+    "Unit Type",
+    "Status",
+    "Location",
+    "Price",
+    "Size (sqft)",
+    "Added Date",
+    "Action",
+  ];
+
+  const unitTypes = [
+    "Studio",
+    "1 Bedroom",
+    "2 Bedroom",
+    "3 Bedroom",
+    "Warehouse",
+    "Plot Only"
+  ];
+
+  const statusOptions = [
+    "Ready to Move",
+    "Off-Plan"
+  ];
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize.target.value);
+    setCurrentPage(1);
+    refetch();
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+    if (unitTypeFilter) params.unitType = unitTypeFilter;
+    if (statusFilter) params.status = statusFilter;
+    if (locationFilter) params.location = locationFilter;
+    return params;
+  };
+
+  let  { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
+    { path: `/listings`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true }
+  );
+  data= [
     {
       _id: "1",
       unitType: "1 Bedroom",
@@ -131,43 +167,65 @@ const ListingView = () => {
       agentName: "Sarah Johnson",
       createdAt: "2023-08-12T16:20:00Z"
     }
-  ]);
+  ]
+  const [createItemMutation] = useCreateItemMutation();
+  const [updateItemMutation] = useUpdateItemMutation();
 
-  const columns = [
-    "Unit Type",
-    "Status",
-    "Location",
-    "Price",
-    "Size (sqft)",
-    "Added Date",
-    "Action",
-  ];
+  const handleAddListing = async (newListing) => {
+    try {
+      await createItemMutation({
+        path: "/listings",
+        body: newListing,
+      }).unwrap();
 
-  const unitTypes = [
-    "Studio",
-    "1 Bedroom",
-    "2 Bedroom",
-    "3 Bedroom",
-    "Warehouse",
-    "Plot Only"
-  ];
-
-  const statusOptions = [
-    "Ready to Move",
-    "Off-Plan"
-  ];
-
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
-    setCurrentPage(1);
+      toast.success("Listing added successfully.");
+      refetch();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.data?.message || "Failed to add listing");
+    }
   };
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+  const handleUpdateListing = async (updatedListing) => {
+    try {
+      await updateItemMutation({
+        path: `/listings/${selectedListing._id}`,
+        body: updatedListing,
+      }).unwrap();
+
+      toast.success("Listing updated successfully.");
+      refetch();
+      setIsEditModalOpen(false);
+      setSelectedListing(null);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.data?.message || "Failed to update listing");
+    }
+  };
+
+  const handleDeleteListing = async (listingId) => {
+    try {
+      await deleteItemMutation({
+        path: `/listings/${listingId}`,
+        body: {},
+      }).unwrap();
+      toast.success("The listing has been deleted successfully.", {
+        autoClose: 3000,
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete listing:", error);
+      toast.error(
+        error.data?.message || "Failed to delete the listing. Please try again.",
+        { autoClose: 3000 }
+      );
+    }
   };
 
   const applyFilters = () => {
     setCurrentPage(1);
+    refetch();
     setIsFilterOpen(false);
   };
 
@@ -176,103 +234,16 @@ const ListingView = () => {
     setStatusFilter("");
     setLocationFilter("");
     setCurrentPage(1);
+    refetch();
     setIsFilterOpen(false);
   };
 
-  const handleAddListing = () => {
-    const newListing = {
-      _id: `${listings.length + 1}`,
-      unitType,
-      status,
-      location,
-      price: parseFloat(price),
-      size: parseFloat(size),
-      otherDetails,
-      ownerName,
-      ownerContact,
-      agentName,
-      createdAt: new Date().toISOString()
-    };
-    
-    setListings([newListing, ...listings]);
-    toast.success("Listing added successfully.");
-    resetForm();
-    setIsModalOpen(false);
-  };
-
-  const handleUpdateListing = () => {
-    const updatedListings = listings.map(listing => 
-      listing._id === selectedListing._id ? {
-        ...listing,
-        unitType,
-        status,
-        location,
-        price: parseFloat(price),
-        size: parseFloat(size),
-        otherDetails,
-        ownerName,
-        ownerContact,
-        agentName
-      } : listing
-    );
-    
-    setListings(updatedListings);
-    toast.success("Listing updated successfully.");
-    setIsEditModalOpen(false);
-    setSelectedListing(null);
-    resetForm();
-  };
-
-  const handleDeleteListing = (listingId) => {
-    setListings(listings.filter(listing => listing._id !== listingId));
-    toast.success("The listing has been deleted successfully.", {
-      autoClose: 3000,
-    });
-  };
-
-  const resetForm = () => {
-    setUnitType("");
-    setStatus("");
-    setLocation("");
-    setPrice("");
-    setSize("");
-    setOtherDetails("");
-    setOwnerName("");
-    setOwnerContact("");
-    setAgentName("");
-  };
-
-  const openEditModal = (listing) => {
-    setSelectedListing(listing);
-    setUnitType(listing.unitType);
-    setStatus(listing.status);
-    setLocation(listing.location);
-    setPrice(listing.price.toString());
-    setSize(listing.size.toString());
-    setOtherDetails(listing.otherDetails);
-    setOwnerName(listing.ownerName);
-    setOwnerContact(listing.ownerContact);
-    setAgentName(listing.agentName);
-    setIsEditModalOpen(true);
-  };
-
-  // Filter and paginate data
-  const filteredData = listings.filter(listing => {
-    return (
-      (unitTypeFilter === "" || listing.unitType === unitTypeFilter) &&
-      (statusFilter === "" || listing.status === statusFilter) &&
-      (locationFilter === "" || listing.location.toLowerCase().includes(locationFilter.toLowerCase()))
-  )})
-
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
   useEffect(() => {
-    setTotalPages(Math.ceil(filteredData.length / pageSize));
-    setTotalItems(filteredData.length);
-  }, [filteredData, pageSize]);
+    if (data) {
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalDocs || 0);
+    }
+  }, [data]);
 
   return (
     <Box
@@ -321,7 +292,8 @@ const ListingView = () => {
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
           handlePageSize={handlePageSizeChange}
-          loading={false}
+          refetching={isLoading}
+          loading={isLoading}
         />
       </Box>
       <Box
@@ -361,104 +333,112 @@ const ListingView = () => {
               ))}
             </Tr>
           </Thead>
-          <Tbody>
-            {paginatedData.map((listing, index) => (
-              <Tr key={index}>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.unitType || "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.status || "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.location || "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.price ? `$${listing.price.toLocaleString()}` : "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.size ? listing.size.toLocaleString() : "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                >
-                  {listing.createdAt
-                    ? moment(listing.createdAt).format("MM/DD/YYYY")
-                    : "N/A"}
-                </Td>
-                <Td
-                  py={4}
-                  fontSize={{ base: "12px", md: "14px" }}
-                  fontWeight="400"
-                  minWidth="100px"
-                  display={"flex"}
-                  gap={2}
-                >
-                  <IconButton
-                    aria-label="Edit"
-                    icon={<EditIcon />}
-                    size="sm"
-                    onClick={() => openEditModal(listing)}
-                    color={"#c09f5f"}
-                    _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                  />
-                  <IconButton
-                    aria-label="Delete"
-                    icon={<DeleteIcon />}
-                    size="sm"
-                    color={"#c09f5f"}
-                    _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                    onClick={() => handleDeleteListing(listing._id)}
-                  />
-                  <IconButton
-                    aria-label="View"
-                    icon={<ViewIcon />}
-                    size="sm"
-                    color={"#c09f5f"}
-                    _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                    onClick={() => {
-                      setSelectedListing(listing);
-                      setIsViewModalOpen(true);
-                    }}
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
+          {isLoading && isFetching ? (
+            <TableLoading columns={columns} length={7} py="4" />
+          ) : (
+            <Tbody>
+              {data &&
+                data.map((listing, index) => (
+                  <Tr key={index}>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.unitType || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.status || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.location || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.price ? `$${listing.price.toLocaleString()}` : "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.size ? listing.size.toLocaleString() : "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                    >
+                      {listing.createdAt
+                        ? moment(listing.createdAt).format("MM/DD/YYYY")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      display={"flex"}
+                      gap={2}
+                    >
+                      <IconButton
+                        aria-label="Edit"
+                        icon={<EditIcon />}
+                        size="sm"
+                        onClick={() => {
+                          setSelectedListing(listing);
+                          setIsEditModalOpen(true);
+                        }}
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                      />
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => handleDeleteListing(listing._id)}
+                      />
+                      <IconButton
+                        aria-label="View"
+                        icon={<ViewIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => {
+                          setSelectedListing(listing);
+                          setIsViewModalOpen(true);
+                        }}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+            </Tbody>
+          )}
         </Table>
-        {filteredData.length === 0 && (
+        {/* {!isLoading && !isFetching && data?.doc?.length === 0 && (
           <Text textAlign="center" color="gray.500" py={6}>
             No listings found.
           </Text>
-        )}
+        )} */}
       </Box>
 
       {/* Add Listing Modal */}
@@ -472,8 +452,7 @@ const ListingView = () => {
               <FormLabel>Unit Type</FormLabel>
               <Select
                 placeholder="Select unit type"
-                value={unitType}
-                onChange={(e) => setUnitType(e.target.value)}
+                onChange={(e) => {}}
               >
                 {unitTypes.map((type) => (
                   <option key={type} value={type}>{type}</option>
@@ -484,8 +463,7 @@ const ListingView = () => {
               <FormLabel>Status</FormLabel>
               <Select
                 placeholder="Select status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => {}}
               >
                 {statusOptions.map((status) => (
                   <option key={status} value={status}>{status}</option>
@@ -496,8 +474,7 @@ const ListingView = () => {
               <FormLabel>Location</FormLabel>
               <Input
                 placeholder="Enter location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => {}}
               />
             </Box>
             <Box mb={4}>
@@ -505,8 +482,7 @@ const ListingView = () => {
               <Input
                 type="number"
                 placeholder="Enter price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => {}}
               />
             </Box>
             <Box mb={4}>
@@ -514,61 +490,31 @@ const ListingView = () => {
               <Input
                 type="number"
                 placeholder="Enter size in square feet"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
+                onChange={(e) => {}}
               />
             </Box>
             <Box mb={4}>
               <FormLabel>Other Details</FormLabel>
               <Input
                 placeholder="Enter any other details"
-                value={otherDetails}
-                onChange={(e) => setOtherDetails(e.target.value)}
+                onChange={(e) => {}}
               />
             </Box>
-            {user.role === "admin" && (
-              <>
-                <Box mb={4}>
-                  <FormLabel>Owner Name</FormLabel>
-                  <Input
-                    placeholder="Enter owner name"
-                    value={ownerName}
-                    onChange={(e) => setOwnerName(e.target.value)}
-                  />
-                </Box>
-                <Box mb={4}>
-                  <FormLabel>Owner Contact</FormLabel>
-                  <Input
-                    placeholder="Enter owner contact"
-                    value={ownerContact}
-                    onChange={(e) => setOwnerContact(e.target.value)}
-                  />
-                </Box>
-                <Box mb={4}>
-                  <FormLabel>Agent Name</FormLabel>
-                  <Input
-                    placeholder="Enter agent name"
-                    value={agentName}
-                    onChange={(e) => setAgentName(e.target.value)}
-                  />
-                </Box>
-              </>
-            )}
           </ModalBody>
           <ModalFooter>
             <Button
               variant="outline"
               mr={3}
-              onClick={() => {
-                setIsModalOpen(false);
-                resetForm();
-              }}
+              onClick={() => setIsModalOpen(false)}
             >
               Cancel
             </Button>
             <Button
               colorScheme="blue"
-              onClick={handleAddListing}
+              onClick={() => {
+                // Handle form submission here
+                setIsModalOpen(false);
+              }}
             >
               Save
             </Button>
@@ -583,107 +529,22 @@ const ListingView = () => {
           <ModalHeader>Edit Listing</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Unit Type</FormLabel>
-              <Select
-                placeholder="Select unit type"
-                value={unitType}
-                onChange={(e) => setUnitType(e.target.value)}
-              >
-                {unitTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Status</FormLabel>
-              <Select
-                placeholder="Select status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input
-                placeholder="Enter location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Price</FormLabel>
-              <Input
-                type="number"
-                placeholder="Enter price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Size (sqft)</FormLabel>
-              <Input
-                type="number"
-                placeholder="Enter size in square feet"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-              />
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Other Details</FormLabel>
-              <Input
-                placeholder="Enter any other details"
-                value={otherDetails}
-                onChange={(e) => setOtherDetails(e.target.value)}
-              />
-            </Box>
-            {user.role === "admin" && (
-              <>
-                <Box mb={4}>
-                  <FormLabel>Owner Name</FormLabel>
-                  <Input
-                    placeholder="Enter owner name"
-                    value={ownerName}
-                    onChange={(e) => setOwnerName(e.target.value)}
-                  />
-                </Box>
-                <Box mb={4}>
-                  <FormLabel>Owner Contact</FormLabel>
-                  <Input
-                    placeholder="Enter owner contact"
-                    value={ownerContact}
-                    onChange={(e) => setOwnerContact(e.target.value)}
-                  />
-                </Box>
-                <Box mb={4}>
-                  <FormLabel>Agent Name</FormLabel>
-                  <Input
-                    placeholder="Enter agent name"
-                    value={agentName}
-                    onChange={(e) => setAgentName(e.target.value)}
-                  />
-                </Box>
-              </>
-            )}
+            {/* Similar form to Add Modal but with existing values */}
           </ModalBody>
           <ModalFooter>
             <Button
               variant="outline"
               mr={3}
-              onClick={() => {
-                setIsEditModalOpen(false);
-                resetForm();
-              }}
+              onClick={() => setIsEditModalOpen(false)}
             >
               Cancel
             </Button>
             <Button
               colorScheme="blue"
-              onClick={handleUpdateListing}
+              onClick={() => {
+                // Handle form submission here
+                setIsEditModalOpen(false);
+              }}
             >
               Update
             </Button>
@@ -774,7 +635,7 @@ const ListingView = () => {
               Reset
             </Button>
             <Button
-              colorScheme="#c09f5f"
+              colorScheme="blue"
               onClick={applyFilters}
             >
               Apply Filters

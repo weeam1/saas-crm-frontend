@@ -43,7 +43,7 @@ import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
-
+import SettingPage from 'views/admin/Listing/Component/settings/index'
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 
@@ -140,9 +140,11 @@ const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
+
 const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
 const Listing = React.lazy(() => import('views/admin/Listing'))
+
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -201,6 +203,14 @@ const routes = [
 		path: '/listing',
 		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
 		component: Listing,
+	},
+	{
+		name: 'Listing Setting',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/settings',
+		under: 'listing',
+		parentName: ':isting',
+		component: SettingPage,
 	},
 	{
 		name: 'Announcement',
