@@ -21,6 +21,7 @@ import {
 	FaUserCircle,
 	FaDollarSign,
 	FaRegCopy,
+	FaList 
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -141,6 +142,7 @@ const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 const Attendance = React.lazy(() => import('views/admin/attendance'));
 const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
+const Listing = React.lazy(() => import('views/admin/Listing'))
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -192,6 +194,13 @@ const routes = [
 		path: '/expenses',
 		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
 		component: Expenses,
+	},
+	{
+		name: 'Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing',
+		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+		component: Listing,
 	},
 	{
 		name: 'Announcement',
