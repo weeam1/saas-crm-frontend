@@ -10,6 +10,7 @@ import TablePagination from 'components/pagination/TablePagination';
 import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
 import RecordShimmer from './RecordShimmer';
+import ExportAttendanceReport from '../ExportAttendanceReport';
 
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -187,10 +188,20 @@ export default function Records() {
 				Back
 			</AppButton>
 
-			<Box display='flex' alignItems='center' mb={4} bg='white' mt='2' p={4}>
+			<Box
+				display='flex'
+				justifyContent='space-between'
+				alignItems='center'
+				gap='2'
+				mb={4}
+				bg='white'
+				mt='2'
+				p={4}
+			>
 				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					Attendance Records
 				</Text>
+				<ExportAttendanceReport month={month} year={year} />
 			</Box>
 			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
 				{/* Header */}
@@ -202,7 +213,7 @@ export default function Records() {
 					handleSearch={handleSearch}
 					handleClear={handleClear}
 					searchClear={searchClear}
-					content={['date', 'agencyFilter']}
+					content={['date', 'agencyFilter', 'report']}
 					filterOpen={filterOnOpen}
 					onDateFilterChange={onFilterChange}
 				/>
