@@ -59,7 +59,9 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     "Type",
     "Description",
     "Added By",
-    "Amount",
+    "PRICE",
+    "VAT %",
+    "TOTAL Amount",
     "Action",
   ];
   const [updateItemMuation] = useUpdateItemMutation();
@@ -281,6 +283,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.createdAt
                         ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
@@ -291,6 +294,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.expenseNo ? row.expenseNo : "no data Found"}
                     </Td>
@@ -299,6 +303,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.type ? row.type.name : "no data Found"}
                     </Td>
@@ -307,6 +312,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.description ? row.description : "no data Found"}
                     </Td>
@@ -325,6 +331,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
                     >
                       {row.amount ? row.amount : "no data Found"}
                     </Td>
@@ -333,8 +340,27 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {row.vat ? `${row.vat}%` : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {row.totalAmount ? row.totalAmount : "no data Found"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
                       display={"flex"}
                       gap={2}
+                      justifyContent={"center"}
                     >
                       <IconButton
                         aria-label="Edit"

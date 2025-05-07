@@ -37,6 +37,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
       location: data?.addedBy?.location || "",
       phoneNumber: data?.addedBy?.phoneNumber || "",
       agencyName: data?.addedBy?.agency?.name || "",
+      vat: data?.vat || "",
     },
     onSubmit: (values) => {
       const updated = {
@@ -44,6 +45,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
         type: values.type,
         description: values.description,
         amount: values.amount,
+        vat: values.vat,
       };
       if (onSubmit) {onSubmit(updated)};
     },
@@ -102,6 +104,17 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                     value={formik.values.amount}
                     onChange={formik.handleChange}
                     placeholder="e.g., 5050"
+                    focusBorderColor="brand.500"
+                  />
+                </div>
+                <div>
+                  <FormLabel>VAT%</FormLabel>
+                  <Input
+                    name="vat"
+                    type="number"
+                    value={formik.values.vat}
+                    onChange={formik.handleChange}
+                    placeholder="e.g. 200.0"
                     focusBorderColor="brand.500"
                   />
                 </div>
@@ -185,6 +198,15 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                     <FormLabel>Agency Name</FormLabel>
                     <Input
                       value={formik.values.agencyName}
+                      isReadOnly
+                      focusBorderColor="gray.300"
+                      bg="gray.50"
+                    />
+                  </div>
+                  <div>
+                    <FormLabel>VAT %</FormLabel>
+                    <Input
+                      value={formik.values.vat}
                       isReadOnly
                       focusBorderColor="gray.300"
                       bg="gray.50"
