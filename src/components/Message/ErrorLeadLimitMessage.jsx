@@ -101,6 +101,26 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										{totalLeads}
 									</Td>
 								</Tr>
+								{errorLeadData?.remainingLeads && (
+									<>
+										<Tr>
+											<Td fontWeight='semibold' color='gray.600'>
+												Remaining Leads
+											</Td>
+											<Td textAlign='right' color='gray.700'>
+												{errorLeadData?.remainingLeads}
+											</Td>
+										</Tr>
+										<Tr>
+											<Td fontWeight='semibold' color='gray.600'>
+												Selected Bulk Leads
+											</Td>
+											<Td textAlign='right' color='gray.700'>
+												{errorLeadData?.selectedLeads}
+											</Td>
+										</Tr>
+									</>
+								)}
 							</Tbody>
 						</Table>
 
