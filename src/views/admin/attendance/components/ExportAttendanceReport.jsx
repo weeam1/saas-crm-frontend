@@ -81,7 +81,17 @@ const ExportAttendanceModal = ({ isOpen, onClose, month, year }) => {
 			const agencyName =
 				agencies?.doc?.find((a) => a._id === selectedAgency)?.name || 'report';
 
-			const fileName = `attendance-${month}-${year}-${agencyName}.${format}`;
+			const monthName = new Date(`${year}-${month}-01`).toLocaleString(
+				'default',
+				{
+					month: 'long',
+					year: 'numeric',
+				}
+			);
+
+			console.log({ monthName });
+
+			const fileName = `attendance-${monthName}-${agencyName}.${format}`;
 
 			// Create and trigger download
 			const url = URL.createObjectURL(blob);
