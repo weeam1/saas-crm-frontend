@@ -23,7 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiDownload  } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
@@ -35,6 +35,7 @@ import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
 import TableLoading from "components/loading/TableLoading";
+import * as XLSX from "xlsx";
 
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -183,6 +184,38 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       );
     }
   };
+
+  const exportToExcel = () => {
+    if (!data || !data.doc || data.doc.length === 0) {
+      toast.warning("No data to export");
+      return;
+    }
+
+    try {
+      const exportData = data.doc.map(item => ({
+        "Date": item.createdAt ? moment(item.createdAt).format("MM/DD/YYYY hh:mmA") : "",
+        "Number": item.expenseNo || "",
+        "Type": item.type ? item.type.name : "",
+        "Description": item.description || "",
+        "Added By": item.addedBy ? item.addedBy.fullName : "",
+        "PRICE": item.amount || "0",
+        "VAT %": item.vat ? `${item.vat}%` : "0",
+        "TOTAL Amount": item.totalAmount || "0"
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(wb, ws, "Payments");
+      const fileName = `Payments_${moment().format('YYYY-MM-DD')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+  
+      toast.success("Export successful!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export data");
+    }
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -218,6 +251,18 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             onClick={() => setIsModalOpen(true)}
           >
             Add New
+          </Button>
+          <Button
+            size="md"
+            variant="outline"
+            leftIcon={<FiDownload />}
+            py={3}
+            px={6}
+            onClick={exportToExcel}
+            colorScheme="green"
+            mr={2}
+          >
+            Export
           </Button>
         </Box>
       </Flex>
