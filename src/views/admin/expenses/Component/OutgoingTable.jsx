@@ -20,10 +20,13 @@ import {
   ModalOverlay,
   FormLabel,
   Select,
+  Input,
+  Stack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
-import { FiFilter, FiDownload  } from "react-icons/fi";
+import { FiFilter, FiDownload } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
@@ -53,7 +56,16 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isEditable, setIsEditable] = useState(false);
   const [OpenExpenseInputModalData, setOpenExpenseInputModalData] =
     useState(null);
-
+  const {
+    isOpen: isDateModalOpen,
+    onOpen: onDateModalOpen,
+    onClose: onDateModalClose,
+  } = useDisclosure();
+  const [editingDate, setEditingDate] = useState({
+    id: null,
+    date: "",
+    time: "",
+  });
   const columns = [
     "Date",
     "Number",
@@ -192,30 +204,90 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     }
 
     try {
-      const exportData = data.doc.map(item => ({
-        "Date": item.createdAt ? moment(item.createdAt).format("MM/DD/YYYY hh:mmA") : "",
-        "Number": item.expenseNo || "",
-        "Type": item.type ? item.type.name : "",
-        "Description": item.description || "",
+      const exportData = data.doc.map((item) => ({
+        Date: item.createdAt
+          ? moment(item.createdAt).format("MM/DD/YYYY hh:mmA")
+          : "",
+        Number: item.expenseNo || "",
+        Type: item.type ? item.type.name : "",
+        Description: item.description || "",
         "Added By": item.addedBy ? item.addedBy.fullName : "",
-        "PRICE": item.amount || "0",
+        PRICE: item.amount || "0",
         "VAT %": item.vat ? `${item.vat}%` : "0",
-        "TOTAL Amount": item.totalAmount || "0"
+        "TOTAL Amount": item.totalAmount || "0",
       }));
 
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(exportData);
       XLSX.utils.book_append_sheet(wb, ws, "Payments");
-      const fileName = `Payments_${moment().format('YYYY-MM-DD')}.xlsx`;
+      const fileName = `Payments_${moment().format("YYYY-MM-DD")}.xlsx`;
       XLSX.writeFile(wb, fileName);
-  
+
       toast.success("Export successful!");
     } catch (error) {
       console.error("Export error:", error);
       toast.error("Failed to export data");
     }
   };
+  const handleDateCellClick = (item) => {
+    const dateTime = moment(item.createdAt);
+    setEditingDate({
+      id: item._id,
+      date: dateTime.format("YYYY-MM-DD"),
+      time: dateTime.format("HH:mm"),
+    });
+    onDateModalOpen();
+  };
 
+  const updateData = async (id, updatedFields) => {
+    try {
+      const currentItem = data.doc.find((item) => item._id === id);
+      if (!currentItem) {
+        throw new Error("Item not found");
+      }
+
+      const updatedItem = { ...currentItem, ...updatedFields };
+      console.log("updatedFields:", updatedFields);
+      console.log("updatedItem:", updatedItem);
+      await updateItemMuation({
+        path: `/expenses/${id}`,
+        body: updatedItem,
+      }).unwrap();
+
+      refetch();
+      refetchSummary();
+      return true;
+    } catch (error) {
+      console.error("Failed to update data:", error);
+      toast.error(
+        error.data?.message || "Failed to update the item. Please try again.",
+        { autoClose: 3000 }
+      );
+      return false;
+    }
+  };
+
+  const handleDateUpdate = async () => {
+    if (!editingDate.id) return;
+
+    try {
+      const newDateTime = moment(
+        `${editingDate.date} ${editingDate.time}`
+      ).toISOString();
+
+      const success = await updateData(editingDate.id, {
+        createdAt: newDateTime,
+      });
+
+      if (success) {
+        onDateModalClose();
+        toast.success("Date updated successfully.");
+      }
+    } catch (error) {
+      console.error("Failed to update date:", error);
+      toast.error("Failed to update date. Please try again.");
+    }
+  };
   return (
     <Box
       overflowY="auto"
@@ -224,7 +296,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-			marginLeft={"-4px"}
+      marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -329,6 +401,8 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       fontWeight="400"
                       minWidth="100px"
                       textAlign={"center"}
+                      onClick={() => handleDateCellClick(row)}
+                      cursor={"pointer"}
                     >
                       {row.createdAt
                         ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
@@ -450,7 +524,6 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             No expenses found.
           </Text>
         )}
-
       </Box>
       <AddOutgoingPaymentModal
         isOpen={isModalOpen}
@@ -477,6 +550,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                 value={tempSelectedAgency}
                 onChange={(e) => setTempSelectedAgency(e.target.value)}
                 mb={4}
+                focusBorderColor="brand.500"
               >
                 <option value="">All</option>
                 {agencies.length > 0 ? (
@@ -521,7 +595,47 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
           </ModalContent>
         </Modal>
       )}
-
+      <Modal isOpen={isDateModalOpen} onClose={onDateModalClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Date & Time</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Stack spacing={4}>
+              <Box>
+                <FormLabel>Date</FormLabel>
+                <Input
+                  type="date"
+                  value={editingDate.date}
+                  onChange={(e) =>
+                    setEditingDate({ ...editingDate, date: e.target.value })
+                  }
+                  focusBorderColor="brand.500"
+                />
+              </Box>
+              <Box>
+                <FormLabel>Time</FormLabel>
+                <Input
+                  type="time"
+                  value={editingDate.time}
+                  onChange={(e) =>
+                    setEditingDate({ ...editingDate, time: e.target.value })
+                  }
+                  focusBorderColor="brand.500"
+                />
+              </Box>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button mr={3} onClick={onDateModalClose}>
+              Cancel
+            </Button>
+            <Button colorScheme="brand" onClick={handleDateUpdate}>
+              Save Changes
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <ExpenseInputModal
         isOpen={isOpenExpenseInputModal}
         onClose={() => setIsOpenExpenseInputModal(false)}
