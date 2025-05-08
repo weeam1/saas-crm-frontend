@@ -226,3 +226,63 @@ export const getNotificationCount = async (userId) => {
 		console.log(err);
 	}
 };
+
+export const generateReportApi = async ({
+	agency,
+	month,
+	year,
+	format,
+	server = 'baseUrl',
+}) => {
+	const queryString = new URLSearchParams({
+		agency,
+		month,
+		year,
+		format,
+	}).toString();
+
+	const headers = {};
+	setAuthHeader(headers);
+
+	try {
+		const response = await axios.get(
+			`${constant[server]}api/attendance/monthly-records?${queryString}`,
+			{
+				headers,
+				responseType: 'blob', // crucial for binary files!
+				validateStatus: (status) => status >= 200 && status < 300, // handle non-2xx as errors
+			}
+		);
+
+		const contentType =
+			response.headers['content-type'] || 'application/octet-stream';
+
+		return {
+			blob: response.data,
+			contentType,
+		};
+	} catch (error) {
+		// axios error shape:
+		// error.response → server responded
+		// error.request  → no response (network issue)
+		// error.message  → generic error
+
+		if (error.response) {
+			const reader = new FileReader();
+			reader.readAsText(error.response.data);
+			const errorText = await new Promise((resolve) => {
+				reader.onload = () => resolve(reader.result);
+			});
+			let message;
+			try {
+				const parsed = JSON.parse(errorText);
+				message = parsed.message || 'Failed to generate report';
+			} catch {
+				message = 'Failed to generate report';
+			}
+			throw new Error(message);
+		} else {
+			throw new Error(error.message || 'Failed to generate report');
+		}
+	}
+};
