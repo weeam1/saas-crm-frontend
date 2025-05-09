@@ -12,12 +12,10 @@ import {
 	useColorModeValue,
 } from '@chakra-ui/react';
 // Custom Components
-import { ItemContent } from 'components/menu/ItemContent';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 // Assets
-import { MdNotificationsNone } from 'react-icons/md';
 import { FaEthereum } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useColorMode } from '@chakra-ui/react';
@@ -25,14 +23,7 @@ import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import jwtDecode from 'jwt-decode';
 import { useSelector } from 'react-redux';
-import {
-	MoonIcon,
-	SunIcon,
-	BellIcon,
-	TimeIcon,
-	ChevronDownIcon,
-} from '@chakra-ui/icons';
-import { Box } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import webSocketService from 'services/WebSocketService';
 
 import NotificationIcon from './notifications/NotificationIcon';
@@ -331,7 +322,7 @@ export default function HeaderLinks(props) {
 									Profile Settings
 								</Text>
 							</MenuItem>
-							<MenuItem
+							{/* <MenuItem
 								_hover={{ bg: 'none' }}
 								_focus={{ bg: 'none' }}
 								borderRadius='8px'
@@ -349,7 +340,7 @@ export default function HeaderLinks(props) {
 									</Text>
 									{colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
 								</Flex>
-							</MenuItem>
+							</MenuItem> */}
 							{/*<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
 							<Text fontSize="sm">Newsletter Settings</Text>
 						</MenuItem> */}
