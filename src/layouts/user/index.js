@@ -157,15 +157,15 @@ export default function User(props) {
 			parentName: 'Attendance',
 			component: MyAttendance,
 		},
-		{
-			name: 'HR Module',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/hrmodule',
-			icon: (
-				<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
-			),
-			component: HRModule,
-		},
+		// {
+		// 	name: 'HR Module',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/hrmodule',
+		// 	icon: (
+		// 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: HRModule,
+		// },
 
 		{
 			name: 'Leads Pool',
@@ -183,15 +183,15 @@ export default function User(props) {
 			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 			component: SignInCentered,
 		},
-		{
-			name: 'Points',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/points',
-			icon: (
-				<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
-			),
-			component: CurrencyPoints,
-		},
+		// {
+		// 	name: 'Points',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/points',
+		// 	icon: (
+		// 		<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: CurrencyPoints,
+		// },
 	];
 
 	if (user?.roles[0]?.roleName === 'Manager') {
@@ -287,60 +287,60 @@ export default function User(props) {
 			},
 
 			// ------------- Invoice Module Routes ------------------------ //
-			{
-				name: 'Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={HiOutlineDocumentReport}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				path: '/invoice',
-				component: InvoiceModule,
-			},
-			{
-				name: 'Bank Accounts',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/invoice/bank-accounts',
-				parentName: 'Invoice',
-				under: 'bank-accounts',
-				component: BankAccounts,
-			},
-			{
-				name: 'Invoice Developers',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers',
-				parentName: 'Invoice',
-				component: InvoiceDevelopers,
-			},
-			{
-				name: 'Developer Invoices',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers/invoices/:id',
-				parentName: 'Invoice',
-				component: DeveloperInvoices,
-			},
-			{
-				name: 'Single Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'single-invoice',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/view/:id',
-				component: SingleInvoice,
-			},
-			{
-				name: 'Invoice Entries',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'invoice-entries',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/entries/:id',
-				component: AddEntry,
-			},
+			// {
+			// 	name: 'Invoice',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	icon: (
+			// 		<Icon
+			// 			as={HiOutlineDocumentReport}
+			// 			width='20px'
+			// 			height='20px'
+			// 			color='inherit'
+			// 		/>
+			// 	),
+			// 	path: '/invoice',
+			// 	component: InvoiceModule,
+			// },
+			// {
+			// 	name: 'Bank Accounts',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	path: '/invoice/bank-accounts',
+			// 	parentName: 'Invoice',
+			// 	under: 'bank-accounts',
+			// 	component: BankAccounts,
+			// },
+			// {
+			// 	name: 'Invoice Developers',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'developer-invoices',
+			// 	path: '/invoice/developers',
+			// 	parentName: 'Invoice',
+			// 	component: InvoiceDevelopers,
+			// },
+			// {
+			// 	name: 'Developer Invoices',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'developer-invoices',
+			// 	path: '/invoice/developers/invoices/:id',
+			// 	parentName: 'Invoice',
+			// 	component: DeveloperInvoices,
+			// },
+			// {
+			// 	name: 'Single Invoice',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'single-invoice',
+			// 	parentName: 'Invoice',
+			// 	path: '/invoice/developers/invoices/view/:id',
+			// 	component: SingleInvoice,
+			// },
+			// {
+			// 	name: 'Invoice Entries',
+			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 	under: 'invoice-entries',
+			// 	parentName: 'Invoice',
+			// 	path: '/invoice/developers/invoices/entries/:id',
+			// 	component: AddEntry,
+			// },
 		];
 
 		// 	// Only show the "Hiring" route for HR role
@@ -437,14 +437,8 @@ export default function User(props) {
 			},
 		];
 
-		console.log('ACCOUNT ROUTES');
-
 		routes = accountantRoutes;
-
-		console.log({ accountantRoutes });
 	}
-
-	console.log({ routes });
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
@@ -579,36 +573,36 @@ export default function User(props) {
 		routes.splice(3, 0, ...newRoutes);
 
 		// Add other routes (e.g., Daily Report, Reporting and Analytics)
-		routes.push(
-			{
-				name: 'Daily Report',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/daily-report',
-				icon: (
-					<Icon
-						as={MdInsertChartOutlined}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: DailyReport,
-			},
-			{
-				name: 'Reporting and Analytics',
-				layout: [ROLE_PATH.user],
-				path: '/reporting-analytics',
-				icon: (
-					<Icon
-						as={MdInsertChartOutlined}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Report,
-			}
-		);
+		// routes.push(
+		// 	{
+		// 		name: 'Daily Report',
+		// 		layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+		// 		path: '/daily-report',
+		// 		icon: (
+		// 			<Icon
+		// 				as={MdInsertChartOutlined}
+		// 				width='20px'
+		// 				height='20px'
+		// 				color='inherit'
+		// 			/>
+		// 		),
+		// 		component: DailyReport,
+		// 	},
+		// 	{
+		// 		name: 'Reporting and Analytics',
+		// 		layout: [ROLE_PATH.user],
+		// 		path: '/reporting-analytics',
+		// 		icon: (
+		// 			<Icon
+		// 				as={MdInsertChartOutlined}
+		// 				width='20px'
+		// 				height='20px'
+		// 				color='inherit'
+		// 			/>
+		// 		),
+		// 		component: Report,
+		// 	}
+		// );
 	}
 
 	const getActiveRoute = (routes) => {

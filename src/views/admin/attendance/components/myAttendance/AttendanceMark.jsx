@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
 import { IoMdExit } from 'react-icons/io';
 import moment from 'moment-timezone';
 import { buttonStyle } from '../../constants';
@@ -7,6 +7,7 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
+import { FaBan } from 'react-icons/fa';
 
 const AttendanceMark = ({
 	timezone,
@@ -26,18 +27,6 @@ const AttendanceMark = ({
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
 
-	// const tick = useCallback(() => {
-	// 	setTime(moment().tz(timezone));
-	// }, [timezone]);
-
-	// useEffect(() => {
-	// 	if (status !== -1) {
-	// 		const timerID = setInterval(tick, 1000);
-	// 		return () => clearInterval(timerID);
-	// 	}
-	// }, [tick, status]);
-
-	// const timeString = useMemo(() => time.format('hh:mm:ss  A'), [time]);
 	const today = moment().tz(timezone).format('YYYY-MM-DD');
 
 	const todayIndex = moment().tz(timezone).day();
@@ -129,10 +118,7 @@ const AttendanceMark = ({
 				}
 			}
 
-			// let bodyData = {};
-			// if (timePicker) {
 			const bodyData = { employeeId, selectedTime };
-			// } else bodyData = { employeeId: data.employee._id };
 
 			setCheckoutLoading(true);
 			await updateItemMutation({
@@ -152,7 +138,7 @@ const AttendanceMark = ({
 	};
 
 	const buttonVariants = {
-		checkIn: { bg: '#D8A541', onClick: handleCheckIn, text: 'Check In' },
+		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'Check In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Check Out' },
 		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
 	};
@@ -181,9 +167,12 @@ const AttendanceMark = ({
 			textAlign='center'
 		>
 			{isOffDay ? (
-				<Text fontSize='lg' fontWeight='bold' color='red.500'>
-					🚫 Office Closed Today!
-				</Text>
+				<Flex align='center' justify='center' gap={2}>
+					<Icon as={FaBan} color='red.500' boxSize={6} />
+					<Text fontSize='md' fontWeight='semibold' color='red.500'>
+						Office is closed today
+					</Text>
+				</Flex>
 			) : (
 				<>
 					<Text fontWeight='medium' fontSize={{ base: '20px', md: '24px' }}>

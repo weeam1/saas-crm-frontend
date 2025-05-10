@@ -238,7 +238,6 @@ const AddUser = (props) => {
 								}
 							/>
 							<Text mb='10px' color={'red'}>
-								{' '}
 								{errors.firstName && touched.firstName && errors.firstName}
 							</Text>
 						</GridItem>
@@ -286,6 +285,7 @@ const AddUser = (props) => {
 								onBlur={handleBlur}
 								value={values.username}
 								name='username'
+								autoComplete='off'
 								placeholder='Email Address'
 								fontWeight='500'
 								borderColor={
@@ -313,11 +313,12 @@ const AddUser = (props) => {
 									children={<PhoneIcon color='gray.300' borderRadius='16px' />}
 								/>
 								<Input
-									type='tel'
+									type='text'
 									fontSize='sm'
 									onChange={handleChange}
 									onBlur={handleBlur}
 									value={values.phoneNumber}
+									autoComplete='off'
 									name='phoneNumber'
 									fontWeight='500'
 									borderColor={
@@ -412,6 +413,7 @@ const AddUser = (props) => {
 									name='password'
 									size='lg'
 									variant='auth'
+									autoComplete='new-password'
 									type={show ? 'text' : 'password'}
 									value={values.password}
 									onChange={handleChange}

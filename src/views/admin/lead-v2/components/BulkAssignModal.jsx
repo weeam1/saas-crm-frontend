@@ -47,7 +47,7 @@ const createUpdates = (selectedValues, values) => {
 				updateObj[`${key}Date`] =
 					value === null || value === '' ? null : new Date().toISOString();
 
-				updateObj.leadType = null;
+				// updateObj.leadType = null;
 				updateObj.isReleased = false;
 			}
 		});
@@ -103,7 +103,11 @@ const BulkAssignModal = (props) => {
 			setIsLoading(true);
 
 			if (values?.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(values.agentAssigned);
+				const stats = await fetchAgentLeadsSats(
+					values.agentAssigned,
+					'bulk',
+					selectedValues?.length
+				);
 
 				if (!stats.canAddLeads) {
 					setIsLoading(false);

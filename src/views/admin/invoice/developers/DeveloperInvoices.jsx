@@ -173,12 +173,12 @@ const DeveloperInvoices = () => {
 		<Box fontFamily="'DM Sans', sans-serif">
 			{/* <Breadcrumb items={breadcrumbItems} /> */}
 
-			<AppButton
+			{/* <AppButton
 				leftIcon={<IoArrowBack />}
 				onClick={() => navigate('/invoice/developers')}
 			>
 				Back
-			</AppButton>
+			</AppButton> */}
 			<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
 				<GridItem colSpan={6}>
 					<CheckTable

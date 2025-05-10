@@ -116,6 +116,9 @@ const Leads = ({
 		setSearchClear(false);
 		setRefetchLoading(true);
 
+		setSelectedLeads([]);
+		setSelectedValues([]);
+
 		clearSearchParams();
 		// setQueryParams((prev) => {
 		// 	const { data, dateTime, name, ...rest } = prev;
@@ -128,7 +131,9 @@ const Leads = ({
 	};
 
 	const handleSearchByName = useCallback(() => {
-		const term = searchTermRef.current.trim();
+		// const term = searchTermRef.current.trim();
+		const term = searchTermRef.current.trim().replace(/^\+/, '');
+
 		if (!term) return;
 
 		setSearchClear(true);

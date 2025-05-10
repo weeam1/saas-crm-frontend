@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 import { buttonStyle } from '../constants';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import moment from 'moment';
+import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
@@ -61,7 +62,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
+		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Edit Attendance Timing</ModalHeader>
@@ -72,18 +73,19 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						alignItems='center'
 						gap={2}
 					>
-						<Box flex='1'>
+						<Box flex='1' bg='softGray.50' p='2' rounded='md'>
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check In
 							</Text>
-							<CustomTimePicker value={checkInTime} onChange={setCheckInTime} />
+							{/* <CustomTimePicker value={checkInTime} onChange={setCheckInTime} /> */}
+							<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 						</Box>
 
-						<Box flex='1'>
+						<Box flex='1' bg='softGray.50' p='2' rounded='md'>
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check Out
 							</Text>
-							<CustomTimePicker
+							<NormalTimePicker
 								value={checkOutTime}
 								onChange={setCheckOutTime}
 							/>

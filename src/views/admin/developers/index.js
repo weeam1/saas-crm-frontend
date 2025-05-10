@@ -109,7 +109,7 @@ const Index = () => {
   }
 
   return (
-    <Box p={4}>
+    <>
       <CheckTable
         isLoading={isLoading}
         columnsData={tableColumns}
@@ -138,7 +138,7 @@ const Index = () => {
         currentPage={developerResponse?.currentPage || 1}
         refetch={refetch}
       />
-    </Box>
+    </>
   );
 };
 

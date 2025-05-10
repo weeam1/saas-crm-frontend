@@ -30,6 +30,7 @@ const SearchBox = ({
 	setTags,
 	searchTerm: parentSearchTerm,
 	setDateTime,
+	setQueryData,
 }) => {
 	const [searchTerm, setSearchTerm] = useState(parentSearchTerm || '');
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,6 +165,7 @@ const SearchBox = ({
 					}}
 					setDisplaySearchData={setDisplaySearchData}
 					onClearSearch={handleClear}
+					setQueryData={setQueryData}
 				/>
 			</Box>
 		</Flex>

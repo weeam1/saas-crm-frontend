@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Divider, Button, Flex } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
 import AttendanceMark from './AttendanceMark';
 import Header from './Header';

@@ -21,9 +21,10 @@ const AnnouncementList = ({
 			overflowY='auto'
 			// border="1px solid"
 			// borderColor="gray.100"
-			borderRadius='md'
 			backgroundColor='white'
 			padding={2}
+			marginTop={"-16px"}
+			marginLeft={"-3px"}
 		>
 			{loading && list.length === 0 ? ( // Loading spinner when no data has been loaded yet
 				<Box

@@ -253,6 +253,8 @@ export default function CheckTable(props) {
 				py={3}
 				px={2}
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
+				borderRadius={"0px"}
+				mt={"-1.3%"} ml={"-0.3%"}
 			>
 				<Grid templateColumns='repeat(12, 1fr)' mb={3} gap={4} mx={4}>
 					<GridItem

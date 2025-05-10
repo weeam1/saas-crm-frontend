@@ -12,12 +12,10 @@ import {
 	useColorModeValue,
 } from '@chakra-ui/react';
 // Custom Components
-import { ItemContent } from 'components/menu/ItemContent';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 // Assets
-import { MdNotificationsNone } from 'react-icons/md';
 import { FaEthereum } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useColorMode } from '@chakra-ui/react';
@@ -25,12 +23,12 @@ import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import jwtDecode from 'jwt-decode';
 import { useSelector } from 'react-redux';
-import { MoonIcon, SunIcon, BellIcon, TimeIcon } from '@chakra-ui/icons';
-import { Box } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import webSocketService from 'services/WebSocketService';
 
 import NotificationIcon from './notifications/NotificationIcon';
 import { constant } from 'constant';
+import DigitalClockDropdown from './clock/DigitalClockDropdown;';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -141,15 +139,9 @@ export default function HeaderLinks(props) {
 			bg={menuBg}
 			flexWrap={secondary ? { base: 'wrap', md: 'nowrap' } : 'unset'}
 			p='6px'
-			borderRadius='30px'
-			boxShadow={shadow}
+			// borderRadius='30px'
+			// boxShadow={shadow}
 		>
-			{/* <SearchBar
-				mb={secondary ? { base: "10px", md: "unset" } : "unset"}
-				me="10px"
-				borderRadius="30px"
-			/> */}
-
 			<Flex
 				bg={ethBg}
 				display={secondary ? 'flex' : 'none'}
@@ -193,7 +185,7 @@ export default function HeaderLinks(props) {
 
 			<HStack gap='2'>
 				<NotificationIcon userId={userId} />
-				<Box
+				{/* <Box
 					boxSize={10}
 					bg='brand.500'
 					pb={1}
@@ -203,35 +195,46 @@ export default function HeaderLinks(props) {
 					sx={{ clipPath: 'circle()' }} // Applying circular clip path
 				>
 					<TimeIcon boxSize={6} color='white' />
-				</Box>
+				</Box> */}
+
+				<DigitalClockDropdown />
+
 				<Menu style={{ zIndex: 99999 }}>
-					<MenuButton p='0px'>
-						{/* <Avatar
-						_hover={{ cursor: "pointer" }}
-						color="white"
-						name={user || "User"}
-						bg="brand.500"
-						size="sm"
-						w="40px"
-						h="40px"
-						mx={1}
-					/> */}
-						<Avatar
-							_hover={{ cursor: 'pointer' }}
-							color={loginUser?.profileImage ? '#333' : 'white'}
-							name={user || 'User'}
-							bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
-							size='sm'
-							w='40px'
-							h='40px'
-							mx={1}
-							shadow='sm'
-							src={
-								loginUser?.profileImage
-									? `${constant['baseUrl']}${loginUser?.profileImage}`
-									: ''
-							}
-						/>
+					<MenuButton
+						p='1px'
+						_hover={{ backgroundColor: 'gray.100', rounded: 'full' }}
+					>
+						<HStack spacing='10px' pr='4'>
+							<Avatar
+								size='sm'
+								w='40px'
+								h='40px'
+								name={loginUser?.firstName || 'User'}
+								src={
+									loginUser?.profileImage
+										? `${constant['baseUrl']}${loginUser.profileImage}`
+										: ''
+								}
+								bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
+								color={loginUser?.profileImage ? '#333' : 'white'}
+								shadow='md'
+								_hover={{ cursor: 'pointer' }}
+							/>
+							{loginUser?.firstName && (
+								<>
+									<Text
+										fontWeight='medium'
+										display={{ base: 'none', md: 'block' }}
+										isTruncated={true}
+										maxWidth='200px'
+										color='brand.500'
+									>
+										👋 Hey, {loginUser?.firstName || 'User'}
+									</Text>
+									<Icon as={ChevronDownIcon} w={5} h={5} />
+								</>
+							)}
+						</HStack>
 					</MenuButton>
 
 					<MenuList
@@ -242,7 +245,7 @@ export default function HeaderLinks(props) {
 						bg={menuBg}
 						border='none'
 					>
-						<Flex w='100%' mb='0px'>
+						{/* <Flex w='100%' mb='0px'>
 							<Text
 								ps='20px'
 								pt='16px'
@@ -257,7 +260,7 @@ export default function HeaderLinks(props) {
 							>
 								👋&nbsp; Hey, {user}
 							</Text>
-						</Flex>
+						</Flex> */}
 
 						<Flex flexDirection='column' p='10px'>
 							<MenuItem
@@ -319,7 +322,7 @@ export default function HeaderLinks(props) {
 									Profile Settings
 								</Text>
 							</MenuItem>
-							<MenuItem
+							{/* <MenuItem
 								_hover={{ bg: 'none' }}
 								_focus={{ bg: 'none' }}
 								borderRadius='8px'
@@ -337,7 +340,7 @@ export default function HeaderLinks(props) {
 									</Text>
 									{colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
 								</Flex>
-							</MenuItem>
+							</MenuItem> */}
 							{/*<MenuItem _hover={{ bg: 'none' }} _focus={{ bg: 'none' }} borderRadius="8px" px="14px">
 							<Text fontSize="sm">Newsletter Settings</Text>
 						</MenuItem> */}

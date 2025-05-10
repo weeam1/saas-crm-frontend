@@ -51,6 +51,7 @@ export default function AdminNavbar(props) {
 	let paddingX = '15px';
 	let gap = '0px';
 	let size = 'sm';
+
 	const changeNavbar = () => {
 		if (window.scrollY > 1) {
 			setScrolled(true);
@@ -164,7 +165,6 @@ export default function AdminNavbar(props) {
 								onClick={() => !props.from && setOpenSidebar(!openSidebar)}
 								userSelect='none'
 								objectFit='contain'
-								my={2}
 							/>
 						) : (
 							<Heading
@@ -194,7 +194,7 @@ export default function AdminNavbar(props) {
 								cursor='pointer'
 								objectFit='contain'
 								userSelect='none'
-								my={2}
+								// my={2}
 							/>
 						) : (
 							<Heading my={4} ps={4} cursor={'pointer'} userSelect={'none'}>
