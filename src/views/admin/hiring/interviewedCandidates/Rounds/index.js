@@ -1,15 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Box, Button, Icon } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
+
 import ErrorMessage from 'components/Message/ErrorMessage';
 import Loader from 'components/loading/Loader';
-import Interviewed from './Interviewed';
-import AdvancedSearch from '../candidates/components/AdvancedSearch';
-import { IoArrowBack } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
 import SearchTags from 'components/shared/SearchTags';
-import { experienceYearsOptions } from '../helpers';
+
+import { experienceYearsOptions } from '../../helpers';
+import InterviewedRound from './InterviewedRound';
+import AdvancedSearch from '../../candidates/components/AdvancedSearch';
 
 const InterviewedCandidates = () => {
 	const [showContent, setShowContent] = useState(false);
@@ -31,13 +32,6 @@ const InterviewedCandidates = () => {
 	const [gopageValue, setGopageValue] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
 
-	const [isRefetching, setIsRefetching] = useState(false);
-
-	useEffect(() => {
-		const timer = setTimeout(() => setIsRefetching(false), 2000);
-		return () => clearTimeout(timer);
-	}, [isRefetching]);
-
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
@@ -51,7 +45,7 @@ const InterviewedCandidates = () => {
 		refetch,
 	} = useFetchItemsQuery(
 		{
-			path: `/interviews/interviewed-candidates`,
+			path: `/interviews/next-rounds`,
 			params: queryParams,
 		},
 		{ refetchOnMountOrArgChange: true }
@@ -59,7 +53,7 @@ const InterviewedCandidates = () => {
 
 	const { data: allData } = useFetchItemsQuery(
 		{
-			path: `/interviews/interviewed-candidates`,
+			path: `/interviews/next-rounds`,
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
@@ -93,13 +87,12 @@ const InterviewedCandidates = () => {
 			page: currentPage,
 			limit: pageSize,
 		}));
-		setIsRefetching(true);
 	}, [currentPage, pageSize]);
 
 	// Automatically refetch when queryParams change
 	useEffect(() => {
 		refetch({
-			path: `/interviews/interviewed-candidates`,
+			path: `/interviews/next-rounds`,
 			params: queryParams,
 		});
 	}, [queryParams, refetch]);
@@ -176,8 +169,6 @@ const InterviewedCandidates = () => {
 				}
 			}
 
-			setIsRefetching(true);
-
 			return {
 				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
 				value: formattedValue,
@@ -247,41 +238,13 @@ const InterviewedCandidates = () => {
 		<Loader />
 	) : (
 		<Box
-			// marginTop={'-32px'}
-			// marginLeft={'-4px'}
-			// borderRadius={'0px'}
+			marginTop={'-32px'}
+			marginLeft={'-4px'}
+			borderRadius={'0px'}
 			fontFamily="'DM Sans', sans-serif"
 		>
-			{/* <Button
-				colorScheme='gray'
-				borderRadius='5px'
-				size={{ base: 'sm', md: 'md' }}
-				px={{ base: 4, md: 6 }}
-				py={{ base: 2, md: 3 }}
-				fontSize={{ base: 'sm', md: 'md' }}
-				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
-				onClick={() => navigate('/hiring')}
-				mb={4}
-			>
-				Back
-			</Button> */}
-			{/* <Box mb={4}>
-				{searchTags?.map(({ key, value }) => (
-					<Tag
-						key={key}
-						size='sm'
-						colorScheme='brand'
-						borderRadius='full'
-						m={1}
-						p='1'
-						onClick={() => removeTag(key)}
-					>
-						{key}: {value} <TagCloseButton onClick={() => removeTag(key)} />
-					</Tag>
-				))}
-			</Box> */}
 			<SearchTags removeTag={removeTag} searchTags={searchTags} />
-			<Interviewed
+			<InterviewedRound
 				allData={allData}
 				data={data}
 				totalDocs={invitedData?.totalDocs}
@@ -295,7 +258,6 @@ const InterviewedCandidates = () => {
 				handlePageSizeChange={handlePageSizeChange}
 				handleGotoPage={handleGotoPage}
 				gopageValue={gopageValue}
-				isRefetching={isRefetching}
 				setGopageValue={setGopageValue}
 				setAdvanceSearch={setAdvanceSearch}
 			/>

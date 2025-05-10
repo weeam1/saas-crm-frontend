@@ -43,6 +43,7 @@ const InvitedCandidates = ({
 	const headers = [
 		{ key: 'name', label: 'Name', width: '300px' }, // Name column width
 		{ key: 'email', label: 'Email', width: '250px' }, // Email column width
+		{ key: 'agency', label: 'Agency', width: '100px' }, // Email column width
 		{ key: 'position', label: 'Job Role', width: '150px' }, // Job Role column width
 		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width

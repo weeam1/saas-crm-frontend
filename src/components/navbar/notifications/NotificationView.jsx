@@ -36,7 +36,10 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 		error?.status === 404;
 
 	const handleJoinInterview = () => {
-		navigate(`/hiring/interview/${item.interview_id}?phase=evaluation-points`);
+		navigate(`/hiring/interview/${item.interview_id}`);
+
+		// window.location.href = `/hiring/interview/${item.interview_id}?phase=evaluation-points`;
+
 		onClose();
 	};
 

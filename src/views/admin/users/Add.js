@@ -602,7 +602,7 @@ const AddUser = (props) => {
 								fontWeight='500'
 								mb='8px'
 							>
-								UEA ID NUM
+								UAE ID NUM
 							</FormLabel>
 							<Input
 								fontSize='sm'
@@ -610,7 +610,7 @@ const AddUser = (props) => {
 								onBlur={handleBlur}
 								value={values.uaeIdNum}
 								name='uaeIdNum'
-								placeholder='UEA ID NUM'
+								placeholder='UAE ID NUM'
 								fontWeight='500'
 								borderColor={
 									errors.uaeIdNum && touched.uaeIdNum ? 'red.300' : null

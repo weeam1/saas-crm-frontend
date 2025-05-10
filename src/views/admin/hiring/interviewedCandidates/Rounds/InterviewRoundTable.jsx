@@ -15,19 +15,56 @@ import {
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
-import MailIcon from './MailIcon';
 import FlagBadge from '../../_components/FlagBadge';
-import { format } from 'date-fns';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { useCreateItemMutation } from 'api/apiSlice';
 
-const PendingInvitedTable = ({
+const InterviewedRoundTable = ({
 	headers,
 	data,
 	loading,
 	handleSort,
 	sortConfig,
 	handleViewCandidate,
-	handleArrangeInterview,
+	handleViewResult,
 }) => {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const navigate = useNavigate();
+
+	const [createItemMutation, { isLoading: startingInterview }] =
+		useCreateItemMutation();
+
+	const handleStartInterview = async (interview) => {
+		try {
+			console.log({
+				candidate: interview?.candidate?._id,
+				interview: interview?._id,
+			});
+			const data = await createItemMutation({
+				path: `/interviews/create-round`,
+				body: {
+					candidate: interview?.candidate?._id,
+					interviewId: interview?._id,
+				},
+			}).unwrap();
+
+			if (data?.status === 'success' && data?.doc?._id) {
+				// navigate(`/hiring/interview/${data.doc._id}`);
+
+				window.location.href = `/hiring/interview/${data.doc._id}`;
+				toast.success('Interview started...');
+			} else {
+				toast.error('Invalid response from server.');
+			}
+		} catch (error) {
+			console.log(error);
+			toast.error(
+				error?.data?.message || 'Interview not started, please try again.'
+			);
+		}
+	};
+
 	return (
 		<>
 			{/* Box:  transform='translate(-10px, -10px)' */}
@@ -37,7 +74,7 @@ const PendingInvitedTable = ({
 					overflowY='auto' // Enable vertical scrolling
 					overflowX='auto' // Optional: Enable horizontal scrolling
 				>
-					<Table variant='striped' size='md' width='100%'>
+					<Table variant='striped' size='md'>
 						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
 							<Tr>
 								{headers?.map((header) => (
@@ -46,7 +83,6 @@ const PendingInvitedTable = ({
 										textAlign='center'
 										color='gray.800'
 										width={header.width || '150px'}
-										whiteSpace='nowrap'
 									>
 										<Flex align='center' justify='space-evenly' gap='4'>
 											<Text textTransform='capitalize'>{header.label}</Text>
@@ -79,27 +115,22 @@ const PendingInvitedTable = ({
 									<Tr key={index} fontSize='sm'>
 										<Td minWidth='300px'>
 											<HStack gap='1'>
-												<span>{item.name}</span>
-												<FlagBadge item={item} />
+												<span>{item.candidate.name}</span>
+												<FlagBadge item={item.candidate} />
 											</HStack>
 										</Td>
-										<Td minWidth='250px'>{item.email}</Td>
+										<Td minWidth='250px'>{item.candidate.email}</Td>
 										<Td>{item?.agency?.name ?? 'N/A'}</Td>
-										<Td>{item.position.name}</Td>
-										<Td>{item.phone}</Td>
-										<Td>{item.whatsApp}</Td>
-										<Td display='flex' alignItems='center' gap='2'>
-											<p>
-												{format(
-													new Date(item.interviewDate),
-													'EEE, MMM d, yyyy'
-												)}
-											</p>
-											<p>{item.interviewTime}</p>
-										</Td>
-										{/* <Td>{item.nationality}</Td> */}
+
+										<Td>{item.position}</Td>
+										<Td>{item.candidate.phone}</Td>
+										<Td>{item.candidate.whatsApp}</Td>
+										<Td>{item.jobType}</Td>
 										<Td>
-											<HStack gap='1' alignItems='center'>
+											{!item.remarks ? 'No Result' : `${item.percentageScore}%`}
+										</Td>
+										<Td>
+											<HStack alignItems='center'>
 												<Button
 													bg='#EDC270'
 													color='gray.800'
@@ -112,30 +143,48 @@ const PendingInvitedTable = ({
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleViewCandidate(item._id)}
+													onClick={() =>
+														handleViewCandidate(item.candidate._id)
+													}
 												>
 													View
 												</Button>
+
 												<Button
 													bg='#EDC270'
 													color='gray.800'
 													h='6'
 													py='2'
 													px='4'
+													flex={1}
 													fontSize='xs'
 													fontWeight='normal'
 													shadow='sm'
 													rounded='md'
 													_hover={{ bg: '#E0B960' }}
 													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleArrangeInterview(item._id)}
+													onClick={() => handleViewResult(item)}
 												>
-													{item.interviewDate
-														? 'Reschedule'
-														: 'Arrange Interview'}
+													Submit Result
 												</Button>
-												{/* Mail Icon for accepting interview intive */}
-												<MailIcon isRead={item.inviteAccepted} />
+
+												<Button
+													bg='#EDC270'
+													color='gray.800'
+													h='6'
+													py='2'
+													px='4'
+													flex={1}
+													fontSize='xs'
+													fontWeight='normal'
+													shadow='sm'
+													rounded='md'
+													_hover={{ bg: '#E0B960' }}
+													_active={{ bg: '#D4AC50' }}
+													onClick={() => handleStartInterview(item)}
+												>
+													Start Interview
+												</Button>
 											</HStack>
 										</Td>
 									</Tr>
@@ -163,4 +212,4 @@ const PendingInvitedTable = ({
 	);
 };
 
-export default PendingInvitedTable;
+export default InterviewedRoundTable;

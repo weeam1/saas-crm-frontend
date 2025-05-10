@@ -5,4 +5,6 @@ export const buttonStyle = {
 	_active: { bg: 'brand.500' },
 	color: 'white',
 	fontWeight: 'medium',
+	py: '5',
+	px: '8',
 };
