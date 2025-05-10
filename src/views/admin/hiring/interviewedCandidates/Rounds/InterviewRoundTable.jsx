@@ -168,23 +168,25 @@ const InterviewedRoundTable = ({
 													Submit Result
 												</Button>
 
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													flex={1}
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleStartInterview(item)}
-												>
-													Start Interview
-												</Button>
+												{item?.remarks && (
+													<Button
+														bg='#EDC270'
+														color='gray.800'
+														h='6'
+														py='2'
+														px='4'
+														flex={1}
+														fontSize='xs'
+														fontWeight='normal'
+														shadow='sm'
+														rounded='md'
+														_hover={{ bg: '#E0B960' }}
+														_active={{ bg: '#D4AC50' }}
+														onClick={() => handleStartInterview(item)}
+													>
+														Start Interview
+													</Button>
+												)}
 											</HStack>
 										</Td>
 									</Tr>
