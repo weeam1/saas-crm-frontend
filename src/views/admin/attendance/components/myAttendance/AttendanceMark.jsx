@@ -26,6 +26,7 @@ const AttendanceMark = ({
 	const [checkinLoading, setCheckinLoading] = useState(false);
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
+	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const today = moment().tz(timezone).format('YYYY-MM-DD');
 
@@ -40,12 +41,14 @@ const AttendanceMark = ({
 
 	useEffect(() => {
 		if (data?.total > 0) {
-			const todayRecord = data?.doc?.find((item) => item.date === today);
+			const todayRecord = data?.doc?.find((item) => item.date == today);
+
+			console.log(today, todayRecord);
 
 			if (todayRecord) {
 				setLastRecord(todayRecord);
 
-				if (todayRecord?.status === 0) {
+				if (todayRecord?.status === 0 || todayRecord?.status === 3) {
 					setStatus(-1);
 				} else if (todayRecord?.checkin && todayRecord?.checkout) {
 					setStatus(-1);
@@ -137,10 +140,52 @@ const AttendanceMark = ({
 		}
 	};
 
+	const handleLeave = async () => {
+		try {
+			const bodyData = { employeeId };
+
+			setLeaveLoading(true);
+			await createItemMutation({
+				path: '/attendance/leave',
+				body: bodyData,
+			}).unwrap();
+
+			toast.success('Employee leave successfully');
+			setStatus(-1);
+			refetch({ force: true });
+		} catch (e) {
+			console.log(e);
+			toast.error(e?.data?.message || 'Error in employee leave');
+		} finally {
+			setLeaveLoading(false);
+		}
+	};
+
 	const buttonVariants = {
-		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'Check In' },
-		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Check Out' },
-		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
+		checkIn: {
+			bg: 'green.400',
+			_active: 'green.500',
+			onClick: handleCheckIn,
+			text: 'In',
+		},
+		checkOut: {
+			bg: '#D8A541',
+			_active: 'brand.400',
+			onClick: handleCheckOut,
+			text: 'Out',
+		},
+		absent: {
+			bg: 'red.400',
+			_active: 'read.400',
+			onClick: handleAbsence,
+			text: 'Absent',
+		},
+		leave: {
+			bg: 'teal.400',
+			_active: 'teal.500',
+			onClick: handleLeave,
+			text: 'On Leave',
+		},
 	};
 
 	const shouldRender = useMemo(() => {
@@ -208,7 +253,7 @@ const AttendanceMark = ({
 									w={{ base: '100%', md: '208px' }}
 									h='43px'
 									mb='4'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 									leftIcon={<IoMdExit size={20} />}
 								>
 									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
@@ -219,9 +264,19 @@ const AttendanceMark = ({
 									w={{ base: '100%', md: '208px' }}
 									h='43px'
 									mb='4'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
 									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
+								</Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.leave}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									mb='4'
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+								>
+									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
 								</Button>
 							</>
 						)

@@ -22,6 +22,14 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
 
+	console.log(data?.checkout);
+
+	const today = new Date().toISOString().split('T')[0];
+
+	const isToday = data?.date === today;
+
+	const showCheckout = isToday ? data?.checkout : true;
+
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
@@ -36,9 +44,13 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 		try {
 			if (data?._id) {
+				const updatedData = showCheckout
+					? { checkin: checkInTime, checkout: checkOutTime }
+					: { checkin: checkInTime };
+
 				const res = await updateItemMutation({
 					path: `/attendance/${data?._id}`,
-					body: { checkin: checkInTime, checkout: checkOutTime },
+					body: updatedData,
 				}).unwrap();
 
 				toast.success('Attendance record update successfully');
@@ -62,18 +74,26 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
+		<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Edit Attendance Timing</ModalHeader>
 				<ModalBody>
 					<HStack
 						flexDir={{ base: 'column', md: 'row' }}
-						justify='space-around'
+						justifyContent='center'
 						alignItems='center'
 						gap={2}
+						// width='100%'
+						width='fit-content'
 					>
-						<Box flex='1' bg='softGray.50' p='2' rounded='md'>
+						<Box
+							flex='1'
+							bg='softGray.50'
+							p='2'
+							width='fit-content'
+							rounded='md'
+						>
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check In
 							</Text>
@@ -81,15 +101,17 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 							<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 						</Box>
 
-						<Box flex='1' bg='softGray.50' p='2' rounded='md'>
-							<Text mb={2} fontWeight='400' fontSize='lg'>
-								Check Out
-							</Text>
-							<NormalTimePicker
-								value={checkOutTime}
-								onChange={setCheckOutTime}
-							/>
-						</Box>
+						{showCheckout && (
+							<Box flex='1' bg='softGray.50' p='2' rounded='md'>
+								<Text mb={2} fontWeight='400' fontSize='lg'>
+									Check Out
+								</Text>
+								<NormalTimePicker
+									value={checkOutTime}
+									onChange={setCheckOutTime}
+								/>
+							</Box>
+						)}
 					</HStack>
 				</ModalBody>
 				<ModalFooter>

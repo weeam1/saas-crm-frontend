@@ -66,6 +66,7 @@ const AttendanceStats = ({ stats, employee }) => {
 				<StatsCard label='Total Present' value={stats.totalPresent} />
 				<StatsCard label='Total Absent' value={stats.totalAbsent} />
 				<StatsCard label='Total Late' value={stats.totalLate} />
+				<StatsCard label='Total Leave' value={stats.totalLeave} />
 				<StatsCard label='Total Deduction' value={stats?.salaryDeduction} />
 				<StatsCard label='Per Day Salary' value={stats?.perDaySalary} />
 				<StatsCard label='Net Salary' value={stats?.netSalary} />

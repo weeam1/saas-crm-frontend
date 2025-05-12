@@ -15,6 +15,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const [checkinLoading, setCheckinLoading] = useState(false);
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
+	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const todayIndex = moment().tz(timezone).day();
 	const offDays = officeSetting?.offDays || [];
@@ -23,7 +24,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 
 	useEffect(() => {
 		if (todayRecord) {
-			if (todayRecord?.status === 0) {
+			if (todayRecord?.status === 0 || todayRecord?.status === 3) {
 				setStatus(-1);
 			} else if (todayRecord?.checkin && todayRecord?.checkout) {
 				setStatus(-1);
@@ -99,10 +100,31 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		}
 	};
 
+	const handleLeave = async () => {
+		try {
+			const bodyData = { employeeId };
+
+			setLeaveLoading(true);
+			await createItemMutation({
+				path: '/attendance/leave',
+				body: bodyData,
+			}).unwrap();
+
+			toast.success('Employee leave successfully');
+			setStatus(-1);
+		} catch (e) {
+			console.log(e);
+			toast.error(e?.data?.message || 'Error in employee leave');
+		} finally {
+			setLeaveLoading(false);
+		}
+	};
+
 	const buttonVariants = {
-		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'In' },
+		checkIn: { bg: 'green.400', onClick: handleCheckIn, text: 'In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Out' },
-		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
+		absent: { bg: 'red.400', onClick: handleAbsence, text: 'Absent' },
+		leave: { bg: 'teal.400', onClick: handleLeave, text: 'On Leave' },
 	};
 
 	const shouldRender = useMemo(() => {
@@ -131,8 +153,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 						<Button
 							{...buttonStyle}
 							{...buttonVariants.checkOut}
-							// w={{ base: '100%', md: status ? '100%' : '120px' }}
-							// h='43px'
 							isDisabled={checkoutLoading}
 							leftIcon={<IoMdExit size={20} />}
 						>
@@ -144,9 +164,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								<Button
 									{...buttonStyle}
 									{...buttonVariants.checkIn}
-									// w={{ base: '100%', md: '120px' }}
-									// h='43px'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 									leftIcon={<IoMdExit size={20} />}
 								>
 									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
@@ -154,11 +172,16 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								<Button
 									{...buttonStyle}
 									{...buttonVariants.absent}
-									// w={{ base: '100%', md: '120px' }}
-									// h='43px'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
 									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
+								</Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.leave}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+								>
+									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
 								</Button>
 							</>
 						)

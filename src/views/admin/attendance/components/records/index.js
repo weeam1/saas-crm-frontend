@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Icon,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -11,6 +19,7 @@ import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
 import RecordShimmer from './RecordShimmer';
 import ExportAttendanceReport from '../ExportAttendanceReport';
+import AttendanceStatusFilter from '../AttendanceStatusFilter';
 
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +64,7 @@ export default function Records() {
 
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || 'All';
+		const status = searchParams.get('status') || '';
 
 		setSearchParams(
 			(prev) => {
@@ -65,6 +75,7 @@ export default function Records() {
 					year: searchParams.get('year') || year,
 					...(search && { search }),
 					...(agency && { agency }),
+					...((status || status === 0) && { status }),
 				};
 
 				return newParams;
@@ -77,6 +88,7 @@ export default function Records() {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || 'All';
+		const status = searchParams.get('status') || '';
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
@@ -85,6 +97,7 @@ export default function Records() {
 			year: searchParams.get('year') || year,
 			...(search && { search }),
 			...(agency && { agency }),
+			...((status || status === 0) && { status }),
 		};
 	}, [searchParams]);
 
@@ -155,7 +168,7 @@ export default function Records() {
 	const handleClear = () => {
 		searchTermRef.current = '';
 		document.getElementById('searchInput').value = '';
-		updateFilters({ page: 1, role: 'All' });
+		updateFilters({ page: 1 });
 
 		setSearchParams((prev) => {
 			const newParams = new URLSearchParams(prev);
@@ -171,6 +184,10 @@ export default function Records() {
 		const newYear = Number(value.year);
 
 		updateFilters({ month: newMonth, year: newYear });
+	};
+
+	const onStatusChange = (value) => {
+		updateFilters({ status: value, page: 1 });
 	};
 
 	if (error) {
@@ -192,6 +209,7 @@ export default function Records() {
 				display='flex'
 				justifyContent='space-between'
 				alignItems='center'
+				flexDir={{ base: 'column', md: 'row' }}
 				gap='2'
 				mb={4}
 				bg='white'
@@ -201,7 +219,10 @@ export default function Records() {
 				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					Attendance Records
 				</Text>
-				<ExportAttendanceReport month={month} year={year} />
+				<HStack gap='2'>
+					<AttendanceStatusFilter onChange={onStatusChange} />
+					<ExportAttendanceReport month={month} year={year} />
+				</HStack>
 			</Box>
 			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
 				{/* Header */}
