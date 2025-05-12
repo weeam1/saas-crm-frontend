@@ -28,3 +28,7 @@ export const attendanceStatusFilters = [
 	{ label: 'Late', value: 2 },
 	{ label: 'Leave', value: 3 },
 ];
+
+export const getLocalAttendanceFilter = () => {
+	return localStorage.getItem('attendanceAgencyFilter');
+};

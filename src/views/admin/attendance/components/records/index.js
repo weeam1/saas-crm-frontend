@@ -24,6 +24,9 @@ import AttendanceStatusFilter from '../AttendanceStatusFilter';
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchClear, setSearchClear] = useState(false);
+	const currentStatus = searchParams.get('status') || '';
+	const [status, setStatus] = useState(currentStatus);
+
 	const navigate = useNavigate();
 	const searchTermRef = useRef('');
 
@@ -174,9 +177,11 @@ export default function Records() {
 			const newParams = new URLSearchParams(prev);
 			newParams.delete('search');
 			newParams.delete('agency');
+			newParams.delete('status');
 			return newParams;
 		});
 		setSearchClear(false);
+		setStatus('');
 	};
 
 	const onFilterChange = (value) => {
@@ -187,6 +192,7 @@ export default function Records() {
 	};
 
 	const onStatusChange = (value) => {
+		setStatus(value);
 		updateFilters({ status: value, page: 1 });
 	};
 
@@ -220,7 +226,7 @@ export default function Records() {
 					Attendance Records
 				</Text>
 				<HStack gap='2'>
-					<AttendanceStatusFilter onChange={onStatusChange} />
+					<AttendanceStatusFilter status={status} onChange={onStatusChange} />
 					<ExportAttendanceReport month={month} year={year} />
 				</HStack>
 			</Box>

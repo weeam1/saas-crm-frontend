@@ -1,21 +1,19 @@
 import { Select } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback } from 'react';
 import {
 	ATTENDANCE_STATUS_CONFIG,
 	attendanceStatusFilters,
 } from '../constants';
 
-const AttendanceStatusFilter = ({ onChange }) => {
-	const [searchParams] = useSearchParams();
-	const currentStatus = searchParams.get('status') || '';
-	const [status, setStatus] = useState(currentStatus);
-
-	const handleStatusChange = (e) => {
-		const val = e.target.value;
-		setStatus(val);
-		onChange(val === '' ? '' : Number(val));
-	};
+const AttendanceStatusFilter = ({ onChange, status }) => {
+	const handleStatusChange = useCallback(
+		(e) => {
+			const val = e.target.value;
+			// setStatus(val);
+			onChange(val === '' ? '' : Number(val));
+		},
+		[onChange]
+	);
 
 	const selectedConfig = ATTENDANCE_STATUS_CONFIG[status];
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { IoMdExit } from 'react-icons/io';
 import moment from 'moment-timezone';
 import { buttonStyle } from '../../constants';
@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import { FaBan } from 'react-icons/fa';
+import LeaveNoteModal from './LeaveNoteModal';
 
 const AttendanceMark = ({
 	timezone,
@@ -17,7 +18,14 @@ const AttendanceMark = ({
 	employeeId,
 }) => {
 	const [status, setStatus] = useState(null);
+
 	const [time, setTime] = useState(moment().tz(timezone));
+
+	const {
+		isOpen: noteIsOpen,
+		onOpen: noteOnOpen,
+		onClose: noteOnClose,
+	} = useDisclosure();
 
 	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
 
@@ -140,9 +148,9 @@ const AttendanceMark = ({
 		}
 	};
 
-	const handleLeave = async () => {
+	const handleLeave = async (values) => {
 		try {
-			const bodyData = { employeeId };
+			const bodyData = { ...values, employeeId };
 
 			setLeaveLoading(true);
 			await createItemMutation({
@@ -151,6 +159,7 @@ const AttendanceMark = ({
 			}).unwrap();
 
 			toast.success('Employee leave successfully');
+			noteOnClose();
 			setStatus(-1);
 			refetch({ force: true });
 		} catch (e) {
@@ -183,7 +192,7 @@ const AttendanceMark = ({
 		leave: {
 			bg: 'teal.400',
 			_active: 'teal.500',
-			onClick: handleLeave,
+			onClick: noteOnOpen,
 			text: 'On Leave',
 		},
 	};
@@ -278,6 +287,15 @@ const AttendanceMark = ({
 								>
 									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
 								</Button>
+
+								{noteIsOpen && (
+									<LeaveNoteModal
+										isOpen={noteIsOpen}
+										onClose={noteOnClose}
+										onSubmit={handleLeave}
+										isLoading={leaveLoading}
+									/>
+								)}
 							</>
 						)
 					)}

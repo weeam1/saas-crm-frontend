@@ -187,7 +187,7 @@ const AttendanceTable = ({
 										<Td borderBottom='none' py={4} minWidth='150px'>
 											{format(new Date(entry.date), 'd MMM, yyyy')}
 										</Td>
-										<Td borderBottom='none' py={4}>
+										<Td borderBottom='none' py={4} minWidth='160px'>
 											<Box
 												bg={statusBgColor}
 												color={textColor}
@@ -197,9 +197,26 @@ const AttendanceTable = ({
 												borderRadius='md'
 												display='inline-block'
 												minWidth='fit-content'
+												mr={2}
 											>
-												{statusText}
+												{entry?.status === 3 && entry?.leaveType
+													? entry.leaveType.charAt(0).toUpperCase() +
+														entry.leaveType.slice(1) +
+														' ' +
+														statusText
+													: statusText}
 											</Box>
+
+											{/* <Box
+												bg={statusBgColor}
+												color={textColor}
+												fontWeight='bold'
+												px={2}
+												py={1}
+												borderRadius='md'
+												display='inline-block'
+												minWidth='fit-content'
+											></Box> */}
 										</Td>
 										<Td
 											borderBottom='none'

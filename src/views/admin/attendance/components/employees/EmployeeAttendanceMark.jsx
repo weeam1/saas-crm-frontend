@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { IoMdExit } from 'react-icons/io';
 import moment from 'moment-timezone';
 import { buttonStyle } from '../../constants';
@@ -7,9 +7,16 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { FaBan, FaCalendarCheck } from 'react-icons/fa';
+import LeaveNoteModal from '../myAttendance/LeaveNoteModal';
 
 const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const { timezone } = officeSetting;
+
+	const {
+		isOpen: noteIsOpen,
+		onOpen: noteOnOpen,
+		onClose: noteOnClose,
+	} = useDisclosure();
 
 	const [status, setStatus] = useState(null);
 	const [checkinLoading, setCheckinLoading] = useState(false);
@@ -100,9 +107,9 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		}
 	};
 
-	const handleLeave = async () => {
+	const handleLeave = async (values) => {
 		try {
-			const bodyData = { employeeId };
+			const bodyData = { ...values, employeeId };
 
 			setLeaveLoading(true);
 			await createItemMutation({
@@ -111,6 +118,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			}).unwrap();
 
 			toast.success('Employee leave successfully');
+			noteOnClose();
 			setStatus(-1);
 		} catch (e) {
 			console.log(e);
@@ -124,7 +132,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		checkIn: { bg: 'green.400', onClick: handleCheckIn, text: 'In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Out' },
 		absent: { bg: 'red.400', onClick: handleAbsence, text: 'Absent' },
-		leave: { bg: 'teal.400', onClick: handleLeave, text: 'On Leave' },
+		leave: { bg: 'teal.400', onClick: noteOnOpen, text: 'On Leave' },
 	};
 
 	const shouldRender = useMemo(() => {
@@ -183,6 +191,15 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								>
 									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
 								</Button>
+
+								{noteIsOpen && (
+									<LeaveNoteModal
+										isOpen={noteIsOpen}
+										onClose={noteOnClose}
+										onSubmit={handleLeave}
+										isLoading={leaveLoading}
+									/>
+								)}
 							</>
 						)
 					)}
