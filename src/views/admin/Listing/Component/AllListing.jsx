@@ -12,13 +12,25 @@ import {
   Text,
   IconButton,
   Tooltip,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  FormLabel,
+  Select,
+  Input,
   Badge,
+  Textarea,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
   useDeleteItemMutation,
+  useUpdateItemMutation
 } from "api/apiSlice";
 import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
@@ -32,13 +44,21 @@ const AllListing = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [currentListingId, setCurrentListingId] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
   const Navigate = useNavigate();
+
   const [createItemMutation] = useCreateItemMutation();
+  const [updateStatus] = useUpdateItemMutation();
+  const [deleteItemMutation] = useDeleteItemMutation();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
-  const [deleteItemMutation] = useDeleteItemMutation();
+
   const columns = [
     "Date",
     "projectName",
@@ -133,10 +153,61 @@ const AllListing = () => {
         return "green";
       case "rejected":
         return "red";
+      case "active":
+        return "blue";
+      case "inactive":
+        return "gray";
       default:
         return "gray";
     }
   };
+
+  const handleStatusChange = async (listingId, status) => {
+    setCurrentListingId(listingId);
+    setSelectedStatus(status);
+
+    if (status === "rejected") {
+      setIsRejectionModalOpen(true);
+    } else {
+      await updateListingStatus(listingId, status);
+    }
+  };
+  const updateListingStatus = async (listingId, status) => {
+      try {
+        const body = { status };
+        if (status === "rejected") {
+          body.rejectionReason = rejectionReason;
+        }
+        if (adminNotes) {
+          body.adminNotes = adminNotes;
+        }
+  
+        await updateStatus({
+          path: `listing/secondary/${listingId}/status`,
+          body,
+        }).unwrap();
+  
+        toast({
+          title: "Status updated successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        refetch();
+        setIsRejectionModalOpen(false);
+        setRejectionReason("");
+        setAdminNotes("");
+      } catch (error) {
+        toast({
+          title: "Error updating status",
+          description: error.data?.message || "Please try again",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    };
+
   return (
     <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
       <Flex justifyContent="space-between" alignItems="center" p={3}>
@@ -206,14 +277,33 @@ const AllListing = () => {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    <Badge
-                      colorScheme={getStatusColor(listing.status)}
-                      px={2}
-                      py={1}
-                      borderRadius="md"
-                    >
-                      {listing.status}
-                    </Badge>
+                    {isAdmin ? (
+                      <>
+                        <Select
+                          value={listing.status}
+                          onChange={(e) =>
+                            handleStatusChange(listing._id, e.target.value)
+                          }
+                          size="sm"
+                          width="150px"
+                          focusBorderColor="brand.500"
+                        >
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </Select>
+                      </>
+                    ) : (
+                      <Badge
+                        colorScheme={getStatusColor(listing.status)}
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {listing.status}
+                      </Badge>
+                    )}
                   </Td>
                   <Td display="flex" gap={2} justifyContent="center">
                     {isAdmin && (
@@ -296,6 +386,53 @@ const AllListing = () => {
           </Text>
         )}
       </Box>
+
+            {/* Rejection Reason Modal */}
+            <Modal
+              isOpen={isRejectionModalOpen}
+              onClose={() => setIsRejectionModalOpen(false)}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Rejection Details</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <Box mb={4}>
+                    <FormLabel>Rejection Reason</FormLabel>
+                    <Input
+                      placeholder="Enter reason for rejection"
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      focusBorderColor="brand.500"
+                    />
+                  </Box>
+                  <Box mb={4}>
+                    <FormLabel>Admin Notes (Optional)</FormLabel>
+                    <Textarea
+                      placeholder="Enter any additional notes"
+                      value={adminNotes}
+                      onChange={(e) => setAdminNotes(e.target.value)}
+                      focusBorderColor="brand.500"
+                    />
+                  </Box>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    variant="outline"
+                    mr={3}
+                    onClick={() => setIsRejectionModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="red"
+                    onClick={() => updateListingStatus(currentListingId, selectedStatus)}
+                  >
+                    Confirm Rejection
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
     </Box>
   );
 };
