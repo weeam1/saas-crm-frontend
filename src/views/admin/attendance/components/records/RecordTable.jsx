@@ -20,6 +20,7 @@ import { constant } from 'constant';
 
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { ATTENDANCE_STATUS_CONFIG } from '../../constants';
+import { Link } from 'react-router-dom';
 
 const RecordTable = ({ records, isLoading, isFetching }) => {
 	const columns = [
@@ -41,18 +42,6 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 	useEffect(() => {
 		if (records?.doc) setData(records?.doc);
 	}, [records?.doc]);
-
-	// const getTimeAgo = (createdAt) => {
-	// 	const now = moment();
-	// 	const createdMoment = moment(createdAt);
-	// 	const diffInMinutes = now.diff(createdMoment, 'minutes');
-
-	// 	return diffInMinutes < 60
-	// 		? diffInMinutes === 0
-	// 			? 'now'
-	// 			: `${diffInMinutes} minutes ago`
-	// 		: createdMoment.format('h:mm A');
-	// };
 
 	const getTimeAgo = (createdAt) => {
 		if (!createdAt) return 'Invalid date';
@@ -162,34 +151,31 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 										key={entry._id}
 										_hover={{ bg: 'gray.50' }}
 										border='gray.200'
-										// bgGradient={rowBgGradient}
 									>
-										{/* <Td
-											py={4}
-											fontSize={{ base: '12px', md: '15px' }}
-											fontWeight='500'
-										>
-											{++index}
-										</Td> */}
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 											minWidth='200px'
-											display='flex'
-											alignItems='center'
-											gap={2}
 										>
-											<Avatar
-												src={
-													entry?.employee?.profileImage
-														? `${constant['baseUrl']}${entry?.employee.profileImage}`
-														: ''
-												}
-												size='sm'
-												name={entry?.employee?.fullName ?? 'User'}
-											/>
-											{entry.employee?.fullName}
+											<Box
+												as={Link}
+												to={`/attendance/employees/${entry?.employee?._id}`}
+												display='flex'
+												alignItems='center'
+												gap={2}
+											>
+												<Avatar
+													src={
+														entry?.employee?.profileImage
+															? `${constant['baseUrl']}${entry?.employee.profileImage}`
+															: ''
+													}
+													size='sm'
+													name={entry?.employee?.fullName ?? 'User'}
+												/>
+												{entry.employee?.fullName}
+											</Box>
 										</Td>
 										<Td
 											py={4}
