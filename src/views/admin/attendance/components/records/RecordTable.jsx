@@ -100,12 +100,13 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 	return (
 		<>
 			<Box
-				height='70vh'
+				height='80vh'
 				overflowY='auto'
 				scrollBehavior='smooth'
 				borderRadius='md'
 				boxShadow='sm'
 				bg='white'
+				mt='2'
 			>
 				<Table variant='striped' size='sm' bg='white'>
 					<Thead
