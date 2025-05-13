@@ -30,7 +30,7 @@ import {
   useFetchItemsQuery,
   useCreateItemMutation,
   useDeleteItemMutation,
-  useUpdateItemMutation
+  useUpdateItemMutation,
 } from "api/apiSlice";
 import moment from "moment";
 import Pagination from "../../developers/components/Pagination";
@@ -173,40 +173,40 @@ const AllListing = () => {
     }
   };
   const updateListingStatus = async (listingId, status) => {
-      try {
-        const body = { status };
-        if (status === "rejected") {
-          body.rejectionReason = rejectionReason;
-        }
-        if (adminNotes) {
-          body.adminNotes = adminNotes;
-        }
-  
-        await updateStatus({
-          path: `listing/secondary/${listingId}/status`,
-          body,
-        }).unwrap();
-  
-        toast({
-          title: "Status updated successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        refetch();
-        setIsRejectionModalOpen(false);
-        setRejectionReason("");
-        setAdminNotes("");
-      } catch (error) {
-        toast({
-          title: "Error updating status",
-          description: error.data?.message || "Please try again",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
+    try {
+      const body = { status };
+      if (status === "rejected") {
+        body.rejectionReason = rejectionReason;
       }
-    };
+      if (adminNotes) {
+        body.adminNotes = adminNotes;
+      }
+
+      await updateStatus({
+        path: `listing/secondary/${listingId}/status`,
+        body,
+      }).unwrap();
+
+      toast({
+        title: "Status updated successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      refetch();
+      setIsRejectionModalOpen(false);
+      setRejectionReason("");
+      setAdminNotes("");
+    } catch (error) {
+      toast({
+        title: "Error updating status",
+        description: error.data?.message || "Please try again",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
@@ -237,7 +237,7 @@ const AllListing = () => {
                   bg="brand.200"
                   whiteSpace="nowrap"
                   py={4}
-                  text-align={"center"}
+                  textAlign="center"
                 >
                   <Text fontSize="14px" fontWeight="600" color="gray.700">
                     {header}
@@ -256,18 +256,33 @@ const AllListing = () => {
                   <Td textAlign="center">
                     {moment(listing.publishedAt).format("MM/DD/YYYY")}
                   </Td>
-                  <Td textAlign="center">{listing.projectName}</Td>
+                  <Td
+                    whiteSpace="nowrap"
+                    minWidth="200px"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {listing.projectName}
+                  </Td>
                   <Td textAlign="center">{listing.unitType?.name || "N/A"}</Td>
-                  <Td textAlign="center">
+                  <Td textAlign="center" minWidth="100px">
                     {listing.listingType?.name || "N/A"}
                   </Td>
-                  <Td textAlign="center">{listing.location || "N/A"}</Td>
+                  <Td
+                    textAlign="center"
+                    whiteSpace="nowrap"
+                    minWidth="250px"
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                  >
+                    {listing.location || "N/A"}
+                  </Td>
                   <Td textAlign="center">
                     {listing.price
                       ? `AED${listing.price.toLocaleString()}`
                       : "N/A"}
                   </Td>
-                  <Td textAlign="center">
+                  <Td textAlign="center" size={"sm"}>
                     {listing.area ? listing.area.toLocaleString() : "N/A"}
                   </Td>
                   <Td
@@ -288,7 +303,7 @@ const AllListing = () => {
                           width="150px"
                           focusBorderColor="brand.500"
                         >
-                           <option value="pending">pending</option>
+                          <option value="pending">pending</option>
                           <option value="approved">Approved</option>
                           <option value="rejected">Rejected</option>
                           <option value="active">Active</option>
@@ -388,52 +403,54 @@ const AllListing = () => {
         )}
       </Box>
 
-            {/* Rejection Reason Modal */}
-            <Modal
-              isOpen={isRejectionModalOpen}
-              onClose={() => setIsRejectionModalOpen(false)}
+      {/* Rejection Reason Modal */}
+      <Modal
+        isOpen={isRejectionModalOpen}
+        onClose={() => setIsRejectionModalOpen(false)}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Rejection Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box mb={4}>
+              <FormLabel>Rejection Reason</FormLabel>
+              <Input
+                placeholder="Enter reason for rejection"
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                focusBorderColor="brand.500"
+              />
+            </Box>
+            <Box mb={4}>
+              <FormLabel>Admin Notes (Optional)</FormLabel>
+              <Textarea
+                placeholder="Enter any additional notes"
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                focusBorderColor="brand.500"
+              />
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="outline"
+              mr={3}
+              onClick={() => setIsRejectionModalOpen(false)}
             >
-              <ModalOverlay />
-              <ModalContent>
-                <ModalHeader>Rejection Details</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  <Box mb={4}>
-                    <FormLabel>Rejection Reason</FormLabel>
-                    <Input
-                      placeholder="Enter reason for rejection"
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      focusBorderColor="brand.500"
-                    />
-                  </Box>
-                  <Box mb={4}>
-                    <FormLabel>Admin Notes (Optional)</FormLabel>
-                    <Textarea
-                      placeholder="Enter any additional notes"
-                      value={adminNotes}
-                      onChange={(e) => setAdminNotes(e.target.value)}
-                      focusBorderColor="brand.500"
-                    />
-                  </Box>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    variant="outline"
-                    mr={3}
-                    onClick={() => setIsRejectionModalOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    colorScheme="red"
-                    onClick={() => updateListingStatus(currentListingId, selectedStatus)}
-                  >
-                    Confirm Rejection
-                  </Button>
-                </ModalFooter>
-              </ModalContent>
-            </Modal>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="red"
+              onClick={() =>
+                updateListingStatus(currentListingId, selectedStatus)
+              }
+            >
+              Confirm Rejection
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

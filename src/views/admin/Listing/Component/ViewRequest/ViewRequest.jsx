@@ -26,7 +26,7 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { toast } from "react-toastify";
-import TopPagination from 'components/pagination/TopPagination';
+import TopPagination from "components/pagination/TopPagination";
 
 const ViewRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -150,7 +150,7 @@ const ViewRequest = () => {
         return "gray";
     }
   };
-  
+
   return (
     <Box
       overflowY="auto"
@@ -178,7 +178,7 @@ const ViewRequest = () => {
           />
         </Box> */}
       </Flex>
-      <Box  mb={1}>
+      <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -253,7 +253,7 @@ const ViewRequest = () => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {request?.requester?.name || "N/A"}
+                      {request?.requester?.fullName || "N/A"}
                     </Td>
                     <Td
                       py={4}
@@ -262,23 +262,23 @@ const ViewRequest = () => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {request.requester?.phone || "N/A"}
+                      {request.requester?.phoneNumber || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.projectName || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.location || "N/A"}
                     </Td>
@@ -294,11 +294,11 @@ const ViewRequest = () => {
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                     textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.price
                         ? `AED ${request.listing.price.toLocaleString()}`

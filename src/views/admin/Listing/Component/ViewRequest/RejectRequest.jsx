@@ -27,13 +27,13 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { ViewIcon, RepeatIcon } from "@chakra-ui/icons";
-import {  FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import TopPagination from 'components/pagination/TopPagination';
+import TopPagination from "components/pagination/TopPagination";
 
 const RejectRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -44,9 +44,9 @@ const RejectRequest = () => {
   const [selectedStatus, setSelectedStatus] = useState({});
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentRequestId, setCurrentRequestId] = useState(null);
-  const [currentListingId,setCurrentListingId] = useState(null);
+  const [currentListingId, setCurrentListingId] = useState(null);
   const Navigate = useNavigate();
-  
+
   const [unitTypeFilter, setUnitTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
@@ -95,17 +95,16 @@ const RejectRequest = () => {
     setIsFilterOpen(false);
   };
 
-  const handleStatusChange = (requestId, status,listingId) => {
+  const handleStatusChange = (requestId, status, listingId) => {
     setSelectedStatus("");
     setCurrentRequestId(requestId);
-    setCurrentListingId(listingId)
+    setCurrentListingId(listingId);
     setSelectedStatus(status);
     setIsStatusModalOpen(true);
-
   };
 
   const handleStatusUpdate = async () => {
-   if (!selectedStatus) {
+    if (!selectedStatus) {
       toast({
         title: "Please select a status",
         status: "warning",
@@ -141,10 +140,14 @@ const RejectRequest = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "pending": return "yellow";
-      case "approved": return "green";
-      case "rejected": return "red";
-      default: return "gray";
+      case "pending":
+        return "yellow";
+      case "approved":
+        return "green";
+      case "rejected":
+        return "red";
+      default:
+        return "gray";
     }
   };
 
@@ -175,7 +178,7 @@ const RejectRequest = () => {
           />
         </Box> */}
       </Flex>
-      <Box  mb={1}>
+      <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -262,20 +265,20 @@ const RejectRequest = () => {
                       {request.requester?.phoneNumber || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.projectName || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.location || "N/A"}
                     </Td>
@@ -286,14 +289,16 @@ const RejectRequest = () => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {request.listing?.area ? request.listing.area.toLocaleString() : "N/A"}
+                      {request.listing?.area
+                        ? request.listing.area.toLocaleString()
+                        : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.listing?.price
                         ? `AED ${request.listing.price.toLocaleString()}`
@@ -306,7 +311,7 @@ const RejectRequest = () => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      <Badge 
+                      <Badge
                         colorScheme={getStatusColor(request.status)}
                         px={2}
                         py={1}
@@ -325,8 +330,8 @@ const RejectRequest = () => {
                       justifyContent={"center"}
                     >
                       <Menu>
-                        <MenuButton 
-                          as={Button} 
+                        <MenuButton
+                          as={Button}
                           rightIcon={<FiChevronDown />}
                           colorScheme="brand"
                           size="sm"
@@ -334,15 +339,25 @@ const RejectRequest = () => {
                           Actions
                         </MenuButton>
                         <MenuList>
-                          <MenuItem 
+                          <MenuItem
                             icon={<ViewIcon />}
-                            onClick={() => Navigate(`/listing/view-listing/${request.listing?.id}`)}
+                            onClick={() =>
+                              Navigate(
+                                `/listing/view-listing/${request.listing?.id}`
+                              )
+                            }
                           >
                             View Listing
                           </MenuItem>
-                          <MenuItem 
+                          <MenuItem
                             icon={<RepeatIcon />}
-                            onClick={() => handleStatusChange(request.requester.id, 'pending',request?.listing?.id)}
+                            onClick={() =>
+                              handleStatusChange(
+                                request.requester.id,
+                                "pending",
+                                request?.listing?.id
+                              )
+                            }
                           >
                             Reconsider Request
                           </MenuItem>
@@ -362,7 +377,10 @@ const RejectRequest = () => {
       </Box>
 
       {/* Status Update Modal */}
-      <Modal isOpen={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)}>
+      <Modal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Reconsider Request</ModalHeader>
@@ -372,8 +390,8 @@ const RejectRequest = () => {
               <FormLabel>New Status</FormLabel>
               <Select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus( e.target.value)}
-                  focusBorderColor="brand.500"
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                focusBorderColor="brand.500"
               >
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
@@ -381,7 +399,11 @@ const RejectRequest = () => {
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button variant="outline" mr={3} onClick={() => setIsStatusModalOpen(false)}>
+            <Button
+              variant="outline"
+              mr={3}
+              onClick={() => setIsStatusModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button colorScheme="brand" onClick={handleStatusUpdate}>

@@ -293,39 +293,25 @@ const MyListing = () => {
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
-                      {listing?.projectName || "N/A"}
+                      {listing.projectName}
                     </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing?.unitType?.name || "N/A"}
+                    <Td textAlign="center">
+                      {listing.unitType?.name || "N/A"}
                     </Td>
-
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
+                    <Td textAlign="center" minWidth="100px">
                       {listing.listingType?.name || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {listing.location || "N/A"}
                     </Td>

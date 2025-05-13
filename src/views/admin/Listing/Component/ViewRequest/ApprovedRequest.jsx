@@ -33,7 +33,7 @@ import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import TopPagination from 'components/pagination/TopPagination';
+import TopPagination from "components/pagination/TopPagination";
 
 const ApprovedRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -256,20 +256,20 @@ const ApprovedRequest = () => {
                       {approval.requester?.phoneNumber || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {approval.listing?.projectName || "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {approval.listing?.location || "N/A"}
                     </Td>
@@ -285,11 +285,11 @@ const ApprovedRequest = () => {
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {approval.listing?.price
                         ? `AED ${approval.listing.price.toLocaleString()}`
