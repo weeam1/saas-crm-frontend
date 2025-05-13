@@ -37,7 +37,7 @@ import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
-import TopPagination from 'components/pagination/TopPagination';
+import TopPagination from "components/pagination/TopPagination";
 
 const MyListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -67,8 +67,8 @@ const MyListing = () => {
     "Location",
     "Price",
     "Size (sqft)",
-    "Notes",
     "Status",
+    "Notes",
     "Action",
   ];
 

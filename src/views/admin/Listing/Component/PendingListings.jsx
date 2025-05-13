@@ -10,7 +10,6 @@ import {
   Button,
   Flex,
   Text,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -23,7 +22,6 @@ import {
   Input,
   Badge,
   Textarea,
-  useToast,
 } from "@chakra-ui/react";
 import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
@@ -32,6 +30,7 @@ import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import TopPagination from 'components/pagination/TopPagination';
+import { toast } from "react-toastify";
 
 const PendingListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -40,7 +39,6 @@ const PendingListings = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const Navigate = useNavigate();
-  const toast = useToast();
 
   const [unitTypeFilter, setUnitTypeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
