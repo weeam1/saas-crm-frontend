@@ -10,7 +10,6 @@ import {
   Button,
   Flex,
   Text,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -28,10 +27,9 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import { ViewIcon, RepeatIcon } from "@chakra-ui/icons";
-import { FiFilter, FiChevronDown } from "react-icons/fi";
+import {  FiChevronDown } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
-import Pagination from "../../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -53,7 +51,6 @@ const RejectRequest = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
 
-  const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "Date",
     "Requester",
@@ -81,15 +78,6 @@ const RejectRequest = () => {
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/rejected-listings` },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const applyFilters = () => {
@@ -187,7 +175,7 @@ const RejectRequest = () => {
           />
         </Box> */}
       </Flex>
-      <Box mx={1} mb={1}>
+      <Box  mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}

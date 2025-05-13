@@ -190,7 +190,7 @@ const PendingListings = () => {
           />
         </Box> */}
       </Flex>
-      <Box mx={1} mb={1}>
+      <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}

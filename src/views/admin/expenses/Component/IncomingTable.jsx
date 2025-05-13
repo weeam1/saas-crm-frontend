@@ -220,7 +220,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           </Button>
         </Box>
       </Flex>
-      <Box mx={1} mb={1}>
+      <Box mb={1}>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

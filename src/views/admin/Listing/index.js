@@ -21,7 +21,6 @@ const Listing = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
 
-  // Define all possible tabs first
   const allTabs = [
     {
       label: "All Listings",
@@ -73,17 +72,14 @@ const Listing = () => {
     }
   ];
 
-  // Filter tabs based on visibility rules
   const tabsData = allTabs.filter(tab => tab.show);
 
-  // Find active tab index based on params
   const activeTabIndex = Math.max(
     0,
     tabsData.findIndex(tab => tab.param === tabFromParams.toLowerCase())
   );
 
   useEffect(() => {
-    // Ensure URL always has a valid tab param
     if (!searchParams.get("tab") || !tabsData.some(tab => tab.param === searchParams.get("tab").toLowerCase())) {
       setSearchParams({ tab: DEFAULT_TAB });
     }
@@ -94,7 +90,7 @@ const Listing = () => {
     setSearchParams({ tab: tabParam });
     
     if (index === activeTabIndex) {
-      setTabKey(prev => prev + 1); // Force remount if same tab clicked
+      setTabKey(prev => prev + 1); 
     }
   };
 

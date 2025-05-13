@@ -10,7 +10,6 @@ import {
   Button,
   Flex,
   Text,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -23,10 +22,8 @@ import {
   Input,
   Badge,
 } from "@chakra-ui/react";
-import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
-import Pagination from "../../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { toast } from "react-toastify";
 import TopPagination from 'components/pagination/TopPagination';
@@ -73,15 +70,6 @@ const ViewRequest = () => {
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/requested-listings` },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const applyFilters = () => {
@@ -190,7 +178,7 @@ const ViewRequest = () => {
           />
         </Box> */}
       </Flex>
-      <Box mx={1} mb={1}>
+      <Box  mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
