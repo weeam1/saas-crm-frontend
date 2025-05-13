@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { IoMdExit } from 'react-icons/io';
 import moment from 'moment-timezone';
 import { buttonStyle } from '../../constants';
@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import { FaBan } from 'react-icons/fa';
+import LeaveNoteModal from './LeaveNoteModal';
 
 const AttendanceMark = ({
 	timezone,
@@ -17,7 +18,14 @@ const AttendanceMark = ({
 	employeeId,
 }) => {
 	const [status, setStatus] = useState(null);
+
 	const [time, setTime] = useState(moment().tz(timezone));
+
+	const {
+		isOpen: noteIsOpen,
+		onOpen: noteOnOpen,
+		onClose: noteOnClose,
+	} = useDisclosure();
 
 	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
 
@@ -26,6 +34,7 @@ const AttendanceMark = ({
 	const [checkinLoading, setCheckinLoading] = useState(false);
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
+	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const today = moment().tz(timezone).format('YYYY-MM-DD');
 
@@ -40,12 +49,14 @@ const AttendanceMark = ({
 
 	useEffect(() => {
 		if (data?.total > 0) {
-			const todayRecord = data?.doc?.find((item) => item.date === today);
+			const todayRecord = data?.doc?.find((item) => item.date == today);
+
+			console.log(today, todayRecord);
 
 			if (todayRecord) {
 				setLastRecord(todayRecord);
 
-				if (todayRecord?.status === 0) {
+				if (todayRecord?.status === 0 || todayRecord?.status === 3) {
 					setStatus(-1);
 				} else if (todayRecord?.checkin && todayRecord?.checkout) {
 					setStatus(-1);
@@ -137,10 +148,53 @@ const AttendanceMark = ({
 		}
 	};
 
+	const handleLeave = async (values) => {
+		try {
+			const bodyData = { ...values, employeeId };
+
+			setLeaveLoading(true);
+			await createItemMutation({
+				path: '/attendance/leave',
+				body: bodyData,
+			}).unwrap();
+
+			toast.success('Employee leave successfully');
+			noteOnClose();
+			setStatus(-1);
+			refetch({ force: true });
+		} catch (e) {
+			console.log(e);
+			toast.error(e?.data?.message || 'Error in employee leave');
+		} finally {
+			setLeaveLoading(false);
+		}
+	};
+
 	const buttonVariants = {
-		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'Check In' },
-		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Check Out' },
-		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
+		checkIn: {
+			bg: 'green.400',
+			_active: 'green.500',
+			onClick: handleCheckIn,
+			text: 'In',
+		},
+		checkOut: {
+			bg: '#D8A541',
+			_active: 'brand.400',
+			onClick: handleCheckOut,
+			text: 'Out',
+		},
+		absent: {
+			bg: 'red.400',
+			_active: 'read.400',
+			onClick: handleAbsence,
+			text: 'Absent',
+		},
+		leave: {
+			bg: 'teal.400',
+			_active: 'teal.500',
+			onClick: noteOnOpen,
+			text: 'On Leave',
+		},
 	};
 
 	const shouldRender = useMemo(() => {
@@ -208,7 +262,7 @@ const AttendanceMark = ({
 									w={{ base: '100%', md: '208px' }}
 									h='43px'
 									mb='4'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 									leftIcon={<IoMdExit size={20} />}
 								>
 									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
@@ -219,10 +273,29 @@ const AttendanceMark = ({
 									w={{ base: '100%', md: '208px' }}
 									h='43px'
 									mb='4'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
 									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
 								</Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.leave}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									mb='4'
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+								>
+									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
+								</Button>
+
+								{noteIsOpen && (
+									<LeaveNoteModal
+										isOpen={noteIsOpen}
+										onClose={noteOnClose}
+										onSubmit={handleLeave}
+										isLoading={leaveLoading}
+									/>
+								)}
 							</>
 						)
 					)}

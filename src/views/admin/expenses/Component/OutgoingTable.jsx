@@ -247,8 +247,6 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       }
 
       const updatedItem = { ...currentItem, ...updatedFields };
-      console.log("updatedFields:", updatedFields);
-      console.log("updatedItem:", updatedItem);
       await updateItemMuation({
         path: `/expenses/${id}`,
         body: updatedItem,

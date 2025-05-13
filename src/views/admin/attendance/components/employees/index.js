@@ -11,6 +11,7 @@ import AttendanceHeader from '../AttendanceHeader';
 import EmployeesTable from './EmployeesTable';
 import AppButton from 'components/shared/AppButton';
 import TopPagination from 'components/pagination/TopPagination';
+import { getLocalAttendanceFilter } from '../../constants';
 
 const Employees = () => {
 	const PAGE_SIZE = 20;
@@ -32,7 +33,8 @@ const Employees = () => {
 		const pageSize = Number(searchParams.get('pageSize')) || PAGE_SIZE;
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
-		const agency = searchParams.get('agency') || 'All';
+		const agency =
+			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
 		const layout = searchParams.get('layout') || view;
 
 		if (agency || search) {
@@ -59,7 +61,8 @@ const Employees = () => {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const role = searchParams.get('role') || 'All';
-		const agency = searchParams.get('agency') || 'All';
+		const agency =
+			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
 		const layout = searchParams.get('layout') || view;
 
 		return {
@@ -133,6 +136,8 @@ const Employees = () => {
 		searchTermRef.current = '';
 		document.getElementById('searchInput').value = '';
 		updateFilters({ page: 1, role: 'All' });
+
+		localStorage.removeItem('attendanceAgencyFilter');
 
 		setSearchParams((prev) => {
 			const newParams = new URLSearchParams(prev);

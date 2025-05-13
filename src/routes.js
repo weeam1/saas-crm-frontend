@@ -44,6 +44,9 @@ import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
 import SettingPage from 'views/admin/Listing/Component/settings/index'
+import AddListing from "views/admin/Listing/Component/AddListing"
+import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
+import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 
@@ -205,11 +208,35 @@ const routes = [
 		component: Listing,
 	},
 	{
+		name: 'Adding Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/add-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: AddListing,
+	},
+	{
+		name: 'View Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/view-listing/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ViewListing,
+	},
+	{
+		name: 'Update Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/update/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: UpdateListing,
+	},
+	{
 		name: 'Listing Setting',
 		layout: [ROLE_PATH.superAdmin],
 		path: '/listing/settings',
 		under: 'listing',
-		parentName: ':isting',
+		parentName: 'Listing',
 		component: SettingPage,
 	},
 	{

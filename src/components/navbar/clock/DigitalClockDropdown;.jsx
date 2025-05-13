@@ -35,12 +35,15 @@ const DigitalClockDropdown = () => {
 				bg='brand.500'
 				boxSize={10}
 				borderRadius='full'
-				p='2'
+				p='2.5'
 				cursor='pointer'
 				aria-label='Current time dropdown'
 				_hover={{ opacity: 0.9 }}
+				display='flex'
+				alignItems='center'
+				justifyContent='center'
 			>
-				<TimeIcon boxSize={6} color='white' />
+				<TimeIcon boxSize={5} color='white' />
 			</MenuButton>
 
 			<MenuList

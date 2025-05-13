@@ -19,6 +19,7 @@ import AttendanceUpdate from '../AttendanceUpdate';
 import { constant } from 'constant';
 
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import { ATTENDANCE_STATUS_CONFIG } from '../../constants';
 
 const RecordTable = ({ records, isLoading, isFetching }) => {
 	const columns = [
@@ -99,12 +100,13 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 	return (
 		<>
 			<Box
-				height='70vh'
+				height='80vh'
 				overflowY='auto'
 				scrollBehavior='smooth'
 				borderRadius='md'
 				boxShadow='sm'
 				bg='white'
+				mt='2'
 			>
 				<Table variant='striped' size='sm' bg='white'>
 					<Thead
@@ -137,25 +139,18 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 							<TableLoading columns={columns} length={11} py='4' />
 						) : records?.results > 0 && data ? (
 							data?.map((entry, index) => {
-								let textColor = 'black';
-								// let rowBgGradient = 'none';
-								let statusBgColor = 'transparent';
-								let statusText = '';
+								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
+									bg: '#F0F0F0',
+									text: '#000',
+									label: 'Unknown',
+								};
 
-								if (entry.status === 0) {
-									statusBgColor = '#FFE5EE';
-									textColor = '#AA0000';
-									statusText = 'Absent';
-								} else if (entry.status === 1) {
-									statusBgColor = '#E6EFFC';
-									textColor = '#0764E6';
-									statusText = 'Office';
-									// rowBgGradient = 'linear(to-r, #E0F7FF, white)';
-								} else if (entry.status === 2) {
-									statusBgColor = '#FFF8E7';
-									textColor = '#D5B500';
-									statusText = 'Late';
-								}
+								const {
+									bg: statusBgColor,
+									text: textColor,
+									label: statusText,
+									gradient: rowBgGradient,
+								} = config;
 
 								const roleName =
 									entry.employee?.role === 'superAdmin'
@@ -227,7 +222,7 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 											{format(new Date(entry?.date), 'd MMM, yyyy')}
 										</Td>
 
-										<Td py={4}>
+										<Td borderBottom='none' py={4} minWidth='160px'>
 											<Box
 												bg={statusBgColor}
 												color={textColor}
@@ -238,7 +233,12 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 												display='inline-block'
 												minWidth='fit-content'
 											>
-												{statusText}
+												{entry?.status === 3 && entry?.leaveType
+													? entry.leaveType.charAt(0).toUpperCase() +
+														entry.leaveType.slice(1) +
+														' ' +
+														statusText
+													: statusText}
 											</Box>
 										</Td>
 										<Td

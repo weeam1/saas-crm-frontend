@@ -116,6 +116,9 @@ const Leads = ({
 		setSearchClear(false);
 		setRefetchLoading(true);
 
+		setSelectedLeads([]);
+		setSelectedValues([]);
+
 		clearSearchParams();
 		// setQueryParams((prev) => {
 		// 	const { data, dateTime, name, ...rest } = prev;

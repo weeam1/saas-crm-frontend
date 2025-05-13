@@ -142,6 +142,7 @@ const InvitedTable = ({
 											</Flex>
 										</Td>
 										<Td minWidth='250px'>{item.email}</Td>
+										<Td>{item?.agency?.name ?? 'N/A'}</Td>
 										<Td>{item.position.name}</Td>
 										<Td>{item.phone}</Td>
 										<Td>{item.whatsApp}</Td>

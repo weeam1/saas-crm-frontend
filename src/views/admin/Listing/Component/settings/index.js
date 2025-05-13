@@ -4,13 +4,16 @@ import TabNavigationDisplay from "../../../../../components/TabNavigationDisplay
 import ListingUnitTypes from "./components/ListingUnitTypes";
 import ListingTypes from "./components/ListingTypes";
 import ListingStatus from "./components/ListingStatus";
+import AppButton from "components/shared/AppButton";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
-const DEFAULT_TAB = "unit-types"; 
+const DEFAULT_TAB = "unit-types";
 
 const ListingSettings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tabKey, setTabKey] = useState(0);
-  
+  const navigate = useNavigate();
   const tabsData = [
     {
       label: "Unit Types",
@@ -24,17 +27,13 @@ const ListingSettings = () => {
       description: "Configure the various types of listings available.",
       component: <ListingTypes key={tabKey} />,
     },
-    {
-      label: "Status",
-      title: "Manage Listing Status",
-      description: "Set up and modify the status options for listings.",
-      component: <ListingStatus key={tabKey} />,
-    },
   ];
 
   const tabFromParams = searchParams.get("tab")?.toLowerCase();
   const initialTabIndex = tabsData.findIndex(
-    tab => tab.label.toLowerCase().replace(/\s/g, '-') === (tabFromParams || DEFAULT_TAB)
+    (tab) =>
+      tab.label.toLowerCase().replace(/\s/g, "-") ===
+      (tabFromParams || DEFAULT_TAB)
   );
   const [activeTabIndex, setActiveTabIndex] = useState(
     initialTabIndex >= 0 ? initialTabIndex : 0
@@ -48,20 +47,29 @@ const ListingSettings = () => {
 
   const handleTabChange = (index) => {
     if (index === activeTabIndex) {
-      setTabKey(prev => prev + 1);
+      setTabKey((prev) => prev + 1);
     } else {
       setActiveTabIndex(index);
-      const newTab = tabsData[index].label.toLowerCase().replace(/\s/g, '-');
+      const newTab = tabsData[index].label.toLowerCase().replace(/\s/g, "-");
       setSearchParams({ tab: newTab }, { replace: true });
     }
   };
 
   return (
-    <TabNavigationDisplay
-      tabsData={tabsData}
-      activeTab={activeTabIndex}
-      onTabChange={handleTabChange}
-    />
+    <>
+      <AppButton
+        ml="2"
+        leftIcon={<IoArrowBack />}
+        onClick={() => navigate("/listing")}
+      >
+        Back
+      </AppButton>
+      <TabNavigationDisplay
+        tabsData={tabsData}
+        activeTab={activeTabIndex}
+        onTabChange={handleTabChange}
+      />
+    </>
   );
 };
 

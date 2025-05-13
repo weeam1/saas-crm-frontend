@@ -100,7 +100,7 @@ const CustomInput = ({
 							isReadOnly={isReadOnly}
 							placeholder={placeholder}
 							onKeyDown={handleKeyDown}
-							onInput={handleInput}
+							// onInput={handleInput}
 							onChange={handleChange}
 							_focus={{
 								borderColor: !isReadOnly && '#D99A36',

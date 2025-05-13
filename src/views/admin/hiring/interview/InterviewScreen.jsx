@@ -8,6 +8,7 @@ import ErrorMessage from 'components/Message/ErrorMessage';
 import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { toast } from 'react-toastify';
 import { IoArrowBack } from 'react-icons/io5';
+import { getCurrentInterviewRound } from '../helpers';
 
 const InterviewScreen = memo(() => {
 	const { interviewId } = useParams();
@@ -19,12 +20,18 @@ const InterviewScreen = memo(() => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 	const [interviewersSelected, setInterviewersSelected] = useState(false);
+	const [isRefetching, setIsRefetching] = useState(false);
 
 	// Memoize phases array
 	const phases = useMemo(
 		() => ['select-interviewers', 'evaluation-points', 'hiring-info'],
 		[]
 	);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setIsRefetching(false), 2500);
+		return () => clearTimeout(timer);
+	}, []);
 
 	// Optimize tab switching logic
 	useEffect(() => {
@@ -41,22 +48,49 @@ const InterviewScreen = memo(() => {
 		isLoading: interviewLoading,
 		error,
 		refetch: interviewRefetch,
-	} = useFetchItemsQuery({ path: `/interviews/${interviewId}` });
-
-	// Memoize isLeadInterviewer check
-	const isLeadInterviewer = useMemo(
-		() => interview?.doc?.leadInterviewer._id === user._id,
-		[interview, user]
+	} = useFetchItemsQuery(
+		{ path: `/interviews/${interviewId}` },
+		{ refetchOnMountOrArgChange: true }
 	);
 
-	// Memoize isLeadInterviewer check
-	const isInterviewerSubmittedPoints = useMemo(() => {
-		const points = interview?.doc?.evaluations?.filter(
-			(item) => item.interviewer._id === user._id
-		)[0];
+	// const isNextRound = useMemo(
+	// 	() => interview?.doc?.isMultiRound && interview?.doc?.nextRound,
+	// 	[interview?.doc]
+	// );
 
+	const currentRound = getCurrentInterviewRound(interview);
+
+	const isLeadInterviewer = useMemo(
+		() => currentRound?.leadInterviewer?._id === user?._id,
+		[currentRound?.leadInterviewer?._id, user?._id]
+	);
+
+	const isCreatedBy = useMemo(
+		() => currentRound?.createdBy?._id === user?._id,
+		[currentRound?.createdBy?._id, user?._id]
+	);
+
+	const isInterviewerSubmittedPoints = useMemo(() => {
+		const points = currentRound?.evaluations?.find(
+			(item) => item.interviewer?._id === user?._id
+		);
 		return points?.status ?? false;
-	}, [interview, user]);
+	}, [currentRound?.evaluations, user?._id]);
+
+	// // Memoize isLeadInterviewer check
+	// const isLeadInterviewer = useMemo(
+	// 	() => interview?.doc?.leadInterviewer?._id === user?._id,
+	// 	[interview, user]
+	// );
+
+	// // Memoize isLeadInterviewer check
+	// const isInterviewerSubmittedPoints = useMemo(() => {
+	// 	const points = interview?.doc?.evaluations?.filter(
+	// 		(item) => item.interviewer._id === user._id
+	// 	)[0];
+
+	// 	return points?.status ?? false;
+	// }, [interview, user]);
 
 	const [updateItemMutation, { isLoading: cancellingInterview }] =
 		useUpdateItemMutation();
@@ -75,12 +109,15 @@ const InterviewScreen = memo(() => {
 	useEffect(() => {
 		if (!interview?.doc) return;
 
-		const isInterviewCompleted = ['end', 'canceled'].includes(
+		const isInterviewCompleted = ['end', 'canceled', 'rejected'].includes(
 			interview.doc.status
 		);
 
 		const isFinalStatusAsLead =
-			isLeadInterviewer && interview?.doc?.status === 'final';
+			isLeadInterviewer &&
+			['final', 'rejected', 'end', 'next-round'].includes(
+				interview?.doc?.status
+			);
 
 		if (isInterviewCompleted || isFinalStatusAsLead) {
 			toast.error('This interview has already completed.');
@@ -108,8 +145,16 @@ const InterviewScreen = memo(() => {
 	// Conditional loading
 	if (interviewLoading || cancellingInterview) return <Loader />;
 
+	console.log({
+		isLeadInterviewer,
+		isInterviewerSubmittedPoints,
+		interviewersSelected,
+	});
+
 	// Render content
-	return interview && interview?.doc ? (
+	return isRefetching ? (
+		<Loader />
+	) : interview && interview?.doc ? (
 		<Box>
 			<Button
 				colorScheme='gray'
@@ -180,6 +225,7 @@ const InterviewScreen = memo(() => {
 						interviewRefetch={interviewRefetch}
 						user={user}
 						isLeadInterviewer={isLeadInterviewer}
+						isCreatedBy={isCreatedBy}
 						isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
 						interviewersSelected={interviewersSelected}
 						setInterviewersSelected={setInterviewersSelected}
