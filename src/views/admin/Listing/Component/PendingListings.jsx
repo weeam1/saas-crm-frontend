@@ -29,7 +29,7 @@ import moment from "moment";
 import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
-import TopPagination from 'components/pagination/TopPagination';
+import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 
 const PendingListings = () => {
@@ -129,24 +129,13 @@ const PendingListings = () => {
         body,
       }).unwrap();
 
-      toast({
-        title: "Status updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      toast.success("Status updated successfully");
       refetch();
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
     } catch (error) {
-      toast({
-        title: "Error updating status",
-        description: error.data?.message || "Please try again",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      toast.error("Error updating status");
     }
   };
 
@@ -351,7 +340,9 @@ const PendingListings = () => {
                     >
                       <Select
                         value={listing.status}
-                        onChange={(e) => handleStatusChange(listing._id, e.target.value)}
+                        onChange={(e) =>
+                          handleStatusChange(listing._id, e.target.value)
+                        }
                         size="sm"
                         width="150px"
                         focusBorderColor="brand.500"
@@ -413,7 +404,9 @@ const PendingListings = () => {
             </Button>
             <Button
               colorScheme="red"
-              onClick={() => updateListingStatus(currentListingId, selectedStatus)}
+              onClick={() =>
+                updateListingStatus(currentListingId, selectedStatus)
+              }
             >
               Confirm Rejection
             </Button>
