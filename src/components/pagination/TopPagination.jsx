@@ -86,7 +86,7 @@ const TopPagination = ({
 		currentPageSize = 10,
 		maxLimit = 100
 	) => {
-		const steps = [5, 10, 20];
+		const steps = [10, 20];
 		const max = Math.min(totalItems || currentPageSize, maxLimit);
 
 		for (let i = 30; i <= max; i += 10) {
@@ -107,6 +107,7 @@ const TopPagination = ({
 	const onPageSizeChange = useCallback(
 		(e) => {
 			const limit = Number(e.target.value);
+			// if (limit <= totalItems)
 			handlePageSize?.(limit);
 			const opts = generatePageSizeOptions(totalItems, limit, 100);
 			if (!opts.includes(limit)) {
@@ -246,6 +247,24 @@ const TopPagination = ({
 							Show {size}
 						</option>
 					))}
+					{/* <option key={10} value={10}>
+						Show 10
+					</option>
+					<option key={20} value={20}>
+						Show 20
+					</option>
+					<option key={50} value={50}>
+						Show 50
+					</option>
+					<option key={60} value={60}>
+						Show 60
+					</option>
+					<option key={80} value={80}>
+						Show 80
+					</option>
+					<option key={100} value={100}>
+						Show 100
+					</option> */}
 				</Select>
 
 				<Button

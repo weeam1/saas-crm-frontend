@@ -261,7 +261,7 @@ const AttendanceTable = ({
 													: 'Pending'}
 										</Td>
 										{role === 'superAdmin' && (
-											<Td py={4}>
+											<Td py={4} minWidth='100px'>
 												<IconButton
 													rounded='full'
 													aria-label='Leave note'

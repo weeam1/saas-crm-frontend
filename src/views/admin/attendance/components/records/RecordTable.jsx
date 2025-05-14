@@ -268,7 +268,7 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 														: '0m'
 													: 'Pending'}
 										</Td>
-										<Td py={4}>
+										<Td py={4} minWidth='100px'>
 											<IconButton
 												rounded='full'
 												aria-label='Leave note'
