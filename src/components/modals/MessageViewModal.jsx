@@ -9,7 +9,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-const FeedbackView = ({ title, message, isOpen, onClose }) => {
+const MessageViewModal = ({ title, message, isOpen, onClose }) => {
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
@@ -41,4 +41,4 @@ const FeedbackView = ({ title, message, isOpen, onClose }) => {
 	);
 };
 
-export default FeedbackView;
+export default MessageViewModal;

@@ -1,25 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Box, Button, Heading, HStack } from '@chakra-ui/react';
-import { FaUsers } from 'react-icons/fa';
+import { FaUserCheck } from 'react-icons/fa';
 
 import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import SearchBar from 'components/search/SearchBar';
 import TablePagination from 'components/pagination/TablePagination';
-import ArrangeInterview from './components/ArrangeInterview';
-import ShortListedTable from './components/ShortListedTable';
 import { constant } from 'constant';
-import { useUpdateItemMutation } from 'api/apiSlice';
-import { addMissingFile } from './../../../../redux/missingFilesSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import moment from 'moment';
 
-const ShortListed = ({
+import { useDispatch, useSelector } from 'react-redux';
+import { addMissingFile } from './../../../../../redux/missingFilesSlice';
+import InterviewResult from './../InterviewResult';
+import { useNavigate } from 'react-router-dom';
+import InterviewedRoundTable from './InterviewRoundTable';
+
+const InterviewedRound = ({
 	data,
 	allData,
 	loading,
-	isFetching,
 	totalDocs,
 	handleSort,
 	sortConfig,
@@ -32,59 +31,26 @@ const ShortListed = ({
 	gopageValue,
 	setGopageValue,
 	setAdvanceSearch,
-	invitedRefetch,
 }) => {
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
-	const [candidate, setCandidate] = useState(null);
 	const [searchData, setSearchData] = useState([]);
+	const [interview, setInterview] = useState(null);
+	const [interviewId, setInterviewId] = useState(null);
 	const [isSearch, setIsSearch] = useState(false);
 
-	const [updateItemMuation, { isLoading: isInviting }] =
-		useUpdateItemMutation();
+	const [resultModalOpen, setResultModalOpen] = useState(false);
 
 	const headers = [
-		{ key: 'name', label: 'Name', width: '200px' }, // Name column width
+		{ key: 'name', label: 'Name', width: '250px' }, // Name column width
 		{ key: 'email', label: 'Email', width: '250px' }, // Email column width
 		{ key: 'agency', label: 'Agency', width: '100px' }, // Email column width
 		{ key: 'position', label: 'Job Role', width: '150px' }, // Job Role column width
 		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
-		{ key: 'createdAt', label: 'Apply Date', width: '150px' }, // Apply Date column width
+		{ key: 'type', label: 'Type', width: '150px' }, // WhatsApp No column width
+		{ key: 'percentageSocre', label: 'T.Percentage', width: '150px' }, // WhatsApp No column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
-
-	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
-
-	const [selectedDate, setSelectedDate] = useState(null);
-	const [selectedTime, setSelectedTime] = useState('');
-
-	const toUTCString = (date) => {
-		return date
-			? moment(date).utcOffset(0, true).startOf('day').toISOString()
-			: null;
-	};
-
-	const handleScheduleInterview = async () => {
-		try {
-			await updateItemMuation({
-				path: `/applications/schedule-interview/${candidate._id}`,
-				body: {
-					interviewDate: toUTCString(selectedDate),
-					interviewTime: selectedTime,
-				},
-			}).unwrap();
-
-			toast.success('Invite succesfully sended');
-			// short listed candidates refetch
-			refetch();
-		} catch (err) {
-			console.log(err);
-		} finally {
-			setArrangeInterviewOpen(false);
-			// invited candidates refetch
-			invitedRefetch();
-		}
-	};
 
 	const dispatch = useDispatch();
 	const missingFiles = useSelector((state) => state.missingFiles.missingFiles);
@@ -149,15 +115,9 @@ const ShortListed = ({
 	};
 
 	const handleViewCandidate = async (id) => {
-		const selectedCandidate = data.find((item) => item._id === id);
-		setCandidate(selectedCandidate);
+		const interview = data.find((item) => item.candidate._id === id);
+		setInterview(interview);
 		setApplicationOpen(true);
-	};
-
-	const handleArrangeInterview = async (id) => {
-		const selectedCandidate = data.find((item) => item._id === id);
-		setCandidate(selectedCandidate);
-		setArrangeInterviewOpen(true);
 	};
 
 	// Update filtered data on search change
@@ -166,16 +126,30 @@ const ShortListed = ({
 		setSearchData(filtered);
 	};
 
+	const handleViewResult = (interview) => {
+		setInterview(interview);
+		setInterviewId(interview._id);
+		setResultModalOpen(true);
+	};
+
+	const navigate = useNavigate();
+
+	const handleSendOffer = (interviewId, offerType) => {
+		navigate(
+			`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+		);
+	};
+
 	// Update filtered data on search change
 	const handleSearchTermChange = (term) => {
 		if (!term) {
 			setIsSearch(false);
-			setSearchData([]); // Reset to original data
+			setSearchData(data); // Reset to original data
 			return;
 		}
 
-		const filteredData = allData?.doc?.filter((item) =>
-			item.name.toLowerCase().includes(term.toLowerCase())
+		const filteredData = data.filter((item) =>
+			item.candidate.name.toLowerCase().includes(term.toLowerCase())
 		);
 
 		setIsSearch(true);
@@ -190,12 +164,13 @@ const ShortListed = ({
 				alignItems={{ base: 'flex-start', md: 'center' }}
 				flexDirection={{ base: 'column', md: 'row' }}
 				px='.5rem'
+				mb='4'
 				shadow='none'
 			>
 				<HStack gap='2'>
-					<FaUsers w='14' h='14' />
+					<FaUserCheck w='14' h='14' />
 					<Heading size='md' color='gray.800'>
-						Short Listed
+						Final Interviewed
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={totalDocs || 0} />})
@@ -222,15 +197,15 @@ const ShortListed = ({
 				</HStack>
 			</Box>
 
-			<ShortListedTable
+			<InterviewedRoundTable
 				headers={headers}
 				data={isSearch ? searchData : data}
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				loading={loading}
-				isFetching={isFetching}
+				handleViewResult={handleViewResult}
 				handleViewCandidate={handleViewCandidate}
-				handleArrangeInterview={handleArrangeInterview}
+				handleSendOffer={handleSendOffer}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -254,7 +229,7 @@ const ShortListed = ({
 				<CandidateView
 					isOpen={isApplicationOpen}
 					onClose={() => setApplicationOpen(false)}
-					candidate={candidate}
+					candidate={interview.candidate}
 					missingFiles={missingFiles}
 					onViewCV={handleViewCV}
 					onDownloadCV={handleDownloadCV}
@@ -262,20 +237,17 @@ const ShortListed = ({
 				/>
 			)}
 
-			{arrangeInterviewOpen && (
-				<ArrangeInterview
-					isOpen={arrangeInterviewOpen}
-					onClose={() => setArrangeInterviewOpen(false)}
-					selectedDate={selectedDate}
-					setSelectedDate={setSelectedDate}
-					selectedTime={selectedTime}
-					setSelectedTime={setSelectedTime}
-					isLoading={isInviting}
-					handleScheduleInterview={handleScheduleInterview}
+			{resultModalOpen && (
+				<InterviewResult
+					onClose={() => setResultModalOpen(false)}
+					isOpen={resultModalOpen}
+					data={interview}
+					interviewId={interviewId}
+					refetch={refetch}
 				/>
 			)}
 		</Box>
 	);
 };
 
-export default ShortListed;
+export default InterviewedRound;

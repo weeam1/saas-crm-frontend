@@ -30,3 +30,53 @@ export const experienceYearsOptions = [
 	{ label: '9 Years', value: '9' },
 	{ label: 'More than 9 Years', value: '10' },
 ];
+
+export const getCurrentInterviewRound = (interview) => {
+	return interview?.doc?.isMultiRound && interview?.doc?.nextRound
+		? interview?.doc?.nextRound
+		: interview?.doc;
+};
+
+export const getInterviewStatusConfig = (status) => {
+	const statusMap = {
+		offer_rejected: {
+			text: 'Offer Rejected',
+			color: 'red.100',
+			textColor: 'red.800',
+		},
+		accepted: {
+			text: 'Hired',
+			color: 'green.100',
+			textColor: 'green.800',
+		},
+		rejected: {
+			text: 'Rejected',
+			color: 'red.100',
+			textColor: 'red.800',
+		},
+		in_progress: {
+			text: 'In Progress',
+			color: 'yellow.100',
+			textColor: 'yellow.800',
+		},
+		interviewing: {
+			text: 'Interviewing',
+			color: 'blue.100',
+			textColor: 'blue.800',
+		},
+		offer_sent: {
+			text: 'Offer Sent',
+			color: 'purple.100',
+			textColor: 'purple.800',
+		},
+		// Add more statuses as needed
+	};
+
+	return (
+		statusMap[status] || {
+			text: 'Applied',
+			color: 'gray.100',
+			textColor: 'gray.800',
+		}
+	);
+};

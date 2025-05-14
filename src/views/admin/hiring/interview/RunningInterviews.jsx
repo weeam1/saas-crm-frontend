@@ -9,6 +9,8 @@ const RunningInterviews = ({ interviews, totals }) => {
 
 	const handleJoinInterview = (id) => {
 		navigate(`/hiring/interview/${id}`);
+
+		// window.location.href = `/hiring/interview/${id}`;
 	};
 
 	return (

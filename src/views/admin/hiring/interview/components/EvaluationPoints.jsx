@@ -84,11 +84,12 @@ const EvaluationPoints = ({
 
 			toast.success('Interview data updated successfully');
 
-			isLeadInterviewer ? handleTabChange(2) : navigate('/');
+			if (isLeadInterviewer) {
+				handleTabChange(2);
+				interviewRefetch();
+			} else navigate('/');
 		} catch (error) {
 			toast.error(error?.data?.message || 'Failed to update interview data');
-		} finally {
-			interviewRefetch();
 		}
 	};
 

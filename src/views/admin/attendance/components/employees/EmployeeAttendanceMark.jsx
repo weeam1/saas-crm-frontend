@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Button, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { IoMdExit } from 'react-icons/io';
 import moment from 'moment-timezone';
 import { buttonStyle } from '../../constants';
@@ -7,14 +7,22 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { FaBan, FaCalendarCheck } from 'react-icons/fa';
+import LeaveNoteModal from '../myAttendance/LeaveNoteModal';
 
 const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const { timezone } = officeSetting;
+
+	const {
+		isOpen: noteIsOpen,
+		onOpen: noteOnOpen,
+		onClose: noteOnClose,
+	} = useDisclosure();
 
 	const [status, setStatus] = useState(null);
 	const [checkinLoading, setCheckinLoading] = useState(false);
 	const [checkoutLoading, setCheckoutLoading] = useState(false);
 	const [absentLoading, setAbsentLoading] = useState(false);
+	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const todayIndex = moment().tz(timezone).day();
 	const offDays = officeSetting?.offDays || [];
@@ -23,7 +31,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 
 	useEffect(() => {
 		if (todayRecord) {
-			if (todayRecord?.status === 0) {
+			if (todayRecord?.status === 0 || todayRecord?.status === 3) {
 				setStatus(-1);
 			} else if (todayRecord?.checkin && todayRecord?.checkout) {
 				setStatus(-1);
@@ -99,10 +107,32 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		}
 	};
 
+	const handleLeave = async (values) => {
+		try {
+			const bodyData = { ...values, employeeId };
+
+			setLeaveLoading(true);
+			await createItemMutation({
+				path: '/attendance/leave',
+				body: bodyData,
+			}).unwrap();
+
+			toast.success('Employee leave successfully');
+			noteOnClose();
+			setStatus(-1);
+		} catch (e) {
+			console.log(e);
+			toast.error(e?.data?.message || 'Error in employee leave');
+		} finally {
+			setLeaveLoading(false);
+		}
+	};
+
 	const buttonVariants = {
-		checkIn: { bg: 'green.500', onClick: handleCheckIn, text: 'In' },
+		checkIn: { bg: 'green.400', onClick: handleCheckIn, text: 'In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Out' },
-		absent: { bg: 'red.500', onClick: handleAbsence, text: 'Absent' },
+		absent: { bg: 'red.400', onClick: handleAbsence, text: 'Absent' },
+		leave: { bg: 'teal.400', onClick: noteOnOpen, text: 'On Leave' },
 	};
 
 	const shouldRender = useMemo(() => {
@@ -115,7 +145,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			justifyContent='center'
 			alignItems='center'
 			gap='2'
-			p={4}
 			textAlign='center'
 		>
 			{isOffDay ? (
@@ -131,10 +160,11 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 						<Button
 							{...buttonStyle}
 							{...buttonVariants.checkOut}
-							// w={{ base: '100%', md: status ? '100%' : '120px' }}
-							// h='43px'
 							isDisabled={checkoutLoading}
-							leftIcon={<IoMdExit size={20} />}
+							fontSize='sm'
+							py='2'
+							px='4'
+							leftIcon={<IoMdExit size={10} />}
 						>
 							{checkoutLoading ? 'Loading...' : buttonVariants.checkOut.text}
 						</Button>
@@ -144,22 +174,43 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								<Button
 									{...buttonStyle}
 									{...buttonVariants.checkIn}
-									// w={{ base: '100%', md: '120px' }}
-									// h='43px'
-									isDisabled={absentLoading || checkinLoading}
-									leftIcon={<IoMdExit size={20} />}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+									fontSize='sm'
+									py='2'
+									px='4'
+									leftIcon={<IoMdExit size={10} />}
 								>
 									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
 								</Button>
 								<Button
 									{...buttonStyle}
+									fontSize='sm'
+									py='2'
+									px='4'
 									{...buttonVariants.absent}
-									// w={{ base: '100%', md: '120px' }}
-									// h='43px'
-									isDisabled={absentLoading || checkinLoading}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
 									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
 								</Button>
+								<Button
+									{...buttonStyle}
+									fontSize='sm'
+									py='2'
+									px='4'
+									{...buttonVariants.leave}
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+								>
+									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
+								</Button>
+
+								{noteIsOpen && (
+									<LeaveNoteModal
+										isOpen={noteIsOpen}
+										onClose={noteOnClose}
+										onSubmit={handleLeave}
+										isLoading={leaveLoading}
+									/>
+								)}
 							</>
 						)
 					)}
@@ -169,9 +220,9 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	) : (
 		<Flex
 			align='center'
-			p='4'
+			p='2'
 			bg='gray.100'
-			rounded='sm'
+			rounded='md'
 			justify='center'
 			gap={2}
 		>
