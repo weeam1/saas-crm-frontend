@@ -79,6 +79,7 @@ const AdvancedFilterModal = ({
                   placeholder="e.g. project name"
                   value={formik.values.projectName}
                   onChange={formik.handleChange}
+                  focusBorderColor="brand.500"
                 />
               </FormControl>
 
@@ -89,6 +90,7 @@ const AdvancedFilterModal = ({
                   placeholder="e.g. location"
                   value={formik.values.location}
                   onChange={formik.handleChange}
+                  focusBorderColor="brand.500"
                 />
               </FormControl>
 
@@ -100,6 +102,7 @@ const AdvancedFilterModal = ({
                     placeholder="All Listing Types"
                     value={formik.values.listingType}
                     onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
                   >
                     {listingTypes?.map((type) => (
                       <option key={type._id} value={type._id}>
@@ -116,6 +119,7 @@ const AdvancedFilterModal = ({
                     placeholder="All Unit Types"
                     value={formik.values.unitType}
                     onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
                   >
                     {unitTypes?.map((type) => (
                       <option key={type._id} value={type._id}>
@@ -133,6 +137,7 @@ const AdvancedFilterModal = ({
                     min={0}
                     value={formik.values.minPrice}
                     onChange={(value) => formik.setFieldValue("minPrice", value)}
+                    focusBorderColor="brand.500"
                   >
                     <NumberInputField placeholder="Minimum price" />
                   </NumberInput>
@@ -144,6 +149,7 @@ const AdvancedFilterModal = ({
                     min={0}
                     value={formik.values.maxPrice}
                     onChange={(value) => formik.setFieldValue("maxPrice", value)}
+                    focusBorderColor="brand.500"
                   >
                     <NumberInputField placeholder="Maximum price" />
                   </NumberInput>
