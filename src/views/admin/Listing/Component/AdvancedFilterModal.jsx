@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import {
   Modal,
   ModalOverlay,
@@ -35,17 +35,18 @@ const AdvancedFilterModal = ({
       unitType: initialFilters.unitType || "",
       minPrice: initialFilters.minPrice || "",
       maxPrice: initialFilters.maxPrice || "",
-      ...initialFilters
+      ...initialFilters,
     },
     onSubmit: (values) => {
       // Convert empty strings to undefined
       const cleanedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [
           key,
-          value === "" ? undefined : value
+          value === "" ? undefined : value,
         ])
       );
       onApplyFilters(cleanedValues);
+      onClose();
     },
   });
 
@@ -58,10 +59,28 @@ const AdvancedFilterModal = ({
         unitType: "",
         minPrice: "",
         maxPrice: "",
-      }
+      },
     });
     onApplyFilters({});
+    onClose();
   };
+const cleanedInitialFilters = useMemo(() => {
+  const clean = {
+    projectName: initialFilters.projectName || "",
+    location: initialFilters.location || "",
+    listingType: initialFilters.listingType || "",
+    unitType: initialFilters.unitType || "",
+    minPrice: initialFilters.minPrice || "",
+    maxPrice: initialFilters.maxPrice || "",
+  };
+  return clean;
+}, [initialFilters]);
+
+const isFilterUnchanged = useMemo(() => {
+  return Object.entries(cleanedInitialFilters).every(
+    ([key, val]) => formik.values[key] === val
+  );
+}, [formik.values, cleanedInitialFilters]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -136,7 +155,9 @@ const AdvancedFilterModal = ({
                   <NumberInput
                     min={0}
                     value={formik.values.minPrice}
-                    onChange={(value) => formik.setFieldValue("minPrice", value)}
+                    onChange={(value) =>
+                      formik.setFieldValue("minPrice", value)
+                    }
                     focusBorderColor="brand.500"
                   >
                     <NumberInputField placeholder="Minimum price" />
@@ -148,7 +169,9 @@ const AdvancedFilterModal = ({
                   <NumberInput
                     min={0}
                     value={formik.values.maxPrice}
-                    onChange={(value) => formik.setFieldValue("maxPrice", value)}
+                    onChange={(value) =>
+                      formik.setFieldValue("maxPrice", value)
+                    }
                     focusBorderColor="brand.500"
                   >
                     <NumberInputField placeholder="Maximum price" />
@@ -162,7 +185,7 @@ const AdvancedFilterModal = ({
             <Button variant="outline" mr={3} onClick={handleClear}>
               Clear Filters
             </Button>
-            <Button colorScheme="brand" type="submit">
+            <Button colorScheme="brand" type="submit"   isDisabled={isFilterUnchanged}>
               Apply Filters
             </Button>
           </ModalFooter>
