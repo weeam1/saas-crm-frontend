@@ -28,6 +28,10 @@ const validationSchema = Yup.object().shape({
     .typeError("Amount must be a number")
     .required("Amount is required")
     .positive("Amount must be positive"),
+    vat: Yup.number()
+    .typeError("Amount must be a number")
+    .required("Amount is required")
+    .positive("Amount must be positive"),
 });
 
 const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
@@ -50,6 +54,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
       type: "",
       description: "",
       amount: "",
+      vat: "",
     },
     validationSchema,
     onSubmit: (values) => {
@@ -155,6 +160,20 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   />
                   {formik.touched.amount && formik.errors.amount && (
                     <p style={{ color: "red" }}>{formik.errors.amount}</p>
+                  )}
+                </div>
+                <div>
+                  <FormLabel>VAT %</FormLabel>
+                  <Input
+                    name="vat"
+                    type="number"
+                    value={formik.values.vat}
+                    onChange={formik.handleChange}
+                    placeholder="e.g., 200.0"
+                    focusBorderColor="brand.500"
+                  />
+                  {formik.touched.vat && formik.errors.vat && (
+                    <p style={{ color: "red" }}>{formik.errors.vat}</p>
                   )}
                 </div>
               </Grid>

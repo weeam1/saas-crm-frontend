@@ -33,14 +33,15 @@ const DEFAULT_TAB = "incoming-cash";
 const Expenses = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  const [month, setMonth] = useState(moment().format("M"));
-  const [year, setYear] = useState(moment().format("YYYY"));
-  const [selectionMonth, setSelectionMonth] = useState(moment().format("M"));
-  const [selectionYear, setSelectionYear] = useState(moment().format("YYYY"));
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchParams, setSearchParams] = useSearchParams();
+  
   const tabFromParams = searchParams.get("tab") || DEFAULT_TAB;
+  const monthFromParams = searchParams.get("month") || moment().format("M");
+  const yearFromParams = searchParams.get("year") || moment().format("YYYY");
+  
+  const [tempMonth, setTempMonth] = useState(monthFromParams);
+  const [tempYear, setTempYear] = useState(yearFromParams);
 
   const tabsList = ["incoming-cash", "outgoing-cash"];
   const initialIndex = tabsList.indexOf(tabFromParams.toLowerCase());
@@ -56,7 +57,7 @@ const Expenses = () => {
     isError,
     refetch,
   } = useFetchItemsQuery(
-    { path: `/expenses/summary`, params: { month, year } },
+    { path: `/expenses/summary`, params: { month: monthFromParams, year: yearFromParams } },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
@@ -66,8 +67,8 @@ const Expenses = () => {
       component: (
         <IncomingTable
           key={tabKey}
-          month={selectionMonth}
-          year={selectionYear}
+          month={monthFromParams}
+          year={yearFromParams}
           refetchSummary={refetch}
         />
       ),
@@ -77,8 +78,8 @@ const Expenses = () => {
       component: (
         <OutgoingTable
           key={tabKey}
-          month={selectionMonth}
-          year={selectionYear}
+          month={monthFromParams}
+          year={yearFromParams}
           refetchSummary={refetch}
         />
       ),
@@ -86,27 +87,30 @@ const Expenses = () => {
   ];
 
   useEffect(() => {
-    if (!searchParams.get("tab")) {
-      setSearchParams({ tab: DEFAULT_TAB });
+    if (!searchParams.get("tab") || !searchParams.get("month") || !searchParams.get("year")) {
+      const params = {
+        tab: tabFromParams,
+        month: monthFromParams,
+        year: yearFromParams
+      };
+      setSearchParams(params);
     }
   }, []);
 
   const handleTabChange = (index) => {
-    const newTab = tabsData[index].label.toLowerCase().replace(/\s/g, "-");
-    setSearchParams({ tab: newTab });
-
+    const newTab = tabsList[index];
+    const params = {
+      tab: newTab,
+      month: monthFromParams,
+      year: yearFromParams
+    };
+    setSearchParams(params);
+    
     if (index === activeTabIndex) {
       setTabKey((prev) => prev + 1);
     } else {
       setActiveTabIndex(index);
     }
-
-    const currentMonth = moment().format("M");
-    const currentYear = moment().format("YYYY");
-    setSelectionMonth(currentMonth);
-    setSelectionYear(currentYear);
-    setMonth(currentMonth);
-    setYear(currentYear);
   };
 
   const getMonthName = (monthNumber) => {
@@ -114,17 +118,24 @@ const Expenses = () => {
   };
 
   const HandlerDateFilter = () => {
-    if (month && year) {
-      setSelectionMonth(month);
-      setSelectionYear(year);
-      onClose();
-      refetch();
-    }
+    const params = {
+      tab: tabFromParams,
+      month: tempMonth,
+      year: tempYear
+    };
+    setSearchParams(params);
+    onClose();
+    refetch();
+  };
+
+  const handleOpenModal = () => {
+    setTempMonth(monthFromParams);
+    setTempYear(yearFromParams);
+    onOpen();
   };
 
   return (
     <Box>
-      {/* Date Filter UI */}
       <Box display={"flex"} justifyContent={"flex-end"} mr={"15px"}>
         <HStack>
           <Box
@@ -136,7 +147,7 @@ const Expenses = () => {
             borderRadius={"10px"}
             border={"1px solid #D5D9DD"}
             cursor={"pointer"}
-            onClick={onOpen}
+            onClick={handleOpenModal}
           >
             <IconButton
               icon={<CalendarIcon />}
@@ -148,14 +159,12 @@ const Expenses = () => {
               size="sm"
             />
             <Text color={"lightgray"}>
-              {selectionMonth && selectionYear && getMonthName(selectionMonth)}{" "}
-              {selectionYear}
+              {getMonthName(monthFromParams)} {yearFromParams}
             </Text>
           </Box>
         </HStack>
       </Box>
 
-      {/* Tabs */}
       <Box mt={"-4%"}>
         <TabNavigationDisplay
           tabsData={tabsData}
@@ -164,7 +173,6 @@ const Expenses = () => {
         />
       </Box>
 
-      {/* Summary Cards */}
       <Flex justifyContent={"end"} mx={4}>
         <Box
           p={1}
@@ -205,7 +213,6 @@ const Expenses = () => {
         </Box>
       </Flex>
 
-      {/* Date Filter Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
@@ -215,8 +222,8 @@ const Expenses = () => {
             <VStack spacing={4}>
               <Select
                 placeholder="Select Month"
-                value={month}
-                onChange={(e) => setMonth(Number(e.target.value))}
+                value={tempMonth}
+                onChange={(e) => setTempMonth(e.target.value)}
                 focusBorderColor="goldenrod"
               >
                 {Array.from({ length: 12 }, (_, i) => (
@@ -230,8 +237,8 @@ const Expenses = () => {
 
               <Select
                 placeholder="Select Year"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
+                value={tempYear}
+                onChange={(e) => setTempYear(e.target.value)}
                 focusBorderColor="goldenrod"
               >
                 {Array.from({ length: 10 }, (_, i) => {

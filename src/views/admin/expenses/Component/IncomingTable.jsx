@@ -22,13 +22,14 @@ import {
   Select,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiDownload } from "react-icons/fi";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
+import * as XLSX from "xlsx";
 
 const IncomingTable = ({ month, year, refetchSummary }) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -135,6 +136,39 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
       );
     }
   };
+
+  const exportToExcel = () => {
+    if (!data || !data.doc || data.doc.length === 0) {
+      toast.warning("No data to export");
+      return;
+    }
+
+    try {
+      const exportData = data.doc.map((item) => ({
+        Date: item.createdAt
+          ? moment(item.createdAt).format("MM/DD/YYYY hh:mmA")
+          : "",
+        Number: item.expenseNo || "",
+        Type: item.type ? item.type.name : "",
+        Description: item.description || "",
+        "Added By": item.addedBy ? item.addedBy.fullName : "",
+        PRICE: item.amount || "0",
+        "VAT %": item.vat ? `${item.vat}%` : "0",
+        "TOTAL Amount": item.totalAmount || "0",
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(wb, ws, "Payments");
+      const fileName = `Payments_${moment().format("YYYY-MM-DD")}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success("Export successful!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export data");
+    }
+  };
   return (
     <Box
       overflowY="auto"
@@ -143,7 +177,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-			marginLeft={"-4px"}
+      marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -171,9 +205,22 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           >
             Add New
           </Button>
+
+          <Button
+            size="md"
+            variant="outline"
+            leftIcon={<FiDownload />}
+            py={3}
+            px={6}
+            onClick={exportToExcel}
+            colorScheme="green"
+            mr={2}
+          >
+            Export
+          </Button>
         </Box>
       </Flex>
-      <Box mx={1} mb={1}>
+      <Box mb={1}>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -355,7 +402,6 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
             No expenses found.
           </Text>
         )}
-
       </Box>
 
       {/* Agency Filter Modal */}
