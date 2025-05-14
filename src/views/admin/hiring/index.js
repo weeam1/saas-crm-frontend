@@ -40,18 +40,18 @@ const Hiring = () => {
 			component: <ShortListedCandidates key={tabKey} />,
 		},
 		{
-			label: 'Interviewed Candidates',
-			title: 'Interviewed Candidates Overview',
-			description:
-				'See candidates who have completed their interviews. Track interview outcomes and feedback.',
-			component: <InterviewedCandidates key={tabKey} />,
-		},
-		{
 			label: 'Final Interviewed',
 			title: 'Final Interviewed Candidates Overview',
 			description:
 				'See candidates who have final round interviews. Track interview outcomes and feedback.',
 			component: <InterviewedRound key={tabKey} />,
+		},
+		{
+			label: 'Interviewed Candidates',
+			title: 'Interviewed Candidates Overview',
+			description:
+				'See candidates who have completed their interviews. Track interview outcomes and feedback.',
+			component: <InterviewedCandidates key={tabKey} />,
 		},
 	];
 
