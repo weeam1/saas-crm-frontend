@@ -113,10 +113,10 @@ const Attendance = () => {
 						py='2'
 						px='5'
 						leftIcon={<FaPlus />}
-						aria-label='New attendance'
+						aria-label='Add attendance'
 						onClick={() => setAddAttendance(true)}
 					>
-						New
+						Add
 					</Button>
 				</Box>
 
