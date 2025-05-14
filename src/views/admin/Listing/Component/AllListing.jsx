@@ -33,13 +33,14 @@ import {
   useUpdateItemMutation,
 } from "api/apiSlice";
 import moment from "moment";
-import Pagination from "../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
+import { FiFilter } from "react-icons/fi";
 
 const AllListing = () => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -49,6 +50,9 @@ const AllListing = () => {
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [unitTypeFilter, setUnitTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
   const Navigate = useNavigate();
 
   const [createItemMutation] = useCreateItemMutation();
@@ -71,11 +75,30 @@ const AllListing = () => {
     "Action",
   ];
 
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+    if (unitTypeFilter) params.unitType = unitTypeFilter;
+    if (statusFilter) params.status = statusFilter;
+    if (locationFilter) params.location = locationFilter;
+    return params;
+  };
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/listing/secondary` },
+    { path: `/listing/secondary`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
+  const { data: listingType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
+
+  const { data: listingUnitType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
   const handleRequestViewAccess = async (listingId) => {
     try {
       await createItemMutation({
@@ -207,7 +230,20 @@ const AllListing = () => {
       });
     }
   };
+  const applyFilters = () => {
+    setCurrentPage(1);
+    refetch();
+    setIsFilterOpen(false);
+  };
 
+  const resetFilters = () => {
+    setUnitTypeFilter("");
+    setStatusFilter("");
+    setLocationFilter("");
+    setCurrentPage(1);
+    refetch();
+    setIsFilterOpen(false);
+  };
   return (
     <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
       <Flex justifyContent="space-between" alignItems="center" p={3}>
@@ -215,7 +251,18 @@ const AllListing = () => {
           All Listings
         </Text>
       </Flex>
-
+      <Box gap={2} display="flex" alignItems="center">
+        <IconButton
+          icon={<FiFilter />}
+          onClick={() => setIsFilterOpen(true)}
+          aria-label="Filter Listings"
+          colorScheme="brand"
+          variant="solid"
+          size="sm"
+          borderRadius="full"
+          boxShadow="md"
+        />
+      </Box>
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -447,6 +494,61 @@ const AllListing = () => {
               }
             >
               Confirm Rejection
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Filter Listings</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box mb={4}>
+              <FormLabel>Listing Type</FormLabel>
+              <Select
+                placeholder="All listing types"
+                value={unitTypeFilter}
+                onChange={(e) => setUnitTypeFilter(e.target.value)}
+              >
+                {listingType?.doc?.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+            <Box mb={4}>
+              <FormLabel>Unit Type</FormLabel>
+              <Select
+                placeholder="All unit types"
+                value={unitTypeFilter}
+                onChange={(e) => setUnitTypeFilter(e.target.value)}
+              >
+                {listingUnitType?.doc?.map((unitType) => (
+                  <option key={unitType.id} value={unitType.id}>
+                    {unitType.name}
+                  </option>
+                ))}
+              </Select>
+            </Box>
+            <Box mb={4}>
+              <FormLabel>Location</FormLabel>
+              <Input
+                placeholder="Filter by location"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              />
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="outline" mr={3} onClick={resetFilters}>
+              Reset
+            </Button>
+            <Button colorScheme="brand" onClick={applyFilters}>
+              Apply Filters
             </Button>
           </ModalFooter>
         </ModalContent>

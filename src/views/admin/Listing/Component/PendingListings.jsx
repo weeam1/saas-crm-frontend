@@ -340,13 +340,14 @@ const PendingListings = () => {
                     >
                       <Select
                         value={listing.status}
-                        onChange={(e) =>
+                        onChange={(e) =>{
                           handleStatusChange(listing._id, e.target.value)
-                        }
+                        }}
                         size="sm"
                         width="150px"
                         focusBorderColor="brand.500"
                       >
+                         <option value = "pending">pending</option> 
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                         <option value="active">Active</option>

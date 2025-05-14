@@ -59,6 +59,7 @@ const MyListing = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updateStatus] = useUpdateItemMutation();
+  
   const columns = [
     "Date",
     "projectName",
@@ -94,7 +95,7 @@ const MyListing = () => {
   };
 
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/my-listings` },
+    { path: `listing/secondary/my-listings`, params: buildQueryParams()},
     { refetchOnMountOrArgChange: true }
   );
 
@@ -201,7 +202,7 @@ const MyListing = () => {
           My Listings
         </Text>
         <Box gap={2} display="flex" alignItems="center">
-          {/* <IconButton
+          <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
             aria-label="Filter Listings"
@@ -210,7 +211,7 @@ const MyListing = () => {
             size="sm"
             borderRadius="full"
             boxShadow="md"
-          /> */}
+          />
 
           <Button
             size="md"
