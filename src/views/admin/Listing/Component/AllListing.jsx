@@ -38,6 +38,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
+import AdvancedFilterModal from "./AdvancedFilterModal";
 
 const AllListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -50,9 +51,7 @@ const AllListing = () => {
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [unitTypeFilter, setUnitTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
+  const [filters, setFilters] = useState({});
   const Navigate = useNavigate();
 
   const [createItemMutation] = useCreateItemMutation();
@@ -75,28 +74,41 @@ const AllListing = () => {
     "Action",
   ];
 
-  const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
-    if (unitTypeFilter) params.unitType = unitTypeFilter;
-    if (statusFilter) params.status = statusFilter;
-    if (locationFilter) params.location = locationFilter;
-    return params;
+const buildQueryParams = () => {
+  const params = {
+    page: currentPage,
+    limit: pageSize,
   };
+
+  if (Object.keys(filters).length > 0) {
+    if (filters.projectName) params.projectName = filters.projectName;
+    
+    if (filters.location) params.location = filters.location;
+    
+    if (filters.listingType) params.listingType = filters.listingType;
+    
+
+    if (filters.unitType) params.unitType = filters.unitType;
+    
+    if (filters.minPrice) params.minPrice = filters.minPrice;
+    if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+  }
+
+  return params;
+};
+
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/listing/secondary`, params: buildQueryParams() },
+    { path: `/listing/secondary`, params: buildQueryParams()},
     { refetchOnMountOrArgChange: true }
   );
 
   const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    { path: `/listing/secondary/unit-types`},
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    { path: `/listing/secondary/unit-types`},
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
   const handleRequestViewAccess = async (listingId) => {
@@ -230,19 +242,15 @@ const AllListing = () => {
       });
     }
   };
-  const applyFilters = () => {
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
 
-  const resetFilters = () => {
-    setUnitTypeFilter("");
-    setStatusFilter("");
-    setLocationFilter("");
+    const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(([_, value]) => value !== "" && value !== undefined)
+    );
+    
+    setFilters(cleanedFilters);
     setCurrentPage(1);
     refetch();
-    setIsFilterOpen(false);
   };
   return (
     <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
@@ -250,9 +258,7 @@ const AllListing = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
         </Text>
-      </Flex>
-      <Box gap={2} display="flex" alignItems="center">
-        <IconButton
+         <IconButton
           icon={<FiFilter />}
           onClick={() => setIsFilterOpen(true)}
           aria-label="Filter Listings"
@@ -262,7 +268,7 @@ const AllListing = () => {
           borderRadius="full"
           boxShadow="md"
         />
-      </Box>
+      </Flex>
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -499,60 +505,14 @@ const AllListing = () => {
         </ModalContent>
       </Modal>
 
-      {/* Filter Modal */}
-      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter Listings</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Listing Type</FormLabel>
-              <Select
-                placeholder="All listing types"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-              >
-                {listingType?.doc?.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Unit Type</FormLabel>
-              <Select
-                placeholder="All unit types"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-              >
-                {listingUnitType?.doc?.map((unitType) => (
-                  <option key={unitType.id} value={unitType.id}>
-                    {unitType.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input
-                placeholder="Filter by location"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button colorScheme="brand" onClick={applyFilters}>
-              Apply Filters
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AdvancedFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+        initialFilters={filters}
+      />
     </Box>
   );
 };

@@ -19,12 +19,12 @@ import {
   ModalOverlay,
   FormLabel,
   Select,
-  Input,
   Badge,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
+  IconButton
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 import { FiChevronDown } from "react-icons/fi";
@@ -34,6 +34,8 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
+import { FiFilter } from "react-icons/fi";
+import AdvancedFilterModal from "../AdvancedFilterModal";
 
 const ApprovedRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -44,11 +46,13 @@ const ApprovedRequest = () => {
   const [selectedStatus, setSelectedStatus] = useState({});
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
+  const [filters, setFilters] = useState({});
+  
   const Navigate = useNavigate();
 
-  const [unitTypeFilter, setUnitTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
+  
+  const user = JSON.parse(localStorage.getItem("user"));
+  
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
     "Date",
@@ -74,25 +78,42 @@ const ApprovedRequest = () => {
     setCurrentPage(newPage);
   };
 
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.projectName) params.projectName = filters.projectName;
+
+      if (filters.location) params.location = filters.location;
+
+      if (filters.listingType) params.listingType = filters.listingType;
+
+      if (filters.unitType) params.unitType = filters.unitType;
+
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    }
+
+    return params;
+  };
+
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/approved-listings` },
+    { path: `listing/secondary/approved-listings`, params: buildQueryParams(), },
     { refetchOnMountOrArgChange: true }
   );
 
-  const applyFilters = () => {
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
-
-  const resetFilters = () => {
-    setUnitTypeFilter("");
-    setStatusFilter("");
-    setLocationFilter("");
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
+    const { data: listingType } = useFetchItemsQuery(
+      { path: `/listing/secondary/unit-types` },
+      { refetchOnMountOrArgChange: true, skip: !user._id }
+    );
+  
+    const { data: listingUnitType } = useFetchItemsQuery(
+      { path: `/listing/secondary/unit-types` },
+      { refetchOnMountOrArgChange: true, skip: !user._id }
+    );
 
   const handleStatusChange = (listingId, status, approvedId) => {
     setSelectedStatus(status);
@@ -142,6 +163,17 @@ const ApprovedRequest = () => {
     }
   };
 
+    const handleApplyFilters = (newFilters) => {
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(newFilters).filter(
+          ([_, value]) => value !== "" && value !== undefined
+        )
+      );
+  
+      setFilters(cleanedFilters);
+      setCurrentPage(1);
+      refetch();
+    };
   return (
     <Box
       overflowY="auto"
@@ -156,7 +188,6 @@ const ApprovedRequest = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Approved Requests
         </Text>
-        {/* <Box gap={2} display="flex" alignItems="center">
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -167,7 +198,6 @@ const ApprovedRequest = () => {
             borderRadius="full"
             boxShadow="md"
           />
-        </Box> */}
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -419,47 +449,14 @@ const ApprovedRequest = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      {/* Filter Modal */}
-      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter Approvals</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Status</FormLabel>
-              <Select
-                placeholder="All statuses"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                focusBorderColor="brand.500"
-              >
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Project Name</FormLabel>
-              <Input
-                placeholder="Filter by project name"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                focusBorderColor="brand.500"
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button colorScheme="brand" onClick={applyFilters}>
-              Apply Filters
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+    <AdvancedFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+        initialFilters={filters}
+      />
     </Box>
   );
 };

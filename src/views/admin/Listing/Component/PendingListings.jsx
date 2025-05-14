@@ -22,15 +22,15 @@ import {
   Input,
   Badge,
   Textarea,
+  IconButton
 } from "@chakra-ui/react";
-import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
-import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
-import { useNavigate } from "react-router-dom";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
+import AdvancedFilterModal from "./AdvancedFilterModal";
+import { FiFilter } from "react-icons/fi";
 
 const PendingListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -38,16 +38,12 @@ const PendingListings = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
-  const Navigate = useNavigate();
-
-  const [unitTypeFilter, setUnitTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [filters, setFilters] = useState({});
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
@@ -73,9 +69,30 @@ const PendingListings = () => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
 
-  const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/status/pending` },
+    if (Object.keys(filters).length > 0) {
+      if (filters.projectName) params.projectName = filters.projectName;
+
+      if (filters.location) params.location = filters.location;
+
+      if (filters.listingType) params.listingType = filters.listingType;
+
+      if (filters.unitType) params.unitType = filters.unitType;
+
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    }
+
+    return params;
+  };
+
+  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+    { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -87,21 +104,6 @@ const PendingListings = () => {
     { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
-
-  const applyFilters = () => {
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
-
-  const resetFilters = () => {
-    setUnitTypeFilter("");
-    setStatusFilter("");
-    setLocationFilter("");
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
 
   const handleStatusChange = async (listingId, status) => {
     setCurrentListingId(listingId);
@@ -163,6 +165,18 @@ const PendingListings = () => {
     }
   }, [data]);
 
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    refetch();
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -177,7 +191,6 @@ const PendingListings = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Pending Listings
         </Text>
-        {/* <Box gap={2} display="flex" alignItems="center">
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -188,7 +201,6 @@ const PendingListings = () => {
             borderRadius="full"
             boxShadow="md"
           />
-        </Box> */}
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -340,14 +352,14 @@ const PendingListings = () => {
                     >
                       <Select
                         value={listing.status}
-                        onChange={(e) =>{
-                          handleStatusChange(listing._id, e.target.value)
+                        onChange={(e) => {
+                          handleStatusChange(listing._id, e.target.value);
                         }}
                         size="sm"
                         width="150px"
                         focusBorderColor="brand.500"
                       >
-                         <option value = "pending">pending</option> 
+                        <option value="pending">pending</option>
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                         <option value="active">Active</option>
@@ -415,48 +427,14 @@ const PendingListings = () => {
         </ModalContent>
       </Modal>
 
-      {/* Filter Modal */}
-      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter Pending Listings</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Unit Type</FormLabel>
-              <Select
-                placeholder="All unit types"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-                focusBorderColor="brand.500"
-              >
-                {listingUnitType?.doc?.map((unitType) => (
-                  <option key={unitType.id} value={unitType.id}>
-                    {unitType.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input
-                placeholder="Filter by location"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                focusBorderColor="brand.500"
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button colorScheme="brand" onClick={applyFilters}>
-              Apply Filters
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AdvancedFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+        initialFilters={filters}
+      />
     </Box>
   );
 };

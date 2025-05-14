@@ -33,11 +33,11 @@ import {
 } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
-import Pagination from "../../../admin/developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
+import AdvancedFilterModal from "./AdvancedFilterModal";
 
 const MyListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -47,9 +47,6 @@ const MyListing = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [deleteItemMutation] = useDeleteItemMutation();
   const Navigate = useNavigate();
-  const [unitTypeFilter, setUnitTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
   const [selectedListing, setSelectedListing] = useState(null);
   const notesModalDisclosure = useDisclosure();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -59,7 +56,8 @@ const MyListing = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updateStatus] = useUpdateItemMutation();
-  
+  const [filters, setFilters] = useState({});
+
   const columns = [
     "Date",
     "projectName",
@@ -88,21 +86,28 @@ const MyListing = () => {
       page: currentPage,
       limit: pageSize,
     };
-    if (unitTypeFilter) params.unitType = unitTypeFilter;
-    if (statusFilter) params.status = statusFilter;
-    if (locationFilter) params.location = locationFilter;
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.projectName) params.projectName = filters.projectName;
+
+      if (filters.location) params.location = filters.location;
+
+      if (filters.listingType) params.listingType = filters.listingType;
+
+      if (filters.unitType) params.unitType = filters.unitType;
+
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    }
+
     return params;
   };
 
-  const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/my-listings`, params: buildQueryParams()},
+  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+    { path: `listing/secondary/my-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: listingStatus } = useFetchItemsQuery(
-    { path: `/listing/secondary/statuses` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
@@ -131,21 +136,6 @@ const MyListing = () => {
         { autoClose: 3000 }
       );
     }
-  };
-
-  const applyFilters = () => {
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
-
-  const resetFilters = () => {
-    setUnitTypeFilter("");
-    setStatusFilter("");
-    setLocationFilter("");
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
   };
 
   useEffect(() => {
@@ -186,6 +176,18 @@ const MyListing = () => {
     } catch (error) {
       toast.error("Error updating status");
     }
+  };
+
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    refetch();
   };
   return (
     <Box
@@ -469,74 +471,6 @@ const MyListing = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {/* Filter Modal */}
-      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter Listings</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Listing Type</FormLabel>
-              <Select
-                placeholder="All listing types"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-              >
-                {listingType?.doc?.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Unit Type</FormLabel>
-              <Select
-                placeholder="All unit types"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-              >
-                {listingUnitType?.doc?.map((unitType) => (
-                  <option key={unitType.id} value={unitType.id}>
-                    {unitType.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Status</FormLabel>
-              <Select
-                placeholder="All statuses"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                {listingStatus?.doc?.map((status) => (
-                  <option key={status.id} value={status.id}>
-                    {status.name}
-                  </option>
-                ))}
-              </Select>
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input
-                placeholder="Filter by location"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button colorScheme="brand" onClick={applyFilters}>
-              Apply Filters
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       {selectedListing && (
         <NotesModal
@@ -545,6 +479,15 @@ const MyListing = () => {
           listingId={selectedListing._id}
         />
       )}
+
+      <AdvancedFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+        initialFilters={filters}
+      />
     </Box>
   );
 };

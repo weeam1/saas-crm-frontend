@@ -19,12 +19,12 @@ import {
   ModalOverlay,
   FormLabel,
   Select,
-  Input,
   Badge,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
+  IconButton,
 } from "@chakra-ui/react";
 import { ViewIcon, RepeatIcon } from "@chakra-ui/icons";
 import { FiChevronDown } from "react-icons/fi";
@@ -34,6 +34,8 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
+import { FiFilter } from "react-icons/fi";
+import AdvancedFilterModal from "../AdvancedFilterModal";
 
 const RejectRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -45,12 +47,10 @@ const RejectRequest = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentListingId, setCurrentListingId] = useState(null);
+    const [filters, setFilters] = useState({});
   const Navigate = useNavigate();
 
-  const [unitTypeFilter, setUnitTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-
+  const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "Date",
     "Requester",
@@ -75,25 +75,41 @@ const RejectRequest = () => {
     setCurrentPage(newPage);
   };
 
-  const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/rejected-listings` },
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.projectName) params.projectName = filters.projectName;
+
+      if (filters.location) params.location = filters.location;
+
+      if (filters.listingType) params.listingType = filters.listingType;
+
+      if (filters.unitType) params.unitType = filters.unitType;
+
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    }
+
+    return params;
+  };
+
+  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+    { path: `listing/secondary/rejected-listings`, params: buildQueryParams(), },
     { refetchOnMountOrArgChange: true }
   );
+  const { data: listingType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
 
-  const applyFilters = () => {
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
-
-  const resetFilters = () => {
-    setUnitTypeFilter("");
-    setStatusFilter("");
-    setLocationFilter("");
-    setCurrentPage(1);
-    refetch();
-    setIsFilterOpen(false);
-  };
+  const { data: listingUnitType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
 
   const handleStatusChange = (requestId, status, listingId) => {
     setSelectedStatus("");
@@ -127,6 +143,7 @@ const RejectRequest = () => {
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
+      console.log(error)
       toast.error("Error updating status");
     }
   };
@@ -151,6 +168,18 @@ const RejectRequest = () => {
     }
   };
 
+    const handleApplyFilters = (newFilters) => {
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(newFilters).filter(
+          ([_, value]) => value !== "" && value !== undefined
+        )
+      );
+  
+      setFilters(cleanedFilters);
+      setCurrentPage(1);
+      refetch();
+    };
+
   return (
     <Box
       overflowY="auto"
@@ -165,7 +194,6 @@ const RejectRequest = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Rejected Requests
         </Text>
-        {/* <Box gap={2} display="flex" alignItems="center">
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -176,7 +204,6 @@ const RejectRequest = () => {
             borderRadius="full"
             boxShadow="md"
           />
-        </Box> */}
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -412,41 +439,14 @@ const RejectRequest = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      {/* Filter Modal */}
-      <Modal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter Rejected Requests</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Project Name</FormLabel>
-              <Input
-                placeholder="Filter by project name"
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-              />
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Requester Name</FormLabel>
-              <Input
-                placeholder="Filter by requester name"
-                value={unitTypeFilter}
-                onChange={(e) => setUnitTypeFilter(e.target.value)}
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={resetFilters}>
-              Reset
-            </Button>
-            <Button colorScheme="blue" onClick={applyFilters}>
-              Apply Filters
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AdvancedFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+        initialFilters={filters}
+      />
     </Box>
   );
 };
