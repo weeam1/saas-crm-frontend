@@ -10,6 +10,8 @@ import {
 	Button,
 	useDisclosure,
 	Avatar,
+	IconButton,
+	Tooltip,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
@@ -20,8 +22,17 @@ import { constant } from 'constant';
 
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { ATTENDANCE_STATUS_CONFIG } from '../../constants';
+import { Link } from 'react-router-dom';
+import { LuStickyNote } from 'react-icons/lu';
+import MessageViewModal from 'components/modals/MessageViewModal';
 
 const RecordTable = ({ records, isLoading, isFetching }) => {
+	const [leaveNote, setLeaveNote] = useState({
+		title: 'Message',
+		message: 'N/A',
+		modal: false,
+	});
+
 	const columns = [
 		'Employee',
 		'Role',
@@ -41,18 +52,6 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 	useEffect(() => {
 		if (records?.doc) setData(records?.doc);
 	}, [records?.doc]);
-
-	// const getTimeAgo = (createdAt) => {
-	// 	const now = moment();
-	// 	const createdMoment = moment(createdAt);
-	// 	const diffInMinutes = now.diff(createdMoment, 'minutes');
-
-	// 	return diffInMinutes < 60
-	// 		? diffInMinutes === 0
-	// 			? 'now'
-	// 			: `${diffInMinutes} minutes ago`
-	// 		: createdMoment.format('h:mm A');
-	// };
 
 	const getTimeAgo = (createdAt) => {
 		if (!createdAt) return 'Invalid date';
@@ -162,34 +161,31 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 										key={entry._id}
 										_hover={{ bg: 'gray.50' }}
 										border='gray.200'
-										// bgGradient={rowBgGradient}
 									>
-										{/* <Td
-											py={4}
-											fontSize={{ base: '12px', md: '15px' }}
-											fontWeight='500'
-										>
-											{++index}
-										</Td> */}
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 											minWidth='200px'
-											display='flex'
-											alignItems='center'
-											gap={2}
 										>
-											<Avatar
-												src={
-													entry?.employee?.profileImage
-														? `${constant['baseUrl']}${entry?.employee.profileImage}`
-														: ''
-												}
-												size='sm'
-												name={entry?.employee?.fullName ?? 'User'}
-											/>
-											{entry.employee?.fullName}
+											<Box
+												as={Link}
+												to={`/attendance/employees/${entry?.employee?._id}`}
+												display='flex'
+												alignItems='center'
+												gap={2}
+											>
+												<Avatar
+													src={
+														entry?.employee?.profileImage
+															? `${constant['baseUrl']}${entry?.employee.profileImage}`
+															: ''
+													}
+													size='sm'
+													name={entry?.employee?.fullName ?? 'User'}
+												/>
+												{entry.employee?.fullName}
+											</Box>
 										</Td>
 										<Td
 											py={4}
@@ -273,9 +269,36 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 													: 'Pending'}
 										</Td>
 										<Td py={4}>
-											<Button rounded='full' onClick={() => handleEdit(entry)}>
-												<FaEdit color='green' />
-											</Button>
+											<IconButton
+												rounded='full'
+												aria-label='Leave note'
+												icon={<FaEdit />}
+												size='xs'
+												colorScheme='green'
+												variant='solid'
+												mr='1'
+												onClick={() => handleEdit(entry)}
+											/>
+
+											{entry?.leaveNote && entry?.status === 3 && (
+												<Tooltip label='Leave Note' hasArrow>
+													<IconButton
+														aria-label='Leave note'
+														// icon={<FaNoteSticky />}
+														icon={<LuStickyNote />}
+														size='xs'
+														colorScheme='teal'
+														variant='solid'
+														onClick={() => {
+															setLeaveNote({
+																message: entry.leaveNote,
+																title: 'Leave Note',
+																modal: true,
+															});
+														}}
+													/>
+												</Tooltip>
+											)}
 										</Td>
 									</Tr>
 								);
@@ -305,6 +328,15 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 					data={editData}
 					refetch={handleRefetchUpdate}
 					updateKey='record'
+				/>
+			)}
+
+			{leaveNote?.modal && (
+				<MessageViewModal
+					title={leaveNote.title}
+					message={leaveNote.message}
+					isOpen={leaveNote.modal}
+					onClose={() => setLeaveNote({ modal: false })}
 				/>
 			)}
 		</>

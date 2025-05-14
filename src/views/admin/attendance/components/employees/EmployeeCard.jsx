@@ -91,7 +91,7 @@ const EmployeeCard = ({ emp, index, tab, officeSettings }) => {
 			) : (
 				<Box
 					alignSelf='center'
-					p='4'
+					p='2'
 					bg='gray.100'
 					color='red.400'
 					rounded='sm'

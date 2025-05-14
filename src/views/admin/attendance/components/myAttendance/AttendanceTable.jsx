@@ -10,6 +10,8 @@ import {
 	Divider,
 	useDisclosure,
 	Button,
+	IconButton,
+	Tooltip,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
@@ -19,6 +21,9 @@ import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { ATTENDANCE_STATUS_CONFIG, STATUS_CONFIG } from '../../constants';
+import { FaNoteSticky } from 'react-icons/fa6';
+import MessageViewModal from 'components/modals/MessageViewModal';
+import { LuStickyNote } from 'react-icons/lu';
 
 const AttendanceTable = ({
 	attendanceRecord,
@@ -27,6 +32,12 @@ const AttendanceTable = ({
 	isFetching,
 	refetch,
 }) => {
+	const [leaveNote, setLeaveNote] = useState({
+		title: 'Message',
+		message: 'N/A',
+		modal: false,
+	});
+
 	const columns = [
 		'S.No',
 		'Day',
@@ -251,12 +262,36 @@ const AttendanceTable = ({
 										</Td>
 										{role === 'superAdmin' && (
 											<Td py={4}>
-												<Button
+												<IconButton
 													rounded='full'
+													aria-label='Leave note'
+													icon={<FaEdit />}
+													size='xs'
+													colorScheme='green'
+													variant='solid'
+													mr='1'
 													onClick={() => handleEdit(entry)}
-												>
-													<FaEdit color='green' />
-												</Button>
+												/>
+
+												{entry?.leaveNote && entry?.status === 3 && (
+													<Tooltip label='Leave Note' hasArrow>
+														<IconButton
+															aria-label='Leave note'
+															// icon={<FaNoteSticky />}
+															icon={<LuStickyNote />}
+															size='xs'
+															colorScheme='teal'
+															variant='solid'
+															onClick={() => {
+																setLeaveNote({
+																	message: entry.leaveNote,
+																	title: 'Leave Note',
+																	modal: true,
+																});
+															}}
+														/>
+													</Tooltip>
+												)}
 											</Td>
 										)}
 									</Tr>
@@ -290,6 +325,15 @@ const AttendanceTable = ({
 					data={editData}
 					refetch={refetch}
 					updateKey='myAttendance'
+				/>
+			)}
+
+			{leaveNote?.modal && (
+				<MessageViewModal
+					title={leaveNote.title}
+					message={leaveNote.message}
+					isOpen={leaveNote.modal}
+					onClose={() => setLeaveNote({ modal: false })}
 				/>
 			)}
 		</>

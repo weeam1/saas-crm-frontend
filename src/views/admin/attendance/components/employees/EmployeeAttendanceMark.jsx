@@ -145,7 +145,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			justifyContent='center'
 			alignItems='center'
 			gap='2'
-			p={4}
 			textAlign='center'
 		>
 			{isOffDay ? (
@@ -162,7 +161,10 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 							{...buttonStyle}
 							{...buttonVariants.checkOut}
 							isDisabled={checkoutLoading}
-							leftIcon={<IoMdExit size={20} />}
+							fontSize='sm'
+							py='2'
+							px='4'
+							leftIcon={<IoMdExit size={10} />}
 						>
 							{checkoutLoading ? 'Loading...' : buttonVariants.checkOut.text}
 						</Button>
@@ -173,12 +175,18 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 									{...buttonStyle}
 									{...buttonVariants.checkIn}
 									isDisabled={leaveLoading || absentLoading || checkinLoading}
-									leftIcon={<IoMdExit size={20} />}
+									fontSize='sm'
+									py='2'
+									px='4'
+									leftIcon={<IoMdExit size={10} />}
 								>
 									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
 								</Button>
 								<Button
 									{...buttonStyle}
+									fontSize='sm'
+									py='2'
+									px='4'
 									{...buttonVariants.absent}
 									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
@@ -186,6 +194,9 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								</Button>
 								<Button
 									{...buttonStyle}
+									fontSize='sm'
+									py='2'
+									px='4'
 									{...buttonVariants.leave}
 									isDisabled={leaveLoading || absentLoading || checkinLoading}
 								>
@@ -209,9 +220,9 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	) : (
 		<Flex
 			align='center'
-			p='4'
+			p='2'
 			bg='gray.100'
-			rounded='sm'
+			rounded='md'
 			justify='center'
 			gap={2}
 		>
