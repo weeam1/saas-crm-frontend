@@ -74,41 +74,40 @@ const AllListing = () => {
     "Action",
   ];
 
-const buildQueryParams = () => {
-  const params = {
-    page: currentPage,
-    limit: pageSize,
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.projectName) params.projectName = filters.projectName;
+
+      if (filters.location) params.location = filters.location;
+
+      if (filters.listingType) params.listingType = filters.listingType;
+
+      if (filters.unitType) params.unitType = filters.unitType;
+
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    }
+
+    return params;
   };
 
-  if (Object.keys(filters).length > 0) {
-    if (filters.projectName) params.projectName = filters.projectName;
-    
-    if (filters.location) params.location = filters.location;
-    
-    if (filters.listingType) params.listingType = filters.listingType;
-    
-
-    if (filters.unitType) params.unitType = filters.unitType;
-    
-    if (filters.minPrice) params.minPrice = filters.minPrice;
-    if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-  }
-
-  return params;
-};
-
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/listing/secondary`, params: buildQueryParams()},
+    { path: `/listing/secondary`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
   const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types`},
+    { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types`},
+    { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
   const handleRequestViewAccess = async (listingId) => {
@@ -243,12 +242,20 @@ const buildQueryParams = () => {
     }
   };
 
-    const handleApplyFilters = (newFilters) => {
+  const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
-      Object.entries(newFilters).filter(([_, value]) => value !== "" && value !== undefined)
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
     );
-    
+
     setFilters(cleanedFilters);
+    setCurrentPage(1);
+    refetch();
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
     setCurrentPage(1);
     refetch();
   };
@@ -258,7 +265,7 @@ const buildQueryParams = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
         </Text>
-         <IconButton
+        <IconButton
           icon={<FiFilter />}
           onClick={() => setIsFilterOpen(true)}
           aria-label="Filter Listings"
@@ -277,6 +284,9 @@ const buildQueryParams = () => {
           totalItems={totalItems}
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
         />
       </Box>
 

@@ -66,7 +66,7 @@ const RejectRequest = () => {
   const [updateStatus] = useUpdateItemMutation();
 
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
+    setPageSize(newPageSize);
     setCurrentPage(1);
     refetch();
   };
