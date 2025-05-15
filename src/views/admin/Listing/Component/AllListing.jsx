@@ -42,7 +42,7 @@ import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
-const AllListing = () => {
+const AllListing = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -106,15 +106,6 @@ const AllListing = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
   const handleRequestViewAccess = async (listingId) => {
     try {
       await createItemMutation({
