@@ -29,7 +29,6 @@ import {
 import { ViewIcon, RepeatIcon } from "@chakra-ui/icons";
 import { FiChevronDown } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -38,6 +37,7 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const RejectRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -287,11 +287,11 @@ const RejectRequest = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {data && data.datalength > 0 ? (
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
@@ -433,15 +433,24 @@ const RejectRequest = () => {
                       </Menu>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="rejected requests" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No rejected requests found.
-          </Text>
-        )}
       </Box>
 
       {/* Status Update Modal */}

@@ -44,10 +44,8 @@ const ActiveFiltersDisplay = ({
             }
 
             return (
-              <Tag key={key} size="md" variant="subtle" colorScheme="blue">
+              <Tag key={key} size="md" variant="subtle" bg="softGray.600">
                 <TagLabel>{displayValue}</TagLabel>
-
-                <TagCloseButton onClick={() => onClearFilters(key)} />
               </Tag>
             );
           })}

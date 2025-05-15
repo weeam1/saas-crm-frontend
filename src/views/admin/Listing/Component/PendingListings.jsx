@@ -32,7 +32,8 @@ import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import { FiFilter } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const PendingListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -284,11 +285,11 @@ const PendingListings = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {(data && data.datalength > 0) ? (
                 data.data.map((listing, index) => (
                   <Tr key={index}>
                     <Td
@@ -299,7 +300,7 @@ const PendingListings = () => {
                       textOverflow="ellipsis"
                     >
                       {listing.createdAt
-                        ? format(listing.createdAt, 'MMM d, yyyy h:mm a')
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
 
@@ -410,15 +411,24 @@ const PendingListings = () => {
                       </Select>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No pending listings found.
-          </Text>
-        )}
       </Box>
 
       {/* Rejection Reason Modal */}

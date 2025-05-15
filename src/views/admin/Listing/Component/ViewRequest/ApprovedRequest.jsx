@@ -37,6 +37,7 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const ApprovedRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -281,11 +282,11 @@ const ApprovedRequest = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {data && data.datalength > 0 ? (
                 data.data.map((approval, index) => (
                   <Tr key={index}>
                     <Td
@@ -439,15 +440,24 @@ const ApprovedRequest = () => {
                       </Menu>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="approved requests" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No approved requests found.
-          </Text>
-        )}
       </Box>
 
       {/* Status Update Modal */}
