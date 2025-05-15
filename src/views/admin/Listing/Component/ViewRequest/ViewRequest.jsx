@@ -30,7 +30,7 @@ import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 const ViewRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -306,15 +306,15 @@ const ViewRequest = () => {
                       textOverflow="ellipsis"
                     >
                       {request.requestedAt
-                        ? format(request.requestedAt, 'MMM d, yyyy h:mm a')
+                        ? format(request.requestedAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                     textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request?.requester?.fullName || "N/A"}
                     </Td>

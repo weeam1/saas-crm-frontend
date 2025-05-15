@@ -37,7 +37,7 @@ import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 const RejectRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -302,15 +302,15 @@ const RejectRequest = () => {
                       textOverflow="ellipsis"
                     >
                       {request.rejectedAt
-                        ? format(request.rejectedAt, 'MMM d, yyyy h:mm a')
+                        ? format(request.rejectedAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.requester?.fullName || "N/A"}
                     </Td>
