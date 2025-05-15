@@ -39,7 +39,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const RejectRequest = () => {
+const RejectRequest = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -53,7 +53,6 @@ const RejectRequest = () => {
   const [filterChanged, setFilterChanged] = useState(false);
   const Navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "Date",
     "Requester",
@@ -104,15 +103,6 @@ const RejectRequest = () => {
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/rejected-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
-  );
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const handleStatusChange = (requestId, status, listingId) => {

@@ -4,9 +4,7 @@ import {
   Flex,
   Tag,
   TagLabel,
-  TagCloseButton,
   Button,
-  Text,
 } from "@chakra-ui/react";
 
 const ActiveFiltersDisplay = ({

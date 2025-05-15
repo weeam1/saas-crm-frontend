@@ -33,7 +33,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ViewRequest = () => {
+const ViewRequest = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -46,8 +46,6 @@ const ViewRequest = () => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const columns = [
     "Date",
@@ -102,16 +100,6 @@ const ViewRequest = () => {
       params: buildQueryParams(),
     },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const openStatusModal = (listingId, requestId) => {
