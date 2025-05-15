@@ -24,12 +24,13 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
+import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
+import { format } from 'date-fns';
 
 const ViewRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -43,12 +44,14 @@ const ViewRequest = () => {
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   const columns = [
     "Date",
     "Requester",
+    "Created By",
     "Phone",
     "Project",
     "Location",
@@ -101,7 +104,7 @@ const ViewRequest = () => {
   );
 
   const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
+    { path: `/listing/secondary/types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
@@ -172,7 +175,7 @@ const ViewRequest = () => {
         return "gray";
     }
   };
-  
+
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
@@ -182,9 +185,28 @@ const ViewRequest = () => {
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
+    setFilterChanged(true);
     refetch();
   };
 
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
   return (
     <Box
       overflowY="auto"
@@ -199,16 +221,24 @@ const ViewRequest = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           View Requests
         </Text>
-        <IconButton
-          icon={<FiFilter />}
-          onClick={() => setIsFilterOpen(true)}
-          aria-label="Filter Listings"
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          boxShadow="md"
-        />
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+            listingTypes={listingType?.doc}
+            unitTypes={listingUnitType?.doc}
+          />
+          <IconButton
+            icon={<FiFilter />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Filter Listings"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
+        </Flex>
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -252,6 +282,7 @@ const ViewRequest = () => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
                       color="gray.700"
+                      textTransform="capitalize"
                     >
                       {header}
                     </Text>
@@ -268,14 +299,14 @@ const ViewRequest = () => {
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.requestedAt
-                        ? moment(request.requestedAt).format("MM/DD/YYYY")
+                        ? format(request.requestedAt, 'MMM d, yyyy h:mm a')
                         : "N/A"}
                     </Td>
                     <Td
@@ -286,6 +317,15 @@ const ViewRequest = () => {
                       textAlign={"center"}
                     >
                       {request?.requester?.fullName || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -440,6 +480,7 @@ const ViewRequest = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );

@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, { useMemo, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -26,6 +26,7 @@ const AdvancedFilterModal = ({
   listingTypes,
   unitTypes,
   initialFilters,
+  clearFilter,
 }) => {
   const formik = useFormik({
     initialValues: {
@@ -38,7 +39,6 @@ const AdvancedFilterModal = ({
       ...initialFilters,
     },
     onSubmit: (values) => {
-      // Convert empty strings to undefined
       const cleanedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [
           key,
@@ -64,24 +64,60 @@ const AdvancedFilterModal = ({
     onApplyFilters({});
     onClose();
   };
-const cleanedInitialFilters = useMemo(() => {
-  const clean = {
-    projectName: initialFilters.projectName || "",
-    location: initialFilters.location || "",
-    listingType: initialFilters.listingType || "",
-    unitType: initialFilters.unitType || "",
-    minPrice: initialFilters.minPrice || "",
-    maxPrice: initialFilters.maxPrice || "",
-  };
-  return clean;
-}, [initialFilters]);
+  const cleanedInitialFilters = useMemo(() => {
+    const clean = {
+      projectName: initialFilters.projectName || "",
+      location: initialFilters.location || "",
+      listingType: initialFilters.listingType || "",
+      unitType: initialFilters.unitType || "",
+      minPrice: initialFilters.minPrice || "",
+      maxPrice: initialFilters.maxPrice || "",
+    };
+    return clean;
+  }, [initialFilters]);
 
-const isFilterUnchanged = useMemo(() => {
-  return Object.entries(cleanedInitialFilters).every(
-    ([key, val]) => formik.values[key] === val
-  );
-}, [formik.values, cleanedInitialFilters]);
+  const isFilterUnchanged = useMemo(() => {
+    return Object.entries(cleanedInitialFilters).every(
+      ([key, val]) => formik.values[key] === val
+    );
+  }, [formik.values, cleanedInitialFilters]);
 
+  useEffect(() => {
+    if (!clearFilter) {
+      console.log("value is true");
+      formik.resetForm({
+        values: {
+          projectName: "",
+          location: "",
+          listingType: "",
+          unitType: "",
+          minPrice: "",
+          maxPrice: "",
+        },
+      });
+    }
+  }, [clearFilter]);
+
+  const isFilterUnchangedValueEmpty = useMemo(() => {
+    return Object.values(formik.values).every(
+      (val) => val === "" || val === undefined
+    );
+  }, [formik.values]);
+
+  useEffect(() => {
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          projectName: initialFilters.projectName || "",
+          location: initialFilters.location || "",
+          listingType: initialFilters.listingType || "",
+          unitType: initialFilters.unitType || "",
+          minPrice: initialFilters.minPrice || "",
+          maxPrice: initialFilters.maxPrice || "",
+        },
+      });
+    }
+  }, [isOpen, initialFilters]);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
@@ -182,10 +218,19 @@ const isFilterUnchanged = useMemo(() => {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="outline" mr={3} onClick={handleClear}>
+            <Button
+              variant="outline"
+              mr={3}
+              onClick={handleClear}
+              isDisabled={isFilterUnchangedValueEmpty}
+            >
               Clear Filters
             </Button>
-            <Button colorScheme="brand" type="submit"   isDisabled={isFilterUnchanged}>
+            <Button
+              colorScheme="brand"
+              type="submit"
+              isDisabled={isFilterUnchanged}
+            >
               Apply Filters
             </Button>
           </ModalFooter>

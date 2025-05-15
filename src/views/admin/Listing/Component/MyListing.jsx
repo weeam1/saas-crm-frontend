@@ -38,6 +38,8 @@ import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
 import AdvancedFilterModal from "./AdvancedFilterModal";
+import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import { format } from 'date-fns';
 
 const MyListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -57,10 +59,13 @@ const MyListing = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updateStatus] = useUpdateItemMutation();
   const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+  const [tableData, setTableData] = useState();
 
   const columns = [
     "Date",
     "projectName",
+    "Created By",
     "Unit Type",
     "Type",
     "Location",
@@ -108,7 +113,6 @@ const MyListing = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
@@ -142,6 +146,7 @@ const MyListing = () => {
     if (data) {
       setTotalPages(data.totalPages || 0);
       setTotalItems(data.totalDocs || 0);
+      setTableData(data.data);
     }
   }, [data]);
 
@@ -171,7 +176,11 @@ const MyListing = () => {
       }).unwrap();
 
       toast.success("Status updated successfully");
-      refetch();
+      setTableData((prevData) =>
+        prevData.map((listing) =>
+          listing._id === listingId ? { ...listing, status } : listing
+        )
+      );
       setIsRejectionModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
@@ -187,7 +196,44 @@ const MyListing = () => {
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
+    setFilterChanged(true);
     refetch();
+  };
+
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "pending":
+        return "yellow";
+      case "approved":
+        return "green";
+      case "rejected":
+        return "red";
+      case "active":
+        return "blue";
+      case "inactive":
+        return "gray";
+      default:
+        return "gray";
+    }
   };
   return (
     <Box
@@ -204,16 +250,24 @@ const MyListing = () => {
           My Listings
         </Text>
         <Box gap={2} display="flex" alignItems="center">
-          <IconButton
-            icon={<FiFilter />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            boxShadow="md"
-          />
+          <Flex justifyContent="space-between" alignItems="center" gap={2}>
+            <ActiveFiltersDisplay
+              filters={filters}
+              onClearFilters={handleClearFilters}
+              listingTypes={listingType?.doc}
+              unitTypes={listingUnitType?.doc}
+            />
+            <IconButton
+              icon={<FiFilter />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Filter Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          </Flex>
 
           <Button
             size="md"
@@ -269,6 +323,7 @@ const MyListing = () => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
                       color="gray.700"
+                      textTransform="capitalize"
                     >
                       {header}
                     </Text>
@@ -277,31 +332,41 @@ const MyListing = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
-                data.data.map((listing, index) => (
+              {tableData &&
+                tableData.length > 0 &&
+                tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {listing.createdAt
-                        ? moment(listing.publishedAt).format("MM/DD/YYYY")
+                        ?format(listing.createdAt, 'MMM d, yyyy h:mm a')
                         : "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
                       whiteSpace="nowrap"
                       minWidth="200px"
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
                       {listing.projectName}
+                    </Td>
+                    <Td
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
                     </Td>
                     <Td textAlign="center">
                       {listing.unitType?.name || "N/A"}
@@ -353,12 +418,30 @@ const MyListing = () => {
                         size="sm"
                         width="150px"
                         focusBorderColor="brand.500"
+                        bg={getStatusColor(listing.status) + ".100"}
+                        color={getStatusColor(listing.status) + ".800"}
                         isDisabled={
-                          !["active", "inactive"].includes(listing.status)
+                          ![
+                            "approved",
+                            "rejected",
+                            "active",
+                            "inactive",
+                          ].includes(listing.status)
                         }
                       >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        {["pending"].includes(listing.status) && <option value="pending">Pending</option> }
+                        {["rejected"].includes(listing.status) ? (
+                          <>
+                            <option value="rejected">rejected</option>
+                            <option value="pending">Re-consider</option>
+                          </>
+                        ) : (
+                          <>
+                           <option value="approved">Approved</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                          </>
+                        )}
                       </Select>
                     </Td>
                     <Td py={4} textAlign={"center"}>
@@ -487,6 +570,7 @@ const MyListing = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );

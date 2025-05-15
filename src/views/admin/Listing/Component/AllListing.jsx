@@ -39,6 +39,8 @@ import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "./AdvancedFilterModal";
+import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import { format } from "date-fns";
 
 const AllListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -52,6 +54,8 @@ const AllListing = () => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+  const [tableData, setTableData] = useState();
   const Navigate = useNavigate();
 
   const [createItemMutation] = useCreateItemMutation();
@@ -65,6 +69,7 @@ const AllListing = () => {
   const columns = [
     "Date",
     "projectName",
+    "Created By",
     "Unit Type",
     "Type",
     "Location",
@@ -102,7 +107,7 @@ const AllListing = () => {
   );
 
   const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
+    { path: `/listing/secondary/types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
@@ -156,6 +161,7 @@ const AllListing = () => {
     if (data) {
       setTotalPages(data.totalPages || 0);
       setTotalItems(data.totalDocs || 0);
+      setTableData(data.data);
     }
   }, [data]);
 
@@ -227,7 +233,11 @@ const AllListing = () => {
         duration: 3000,
         isClosable: true,
       });
-      refetch();
+      setTableData((prevData) =>
+        prevData.map((listing) =>
+          listing._id === listingId ? { ...listing, status } : listing
+        )
+      );
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -251,30 +261,58 @@ const AllListing = () => {
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
+    setFilterChanged(true);
     refetch();
   };
 
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
     setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
     refetch();
   };
+
   return (
     <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
         </Text>
-        <IconButton
-          icon={<FiFilter />}
-          onClick={() => setIsFilterOpen(true)}
-          aria-label="Filter Listings"
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          boxShadow="md"
-        />
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+            listingTypes={listingType?.doc}
+            unitTypes={listingUnitType?.doc}
+          />
+          <IconButton
+            icon={<FiFilter />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Filter Listings"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
+        </Flex>
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -302,7 +340,12 @@ const AllListing = () => {
                   py={4}
                   textAlign="center"
                 >
-                  <Text fontSize="14px" fontWeight="600" color="gray.700">
+                  <Text
+                    fontSize="14px"
+                    fontWeight="600"
+                    color="gray.700"
+                    textTransform="capitalize"
+                  >
                     {header}
                   </Text>
                 </Th>
@@ -314,147 +357,171 @@ const AllListing = () => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data?.data?.map((listing) => (
-                <Tr key={listing._id}>
-                  <Td textAlign="center">
-                    {moment(listing.publishedAt).format("MM/DD/YYYY")}
-                  </Td>
-                  <Td
-                    whiteSpace="nowrap"
-                    minWidth="200px"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                  >
-                    {listing.projectName}
-                  </Td>
-                  <Td textAlign="center">{listing.unitType?.name || "N/A"}</Td>
-                  <Td textAlign="center" minWidth="100px">
-                    {listing.listingType?.name || "N/A"}
-                  </Td>
-                  <Td
-                    textAlign="center"
-                    whiteSpace="nowrap"
-                    minWidth="250px"
-                    overflow="hidden"
-                    textOverflow="ellipsis"
-                  >
-                    {listing.location || "N/A"}
-                  </Td>
-                  <Td textAlign="center">
-                    {listing.price
-                      ? `AED${listing.price.toLocaleString()}`
-                      : "N/A"}
-                  </Td>
-                  <Td textAlign="center" size={"sm"}>
-                    {listing.area ? listing.area.toLocaleString() : "N/A"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {isAdmin ? (
-                      <>
-                        <Select
-                          value={listing.status}
-                          onChange={(e) =>
-                            handleStatusChange(listing._id, e.target.value)
-                          }
-                          size="sm"
-                          width="150px"
-                          focusBorderColor="brand.500"
+              {tableData &&
+                tableData.length > 0 &&
+                tableData.map((listing) => (
+                  <Tr key={listing._id}>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.publishedAt
+                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.projectName}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.unitType?.name || "N/A"}
+                    </Td>
+                    <Td textAlign="center" minWidth="100px">
+                      {listing.listingType?.name || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.location || "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.price
+                        ? `AED${listing.price.toLocaleString()}`
+                        : "N/A"}
+                    </Td>
+                    <Td textAlign="center" size={"sm"}>
+                      {listing.area ? listing.area.toLocaleString() : "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {isAdmin ? (
+                        <>
+                          <Select
+                            value={listing.status}
+                            onChange={(e) =>
+                              handleStatusChange(listing._id, e.target.value)
+                            }
+                            size="sm"
+                            width="150px"
+                            focusBorderColor="brand.500"
+                            bg={getStatusColor(listing.status) + ".100"}
+                            color={getStatusColor(listing.status) + ".800"}
+                          >
+                            <option value="pending">pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                          </Select>
+                        </>
+                      ) : (
+                        <Badge
+                          colorScheme={getStatusColor(listing.status)}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
                         >
-                          <option value="pending">pending</option>
-                          <option value="approved">Approved</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                        </Select>
-                      </>
-                    ) : (
-                      <Badge
-                        colorScheme={getStatusColor(listing.status)}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                      >
-                        {listing.status}
-                      </Badge>
-                    )}
-                  </Td>
-                  <Td display="flex" gap={2} justifyContent="center">
-                    {isAdmin && (
-                      <>
-                        <IconButton
-                          aria-label="Edit"
-                          icon={<EditIcon />}
-                          size="sm"
-                          onClick={() =>
-                            Navigate(`/listing/update/${listing._id}`)
-                          }
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
-                        />
-                        <IconButton
-                          aria-label="Delete"
-                          icon={<DeleteIcon />}
-                          size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
-                          onClick={() => handleDeleteListing(listing._id)}
-                        />
-                      </>
-                    )}
+                          {listing.status}
+                        </Badge>
+                      )}
+                    </Td>
+                    <Td display="flex" gap={2} justifyContent="center">
+                      {isAdmin && (
+                        <>
+                          <IconButton
+                            aria-label="Edit"
+                            icon={<EditIcon />}
+                            size="sm"
+                            onClick={() =>
+                              Navigate(`/listing/update/${listing._id}`)
+                            }
+                            color={"#c09f5f"}
+                            _hover={{
+                              backgroundColor: "#c09f5f",
+                              color: "white",
+                            }}
+                          />
+                          <IconButton
+                            aria-label="Delete"
+                            icon={<DeleteIcon />}
+                            size="sm"
+                            color={"#c09f5f"}
+                            _hover={{
+                              backgroundColor: "#c09f5f",
+                              color: "white",
+                            }}
+                            onClick={() => handleDeleteListing(listing._id)}
+                          />
+                        </>
+                      )}
 
-                    {hasAccess(listing) ? (
-                      <IconButton
-                        aria-label="View"
-                        icon={<ViewIcon />}
-                        size="sm"
-                        color={"#c09f5f"}
-                        _hover={{
-                          backgroundColor: "#c09f5f",
-                          color: "white",
-                        }}
-                        onClick={() =>
-                          Navigate(`/listing/view-listing/${listing._id}`)
-                        }
-                      />
-                    ) : hasPendingRequest(listing) ? (
-                      <Tooltip label="View request pending approval">
-                        <Button size="sm" colorScheme="yellow" isDisabled>
-                          Request Pending
-                        </Button>
-                      </Tooltip>
-                    ) : isAgent ? (
-                      <Button
-                        size="sm"
-                        colorScheme="brand"
-                        onClick={() => handleRequestViewAccess(listing._id)}
-                      >
-                        Request View
-                      </Button>
-                    ) : (
-                      <Tooltip label="You don't have access to view this listing">
+                      {hasAccess(listing) ? (
                         <IconButton
+                          aria-label="View"
                           icon={<ViewIcon />}
-                          isDisabled
-                          colorScheme="gray"
                           size="sm"
+                          color={"#c09f5f"}
+                          _hover={{
+                            backgroundColor: "#c09f5f",
+                            color: "white",
+                          }}
+                          onClick={() =>
+                            Navigate(`/listing/view-listing/${listing._id}`)
+                          }
                         />
-                      </Tooltip>
-                    )}
-                  </Td>
-                </Tr>
-              ))}
+                      ) : hasPendingRequest(listing) ? (
+                        <Tooltip label="View request pending approval">
+                          <Button size="sm" colorScheme="yellow" isDisabled>
+                            Request Pending
+                          </Button>
+                        </Tooltip>
+                      ) : isAgent ? (
+                        <Button
+                          size="sm"
+                          colorScheme="brand"
+                          onClick={() => handleRequestViewAccess(listing._id)}
+                        >
+                          Request View
+                        </Button>
+                      ) : (
+                        <Tooltip label="You don't have access to view this listing">
+                          <IconButton
+                            icon={<ViewIcon />}
+                            isDisabled
+                            colorScheme="gray"
+                            size="sm"
+                          />
+                        </Tooltip>
+                      )}
+                    </Td>
+                  </Tr>
+                ))}
             </Tbody>
           )}
         </Table>
@@ -522,6 +589,7 @@ const AllListing = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );

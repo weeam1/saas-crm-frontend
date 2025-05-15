@@ -24,18 +24,19 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  IconButton
+  IconButton,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 import { FiChevronDown } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
+import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
+import { format } from 'date-fns';
 
 const ApprovedRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -47,16 +48,17 @@ const ApprovedRequest = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
-  
+  const [filterChanged, setFilterChanged] = useState(false);
+
   const Navigate = useNavigate();
 
-  
   const user = JSON.parse(localStorage.getItem("user"));
-  
+
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
     "Date",
     "Viewer",
+    "Created By",
     "Phone",
     "Project",
     "Location",
@@ -101,19 +103,19 @@ const ApprovedRequest = () => {
   };
 
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/approved-listings`, params: buildQueryParams(), },
+    { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
-    const { data: listingType } = useFetchItemsQuery(
-      { path: `/listing/secondary/unit-types` },
-      { refetchOnMountOrArgChange: true, skip: !user._id }
-    );
-  
-    const { data: listingUnitType } = useFetchItemsQuery(
-      { path: `/listing/secondary/unit-types` },
-      { refetchOnMountOrArgChange: true, skip: !user._id }
-    );
+  const { data: listingType } = useFetchItemsQuery(
+    { path: `/listing/secondary/types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
+
+  const { data: listingUnitType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
 
   const handleStatusChange = (listingId, status, approvedId) => {
     setSelectedStatus(status);
@@ -163,17 +165,38 @@ const ApprovedRequest = () => {
     }
   };
 
-    const handleApplyFilters = (newFilters) => {
-      const cleanedFilters = Object.fromEntries(
-        Object.entries(newFilters).filter(
-          ([_, value]) => value !== "" && value !== undefined
-        )
-      );
-  
-      setFilters(cleanedFilters);
-      setCurrentPage(1);
-      refetch();
-    };
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -188,6 +211,13 @@ const ApprovedRequest = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Approved Requests
         </Text>
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+            listingTypes={listingType?.doc}
+            unitTypes={listingUnitType?.doc}
+          />
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -198,6 +228,7 @@ const ApprovedRequest = () => {
             borderRadius="full"
             boxShadow="md"
           />
+        </Flex>
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -241,6 +272,7 @@ const ApprovedRequest = () => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
                       color="gray.700"
+                      textTransform="capitalize"
                     >
                       {header}
                     </Text>
@@ -257,14 +289,14 @@ const ApprovedRequest = () => {
                 data.data.map((approval, index) => (
                   <Tr key={index}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {approval.requestedAt
-                        ? moment(approval.requestedAt).format("MM/DD/YYYY")
+                        ? format(approval.requestedAt, 'MMM d, yyyy h:mm a')
                         : "N/A"}
                     </Td>
                     <Td
@@ -275,6 +307,15 @@ const ApprovedRequest = () => {
                       textAlign={"center"}
                     >
                       {approval.requester?.fullName || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -449,13 +490,14 @@ const ApprovedRequest = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    <AdvancedFilterModal
+      <AdvancedFilterModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );
