@@ -200,14 +200,6 @@ export default function User(props) {
       parentName: "Listing",
       component: UpdateListing,
     },
-    {
-      name: "Listing Setting",
-      layout: [ROLE_PATH.user],
-      path: "/listing/settings",
-      under: "listing",
-      parentName: "Listing",
-      component: SettingPage,
-    },
     // {
     // 	name: 'HR Module',
     // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
