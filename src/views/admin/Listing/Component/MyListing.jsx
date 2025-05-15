@@ -432,7 +432,7 @@ const MyListing = () => {
                         {["pending"].includes(listing.status) && <option value="pending">Pending</option> }
                         {["rejected"].includes(listing.status) ? (
                           <>
-                            <option value="rejected">rejected</option>
+                            <option value="rejected">Rejected</option>
                             <option value="pending">Re-consider</option>
                           </>
                         ) : (

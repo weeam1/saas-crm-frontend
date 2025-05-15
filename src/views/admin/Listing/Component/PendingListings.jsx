@@ -402,7 +402,7 @@ const PendingListings = () => {
                         bg={getStatusColor(listing.status) + ".100"}
                         color={getStatusColor(listing.status) + ".800"}
                       >
-                        <option value="pending">pending</option>
+                        <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                         <option value="active">Active</option>
