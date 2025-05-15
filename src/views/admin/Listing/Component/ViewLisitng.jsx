@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   FormControl,
@@ -19,11 +19,11 @@ const ViewListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { 
-    data: listing, 
-    isLoading, 
-    isError, 
-    isFetching 
+  const {
+    data: listing,
+    isLoading,
+    isError,
+    isFetching,
   } = useFetchItemsQuery(
     { path: `listing/secondary/${id}` },
     { refetchOnMountOrArgChange: true }
@@ -89,7 +89,15 @@ const ViewListing = () => {
         Back
       </AppButton>
 
-      <Grid templateColumns="repeat(2, 1fr)" gap={10} p={5} bg={"white"} borderRadius={"md"} my={5} mx={2}>
+      <Grid
+        templateColumns="repeat(2, 1fr)"
+        gap={10}
+        p={5}
+        bg={"white"}
+        borderRadius={"md"}
+        my={5}
+        mx={2}
+      >
         {/* Project Name */}
         <GridItem colSpan={2}>
           <FormControl>
@@ -197,7 +205,6 @@ const ViewListing = () => {
             />
           </FormControl>
         </GridItem>
-        
       </Grid>
     </Box>
   );

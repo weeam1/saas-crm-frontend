@@ -22,7 +22,7 @@ import {
   Input,
   Badge,
   Textarea,
-  IconButton
+  IconButton,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import moment from "moment";
@@ -31,6 +31,8 @@ import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import { FiFilter } from "react-icons/fi";
+import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import { format } from 'date-fns';
 
 const PendingListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -44,11 +46,13 @@ const PendingListings = () => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "Date",
     "Project",
+    "Created By",
     "Unit Type",
     "Type",
     "Location",
@@ -174,9 +178,28 @@ const PendingListings = () => {
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
+    setFilterChanged(true);
     refetch();
   };
 
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
   return (
     <Box
       overflowY="auto"
@@ -191,6 +214,13 @@ const PendingListings = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Pending Listings
         </Text>
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+            listingTypes={listingType?.doc}
+            unitTypes={listingUnitType?.doc}
+          />
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -201,6 +231,7 @@ const PendingListings = () => {
             borderRadius="full"
             boxShadow="md"
           />
+        </Flex>
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -244,6 +275,7 @@ const PendingListings = () => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
                       color="gray.700"
+                      textTransform="capitalize"
                     >
                       {header}
                     </Text>
@@ -260,24 +292,33 @@ const PendingListings = () => {
                 data.data.map((listing, index) => (
                   <Tr key={index}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {listing.createdAt
-                        ? moment(listing.createdAt).format("MM/DD/YYYY")
+                        ? format(listing.createdAt, 'MMM d, yyyy h:mm a')
                         : "N/A"}
                     </Td>
+
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {listing?.projectName || "N/A"}
+                    </Td>
+                    <Td
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -358,6 +399,8 @@ const PendingListings = () => {
                         size="sm"
                         width="150px"
                         focusBorderColor="brand.500"
+                        bg={getStatusColor(listing.status) + ".100"}
+                        color={getStatusColor(listing.status) + ".800"}
                       >
                         <option value="pending">pending</option>
                         <option value="approved">Approved</option>
@@ -434,6 +477,7 @@ const PendingListings = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );

@@ -36,6 +36,8 @@ import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
+import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
+import { format } from "date-fns";
 
 const RejectRequest = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -47,13 +49,15 @@ const RejectRequest = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentListingId, setCurrentListingId] = useState(null);
-    const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
   const Navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "Date",
     "Requester",
+    "Created By",
     "Phone",
     "Project",
     "Location",
@@ -98,11 +102,11 @@ const RejectRequest = () => {
   };
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
-    { path: `listing/secondary/rejected-listings`, params: buildQueryParams(), },
+    { path: `listing/secondary/rejected-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
   const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
+    { path: `/listing/secondary/types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
@@ -143,7 +147,7 @@ const RejectRequest = () => {
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.error("Error updating status");
     }
   };
@@ -168,18 +172,37 @@ const RejectRequest = () => {
     }
   };
 
-    const handleApplyFilters = (newFilters) => {
-      const cleanedFilters = Object.fromEntries(
-        Object.entries(newFilters).filter(
-          ([_, value]) => value !== "" && value !== undefined
-        )
-      );
-  
-      setFilters(cleanedFilters);
-      setCurrentPage(1);
-      refetch();
-    };
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
 
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
   return (
     <Box
       overflowY="auto"
@@ -194,6 +217,13 @@ const RejectRequest = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Rejected Requests
         </Text>
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+            listingTypes={listingType?.doc}
+            unitTypes={listingUnitType?.doc}
+          />
           <IconButton
             icon={<FiFilter />}
             onClick={() => setIsFilterOpen(true)}
@@ -204,6 +234,7 @@ const RejectRequest = () => {
             borderRadius="full"
             boxShadow="md"
           />
+        </Flex>
       </Flex>
       <Box mb={1}>
         <TopPagination
@@ -247,6 +278,7 @@ const RejectRequest = () => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
                       color="gray.700"
+                      textTransform="capitalize"
                     >
                       {header}
                     </Text>
@@ -263,24 +295,33 @@ const RejectRequest = () => {
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.rejectedAt
-                        ? moment(request.rejectedAt).format("MM/DD/YYYY")
+                        ? format(request.rejectedAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
-                      textAlign={"center"}
+                      overflow="hidden"
+                      textOverflow="ellipsis"
                     >
                       {request.requester?.fullName || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -446,6 +487,7 @@ const RejectRequest = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
+        clearFilter={filterChanged}
       />
     </Box>
   );
