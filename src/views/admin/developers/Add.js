@@ -1,5 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons';
 import {
+	Box,
 	Button,
 	FormLabel,
 	Grid,
@@ -30,7 +31,7 @@ const userSchema = Yup.object().shape({
 		.required('Email is required'),
 	address: Yup.string().required('Address is required'),
 	country: Yup.string().required('Country is required'),
-	agency: Yup.string(),
+	phoneNumber: Yup.string().required('Phone Number is required'),
 });
 
 const AddUser = (props) => {
@@ -51,20 +52,20 @@ const AddUser = (props) => {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles?.[0]?.roleName;
 
-	const {
-		data: agenciesResponse,
-		isLoading: isAgenciesLoading,
-		isError: isAgenciesError,
-	} = useFetchItemsQuery({ path: '/agencies' });
+	// const {
+	// 	data: agenciesResponse,
+	// 	isLoading: isAgenciesLoading,
+	// 	isError: isAgenciesError,
+	// } = useFetchItemsQuery({ path: '/agencies' });
 
-	const agencies = agenciesResponse?.doc || [];
+	// const agencies = agenciesResponse?.doc || [];
 	const initialValues = {
 		trn: '',
 		developer_name: '',
 		address: '',
 		email: '',
 		country: '',
-		agency: '',
+		phoneNumber: '',
 	};
 
 	const formik = useFormik({
@@ -149,23 +150,27 @@ const AddUser = (props) => {
 			values.developer_name.trim() !== '' &&
 			values.email.trim() !== '' &&
 			values.address.trim() !== '' &&
-			(role !== 'superAdmin' || values.agency.trim() !== '') &&
 			isValid
 		);
 	};
 
 	return (
-		<Modal size='2xl' isOpen={isOpen} isCentered>
+		<Modal size='3xl' isOpen={isOpen} isCentered>
 			<ModalOverlay />
-			<ModalContent w='550px' fontFamily="'DM Sans', sans-serif">
+			<ModalContent fontFamily="'DM Sans', sans-serif">
 				<ModalHeader justifyContent='space-between' display='flex'>
 					Add Developer
 					<IconButton onClick={onClose} icon={<CloseIcon />} />
 				</ModalHeader>
+
 				<form onSubmit={handleSubmit}>
-					<ModalBody>
-						<Grid templateColumns='1fr' gap={3}>
-							<GridItem>
+					<ModalBody
+						h={{ base: '50vh', md: 'fit-content' }}
+						overflowY='scroll'
+						scrollBehavior='smooth'
+					>
+						<Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={2}>
+							<GridItem colSpan={{ base: 1, md: 2 }}>
 								<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
 									TRN
 								</FormLabel>
@@ -213,6 +218,30 @@ const AddUser = (props) => {
 
 							<GridItem>
 								<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
+									Phone Number
+								</FormLabel>
+								<Input
+									fontSize='sm'
+									type='text'
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={values.phoneNumber}
+									name='phoneNumber'
+									placeholder='Phone Number'
+									fontWeight='500'
+									borderColor={
+										errors.phoneNumber && touched.phoneNumber ? 'red.300' : null
+									}
+								/>
+								{errors.phoneNumber && touched.phoneNumber && (
+									<Text mb='10px' color='red' fontSize='sm'>
+										{errors.phoneNumber}
+									</Text>
+								)}
+							</GridItem>
+
+							<GridItem>
+								<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
 									Email
 								</FormLabel>
 								<Input
@@ -229,29 +258,6 @@ const AddUser = (props) => {
 								{errors.email && touched.email && (
 									<Text mb='10px' color='red' fontSize='sm'>
 										{errors.email}
-									</Text>
-								)}
-							</GridItem>
-
-							<GridItem>
-								<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
-									Address
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.address}
-									name='address'
-									placeholder='Address'
-									fontWeight='500'
-									borderColor={
-										errors.address && touched.address ? 'red.300' : null
-									}
-								/>
-								{errors.address && touched.address && (
-									<Text mb='10px' color='red' fontSize='sm'>
-										{errors.address}
 									</Text>
 								)}
 							</GridItem>
@@ -279,45 +285,28 @@ const AddUser = (props) => {
 								)}
 							</GridItem>
 
-							{role === 'superAdmin' && (
-								<GridItem>
-									<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
-										Agency
-									</FormLabel>
-									<Select
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.agency}
-										name='agency'
-										placeholder='Select Agency'
-										fontWeight='500'
-										borderColor={
-											errors.agency && touched.agency ? 'red.300' : null
-										}
-										isDisabled={isAgenciesLoading || isAgenciesError}
-									>
-										{agencies.map((agency) => (
-											<option key={agency._id} value={agency._id}>
-												{agency.name}
-											</option>
-										))}
-									</Select>
-									{isAgenciesLoading && (
-										<Text fontSize='sm'>Loading agencies...</Text>
-									)}
-									{isAgenciesError && (
-										<Text mb='10px' color='red' fontSize='sm'>
-											Failed to load agencies
-										</Text>
-									)}
-									{errors.agency && touched.agency && (
-										<Text mb='10px' color='red' fontSize='sm'>
-											{errors.agency}
-										</Text>
-									)}
-								</GridItem>
-							)}
+							<GridItem colSpan={{ base: 1, md: 2 }}>
+								<FormLabel fontSize='sm' fontWeight='500' mb='8px'>
+									Address
+								</FormLabel>
+								<Input
+									fontSize='sm'
+									onChange={handleChange}
+									onBlur={handleBlur}
+									value={values.address}
+									name='address'
+									placeholder='Address'
+									fontWeight='500'
+									borderColor={
+										errors.address && touched.address ? 'red.300' : null
+									}
+								/>
+								{errors.address && touched.address && (
+									<Text mb='10px' color='red' fontSize='sm'>
+										{errors.address}
+									</Text>
+								)}
+							</GridItem>
 						</Grid>
 					</ModalBody>
 					<ModalFooter justifyContent='flex-end' pt={8} pb={6}>

@@ -15,7 +15,7 @@ const AttendanceQRCode = () => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			refetch();
-		}, 60000); // 1 min
+		}, 500); // 5 seconds
 
 		return () => clearInterval(interval);
 	}, [refetch]);

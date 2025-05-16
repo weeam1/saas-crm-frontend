@@ -82,6 +82,7 @@ export default function InvoiceCheckTable(props) {
 		currentPage,
 		searchTerm,
 		setSearchTerm,
+		developer,
 	} = props;
 
 	const textColor = useColorModeValue('gray.500', 'white');
@@ -252,7 +253,8 @@ export default function InvoiceCheckTable(props) {
 								fontWeight='700'
 								mb={{ base: 2, md: 0 }}
 							>
-								Invoices (<CountUpComponent targetNumber={totalItems} />)
+								{developer?.data?.developer_name ?? ''} Invoices (
+								<CountUpComponent targetNumber={totalItems} />)
 							</Text>
 							<CustomSearchInput
 								fetchData={fetchData}
@@ -438,6 +440,12 @@ export default function InvoiceCheckTable(props) {
 												cellData = (
 													<Text fontSize='sm' fontWeight='700'>
 														{row.developer?.developer_name || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Project') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700'>
+														{row.project?.name || 'N/A'}
 													</Text>
 												);
 											} else if (column.Header === 'Bank Account') {

@@ -271,7 +271,7 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 										<Td py={4} minWidth='100px'>
 											<IconButton
 												rounded='full'
-												aria-label='Leave note'
+												aria-label='edit'
 												icon={<FaEdit />}
 												size='xs'
 												colorScheme='green'

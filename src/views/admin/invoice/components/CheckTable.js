@@ -47,7 +47,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { buttonStyle } from 'utils/btn';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import { useLocation } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 export default function CheckTable(props) {
 	const {
@@ -108,7 +108,7 @@ export default function CheckTable(props) {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
-	const incomingPayment = queryParams.get("incomingPayment");
+	const incomingPayment = queryParams.get('incomingPayment');
 
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	const data = useMemo(() => tableData, [tableData]);
@@ -127,11 +127,11 @@ export default function CheckTable(props) {
 		onAddOpen();
 	};
 
-	useEffect(() =>{
-		if(incomingPayment) {
+	useEffect(() => {
+		if (incomingPayment) {
 			onAddOpen();
 		}
-	},[])
+	}, []);
 
 	const formik = useFormik({
 		initialValues,
@@ -240,9 +240,9 @@ export default function CheckTable(props) {
 				direction='column'
 				w='100%'
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
-				marginTop={"-16px"}
-				marginLeft={"-4px"}
-				borderRadius={"0px"}
+				marginTop={'-16px'}
+				marginLeft={'-4px'}
+				borderRadius={'0px'}
 			>
 				<Grid templateColumns='repeat(12, 1fr)' gap={2} p={4}>
 					<GridItem
@@ -308,7 +308,7 @@ export default function CheckTable(props) {
 						alignItems='center'
 						mt={{ base: 2, md: 0 }}
 					>
-						{role === 'superAdmin' && (
+						{/* {role === 'superAdmin' && (
 							<IconButton
 								icon={<FiFilter />}
 								onClick={() => setAgencyFilterOpen(true)}
@@ -319,7 +319,7 @@ export default function CheckTable(props) {
 								borderRadius='full'
 								boxShadow='md'
 							/>
-						)}
+						)} */}
 						<Button
 							onClick={handleClick}
 							size='sm'

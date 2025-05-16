@@ -13,13 +13,6 @@ import {
 	ModalFooter,
 	ModalBody,
 	useBreakpointValue,
-	AlertDialog,
-	AlertDialogOverlay,
-	AlertDialogContent,
-	AlertDialogHeader,
-	AlertDialogBody,
-	AlertDialogFooter,
-	ModalCloseButton,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -147,6 +140,7 @@ const AddEntryModal = (props) => {
 			setIsLoading(true);
 
 			const payload = {
+				projectId: props.invoiceData.projectId,
 				developer_id: props.invoiceData.developer_id,
 				bank_account_id: props.invoiceData.bank_account_id,
 				claimType: props.invoiceData.claimType,
@@ -500,7 +494,7 @@ const AddEntryModal = (props) => {
 									height='40px'
 								/>
 							</GridItem>
-							<GridItem colSpan={{ base: 12, md: 6 }}>
+							{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 								<FormLabel
 									fontSize='14px'
 									fontWeight='medium'
@@ -521,7 +515,7 @@ const AddEntryModal = (props) => {
 									borderRadius='6px'
 									height='40px'
 								/>
-							</GridItem>
+							</GridItem> */}
 						</Grid>
 					</form>
 				</ModalBody>
