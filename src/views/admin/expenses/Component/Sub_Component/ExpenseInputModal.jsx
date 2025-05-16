@@ -1,30 +1,28 @@
 import {
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	ModalCloseButton,
-	Input,
-	VStack,
-	Button,
-	FormLabel,
-	SimpleGrid,
-	Select,
-} from '@chakra-ui/react';
-import { useFormik } from 'formik';
-import { useFetchItemsQuery } from 'api/apiSlice';
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Input,
+  VStack,
+  Button,
+  FormLabel,
+  SimpleGrid,
+  Select,
+} from "@chakra-ui/react";
+import { useFormik } from "formik";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
-    const user = JSON.parse(localStorage.getItem("user")) || {};
-  
-    const {
-      data: types,
-    } = useFetchItemsQuery(
-      { path: `/expense_types` },
-      { refetchOnMountOrArgChange: true, skip: !user._id }
-    );
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const { data: types } = useFetchItemsQuery(
+    { path: `/expense_types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -47,7 +45,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
         amount: values.amount,
         vat: values.vat,
       };
-      if (onSubmit) {onSubmit(updated)};
+      if (onSubmit) {
+        onSubmit(updated);
+      }
     },
   });
   return (
@@ -70,14 +70,14 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                   <FormLabel>Type</FormLabel>
                   <Select
                     name="type"
-                    value={formik.values.type} 
+                    value={formik.values.type}
                     onChange={formik.handleChange}
                     placeholder="Select type"
                     focusBorderColor="brand.500"
                   >
                     {types?.doc?.length > 0 ? (
                       types.doc.map((type) => (
-                        <option key={type._id} value={type._id} >
+                        <option key={type._id} value={type._id}>
                           {type.name}
                         </option>
                       ))
@@ -101,6 +101,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                   <Input
                     name="amount"
                     type="number"
+                    min="0"
                     value={formik.values.amount}
                     onChange={formik.handleChange}
                     placeholder="e.g., 5050"
@@ -112,6 +113,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                   <Input
                     name="vat"
                     type="number"
+                    min="0"
                     value={formik.values.vat}
                     onChange={formik.handleChange}
                     placeholder="e.g. 200.0"
@@ -218,19 +220,17 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
           </VStack>
         </ModalBody>
 
-				<ModalFooter justifyContent='space-between'>
-					<Button  onClick={onClose}>
-						Close
-					</Button>
-					{isEditable && (
-						<Button type='submit' variant='brand'>
-							Submit
-						</Button>
-					)}
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
-	);
+        <ModalFooter justifyContent="space-between">
+          <Button onClick={onClose}>Close</Button>
+          {isEditable && (
+            <Button type="submit" variant="brand">
+              Submit
+            </Button>
+          )}
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 };
 
 export default ExpenseInputModal;
