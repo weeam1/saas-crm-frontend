@@ -106,18 +106,20 @@ const Attendance = () => {
 						Attendance Record
 					</Text>
 
-					<Button
-						{...buttonStyle}
-						variant='solid'
-						bg='brand.400'
-						py='2'
-						px='5'
-						leftIcon={<FaPlus />}
-						aria-label='Add attendance'
-						onClick={() => setAddAttendance(true)}
-					>
-						Add
-					</Button>
+					{['HR', 'superAdmin'].includes(role) && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							leftIcon={<FaPlus />}
+							aria-label='Add attendance'
+							onClick={() => setAddAttendance(true)}
+						>
+							Add
+						</Button>
+					)}
 				</Box>
 
 				{error ? (

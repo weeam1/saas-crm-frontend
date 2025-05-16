@@ -47,7 +47,7 @@ const AttendanceQRCode = () => {
 			boxShadow='md'
 			width='fit-content'
 		>
-			<QRCode value={qrValue} size={160} level='H' />
+			<QRCode value={qrValue} size={160} level='H' marginSize={4} />
 
 			{/* Logo Overlay */}
 			<Box
@@ -59,7 +59,7 @@ const AttendanceQRCode = () => {
 				p={1}
 				borderRadius='md'
 			>
-				<Image src={LOGO} boxSize='36px' objectFit='contain' alt='Logo' />
+				<Image src={LOGO} boxSize='26px' objectFit='contain' alt='Logo' />
 			</Box>
 
 			<Text mt={2} fontSize='xs' color='gray.100' textAlign='center'>
