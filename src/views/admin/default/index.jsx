@@ -62,7 +62,7 @@ export default function UserReports() {
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 	const user = JSON.parse(localStorage.getItem('user'));
-
+	const [listTop, setListTop] = useState("all")
 	const userRole =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -128,7 +128,7 @@ export default function UserReports() {
 
 	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
 		useFetchItemsQuery(
-			{ path: '/dashboard/leads/leadStatus_stats' },
+			{ path: '/dashboard/leads/leadStatus_stats',params: {listTop} },
 			{
 				refetchOnMountOrArgChange: true,
 				skip: !userRole === 'superAdmin',
@@ -300,7 +300,7 @@ export default function UserReports() {
 				</>
 			)}
 
-			<LeadStatusStats doc={leadStatusData?.doc} />
+			<LeadStatusStats doc={leadStatusData?.doc} listTop={listTop} setListTop={setListTop} />
 
 			{/* <Grid
 				Grid
