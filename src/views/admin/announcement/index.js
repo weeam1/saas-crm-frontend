@@ -10,60 +10,55 @@ const Announcements = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromParams = searchParams.get("tab")?.toLowerCase() || DEFAULT_TAB;
-  const [tabKey, setTabKey] = useState(0); 
+  const [tabKey, setTabKey] = useState(0);
+
   const tabsData = [
     {
       label: "Announcement",
+      param: "announcement", 
       title: "Create New Announcement",
-      description:
-        "Quickly create and publish new announcements to keep everyone informed and updated.",
+      description: "Quickly create and publish new announcements to keep everyone informed and updated.",
       component: <CreateAnnouncement key={tabKey} user={user} />,
     },
     {
       label: "History",
+      param: "history", 
       title: "Announcement History",
-      description:
-        "View a history of all published announcements, including their details and posting dates.",
+      description: "View a history of all published announcements, including their details and posting dates.",
       component: <History key={tabKey} user={user} />,
     },
   ];
 
-  const initialIndex = tabsData.findIndex(
-    (tab) => tab.label.toLowerCase() === tabFromParams
+  const activeTabIndex = Math.max(
+    0,
+    tabsData.findIndex((tab) => tab.param === tabFromParams.toLowerCase())
   );
 
-  const [activeTabIndex, setActiveTabIndex] = useState(
-    initialIndex !== -1 ? initialIndex : 0
-  );
 
   useEffect(() => {
-    // If no tab in URL, set default
-    if (!searchParams.get("tab")) {
+    if (
+      !searchParams.get("tab") ||
+      !tabsData.some((tab) => tab.param === searchParams.get("tab")?.toLowerCase())
+    ) {
       setSearchParams({ tab: DEFAULT_TAB });
     }
-  }, []);
-
-  useEffect(() => {
-    setSearchParams({
-      tab: tabsData[activeTabIndex].label.toLowerCase().replace(/\s/g, "-"),
-    });
-  }, [activeTabIndex]);
+  }, [searchParams, setSearchParams, tabsData]);
 
   const handleTabChange = (index) => {
-    const newTab = tabsData[index].label.toLowerCase();
+    const tabParam = tabsData[index].param;
+    setSearchParams({ tab: tabParam });
 
     if (index === activeTabIndex) {
-      setTabKey((prev) => prev + 1); 
-    } else {
-      setActiveTabIndex(index);
+      setTabKey((prev) => prev + 1);
     }
-
-    setSearchParams({ tab: newTab });
   };
 
   return (
     <TabNavigationDisplay
-      tabsData={tabsData}
+      tabsData={tabsData.map((tab) => ({
+        ...tab,
+        component: tab.param === tabFromParams.toLowerCase() ? tab.component : null,
+      }))}
       activeTab={activeTabIndex}
       onTabChange={handleTabChange}
     />

@@ -391,22 +391,6 @@ const routes = [
 		component: InvoiceModule,
 	},
 	{
-		name: 'Bank Accounts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/invoice/bank-accounts',
-		parentName: 'Invoice',
-		under: 'bank-accounts',
-		component: BankAccounts,
-	},
-	{
-		name: 'Invoice Developers',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'developer-invoices',
-		path: '/invoice/developers',
-		parentName: 'Invoice',
-		component: InvoiceDevelopers,
-	},
-	{
 		name: 'Developer Invoices',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		under: 'developer-invoices',
