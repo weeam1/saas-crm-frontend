@@ -112,7 +112,7 @@ const AddInvoice = (props) => {
 	};
 
 	const handleAddBankAccount = () => {
-		navigate('/invoice/bank-accounts');
+		navigate('/invoice?tab=bank-accounts');
 	};
 
 	const modalSize = useBreakpointValue({
@@ -231,7 +231,7 @@ const AddInvoice = (props) => {
 												<MenuItem isDisabled>No projects available</MenuItem>
 											)}
 											<MenuItem
-												onClick={handleAddBankAccount}
+												onClick={() => navigate('/invoice?tab=projects')}
 												fontWeight='bold'
 												borderTop='1px solid'
 												borderColor='gray.200'
