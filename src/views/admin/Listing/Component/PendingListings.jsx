@@ -25,16 +25,16 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import { FiFilter } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const PendingListings = () => {
+const PendingListings = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -98,15 +98,6 @@ const PendingListings = () => {
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const handleStatusChange = async (listingId, status) => {
@@ -284,11 +275,11 @@ const PendingListings = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {(data && data.datalength > 0) ? (
                 data.data.map((listing, index) => (
                   <Tr key={index}>
                     <Td
@@ -299,7 +290,7 @@ const PendingListings = () => {
                       textOverflow="ellipsis"
                     >
                       {listing.createdAt
-                        ? format(listing.createdAt, 'MMM d, yyyy h:mm a')
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
 
@@ -402,7 +393,7 @@ const PendingListings = () => {
                         bg={getStatusColor(listing.status) + ".100"}
                         color={getStatusColor(listing.status) + ".800"}
                       >
-                        <option value="pending">pending</option>
+                        <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                         <option value="active">Active</option>
@@ -410,15 +401,24 @@ const PendingListings = () => {
                       </Select>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No pending listings found.
-          </Text>
-        )}
       </Box>
 
       {/* Rejection Reason Modal */}

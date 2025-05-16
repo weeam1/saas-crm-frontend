@@ -37,8 +37,9 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ApprovedRequest = () => {
+const ApprovedRequest = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -51,8 +52,6 @@ const ApprovedRequest = () => {
   const [filterChanged, setFilterChanged] = useState(false);
 
   const Navigate = useNavigate();
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
@@ -105,16 +104,6 @@ const ApprovedRequest = () => {
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const handleStatusChange = (listingId, status, approvedId) => {
@@ -281,11 +270,11 @@ const ApprovedRequest = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {data && data.datalength > 0 ? (
                 data.data.map((approval, index) => (
                   <Tr key={index}>
                     <Td
@@ -439,15 +428,24 @@ const ApprovedRequest = () => {
                       </Menu>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="approved requests" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No approved requests found.
-          </Text>
-        )}
       </Box>
 
       {/* Status Update Modal */}

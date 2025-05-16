@@ -32,7 +32,6 @@ import {
   useDeleteItemMutation,
   useUpdateItemMutation,
 } from "api/apiSlice";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -41,8 +40,9 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
-const AllListing = () => {
+const AllListing = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -106,15 +106,6 @@ const AllListing = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
   const handleRequestViewAccess = async (listingId) => {
     try {
       await createItemMutation({
@@ -357,8 +348,7 @@ const AllListing = () => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {tableData &&
-                tableData.length > 0 &&
+              {tableData && tableData.length > 0 ? (
                 tableData.map((listing) => (
                   <Tr key={listing._id}>
                     <Td
@@ -433,7 +423,7 @@ const AllListing = () => {
                             bg={getStatusColor(listing.status) + ".100"}
                             color={getStatusColor(listing.status) + ".800"}
                           >
-                            <option value="pending">pending</option>
+                            <option value="pending">Pending</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                             <option value="active">Active</option>
@@ -521,16 +511,24 @@ const AllListing = () => {
                       )}
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="9"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No listings found.
-          </Text>
-        )}
       </Box>
 
       {/* Rejection Reason Modal */}

@@ -31,8 +31,9 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "../AdvancedFilterModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ViewRequest = () => {
+const ViewRequest = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -45,8 +46,6 @@ const ViewRequest = () => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const columns = [
     "Date",
@@ -101,16 +100,6 @@ const ViewRequest = () => {
       params: buildQueryParams(),
     },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const openStatusModal = (listingId, requestId) => {
@@ -291,11 +280,11 @@ const ViewRequest = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data &&
+              {data && data.datalength > 0 ? (
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
@@ -310,7 +299,7 @@ const ViewRequest = () => {
                         : "N/A"}
                     </Td>
                     <Td
-                     textAlign="center"
+                      textAlign="center"
                       whiteSpace="nowrap"
                       minWidth="100px"
                       overflow="hidden"
@@ -416,15 +405,24 @@ const ViewRequest = () => {
                       </Button>
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="10"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="requested requests" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No requests found.
-          </Text>
-        )}
       </Box>
 
       {/* Status Update Modal */}

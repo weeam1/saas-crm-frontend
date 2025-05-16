@@ -32,16 +32,16 @@ import {
   useUpdateItemMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
-import moment from "moment";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
-import { format } from 'date-fns';
+import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const MyListing = () => {
+const MyListing = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -111,15 +111,6 @@ const MyListing = () => {
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/my-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
-  );
-
-  const { data: listingType } = useFetchItemsQuery(
-    { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
-  const { data: listingUnitType } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
   const handleDeleteListing = async (listingId) => {
@@ -336,8 +327,7 @@ const MyListing = () => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {tableData &&
-                tableData.length > 0 &&
+              {tableData && tableData.length > 0 ? (
                 tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
@@ -348,7 +338,7 @@ const MyListing = () => {
                       textOverflow="ellipsis"
                     >
                       {listing.createdAt
-                        ?format(listing.createdAt, 'MMM d, yyyy h:mm a')
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
@@ -429,15 +419,17 @@ const MyListing = () => {
                           ].includes(listing.status)
                         }
                       >
-                        {["pending"].includes(listing.status) && <option value="pending">Pending</option> }
+                        {["pending"].includes(listing.status) && (
+                          <option value="pending">Pending</option>
+                        )}
                         {["rejected"].includes(listing.status) ? (
                           <>
-                            <option value="rejected">rejected</option>
+                            <option value="rejected">Rejected</option>
                             <option value="pending">Re-consider</option>
                           </>
                         ) : (
                           <>
-                           <option value="approved">Approved</option>
+                            <option value="approved">Approved</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                           </>
@@ -496,15 +488,24 @@ const MyListing = () => {
                       />
                     </Td>
                   </Tr>
-                ))}
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="11"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           )}
         </Table>
-        {!isLoading && !isFetching && data?.data?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No listings found.
-          </Text>
-        )}
       </Box>
       {/* Rejection Reason Modal */}
       <Modal
