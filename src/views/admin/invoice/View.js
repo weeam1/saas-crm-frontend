@@ -523,11 +523,11 @@ const SingleInvoice = () => {
 							border='1px solid #CDCDCD'
 							flexDirection='column'
 						>
-							<Text fontWeight='bold'>Total Amount :</Text>
+							<Text fontWeight='bold'>Total :</Text>
 							<Text fontSize={{ base: 'sm', md: 'md' }} wordBreak='break-word'>
-								{typeof totals.totalAmount === 'number'
-									? convertToWords(totals.totalAmount).charAt(0).toUpperCase() +
-										convertToWords(totals.totalAmount).slice(1)
+								{typeof totals.subTotal === 'number'
+									? convertToWords(totals.subTotal).charAt(0).toUpperCase() +
+										convertToWords(totals.subTotal).slice(1)
 									: 'N/A'}
 							</Text>
 						</Flex>
@@ -603,7 +603,7 @@ const SingleInvoice = () => {
 												border='1px solid #eee'
 												fontSize={{ base: 'xs', md: 'sm' }}
 											>
-												Subtotal
+												Total
 											</Td>
 											<Td
 												textAlign='right'
@@ -686,7 +686,7 @@ const SingleInvoice = () => {
 											</Td>
 										</Tr>
 
-										<Tr>
+										{/* <Tr>
 											<Td
 												border='1px solid #eee'
 												fontSize={{ base: 'xs', md: 'sm' }}
@@ -707,7 +707,7 @@ const SingleInvoice = () => {
 														})
 													: 'N/A'}{' '}
 											</Td>
-										</Tr>
+										</Tr> */}
 									</Tbody>
 								</Table>
 							</Box>

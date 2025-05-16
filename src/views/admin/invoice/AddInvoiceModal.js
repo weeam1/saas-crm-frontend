@@ -17,9 +17,6 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
-	Box,
-	Text,
-	Select,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -29,7 +26,7 @@ import { toast } from 'react-toastify';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import * as yup from 'yup';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
-import { setDevelopers, setBankAccounts } from '../../../redux/invoiceSlice';
+import { setBankAccounts } from '../../../redux/invoiceSlice';
 import { useParams, useNavigate } from 'react-router-dom';
 import AddEntryModal from './AddInvoiceEntry';
 
@@ -38,6 +35,7 @@ const invoiceSchema = yup.object().shape({
 	developer_id: yup.string().required('Developer is required'),
 	bank_account_id: yup.string().required('Bank account is required'),
 	claimType: yup.string().required('Claim type is required'),
+	projectId: yup.string().required('Project is required'),
 });
 
 const AddInvoice = (props) => {
@@ -49,30 +47,36 @@ const AddInvoice = (props) => {
 	const [invoiceData, setInvoiceData] = useState(null);
 	const dispatch = useDispatch();
 
-	const { developers, bankAccounts, isDevelopersLoaded, isBankAccountsLoaded } =
-		useSelector((state) => state.invoiceModalData);
+	// const { developers, bankAccounts, isDevelopersLoaded, isBankAccountsLoaded } =
+	// 	useSelector((state) => state.invoiceModalData);
+
+	const { data: projects, isLoading: projectsLoading } = useFetchItemsQuery({
+		path: `/developer/projects`,
+		params: { developer: id },
+	});
 
 	const {
-		data: bankAccountsData,
+		data: bankAccounts,
 		isLoading: bankAccountsLoading,
 		error: bankAccountsError,
-	} = useFetchItemsQuery({ path: `/developer/get/${id}` });
+	} = useFetchItemsQuery({ path: `/bankAccount/get` });
 
-	useEffect(() => {
-		if (bankAccountsData && bankAccountsData.data) {
-			dispatch(setBankAccounts(bankAccountsData.data.bankAccounts || []));
-		}
-		if (bankAccountsError) {
-			console.error('Error fetching bank accounts:', bankAccountsError);
-			dispatch(setBankAccounts([]));
-			toast.error('Failed to load bank accounts.');
-		}
-	}, [bankAccountsData, bankAccountsError, dispatch]);
+	// useEffect(() => {
+	// 	if (bankAccountsData && bankAccountsData.data) {
+	// 		dispatch(setBankAccounts(bankAccountsData.data.bankAccounts || []));
+	// 	}
+	// 	if (bankAccountsError) {
+	// 		console.error('Error fetching bank accounts:', bankAccountsError);
+	// 		dispatch(setBankAccounts([]));
+	// 		toast.error('Failed to load bank accounts.');
+	// 	}
+	// }, [bankAccountsData, bankAccountsError, dispatch]);
 
 	const initialValues = {
 		developer_id: id || '',
 		bank_account_id: '',
 		claimType: '',
+		projectId: '',
 	};
 
 	const formik = useFormik({
@@ -113,7 +117,7 @@ const AddInvoice = (props) => {
 
 	const modalSize = useBreakpointValue({
 		base: { width: '90%', height: 'auto' },
-		md: { width: '602px', height: '290px' },
+		md: { width: '602px', height: '35vh' },
 	});
 
 	const customDropdownIcon = (
@@ -121,8 +125,12 @@ const AddInvoice = (props) => {
 	);
 
 	// Custom dropdown for bank accounts using Menu
-	const selectedBankAccount = bankAccounts.find(
+	const selectedBankAccount = bankAccounts?.data?.find(
 		(bank) => (bank._id || bank.account_number) === values.bank_account_id
+	);
+
+	const selectedProject = projects?.doc?.find(
+		(item) => item._id === values.projectId
 	);
 
 	return (
@@ -171,6 +179,76 @@ const AddInvoice = (props) => {
 							<Grid templateColumns='repeat(12, 1fr)' gap={3}>
 								<GridItem colSpan={{ base: 12, md: 6 }}>
 									<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
+										Project
+									</FormLabel>
+									<Menu>
+										<MenuButton
+											as={Button}
+											rightIcon={customDropdownIcon}
+											fontSize='12px'
+											fontFamily='DM Sans, sans-serif'
+											borderRadius='6px'
+											height='40px'
+											width='100%'
+											textAlign='left'
+											borderColor={
+												errors.projectId && touched.projectId
+													? 'red.300'
+													: 'gray.300'
+											}
+											borderWidth='1px'
+											bg='white'
+											_hover={{ borderColor: '#B79045' }}
+											_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
+											isDisabled={projectsLoading}
+										>
+											{projectsLoading
+												? 'Loading...'
+												: selectedProject
+													? `${selectedProject.name}`
+													: projects?.doc?.length > 0
+														? 'Choose Project'
+														: 'No projects available'}
+										</MenuButton>
+										<MenuList
+											maxH='200px'
+											overflowY='auto'
+											fontFamily='DM Sans, sans-serif'
+											fontSize='16px'
+										>
+											{projects?.doc.length > 0 ? (
+												projects?.doc?.map((item) => (
+													<MenuItem
+														key={item._id}
+														onClick={() => {
+															setFieldValue('projectId', item._id);
+														}}
+													>
+														{item.name}
+													</MenuItem>
+												))
+											) : (
+												<MenuItem isDisabled>No projects available</MenuItem>
+											)}
+											<MenuItem
+												onClick={handleAddBankAccount}
+												fontWeight='bold'
+												borderTop='1px solid'
+												borderColor='gray.200'
+											>
+												Add Project
+											</MenuItem>
+										</MenuList>
+									</Menu>
+									{errors.projectId && touched.projectId && (
+										<FormLabel color='red.500' fontSize='14px'>
+											{errors.projectId}
+										</FormLabel>
+									)}
+								</GridItem>
+
+								<GridItem colSpan={{ base: 12, md: 6 }}>
+									<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
 										Bank Account
 									</FormLabel>
 									<Menu>
@@ -208,8 +286,8 @@ const AddInvoice = (props) => {
 											fontFamily='DM Sans, sans-serif'
 											fontSize='16px'
 										>
-											{bankAccounts.length > 0 ? (
-												bankAccounts.map((bank) => (
+											{bankAccounts?.data?.length > 0 ? (
+												bankAccounts?.data?.map((bank) => (
 													<MenuItem
 														key={bank._id || bank.account_number}
 														onClick={() => {
@@ -283,10 +361,17 @@ const AddInvoice = (props) => {
 											</MenuItem>
 											<MenuItem
 												onClick={() =>
-													formik.setFieldValue('claimType', 'Installment')
+													formik.setFieldValue('claimType', '1st Claim')
 												}
 											>
-												Installment
+												1st Claim
+											</MenuItem>
+											<MenuItem
+												onClick={() =>
+													formik.setFieldValue('claimType', '2nd Claim')
+												}
+											>
+												2nd Claim
 											</MenuItem>
 										</MenuList>
 									</Menu>

@@ -37,7 +37,6 @@ const Developers = () => {
 			{ Header: 'Developer', accessor: 'developer_name' },
 			{ Header: 'Email', accessor: 'email' },
 			{ Header: 'Trn', accessor: 'trn' },
-			{ Header: 'Agency', accessor: 'agency' },
 			{ Header: 'Address', accessor: 'address' },
 			{ Header: 'Country', accessor: 'country' },
 			{ Header: 'Action', isSortable: false, center: true },

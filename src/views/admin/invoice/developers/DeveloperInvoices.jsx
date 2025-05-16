@@ -10,6 +10,7 @@ import CheckTable from '../components/invoiceChecktable';
 import Breadcrumb from '../components/BreadCrumb';
 import { IoArrowBack } from 'react-icons/io5';
 import AppButton from 'components/shared/AppButton';
+import Loader from 'components/loading/Loader';
 
 const DeveloperInvoices = () => {
 	const { id } = useParams();
@@ -53,6 +54,10 @@ const DeveloperInvoices = () => {
 			accessor: 'developer.developer_name',
 		},
 		{
+			Header: 'Project',
+			accessor: 'project.name',
+		},
+		{
 			Header: 'Bank Account',
 			accessor: 'bank_account.account_holder_name',
 		},
@@ -77,6 +82,13 @@ const DeveloperInvoices = () => {
 	);
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({ from: '', to: '' });
+
+	const { data: developer, isLoading: developerLoading } = useFetchItemsQuery(
+		{ path: `/developer/get/${developer_id}` },
+		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	const {
 		data: invoiceData,
@@ -171,48 +183,54 @@ const DeveloperInvoices = () => {
 
 	return (
 		<Box fontFamily="'DM Sans', sans-serif">
-			{/* <Breadcrumb items={breadcrumbItems} /> */}
+			<Breadcrumb items={breadcrumbItems} />
 
-			{/* <AppButton
+			<AppButton
 				leftIcon={<IoArrowBack />}
 				onClick={() => navigate('/invoice/developers')}
 			>
 				Back
-			</AppButton> */}
-			<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
-				<GridItem colSpan={6}>
-					<CheckTable
-						dateTime={dateTime}
-						setDateTime={setDateTime}
-						isLoading={isLoading}
-						setIsLoading={setIsLoading}
-						columnsData={roleColumns[role] || tableColumns}
-						setAction={setAction}
-						dataColumn={dataColumn}
-						action={action}
-						setSearchedData={setSearchedData}
-						allData={data}
-						displaySearchData={displaySearchData}
-						tableData={displaySearchData ? searchedData : data}
-						fetchData={fetchData}
-						setDisplaySearchData={setDisplaySearchData}
-						setDynamicColumns={setDynamicColumns}
-						dynamicColumns={dynamicColumns}
-						selectedColumns={selectedColumns}
-						access={permission}
-						setSelectedColumns={setSelectedColumns}
-						emailAccess={emailAccess}
-						callAccess={callAccess}
-						pageIndex={pageIndex}
-						pageSize={pageSize}
-						totalItems={invoiceData?.totalDocs || 0}
-						totalPages={invoiceData?.totalPages || 1}
-						currentPage={invoiceData?.currentPage || 1}
-						searchTerm={searchTerm}
-						setSearchTerm={setSearchTerm}
-					/>
-				</GridItem>
-			</Grid>
+			</AppButton>
+
+			{developerLoading ? (
+				<Loader />
+			) : (
+				<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
+					<GridItem colSpan={6}>
+						<CheckTable
+							developer={developer}
+							dateTime={dateTime}
+							setDateTime={setDateTime}
+							isLoading={isLoading}
+							setIsLoading={setIsLoading}
+							columnsData={roleColumns[role] || tableColumns}
+							setAction={setAction}
+							dataColumn={dataColumn}
+							action={action}
+							setSearchedData={setSearchedData}
+							allData={data}
+							displaySearchData={displaySearchData}
+							tableData={displaySearchData ? searchedData : data}
+							fetchData={fetchData}
+							setDisplaySearchData={setDisplaySearchData}
+							setDynamicColumns={setDynamicColumns}
+							dynamicColumns={dynamicColumns}
+							selectedColumns={selectedColumns}
+							access={permission}
+							setSelectedColumns={setSelectedColumns}
+							emailAccess={emailAccess}
+							callAccess={callAccess}
+							pageIndex={pageIndex}
+							pageSize={pageSize}
+							totalItems={invoiceData?.totalDocs || 0}
+							totalPages={invoiceData?.totalPages || 1}
+							currentPage={invoiceData?.currentPage || 1}
+							searchTerm={searchTerm}
+							setSearchTerm={setSearchTerm}
+						/>
+					</GridItem>
+				</Grid>
+			)}
 		</Box>
 	);
 };

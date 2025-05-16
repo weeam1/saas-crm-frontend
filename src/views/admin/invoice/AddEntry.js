@@ -64,7 +64,7 @@ const AddEntry = ({ props }) => {
 		'VAT %',
 		'VAT Amount',
 		'Commission incl. VAT',
-		'Total',
+		// 'Total',
 		'Created Date',
 		'Action',
 	];
@@ -447,7 +447,7 @@ const AddEntry = ({ props }) => {
 												}
 											)}
 										</Td>
-										<Td
+										{/* <Td
 											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
@@ -460,7 +460,7 @@ const AddEntry = ({ props }) => {
 												minimumFractionDigits: 2,
 												maximumFractionDigits: 2,
 											})}
-										</Td>
+										</Td> */}
 										<Td
 											textAlign='center'
 											borderColor='gray.200'
@@ -550,7 +550,7 @@ const AddEntry = ({ props }) => {
 											borderColor='gray.200'
 											py={3}
 										>
-											Subtotal
+											Unit Total
 										</Td>
 										<Td
 											fontSize={fontSizeSummaryValue}
@@ -635,7 +635,7 @@ const AddEntry = ({ props }) => {
 										</Td>
 									</Tr>
 
-									<Tr>
+									{/* <Tr>
 										<Td
 											fontSize={fontSizeSummaryLabel}
 											color='gray.600'
@@ -658,7 +658,7 @@ const AddEntry = ({ props }) => {
 												maximumFractionDigits: 2,
 											})}
 										</Td>
-									</Tr>
+									</Tr> */}
 								</Tbody>
 							</Table>
 						</Box>
