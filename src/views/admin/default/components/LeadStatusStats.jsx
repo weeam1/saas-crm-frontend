@@ -270,7 +270,6 @@ const LeadStatusStats = ({ doc, listTop, setListTop }) => {
               title: () => "Info",
               label: (context) => {
                 const item = sortedData[context.dataIndex];
-                // Check if your data structure uses 'value' or 'percent'
                 return `${item.label}: ${item.value || item.percent}`;
               },
               labelColor: () => ({
@@ -427,9 +426,9 @@ const LeadStatusStats = ({ doc, listTop, setListTop }) => {
             focusBorderColor="brand.500"
           >
             <option value="all">All</option>
-            <option value="2">2</option>
-            <option value="5">5</option>
-            <option value="10">10</option>
+            <option value="2">Top 2</option>
+            <option value="5">Top 5</option>
+            <option value="10">Top 10</option>
           </Select>
         </Box>
         <canvas ref={chartRef} style={{ display: "block" }} />
