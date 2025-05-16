@@ -2,7 +2,7 @@ import { Flex, Text, Link, Icon } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { FiChevronRight } from 'react-icons/fi';
 
-const Breadcrumb = ({ items }) => {
+const BreadCrumb = ({ items }) => {
 	return (
 		<Flex
 			align='center'
@@ -56,4 +56,4 @@ const Breadcrumb = ({ items }) => {
 	);
 };
 
-export default Breadcrumb;
+export default BreadCrumb;
