@@ -15,10 +15,26 @@ import {
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useFetchItemsQuery } from "api/apiSlice";
+import * as Yup from "yup";
+import { useEffect } from "react";
 
 const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
-
+  const validationSchema = Yup.object().shape({
+    type: Yup.string().required("Type is required"),
+    description: Yup.string().required("Description is required"),
+    amount: Yup.number()
+      .typeError("Amount must be a number")
+      .required("Amount is required")
+      .positive("Amount must be positive")
+      .min(0, "Amount must be greater than 0"),
+    vat: Yup.number()
+      .typeError("Amount must be a number")
+      .required("Amount is required")
+      .positive("Amount must be positive")
+      .min(0, "vat must be greater than 0")
+      .max(100, "vat must be less than 100"),
+  });
   const { data: types } = useFetchItemsQuery(
     { path: `/expense_types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
@@ -37,6 +53,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
       agencyName: data?.addedBy?.agency?.name || "",
       vat: data?.vat || "",
     },
+    validationSchema,
     onSubmit: (values) => {
       const updated = {
         ...data,
@@ -50,6 +67,12 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
       }
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
@@ -85,6 +108,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                       <option value="">No types available</option>
                     )}
                   </Select>
+                  {formik.touched.type && formik.errors.type && (
+                    <p style={{ color: "red" }}>{formik.errors.type}</p>
+                  )}
                 </div>
                 <div>
                   <FormLabel>Description</FormLabel>
@@ -95,30 +121,37 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                     placeholder="e.g., Office rent or utilities"
                     focusBorderColor="brand.500"
                   />
+                  {formik.touched.description && formik.errors.description && (
+                    <p style={{ color: "red" }}>{formik.errors.description}</p>
+                  )}
                 </div>
                 <div>
                   <FormLabel>Amount</FormLabel>
                   <Input
                     name="amount"
                     type="number"
-                    min="0"
                     value={formik.values.amount}
                     onChange={formik.handleChange}
                     placeholder="e.g., 5050"
                     focusBorderColor="brand.500"
                   />
+                  {formik.touched.amount && formik.errors.amount && (
+                    <p style={{ color: "red" }}>{formik.errors.amount}</p>
+                  )}
                 </div>
                 <div>
                   <FormLabel>VAT%</FormLabel>
                   <Input
                     name="vat"
                     type="number"
-                    min="0"
                     value={formik.values.vat}
                     onChange={formik.handleChange}
                     placeholder="e.g. 200.0"
                     focusBorderColor="brand.500"
                   />
+                  {formik.touched.vat && formik.errors.vat && (
+                    <p style={{ color: "red" }}>{formik.errors.vat}</p>
+                  )}
                 </div>
               </>
             ) : (

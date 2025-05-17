@@ -21,9 +21,9 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
-import Loader from "components/loading/Loader";
 import TableLoading from "components/loading/TableLoading";
-import { ca } from "date-fns/locale";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
 
@@ -207,7 +207,7 @@ export default function CallHistory() {
       bg="white"
       p={3}
       marginTop={"-16px"}
-			marginLeft={"-4px"}
+      marginLeft={"-4px"}
     >
       <Pagination
         currentPage={page}
@@ -262,7 +262,7 @@ export default function CallHistory() {
           <Tbody>
             {loading ? (
               <TableLoading columns={columns} length={10} py="4" />
-            ) : (
+            ) : calls ? (
               calls.map((call) => (
                 <Tr key={call.id}>
                   <Td
@@ -367,14 +367,22 @@ export default function CallHistory() {
                   </Td>
                 </Tr>
               ))
+            ) : (
+              <Tr borderColor="gray.200" textAlign="center">
+                <Td
+                  borderBottom="none"
+                  colSpan="9"
+                  fontSize={{ base: "12px", md: "15px" }}
+                  fontWeight="500"
+                  color="gray.500"
+                  textAlign="center"
+                >
+                  <NoData label="listing" />
+                </Td>
+              </Tr>
             )}
           </Tbody>
         </Table>
-        {!loading && calls?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No call history found.
-          </Text>
-        )}
       </Box>
     </Box>
   );
