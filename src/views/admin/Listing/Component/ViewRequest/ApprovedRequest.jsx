@@ -39,7 +39,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ApprovedRequest = ({listingType,listingUnitType}) => {
+const ApprovedRequests = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -194,7 +194,7 @@ const ApprovedRequest = ({listingType,listingUnitType}) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
+      marginLeft={"-16px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -274,7 +274,7 @@ const ApprovedRequest = ({listingType,listingUnitType}) => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data && data.datalength > 0 ? (
+              {data && data.data.length > 0 ? (
                 data.data.map((approval, index) => (
                   <Tr key={index}>
                     <Td
@@ -501,4 +501,4 @@ const ApprovedRequest = ({listingType,listingUnitType}) => {
   );
 };
 
-export default ApprovedRequest;
+export default ApprovedRequests;

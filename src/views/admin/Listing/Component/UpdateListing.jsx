@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Box,
   FormControl,
@@ -19,10 +19,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
+import FileUpload from "./SubComponent/FileUpload";
 
 const UpdateListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+ const [files, setFiles] = useState([]);
 
   // Fetch data
   const {
@@ -44,6 +46,11 @@ const UpdateListing = () => {
     { skip: !id }
   );
 
+  useEffect(() => {
+    if(listing?.data) {
+      setFiles([...listing?.data?.documents])
+    }
+  },[listing])
   const [updateListing, { isLoading: isUpdating }] = useUpdateItemMutation();
 
   // Formik setup
@@ -60,9 +67,11 @@ const UpdateListing = () => {
       location: listing?.data?.location || "",
       ownerName: listing?.data?.ownerName || "",
       ownerContact: listing?.data?.ownerContact || "",
+      documents : listing?.data?.documents || [],
     },
     onSubmit: async (values) => {
       try {
+        values.documents = [...files];
         await updateListing({
           path: `listing/secondary/${id}`,
           body: values,
@@ -299,7 +308,12 @@ const UpdateListing = () => {
             />
           </FormControl>
         </GridItem>
-
+        <GridItem colSpan={2}>
+          <FormControl>
+            <FormLabel>Document Upload</FormLabel>
+            <FileUpload files={files} setFiles={setFiles} />
+          </FormControl>
+        </GridItem>
         {/* Submit Button */}
         <GridItem colSpan={2}>
           <Flex justify="flex-end">

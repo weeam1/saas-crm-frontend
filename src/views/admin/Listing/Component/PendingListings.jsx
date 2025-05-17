@@ -47,6 +47,7 @@ const PendingListings = ({listingType,listingUnitType}) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
+  const [tableData, setTableData] = useState([]); // Add local state for table data
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
@@ -73,6 +74,7 @@ const PendingListings = ({listingType,listingUnitType}) => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
   const buildQueryParams = () => {
     const params = {
       page: currentPage,
@@ -81,13 +83,9 @@ const PendingListings = ({listingType,listingUnitType}) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
     }
@@ -99,6 +97,15 @@ const PendingListings = ({listingType,listingUnitType}) => {
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
+
+  // Update tableData when data changes
+  useEffect(() => {
+    if (data) {
+      setTableData(data.data || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalDocs || 0);
+    }
+  }, [data]);
 
   const handleStatusChange = async (listingId, status) => {
     setCurrentListingId(listingId);
@@ -127,7 +134,11 @@ const PendingListings = ({listingType,listingUnitType}) => {
       }).unwrap();
 
       toast.success("Status updated successfully");
-      refetch();
+      
+      // Update local state instead of refetching
+      setTableData(prevData => prevData.filter(item => item._id !== listingId));
+      setTotalItems(prev => prev - 1);
+      
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -152,13 +163,6 @@ const PendingListings = ({listingType,listingUnitType}) => {
         return "gray";
     }
   };
-
-  useEffect(() => {
-    if (data) {
-      setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalDocs || 0);
-    }
-  }, [data]);
 
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
@@ -191,6 +195,7 @@ const PendingListings = ({listingType,listingUnitType}) => {
     setFilterChanged(true);
     refetch();
   };
+
   return (
     <Box
       overflowY="auto"
@@ -279,8 +284,8 @@ const PendingListings = ({listingType,listingUnitType}) => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {(data && data.datalength > 0) ? (
-                data.data.map((listing, index) => (
+              {tableData.length > 0 ? (
+                tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
                       textAlign="center"

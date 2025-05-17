@@ -33,7 +33,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ViewRequest = ({listingType,listingUnitType}) => {
+const ViewRequests = ({listingType,listingUnitType}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -204,7 +204,7 @@ const ViewRequest = ({listingType,listingUnitType}) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
+           marginLeft={"-16px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -284,7 +284,7 @@ const ViewRequest = ({listingType,listingUnitType}) => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {data && data.datalength > 0 ? (
+              {data && data.data.length > 0 ? (
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
@@ -484,4 +484,4 @@ const ViewRequest = ({listingType,listingUnitType}) => {
   );
 };
 
-export default ViewRequest;
+export default ViewRequests;

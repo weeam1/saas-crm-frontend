@@ -40,9 +40,9 @@ import { FiFilter } from "react-icons/fi";
 import AdvancedFilterModal from "./AdvancedFilterModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
-import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const AllListing = ({listingType,listingUnitType}) => {
+const AllListing = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -67,15 +67,16 @@ const AllListing = ({listingType,listingUnitType}) => {
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
 
   const columns = [
-    "Date",
+    "SR.No",
     "projectName",
-    "Created By",
     "Unit Type",
     "Type",
     "Location",
     "Price",
     "Size (sqft)",
     "status",
+    "Date",
+    "Created By",
     "Action",
   ];
 
@@ -108,7 +109,7 @@ const AllListing = ({listingType,listingUnitType}) => {
 
   const handleRequestViewAccess = async (listingId) => {
     try {
-      await createItemMutation({
+      const response = await createItemMutation({
         path: `/listing/secondary/${listingId}/request-view`,
         body: {},
       }).unwrap();
@@ -119,7 +120,18 @@ const AllListing = ({listingType,listingUnitType}) => {
         duration: 3000,
         isClosable: true,
       });
-      refetch();
+      console.log(response.data.viewRequests);
+      setTableData((prevData) =>
+        prevData.map((listing) => {
+          if (listing._id === listingId) {
+            return {
+              ...listing,
+              viewRequests: [...response.data.viewRequests],
+            };
+          }
+          return listing;
+        })
+      );
     } catch (error) {
       toast({
         title: error.data?.message || "Failed to send request",
@@ -203,6 +215,7 @@ const AllListing = ({listingType,listingUnitType}) => {
       await updateListingStatus(listingId, status);
     }
   };
+
   const updateListingStatus = async (listingId, status) => {
     try {
       const body = { status };
@@ -224,11 +237,20 @@ const AllListing = ({listingType,listingUnitType}) => {
         duration: 3000,
         isClosable: true,
       });
-      setTableData((prevData) =>
-        prevData.map((listing) =>
-          listing._id === listingId ? { ...listing, status } : listing
-        )
-      );
+
+      if (status === "inactive") {
+        setTableData((prevData) =>
+          prevData.filter((item) => item._id !== listingId)
+        );
+        setTotalItems((prev) => prev - 1);
+      } else {
+        setTableData((prevData) =>
+          prevData.map((listing) =>
+            listing._id === listingId ? { ...listing, status } : listing
+          )
+        );
+      }
+
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -349,18 +371,16 @@ const AllListing = ({listingType,listingUnitType}) => {
           ) : (
             <Tbody>
               {tableData && tableData.length > 0 ? (
-                tableData.map((listing) => (
-                  <Tr key={listing._id}>
+                tableData.map((listing, index) => (
+                  <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {listing.publishedAt
-                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index}
                     </Td>
                     <Td
                       textAlign="center"
@@ -370,15 +390,6 @@ const AllListing = ({listingType,listingUnitType}) => {
                       textOverflow="ellipsis"
                     >
                       {listing.projectName}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
                     </Td>
                     <Td textAlign="center">
                       {listing.unitType?.name || "N/A"}
@@ -423,9 +434,6 @@ const AllListing = ({listingType,listingUnitType}) => {
                             bg={getStatusColor(listing.status) + ".100"}
                             color={getStatusColor(listing.status) + ".800"}
                           >
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                           </Select>
@@ -440,6 +448,26 @@ const AllListing = ({listingType,listingUnitType}) => {
                           {listing.status}
                         </Badge>
                       )}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.publishedAt
+                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
                     </Td>
                     <Td display="flex" gap={2} justifyContent="center">
                       {isAdmin && (
