@@ -52,19 +52,19 @@ const HiringDashboard = () => {
 			title: 'Candidates',
 			total: data?.doc?.totalCandidates || 0,
 			icon: MdDashboard,
-			path: '/hiring/candidates',
+			path: '/hiring?tab=candidates',
 		},
 		{
 			title: 'Short Listed',
 			total: data?.doc?.totalShortListed || 0,
 			icon: FaUsers,
-			path: '/hiring/short-listed',
+			path: '/hiring?tab=short-listed',
 		},
 		{
 			title: 'Interviewed Candidates',
 			total: data?.doc?.totalCompletedInterviews || 0,
 			icon: FaUserCheck,
-			path: '/hiring/interviewed-candidates',
+			path: '/hiring?tab=interviewed-candidates',
 		},
 		// {
 		// 	title: 'Running Interviews',
@@ -107,13 +107,13 @@ const HiringDashboard = () => {
 					<MiniStatistics
 						key={index}
 						fontsize='md'
-						// onClick={() => navigate(stat.path)}
+						onClick={() => navigate(stat.path)}
 						startContent={
 							<IconBox
 								w='56px'
 								h='56px'
 								bg='linear-gradient(90deg, #D99A36 0%,rgb(221, 184, 92) 100%)'
-								icon={<Icon w='28px' h='28px' as={stat.icon} color='white' />} // Change icon here
+								icon={<Icon w='28px' h='28px' as={stat.icon} color='white' />}
 							/>
 						}
 						name={stat.title}

@@ -65,6 +65,8 @@ const OfferLetter = () => {
 	const [offerDetails, setOfferDetails] = useState({});
 	const [emailBody, setEmailBody] = useState('');
 
+	const { id: interviewId } = useParams();
+
 	const [selectedDate, setSelectedDate] = useState(
 		offerDetails.joiningDate ? new Date(offerDetails.joiningDate) : null
 	);
@@ -135,6 +137,7 @@ const OfferLetter = () => {
 			joiningDate: selectedDate,
 			leadInterviewerName: offerDetails?.leadInterviewerName,
 			emailBody,
+			interviewId,
 		};
 
 		if (!selectedDate) {
@@ -151,7 +154,7 @@ const OfferLetter = () => {
 			toast.success('Offer sent successfully');
 			setOfferDetails(offerData);
 			setIsEditing(false);
-			navigate('/hiring/interviewed-candidates');
+			navigate('/hiring?tab=interviewed-candidates');
 		} catch (error) {
 			toast.error(error?.data?.message || 'Failed to send offer');
 		}

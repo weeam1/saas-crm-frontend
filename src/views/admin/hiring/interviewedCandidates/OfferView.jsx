@@ -29,6 +29,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { jobRoles, jobTypes } from '../helpers';
 import DisplayField from 'components/displays/DisplayField';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const validationSchema = Yup.object().shape({
 	jobType: Yup.string().required('Job type is required'),
@@ -52,6 +53,14 @@ const OfferView = ({ isOpen, onClose, offerDetails, setOfferDetails }) => {
 		leadInterviewerName,
 	} = offerDetails;
 
+	const params = useParams();
+
+	const { interviewId } = params || {};
+
+	console.log(interviewId);
+
+	const navigate = useNavigate();
+
 	const [createItemMutation, { isLoading: sendingOffer }] =
 		useCreateItemMutation();
 	const toast = useToast();
@@ -63,6 +72,10 @@ const OfferView = ({ isOpen, onClose, offerDetails, setOfferDetails }) => {
 
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
+	if (!interviewId) {
+		return navigate('/default');
+	}
+
 	const handleDateChange = (date) => {
 		setSelectedDate(date);
 		setShowCalendar(false);
@@ -73,7 +86,7 @@ const OfferView = ({ isOpen, onClose, offerDetails, setOfferDetails }) => {
 
 		try {
 			await createItemMutation({
-				path: `/hiring/send-offer/${candidateId}`,
+				path: `/hiring/send-offer/${interviewId}/candidate/${candidateId}/`,
 				body: data,
 			}).unwrap();
 
