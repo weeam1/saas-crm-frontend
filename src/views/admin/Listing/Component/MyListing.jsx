@@ -338,7 +338,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {index}
+                      {index+1}
                     </Td>
                     <Td
                       textAlign="center"

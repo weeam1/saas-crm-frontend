@@ -39,7 +39,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ApprovedRequests = ({listingType,listingUnitType}) => {
+const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -55,14 +55,15 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
 
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
-    "Date",
+    "SR.No",
     "Viewer",
-    "Created By",
     "Phone",
     "Project",
     "Location",
     "Area (sqft)",
     "Price",
+    "Date",
+    "Created By",
     "Status",
     "Action",
   ];
@@ -101,7 +102,7 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
     return params;
   };
 
-  const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
+  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
@@ -193,7 +194,7 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
       boxShadow="sm"
       bg="white"
       px={2}
-      marginTop={"-16px"}
+      marginTop={"-14px"}
       marginLeft={"-16px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
@@ -278,15 +279,13 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
                 data.data.map((approval, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {approval.requestedAt
-                        ? format(approval.requestedAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index + 1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -296,15 +295,6 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
                       textOverflow="ellipsis"
                     >
                       {approval.requester?.fullName || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -354,6 +344,26 @@ const ApprovedRequests = ({listingType,listingUnitType}) => {
                       {approval.listing?.price
                         ? `AED ${approval.listing.price.toLocaleString()}`
                         : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.requestedAt
+                        ? format(approval.requestedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}

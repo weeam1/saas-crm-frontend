@@ -34,7 +34,7 @@ import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const PendingListings = ({listingType,listingUnitType}) => {
+const PendingListings = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -47,18 +47,19 @@ const PendingListings = ({listingType,listingUnitType}) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
-  const [tableData, setTableData] = useState([]); // Add local state for table data
+  const [tableData, setTableData] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
-    "Date",
+    "SR.No",
     "Project",
-    "Created By",
     "Unit Type",
     "Type",
     "Location",
     "Area (sqft)",
     "Price",
+    "Date",
+    "Created By",
     "Status",
     "Action",
   ];
@@ -134,11 +135,12 @@ const PendingListings = ({listingType,listingUnitType}) => {
       }).unwrap();
 
       toast.success("Status updated successfully");
-      
-      // Update local state instead of refetching
-      setTableData(prevData => prevData.filter(item => item._id !== listingId));
-      setTotalItems(prev => prev - 1);
-      
+
+      setTableData((prevData) =>
+        prevData.filter((item) => item._id !== listingId)
+      );
+      setTotalItems((prev) => prev - 1);
+
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -288,17 +290,14 @@ const PendingListings = ({listingType,listingUnitType}) => {
                 tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {listing.createdAt
-                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index + 1}
                     </Td>
-
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
@@ -364,6 +363,26 @@ const PendingListings = ({listingType,listingUnitType}) => {
                         : "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.publishedAt
+                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -399,10 +418,8 @@ const PendingListings = ({listingType,listingUnitType}) => {
                         color={getStatusColor(listing.status) + ".800"}
                       >
                         <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
+                        <option value="active">Approved</option>
                         <option value="rejected">Rejected</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
                       </Select>
                     </Td>
                   </Tr>

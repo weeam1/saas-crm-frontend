@@ -54,14 +54,15 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const Navigate = useNavigate();
 
   const columns = [
-    "Date",
+    "SR.No",
     "Requester",
-    "Created By",
     "Phone",
     "Project",
     "Location",
     "Area (sqft)",
     "Price",
+    "Date",
+    "Created By",
     "Status",
     "Action",
   ];
@@ -200,7 +201,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
       boxShadow="sm"
       bg="white"
       px={2}
-      marginTop={"-16px"}
+      marginTop={"-14px"}
       marginLeft={"-16px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
@@ -285,15 +286,13 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {request.rejectedAt
-                        ? format(request.rejectedAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index + 1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -303,15 +302,6 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {request.requester?.fullName || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -361,6 +351,26 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                       {request.listing?.price
                         ? `AED ${request.listing.price.toLocaleString()}`
                         : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.rejectedAt
+                        ? format(request.rejectedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}

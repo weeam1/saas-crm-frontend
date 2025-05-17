@@ -33,7 +33,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const ViewRequests = ({listingType,listingUnitType}) => {
+const ViewRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -48,14 +48,15 @@ const ViewRequests = ({listingType,listingUnitType}) => {
   const [filterChanged, setFilterChanged] = useState(false);
 
   const columns = [
-    "Date",
+    "SR.No",
     "Requester",
-    "Created By",
     "Phone",
     "Project",
     "Location",
     "Area (sqft)",
     "Price",
+    "Date",
+    "Created By",
     "Status",
     "Action",
   ];
@@ -203,8 +204,8 @@ const ViewRequests = ({listingType,listingUnitType}) => {
       boxShadow="sm"
       bg="white"
       px={2}
-      marginTop={"-16px"}
-           marginLeft={"-16px"}
+      marginTop={"-14px"}
+      marginLeft={"-16px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -288,15 +289,13 @@ const ViewRequests = ({listingType,listingUnitType}) => {
                 data.data.map((request, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {request.requestedAt
-                        ? format(request.requestedAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index + 1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -306,15 +305,6 @@ const ViewRequests = ({listingType,listingUnitType}) => {
                       textOverflow="ellipsis"
                     >
                       {request?.requester?.fullName || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -364,6 +354,26 @@ const ViewRequests = ({listingType,listingUnitType}) => {
                       {request.listing?.price
                         ? `AED ${request.listing.price.toLocaleString()}`
                         : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.requestedAt
+                        ? format(request.requestedAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
