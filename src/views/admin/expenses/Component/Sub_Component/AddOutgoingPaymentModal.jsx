@@ -28,7 +28,7 @@ const validationSchema = Yup.object().shape({
     .typeError("Amount must be a number")
     .required("Amount is required")
     .positive("Amount must be positive"),
-    vat: Yup.number()
+  vat: Yup.number()
     .typeError("Amount must be a number")
     .required("Amount is required")
     .positive("Amount must be positive"),
@@ -153,6 +153,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   <Input
                     name="amount"
                     type="number"
+                    min="0"
                     value={formik.values.amount}
                     onChange={formik.handleChange}
                     placeholder="e.g., 5050"
@@ -167,6 +168,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   <Input
                     name="vat"
                     type="number"
+                    min="0"
                     value={formik.values.vat}
                     onChange={formik.handleChange}
                     placeholder="e.g., 200.0"

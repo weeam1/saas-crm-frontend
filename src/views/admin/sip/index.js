@@ -9,15 +9,12 @@ const DEFAULT_TAB = "dashboard";
 const Sip = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromParams = searchParams.get("tab") || DEFAULT_TAB;
-
-  const initialIndex = ["dashboard", "history"].indexOf(tabFromParams.toLowerCase());
-  const [activeTabIndex, setActiveTabIndex] = useState(initialIndex !== -1 ? initialIndex : 0);
-
   const [tabKey, setTabKey] = useState(0);
 
   const tabsData = [
     {
       label: "Dashboard",
+      param: "dashboard",
       title: "Call Analytics Overview",
       description:
         "Get a quick summary of your call activity including total time spent on calls, number of unique calls, and average call durations over the selected period.",
@@ -25,6 +22,7 @@ const Sip = () => {
     },
     {
       label: "History",
+      param: "history",
       title: "Call History Log",
       description:
         "Explore detailed records of each call including timestamps, duration, participants, and call modes for a comprehensive communication history.",
@@ -32,27 +30,41 @@ const Sip = () => {
     },
   ];
 
+  const activeTabIndex = Math.max(
+    0,
+    tabsData.findIndex((tab) => tab.param === tabFromParams.toLowerCase())
+  );
+
   useEffect(() => {
-    if (!searchParams.get("tab")) {
+    if (
+      !searchParams.get("tab") ||
+      !tabsData.some(
+        (tab) => tab.param === searchParams.get("tab").toLowerCase()
+      )
+    ) {
       setSearchParams({ tab: DEFAULT_TAB });
     }
-  }, []);
+  }, [searchParams, setSearchParams, tabsData]);
 
   const handleTabChange = (index) => {
-    const tabLabel = tabsData[index].label.toLowerCase();
-    setSearchParams({ tab: tabLabel });
+    const tabParam = tabsData[index].param;
+    setSearchParams({ tab: tabParam });
 
     if (index === activeTabIndex) {
-      setTabKey((prev) => prev + 1); 
-    } else {
-      setActiveTabIndex(index);
+      setTabKey((prev) => prev + 1);
     }
   };
 
   return (
     <>
       <TabNavigationDisplay
-        tabsData={tabsData}
+        tabsData={tabsData.map((tab) => ({
+          label: tab.label,
+          title: tab.title,
+          description: tab.description,
+          component:
+            tab.param === tabFromParams.toLowerCase() ? tab.component : null,
+        }))}
         activeTab={activeTabIndex}
         onTabChange={handleTabChange}
       />
