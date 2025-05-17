@@ -17,7 +17,7 @@ import {
 import { CloseIcon, AddIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 
@@ -27,11 +27,14 @@ const validationSchema = Yup.object().shape({
   amount: Yup.number()
     .typeError("Amount must be a number")
     .required("Amount is required")
-    .positive("Amount must be positive"),
+    .positive("Amount must be positive")
+    .min(0, "Amount must be greater than 0"),
   vat: Yup.number()
     .typeError("Amount must be a number")
     .required("Amount is required")
-    .positive("Amount must be positive"),
+    .positive("Amount must be positive")
+    .min(0, "Amount must be greater than 0")
+      .max(100, "vat must be less than 100"),
 });
 
 const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
@@ -39,12 +42,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
   const [newType, setNewType] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  const {
-    data: types,
-    isLoading,
-    isError,
-    refetch,
-  } = useFetchItemsQuery(
+  const { data: types, refetch } = useFetchItemsQuery(
     { path: `/expense_types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
@@ -82,6 +80,11 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
     }
   };
 
+  useEffect(() =>{
+    if(isOpen){
+      formik.resetForm();
+    }
+  },[isOpen])
   return (
     <>
       <Modal
@@ -153,7 +156,6 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   <Input
                     name="amount"
                     type="number"
-                    min="0"
                     value={formik.values.amount}
                     onChange={formik.handleChange}
                     placeholder="e.g., 5050"
@@ -168,7 +170,6 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   <Input
                     name="vat"
                     type="number"
-                    min="0"
                     value={formik.values.vat}
                     onChange={formik.handleChange}
                     placeholder="e.g., 200.0"
