@@ -83,34 +83,21 @@ const ViewListing = () => {
   const handleDownloading = async (file) => {
     try {
       if (!file) {
-        toast.error("No file specified for download.");
+        toast.error("No file specified for download or view.");
         return;
       }
 
       const fileURL = `${constant.baseUrl}${file}`;
 
-      // Check if file exists first
       const response = await fetch(fileURL, { method: "HEAD" });
       if (!response.ok) {
         toast.error("File not found on the server.");
         return;
       }
-
-      // Create a hidden anchor to trigger download
-      const link = document.createElement("a");
-      link.href = fileURL;
-      link.download = fileURL.split("/").pop();
-      link.style.display = "none";
-
-      // Append, trigger click, and remove
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast.success("Download started...");
+      window.open(fileURL, "_blank");
     } catch (error) {
       console.error("Download error:", error);
-      toast.error("Failed to download the file.");
+      toast.error("Failed to download or view the file.");
     }
   };
 
@@ -248,6 +235,18 @@ const ViewListing = () => {
             {listing.data?.documents?.length > 0 ? (
               listing.data.documents.map((doc, index) => {
                 const fileName = doc.split("/").pop();
+                const extension = fileName?.split(".").pop()?.toLowerCase();
+
+                const nonImageFormats = [
+                  "pdf",
+                  "doc",
+                  "docx",
+                  "txt",
+                  "xls",
+                  "xlsx",
+                ];
+                const isImage =
+                  extension && !nonImageFormats.includes(extension);
                 return (
                   <Box
                     key={index}
@@ -262,25 +261,19 @@ const ViewListing = () => {
                   >
                     <Box display="flex" alignItems="center" gap={2}>
                       <Box as="span" color="blue.500" fontSize="lg">
-                        📁
+                        {isImage ? '🖼️' : '📁'}
                       </Box>
                       <Box fontWeight="medium">{fileName}</Box>
                     </Box>
-                    <a
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handleDownloading(doc);
-                      }}
+                    <AppButton
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      colorScheme="brand"
+                      onClick={() => handleDownloading(doc)}
                     >
-                      <AppButton
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        colorScheme="brand"
-                      >
-                        Download
-                      </AppButton>
-                    </a>
+                      {isImage ? "View" : "Download"}
+                    </AppButton>
                   </Box>
                 );
               })
