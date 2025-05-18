@@ -206,7 +206,6 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>

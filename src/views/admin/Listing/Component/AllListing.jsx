@@ -303,7 +303,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   };
 
   return (
-    <Box bg="white" px={2} marginTop={"-16px"} marginLeft={"-4px"}>
+    <Box bg="white" px={2} marginTop={"-16px"}>
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
