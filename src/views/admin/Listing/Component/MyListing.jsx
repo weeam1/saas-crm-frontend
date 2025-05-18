@@ -419,7 +419,6 @@ const MyListing = ({ listingType, listingUnitType }) => {
                           </>
                         ) : (
                           <>
-                            <option value="approved">Approved</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                           </>
@@ -433,8 +432,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing.publishedAt
-                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td

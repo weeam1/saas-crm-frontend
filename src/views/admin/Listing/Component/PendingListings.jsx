@@ -307,14 +307,6 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       {listing?.projectName || "N/A"}
                     </Td>
                     <Td
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
-                    </Td>
-                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -368,8 +360,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing.publishedAt
-                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
