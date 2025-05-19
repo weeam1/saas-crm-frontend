@@ -40,9 +40,6 @@ const FileUpload = ({files, setFiles}) => {
   };
 
   const deleteFileFromServer = async (fileUrl) => {
-    const temp = { fileUrls: [fileUrl] };
-    console.log("temp", temp)
-    console.log("url", fileUrl)
     try {
       await deleteItemMutation({
         path: `/listing/secondary/remove-documents`,
@@ -59,8 +56,8 @@ const FileUpload = ({files, setFiles}) => {
     for (const file of newFiles) {
       const fileName = file.name;
 
-      if (files.some((url) => url.endsWith(fileName))) {
-        toast.warn("File already added");
+      if (uploading[fileName]) {
+        toast.warn("File is currently being uploaded");
         continue;
       }
 
@@ -104,6 +101,7 @@ const FileUpload = ({files, setFiles}) => {
 
   const handleFileInput = (e) => {
     handleFiles(Array.from(e.target.files));
+    e.target.value = null;
   };
 
   return (
@@ -131,7 +129,13 @@ const FileUpload = ({files, setFiles}) => {
           </Text>
           <Button as="label" colorScheme="brand" cursor="pointer" htmlFor="file-upload">
             Browse Files
-            <input type="file" id="file-upload" hidden onChange={handleFileInput} multiple />
+            <input 
+              type="file" 
+              id="file-upload" 
+              hidden 
+              onChange={handleFileInput} 
+              multiple 
+            />
           </Button>
         </Box>
 
