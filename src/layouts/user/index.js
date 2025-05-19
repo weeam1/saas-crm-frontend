@@ -130,113 +130,122 @@ export default function User(props) {
   });
 
   let routes = [
-    {
-      name: "Dashboard",
-      layout: [ROLE_PATH.user],
-      path: "/default",
-      icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-      component: MainDashboard,
-    },
+		{
+			name: 'Dashboard',
+			layout: [ROLE_PATH.user],
+			path: '/default',
+			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+			component: MainDashboard,
+		},
 
-    {
-      name: "Lead",
-      layout: [ROLE_PATH.user],
-      path: "/lead",
-      icon: (
-        <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-      ),
-      component: LeadScreen,
-    },
-    {
-      name: "Attendance",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/attendance",
-      icon: (
-        <Icon
-          as={FaRegCalendarCheck}
-          width="20px"
-          height="20px"
-          color="inherit"
-        />
-      ),
-      component: Attendance,
-    },
-    {
-      name: "My Attendance",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/attendance/employees/:id",
-      under: "my-attendance",
-      parentName: "Attendance",
-      component: MyAttendance,
-    },
-    {
-      name: "Listing",
-      layout: [ROLE_PATH.user],
-      path: "/listing",
-      icon: <Icon as={FaList} width="20px" height="20px" color="inherit" />,
-      component: Listing,
-    },
-    {
-      name: "Adding Listing",
-      layout: [ROLE_PATH.user],
-      path: "/listing/add-listing",
-      under: "listing",
-      parentName: "Listing",
-      component: AddListing,
-    },
-    {
-      name: "View Listing",
-      layout: [ROLE_PATH.user],
-      path: "/listing/view-listing/:id",
-      under: "listing",
-      parentName: "Listing",
-      component: ViewListing,
-    },
-    {
-      name: "Update Listing",
-      layout: [ROLE_PATH.user],
-      path: "/listing/update/:id",
-      under: "listing",
-      parentName: "Listing",
-      component: UpdateListing,
-    },
-    // {
-    // 	name: 'HR Module',
-    // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    // 	path: '/hrmodule',
-    // 	icon: (
-    // 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
-    // 	),
-    // 	component: HRModule,
-    // },
+		{
+			name: 'Lead',
+			layout: [ROLE_PATH.user],
+			path: '/lead',
+			icon: (
+				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadScreen,
+		},
+		{
+			name: 'Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance',
+			icon: (
+				<Icon
+					as={FaRegCalendarCheck}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			component: Attendance,
+		},
+		{
+			name: 'My Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees/:id',
+			under: 'my-attendance',
+			parentName: 'Attendance',
+			component: MyAttendance,
+		},
+		{
+			name: 'Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing',
+			icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+			component: Listing,
+		},
+		{
+			name: 'Adding Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/add-listing',
+			under: 'listing',
+			parentName: 'Listing',
+			component: AddListing,
+		},
+		{
+			name: 'View Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/view-listing/:id',
+			under: 'listing',
+			parentName: 'Listing',
+			component: ViewListing,
+		},
+		{
+			name: 'Update Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/update/:id',
+			under: 'listing',
+			parentName: 'Listing',
+			component: UpdateListing,
+		},
+		// {
+		// 	name: 'HR Module',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/hrmodule',
+		// 	icon: (
+		// 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: HRModule,
+		// },
 
-    {
-      name: "Leads Pool",
-      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      path: "/pool",
-      icon: (
-        <Icon as={MdPeopleOutline} width="20px" height="20px" color="inherit" />
-      ),
-      component: LeadPoolAgent,
-    },
+		{
+			name: 'Leads Pool',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/pool',
+			icon: (
+				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadPoolAgent,
+		},
 
-    {
-      name: "Sign In",
-      layout: "/auth",
-      path: "/sign-in",
-      icon: <Icon as={MdLock} width="20px" height="20px" color="inherit" />,
-      component: SignInCentered,
-    },
-    // {
-    // 	name: 'Points',
-    // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    // 	path: '/points',
-    // 	icon: (
-    // 		<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
-    // 	),
-    // 	component: CurrencyPoints,
-    // },
-  ];
+		{
+			name: 'Sign In',
+			layout: '/auth',
+			path: '/sign-in',
+			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+			component: SignInCentered,
+		},
+		// {
+		// 	name: 'Points',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/points',
+		// 	icon: (
+		// 		<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: CurrencyPoints,
+		// },
+
+		{
+			name: 'User View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			parentName: 'Users',
+			under: 'users',
+			path: '/userView/:id',
+			component: UserView,
+		},
+	];
 
   if (user?.roles[0]?.roleName === "Manager") {
     routes.push({
