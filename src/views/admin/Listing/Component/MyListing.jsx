@@ -155,6 +155,19 @@ const MyListing = ({ listingType, listingUnitType }) => {
       await updateListingStatus(listingId, status);
     }
   };
+  const handleStatusChange = async (listingId, status, previousStatus) => {
+    if (status === previousStatus) {
+      return;
+    }
+    setCurrentListingId(listingId);
+    setSelectedStatus(status);
+
+    if (status === "rejected") {
+      setIsRejectionModalOpen(true);
+    } else {
+      await updateListingStatus(listingId, status);
+    }
+  };
   const updateListingStatus = async (listingId, status) => {
     try {
       const body = { status };
@@ -393,14 +406,58 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      <Switch
-                        colorScheme="green"
-                        isChecked={listing.status === "active"}
-                        onChange={(e) =>
-                          handleStatusToggle(listing._id, e.target.checked)
-                        }
-                        size="md"
-                      />
+                      {listing.status === "rejected" ? (
+                        <>
+                          <Select
+                            value={listing.status}
+                            colorScheme="green"
+                            onChange={(e) =>
+                              handleStatusChange(
+                                listing._id,
+                                e.target.value,
+                                listing.status
+                              )
+                            }
+                            size="sm"
+                            width="150px"
+                            focusBorderColor="brand.500"
+                            bg={getStatusColor(listing.status) + ".100"}
+                            color={getStatusColor(listing.status) + ".800"}
+                          >
+                            <option value="rejected">Rejected</option>
+                            <option value="pending">Re-consider</option>
+                          </Select>
+                        </>
+                      ) : listing.status === "pending" ? (
+                        <Select
+                          value={listing.status}
+                          colorScheme="green"
+                          size="sm"
+                          width="150px"
+                          focusBorderColor="brand.500"
+                          bg={getStatusColor(listing.status) + ".100"}
+                          color={getStatusColor(listing.status) + ".800"}
+                          isDisabled={
+                            ![
+                              "approved",
+                              "rejected",
+                              "active",
+                              "inactive",
+                            ].includes(listing.status)
+                          }
+                        >
+                          <option value="pending">Pending</option>
+                        </Select>
+                      ) : (
+                        <Switch
+                          colorScheme="green"
+                          isChecked={listing.status === "active"}
+                          onChange={(e) =>
+                            handleStatusToggle(listing._id, e.target.checked)
+                          }
+                          size="md"
+                        />
+                      )}
                     </Td>
                     <Td
                       textAlign="center"
