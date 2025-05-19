@@ -19,6 +19,8 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const navigate = useNavigate();
 	// const [interview, setInterview] = useState(null);
 
+	console.log({ item });
+
 	const {
 		data: interview,
 		isLoading,
@@ -27,12 +29,16 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 		{
 			path: `/interviews/${item?.interview_id}`,
 		},
-		{ skip: !item?.interview_id }
+		{
+			skip: !item?.interview_id,
+			refetchOnMountOrArgChange: true,
+		}
 	);
 
 	const isInterviewCancel =
 		interview?.doc?.status === 'end' ||
 		interview?.doc?.status === 'canceled' ||
+		interview?.doc?.nextRound?.pendingEvaluations > 1 ||
 		error?.status === 404;
 
 	const handleJoinInterview = () => {
