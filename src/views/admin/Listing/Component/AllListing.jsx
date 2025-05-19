@@ -65,7 +65,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
-
+  const isManager = user?.roles?.[0]?.roleName === "Manager";
+  
   const columns = [
     "SR.No",
     "projectName",
@@ -502,7 +503,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                             Request Pending
                           </Button>
                         </Tooltip>
-                      ) : isAgent ? (
+                      ) : (isAgent || isManager) ? (
                         <Button
                           size="sm"
                           colorScheme="brand"

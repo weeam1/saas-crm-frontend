@@ -1,97 +1,101 @@
-import { memo, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Box, Button, Flex } from '@chakra-ui/react';
-import InvitedData from './InvitedData';
-import ShortListedData from './ShortListedData';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import MeetingSection from './components/MeetingSection';
-import PendingInvitedData from './PendingInvitedData';
+import { memo, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Box, Button, Flex, useBreakpointValue } from "@chakra-ui/react";
+import InvitedData from "./InvitedData";
+import ShortListedData from "./ShortListedData";
+import { useFetchItemsQuery } from "api/apiSlice";
+import Loader from "components/loading/Loader";
+import MeetingSection from "./components/MeetingSection";
+import PendingInvitedData from "./PendingInvitedData";
 
-const DEFAULT_SUB_TAB = 'short-listed';
+const DEFAULT_SUB_TAB = "short-listed";
 
 const ShortListedCandidates = memo(() => {
-	const [searchParams, setSearchParams] = useSearchParams();
-	const [tabKey, setTabKey] = useState(0);
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isManager = user?.roles[0]?.roleName === 'Manager';
-	const subTabFromParams =
-		searchParams.get('shortlisted-tab') || DEFAULT_SUB_TAB;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tabKey, setTabKey] = useState(0);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isManager = user?.roles[0]?.roleName === "Manager";
+  const subTabFromParams =
+    searchParams.get("shortlisted-tab") || DEFAULT_SUB_TAB;
 
-	const {
-		data: invitedCandidates,
-		isLoading: invitedCandidatesLoading,
-		refetch: invitedRefetch,
-	} = useFetchItemsQuery({
-		path: `/applications/invited-candidates`,
-		params: {
-			sort: 'interviewDate',
-			limit: 4,
-		},
-	});
+  const tabFontSize = useBreakpointValue({ base: "xs", sm: "sm", md: "md" });
+  const tabPadding = useBreakpointValue({ base: "2", sm: "3", md: "4" });
+  const buttonHeight = useBreakpointValue({ base: "8", md: "10" });
 
-	const allSubTabs = [
-		{
-			title: 'Short Listed',
-			param: 'short-listed',
-			component: (
-				<ShortListedData key={tabKey} invitedRefetch={invitedRefetch} />
-			),
-		},
-		{
-			title: 'Invited Candidates',
-			param: 'invited',
-			component: <InvitedData key={tabKey} />,
-		},
-		{
-			title: 'Old Pending Interviews',
-			param: 'pending',
-			component: (
-				<PendingInvitedData key={tabKey} invitedRefetch={invitedRefetch} />
-			),
-		},
-	];
+  const {
+    data: invitedCandidates,
+    isLoading: invitedCandidatesLoading,
+    refetch: invitedRefetch,
+  } = useFetchItemsQuery({
+    path: `/applications/invited-candidates`,
+    params: {
+      sort: "interviewDate",
+      limit: 4,
+    },
+  });
 
-	const subTabsData = isManager
-		? allSubTabs.filter((tab) => tab.param === 'short-listed')
-		: allSubTabs;
+  const allSubTabs = [
+    {
+      title: "Short Listed",
+      param: "short-listed",
+      component: (
+        <ShortListedData key={tabKey} invitedRefetch={invitedRefetch} />
+      ),
+    },
+    {
+      title: "Invited",
+      param: "invited",
+      component: <InvitedData key={tabKey} />,
+    },
+    {
+      title: "Pending",
+      param: "pending",
+      component: (
+        <PendingInvitedData key={tabKey} invitedRefetch={invitedRefetch} />
+      ),
+    },
+  ];
 
-	const activeSubTabIndex = Math.max(
-		0,
-		subTabsData.findIndex((tab) => tab.param === subTabFromParams.toLowerCase())
-	);
+  const subTabsData = isManager
+    ? allSubTabs.filter((tab) => tab.param === "short-listed")
+    : allSubTabs;
 
-	useEffect(() => {
-		if (
-			!searchParams.get('shortlisted-tab') ||
-			!subTabsData.some(
-				(tab) => tab.param === searchParams.get('shortlisted-tab')
-			)
-		) {
-			const params = new URLSearchParams(searchParams);
-			params.set('shortlisted-tab', DEFAULT_SUB_TAB);
-			setSearchParams(params, { replace: true });
-		}
-	}, [searchParams, setSearchParams, subTabsData]);
+  const activeSubTabIndex = Math.max(
+    0,
+    subTabsData.findIndex((tab) => tab.param === subTabFromParams.toLowerCase())
+  );
 
-	const handleSubTabChange = (index) => {
-		const tabParam = subTabsData[index].param;
-		const params = new URLSearchParams(searchParams);
-		params.set('shortlisted-tab', tabParam);
-		setSearchParams(params, { replace: true });
+  useEffect(() => {
+    if (
+      !searchParams.get("shortlisted-tab") ||
+      !subTabsData.some(
+        (tab) => tab.param === searchParams.get("shortlisted-tab")
+      )
+    ) {
+      const params = new URLSearchParams(searchParams);
+      params.set("shortlisted-tab", DEFAULT_SUB_TAB);
+      setSearchParams(params, { replace: true });
+    }
+  }, [searchParams, setSearchParams, subTabsData]);
 
-		if (index === activeSubTabIndex) {
-			setTabKey((prev) => prev + 1);
-		}
-	};
+  const handleSubTabChange = (index) => {
+    const tabParam = subTabsData[index].param;
+    const params = new URLSearchParams(searchParams);
+    params.set("shortlisted-tab", tabParam);
+    setSearchParams(params, { replace: true });
 
-	if (invitedCandidatesLoading) {
-		return <Loader />;
-	}
+    if (index === activeSubTabIndex) {
+      setTabKey((prev) => prev + 1);
+    }
+  };
 
-	return (
-		<Box fontFamily="'DM Sans', sans-serif">
-			{/* <Button
+  if (invitedCandidatesLoading) {
+    return <Loader />;
+  }
+
+  return (
+    <Box fontFamily="'DM Sans', sans-serif">
+      {/* <Button
 				colorScheme='gray'
 				borderRadius='5px'
 				size={{ base: 'sm', md: 'md' }}
@@ -105,14 +109,14 @@ const ShortListedCandidates = memo(() => {
 				Back
 			</Button> */}
 
-			{!isManager && (
-				<MeetingSection
-					invitedCandidates={invitedCandidates}
-					refetch={invitedRefetch}
-					setActiveTab={() => handleSubTabChange(1)}
-				/>
-			)}
-			{/* <Box>
+      {!isManager && (
+        <MeetingSection
+          invitedCandidates={invitedCandidates}
+          refetch={invitedRefetch}
+          setActiveTab={() => handleSubTabChange(1)}
+        />
+      )}
+      {/* <Box>
 				<Box display='flex' mb={2}>
 					<Button
 						onClick={() => handleTabChange(0)}
@@ -175,7 +179,7 @@ const ShortListedCandidates = memo(() => {
 				)}
 			</Box> */}
 
-			{/* <Tabs index={activeTab} onChange={setActiveTab} variant='soft-rounded'>
+      {/* <Tabs index={activeTab} onChange={setActiveTab} variant='soft-rounded'>
 				<TabList width='fit-content' px='4' gap='2'>
 					{tabData.map((tab, index) => (
 						<Tab
@@ -200,56 +204,67 @@ const ShortListedCandidates = memo(() => {
 					))}
 				</TabPanels>
 			</Tabs> */}
+			
+      <Box>
+        <Flex
+          width="fit-content"
+          overflowX="auto"
+          sx={{
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+          py="1"
+        >
+          {!isManager &&
+            subTabsData.map((tab, index) => (
+              <Button
+                key={index}
+                onClick={() => handleSubTabChange(index)}
+                bg={activeSubTabIndex === index ? "#EDD199" : "softGray.50"}
+                color={activeSubTabIndex === index ? "black" : "gray.500"}
+                borderTop={
+                  activeSubTabIndex === index
+                    ? "4px solid #B79045"
+                    : "4px solid transparent"
+                }
+                fontWeight={activeSubTabIndex === index ? "normal" : "normal"}
+                _focus={{ outline: "none" }}
+                _hover={{
+                  bg: activeSubTabIndex === index ? "#EDD199" : "gray.100",
+                }}
+                rounded="none"
+                shadow="sm"
+                fontSize={tabFontSize}
+                px={tabPadding}
+                h={buttonHeight}
+                whiteSpace="nowrap"
+                flexShrink={0}
+                transition="all 0.2s ease"
+                minW="max-content"
+              >
+                {tab.title}
+              </Button>
+            ))}
+        </Flex>
 
-			<Box>
-				<Flex gap='2' width='fit-content'>
-					{!isManager &&
-						subTabsData.map((tab, index) => (
-							<TabButton
-								key={index}
-								isActive={activeSubTabIndex === index}
-								onClick={() => handleSubTabChange(index)}
-							>
-								{tab.title}
-							</TabButton>
-						))}
-				</Flex>
-
-				<Box
-					mt='4'
-					p='4'
-					bg='white'
-					shadow='sm'
-					minH='100px'
-					transition='opacity 0.3s ease, transform 0.3s ease'
-					opacity={1}
-					transform='translateY(0px)'
-					key={activeSubTabIndex}
-					marginTop='-0px'
-				>
-					{subTabsData[activeSubTabIndex].component}
-				</Box>
-			</Box>
-		</Box>
-	);
+        <Box
+          mt="4"
+          p={{ base: "3", md: "4" }}
+          bg="white"
+          shadow="sm"
+          minH="100px"
+          transition="opacity 0.3s ease"
+          opacity={1}
+          key={activeSubTabIndex}
+        >
+          {subTabsData[activeSubTabIndex].component}
+        </Box>
+      </Box>
+    </Box>
+  );
 });
-
-const TabButton = ({ isActive, onClick, children }) => (
-	<Button
-		onClick={onClick}
-		bg={isActive ? '#EDD199' : 'softGray.50'}
-		color={isActive ? 'black' : 'gray.500'}
-		borderTop={isActive ? '4px solid #B79045' : '4px solid transparent'}
-		fontWeight={isActive ? 'semi-bold' : 'normal'}
-		_focus={{ outline: 'none', boxShadow: 'none' }}
-		_hover={{ bg: isActive ? '#EDD199' : '' }}
-		rounded='none'
-		shadow='sm'
-		fontSize='lg'
-		transition='all 0.3s ease'
-	>
-		{children}
-	</Button>
-);
 
 export default ShortListedCandidates;
