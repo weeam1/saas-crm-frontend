@@ -163,37 +163,36 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
 			const fileName = `Payments_${moment().format('YYYY-MM-DD')}.xlsx`;
 			XLSX.writeFile(wb, fileName);
 
-			toast.success('Export successful!');
-		} catch (error) {
-			console.error('Export error:', error);
-			toast.error('Failed to export data');
-		}
-	};
-	return (
-		<Box
-			overflowY='auto'
-			scrollBehavior='smooth'
-			boxShadow='sm'
-			bg='white'
-			px={2}
-			marginTop={'-16px'}
-			marginLeft={'-4px'}
-		>
-			<Flex justifyContent='space-between' alignItems='center' p={3}>
-				<Text fontSize='20px' fontWeight='bold' color='black' p={3}>
-					Payments
-				</Text>
-				<Box gap={2} display='flex' alignItems='center'>
-					<IconButton
-						icon={<FiFilter />}
-						onClick={() => setAgencyFilterOpen(true)}
-						aria-label='Filter Date'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
+      toast.success("Export successful!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export data");
+    }
+  };
+  return (
+    <Box
+      overflowY="auto"
+      scrollBehavior="smooth"
+      boxShadow="sm"
+      bg="white"
+      px={2}
+      marginTop={"-16px"}
+    >
+      <Flex justifyContent="space-between" alignItems="center" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+          Payments
+        </Text>
+        <Box gap={2} display="flex" alignItems="center">
+          <IconButton
+            icon={<FiFilter />}
+            onClick={() => setAgencyFilterOpen(true)}
+            aria-label="Filter Date"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
 
 					<Button
 						size='md'

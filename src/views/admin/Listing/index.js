@@ -6,9 +6,7 @@ import { Button, Flex, Icon } from "@chakra-ui/react";
 import { IoSettings } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import MyListing from "./Component/MyListing";
-import ApprovedRequest from "./Component/ViewRequest/ApprovedRequest";
-import ViewRequest from "./Component/ViewRequest/ViewRequest";
-import RejectRequest from "./Component/ViewRequest/RejectRequest";
+import ViewRequests from "./Component/ViewRequest/index";
 import PendingListings from "./Component/PendingListings";
 import { useFetchItemsQuery } from "api/apiSlice";
 
@@ -30,6 +28,7 @@ const Listing = () => {
     { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
+
   const allTabs = [
     {
       label: "All Listings",
@@ -62,43 +61,13 @@ const Listing = () => {
       show: true,
     },
     {
-      label: "Approved View Requests",
-      param: "approved view requests",
-      title: "Approved Viewing Requests",
+      label: "View Requests",
+      param: "view requests",
+      title: "Property Viewing Requests",
       description:
-        "Manage all approved property viewing requests. Coordinate schedules and track visitor information.",
+        "Manage all property viewing requests. Review pending requests, track approved viewings, and monitor rejected requests.",
       component: (
-        <ApprovedRequest
-          key={tabKey}
-          listingType={listingType}
-          listingUnitType={listingUnitType}
-        />
-      ),
-      show: true,
-    },
-    {
-      label: "Pending View Requests",
-      param: "pending view requests",
-      title: "Pending Viewing Requests",
-      description:
-        "Review and respond to new property viewing requests. Approve or reject requests as needed.",
-      component: (
-        <ViewRequest
-          key={tabKey}
-          listingType={listingType}
-          listingUnitType={listingUnitType}
-        />
-      ),
-      show: true,
-    },
-    {
-      label: "Rejected View Requests",
-      param: "rejected view requests",
-      title: "Rejected Viewing Requests",
-      description:
-        "View previously rejected property viewing requests. You can revisit these requests if needed.",
-      component: (
-        <RejectRequest
+        <ViewRequests
           key={tabKey}
           listingType={listingType}
           listingUnitType={listingUnitType}
@@ -144,10 +113,7 @@ const Listing = () => {
   const handleTabChange = (index) => {
     const tabParam = tabsData[index].param;
     setSearchParams({ tab: tabParam });
-
-    if (index === activeTabIndex) {
-      setTabKey((prev) => prev + 1);
-    }
+    setTabKey((prev) => prev + 1);
   };
 
   return (

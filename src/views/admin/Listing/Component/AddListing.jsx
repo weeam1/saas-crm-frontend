@@ -15,9 +15,11 @@ import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import FileUpload from "./SubComponent/FileUpload";
 
 const AddListing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     projectName: "",
     unitType: "",
@@ -29,16 +31,12 @@ const AddListing = () => {
     location: "",
     ownerName: "",
     ownerContact: "",
+    documents:[],
   });
 
   const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
-
-  const { data: listingStatus } = useFetchItemsQuery(
-    { path: `/listing/secondary/statuses` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
-  );
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
@@ -58,6 +56,7 @@ const AddListing = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    formData.documents = [...files];
     try {
       await createItemMutation({
         path: "/listing/secondary",
@@ -79,6 +78,7 @@ const AddListing = () => {
         location: "",
         ownerName: "",
         ownerContact: "",
+        documents: "",
       });
     } catch (error) {
       console.error(error);
@@ -263,6 +263,12 @@ const AddListing = () => {
               placeholder="Enter owner contact"
               focusBorderColor="brand.500"
             />
+          </FormControl>
+        </GridItem>
+        <GridItem colSpan={2}>
+          <FormControl>
+            <FormLabel>Document Upload</FormLabel>
+            <FileUpload files={files} setFiles={setFiles} />
           </FormControl>
         </GridItem>
 

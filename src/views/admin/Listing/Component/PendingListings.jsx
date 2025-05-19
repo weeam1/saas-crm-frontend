@@ -34,7 +34,7 @@ import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const PendingListings = ({listingType,listingUnitType}) => {
+const PendingListings = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -47,17 +47,19 @@ const PendingListings = ({listingType,listingUnitType}) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
+  const [tableData, setTableData] = useState([]);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
-    "Date",
+    "SR.No",
     "Project",
-    "Created By",
     "Unit Type",
     "Type",
     "Location",
     "Area (sqft)",
     "Price",
+    "Date",
+    "Created By",
     "Status",
     "Action",
   ];
@@ -73,6 +75,7 @@ const PendingListings = ({listingType,listingUnitType}) => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
   const buildQueryParams = () => {
     const params = {
       page: currentPage,
@@ -81,13 +84,9 @@ const PendingListings = ({listingType,listingUnitType}) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
     }
@@ -99,6 +98,15 @@ const PendingListings = ({listingType,listingUnitType}) => {
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
+
+  // Update tableData when data changes
+  useEffect(() => {
+    if (data) {
+      setTableData(data.data || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalDocs || 0);
+    }
+  }, [data]);
 
   const handleStatusChange = async (listingId, status) => {
     setCurrentListingId(listingId);
@@ -127,7 +135,12 @@ const PendingListings = ({listingType,listingUnitType}) => {
       }).unwrap();
 
       toast.success("Status updated successfully");
-      refetch();
+
+      setTableData((prevData) =>
+        prevData.filter((item) => item._id !== listingId)
+      );
+      setTotalItems((prev) => prev - 1);
+
       setIsRejectionModalOpen(false);
       setRejectionReason("");
       setAdminNotes("");
@@ -152,13 +165,6 @@ const PendingListings = ({listingType,listingUnitType}) => {
         return "gray";
     }
   };
-
-  useEffect(() => {
-    if (data) {
-      setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalDocs || 0);
-    }
-  }, [data]);
 
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
@@ -191,6 +197,7 @@ const PendingListings = ({listingType,listingUnitType}) => {
     setFilterChanged(true);
     refetch();
   };
+
   return (
     <Box
       overflowY="auto"
@@ -199,7 +206,6 @@ const PendingListings = ({listingType,listingUnitType}) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -279,21 +285,18 @@ const PendingListings = ({listingType,listingUnitType}) => {
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {(data && data.datalength > 0) ? (
-                data.data.map((listing, index) => (
+              {tableData.length > 0 ? (
+                tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {listing.createdAt
-                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index + 1}
                     </Td>
-
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
@@ -302,14 +305,6 @@ const PendingListings = ({listingType,listingUnitType}) => {
                       textOverflow="ellipsis"
                     >
                       {listing?.projectName || "N/A"}
-                    </Td>
-                    <Td
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
                     </Td>
                     <Td
                       py={4}
@@ -359,6 +354,26 @@ const PendingListings = ({listingType,listingUnitType}) => {
                         : "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -394,10 +409,8 @@ const PendingListings = ({listingType,listingUnitType}) => {
                         color={getStatusColor(listing.status) + ".800"}
                       >
                         <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
+                        <option value="active">Approved</option>
                         <option value="rejected">Rejected</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
                       </Select>
                     </Td>
                   </Tr>

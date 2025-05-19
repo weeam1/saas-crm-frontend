@@ -14,6 +14,8 @@ import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFetchItemsQuery } from "api/apiSlice";
+import { constant } from "constant";
+import { toast } from "react-toastify";
 
 const ViewListing = () => {
   const { id } = useParams();
@@ -77,6 +79,27 @@ const ViewListing = () => {
       </Box>
     );
   }
+
+  const handleDownloading = async (file) => {
+    try {
+      if (!file) {
+        toast.error("No file specified for download or view.");
+        return;
+      }
+
+      const fileURL = `${constant.baseUrl}${file}`;
+
+      const response = await fetch(fileURL, { method: "HEAD" });
+      if (!response.ok) {
+        toast.error("File not found on the server.");
+        return;
+      }
+      window.open(fileURL, "_blank");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download or view the file.");
+    }
+  };
 
   return (
     <Box>
@@ -204,6 +227,60 @@ const ViewListing = () => {
               variant="filled"
             />
           </FormControl>
+        </GridItem>
+        {/* Documents */}
+        <GridItem colSpan={2}>
+          <FormLabel fontWeight="bold">Documents</FormLabel>
+          <Box display="flex" flexDirection="column" gap={3}>
+            {listing.data?.documents?.length > 0 ? (
+              listing.data.documents.map((doc, index) => {
+                const fileName = doc.split("/").pop();
+                const extension = fileName?.split(".").pop()?.toLowerCase();
+
+                const nonImageFormats = [
+                  "pdf",
+                  "doc",
+                  "docx",
+                  "txt",
+                  "xls",
+                  "xlsx",
+                ];
+                const isImage =
+                  extension && !nonImageFormats.includes(extension);
+                return (
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    border="1px solid #E2E8F0"
+                    borderRadius="md"
+                    px={4}
+                    py={2}
+                    bg="gray.50"
+                  >
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Box as="span" color="blue.500" fontSize="lg">
+                        {isImage ? '🖼️' : '📁'}
+                      </Box>
+                      <Box fontWeight="medium">{fileName}</Box>
+                    </Box>
+                    <AppButton
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      colorScheme="brand"
+                      onClick={() => handleDownloading(doc)}
+                    >
+                      {isImage ? "View" : "Download"}
+                    </AppButton>
+                  </Box>
+                );
+              })
+            ) : (
+              <Box>No documents available.</Box>
+            )}
+          </Box>
         </GridItem>
       </Grid>
     </Box>

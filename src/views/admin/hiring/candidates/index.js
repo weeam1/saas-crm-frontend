@@ -277,7 +277,6 @@ const Candidates = () => {
 				shadow='sm'
 				p='1rem'
 				marginTop={'-16px'}
-				marginLeft={'-4px'}
 				fontFamily="'DM Sans', sans-serif"
 			>
 				<Heading size='md' color='gray.800'>

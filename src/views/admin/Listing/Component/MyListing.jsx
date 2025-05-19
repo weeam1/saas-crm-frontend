@@ -41,7 +41,7 @@ import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const MyListing = ({listingType,listingUnitType}) => {
+const MyListing = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -63,15 +63,16 @@ const MyListing = ({listingType,listingUnitType}) => {
   const [tableData, setTableData] = useState();
 
   const columns = [
-    "Date",
+    "SR.No",
     "projectName",
-    "Created By",
     "Unit Type",
     "Type",
     "Location",
     "Price",
     "Size (sqft)",
     "Status",
+    "Date",
+    "Created By",
     "Notes",
     "Action",
   ];
@@ -234,7 +235,6 @@ const MyListing = ({listingType,listingUnitType}) => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -331,15 +331,13 @@ const MyListing = ({listingType,listingUnitType}) => {
                 tableData.map((listing, index) => (
                   <Tr key={index}>
                     <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
                       minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
+                      textAlign={"center"}
                     >
-                      {listing.createdAt
-                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
+                      {index+1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -349,14 +347,6 @@ const MyListing = ({listingType,listingUnitType}) => {
                       textOverflow="ellipsis"
                     >
                       {listing.projectName}
-                    </Td>
-                    <Td
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
                     </Td>
                     <Td textAlign="center">
                       {listing.unitType?.name || "N/A"}
@@ -429,12 +419,31 @@ const MyListing = ({listingType,listingUnitType}) => {
                           </>
                         ) : (
                           <>
-                            <option value="approved">Approved</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                           </>
                         )}
                       </Select>
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.createdBy?.fullName}
                     </Td>
                     <Td py={4} textAlign={"center"}>
                       <Button
