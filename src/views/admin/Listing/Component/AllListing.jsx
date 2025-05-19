@@ -36,8 +36,8 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
-import { FiFilter } from "react-icons/fi";
-import AdvancedFilterModal from "./AdvancedFilterModal";
+import { FiSearch } from "react-icons/fi";
+import AdvancedSearchModal from "./AdvancedSearchModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -66,7 +66,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
   const isManager = user?.roles?.[0]?.roleName === "Manager";
-  
+
   const columns = [
     "SR.No",
     "projectName",
@@ -319,9 +319,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
             unitTypes={listingUnitType?.doc}
           />
           <IconButton
-            icon={<FiFilter />}
+            icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
+            aria-label="Search Listings"
             colorScheme="brand"
             variant="solid"
             size="sm"
@@ -503,7 +503,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                             Request Pending
                           </Button>
                         </Tooltip>
-                      ) : (isAgent || isManager) ? (
+                      ) : isAgent || isManager ? (
                         <Button
                           size="sm"
                           colorScheme="brand"
@@ -543,7 +543,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         </Table>
       </Box>
 
-      <AdvancedFilterModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}

@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 
-const AdvancedFilterModal = ({
+const AdvancedSearchModal = ({
   isOpen,
   onClose,
   onApplyFilters,
@@ -122,7 +122,7 @@ const AdvancedFilterModal = ({
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Advanced Filters</ModalHeader>
+        <ModalHeader>Advanced search</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
@@ -224,14 +224,14 @@ const AdvancedFilterModal = ({
               onClick={handleClear}
               isDisabled={isFilterUnchangedValueEmpty}
             >
-              Clear Filters
+              Clear Search
             </Button>
             <Button
               colorScheme="brand"
               type="submit"
               isDisabled={isFilterUnchanged}
             >
-              Apply Filters
+              Apply Search
             </Button>
           </ModalFooter>
         </form>
@@ -240,4 +240,4 @@ const AdvancedFilterModal = ({
   );
 };
 
-export default AdvancedFilterModal;
+export default AdvancedSearchModal;

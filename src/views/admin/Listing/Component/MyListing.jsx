@@ -26,7 +26,7 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiFilter } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useDeleteItemMutation,
@@ -37,7 +37,7 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
-import AdvancedFilterModal from "./AdvancedFilterModal";
+import AdvancedSearchModal from "./AdvancedSearchModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -265,9 +265,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
               unitTypes={listingUnitType?.doc}
             />
             <IconButton
-              icon={<FiFilter />}
+              icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
-              aria-label="Filter Listings"
+              aria-label="Search Listings"
               colorScheme="brand"
               variant="solid"
               size="sm"
@@ -607,7 +607,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         />
       )}
 
-      <AdvancedFilterModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}

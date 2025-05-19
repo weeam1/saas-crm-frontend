@@ -28,8 +28,8 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
-import AdvancedFilterModal from "./AdvancedFilterModal";
-import { FiFilter } from "react-icons/fi";
+import AdvancedFilterModal from "./AdvancedSearchModal";
+import { FiSearch } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -219,9 +219,9 @@ const PendingListings = ({ listingType, listingUnitType }) => {
             unitTypes={listingUnitType?.doc}
           />
           <IconButton
-            icon={<FiFilter />}
+            icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
+            aria-label="Search Listings"
             colorScheme="brand"
             variant="solid"
             size="sm"
