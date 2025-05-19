@@ -204,7 +204,7 @@ const ShortListedCandidates = memo(() => {
 					))}
 				</TabPanels>
 			</Tabs> */}
-			
+
       <Box>
         <Flex
           width="fit-content"
@@ -216,7 +216,6 @@ const ShortListedCandidates = memo(() => {
             scrollbarWidth: "none",
             msOverflowStyle: "none",
           }}
-          py="1"
         >
           {!isManager &&
             subTabsData.map((tab, index) => (
@@ -251,7 +250,6 @@ const ShortListedCandidates = memo(() => {
         </Flex>
 
         <Box
-          mt="4"
           p={{ base: "3", md: "4" }}
           bg="white"
           shadow="sm"
