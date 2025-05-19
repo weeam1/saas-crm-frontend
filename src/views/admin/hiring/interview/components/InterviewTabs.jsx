@@ -85,9 +85,11 @@ const InterviewTabs = memo(
 				toast.success('Interview data updated successfully');
 
 				// Redirect to the appropriate page based on the interviewer
-				const redirectUrl = isLeadInterviewer
-					? `hiring?tab=interviewed+candidates`
-					: '/';
+				const redirectUrl = hiringInfo.isNextRound
+					? `/hiring?tab=final-interviewed`
+					: isLeadInterviewer
+						? `hiring?tab=interviewed-candidates`
+						: '/';
 
 				navigate(redirectUrl);
 			} catch (error) {

@@ -29,7 +29,7 @@ const InterviewScreen = memo(() => {
 	);
 
 	useEffect(() => {
-		const timer = setTimeout(() => setIsRefetching(false), 2500);
+		const timer = setTimeout(() => setIsRefetching(false), 3000);
 		return () => clearTimeout(timer);
 	}, []);
 
@@ -147,14 +147,14 @@ const InterviewScreen = memo(() => {
 	// Conditional loading
 	if (interviewLoading || cancellingInterview) return <Loader />;
 
-	console.log({
-		isLeadInterviewer,
-		isInterviewerSubmittedPoints,
-		interviewersSelected,
-	});
+	// console.log({
+	// 	isLeadInterviewer,
+	// 	isInterviewerSubmittedPoints,
+	// 	interviewersSelected,
+	// });
 
 	// Render content
-	return isRefetching ? (
+	return isRefetching || interviewLoading ? (
 		<Loader />
 	) : interview && interview?.doc ? (
 		<Box>

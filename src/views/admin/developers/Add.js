@@ -114,13 +114,14 @@ const AddUser = (props) => {
 			} else {
 				if (response?.message) {
 					const errorMsg = response.message.toLowerCase();
-					if (errorMsg.includes('trn')) {
-						setFieldError('trn', 'Developer with this TRN already exists');
-					} else if (errorMsg.includes('email')) {
-						setFieldError('email', 'Developer with this email already exists');
-					} else {
-						toast.error(response.message);
-					}
+					// if (errorMsg.includes('trn')) {
+					// 	setFieldError('trn', 'Developer with this TRN already exists');
+					// } else if (errorMsg.includes('email')) {
+					// 	setFieldError('email', 'Developer with this email already exists');
+					// } else {
+					toast.error(response.message);
+
+					// }
 				} else {
 					toast.error('Failed to add developer');
 				}
@@ -129,13 +130,13 @@ const AddUser = (props) => {
 			console.error('Add Error:', e);
 			if (e?.data?.message) {
 				const errorMsg = e.data.message.toLowerCase();
-				if (errorMsg.includes('trn')) {
-					setFieldError('trn', 'Developer with this TRN already exists');
-				} else if (errorMsg.includes('email')) {
-					setFieldError('email', 'Developer with this email already exists');
-				} else {
-					toast.error(e.data.message);
-				}
+				// if (errorMsg.includes('trn')) {
+				// 	setFieldError('trn', 'Developer with this TRN already exists');
+				// } else if (errorMsg.includes('email')) {
+				// 	setFieldError('email', 'Developer with this email already exists');
+				// } else {
+				toast.error(e.data.message);
+				// }
 			} else {
 				toast.error('Something went wrong!');
 			}
