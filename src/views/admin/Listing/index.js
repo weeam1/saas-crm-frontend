@@ -19,14 +19,16 @@ const Listing = () => {
   const [tabKey, setTabKey] = useState(0);
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+  const isAgent = user?.roles[0]?.roleName === "Agent";
+
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id }
   );
 
   const { data: listingUnitType } = useFetchItemsQuery(
     { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id }
   );
 
   const allTabs = [
@@ -58,7 +60,7 @@ const Listing = () => {
           listingUnitType={listingUnitType}
         />
       ),
-      show: true,
+      show: isAdmin || isAgent,
     },
     {
       label: "View Requests",
@@ -73,7 +75,7 @@ const Listing = () => {
           listingUnitType={listingUnitType}
         />
       ),
-      show: true,
+      show: isAdmin || isAgent,
     },
     {
       label: "Pending Listings",
@@ -100,21 +102,29 @@ const Listing = () => {
   );
 
   useEffect(() => {
-    if (
-      !searchParams.get("tab") ||
-      !tabsData.some(
-        (tab) => tab.param === searchParams.get("tab").toLowerCase()
-      )
-    ) {
-      setSearchParams({ tab: DEFAULT_TAB });
+    if (tabsData.length === 0) return;
+
+    const currentTab = searchParams.get("tab");
+    const isValidTab = tabsData.some(
+      (tab) => tab.param === currentTab?.toLowerCase()
+    );
+
+    if (!currentTab || !isValidTab) {
+      if (tabFromParams !== DEFAULT_TAB) {
+        setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
+      }
     }
-  }, [searchParams, setSearchParams, tabsData]);
+  }, [searchParams, setSearchParams, tabsData, tabFromParams]);
 
   const handleTabChange = (index) => {
     const tabParam = tabsData[index].param;
     setSearchParams({ tab: tabParam });
     setTabKey((prev) => prev + 1);
   };
+
+  if (tabsData.length === 0) {
+    return null; 
+  }
 
   return (
     <>

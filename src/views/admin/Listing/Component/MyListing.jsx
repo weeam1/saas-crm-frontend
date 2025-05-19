@@ -23,6 +23,7 @@ import {
   Input,
   useDisclosure,
   Textarea,
+  Switch,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
@@ -142,8 +143,10 @@ const MyListing = ({ listingType, listingUnitType }) => {
     }
   }, [data]);
 
-  const handleStatusChange = async (listingId, status) => {
+  const handleStatusToggle = async (listingId, isActive) => {
     setCurrentListingId(listingId);
+
+    let status = isActive ? "active" : "inactive";
     setSelectedStatus(status);
 
     if (status === "rejected") {
@@ -337,7 +340,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {index+1}
+                      {index + 1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -390,40 +393,14 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      <Select
-                        value={listing.status}
+                      <Switch
+                        colorScheme="green"
+                        isChecked={listing.status === "active"}
                         onChange={(e) =>
-                          handleStatusChange(listing._id, e.target.value)
+                          handleStatusToggle(listing._id, e.target.checked)
                         }
-                        size="sm"
-                        width="150px"
-                        focusBorderColor="brand.500"
-                        bg={getStatusColor(listing.status) + ".100"}
-                        color={getStatusColor(listing.status) + ".800"}
-                        isDisabled={
-                          ![
-                            "approved",
-                            "rejected",
-                            "active",
-                            "inactive",
-                          ].includes(listing.status)
-                        }
-                      >
-                        {["pending"].includes(listing.status) && (
-                          <option value="pending">Pending</option>
-                        )}
-                        {["rejected"].includes(listing.status) ? (
-                          <>
-                            <option value="rejected">Rejected</option>
-                            <option value="pending">Re-consider</option>
-                          </>
-                        ) : (
-                          <>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                          </>
-                        )}
-                      </Select>
+                        size="md"
+                      />
                     </Td>
                     <Td
                       textAlign="center"
