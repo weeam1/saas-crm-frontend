@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Flex, useBreakpointValue } from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -17,6 +17,10 @@ const ShortListedCandidates = memo(() => {
 	const isManager = user?.roles[0]?.roleName === 'Manager';
 	const subTabFromParams =
 		searchParams.get('shortlisted-tab') || DEFAULT_SUB_TAB;
+
+	const tabFontSize = useBreakpointValue({ base: 'xs', sm: 'sm', md: 'md' });
+	const tabPadding = useBreakpointValue({ base: '2', sm: '3', md: '4' });
+	const buttonHeight = useBreakpointValue({ base: '8', md: '10' });
 
 	const {
 		data: invitedCandidates,
@@ -39,12 +43,12 @@ const ShortListedCandidates = memo(() => {
 			),
 		},
 		{
-			title: 'Invited Candidates',
+			title: 'Invited',
 			param: 'invited',
 			component: <InvitedData key={tabKey} />,
 		},
 		{
-			title: 'Old Pending Interviews',
+			title: 'Pending',
 			param: 'pending',
 			component: (
 				<PendingInvitedData key={tabKey} invitedRefetch={invitedRefetch} />
@@ -202,30 +206,57 @@ const ShortListedCandidates = memo(() => {
 			</Tabs> */}
 
 			<Box>
-				<Flex gap='2' width='fit-content'>
+				<Flex
+					width='fit-content'
+					overflowX='auto'
+					sx={{
+						'&::-webkit-scrollbar': {
+							display: 'none',
+						},
+						scrollbarWidth: 'none',
+						msOverflowStyle: 'none',
+					}}
+				>
 					{!isManager &&
 						subTabsData.map((tab, index) => (
-							<TabButton
+							<Button
 								key={index}
-								isActive={activeSubTabIndex === index}
 								onClick={() => handleSubTabChange(index)}
+								bg={activeSubTabIndex === index ? '#EDD199' : 'softGray.50'}
+								color={activeSubTabIndex === index ? 'black' : 'gray.500'}
+								borderTop={
+									activeSubTabIndex === index
+										? '4px solid #B79045'
+										: '4px solid transparent'
+								}
+								fontWeight={activeSubTabIndex === index ? 'normal' : 'normal'}
+								_focus={{ outline: 'none' }}
+								_hover={{
+									bg: activeSubTabIndex === index ? '#EDD199' : 'gray.100',
+								}}
+								rounded='none'
+								shadow='sm'
+								fontSize={tabFontSize}
+								px={tabPadding}
+								h={buttonHeight}
+								whiteSpace='nowrap'
+								flexShrink={0}
+								transition='all 0.2s ease'
+								minW='max-content'
 							>
 								{tab.title}
-							</TabButton>
+							</Button>
 						))}
 				</Flex>
 
 				<Box
-					mt='4'
-					p='4'
+					p={{ base: '3', md: '4' }}
 					bg='white'
 					shadow='sm'
 					minH='100px'
-					transition='opacity 0.3s ease, transform 0.3s ease'
+					transition='opacity 0.3s ease'
 					opacity={1}
-					transform='translateY(0px)'
 					key={activeSubTabIndex}
-					marginTop='-0px'
 				>
 					{subTabsData[activeSubTabIndex].component}
 				</Box>
@@ -233,23 +264,5 @@ const ShortListedCandidates = memo(() => {
 		</Box>
 	);
 });
-
-const TabButton = ({ isActive, onClick, children }) => (
-	<Button
-		onClick={onClick}
-		bg={isActive ? '#EDD199' : 'softGray.50'}
-		color={isActive ? 'black' : 'gray.500'}
-		borderTop={isActive ? '4px solid #B79045' : '4px solid transparent'}
-		fontWeight={isActive ? 'semi-bold' : 'normal'}
-		_focus={{ outline: 'none', boxShadow: 'none' }}
-		_hover={{ bg: isActive ? '#EDD199' : '' }}
-		rounded='none'
-		shadow='sm'
-		fontSize={{ base: 'xs', md: 'md', lg: 'lg' }}
-		transition='all 0.3s ease'
-	>
-		{children}
-	</Button>
-);
 
 export default ShortListedCandidates;
