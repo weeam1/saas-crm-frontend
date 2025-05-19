@@ -33,6 +33,8 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 		if (profileImage && typeof profileImage === 'string') {
 			const imageUrl = `${constant['baseUrl']}${profileImage}`;
 
+			console.log({ imageUrl });
+
 			const img = new window.Image();
 			img.src = imageUrl;
 
@@ -74,11 +76,12 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 					path: '/v2/user/upload/profile-image',
 					body: imageData,
 					formData: true,
-				});
+				}).unwrap();
 
-				if (res?.data?.imageUrl && res.data.success) {
-					formik.setFieldValue('profileImage', res?.data?.imageUrl);
+				if (res?.imageUrl && res?.success) {
+					formik.setFieldValue('profileImage', res?.imageUrl);
 					setUploadImage(true);
+					console.log('uploade done');
 				}
 
 				setPreview(URL.createObjectURL(compressedFile));
