@@ -20,7 +20,7 @@ import {
   ModalHeader,
   ModalOverlay,
   FormLabel,
-  Select,
+  Switch,
   Input,
   Badge,
   Textarea,
@@ -65,7 +65,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
-
+  const isManager = user?.roles?.[0]?.roleName === "Manager";
+  
   const columns = [
     "SR.No",
     "projectName",
@@ -205,65 +206,67 @@ const AllListing = ({ listingType, listingUnitType }) => {
     }
   };
 
-  const handleStatusChange = async (listingId, status) => {
-    setCurrentListingId(listingId);
-    setSelectedStatus(status);
+  // const handleStatusToggle = async (listingId, isActive) => {
+  //   setCurrentListingId(listingId);
 
-    if (status === "rejected") {
-      setIsRejectionModalOpen(true);
-    } else {
-      await updateListingStatus(listingId, status);
-    }
-  };
+  //   let status = isActive ? "active" : "inactive";
+  //   setSelectedStatus(status);
 
-  const updateListingStatus = async (listingId, status) => {
-    try {
-      const body = { status };
-      if (status === "rejected") {
-        body.rejectionReason = rejectionReason;
-      }
-      if (adminNotes) {
-        body.adminNotes = adminNotes;
-      }
+  //   if (status === "rejected") {
+  //     setIsRejectionModalOpen(true);
+  //   } else {
+  //     await updateListingStatus(listingId, status);
+  //   }
+  // };
 
-      await updateStatus({
-        path: `listing/secondary/${listingId}/status`,
-        body,
-      }).unwrap();
+  // const updateListingStatus = async (listingId, status) => {
+  //   try {
+  //     const body = { status };
+  //     if (status === "rejected") {
+  //       body.rejectionReason = rejectionReason;
+  //     }
+  //     if (adminNotes) {
+  //       body.adminNotes = adminNotes;
+  //     }
 
-      toast({
-        title: "Status updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+  //     await updateStatus({
+  //       path: `listing/secondary/${listingId}/status`,
+  //       body,
+  //     }).unwrap();
 
-      if (status === "inactive") {
-        setTableData((prevData) =>
-          prevData.filter((item) => item._id !== listingId)
-        );
-        setTotalItems((prev) => prev - 1);
-      } else {
-        setTableData((prevData) =>
-          prevData.map((listing) =>
-            listing._id === listingId ? { ...listing, status } : listing
-          )
-        );
-      }
+  //     toast({
+  //       title: "Status updated successfully",
+  //       status: "success",
+  //       duration: 3000,
+  //       isClosable: true,
+  //     });
 
-      setIsRejectionModalOpen(false);
-      setRejectionReason("");
-      setAdminNotes("");
-    } catch (error) {
-      toast({
-        title: "Error updating status",
-        description: error.data?.message || "Please try again",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
+  //     if (status === "inactive") {
+  //       setTableData((prevData) =>
+  //         prevData.filter((item) => item._id !== listingId)
+  //       );
+  //       setTotalItems((prev) => prev - 1);
+  //     } else {
+  //       setTableData((prevData) =>
+  //         prevData.map((listing) =>
+  //           listing._id === listingId ? { ...listing, status } : listing
+  //         )
+  //       );
+  //     }
+
+  //     setIsRejectionModalOpen(false);
+  //     setRejectionReason("");
+  //     setAdminNotes("");
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error updating status",
+  //       description: error.data?.message || "Please try again",
+  //       status: "error",
+  //       duration: 3000,
+  //       isClosable: true,
+  //     });
+  //   }
+  // };
 
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
@@ -380,7 +383,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {index+1}
+                      {index + 1}
                     </Td>
                     <Td
                       textAlign="center"
@@ -421,33 +424,14 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {isAdmin ? (
-                        <>
-                          <Select
-                            value={listing.status}
-                            onChange={(e) =>
-                              handleStatusChange(listing._id, e.target.value)
-                            }
-                            size="sm"
-                            width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
-                          >
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                          </Select>
-                        </>
-                      ) : (
-                        <Badge
-                          colorScheme={getStatusColor(listing.status)}
-                          px={2}
-                          py={1}
-                          borderRadius="md"
-                        >
-                          {listing.status}
-                        </Badge>
-                      )}
+                      <Badge
+                        colorScheme={getStatusColor(listing.status)}
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        {listing.status}
+                      </Badge>
                     </Td>
                     <Td
                       textAlign="center"
@@ -470,7 +454,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       {listing.createdBy?.fullName}
                     </Td>
                     <Td display="flex" gap={2} justifyContent="center">
-                      {isAdmin && (
+                      {/* {isAdmin && (
                         <>
                           <IconButton
                             aria-label="Edit"
@@ -497,7 +481,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                             onClick={() => handleDeleteListing(listing._id)}
                           />
                         </>
-                      )}
+                      )} */}
 
                       {hasAccess(listing) ? (
                         <IconButton
@@ -519,7 +503,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                             Request Pending
                           </Button>
                         </Tooltip>
-                      ) : isAgent ? (
+                      ) : (isAgent || isManager) ? (
                         <Button
                           size="sm"
                           colorScheme="brand"
@@ -558,55 +542,6 @@ const AllListing = ({ listingType, listingUnitType }) => {
           )}
         </Table>
       </Box>
-
-      {/* Rejection Reason Modal */}
-      <Modal
-        isOpen={isRejectionModalOpen}
-        onClose={() => setIsRejectionModalOpen(false)}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Rejection Details</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Box mb={4}>
-              <FormLabel>Rejection Reason</FormLabel>
-              <Input
-                placeholder="Enter reason for rejection"
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                focusBorderColor="brand.500"
-              />
-            </Box>
-            <Box mb={4}>
-              <FormLabel>Admin Notes (Optional)</FormLabel>
-              <Textarea
-                placeholder="Enter any additional notes"
-                value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
-                focusBorderColor="brand.500"
-              />
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="outline"
-              mr={3}
-              onClick={() => setIsRejectionModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme="red"
-              onClick={() =>
-                updateListingStatus(currentListingId, selectedStatus)
-              }
-            >
-              Confirm Rejection
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       <AdvancedFilterModal
         isOpen={isFilterOpen}

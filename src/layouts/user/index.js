@@ -258,6 +258,31 @@ export default function User(props) {
     // Remove the "Leads Pool" route
     routes = routes.filter((route) => route.name !== "Leads Pool");
   }
+  
+   if (user?.roles[0]?.roleName === "Manager") {
+    routes.push({
+      name: "Adding Listing",
+      layout: [ROLE_PATH.user],
+      path: "/listing/add-listing",
+      under: "listing",
+      parentName: "Listing",
+      component: AddListing,
+    });
+    // Remove the "Adding Listing" route
+    routes = routes.filter((route) => route.name !== "Adding Listing");
+  }
+ if (user?.roles[0]?.roleName === "Manager") {
+    routes.push({
+      name: "Update Listing",
+      layout: [ROLE_PATH.user],
+      path: "/listing/update/:id",
+      under: "listing",
+      parentName: "Listing",
+      component: UpdateListing,
+    });
+    // Remove the "Updating Listing" route
+    routes = routes.filter((route) => route.name !== "Update Listing");
+  }
 
   if (user?.roles[0]?.roleName === "HR") {
     // Define the "Candidates" route
