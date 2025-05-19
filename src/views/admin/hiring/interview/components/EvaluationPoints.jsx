@@ -63,15 +63,17 @@ const EvaluationPoints = ({
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (isInterviewerSubmittedPoints && isLeadInterviewer) {
-			navigate(`/hiring/interview/${interview?._id}?phase=hiring-info`);
-		} else if (isInterviewerSubmittedPoints) {
-			navigate('/hiring');
+		if (isInterviewerSubmittedPoints) {
+			// toast.error('Interview points already submitted!');
+			const target = isLeadInterviewer
+				? `/hiring/interview/${interview?._id}?phase=hiring-info`
+				: '/hiring';
+			navigate(target);
 		}
 	}, [
 		interview?._id,
 		isInterviewerSubmittedPoints,
-		searchParams,
+		// searchParams,
 		navigate,
 		isLeadInterviewer,
 	]);
