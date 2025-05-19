@@ -63,10 +63,18 @@ const EvaluationPoints = ({
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (isInterviewerSubmittedPoints) {
+		if (isInterviewerSubmittedPoints && isLeadInterviewer) {
 			navigate(`/hiring/interview/${interview?._id}?phase=hiring-info`);
+		} else if (isInterviewerSubmittedPoints) {
+			navigate('/hiring');
 		}
-	}, [interview?._id, isInterviewerSubmittedPoints, searchParams, navigate]);
+	}, [
+		interview?._id,
+		isInterviewerSubmittedPoints,
+		searchParams,
+		navigate,
+		isLeadInterviewer,
+	]);
 
 	const handleSubmit = async (data) => {
 		try {

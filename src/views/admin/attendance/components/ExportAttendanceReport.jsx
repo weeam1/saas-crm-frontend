@@ -15,6 +15,7 @@ import {
 	Text,
 	useDisclosure,
 	Flex,
+	VStack,
 } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,15 +24,18 @@ import { toast } from 'react-toastify';
 import { generateReportApi } from 'api';
 import { buttonStyle } from 'utils/btn';
 import { AiOutlineExport } from 'react-icons/ai';
+import DateFilter from './DateFilter';
 
 const MotionProgress = motion(Box);
 
-const ExportAttendanceModal = ({ isOpen, onClose, month, year }) => {
+const ExportAttendanceModal = ({ isOpen, onClose }) => {
 	const [selectedAgency, setSelectedAgency] = useState('');
 	const [selectedFormat, setSelectedFormat] = useState(null);
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
-	const downloadLinkRef = useRef(null);
+
+	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	const [year, setYear] = useState(() => new Date().getFullYear());
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
@@ -45,8 +49,16 @@ const ExportAttendanceModal = ({ isOpen, onClose, month, year }) => {
 		});
 
 	useEffect(() => {
-		setSelectedAgency(user?.agency?._id || '');
+		if (!isAdmin) setSelectedAgency(user?.agency?._id || '');
 	}, []);
+
+	const onDateFilterChange = (value) => {
+		const newMonth = Number(value.month);
+		const newYear = Number(value.year);
+
+		setMonth(newMonth);
+		setYear(newYear);
+	};
 
 	const handleGenerateReport = async (format) => {
 		if (!selectedAgency) {
@@ -140,25 +152,32 @@ const ExportAttendanceModal = ({ isOpen, onClose, month, year }) => {
 				<ModalHeader>Export Attendance Report</ModalHeader>
 				<ModalCloseButton isDisabled={isGenerating} />
 				<ModalBody>
-					{isAdmin && (
-						<FormControl mb={2}>
-							<FormLabel>Agency</FormLabel>
-							<Select
-								placeholder={
-									isLoadingAgencies ? 'Loading agencies...' : 'Select agency'
-								}
-								value={selectedAgency}
-								onChange={(e) => setSelectedAgency(e.target.value)}
-								isDisabled={isLoadingAgencies || isGenerating}
-							>
-								{agencies?.doc?.map((agency) => (
-									<option key={agency._id} value={agency._id}>
-										{agency.name}
+					<VStack align='center' justifyContent='center'>
+						<DateFilter onFilterChange={onDateFilterChange} />
+						{isAdmin && (
+							<FormControl mb={2}>
+								<FormLabel>Agency</FormLabel>
+								<Select
+									placeholder={
+										isLoadingAgencies ? 'Loading agencies...' : 'Select agency'
+									}
+									value={selectedAgency}
+									onChange={(e) => setSelectedAgency(e.target.value)}
+									isDisabled={isLoadingAgencies || isGenerating}
+									_focus={{ borderColor: 'brand.400' }}
+								>
+									<option key='All' value='All'>
+										All
 									</option>
-								))}
-							</Select>
-						</FormControl>
-					)}
+									{agencies?.doc?.map((agency) => (
+										<option key={agency._id} value={agency._id}>
+											{agency.name}
+										</option>
+									))}
+								</Select>
+							</FormControl>
+						)}
+					</VStack>
 
 					<AnimatePresence>
 						{isGenerating && (

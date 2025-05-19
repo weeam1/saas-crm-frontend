@@ -21,7 +21,8 @@ import {
 	FaUserCircle,
 	FaDollarSign,
 	FaRegCopy,
-	FaList 
+	FaList,
+	FaPhone,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -43,8 +44,8 @@ import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
-import SettingPage from 'views/admin/Listing/Component/settings/index'
-import AddListing from "views/admin/Listing/Component/AddListing"
+import SettingPage from 'views/admin/Listing/Component/settings/index';
+import AddListing from 'views/admin/Listing/Component/AddListing';
 import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
 import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
 // Admin Imports
@@ -146,7 +147,7 @@ const Attendance = React.lazy(() => import('views/admin/attendance'));
 
 const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
-const Listing = React.lazy(() => import('views/admin/Listing'))
+const Listing = React.lazy(() => import('views/admin/Listing'));
 
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
@@ -193,52 +194,22 @@ const routes = [
 		),
 		component: LeadScreen,
 	},
+
 	{
-		name: 'Expenses',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-		component: Expenses,
+		name: 'Leads Pool',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/pool',
+		icon: (
+			<Icon
+				as={MdOutlineAdminPanelSettings}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: LeadPoolAdmin,
 	},
-	{
-		name: 'Listing',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/listing',
-		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
-		component: Listing,
-	},
-	{
-		name: 'Adding Listing',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/listing/add-listing',
-		under: 'listing',
-		parentName: 'Listing',
-		component: AddListing,
-	},
-	{
-		name: 'View Listing',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/listing/view-listing/:id',
-		under: 'listing',
-		parentName: 'Listing',
-		component: ViewListing,
-	},
-	{
-		name: 'Update Listing',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/listing/update/:id',
-		under: 'listing',
-		parentName: 'Listing',
-		component: UpdateListing,
-	},
-	{
-		name: 'Listing Setting',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/listing/settings',
-		under: 'listing',
-		parentName: 'Listing',
-		component: SettingPage,
-	},
+
 	{
 		name: 'Announcement',
 		layout: [ROLE_PATH.superAdmin],
@@ -318,20 +289,6 @@ const routes = [
 		parentName: 'develoeper',
 		component: DeveloperDetails,
 	},
-	{
-		name: 'Leads Pool',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/pool',
-		icon: (
-			<Icon
-				as={MdOutlineAdminPanelSettings}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: LeadPoolAdmin,
-	},
 
 	// {
 	// 	name: 'Points',
@@ -391,6 +348,13 @@ const routes = [
 		component: InvoiceModule,
 	},
 	{
+		name: 'Expenses',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/expenses',
+		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
+		component: Expenses,
+	},
+	{
 		name: 'Developer Invoices',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		under: 'developer-invoices',
@@ -414,6 +378,7 @@ const routes = [
 		path: '/invoice/developers/invoices/entries/:id',
 		component: AddEntry,
 	},
+
 	// -----------------------------Admin setting-------------------------------------
 	{
 		name: 'Admin Setting',
@@ -523,7 +488,73 @@ const routes = [
 		parentName: 'Hiring',
 		component: Positions,
 	},
+
 	// ------------- Phone Routes ------------------------
+	{
+		name: 'Call Logs',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip',
+		icon: <Icon as={FaPhone} width='20px' height='20px' color='inherit' />,
+		component: Sip,
+	},
+	{
+		name: 'Sip Dashboard',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/dashboard',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipDashboard,
+	},
+	{
+		name: 'Sip history',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/history',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipHistory,
+	},
+
+	// Listing --------------------------------------
+	{
+		name: 'Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing',
+		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+		component: Listing,
+	},
+	{
+		name: 'Adding Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/add-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: AddListing,
+	},
+	{
+		name: 'View Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/view-listing/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ViewListing,
+	},
+	{
+		name: 'Update Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/update/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: UpdateListing,
+	},
+	{
+		name: 'Listing Setting',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/settings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: SettingPage,
+	},
+
 	// {
 	// 	name: 'Call',
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -760,38 +791,6 @@ const routes = [
 		path: '/sign-in',
 		icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 		component: SignInCentered,
-	},
-
-	// ========================= sip layout ============================
-	{
-		name: 'Sip',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip',
-		icon: (
-			<Icon
-				as={FaRegCalendarCheck}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: Sip,
-	},
-	{
-		name: 'Sip Dashboard',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/dashboard',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipDashboard,
-	},
-	{
-		name: 'Sip history',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/history',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipHistory,
 	},
 ];
 

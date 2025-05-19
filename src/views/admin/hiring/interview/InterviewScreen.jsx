@@ -77,6 +77,8 @@ const InterviewScreen = memo(() => {
 		return points?.status ?? false;
 	}, [currentRound?.evaluations, user?._id]);
 
+	console.log({ isInterviewerSubmittedPoints });
+
 	// // Memoize isLeadInterviewer check
 	// const isLeadInterviewer = useMemo(
 	// 	() => interview?.doc?.leadInterviewer?._id === user?._id,

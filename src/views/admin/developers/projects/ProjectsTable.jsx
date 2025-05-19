@@ -14,7 +14,6 @@ import {
 	IconButton,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
-import { FiEdit } from 'react-icons/fi';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import EditProject from './EditProject';
 import { useState } from 'react';
@@ -22,7 +21,6 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
-import { formattedDate } from 'utils/helpers';
 import { format } from 'date-fns';
 
 const ProjectsTable = ({ data, isLoading, isFetching, refetch }) => {

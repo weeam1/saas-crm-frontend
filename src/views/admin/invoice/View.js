@@ -52,7 +52,7 @@ const SingleInvoice = () => {
 	});
 
 	const invoices = invoiceData?.data?.entries || [];
-	const agency = invoiceData?.data?.agency || [];
+	const invoiceSetting = invoiceData?.invoiceSetting || {};
 
 	const totals = {
 		total_commission_excl_vat:
@@ -243,29 +243,29 @@ const SingleInvoice = () => {
 								/>
 
 								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
-									{agency?.location ?? 'N/A'}
+									{invoiceSetting?.location ?? 'N/A'}
 								</Text>
 
-								{agency?.contactNumberPrimary && (
+								{invoiceSetting?.contactNumberPrimary && (
 									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
 										<Text as='span' fontWeight='bold'>
 											Telephone:
 										</Text>{' '}
 										{[
-											agency?.contactNumberPrimary,
-											agency?.contactNumberAlternate,
+											invoiceSetting?.contactNumberPrimary,
+											invoiceSetting?.contactNumberAlternate,
 										]
 											.filter(Boolean)
 											.join(' / ') || 'N/A'}
 									</Text>
 								)}
 
-								{agency?.TRN && (
+								{invoiceSetting?.TRN && (
 									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.700'>
 										<Text as='span' fontWeight='bold'>
 											TRN:
 										</Text>{' '}
-										{agency.TRN}
+										{invoiceSetting?.TRN}
 									</Text>
 								)}
 							</Box>
@@ -593,7 +593,7 @@ const SingleInvoice = () => {
 												w='40%'
 												fontSize={{ base: 'xs', md: 'sm' }}
 											>
-												{agency?.currency ?? 'AED'}
+												{invoiceSetting?.currency ?? 'AED'}
 											</Th>
 										</Tr>
 									</Thead>
@@ -603,7 +603,7 @@ const SingleInvoice = () => {
 												border='1px solid #eee'
 												fontSize={{ base: 'xs', md: 'sm' }}
 											>
-												Total
+												Unit Total
 											</Td>
 											<Td
 												textAlign='right'
