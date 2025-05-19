@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -30,6 +30,7 @@ const FileUpload = ({files, setFiles}) => {
       const response = await uploadDocument({
         path: `/listing/secondary/upload-documents`,
         body: formData,
+       	formData: true,
       }).unwrap();
 
       return response.url;
@@ -199,6 +200,7 @@ const FileUpload = ({files, setFiles}) => {
       </VStack>
     </Box>
   );
+
 };
 
 export default FileUpload;
