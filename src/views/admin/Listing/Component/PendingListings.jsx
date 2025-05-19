@@ -445,7 +445,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
           <ModalCloseButton />
           <ModalBody>
             <Box mb={4}>
-              <FormLabel>Rejection Reason</FormLabel>
+              <FormLabel>Rejection Reason (Optional)</FormLabel>
               <Input
                 placeholder="Enter reason for rejection"
                 value={rejectionReason}
