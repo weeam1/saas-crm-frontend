@@ -165,7 +165,7 @@ const InterviewedRoundTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={() => handleViewResult(item)}
 												>
-													Submit Result
+													{item?.remarks ? 'View Result' : 'Submit Result'}
 												</Button>
 
 												{item?.remarks && (

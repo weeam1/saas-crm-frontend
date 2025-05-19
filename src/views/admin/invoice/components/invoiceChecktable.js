@@ -419,7 +419,7 @@ export default function InvoiceCheckTable(props) {
 															onChange={(e) => handleCheckboxChange(e, row._id)}
 															me='10px'
 														/>
-														<Text color='brand.600' fontSize='sm'>
+														<Text color='brand.600' fontSize='sm' minW='180px'>
 															{date
 																? format(date, 'MMM d, yyyy h:mm a')
 																: 'N/A'}
@@ -432,19 +432,20 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='100px'
 													>
 														{row.claimType ? `${row.claimType}` : 'Pending'}
 													</Text>
 												);
 											} else if (column.Header === 'Developer') {
 												cellData = (
-													<Text fontSize='sm' fontWeight='700'>
+													<Text fontSize='sm' fontWeight='700' minW='150px'>
 														{row.developer?.developer_name || '-'}
 													</Text>
 												);
 											} else if (column.Header === 'Project') {
 												cellData = (
-													<Text fontSize='sm' fontWeight='700'>
+													<Text fontSize='sm' fontWeight='700' minW='150px'>
 														{row.project?.name || 'N/A'}
 													</Text>
 												);
@@ -454,13 +455,14 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='150px'
 													>
 														{row.bank_account?.account_holder_name || '-'}
 													</Text>
 												);
 											} else if (column.Header === 'Invoice Number') {
 												cellData = (
-													<Text fontSize='sm'>
+													<Text fontSize='sm' minW='150px'>
 														<Flex alignItems='center'>
 															{row.invoiceNo || '-'}
 															<IconButton
@@ -483,6 +485,7 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='150px'
 													>
 														{row.totalAmount
 															? `${row.totalAmount} AED`

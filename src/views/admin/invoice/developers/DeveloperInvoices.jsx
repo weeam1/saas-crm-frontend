@@ -11,6 +11,7 @@ import Breadcrumb from '../components/BreadCrumb';
 import { IoArrowBack } from 'react-icons/io5';
 import AppButton from 'components/shared/AppButton';
 import Loader from 'components/loading/Loader';
+import BreadCrumb from 'components/shared/BreadCrumb';
 
 const DeveloperInvoices = () => {
 	const { id } = useParams();
@@ -48,6 +49,10 @@ const DeveloperInvoices = () => {
 		{
 			Header: 'Invoice Number',
 			accessor: 'invoiceNo',
+		},
+		{
+			Header: 'Claim Type',
+			accessor: 'claimType',
 		},
 		{
 			Header: 'Developer',
@@ -169,8 +174,11 @@ const DeveloperInvoices = () => {
 
 	const breadcrumbItems = useMemo(
 		() => [
-			{ label: 'Developers', path: '/invoice/developers' },
-			{ label: 'Invoice', path: '/invoice/developers/invoices/:id' },
+			{ label: 'Developers', path: '/invoice?tab=developers' },
+			{
+				label: 'Invoices',
+				path: `/invoice/developers/invoices/${developer_id}`,
+			},
 		],
 		[]
 	);
@@ -183,7 +191,7 @@ const DeveloperInvoices = () => {
 
 	return (
 		<Box fontFamily="'DM Sans', sans-serif">
-			<Breadcrumb items={breadcrumbItems} />
+			<BreadCrumb items={breadcrumbItems} />
 
 			<AppButton
 				leftIcon={<IoArrowBack />}

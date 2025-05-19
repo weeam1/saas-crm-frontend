@@ -485,7 +485,7 @@ export default function CheckTable(props) {
                               onChange={(e) => handleCheckboxChange(e, row._id)}
                               me="10px"
                             /> */}
-														<Text color='brand.600' fontSize='sm'>
+														<Text color='brand.600' fontSize='sm' minW='180px'>
 															{date
 																? format(date, 'MMM d, yyyy h:mm a')
 																: 'N/A'}

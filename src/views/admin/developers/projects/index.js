@@ -153,7 +153,7 @@ export default function Projects() {
 	}
 
 	return (
-		<Box p={{ base: 4, md: 6 }} minH='100vh' fontFamily="'DM Sans', sans-serif">
+		<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
 			<ProjectHeader
 				title='Projects'
 				totalDocs={data?.totalDocs}

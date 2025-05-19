@@ -22,13 +22,12 @@ import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import * as yup from 'yup';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
-import { setBankAccounts } from '../../../redux/invoiceSlice';
 import { useParams, useNavigate } from 'react-router-dom';
 import AddEntryModal from './AddInvoiceEntry';
+import Loader from 'components/loading/Loader';
 
 // Validation schema for invoice
 const invoiceSchema = yup.object().shape({
@@ -174,216 +173,220 @@ const AddInvoice = (props) => {
 							_hover={{ color: 'gray.800', bg: 'gray.100' }}
 						/>
 					</ModalHeader>
-					<ModalBody overflowY='auto' px={6} py={4}>
-						<form onSubmit={handleSubmit}>
-							<Grid templateColumns='repeat(12, 1fr)' gap={3}>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-										Project
-									</FormLabel>
-									<Menu>
-										<MenuButton
-											as={Button}
-											rightIcon={customDropdownIcon}
-											fontSize='12px'
-											fontFamily='DM Sans, sans-serif'
-											borderRadius='6px'
-											height='40px'
-											width='100%'
-											textAlign='left'
-											borderColor={
-												errors.projectId && touched.projectId
-													? 'red.300'
-													: 'gray.300'
-											}
-											borderWidth='1px'
-											bg='white'
-											_hover={{ borderColor: '#B79045' }}
-											_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
-											isDisabled={projectsLoading}
-										>
-											{projectsLoading
-												? 'Loading...'
-												: selectedProject
-													? `${selectedProject.name}`
-													: projects?.doc?.length > 0
-														? 'Choose Project'
-														: 'No projects available'}
-										</MenuButton>
-										<MenuList
-											maxH='200px'
-											overflowY='auto'
-											fontFamily='DM Sans, sans-serif'
-											fontSize='16px'
-										>
-											{projects?.doc.length > 0 ? (
-												projects?.doc?.map((item) => (
-													<MenuItem
-														key={item._id}
-														onClick={() => {
-															setFieldValue('projectId', item._id);
-														}}
-													>
-														{item.name}
-													</MenuItem>
-												))
-											) : (
-												<MenuItem isDisabled>No projects available</MenuItem>
-											)}
-											<MenuItem
-												onClick={() => navigate('/invoice?tab=projects')}
-												fontWeight='bold'
-												borderTop='1px solid'
-												borderColor='gray.200'
-											>
-												Add Project
-											</MenuItem>
-										</MenuList>
-									</Menu>
-									{errors.projectId && touched.projectId && (
-										<FormLabel color='red.500' fontSize='14px'>
-											{errors.projectId}
+					<ModalBody maxH='40vh' px={6} py={4}>
+						{projectsLoading || bankAccountsLoading ? (
+							<Loader />
+						) : (
+							<form onSubmit={handleSubmit}>
+								<Grid templateColumns='repeat(12, 1fr)' gap={3}>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
+											Project
 										</FormLabel>
-									)}
-								</GridItem>
-
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-										Bank Account
-									</FormLabel>
-									<Menu>
-										<MenuButton
-											as={Button}
-											rightIcon={customDropdownIcon}
-											fontSize='12px'
-											fontFamily='DM Sans, sans-serif'
-											borderRadius='6px'
-											height='40px'
-											width='100%'
-											textAlign='left'
-											borderColor={
-												errors.bank_account_id && touched.bank_account_id
-													? 'red.300'
-													: 'gray.300'
-											}
-											borderWidth='1px'
-											bg='white'
-											_hover={{ borderColor: '#B79045' }}
-											_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
-											isDisabled={bankAccountsLoading || bankAccountsError}
-										>
-											{bankAccountsLoading
-												? 'Loading bank accounts...'
-												: selectedBankAccount
-													? `${selectedBankAccount.account_holder_name}`
-													: bankAccounts.length > 0
-														? 'Choose Bank Account'
-														: 'No bank accounts available'}
-										</MenuButton>
-										<MenuList
-											maxH='200px'
-											overflowY='auto'
-											fontFamily='DM Sans, sans-serif'
-											fontSize='16px'
-										>
-											{bankAccounts?.data?.length > 0 ? (
-												bankAccounts?.data?.map((bank) => (
-													<MenuItem
-														key={bank._id || bank.account_number}
-														onClick={() => {
-															setFieldValue(
-																'bank_account_id',
-																bank._id || bank.account_number
-															);
-														}}
-													>
-														{`${bank.account_holder_name} (${bank.account_number})`}
-													</MenuItem>
-												))
-											) : (
-												<MenuItem isDisabled>
-													No bank accounts available
+										<Menu>
+											<MenuButton
+												as={Button}
+												rightIcon={customDropdownIcon}
+												fontSize='12px'
+												fontFamily='DM Sans, sans-serif'
+												borderRadius='6px'
+												height='40px'
+												width='100%'
+												textAlign='left'
+												borderColor={
+													errors.projectId && touched.projectId
+														? 'red.300'
+														: 'gray.300'
+												}
+												borderWidth='1px'
+												bg='white'
+												_hover={{ borderColor: '#B79045' }}
+												_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
+												isDisabled={projectsLoading}
+											>
+												{projectsLoading
+													? 'Loading...'
+													: selectedProject
+														? `${selectedProject.name}`
+														: projects?.doc?.length > 0
+															? 'Choose Project'
+															: 'No projects available'}
+											</MenuButton>
+											<MenuList
+												maxH='200px'
+												overflowY='auto'
+												fontFamily='DM Sans, sans-serif'
+												fontSize='16px'
+											>
+												{projects?.doc.length > 0 ? (
+													projects?.doc?.map((item) => (
+														<MenuItem
+															key={item._id}
+															onClick={() => {
+																setFieldValue('projectId', item._id);
+															}}
+														>
+															{item.name}
+														</MenuItem>
+													))
+												) : (
+													<MenuItem isDisabled>No projects available</MenuItem>
+												)}
+												<MenuItem
+													onClick={() => navigate('/invoice?tab=projects')}
+													fontWeight='bold'
+													borderTop='1px solid'
+													borderColor='gray.200'
+												>
+													Add Project
 												</MenuItem>
-											)}
-											<MenuItem
-												onClick={handleAddBankAccount}
-												fontWeight='bold'
-												borderTop='1px solid'
-												borderColor='gray.200'
-											>
-												Add Bank Account
-											</MenuItem>
-										</MenuList>
-									</Menu>
-									{errors.bank_account_id && touched.bank_account_id && (
-										<FormLabel color='red.500' fontSize='14px'>
-											{errors.bank_account_id}
+											</MenuList>
+										</Menu>
+										{errors.projectId && touched.projectId && (
+											<FormLabel color='red.500' fontSize='14px'>
+												{errors.projectId}
+											</FormLabel>
+										)}
+									</GridItem>
+
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
+											Bank Account
 										</FormLabel>
-									)}
-								</GridItem>
-								<GridItem colSpan={{ base: 12, md: 6 }}>
-									<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-										Claim Type
-									</FormLabel>
-
-									<Menu>
-										<MenuButton
-											as={Button}
-											rightIcon={
-												<Icon
-													as={() => <img src={DropdownImg} alt='dropdown' />}
-												/>
-											}
-											width='100%'
-											fontSize='16px'
-											fontFamily='DM Sans, sans-serif'
-											borderRadius='6px'
-											height='40px'
-											border='1px solid'
-											borderColor={
-												errors.claimType && touched.claimType
-													? 'red.300'
-													: 'gray.300'
-											}
-											textAlign='left'
-											_hover={{ bg: 'gray.100' }}
-										>
-											{values.claimType || 'Select Claim Type'}
-										</MenuButton>
-
-										<MenuList>
-											<MenuItem
-												onClick={() =>
-													formik.setFieldValue('claimType', 'Full')
+										<Menu>
+											<MenuButton
+												as={Button}
+												rightIcon={customDropdownIcon}
+												fontSize='12px'
+												fontFamily='DM Sans, sans-serif'
+												borderRadius='6px'
+												height='40px'
+												width='100%'
+												textAlign='left'
+												borderColor={
+													errors.bank_account_id && touched.bank_account_id
+														? 'red.300'
+														: 'gray.300'
 												}
+												borderWidth='1px'
+												bg='white'
+												_hover={{ borderColor: '#B79045' }}
+												_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
+												isDisabled={bankAccountsLoading || bankAccountsError}
 											>
-												Full
-											</MenuItem>
-											<MenuItem
-												onClick={() =>
-													formik.setFieldValue('claimType', '1st Claim')
-												}
+												{bankAccountsLoading
+													? 'Loading bank accounts...'
+													: selectedBankAccount
+														? `${selectedBankAccount.account_holder_name}`
+														: bankAccounts.length > 0
+															? 'Choose Bank Account'
+															: 'No bank accounts available'}
+											</MenuButton>
+											<MenuList
+												maxH='200px'
+												overflowY='auto'
+												fontFamily='DM Sans, sans-serif'
+												fontSize='16px'
 											>
-												1st Claim
-											</MenuItem>
-											<MenuItem
-												onClick={() =>
-													formik.setFieldValue('claimType', '2nd Claim')
-												}
-											>
-												2nd Claim
-											</MenuItem>
-										</MenuList>
-									</Menu>
-
-									{errors.claimType && touched.claimType && (
-										<FormLabel color='red.500' fontSize='14px'>
-											{errors.claimType}
+												{bankAccounts?.data?.length > 0 ? (
+													bankAccounts?.data?.map((bank) => (
+														<MenuItem
+															key={bank._id || bank.account_number}
+															onClick={() => {
+																setFieldValue(
+																	'bank_account_id',
+																	bank._id || bank.account_number
+																);
+															}}
+														>
+															{`${bank.account_holder_name} (${bank.account_number})`}
+														</MenuItem>
+													))
+												) : (
+													<MenuItem isDisabled>
+														No bank accounts available
+													</MenuItem>
+												)}
+												<MenuItem
+													onClick={handleAddBankAccount}
+													fontWeight='bold'
+													borderTop='1px solid'
+													borderColor='gray.200'
+												>
+													Add Bank Account
+												</MenuItem>
+											</MenuList>
+										</Menu>
+										{errors.bank_account_id && touched.bank_account_id && (
+											<FormLabel color='red.500' fontSize='14px'>
+												{errors.bank_account_id}
+											</FormLabel>
+										)}
+									</GridItem>
+									<GridItem colSpan={{ base: 12, md: 6 }}>
+										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
+											Claim Type
 										</FormLabel>
-									)}
-								</GridItem>
-							</Grid>
-						</form>
+
+										<Menu>
+											<MenuButton
+												as={Button}
+												rightIcon={
+													<Icon
+														as={() => <img src={DropdownImg} alt='dropdown' />}
+													/>
+												}
+												width='100%'
+												fontSize='16px'
+												fontFamily='DM Sans, sans-serif'
+												borderRadius='6px'
+												height='40px'
+												border='1px solid'
+												borderColor={
+													errors.claimType && touched.claimType
+														? 'red.300'
+														: 'gray.300'
+												}
+												textAlign='left'
+												_hover={{ bg: 'gray.100' }}
+											>
+												{values.claimType || 'Select Claim Type'}
+											</MenuButton>
+
+											<MenuList>
+												<MenuItem
+													onClick={() =>
+														formik.setFieldValue('claimType', '1st Claim')
+													}
+												>
+													1st Claim
+												</MenuItem>
+												<MenuItem
+													onClick={() =>
+														formik.setFieldValue('claimType', '2nd Claim')
+													}
+												>
+													2nd Claim
+												</MenuItem>
+												<MenuItem
+													onClick={() =>
+														formik.setFieldValue('claimType', 'Full')
+													}
+												>
+													Full
+												</MenuItem>
+											</MenuList>
+										</Menu>
+
+										{errors.claimType && touched.claimType && (
+											<FormLabel color='red.500' fontSize='14px'>
+												{errors.claimType}
+											</FormLabel>
+										)}
+									</GridItem>
+								</Grid>
+							</form>
+						)}
 					</ModalBody>
 					<ModalFooter
 						justifyContent='flex-end'

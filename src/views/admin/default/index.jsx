@@ -37,6 +37,7 @@ import ReportChart from './components/ReportChart';
 import TodaySummary from './components/TodaySummary';
 import LeadStatusTable from './components/LeadStatusStats';
 import LeadStatusStats from './components/LeadStatusStats';
+import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -62,7 +63,7 @@ export default function UserReports() {
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 	const user = JSON.parse(localStorage.getItem('user'));
-	const [listTop, setListTop] = useState("all")
+	const [listTop, setListTop] = useState('all');
 	const userRole =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -128,7 +129,7 @@ export default function UserReports() {
 
 	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
 		useFetchItemsQuery(
-			{ path: '/dashboard/leads/leadStatus_stats',params: {listTop} },
+			{ path: '/dashboard/leads/leadStatus_stats' },
 			{
 				refetchOnMountOrArgChange: true,
 				skip: !userRole === 'superAdmin',
@@ -300,7 +301,13 @@ export default function UserReports() {
 				</>
 			)}
 
-			<LeadStatusStats doc={leadStatusData?.doc} listTop={listTop} setListTop={setListTop} />
+			{/* <LeadStatusStats
+				doc={leadStatusData?.doc}
+				listTop={listTop}
+				setListTop={setListTop}
+			/> */}
+
+			<LeadStatusPieChart data={leadStatusData?.doc} />
 
 			{/* <Grid
 				Grid
