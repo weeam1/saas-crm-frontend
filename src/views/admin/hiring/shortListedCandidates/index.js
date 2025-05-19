@@ -245,7 +245,7 @@ const TabButton = ({ isActive, onClick, children }) => (
 		_hover={{ bg: isActive ? '#EDD199' : '' }}
 		rounded='none'
 		shadow='sm'
-		fontSize='lg'
+		fontSize={{ base: 'xs', md: 'md', lg: 'lg' }}
 		transition='all 0.3s ease'
 	>
 		{children}

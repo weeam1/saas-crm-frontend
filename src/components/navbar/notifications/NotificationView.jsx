@@ -38,14 +38,14 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const isInterviewCancel =
 		interview?.doc?.status === 'end' ||
 		interview?.doc?.status === 'canceled' ||
-		interview?.doc?.nextRound?.pendingEvaluations > 1 ||
+		(interview?.doc?.pendingEvaluations === 0 &&
+			!interview?.doc?.isMultiRound) ||
+		interview?.doc?.nextRound?.pendingEvaluations === 0 ||
 		error?.status === 404;
 
 	const handleJoinInterview = () => {
 		navigate(`/hiring/interview/${item.interview_id}`);
-
 		// window.location.href = `/hiring/interview/${item.interview_id}?phase=evaluation-points`;
-
 		onClose();
 	};
 
