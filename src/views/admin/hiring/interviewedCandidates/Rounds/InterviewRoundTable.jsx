@@ -23,6 +23,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { useState } from 'react';
 import { toUTCString } from 'utils/helpers';
 import ArrangeInterview from '../../shortListedCandidates/components/ArrangeInterview';
+import MailIcon from '../../shortListedCandidates/components/MailIcon';
 
 const InterviewedRoundTable = ({
 	headers,
@@ -32,6 +33,7 @@ const InterviewedRoundTable = ({
 	sortConfig,
 	handleViewCandidate,
 	handleViewResult,
+	refetch,
 }) => {
 	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
 	const [candidate, setCandidate] = useState(null);
@@ -89,6 +91,7 @@ const InterviewedRoundTable = ({
 			}).unwrap();
 
 			toast.success('Invite succesfully sended');
+			refetch();
 		} catch (err) {
 			console.log(err);
 		} finally {
@@ -202,7 +205,7 @@ const InterviewedRoundTable = ({
 													_active={{ bg: '#D4AC50' }}
 													onClick={() => handleViewResult(item)}
 												>
-													{item?.remarks ? 'View Result' : 'Submit Result'}
+													{item?.remarks ? 'Previous Result' : 'Submit Result'}
 												</Button>
 
 												{item?.remarks && (
@@ -246,6 +249,11 @@ const InterviewedRoundTable = ({
 													>
 														Start Interview
 													</Button>
+												)}
+
+												{/* Mail Icon for accepting interview intive */}
+												{item?.candidate?.invited && (
+													<MailIcon isRead={item?.candidate?.inviteAccepted} />
 												)}
 											</HStack>
 										</Td>

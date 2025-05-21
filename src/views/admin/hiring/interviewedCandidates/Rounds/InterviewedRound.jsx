@@ -206,6 +206,7 @@ const InterviewedRound = ({
 				handleViewResult={handleViewResult}
 				handleViewCandidate={handleViewCandidate}
 				handleSendOffer={handleSendOffer}
+				refetch={refetch}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -244,6 +245,8 @@ const InterviewedRound = ({
 					data={interview}
 					interviewId={interviewId}
 					refetch={refetch}
+					mode='running'
+					title='Previous Result'
 				/>
 			)}
 		</Box>
