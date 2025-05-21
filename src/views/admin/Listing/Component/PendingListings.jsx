@@ -57,6 +57,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "Type",
     "Location",
     "Area (sqft)",
+    "Building Age",
+    "Developer",
     "Price",
     "Date",
     "Created By",
@@ -89,6 +91,10 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       if (filters.unitType) params.unitType = filters.unitType;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
     }
 
     return params;
@@ -343,6 +349,28 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       {listing.area ? listing.area.toLocaleString() : "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.buildingAge
+                        ? `${listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing?.developer?.developer_name
+                        ? listing?.developer?.developer_name
+                        : "N/A"}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -419,7 +447,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="10"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"

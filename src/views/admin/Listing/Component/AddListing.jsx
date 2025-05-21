@@ -47,6 +47,8 @@ const validationSchema = Yup.object().shape({
     .min(0, "Building age cannot be negative")
     .required("Building age is required"),
   developer: Yup.string().required("Developer is required"),
+  ownerName: Yup.string().required("Owner name is required"),
+  ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
 });
 
 const AddListing = () => {
@@ -93,6 +95,8 @@ const AddListing = () => {
       buildingAge: "",
       developer: "",
       documents: [],
+      ownerName: "",
+      ownerPhoneNumber: "",
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
@@ -349,6 +353,45 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Owner Name */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={formik.touched.ownerName && formik.errors.ownerName}
+          >
+            <FormLabel>Owner Name</FormLabel>
+            <Input
+              name="ownerName"
+              value={formik.values.ownerName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter owner name"
+              focusBorderColor="brand.500"
+            />
+            <FormErrorMessage>{formik.errors.ownerName}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+        {/* Owner Phone Number */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.ownerPhoneNumber && formik.errors.ownerPhoneNumber
+            }
+          >
+            <FormLabel>Owner Phone Number</FormLabel>
+            <Input
+              name="ownerPhoneNumber"
+              value={formik.values.ownerPhoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter owner Phone number"
+              focusBorderColor="brand.500"
+            />
+            <FormErrorMessage>
+              {formik.errors.ownerPhoneNumber}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
         {/* Landlord */}
         <GridItem colSpan={1}>
           <FormControl
@@ -378,7 +421,7 @@ const AddListing = () => {
               value={formik.values.phoneNumber}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter Jio phone number"
+              placeholder="Enter phone number"
               focusBorderColor="brand.500"
             />
             <FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>

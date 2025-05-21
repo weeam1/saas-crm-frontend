@@ -73,6 +73,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
     "Unit Type",
     "Type",
     "Location",
+    "Building Age",
+    "Developer",
     "Price",
     "Size (sqft)",
     "status",
@@ -89,15 +91,15 @@ const AllListing = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
     }
 
     return params;
@@ -409,6 +411,28 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     >
                       {listing.location || "N/A"}
                     </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.buildingAge
+                        ? `${listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing?.developer?.developer_name
+                        ? listing?.developer?.developer_name
+                        : "N/A"}
+                    </Td>
                     <Td textAlign="center">
                       {listing.price
                         ? `AED${listing.price.toLocaleString()}`
@@ -528,7 +552,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="9"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"

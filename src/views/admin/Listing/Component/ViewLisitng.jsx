@@ -251,6 +251,32 @@ const ViewListing = () => {
             />
           </FormControl>
         </GridItem>
+        {/* Owner Name */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Owner name</FormLabel>
+            <Input
+              value={listing.data?.ownerName || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Owner Phone Number */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Owner Phone Number</FormLabel>
+            <Input
+              value={listing.data?.ownerPhoneNumber || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
         {isAdmin && (
           <>
             {/* Landlord */}

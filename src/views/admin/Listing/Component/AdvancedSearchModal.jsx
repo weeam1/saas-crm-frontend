@@ -28,6 +28,30 @@ const AdvancedSearchModal = ({
   initialFilters,
   clearFilter,
 }) => {
+  const months = [
+    { value: "1", label: "January" },
+    { value: "2", label: "February" },
+    { value: "3", label: "March" },
+    { value: "4", label: "April" },
+    { value: "5", label: "May" },
+    { value: "6", label: "June" },
+    { value: "7", label: "July" },
+    { value: "8", label: "August" },
+    { value: "9", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 13 }, (_, i) => currentYear - 5 + i).map(
+    (year) => ({
+      value: year.toString(),
+      label: year.toString(),
+    })
+  );
+  years.unshift({ value: "", label: "All Years" });
+
   const formik = useFormik({
     initialValues: {
       projectName: initialFilters.projectName || "",
@@ -36,6 +60,10 @@ const AdvancedSearchModal = ({
       unitType: initialFilters.unitType || "",
       minPrice: initialFilters.minPrice || "",
       maxPrice: initialFilters.maxPrice || "",
+      minArea: initialFilters.minArea || "",
+      maxArea: initialFilters.maxArea || "",
+      month: initialFilters.month || "",
+      year: initialFilters.year || "",
       ...initialFilters,
     },
     onSubmit: (values) => {
@@ -59,11 +87,16 @@ const AdvancedSearchModal = ({
         unitType: "",
         minPrice: "",
         maxPrice: "",
+        minArea: "",
+        maxArea: "",
+        month: "",
+        year: "",
       },
     });
     onApplyFilters({});
     onClose();
   };
+
   const cleanedInitialFilters = useMemo(() => {
     const clean = {
       projectName: initialFilters.projectName || "",
@@ -72,6 +105,10 @@ const AdvancedSearchModal = ({
       unitType: initialFilters.unitType || "",
       minPrice: initialFilters.minPrice || "",
       maxPrice: initialFilters.maxPrice || "",
+      minArea: initialFilters.minArea || "",
+      maxArea: initialFilters.maxArea || "",
+      month: initialFilters.month || "",
+      year: initialFilters.year || "",
     };
     return clean;
   }, [initialFilters]);
@@ -84,7 +121,6 @@ const AdvancedSearchModal = ({
 
   useEffect(() => {
     if (!clearFilter) {
-      console.log("value is true");
       formik.resetForm({
         values: {
           projectName: "",
@@ -93,6 +129,10 @@ const AdvancedSearchModal = ({
           unitType: "",
           minPrice: "",
           maxPrice: "",
+          minArea: "",
+          maxArea: "",
+          month: "",
+          year: "",
         },
       });
     }
@@ -114,10 +154,15 @@ const AdvancedSearchModal = ({
           unitType: initialFilters.unitType || "",
           minPrice: initialFilters.minPrice || "",
           maxPrice: initialFilters.maxPrice || "",
+          minArea: initialFilters.minArea || "",
+          maxArea: initialFilters.maxArea || "",
+          month: initialFilters.month || "",
+          year: initialFilters.year || "",
         },
       });
     }
   }, [isOpen, initialFilters]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
@@ -187,6 +232,36 @@ const AdvancedSearchModal = ({
 
               <SimpleGrid columns={2} gap={4} w="full">
                 <FormControl>
+                  <FormLabel>Month</FormLabel>
+                  <Select
+                    name="month"
+                    placeholder="Select Month"
+                    value={formik.values.month}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  >
+                    {months.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Year</FormLabel>
+                  <Input
+                    type="number"
+                    name="year"
+                    placeholder="e.g. year "
+                    value={formik.values.year}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  />
+                </FormControl>
+              </SimpleGrid>
+
+              <SimpleGrid columns={2} gap={4} w="full">
+                <FormControl>
                   <FormLabel>Min Price (AED)</FormLabel>
                   <NumberInput
                     min={0}
@@ -211,6 +286,32 @@ const AdvancedSearchModal = ({
                     focusBorderColor="brand.500"
                   >
                     <NumberInputField placeholder="Maximum price" />
+                  </NumberInput>
+                </FormControl>
+              </SimpleGrid>
+
+              <SimpleGrid columns={2} gap={4} w="full">
+                <FormControl>
+                  <FormLabel>Min Area (sqft)</FormLabel>
+                  <NumberInput
+                    min={0}
+                    value={formik.values.minArea}
+                    onChange={(value) => formik.setFieldValue("minArea", value)}
+                    focusBorderColor="brand.500"
+                  >
+                    <NumberInputField placeholder="Minimum area" />
+                  </NumberInput>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Max Area (sqft)</FormLabel>
+                  <NumberInput
+                    min={0}
+                    value={formik.values.maxArea}
+                    onChange={(value) => formik.setFieldValue("maxArea", value)}
+                    focusBorderColor="brand.500"
+                  >
+                    <NumberInputField placeholder="Maximum area" />
                   </NumberInput>
                 </FormControl>
               </SimpleGrid>

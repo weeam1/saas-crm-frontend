@@ -61,6 +61,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     "Project",
     "Location",
     "Area (sqft)",
+    "Building Age",
+    "Developer",
     "Price",
     "Date",
     "Created By",
@@ -88,15 +90,15 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
     }
 
     return params;
@@ -195,7 +197,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       bg="white"
       px={2}
       marginTop={"-14px"}
-       marginLeft={"0px"}
+      marginLeft={"0px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -337,6 +339,28 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.listing.buildingAge
+                        ? `${approval.listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.listing?.developer_name
+                        ? approval.listing?.developer_name
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
                       overflow="hidden"
                       textOverflow="ellipsis"
@@ -443,7 +467,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="10"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"

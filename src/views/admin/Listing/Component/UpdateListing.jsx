@@ -49,6 +49,8 @@ const validationSchema = Yup.object().shape({
     .min(0, "Building age cannot be negative")
     .required("Building age is required"),
   developer: Yup.string().required("Developer is required"),
+  ownerName: Yup.string().required("Owner name is required"),
+  ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
 });
 
 const UpdateListing = () => {
@@ -109,6 +111,8 @@ const UpdateListing = () => {
       status: listing?.data?.status || "pending",
       isConfidential: listing?.data?.isConfidential || false,
       documents: listing?.data?.documents || [],
+      ownerName: listing?.data?.ownerName || "",
+      ownerPhoneNumber: listing?.data?.ownerPhoneNumber || "",
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -119,12 +123,6 @@ const UpdateListing = () => {
           agent: user._id,
           lastUpdatedBy: user._id,
         };
-
-        if (!isAdmin) {
-          delete payload.landlord;
-          delete payload.phoneNumber;
-          delete payload.email;
-        }
 
         await updateListing({
           path: `listing/secondary/${id}`,
@@ -395,6 +393,44 @@ const UpdateListing = () => {
               min="0"
             />
             <FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+        {/* Owner Name */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={formik.touched.ownerName && formik.errors.ownerName}
+          >
+            <FormLabel>Owner Name</FormLabel>
+            <Input
+              name="ownerName"
+              value={formik.values.ownerName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter owner name"
+              focusBorderColor="brand.500"
+            />
+            <FormErrorMessage>{formik.errors.ownerName}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+        {/* Owner Phone Number */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.ownerPhoneNumber && formik.errors.ownerPhoneNumber
+            }
+          >
+            <FormLabel>Owner Phone Number</FormLabel>
+            <Input
+              name="ownerPhoneNumber"
+              value={formik.values.ownerPhoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter owner Phone number"
+              focusBorderColor="brand.500"
+            />
+            <FormErrorMessage>
+              {formik.errors.ownerPhoneNumber}
+            </FormErrorMessage>
           </FormControl>
         </GridItem>
         {isAdmin && (

@@ -54,6 +54,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     "Project",
     "Location",
     "Area (sqft)",
+    "Building Age",
+    "Developer",
     "Price",
     "Date",
     "Created By",
@@ -81,20 +83,19 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
     }
 
     return params;
   };
-
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     {
       path: `listing/secondary/requested-listings`,
@@ -347,6 +348,29 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.listing.buildingAge
+                        ? `${request.listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.listing?.developer_name
+                        ? request.listing?.developer_name
+                        : "N/A"}
+                    </Td>
+
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
                       overflow="hidden"
                       textOverflow="ellipsis"
@@ -420,7 +444,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="10"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"

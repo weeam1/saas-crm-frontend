@@ -22,7 +22,7 @@ const ListingSettings = () => {
       component: <ListingUnitTypes key={tabKey} />,
     },
     {
-      label: "Types",
+      label: "Listing Types",
       title: "Manage Listing Types",
       description: "Configure the various types of listings available.",
       component: <ListingTypes key={tabKey} />,
