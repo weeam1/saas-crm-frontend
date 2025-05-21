@@ -331,7 +331,14 @@ import { toast } from 'react-toastify';
 const getInterviewerPoints = (id, evaluations) =>
 	evaluations?.find((item) => item.interviewer._id === id);
 
-const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
+const InterviewResult = ({
+	isOpen,
+	onClose,
+	interviewId,
+	refetch,
+	mode,
+	title,
+}) => {
 	const [remarks, setRemarks] = useState({ initial: '', final: '' });
 	const [evaluation, setEvaluation] = useState(null);
 	const [pointsModal, setPointsModal] = useState(false);
@@ -374,12 +381,12 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 
 	const handleSubmitResult = async (roundKey) => {
 		const body = { remarks: remarks[roundKey], roundKey };
-		const path = `/interviews/${data._id}`;
+		const path = `/interviews/${interviewId}`;
 		try {
 			await updateItemMutation({ path, body }).unwrap();
 			toast.success(`Interview result submitted for ${roundKey} round`);
 			onClose();
-			refetch();
+			if (refetch) refetch();
 		} catch (err) {
 			toast.error(err?.data?.message || 'Failed to update interview data');
 		}
@@ -440,7 +447,7 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 			</Grid>
 
 			<DisplayField
-				label={`${totalPoints(doc)} Interviewer Percentage`}
+				label={`Total Percentage`}
 				value={`${doc.percentageScore}%`}
 			/>
 			<Box p={1} bg='blue.50' rounded='md' display='flex' alignItems='center'>
@@ -478,7 +485,10 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 						placeholder={`Enter remarks for ${roundKey} round`}
 						bg='gray.100'
 						borderColor='gray.300'
-						_focus={{ borderColor: '#D99A36', boxShadow: '0 0 0 1px #D99A36' }}
+						_focus={{
+							borderColor: '#D99A36',
+							boxShadow: '0 0 0 1px #D99A36',
+						}}
 					/>
 				)}
 			</FormControl>
@@ -513,8 +523,8 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 				scrollBehavior='inside'
 			>
 				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Finish Interview</ModalHeader>
+				<ModalContent mx='2'>
+					<ModalHeader>{title}</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						{isLoading || isFetching ? (
@@ -542,28 +552,30 @@ const InterviewResult = ({ isOpen, onClose, data, interviewId, refetch }) => {
 									>
 										1st Round
 									</Tab>
-									{interviewDoc.isMultiRound && interviewDoc.nextRound && (
-										<Tab
-											size='sm'
-											_selected={{
-												borderTop: '4px solid #B79045',
-												bg: 'gray.100',
-												fontWeight: 'semi-bold',
-												color: 'black',
-												outline: 'none',
-											}}
-											outline='none'
-											bg='softGray.50'
-											color='gray.500'
-											_focus={{ outline: 'none' }}
-											borderTop={'4px solid transparent'}
-											_selectedAfter={{
-												opacity: 1,
-											}}
-										>
-											2nd Round
-										</Tab>
-									)}
+									{interviewDoc.isMultiRound &&
+										interviewDoc.nextRound &&
+										mode !== 'running' && (
+											<Tab
+												size='sm'
+												_selected={{
+													borderTop: '4px solid #B79045',
+													bg: 'gray.100',
+													fontWeight: 'semi-bold',
+													color: 'black',
+													outline: 'none',
+												}}
+												outline='none'
+												bg='softGray.50'
+												color='gray.500'
+												_focus={{ outline: 'none' }}
+												borderTop={'4px solid transparent'}
+												_selectedAfter={{
+													opacity: 1,
+												}}
+											>
+												2nd Round
+											</Tab>
+										)}
 								</TabList>
 								<TabPanels>
 									<TabPanel>

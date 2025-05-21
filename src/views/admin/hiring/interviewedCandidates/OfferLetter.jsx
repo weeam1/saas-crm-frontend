@@ -33,6 +33,7 @@ import CustomButton from 'components/shared/CustomButton';
 import { formattedDate } from 'utils/helpers';
 import OfferLetterEditor from './OfferLetterEditor';
 import { jobTypes } from 'utils/options';
+import { toUTCString } from 'utils/helpers';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -49,6 +50,15 @@ const validationSchema = Yup.object().shape({
 		otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
 	}),
 
+	incentive: Yup.number()
+		.transform((value, originalValue) =>
+			originalValue === '' ? undefined : value
+		)
+		.nullable()
+		.notRequired()
+		.typeError('Incentive must be a number')
+		.min(0, 'Incentive must be at least 0'),
+
 	commission: Yup.number().when('jobType', {
 		is: (jobType) => ['Commission', 'SalaryPlusCommission'].includes(jobType),
 		then: (schema) =>
@@ -61,6 +71,7 @@ const validationSchema = Yup.object().shape({
 	}),
 	joiningDate: Yup.date().required('Joining date is required'),
 });
+
 const OfferLetter = () => {
 	const [offerDetails, setOfferDetails] = useState({});
 	const [emailBody, setEmailBody] = useState('');
@@ -102,9 +113,10 @@ const OfferLetter = () => {
 				jobType: data.jobType || '',
 				location: data.location || '',
 				position: data.position || '',
-				amount: data.amount || '',
-				commission: data.commission || '',
-				instructions: '',
+				amount: data?.amount || '',
+				incentive: data?.incentive || '',
+				commission: data?.commission || '',
+				instructions: data?.instructions || '',
 				joiningDate: data.joiningDate || new Date(),
 				offerMail: data.offerMail || '',
 			});
@@ -123,6 +135,7 @@ const OfferLetter = () => {
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
 	const handleDateChange = (date) => {
+		console.log({ date });
 		setSelectedDate(date);
 		setShowCalendar(false);
 		setOfferDetails((prevDetails) => ({
@@ -134,11 +147,13 @@ const OfferLetter = () => {
 	const onSubmitOffer = async (data) => {
 		const offerData = {
 			...data,
-			joiningDate: selectedDate,
+			joiningDate: toUTCString(selectedDate),
 			leadInterviewerName: offerDetails?.leadInterviewerName,
 			emailBody,
 			interviewId,
 		};
+
+		console.log({ offerData });
 
 		if (!selectedDate) {
 			toast.error('Joining date is required');
@@ -181,7 +196,7 @@ const OfferLetter = () => {
 				py={{ base: 2, md: 3 }}
 				fontSize={{ base: 'sm', md: 'md' }}
 				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/hiring/interviewed-candidates')}
+				onClick={() => navigate('/hiring?tab=interviewed-candidates')}
 				mb={4}
 			>
 				Back
@@ -214,7 +229,6 @@ const OfferLetter = () => {
 									templateColumns={{
 										base: '1fr',
 										md: 'repeat(2, 1fr)',
-										// lg: 'repeat(2, 1fr)',
 									}}
 									gap={3}
 									w='full'
@@ -285,6 +299,19 @@ const OfferLetter = () => {
 											}}
 										/>
 									)}
+
+									<CustomInput
+										label='Incentive (optional)'
+										name='incentive'
+										type='number'
+										placeholder={offerDetails.incentive}
+										isReadOnly={!isEditing}
+										isInvalid={errors.incentive && touched.incentive}
+										onChange={(e) => {
+											setFieldValue('incentive', e.target.value);
+											handleFieldChange('incentive', e.target.value);
+										}}
+									/>
 
 									<FormControl isInvalid={errors?.joiningDate}>
 										{!isEditing ? (
@@ -362,7 +389,8 @@ const OfferLetter = () => {
 											</Text>
 										)}
 									</FormControl>
-									<GridItem colSpan={2}>
+
+									<GridItem colSpan={{ base: 1, md: 2 }}>
 										<CustomInput
 											label='Location'
 											name='location'
@@ -376,7 +404,7 @@ const OfferLetter = () => {
 										/>
 									</GridItem>
 
-									<GridItem colSpan={2}>
+									<GridItem colSpan={{ base: 1, md: 2 }}>
 										<CustomInput
 											label='Instructions'
 											name='instructions'
@@ -391,7 +419,7 @@ const OfferLetter = () => {
 										/>
 									</GridItem>
 
-									<GridItem colSpan={2}>
+									<GridItem colSpan={{ base: 1, md: 2 }}>
 										<FormLabel fontSize='sm'>Remarks</FormLabel>
 										<Box
 											border='none'
@@ -411,6 +439,7 @@ const OfferLetter = () => {
 									onSend={onSubmitOffer}
 									offerDetails={offerDetails}
 									emailBody={emailBody}
+									interview={interview?.doc}
 									setEmailBody={setEmailBody}
 									setOfferDetails={setOfferDetails}
 								/>
@@ -418,6 +447,8 @@ const OfferLetter = () => {
 									<CustomButton
 										isLoading={sendingOffer}
 										isDisabled={!isEditing}
+										py='3'
+										px='6'
 									>
 										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
 									</CustomButton>

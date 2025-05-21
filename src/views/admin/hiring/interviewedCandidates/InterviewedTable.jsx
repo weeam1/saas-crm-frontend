@@ -106,6 +106,9 @@ const InterviewedTable = ({
 										<Td>
 											<InterviewStatusBadge interview={item} />
 										</Td>
+
+										<Td>{item.candidate.interviewCount || 1}</Td>
+
 										<Td>
 											{!item.remarks ? 'No Result' : `${item.percentageScore}%`}
 										</Td>

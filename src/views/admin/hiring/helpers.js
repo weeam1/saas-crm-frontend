@@ -32,9 +32,9 @@ export const experienceYearsOptions = [
 ];
 
 export const getCurrentInterviewRound = (interview) => {
-	return interview?.doc?.isMultiRound && interview?.doc?.nextRound
-		? interview?.doc?.nextRound
-		: interview?.doc;
+	return interview?.isMultiRound && interview?.nextRound
+		? interview?.nextRound
+		: interview;
 };
 
 export const getInterviewStatusConfig = (status) => {

@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const formattedDate = (_date) => {
 	if (_date === '') {
 		return '';
@@ -15,6 +17,12 @@ export const formattedDate = (_date) => {
 	const formattedDate = date.toLocaleDateString('en-US', options);
 
 	return formattedDate;
+};
+
+export const toUTCString = (date) => {
+	return date
+		? moment(date).utcOffset(0, true).startOf('day').toISOString()
+		: null;
 };
 
 export const extractLocationData = (ipString, countryNames) => {

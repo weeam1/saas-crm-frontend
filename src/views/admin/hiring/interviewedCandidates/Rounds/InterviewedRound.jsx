@@ -170,7 +170,7 @@ const InterviewedRound = ({
 				<HStack gap='2'>
 					<FaUserCheck w='14' h='14' />
 					<Heading size='md' color='gray.800'>
-						Final Interviewed
+						Multi Rounds Interviewed
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={totalDocs || 0} />})

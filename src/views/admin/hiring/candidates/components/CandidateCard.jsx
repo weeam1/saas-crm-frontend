@@ -211,7 +211,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 										color='gray.800'
 									>
 										<Icon as={FaUser} boxSize='3' />
-										<Text>{gender ?? 'N/A'}</Text>
+										<Text>{gender || 'N/A'}</Text>
 									</Flex>
 									<Flex
 										alignItems='center'

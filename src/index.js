@@ -121,9 +121,10 @@ function App() {
 						title: notificationDetails.title,
 						message: notificationDetails.message,
 					});
-				} else {
-					toast.success('Check out the latest updates!');
 				}
+				// else {
+				// 	toast.success('Check out the latest updates!');
+				// }
 
 				// Play notification sound
 				await announcementSound

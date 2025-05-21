@@ -48,6 +48,7 @@ import SettingPage from 'views/admin/Listing/Component/settings/index';
 import AddListing from 'views/admin/Listing/Component/AddListing';
 import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
 import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
+import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 
@@ -479,6 +480,14 @@ const routes = [
 		under: 'offerLetter',
 		parentName: 'Hiring',
 		component: OfferLetter,
+	},
+	{
+		name: 'Offer View',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/interviewed-candidates/offer-letter/view/:id',
+		under: 'offerView',
+		parentName: 'Hiring',
+		component: OfferView,
 	},
 	{
 		name: 'Positions',

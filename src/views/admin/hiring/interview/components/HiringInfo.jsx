@@ -25,9 +25,10 @@ const HiringInfo = ({
 }) => {
 	const initialValues = {
 		position: interview?.candidate?.position._id || '',
-		jobType: '',
-		amount: '',
-		commission: '',
+		jobType: interview?.jobType || '',
+		amount: interview?.amount || '',
+		commission: interview?.commission || '',
+		incentive: interview?.incentive || '',
 		isNextRound: false,
 	};
 
@@ -46,6 +47,14 @@ const HiringInfo = ({
 					.min(1, 'Amount must be at least 1'),
 			otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
 		}),
+		incentive: Yup.number()
+			.transform((value, originalValue) =>
+				originalValue === '' ? undefined : value
+			)
+			.nullable()
+			.notRequired()
+			.typeError('Incentive must be a number')
+			.min(0, 'Incentive must be at least 0'),
 
 		commission: Yup.number().when('jobType', {
 			is: (jobType) => ['Commission', 'SalaryPlusCommission'].includes(jobType),
@@ -72,7 +81,6 @@ const HiringInfo = ({
 		setHiringData(formik.values);
 	}, [formik.values, setHiringData]);
 
-	console.log('HIRING INFO');
 	return (
 		<Box w='full'>
 			<Box>
@@ -207,6 +215,27 @@ const HiringInfo = ({
 								<FormErrorMessage>{formik.errors.commission}</FormErrorMessage>
 							</FormControl>
 						)}
+
+						<FormControl
+							isInvalid={formik.touched.incentive && formik.errors.incentive}
+						>
+							<FormLabel>Incentive (Optional) </FormLabel>
+							<Input
+								type='number'
+								name='incentive'
+								placeholder='Enter Incentive'
+								bg='gray.100'
+								borderColor='gray.300'
+								_focus={{
+									borderColor: '#D99A36',
+									boxShadow: '0 0 0 1px #D99A36',
+								}}
+								onChange={formik.handleChange}
+								onBlur={formik.handleBlur}
+								value={formik.values.incentive}
+							/>
+							<FormErrorMessage>{formik.errors.incentive}</FormErrorMessage>
+						</FormControl>
 					</Grid>
 
 					{!isFinalRound && (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 // import DefaultUserImage from 'assets/img/avatars/user.jpg';
 import DefaultUserImage from 'assets/logo/logo.png';
 import { constant } from 'constant';
@@ -45,6 +45,13 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 		}
 	}, [profileImage]);
 
+	// const preview = useMemo(() => {
+	// 	if (profileImage && typeof profileImage === 'string') {
+	// 		return `${constant.baseUrl}${profileImage}`;
+	// 	}
+	// 	return DefaultUserImage;
+	// }, [profileImage]);
+
 	const handleFileChange = async (event) => {
 		const file = event.currentTarget.files[0];
 
@@ -84,12 +91,14 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 					console.log('uploade done');
 				}
 
-				setPreview(URL.createObjectURL(compressedFile));
+				// setPreview(URL.createObjectURL(compressedFile));
 			} catch (error) {
 				toast.error('Error processing image file!');
 			}
 		}
 	};
+
+	console.log({ preview, profileImage });
 
 	return (
 		<Box textAlign='center' mt={5}>
@@ -124,11 +133,15 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 					)}
 
 					<Image
-						src={preview || '/default-avatar.png'}
+						src={preview}
 						alt='Profile'
 						w='full'
 						h='full'
 						objectFit='cover'
+						// onError={(e) => {
+						// 	e.currentTarget.onerror = null; // prevent infinite loop
+						// 	e.currentTarget.src = DefaultUserImage;
+						// }}
 					/>
 				</Box>
 

@@ -42,6 +42,7 @@ import AddListing from "views/admin/Listing/Component/AddListing"
 import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
 import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
 import SettingPage from 'views/admin/Listing/Component/settings/index'
+import OfferView from "views/admin/hiring/interviewedCandidates/OfferView";
 
 const MainDashboard = React.lazy(() => import("views/admin/default"));
 const SignInCentered = React.lazy(() => import("views/auth/signIn"));
@@ -148,6 +149,16 @@ export default function User(props) {
 			component: LeadScreen,
 		},
 		{
+			name: 'Leads Pool',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/pool',
+			icon: (
+				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadPoolAgent,
+		},
+
+		{
 			name: 'Attendance',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/attendance',
@@ -209,16 +220,6 @@ export default function User(props) {
 		// 	),
 		// 	component: HRModule,
 		// },
-
-		{
-			name: 'Leads Pool',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/pool',
-			icon: (
-				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadPoolAgent,
-		},
 
 		{
 			name: 'Sign In',
@@ -997,6 +998,10 @@ export default function User(props) {
                             <Route
                               path="interviewed-candidates/offer-letter/:id"
                               element={<OfferLetter />}
+                            />
+                            <Route
+                              path="interviewed-candidates/offer-letter/veiw/:id"
+                              element={<OfferView />}
                             />
                           </Route>
                         </>

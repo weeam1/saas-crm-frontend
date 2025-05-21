@@ -50,6 +50,7 @@ const Interviewed = ({
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
 		{ key: 'type', label: 'Type', width: '150px' }, // WhatsApp No column width
 		{ key: 'status', label: 'Status', width: '100px' }, // WhatsApp No column width
+		{ key: 'rounds', label: 'Rounds', width: '50px' }, // WhatsApp No column width
 		{ key: 'percentageSocre', label: 'T.Percentage', width: '150px' }, // WhatsApp No column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
@@ -137,9 +138,15 @@ const Interviewed = ({
 	const navigate = useNavigate();
 
 	const handleSendOffer = (interviewId, offerType) => {
-		navigate(
-			`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
-		);
+		if (offerType === 'view') {
+			navigate(
+				`/hiring/interviewed-candidates/offer-letter/view/${interviewId}`
+			);
+		} else {
+			navigate(
+				`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+			);
+		}
 	};
 
 	// Update filtered data on search change
@@ -247,6 +254,7 @@ const Interviewed = ({
 					data={interview}
 					interviewId={interviewId}
 					refetch={refetch}
+					title='Interview Result'
 				/>
 			)}
 

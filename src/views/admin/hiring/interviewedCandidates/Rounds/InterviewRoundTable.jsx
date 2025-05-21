@@ -19,6 +19,10 @@ import FlagBadge from '../../_components/FlagBadge';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useCreateItemMutation } from 'api/apiSlice';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { useState } from 'react';
+import { toUTCString } from 'utils/helpers';
+import ArrangeInterview from '../../shortListedCandidates/components/ArrangeInterview';
 
 const InterviewedRoundTable = ({
 	headers,
@@ -29,11 +33,20 @@ const InterviewedRoundTable = ({
 	handleViewCandidate,
 	handleViewResult,
 }) => {
+	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
+	const [candidate, setCandidate] = useState(null);
+
+	const [selectedDate, setSelectedDate] = useState(null);
+	const [selectedTime, setSelectedTime] = useState('');
+
 	const user = JSON.parse(localStorage.getItem('user'));
 	const navigate = useNavigate();
 
 	const [createItemMutation, { isLoading: startingInterview }] =
 		useCreateItemMutation();
+
+	const [updateItemMutation, { isLoading: isInviting }] =
+		useUpdateItemMutation();
 
 	const handleStartInterview = async (interview) => {
 		try {
@@ -63,6 +76,30 @@ const InterviewedRoundTable = ({
 				error?.data?.message || 'Interview not started, please try again.'
 			);
 		}
+	};
+
+	const handleScheduleInterview = async () => {
+		try {
+			await updateItemMutation({
+				path: `/applications/schedule-interview/${candidate?._id}`,
+				body: {
+					interviewDate: toUTCString(selectedDate),
+					interviewTime: selectedTime,
+				},
+			}).unwrap();
+
+			toast.success('Invite succesfully sended');
+		} catch (err) {
+			console.log(err);
+		} finally {
+			setArrangeInterviewOpen(false);
+		}
+	};
+
+	const handleArrangeInterview = async (candidate) => {
+		setCandidate(candidate);
+		console.log({ candidate });
+		setArrangeInterviewOpen(true);
 	};
 
 	return (
@@ -175,6 +212,29 @@ const InterviewedRoundTable = ({
 														h='6'
 														py='2'
 														px='4'
+														fontSize='xs'
+														fontWeight='normal'
+														shadow='sm'
+														rounded='md'
+														_hover={{ bg: '#E0B960' }}
+														_active={{ bg: '#D4AC50' }}
+														onClick={() =>
+															handleArrangeInterview(item.candidate)
+														}
+													>
+														{item?.candidate?.invited
+															? 'Reschedule'
+															: 'Arrange Interview'}
+													</Button>
+												)}
+
+												{item?.remarks && item?.candidate?.invited && (
+													<Button
+														bg='#EDC270'
+														color='gray.800'
+														h='6'
+														py='2'
+														px='4'
 														flex={1}
 														fontSize='xs'
 														fontWeight='normal'
@@ -210,6 +270,19 @@ const InterviewedRoundTable = ({
 					</Table>
 				</TableContainer>
 			</Box>
+
+			{arrangeInterviewOpen && (
+				<ArrangeInterview
+					isOpen={arrangeInterviewOpen}
+					onClose={() => setArrangeInterviewOpen(false)}
+					selectedDate={selectedDate}
+					setSelectedDate={setSelectedDate}
+					selectedTime={selectedTime}
+					setSelectedTime={setSelectedTime}
+					isLoading={isInviting}
+					handleScheduleInterview={handleScheduleInterview}
+				/>
+			)}
 		</>
 	);
 };

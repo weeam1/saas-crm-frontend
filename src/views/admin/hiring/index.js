@@ -41,11 +41,11 @@ const Hiring = () => {
 			component: <ShortListedCandidates key={tabKey} />,
 		},
 		{
-			label: 'Final Interviewed',
-			param: 'final-interviewed',
-			title: 'Final Interviewed Candidates Overview',
+			label: 'Multi Rounds Interviewed',
+			param: 'multi-rounds-interviewed',
+			title: 'Multi Round interviewed Candidates Overview',
 			description:
-				'See candidates who have final round interviews. Track interview outcomes and feedback.',
+				'See candidates who have multi rounds interviews. Track interview outcomes and feedback.',
 			component: <InterviewedRound key={tabKey} />,
 		},
 		{
