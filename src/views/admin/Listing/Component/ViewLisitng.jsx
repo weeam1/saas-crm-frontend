@@ -11,6 +11,7 @@ import {
   AlertIcon,
   Text,
   Flex,
+  Textarea,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -134,6 +135,7 @@ const ViewListing = () => {
               value={listing.data?.projectName || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -146,6 +148,7 @@ const ViewListing = () => {
               value={listing.data?.unitType?.name || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -158,6 +161,7 @@ const ViewListing = () => {
               value={listing.data?.unitType?.subType || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -170,6 +174,7 @@ const ViewListing = () => {
               value={listing.data?.listingType?.name || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -182,6 +187,7 @@ const ViewListing = () => {
               value={listing.data?.developer?.developer_name || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -194,6 +200,7 @@ const ViewListing = () => {
               value={listing.data?.area ? `${listing.data.area} sqft` : "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -210,6 +217,7 @@ const ViewListing = () => {
               }
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -222,6 +230,7 @@ const ViewListing = () => {
               value={listing.data?.location || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -238,6 +247,7 @@ const ViewListing = () => {
               }
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -251,6 +261,7 @@ const ViewListing = () => {
                   value={listing.data?.landlord || "N/A"}
                   readOnly
                   variant="filled"
+                  focusBorderColor="brand.500"
                 />
               </FormControl>
             </GridItem>
@@ -263,6 +274,7 @@ const ViewListing = () => {
                   value={listing.data?.phoneNumber || "N/A"}
                   readOnly
                   variant="filled"
+                  focusBorderColor="brand.500"
                 />
               </FormControl>
             </GridItem>
@@ -275,6 +287,7 @@ const ViewListing = () => {
                   value={listing.data?.email || "N/A"}
                   readOnly
                   variant="filled"
+                  focusBorderColor="brand.500"
                 />
               </FormControl>
             </GridItem>
@@ -284,8 +297,13 @@ const ViewListing = () => {
         <GridItem colSpan={2}>
           <FormControl>
             <FormLabel fontWeight="bold">Description</FormLabel>
-            <Input
-              value={listing.data?.description || "N/A"}
+            <Textarea
+              name="description"
+              value={listing.data?.description}
+              placeholder="Enter description"
+              focusBorderColor="brand.500"
+              height="150px"
+              resize="vertical"
               readOnly
               variant="filled"
             />
