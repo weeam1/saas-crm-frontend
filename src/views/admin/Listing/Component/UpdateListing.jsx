@@ -13,8 +13,7 @@ import {
   Button,
   Flex,
   Textarea,
-  Switch,
-  Text,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -23,6 +22,34 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  projectName: Yup.string().required("Project Name is required"),
+  unitType: Yup.string().required("Unit Type is required"),
+  listingType: Yup.string().required("Listing Type is required"),
+  description: Yup.string().required("Description is required"),
+  area: Yup.number()
+    .typeError("Area must be a number")
+    .positive("Area must be greater than 0")
+    .required("Area is required"),
+  price: Yup.number()
+    .typeError("Price must be a number")
+    .positive("Price must be greater than 0")
+    .required("Price is required"),
+  currency: Yup.string().required("Currency is required"),
+  location: Yup.string().required("Location is required"),
+  landlord: Yup.string().required("Landlord name is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  buildingAge: Yup.number()
+    .typeError("Building age must be a number")
+    .min(0, "Building age cannot be negative")
+    .required("Building age is required"),
+  developer: Yup.string().required("Developer is required"),
+});
 
 const UpdateListing = () => {
   const { id } = useParams();
@@ -83,6 +110,7 @@ const UpdateListing = () => {
       isConfidential: listing?.data?.isConfidential || false,
       documents: listing?.data?.documents || [],
     },
+    validationSchema,
     onSubmit: async (values) => {
       try {
         const payload = {
@@ -182,7 +210,9 @@ const UpdateListing = () => {
       >
         {/* Project Name */}
         <GridItem colSpan={2}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.projectName && formik.errors.projectName}
+          >
             <FormLabel>Project Name</FormLabel>
             <Input
               name="projectName"
@@ -191,12 +221,15 @@ const UpdateListing = () => {
               placeholder="Enter project name"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.projectName}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Unit Type */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.unitType && formik.errors.unitType}
+          >
             <FormLabel>Unit Type</FormLabel>
             <Select
               name="unitType"
@@ -211,6 +244,7 @@ const UpdateListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.unitType}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -232,7 +266,9 @@ const UpdateListing = () => {
 
         {/* Listing Type */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.listingType && formik.errors.listingType}
+          >
             <FormLabel>Listing Type</FormLabel>
             <Select
               name="listingType"
@@ -247,12 +283,15 @@ const UpdateListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.listingType}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Developer */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.developer && formik.errors.developer}
+          >
             <FormLabel>Developer</FormLabel>
             <Select
               name="developer"
@@ -267,12 +306,13 @@ const UpdateListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.developer}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Area */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
               type="number"
@@ -283,12 +323,13 @@ const UpdateListing = () => {
               focusBorderColor="brand.500"
               min="0"
             />
+            <FormErrorMessage>{formik.errors.area}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Price */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Price</FormLabel>
             <Input
               type="number"
@@ -299,12 +340,15 @@ const UpdateListing = () => {
               focusBorderColor="brand.500"
               min="0"
             />
+            <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Currency */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.currency && formik.errors.currency}
+          >
             <FormLabel>Currency</FormLabel>
             <Select
               name="currency"
@@ -314,12 +358,15 @@ const UpdateListing = () => {
             >
               <option value="AED">AED</option>
             </Select>
+            <FormErrorMessage>{formik.errors.currency}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Location */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.location && formik.errors.location}
+          >
             <FormLabel>Location</FormLabel>
             <Input
               name="location"
@@ -328,12 +375,15 @@ const UpdateListing = () => {
               placeholder="Enter location"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Building Age */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.buildingAge && formik.errors.buildingAge}
+          >
             <FormLabel>Building Age (years)</FormLabel>
             <Input
               type="number"
@@ -344,13 +394,16 @@ const UpdateListing = () => {
               focusBorderColor="brand.500"
               min="0"
             />
+            <FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
           </FormControl>
         </GridItem>
         {isAdmin && (
           <>
             {/* Landlord */}
             <GridItem colSpan={1}>
-              <FormControl>
+              <FormControl
+                isInvalid={formik.touched.landlord && formik.errors.landlord}
+              >
                 <FormLabel>Landlord</FormLabel>
                 <Input
                   name="landlord"
@@ -360,12 +413,17 @@ const UpdateListing = () => {
                   placeholder="Enter landlord name"
                   focusBorderColor="brand.500"
                 />
+                <FormErrorMessage>{formik.errors.landlord}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             {/* Phone Number */}
             <GridItem colSpan={1}>
-              <FormControl>
+              <FormControl
+                isInvalid={
+                  formik.touched.phoneNumber && formik.errors.phoneNumber
+                }
+              >
                 <FormLabel>Phone Number</FormLabel>
                 <Input
                   name="phoneNumber"
@@ -375,12 +433,15 @@ const UpdateListing = () => {
                   placeholder="Enter phone number"
                   focusBorderColor="brand.500"
                 />
+                <FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>
               </FormControl>
             </GridItem>
 
             {/* Email */}
             <GridItem colSpan={1}>
-              <FormControl>
+              <FormControl
+                isInvalid={formik.touched.email && formik.errors.email}
+              >
                 <FormLabel>Email</FormLabel>
                 <Input
                   type="email"
@@ -391,13 +452,16 @@ const UpdateListing = () => {
                   placeholder="Enter email"
                   focusBorderColor="brand.500"
                 />
+                <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
               </FormControl>
             </GridItem>
           </>
         )}
         {/* Description */}
         <GridItem colSpan={2}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.description && formik.errors.description}
+          >
             <FormLabel>Description</FormLabel>
             <Textarea
               name="description"
@@ -408,6 +472,7 @@ const UpdateListing = () => {
               height="150px"
               resize="vertical"
             />
+            <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
           </FormControl>
         </GridItem>
 

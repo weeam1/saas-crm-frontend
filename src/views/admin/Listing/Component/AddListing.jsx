@@ -10,6 +10,8 @@ import {
   Box,
   Flex,
   Textarea,
+  FormErrorMessage,
+  Text,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import AppButton from "components/shared/AppButton";
@@ -17,30 +19,40 @@ import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  projectName: Yup.string().required("Project Name is required"),
+  unitType: Yup.string().required("Unit Type is required"),
+  listingType: Yup.string().required("Listing Type is required"),
+  description: Yup.string().required("Description is required"),
+  area: Yup.number()
+    .typeError("Area must be a number")
+    .positive("Area must be greater than 0")
+    .required("Area is required"),
+  price: Yup.number()
+    .typeError("Price must be a number")
+    .positive("Price must be greater than 0")
+    .required("Price is required"),
+  currency: Yup.string().required("Currency is required"),
+  location: Yup.string().required("Location is required"),
+  landlord: Yup.string().required("Landlord name is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  buildingAge: Yup.number()
+    .typeError("Building age must be a number")
+    .min(0, "Building age cannot be negative")
+    .required("Building age is required"),
+  developer: Yup.string().required("Developer is required"),
+});
 
 const AddListing = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
   const [unitTypes, setUnitTypes] = useState([]);
   const [selectedUnitType, setSelectedUnitType] = useState(null);
-  const [formData, setFormData] = useState({
-    projectName: "",
-    unitType: "",
-    listingType: "",
-    description: "",
-    area: "",
-    price: "",
-    currency: "AED",
-    location: "",
-    landlord: "",
-    phoneNumber: "",
-    email: "",
-    buildingAge: "",
-    developer: "",
-    documents: [],
-  });
-
-  const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
 
@@ -65,65 +77,64 @@ const AddListing = () => {
     }
   }, [listingUnitType]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const formik = useFormik({
+    initialValues: {
+      projectName: "",
+      unitType: "",
+      listingType: "",
+      description: "",
+      area: "",
+      price: "",
+      currency: "AED",
+      location: "",
+      landlord: "",
+      phoneNumber: "",
+      email: "",
+      buildingAge: "",
+      developer: "",
+      documents: [],
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        const payload = {
+          ...values,
+          documents: [...files],
+          agent: user._id,
+          createdBy: user._id,
+          agency: user.agency,
+        };
+
+        await createItemMutation({
+          path: "/listing/secondary",
+          body: payload,
+        }).unwrap();
+
+        toast.success("Listing added successfully");
+        navigate("/listing");
+        resetForm();
+        setSelectedUnitType(null);
+        setFiles([]);
+      } catch (error) {
+        console.error(error);
+        toast.error(error.data?.message || "Failed to add listing");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  const [createItemMutation] = useCreateItemMutation();
 
   const handleUnitTypeChange = (e) => {
     const unitTypeId = e.target.value;
     const selected = unitTypes.find((type) => type._id === unitTypeId);
     setSelectedUnitType(selected);
-    setFormData((prev) => ({ ...prev, unitType: unitTypeId }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const payload = {
-      ...formData,
-      documents: [...files],
-      agent: user._id,
-      createdBy: user._id,
-      agency: user.agency,
-    };
-
-    try {
-      await createItemMutation({
-        path: "/listing/secondary",
-        body: payload,
-      }).unwrap();
-
-      toast.success("Listing added successfully");
-      navigate("/listing");
-      setFormData({
-        projectName: "",
-        unitType: "",
-        listingType: "",
-        description: "",
-        area: "",
-        price: "",
-        currency: "AED",
-        location: "",
-        landlord: "",
-        phoneNumber: "",
-        email: "",
-        buildingAge: "",
-        developer: "",
-        documents: [],
-      });
-      setSelectedUnitType(null);
-    } catch (error) {
-      console.error(error);
-      toast.error(error.data?.message || "Failed to add listing");
-    } finally {
-      setIsSubmitting(false);
-    }
+    formik.setFieldValue("unitType", unitTypeId);
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
+    <Box as="form" onSubmit={formik.handleSubmit}>
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
@@ -135,35 +146,42 @@ const AddListing = () => {
 
       <Grid
         templateColumns="repeat(2, 1fr)"
-        gap={10}
+        gap={6}
         p={5}
-        bg={"white"}
-        borderRadius={"md"}
+        bg="white"
+        borderRadius="md"
         my={5}
         mx={2}
       >
         {/* Project Name */}
         <GridItem colSpan={2}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.projectName && formik.errors.projectName}
+          >
             <FormLabel>Project Name</FormLabel>
             <Input
               name="projectName"
-              value={formData.projectName}
-              onChange={handleChange}
+              value={formik.values.projectName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter project name"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.projectName}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Unit Type */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.unitType && formik.errors.unitType}
+          >
             <FormLabel>Unit Type</FormLabel>
             <Select
               name="unitType"
-              value={formData.unitType}
+              value={formik.values.unitType}
               onChange={handleUnitTypeChange}
+              onBlur={formik.handleBlur}
               placeholder="Select unit type"
               focusBorderColor="brand.500"
             >
@@ -173,6 +191,7 @@ const AddListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.unitType}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
@@ -183,20 +202,23 @@ const AddListing = () => {
             <Input
               value={selectedUnitType?.subType || ""}
               isReadOnly
-              placeholder="Sub type "
+              placeholder="Sub type"
               focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
 
-        {/* listing Type */}
+        {/* Listing Type */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.listingType && formik.errors.listingType}
+          >
             <FormLabel>Listing Type</FormLabel>
             <Select
               name="listingType"
-              value={formData.listingType}
-              onChange={handleChange}
+              value={formik.values.listingType}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Select listing type"
               focusBorderColor="brand.500"
             >
@@ -206,17 +228,21 @@ const AddListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.listingType}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Developer */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.developer && formik.errors.developer}
+          >
             <FormLabel>Developer</FormLabel>
             <Select
               name="developer"
-              value={formData.developer}
-              onChange={handleChange}
+              value={formik.values.developer}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Select developer"
               focusBorderColor="brand.500"
             >
@@ -226,142 +252,176 @@ const AddListing = () => {
                 </option>
               ))}
             </Select>
+            <FormErrorMessage>{formik.errors.developer}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Area */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
               type="number"
               name="area"
-              value={formData.area}
-              onChange={handleChange}
+              value={formik.values.area}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter area in square feet"
               focusBorderColor="brand.500"
               min="0"
             />
+            <FormErrorMessage>{formik.errors.area}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Price */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Price</FormLabel>
             <Input
               type="number"
               name="price"
-              value={formData.price}
-              onChange={handleChange}
+              value={formik.values.price}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter price"
               focusBorderColor="brand.500"
+              min="0"
             />
+            <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Currency */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.currency && formik.errors.currency}
+          >
             <FormLabel>Currency</FormLabel>
             <Select
               name="currency"
-              value={formData.currency}
-              onChange={handleChange}
+              value={formik.values.currency}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               focusBorderColor="brand.500"
             >
               <option value="AED">AED</option>
             </Select>
+            <FormErrorMessage>{formik.errors.currency}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Location */}
         <GridItem colSpan={1}>
-          <FormControl isRequired>
+          <FormControl
+            isInvalid={formik.touched.location && formik.errors.location}
+          >
             <FormLabel>Location</FormLabel>
             <Input
               name="location"
-              value={formData.location}
-              onChange={handleChange}
+              value={formik.values.location}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter location"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Building Age */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.buildingAge && formik.errors.buildingAge}
+          >
             <FormLabel>Building Age (years)</FormLabel>
             <Input
               type="number"
               name="buildingAge"
-              value={formData.buildingAge}
-              onChange={handleChange}
+              value={formik.values.buildingAge}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter building age"
               focusBorderColor="brand.500"
               min="0"
             />
+            <FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Landlord */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.landlord && formik.errors.landlord}
+          >
             <FormLabel>Landlord</FormLabel>
             <Input
               name="landlord"
-              value={formData.landlord}
-              onChange={handleChange}
+              value={formik.values.landlord}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter landlord name"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.landlord}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Phone Number */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.phoneNumber && formik.errors.phoneNumber}
+          >
             <FormLabel>Phone Number</FormLabel>
             <Input
               name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Enter phone number"
+              value={formik.values.phoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter Jio phone number"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>
           </FormControl>
         </GridItem>
 
         {/* Email */}
         <GridItem colSpan={1}>
-          <FormControl>
+          <FormControl isInvalid={formik.touched.email && formik.errors.email}>
             <FormLabel>Email</FormLabel>
             <Input
               type="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter email"
               focusBorderColor="brand.500"
             />
+            <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         {/* Description */}
         <GridItem colSpan={2}>
-          <FormControl>
+          <FormControl
+            isInvalid={formik.touched.description && formik.errors.description}
+          >
             <FormLabel>Description</FormLabel>
             <Textarea
               name="description"
-              value={formData.description}
-              onChange={handleChange}
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               placeholder="Enter description"
               focusBorderColor="brand.500"
               height="150px"
               resize="vertical"
             />
+            <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         {/* Document Upload */}
         <GridItem colSpan={2}>
           <FormControl>
@@ -376,8 +436,9 @@ const AddListing = () => {
             <Button
               type="submit"
               colorScheme="brand"
-              isLoading={isSubmitting}
+              isLoading={formik.isSubmitting}
               loadingText="Submitting"
+              isDisabled={!formik.isValid || formik.isSubmitting}
             >
               Add Listing
             </Button>
