@@ -75,7 +75,7 @@ const Listing = () => {
           listingUnitType={listingUnitType}
         />
       ),
-      show: isAdmin || isAgent,
+      show: isAdmin,
     },
     {
       label: "Pending Listings",

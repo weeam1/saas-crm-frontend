@@ -23,6 +23,7 @@ import {
   Input,
   useDisclosure,
   Switch,
+  Select,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
@@ -47,6 +48,7 @@ const ListingUnitTypes = () => {
 
   const [formData, setFormData] = useState({
     name: "",
+    subType: "",
     status: true,
   });
 
@@ -67,7 +69,7 @@ const ListingUnitTypes = () => {
   const [updateItemMuation] = useUpdateItemMutation();
   const [deleteItemMutation] = useDeleteItemMutation();
 
-  const columns = ["Name", "Status", "Created At", "Actions"];
+  const columns = ["Name", "Sub Type", "Status", "Created At", "Actions"];
 
   useEffect(() => {
     if (data) {
@@ -122,6 +124,7 @@ const ListingUnitTypes = () => {
     setCurrentUnitType(unitType);
     setFormData({
       name: unitType.name,
+      subType: unitType.subType || "",
       status: unitType.status,
     });
     setIsEditMode(true);
@@ -144,27 +147,29 @@ const ListingUnitTypes = () => {
   const resetForm = () => {
     setFormData({
       name: "",
+      subType: "",
       status: true,
     });
     setIsEditMode(false);
     setCurrentUnitType(null);
   };
 
-    const handleStatusChange = async (type) => {
-      try {
-        const newStatus = !type.status;
-        await updateItemMuation({
-          path: `/listing/secondary/unit-types/${type._id}`,
-          body: { status: newStatus },
-        }).unwrap();
-    
-        toast.success(`Listing type status updated successfully`);
-        refetch(); 
-      } catch (error) {
-        console.error(error);
-        toast.error(error.data?.message || "Failed to update listing type status");
-      }
-    };
+  const handleStatusChange = async (type) => {
+    try {
+      const newStatus = !type.status;
+      await updateItemMuation({
+        path: `/listing/secondary/unit-types/${type._id}`,
+        body: { status: newStatus },
+      }).unwrap();
+  
+      toast.success(`Listing type status updated successfully`);
+      refetch(); 
+    } catch (error) {
+      console.error(error);
+      toast.error(error.data?.message || "Failed to update listing type status");
+    }
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -173,7 +178,7 @@ const ListingUnitTypes = () => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
+      marginLeft={"0px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -267,6 +272,15 @@ const ListingUnitTypes = () => {
                     minWidth="100px"
                     textAlign={"center"}
                   >
+                    {unitType.subType || "N/A"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     <Switch
                       colorScheme="green"
                       isChecked={unitType.status}
@@ -330,12 +344,22 @@ const ListingUnitTypes = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Unit Type Name</FormLabel>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter unit type name"
+              />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Sub Type</FormLabel>
+              <Input
+                name="subType"
+                value={formData.subType}
+                onChange={handleInputChange}
+                placeholder="Enter sub type (optional)"
               />
             </FormControl>
 

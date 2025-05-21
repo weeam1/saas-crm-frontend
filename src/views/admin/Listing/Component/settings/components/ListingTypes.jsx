@@ -173,7 +173,7 @@ const ListingTypes = () => {
       bg="white"
       px={2}
       marginTop={"-16px"}
-      marginLeft={"-4px"}
+      marginLeft={"0px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -330,7 +330,7 @@ const ListingTypes = () => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Listing Type</FormLabel>
               <Input
                 name="name"
                 value={formData.name}

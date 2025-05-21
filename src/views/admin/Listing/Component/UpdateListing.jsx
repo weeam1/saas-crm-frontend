@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   FormControl,
@@ -12,6 +12,9 @@ import {
   AlertIcon,
   Button,
   Flex,
+  Textarea,
+  Switch,
+  Text,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -24,9 +27,10 @@ import FileUpload from "./SubComponent/FileUpload";
 const UpdateListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
- const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "superAdmin";
 
-  // Fetch data
   const {
     data: listing,
     isLoading,
@@ -46,14 +50,19 @@ const UpdateListing = () => {
     { skip: !id }
   );
 
+  const { data: developers } = useFetchItemsQuery(
+    { path: `/developer/get` },
+    { skip: !id }
+  );
+
   useEffect(() => {
-    if(listing?.data) {
-      setFiles([...listing?.data?.documents])
+    if (listing?.data?.documents) {
+      setFiles([...listing.data.documents]);
     }
-  },[listing])
+  }, [listing]);
+
   const [updateListing, { isLoading: isUpdating }] = useUpdateItemMutation();
 
-  // Formik setup
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -65,23 +74,40 @@ const UpdateListing = () => {
       currency: listing?.data?.currency || "AED",
       listingType: listing?.data?.listingType?._id || "",
       location: listing?.data?.location || "",
-      ownerName: listing?.data?.ownerName || "",
-      ownerContact: listing?.data?.ownerContact || "",
-      documents : listing?.data?.documents || [],
+      landlord: listing?.data?.landlord || "",
+      phoneNumber: listing?.data?.phoneNumber || "",
+      email: listing?.data?.email || "",
+      buildingAge: listing?.data?.buildingAge || "",
+      developer: listing?.data?.developer?._id || "",
+      status: listing?.data?.status || "pending",
+      isConfidential: listing?.data?.isConfidential || false,
+      documents: listing?.data?.documents || [],
     },
     onSubmit: async (values) => {
       try {
-        values.documents = [...files];
+        const payload = {
+          ...values,
+          documents: [...files],
+          agent: user._id,
+          lastUpdatedBy: user._id,
+        };
+
+        if (!isAdmin) {
+          delete payload.landlord;
+          delete payload.phoneNumber;
+          delete payload.email;
+        }
+
         await updateListing({
           path: `listing/secondary/${id}`,
-          body: values,
+          body: payload,
         }).unwrap();
 
         toast.success("Listing updated successfully");
         navigate("/listing");
       } catch (error) {
         console.error("Update error:", error);
-        toast.error("Failed to update listing");
+        toast.error(error.data?.message || "Failed to update listing");
       }
     },
   });
@@ -91,7 +117,7 @@ const UpdateListing = () => {
       <Box p={5}>
         <Skeleton height="40px" mb={4} />
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-          {Array.from({ length: 10 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <GridItem key={i} colSpan={i % 3 === 0 ? 2 : 1}>
               <Skeleton height="40px" />
             </GridItem>
@@ -188,6 +214,22 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Unit Sub Type (Display only) */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Unit Sub Type</FormLabel>
+            <Input
+              value={
+                unitTypes?.doc?.find(
+                  (type) => type._id === formik.values.unitType
+                )?.subType || "N/A"
+              }
+              readOnly
+              variant="filled"
+            />
+          </FormControl>
+        </GridItem>
+
         {/* Listing Type */}
         <GridItem colSpan={1}>
           <FormControl isRequired>
@@ -208,6 +250,26 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Developer */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Developer</FormLabel>
+            <Select
+              name="developer"
+              value={formik.values.developer}
+              onChange={formik.handleChange}
+              placeholder="Select developer"
+              focusBorderColor="brand.500"
+            >
+              {developers?.doc?.map((dev) => (
+                <option key={dev._id} value={dev._id}>
+                  {dev.developer_name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </GridItem>
+
         {/* Area */}
         <GridItem colSpan={1}>
           <FormControl isRequired>
@@ -219,6 +281,7 @@ const UpdateListing = () => {
               onChange={formik.handleChange}
               placeholder="Enter area"
               focusBorderColor="brand.500"
+              min="0"
             />
           </FormControl>
         </GridItem>
@@ -234,6 +297,7 @@ const UpdateListing = () => {
               onChange={formik.handleChange}
               placeholder="Enter price"
               focusBorderColor="brand.500"
+              min="0"
             />
           </FormControl>
         </GridItem>
@@ -267,53 +331,94 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
 
-        {/* Description */}
+        {/* Building Age */}
         <GridItem colSpan={1}>
           <FormControl>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Building Age (years)</FormLabel>
             <Input
+              type="number"
+              name="buildingAge"
+              value={formik.values.buildingAge}
+              onChange={formik.handleChange}
+              placeholder="Enter building age"
+              focusBorderColor="brand.500"
+              min="0"
+            />
+          </FormControl>
+        </GridItem>
+        {isAdmin && (
+          <>
+            {/* Landlord */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel>Landlord</FormLabel>
+                <Input
+                  name="landlord"
+                  value={formik.values.landlord}
+                  onChange={formik.handleChange}
+                  readOnly={!isAdmin}
+                  placeholder="Enter landlord name"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+
+            {/* Phone Number */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel>Phone Number</FormLabel>
+                <Input
+                  name="phoneNumber"
+                  value={formik.values.phoneNumber}
+                  onChange={formik.handleChange}
+                  readOnly={!isAdmin}
+                  placeholder="Enter phone number"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+
+            {/* Email */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  readOnly={!isAdmin}
+                  placeholder="Enter email"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+          </>
+        )}
+        {/* Description */}
+        <GridItem colSpan={2}>
+          <FormControl>
+            <FormLabel>Description</FormLabel>
+            <Textarea
               name="description"
               value={formik.values.description}
               onChange={formik.handleChange}
               placeholder="Enter description"
               focusBorderColor="brand.500"
+              height="150px"
+              resize="vertical"
             />
           </FormControl>
         </GridItem>
 
-        {/* Owner Name */}
-        <GridItem colSpan={1}>
-          <FormControl>
-            <FormLabel>Owner Name</FormLabel>
-            <Input
-              name="ownerName"
-              value={formik.values.ownerName}
-              onChange={formik.handleChange}
-              placeholder="Enter owner name"
-              focusBorderColor="brand.500"
-            />
-          </FormControl>
-        </GridItem>
-
-        {/* Owner Contact */}
-        <GridItem colSpan={1}>
-          <FormControl>
-            <FormLabel>Owner Contact</FormLabel>
-            <Input
-              name="ownerContact"
-              value={formik.values.ownerContact}
-              onChange={formik.handleChange}
-              placeholder="Enter contact"
-              focusBorderColor="brand.500"
-            />
-          </FormControl>
-        </GridItem>
+        {/* Documents */}
         <GridItem colSpan={2}>
           <FormControl>
-            <FormLabel>Document Upload</FormLabel>
+            <FormLabel>Documents</FormLabel>
             <FileUpload files={files} setFiles={setFiles} />
           </FormControl>
         </GridItem>
+
         {/* Submit Button */}
         <GridItem colSpan={2}>
           <Flex justify="flex-end">

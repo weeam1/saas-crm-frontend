@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   FormControl,
@@ -9,6 +9,7 @@ import {
   GridItem,
   Box,
   Flex,
+  Textarea,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import AppButton from "components/shared/AppButton";
@@ -20,6 +21,8 @@ import FileUpload from "./SubComponent/FileUpload";
 const AddListing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
+  const [unitTypes, setUnitTypes] = useState([]);
+  const [selectedUnitType, setSelectedUnitType] = useState(null);
   const [formData, setFormData] = useState({
     projectName: "",
     unitType: "",
@@ -29,9 +32,12 @@ const AddListing = () => {
     price: "",
     currency: "AED",
     location: "",
-    ownerName: "",
-    ownerContact: "",
-    documents:[],
+    landlord: "",
+    phoneNumber: "",
+    email: "",
+    buildingAge: "",
+    developer: "",
+    documents: [],
   });
 
   const [createItemMutation] = useCreateItemMutation();
@@ -48,24 +54,48 @@ const AddListing = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
+  const { data: developers } = useFetchItemsQuery(
+    { path: `/developer/get` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
+
+  useEffect(() => {
+    if (listingUnitType?.doc) {
+      setUnitTypes(listingUnitType.doc);
+    }
+  }, [listingUnitType]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleUnitTypeChange = (e) => {
+    const unitTypeId = e.target.value;
+    const selected = unitTypes.find((type) => type._id === unitTypeId);
+    setSelectedUnitType(selected);
+    setFormData((prev) => ({ ...prev, unitType: unitTypeId }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    formData.documents = [...files];
+
+    const payload = {
+      ...formData,
+      documents: [...files],
+      agent: user._id,
+      createdBy: user._id,
+      agency: user.agency,
+    };
+
     try {
       await createItemMutation({
         path: "/listing/secondary",
-        body: formData,
+        body: payload,
       }).unwrap();
 
-      toast("Listing added successfully.", {
-        autoClose: 3000,
-      });
+      toast.success("Listing added successfully");
       navigate("/listing");
       setFormData({
         projectName: "",
@@ -76,15 +106,17 @@ const AddListing = () => {
         price: "",
         currency: "AED",
         location: "",
-        ownerName: "",
-        ownerContact: "",
-        documents: "",
+        landlord: "",
+        phoneNumber: "",
+        email: "",
+        buildingAge: "",
+        developer: "",
+        documents: [],
       });
+      setSelectedUnitType(null);
     } catch (error) {
       console.error(error);
-      toast("Failed to add listing", {
-        autoClose: 3000,
-      });
+      toast.error(error.data?.message || "Failed to add listing");
     } finally {
       setIsSubmitting(false);
     }
@@ -131,16 +163,29 @@ const AddListing = () => {
             <Select
               name="unitType"
               value={formData.unitType}
-              onChange={handleChange}
+              onChange={handleUnitTypeChange}
               placeholder="Select unit type"
               focusBorderColor="brand.500"
             >
-              {listingUnitType?.doc?.map((unitType) => (
+              {unitTypes.map((unitType) => (
                 <option key={unitType._id} value={unitType._id}>
                   {unitType.name}
                 </option>
               ))}
             </Select>
+          </FormControl>
+        </GridItem>
+
+        {/* Unit Sub Type (Display only) */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Unit Sub Type</FormLabel>
+            <Input
+              value={selectedUnitType?.subType || ""}
+              isReadOnly
+              placeholder="Sub type "
+              focusBorderColor="brand.500"
+            />
           </FormControl>
         </GridItem>
 
@@ -164,6 +209,26 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Developer */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Developer</FormLabel>
+            <Select
+              name="developer"
+              value={formData.developer}
+              onChange={handleChange}
+              placeholder="Select developer"
+              focusBorderColor="brand.500"
+            >
+              {developers?.doc?.map((dev) => (
+                <option key={dev._id} value={dev._id}>
+                  {dev.developer_name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </GridItem>
+
         {/* Area */}
         <GridItem colSpan={1}>
           <FormControl isRequired>
@@ -175,6 +240,7 @@ const AddListing = () => {
               onChange={handleChange}
               placeholder="Enter area in square feet"
               focusBorderColor="brand.500"
+              min="0"
             />
           </FormControl>
         </GridItem>
@@ -223,48 +289,80 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
-        {/* Description */}
+        {/* Building Age */}
         <GridItem colSpan={1}>
           <FormControl>
-            <FormLabel>Description</FormLabel>
+            <FormLabel>Building Age (years)</FormLabel>
             <Input
+              type="number"
+              name="buildingAge"
+              value={formData.buildingAge}
+              onChange={handleChange}
+              placeholder="Enter building age"
+              focusBorderColor="brand.500"
+              min="0"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Landlord */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Landlord</FormLabel>
+            <Input
+              name="landlord"
+              value={formData.landlord}
+              onChange={handleChange}
+              placeholder="Enter landlord name"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Phone Number */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Phone Number</FormLabel>
+            <Input
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Email */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+        {/* Description */}
+        <GridItem colSpan={2}>
+          <FormControl>
+            <FormLabel>Description</FormLabel>
+            <Textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               placeholder="Enter description"
               focusBorderColor="brand.500"
+              height="150px"
+              resize="vertical"
             />
           </FormControl>
         </GridItem>
-
-        {/* Owner Name */}
-        <GridItem colSpan={1}>
-          <FormControl>
-            <FormLabel>Owner Name</FormLabel>
-            <Input
-              name="ownerName"
-              value={formData.ownerName}
-              onChange={handleChange}
-              placeholder="Enter owner name"
-              focusBorderColor="brand.500"
-            />
-          </FormControl>
-        </GridItem>
-
-        {/* Owner Contact */}
-        <GridItem colSpan={1}>
-          <FormControl>
-            <FormLabel>Owner Contact</FormLabel>
-            <Input
-              type="number"
-              name="ownerContact"
-              value={formData.ownerContact}
-              onChange={handleChange}
-              placeholder="Enter owner contact"
-              focusBorderColor="brand.500"
-            />
-          </FormControl>
-        </GridItem>
+        {/* Document Upload */}
         <GridItem colSpan={2}>
           <FormControl>
             <FormLabel>Document Upload</FormLabel>
