@@ -128,7 +128,7 @@ const InterviewScreen = memo(() => {
 
 		if (isInterviewCompleted || isFinalStatusAsLead) {
 			toast.error('This interview has already completed.');
-			navigate('/');
+			navigate('/hiring');
 		}
 	}, [interview?.doc, isLeadInterviewer, navigate]);
 
@@ -149,11 +149,11 @@ const InterviewScreen = memo(() => {
 		[updateItemMutation, navigate]
 	);
 
-	console.log({
-		isLeadInterviewer,
-		isInterviewerSubmittedPoints,
-		interviewersSelected,
-	});
+	// console.log({
+	// 	isLeadInterviewer,
+	// 	isInterviewerSubmittedPoints,
+	// 	interviewersSelected,
+	// });
 
 	// Render content
 	return isRefetching || interviewLoading || cancellingInterview ? (

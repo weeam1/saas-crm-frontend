@@ -100,7 +100,7 @@ const InterviewTabs = memo(
 
 				// Redirect to the appropriate page based on the interviewer
 				const redirectUrl = hiringInfo.isNextRound
-					? `/hiring?tab=multi-rounds-interviewed`
+					? `/hiring?tab=multi-round-interviewed`
 					: isLeadInterviewer
 						? `/hiring?tab=interviewed-candidates`
 						: ['superAdmin', 'HR'].includes(userRole)

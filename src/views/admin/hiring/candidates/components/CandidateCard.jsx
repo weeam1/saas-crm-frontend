@@ -268,7 +268,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 				</Box>
 
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
-					{invited ? (
+					{invited || mode === 'interview' ? (
 						<Flex
 							fontSize='xs'
 							alignItems='center'
