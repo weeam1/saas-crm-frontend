@@ -2,13 +2,10 @@
 import { Box, Button, Flex, Image, Link } from '@chakra-ui/react';
 
 import Footer from 'components/footer/FooterAuth';
-import FixedPlugin from 'components/fixedPlugin/FixedPlugin';
 // import { Link } from 'react-router-dom';
-// Custom components
-// AssetFoo
 
-import AppleStoreLogo from 'assets/icons/App_Store.png';
-import GoogleStoreLogo from 'assets/icons/Google_Play-Logo.wine.png';
+// import AppleStoreLogo from 'assets/icons/App_Store.png';
+// import GoogleStoreLogo from 'assets/icons/Google_Play-Logo.wine.png';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { constant } from 'constant';
@@ -54,7 +51,7 @@ import { constant } from 'constant';
 function AuthIllustration(props) {
 	const { children, illustrationBackground } = props;
 
-	const { data, isLoading } = useFetchItemsQuery(
+	const { data } = useFetchItemsQuery(
 		{
 			path: `/upload/apk`,
 		},
@@ -118,13 +115,15 @@ function AuthIllustration(props) {
 
 				{/* App Download Buttons */}
 				<Flex gap={4} my={2} _hover>
-					<Link onClick={handleDownloadApk}>
-						<Image
-							src='https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg'
-							alt='Google Play'
-							height='40px'
-						/>
-					</Link>
+					{data?.url && (
+						<Link onClick={handleDownloadApk}>
+							<Image
+								src='https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg'
+								alt='Google Play'
+								height='40px'
+							/>
+						</Link>
+					)}
 
 					<Link
 						href='https://apps.apple.com/pk/app/weeam-crm/id6744808346'
