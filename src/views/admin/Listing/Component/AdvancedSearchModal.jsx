@@ -268,7 +268,7 @@ const AdvancedSearchModal = ({
                 </Text>
                 <SimpleGrid columns={2} gap={4}>
                   <FormControl>
-                    <FormLabel>Start From</FormLabel>
+                    <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startFrom}
                       handleDateChange={(date) => formik.setFieldValue("startFrom", date)}
@@ -280,7 +280,7 @@ const AdvancedSearchModal = ({
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>Start To</FormLabel>
+                    <FormLabel>End Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startTo}
                       handleDateChange={(date) => formik.setFieldValue("startTo", date)}

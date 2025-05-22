@@ -50,7 +50,7 @@ const ViewListing = () => {
       </Box>
     );
   }
-
+  
   if (isError) {
     return (
       <Box p={5}>
@@ -62,7 +62,7 @@ const ViewListing = () => {
         </AppButton>
         <Alert status="error" mt={4}>
           <AlertIcon />
-          Failed to load listing data. Please try again.
+         You are not authorized to view this listing
         </Alert>
       </Box>
     );
