@@ -25,6 +25,15 @@ export const toUTCString = (date) => {
 		: null;
 };
 
+export const formatDNS = (dateStr) => {
+	const date = new Date(dateStr);
+	return date.toLocaleDateString('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+	});
+};
+
 export const extractLocationData = (ipString, countryNames) => {
 	const countryList = new Set(countryNames);
 

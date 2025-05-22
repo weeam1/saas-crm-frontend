@@ -502,9 +502,8 @@ const InterviewResult = ({
 					rounded='md'
 					_hover={{ bg: '#E0B960' }}
 					_active={{ bg: '#D4AC50' }}
-					disabled={doc?.remarks}
-					isDisabled={!remarks[roundKey]}
 					isLoading={isUpdating}
+					isDisabled={!remarks[roundKey]?.trim() || isUpdating}
 					onClick={() => handleSubmitResult(roundKey)}
 				>
 					Submit Result

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	Button,
 	Modal,
@@ -19,12 +19,13 @@ import {
 } from '@chakra-ui/react';
 import { DownloadIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useFetchItemsQuery, useCreateItemMutation } from 'api/apiSlice';
+import { useFetchItemsQuery } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { generateReportApi } from 'api';
 import { buttonStyle } from 'utils/btn';
 import { AiOutlineExport } from 'react-icons/ai';
-import DateFilter from './DateFilter';
+import DateFilterTabs from '../DateFilterTabs';
+import { formatDNS } from 'utils/helpers';
 
 const MotionProgress = motion(Box);
 
@@ -34,8 +35,12 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 
+	const [filterType, setFilterType] = useState('range');
+
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
 	const [year, setYear] = useState(() => new Date().getFullYear());
+	const [startDate, setStartDate] = useState('');
+	const [endDate, setEndDate] = useState('');
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
@@ -52,7 +57,7 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 		if (!isAdmin) setSelectedAgency(user?.agency?._id || '');
 	}, []);
 
-	const onDateFilterChange = (value) => {
+	const monthFilterHandler = (value) => {
 		const newMonth = Number(value.month);
 		const newYear = Number(value.year);
 
@@ -78,13 +83,18 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 				setProgress((prev) => (prev < 90 ? prev + 5 : prev));
 			}, 300);
 
+			const payload = buildReportPayload(format);
+
+			console.log(payload);
+
 			// Call your API wrapper
-			const { blob, contentType } = await generateReportApi({
-				agency: selectedAgency,
-				month,
-				year,
-				format,
-			});
+			// const { blob, contentType } = await generateReportApi({
+			// 	agency: selectedAgency,
+			// 	month,
+			// 	year,
+			// 	format,
+			// });
+			const { blob, contentType } = await generateReportApi(payload);
 
 			clearInterval(interval);
 			setProgress(100);
@@ -93,17 +103,23 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 			const agencyName =
 				agencies?.doc?.find((a) => a._id === selectedAgency)?.name || 'report';
 
-			const monthName = new Date(`${year}-${month}-01`).toLocaleString(
-				'default',
-				{
-					month: 'long',
-					year: 'numeric',
-				}
-			);
+			// const monthName = new Date(`${year}-${month}-01`).toLocaleString(
+			// 	'default',
+			// 	{
+			// 		month: 'long',
+			// 		year: 'numeric',
+			// 	}
+			// );
 
-			console.log({ monthName });
+			const fileLabel =
+				filterType === 'month'
+					? new Date(`${year}-${month}-01`).toLocaleString('default', {
+							month: 'long',
+							year: 'numeric',
+						})
+					: `${formatDNS(startDate)} - to - ${formatDNS(endDate)}`;
 
-			const fileName = `attendance-${monthName}-${agencyName}.${format}`;
+			const fileName = `attendance-${fileLabel}-${agencyName}.${format}`;
 
 			// Create and trigger download
 			const url = URL.createObjectURL(blob);
@@ -134,6 +150,30 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 		}
 	};
 
+	console.log({ filterType });
+
+	const buildReportPayload = (format) => {
+		const base = { agency: selectedAgency, format, type: filterType };
+		if (filterType === 'month') return { ...base, month, year };
+		if (filterType === 'range')
+			return {
+				...base,
+				startDate: startDate,
+				endDate: endDate,
+			};
+		return base;
+	};
+
+	const dateFilterHandler = ({ start, end }) => {
+		if (start !== undefined) setStartDate(start);
+		if (end !== undefined) setEndDate(end);
+	};
+
+	const buttonDisabled =
+		filterType === 'month'
+			? !selectedAgency
+			: !selectedAgency || !startDate || !endDate;
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -153,9 +193,21 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 				<ModalCloseButton isDisabled={isGenerating} />
 				<ModalBody>
 					<VStack align='center' justifyContent='center'>
-						<DateFilter onFilterChange={onDateFilterChange} />
+						<DateFilterTabs
+							filterType={filterType}
+							setFilterType={setFilterType}
+							dateFilterHandler={dateFilterHandler}
+							monthFilterHandler={monthFilterHandler}
+						/>
+						{/* {filterType === 'range' ? (
+							<DateRangeFilter dateFilterHanlder={dateRangeFilterHanlder} />
+						) : (
+							<DateFilter onFilterChange={onDateFilterChange} />
+						)} */}
+						{/* <DateRangeFilter dateFilterHanlder={dateRangeFilterHanlder} />
+						<DateFilter onFilterChange={onDateFilterChange} /> */}
 						{isAdmin && (
-							<FormControl mb={2}>
+							<FormControl mb={2} mt='2'>
 								<FormLabel>Agency</FormLabel>
 								<Select
 									placeholder={
@@ -235,7 +287,7 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 								size='md'
 								loadingText='Generating PDF'
 								leftIcon={<DownloadIcon />}
-								isDisabled={!selectedAgency}
+								isDisabled={buttonDisabled}
 							>
 								PDF
 							</Button>
@@ -252,7 +304,7 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 								px='8'
 								size='md'
 								leftIcon={<DownloadIcon />}
-								isDisabled={!selectedAgency}
+								isDisabled={buttonDisabled}
 							>
 								CSV
 							</Button>
@@ -260,9 +312,6 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 					)}
 				</ModalFooter>
 			</ModalContent>
-
-			{/* Hidden download link */}
-			{/* <a ref={downloadLinkRef} style={{ display: 'none' }} /> */}
 		</Modal>
 	);
 };

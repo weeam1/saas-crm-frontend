@@ -3,7 +3,7 @@ import { mode } from '@chakra-ui/theme-tools';
 export const globalStyles = extendTheme({
 	colors: {
 		brand: {
-			50: '#F5ECCB',
+			50: '#FAF7E7',
 			100: '#F5ECCB',
 			200: '#EDD199',
 			300: '#E5B668',
