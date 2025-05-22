@@ -99,10 +99,13 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
       if (filters.maxArea) params.maxArea = filters.maxArea;
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/rejected-listings`, params: buildQueryParams() },
@@ -384,8 +387,8 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {request.rejectedAt
-                        ? format(request.rejectedAt, "MMM d, yyyy h:mm a")
+                      {request?.listing?.createdAt
+                        ? format(request?.listing?.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td

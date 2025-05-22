@@ -74,7 +74,6 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
-
   const buildQueryParams = () => {
     const params = {
       page: currentPage,
@@ -92,10 +91,13 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       if (filters.maxArea) params.maxArea = filters.maxArea;
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     {
       path: `listing/secondary/requested-listings`,
@@ -386,8 +388,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {request.requestedAt
-                        ? format(request.requestedAt, "MMM d, yyyy h:mm a")
+                      {request?.listing?.createdAt
+                        ? format(request?.listing?.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td

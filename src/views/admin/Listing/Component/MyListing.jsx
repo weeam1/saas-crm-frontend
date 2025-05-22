@@ -107,10 +107,13 @@ const MyListing = ({ listingType, listingUnitType }) => {
       if (filters.maxArea) params.maxArea = filters.maxArea;
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/my-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }

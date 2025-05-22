@@ -21,11 +21,11 @@ const ActiveFiltersDisplay = ({
       const date = new Date(dateString);
       return isNaN(date.getTime())
         ? dateString
-        : new Intl.DateTimeFormat("en-US", {
+        : date.toLocaleDateString("en-US", {
             year: "numeric",
-            month: "long",
+            month: "short",
             day: "numeric",
-          }).format(date);
+          });
     } catch (e) {
       return dateString;
     }
@@ -52,8 +52,6 @@ const ActiveFiltersDisplay = ({
               displayValue = `Min Area: ${value} sqft`;
             } else if (key === "maxArea") {
               displayValue = `Max Area: ${value} sqft`;
-            } else if (key === "date") {
-              displayValue = `Date: ${formatDate(value)}`;
             } else if (key === "month") {
               const monthNames = [
                 "January",
@@ -76,6 +74,8 @@ const ActiveFiltersDisplay = ({
                   : `${monthNames[monthIndex - 1]}`;
             } else if (key === "year") {
               displayValue = `${value}`;
+            } else if (key === "startFrom" || key === "startTo") {
+              displayValue = `${key === "startFrom" ? "From" : "To"}: ${formatDate(value)}`;
             }
 
             return (

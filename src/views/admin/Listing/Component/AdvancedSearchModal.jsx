@@ -16,8 +16,12 @@ import {
   VStack,
   NumberInput,
   NumberInputField,
+  Box,
+  Text,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
+import moment from "moment";
+import CustomDatePicker from "components/datetime/CustomDatePicker";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -52,6 +56,18 @@ const AdvancedSearchModal = ({
   );
   years.unshift({ value: "", label: "All Years" });
 
+  const [openCalendar, setOpenCalendar] = React.useState(null);
+
+  const toggleCalendar = (calendar) => {
+    setOpenCalendar(openCalendar === calendar ? null : calendar);
+  };
+
+  const toUTCString = (date) => {
+    return date
+      ? moment(date).utcOffset(0, true).startOf('day').toISOString()
+      : null;
+  };
+
   const formik = useFormik({
     initialValues: {
       projectName: initialFilters.projectName || "",
@@ -64,16 +80,23 @@ const AdvancedSearchModal = ({
       maxArea: initialFilters.maxArea || "",
       month: initialFilters.month || "",
       year: initialFilters.year || "",
+      startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
+      startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
       ...initialFilters,
     },
     onSubmit: (values) => {
-      const cleanedValues = Object.fromEntries(
+      let cleanedValues = {
+        ...values,
+        startFrom: values.startFrom ? toUTCString(values.startFrom) : undefined,
+        startTo: values.startTo ? toUTCString(values.startTo) : undefined,
+      };
+        cleanedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [
           key,
           value === "" ? undefined : value,
         ])
       );
-      onApplyFilters(cleanedValues);
+    onApplyFilters(cleanedValues);
       onClose();
     },
   });
@@ -91,6 +114,8 @@ const AdvancedSearchModal = ({
         maxArea: "",
         month: "",
         year: "",
+        startFrom: null,
+        startTo: null,
       },
     });
     onApplyFilters({});
@@ -109,6 +134,8 @@ const AdvancedSearchModal = ({
       maxArea: initialFilters.maxArea || "",
       month: initialFilters.month || "",
       year: initialFilters.year || "",
+      startFrom: initialFilters.startFrom || null,
+      startTo: initialFilters.startTo || null,
     };
     return clean;
   }, [initialFilters]);
@@ -133,6 +160,8 @@ const AdvancedSearchModal = ({
           maxArea: "",
           month: "",
           year: "",
+          startFrom: null,
+          startTo: null,
         },
       });
     }
@@ -140,7 +169,7 @@ const AdvancedSearchModal = ({
 
   const isFilterUnchangedValueEmpty = useMemo(() => {
     return Object.values(formik.values).every(
-      (val) => val === "" || val === undefined
+      (val) => val === "" || val === undefined || val === null
     );
   }, [formik.values]);
 
@@ -158,6 +187,8 @@ const AdvancedSearchModal = ({
           maxArea: initialFilters.maxArea || "",
           month: initialFilters.month || "",
           year: initialFilters.year || "",
+          startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
+          startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
         },
       });
     }
@@ -229,6 +260,39 @@ const AdvancedSearchModal = ({
                   </Select>
                 </FormControl>
               </SimpleGrid>
+
+              {/* Date Range Section */}
+              <Box w="full" pt={2}>
+                <Text fontSize="md" fontWeight="semibold" mb={3}>
+                  Date Range
+                </Text>
+                <SimpleGrid columns={2} gap={4}>
+                  <FormControl>
+                    <FormLabel>Start From</FormLabel>
+                    <CustomDatePicker
+                      selectedDate={formik.values.startFrom}
+                      handleDateChange={(date) => formik.setFieldValue("startFrom", date)}
+                      placeholder="Select start date"
+                      maxDate={formik.values.startTo || new Date()}
+                      isCalendarOpen={openCalendar === 'startFrom'}
+                      toggleCalendar={() => toggleCalendar('startFrom')}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>Start To</FormLabel>
+                    <CustomDatePicker
+                      selectedDate={formik.values.startTo}
+                      handleDateChange={(date) => formik.setFieldValue("startTo", date)}
+                      placeholder="Select end date"
+                      minDate={formik.values.startFrom}
+                      maxDate={new Date()}
+                      isCalendarOpen={openCalendar === 'startTo'}
+                      toggleCalendar={() => toggleCalendar('startTo')}
+                    />
+                  </FormControl>
+                </SimpleGrid>
+              </Box>
 
               <SimpleGrid columns={2} gap={4} w="full">
                 <FormControl>

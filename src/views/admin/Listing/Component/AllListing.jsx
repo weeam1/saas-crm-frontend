@@ -100,6 +100,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
       if (filters.maxArea) params.maxArea = filters.maxArea;
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
@@ -464,8 +466,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing.publishedAt
-                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td

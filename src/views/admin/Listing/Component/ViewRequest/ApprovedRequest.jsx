@@ -82,7 +82,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     setCurrentPage(newPage);
   };
 
-  const buildQueryParams = () => {
+   const buildQueryParams = () => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -99,10 +99,13 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       if (filters.maxArea) params.maxArea = filters.maxArea;
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
@@ -376,8 +379,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {approval.requestedAt
-                        ? format(approval.requestedAt, "MMM d, yyyy h:mm a")
+                      {approval?.listing?.createdAt
+                        ? format(approval?.listing?.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
