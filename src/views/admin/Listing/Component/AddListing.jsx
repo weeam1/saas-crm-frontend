@@ -348,6 +348,7 @@ const AddListing = () => {
               placeholder="Enter building age"
               focusBorderColor="brand.500"
               min="0"
+               step="any" 
             />
             <FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
           </FormControl>
