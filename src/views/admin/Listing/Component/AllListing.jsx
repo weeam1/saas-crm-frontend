@@ -36,8 +36,8 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
-import { FiFilter } from "react-icons/fi";
-import AdvancedFilterModal from "./AdvancedFilterModal";
+import { FiSearch } from "react-icons/fi";
+import AdvancedSearchModal from "./AdvancedSearchModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -66,13 +66,15 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
   const isManager = user?.roles?.[0]?.roleName === "Manager";
-  
+
   const columns = [
     "SR.No",
     "projectName",
     "Unit Type",
     "Type",
     "Location",
+    "Building Age",
+    "Developer",
     "Price",
     "Size (sqft)",
     "status",
@@ -89,15 +91,17 @@ const AllListing = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
@@ -319,9 +323,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
             unitTypes={listingUnitType?.doc}
           />
           <IconButton
-            icon={<FiFilter />}
+            icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
+            aria-label="Search Listings"
             colorScheme="brand"
             variant="solid"
             size="sm"
@@ -409,6 +413,28 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     >
                       {listing.location || "N/A"}
                     </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.buildingAge
+                        ? `${listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing?.developer?.developer_name
+                        ? listing?.developer?.developer_name
+                        : "N/A"}
+                    </Td>
                     <Td textAlign="center">
                       {listing.price
                         ? `AED${listing.price.toLocaleString()}`
@@ -440,8 +466,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing.publishedAt
-                        ? format(listing.publishedAt, "MMM d, yyyy h:mm a")
+                      {listing.createdAt
+                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
@@ -503,7 +529,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                             Request Pending
                           </Button>
                         </Tooltip>
-                      ) : (isAgent || isManager) ? (
+                      ) : isAgent || isManager ? (
                         <Button
                           size="sm"
                           colorScheme="brand"
@@ -528,7 +554,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="9"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"
@@ -543,7 +569,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         </Table>
       </Box>
 
-      <AdvancedFilterModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}

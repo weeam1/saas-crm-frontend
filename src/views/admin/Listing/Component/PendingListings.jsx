@@ -28,8 +28,8 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
-import AdvancedFilterModal from "./AdvancedFilterModal";
-import { FiFilter } from "react-icons/fi";
+import AdvancedFilterModal from "./AdvancedSearchModal";
+import { FiSearch } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -57,6 +57,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "Type",
     "Location",
     "Area (sqft)",
+    "Building Age",
+    "Developer",
     "Price",
     "Date",
     "Created By",
@@ -89,10 +91,17 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       if (filters.unitType) params.unitType = filters.unitType;
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
@@ -219,9 +228,9 @@ const PendingListings = ({ listingType, listingUnitType }) => {
             unitTypes={listingUnitType?.doc}
           />
           <IconButton
-            icon={<FiFilter />}
+            icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
+            aria-label="Search Listings"
             colorScheme="brand"
             variant="solid"
             size="sm"
@@ -343,6 +352,28 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       {listing.area ? listing.area.toLocaleString() : "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.buildingAge
+                        ? `${listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing?.developer?.developer_name
+                        ? listing?.developer?.developer_name
+                        : "N/A"}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -419,7 +450,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="10"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"

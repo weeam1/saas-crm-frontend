@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Flex,
-  Tag,
-  TagLabel,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Flex, Tag, TagLabel, Button } from "@chakra-ui/react";
 
 const ActiveFiltersDisplay = ({
   filters,
@@ -20,6 +14,21 @@ const ActiveFiltersDisplay = ({
   const getNameFromId = (id, options) => {
     const found = options.find((option) => option._id === id);
     return found ? found.name : id;
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime())
+        ? dateString
+        : date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+    } catch (e) {
+      return dateString;
+    }
   };
 
   return (
@@ -39,6 +48,34 @@ const ActiveFiltersDisplay = ({
               displayValue = `Min: AED ${value}`;
             } else if (key === "maxPrice") {
               displayValue = `Max: AED ${value}`;
+            } else if (key === "minArea") {
+              displayValue = `Min Area: ${value} sqft`;
+            } else if (key === "maxArea") {
+              displayValue = `Max Area: ${value} sqft`;
+            } else if (key === "month") {
+              const monthNames = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ];
+              const monthIndex = parseInt(value, 10);
+              displayValue =
+                isNaN(monthIndex) || monthIndex < 1 || monthIndex > 12
+                  ? `${value}`
+                  : `${monthNames[monthIndex - 1]}`;
+            } else if (key === "year") {
+              displayValue = `${value}`;
+            } else if (key === "startFrom" || key === "startTo") {
+              displayValue = `${key === "startFrom" ? "From" : "To"}: ${formatDate(value)}`;
             }
 
             return (

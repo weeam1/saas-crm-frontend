@@ -9,6 +9,9 @@ import {
   Skeleton,
   Alert,
   AlertIcon,
+  Text,
+  Flex,
+  Textarea,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -20,6 +23,8 @@ import { toast } from "react-toastify";
 const ViewListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "superAdmin";
 
   const {
     data: listing,
@@ -36,7 +41,7 @@ const ViewListing = () => {
       <Box p={5}>
         <Skeleton height="40px" mb={4} />
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-          {Array.from({ length: 10 }).map((_, i) => (
+          {Array.from({ length: 12 }).map((_, i) => (
             <GridItem key={i} colSpan={i % 3 === 0 ? 2 : 1}>
               <Skeleton height="40px" />
             </GridItem>
@@ -45,7 +50,7 @@ const ViewListing = () => {
       </Box>
     );
   }
-
+  
   if (isError) {
     return (
       <Box p={5}>
@@ -57,13 +62,13 @@ const ViewListing = () => {
         </AppButton>
         <Alert status="error" mt={4}>
           <AlertIcon />
-          Failed to load listing data. Please try again.
+         You are not authorized to view this listing
         </Alert>
       </Box>
     );
   }
 
-  if (!listing) {
+  if (!listing?.data) {
     return (
       <Box p={5}>
         <AppButton
@@ -80,7 +85,7 @@ const ViewListing = () => {
     );
   }
 
-  const handleDownloading = async (file) => {
+  const handleDownloadDocument = async (file) => {
     try {
       if (!file) {
         toast.error("No file specified for download or view.");
@@ -88,12 +93,13 @@ const ViewListing = () => {
       }
 
       const fileURL = `${constant.baseUrl}${file}`;
-
       const response = await fetch(fileURL, { method: "HEAD" });
+
       if (!response.ok) {
         toast.error("File not found on the server.");
         return;
       }
+
       window.open(fileURL, "_blank");
     } catch (error) {
       console.error("Download error:", error);
@@ -129,6 +135,7 @@ const ViewListing = () => {
               value={listing.data?.projectName || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -141,6 +148,20 @@ const ViewListing = () => {
               value={listing.data?.unitType?.name || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Unit Sub Type */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Unit Sub Type</FormLabel>
+            <Input
+              value={listing.data?.unitType?.subType || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -153,6 +174,20 @@ const ViewListing = () => {
               value={listing.data?.listingType?.name || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Developer */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Developer</FormLabel>
+            <Input
+              value={listing.data?.developer?.developer_name || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -162,9 +197,10 @@ const ViewListing = () => {
           <FormControl>
             <FormLabel fontWeight="bold">Area (sqft)</FormLabel>
             <Input
-              value={listing.data?.area || "N/A"}
+              value={listing.data?.area ? `${listing.data.area} sqft` : "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -174,9 +210,14 @@ const ViewListing = () => {
           <FormControl>
             <FormLabel fontWeight="bold">Price</FormLabel>
             <Input
-              value={`${listing.data?.price || "N/A"} ${listing.doc?.currency || ""}`}
+              value={
+                listing.data?.price
+                  ? `${listing.data.price} ${listing.data.currency || "AED"}`
+                  : "N/A"
+              }
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
@@ -189,98 +230,145 @@ const ViewListing = () => {
               value={listing.data?.location || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
 
-        {/* Description */}
+        {/* Building Age */}
         <GridItem colSpan={1}>
           <FormControl>
-            <FormLabel fontWeight="bold">Description</FormLabel>
+            <FormLabel fontWeight="bold">Building Age</FormLabel>
             <Input
-              value={listing.data?.description || "N/A"}
+              value={
+                listing.data?.buildingAge
+                  ? `${listing.data.buildingAge} years`
+                  : "N/A"
+              }
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
-
         {/* Owner Name */}
         <GridItem colSpan={1}>
           <FormControl>
-            <FormLabel fontWeight="bold">Owner Name</FormLabel>
+            <FormLabel fontWeight="bold">Owner name</FormLabel>
             <Input
               value={listing.data?.ownerName || "N/A"}
               readOnly
               variant="filled"
+              focusBorderColor="brand.500"
             />
           </FormControl>
         </GridItem>
 
-        {/* Owner Contact */}
+        {/* Owner Phone Number */}
         <GridItem colSpan={1}>
           <FormControl>
-            <FormLabel fontWeight="bold">Owner Contact</FormLabel>
+            <FormLabel fontWeight="bold">Owner Phone Number</FormLabel>
             <Input
-              value={listing.data?.ownerContact || "N/A"}
+              value={listing.data?.ownerPhoneNumber || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {isAdmin && (
+          <>
+            {/* Landlord */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel fontWeight="bold">Landlord</FormLabel>
+                <Input
+                  value={listing.data?.landlord || "N/A"}
+                  readOnly
+                  variant="filled"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+
+            {/* Phone Number */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel fontWeight="bold">Phone Number</FormLabel>
+                <Input
+                  value={listing.data?.phoneNumber || "N/A"}
+                  readOnly
+                  variant="filled"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+
+            {/* Email */}
+            <GridItem colSpan={1}>
+              <FormControl>
+                <FormLabel fontWeight="bold">Email</FormLabel>
+                <Input
+                  value={listing.data?.email || "N/A"}
+                  readOnly
+                  variant="filled"
+                  focusBorderColor="brand.500"
+                />
+              </FormControl>
+            </GridItem>
+          </>
+        )}
+        {/* Description */}
+        <GridItem colSpan={2}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Description</FormLabel>
+            <Textarea
+              name="description"
+              value={listing.data?.description}
+              placeholder="Enter description"
+              focusBorderColor="brand.500"
+              height="150px"
+              resize="vertical"
               readOnly
               variant="filled"
             />
           </FormControl>
         </GridItem>
+
         {/* Documents */}
         <GridItem colSpan={2}>
           <FormLabel fontWeight="bold">Documents</FormLabel>
-          <Box display="flex" flexDirection="column" gap={3}>
-            {listing.data?.documents?.length > 0 ? (
-              listing.data.documents.map((doc, index) => {
+          {listing.data?.documents?.length > 0 ? (
+            <Box mt={2}>
+              {listing.data.documents.map((doc, index) => {
                 const fileName = doc.split("/").pop();
-                const extension = fileName?.split(".").pop()?.toLowerCase();
+                const isImage = fileName?.match(/\.(jpg|jpeg|png|gif)$/i);
 
-                const nonImageFormats = [
-                  "pdf",
-                  "doc",
-                  "docx",
-                  "txt",
-                  "xls",
-                  "xlsx",
-                ];
-                const isImage =
-                  extension && !nonImageFormats.includes(extension);
                 return (
-                  <Box
+                  <Flex
                     key={index}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    border="1px solid #E2E8F0"
-                    borderRadius="md"
-                    px={4}
-                    py={2}
+                    align="center"
+                    justify="space-between"
+                    p={3}
+                    mb={2}
                     bg="gray.50"
+                    borderRadius="md"
                   >
-                    <Box display="flex" alignItems="center" gap={2}>
-                      <Box as="span" color="blue.500" fontSize="lg">
-                        {isImage ? '🖼️' : '📁'}
-                      </Box>
-                      <Box fontWeight="medium">{fileName}</Box>
-                    </Box>
+                    <Text>{fileName}</Text>
                     <AppButton
-                      type="button"
                       size="sm"
-                      variant="outline"
-                      colorScheme="brand"
-                      onClick={() => handleDownloading(doc)}
+                      onClick={() => handleDownloadDocument(doc)}
                     >
                       {isImage ? "View" : "Download"}
                     </AppButton>
-                  </Box>
+                  </Flex>
                 );
-              })
-            ) : (
-              <Box>No documents available.</Box>
-            )}
-          </Box>
+              })}
+            </Box>
+          ) : (
+            <Text>No documents available</Text>
+          )}
         </GridItem>
       </Grid>
     </Box>

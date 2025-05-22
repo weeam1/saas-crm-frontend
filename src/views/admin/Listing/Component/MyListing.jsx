@@ -26,7 +26,7 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiFilter } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useDeleteItemMutation,
@@ -37,7 +37,7 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
-import AdvancedFilterModal from "./AdvancedFilterModal";
+import AdvancedSearchModal from "./AdvancedSearchModal";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -69,6 +69,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
     "Unit Type",
     "Type",
     "Location",
+    "Building Age",
+    "Developer",
     "Price",
     "Size (sqft)",
     "Status",
@@ -96,15 +98,17 @@ const MyListing = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
@@ -265,9 +269,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
               unitTypes={listingUnitType?.doc}
             />
             <IconButton
-              icon={<FiFilter />}
+              icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
-              aria-label="Filter Listings"
+              aria-label="Search Listings"
               colorScheme="brand"
               variant="solid"
               size="sm"
@@ -378,6 +382,28 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {listing.location || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.buildingAge
+                        ? `${listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing?.developer?.developer_name
+                        ? listing?.developer?.developer_name
+                        : "N/A"}
                     </Td>
                     <Td
                       py={4}
@@ -536,7 +562,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="11"
+                    colSpan="14"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"
@@ -607,7 +633,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         />
       )}
 
-      <AdvancedFilterModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}

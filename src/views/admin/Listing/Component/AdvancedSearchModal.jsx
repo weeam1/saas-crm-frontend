@@ -16,10 +16,14 @@ import {
   VStack,
   NumberInput,
   NumberInputField,
+  Box,
+  Text,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
+import moment from "moment";
+import CustomDatePicker from "components/datetime/CustomDatePicker";
 
-const AdvancedFilterModal = ({
+const AdvancedSearchModal = ({
   isOpen,
   onClose,
   onApplyFilters,
@@ -28,6 +32,42 @@ const AdvancedFilterModal = ({
   initialFilters,
   clearFilter,
 }) => {
+  const months = [
+    { value: "1", label: "January" },
+    { value: "2", label: "February" },
+    { value: "3", label: "March" },
+    { value: "4", label: "April" },
+    { value: "5", label: "May" },
+    { value: "6", label: "June" },
+    { value: "7", label: "July" },
+    { value: "8", label: "August" },
+    { value: "9", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 13 }, (_, i) => currentYear - 5 + i).map(
+    (year) => ({
+      value: year.toString(),
+      label: year.toString(),
+    })
+  );
+  years.unshift({ value: "", label: "All Years" });
+
+  const [openCalendar, setOpenCalendar] = React.useState(null);
+
+  const toggleCalendar = (calendar) => {
+    setOpenCalendar(openCalendar === calendar ? null : calendar);
+  };
+
+  const toUTCString = (date) => {
+    return date
+      ? moment(date).utcOffset(0, true).startOf('day').toISOString()
+      : null;
+  };
+
   const formik = useFormik({
     initialValues: {
       projectName: initialFilters.projectName || "",
@@ -36,16 +76,27 @@ const AdvancedFilterModal = ({
       unitType: initialFilters.unitType || "",
       minPrice: initialFilters.minPrice || "",
       maxPrice: initialFilters.maxPrice || "",
+      minArea: initialFilters.minArea || "",
+      maxArea: initialFilters.maxArea || "",
+      month: initialFilters.month || "",
+      year: initialFilters.year || "",
+      startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
+      startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
       ...initialFilters,
     },
     onSubmit: (values) => {
-      const cleanedValues = Object.fromEntries(
+      let cleanedValues = {
+        ...values,
+        startFrom: values.startFrom ? toUTCString(values.startFrom) : undefined,
+        startTo: values.startTo ? toUTCString(values.startTo) : undefined,
+      };
+        cleanedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [
           key,
           value === "" ? undefined : value,
         ])
       );
-      onApplyFilters(cleanedValues);
+    onApplyFilters(cleanedValues);
       onClose();
     },
   });
@@ -59,11 +110,18 @@ const AdvancedFilterModal = ({
         unitType: "",
         minPrice: "",
         maxPrice: "",
+        minArea: "",
+        maxArea: "",
+        month: "",
+        year: "",
+        startFrom: null,
+        startTo: null,
       },
     });
     onApplyFilters({});
     onClose();
   };
+
   const cleanedInitialFilters = useMemo(() => {
     const clean = {
       projectName: initialFilters.projectName || "",
@@ -72,6 +130,12 @@ const AdvancedFilterModal = ({
       unitType: initialFilters.unitType || "",
       minPrice: initialFilters.minPrice || "",
       maxPrice: initialFilters.maxPrice || "",
+      minArea: initialFilters.minArea || "",
+      maxArea: initialFilters.maxArea || "",
+      month: initialFilters.month || "",
+      year: initialFilters.year || "",
+      startFrom: initialFilters.startFrom || null,
+      startTo: initialFilters.startTo || null,
     };
     return clean;
   }, [initialFilters]);
@@ -84,7 +148,6 @@ const AdvancedFilterModal = ({
 
   useEffect(() => {
     if (!clearFilter) {
-      console.log("value is true");
       formik.resetForm({
         values: {
           projectName: "",
@@ -93,6 +156,12 @@ const AdvancedFilterModal = ({
           unitType: "",
           minPrice: "",
           maxPrice: "",
+          minArea: "",
+          maxArea: "",
+          month: "",
+          year: "",
+          startFrom: null,
+          startTo: null,
         },
       });
     }
@@ -100,7 +169,7 @@ const AdvancedFilterModal = ({
 
   const isFilterUnchangedValueEmpty = useMemo(() => {
     return Object.values(formik.values).every(
-      (val) => val === "" || val === undefined
+      (val) => val === "" || val === undefined || val === null
     );
   }, [formik.values]);
 
@@ -114,15 +183,22 @@ const AdvancedFilterModal = ({
           unitType: initialFilters.unitType || "",
           minPrice: initialFilters.minPrice || "",
           maxPrice: initialFilters.maxPrice || "",
+          minArea: initialFilters.minArea || "",
+          maxArea: initialFilters.maxArea || "",
+          month: initialFilters.month || "",
+          year: initialFilters.year || "",
+          startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
+          startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
         },
       });
     }
   }, [isOpen, initialFilters]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Advanced Filters</ModalHeader>
+        <ModalHeader>Advanced search</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
@@ -185,6 +261,69 @@ const AdvancedFilterModal = ({
                 </FormControl>
               </SimpleGrid>
 
+              {/* Date Range Section */}
+              <Box w="full" pt={2}>
+                <Text fontSize="md" fontWeight="semibold" mb={3}>
+                  Date Range
+                </Text>
+                <SimpleGrid columns={2} gap={4}>
+                  <FormControl>
+                    <FormLabel>Start Date</FormLabel>
+                    <CustomDatePicker
+                      selectedDate={formik.values.startFrom}
+                      handleDateChange={(date) => formik.setFieldValue("startFrom", date)}
+                      placeholder="Select start date"
+                      maxDate={formik.values.startTo || new Date()}
+                      isCalendarOpen={openCalendar === 'startFrom'}
+                      toggleCalendar={() => toggleCalendar('startFrom')}
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel>End Date</FormLabel>
+                    <CustomDatePicker
+                      selectedDate={formik.values.startTo}
+                      handleDateChange={(date) => formik.setFieldValue("startTo", date)}
+                      placeholder="Select end date"
+                      minDate={formik.values.startFrom}
+                      maxDate={new Date()}
+                      isCalendarOpen={openCalendar === 'startTo'}
+                      toggleCalendar={() => toggleCalendar('startTo')}
+                    />
+                  </FormControl>
+                </SimpleGrid>
+              </Box>
+
+              <SimpleGrid columns={2} gap={4} w="full">
+                <FormControl>
+                  <FormLabel>Month</FormLabel>
+                  <Select
+                    name="month"
+                    placeholder="Select Month"
+                    value={formik.values.month}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  >
+                    {months.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Year</FormLabel>
+                  <Input
+                    type="number"
+                    name="year"
+                    placeholder="e.g. year "
+                    value={formik.values.year}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  />
+                </FormControl>
+              </SimpleGrid>
+
               <SimpleGrid columns={2} gap={4} w="full">
                 <FormControl>
                   <FormLabel>Min Price (AED)</FormLabel>
@@ -214,6 +353,32 @@ const AdvancedFilterModal = ({
                   </NumberInput>
                 </FormControl>
               </SimpleGrid>
+
+              <SimpleGrid columns={2} gap={4} w="full">
+                <FormControl>
+                  <FormLabel>Min Area (sqft)</FormLabel>
+                  <NumberInput
+                    min={0}
+                    value={formik.values.minArea}
+                    onChange={(value) => formik.setFieldValue("minArea", value)}
+                    focusBorderColor="brand.500"
+                  >
+                    <NumberInputField placeholder="Minimum area" />
+                  </NumberInput>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Max Area (sqft)</FormLabel>
+                  <NumberInput
+                    min={0}
+                    value={formik.values.maxArea}
+                    onChange={(value) => formik.setFieldValue("maxArea", value)}
+                    focusBorderColor="brand.500"
+                  >
+                    <NumberInputField placeholder="Maximum area" />
+                  </NumberInput>
+                </FormControl>
+              </SimpleGrid>
             </VStack>
           </ModalBody>
 
@@ -224,14 +389,14 @@ const AdvancedFilterModal = ({
               onClick={handleClear}
               isDisabled={isFilterUnchangedValueEmpty}
             >
-              Clear Filters
+              Clear Search
             </Button>
             <Button
               colorScheme="brand"
               type="submit"
               isDisabled={isFilterUnchanged}
             >
-              Apply Filters
+              Apply Search
             </Button>
           </ModalFooter>
         </form>
@@ -240,4 +405,4 @@ const AdvancedFilterModal = ({
   );
 };
 
-export default AdvancedFilterModal;
+export default AdvancedSearchModal;

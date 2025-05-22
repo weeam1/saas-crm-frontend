@@ -33,8 +33,8 @@ import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
-import { FiFilter } from "react-icons/fi";
-import AdvancedFilterModal from "../AdvancedFilterModal";
+import { FiSearch } from "react-icons/fi";
+import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -61,6 +61,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     "Project",
     "Location",
     "Area (sqft)",
+    "Building Age",
+    "Developer",
     "Price",
     "Date",
     "Created By",
@@ -80,7 +82,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     setCurrentPage(newPage);
   };
 
-  const buildQueryParams = () => {
+   const buildQueryParams = () => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -88,19 +90,22 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
 
     if (Object.keys(filters).length > 0) {
       if (filters.projectName) params.projectName = filters.projectName;
-
       if (filters.location) params.location = filters.location;
-
       if (filters.listingType) params.listingType = filters.listingType;
-
       if (filters.unitType) params.unitType = filters.unitType;
-
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minArea) params.minArea = filters.minArea;
+      if (filters.maxArea) params.maxArea = filters.maxArea;
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
     }
 
     return params;
   };
+
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
@@ -195,7 +200,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       bg="white"
       px={2}
       marginTop={"-14px"}
-      marginLeft={"-16px"}
+      marginLeft={"0px"}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
@@ -209,9 +214,9 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
             unitTypes={listingUnitType?.doc}
           />
           <IconButton
-            icon={<FiFilter />}
+            icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Filter Listings"
+            aria-label="Search Listings"
             colorScheme="brand"
             variant="solid"
             size="sm"
@@ -337,6 +342,28 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.listing.buildingAge
+                        ? `${approval.listing.buildingAge} Years`
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="200px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.listing?.developer_name
+                        ? approval.listing?.developer_name
+                        : "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
                       minWidth="100px"
                       overflow="hidden"
                       textOverflow="ellipsis"
@@ -352,8 +379,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {approval.requestedAt
-                        ? format(approval.requestedAt, "MMM d, yyyy h:mm a")
+                      {approval?.listing?.createdAt
+                        ? format(approval?.listing?.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
                     <Td
@@ -443,7 +470,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                 <Tr borderColor="gray.200" textAlign="center">
                   <Td
                     borderBottom="none"
-                    colSpan="10"
+                    colSpan="13"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"
@@ -498,7 +525,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <AdvancedFilterModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
