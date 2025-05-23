@@ -92,8 +92,6 @@ function AuthIllustration(props) {
 		}
 	};
 
-	console.log(data);
-
 	return (
 		<Flex h='max-content'>
 			<Flex
