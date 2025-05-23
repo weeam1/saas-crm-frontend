@@ -479,7 +479,13 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     >
                       {listing.createdBy?.fullName}
                     </Td>
-                    <Td display="flex" gap={2} justifyContent="center">
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
                       {/* {isAdmin && (
                         <>
                           <IconButton
@@ -508,45 +514,51 @@ const AllListing = ({ listingType, listingUnitType }) => {
                           />
                         </>
                       )} */}
-
-                      {hasAccess(listing) ? (
-                        <IconButton
-                          aria-label="View"
-                          icon={<ViewIcon />}
-                          size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
-                          onClick={() =>
-                            Navigate(`/listing/view-listing/${listing._id}`)
-                          }
-                        />
-                      ) : hasPendingRequest(listing) ? (
-                        <Tooltip label="View request pending approval">
-                          <Button size="sm" colorScheme="yellow" isDisabled>
-                            Request Pending
-                          </Button>
-                        </Tooltip>
-                      ) : isAgent || isManager ? (
-                        <Button
-                          size="sm"
-                          colorScheme="brand"
-                          onClick={() => handleRequestViewAccess(listing._id)}
-                        >
-                          Request View
-                        </Button>
-                      ) : (
-                        <Tooltip label="You don't have access to view this listing">
+                      <Box
+                        display="flex"
+                        gap={2}
+                        justifyContent="center"
+                        alignItems={"center"}
+                      >
+                        {hasAccess(listing) ? (
                           <IconButton
+                            aria-label="View"
                             icon={<ViewIcon />}
-                            isDisabled
-                            colorScheme="gray"
                             size="sm"
+                            color={"#c09f5f"}
+                            _hover={{
+                              backgroundColor: "#c09f5f",
+                              color: "white",
+                            }}
+                            onClick={() =>
+                              Navigate(`/listing/view-listing/${listing._id}`)
+                            }
                           />
-                        </Tooltip>
-                      )}
+                        ) : hasPendingRequest(listing) ? (
+                          <Tooltip label="View request pending approval">
+                            <Button size="sm" colorScheme="yellow" isDisabled>
+                              Request Pending
+                            </Button>
+                          </Tooltip>
+                        ) : isAgent || isManager ? (
+                          <Button
+                            size="sm"
+                            colorScheme="brand"
+                            onClick={() => handleRequestViewAccess(listing._id)}
+                          >
+                            Request View
+                          </Button>
+                        ) : (
+                          <Tooltip label="You don't have access to view this listing">
+                            <IconButton
+                              icon={<ViewIcon />}
+                              isDisabled
+                              colorScheme="gray"
+                              size="sm"
+                            />
+                          </Tooltip>
+                        )}
+                      </Box>
                     </Td>
                   </Tr>
                 ))

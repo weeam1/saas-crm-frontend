@@ -523,38 +523,51 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
-                      display={"flex"}
-                      gap={2}
-                      justifyContent={"center"}
                     >
-                      <IconButton
-                        aria-label="Edit"
-                        icon={<EditIcon />}
-                        size="sm"
-                        onClick={() =>
-                          Navigate(`/listing/update/${listing._id}`)
-                        }
-                        color={"#c09f5f"}
-                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      />
-                      <IconButton
-                        aria-label="Delete"
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        color={"#c09f5f"}
-                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                        onClick={() => handleDeleteListing(listing._id)}
-                      />
-                      <IconButton
-                        aria-label="View"
-                        icon={<ViewIcon />}
-                        size="sm"
-                        color={"#c09f5f"}
-                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                        onClick={() =>
-                          Navigate(`/listing/view-listing/${listing._id}`)
-                        }
-                      />
+                      <Box
+                        display="flex"
+                        gap={2}
+                        justifyContent="center"
+                        alignItems={"center"}
+                      >
+                        <IconButton
+                          aria-label="Edit"
+                          icon={<EditIcon />}
+                          size="sm"
+                          onClick={() =>
+                            Navigate(`/listing/update/${listing._id}`)
+                          }
+                          color={"#c09f5f"}
+                          _hover={{
+                            backgroundColor: "#c09f5f",
+                            color: "white",
+                          }}
+                        />
+                        <IconButton
+                          aria-label="Delete"
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          color={"#c09f5f"}
+                          _hover={{
+                            backgroundColor: "#c09f5f",
+                            color: "white",
+                          }}
+                          onClick={() => handleDeleteListing(listing._id)}
+                        />
+                        <IconButton
+                          aria-label="View"
+                          icon={<ViewIcon />}
+                          size="sm"
+                          color={"#c09f5f"}
+                          _hover={{
+                            backgroundColor: "#c09f5f",
+                            color: "white",
+                          }}
+                          onClick={() =>
+                            Navigate(`/listing/view-listing/${listing._id}`)
+                          }
+                        />
+                      </Box>
                     </Td>
                   </Tr>
                 ))

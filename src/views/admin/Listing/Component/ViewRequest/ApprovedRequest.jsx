@@ -82,7 +82,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     setCurrentPage(newPage);
   };
 
-   const buildQueryParams = () => {
+  const buildQueryParams = () => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -380,7 +380,10 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {approval?.listing?.createdAt
-                        ? format(approval?.listing?.createdAt, "MMM d, yyyy h:mm a")
+                        ? format(
+                            approval?.listing?.createdAt,
+                            "MMM d, yyyy h:mm a"
+                          )
                         : "N/A"}
                     </Td>
                     <Td
@@ -417,16 +420,17 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       gap={2}
                       justifyContent={"center"}
                     >
-                      <Menu>
+                      <Menu placement="bottom-start">
                         <MenuButton
                           as={Button}
                           rightIcon={<FiChevronDown />}
-                          colorScheme={"brand"}
+                          colorScheme="brand"
                           size="sm"
+                          zIndex={1}
                         >
                           Actions
                         </MenuButton>
-                        <MenuList>
+                        <MenuList zIndex={999}>
                           <MenuItem
                             icon={<ViewIcon />}
                             onClick={() =>

@@ -50,7 +50,7 @@ const ViewListing = () => {
       </Box>
     );
   }
-  
+
   if (isError) {
     return (
       <Box p={5}>
@@ -62,7 +62,7 @@ const ViewListing = () => {
         </AppButton>
         <Alert status="error" mt={4}>
           <AlertIcon />
-         You are not authorized to view this listing
+          You are not authorized to view this listing
         </Alert>
       </Box>
     );
@@ -88,7 +88,7 @@ const ViewListing = () => {
   const handleDownloadDocument = async (file) => {
     try {
       if (!file) {
-        toast.error("No file specified for download or view.");
+        toast.error("No file specified for download.");
         return;
       }
 
@@ -100,10 +100,20 @@ const ViewListing = () => {
         return;
       }
 
-      window.open(fileURL, "_blank");
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = file.split("/").pop();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error("Download error:", error);
-      toast.error("Failed to download or view the file.");
+      toast.error("Failed to download the file.");
     }
   };
 
@@ -112,7 +122,7 @@ const ViewListing = () => {
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
-        onClick={() => navigate("/listing")}
+        onClick={() => navigate(-1)}
         mb={4}
       >
         Back
@@ -343,8 +353,6 @@ const ViewListing = () => {
             <Box mt={2}>
               {listing.data.documents.map((doc, index) => {
                 const fileName = doc.split("/").pop();
-                const isImage = fileName?.match(/\.(jpg|jpeg|png|gif)$/i);
-
                 return (
                   <Flex
                     key={index}
@@ -360,7 +368,7 @@ const ViewListing = () => {
                       size="sm"
                       onClick={() => handleDownloadDocument(doc)}
                     >
-                      {isImage ? "View" : "Download"}
+                      Download
                     </AppButton>
                   </Flex>
                 );
