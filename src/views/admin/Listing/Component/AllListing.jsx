@@ -486,78 +486,82 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {/* {isAdmin && (
-                        <>
-                          <IconButton
-                            aria-label="Edit"
-                            icon={<EditIcon />}
-                            size="sm"
-                            onClick={() =>
-                              Navigate(`/listing/update/${listing._id}`)
-                            }
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                          />
-                          <IconButton
-                            aria-label="Delete"
-                            icon={<DeleteIcon />}
-                            size="sm"
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                            onClick={() => handleDeleteListing(listing._id)}
-                          />
-                        </>
-                      )} */}
-                      <Box
-                        display="flex"
-                        gap={2}
-                        justifyContent="center"
-                        alignItems={"center"}
-                      >
-                        {hasAccess(listing) ? (
-                          <IconButton
-                            aria-label="View"
-                            icon={<ViewIcon />}
-                            size="sm"
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                            onClick={() =>
-                              Navigate(`/listing/view-listing/${listing._id}`)
-                            }
-                          />
-                        ) : hasPendingRequest(listing) ? (
-                          <Tooltip label="View request pending approval">
-                            <Button size="sm" colorScheme="yellow" isDisabled>
-                              Request Pending
-                            </Button>
-                          </Tooltip>
-                        ) : isAgent || isManager ? (
-                          <Button
-                            size="sm"
-                            colorScheme="brand"
-                            onClick={() => handleRequestViewAccess(listing._id)}
-                          >
-                            Request View
-                          </Button>
-                        ) : (
-                          <Tooltip label="You don't have access to view this listing">
+                      <Box display={"flex"} gap={2}>
+                        {isAdmin && (
+                          <Box display={"flex"} gap={2}>
                             <IconButton
-                              icon={<ViewIcon />}
-                              isDisabled
-                              colorScheme="gray"
+                              aria-label="Edit"
+                              icon={<EditIcon />}
                               size="sm"
+                              onClick={() =>
+                                Navigate(`/listing/update/${listing._id}`)
+                              }
+                              color={"#c09f5f"}
+                              _hover={{
+                                backgroundColor: "#c09f5f",
+                                color: "white",
+                              }}
                             />
-                          </Tooltip>
+                            <IconButton
+                              aria-label="Delete"
+                              icon={<DeleteIcon />}
+                              size="sm"
+                              color={"#c09f5f"}
+                              _hover={{
+                                backgroundColor: "#c09f5f",
+                                color: "white",
+                              }}
+                              onClick={() => handleDeleteListing(listing._id)}
+                            />
+                          </Box>
                         )}
+                        <Box
+                          display="flex"
+                          gap={2}
+                          justifyContent="center"
+                          alignItems={"center"}
+                        >
+                          {hasAccess(listing) ? (
+                            <IconButton
+                              aria-label="View"
+                              icon={<ViewIcon />}
+                              size="sm"
+                              color={"#c09f5f"}
+                              _hover={{
+                                backgroundColor: "#c09f5f",
+                                color: "white",
+                              }}
+                              onClick={() =>
+                                Navigate(`/listing/view-listing/${listing._id}`)
+                              }
+                            />
+                          ) : hasPendingRequest(listing) ? (
+                            <Tooltip label="View request pending approval">
+                              <Button size="sm" colorScheme="yellow" isDisabled>
+                                Request Pending
+                              </Button>
+                            </Tooltip>
+                          ) : isAgent || isManager ? (
+                            <Button
+                              size="sm"
+                              colorScheme="brand"
+                              onClick={() =>
+                                handleRequestViewAccess(listing._id)
+                              }
+                            >
+                              Request View
+                            </Button>
+                          ) : (
+                            <Tooltip label="You don't have access to view this listing">
+                              <IconButton
+                                icon={<ViewIcon />}
+                                isDisabled
+                                colorScheme="gray"
+                                size="sm"
+                              />
+                            </Tooltip>
+                          )}
+                        </Box>
                       </Box>
                     </Td>
                   </Tr>

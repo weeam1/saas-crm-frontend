@@ -335,7 +335,7 @@ const ListingUnitTypes = () => {
       </Box>
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
