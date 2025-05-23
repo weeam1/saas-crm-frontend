@@ -67,7 +67,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
   const isManager = user?.roles?.[0]?.roleName === "Manager";
 
-  const columns = [
+  const baseColumns = [
     "SR.No",
     "projectName",
     "Unit Type",
@@ -79,9 +79,12 @@ const AllListing = ({ listingType, listingUnitType }) => {
     "Size (sqft)",
     "status",
     "Date",
-    "Created By",
     "Action",
   ];
+
+  const columns = isAdmin
+    ? [...baseColumns.slice(0, -1), "Created By", ...baseColumns.slice(-1)]
+    : baseColumns;
 
   const buildQueryParams = () => {
     const params = {
@@ -470,6 +473,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                         ? format(listing.createdAt, "MMM d, yyyy h:mm a")
                         : "N/A"}
                     </Td>
+                    {isAdmin && (
                     <Td
                       textAlign="center"
                       whiteSpace="nowrap"
@@ -479,6 +483,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     >
                       {listing.createdBy?.fullName}
                     </Td>
+                    )}
                     <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
@@ -486,9 +491,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      <Box display={"flex"} gap={2}>
+                      <Box display={"flex"} gap={2}  justifyContent="center">
                         {isAdmin && (
-                          <Box display={"flex"} gap={2}>
+                          <Box display={"flex"} gap={2}  justifyContent="center">
                             <IconButton
                               aria-label="Edit"
                               icon={<EditIcon />}
