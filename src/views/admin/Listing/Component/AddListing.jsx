@@ -115,7 +115,7 @@ const AddListing = () => {
         }).unwrap();
 
         toast.success("Listing added successfully");
-        navigate("/listing");
+        navigate(-1);
         resetForm();
         setSelectedUnitType(null);
         setFiles([]);
@@ -142,7 +142,7 @@ const AddListing = () => {
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
-        onClick={() => navigate("/listing")}
+        onClick={() => navigate(-1)}
         mb={4}
       >
         Back
@@ -348,7 +348,7 @@ const AddListing = () => {
               placeholder="Enter building age"
               focusBorderColor="brand.500"
               min="0"
-               step="any" 
+              step="any"
             />
             <FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
           </FormControl>

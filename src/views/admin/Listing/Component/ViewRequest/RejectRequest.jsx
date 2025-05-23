@@ -105,7 +105,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
 
     return params;
   };
-
+  
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/rejected-listings`, params: buildQueryParams() },
@@ -388,7 +388,10 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {request?.listing?.createdAt
-                        ? format(request?.listing?.createdAt, "MMM d, yyyy h:mm a")
+                        ? format(
+                            request?.listing?.createdAt,
+                            "MMM d, yyyy h:mm a"
+                          )
                         : "N/A"}
                     </Td>
                     <Td
@@ -434,7 +437,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                       gap={2}
                       justifyContent={"center"}
                     >
-                      <Menu>
+                      <Menu placement="bottom-start">
                         <MenuButton
                           as={Button}
                           rightIcon={<FiChevronDown />}
@@ -443,7 +446,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                         >
                           Actions
                         </MenuButton>
-                        <MenuList>
+                        <MenuList zIndex={10}>
                           <MenuItem
                             icon={<ViewIcon />}
                             onClick={() =>
