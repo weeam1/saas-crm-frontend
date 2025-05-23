@@ -130,7 +130,7 @@ const UpdateListing = () => {
         }).unwrap();
 
         toast.success("Listing updated successfully");
-        navigate("/listing");
+        navigate(-1);
       } catch (error) {
         console.error("Update error:", error);
         toast.error(error.data?.message || "Failed to update listing");
@@ -192,7 +192,7 @@ const UpdateListing = () => {
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
-        onClick={() => navigate("/listing")}
+        onClick={() => navigate(-1)}
         mb={4}
       >
         Back

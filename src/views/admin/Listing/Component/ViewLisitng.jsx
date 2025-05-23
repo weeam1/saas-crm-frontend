@@ -122,7 +122,7 @@ const ViewListing = () => {
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
-        onClick={() => navigate("/listing")}
+        onClick={() => navigate(-1)}
         mb={4}
       >
         Back
