@@ -99,6 +99,10 @@ export const sendLeadFeedback = async ({ email, phone, status, action }) => {
 
 		const eventNameMapMStatus = {
 			interested: 'Lead_Interested',
+			'interested-buyer': 'Lead_Interested',
+			'interested-seller': 'Lead_Interested',
+			'secondary-request': 'Lead_Interested',
+			'change-agent': 'Lead_Interested',
 			'not-interested': 'Lead_Not_Interested',
 			junk: 'Lead_Unqualified',
 			deal: 'Lead_Qualified',
@@ -299,8 +303,6 @@ export const generateReportApi = async (payload) => {
 		startDate,
 		endDate,
 	} = payload;
-
-	console.log({ payload });
 
 	if (!agency || !format) {
 		throw new Error(
