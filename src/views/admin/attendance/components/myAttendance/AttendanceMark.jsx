@@ -51,8 +51,6 @@ const AttendanceMark = ({
 		if (data?.total > 0) {
 			const todayRecord = data?.doc?.find((item) => item.date == today);
 
-			console.log(today, todayRecord);
-
 			if (todayRecord) {
 				setLastRecord(todayRecord);
 
@@ -98,25 +96,6 @@ const AttendanceMark = ({
 		}
 	};
 
-	const handleAbsence = async () => {
-		try {
-			setAbsentLoading(true);
-			await createItemMutation({
-				path: '/attendance/absent',
-				body: { employeeId },
-			}).unwrap();
-
-			toast.success('Employee Absent successfully');
-			setStatus(-1);
-			refetch({ force: true });
-		} catch (e) {
-			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee absent');
-		} finally {
-			setAbsentLoading(false);
-		}
-	};
-
 	const handleCheckOut = async () => {
 		try {
 			if (lastRecord) {
@@ -145,6 +124,25 @@ const AttendanceMark = ({
 			toast.error(e?.data?.message || 'Error in employee checkout');
 		} finally {
 			setCheckoutLoading(false);
+		}
+	};
+
+	const handleAbsence = async () => {
+		try {
+			setAbsentLoading(true);
+			await createItemMutation({
+				path: '/attendance/absent',
+				body: { employeeId },
+			}).unwrap();
+
+			toast.success('Employee Absent successfully');
+			setStatus(-1);
+			refetch({ force: true });
+		} catch (e) {
+			console.log(e);
+			toast.error(e?.data?.message || 'Error in employee absent');
+		} finally {
+			setAbsentLoading(false);
 		}
 	};
 

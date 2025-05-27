@@ -285,154 +285,97 @@ export default function User(props) {
 		routes = routes.filter((route) => route.name !== 'Update Listing');
 	}
 
+	const hiringRoutes = [
+		{
+			name: 'Hiring',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring',
+			icon: (
+				<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+			),
+			component: Hiring,
+		},
+		{
+			name: 'Office Settings',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/office-settings/:id',
+			under: 'office-settings',
+			component: OfficeSettings,
+		},
+		{
+			name: 'Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance',
+			icon: (
+				<Icon
+					as={FaRegCalendarCheck}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			component: Attendance,
+		},
+
+		{
+			name: 'Attendance Dashboard',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/dashboard',
+			under: 'employees',
+			parentName: 'Attendance',
+			component: AttendanceDashboard,
+		},
+		{
+			name: 'Employees',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees',
+			under: 'employees',
+			parentName: 'Attendance',
+			component: Employees,
+		},
+		{
+			name: 'Attendance Record',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/record',
+			under: 'attendance-record',
+			parentName: 'Attendance',
+			component: Records,
+		},
+		{
+			name: 'My Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees/:id',
+			under: 'my-attendance',
+			parentName: 'Attendance',
+			component: MyAttendance,
+		},
+		{
+			name: 'User View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			parentName: 'Users',
+			under: 'users',
+			path: '/userView/:id',
+			component: UserView,
+		},
+
+		{
+			name: 'Offer View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring/interviewed-candidates/offer-letter/view/:id',
+			under: 'offerView',
+			parentName: 'Hiring',
+			component: OfferView,
+		},
+	];
+
 	if (user?.roles[0]?.roleName === 'HR') {
-		// Define the "Candidates" route
-		const hiringRoutes = [
-			{
-				name: 'Hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring',
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Office Settings',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/office-settings/:id',
-				under: 'office-settings',
-				component: OfficeSettings,
-			},
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Attendance,
-			},
-
-			{
-				name: 'Attendance Dashboard',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: AttendanceDashboard,
-			},
-			{
-				name: 'Employees',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: Employees,
-			},
-			{
-				name: 'Attendance Record',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/record',
-				under: 'attendance-record',
-				parentName: 'Attendance',
-				component: Records,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-
-			{
-				name: 'Offer View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/interviewed-candidates/offer-letter/view/:id',
-				under: 'offerView',
-				parentName: 'Hiring',
-				component: OfferView,
-			},
-
-			// ------------- Invoice Module Routes ------------------------ //
-			// {
-			// 	name: 'Invoice',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	icon: (
-			// 		<Icon
-			// 			as={HiOutlineDocumentReport}
-			// 			width='20px'
-			// 			height='20px'
-			// 			color='inherit'
-			// 		/>
-			// 	),
-			// 	path: '/invoice',
-			// 	component: InvoiceModule,
-			// },
-			// {
-			// 	name: 'Bank Accounts',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	path: '/invoice/bank-accounts',
-			// 	parentName: 'Invoice',
-			// 	under: 'bank-accounts',
-			// 	component: BankAccounts,
-			// },
-			// {
-			// 	name: 'Invoice Developers',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'developer-invoices',
-			// 	path: '/invoice/developers',
-			// 	parentName: 'Invoice',
-			// 	component: InvoiceDevelopers,
-			// },
-			// {
-			// 	name: 'Developer Invoices',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'developer-invoices',
-			// 	path: '/invoice/developers/invoices/:id',
-			// 	parentName: 'Invoice',
-			// 	component: DeveloperInvoices,
-			// },
-			// {
-			// 	name: 'Single Invoice',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'single-invoice',
-			// 	parentName: 'Invoice',
-			// 	path: '/invoice/developers/invoices/view/:id',
-			// 	component: SingleInvoice,
-			// },
-			// {
-			// 	name: 'Invoice Entries',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'invoice-entries',
-			// 	parentName: 'Invoice',
-			// 	path: '/invoice/developers/invoices/entries/:id',
-			// 	component: AddEntry,
-			// },
-		];
-
-		// 	// Only show the "Hiring" route for HR role
 		routes = hiringRoutes;
+	} else if (user?.roles[0]?.roleName === 'Attendance') {
+		// Attendance gets all except  some routes
+		routes = hiringRoutes.filter(
+			(route) =>
+				!['Hiring', 'Offer View', 'Office Settings'].includes(route.name)
+		);
 	}
 
 	if (user?.roles[0]?.roleName === 'accountant') {
@@ -1021,6 +964,11 @@ export default function User(props) {
 														element={<Navigate to='/invoice' />}
 													/>
 												</>
+											) : user?.roles[0]?.roleName === 'Attendance' ? (
+												<Route
+													path='/*'
+													element={<Navigate to='/attendance' />}
+												/>
 											) : (
 												<Route path='/*' element={<Navigate to='/default' />} />
 											)}

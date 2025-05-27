@@ -26,7 +26,7 @@ import { Link } from 'react-router-dom';
 import { LuStickyNote } from 'react-icons/lu';
 import MessageViewModal from 'components/modals/MessageViewModal';
 
-const RecordTable = ({ records, isLoading, isFetching }) => {
+const RecordTable = ({ records, isLoading, isFetching, role }) => {
 	const [leaveNote, setLeaveNote] = useState({
 		title: 'Message',
 		message: 'N/A',
@@ -46,6 +46,10 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 		'Work hours',
 		'Action',
 	];
+
+	if (role === 'Attendance') {
+		columns.splice(10, 1); // Remove 'Action' column for Attendance role
+	}
 
 	const [data, setData] = useState([]);
 
@@ -268,38 +272,40 @@ const RecordTable = ({ records, isLoading, isFetching }) => {
 														: '0m'
 													: 'Pending'}
 										</Td>
-										<Td py={4} minWidth='100px'>
-											<IconButton
-												rounded='full'
-												aria-label='edit'
-												icon={<FaEdit />}
-												size='xs'
-												colorScheme='green'
-												variant='solid'
-												mr='1'
-												onClick={() => handleEdit(entry)}
-											/>
+										{['HR', 'superAdmin'].includes(role) && (
+											<Td py={4} minWidth='100px'>
+												<IconButton
+													rounded='full'
+													aria-label='edit'
+													icon={<FaEdit />}
+													size='xs'
+													colorScheme='green'
+													variant='solid'
+													mr='1'
+													onClick={() => handleEdit(entry)}
+												/>
 
-											{entry?.leaveNote && entry?.status === 3 && (
-												<Tooltip label='Leave Note' hasArrow>
-													<IconButton
-														aria-label='Leave note'
-														// icon={<FaNoteSticky />}
-														icon={<LuStickyNote />}
-														size='xs'
-														colorScheme='teal'
-														variant='solid'
-														onClick={() => {
-															setLeaveNote({
-																message: entry.leaveNote,
-																title: 'Leave Note',
-																modal: true,
-															});
-														}}
-													/>
-												</Tooltip>
-											)}
-										</Td>
+												{entry?.leaveNote && entry?.status === 3 && (
+													<Tooltip label='Leave Note' hasArrow>
+														<IconButton
+															aria-label='Leave note'
+															// icon={<FaNoteSticky />}
+															icon={<LuStickyNote />}
+															size='xs'
+															colorScheme='teal'
+															variant='solid'
+															onClick={() => {
+																setLeaveNote({
+																	message: entry.leaveNote,
+																	title: 'Leave Note',
+																	modal: true,
+																});
+															}}
+														/>
+													</Tooltip>
+												)}
+											</Td>
+										)}
 									</Tr>
 								);
 							})
