@@ -14,6 +14,7 @@ import {
 	IconButton,
 	ModalCloseButton,
 	VStack,
+	useBreakpointValue,
 } from '@chakra-ui/react';
 import QRCode from 'react-qr-code';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -93,6 +94,14 @@ const AttendanceQRCode = () => {
 	);
 	const [isFullScreen, setIsFullScreen] = useState(false);
 
+	const qrSize = useBreakpointValue({
+		base: 200, // Mobile (0px+)
+		sm: 300, // Small devices (480px+)
+		md: 400, // Medium devices (768px+)
+		lg: 500, // Large devices (992px+)
+		xl: 600, // Extra large (1280px+)
+	});
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			refetch();
@@ -130,7 +139,7 @@ const AttendanceQRCode = () => {
 			>
 				<Image
 					src={LOGO}
-					boxSize={`${size / 6}px`}
+					boxSize={`${size / 8}px`}
 					objectFit='contain'
 					alt='Logo'
 				/>
@@ -161,6 +170,7 @@ const AttendanceQRCode = () => {
 					leftIcon={<FaExpand />}
 					justifySelf='flex-end'
 					onClick={() => setIsFullScreen(true)}
+					display={{ base: 'none', md: 'flex' }}
 				>
 					View
 				</Button>
@@ -188,12 +198,14 @@ const AttendanceQRCode = () => {
 				isCentered
 			>
 				<ModalOverlay />
-				<ModalContent>
+				<ModalContent mx='2'>
 					<ModalHeader>Attendance QR Code</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						<Center flexDirection='column'>
-							<Box position='relative'>{renderQRCode(600)}</Box>
+							<Box position='relative'>{renderQRCode(qrSize)}</Box>
+
+							{/* <Box position='relative'>{renderQRCode(600)}</Box> */}
 							<Text mt={4} fontSize='sm' color='gray.500'>
 								Scan this QR code to mark attendance
 							</Text>
