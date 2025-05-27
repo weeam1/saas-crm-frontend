@@ -318,6 +318,14 @@ export default function User(props) {
 		},
 
 		{
+			name: 'User View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			parentName: 'Users',
+			under: 'users',
+			path: '/userView/:id',
+			component: UserView,
+		},
+		{
 			name: 'Attendance Dashboard',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/attendance/dashboard',
@@ -349,14 +357,6 @@ export default function User(props) {
 			parentName: 'Attendance',
 			component: MyAttendance,
 		},
-		{
-			name: 'User View',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			parentName: 'Users',
-			under: 'users',
-			path: '/userView/:id',
-			component: UserView,
-		},
 
 		{
 			name: 'Offer View',
@@ -372,10 +372,28 @@ export default function User(props) {
 		routes = hiringRoutes;
 	} else if (user?.roles[0]?.roleName === 'Attendance') {
 		// Attendance gets all except  some routes
-		routes = hiringRoutes.filter(
-			(route) =>
-				!['Hiring', 'Offer View', 'Office Settings'].includes(route.name)
-		);
+		// routes = hiringRoutes.filter(
+		// 	(route) =>
+		// 		!['Hiring', 'Offer View', 'Office Settings'].includes(route.name)
+		// );
+		routes = [
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
+			},
+			{
+				name: 'Attendance Dashboard',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				under: 'employees',
+				parentName: 'Attendance',
+				component: AttendanceDashboard,
+			},
+		];
 	}
 
 	if (user?.roles[0]?.roleName === 'accountant') {
@@ -967,7 +985,7 @@ export default function User(props) {
 											) : user?.roles[0]?.roleName === 'Attendance' ? (
 												<Route
 													path='/*'
-													element={<Navigate to='/attendance' />}
+													element={<Navigate to='/attendance/dashboard' />}
 												/>
 											) : (
 												<Route path='/*' element={<Navigate to='/default' />} />

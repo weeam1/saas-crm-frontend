@@ -55,7 +55,7 @@ function AttendanceSelector({
 
 	return (
 		<Box width='100%'>
-			<Text mb={2} fontWeight='600'>
+			{/* <Text mb={2} fontWeight='600'>
 				Attendance Status
 			</Text>
 
@@ -68,7 +68,7 @@ function AttendanceSelector({
 						</CustomRadio>
 					);
 				})}
-			</HStack>
+			</HStack> */}
 
 			{attendanceStatus === 'present' && (
 				<HStack
