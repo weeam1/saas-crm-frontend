@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import {
   Box,
   Heading,
@@ -11,75 +13,153 @@ import {
   Button,
   VStack,
   HStack,
-  NumberInput,
-  NumberInputField,
   useRadioGroup,
-  Icon,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
 } from "@chakra-ui/react";
-import { ArrowBackIcon } from "@chakra-ui/icons";
 import RadioCard from "./RadioCard";
 import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 import { IoArrowBack } from "react-icons/io5";
 import AppButton from "components/shared/AppButton";
+import { useCreateItemMutation } from "api/apiSlice";
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
-  const [surveyName, setSurveyName] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [numQuestions, setNumQuestions] = useState(3);
-  const [selectedRole, setSelectedRole] = useState("");
-  const [selectedManager, setSelectedManager] = useState(null);
-  const [questions, setQuestions] = useState(
-    Array(3)
-      .fill()
-      .map((_, i) => ({ id: i + 1, text: "" }))
-  );
+  const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
   const { allUsers, managers, agents } = useFetchUserHierarchy(user);
-  console.log("managers", managers);
-  const handleQuestionChange = (id, value) => {
-    setQuestions(
-      questions.map((q) => (q.id === id ? { ...q, text: value } : q))
-    );
-  };
+
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      closesAt: "",
+      questions: [
+        {
+          text: "",
+          type: "text",
+          options: [],
+        },
+      ],
+      invitedUsers: [],
+      selectedRole: "",
+      selectedManager: null,
+    },
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        // Prepare invitedUsers based on selection
+        let invitedUsers = [];
+        if (values.selectedRole === "all") {
+          invitedUsers = allUsers.map((user) => user._id);
+        } else if (values.selectedRole === "managers") {
+          invitedUsers = managers.map((manager) => manager._id);
+        } else if (values.selectedRole === "agents") {
+          invitedUsers = agents.map((agent) => agent._id);
+        } else if (values.selectedRole === "team" && values.selectedManager) {
+          const manager = managers.find((m) => m._id === values.selectedManager);
+          if (manager) {
+            invitedUsers = manager.team.map((member) => member._id);
+          }
+        }
+
+        const payload = {
+          title: values.title,
+          questions: values.questions.map((q) => {
+            if (q.type === "text") {
+              return { text: q.text, type: q.type };
+            } else {
+              return {
+                text: q.text,
+                type: q.type,
+                options: q.options.map((opt) => ({ text: opt.text })),
+              };
+            }
+          }),
+          closesAt: new Date(values.closesAt).toISOString(),
+          invitedUsers,
+        };
+
+        await createItemMutation({
+          path: "/surveys",
+          body: payload,
+        }).unwrap();
+
+        resetForm();
+        navigate("/survey");
+      } catch (error) {
+        console.error("Failed to create survey:", error);
+      }
+    },
+  });
 
   const addQuestion = () => {
-    setQuestions([
-      ...questions,
+    formik.setFieldValue("questions", [
+      ...formik.values.questions,
       {
-        id: questions.length + 1,
         text: "",
+        type: "text",
+        options: [],
       },
     ]);
-    setNumQuestions(numQuestions + 1);
   };
 
-  const removeQuestion = (id) => {
-    if (questions.length > 1) {
-      setQuestions(questions.filter((q) => q.id !== id));
-      setNumQuestions(numQuestions - 1);
+  const removeQuestion = (index) => {
+    if (formik.values.questions.length > 1) {
+      const newQuestions = [...formik.values.questions];
+      newQuestions.splice(index, 1);
+      formik.setFieldValue("questions", newQuestions);
     }
   };
 
-  const handleRoleChange = (value) => {
-    setSelectedRole(value);
-    if (value !== "team") {
-      setSelectedManager(null);
+  const handleQuestionTypeChange = (index, type) => {
+    const newQuestions = [...formik.values.questions];
+    newQuestions[index].type = type;
+
+    // Initialize options if switching to radio/checkbox
+    if (
+      (type === "radio" || type === "checkbox") &&
+      newQuestions[index].options.length === 0
+    ) {
+      newQuestions[index].options = [{ text: "" }, { text: "" }];
     }
+
+    formik.setFieldValue("questions", newQuestions);
   };
 
-  const handleManagerChange = (e) => {
-    setSelectedManager(e.target.value);
+  const addOption = (questionIndex) => {
+    const newQuestions = [...formik.values.questions];
+    newQuestions[questionIndex].options.push({ text: "" });
+    formik.setFieldValue("questions", newQuestions);
   };
 
-  // Radio group setup
+  const removeOption = (questionIndex, optionIndex) => {
+    const newQuestions = [...formik.values.questions];
+    newQuestions[questionIndex].options.splice(optionIndex, 1);
+    formik.setFieldValue("questions", newQuestions);
+  };
+
+  const handleOptionChange = (questionIndex, optionIndex, value) => {
+    const newQuestions = [...formik.values.questions];
+    newQuestions[questionIndex].options[optionIndex].text = value;
+    formik.setFieldValue("questions", newQuestions);
+  };
+
+  // Radio group setup for user selection
   const options = ["all", "managers", "agents", "team"];
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "roles",
-    value: selectedRole,
-    onChange: handleRoleChange,
+    value: formik.values.selectedRole,
+    onChange: (value) => formik.setFieldValue("selectedRole", value),
   });
   const group = getRootProps();
+  const isFormIncomplete = () => {
+    return (
+      !formik.values.title ||
+      !formik.values.closesAt ||
+      !formik.values.selectedRole ||
+      (formik.values.selectedRole === "team" && !formik.values.selectedManager)
+    );
+  };
 
   return (
     <Box p={{ base: 4, md: 8 }}>
@@ -92,201 +172,290 @@ const CreateSurvey = () => {
       >
         Back
       </AppButton>
-      <Box bg="white" p={8} borderRadius="lg" boxShadow="sm">
-        {/* Main Content Area */}
-        <Flex direction={{ base: "column", lg: "row" }} gap={8}>
-          {/* Left Side - Survey Configuration */}
-          <Box bg="white" flex="1">
-            <VStack spacing={6} align="stretch">
-              <VStack align="flex-start">
-                <Text fontWeight="bold">Survey Title</Text>
-                <Input
-                  type="text "
-                  value={endDate}
-                  placeholder="Survey name here"
-                  onChange={(e) => setSurveyName(e.target.value)}
-                  size="md"
-                  focusBorderColor="brand.500"
-                  bg="gray.300"
-                  color="black"
-                  border="1px solid"
-                  borderColor="gray.300"
-                />
-              </VStack>
 
-              <VStack align="flex-start">
-                <Text fontWeight="bold">Survey end date</Text>
-                <Input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  size="md"
-                  focusBorderColor="brand.500"
-                  bg="gray.300"
-                  color="black"
-                  border="1px solid"
-                  borderColor="gray.300"
-                />
-              </VStack>
+      <form onSubmit={formik.handleSubmit}>
+        <Box bg="white" p={8} borderRadius="lg" boxShadow="sm">
+          {/* Main Content Area */}
+          <Flex direction={{ base: "column", lg: "row" }} gap={8}>
+            {/* Left Side - Survey Configuration */}
+            <Box bg="white" flex="1">
+              <VStack spacing={6} align="stretch">
+                <VStack align="flex-start">
+                  <Text fontWeight="bold">Survey Title</Text>
+                  <FormControl isInvalid={formik.errors.title && formik.touched.title}>
+                    <Input
+                      name="title"
+                      value={formik.values.title}
+                      placeholder="Survey name here"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      bg="gray.300"
+                      color="black"
+                      border="1px solid"
+                      borderColor="gray.300"
+                    />
+                    <FormErrorMessage>{formik.errors.title}</FormErrorMessage>
+                  </FormControl>
+                </VStack>
 
-              <VStack align="flex-start">
-                <Text fontWeight="bold">Survey questions</Text>
-                <NumberInput
-                  min={1}
-                  max={20}
-                  value={numQuestions}
-                  onChange={(value) => {
-                    const num = parseInt(value);
-                    if (num > questions.length) {
-                      const newQuestions = [...questions];
-                      for (let i = questions.length + 1; i <= num; i++) {
-                        newQuestions.push({ id: i, text: "" });
-                      }
-                      setQuestions(newQuestions);
-                    } else if (num < questions.length) {
-                      setQuestions(questions.slice(0, num));
-                    }
-                    setNumQuestions(num);
-                  }}
-                  width={"100%"}
-                >
-                  <NumberInputField
-                    focusBorderColor="brand.500"
-                    bg="gray.300"
-                    color="black"
-                    border="1px solid"
-                    borderColor="gray.300"
-                  />
-                </NumberInput>
-              </VStack>
+                <VStack align="flex-start">
+                  <Text fontWeight="bold">Survey end date</Text>
+                  <FormControl isInvalid={formik.errors.closesAt && formik.touched.closesAt}>
+                    <Input
+                      name="closesAt"
+                      type="datetime-local"
+                      value={formik.values.closesAt}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      bg="gray.300"
+                      color="black"
+                      border="1px solid"
+                      borderColor="gray.300"
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                    <FormErrorMessage>{formik.errors.closesAt}</FormErrorMessage>
+                  </FormControl>
+                </VStack>
 
-              <VStack align="flex-start">
-                <Text fontWeight="bold">Survey Users</Text>
-                <HStack
-                  {...group}
-                  spacing={{ base: 2, md: 4 }}
-                  mb={{ base: 2, md: 4 }}
-                  wrap="wrap"
-                  gap="2"
-                >
-                  {options.map((value) => {
-                    const radio = getRadioProps({ value });
-                    return (
-                      <RadioCard key={value} {...radio}>
-                        {value.charAt(0).toUpperCase() + value.slice(1)}
-                      </RadioCard>
-                    );
-                  })}
-                </HStack>
-                <Select
-                  placeholder="Select manager"
-                  value={selectedManager}
-                  onChange={handleManagerChange}
-                  size="md"
-                  focusBorderColor="brand.500"
-                  bg="gray.100"
-                  color="black"
-                  border="1px solid"
-                  borderColor="gray.300"
-                  isDisabled={selectedRole !== "team"}
-                  width={"50%"}
-                  mt={10}
-                >
-                  {managers.map((manager) => (
-                    <option key={manager._id} value={manager._id}>
-                      {manager.name}
-                    </option>
-                  ))}
-                </Select>
-              </VStack>
-            </VStack>
-          </Box>
-
-          {/* Vertical Divider - Visible on desktop */}
-          <Box
-            display={{ base: "none", lg: "block" }}
-            width="1px"
-            bg="gray.200"
-            mx={4}
-          />
-
-          {/* Right Side - Questions (Scrollable) */}
-          <Box
-            bg="white"
-            p={3}
-            flex="1"
-            overflowY="auto"
-            maxH={{ base: "auto", lg: "calc(100vh - 200px)" }}
-          >
-            {questions.map((question, index) => (
-              <React.Fragment key={question.id}>
-                {index > 0 && <Divider my={6} borderColor="gray.200" />}
-
-                <Flex align="center" mb={4}>
-                  <Box
-                    bg="brand.500"
-                    color="white"
-                    borderRadius="full"
-                    w="32px"
-                    h="32px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    mr={4}
-                    flexShrink={0}
-                  >
-                    {question.id}
-                  </Box>
-                  <Heading as="h3" size="md" flex={1} color="brand.600">
-                    Question {question.id}
-                  </Heading>
-                  {questions.length > 1 && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      colorScheme="red"
-                      onClick={() => removeQuestion(question.id)}
+                <VStack align="flex-start">
+                  <Text fontWeight="bold">Survey Users</Text>
+                  <FormControl isInvalid={formik.errors.selectedRole}>
+                    <HStack
+                      {...group}
+                      spacing={{ base: 2, md: 4 }}
+                      mb={{ base: 2, md: 4 }}
+                      wrap="wrap"
+                      gap="2"
                     >
-                      Remove
-                    </Button>
-                  )}
-                </Flex>
+                      {options.map((value) => {
+                        const radio = getRadioProps({ value });
+                        return (
+                          <RadioCard key={value} {...radio}>
+                            {value.charAt(0).toUpperCase() + value.slice(1)}
+                          </RadioCard>
+                        );
+                      })}
+                    </HStack>
+                    <FormErrorMessage>{formik.errors.selectedRole}</FormErrorMessage>
+                  </FormControl>
 
-                <Input
-                  variant="filled"
-                  placeholder={`Enter question ${question.id} text`}
-                  size="lg"
-                  value={question.text}
-                  onChange={(e) =>
-                    handleQuestionChange(question.id, e.target.value)
-                  }
-                  focusBorderColor="brand.500"
-                  bg="gray.300"
-                  color="black"
-                  border="1px solid"
-                  borderColor="gray.300"
-                />
-              </React.Fragment>
-            ))}
+                  <FormControl 
+                    isInvalid={formik.errors.selectedManager && formik.touched.selectedManager}
+                    isDisabled={formik.values.selectedRole !== "team"}
+                  >
+                    <Select
+                      name="selectedManager"
+                      placeholder="Select manager"
+                      value={formik.values.selectedManager || ""}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      bg="gray.100"
+                      color="black"
+                      border="1px solid"
+                      borderColor="gray.300"
+                      width={"50%"}
+                      mt={3}
+                    >
+                      {managers.map((manager) => (
+                        <option key={manager._id} value={manager._id}>
+                          {manager.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <FormErrorMessage>{formik.errors.selectedManager}</FormErrorMessage>
+                  </FormControl>
+                </VStack>
+              </VStack>
+            </Box>
 
-            <Button
-              mt={6}
-              colorScheme="brand"
-              variant="outline"
-              onClick={addQuestion}
+            {/* Vertical Divider - Visible on desktop */}
+            <Box
+              display={{ base: "none", lg: "block" }}
+              width="1px"
+              bg="gray.200"
+              mx={4}
+            />
+
+            {/* Right Side - Questions (Scrollable) */}
+            <Box
+              bg="white"
+              p={3}
+              flex="1"
+              overflowY="auto"
+              maxH={{ base: "auto", lg: "calc(100vh - 200px)" }}
             >
-              Add Question
-            </Button>
-          </Box>
-        </Flex>
+              {formik.values.questions.map((question, index) => (
+                <React.Fragment key={index}>
+                  {index > 0 && <Divider my={6} borderColor="gray.200" />}
 
-        {/* Submit Section */}
-        <Flex justify="flex-end" mt={8}>
-          <Button colorScheme="brand" size="lg" px={8}>
-            Create Survey
-          </Button>
-        </Flex>
-      </Box>
+                  <Flex align="center" mb={4}>
+                    <Box
+                      bg="brand.500"
+                      color="white"
+                      borderRadius="full"
+                      w="32px"
+                      h="32px"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      mr={4}
+                      flexShrink={0}
+                    >
+                      {index + 1}
+                    </Box>
+                    <Heading as="h3" size="md" flex={1} color="brand.600">
+                      Question {index + 1}
+                    </Heading>
+                    {formik.values.questions.length > 1 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="red"
+                        onClick={() => removeQuestion(index)}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </Flex>
+
+                  <FormControl 
+                    mb={4} 
+                    isInvalid={formik.errors.questions?.[index]?.text && formik.touched.questions?.[index]?.text}
+                  >
+                    <FormLabel>Question Text</FormLabel>
+                    <Input
+                      name={`questions[${index}].text`}
+                      value={question.text}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      placeholder={`Enter question ${index + 1} text`}
+                      size="lg"
+                      focusBorderColor="brand.500"
+                      bg="gray.300"
+                      color="black"
+                      border="1px solid"
+                      borderColor="gray.300"
+                    />
+                    <FormErrorMessage>
+                      {formik.errors.questions?.[index]?.text}
+                    </FormErrorMessage>
+                  </FormControl>
+
+                  <FormControl mb={4}>
+                    <FormLabel>Question Type</FormLabel>
+                    <Select
+                      value={question.type}
+                      onChange={(e) =>
+                        handleQuestionTypeChange(index, e.target.value)
+                      }
+                      focusBorderColor="brand.500"
+                      bg="gray.300"
+                      color="black"
+                      border="1px solid"
+                      borderColor="gray.300"
+                    >
+                      <option value="text">Text Answer</option>
+                      <option value="radio">Multiple Choice (Single Answer)</option>
+                      <option value="checkbox">Multiple Choice (Multiple Answers)</option>
+                    </Select>
+                  </FormControl>
+
+                  {(question.type === "radio" || question.type === "checkbox") && (
+                    <Box mb={4}>
+                      <FormLabel>Options</FormLabel>
+                      <VStack spacing={3} align="stretch">
+                        {question.options.map((option, optionIndex) => (
+                          <HStack key={optionIndex}>
+                            <FormControl
+                              isInvalid={
+                                formik.errors.questions?.[index]?.options?.[optionIndex]?.text &&
+                                formik.touched.questions?.[index]?.options?.[optionIndex]?.text
+                              }
+                            >
+                              <Input
+                                value={option.text}
+                                onChange={(e) =>
+                                  handleOptionChange(
+                                    index,
+                                    optionIndex,
+                                    e.target.value
+                                  )
+                                }
+                                onBlur={formik.handleBlur}
+                                placeholder={`Option ${optionIndex + 1}`}
+                                focusBorderColor="brand.500"
+                                bg="gray.300"
+                                color="black"
+                                border="1px solid"
+                                borderColor="gray.300"
+                              />
+                              <FormErrorMessage>
+                                {formik.errors.questions?.[index]?.options?.[optionIndex]?.text}
+                              </FormErrorMessage>
+                            </FormControl>
+                            {question.options.length > 2 && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() => removeOption(index, optionIndex)}
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </HStack>
+                        ))}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorScheme="brand"
+                          onClick={() => addOption(index)}
+                        >
+                          Add Option
+                        </Button>
+                        {formik.errors.questions?.[index]?.options && (
+                          <Text color="red.500" fontSize="sm">
+                            {formik.errors.questions?.[index]?.options}
+                          </Text>
+                        )}
+                      </VStack>
+                    </Box>
+                  )}
+                </React.Fragment>
+              ))}
+
+              <Button
+                mt={6}
+                colorScheme="brand"
+                variant="outline"
+                onClick={addQuestion}
+              >
+                Add Question
+              </Button>
+            </Box>
+          </Flex>
+
+            {/* Submit Section */}
+          <Flex justify="flex-end" mt={8}>
+            <Button
+              colorScheme="brand"
+              size="lg"
+              px={8}
+              type="submit"
+              isLoading={formik.isSubmitting}
+              isDisabled={isFormIncomplete() || !formik.isValid}
+            >
+              Create Survey
+            </Button>
+          </Flex>
+        </Box>
+      </form>
     </Box>
   );
 };

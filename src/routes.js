@@ -51,6 +51,7 @@ import UpdateListing from "views/admin/Listing/Component/UpdateListing";
 import OfferView from "views/admin/hiring/interviewedCandidates/OfferView";
 import LeaderBoard from "views/admin/survey/LeaderBoard";
 import CreateSurvey from "views/admin/survey/CreateSurvey";
+import ViewSurveyResponse from "views/admin/survey/ViewSurveyResponse";
 // Admin Imports
 const MainDashboard = React.lazy(() => import("views/admin/default"));
 
@@ -232,11 +233,19 @@ const routes = [
   },
    {
     name: "Create Survey",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    layout: [ROLE_PATH.superAdmin],
     path: "/survey/create-survey",
     under: "Survey",
     parentName: "Survey",
     component: CreateSurvey,
+  },
+   {
+    name: "view Survey",
+    layout: [ROLE_PATH.superAdmin],
+    path: "/survey/view-survey/:id",
+    under: "Survey",
+    parentName: "Survey",
+    component: ViewSurveyResponse,
   },
   {
     name: "Announcement",

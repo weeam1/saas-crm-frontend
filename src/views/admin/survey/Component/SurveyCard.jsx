@@ -1,7 +1,11 @@
 import React from "react";
 import { Box, Flex, Text, Button } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 const SurveyCard = ({ data, isActive }) => {
+  const navigate = useNavigate();
+  const user = localStorage.getItem("user");
+  const isAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
   return (
     <Box
       width="355px"
@@ -77,8 +81,15 @@ const SurveyCard = ({ data, isActive }) => {
             <Text color="gray.600">Closing date</Text>
             <Text fontWeight="medium">{data.closingDate}</Text>
           </Flex>
-          <Button bg={"#D8A541"} borderRadius={"4px"} color="white" mt="15px">
-            View
+          <Button bg={"#D8A541"} borderRadius={"4px"} color="white" mt="15px" onClick={(() => {
+            if (isAdmin) {
+               navigate(`/survey/view-survey/${data.id}`);
+            } else {
+                console.log("Taking survey:", data.id);
+               navigate(`/survey/take-survey/${data.id}`);
+            }
+          })}>
+            {isAdmin ? "View" : "Take Survey"}
           </Button>
         </Flex>
       </Box>
