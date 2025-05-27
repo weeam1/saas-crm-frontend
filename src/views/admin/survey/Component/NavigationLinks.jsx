@@ -1,22 +1,28 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Flex, Text, Icon } from "@chakra-ui/react";
+import { Box, Flex, Text, Icon, Image } from "@chakra-ui/react";
 import { FiPlus } from "react-icons/fi";
 import LeaderBoardIcon from "../../../../assets/img/survey/LeaderBoardIcon.png";
+
 const NavigationLinks = () => {
   const navigate = useNavigate();
   const user = localStorage.getItem("user");
   const isAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
+
   return (
     <Flex direction="column" width="100%">
       {/* Navigation Links */}
-      <Flex gap={10}>
+      <Flex
+        gap={{ base: 4, md: 6, lg: 10 }}
+        direction={{ base: "column", sm: "row" }}
+        align={{ base: "center", sm: "stretch" }}
+      >
         {/* New Survey Card */}
         {isAdmin && (
           <Box
             bg="#FF5757"
-            width="355px"
-            height="319px"
+            width={{ base: "90%", sm: "100px", md: "200px" }}
+            height={{ base: "250px", sm: "140px", md: "200px" }}
             borderRadius="20px"
             cursor="pointer"
             position="relative"
@@ -33,24 +39,25 @@ const NavigationLinks = () => {
             >
               <Icon
                 as={FiPlus}
-                boxSize={14}
+                boxSize={{ base: 10, md: 14 }}
                 mb={4}
                 bg="white"
                 color="#FF5757"
                 borderRadius="full"
                 p="2"
               />
-              <Text fontSize="2xl" fontWeight="bold">
+              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold">
                 New Survey
               </Text>
             </Flex>
           </Box>
         )}
+
         {/* Leaderboard Card */}
         <Box
           bg="#57FF5D"
-          width="355px"
-          height="319px"
+          width={{ base: "90%", sm: "100px", md: "200px" }}
+          height={{ base: "250px", sm: "140px", md: "200px" }}
           borderRadius="20px"
           cursor="pointer"
           position="relative"
@@ -65,13 +72,13 @@ const NavigationLinks = () => {
             height="100%"
             color="white"
           >
-            <img
+            <Image
               src={LeaderBoardIcon}
               alt="LeaderBoardIcon"
               mb={4}
-              boxSize={14}
+              boxSize={{ base: 10, md: 14 }}
             />
-            <Text fontSize="2xl" fontWeight="bold">
+            <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold">
               Leader board
             </Text>
           </Flex>

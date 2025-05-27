@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Table,
@@ -10,25 +10,31 @@ import {
   Flex,
   Text,
   IconButton,
+  Avatar,
+  Spinner,
+  Center,
+  Badge,
 } from "@chakra-ui/react";
-import TopPagination from "components/pagination/TopPagination";
 import LeaderBoardHeaderIcon from "../../../assets/img/survey/LeaderBoardHeaderIcon.png";
 import Assigned_Survey from "../../../assets/img/survey/Assigned_Survey.png";
 import Inbox_survey from "../../../assets/img/survey/Inbox_survey.png";
 import Survey_Live from "../../../assets/img/survey/Survey_Live.png";
 import Survey_filled from "../../../assets/img/survey/Survey_filled.png";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiSearch } from "react-icons/fi";
+import { useFetchItemsQuery } from "api/apiSlice";
+import TopPagination from "components/pagination/TopPagination";
+import TableLoading from "components/loading/TableLoading";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+// import ActiveFiltersDisplay from "./ActiveFiltersDisplay";
+// import AdvancedSearchModal from "./AdvancedSearchModal";
 
-const LeaderBoard = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-  totalItems,
-  pageSize,
-  setPageSize,
-  handlePageSizeChange,
-  isLoading,
-}) => {
+const LeaderBoard = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+
   const columns = [
     "SR.No",
     "Name",
@@ -38,43 +44,87 @@ const LeaderBoard = ({
     "Role",
     "Agency",
   ];
-  const leaderboardData = [
-    {
-      name: "Muhammad Usman",
-      surveyTaken: "10/11",
-      score: "96%",
-      rank: "1",
-      role: "Agent",
-      agency: "Dubai",
-    },
-    {
-      name: "Kafil Ali",
-      surveyTaken: "10/11",
-      score: "91%",
-      rank: "2",
-      role: "Manager",
-      agency: "Dubai",
-    },
-    {
-      name: "Aksar",
-      surveyTaken: "10/11",
-      score: "92%",
-      rank: "3",
-      role: "Manager",
-      agency: "Egypt",
-    },
-    {
-      name: "Hamd",
-      surveyTaken: "10/11",
-      score: "80%",
-      rank: "4",
-      role: "Manager",
-      agency: "Egypt",
-    },
-  ];
+
+  // Build query params with filters
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.name) params.name = filters.name;
+      if (filters.role) params.role = filters.role;
+      if (filters.agency) params.agency = filters.agency;
+    }
+
+    return params;
+  };
+
+  // Fetch leaderboard data
+  const {
+    data: leaderboardData,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useFetchItemsQuery(
+    { path: "/surveys/leaderboard", params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  // Fetch stats data
+  const { data: leaderBoardStats } = useFetchItemsQuery(
+    { path: "/surveys/leaderboard/stats" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  // Format survey taken count as "completed/invited"
+  const formatSurveyTaken = (completed, invited) => {
+    return `${completed}/${invited}`;
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetch();
+  };
+
+  if (isLoading) {
+    return (
+      <Center height="100vh">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
 
   return (
-    <Box p={4}>
+    <Box p={4} bg="white">
       {/* Header */}
       <Box mb={6} display="flex">
         <img
@@ -87,6 +137,7 @@ const LeaderBoard = ({
           Leader Board
         </Flex>
       </Box>
+
       {/* Report Count Statistics*/}
       <Flex
         direction={{ base: "column", sm: "row" }}
@@ -124,7 +175,7 @@ const LeaderBoard = ({
                 Survey Created
               </Text>
               <Text fontSize="36px" fontWeight="bold">
-                350
+                {leaderBoardStats?.doc?.createdSurveys || 0}
               </Text>
             </Box>
           </Flex>
@@ -158,7 +209,7 @@ const LeaderBoard = ({
                 Assigned
               </Text>
               <Text fontSize="36px" fontWeight="bold">
-                450
+                {leaderBoardStats?.doc?.assignedSurveys || 0}
               </Text>
             </Box>
           </Flex>
@@ -192,7 +243,7 @@ const LeaderBoard = ({
                 Survey Filled
               </Text>
               <Text fontSize="36px" fontWeight="bold">
-                3,500
+                {leaderBoardStats?.doc?.filledSurveys || 0}
               </Text>
             </Box>
           </Flex>
@@ -226,59 +277,55 @@ const LeaderBoard = ({
                 Live Surveys
               </Text>
               <Text fontSize="36px" fontWeight="bold">
-                3
+                {leaderBoardStats?.doc?.activeSurveys || 0}
               </Text>
             </Box>
           </Flex>
         </Box>
       </Flex>
 
-      {/* Pagination */}
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        justify="space-between"
-        align="center"
-        gap={4}
-      >
-        {/* Pagination */}
-        <Box>
-          <TopPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-            totalItems={totalItems}
-            itemsPerPage={pageSize}
-            setPageSize={setPageSize}
-            handlePageSize={handlePageSizeChange}
-            refetching={isLoading}
-            loading={isLoading}
+      {/* Filter and Pagination Header */}
+      <Flex justifyContent="space-between" alignItems="center" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+          Leaderboard
+        </Text>
+        <Flex justifyContent="space-between" alignItems="center" gap={2}>
+          {/* <ActiveFiltersDisplay
+            filters={filters}
+            onClearFilters={handleClearFilters}
+          /> */}
+          <IconButton
+            icon={<FiSearch />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Search Leaderboard"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
           />
-        </Box>
-        
-        {/* Filter Icon */}
-        <IconButton
-          icon={<FiFilter />}
-          aria-label="Filter Date"
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          boxShadow="md"
-        />
+        </Flex>
       </Flex>
 
+      {/* Pagination */}
+      <Box mb={1}>
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={leaderboardData?.totalPages || 0}
+          onPageChange={setCurrentPage}
+          totalItems={leaderboardData?.totalDocs || 0}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
+
       {/* Leaderboard Table */}
-      <Box overflowX="auto" mt="10px">
-        <Table size="lg">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+        <Table variant="striped" size="lg">
+          <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
               {columns.map((header, index) => (
                 <Th
@@ -289,7 +336,7 @@ const LeaderBoard = ({
                   textAlign="center"
                 >
                   <Text
-                    fontSize={{ base: "12px", md: "14px" }}
+                    fontSize="14px"
                     fontWeight="600"
                     color="gray.700"
                     textTransform="capitalize"
@@ -300,59 +347,107 @@ const LeaderBoard = ({
               ))}
             </Tr>
           </Thead>
-          <Tbody>
-            {leaderboardData.map((item, index) => (
-              <Tr
-                key={index}
-                bg={
-                  item.rank === "1"
-                    ? "red.500"
-                    : item.rank === "2"
-                      ? "cyan.100"
-                      : item.rank === "3"
-                        ? "green.100"
-                        : "white"
-                }
-                // color={item.rank === "1" ? "white" : ""}
-                _hover={{
-                  bg:
-                    item.rank === "1"
-                      ? "red.400"
-                      : item.rank === "2"
-                        ? "cyan.50"
-                        : item.rank === "3"
-                          ? "green.50"
-                          : "gray.50",
-                }}
-              >
-                <Td textAlign="center">{index + 1}</Td>
-                <Td textAlign="center" fontWeight="medium">
-                  {item.name}
-                </Td>
-                <Td textAlign="center">{item.surveyTaken}</Td>
-                <Td
-                  textAlign="center"
-                  color={
-                    item.rank === "#1"
-                      ? "white"
-                      : parseInt(item.score) > 90
-                        ? "green.500"
-                        : "orange.500"
-                  }
-                  fontWeight="bold"
-                >
-                  {item.score}
-                </Td>
-                <Td textAlign="center" fontWeight="bold">
-                  # {item.rank}
-                </Td>
-                <Td textAlign="center">{item.role}</Td>
-                <Td textAlign="center">{item.agency}</Td>
-              </Tr>
-            ))}
-          </Tbody>
+
+          {isLoading || isFetching ? (
+            <TableLoading columns={columns} length={7} py="4" />
+          ) : (
+            <Tbody>
+              {leaderboardData?.doc?.leaderboard?.length > 0 ? (
+                leaderboardData.doc.leaderboard.map((item, index) => (
+                  <Tr key={item._id}>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {index + 1}
+                    </Td>
+                    <Td textAlign="center" fontWeight="medium">
+                      <Flex alignItems="center" justifyContent="center" gap={2}>
+                        {item.profileImage ? (
+                          <Avatar
+                            size="sm"
+                            src={item.profileImage}
+                            name={item.fullName}
+                          />
+                        ) : (
+                          <Avatar size="sm" name={item.fullName} />
+                        )}
+                        {item.fullName}
+                      </Flex>
+                    </Td>
+                    <Td textAlign="center">
+                      {formatSurveyTaken(
+                        item.completedSurveyCount,
+                        item.invitedSurveyCount
+                      )}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      color={
+                        item.rank === 1
+                          ? "red"
+                          : item.avgScore > 90
+                          ? "green.500"
+                          : item.avgScore > 0
+                          ? "orange.500"
+                          : "gray.500"
+                      }
+                      fontWeight="bold"
+                    >
+                      {item.avgScore ? `${item.avgScore}%` : "N/A"}
+                    </Td>
+                    <Td textAlign="center" fontWeight="bold">
+                      <Badge
+                        colorScheme={
+                          item.rank === 1
+                            ? "red"
+                            : item.rank === 2
+                            ? "cyan"
+                            : item.rank === 3
+                            ? "green"
+                            : "gray"
+                        }
+                        px={2}
+                        py={1}
+                        borderRadius="md"
+                      >
+                        #{item.rank}
+                      </Badge>
+                    </Td>
+                    <Td textAlign="center">{item.role}</Td>
+                    <Td textAlign="center">{item.agency?.name}</Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan={columns.length}
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="leaderboard data" />
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          )}
         </Table>
       </Box>
+
+      {/* Advanced Search Modal */}
+      {/* <AdvancedSearchModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={filters}
+        clearFilter={filterChanged}
+      /> */}
     </Box>
   );
 };
