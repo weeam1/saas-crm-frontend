@@ -386,11 +386,19 @@ export default function User(props) {
 				component: UserView,
 			},
 			{
-				name: 'Attendance Dashboard',
+				name: 'Attendance',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 				path: '/attendance/dashboard',
-				under: 'employees',
-				parentName: 'Attendance',
+				// under: 'employees',
+				// parentName: 'Attendance',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
 				component: AttendanceDashboard,
 			},
 		];

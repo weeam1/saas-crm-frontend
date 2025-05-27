@@ -94,13 +94,16 @@ const AttendanceQRCode = () => {
 	);
 	const [isFullScreen, setIsFullScreen] = useState(false);
 
-	const qrSize = useBreakpointValue({
-		base: 200, // Mobile (0px+)
-		sm: 300, // Small devices (480px+)
-		md: 400, // Medium devices (768px+)
-		lg: 500, // Large devices (992px+)
-		xl: 600, // Extra large (1280px+)
-	});
+	const qrSize = useBreakpointValue(
+		{
+			base: 200,
+			sm: 300,
+			md: 400,
+			lg: 500,
+			xl: 600,
+		},
+		{ fallback: 200 } // fallback for SSR or first render
+	);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -170,7 +173,7 @@ const AttendanceQRCode = () => {
 					leftIcon={<FaExpand />}
 					justifySelf='flex-end'
 					onClick={() => setIsFullScreen(true)}
-					display={{ base: 'none', md: 'flex' }}
+					// display={{ base: 'none', md: 'flex' }}
 				>
 					View
 				</Button>
