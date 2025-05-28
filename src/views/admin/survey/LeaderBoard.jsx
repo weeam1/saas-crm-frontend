@@ -25,8 +25,9 @@ import { useFetchItemsQuery } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-// import ActiveFiltersDisplay from "./ActiveFiltersDisplay";
-// import AdvancedSearchModal from "./AdvancedSearchModal";
+import ActiveFiltersDisplay from "./Component/FilterComponent/ActiveFiltersDisplay";
+import AdvancedSearchModal from "./Component/FilterComponent/AdvancedSearchModal";
+import LeaderBoardLoader from "./Loader/LeaderBoardLoader";
 
 const LeaderBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +35,7 @@ const LeaderBoard = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
+  const { data: agencies } = useFetchItemsQuery({ path: "/agencies" });
 
   const columns = [
     "SR.No",
@@ -56,6 +58,8 @@ const LeaderBoard = () => {
       if (filters.name) params.name = filters.name;
       if (filters.role) params.role = filters.role;
       if (filters.agency) params.agency = filters.agency;
+      if (filters.to) params.to = filters.to;
+      if (filters.from) params.from = filters.from;
     }
 
     return params;
@@ -115,66 +119,68 @@ const LeaderBoard = () => {
     refetch();
   };
 
+  // Use custom loader when loading
   if (isLoading) {
-    return (
-      <Center height="100vh">
-        <Spinner size="xl" />
-      </Center>
-    );
+    return <LeaderBoardLoader />;
   }
 
   return (
-    <Box p={4} bg="white">
+    <Box p={{ base: 2, md: 4 }}>
       {/* Header */}
-      <Box mb={6} display="flex">
+      <Box mb={6} display="flex" alignItems="flex-end" gap={2}>
         <img
           src={LeaderBoardHeaderIcon}
           alt="icon"
-          width={"100px"}
-          height={"100px"}
+          style={{ width: "4.5rem", height: "4.5rem" }}
         />
-        <Flex fontWeight={"bold"} fontSize={"50px"} alignItems={"flex-end"}>
+        <Text fontWeight="bold" fontSize={{ base: "lg", md: "xl", lg: "2xl" }}>
           Leader Board
-        </Flex>
+        </Text>
       </Box>
 
-      {/* Report Count Statistics*/}
+      {/* Report Count Statistics */}
       <Flex
-        direction={{ base: "column", sm: "row" }}
+        direction={{ base: "column", md: "row" }}
         gap={4}
-        mb={8}
+        mb={4}
         flexWrap="wrap"
       >
         {/* Survey Created */}
         <Box
           flex="1"
-          minW="150px"
+          minW={{ base: "100%", md: "150px", lg: "200px" }}
           bg="white"
-          p={4}
+          p={{ base: 2, md: 3, lg: 4 }}
           borderRadius="lg"
           borderWidth="1px"
           borderColor="gray.200"
           boxShadow="sm"
         >
           <Flex
-            gap={"20px"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100%"}
+            gap={{ base: "10px", md: "20px" }}
+            alignItems="center"
+            width="100%"
+            height="100%"
           >
-            <Box bg={"#F4F7FE"} borderRadius="full" py={"25px"} px={"25px"}>
+            <Box
+              bg="#F4F7FE"
+              borderRadius="full"
+              py={{ base: "5px", md: "13px", lg: "15px" }}
+              px={{ base: "5px", md: "13px", lg: "15px" }}
+            >
               <img
                 src={Inbox_survey}
                 alt="icon"
-                width={"50px"}
-                height={"50px"}
+                width="28"
+                height="28"
+                style={{ width: "2.75rem", height: "2.75rem" }}
               />
             </Box>
             <Box flex="1">
-              <Text fontSize="16px" color="gray.600" mb={1}>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
                 Survey Created
               </Text>
-              <Text fontSize="36px" fontWeight="bold">
+              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                 {leaderBoardStats?.doc?.createdSurveys || 0}
               </Text>
             </Box>
@@ -184,31 +190,30 @@ const LeaderBoard = () => {
         {/* Assigned */}
         <Box
           flex="1"
-          minW="150px"
+          minW={{ base: "100%", md: "150px", lg: "200px" }}
           bg="white"
-          p={4}
+          p={{ base: 2, md: 3, lg: 4 }}
           borderRadius="lg"
           borderWidth="1px"
           borderColor="gray.200"
           boxShadow="sm"
         >
           <Flex
-            gap={"20px"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100%"}
+            gap={{ base: "10px", md: "20px" }}
+            alignItems="center"
+            width="100%"
+            height="100%"
           >
             <img
               src={Assigned_Survey}
               alt="icon"
-              width={"100px"}
-              height={"100px"}
+              style={{ width: "4.5rem", height: "4.5rem" }}
             />
             <Box flex="1">
-              <Text fontSize="16px" color="gray.600" mb={1}>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
                 Assigned
               </Text>
-              <Text fontSize="36px" fontWeight="bold">
+              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                 {leaderBoardStats?.doc?.assignedSurveys || 0}
               </Text>
             </Box>
@@ -218,31 +223,30 @@ const LeaderBoard = () => {
         {/* Survey Filled */}
         <Box
           flex="1"
-          minW="150px"
+          minW={{ base: "100%", md: "150px", lg: "200px" }}
           bg="white"
-          p={4}
+          p={{ base: 2, md: 3, lg: 4 }}
           borderRadius="lg"
           borderWidth="1px"
           borderColor="gray.200"
           boxShadow="sm"
         >
           <Flex
-            gap={"20px"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100%"}
+            gap={{ base: "10px", md: "20px" }}
+            alignItems="center"
+            width="100%"
+            height="100%"
           >
             <img
               src={Survey_filled}
               alt="icon"
-              width={"100px"}
-              height={"100px"}
+              style={{ width: "4.5rem", height: "4.5rem" }}
             />
             <Box flex="1">
-              <Text fontSize="16px" color="gray.600" mb={1}>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
                 Survey Filled
               </Text>
-              <Text fontSize="36px" fontWeight="bold">
+              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                 {leaderBoardStats?.doc?.filledSurveys || 0}
               </Text>
             </Box>
@@ -252,31 +256,30 @@ const LeaderBoard = () => {
         {/* Live Surveys */}
         <Box
           flex="1"
-          minW="150px"
+          minW={{ base: "100%", md: "150px", lg: "200px" }}
           bg="white"
-          p={4}
+          p={{ base: 2, md: 3, lg: 4 }}
           borderRadius="lg"
           borderWidth="1px"
           borderColor="gray.200"
           boxShadow="sm"
         >
           <Flex
-            gap={"20px"}
-            alignItems={"center"}
-            width={"100%"}
-            height={"100%"}
+            gap={{ base: "10px", md: "20px" }}
+            alignItems="center"
+            width="100%"
+            height="100%"
           >
             <img
               src={Survey_Live}
               alt="icon"
-              width={"100px"}
-              height={"100px"}
+              style={{ width: "4.5rem", height: "4.5rem" }}
             />
             <Box flex="1">
-              <Text fontSize="16px" color="gray.600" mb={1}>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
                 Live Surveys
               </Text>
-              <Text fontSize="36px" fontWeight="bold">
+              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                 {leaderBoardStats?.doc?.activeSurveys || 0}
               </Text>
             </Box>
@@ -284,16 +287,28 @@ const LeaderBoard = () => {
         </Box>
       </Flex>
 
-      {/* Filter and Pagination Header */}
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
-          Leaderboard
-        </Text>
-        <Flex justifyContent="space-between" alignItems="center" gap={2}>
-          {/* <ActiveFiltersDisplay
-            filters={filters}
-            onClearFilters={handleClearFilters}
-          /> */}
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "stretch", md: "center" }}
+        justifyContent="space-between"
+        gap={3}
+        mb={4}
+        flexWrap="wrap"
+      >
+        <Box minW="250px">
+          <TopPagination
+            currentPage={currentPage}
+            totalPages={leaderboardData?.totalPages || 0}
+            onPageChange={setCurrentPage}
+            totalItems={leaderboardData?.totalDocs || 0}
+            itemsPerPage={pageSize}
+            setPageSize={setPageSize}
+            handlePageSize={handlePageSizeChange}
+            refetching={isLoading}
+            loading={isLoading}
+          />
+        </Box>
+        <Flex alignItems="center" gap={2}>
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
@@ -306,19 +321,11 @@ const LeaderBoard = () => {
           />
         </Flex>
       </Flex>
-
-      {/* Pagination */}
-      <Box mb={1}>
-        <TopPagination
-          currentPage={currentPage}
-          totalPages={leaderboardData?.totalPages || 0}
-          onPageChange={setCurrentPage}
-          totalItems={leaderboardData?.totalDocs || 0}
-          itemsPerPage={pageSize}
-          setPageSize={setPageSize}
-          handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
-          loading={isLoading}
+      <Box marginY={5}>
+        <ActiveFiltersDisplay
+          filters={filters}
+          onClearFilters={handleClearFilters}
+          agencies={agencies?.doc || []}
         />
       </Box>
 
@@ -336,7 +343,7 @@ const LeaderBoard = () => {
                   textAlign="center"
                 >
                   <Text
-                    fontSize="14px"
+                    fontSize={{ base: "xs", md: "sm" }}
                     fontWeight="600"
                     color="gray.700"
                     textTransform="capitalize"
@@ -357,7 +364,7 @@ const LeaderBoard = () => {
                   <Tr key={item._id}>
                     <Td
                       py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
+                      fontSize={{ base: "md", md: "lg" }}
                       fontWeight="400"
                       minWidth="100px"
                       textAlign={"center"}
@@ -375,10 +382,17 @@ const LeaderBoard = () => {
                         ) : (
                           <Avatar size="sm" name={item.fullName} />
                         )}
-                        {item.fullName}
+                        <Box>
+                          <Text fontSize="sm" fontWeight="bold">
+                            {item.fullName}
+                          </Text>
+                          <Text fontSize="xs" color="gray.500">
+                            {item.email}
+                          </Text>
+                        </Box>
                       </Flex>
                     </Td>
-                    <Td textAlign="center">
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
                       {formatSurveyTaken(
                         item.completedSurveyCount,
                         item.invitedSurveyCount
@@ -390,12 +404,13 @@ const LeaderBoard = () => {
                         item.rank === 1
                           ? "red"
                           : item.avgScore > 90
-                          ? "green.500"
-                          : item.avgScore > 0
-                          ? "orange.500"
-                          : "gray.500"
+                            ? "green.500"
+                            : item.avgScore > 0
+                              ? "orange.500"
+                              : "gray.500"
                       }
                       fontWeight="bold"
+                      fontSize={{ base: "sm", md: "md" }}
                     >
                       {item.avgScore ? `${item.avgScore}%` : "N/A"}
                     </Td>
@@ -405,20 +420,25 @@ const LeaderBoard = () => {
                           item.rank === 1
                             ? "red"
                             : item.rank === 2
-                            ? "cyan"
-                            : item.rank === 3
-                            ? "green"
-                            : "gray"
+                              ? "cyan"
+                              : item.rank === 3
+                                ? "green"
+                                : "gray"
                         }
                         px={2}
                         py={1}
                         borderRadius="md"
+                        fontSize={{ base: "sm", md: "md" }}
                       >
                         #{item.rank}
                       </Badge>
                     </Td>
-                    <Td textAlign="center">{item.role}</Td>
-                    <Td textAlign="center">{item.agency?.name}</Td>
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
+                      {item.role}
+                    </Td>
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
+                      {item.agency?.name}
+                    </Td>
                   </Tr>
                 ))
               ) : (
@@ -426,7 +446,7 @@ const LeaderBoard = () => {
                   <Td
                     borderBottom="none"
                     colSpan={columns.length}
-                    fontSize={{ base: "12px", md: "15px" }}
+                    fontSize={{ base: "xs", md: "sm" }}
                     fontWeight="500"
                     color="gray.500"
                     textAlign="center"
@@ -441,13 +461,14 @@ const LeaderBoard = () => {
       </Box>
 
       {/* Advanced Search Modal */}
-      {/* <AdvancedSearchModal
+      <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
         initialFilters={filters}
         clearFilter={filterChanged}
-      /> */}
+        agencies={agencies?.doc || []}
+      />
     </Box>
   );
 };

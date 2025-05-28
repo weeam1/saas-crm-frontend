@@ -4,6 +4,7 @@ import FilterSearch from "./Component/FilterSearch";
 import { Box, Divider } from "@chakra-ui/react";
 import NavigationLinks from "./Component/NavigationLinks";
 import SurveyCard from "./Component/SurveyCard";
+import SurveyCardLoading from "./Loader/SurveyCardLoading";
 import {
   useFetchItemsQuery,
 } from "api/apiSlice";
@@ -34,8 +35,7 @@ const Survey = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-console.log("Surveys Data:", surveys?.doc?.surveys);
-
+  console.log("surveys", surveys)
   return (
     <>
       <TopHeader />
@@ -62,22 +62,26 @@ console.log("Surveys Data:", surveys?.doc?.surveys);
       </Box>
       <NavigationLinks />
 
-      <Box spacing={4} mt={6} display="flex" gap="35px" flexWrap={"wrap"}>
-        {surveys?.doc?.surveys.length > 0 && surveys?.doc?.surveys.map((survey) => (
-          <SurveyCard
-            key={survey._id}
-            isActive={survey.status === "active"}
-            data={{
-              id: survey._id,
-              name: survey.title,
-              taken: `${survey.submittedUsers || 0}/${survey.invitedUsersCount || 0}`,
-              totalQuestions: survey.questionsCount,
-              closingDate: new Date(survey.closesAt).toLocaleDateString(),
-              surveyDate: new Date(survey.createdAt).toLocaleDateString(),
-              data: survey
-            }}
-          />
-        ))}
+      <Box spacing={4} mt={6} display="flex" gap="10px" flexWrap={"wrap"}>
+        {(isLoading || isFetching)
+          ? Array.from({ length: 6 }).map((_, idx) => <SurveyCardLoading key={idx} />)
+          : surveys?.doc?.surveys.length > 0 && surveys?.doc?.surveys.map((survey) => (
+              <SurveyCard
+                key={survey._id}
+                isActive={survey.status === "active"}
+                data={{
+                  id: survey._id,
+                  name: survey.title,
+                  taken: `${survey.submittedUsers || 0}/${survey.invitedUsersCount || 0}`,
+                  totalQuestions: survey.questionsCount,
+                  closingDate: new Date(survey.closesAt).toLocaleDateString(),
+                  surveyDate: new Date(survey.createdAt).toLocaleDateString(),
+                  invitedUsers: survey.invitedUsers,
+                  data: survey
+                }}
+              />
+            ))
+        }
       </Box>
     </>
   );

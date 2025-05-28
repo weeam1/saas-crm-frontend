@@ -13,7 +13,7 @@ const NavigationLinks = () => {
     <Flex direction="column" width="100%">
       {/* Navigation Links */}
       <Flex
-        gap={{ base: 4, md: 6, lg: 10 }}
+        gap={{ base: 2, md: 4, lg: 5 }}
         direction={{ base: "column", sm: "row" }}
         align={{ base: "center", sm: "stretch" }}
       >
@@ -21,9 +21,9 @@ const NavigationLinks = () => {
         {isAdmin && (
           <Box
             bg="#FF5757"
-            width={{ base: "90%", sm: "100px", md: "200px" }}
-            height={{ base: "250px", sm: "140px", md: "200px" }}
-            borderRadius="20px"
+            width={{ base: "80%", sm: "80px", md: "130px" }}
+            height={{ base: "120px", sm: "80px", md: "130px" }}
+            borderRadius="12px"
             cursor="pointer"
             position="relative"
             _hover={{ bg: "#FF7A7A" }}
@@ -39,14 +39,14 @@ const NavigationLinks = () => {
             >
               <Icon
                 as={FiPlus}
-                boxSize={{ base: 10, md: 14 }}
-                mb={4}
+                boxSize={{ base: 6, md: 8 }}
+                mb={2}
                 bg="white"
                 color="#FF5757"
                 borderRadius="full"
-                p="2"
+                p="1"
               />
-              <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold">
+              <Text fontSize={{ base: "xs", md: "xs" }} fontWeight="bold">
                 New Survey
               </Text>
             </Flex>
@@ -56,9 +56,9 @@ const NavigationLinks = () => {
         {/* Leaderboard Card */}
         <Box
           bg="#57FF5D"
-          width={{ base: "90%", sm: "100px", md: "200px" }}
-          height={{ base: "250px", sm: "140px", md: "200px" }}
-          borderRadius="20px"
+          width={{ base: "80%", sm: "80px", md: "130px" }}
+          height={{ base: "120px", sm: "80px", md: "130px" }}
+          borderRadius="12px" 
           cursor="pointer"
           position="relative"
           _hover={{ bg: "#7AFF7F" }}
@@ -75,10 +75,10 @@ const NavigationLinks = () => {
             <Image
               src={LeaderBoardIcon}
               alt="LeaderBoardIcon"
-              mb={4}
-              boxSize={{ base: 10, md: 14 }}
+              mb={2}
+              boxSize={{ base: 6, md: 8 }}
             />
-            <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold">
+            <Text fontSize={{ base: "xs", md: "xs" }} fontWeight="bold">
               Leader board
             </Text>
           </Flex>

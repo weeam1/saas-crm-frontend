@@ -9,7 +9,6 @@ const TopHeader = () => {
       borderRadius="md" 
       boxShadow="md" 
       mb={6}
-      h="150px"
     >
       <Flex direction="column">
         <Heading as="h1" size="lg" mb={2}>

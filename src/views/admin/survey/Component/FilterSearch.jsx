@@ -1,6 +1,7 @@
-import React from "react";
-import { Flex, Box, Text, Input, Button, Select, Stack } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Flex, Box, Text, Stack } from "@chakra-ui/react";
 import TopPagination from "components/pagination/TopPagination";
+import CustomDatePicker from "components/datetime/CustomDatePicker";
 
 const FilterSearch = ({
   currentPage,
@@ -16,15 +17,28 @@ const FilterSearch = ({
   setStartDate,
   setEndDate,
 }) => {
+  const [openCalendar, setOpenCalendar] = useState(null);
+
+  const toggleCalendar = (calendar) => {
+    setOpenCalendar((prev) => (prev === calendar ? null : calendar));
+  };
+
   return (
-    <Box bg="white" p={{ base: 3, md: 4 }} borderRadius="md" boxShadow="sm" mb={4}>
+    <Box
+      bg="white"
+      p={{ base: 3, md: 4 }}
+      borderRadius="md"
+      boxShadow="sm"
+      mb={4}
+      width="100%"
+    >
       <Flex
         direction={{ base: "column", md: "row" }}
         justify="space-between"
         align={{ base: "stretch", md: "center" }}
-        gap={{ base: 3, md: 4 }}
+        gap={{ base: 1, md: 1 }}
+        width="100%"
       >
-        {/* Pagination - Full width on mobile, auto on desktop */}
         <Box width={{ base: "100%", md: "auto" }}>
           <TopPagination
             currentPage={currentPage}
@@ -39,50 +53,90 @@ const FilterSearch = ({
           />
         </Box>
 
-        {/* Date Filters - Stack vertically on mobile, row on desktop */}
-        <Flex 
-          direction={{ base: "column", sm: "row" }}
-          align={{ base: "stretch", sm: "center" }}
-          gap={{ base: 2, sm: 3, md: 4 }}
+        {/* Date Filters - Responsive and prevent calendar overflow */}
+        <Flex
+          direction="row"
+          align="center"
+          gap={1}
           width={{ base: "100%", md: "auto" }}
+          flexWrap="wrap"
         >
-          <Text 
-            fontSize="sm" 
-            fontWeight="medium" 
+          <Text
+            fontSize="sm"
+            fontWeight="medium"
             minW="max-content"
-            alignSelf={{ base: "flex-start", sm: "center" }}
+            mr={2}
+            whiteSpace="nowrap"
           >
             Date
           </Text>
-          
-          <Stack 
-            direction={{ base: "column", sm: "row" }} 
-            spacing={{ base: 2, sm: 3, md: 2 }}
-            align="center"
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={2}
             width={{ base: "100%", sm: "auto" }}
+            flexWrap="wrap"
           >
-            <Input
-              type="date"
-              size="sm"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              max={endDate || undefined}
-              width={{ base: "100%", sm: "150px", md: "auto" }}
-            />
-            <Text fontSize="sm" fontWeight="medium" textAlign="center">
+            <Box minW="160px" maxW="200px">
+              <CustomDatePicker
+                selectedDate={startDate}
+                handleDateChange={setStartDate}
+                placeholder="Select start date"
+                maxDate={endDate || new Date()}
+                isCalendarOpen={openCalendar === "startFrom"}
+                toggleCalendar={() => toggleCalendar("startFrom")}
+                popperPlacement="bottom-start"
+                popperModifiers={[
+                  {
+                    name: "preventOverflow",
+                    options: {
+                      boundary: "viewport",
+                      padding: 8,
+                    },
+                  },
+                ]}
+              />
+            </Box>
+            <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
               To
             </Text>
-            <Input
-              type="date"
-              size="sm"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              min={startDate || undefined}
-              width={{ base: "100%", sm: "150px", md: "auto" }}
-            />
-          </Stack>
+            <Box minW="160px" maxW="200px">
+              <CustomDatePicker
+                selectedDate={endDate}
+                handleDateChange={setEndDate}
+                placeholder="Select end date"
+                minDate={startDate}
+                maxDate={new Date()}
+                isCalendarOpen={openCalendar === "endDate"}
+                toggleCalendar={() => toggleCalendar("endDate")}
+              />
+            </Box>
+          </Box>
         </Flex>
       </Flex>
+      <Flex justifyContent={"flex-end"} mt={3}>
+         {/* Clear Button */}
+            {(endDate || startDate) && (
+              <Box>
+                <Text
+                  as="button"
+                  fontSize="sm"
+                  color="red.500"
+                  fontWeight="medium"
+                  px={3}
+                  py={1}
+                  borderRadius="md"
+                  _hover={{ bg: "red.50" }}
+                  onClick={() => {
+                    setStartDate(null);
+                    setEndDate(null);
+                  }}
+                >
+                  Clear
+                </Text>
+              </Box>
+            )}
+        </Flex>
     </Box>
   );
 };
