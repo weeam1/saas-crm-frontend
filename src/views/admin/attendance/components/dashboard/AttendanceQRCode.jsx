@@ -10,8 +10,6 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
-	IconButton,
 	ModalCloseButton,
 	VStack,
 	useBreakpointValue,
@@ -108,7 +106,7 @@ const AttendanceQRCode = () => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			refetch();
-		}, 5000); // 5 seconds
+		}, 10000); // 10 seconds
 
 		return () => clearInterval(interval);
 	}, [refetch]);
