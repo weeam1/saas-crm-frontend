@@ -23,6 +23,7 @@ import { IoArrowBack } from "react-icons/io5";
 import AppButton from "components/shared/AppButton";
 import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
+import Breadcrumb from "../invoice/components/BreadCrumb";
 
 const inputStyles = {
   fontSize: "sm",
@@ -30,8 +31,8 @@ const inputStyles = {
   color: "#6B6B6B",
   border: "1px solid #B9B9B9",
   _placeholder: { color: "#6B6B6B" },
-focusBorderColor:"brand.500",
-BorderRadius: "md",
+  focusBorderColor: "brand.500",
+  BorderRadius: "md",
 };
 
 const CreateSurvey = () => {
@@ -72,7 +73,9 @@ const CreateSurvey = () => {
         } else if (values.selectedRole === "agents") {
           invitedUsers = agents.map((agent) => agent._id);
         } else if (values.selectedRole === "team" && values.selectedManager) {
-          const manager = managers.find((m) => m._id === values.selectedManager);
+          const manager = managers.find(
+            (m) => m._id === values.selectedManager
+          );
           if (manager) {
             invitedUsers = manager.team.map((member) => member._id);
           }
@@ -177,8 +180,21 @@ const CreateSurvey = () => {
     );
   };
 
+  const items = [
+    {
+      path: "/survey",
+      label: "Surveys",
+    },
+    {
+      path: "/survey/create",
+      label: "Create Survey",
+    },
+  ];
   return (
     <Box p={{ base: 1, md: 2 }}>
+
+      <Breadcrumb items={items} />
+      
       {/* Back Button */}
       <AppButton
         ml="2"
@@ -190,13 +206,17 @@ const CreateSurvey = () => {
       </AppButton>
 
       <form onSubmit={formik.handleSubmit}>
-        <Box bg="white" p={8}  boxShadow="sm">
+        <Box bg="white" p={8} boxShadow="sm">
           <Flex direction={{ base: "column", lg: "row" }} gap={8}>
             <Box bg="white" flex="1">
               <VStack spacing={6} align="stretch">
                 <VStack align="flex-start" mt={2}>
-                  <Text fontWeight="bold" fontSize="sm">Survey Title</Text>
-                  <FormControl isInvalid={formik.errors.title && formik.touched.title}>
+                  <Text fontWeight="bold" fontSize="sm">
+                    Survey Title
+                  </Text>
+                  <FormControl
+                    isInvalid={formik.errors.title && formik.touched.title}
+                  >
                     <Input
                       name="title"
                       value={formik.values.title}
@@ -206,28 +226,42 @@ const CreateSurvey = () => {
                       size="sm"
                       {...inputStyles}
                     />
-                    <FormErrorMessage fontSize="xs">{formik.errors.title}</FormErrorMessage>
+                    <FormErrorMessage fontSize="xs">
+                      {formik.errors.title}
+                    </FormErrorMessage>
                   </FormControl>
                 </VStack>
 
                 <VStack align="flex-start">
-                  <Text fontWeight="bold" fontSize="sm">Survey end date</Text>
-                  <FormControl isInvalid={formik.errors.closesAt && formik.touched.closesAt}>
+                  <Text fontWeight="bold" fontSize="sm">
+                    Survey end date
+                  </Text>
+                  <FormControl
+                    isInvalid={
+                      formik.errors.closesAt && formik.touched.closesAt
+                    }
+                  >
                     <CustomDatePicker
                       selectedDate={formik.values.closesAt}
-                      handleDateChange={date => formik.setFieldValue("closesAt", date)}
+                      handleDateChange={(date) =>
+                        formik.setFieldValue("closesAt", date)
+                      }
                       placeholder="Select end date"
                       minDate={new Date()}
                       isCalendarOpen={openCalendar === "endDate"}
                       toggleCalendar={() => toggleCalendar("endDate")}
                       inputStyles={inputStyles}
                     />
-                    <FormErrorMessage fontSize="xs">{formik.errors.closesAt}</FormErrorMessage>
+                    <FormErrorMessage fontSize="xs">
+                      {formik.errors.closesAt}
+                    </FormErrorMessage>
                   </FormControl>
                 </VStack>
 
                 <VStack align="flex-start">
-                  <Text fontWeight="bold" fontSize="sm">Survey Users</Text>
+                  <Text fontWeight="bold" fontSize="sm">
+                    Survey Users
+                  </Text>
                   <FormControl isInvalid={formik.errors.selectedRole}>
                     <HStack
                       {...group}
@@ -243,17 +277,23 @@ const CreateSurvey = () => {
                             {value === "radio"
                               ? "Radio Button"
                               : value === "checkbox"
-                              ? "Check Box"
-                              : value.charAt(0).toUpperCase() + value.slice(1)}
+                                ? "Check Box"
+                                : value.charAt(0).toUpperCase() +
+                                  value.slice(1)}
                           </RadioCard>
                         );
                       })}
                     </HStack>
-                    <FormErrorMessage fontSize="xs">{formik.errors.selectedRole}</FormErrorMessage>
+                    <FormErrorMessage fontSize="xs">
+                      {formik.errors.selectedRole}
+                    </FormErrorMessage>
                   </FormControl>
 
                   <FormControl
-                    isInvalid={formik.errors.selectedManager && formik.touched.selectedManager}
+                    isInvalid={
+                      formik.errors.selectedManager &&
+                      formik.touched.selectedManager
+                    }
                     isDisabled={formik.values.selectedRole !== "team"}
                   >
                     <Select
@@ -273,13 +313,20 @@ const CreateSurvey = () => {
                         </option>
                       ))}
                     </Select>
-                    <FormErrorMessage fontSize="xs">{formik.errors.selectedManager}</FormErrorMessage>
+                    <FormErrorMessage fontSize="xs">
+                      {formik.errors.selectedManager}
+                    </FormErrorMessage>
                   </FormControl>
                 </VStack>
               </VStack>
             </Box>
 
-            <Box display={{ base: "none", lg: "block" }} width="1px" bg="gray.200" mx={4} />
+            <Box
+              display={{ base: "none", lg: "block" }}
+              width="1px"
+              bg="gray.200"
+              mx={4}
+            />
 
             <Box
               bg="white"
@@ -293,7 +340,13 @@ const CreateSurvey = () => {
                   {index > 0 && <Divider my={6} borderColor="gray.200" />}
 
                   <Flex align="center" mb={4} justify="flex-start">
-                    <Heading as="h3" size="md" flex={1} color="black" fontSize="sm">
+                    <Heading
+                      as="h3"
+                      size="md"
+                      flex={1}
+                      color="black"
+                      fontSize="sm"
+                    >
                       Question {index + 1}
                     </Heading>
                     {formik.values.questions.length > 1 && (
@@ -312,7 +365,10 @@ const CreateSurvey = () => {
 
                   <FormControl
                     mb={4}
-                    isInvalid={formik.errors.questions?.[index]?.text && formik.touched.questions?.[index]?.text}
+                    isInvalid={
+                      formik.errors.questions?.[index]?.text &&
+                      formik.touched.questions?.[index]?.text
+                    }
                   >
                     <FormLabel fontSize="sm">Question Text</FormLabel>
                     <Input
@@ -322,7 +378,7 @@ const CreateSurvey = () => {
                       onBlur={formik.handleBlur}
                       placeholder={`Enter question ${index + 1} text`}
                       size="sm"
-                      fontSize="sm" 
+                      fontSize="sm"
                       {...inputStyles}
                     />
                     <FormErrorMessage fontSize="xs">
@@ -334,10 +390,12 @@ const CreateSurvey = () => {
                     <FormLabel fontSize="sm">Question Type</FormLabel>
                     <Select
                       value={question.type}
-                      onChange={(e) => handleQuestionTypeChange(index, e.target.value)}
+                      onChange={(e) =>
+                        handleQuestionTypeChange(index, e.target.value)
+                      }
                       focusBorderColor="brand.500"
                       size="sm"
-                      fontSize="sm" 
+                      fontSize="sm"
                       {...inputStyles}
                     >
                       <option value="text">Text Box</option>
@@ -346,7 +404,8 @@ const CreateSurvey = () => {
                     </Select>
                   </FormControl>
 
-                  {(question.type === "radio" || question.type === "checkbox") && (
+                  {(question.type === "radio" ||
+                    question.type === "checkbox") && (
                     <Box mb={4}>
                       <FormLabel fontSize="sm">
                         {question.type === "radio"
@@ -358,23 +417,35 @@ const CreateSurvey = () => {
                           <HStack key={optionIndex}>
                             <FormControl
                               isInvalid={
-                                formik.errors.questions?.[index]?.options?.[optionIndex]?.text &&
-                                formik.touched.questions?.[index]?.options?.[optionIndex]?.text
+                                formik.errors.questions?.[index]?.options?.[
+                                  optionIndex
+                                ]?.text &&
+                                formik.touched.questions?.[index]?.options?.[
+                                  optionIndex
+                                ]?.text
                               }
                             >
                               <Input
                                 value={option.text}
                                 onChange={(e) =>
-                                  handleOptionChange(index, optionIndex, e.target.value)
+                                  handleOptionChange(
+                                    index,
+                                    optionIndex,
+                                    e.target.value
+                                  )
                                 }
                                 onBlur={formik.handleBlur}
                                 placeholder={`Option ${optionIndex + 1}`}
                                 size="sm"
-                                fontSize="sm" 
+                                fontSize="sm"
                                 {...inputStyles}
                               />
                               <FormErrorMessage fontSize="xs">
-                                {formik.errors.questions?.[index]?.options?.[optionIndex]?.text}
+                                {
+                                  formik.errors.questions?.[index]?.options?.[
+                                    optionIndex
+                                  ]?.text
+                                }
                               </FormErrorMessage>
                             </FormControl>
                             {question.options.length > 2 && (

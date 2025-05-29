@@ -37,6 +37,7 @@ import AppButton from "components/shared/AppButton";
 import { toast } from "react-toastify";
 import ViewSurveyResponseLoading from "./Loader/ViewSurveyResponseLoading";
 import { skipToken } from "@reduxjs/toolkit/query";
+import Breadcrumb from "../invoice/components/BreadCrumb";
 
 const SIDEBAR_WIDTH = "400px";
 
@@ -75,7 +76,9 @@ const ViewSurveyResponse = () => {
     refetch,
   } = useFetchItemsQuery(
     surveyData?._id && currentUserId
-      ? { path: `/surveys/user_survey_response/${surveyData._id}/${currentUserId}` }
+      ? {
+          path: `/surveys/user_survey_response/${surveyData._id}/${currentUserId}`,
+        }
       : skipToken
   );
 
@@ -209,7 +212,7 @@ const ViewSurveyResponse = () => {
   const filteredUsers = invitedUsers.filter((userData) =>
     userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // Sidebar 
+  // Sidebar
   const SidebarContent = (
     <>
       <Box p={4}>
@@ -220,10 +223,10 @@ const ViewSurveyResponse = () => {
           <Input
             placeholder="Search users..."
             focusBorderColor="brand.500"
-            bg="#F4F4F4" 
+            bg="#F4F4F4"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            fontWeight="700" 
+            fontWeight="700"
           />
         </InputGroup>
       </Box>
@@ -261,7 +264,9 @@ const ViewSurveyResponse = () => {
               <Text fontSize="sm" color="gray.500">
                 {userData.user.roles[0]?.roleName || "User"}
               </Text>
-              <Text fontSize={"sm"} color={"#FF0000"}>{userData?.submittedQuestions}/{surveyData?.questionsCount}</Text>
+              <Text fontSize={"sm"} color={"#FF0000"}>
+                {userData?.submittedQuestions}/{surveyData?.questionsCount}
+              </Text>
             </Box>
             <Box
               bg="brand.500"
@@ -279,6 +284,16 @@ const ViewSurveyResponse = () => {
     </>
   );
 
+  const items = [
+    {
+      path: "/survey",
+      label: "Surveys",
+    },
+    {
+      path: `/survey/view-survey/${id}`,
+      label: "View Survey",
+    },
+  ];
   return (
     <Flex h="100vh" overflow="hidden" position="relative">
       {/* Main Content Area */}
@@ -289,6 +304,7 @@ const ViewSurveyResponse = () => {
         transition="padding-right 0.3s"
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
+          <Breadcrumb items={items} />
           {/* Title first, then Back Button below */}
           <Heading
             as="h1"
@@ -366,7 +382,9 @@ const ViewSurveyResponse = () => {
                                 : "gray.400"
                             }
                             cursor="pointer"
-                            onClick={() => handleEvaluation(question._id, false)}
+                            onClick={() =>
+                              handleEvaluation(question._id, false)
+                            }
                             _hover={{ color: "red.500" }}
                           />
                         </Flex>

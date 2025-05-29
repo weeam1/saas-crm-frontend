@@ -22,6 +22,7 @@ import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { toast } from "react-toastify";
 import TakeSurveyLoading from "./Loader/TakeSurveyLoading";
+import Breadcrumb from "../invoice/components/BreadCrumb";
 
 const TakeSurvey = () => {
   const { id } = useParams();
@@ -155,8 +156,20 @@ const TakeSurvey = () => {
       </Box>
     );
 
+  const items = [
+    {
+      path: "/survey",
+      label: "Surveys",
+    },
+    {
+      path: `/survey/take-survey/${id}`,
+      label: "Take Survey",
+    },
+  ];
   return (
     <Box p={{ base: 2, md: 4 }}>
+
+      <Breadcrumb items={items} />
       {/* Survey Title */}
       <Heading
         as="h1"
@@ -184,12 +197,11 @@ const TakeSurvey = () => {
         p={{ base: 4, md: 6 }}
         borderRadius="md"
         boxShadow="sm"
-        maxW="100%" 
-        width="100%" 
+        maxW="100%"
+        width="100%"
         mx="auto"
       >
         <VStack spacing={4} align="stretch">
-
           {survey &&
             survey?.questions.map((question, index) => (
               <React.Fragment key={question._id}>
@@ -285,7 +297,7 @@ const TakeSurvey = () => {
               color="#000000"
               size="sm"
               px={6}
-              borderRadius="4px" 
+              borderRadius="4px"
               onClick={handleSubmit}
               isLoading={isSubmitting}
               loadingText="Submitting..."

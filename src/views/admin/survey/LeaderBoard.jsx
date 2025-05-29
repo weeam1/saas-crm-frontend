@@ -31,6 +31,7 @@ import LeaderBoardLoader from "./Loader/LeaderBoardLoader";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import AppButton from "components/shared/AppButton";
+import Breadcrumb from "../invoice/components/BreadCrumb";
 
 const LeaderBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,7 +40,7 @@ const LeaderBoard = () => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const { data: agencies } = useFetchItemsQuery({ path: "/agencies" });
- const navigate = useNavigate();
+  const navigate = useNavigate();
   const columns = [
     "SR.No",
     "Name",
@@ -127,18 +128,29 @@ const LeaderBoard = () => {
     return <LeaderBoardLoader />;
   }
 
-  console.log("leaderboardData?.doc?.leaderboard?", leaderboardData?.doc?.leaderboard)
+  const items = [
+    {
+      path: "/survey",
+      label: "Surveys",
+    },
+    {
+      path: "/survey/survey-leader-board",
+      label: "Leader Board",
+    },
+  ];
   return (
     <Box p={{ base: 2, md: 4 }}>
-            {/* Back Button */}
-            <AppButton
-              ml="2"
-              leftIcon={<IoArrowBack />}
-              onClick={() => navigate(-1)}
-              mb={4}
-            >
-              Back
-            </AppButton>
+      <Breadcrumb items={items} />
+
+      {/* Back Button */}
+      <AppButton
+        ml="2"
+        leftIcon={<IoArrowBack />}
+        onClick={() => navigate(-1)}
+        mb={4}
+      >
+        Back
+      </AppButton>
       {/* Header */}
       <Box mb={6} display="flex" alignItems="flex-end" gap={2}>
         <img
