@@ -34,8 +34,6 @@ const Survey = () => {
     { path: "/surveys", params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
-
-  console.log("surveys", surveys)
   return (
     <>
       <TopHeader />
@@ -79,6 +77,7 @@ const Survey = () => {
                   invitedUsers: survey.invitedUsers,
                   data: survey
                 }}
+                refetch={refetch}
               />
             ))
         }
