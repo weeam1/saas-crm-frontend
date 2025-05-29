@@ -35,6 +35,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../../redux/imageSlice';
 import { setUser } from '../../../redux/localSlice';
 import webSocketService from 'services/WebSocketService';
+import { getSmartTimezone } from 'hooks/useTimezone';
 
 function SignIn() {
 	// Chakra color mode
@@ -87,6 +88,10 @@ function SignIn() {
 			}
 		};
 	}, [socket]);
+
+	useEffect(() => {
+		getSmartTimezone();
+	}, []);
 
 	// const login = async () => {
 	// 	try {

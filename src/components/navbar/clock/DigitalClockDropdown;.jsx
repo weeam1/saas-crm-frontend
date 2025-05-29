@@ -11,10 +11,12 @@ import {
 } from '@chakra-ui/react';
 import { TimeIcon } from '@chakra-ui/icons';
 import ClockContainer from './ClockContainer';
+import { currentTZ } from 'utils/helpers';
 // import { useFetchItemsQuery } from 'api/apiSlice';
 
 const DigitalClockDropdown = () => {
-	const tz = localStorage.getItem('timezone_cache');
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
 	const [currentTime, setCurrentTime] = useState(moment.tz(tz));
 	// const [timezone, setTimezone] = useState(currentTimezone);
 

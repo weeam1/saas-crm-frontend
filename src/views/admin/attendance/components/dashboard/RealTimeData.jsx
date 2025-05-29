@@ -18,6 +18,7 @@ import Chart from 'react-apexcharts';
 import { Link as RouterLink } from 'react-router-dom';
 import moment from 'moment-timezone';
 import AttendanceQRCode from './AttendanceQRCode';
+import { currentTZ } from 'utils/helpers';
 
 const RealTimeData = ({
 	stats,
@@ -38,7 +39,9 @@ const RealTimeData = ({
 	// 	setTime(moment().tz(timezone));
 	// }, [timezone]);
 
-	const tz = localStorage.getItem('timezone_cache');
+	// const tz = localStorage.getItem('timezone_cache');
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
 	const [time, setTime] = useState(() => moment().tz(tz));
 
 	const tick = useCallback(() => {
