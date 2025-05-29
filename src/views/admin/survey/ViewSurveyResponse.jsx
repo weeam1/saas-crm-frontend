@@ -36,6 +36,7 @@ import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import AppButton from "components/shared/AppButton";
 import { toast } from "react-toastify";
 import ViewSurveyResponseLoading from "./Loader/ViewSurveyResponseLoading";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const SIDEBAR_WIDTH = "400px";
 
@@ -72,9 +73,11 @@ const ViewSurveyResponse = () => {
     isError: surveyError,
     isLoading: isLoadingResponse,
     refetch,
-  } = useFetchItemsQuery({
-    path: `/surveys/user_survey_response/${surveyData?._id}/${currentUserId}`,
-  });
+  } = useFetchItemsQuery(
+    surveyData?._id && currentUserId
+      ? { path: `/surveys/user_survey_response/${surveyData._id}/${currentUserId}` }
+      : skipToken
+  );
 
   const [createItemMutation, { isLoading: isEvaluating }] =
     useCreateItemMutation();
@@ -198,7 +201,7 @@ const ViewSurveyResponse = () => {
 
   const handleUserClick = (userId) => {
     setCurrentUserId(userId);
-    setSidebarOpen(false); // Hide sidebar on user select (mobile)
+    setSidebarOpen(false);
     refetch();
   };
 

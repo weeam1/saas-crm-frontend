@@ -148,7 +148,6 @@ const AdvancedSearchModal = ({
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
                 >
-                  <option value="">All</option>
                   {agencies.map((agency) => (
                     <option key={agency._id} value={agency._id}>
                       {agency.name}

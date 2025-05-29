@@ -21,9 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import {
-  useDeleteItemMutation,
-} from "api/apiSlice";
+import { useDeleteItemMutation } from "api/apiSlice";
 
 const SurveyCard = ({ data, isActive, refetch }) => {
   const navigate = useNavigate();
@@ -80,10 +78,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
 
     setIsDeleting(true);
     try {
-
       await deleteItemMutation({
         path: `/surveys/${surveyIdToDelete}`,
-        body: {securityPassword: securityPassword.trim()},
+        body: { securityPassword: securityPassword.trim() },
       }).unwrap();
 
       toast.success("The survey has been permanently deleted.");
@@ -113,7 +110,26 @@ const SurveyCard = ({ data, isActive, refetch }) => {
         flexDirection="column"
         justifyContent="space-between"
       >
-        <Box display="flex" justifyContent={isAdmin ? "space-between" : 'flex-end'} alignItems="center" mb={2}>
+        <Box
+          display="flex"
+          justifyContent={isAdmin ? "space-between" : "flex-end"}
+          alignItems="center"
+          mb={2}
+        >
+          <Tooltip
+            label={isActive ? "Active" : "Complete"}
+            fontSize="sm"
+            placement="top"
+            hasArrow
+          >
+            <Box
+              width="18px"
+              height="18px"
+              bg={isActive ? "green.600" : "red.600"}
+              borderRadius="full"
+              cursor="pointer"
+            ></Box>
+          </Tooltip>
           {isAdmin && (
             <Tooltip
               label="Delete Survey"
@@ -131,20 +147,6 @@ const SurveyCard = ({ data, isActive, refetch }) => {
               />
             </Tooltip>
           )}
-          <Tooltip
-            label={isActive ? "Active" : "Complete"}
-            fontSize="sm"
-            placement="top"
-            hasArrow
-          >
-            <Box
-              width="18px"
-              height="18px"
-              bg={isActive ? "green.600" : "red.600"}
-              borderRadius="full"
-              cursor="pointer"
-            ></Box>
-          </Tooltip>
         </Box>
 
         <Box flex="1">
@@ -205,7 +207,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
                 isAdmin ? "#D8A541" : isSurveyCompleted ? "gray.300" : "#D8A541"
               }
               borderRadius="4px"
-              color={isAdmin ? "white" : isSurveyCompleted ? "gray.600" : "white"}
+              color={
+                isAdmin ? "white" : isSurveyCompleted ? "gray.600" : "white"
+              }
               mt="10px"
               fontSize="xs"
               size="sm"
@@ -248,14 +252,18 @@ const SurveyCard = ({ data, isActive, refetch }) => {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent maxW="900px"> {/* Increased width */}
+        <ModalContent maxW="900px">
+          {" "}
+          {/* Increased width */}
           <ModalHeader>Delete Survey</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Alert status="warning" mb={4}>
               <AlertIcon />
               <Text fontWeight="bold">
-                This action is irreversible. Deleting this survey will permanently remove all associated data. Please confirm your security password to proceed.
+                This action is irreversible. Deleting this survey will
+                permanently remove all associated data. Please confirm your
+                security password to proceed.
               </Text>
             </Alert>
             <Input
@@ -267,12 +275,7 @@ const SurveyCard = ({ data, isActive, refetch }) => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button
-              variant="ghost"
-              mr={3}
-              onClick={onClose}
-              borderRadius="4px"
-            >
+            <Button variant="ghost" mr={3} onClick={onClose} borderRadius="4px">
               Cancel
             </Button>
             <Button

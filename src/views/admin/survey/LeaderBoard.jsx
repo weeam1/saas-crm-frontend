@@ -28,6 +28,9 @@ import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import ActiveFiltersDisplay from "./Component/FilterComponent/ActiveFiltersDisplay";
 import AdvancedSearchModal from "./Component/FilterComponent/AdvancedSearchModal";
 import LeaderBoardLoader from "./Loader/LeaderBoardLoader";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import AppButton from "components/shared/AppButton";
 
 const LeaderBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +39,7 @@ const LeaderBoard = () => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const { data: agencies } = useFetchItemsQuery({ path: "/agencies" });
-
+ const navigate = useNavigate();
   const columns = [
     "SR.No",
     "Name",
@@ -124,8 +127,18 @@ const LeaderBoard = () => {
     return <LeaderBoardLoader />;
   }
 
+  console.log("leaderboardData?.doc?.leaderboard?", leaderboardData?.doc?.leaderboard)
   return (
     <Box p={{ base: 2, md: 4 }}>
+            {/* Back Button */}
+            <AppButton
+              ml="2"
+              leftIcon={<IoArrowBack />}
+              onClick={() => navigate(-1)}
+              mb={4}
+            >
+              Back
+            </AppButton>
       {/* Header */}
       <Box mb={6} display="flex" alignItems="flex-end" gap={2}>
         <img
@@ -437,7 +450,7 @@ const LeaderBoard = () => {
                       {item.role}
                     </Td>
                     <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
-                      {item.agency?.name}
+                      {item.agency}
                     </Td>
                   </Tr>
                 ))
