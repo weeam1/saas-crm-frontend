@@ -48,6 +48,7 @@ const ViewSurveyResponse = () => {
   const [evaluations, setEvaluations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
 
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
@@ -99,47 +100,34 @@ const ViewSurveyResponse = () => {
   const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
       const existingIndex = prev.findIndex((e) => e.question === questionId);
+      let updated;
       if (existingIndex >= 0) {
-        const updated = [...prev];
+        updated = [...prev];
         updated[existingIndex] = { ...updated[existingIndex], liked };
-        return updated;
+      } else {
+        updated = [...prev, { question: questionId, liked }];
       }
-      return [...prev, { question: questionId, liked }];
+      // Check if the new evaluations differ from the initial state
+      setHasChangedEvaluation(true);
+      return updated;
     });
   };
 
   const handleSubmitEvaluation = async () => {
     try {
-      const submittedEvaluations = evaluations.filter((e) => e.liked !== null);
+      const submittedEvaluations = evaluations.filter((e) => e.liked !== null && e.liked !== undefined);
       if (submittedEvaluations.length === 0) {
-        toast({
-          title: "No evaluations to submit",
-          description:
-            "Please evaluate at least one question before submitting",
-          status: "warning",
-          duration: 5000,
-          isClosable: true,
-        });
+        toast.warning("Please evaluate at least one question before submitting");
         return;
       }
       await createItemMutation({
         path: `/surveys/responses/evaluate/${surveyResponse?.doc?._id}`,
         body: { evaluations: submittedEvaluations },
       }).unwrap();
-      toast({
-        title: "Evaluation submitted successfully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.success("Evaluation submitted successfully");
+      setHasChangedEvaluation(false); // Reset after successful submit
     } catch (err) {
-      toast({
-        title: "Failed to submit evaluation",
-        description: err?.data?.message || "Something went wrong",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      toast.error(err?.data?.message || "Failed to submit evaluation");
     }
   };
 
@@ -199,7 +187,9 @@ const ViewSurveyResponse = () => {
   };
 
   // Filter users based on search term
-  const filteredUsers = invitedUsers.filter((userData) =>
+const filteredUsers = invitedUsers
+  .filter((userData) => userData.status === "completed")
+  .filter((userData) =>
     userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
   // Sidebar
@@ -468,6 +458,12 @@ const ViewSurveyResponse = () => {
                   borderRadius="4px"
                   _hover={{ bg: "#e0b85c" }}
                   _active={{ bg: "#d1a94b" }}
+                  isDisabled={
+                    !hasChangedEvaluation ||
+                    !evaluations.some(
+                      (e) => e.liked !== undefined && e.liked !== null
+                    )
+                  }
                 >
                   Submit
                 </AppButton>
