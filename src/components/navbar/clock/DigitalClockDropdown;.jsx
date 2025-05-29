@@ -11,22 +11,22 @@ import {
 } from '@chakra-ui/react';
 import { TimeIcon } from '@chakra-ui/icons';
 import ClockContainer from './ClockContainer';
+// import { useFetchItemsQuery } from 'api/apiSlice';
 
 const DigitalClockDropdown = () => {
-	const [currentTime, setCurrentTime] = useState(moment());
-	const [timezone, setTimezone] = useState(moment.tz.guess());
+	const tz = localStorage.getItem('timezone_cache');
+	const [currentTime, setCurrentTime] = useState(moment.tz(tz));
+	// const [timezone, setTimezone] = useState(currentTimezone);
 
 	// Format using moment-timezone
-	const formattedDate = currentTime.tz(timezone).format('DD MMMM YYYY');
-	const formattedTime = currentTime.tz(timezone).format('hh:mm:ss A');
-	const timezoneAbbr = currentTime.tz(timezone).format('z');
-	const dayName = currentTime.tz(timezone).format('dddd'); // Returns full day name (e.g., "Monday")
+	const formattedDate = currentTime.format('DD MMMM YYYY');
+	const formattedTime = currentTime.format('hh:mm:ss A');
+	const timezoneAbbr = currentTime.tz(tz).format('z');
+	const dayName = currentTime.format('dddd'); // Returns full day name (e.g., "Monday")
 
 	const bgColor = useColorModeValue('white', 'gray.800');
 	const textColor = useColorModeValue('gray.600', 'white');
 	const accentColor = useColorModeValue('blue.500', 'blue.300');
-
-	// const allTimezones = moment.tz.names();
 
 	return (
 		<Menu closeOnSelect={false}>
@@ -64,9 +64,9 @@ const DigitalClockDropdown = () => {
 						formattedTime={formattedTime}
 						textColor={textColor}
 						accentColor={accentColor}
-						timezone={timezone}
+						timezone={tz}
 						timezoneAbbr={timezoneAbbr}
-						setTimezone={setTimezone}
+						// setTimezone={setTimezone}
 						dayName={dayName}
 					/>
 				</MenuItem>

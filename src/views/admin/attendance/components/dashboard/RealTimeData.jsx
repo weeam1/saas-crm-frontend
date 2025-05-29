@@ -15,11 +15,9 @@ import { PiSunLight } from 'react-icons/pi';
 import { FaArrowTrendUp } from 'react-icons/fa6';
 import { IoMdTrendingDown } from 'react-icons/io';
 import Chart from 'react-apexcharts';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import moment from 'moment-timezone';
 import AttendanceQRCode from './AttendanceQRCode';
-
-const timezone = 'Asia/Karachi';
 
 const RealTimeData = ({
 	stats,
@@ -31,14 +29,29 @@ const RealTimeData = ({
 	setSelectedView,
 	setQueryParams,
 }) => {
-	const currentDate = moment().tz(timezone).format('dddd, DD MMMM YYYY');
-	const [time, setTime] = useState(moment().tz(timezone));
-	const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
-	const navigate = useNavigate();
+	// const currentDate = moment().tz(timezone).format('dddd, DD MMMM YYYY');
+	// const [time, setTime] = useState(moment().tz(timezone));
+	// const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
+	// const navigate = useNavigate();
+
+	// const tick = useCallback(() => {
+	// 	setTime(moment().tz(timezone));
+	// }, [timezone]);
+
+	const tz = localStorage.getItem('timezone_cache');
+	const [time, setTime] = useState(() => moment().tz(tz));
 
 	const tick = useCallback(() => {
-		setTime(moment().tz(timezone));
-	}, [timezone]);
+		setTime(moment().tz(tz));
+	}, [tz]);
+
+	useEffect(() => {
+		const interval = setInterval(tick, 1000);
+		return () => clearInterval(interval);
+	}, [tick]);
+
+	const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
+	const currentDate = useMemo(() => time.format('dddd, DD MMMM YYYY'), [time]);
 
 	useEffect(() => {
 		const timerID = setInterval(tick, 1000);
