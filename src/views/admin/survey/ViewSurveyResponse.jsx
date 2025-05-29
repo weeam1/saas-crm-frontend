@@ -188,16 +188,6 @@ const ViewSurveyResponse = () => {
             <br />
             Please check the link or contact your administrator for assistance.
           </Text>
-          <AppButton
-            leftIcon={<IoArrowBack />}
-            onClick={() => navigate(-1)}
-            bg="#EDC270"
-            color="#000"
-            borderRadius="4px"
-            size="sm"
-          >
-            Go Back
-          </AppButton>
         </Box>
       </Flex>
     );
@@ -327,8 +317,20 @@ const ViewSurveyResponse = () => {
 
           {/* Survey Questions and Responses */}
           {surveyError ? (
-            <Box color="red.500" p={4} bg="red.50" borderRadius="md">
-              User survey response not found!
+            <Box
+              color="green.800"
+              p={4}
+              bg="green.50"
+              borderRadius="md"
+              border="1px solid #B2F5EA"
+            >
+              <Text fontWeight="bold" fontSize="lg" mb={2}>
+                No Survey Response Found
+              </Text>
+              <Text fontSize="md">
+                This user has not submitted their survey response yet.
+                <br />
+              </Text>
             </Box>
           ) : (
             <Box
