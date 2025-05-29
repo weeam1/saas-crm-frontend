@@ -199,7 +199,7 @@ const routes = [
     ),
     component: LeadScreen,
   },
-  
+
   {
     name: "Leads Pool",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -218,20 +218,18 @@ const routes = [
     name: "Survey",
     layout: [ROLE_PATH.superAdmin],
     path: "/survey",
-    icon: (
-      <Icon as={FaSquarePlus} width="20px" height="20px" color="inherit" />
-    ),
+    icon: <Icon as={FaSquarePlus} width="20px" height="20px" color="inherit" />,
     component: Survey,
   },
   {
-    name: "Survey Leader Board",
+    name: "Survey Board",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/survey/leader-board",
+    path: "/survey/survey-leader-board",
     under: "Survey",
     parentName: "Survey",
     component: LeaderBoard,
   },
-   {
+  {
     name: "Create Survey",
     layout: [ROLE_PATH.superAdmin],
     path: "/survey/create-survey",
@@ -239,7 +237,7 @@ const routes = [
     parentName: "Survey",
     component: CreateSurvey,
   },
-   {
+  {
     name: "view Survey",
     layout: [ROLE_PATH.superAdmin],
     path: "/survey/view-survey/:id",

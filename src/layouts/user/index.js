@@ -161,9 +161,9 @@ export default function User(props) {
       component: Survey,
     },
     {
-      name: "Survey Leader Board",
-      layout: [ROLE_PATH.user],
-      path: "/survey/leader-board",
+      name: "Survey Board",
+      layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+      path: "/survey/survey-leader-board",
       under: "Survey",
       parentName: "Survey",
       component: LeaderBoard,

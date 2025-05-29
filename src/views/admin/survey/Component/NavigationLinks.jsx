@@ -63,7 +63,7 @@ const NavigationLinks = () => {
           position="relative"
           _hover={{ bg: "#7AFF7F" }}
           transition="background 0.2s ease"
-          onClick={() => navigate("/survey/leader-board")}
+          onClick={() => navigate("/survey/survey-leader-board")}
         >
           <Flex
             direction="column"
