@@ -115,9 +115,13 @@ const ViewSurveyResponse = () => {
 
   const handleSubmitEvaluation = async () => {
     try {
-      const submittedEvaluations = evaluations.filter((e) => e.liked !== null && e.liked !== undefined);
+      const submittedEvaluations = evaluations.filter(
+        (e) => e.liked !== null && e.liked !== undefined
+      );
       if (submittedEvaluations.length === 0) {
-        toast.warning("Please evaluate at least one question before submitting");
+        toast.warning(
+          "Please evaluate at least one question before submitting"
+        );
         return;
       }
       await createItemMutation({
@@ -187,11 +191,11 @@ const ViewSurveyResponse = () => {
   };
 
   // Filter users based on search term
-const filteredUsers = invitedUsers
-  .filter((userData) => userData.status === "completed")
-  .filter((userData) =>
-    userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = invitedUsers
+    .filter((userData) => userData.status === "completed")
+    .filter((userData) =>
+      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   // Sidebar
   const SidebarContent = (
     <>
@@ -221,45 +225,52 @@ const filteredUsers = invitedUsers
         <Text fontWeight="bold" fontSize="lg" mb={2}>
           Survey Users
         </Text>
-        {filteredUsers.map((userData) => (
-          <HStack
-            key={userData.user._id}
-            spacing={3}
-            bg={currentUserId === userData.user._id ? "#ABFF8D" : "gray.100"}
-            p={3}
-            borderRadius="md"
-            _hover={{
-              bg: currentUserId === userData.user._id ? "#ABFF8D" : "gray.200",
-            }}
-            cursor="pointer"
-            onClick={() => handleUserClick(userData.user._id)}
-          >
-            <Avatar
-              size="sm"
-              name={userData.user.fullName}
-              src={userData.user.profileImage}
-            />
-            <Box flex="1">
-              <Text fontWeight="medium">{userData.user.fullName}</Text>
-              <Text fontSize="sm" color="gray.500">
-                {userData.user.roles[0]?.roleName || "User"}
-              </Text>
-              <Text fontSize={"sm"} color={"#FF0000"}>
-                {userData?.submittedQuestions}/{surveyData?.questionsCount}
-              </Text>
-            </Box>
-            <Box
-              bg="brand.500"
+        {filteredUsers.length === 0 ? (
+          <Box py={8} textAlign="center" color="gray.500" fontWeight="medium">
+            No user found
+          </Box>
+        ) : (
+          filteredUsers.map((userData) => (
+            <HStack
+              key={userData.user._id}
+              spacing={3}
+              bg={currentUserId === userData.user._id ? "#ABFF8D" : "gray.100"}
+              p={3}
               borderRadius="md"
-              p={1}
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
+              _hover={{
+                bg:
+                  currentUserId === userData.user._id ? "#ABFF8D" : "gray.200",
+              }}
+              cursor="pointer"
+              onClick={() => handleUserClick(userData.user._id)}
             >
-              <Icon as={IoEye} color="white" boxSize={4} />
-            </Box>
-          </HStack>
-        ))}
+              <Avatar
+                size="sm"
+                name={userData.user.fullName}
+                src={userData.user.profileImage}
+              />
+              <Box flex="1">
+                <Text fontWeight="medium">{userData.user.fullName}</Text>
+                <Text fontSize="sm" color="gray.500">
+                  {userData.user.roles[0]?.roleName || "User"}
+                </Text>
+                <Text fontSize={"sm"} color={"#FF0000"}>
+                  {userData?.submittedQuestions}/{surveyData?.questionsCount}
+                </Text>
+              </Box>
+              <Box
+                bg="brand.500"
+                borderRadius="md"
+                p={1}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Icon as={IoEye} color="white" boxSize={4} />
+              </Box>
+            </HStack>
+          ))
+        )}
       </VStack>
     </>
   );
