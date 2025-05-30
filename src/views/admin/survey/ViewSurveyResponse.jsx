@@ -63,11 +63,9 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
-  const filteredUsers = invitedUsers
-    .filter((userData) => userData.status === "completed")
-    .filter((userData) =>
-      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const filteredUsers = invitedUsers.filter((userData) =>
+    userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     if (surveyData && !isLoading) {
@@ -140,7 +138,7 @@ const ViewSurveyResponse = () => {
     }
   };
 
-  if (isLoading || isLoadingResponse) return <ViewSurveyResponseLoading />;
+  if (isLoading) return <ViewSurveyResponseLoading />;
   if (isError && surveyError)
     return (
       <Flex h="100vh" align="center" justify="center" bg="red.50">
@@ -254,7 +252,9 @@ const ViewSurveyResponse = () => {
                   {userData.user.roles[0]?.roleName || "User"}
                 </Text>
                 <Text fontSize={"sm"} color={"#FF0000"}>
-                  {userData?.submittedQuestions}/{surveyData?.questionsCount}
+                  {userData?.submittedQuestions
+                    ? `${userData?.submittedQuestions}/${surveyData?.questionsCount}`
+                    : "pending"}
                 </Text>
               </Box>
               <Box
@@ -305,7 +305,10 @@ const ViewSurveyResponse = () => {
               fontSize="24px"
               fontWeight="700"
             >
-              {surveyData.title ? surveyData.title : ""}
+              {surveyData.title
+                ? surveyData.title.charAt(0).toUpperCase() +
+                  surveyData.title.slice(1)
+                : ""}
             </Heading>
           )}
           <Flex justify="flex-start" mb={4}>
@@ -319,69 +322,90 @@ const ViewSurveyResponse = () => {
           </Flex>
 
           {/* Survey Questions and Responses */}
-          {!surveyResponse && !isLoading ? (
+          {!surveyResponse && !isLoading && !isLoadingResponse ? (
             surveyData ? (
               <Box
                 bg="white"
                 p={6}
                 borderRadius="lg"
                 boxShadow="md"
-                // border="1px solid #EDC270"
                 width="100%"
                 mx="auto"
                 mt={8}
               >
-                <Heading
-                  fontSize="xl"
-                  mb={2}
-                  color="brand.500"
-                  textAlign={"center"}
-                >
-                 Survey Report 
-                </Heading>
-                <Flex justify="space-between" mt={4} mb={2}>
-                  <Text fontWeight="medium">Invited Users</Text>
-                  <Text fontWeight="bold">
-                    {surveyData.invitedUsersCount ??
-                      surveyData.invitedUsers?.length ??
-                      0}
+                {surveyData.questions && surveyData.questions.length > 0 ? (
+                  surveyData.questions.map((question, index) => (
+                    <Box
+                      key={question._id}
+                      mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                    >
+                      <FormLabel
+                        fontSize="md"
+                        fontWeight="bold"
+                        mb={2}
+                        color="black"
+                      >
+                        {index + 1}. {question.text}
+                      </FormLabel>
+                      <FormControl mb={6}>
+                        {question.type === "radio" && (
+                          <RadioGroup value="">
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Radio
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="blackAlpha"
+                                  isReadOnly
+                                  isDisabled
+                                  color="black"
+                                >
+                                  {option.text}
+                                </Radio>
+                              ))}
+                            </Stack>
+                          </RadioGroup>
+                        )}
+
+                        {question.type === "checkbox" && (
+                          <CheckboxGroup value={[]}>
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Checkbox
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="blackAlpha"
+                                  isReadOnly
+                                  isDisabled
+                                  color="black"
+                                >
+                                  {option.text}
+                                </Checkbox>
+                              ))}
+                            </Stack>
+                          </CheckboxGroup>
+                        )}
+
+                        {question.type === "text" && (
+                          <Textarea
+                            value=""
+                            isReadOnly
+                            bg="gray.50"
+                            focusBorderColor="brand.500"
+                            minH="100px"
+                            placeholder="No answer submitted"
+                          />
+                        )}
+                      </FormControl>
+                    </Box>
+                  ))
+                ) : (
+                  <Text color="gray.500" textAlign="center">
+                    No questions found for this survey.
                   </Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text fontWeight="medium">Submitted Users</Text>
-                  <Text fontWeight="bold">
-                    {surveyData.submittedUsers ?? 0}
-                  </Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text fontWeight="medium">Status</Text>
-                  <Text
-                    fontWeight="bold"
-                    color={
-                      surveyData.status === "active" ? "green.500" : "red.500"
-                    }
-                  >
-                    {surveyData.status}
-                  </Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text fontWeight="medium">Questions</Text>
-                  <Text fontWeight="bold">
-                    {surveyData.questionsCount ??
-                      surveyData.questions?.length ??
-                      0}
-                  </Text>
-                </Flex>
-                <Flex justify="space-between" mb={2}>
-                  <Text fontWeight="medium">Closes At</Text>
-                  <Text fontWeight="bold">
-                    {surveyData.closesAt
-                      ? new Date(surveyData.closesAt).toLocaleDateString()
-                      : "-"}
-                  </Text>
-                </Flex>
-                <Text mt={6} color="gray.500" textAlign={"center"}>
-                  No users have submitted their survey response yet.
+                )}
+                <Text mt={6} color="gray.500" textAlign="center">
+                  The user hasn't submitted their survey response yet.
                   <br />
                   Please check back later!
                 </Text>
@@ -395,7 +419,7 @@ const ViewSurveyResponse = () => {
                 border="1px solid #B2F5EA"
               >
                 <Text fontWeight="bold" fontSize="lg" mb={2}>
-                  No Survey Response Found 
+                  No Survey Response Found
                 </Text>
                 <Text fontSize="md">
                   This user has not submitted their survey response yet.
