@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export const formattedDate = (_date) => {
 	if (_date === '') {
 		return '';

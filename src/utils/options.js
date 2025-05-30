@@ -17,6 +17,11 @@ export const eventMainLeadStatus = [
 	'not-interested',
 	'junk',
 	'deal',
+
+	'interested-seller',
+	'interested-buyer',
+	'secondary-request',
+	'change-agent',
 ];
 
 export const eventLeadStatus = ['broker', 'pending', 'will_attend_the_show'];

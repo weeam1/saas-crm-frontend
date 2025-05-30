@@ -22,14 +22,6 @@ const Attendance = () => {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	// const { data: officeSettings, isLoading: officeSettingsLoading } =
-	// 	useFetchItemsQuery(
-	// 		{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-	// 		{
-	// 			refetchOnMountOrArgChange: true,
-	// 		}
-	// 	);
-
 	const { data: employee, isLoading: employeeLoading } = useFetchItemsQuery(
 		{
 			path: `/user/v2/view/${employeeId}`,
@@ -132,7 +124,7 @@ const Attendance = () => {
 								employee={data?.employee}
 								refetch={refetch}
 							/>
-							{(role === 'superAdmin' || role === 'HR') && (
+							{['HR', 'superAdmin'].includes(role) && (
 								<AttendanceMark
 									data={data}
 									timezone={timezone}
