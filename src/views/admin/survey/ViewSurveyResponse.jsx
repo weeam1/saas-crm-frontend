@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -22,6 +22,16 @@ import {
   Textarea,
   useBreakpointValue,
   Button,
+  Spinner,
+  Alert,
+  AlertIcon,
+  useDisclosure,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
 } from "@chakra-ui/react";
 import {
   IoArrowBack,
@@ -46,16 +56,15 @@ const ViewSurveyResponse = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [evaluations, setEvaluations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   const {
     data: survey,
-    isLoading,
-    isError,
-    error,
+    isLoading: isLoadingSurvey,
+    isError: isSurveyError,
+    error: surveyError,
   } = useFetchItemsQuery({
     path: `/surveys/${id}`,
   });
@@ -63,28 +72,30 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
-const filteredUsers = invitedUsers
-  .filter((userData) =>
-    userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  .sort((a, b) => {
-    const aComplete = a.submittedQuestions === surveyData?.questionsCount;
-    const bComplete = b.submittedQuestions === surveyData?.questionsCount;
-    if (aComplete === bComplete) return 0;
-    return aComplete ? -1 : 1; 
-  });
+  const filteredUsers = invitedUsers
+    .filter((userData) =>
+      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aComplete = a.submittedQuestions === surveyData?.questionsCount;
+      const bComplete = b.submittedQuestions === surveyData?.questionsCount;
+      if (aComplete === bComplete) return 0;
+      return aComplete ? -1 : 1;
+    });
 
   useEffect(() => {
-    if (surveyData && !isLoading) {
+    if (filteredUsers.length > 0 && !currentUserId) {
       setCurrentUserId(filteredUsers[0]?.user?._id);
     }
-  }, [surveyData]);
+  }, [filteredUsers, currentUserId]);
 
   const {
     data: surveyResponse,
-    isError: surveyError,
+    isError: isResponseError,
+    error: responseError,
     isLoading: isLoadingResponse,
-    refetch,
+    isFetching: isFetchingResponse,
+    refetch: refetchResponse,
   } = useFetchItemsQuery(
     surveyData?._id && currentUserId
       ? {
@@ -93,8 +104,7 @@ const filteredUsers = invitedUsers
       : skipToken
   );
 
-  const [createItemMutation, { isLoading: isEvaluating }] =
-    useCreateItemMutation();
+  const [createItemMutation] = useCreateItemMutation();
 
   useEffect(() => {
     if (surveyResponse?.doc) {
@@ -104,10 +114,11 @@ const filteredUsers = invitedUsers
           liked: question.liked,
         })) || [];
       setEvaluations(initialEvaluations);
+      setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, surveyData]);
+  }, [surveyResponse]);
 
-  const handleEvaluation = (questionId, liked) => {
+  const handleEvaluation = useCallback((questionId, liked) => {
     setEvaluations((prev) => {
       const existingIndex = prev.findIndex((e) => e.question === questionId);
       let updated;
@@ -117,11 +128,10 @@ const filteredUsers = invitedUsers
       } else {
         updated = [...prev, { question: questionId, liked }];
       }
-      // Check if the new evaluations differ from the initial state
       setHasChangedEvaluation(true);
       return updated;
     });
-  };
+  }, []);
 
   const handleSubmitEvaluation = async () => {
     try {
@@ -139,14 +149,35 @@ const filteredUsers = invitedUsers
         body: { evaluations: submittedEvaluations },
       }).unwrap();
       toast.success("Evaluation submitted successfully");
-      setHasChangedEvaluation(false); // Reset after successful submit
+      setHasChangedEvaluation(false);
+      // Update local state instead of refetching
+      setEvaluations((prev) =>
+        prev.map((evaluation) => ({
+          ...evaluation,
+          liked:
+            submittedEvaluations.find(
+              (se) => se.question === evaluation.question
+            )?.liked ?? evaluation.liked,
+        }))
+      );
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
   };
 
-  if (isLoading) return <ViewSurveyResponseLoading />;
-  if (isError && surveyError)
+  const handleUserClick = useCallback(
+    (userId) => {
+      if (userId !== currentUserId) {
+        setCurrentUserId(userId);
+        onClose();
+      }
+    },
+    [currentUserId, onClose]
+  );
+
+  if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
+
+  if (isSurveyError)
     return (
       <Flex h="100vh" align="center" justify="center" bg="red.50">
         <Box
@@ -161,12 +192,13 @@ const filteredUsers = invitedUsers
         >
           Error loading survey
           <Text mt={2} fontWeight="normal" color="red.500" fontSize="md">
-            {error?.message}
+            {surveyError?.message}
           </Text>
         </Box>
       </Flex>
     );
-  if (!surveyData && !isLoading)
+
+  if (!surveyData)
     return (
       <Flex h="100vh" align="center" justify="center" bg="yellow.50">
         <Box
@@ -187,20 +219,11 @@ const filteredUsers = invitedUsers
           <Text fontWeight="normal" color="orange.700" fontSize="md" mb={4}>
             The survey you are looking for does not exist or may have been
             removed.
-            <br />
-            Please check the link or contact your administrator for assistance.
           </Text>
         </Box>
       </Flex>
     );
 
-  const handleUserClick = (userId) => {
-    setCurrentUserId(userId);
-    setSidebarOpen(false);
-    refetch();
-  };
-
-  // Sidebar
   const SidebarContent = (
     <>
       <Box p={4}>
@@ -225,6 +248,21 @@ const filteredUsers = invitedUsers
         pb={4}
         flex="1"
         overflowY="auto"
+        css={{
+          "&::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#f1f1f1",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#888",
+            borderRadius: "3px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "#555",
+          },
+        }}
       >
         <Text fontWeight="bold" fontSize="lg" mb={2}>
           Survey Users
@@ -292,6 +330,12 @@ const filteredUsers = invitedUsers
     },
   ];
 
+  const currentUserData = filteredUsers.find(
+    (user) => user.user._id === currentUserId
+  );
+  const hasSubmitted =
+    currentUserData?.submittedQuestions === surveyData?.questionsCount;
+
   return (
     <Flex h="100vh" overflow="hidden" position="relative">
       {/* Main Content Area */}
@@ -303,21 +347,20 @@ const filteredUsers = invitedUsers
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
           <Breadcrumb items={items} />
-          {/* Title first, then Back Button below */}
-          {surveyData && (
-            <Heading
-              as="h1"
-              mb={2}
-              color="black"
-              fontSize="24px"
-              fontWeight="700"
-            >
-              {surveyData.title
-                ? surveyData.title.charAt(0).toUpperCase() +
-                  surveyData.title.slice(1)
-                : ""}
-            </Heading>
-          )}
+
+          <Heading
+            as="h1"
+            mb={2}
+            color="black"
+            fontSize="24px"
+            fontWeight="700"
+          >
+            {surveyData.title
+              ? surveyData.title.charAt(0).toUpperCase() +
+                surveyData.title.slice(1)
+              : ""}
+          </Heading>
+
           <Flex justify="flex-start" mb={4}>
             <AppButton
               ml="2"
@@ -328,143 +371,125 @@ const filteredUsers = invitedUsers
             </AppButton>
           </Flex>
 
+          {/* Loading state when changing users */}
+          {(isLoadingResponse || isFetchingResponse) && (
+            <Flex justify="center" my={8}>
+              <Spinner size="xl" color="brand.500" />
+            </Flex>
+          )}
+
           {/* Survey Questions and Responses */}
-          {!surveyResponse && !isLoading && !isLoadingResponse ? (
-            surveyData ? (
-              <Box
-                bg="white"
-                p={6}
-                borderRadius="lg"
-                boxShadow="md"
-                width="100%"
-                mx="auto"
-                mt={8}
-              >
-                {surveyData.questions && surveyData.questions.length > 0 ? (
-                  surveyData.questions.map((question, index) => (
+          {!isLoadingResponse && !isFetchingResponse && (
+            <Box
+              bg="white"
+              p={6}
+              borderRadius="lg"
+              boxShadow="md"
+              width="100%"
+              mx="auto"
+              mt={8}
+            >
+              {isResponseError && responseError?.status === 404 && (
+                <Alert status="info" mb={6} borderRadius="md">
+                  <AlertIcon />
+                  This user hasn't submitted their survey response yet.
+                </Alert>
+              )}
+
+              {surveyData.questions && surveyData.questions.length > 0 ? (
+                surveyData.questions.map((question, index) => {
+                  const answerData = surveyResponse?.doc?.questions?.find(
+                    (q) => q.question === question._id
+                  );
+                  const answer = answerData?.answer;
+                  const currentEval = evaluations.find(
+                    (e) => e.question === question._id
+                  );
+
+                  if (isResponseError && responseError?.status === 404) {
+                    return (
+                      <Box
+                        key={question._id}
+                        mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                      >
+                        <FormLabel
+                          fontSize="md"
+                          fontWeight="bold"
+                          mb={2}
+                          color="black"
+                        >
+                          {index + 1}. {question.text}
+                        </FormLabel>
+                        <FormControl mb={6}>
+                          {question.type === "radio" && (
+                            <RadioGroup value="">
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Radio
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="blackAlpha"
+                                    isReadOnly
+                                    isDisabled
+                                    color="black"
+                                  >
+                                    {option.text}
+                                  </Radio>
+                                ))}
+                              </Stack>
+                            </RadioGroup>
+                          )}
+
+                          {question.type === "checkbox" && (
+                            <CheckboxGroup value={[]}>
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Checkbox
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="blackAlpha"
+                                    isReadOnly
+                                    isDisabled
+                                    color="black"
+                                  >
+                                    {option.text}
+                                  </Checkbox>
+                                ))}
+                              </Stack>
+                            </CheckboxGroup>
+                          )}
+
+                          {question.type === "text" && (
+                            <Textarea
+                              value=""
+                              isReadOnly
+                              bg="gray.50"
+                              focusBorderColor="brand.500"
+                              minH="100px"
+                              placeholder="No answer submitted"
+                            />
+                          )}
+                        </FormControl>
+                      </Box>
+                    );
+                  }
+
+                  return (
                     <Box
                       key={question._id}
                       mb={index < surveyData.questions.length - 1 ? 8 : 0}
                     >
-                      <FormLabel
-                        fontSize="md"
-                        fontWeight="bold"
-                        mb={2}
-                        color="black"
-                      >
-                        {index + 1}. {question.text}
-                      </FormLabel>
-                      <FormControl mb={6}>
-                        {question.type === "radio" && (
-                          <RadioGroup value="">
-                            <Stack direction="column" spacing={2}>
-                              {question.options.map((option) => (
-                                <Radio
-                                  key={option.opId}
-                                  value={option.opId.toString()}
-                                  colorScheme="blackAlpha"
-                                  isReadOnly
-                                  isDisabled
-                                  color="black"
-                                >
-                                  {option.text}
-                                </Radio>
-                              ))}
-                            </Stack>
-                          </RadioGroup>
-                        )}
+                      <Flex align="center" justify="space-between" mb={3}>
+                        <FormLabel
+                          fontSize="md"
+                          fontWeight="bold"
+                          mb={0}
+                          color="black"
+                        >
+                          {index + 1}. {question.text}
+                        </FormLabel>
 
-                        {question.type === "checkbox" && (
-                          <CheckboxGroup value={[]}>
-                            <Stack direction="column" spacing={2}>
-                              {question.options.map((option) => (
-                                <Checkbox
-                                  key={option.opId}
-                                  value={option.opId.toString()}
-                                  colorScheme="blackAlpha"
-                                  isReadOnly
-                                  isDisabled
-                                  color="black"
-                                >
-                                  {option.text}
-                                </Checkbox>
-                              ))}
-                            </Stack>
-                          </CheckboxGroup>
-                        )}
-
-                        {question.type === "text" && (
-                          <Textarea
-                            value=""
-                            isReadOnly
-                            bg="gray.50"
-                            focusBorderColor="brand.500"
-                            minH="100px"
-                            placeholder="No answer submitted"
-                          />
-                        )}
-                      </FormControl>
-                    </Box>
-                  ))
-                ) : (
-                  <Text color="gray.500" textAlign="center">
-                    No questions found for this survey.
-                  </Text>
-                )}
-                <Text mt={6} color="gray.500" textAlign="center">
-                  The user hasn't submitted their survey response yet.
-                  <br />
-                  Please check back later!
-                </Text>
-              </Box>
-            ) : (
-              <Box
-                color="green.800"
-                p={4}
-                bg="green.50"
-                borderRadius="md"
-                border="1px solid #B2F5EA"
-              >
-                <Text fontWeight="bold" fontSize="lg" mb={2}>
-                  No Survey Response Found
-                </Text>
-                <Text fontSize="md">
-                  This user has not submitted their survey response yet.
-                  <br />
-                </Text>
-              </Box>
-            )
-          ) : (
-            surveyResponse && (
-              <Box
-                bg="white"
-                p={6}
-                borderRadius="lg"
-                boxShadow="sm"
-                mb={{ base: 3, lg: 0 }}
-                mr={0}
-                width="100%"
-              >
-                {surveyData.questions.map((question, index) => {
-                  const currentEval = evaluations.find(
-                    (e) => e.question === question._id
-                  );
-                  const answer = surveyResponse?.doc?.questions?.find(
-                    (q) => q.question === question._id
-                  )?.answer;
-
-                  return (
-                    <React.Fragment key={question._id}>
-                      <Box mb={index < surveyData.questions.length - 1 ? 8 : 0}>
-                        <Flex align="center" justify="space-between" mb={3}>
-                          <FormLabel
-                            fontSize="md"
-                            fontWeight="bold"
-                            mb={0}
-                            color="black"
-                          >
-                            {index + 1}. {question.text}
-                          </FormLabel>
+                        {answerData && (
                           <Flex gap={2}>
                             <Icon
                               as={IoThumbsUp}
@@ -495,78 +520,81 @@ const filteredUsers = invitedUsers
                               _hover={{ color: "red.500" }}
                             />
                           </Flex>
-                        </Flex>
+                        )}
+                      </Flex>
 
-                        <FormControl mb={6}>
-                          {question.type === "radio" && (
-                            <RadioGroup
-                              value={
-                                surveyResponse?.doc?.questions
-                                  ?.find((q) => q.question === question._id)
-                                  ?.answer?.toString() || ""
-                              }
-                              isReadOnly
-                            >
-                              <Stack direction="column" spacing={2}>
-                                {question.options.map((option) => (
-                                  <Radio
-                                    key={option.opId}
-                                    value={option.opId.toString()}
-                                    colorScheme="brand"
-                                  >
-                                    {option.text}
-                                  </Radio>
-                                ))}
-                              </Stack>
-                            </RadioGroup>
-                          )}
+                      <FormControl mb={6}>
+                        {question.type === "radio" && (
+                          <RadioGroup
+                            value={answer ? answer.toString() : ""}
+                            isReadOnly
+                          >
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Radio
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="brand"
+                                  isChecked={answer === option.opId.toString()}
+                                >
+                                  {option.text}
+                                </Radio>
+                              ))}
+                            </Stack>
+                          </RadioGroup>
+                        )}
 
-                          {question.type === "checkbox" && (
-                            <CheckboxGroup
-                              value={
-                                surveyResponse?.doc?.questions
-                                  ?.find((q) => q.question === question._id)
-                                  ?.answer?.map(String) || []
-                              }
-                            >
-                              <Stack direction="column" spacing={2}>
-                                {question.options.map((option) => (
-                                  <Checkbox
-                                    key={option.opId}
-                                    value={option.opId.toString()}
-                                    colorScheme="brand"
-                                    isReadOnly
-                                  >
-                                    {option.text}
-                                  </Checkbox>
-                                ))}
-                              </Stack>
-                            </CheckboxGroup>
-                          )}
+                        {question.type === "checkbox" && (
+                          <CheckboxGroup
+                            value={answer ? answer.map(String) : []}
+                          >
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Checkbox
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="brand"
+                                  isChecked={
+                                    answer &&
+                                    answer.includes(option.opId.toString())
+                                  }
+                                  isReadOnly
+                                >
+                                  {option.text}
+                                </Checkbox>
+                              ))}
+                            </Stack>
+                          </CheckboxGroup>
+                        )}
 
-                          {question.type === "text" && (
-                            <Textarea
-                              value={
-                                surveyResponse?.doc?.questions?.find(
-                                  (q) => q.question === question._id
-                                )?.answer || ""
-                              }
-                              isReadOnly
-                              bg="gray.50"
-                              focusBorderColor="brand.500"
-                              minH="100px"
-                            />
-                          )}
-                        </FormControl>
-                      </Box>
-                    </React.Fragment>
+                        {question.type === "text" && (
+                          <Textarea
+                            value={answer || ""}
+                            isReadOnly
+                            bg="gray.50"
+                            focusBorderColor="brand.500"
+                            minH="100px"
+                            placeholder={
+                              hasSubmitted
+                                ? "No answer provided"
+                                : "User hasn't answered this question yet"
+                            }
+                          />
+                        )}
+                      </FormControl>
+                    </Box>
                   );
-                })}
+                })
+              ) : (
+                <Text color="gray.500" textAlign="center">
+                  No questions found for this survey.
+                </Text>
+              )}
 
-                {/* Submit Evaluation Button */}
+              {/* Submit Evaluation Button - only show if response exists */}
+              {surveyResponse?.doc && (
                 <Flex justify="flex-end" mt={8}>
                   <AppButton
-                    isLoading={isEvaluating}
                     onClick={handleSubmitEvaluation}
                     color="black"
                     bg="#EDC270"
@@ -580,93 +608,63 @@ const filteredUsers = invitedUsers
                       )
                     }
                   >
-                    Submit
+                    Submit 
                   </AppButton>
                 </Flex>
-              </Box>
-            )
+              )}
+            </Box>
           )}
         </Box>
       </Box>
 
-      {/* Responsive Sidebar */}
+      {/* Desktop Sidebar */}
       {isDesktop ? (
         <Box
           width={SIDEBAR_WIDTH}
-          height="calc(100vh - 78px)" // Sidebar height minus navbar
+          height="calc(100vh - 78px)"
           borderLeft="1px solid"
           borderColor="gray.200"
           bg="white"
           overflowY="auto"
           position="fixed"
-          top="80px" // Start below navbar
+          top="80px"
           right="0"
           zIndex="10"
           display="flex"
           flexDirection="column"
-          p={0}
-          m={0}
         >
           {SidebarContent}
         </Box>
       ) : (
         <>
-          {/* Floating Search Button */}
-          {!sidebarOpen && (
-            <Button
-              position="fixed"
-              bottom="24px"
-              right="24px"
-              zIndex="20"
-              bg="#EDC270"
-              color="#000"
-              leftIcon={<IoSearch />}
-              borderRadius="full"
-              size="lg"
-              boxShadow="lg"
-              onClick={() => setSidebarOpen(true)}
-              _hover={{ bg: "#e0b85c" }}
-              _active={{ bg: "#d1a94b" }}
-            >
-              Search
-            </Button>
-          )}
-          {/* Sidebar Drawer for mobile/tablet */}
-          {sidebarOpen && (
-            <Box
-              position="fixed"
-              top="80px" // Start below navbar
-              right="0"
-              width="90vw"
-              maxW={SIDEBAR_WIDTH}
-              height="calc(100vh - 70px)" // Sidebar height minus navbar
-              bg="white"
-              zIndex="30"
-              boxShadow="2xl"
-              display="flex"
-              flexDirection="column"
-              p={0}
-              m={0}
-              transition="transform 0.3s"
-            >
-              <Flex
-                justify="flex-end"
-                align="center"
-                p={4}
-                borderBottom="1px solid #eee"
-              >
-                <Icon
-                  as={IoClose}
-                  boxSize={6}
-                  color="gray.600"
-                  cursor="pointer"
-                  onClick={() => setSidebarOpen(false)}
-                  aria-label="Close sidebar"
-                />
-              </Flex>
-              {SidebarContent}
-            </Box>
-          )}
+          {/* Mobile Search Button */}
+          <Button
+            position="fixed"
+            bottom="24px"
+            right="24px"
+            zIndex="20"
+            bg="#EDC270"
+            color="#000"
+            leftIcon={<IoSearch />}
+            borderRadius="full"
+            size="lg"
+            boxShadow="lg"
+            onClick={onOpen}
+            _hover={{ bg: "#e0b85c" }}
+            _active={{ bg: "#d1a94b" }}
+          >
+            Search
+          </Button>
+
+          {/* Mobile Sidebar Drawer */}
+          <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
+              <DrawerBody p={0}>{SidebarContent}</DrawerBody>
+            </DrawerContent>
+          </Drawer>
         </>
       )}
     </Flex>
