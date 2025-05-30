@@ -10,6 +10,10 @@ import {
 // import DashboardHeader from '../../../../assets/img/dashboard-header.jpeg';
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../assets/img/logo-crm.png";
+import {
+  useFetchItemsQuery,
+} from "api/apiSlice";
+
 
 const Header = () => {
   // Dynamically adjust text alignment based on screen size
@@ -17,6 +21,13 @@ const Header = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+
+  const { data:surveysCheck} = useFetchItemsQuery(
+    { path: "/surveys/user_pending" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  console.log("surveysCheck", surveysCheck);
   return (
     // <>
     // 	<Box
@@ -52,7 +63,7 @@ const Header = () => {
     // </>
     <>
       {/* Reminder Bar */}
-      {!isAdmin && (
+      {!isAdmin && surveysCheck?.data?.pending && (
         <Box
           w="100%"
           bg="#EDC270"
@@ -67,10 +78,9 @@ const Header = () => {
           <Text
             fontWeight="medium"
             fontSize={{ base: "md", md: "lg" }}
-            color={"#FFFFFF"}
+            color="#FFFFFF"
           >
-            🚨 Reminder! You have pending surveys to complete before time runs
-            out. Don’t miss your chance!
+            🚨 Reminder! You have pending surveys to complete before time runs out. Don’t miss your chance!
           </Text>
           <Button
             bg="#FFFFFFC9"
