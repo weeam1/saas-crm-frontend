@@ -63,9 +63,16 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
-  const filteredUsers = invitedUsers.filter((userData) =>
+const filteredUsers = invitedUsers
+  .filter((userData) =>
     userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
+  .sort((a, b) => {
+    const aComplete = a.submittedQuestions === surveyData?.questionsCount;
+    const bComplete = b.submittedQuestions === surveyData?.questionsCount;
+    if (aComplete === bComplete) return 0;
+    return aComplete ? -1 : 1; 
+  });
 
   useEffect(() => {
     if (surveyData && !isLoading) {

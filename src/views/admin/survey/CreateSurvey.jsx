@@ -195,7 +195,7 @@ const CreateSurvey = () => {
     },
   ];
   return (
-    <Box p={{ base: 1, md: 2 }}>
+    <Box p={{ base: 1, md: 2}}>
 
       <Breadcrumb items={items} />
       
@@ -509,6 +509,7 @@ const CreateSurvey = () => {
               fontSize="sm"
               borderRadius={"8px"}
               fontWeight="300"
+              _hover={{ bg: "brand.400" }}
             >
               Create Survey
             </Button>

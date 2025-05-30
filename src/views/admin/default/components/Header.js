@@ -26,8 +26,6 @@ const Header = () => {
     { path: "/surveys/user_pending" },
     { refetchOnMountOrArgChange: true }
   );
-
-  console.log("surveysCheck", surveysCheck);
   return (
     // <>
     // 	<Box
