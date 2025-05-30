@@ -37,7 +37,7 @@ import AppButton from "components/shared/AppButton";
 import { toast } from "react-toastify";
 import ViewSurveyResponseLoading from "./Loader/ViewSurveyResponseLoading";
 import { skipToken } from "@reduxjs/toolkit/query";
-import Breadcrumb from "../invoice/components/BreadCrumb";
+import Breadcrumb from "../../../components/shared/BreadCrumb";
 
 const SIDEBAR_WIDTH = "400px";
 
@@ -64,9 +64,15 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
+  const filteredUsers = invitedUsers
+    .filter((userData) => userData.status === "completed")
+    .filter((userData) =>
+      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
   useEffect(() => {
     if (surveyData && !isLoading) {
-      setCurrentUserId(invitedUsers[0]?.user?._id);
+      setCurrentUserId(filteredUsers[0]?.user?._id);
     }
   }, [surveyData]);
 
@@ -135,7 +141,7 @@ const ViewSurveyResponse = () => {
     }
   };
 
-  if (isLoading || isLoadingResponse) return <ViewSurveyResponseLoading />;
+  if (isLoading && isLoadingResponse) return <ViewSurveyResponseLoading />;
   if (isError && surveyError)
     return (
       <Flex h="100vh" align="center" justify="center" bg="red.50">
@@ -156,7 +162,7 @@ const ViewSurveyResponse = () => {
         </Box>
       </Flex>
     );
-  if (!surveyData)
+  if (!surveyData && !isLoading)
     return (
       <Flex h="100vh" align="center" justify="center" bg="yellow.50">
         <Box
@@ -190,12 +196,6 @@ const ViewSurveyResponse = () => {
     refetch();
   };
 
-  // Filter users based on search term
-  const filteredUsers = invitedUsers
-    .filter((userData) => userData.status === "completed")
-    .filter((userData) =>
-      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
   // Sidebar
   const SidebarContent = (
     <>
@@ -285,6 +285,7 @@ const ViewSurveyResponse = () => {
       label: "View Survey",
     },
   ];
+
   return (
     <Flex h="100vh" overflow="hidden" position="relative">
       {/* Main Content Area */}
@@ -297,6 +298,7 @@ const ViewSurveyResponse = () => {
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
           <Breadcrumb items={items} />
           {/* Title first, then Back Button below */}
+          {surveyData && (
           <Heading
             as="h1"
             mb={2}
@@ -304,8 +306,9 @@ const ViewSurveyResponse = () => {
             fontSize="24px"
             fontWeight="700"
           >
-            {surveyData.title}
+            {surveyData.title ? surveyData.title : ""}
           </Heading>
+          )}
           <Flex justify="flex-start" mb={4}>
             <AppButton
               ml="2"
@@ -333,7 +336,7 @@ const ViewSurveyResponse = () => {
                 <br />
               </Text>
             </Box>
-          ) : (
+          ) : surveyResponse ? (
             <Box
               bg="white"
               p={6}
@@ -479,6 +482,22 @@ const ViewSurveyResponse = () => {
                   Submit
                 </AppButton>
               </Flex>
+            </Box>
+          ): !isLoadingResponse && (
+            <Box
+              color="green.800"
+              p={4}
+              bg="green.50"
+              borderRadius="md"
+              border="1px solid #B2F5EA"
+            >
+              <Text fontWeight="bold" fontSize="lg" mb={2}>
+                No Survey Response Found
+              </Text>
+              <Text fontSize="md">
+                No user have submitted their survey response yet.
+                <br />
+              </Text>
             </Box>
           )}
         </Box>

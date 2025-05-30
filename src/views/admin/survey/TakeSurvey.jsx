@@ -22,7 +22,7 @@ import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { toast } from "react-toastify";
 import TakeSurveyLoading from "./Loader/TakeSurveyLoading";
-import Breadcrumb from "../invoice/components/BreadCrumb";
+import Breadcrumb from "../../../components/shared/BreadCrumb";
 
 const TakeSurvey = () => {
   const { id } = useParams();

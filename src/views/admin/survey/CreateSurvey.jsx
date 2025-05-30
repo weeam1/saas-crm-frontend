@@ -23,7 +23,8 @@ import { IoArrowBack } from "react-icons/io5";
 import AppButton from "components/shared/AppButton";
 import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
-import Breadcrumb from "../invoice/components/BreadCrumb";
+import Breadcrumb from "../../../components/shared/BreadCrumb";
+import { toast } from "react-toastify";
 
 const inputStyles = {
   fontSize: "sm",
@@ -67,7 +68,9 @@ const CreateSurvey = () => {
         // Prepare invitedUsers based on selection
         let invitedUsers = [];
         if (values.selectedRole === "all") {
-          invitedUsers = allUsers.map((user) => user._id);
+          invitedUsers = allUsers
+            .filter((u) => u._id !== user._id) 
+            .map((user) => user._id);
         } else if (values.selectedRole === "managers") {
           invitedUsers = managers.map((manager) => manager._id);
         } else if (values.selectedRole === "agents") {
@@ -102,11 +105,12 @@ const CreateSurvey = () => {
           path: "/surveys",
           body: payload,
         }).unwrap();
-
+        toast.success("Survey created successfully!");
         resetForm();
         navigate("/survey");
       } catch (error) {
-        console.error("Failed to create survey:", error);
+        console.error("Failed to create survey:", error.data.message);
+        toast.error(error.data.message)
       }
     },
   });

@@ -31,7 +31,7 @@ import LeaderBoardLoader from "./Loader/LeaderBoardLoader";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import AppButton from "components/shared/AppButton";
-import Breadcrumb from "../invoice/components/BreadCrumb";
+import Breadcrumb from "../../../components/shared/BreadCrumb";
 
 const LeaderBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);

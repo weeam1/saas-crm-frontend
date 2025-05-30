@@ -4,14 +4,18 @@ import {
 	Image,
 	Text,
 	useBreakpointValue,
+	Button,
+	Flex,
 } from '@chakra-ui/react';
 // import DashboardHeader from '../../../../assets/img/dashboard-header.jpeg';
-
+import { useNavigate } from 'react-router-dom'; 
 import logo from '../../../../assets/img/logo-crm.png';
 
 const Header = () => {
 	// Dynamically adjust text alignment based on screen size
 	const textAlign = useBreakpointValue({ base: 'center', md: 'left' });
+	const navigate = useNavigate(); 
+
 	return (
 		// <>
 		// 	<Box
@@ -45,6 +49,37 @@ const Header = () => {
 		// 		</Text>
 		// 	</Box>
 		// </>
+				<>
+		{/* Reminder Bar */}
+			<Box
+				w='100%'
+				bg='#EDC270'
+				py={2}
+				px={{ base: 4, md: 8 }}
+				display='flex'
+				alignItems='center'
+				justifyContent='space-between'
+				rounded='xl'
+				mb={10}
+			>
+				<Text fontWeight='medium' fontSize={{ base: 'md', md: 'lg' }} color={"#FFFFFF"}>
+					🚨 Reminder! You have pending surveys to complete before time runs out.
+					Don’t miss your chance!
+				</Text>
+				<Button
+					bg='#FFFFFFC9'
+					color='black'
+					borderRadius='10px'
+					ml={4}
+					onClick={() => navigate('/survey')}
+					_hover={{ bg: '#fff' }}
+					fontWeight='bold'
+					size='md'
+					px={70}
+				>
+					Go
+				</Button>
+			</Box>
 		<Box
 			mb={8}
 			mt='-15px'
@@ -93,6 +128,7 @@ const Header = () => {
 				Welcome to the future of real estate
 			</Text>
 		</Box>
+		</>
 	);
 };
 
