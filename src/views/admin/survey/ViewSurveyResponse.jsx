@@ -12,7 +12,6 @@ import {
   InputGroup,
   InputLeftElement,
   Icon,
-  Divider,
   FormControl,
   FormLabel,
   Radio,
@@ -141,7 +140,7 @@ const ViewSurveyResponse = () => {
     }
   };
 
-  if (isLoading && isLoadingResponse) return <ViewSurveyResponseLoading />;
+  if (isLoading || isLoadingResponse) return <ViewSurveyResponseLoading />;
   if (isError && surveyError)
     return (
       <Flex h="100vh" align="center" justify="center" bg="red.50">
@@ -299,15 +298,15 @@ const ViewSurveyResponse = () => {
           <Breadcrumb items={items} />
           {/* Title first, then Back Button below */}
           {surveyData && (
-          <Heading
-            as="h1"
-            mb={2}
-            color="black"
-            fontSize="24px"
-            fontWeight="700"
-          >
-            {surveyData.title ? surveyData.title : ""}
-          </Heading>
+            <Heading
+              as="h1"
+              mb={2}
+              color="black"
+              fontSize="24px"
+              fontWeight="700"
+            >
+              {surveyData.title ? surveyData.title : ""}
+            </Heading>
           )}
           <Flex justify="flex-start" mb={4}>
             <AppButton
@@ -320,185 +319,241 @@ const ViewSurveyResponse = () => {
           </Flex>
 
           {/* Survey Questions and Responses */}
-          {surveyError ? (
-            <Box
-              color="green.800"
-              p={4}
-              bg="green.50"
-              borderRadius="md"
-              border="1px solid #B2F5EA"
-            >
-              <Text fontWeight="bold" fontSize="lg" mb={2}>
-                No Survey Response Found
-              </Text>
-              <Text fontSize="md">
-                This user has not submitted their survey response yet.
-                <br />
-              </Text>
-            </Box>
-          ) : surveyResponse ? (
-            <Box
-              bg="white"
-              p={6}
-              borderRadius="lg"
-              boxShadow="sm"
-              mb={{ base: 3, lg: 0 }}
-              mr={0}
-              width="100%"
-            >
-              {surveyData.questions.map((question, index) => {
-                const currentEval = evaluations.find(
-                  (e) => e.question === question._id
-                );
-                const answer = surveyResponse?.doc?.questions?.find(
-                  (q) => q.question === question._id
-                )?.answer;
-
-                return (
-                  <React.Fragment key={question._id}>
-                    <Box mb={index < surveyData.questions.length - 1 ? 8 : 0}>
-                      <Flex align="center" justify="space-between" mb={3}>
-                        <FormLabel
-                          fontSize="md"
-                          fontWeight="bold"
-                          mb={0}
-                          color="black"
-                        >
-                          {index + 1}. {question.text}
-                        </FormLabel>
-                        <Flex gap={2}>
-                          <Icon
-                            as={IoThumbsUp}
-                            boxSize={5}
-                            color={
-                              currentEval?.liked === true
-                                ? "green.500"
-                                : "gray.400"
-                            }
-                            cursor="pointer"
-                            onClick={() => handleEvaluation(question._id, true)}
-                            _hover={{ color: "green.500" }}
-                          />
-                          <Icon
-                            as={IoThumbsDown}
-                            boxSize={5}
-                            color={
-                              currentEval?.liked === false
-                                ? "red.500"
-                                : "gray.400"
-                            }
-                            cursor="pointer"
-                            onClick={() =>
-                              handleEvaluation(question._id, false)
-                            }
-                            _hover={{ color: "red.500" }}
-                          />
-                        </Flex>
-                      </Flex>
-
-                      <FormControl mb={6}>
-                        {question.type === "radio" && (
-                          <RadioGroup
-                            value={
-                              surveyResponse?.doc?.questions
-                                ?.find((q) => q.question === question._id)
-                                ?.answer?.toString() || ""
-                            }
-                            isReadOnly
-                          >
-                            <Stack direction="column" spacing={2}>
-                              {question.options.map((option) => (
-                                <Radio
-                                  key={option.opId}
-                                  value={option.opId.toString()}
-                                  colorScheme="brand"
-                                >
-                                  {option.text}
-                                </Radio>
-                              ))}
-                            </Stack>
-                          </RadioGroup>
-                        )}
-
-                        {question.type === "checkbox" && (
-                          <CheckboxGroup
-                            value={
-                              surveyResponse?.doc?.questions
-                                ?.find((q) => q.question === question._id)
-                                ?.answer?.map(String) || []
-                            }
-                          >
-                            <Stack direction="column" spacing={2}>
-                              {question.options.map((option) => (
-                                <Checkbox
-                                  key={option.opId}
-                                  value={option.opId.toString()}
-                                  colorScheme="brand"
-                                  isReadOnly
-                                >
-                                  {option.text}
-                                </Checkbox>
-                              ))}
-                            </Stack>
-                          </CheckboxGroup>
-                        )}
-
-                        {question.type === "text" && (
-                          <Textarea
-                            value={
-                              surveyResponse?.doc?.questions?.find(
-                                (q) => q.question === question._id
-                              )?.answer || ""
-                            }
-                            isReadOnly
-                            bg="gray.50"
-                            focusBorderColor="brand.500"
-                            minH="100px"
-                          />
-                        )}
-                      </FormControl>
-                    </Box>
-                  </React.Fragment>
-                );
-              })}
-
-              {/* Submit Evaluation Button */}
-              <Flex justify="flex-end" mt={8}>
-                <AppButton
-                  isLoading={isEvaluating}
-                  onClick={handleSubmitEvaluation}
-                  color="black"
-                  bg="#EDC270"
-                  borderRadius="4px"
-                  _hover={{ bg: "#e0b85c" }}
-                  _active={{ bg: "#d1a94b" }}
-                  isDisabled={
-                    !hasChangedEvaluation ||
-                    !evaluations.some(
-                      (e) => e.liked !== undefined && e.liked !== null
-                    )
-                  }
+          {!surveyResponse && !isLoading ? (
+            surveyData ? (
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                // border="1px solid #EDC270"
+                width="100%"
+                mx="auto"
+                mt={8}
+              >
+                <Heading
+                  fontSize="xl"
+                  mb={2}
+                  color="brand.500"
+                  textAlign={"center"}
                 >
-                  Submit
-                </AppButton>
-              </Flex>
-            </Box>
-          ): !isLoadingResponse && (
-            <Box
-              color="green.800"
-              p={4}
-              bg="green.50"
-              borderRadius="md"
-              border="1px solid #B2F5EA"
-            >
-              <Text fontWeight="bold" fontSize="lg" mb={2}>
-                No Survey Response Found
-              </Text>
-              <Text fontSize="md">
-                No user have submitted their survey response yet.
-                <br />
-              </Text>
-            </Box>
+                 Survey Report 
+                </Heading>
+                <Flex justify="space-between" mt={4} mb={2}>
+                  <Text fontWeight="medium">Invited Users</Text>
+                  <Text fontWeight="bold">
+                    {surveyData.invitedUsersCount ??
+                      surveyData.invitedUsers?.length ??
+                      0}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="medium">Submitted Users</Text>
+                  <Text fontWeight="bold">
+                    {surveyData.submittedUsers ?? 0}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="medium">Status</Text>
+                  <Text
+                    fontWeight="bold"
+                    color={
+                      surveyData.status === "active" ? "green.500" : "red.500"
+                    }
+                  >
+                    {surveyData.status}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="medium">Questions</Text>
+                  <Text fontWeight="bold">
+                    {surveyData.questionsCount ??
+                      surveyData.questions?.length ??
+                      0}
+                  </Text>
+                </Flex>
+                <Flex justify="space-between" mb={2}>
+                  <Text fontWeight="medium">Closes At</Text>
+                  <Text fontWeight="bold">
+                    {surveyData.closesAt
+                      ? new Date(surveyData.closesAt).toLocaleDateString()
+                      : "-"}
+                  </Text>
+                </Flex>
+                <Text mt={6} color="gray.500" textAlign={"center"}>
+                  No users have submitted their survey response yet.
+                  <br />
+                  Please check back later!
+                </Text>
+              </Box>
+            ) : (
+              <Box
+                color="green.800"
+                p={4}
+                bg="green.50"
+                borderRadius="md"
+                border="1px solid #B2F5EA"
+              >
+                <Text fontWeight="bold" fontSize="lg" mb={2}>
+                  No Survey Response Found 
+                </Text>
+                <Text fontSize="md">
+                  This user has not submitted their survey response yet.
+                  <br />
+                </Text>
+              </Box>
+            )
+          ) : (
+            surveyResponse && (
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="sm"
+                mb={{ base: 3, lg: 0 }}
+                mr={0}
+                width="100%"
+              >
+                {surveyData.questions.map((question, index) => {
+                  const currentEval = evaluations.find(
+                    (e) => e.question === question._id
+                  );
+                  const answer = surveyResponse?.doc?.questions?.find(
+                    (q) => q.question === question._id
+                  )?.answer;
+
+                  return (
+                    <React.Fragment key={question._id}>
+                      <Box mb={index < surveyData.questions.length - 1 ? 8 : 0}>
+                        <Flex align="center" justify="space-between" mb={3}>
+                          <FormLabel
+                            fontSize="md"
+                            fontWeight="bold"
+                            mb={0}
+                            color="black"
+                          >
+                            {index + 1}. {question.text}
+                          </FormLabel>
+                          <Flex gap={2}>
+                            <Icon
+                              as={IoThumbsUp}
+                              boxSize={5}
+                              color={
+                                currentEval?.liked === true
+                                  ? "green.500"
+                                  : "gray.400"
+                              }
+                              cursor="pointer"
+                              onClick={() =>
+                                handleEvaluation(question._id, true)
+                              }
+                              _hover={{ color: "green.500" }}
+                            />
+                            <Icon
+                              as={IoThumbsDown}
+                              boxSize={5}
+                              color={
+                                currentEval?.liked === false
+                                  ? "red.500"
+                                  : "gray.400"
+                              }
+                              cursor="pointer"
+                              onClick={() =>
+                                handleEvaluation(question._id, false)
+                              }
+                              _hover={{ color: "red.500" }}
+                            />
+                          </Flex>
+                        </Flex>
+
+                        <FormControl mb={6}>
+                          {question.type === "radio" && (
+                            <RadioGroup
+                              value={
+                                surveyResponse?.doc?.questions
+                                  ?.find((q) => q.question === question._id)
+                                  ?.answer?.toString() || ""
+                              }
+                              isReadOnly
+                            >
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Radio
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="brand"
+                                  >
+                                    {option.text}
+                                  </Radio>
+                                ))}
+                              </Stack>
+                            </RadioGroup>
+                          )}
+
+                          {question.type === "checkbox" && (
+                            <CheckboxGroup
+                              value={
+                                surveyResponse?.doc?.questions
+                                  ?.find((q) => q.question === question._id)
+                                  ?.answer?.map(String) || []
+                              }
+                            >
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Checkbox
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="brand"
+                                    isReadOnly
+                                  >
+                                    {option.text}
+                                  </Checkbox>
+                                ))}
+                              </Stack>
+                            </CheckboxGroup>
+                          )}
+
+                          {question.type === "text" && (
+                            <Textarea
+                              value={
+                                surveyResponse?.doc?.questions?.find(
+                                  (q) => q.question === question._id
+                                )?.answer || ""
+                              }
+                              isReadOnly
+                              bg="gray.50"
+                              focusBorderColor="brand.500"
+                              minH="100px"
+                            />
+                          )}
+                        </FormControl>
+                      </Box>
+                    </React.Fragment>
+                  );
+                })}
+
+                {/* Submit Evaluation Button */}
+                <Flex justify="flex-end" mt={8}>
+                  <AppButton
+                    isLoading={isEvaluating}
+                    onClick={handleSubmitEvaluation}
+                    color="black"
+                    bg="#EDC270"
+                    borderRadius="4px"
+                    _hover={{ bg: "#e0b85c" }}
+                    _active={{ bg: "#d1a94b" }}
+                    isDisabled={
+                      !hasChangedEvaluation ||
+                      !evaluations.some(
+                        (e) => e.liked !== undefined && e.liked !== null
+                      )
+                    }
+                  >
+                    Submit
+                  </AppButton>
+                </Flex>
+              </Box>
+            )
           )}
         </Box>
       </Box>
