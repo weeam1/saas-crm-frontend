@@ -85,7 +85,7 @@ const TakeSurvey = () => {
         if (question.type === "checkbox") {
           return {
             question: question._id,
-            answer: checkboxAnswers[question._id] || [],
+            answer: checkboxAnswers[question._id] || null,
           };
         } else if (question.type === "radio") {
           return {
@@ -95,7 +95,7 @@ const TakeSurvey = () => {
         } else {
           return {
             question: question._id,
-            answer: answers[question._id] || "",
+            answer: answers[question._id] || null,
           };
         }
       });
