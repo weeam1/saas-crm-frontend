@@ -35,7 +35,7 @@ import ChangeImage from 'views/admin/image';
 import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
-import { FaClipboardUser } from 'react-icons/fa6';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 import DeveloperDetails from 'views/admin/developers/components/DeveloperView';
 
 import Employees from 'views/admin/attendance/components/employees';
@@ -49,9 +49,13 @@ import AddListing from 'views/admin/Listing/Component/AddListing';
 import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
 import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
 import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
+
+import LeaderBoard from 'views/admin/survey/LeaderBoard';
+import CreateSurvey from 'views/admin/survey/CreateSurvey';
+import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
-
+const Survey = React.lazy(() => import('views/admin/survey'));
 // My component
 const Contact = React.lazy(() => import('views/admin/contact'));
 const ContactView = React.lazy(() => import('views/admin/contact/View'));
@@ -569,6 +573,40 @@ const routes = [
 		under: 'listing',
 		parentName: 'Listing',
 		component: SettingPage,
+	},
+
+	// Survey Routes
+
+	{
+		name: 'Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey',
+		icon: <Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />,
+		component: Survey,
+	},
+	{
+		name: 'Survey Board',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/survey/survey-leader-board',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: LeaderBoard,
+	},
+	{
+		name: 'Create Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey/create-survey',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: CreateSurvey,
+	},
+	{
+		name: 'view Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey/view-survey/:id',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: ViewSurveyResponse,
 	},
 
 	// {
