@@ -33,6 +33,35 @@ export const visaOptions = [
 	{ label: 'Citizen', value: 'Citizen' },
 ];
 
+export const yesOrNoOptions = [
+	{ label: 'Yes', value: true },
+	{ label: 'No', value: false },
+];
+export const genderOptions = [
+	{ label: 'Male', value: 'Male' },
+	{ label: 'Female', value: 'Female' },
+];
+
+export const experienceYearsOptions = [
+	{ label: 'Less then 1 Year', value: '0' },
+	{ label: '1 Year', value: '1' },
+	{ label: '2 Years', value: '2' },
+	{ label: '3 Years', value: '3' },
+	{ label: '4 Years', value: '4' },
+	{ label: '5 Years', value: '5' },
+	{ label: '6 Years', value: '6' },
+	{ label: '7 Years', value: '7' },
+	{ label: '8 Years', value: '8' },
+	{ label: '9 Years', value: '9' },
+	{ label: 'More than 9 Years', value: '10' },
+];
+
+export const engLangLevelOptions = [
+	{ label: 'Fluent', value: 'Fluent' },
+	{ label: 'Intermediate', value: 'Intermediate' },
+	{ label: 'Beginner', value: 'Beginner' },
+];
+
 // export const leadStatus = [
 // 	// General Status
 // 	{ label: 'Interested', value: 'active' },

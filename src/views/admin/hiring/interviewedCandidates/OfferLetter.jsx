@@ -135,7 +135,6 @@ const OfferLetter = () => {
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
 	const handleDateChange = (date) => {
-		console.log({ date });
 		setSelectedDate(date);
 		setShowCalendar(false);
 		setOfferDetails((prevDetails) => ({
@@ -283,13 +282,6 @@ const OfferLetter = () => {
 											max={100}
 											type='number'
 											step='any'
-											// onKeyDown={(e) =>
-											// 	['e', 'E', '+', '-'].includes(e.key) &&
-											// 	e.preventDefault()
-											// }
-											// onInput={(e) =>
-											// 	(e.target.value = e.target.value.replace(/[^0-9]/g, ''))
-											// }
 											placeholder={offerDetails.commission}
 											isReadOnly={!isEditing}
 											isInvalid={errors.commission && touched.commission}

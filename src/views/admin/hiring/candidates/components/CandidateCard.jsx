@@ -300,15 +300,17 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 				</Box>
 			</Box>
 
-			<CandidateView
-				isOpen={isApplicationOpen}
-				onClose={() => setApplicationOpen(false)}
-				candidate={candidate}
-				onViewCV={handleViewCV}
-				onDownloadCV={handleDownloadCV}
-				missingFiles={missingFiles}
-				refetch={refetch}
-			/>
+			{isApplicationOpen && (
+				<CandidateView
+					isOpen={isApplicationOpen}
+					onClose={() => setApplicationOpen(false)}
+					candidate={candidate}
+					onViewCV={handleViewCV}
+					onDownloadCV={handleDownloadCV}
+					missingFiles={missingFiles}
+					refetch={refetch}
+				/>
+			)}
 		</>
 	);
 };

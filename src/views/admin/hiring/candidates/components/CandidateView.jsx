@@ -10,6 +10,8 @@ import {
 	Spinner,
 	HStack,
 	Box,
+	IconButton,
+	Tooltip,
 } from '@chakra-ui/react';
 import ExperienceDetails from './ExperienceDetails';
 import DisplayField from 'components/displays/DisplayField';
@@ -19,6 +21,9 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import StatusBadge from 'components/shared/StatusBadge';
+import EditCandidate from './EditCandidate';
+import { FiEdit } from 'react-icons/fi';
+import { buttonStyle } from 'utils/btn';
 
 const CandidateView = ({
 	isOpen,
@@ -30,6 +35,7 @@ const CandidateView = ({
 	missingFiles,
 }) => {
 	const [newStatus, setNewStatus] = useState(candidate.status);
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
@@ -49,159 +55,110 @@ const CandidateView = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
-			<ModalOverlay />
-			<ModalContent p={4}>
-				<ModalHeader display='flex' gap='2' alignItems='center'>
-					Application
-					{candidate?.isInterviewed && (
-						<StatusBadge status='Interviewed' color='green' />
-					)}
-				</ModalHeader>
-				<ModalCloseButton mt='6' />
-				<ModalBody width='100%'>
-					<Box overflow='scroll' bg='white' height='60vh' p='4'>
-						<Grid
-							templateColumns={{
-								base: '1fr',
-								md: 'repeat(2, 1fr)',
-								lg: candidate.invited ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
-							}}
-							gap={3}
-						>
-							<DisplayField label='Name' value={candidate?.name} />
-							<DisplayField label='Date of Birth' value={candidate?.dob} />
-							<DisplayField label='Email' value={candidate?.email} />
-							<DisplayField label='Phone' value={candidate?.phone} />
-							<DisplayField label='Gender' value={candidate?.gender} />
-							<DisplayField label='Visa Type' value={candidate?.visaType} />
-							<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
-							<DisplayField
-								label='Nationality'
-								value={candidate?.nationality}
-							/>
-							<DisplayField
-								label='Driving License'
-								value={candidate?.drivingLice ? 'Yes' : 'No'}
-							/>
-							<DisplayField
-								label='Experience Years'
-								value={
-									candidate?.experienceYears > 9
-										? 'More then 9 Years'
-										: `${candidate?.experienceYears} ${candidate?.experienceYears > 1 ? 'Years' : 'Year'}`
-								}
-							/>
-							<DisplayField
-								label='Applying for'
-								value={candidate?.position.name}
-							/>
-							<DisplayField
-								label='English Level'
-								value={candidate?.engLangLevel || 'N/A'}
-							/>
-							<DisplayField
-								label='Agency'
-								value={candidate?.agency?.name || 'N/A'}
-							/>
-
-							{/* {isAdmin && (
-							)} */}
-
-							{candidate.invited && (
-								<>
-									<DisplayField
-										label='Intivite Status'
-										value={candidate?.inviteAccepted ? 'Accepted' : 'Pending'}
-									/>
-									<DisplayField
-										label='Interview Date'
-										value={format(
-											new Date(candidate?.interviewDate),
-											'MMM d, yyyy'
-										)}
-									/>
-
-									<DisplayField
-										label='Interview Time'
-										value={candidate?.interviewTime}
-									/>
-									<DisplayField
-										label='Candidate Status'
-										value={candidate?.status}
-									/>
-								</>
-							)}
-						</Grid>
-						<ExperienceDetails experience={candidate?.experience} />
-					</Box>
-
-					<HStack spacing={2} mt={2}>
+		<>
+			<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
+				<ModalOverlay />
+				<ModalContent mx='2' p={4}>
+					<ModalHeader display='flex' gap='2' alignItems='center'>
+						Application
+						{candidate?.isInterviewed && (
+							<StatusBadge status='Interviewed' color='green' />
+						)}
+						{/* Edit Icon Button */}
 						<Button
-							onClick={() => onViewCV(candidate?.resume)}
-							bg='brand.500'
-							color='white'
-							width='100%'
-							rounded='full'
-							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
-							}}
-							disabled={missingFiles.includes(candidate?.resume)}
+							{...buttonStyle}
+							bg='gray.200'
+							color='gray.800'
+							py='2'
+							px='4'
+							leftIcon={<FiEdit />}
+							onClick={() => setIsEditModalOpen(true)}
 						>
-							View CV
+							Edit
 						</Button>
-
-						<Button
-							onClick={() => onDownloadCV(candidate?.resume)}
-							bg='brand.500'
-							color='white'
-							width='100%'
-							rounded='full'
-							_hover={{
-								bg: 'brand.600',
-								color: 'white',
-							}}
-							_active={{
-								bg: 'brand.600',
-							}}
-							disabled={missingFiles.includes(candidate?.resume)}
-						>
-							Download CV
-						</Button>
-					</HStack>
-				</ModalBody>
-				{!candidate.invited && (
-					<HStack
-						justifyContent='space-between'
-						alignItems='end'
-						spacing={2}
-						pb='4'
-						px='4'
-						mt={2}
-					>
-						<ApplicationStatus
-							candidate={candidate}
-							newStatus={newStatus}
-							setNewStatus={setNewStatus}
-						/>
-
-						<div>
-							<Button
-								colorScheme='gray'
-								onClick={onClose}
-								variant='outline'
-								size='sm'
-								mr={2}
+					</ModalHeader>
+					<ModalCloseButton mt='6' />
+					<ModalBody width='100%'>
+						<Box overflow='scroll' bg='white' height='60vh' p='4'>
+							<Grid
+								templateColumns={{
+									base: '1fr',
+									md: 'repeat(2, 1fr)',
+									lg: candidate.invited ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+								}}
+								gap={3}
 							>
-								Cancel
-							</Button>
+								<DisplayField label='Name' value={candidate?.name} />
+								<DisplayField label='Date of Birth' value={candidate?.dob} />
+								<DisplayField label='Email' value={candidate?.email} />
+								<DisplayField label='Phone' value={candidate?.phone} />
+								<DisplayField label='Gender' value={candidate?.gender} />
+								<DisplayField label='Visa Type' value={candidate?.visaType} />
+								<DisplayField label='WhatsApp' value={candidate?.whatsApp} />
+								<DisplayField
+									label='Nationality'
+									value={candidate?.nationality}
+								/>
+								<DisplayField
+									label='Driving License'
+									value={candidate?.drivingLice ? 'Yes' : 'No'}
+								/>
+								<DisplayField
+									label='Experience Years'
+									value={
+										candidate?.experienceYears > 9
+											? 'More then 9 Years'
+											: `${candidate?.experienceYears} ${candidate?.experienceYears > 1 ? 'Years' : 'Year'}`
+									}
+								/>
+								<DisplayField
+									label='Applying for'
+									value={candidate?.position.name}
+								/>
+								<DisplayField
+									label='English Level'
+									value={candidate?.engLangLevel || 'N/A'}
+								/>
+								<DisplayField
+									label='Agency'
+									value={candidate?.agency?.name || 'N/A'}
+								/>
+
+								{candidate.invited && (
+									<>
+										<DisplayField
+											label='Intivite Status'
+											value={candidate?.inviteAccepted ? 'Accepted' : 'Pending'}
+										/>
+										<DisplayField
+											label='Interview Date'
+											value={format(
+												new Date(candidate?.interviewDate),
+												'MMM d, yyyy'
+											)}
+										/>
+
+										<DisplayField
+											label='Interview Time'
+											value={candidate?.interviewTime}
+										/>
+										<DisplayField
+											label='Candidate Status'
+											value={candidate?.status}
+										/>
+									</>
+								)}
+							</Grid>
+							<ExperienceDetails experience={candidate?.experience} />
+						</Box>
+
+						<HStack spacing={2} mt={2}>
 							<Button
+								onClick={() => onViewCV(candidate?.resume)}
 								bg='brand.500'
 								color='white'
+								width='100%'
+								rounded='full'
 								_hover={{
 									bg: 'brand.600',
 									color: 'white',
@@ -209,19 +166,91 @@ const CandidateView = ({
 								_active={{
 									bg: 'brand.600',
 								}}
-								size='sm'
-								disabled={
-									candidate.status === 'Eligible' && candidate.inviteAccepted
-								}
-								onClick={handleApplicationStatus}
+								disabled={missingFiles.includes(candidate?.resume)}
 							>
-								{isLoading ? <Spinner /> : 'Save'}
+								View CV
 							</Button>
-						</div>
-					</HStack>
-				)}
-			</ModalContent>
-		</Modal>
+
+							<Button
+								onClick={() => onDownloadCV(candidate?.resume)}
+								bg='brand.500'
+								color='white'
+								width='100%'
+								rounded='full'
+								_hover={{
+									bg: 'brand.600',
+									color: 'white',
+								}}
+								_active={{
+									bg: 'brand.600',
+								}}
+								disabled={missingFiles.includes(candidate?.resume)}
+							>
+								Download CV
+							</Button>
+						</HStack>
+					</ModalBody>
+					{!candidate.invited && (
+						<HStack
+							justifyContent='space-between'
+							alignItems='end'
+							spacing={2}
+							pb='4'
+							px='4'
+							mt={2}
+						>
+							<ApplicationStatus
+								candidate={candidate}
+								newStatus={newStatus}
+								setNewStatus={setNewStatus}
+							/>
+
+							<div>
+								<Button
+									colorScheme='gray'
+									onClick={onClose}
+									variant='outline'
+									size='sm'
+									mr={2}
+								>
+									Cancel
+								</Button>
+								<Button
+									bg='brand.500'
+									color='white'
+									_hover={{
+										bg: 'brand.600',
+										color: 'white',
+									}}
+									_active={{
+										bg: 'brand.600',
+									}}
+									size='sm'
+									disabled={
+										candidate.status === 'Eligible' && candidate.inviteAccepted
+									}
+									onClick={handleApplicationStatus}
+								>
+									{isLoading ? <Spinner /> : 'Save'}
+								</Button>
+							</div>
+						</HStack>
+					)}
+				</ModalContent>
+			</Modal>
+
+			{isEditModalOpen && (
+				<EditCandidate
+					isOpen={isEditModalOpen}
+					onClose={() => {
+						setIsEditModalOpen(false);
+						onClose();
+					}}
+					candidate={candidate}
+					refetch={refetch}
+				/>
+			)}
+		</>
 	);
 };
 
