@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { skipToken } from '@reduxjs/toolkit/query';
 
 const validationSchema = Yup.object().shape({
   projectName: Yup.string().required("Project Name is required"),
@@ -49,6 +50,11 @@ const validationSchema = Yup.object().shape({
   developer: Yup.string().required("Developer is required"),
   ownerName: Yup.string().required("Owner name is required"),
   ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
+  subUnitType: Yup.string().when('$isSubUnitTypeRequired', {
+    is: true,
+    then: (schema) => schema.required('Sub Unit Type is required'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 const AddListing = () => {
@@ -66,6 +72,14 @@ const AddListing = () => {
   const { data: listingUnitType } = useFetchItemsQuery(
     { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
+
+  // Only call sub unit type API when a unit type is selected
+  const { data: listingSubUnitType } = useFetchItemsQuery(
+    selectedUnitType
+      ? { path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}` }
+      : skipToken,
+    { refetchOnMountOrArgChange: true, skip: !user._id || !selectedUnitType }
   );
 
   const { data: developers } = useFetchItemsQuery(
@@ -97,8 +111,14 @@ const AddListing = () => {
       documents: [],
       ownerName: "",
       ownerPhoneNumber: "",
+      subUnitType: "",
     },
     validationSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    validationContext: {
+      isSubUnitTypeRequired: !!listingSubUnitType?.doc?.length,
+    },
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         const payload = {
@@ -135,6 +155,7 @@ const AddListing = () => {
     const selected = unitTypes.find((type) => type._id === unitTypeId);
     setSelectedUnitType(selected);
     formik.setFieldValue("unitType", unitTypeId);
+    formik.setFieldValue("subUnitType", ""); // Reset subUnitType when unitType changes
   };
 
   return (
@@ -199,18 +220,31 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
-        {/* Unit Sub Type (Display only) */}
-        <GridItem colSpan={1}>
-          <FormControl>
-            <FormLabel>Unit Sub Type</FormLabel>
-            <Input
-              value={selectedUnitType?.subType || ""}
-              isReadOnly
-              placeholder="Sub type"
-              focusBorderColor="brand.500"
-            />
-          </FormControl>
-        </GridItem>
+        {/* Sub Unit Type (Conditional) */}
+        {listingSubUnitType?.doc?.length > 0 && (
+          <GridItem colSpan={1}>
+            <FormControl
+              isInvalid={formik.touched.subUnitType && formik.errors.subUnitType}
+            >
+              <FormLabel>Sub Unit Type</FormLabel>
+              <Select
+                name="subUnitType"
+                value={formik.values.subUnitType}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Select sub unit type"
+                focusBorderColor="brand.500"
+              >
+                {listingSubUnitType.doc.map((sub) => (
+                  <option key={sub._id} value={sub._id}>
+                    {sub.name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{formik.errors.subUnitType}</FormErrorMessage>
+            </FormControl>
+          </GridItem>
+        )}
 
         {/* Listing Type */}
         <GridItem colSpan={1}>
