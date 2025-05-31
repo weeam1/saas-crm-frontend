@@ -110,15 +110,15 @@ export const globalStyles = extendTheme({
 		global: (props) => ({
 			body: {
 				overflowX: 'hidden',
-				bg: mode('secondaryGray.300', 'navy.900')(props),
-				fontFamily: 'Inter,sans-serif',
+				bg: mode('secondaryGray.300', 'navy.800')(props),
+				fontFamily: 'DM Sans, sans-serif',
 				letterSpacing: '-0.5px',
 			},
 			input: {
 				color: 'gray.700',
 			},
 			html: {
-				fontFamily: 'Inter,sans-serif',
+				fontFamily: 'DM Sans, sans-serif',
 			},
 		}),
 	},

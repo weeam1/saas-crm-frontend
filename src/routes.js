@@ -133,7 +133,14 @@ const ShortListedCandidates = React.lazy(
 const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
 const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
 
-const Report = React.lazy(() => import('views/admin/reports'));
+// const Report = React.lazy(() => import('views/admin/reports'));
+const Report = React.lazy(() => import('views/admin/reports-v2'));
+const TeamDetailsScreen = React.lazy(
+	() =>
+		import(
+			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
+		)
+);
 // Auth Imports
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 // admin setting
@@ -725,7 +732,7 @@ const routes = [
 	// 	component: DailyReport,
 	// },
 	// {
-	// 	name: 'Reporting and Analytics',
+	// 	name: 'Reports',
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 	// 	path: '/reporting-analytics',
 	// 	icon: (
@@ -738,6 +745,14 @@ const routes = [
 	// 	),
 	// 	component: Report,
 	// },
+	{
+		name: 'Team Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics/team-details/:id',
+		parent: 'Reports',
+		under: 'Reports',
+		component: TeamDetailsScreen,
+	},
 
 	// ------------- user Routes ------------------------
 	{

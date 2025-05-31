@@ -122,3 +122,11 @@ const merge = (left, right) => {
 
 	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
 };
+
+export const BRAND_COLORS = [
+	'#F5ECCB',
+	'#EDD199',
+	'#E5B668',
+	'#D99A36',
+	'#B79045',
+];
