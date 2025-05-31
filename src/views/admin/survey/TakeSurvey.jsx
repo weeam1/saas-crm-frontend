@@ -168,7 +168,6 @@ const TakeSurvey = () => {
   ];
   return (
     <Box p={{ base: 2, md: 4 }}>
-
       <Breadcrumb items={items} />
       {/* Survey Title */}
       <Heading
@@ -181,6 +180,9 @@ const TakeSurvey = () => {
         fontWeight="700"
       >
         {survey?.title}
+        {survey.title
+          ? survey.title.charAt(0).toUpperCase() + survey.title.slice(1)
+          : ""}
       </Heading>
 
       <AppButton
