@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -65,6 +65,7 @@ const ViewSurveyResponse = () => {
     isLoading: isLoadingSurvey,
     isError: isSurveyError,
     error: surveyError,
+    refetch,
   } = useFetchItemsQuery({
     path: `/surveys/${id}`,
   });
@@ -72,16 +73,33 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
-  const filteredUsers = invitedUsers
-    .filter((userData) =>
-      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      const aComplete = a.submittedQuestions === surveyData?.questionsCount;
-      const bComplete = b.submittedQuestions === surveyData?.questionsCount;
-      if (aComplete === bComplete) return 0;
-      return aComplete ? -1 : 1;
-    });
+ const filteredUsers = invitedUsers
+  .filter((userData) =>
+    userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+  .sort((a, b) => {
+    const totalQuestions = surveyData?.questionsCount || 0;
+
+    const aComplete = a.submittedQuestions === totalQuestions;
+    const bComplete = b.submittedQuestions === totalQuestions;
+
+    const aPoints = a.points || 0;
+    const bPoints = b.points || 0;
+
+    const getPriority = (complete, points) => {
+      if (complete && points > 0) return 1;
+      if (complete && points === 0) return 2;
+      return 3;
+    };
+
+    const aPriority = getPriority(aComplete, aPoints);
+    const bPriority = getPriority(bComplete, bPoints);
+
+    if (aPriority !== bPriority) return aPriority - bPriority;
+
+    return bPoints - aPoints;
+  });
+
 
   useEffect(() => {
     if (filteredUsers.length > 0 && !currentUserId) {
@@ -107,7 +125,7 @@ const ViewSurveyResponse = () => {
   const [createItemMutation] = useCreateItemMutation();
 
   useEffect(() => {
-    setEvaluations([])
+    setEvaluations([]);
     if (surveyResponse?.doc) {
       const initialEvaluations =
         surveyResponse?.doc.questions?.map((question) => ({
@@ -115,14 +133,11 @@ const ViewSurveyResponse = () => {
           liked: question.liked,
         })) || [];
       setEvaluations(initialEvaluations);
-
-      console.log("Initial evaluations set:", initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, currentUserId,]);
+  }, [surveyResponse, currentUserId, survey, evaluations]);
 
-  
-  const handleEvaluation = useCallback((questionId, liked) => {
+  const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
       const existingIndex = prev.findIndex((e) => e.question === questionId);
       let updated;
@@ -135,7 +150,7 @@ const ViewSurveyResponse = () => {
       setHasChangedEvaluation(true);
       return updated;
     });
-  }, []);
+  };
 
   const handleSubmitEvaluation = async () => {
     try {
@@ -163,20 +178,20 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
+      refetch();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
   };
 
-  const handleUserClick = useCallback(
-    (userId) => {
-      if (userId !== currentUserId) {
-        setCurrentUserId(userId);
-        onClose();
-      }
-    },
-    [currentUserId, onClose]
-  );
+  const handleUserClick = (userId) => {
+    if (userId !== currentUserId) {
+      setCurrentUserId(userId);
+      onClose();
+      refetchResponse();
+      refetch();
+    }
+  };
 
   if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
 
@@ -300,8 +315,8 @@ const ViewSurveyResponse = () => {
                   {userData.user.roles[0]?.roleName || "User"}
                 </Text>
                 <Text fontSize={"sm"} color={"#FF0000"}>
-                  {userData?.submittedQuestions
-                    ? `${userData?.submittedQuestions}/${surveyData?.questionsCount}`
+                  {userData?.points
+                    ? `${userData?.points}/${surveyData?.questionsCount}`
                     : "pending"}
                 </Text>
               </Box>
@@ -339,7 +354,6 @@ const ViewSurveyResponse = () => {
   const hasSubmitted =
     currentUserData?.submittedQuestions === surveyData?.questionsCount;
 
-    
   return (
     <Flex h="100vh" overflow="hidden" position="relative">
       {/* Main Content Area */}
@@ -393,7 +407,7 @@ const ViewSurveyResponse = () => {
               mx="auto"
               mt={8}
             >
-              {isResponseError && responseError?.status === 404 && (
+              {!surveyResponse?.doc && (
                 <Alert status="info" mb={6} borderRadius="md">
                   <AlertIcon />
                   This user hasn't submitted their survey response yet.
@@ -410,7 +424,7 @@ const ViewSurveyResponse = () => {
                     (e) => e.question === question._id
                   );
                   console.log("Current evaluation:", currentEval?.liked);
-                  if (isResponseError && responseError?.status === 404) {
+                  if (!surveyResponse?.doc) {
                     return (
                       <Box
                         key={question._id}
@@ -612,7 +626,7 @@ const ViewSurveyResponse = () => {
                       )
                     }
                   >
-                    Submit 
+                    Submit
                   </AppButton>
                 </Flex>
               )}
