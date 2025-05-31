@@ -25,7 +25,7 @@ import {
   Switch,
   Select,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon, CloseIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import Pagination from "../../../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
@@ -35,6 +35,7 @@ import {
   useDeleteItemMutation,
   useUpdateItemMutation,
 } from "api/apiSlice";
+import TopPagination from "components/pagination/TopPagination";
 
 const ListingUnitTypes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -47,8 +48,14 @@ const ListingUnitTypes = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
   const [formData, setFormData] = useState({
+    unitType: "",
     name: "",
-    subType: "",
+    status: true,
+  });
+
+  const [isUnitTypeModalOpen, setIsUnitTypeModalOpen] = useState(false);
+  const [unitTypeForm, setUnitTypeForm] = useState({
+    name: "",
     status: true,
   });
 
@@ -61,9 +68,18 @@ const ListingUnitTypes = () => {
   };
 
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
-    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    {
+      path: `/listing/secondary/unit-types/sub-category/`,
+      params: buildQueryParams(),
+    },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
+
+  const { data: unitTypeData, refetch: refetchingUnitType } =
+    useFetchItemsQuery(
+      { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+      { refetchOnMountOrArgChange: true, skip: !user._id }
+    );
 
   const [createItemMuation] = useCreateItemMutation();
   const [updateItemMuation] = useUpdateItemMutation();
@@ -79,7 +95,7 @@ const ListingUnitTypes = () => {
   }, [data]);
 
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
+    setPageSize(newPageSize);
     setCurrentPage(1);
     refetch();
   };
@@ -96,17 +112,25 @@ const ListingUnitTypes = () => {
     });
   };
 
+  const handleUnitTypeInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setUnitTypeForm({
+      ...unitTypeForm,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
   const handleSubmit = async () => {
     try {
       if (isEditMode) {
         await updateItemMuation({
-          path: `/listing/secondary/unit-types/${currentUnitType._id}`,
+          path: `/listing/secondary/unit-types/sub-category/${currentUnitType._id}`,
           body: formData,
         }).unwrap();
         toast.success("Unit Type updated successfully");
       } else {
         await createItemMuation({
-          path: "/listing/secondary/unit-types",
+          path: "/listing/secondary/unit-types/sub-category",
           body: formData,
         }).unwrap();
         toast.success("Unit Type created successfully");
@@ -120,11 +144,27 @@ const ListingUnitTypes = () => {
     }
   };
 
+  const handleUnitTypeSave = async () => {
+    try {
+      await createItemMuation({
+        path: "/listing/secondary/unit-types",
+        body: unitTypeForm,
+      }).unwrap();
+      toast.success("Unit Type created successfully");
+      setIsUnitTypeModalOpen(false);
+      setUnitTypeForm({ name: "", status: true });
+      refetchingUnitType();
+      onOpen();
+    } catch (error) {
+      toast.error(error.data?.message || "Failed to create unit type");
+    }
+  };
+
   const handleEdit = (unitType) => {
     setCurrentUnitType(unitType);
     setFormData({
-      name: unitType.name,
-      subType: unitType.subType || "",
+      unitType: unitType.unitType?._id || unitType.unitType || "",
+      name: unitType.name || "",
       status: unitType.status,
     });
     setIsEditMode(true);
@@ -134,7 +174,7 @@ const ListingUnitTypes = () => {
   const handleDelete = async (id) => {
     try {
       await deleteItemMutation({
-        path: `/listing/secondary/unit-types/${id}`,
+        path: `/listing/secondary/unit-types/sub-category/${id}`,
       }).unwrap();
       toast.success("Unit Type deleted successfully");
       refetch();
@@ -144,10 +184,26 @@ const ListingUnitTypes = () => {
     }
   };
 
+  // Add this new handler for deleting a Unit Type (not sub-category)
+  const handleDeleteUnitType = async (id, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await deleteItemMutation({
+        path: `/listing/secondary/unit-types/${id}`,
+      }).unwrap();
+      toast.success("Unit Type deleted successfully");
+      refetchingUnitType();
+    } catch (error) {
+      console.error(error);
+      toast.error(error.data?.message || "Failed to delete unit type");
+    }
+  };
+
   const resetForm = () => {
     setFormData({
+      unitType: "",
       name: "",
-      subType: "",
       status: true,
     });
     setIsEditMode(false);
@@ -158,18 +214,21 @@ const ListingUnitTypes = () => {
     try {
       const newStatus = !type.status;
       await updateItemMuation({
-        path: `/listing/secondary/unit-types/${type._id}`,
+        path: `/listing/secondary/unit-types/sub-category/status/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-  
+
       toast.success(`Listing type status updated successfully`);
-      refetch(); 
+      refetch();
     } catch (error) {
       console.error(error);
-      toast.error(error.data?.message || "Failed to update listing type status");
+      toast.error(
+        error.data?.message || "Failed to update listing type status"
+      );
     }
   };
 
+  console.log("Unit Type Data:", data);
   return (
     <Box
       overflowY="auto"
@@ -200,10 +259,10 @@ const ListingUnitTypes = () => {
       </Flex>
 
       <Box mx={1} mb={1}>
-        <Pagination
+        <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
           totalItems={totalItems}
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
@@ -263,7 +322,7 @@ const ListingUnitTypes = () => {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {unitType.name || "N/A"}
+                    {unitType?.unitType?.name || "N/A"}
                   </Td>
                   <Td
                     py={4}
@@ -272,7 +331,7 @@ const ListingUnitTypes = () => {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {unitType.subType || "N/A"}
+                    {unitType.name || "N/A"}
                   </Td>
                   <Td
                     py={4}
@@ -284,7 +343,7 @@ const ListingUnitTypes = () => {
                     <Switch
                       colorScheme="green"
                       isChecked={unitType.status}
-                      onChange={() => handleStatusChange(unitType)} 
+                      onChange={() => handleStatusChange(unitType)}
                     />
                   </Td>
                   <Td
@@ -339,27 +398,48 @@ const ListingUnitTypes = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            {isEditMode ? "Edit Unit Type" : "Add New Unit Type"}
+            {isEditMode ? "Edit Unit Types" : "Add New Unit Types"}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel>Unit Type Name</FormLabel>
-              <Input
-                name="name"
-                value={formData.name}
+              <FormLabel>
+                <Flex alignItems="center" justifyContent="space-between">
+                  <span>Unit Type</span>
+                  <IconButton
+                    aria-label="Add Unit Type"
+                    icon={<AddIcon />}
+                    size="xs"
+                    ml={2}
+                    onClick={() => {
+                      setIsUnitTypeModalOpen(true);
+                      onClose();
+                    }}
+                  />
+                </Flex>
+              </FormLabel>
+              <Select
+                name="unitType"
+                value={formData.unitType}
                 onChange={handleInputChange}
-                placeholder="Enter unit type name"
-              />
+                placeholder="Select unit type"
+              >
+                {unitTypeData?.doc?.map((type) => (
+                  <option key={type._id} value={type._id}>
+                    {type.name}
+                  </option>
+                ))}
+              </Select>
+      
             </FormControl>
 
             <FormControl mt={4}>
               <FormLabel>Sub Type</FormLabel>
               <Input
-                name="subType"
-                value={formData.subType}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Enter sub type (optional)"
+                placeholder="Enter sub type"
               />
             </FormControl>
 
@@ -396,6 +476,75 @@ const ListingUnitTypes = () => {
               borderRadius="3px"
               size="md"
               onClick={handleSubmit}
+            >
+              Save
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Unit Type Modal */}
+      <Modal
+        isOpen={isUnitTypeModalOpen}
+        onClose={() => {
+          setIsUnitTypeModalOpen(false);
+          onOpen();
+        }}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Unit Type</ModalHeader>
+          <ModalCloseButton
+            onClick={() => {
+              setIsUnitTypeModalOpen(false);
+              onOpen();
+            }}
+          />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>Unit Type Name</FormLabel>
+              <Input
+                name="name"
+                value={unitTypeForm.name}
+                onChange={handleUnitTypeInputChange}
+                placeholder="Enter unit type name"
+              />
+            </FormControl>
+
+            <FormControl mt={4}>
+              <FormLabel>Active Status</FormLabel>
+              <Switch
+                name="status"
+                isChecked={unitTypeForm.status}
+                onChange={handleUnitTypeInputChange}
+                colorScheme="green"
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              variant="outline"
+              bg="#e2e8f0"
+              size="md"
+              w="100px"
+              borderRadius="3px"
+              mr={2}
+              onClick={() => {
+                setIsUnitTypeModalOpen(false);
+                onOpen();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              bg="#d99a36"
+              color="white"
+              w="100px"
+              borderRadius="3px"
+              size="md"
+              onClick={handleUnitTypeSave}
             >
               Save
             </Button>

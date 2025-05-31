@@ -40,7 +40,7 @@ const CreateSurvey = () => {
   const navigate = useNavigate();
   const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
-  const { allUsers, managers, agents } = useFetchUserHierarchy(user);
+  const { allUsers = [], managers = [], agents = [] } = useFetchUserHierarchy(user);
 
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
@@ -80,7 +80,7 @@ const CreateSurvey = () => {
             (m) => m._id === values.selectedManager
           );
           if (manager) {
-            invitedUsers = manager.team.map((member) => member._id);
+            invitedUsers = [manager._id];
           }
         }
 
@@ -109,8 +109,12 @@ const CreateSurvey = () => {
         resetForm();
         navigate("/survey");
       } catch (error) {
-        console.error("Failed to create survey:", error.data.message);
-        toast.error(error.data.message)
+        const errorMsg =
+          error?.data?.message ||
+          error?.message ||
+          "Failed to create survey. Please try again.";
+        console.error("Failed to create survey:", errorMsg);
+        toast.error(errorMsg);
       }
     },
   });
@@ -302,7 +306,7 @@ const CreateSurvey = () => {
                   >
                     <Select
                       name="selectedManager"
-                      placeholder="Select manager"
+                      placeholder="Select Team"
                       value={formik.values.selectedManager || ""}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
