@@ -1,0 +1,674 @@
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Box,
+  Flex,
+  Input,
+  Heading,
+  Text,
+  VStack,
+  Avatar,
+  HStack,
+  InputGroup,
+  InputLeftElement,
+  Icon,
+  FormControl,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Checkbox,
+  CheckboxGroup,
+  Stack,
+  Textarea,
+  useBreakpointValue,
+  Button,
+  Spinner,
+  Alert,
+  AlertIcon,
+  useDisclosure,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerHeader,
+  DrawerBody,
+} from "@chakra-ui/react";
+import {
+  IoArrowBack,
+  IoSearch,
+  IoThumbsUp,
+  IoThumbsDown,
+  IoEye,
+  IoClose,
+} from "react-icons/io5";
+import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import AppButton from "components/shared/AppButton";
+import { toast } from "react-toastify";
+import ViewSurveyResponseLoading from "./Loader/ViewSurveyResponseLoading";
+import { skipToken } from "@reduxjs/toolkit/query";
+import Breadcrumb from "../../../components/shared/BreadCrumb";
+
+const SIDEBAR_WIDTH = "400px";
+
+const ViewSurveyResponse = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [evaluations, setEvaluations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
+
+  const {
+    data: survey,
+    isLoading: isLoadingSurvey,
+    isError: isSurveyError,
+    error: surveyError,
+  } = useFetchItemsQuery({
+    path: `/surveys/${id}`,
+  });
+
+  const surveyData = survey?.doc;
+  const invitedUsers = surveyData?.invitedUsers || [];
+
+  const filteredUsers = invitedUsers
+    .filter((userData) =>
+      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aComplete = a.submittedQuestions === surveyData?.questionsCount;
+      const bComplete = b.submittedQuestions === surveyData?.questionsCount;
+      if (aComplete === bComplete) return 0;
+      return aComplete ? -1 : 1;
+    });
+
+  useEffect(() => {
+    if (filteredUsers.length > 0 && !currentUserId) {
+      setCurrentUserId(filteredUsers[0]?.user?._id);
+    }
+  }, [filteredUsers, currentUserId]);
+
+  const {
+    data: surveyResponse,
+    isError: isResponseError,
+    error: responseError,
+    isLoading: isLoadingResponse,
+    isFetching: isFetchingResponse,
+    refetch: refetchResponse,
+  } = useFetchItemsQuery(
+    surveyData?._id && currentUserId
+      ? {
+          path: `/surveys/user_survey_response/${surveyData._id}/${currentUserId}`,
+        }
+      : skipToken
+  );
+
+  const [createItemMutation] = useCreateItemMutation();
+
+  useEffect(() => {
+    if (surveyResponse?.doc) {
+      const initialEvaluations =
+        surveyResponse?.doc.questions?.map((question) => ({
+          question: question.question,
+          liked: question.liked,
+        })) || [];
+      setEvaluations(initialEvaluations);
+      setHasChangedEvaluation(false);
+    }
+  }, [surveyResponse]);
+
+  const handleEvaluation = useCallback((questionId, liked) => {
+    setEvaluations((prev) => {
+      const existingIndex = prev.findIndex((e) => e.question === questionId);
+      let updated;
+      if (existingIndex >= 0) {
+        updated = [...prev];
+        updated[existingIndex] = { ...updated[existingIndex], liked };
+      } else {
+        updated = [...prev, { question: questionId, liked }];
+      }
+      setHasChangedEvaluation(true);
+      return updated;
+    });
+  }, []);
+
+  const handleSubmitEvaluation = async () => {
+    try {
+      const submittedEvaluations = evaluations.filter(
+        (e) => e.liked !== null && e.liked !== undefined
+      );
+      if (submittedEvaluations.length === 0) {
+        toast.warning(
+          "Please evaluate at least one question before submitting"
+        );
+        return;
+      }
+      await createItemMutation({
+        path: `/surveys/responses/evaluate/${surveyResponse?.doc?._id}`,
+        body: { evaluations: submittedEvaluations },
+      }).unwrap();
+      toast.success("Evaluation submitted successfully");
+      setHasChangedEvaluation(false);
+      // Update local state instead of refetching
+      setEvaluations((prev) =>
+        prev.map((evaluation) => ({
+          ...evaluation,
+          liked:
+            submittedEvaluations.find(
+              (se) => se.question === evaluation.question
+            )?.liked ?? evaluation.liked,
+        }))
+      );
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to submit evaluation");
+    }
+  };
+
+  const handleUserClick = useCallback(
+    (userId) => {
+      if (userId !== currentUserId) {
+        setCurrentUserId(userId);
+        onClose();
+      }
+    },
+    [currentUserId, onClose]
+  );
+
+  if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
+
+  if (isSurveyError)
+    return (
+      <Flex h="100vh" align="center" justify="center" bg="red.50">
+        <Box
+          bg="#FFF0F0"
+          border="1px solid #FFB3B3"
+          borderRadius="md"
+          p={8}
+          textAlign="center"
+          color="red.600"
+          fontWeight="bold"
+          fontSize="lg"
+        >
+          Error loading survey
+          <Text mt={2} fontWeight="normal" color="red.500" fontSize="md">
+            {surveyError?.message}
+          </Text>
+        </Box>
+      </Flex>
+    );
+
+  if (!surveyData)
+    return (
+      <Flex h="100vh" align="center" justify="center" bg="yellow.50">
+        <Box
+          bg="#FFFBEA"
+          border="1px solid #FFE6A1"
+          borderRadius="md"
+          p={10}
+          textAlign="center"
+          color="orange.700"
+          fontWeight="bold"
+          fontSize="lg"
+          maxW="400px"
+          mx="auto"
+        >
+          <Text fontSize="xl" mb={2}>
+            Survey Not Found
+          </Text>
+          <Text fontWeight="normal" color="orange.700" fontSize="md" mb={4}>
+            The survey you are looking for does not exist or may have been
+            removed.
+          </Text>
+        </Box>
+      </Flex>
+    );
+
+  const SidebarContent = (
+    <>
+      <Box p={4}>
+        <InputGroup>
+          <InputLeftElement pointerEvents="none">
+            <Icon as={IoSearch} color="gray.400" />
+          </InputLeftElement>
+          <Input
+            placeholder="Search users..."
+            focusBorderColor="brand.500"
+            bg="#F4F4F4"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            fontWeight="700"
+          />
+        </InputGroup>
+      </Box>
+      <VStack
+        align="stretch"
+        spacing={2}
+        px={4}
+        pb={4}
+        flex="1"
+        overflowY="auto"
+        css={{
+          "&::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#f1f1f1",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#888",
+            borderRadius: "3px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "#555",
+          },
+        }}
+      >
+        <Text fontWeight="bold" fontSize="lg" mb={2}>
+          Survey Users
+        </Text>
+        {filteredUsers.length === 0 ? (
+          <Box py={8} textAlign="center" color="gray.500" fontWeight="medium">
+            No user found
+          </Box>
+        ) : (
+          filteredUsers.map((userData) => (
+            <HStack
+              key={userData.user._id}
+              spacing={3}
+              bg={currentUserId === userData.user._id ? "#ABFF8D" : "gray.100"}
+              p={3}
+              borderRadius="md"
+              _hover={{
+                bg:
+                  currentUserId === userData.user._id ? "#ABFF8D" : "gray.200",
+              }}
+              cursor="pointer"
+              onClick={() => handleUserClick(userData.user._id)}
+            >
+              <Avatar
+                size="sm"
+                name={userData.user.fullName}
+                src={userData.user.profileImage}
+              />
+              <Box flex="1">
+                <Text fontWeight="medium">{userData.user.fullName}</Text>
+                <Text fontSize="sm" color="gray.500">
+                  {userData.user.roles[0]?.roleName || "User"}
+                </Text>
+                <Text fontSize={"sm"} color={"#FF0000"}>
+                  {userData?.submittedQuestions
+                    ? `${userData?.submittedQuestions}/${surveyData?.questionsCount}`
+                    : "pending"}
+                </Text>
+              </Box>
+              <Box
+                bg="brand.500"
+                borderRadius="md"
+                p={1}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Icon as={IoEye} color="white" boxSize={4} />
+              </Box>
+            </HStack>
+          ))
+        )}
+      </VStack>
+    </>
+  );
+
+  const items = [
+    {
+      path: "/survey",
+      label: "Surveys",
+    },
+    {
+      path: `/survey/view-survey/${id}`,
+      label: "View Survey",
+    },
+  ];
+
+  const currentUserData = filteredUsers.find(
+    (user) => user.user._id === currentUserId
+  );
+  const hasSubmitted =
+    currentUserData?.submittedQuestions === surveyData?.questionsCount;
+
+  return (
+    <Flex h="100vh" overflow="hidden" position="relative">
+      {/* Main Content Area */}
+      <Box
+        flex="1"
+        overflowY="auto"
+        pr={{ base: 0, lg: SIDEBAR_WIDTH }}
+        transition="padding-right 0.3s"
+      >
+        <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
+          <Breadcrumb items={items} />
+
+          <Heading
+            as="h1"
+            mb={2}
+            color="black"
+            fontSize="24px"
+            fontWeight="700"
+          >
+            {surveyData.title
+              ? surveyData.title.charAt(0).toUpperCase() +
+                surveyData.title.slice(1)
+              : ""}
+          </Heading>
+
+          <Flex justify="flex-start" mb={4}>
+            <AppButton
+              ml="2"
+              leftIcon={<IoArrowBack />}
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </AppButton>
+          </Flex>
+
+          {/* Loading state when changing users */}
+          {(isLoadingResponse || isFetchingResponse) && (
+            <Flex justify="center" my={8}>
+              <Spinner size="xl" color="brand.500" />
+            </Flex>
+          )}
+
+          {/* Survey Questions and Responses */}
+          {!isLoadingResponse && !isFetchingResponse && (
+            <Box
+              bg="white"
+              p={6}
+              borderRadius="lg"
+              boxShadow="md"
+              width="100%"
+              mx="auto"
+              mt={8}
+            >
+              {isResponseError && responseError?.status === 404 && (
+                <Alert status="info" mb={6} borderRadius="md">
+                  <AlertIcon />
+                  This user hasn't submitted their survey response yet.
+                </Alert>
+              )}
+
+              {surveyData.questions && surveyData.questions.length > 0 ? (
+                surveyData.questions.map((question, index) => {
+                  const answerData = surveyResponse?.doc?.questions?.find(
+                    (q) => q.question === question._id
+                  );
+                  const answer = answerData?.answer;
+                  const currentEval = evaluations.find(
+                    (e) => e.question === question._id
+                  );
+
+                  if (isResponseError && responseError?.status === 404) {
+                    return (
+                      <Box
+                        key={question._id}
+                        mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                      >
+                        <FormLabel
+                          fontSize="md"
+                          fontWeight="bold"
+                          mb={2}
+                          color="black"
+                        >
+                          {index + 1}. {question.text}
+                        </FormLabel>
+                        <FormControl mb={6}>
+                          {question.type === "radio" && (
+                            <RadioGroup value="">
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Radio
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="blackAlpha"
+                                    isReadOnly
+                                    isDisabled
+                                    color="black"
+                                  >
+                                    {option.text}
+                                  </Radio>
+                                ))}
+                              </Stack>
+                            </RadioGroup>
+                          )}
+
+                          {question.type === "checkbox" && (
+                            <CheckboxGroup value={[]}>
+                              <Stack direction="column" spacing={2}>
+                                {question.options.map((option) => (
+                                  <Checkbox
+                                    key={option.opId}
+                                    value={option.opId.toString()}
+                                    colorScheme="blackAlpha"
+                                    isReadOnly
+                                    isDisabled
+                                    color="black"
+                                  >
+                                    {option.text}
+                                  </Checkbox>
+                                ))}
+                              </Stack>
+                            </CheckboxGroup>
+                          )}
+
+                          {question.type === "text" && (
+                            <Textarea
+                              value=""
+                              isReadOnly
+                              bg="gray.50"
+                              focusBorderColor="brand.500"
+                              minH="100px"
+                              placeholder="No answer submitted"
+                            />
+                          )}
+                        </FormControl>
+                      </Box>
+                    );
+                  }
+
+                  return (
+                    <Box
+                      key={question._id}
+                      mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                    >
+                      <Flex align="center" justify="space-between" mb={3}>
+                        <FormLabel
+                          fontSize="md"
+                          fontWeight="bold"
+                          mb={0}
+                          color="black"
+                        >
+                          {index + 1}. {question.text}
+                        </FormLabel>
+
+                        {answerData && (
+                          <Flex gap={2}>
+                            <Icon
+                              as={IoThumbsUp}
+                              boxSize={5}
+                              color={
+                                currentEval?.liked === true
+                                  ? "green.500"
+                                  : "gray.400"
+                              }
+                              cursor="pointer"
+                              onClick={() =>
+                                handleEvaluation(question._id, true)
+                              }
+                              _hover={{ color: "green.500" }}
+                            />
+                            <Icon
+                              as={IoThumbsDown}
+                              boxSize={5}
+                              color={
+                                currentEval?.liked === false
+                                  ? "red.500"
+                                  : "gray.400"
+                              }
+                              cursor="pointer"
+                              onClick={() =>
+                                handleEvaluation(question._id, false)
+                              }
+                              _hover={{ color: "red.500" }}
+                            />
+                          </Flex>
+                        )}
+                      </Flex>
+
+                      <FormControl mb={6}>
+                        {question.type === "radio" && (
+                          <RadioGroup
+                            value={answer ? answer.toString() : ""}
+                            isReadOnly
+                          >
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Radio
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="brand"
+                                  isChecked={answer === option.opId.toString()}
+                                >
+                                  {option.text}
+                                </Radio>
+                              ))}
+                            </Stack>
+                          </RadioGroup>
+                        )}
+
+                        {question.type === "checkbox" && (
+                          <CheckboxGroup
+                            value={answer ? answer.map(String) : []}
+                          >
+                            <Stack direction="column" spacing={2}>
+                              {question.options.map((option) => (
+                                <Checkbox
+                                  key={option.opId}
+                                  value={option.opId.toString()}
+                                  colorScheme="brand"
+                                  isChecked={
+                                    answer &&
+                                    answer.includes(option.opId.toString())
+                                  }
+                                  isReadOnly
+                                >
+                                  {option.text}
+                                </Checkbox>
+                              ))}
+                            </Stack>
+                          </CheckboxGroup>
+                        )}
+
+                        {question.type === "text" && (
+                          <Textarea
+                            value={answer || ""}
+                            isReadOnly
+                            bg="gray.50"
+                            focusBorderColor="brand.500"
+                            minH="100px"
+                            placeholder={
+                              hasSubmitted
+                                ? "No answer provided"
+                                : "User hasn't answered this question yet"
+                            }
+                          />
+                        )}
+                      </FormControl>
+                    </Box>
+                  );
+                })
+              ) : (
+                <Text color="gray.500" textAlign="center">
+                  No questions found for this survey.
+                </Text>
+              )}
+
+              {/* Submit Evaluation Button - only show if response exists */}
+              {surveyResponse?.doc && (
+                <Flex justify="flex-end" mt={8}>
+                  <AppButton
+                    onClick={handleSubmitEvaluation}
+                    color="black"
+                    bg="#EDC270"
+                    borderRadius="4px"
+                    _hover={{ bg: "#e0b85c" }}
+                    _active={{ bg: "#d1a94b" }}
+                    isDisabled={
+                      !hasChangedEvaluation ||
+                      !evaluations.some(
+                        (e) => e.liked !== undefined && e.liked !== null
+                      )
+                    }
+                  >
+                    Submit 
+                  </AppButton>
+                </Flex>
+              )}
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {/* Desktop Sidebar */}
+      {isDesktop ? (
+        <Box
+          width={SIDEBAR_WIDTH}
+          height="calc(100vh - 78px)"
+          borderLeft="1px solid"
+          borderColor="gray.200"
+          bg="white"
+          overflowY="auto"
+          position="fixed"
+          top="80px"
+          right="0"
+          zIndex="10"
+          display="flex"
+          flexDirection="column"
+        >
+          {SidebarContent}
+        </Box>
+      ) : (
+        <>
+          {/* Mobile Search Button */}
+          <Button
+            position="fixed"
+            bottom="24px"
+            right="24px"
+            zIndex="20"
+            bg="#EDC270"
+            color="#000"
+            leftIcon={<IoSearch />}
+            borderRadius="full"
+            size="lg"
+            boxShadow="lg"
+            onClick={onOpen}
+            _hover={{ bg: "#e0b85c" }}
+            _active={{ bg: "#d1a94b" }}
+          >
+            Search
+          </Button>
+
+          {/* Mobile Sidebar Drawer */}
+          <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
+              <DrawerBody p={0}>{SidebarContent}</DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
+    </Flex>
+  );
+};
+
+export default ViewSurveyResponse;
