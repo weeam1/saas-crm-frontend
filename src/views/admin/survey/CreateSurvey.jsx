@@ -40,7 +40,11 @@ const CreateSurvey = () => {
   const navigate = useNavigate();
   const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
-  const { allUsers = [], managers = [], agents = [] } = useFetchUserHierarchy(user);
+  const {
+    allUsers = [],
+    managers = [],
+    agents = [],
+  } = useFetchUserHierarchy(user);
 
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
@@ -69,7 +73,7 @@ const CreateSurvey = () => {
         let invitedUsers = [];
         if (values.selectedRole === "all") {
           invitedUsers = allUsers
-            .filter((u) => u._id !== user._id) 
+            .filter((u) => u._id !== user._id)
             .map((user) => user._id);
         } else if (values.selectedRole === "managers") {
           invitedUsers = managers.map((manager) => manager._id);
@@ -199,10 +203,9 @@ const CreateSurvey = () => {
     },
   ];
   return (
-    <Box p={{ base: 1, md: 2}}>
-
+    <Box p={{ base: 1, md: 2 }}>
       <Breadcrumb items={items} />
-      
+
       {/* Back Button */}
       <AppButton
         ml="2"
@@ -255,7 +258,12 @@ const CreateSurvey = () => {
                         formik.setFieldValue("closesAt", date)
                       }
                       placeholder="Select end date"
-                      minDate={new Date()}
+                      minDate={(() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        tomorrow.setHours(0, 0, 0, 0);
+                        return tomorrow;
+                      })()}
                       isCalendarOpen={openCalendar === "endDate"}
                       toggleCalendar={() => toggleCalendar("endDate")}
                       inputStyles={inputStyles}

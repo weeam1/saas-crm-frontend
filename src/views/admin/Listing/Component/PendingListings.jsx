@@ -54,6 +54,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "SR.No",
     "Project",
     "Unit Type",
+    "Sub Unit Type",
     "Type",
     "Location",
     "Area (sqft)",
@@ -101,7 +102,6 @@ const PendingListings = ({ listingType, listingUnitType }) => {
 
     return params;
   };
-
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
@@ -315,6 +315,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                     >
                       {listing?.projectName || "N/A"}
                     </Td>
+
                     <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
@@ -323,6 +324,15 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       textAlign={"center"}
                     >
                       {listing?.unitType?.name || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {listing.subUnitType?.name || "N/A"}
                     </Td>
                     <Td
                       py={4}

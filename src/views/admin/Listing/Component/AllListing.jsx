@@ -71,6 +71,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
     "SR.No",
     "projectName",
     "Unit Type",
+    "Sub Unit Type",
     "Type",
     "Location",
     "Building Age",
@@ -404,6 +405,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     <Td textAlign="center">
                       {listing.unitType?.name || "N/A"}
                     </Td>
+                    <Td textAlign="center">
+                      {listing.subUnitType?.name || "N/A"}
+                    </Td>
                     <Td textAlign="center" minWidth="100px">
                       {listing.listingType?.name || "N/A"}
                     </Td>
@@ -474,15 +478,15 @@ const AllListing = ({ listingType, listingUnitType }) => {
                         : "N/A"}
                     </Td>
                     {isAdmin && (
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
-                    </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.createdBy?.fullName}
+                      </Td>
                     )}
                     <Td
                       py={4}
@@ -491,9 +495,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      <Box display={"flex"} gap={2}  justifyContent="center">
+                      <Box display={"flex"} gap={2} justifyContent="center">
                         {isAdmin && (
-                          <Box display={"flex"} gap={2}  justifyContent="center">
+                          <Box display={"flex"} gap={2} justifyContent="center">
                             <IconButton
                               aria-label="Edit"
                               icon={<EditIcon />}
