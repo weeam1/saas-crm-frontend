@@ -107,6 +107,7 @@ const ViewSurveyResponse = () => {
   const [createItemMutation] = useCreateItemMutation();
 
   useEffect(() => {
+    setEvaluations([])
     if (surveyResponse?.doc) {
       const initialEvaluations =
         surveyResponse?.doc.questions?.map((question) => ({
@@ -114,10 +115,13 @@ const ViewSurveyResponse = () => {
           liked: question.liked,
         })) || [];
       setEvaluations(initialEvaluations);
+
+      console.log("Initial evaluations set:", initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse]);
+  }, [surveyResponse, currentUserId,]);
 
+  
   const handleEvaluation = useCallback((questionId, liked) => {
     setEvaluations((prev) => {
       const existingIndex = prev.findIndex((e) => e.question === questionId);
@@ -150,7 +154,6 @@ const ViewSurveyResponse = () => {
       }).unwrap();
       toast.success("Evaluation submitted successfully");
       setHasChangedEvaluation(false);
-      // Update local state instead of refetching
       setEvaluations((prev) =>
         prev.map((evaluation) => ({
           ...evaluation,
@@ -336,6 +339,7 @@ const ViewSurveyResponse = () => {
   const hasSubmitted =
     currentUserData?.submittedQuestions === surveyData?.questionsCount;
 
+    
   return (
     <Flex h="100vh" overflow="hidden" position="relative">
       {/* Main Content Area */}
@@ -405,7 +409,7 @@ const ViewSurveyResponse = () => {
                   const currentEval = evaluations.find(
                     (e) => e.question === question._id
                   );
-
+                  console.log("Current evaluation:", currentEval?.liked);
                   if (isResponseError && responseError?.status === 404) {
                     return (
                       <Box
@@ -510,7 +514,7 @@ const ViewSurveyResponse = () => {
                               boxSize={5}
                               color={
                                 currentEval?.liked === false
-                                  ? "red.500"
+                                  ? "red.400"
                                   : "gray.400"
                               }
                               cursor="pointer"
