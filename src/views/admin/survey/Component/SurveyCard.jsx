@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useDeleteItemMutation } from "api/apiSlice";
+import CustomTooltip from "../../../../components/shared/CustomTooltip";
 
 const SurveyCard = ({ data, isActive, refetch }) => {
   const navigate = useNavigate();
@@ -96,33 +97,25 @@ const SurveyCard = ({ data, isActive, refetch }) => {
   return (
     <>
       <Box
-        width={cardWidth}
-        minW="180px"
-        maxW="100%"
-        borderWidth="1px"
-        borderRadius="lg"
-        p={cardPadding}
-        mb={3}
-        bg="#FFFFFF"
-        position="relative"
-        boxShadow="sm"
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-      >
+      width="100%"
+      height="100%"
+      borderWidth="1px"
+      borderRadius="lg"
+      p={cardPadding}
+      bg="#FFFFFF"
+      position="relative"
+      boxShadow="sm"
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+    >
         <Box
           display="flex"
           justifyContent={isAdmin ? "space-between" : "flex-end"}
           alignItems="center"
           mb={2}
         >
-          <Tooltip
-            label={isActive ? "Active" : "Complete"}
-            fontSize="sm"
-            placement="top"
-            hasArrow
-            shouldWrapChildren
-          >
+          <CustomTooltip label={isActive ? "Active" : "Complete"}>
             <Box
               width="18px"
               height="18px"
@@ -131,10 +124,11 @@ const SurveyCard = ({ data, isActive, refetch }) => {
               bg={isActive ? "green.600" : "red.600"}
               borderRadius="full"
               cursor="pointer"
-              tabIndex={0} 
-              aria-label={isActive ? "Active" : "Complete"} 
+              tabIndex={0}
+              aria-label={isActive ? "Active" : "Complete"}
             />
-          </Tooltip>
+          </CustomTooltip>
+
           {isAdmin && (
             <Tooltip
               label="Delete Survey"

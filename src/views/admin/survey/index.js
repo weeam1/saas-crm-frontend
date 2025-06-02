@@ -64,32 +64,47 @@ const Survey = () => {
 
       <Flex
         wrap="wrap"
-        justify={{ base: "center", md: "flex-start" }}
-        align="stretch"
-        gap={{base:5, md :10 }}
+        justify={{ base: "center", md: "center", lg: "flex-start" }}
+        gap={{ base: 3, md: 3, lg: 4 }}
         marginTop={{ base: 4, md: 6 }}
+         mx={{ base: "5px", sm: 20, md: 0 }} //
       >
         {isLoading || isFetching
           ? Array.from({ length: 6 }).map((_, idx) => (
-              <SurveyCardLoading key={idx} />
+              <Box
+                key={idx}
+                width={{ base: "100%", sm: "48%", md: "31%", lg: "23%" }}
+                minWidth="250px"
+                maxWidth="350px"
+                flex="1 1 1"
+              >
+                <SurveyCardLoading />
+              </Box>
             ))
           : surveys?.doc?.surveys.length > 0 &&
             surveys?.doc?.surveys.map((survey) => (
-              <SurveyCard
+              <Box
                 key={survey._id}
-                isActive={survey.status === "active"}
-                data={{
-                  id: survey._id,
-                  name: survey.title,
-                  taken: `${survey.submittedUsers || 0}/${survey.invitedUsersCount || 0}`,
-                  totalQuestions: survey.questionsCount,
-                  closingDate: new Date(survey.closesAt).toLocaleDateString(),
-                  surveyDate: new Date(survey.createdAt).toLocaleDateString(),
-                  invitedUsers: survey.invitedUsers,
-                  data: survey,
-                }}
-                refetch={refetch}
-              />
+                width={{ base: "80%", sm: "48%", md: "31%", lg: "23%" }}
+                minWidth="250px"
+                maxWidth="350px"
+                flex="1 1 1"
+              >
+                <SurveyCard
+                  isActive={survey.status === "active"}
+                  data={{
+                    id: survey._id,
+                    name: survey.title,
+                    taken: `${survey.submittedUsers || 0}/${survey.invitedUsersCount || 0}`,
+                    totalQuestions: survey.questionsCount,
+                    closingDate: new Date(survey.closesAt).toLocaleDateString(),
+                    surveyDate: new Date(survey.createdAt).toLocaleDateString(),
+                    invitedUsers: survey.invitedUsers,
+                    data: survey,
+                  }}
+                  refetch={refetch}
+                />
+              </Box>
             ))}
       </Flex>
     </>

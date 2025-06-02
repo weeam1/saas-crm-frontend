@@ -396,8 +396,8 @@ const LeaderBoard = () => {
                     >
                       {index + 1}
                     </Td>
-                    <Td textAlign="center" fontWeight="medium">
-                      <Flex alignItems="center" justifyContent="center" gap={2}>
+                    <Td fontWeight="medium" textAlign={"center"}>
+                      <Flex alignItems="center" gap={2}>
                         {item.profileImage ? (
                           <Avatar
                             size="sm"
@@ -437,26 +437,39 @@ const LeaderBoard = () => {
                       fontWeight="bold"
                       fontSize={{ base: "sm", md: "md" }}
                     >
-                      {item.avgScore ? `${item.avgScore}%` : "N/A"}
+                      {item.avgScore ? (
+                        `${item.avgScore}%`
+                      ) : (
+                        <Text fontSize="xs" color="gray.500">
+                         N/A
+                        </Text>
+                      )}
                     </Td>
                     <Td textAlign="center" fontWeight="bold">
-                      <Badge
-                        colorScheme={
-                          item.rank === 1
-                            ? "red"
-                            : item.rank === 2
-                              ? "cyan"
-                              : item.rank === 3
-                                ? "green"
-                                : "gray"
-                        }
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        fontSize={{ base: "sm", md: "md" }}
-                      >
-                        #{item.rank}
-                      </Badge>
+                      {item?.totalScore > 0 ? (
+                        <Badge
+                          colorScheme={
+                            item.rank === 1
+                              ? "red"
+                              : item.rank === 2
+                                ? "cyan"
+                                : item.rank === 3
+                                  ? "green"
+                                  : "gray"
+                          }
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
+                          #{item.rank}
+                        </Badge>
+                      ) : (
+                       <Text fontSize="xs" color="gray.500">
+                          N/A
+                        </Text>
+                        
+                      )}
                     </Td>
                     <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
                       {item.role}
