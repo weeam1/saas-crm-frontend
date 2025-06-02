@@ -135,7 +135,7 @@ const ViewSurveyResponse = () => {
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, currentUserId, survey]); // <-- removed 'evaluations'
+  }, [surveyResponse, currentUserId, survey, id]); 
 
   const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
@@ -186,6 +186,8 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
+       refetch();
+        refetchResponse();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
@@ -324,7 +326,7 @@ const ViewSurveyResponse = () => {
 
                 <Text fontSize={"sm"} color={"#FF0000"}>
                   {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
-                  0 && userData?.status === "pending"
+                    0 && userData?.status === "pending"
                     ? "Pending"
                     : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
                 </Text>
