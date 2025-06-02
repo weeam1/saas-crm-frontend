@@ -79,6 +79,8 @@ const ViewSurveyResponse = () => {
       userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
+      if (a.status === "completed" && b.status !== "completed") return -1;
+      if (b.status === "completed" && a.status !== "completed") return 1;
       const totalQuestions = surveyData?.questionsCount || 0;
 
       const aComplete = a.submittedQuestions === totalQuestions;
@@ -135,7 +137,7 @@ const ViewSurveyResponse = () => {
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, currentUserId, survey, id]); 
+  }, [surveyResponse, currentUserId, survey, id]);
 
   const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
@@ -186,8 +188,8 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
-       refetch();
-        refetchResponse();
+      refetch();
+      refetchResponse();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
@@ -386,7 +388,7 @@ const ViewSurveyResponse = () => {
           >
             {surveyData.title
               ? surveyData.title.charAt(0).toUpperCase() +
-                surveyData.title.slice(1)
+                surveyData.title.slice(1).toLowerCase()
               : ""}
           </Heading>
 
@@ -447,7 +449,9 @@ const ViewSurveyResponse = () => {
                           mb={2}
                           color="black"
                         >
-                          {index + 1}. {question.text}
+                          {index + 1}.
+                          {question.text.charAt(0).toUpperCase() +
+                            question.text.slice(1).toLowerCase()}
                         </FormLabel>
                         <FormControl mb={6}>
                           {question.type === "radio" && (
