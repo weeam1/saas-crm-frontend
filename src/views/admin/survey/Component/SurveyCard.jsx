@@ -165,9 +165,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
               }}
             >
               {data.name
-                ? data.name.charAt(0).toUpperCase() + data.name.slice(1)
+                ? data.name.charAt(0).toUpperCase() + data.name.slice(1).toLowerCase()
                 : "" || data.title
-                  ? data.title.charAt(0).toUpperCase() + data.title.slice(1)
+                  ? data.title.charAt(0).toUpperCase() + data.title.slice(1).toLowerCase()
                   : ""}
             </Text>
           </Box>

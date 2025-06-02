@@ -386,7 +386,7 @@ const ViewSurveyResponse = () => {
           >
             {surveyData.title
               ? surveyData.title.charAt(0).toUpperCase() +
-                surveyData.title.slice(1)
+                surveyData.title.slice(1).toLowerCase()
               : ""}
           </Heading>
 
