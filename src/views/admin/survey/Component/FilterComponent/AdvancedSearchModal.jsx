@@ -169,7 +169,7 @@ const AdvancedSearchModal = ({
                         }
                       }}
                       placeholder="Select start date"
-                      minDate={formik.values.to || new Date()}
+                      maxDate={formik.values.to || new Date()}
                       isCalendarOpen={openCalendar === 'from'}
                       toggleCalendar={() => toggleCalendar('from')}
                     />
@@ -187,7 +187,7 @@ const AdvancedSearchModal = ({
                       }}
                       placeholder="Select end date"
                       minDate={formik.values.from}
-                      // maxDate={new Date()}
+                      maxDate={new Date()}
                       isCalendarOpen={openCalendar === 'to'}
                       toggleCalendar={() => toggleCalendar('to')}
                     />

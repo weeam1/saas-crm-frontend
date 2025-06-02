@@ -121,14 +121,19 @@ const SurveyCard = ({ data, isActive, refetch }) => {
             fontSize="sm"
             placement="top"
             hasArrow
+            shouldWrapChildren
           >
             <Box
               width="18px"
               height="18px"
+              minWidth="18px"
+              minHeight="18px"
               bg={isActive ? "green.600" : "red.600"}
               borderRadius="full"
               cursor="pointer"
-            ></Box>
+              tabIndex={0} 
+              aria-label={isActive ? "Active" : "Complete"} 
+            />
           </Tooltip>
           {isAdmin && (
             <Tooltip
@@ -165,7 +170,11 @@ const SurveyCard = ({ data, isActive, refetch }) => {
                 overflow: "hidden",
               }}
             >
-              {data.name || data.title}
+              {data.name
+                ? data.name.charAt(0).toUpperCase() + data.name.slice(1)
+                : "" || data.title
+                  ? data.title.charAt(0).toUpperCase() + data.title.slice(1)
+                  : ""}
             </Text>
           </Box>
           {data.description && (

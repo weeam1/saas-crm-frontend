@@ -10,10 +10,7 @@ import {
 // import DashboardHeader from '../../../../assets/img/dashboard-header.jpeg';
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../assets/img/logo-crm.png";
-import {
-  useFetchItemsQuery,
-} from "api/apiSlice";
-
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const Header = () => {
   // Dynamically adjust text alignment based on screen size
@@ -22,7 +19,7 @@ const Header = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
 
-  const { data:surveysCheck} = useFetchItemsQuery(
+  const { data: surveysCheck } = useFetchItemsQuery(
     { path: "/surveys/user_pending" },
     { refetchOnMountOrArgChange: true }
   );
@@ -66,30 +63,36 @@ const Header = () => {
           w="100%"
           bg="#EDC270"
           py={2}
-          px={{ base: 4, md: 8 }}
+          px={{ base: 3, md: 8 }}
           display="flex"
-          alignItems="center"
+          flexDirection={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "center" }}
           justifyContent="space-between"
           rounded="xl"
-          mb={10}
+          mb={8}
+          gap={3}
         >
           <Text
             fontWeight="medium"
-            fontSize={{ base: "md", md: "lg" }}
+            fontSize={{ base: "sm", md: "lg" }}
             color="#FFFFFF"
+            textAlign={{ base: "center", md: "left" }}
           >
-            🚨 Reminder! You have pending surveys to complete before time runs out. Don’t miss your chance!
+            🚨 Reminder! You have pending surveys to complete before time runs
+            out. Don’t miss your chance!
           </Text>
           <Button
             bg="#FFFFFFC9"
             color="black"
             borderRadius="10px"
-            ml={4}
+            mt={{ base: 2, md: 0 }}
+            ml={{ base: 0, md: 4 }}
             onClick={() => navigate("/survey")}
             _hover={{ bg: "#fff" }}
             fontWeight="bold"
             size="md"
-            px={70}
+            px={{ base: 8, md: 16, lg: 28 }}
+            w={{ base: "100%", md: "auto" }}
           >
             Go
           </Button>

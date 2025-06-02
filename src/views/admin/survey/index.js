@@ -1,13 +1,11 @@
 import { useState } from "react";
 import TopHeader from "./Component/TopHeader";
 import FilterSearch from "./Component/FilterSearch";
-import { Box, Divider } from "@chakra-ui/react";
+import { Box, Divider, Flex } from "@chakra-ui/react";
 import NavigationLinks from "./Component/NavigationLinks";
 import SurveyCard from "./Component/SurveyCard";
 import SurveyCardLoading from "./Loader/SurveyCardLoading";
-import {
-  useFetchItemsQuery,
-} from "api/apiSlice";
+import { useFetchItemsQuery } from "api/apiSlice";
 const Survey = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -20,7 +18,6 @@ const Survey = () => {
     const params = {
       page: currentPage,
       limit: pageSize,
-
     };
 
     if (closesAt) params.closesAt = closesAt;
@@ -30,7 +27,12 @@ const Survey = () => {
     return params;
   };
 
-  const { data:surveys, isLoading, isFetching, refetch } = useFetchItemsQuery(
+  const {
+    data: surveys,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useFetchItemsQuery(
     { path: "/surveys", params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
@@ -60,10 +62,19 @@ const Survey = () => {
       </Box>
       <NavigationLinks />
 
-      <Box spacing={4} mt={6} display="flex" gap="10px" flexWrap={"wrap"}>
-        {(isLoading || isFetching)
-          ? Array.from({ length: 6 }).map((_, idx) => <SurveyCardLoading key={idx} />)
-          : surveys?.doc?.surveys.length > 0 && surveys?.doc?.surveys.map((survey) => (
+      <Flex
+        wrap="wrap"
+        justify={{ base: "center", md: "flex-start" }}
+        align="stretch"
+        gap={{base:5, md :10 }}
+        marginTop={{ base: 4, md: 6 }}
+      >
+        {isLoading || isFetching
+          ? Array.from({ length: 6 }).map((_, idx) => (
+              <SurveyCardLoading key={idx} />
+            ))
+          : surveys?.doc?.surveys.length > 0 &&
+            surveys?.doc?.surveys.map((survey) => (
               <SurveyCard
                 key={survey._id}
                 isActive={survey.status === "active"}
@@ -75,13 +86,12 @@ const Survey = () => {
                   closingDate: new Date(survey.closesAt).toLocaleDateString(),
                   surveyDate: new Date(survey.createdAt).toLocaleDateString(),
                   invitedUsers: survey.invitedUsers,
-                  data: survey
+                  data: survey,
                 }}
                 refetch={refetch}
               />
-            ))
-        }
-      </Box>
+            ))}
+      </Flex>
     </>
   );
 };
