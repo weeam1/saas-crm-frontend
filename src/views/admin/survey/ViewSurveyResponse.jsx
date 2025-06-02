@@ -79,6 +79,8 @@ const ViewSurveyResponse = () => {
       userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
+      if (a.status === "completed" && b.status !== "completed") return -1;
+      if (b.status === "completed" && a.status !== "completed") return 1;
       const totalQuestions = surveyData?.questionsCount || 0;
 
       const aComplete = a.submittedQuestions === totalQuestions;

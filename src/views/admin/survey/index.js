@@ -65,17 +65,17 @@ const Survey = () => {
       <Flex
         wrap="wrap"
         justify={{ base: "center", md: "center", lg: "flex-start" }}
-        gap={{ base: 3, md: 3, lg: 4 }}
+        gap={{ base: 3, md: 10, lg: 15 }}
         marginTop={{ base: 4, md: 6 }}
-         mx={{ base: "5px", sm: 20, md: 0 }} //
+        mx={{ base: "5px", sm: 20, md: 0 }} 
       >
         {isLoading || isFetching
           ? Array.from({ length: 6 }).map((_, idx) => (
               <Box
                 key={idx}
                 width={{ base: "100%", sm: "48%", md: "31%", lg: "23%" }}
-                minWidth="250px"
-                maxWidth="350px"
+                minWidth="200px"
+                maxWidth="300px"
                 flex="1 1 1"
               >
                 <SurveyCardLoading />
@@ -86,8 +86,8 @@ const Survey = () => {
               <Box
                 key={survey._id}
                 width={{ base: "80%", sm: "48%", md: "31%", lg: "23%" }}
-                minWidth="250px"
-                maxWidth="350px"
+                minWidth="200px"
+                maxWidth="300px"
                 flex="1 1 1"
               >
                 <SurveyCard
