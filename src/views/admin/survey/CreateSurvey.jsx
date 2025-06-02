@@ -25,6 +25,7 @@ import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import Breadcrumb from "../../../components/shared/BreadCrumb";
 import { toast } from "react-toastify";
+import { getApi } from "services/api";
 
 const inputStyles = {
   fontSize: "sm",
@@ -40,8 +41,12 @@ const CreateSurvey = () => {
   const navigate = useNavigate();
   const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
-  const { allUsers = [], managers = [], agents = [] } = useFetchUserHierarchy(user);
-
+  const {
+    allUsers = [],
+    managers = [],
+    agents = [],
+  } = useFetchUserHierarchy(user);
+  console.log("managers", managers);
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
   const toggleCalendar = (calendar) => {
@@ -69,19 +74,14 @@ const CreateSurvey = () => {
         let invitedUsers = [];
         if (values.selectedRole === "all") {
           invitedUsers = allUsers
-            .filter((u) => u._id !== user._id) 
+            .filter((u) => u._id !== user._id)
             .map((user) => user._id);
         } else if (values.selectedRole === "managers") {
           invitedUsers = managers.map((manager) => manager._id);
         } else if (values.selectedRole === "agents") {
           invitedUsers = agents.map((agent) => agent._id);
         } else if (values.selectedRole === "team" && values.selectedManager) {
-          const manager = managers.find(
-            (m) => m._id === values.selectedManager
-          );
-          if (manager) {
-            invitedUsers = [manager._id];
-          }
+          invitedUsers = formik.values.invitedUsers;
         }
 
         const payload = {
@@ -198,11 +198,32 @@ const CreateSurvey = () => {
       label: "Create Survey",
     },
   ];
-  return (
-    <Box p={{ base: 1, md: 2}}>
 
+  const fetchManagerAgents = async (managerId) => {
+    try {
+      const apiUrl = `api/v2/user/hierarchy?managerId=${managerId}`;
+      const { data } = await getApi(apiUrl);
+
+      if (data.results > 0) {
+        const managerAgentsList = data?.doc?.map((agent) => agent._id);
+        formik.setFieldValue("invitedUsers", managerAgentsList);
+      } else {
+        formik.setFieldValue("invitedUsers", []);
+      }
+    } catch (error) {
+      formik.setFieldValue("invitedUsers", []);
+    }
+  };
+  const handleManagerChange = async (e) => {
+    const managerId = e.target.value;
+    formik.setFieldValue("selectedManager", managerId);
+    formik.setFieldValue("selectedRole", "team");
+    await fetchManagerAgents(managerId);
+  };
+  return (
+    <Box p={{ base: 1, md: 2 }}>
       <Breadcrumb items={items} />
-      
+
       {/* Back Button */}
       <AppButton
         ml="2"
@@ -255,7 +276,12 @@ const CreateSurvey = () => {
                         formik.setFieldValue("closesAt", date)
                       }
                       placeholder="Select end date"
-                      minDate={new Date()}
+                      minDate={(() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        tomorrow.setHours(0, 0, 0, 0);
+                        return tomorrow;
+                      })()}
                       isCalendarOpen={openCalendar === "endDate"}
                       toggleCalendar={() => toggleCalendar("endDate")}
                       inputStyles={inputStyles}
@@ -308,12 +334,13 @@ const CreateSurvey = () => {
                       name="selectedManager"
                       placeholder="Select Team"
                       value={formik.values.selectedManager || ""}
-                      onChange={formik.handleChange}
+                      onChange={handleManagerChange}
                       onBlur={formik.handleBlur}
                       size="sm"
                       {...inputStyles}
                       width={"50%"}
                       mt={1}
+                      isDisabled={formik.values.selectedRole !== "team"}
                     >
                       {managers.map((manager) => (
                         <option key={manager._id} value={manager._id}>

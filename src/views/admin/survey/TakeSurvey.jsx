@@ -76,46 +76,60 @@ const TakeSurvey = () => {
   };
 
   const handleSubmit = async () => {
-    try {
-      if (!survey || !survey.questions) {
-        throw new Error("Survey data is not available");
-      }
-
-      const questionsPayload = survey.questions.map((question) => {
-        if (question.type === "checkbox") {
-          return {
-            question: question._id,
-            answer: checkboxAnswers[question._id] || null,
-          };
-        } else if (question.type === "radio") {
-          return {
-            question: question._id,
-            answer: answers[question._id] || null,
-          };
-        } else {
-          return {
-            question: question._id,
-            answer: answers[question._id] || null,
-          };
-        }
-      });
-
-      const payload = {
-        questions: questionsPayload,
-      };
-
-      await submitAnswers({
-        path: `/surveys/responses/submit/${id}`,
-        body: payload,
-      }).unwrap();
-
-      toast.success("Survey submitted");
-
-      navigate("/survey");
-    } catch (error) {
-      toast.error("Error submitting survey");
+  try {
+    if (!survey || !survey.questions) {
+      throw new Error("Survey data is not available");
     }
-  };
+
+    // Validate: all questions must be answered
+    const unanswered = survey.questions.some((question) => {
+      if (question.type === "checkbox") {
+        return !checkboxAnswers[question._id] || checkboxAnswers[question._id].length === 0;
+      } else {
+        return !answers[question._id] || answers[question._id].toString().trim() === "";
+      }
+    });
+
+    if (unanswered) {
+      toast.warning("Please answer all questions before submitting.");
+      return;
+    }
+
+    const questionsPayload = survey.questions.map((question) => {
+      if (question.type === "checkbox") {
+        return {
+          question: question._id,
+          answer: checkboxAnswers[question._id] || null,
+        };
+      } else if (question.type === "radio") {
+        return {
+          question: question._id,
+          answer: answers[question._id] || null,
+        };
+      } else {
+        return {
+          question: question._id,
+          answer: answers[question._id] || null,
+        };
+      }
+    });
+
+    const payload = {
+      questions: questionsPayload,
+    };
+
+    await submitAnswers({
+      path: `/surveys/responses/submit/${id}`,
+      body: payload,
+    }).unwrap();
+
+    toast.success("Survey submitted");
+
+    navigate("/survey");
+  } catch (error) {
+    toast.error("Error submitting survey");
+  }
+};
 
   if (isLoading) return <TakeSurveyLoading />;
   if (isError)
@@ -179,7 +193,6 @@ const TakeSurvey = () => {
         textAlign="left"
         fontWeight="700"
       >
-        {survey?.title}
         {survey.title
           ? survey.title.charAt(0).toUpperCase() + survey.title.slice(1)
           : ""}

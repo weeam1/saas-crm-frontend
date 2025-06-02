@@ -74,7 +74,7 @@ const AddListing = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  // Only call sub unit type API when a unit type is selected
+  // Fetch sub unit types only when a unit type is selected
   const { data: listingSubUnitType } = useFetchItemsQuery(
     selectedUnitType
       ? { path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}` }
