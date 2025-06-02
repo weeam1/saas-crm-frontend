@@ -76,60 +76,66 @@ const TakeSurvey = () => {
   };
 
   const handleSubmit = async () => {
-  try {
-    if (!survey || !survey.questions) {
-      throw new Error("Survey data is not available");
-    }
-
-    // Validate: all questions must be answered
-    const unanswered = survey.questions.some((question) => {
-      if (question.type === "checkbox") {
-        return !checkboxAnswers[question._id] || checkboxAnswers[question._id].length === 0;
-      } else {
-        return !answers[question._id] || answers[question._id].toString().trim() === "";
+    try {
+      if (!survey || !survey.questions) {
+        throw new Error("Survey data is not available");
       }
-    });
 
-    if (unanswered) {
-      toast.warning("Please answer all questions before submitting.");
-      return;
-    }
+      // Validate: all questions must be answered
+      const unanswered = survey.questions.some((question) => {
+        if (question.type === "checkbox") {
+          return (
+            !checkboxAnswers[question._id] ||
+            checkboxAnswers[question._id].length === 0
+          );
+        } else {
+          return (
+            !answers[question._id] ||
+            answers[question._id].toString().trim() === ""
+          );
+        }
+      });
 
-    const questionsPayload = survey.questions.map((question) => {
-      if (question.type === "checkbox") {
-        return {
-          question: question._id,
-          answer: checkboxAnswers[question._id] || null,
-        };
-      } else if (question.type === "radio") {
-        return {
-          question: question._id,
-          answer: answers[question._id] || null,
-        };
-      } else {
-        return {
-          question: question._id,
-          answer: answers[question._id] || null,
-        };
+      if (unanswered) {
+        toast.warning("Please answer all questions before submitting.");
+        return;
       }
-    });
 
-    const payload = {
-      questions: questionsPayload,
-    };
+      const questionsPayload = survey.questions.map((question) => {
+        if (question.type === "checkbox") {
+          return {
+            question: question._id,
+            answer: checkboxAnswers[question._id] || null,
+          };
+        } else if (question.type === "radio") {
+          return {
+            question: question._id,
+            answer: answers[question._id] || null,
+          };
+        } else {
+          return {
+            question: question._id,
+            answer: answers[question._id] || null,
+          };
+        }
+      });
 
-    await submitAnswers({
-      path: `/surveys/responses/submit/${id}`,
-      body: payload,
-    }).unwrap();
+      const payload = {
+        questions: questionsPayload,
+      };
 
-    toast.success("Survey submitted");
+      await submitAnswers({
+        path: `/surveys/responses/submit/${id}`,
+        body: payload,
+      }).unwrap();
 
-    navigate("/survey");
-  } catch (error) {
-    toast.error("Error submitting survey");
-  }
-};
+      toast.success("Survey submitted");
+
+      navigate("/survey");
+    } catch (error) {
+      toast.error("Error submitting survey");
+    }
+  };
 
   if (isLoading) return <TakeSurveyLoading />;
   if (isError)
@@ -227,7 +233,9 @@ const TakeSurvey = () => {
                     mb={2}
                     color="gray.700"
                   >
-                    {index + 1}. {question.text}
+                    {index + 1}.{" "}
+                    {question.text.charAt(0).toUpperCase() +
+                      question.text.slice(1).toLowerCase()}
                     {question.isRequired && (
                       <Text as="span" color="red.500" ml={1}>
                         *

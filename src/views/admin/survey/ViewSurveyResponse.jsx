@@ -135,7 +135,7 @@ const ViewSurveyResponse = () => {
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, currentUserId, survey, id]); 
+  }, [surveyResponse, currentUserId, survey, id]);
 
   const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
@@ -186,8 +186,8 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
-       refetch();
-        refetchResponse();
+      refetch();
+      refetchResponse();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
@@ -447,7 +447,9 @@ const ViewSurveyResponse = () => {
                           mb={2}
                           color="black"
                         >
-                          {index + 1}. {question.text}
+                          {index + 1}.
+                          {question.text.charAt(0).toUpperCase() +
+                            question.text.slice(1).toLowerCase()}
                         </FormLabel>
                         <FormControl mb={6}>
                           {question.type === "radio" && (
