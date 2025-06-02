@@ -12,9 +12,12 @@ import Card from 'components/card/Card.js';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 // Custom icons
 import React from 'react';
+import { formattedValue } from 'utils/helpers';
 
 export default function Default(props) {
 	const { startContent, endContent, name, growth, value, active } = props;
+
+	const formatValue = formattedValue(value);
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const textColorSecondary = 'secondaryGray.600';
 
@@ -61,8 +64,7 @@ export default function Default(props) {
 							base: '2xl',
 						}}
 					>
-						<CountUpComponent targetNumber={value} />
-						{/* {value} */}
+						<CountUpComponent targetNumber={formatValue} />
 					</StatNumber>
 
 					{growth ? (

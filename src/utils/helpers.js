@@ -130,3 +130,9 @@ export const BRAND_COLORS = [
 	'#D99A36',
 	'#B79045',
 ];
+
+export const formattedValue = (value, precision = 0) =>
+	Number(value).toLocaleString(undefined, {
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
