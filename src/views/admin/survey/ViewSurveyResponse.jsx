@@ -57,6 +57,7 @@ const ViewSurveyResponse = () => {
   const [evaluations, setEvaluations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
+  const [userPoints, setUserPoints] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
@@ -73,33 +74,32 @@ const ViewSurveyResponse = () => {
   const surveyData = survey?.doc;
   const invitedUsers = surveyData?.invitedUsers || [];
 
- const filteredUsers = invitedUsers
-  .filter((userData) =>
-    userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  .sort((a, b) => {
-    const totalQuestions = surveyData?.questionsCount || 0;
+  const filteredUsers = invitedUsers
+    .filter((userData) =>
+      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const totalQuestions = surveyData?.questionsCount || 0;
 
-    const aComplete = a.submittedQuestions === totalQuestions;
-    const bComplete = b.submittedQuestions === totalQuestions;
+      const aComplete = a.submittedQuestions === totalQuestions;
+      const bComplete = b.submittedQuestions === totalQuestions;
 
-    const aPoints = a.points || 0;
-    const bPoints = b.points || 0;
+      const aPoints = a.points || 0;
+      const bPoints = b.points || 0;
 
-    const getPriority = (complete, points) => {
-      if (complete && points > 0) return 1;
-      if (complete && points === 0) return 2;
-      return 3;
-    };
+      const getPriority = (complete, points) => {
+        if (complete && points > 0) return 1;
+        if (complete && points === 0) return 2;
+        return 3;
+      };
 
-    const aPriority = getPriority(aComplete, aPoints);
-    const bPriority = getPriority(bComplete, bPoints);
+      const aPriority = getPriority(aComplete, aPoints);
+      const bPriority = getPriority(bComplete, bPoints);
 
-    if (aPriority !== bPriority) return aPriority - bPriority;
+      if (aPriority !== bPriority) return aPriority - bPriority;
 
-    return bPoints - aPoints;
-  });
-
+      return bPoints - aPoints;
+    });
 
   useEffect(() => {
     if (filteredUsers.length > 0 && !currentUserId) {
@@ -135,7 +135,7 @@ const ViewSurveyResponse = () => {
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse, currentUserId, survey, evaluations]);
+  }, [surveyResponse, currentUserId, survey]); // <-- removed 'evaluations'
 
   const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
@@ -148,6 +148,14 @@ const ViewSurveyResponse = () => {
         updated = [...prev, { question: questionId, liked }];
       }
       setHasChangedEvaluation(true);
+
+      // Calculate new points for current user
+      const likeCount = updated.filter((e) => e.liked === true).length;
+      setUserPoints((prevPoints) => ({
+        ...prevPoints,
+        [currentUserId]: likeCount,
+      }));
+
       return updated;
     });
   };
@@ -178,7 +186,6 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
-      refetch();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
@@ -314,10 +321,12 @@ const ViewSurveyResponse = () => {
                 <Text fontSize="sm" color="gray.500">
                   {userData.user.roles[0]?.roleName || "User"}
                 </Text>
+
                 <Text fontSize={"sm"} color={"#FF0000"}>
-                  {userData?.points
-                    ? `${userData?.points}/${surveyData?.questionsCount}`
-                    : "pending"}
+                  {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
+                  0
+                    ? "Pending"
+                    : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
                 </Text>
               </Box>
               <Box
