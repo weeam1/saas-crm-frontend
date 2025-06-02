@@ -324,7 +324,7 @@ const ViewSurveyResponse = () => {
 
                 <Text fontSize={"sm"} color={"#FF0000"}>
                   {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
-                  0
+                  0 && userData?.status === "pending"
                     ? "Pending"
                     : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
                 </Text>
