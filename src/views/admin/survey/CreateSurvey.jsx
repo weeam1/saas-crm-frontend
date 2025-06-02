@@ -25,6 +25,7 @@ import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import Breadcrumb from "../../../components/shared/BreadCrumb";
 import { toast } from "react-toastify";
+import { getApi } from "services/api";
 
 const inputStyles = {
   fontSize: "sm",
@@ -45,7 +46,7 @@ const CreateSurvey = () => {
     managers = [],
     agents = [],
   } = useFetchUserHierarchy(user);
-
+  console.log("managers", managers);
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
   const toggleCalendar = (calendar) => {
@@ -80,12 +81,7 @@ const CreateSurvey = () => {
         } else if (values.selectedRole === "agents") {
           invitedUsers = agents.map((agent) => agent._id);
         } else if (values.selectedRole === "team" && values.selectedManager) {
-          const manager = managers.find(
-            (m) => m._id === values.selectedManager
-          );
-          if (manager) {
-            invitedUsers = [manager._id];
-          }
+          invitedUsers = formik.values.invitedUsers;
         }
 
         const payload = {
@@ -202,6 +198,28 @@ const CreateSurvey = () => {
       label: "Create Survey",
     },
   ];
+
+  const fetchManagerAgents = async (managerId) => {
+    try {
+      const apiUrl = `api/v2/user/hierarchy?managerId=${managerId}`;
+      const { data } = await getApi(apiUrl);
+
+      if (data.results > 0) {
+        const managerAgentsList = data?.doc?.map((agent) => agent._id);
+        formik.setFieldValue("invitedUsers", managerAgentsList);
+      } else {
+        formik.setFieldValue("invitedUsers", []);
+      }
+    } catch (error) {
+      formik.setFieldValue("invitedUsers", []);
+    }
+  };
+  const handleManagerChange = async (e) => {
+    const managerId = e.target.value;
+    formik.setFieldValue("selectedManager", managerId);
+    formik.setFieldValue("selectedRole", "team");
+    await fetchManagerAgents(managerId);
+  };
   return (
     <Box p={{ base: 1, md: 2 }}>
       <Breadcrumb items={items} />
@@ -316,12 +334,13 @@ const CreateSurvey = () => {
                       name="selectedManager"
                       placeholder="Select Team"
                       value={formik.values.selectedManager || ""}
-                      onChange={formik.handleChange}
+                      onChange={handleManagerChange}
                       onBlur={formik.handleBlur}
                       size="sm"
                       {...inputStyles}
                       width={"50%"}
                       mt={1}
+                      isDisabled={formik.values.selectedRole !== "team"}
                     >
                       {managers.map((manager) => (
                         <option key={manager._id} value={manager._id}>
