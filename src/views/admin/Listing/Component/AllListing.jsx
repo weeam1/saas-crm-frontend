@@ -352,7 +352,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         />
       </Box>
 
-      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+      <Box borderRadius="lg" boxShadow="sm" bg="white"  overflowY="auto">
         <Table variant="striped" size="lg">
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
