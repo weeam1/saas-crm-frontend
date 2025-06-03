@@ -359,7 +359,11 @@ const UnitType = () => {
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent
+          mx={{ base: 2, sm: 4, md: 8 }}
+          w={{ base: "95vw", sm: "90vw", md: "500px" }}
+          maxW="100vw"
+        >
           <ModalHeader>
             {isEditMode ? "Edit Main Unit Type" : "Add New Main Unit Type"}
           </ModalHeader>

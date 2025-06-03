@@ -413,7 +413,11 @@ const SubUnitType = () => {
         {/* Add/Edit Modal */}
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent
+            mx={{ base: 2, sm: 4, md: 8 }} 
+            w={{ base: "95vw", sm: "90vw", md: "500px" }} 
+            maxW="100vw"
+          >
             <ModalHeader>
               {isEditMode ? "Edit Unit Types" : "Add New Unit Types"}
             </ModalHeader>
@@ -501,6 +505,7 @@ const SubUnitType = () => {
 
         {/* Unit Type Modal */}
         <Modal
+        
           isOpen={isUnitTypeModalOpen}
           onClose={() => {
             setIsUnitTypeModalOpen(false);
@@ -509,7 +514,11 @@ const SubUnitType = () => {
           isCentered
         >
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent
+            mx={{ base: 2, sm: 4, md: 8 }} // Responsive horizontal margin
+            w={{ base: "95vw", sm: "90vw", md: "500px" }} // Responsive width
+            maxW="100vw"
+          >
             <ModalHeader>Create New Unit Type</ModalHeader>
             <ModalCloseButton
               onClick={() => {
