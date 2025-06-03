@@ -64,19 +64,21 @@ const Survey = () => {
 
       <Flex
         wrap="wrap"
-        justify={{ base: "center", md: "center", lg: "flex-start" }}
-        gap={{ base: 3, md: 10, lg: 15 }}
+        justify="flex-start"
+        gap={4}
         marginTop={{ base: 4, md: 6 }}
-        mx={{ base: "5px", sm: 20, md: 0 }} 
+        mx="auto"
+        width="100%"
+        maxWidth="1400px" // optional: controls max row width on very large screens
       >
         {isLoading || isFetching
           ? Array.from({ length: 6 }).map((_, idx) => (
               <Box
                 key={idx}
-                width={{ base: "100%", sm: "48%", md: "31%", lg: "23%" }}
-                minWidth="200px"
-                maxWidth="300px"
-                flex="1 1 1"
+                minWidth="240px"
+                maxWidth="1fr"
+                flex="1 1 240px"
+                mb={4}
               >
                 <SurveyCardLoading />
               </Box>
@@ -85,10 +87,10 @@ const Survey = () => {
             surveys?.doc?.surveys.map((survey) => (
               <Box
                 key={survey._id}
-                width={{ base: "80%", sm: "48%", md: "31%", lg: "23%" }}
-                minWidth="200px"
-                maxWidth="300px"
-                flex="1 1 1"
+                minWidth="240px"
+                maxWidth="1fr"
+                flex="1 1 240px"
+                mb={4}
               >
                 <SurveyCard
                   isActive={survey.status === "active"}

@@ -57,55 +57,61 @@ const FilterSearch = ({
           />
         </Box>
 
-        {/* Date Filters - Responsive and prevent calendar overflow */}
+        {/* Date Filters */}
 
         <Box
           display="flex"
-          flexDirection={{ base: "column", sm: "row" }}
-          alignItems="center"
+          flexDirection={{ base: "column", md: "row" }}
+          alignItems={{ base: "center", md: "flex-end" }}
           gap={2}
-          width={{ base: "100%", sm: "auto" }}
+          width={{ base: "100%", md: "auto" }}
           flexWrap="wrap"
-          justifyContent={{ base: "center", md: "flex-start" }}
+          justifyContent={{ base: "center", md: "flex-end" }}
           marginTop={{ base: 3, md: 0 }}
         >
-          <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
-            Date
-          </Text>
-          <Box minW="160px" maxW="200px">
-            <CustomDatePicker
-              selectedDate={startDate}
-              handleDateChange={setStartDate}
-              placeholder="Select start date"
-              maxDate={endDate || new Date()}
-              isCalendarOpen={openCalendar === "startFrom"}
-              toggleCalendar={() => toggleCalendar("startFrom")}
-              popperPlacement="bottom-start"
-              popperModifiers={[
-                {
-                  name: "preventOverflow",
-                  options: {
-                    boundary: "viewport",
-                    padding: 8,
+          {/* Date group */}
+          <Flex align="center" gap={1} mb={{ base: 2, md: 0 }}>
+            <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
+              Date
+            </Text>
+            <Box minW="160px" maxW="200px">
+              <CustomDatePicker
+                selectedDate={startDate}
+                handleDateChange={setStartDate}
+                placeholder="Select start date"
+                maxDate={endDate || new Date()}
+                isCalendarOpen={openCalendar === "startFrom"}
+                toggleCalendar={() => toggleCalendar("startFrom")}
+                popperPlacement="bottom-start"
+                popperModifiers={[
+                  {
+                    name: "preventOverflow",
+                    options: {
+                      boundary: "viewport",
+                      padding: 8,
+                    },
                   },
-                },
-              ]}
-            />
-          </Box>
-          <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
-            To
-          </Text>
-          <Box minW="160px" maxW="200px">
-            <CustomDatePicker
-              selectedDate={endDate}
-              handleDateChange={setEndDate}
-              placeholder="Select end date"
-              minDate={startDate}
-              maxDate={new Date()}
-              isCalendarOpen={openCalendar === "endDate"}
-              toggleCalendar={() => toggleCalendar("endDate")}
-            />
-          </Box>
+                ]}
+              />
+            </Box>
+          </Flex>
+          {/* To group */}
+          <Flex align="center" gap={1}>
+            <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
+              To
+            </Text>
+            <Box minW="160px" maxW="200px">
+              <CustomDatePicker
+                selectedDate={endDate}
+                handleDateChange={setEndDate}
+                placeholder="Select end date"
+                minDate={startDate}
+                maxDate={new Date()}
+                isCalendarOpen={openCalendar === "endDate"}
+                toggleCalendar={() => toggleCalendar("endDate")}
+              />
+            </Box>
+          </Flex>
         </Box>
       </Flex>
 
