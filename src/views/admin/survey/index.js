@@ -62,36 +62,30 @@ const Survey = () => {
       </Box>
       <NavigationLinks />
 
-      <Flex
-        wrap="wrap"
-        justify="flex-start"
+      <Box
+        display="grid"
+        gridTemplateColumns={{
+          base: "repeat(1, minmax(240px, 1fr))",
+          sm: "repeat(2, minmax(240px, 1fr))",
+          md: "repeat(4, minmax(240px, 1fr))",
+          lg: "repeat(5, minmax(240px, 1fr))",
+        }}
         gap={4}
         marginTop={{ base: 4, md: 6 }}
         mx="auto"
         width="100%"
-        maxWidth="1400px" // optional: controls max row width on very large screens
+        maxWidth="1400px"
+        justifyItems="center"
       >
         {isLoading || isFetching
           ? Array.from({ length: 6 }).map((_, idx) => (
-              <Box
-                key={idx}
-                minWidth="240px"
-                maxWidth="1fr"
-                flex="1 1 240px"
-                mb={4}
-              >
+              <Box key={idx} minWidth="240px" width="100%" mb={4}>
                 <SurveyCardLoading />
               </Box>
             ))
           : surveys?.doc?.surveys.length > 0 &&
             surveys?.doc?.surveys.map((survey) => (
-              <Box
-                key={survey._id}
-                minWidth="240px"
-                maxWidth="1fr"
-                flex="1 1 240px"
-                mb={4}
-              >
+              <Box key={survey._id} minWidth="240px" width="100%" mb={4}>
                 <SurveyCard
                   isActive={survey.status === "active"}
                   data={{
@@ -108,7 +102,7 @@ const Survey = () => {
                 />
               </Box>
             ))}
-      </Flex>
+      </Box>
     </>
   );
 };
