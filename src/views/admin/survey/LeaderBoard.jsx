@@ -381,23 +381,25 @@ const LeaderBoard = () => {
           </Thead>
 
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
+            <TableLoading columns={columns} length={7} py="2" />
           ) : (
             <Tbody>
               {leaderboardData?.doc?.leaderboard?.length > 0 ? (
                 leaderboardData.doc.leaderboard.map((item, index) => (
                   <Tr key={item._id}>
                     <Td
-                      py={4}
-                      fontSize={{ base: "md", md: "lg" }}
+                      py={2} 
+                      px={2} 
+                      fontSize={{ base: "sm", md: "md" }}
                       fontWeight="400"
-                      minWidth="100px"
+                      minWidth="40px"
                       textAlign={"center"}
+                      whiteSpace="nowrap"
                     >
                       {index + 1}
                     </Td>
-                    <Td textAlign="center" fontWeight="medium">
-                      <Flex alignItems="center" justifyContent="center" gap={2}>
+                    <Td fontWeight="medium" textAlign={"center"} whiteSpace="nowrap" px={2}>
+                      <Flex alignItems="center" gap={1}>
                         {item.profileImage ? (
                           <Avatar
                             size="sm"
@@ -408,16 +410,16 @@ const LeaderBoard = () => {
                           <Avatar size="sm" name={item.fullName} />
                         )}
                         <Box>
-                          <Text fontSize="sm" fontWeight="bold">
+                          <Text fontSize="sm" fontWeight="bold" whiteSpace="nowrap">
                             {item.fullName}
                           </Text>
-                          <Text fontSize="xs" color="gray.500">
+                          <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
                             {item.email}
                           </Text>
                         </Box>
                       </Flex>
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
                       {formatSurveyTaken(
                         item.completedSurveyCount,
                         item.invitedSurveyCount
@@ -436,32 +438,46 @@ const LeaderBoard = () => {
                       }
                       fontWeight="bold"
                       fontSize={{ base: "sm", md: "md" }}
+                      px={2}
+                      whiteSpace="nowrap"
                     >
-                      {item.avgScore ? `${item.avgScore}%` : "N/A"}
+                      {item.avgScore ? (
+                        `${item.avgScore}%`
+                      ) : (
+                        <Text fontSize="xs" color="gray.500">
+                         N/A
+                        </Text>
+                      )}
                     </Td>
-                    <Td textAlign="center" fontWeight="bold">
-                      <Badge
-                        colorScheme={
-                          item.rank === 1
-                            ? "red"
-                            : item.rank === 2
-                              ? "cyan"
-                              : item.rank === 3
-                                ? "green"
-                                : "gray"
-                        }
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                        fontSize={{ base: "sm", md: "md" }}
-                      >
-                        #{item.rank}
-                      </Badge>
+                    <Td textAlign="center" fontWeight="bold" px={2} whiteSpace="nowrap">
+                      {item?.totalScore > 0 ? (
+                        <Badge
+                          colorScheme={
+                            item.rank === 1
+                              ? "red"
+                              : item.rank === 2
+                                ? "cyan"
+                                : item.rank === 3
+                                  ? "green"
+                                  : "gray"
+                          }
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                          fontSize={{ base: "sm", md: "md" }}
+                        >
+                          #{item.rank}
+                        </Badge>
+                      ) : (
+                       <Text fontSize="xs" color="gray.500">
+                          N/A
+                        </Text>
+                      )}
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
                       {item.role}
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }}>
+                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
                       {item.agency}
                     </Td>
                   </Tr>

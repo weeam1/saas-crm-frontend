@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useDeleteItemMutation } from "api/apiSlice";
+import CustomTooltip from "../../../../components/shared/CustomTooltip";
 
 const SurveyCard = ({ data, isActive, refetch }) => {
   const navigate = useNavigate();
@@ -96,40 +97,38 @@ const SurveyCard = ({ data, isActive, refetch }) => {
   return (
     <>
       <Box
-        width={cardWidth}
-        minW="180px"
-        maxW="100%"
-        borderWidth="1px"
-        borderRadius="lg"
-        p={cardPadding}
-        mb={3}
-        bg="#FFFFFF"
-        position="relative"
-        boxShadow="sm"
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-      >
+      width="100%"
+      height="100%"
+      borderWidth="1px"
+      borderRadius="lg"
+      p={cardPadding}
+      bg="#FFFFFF"
+      position="relative"
+      boxShadow="sm"
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+    >
         <Box
           display="flex"
           justifyContent={isAdmin ? "space-between" : "flex-end"}
           alignItems="center"
           mb={2}
         >
-          <Tooltip
-            label={isActive ? "Active" : "Complete"}
-            fontSize="sm"
-            placement="top"
-            hasArrow
-          >
+          <CustomTooltip label={isActive ? "Active" : "Complete"}>
             <Box
               width="18px"
               height="18px"
+              minWidth="18px"
+              minHeight="18px"
               bg={isActive ? "green.600" : "red.600"}
               borderRadius="full"
               cursor="pointer"
-            ></Box>
-          </Tooltip>
+              tabIndex={0}
+              aria-label={isActive ? "Active" : "Complete"}
+            />
+          </CustomTooltip>
+
           {isAdmin && (
             <Tooltip
               label="Delete Survey"
@@ -165,7 +164,11 @@ const SurveyCard = ({ data, isActive, refetch }) => {
                 overflow: "hidden",
               }}
             >
-              {data.name || data.title}
+              {data.name
+                ? data.name.charAt(0).toUpperCase() + data.name.slice(1).toLowerCase()
+                : "" || data.title
+                  ? data.title.charAt(0).toUpperCase() + data.title.slice(1).toLowerCase()
+                  : ""}
             </Text>
           </Box>
           {data.description && (

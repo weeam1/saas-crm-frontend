@@ -67,6 +67,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
     "SR.No",
     "projectName",
     "Unit Type",
+    "Sub Unit Type",
     "Type",
     "Location",
     "Building Age",
@@ -370,6 +371,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
                     </Td>
                     <Td textAlign="center">
                       {listing.unitType?.name || "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.subUnitType?.name || "N/A"}
                     </Td>
                     <Td textAlign="center" minWidth="100px">
                       {listing.listingType?.name || "N/A"}

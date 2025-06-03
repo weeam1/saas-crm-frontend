@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
@@ -57,6 +57,7 @@ const ViewSurveyResponse = () => {
   const [evaluations, setEvaluations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
+  const [userPoints, setUserPoints] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
@@ -65,6 +66,7 @@ const ViewSurveyResponse = () => {
     isLoading: isLoadingSurvey,
     isError: isSurveyError,
     error: surveyError,
+    refetch,
   } = useFetchItemsQuery({
     path: `/surveys/${id}`,
   });
@@ -77,10 +79,28 @@ const ViewSurveyResponse = () => {
       userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
-      const aComplete = a.submittedQuestions === surveyData?.questionsCount;
-      const bComplete = b.submittedQuestions === surveyData?.questionsCount;
-      if (aComplete === bComplete) return 0;
-      return aComplete ? -1 : 1;
+      if (a.status === "completed" && b.status !== "completed") return -1;
+      if (b.status === "completed" && a.status !== "completed") return 1;
+      const totalQuestions = surveyData?.questionsCount || 0;
+
+      const aComplete = a.submittedQuestions === totalQuestions;
+      const bComplete = b.submittedQuestions === totalQuestions;
+
+      const aPoints = a.points || 0;
+      const bPoints = b.points || 0;
+
+      const getPriority = (complete, points) => {
+        if (complete && points > 0) return 1;
+        if (complete && points === 0) return 2;
+        return 3;
+      };
+
+      const aPriority = getPriority(aComplete, aPoints);
+      const bPriority = getPriority(bComplete, bPoints);
+
+      if (aPriority !== bPriority) return aPriority - bPriority;
+
+      return bPoints - aPoints;
     });
 
   useEffect(() => {
@@ -107,6 +127,7 @@ const ViewSurveyResponse = () => {
   const [createItemMutation] = useCreateItemMutation();
 
   useEffect(() => {
+    setEvaluations([]);
     if (surveyResponse?.doc) {
       const initialEvaluations =
         surveyResponse?.doc.questions?.map((question) => ({
@@ -116,9 +137,9 @@ const ViewSurveyResponse = () => {
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
     }
-  }, [surveyResponse]);
+  }, [surveyResponse, currentUserId, survey, id]);
 
-  const handleEvaluation = useCallback((questionId, liked) => {
+  const handleEvaluation = (questionId, liked) => {
     setEvaluations((prev) => {
       const existingIndex = prev.findIndex((e) => e.question === questionId);
       let updated;
@@ -129,9 +150,17 @@ const ViewSurveyResponse = () => {
         updated = [...prev, { question: questionId, liked }];
       }
       setHasChangedEvaluation(true);
+
+      // Calculate new points for current user
+      const likeCount = updated.filter((e) => e.liked === true).length;
+      setUserPoints((prevPoints) => ({
+        ...prevPoints,
+        [currentUserId]: likeCount,
+      }));
+
       return updated;
     });
-  }, []);
+  };
 
   const handleSubmitEvaluation = async () => {
     try {
@@ -150,7 +179,6 @@ const ViewSurveyResponse = () => {
       }).unwrap();
       toast.success("Evaluation submitted successfully");
       setHasChangedEvaluation(false);
-      // Update local state instead of refetching
       setEvaluations((prev) =>
         prev.map((evaluation) => ({
           ...evaluation,
@@ -160,20 +188,21 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
+      refetch();
+      refetchResponse();
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
     }
   };
 
-  const handleUserClick = useCallback(
-    (userId) => {
-      if (userId !== currentUserId) {
-        setCurrentUserId(userId);
-        onClose();
-      }
-    },
-    [currentUserId, onClose]
-  );
+  const handleUserClick = (userId) => {
+    if (userId !== currentUserId) {
+      setCurrentUserId(userId);
+      onClose();
+      refetchResponse();
+      refetch();
+    }
+  };
 
   if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
 
@@ -296,10 +325,12 @@ const ViewSurveyResponse = () => {
                 <Text fontSize="sm" color="gray.500">
                   {userData.user.roles[0]?.roleName || "User"}
                 </Text>
+
                 <Text fontSize={"sm"} color={"#FF0000"}>
-                  {userData?.submittedQuestions
-                    ? `${userData?.submittedQuestions}/${surveyData?.questionsCount}`
-                    : "pending"}
+                  {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
+                    0 && userData?.status === "pending"
+                    ? "Pending"
+                    : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
                 </Text>
               </Box>
               <Box
@@ -357,7 +388,7 @@ const ViewSurveyResponse = () => {
           >
             {surveyData.title
               ? surveyData.title.charAt(0).toUpperCase() +
-                surveyData.title.slice(1)
+                surveyData.title.slice(1).toLowerCase()
               : ""}
           </Heading>
 
@@ -389,7 +420,7 @@ const ViewSurveyResponse = () => {
               mx="auto"
               mt={8}
             >
-              {isResponseError && responseError?.status === 404 && (
+              {!surveyResponse?.doc && (
                 <Alert status="info" mb={6} borderRadius="md">
                   <AlertIcon />
                   This user hasn't submitted their survey response yet.
@@ -405,8 +436,8 @@ const ViewSurveyResponse = () => {
                   const currentEval = evaluations.find(
                     (e) => e.question === question._id
                   );
-
-                  if (isResponseError && responseError?.status === 404) {
+                  console.log("Current evaluation:", currentEval?.liked);
+                  if (!surveyResponse?.doc) {
                     return (
                       <Box
                         key={question._id}
@@ -418,7 +449,9 @@ const ViewSurveyResponse = () => {
                           mb={2}
                           color="black"
                         >
-                          {index + 1}. {question.text}
+                          {index + 1}.
+                          {question.text.charAt(0).toUpperCase() +
+                            question.text.slice(1).toLowerCase()}
                         </FormLabel>
                         <FormControl mb={6}>
                           {question.type === "radio" && (
@@ -510,7 +543,7 @@ const ViewSurveyResponse = () => {
                               boxSize={5}
                               color={
                                 currentEval?.liked === false
-                                  ? "red.500"
+                                  ? "red.400"
                                   : "gray.400"
                               }
                               cursor="pointer"
@@ -608,7 +641,7 @@ const ViewSurveyResponse = () => {
                       )
                     }
                   >
-                    Submit 
+                    Submit
                   </AppButton>
                 </Flex>
               )}

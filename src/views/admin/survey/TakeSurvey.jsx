@@ -81,6 +81,26 @@ const TakeSurvey = () => {
         throw new Error("Survey data is not available");
       }
 
+      // Validate: all questions must be answered
+      const unanswered = survey.questions.some((question) => {
+        if (question.type === "checkbox") {
+          return (
+            !checkboxAnswers[question._id] ||
+            checkboxAnswers[question._id].length === 0
+          );
+        } else {
+          return (
+            !answers[question._id] ||
+            answers[question._id].toString().trim() === ""
+          );
+        }
+      });
+
+      if (unanswered) {
+        toast.warning("Please answer all questions before submitting.");
+        return;
+      }
+
       const questionsPayload = survey.questions.map((question) => {
         if (question.type === "checkbox") {
           return {
@@ -179,7 +199,6 @@ const TakeSurvey = () => {
         textAlign="left"
         fontWeight="700"
       >
-        {survey?.title}
         {survey.title
           ? survey.title.charAt(0).toUpperCase() + survey.title.slice(1)
           : ""}
@@ -214,7 +233,9 @@ const TakeSurvey = () => {
                     mb={2}
                     color="gray.700"
                   >
-                    {index + 1}. {question.text}
+                    {index + 1}.{" "}
+                    {question.text.charAt(0).toUpperCase() +
+                      question.text.slice(1).toLowerCase()}
                     {question.isRequired && (
                       <Text as="span" color="red.500" ml={1}>
                         *

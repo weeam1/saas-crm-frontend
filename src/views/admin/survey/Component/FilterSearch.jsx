@@ -34,12 +34,16 @@ const FilterSearch = ({
     >
       <Flex
         direction={{ base: "column", md: "row" }}
-        justify="space-between"
-        align={{ base: "stretch", md: "center" }}
-        gap={{ base: 1, md: 1 }}
+        justify={{ base: "center", md: "space-between" }}
+        align={{ base: "center", md: "center" }}
+        gap={{ base: 3, md: 1 }}
         width="100%"
       >
-        <Box width={{ base: "100%", md: "auto" }}>
+        <Box
+          width={{ base: "100%", md: "auto" }}
+          display="flex"
+          justifyContent={{ base: "center", md: "flex-start" }}
+        >
           <TopPagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -53,30 +57,23 @@ const FilterSearch = ({
           />
         </Box>
 
-        {/* Date Filters - Responsive and prevent calendar overflow */}
-        <Flex
-          direction="row"
-          align="center"
-          gap={1}
+        {/* Date Filters */}
+
+        <Box
+          display="flex"
+          flexDirection={{ base: "column", md: "row" }}
+          alignItems={{ base: "center", md: "flex-end" }}
+          gap={2}
           width={{ base: "100%", md: "auto" }}
           flexWrap="wrap"
+          justifyContent={{ base: "center", md: "flex-end" }}
+          marginTop={{ base: 3, md: 0 }}
         >
-          <Text
-            fontSize="sm"
-            fontWeight="medium"
-            minW="max-content"
-            mr={2}
-            whiteSpace="nowrap"
-          >
-            Date
-          </Text>
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={2}
-            width={{ base: "100%", sm: "auto" }}
-            flexWrap="wrap"
-          >
+          {/* Date group */}
+          <Flex align="center" gap={1} mb={{ base: 2, md: 0 }}>
+            <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
+              Date
+            </Text>
             <Box minW="160px" maxW="200px">
               <CustomDatePicker
                 selectedDate={startDate}
@@ -97,6 +94,9 @@ const FilterSearch = ({
                 ]}
               />
             </Box>
+          </Flex>
+          {/* To group */}
+          <Flex align="center" gap={1}>
             <Text fontSize="sm" fontWeight="medium" textAlign="center" mx={1}>
               To
             </Text>
@@ -111,32 +111,33 @@ const FilterSearch = ({
                 toggleCalendar={() => toggleCalendar("endDate")}
               />
             </Box>
-          </Box>
-        </Flex>
+          </Flex>
+        </Box>
       </Flex>
+
       <Flex justifyContent={"flex-end"} mt={3}>
-         {/* Clear Button */}
-            {(endDate || startDate) && (
-              <Box>
-                <Text
-                  as="button"
-                  fontSize="sm"
-                  color="red.500"
-                  fontWeight="medium"
-                  px={3}
-                  py={1}
-                  borderRadius="md"
-                  _hover={{ bg: "red.50" }}
-                  onClick={() => {
-                    setStartDate(null);
-                    setEndDate(null);
-                  }}
-                >
-                  Clear
-                </Text>
-              </Box>
-            )}
-        </Flex>
+        {/* Clear Button */}
+        {(endDate || startDate) && (
+          <Box>
+            <Text
+              as="button"
+              fontSize="sm"
+              color="red.500"
+              fontWeight="medium"
+              px={3}
+              py={1}
+              borderRadius="md"
+              _hover={{ bg: "red.50" }}
+              onClick={() => {
+                setStartDate(null);
+                setEndDate(null);
+              }}
+            >
+              Clear
+            </Text>
+          </Box>
+        )}
+      </Flex>
     </Box>
   );
 };
