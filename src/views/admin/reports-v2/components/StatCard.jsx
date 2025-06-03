@@ -41,9 +41,7 @@ export const StatCard = ({
 		<Box
 			bg={bgColor}
 			p={5}
-			// boxShadow='base'
-			// border='1px solid'
-			// borderColor={borderColor}
+			shadow='sm'
 			rounded='lg'
 			whileHover={{ y: -2 }}
 			transition='all 0.2s ease'

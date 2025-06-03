@@ -3,13 +3,16 @@ import LeadStatusChart from './LeadStatusChart';
 import { useLeadReportFilters } from 'hooks/reports/useLeadReportFilters';
 import { useMemo, useState } from 'react';
 import LeadMainStatusChart from './LeadMainStatusChart';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
+import TopFilter from '../TopFilter';
+import { viewOptions } from '../../helpers';
+import CardShimmer from '../CardShimmer';
 
 const LeadFeedbacks = () => {
 	const { filters } = useLeadReportFilters();
 
 	const [view, setView] = useState('top5');
-
-	const viewOptions = ['top5', 'top10', 'all'];
 
 	// Inside your component
 	const queryParams = useMemo(() => {
@@ -24,7 +27,32 @@ const LeadFeedbacks = () => {
 		return params;
 	}, [filters.agentId, filters.managerId]);
 
-	return (
+	const { data: statusData, isLoading: statusLoading } = useFetchItemsQuery(
+		{
+			path: '/v2/reporting/feedbacks',
+			params: { ...queryParams, type: 'mainStatus' },
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
+
+	const { data: mainStatusData, isLoading: mainStatusLoading } =
+		useFetchItemsQuery(
+			{
+				path: '/v2/reporting/feedbacks',
+				params: { ...queryParams, type: 'mainStatus' },
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
+
+	return statusLoading || mainStatusLoading ? (
+		<Box w='full'>
+			<CardShimmer
+				count={2}
+				height='400px'
+				columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 2, '2xl': 2 }}
+			/>
+		</Box>
+	) : (
 		<Box bg='white' my='2' rounded='md' shadow='sm' p='4'>
 			<Flex
 				justify='space-between'
@@ -37,43 +65,7 @@ const LeadFeedbacks = () => {
 					Lead Feedbacks
 				</Text>
 
-				<Tabs
-					variant='soft-rounded'
-					colorScheme='brand'
-					index={viewOptions.indexOf(view)}
-					onChange={(index) => setView(viewOptions[index])}
-				>
-					<TabList>
-						{viewOptions.map((label, i) => (
-							<Tab
-								key={i}
-								sx={{
-									_hover: {
-										boxShadow: 'none',
-										outline: 'none',
-										border: 'none',
-									},
-									_focus: {
-										boxShadow: 'none',
-										outline: 'none',
-										border: 'none',
-									},
-									_focusVisible: {
-										boxShadow: 'none',
-										outline: 'none',
-										border: 'none',
-									},
-								}}
-							>
-								{label === 'top5'
-									? 'Top 5'
-									: label === 'top10'
-										? 'Top 10'
-										: 'All'}
-							</Tab>
-						))}
-					</TabList>
-				</Tabs>
+				<TopFilter view={view} setView={setView} options={viewOptions} />
 			</Flex>
 
 			<Stack
@@ -87,8 +79,13 @@ const LeadFeedbacks = () => {
 				align='stretch'
 				justify='space-between'
 			>
-				<LeadStatusChart queryParams={queryParams} view={view} />
-				<LeadMainStatusChart queryParams={queryParams} view={view} />
+				{statusData?.doc?.stats && (
+					<LeadStatusChart data={statusData?.doc?.stats} view={view} />
+				)}
+
+				{mainStatusData?.doc?.stats && (
+					<LeadMainStatusChart data={mainStatusData?.doc?.stats} view={view} />
+				)}
 			</Stack>
 		</Box>
 	);

@@ -11,31 +11,32 @@ import {
 } from 'recharts';
 import { BRAND_COLORS } from 'utils/helpers';
 import { getTopAgentsByNotes } from 'views/admin/reports-v2/helpers';
-import SafeResponsiveChart from './../SafeResponsiveChart';
 
 const TopAgentsByNotes = ({ agents }) => {
 	const topAgents = getTopAgentsByNotes(agents, 5);
 
 	// Format data for Recharts
-	const data = topAgents.map((agent, idx) => ({
-		name: agent.fullName,
-		Notes: agent.leadData?.totalNotes || 0,
-	}));
+	const data = topAgents
+		.filter((item) => item.leadData?.totalNotes !== 0)
+		.map((agent, idx) => ({
+			name: agent.fullName,
+			Notes: agent.leadData?.totalNotes || 0,
+		}));
 
 	return (
-		<Box bg='softGray.100' borderRadius='xl' boxShadow='sm' p={4}>
+		<Box bg='gray.100' borderRadius='xl' boxShadow='sm' p={4}>
 			<Text fontSize='lg' fontWeight='bold' mb={4}>
 				📝 Top Agents by Notes
 			</Text>
-			<SafeResponsiveChart height={180}>
+			<ResponsiveContainer width='99%' height={250}>
 				<BarChart
 					data={data}
 					layout='vertical'
 					margin={{ left: 2 }}
-					barSize='15'
+					barSize='18'
 				>
 					<XAxis type='number' fontSize='12px' />
-					<YAxis dataKey='name' type='category' width={180} fontSize='12px' />
+					<YAxis dataKey='name' type='category' width={150} fontSize='12px' />
 					<Tooltip />
 					<Bar dataKey='Notes' fill='#E5B668'>
 						{data.map((_, idx) => (
@@ -43,7 +44,7 @@ const TopAgentsByNotes = ({ agents }) => {
 						))}
 					</Bar>
 				</BarChart>
-			</SafeResponsiveChart>
+			</ResponsiveContainer>
 		</Box>
 	);
 };

@@ -6,21 +6,14 @@ import './../../styles/leadStatus.css';
 import PiChart from '../PiChart';
 import { getFilteredStats } from './../../helpers';
 import ActiveShapePieChart from '../ActiveShapePieChart';
+import NoData from 'components/Message/NoData';
 
-const LeadMainStatusChart = ({ queryParams, view }) => {
-	const { data, isLoading, isSuccess } = useFetchItemsQuery(
-		{
-			path: '/v2/reporting/feedbacks',
-			params: { ...queryParams, type: 'mainStatus' },
-		},
-		{ refetchOnMountOrArgChange: true }
-	);
-
+const LeadMainStatusChart = ({ data, view }) => {
 	const [processedData, setProcessedData] = useState([]);
 
 	useEffect(() => {
-		if (isSuccess && data?.doc?.stats) {
-			const filteredData = getFilteredStats(data.doc.stats, view);
+		if (data) {
+			const filteredData = getFilteredStats(data, view);
 			const total = filteredData.reduce((sum, d) => sum + d.value, 0);
 			const calculatedData = filteredData.map((item) => ({
 				...item,
@@ -28,28 +21,25 @@ const LeadMainStatusChart = ({ queryParams, view }) => {
 			}));
 			setProcessedData(calculatedData);
 		}
-	}, [data, isSuccess, view]);
+	}, [data, view]);
 
-	console.log(processedData);
-
-	return isLoading ? (
-		<Loader />
-	) : (
-		processedData && (
-			<Box
-				width='full'
-				p='2'
-				textAlign='center'
-				display='flex'
-				flexDirection='column'
-				alignItems='center'
-				justifyContent='center'
-			>
-				<Text fontWeight='bold'>Leads Main Status</Text>
-
+	return (
+		<Box
+			width='full'
+			p='2'
+			textAlign='center'
+			display='flex'
+			flexDirection='column'
+			alignItems='center'
+			justifyContent='center'
+		>
+			<Text fontWeight='bold'>Leads Main Status</Text>
+			{processedData?.length > 0 ? (
 				<ActiveShapePieChart data={processedData} />
-			</Box>
-		)
+			) : (
+				<NoData label='lead M status' />
+			)}
+		</Box>
 	);
 };
 

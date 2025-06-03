@@ -124,11 +124,11 @@ const merge = (left, right) => {
 };
 
 export const BRAND_COLORS = [
-	'#F5ECCB',
-	'#EDD199',
-	'#E5B668',
-	'#D99A36',
 	'#B79045',
+	'#D99A36',
+	'#E5B668',
+	'#EDD199',
+	'#F5ECCB',
 ];
 
 export const formattedValue = (value, precision = 0) =>

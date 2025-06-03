@@ -53,6 +53,7 @@ import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import CreateSurvey from 'views/admin/survey/CreateSurvey';
 import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
+import Report from 'views/admin/reports-v2';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -138,7 +139,8 @@ const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
 const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
 
 // const Report = React.lazy(() => import('views/admin/reports'));
-const Report = React.lazy(() => import('views/admin/reports-v2'));
+// const Report = React.lazy(() => import('views/admin/reports-v2'));
+
 const TeamDetailsScreen = React.lazy(
 	() =>
 		import(
@@ -769,20 +771,20 @@ const routes = [
 	// 	),
 	// 	component: DailyReport,
 	// },
-	// {
-	// 	name: 'Reports',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/reporting-analytics',
-	// 	icon: (
-	// 		<Icon
-	// 			as={MdInsertChartOutlined}
-	// 			width='20px'
-	// 			height='20px'
-	// 			color='inherit'
-	// 		/>
-	// 	),
-	// 	component: Report,
-	// },
+	{
+		name: 'Reports',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics',
+		icon: (
+			<Icon
+				as={MdInsertChartOutlined}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Report,
+	},
 	{
 		name: 'Team Details',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

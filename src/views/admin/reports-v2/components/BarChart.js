@@ -70,8 +70,16 @@ const BarChartComponent = ({
 				layout={layout}
 				margin={{ top: 10, right: 30, left: 30, bottom: 5 }}
 				barSize={barSize}
+				radius={[4, 4, 0, 0]}
+				animationDuration={1500}
 			>
-				{showGrid && <CartesianGrid strokeDasharray='3 3' />}
+				{showGrid && (
+					<CartesianGrid
+						strokeDasharray='3 3'
+						vertical={false}
+						stroke='#e2e8f0'
+					/>
+				)}
 				<XAxis
 					type={layout === 'vertical' ? 'number' : 'category'}
 					fontSize={XAxisFontSize}
@@ -81,7 +89,7 @@ const BarChartComponent = ({
 					dataKey={labelKey}
 					fontSize={YAxisFontSize}
 				/>
-				<Tooltip content={<CustomTooltip />} />
+				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
 				<Bar dataKey={dataKey}>
 					{data.map((entry, index) => (
 						<Cell
