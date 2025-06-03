@@ -11,7 +11,6 @@ import {
   Flex,
   Textarea,
   FormErrorMessage,
-  Text,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import AppButton from "components/shared/AppButton";
@@ -74,7 +73,6 @@ const AddListing = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  // Fetch sub unit types only when a unit type is selected
   const { data: listingSubUnitType } = useFetchItemsQuery(
     selectedUnitType
       ? { path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}` }
@@ -155,7 +153,7 @@ const AddListing = () => {
     const selected = unitTypes.find((type) => type._id === unitTypeId);
     setSelectedUnitType(selected);
     formik.setFieldValue("unitType", unitTypeId);
-    formik.setFieldValue("subUnitType", ""); // Reset subUnitType when unitType changes
+    formik.setFieldValue("subUnitType", ""); 
   };
 
   return (
@@ -220,7 +218,7 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
-        {/* Sub Unit Type (Conditional) */}
+        {/* Sub Unit Type */}
         {listingSubUnitType?.doc?.length > 0 && (
           <GridItem colSpan={1}>
             <FormControl

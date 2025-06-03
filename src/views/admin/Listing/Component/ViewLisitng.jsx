@@ -117,6 +117,7 @@ const ViewListing = () => {
     }
   };
 
+  console.log("listing", listing)
   return (
     <Box>
       <AppButton
@@ -168,7 +169,7 @@ const ViewListing = () => {
           <FormControl>
             <FormLabel fontWeight="bold">Unit Sub Type</FormLabel>
             <Input
-              value={listing.data?.unitType?.subType || "N/A"}
+              value={listing.data?.subUnitType?.name || "N/A"}
               readOnly
               variant="filled"
               focusBorderColor="brand.500"
