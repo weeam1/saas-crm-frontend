@@ -1,5 +1,7 @@
 import moment from 'moment';
 
+export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export const formattedDate = (_date) => {
 	if (_date === '') {
 		return '';
@@ -120,3 +122,17 @@ const merge = (left, right) => {
 
 	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
 };
+
+export const BRAND_COLORS = [
+	'#F5ECCB',
+	'#EDD199',
+	'#E5B668',
+	'#D99A36',
+	'#B79045',
+];
+
+export const formattedValue = (value, precision = 0) =>
+	Number(value).toLocaleString(undefined, {
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});

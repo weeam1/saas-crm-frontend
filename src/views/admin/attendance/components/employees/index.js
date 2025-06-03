@@ -21,6 +21,11 @@ const Employees = () => {
 		return localStorage.getItem('employeesView') || 'grid';
 	});
 
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+
 	const [viewLoading, setViewLoading] = useState(false);
 
 	const navigate = useNavigate();
@@ -166,6 +171,7 @@ const Employees = () => {
 				isFetching={isFetching}
 				viewLoading={viewLoading}
 				queryParams={queryParams}
+				loginRole={role}
 			/>
 		) : (
 			<EmployeesTable
@@ -174,6 +180,7 @@ const Employees = () => {
 				isFetching={isFetching}
 				viewLoading={viewLoading}
 				queryParams={queryParams}
+				loginRole={role}
 			/>
 		);
 

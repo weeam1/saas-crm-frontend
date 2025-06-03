@@ -296,6 +296,8 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 						: value;
 			}
 
+			if (key === 'intID') key = 'Lead ID';
+
 			tags.push(`${key}: ${displayValue}`);
 		});
 	}

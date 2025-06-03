@@ -18,7 +18,7 @@ export const genderOptions = [
 ];
 
 export const experienceYearsOptions = [
-	{ label: '0 Years', value: '0' },
+	{ label: 'Less then 1 Year', value: '0' },
 	{ label: '1 Year', value: '1' },
 	{ label: '2 Years', value: '2' },
 	{ label: '3 Years', value: '3' },

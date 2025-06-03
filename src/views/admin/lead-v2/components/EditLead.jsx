@@ -84,10 +84,37 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'adset', label: 'Adset', type: 'text' },
 	];
 
-	const allowedFields =
-		role === 'Agent' || role === 'Manager'
-			? fields.filter((field) => field.name === 'leadName')
-			: fields;
+	// role === 'Agent' || role === 'Manager'
+	// leadData?.oldPhoneNumber
+
+	const allowedFields = ['Agent', 'Manager'].includes(role)
+		? fields.filter((field) => field.name === 'leadName')
+		: fields;
+
+	// const allowedFields = (() => {
+	// 	if (!['Agent', 'Manager'].includes(role)) {
+	// 		return fields; // Return all fields for non-Agent/Manager roles
+	// 	}
+
+	// 	const baseFields = fields.filter((field) => field.name === 'leadName');
+
+	// 	// Add phone fields if oldPhoneNumber is null
+	// 	const phoneFields = !leadData?.oldPhoneNumber
+	// 		? fields.filter(
+	// 				(field) =>
+	// 					field.name === 'leadWhatsappNumber' ||
+	// 					field.name === 'leadPhoneNumber'
+	// 			)
+	// 		: [];
+
+	// 	// Add name field if leadEStatus is 'show'
+	// 	// const nameField =
+	// 	// 	leadData?.eLeadStatus === 'show'
+	// 	// 		? fields.filter((field) => field.name === 'leadName')
+	// 	// 		: [];
+
+	// 	return [...baseFields, ...phoneFields];
+	// })();
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
@@ -129,7 +156,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			isOpen={isOpen}
 			placement='right'
 			onClose={onClose}
-			size={allowedFields.length > 1 ? size : 'sm'}
+			size={allowedFields.length > 3 ? size : 'sm'}
 		>
 			<DrawerOverlay />
 			<DrawerContent>
@@ -146,14 +173,14 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 								<Grid
 									templateColumns={{
 										base: '1fr',
-										md: allowedFields.length > 1 ? 'repeat(3, 1fr)' : '1fr',
+										md: allowedFields.length > 3 ? 'repeat(3, 1fr)' : '1fr',
 									}}
 									gap={2}
 									w='full'
 									overflow='scroll'
 									height={{
-										base: allowedFields?.length > 1 ? '60vh' : '20vh',
-										md: allowedFields?.length > 1 ? '80vh' : '20vh',
+										base: allowedFields?.length > 3 ? '60vh' : 'fit-content',
+										md: allowedFields?.length > 3 ? '80vh' : 'fit-content',
 									}}
 									p='4'
 								>

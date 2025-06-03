@@ -5,12 +5,27 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Button, Flex, Box, IconButton, Skeleton } from '@chakra-ui/react';
 import { skipToken } from '@reduxjs/toolkit/query';
 
+function getValidRolesFromStorage() {
+	const stored = localStorage.getItem('roles');
+	if (!stored) return null;
+
+	try {
+		const parsed = JSON.parse(stored);
+		if (Date.now() > parsed.expiry) {
+			localStorage.removeItem('roles');
+			return null;
+		}
+		return parsed.roles;
+	} catch {
+		localStorage.removeItem('roles');
+		return null;
+	}
+}
+
 const RoleTabs = ({ updateFilters, key }) => {
 	const [searchParams] = useSearchParams();
 	const currentRole = searchParams.get('role') || 'All';
-	const [localRoles, setLocalRoles] = useState(() => {
-		return JSON.parse(localStorage.getItem('roles')) || null;
-	});
+	const [localRoles, setLocalRoles] = useState(null);
 
 	const shouldFetch = !localRoles;
 
@@ -20,9 +35,28 @@ const RoleTabs = ({ updateFilters, key }) => {
 		isSuccess,
 	} = useFetchItemsQuery(shouldFetch ? { path: '/role-access/v2' } : skipToken);
 
+	// useEffect(() => {
+	// 	if (isSuccess && roles) {
+	// 		localStorage.setItem('roles', JSON.stringify(roles));
+	// 		setLocalRoles(roles);
+	// 	}
+	// }, [isSuccess, roles]);
+
+	useEffect(() => {
+		const validRoles = getValidRolesFromStorage();
+		if (validRoles) {
+			setLocalRoles(validRoles);
+		}
+	}, []);
+
 	useEffect(() => {
 		if (isSuccess && roles) {
-			localStorage.setItem('roles', JSON.stringify(roles));
+			const expiryTime = Date.now() + 5 * 60 * 1000; // 5 min
+			const dataWithExpiry = {
+				roles,
+				expiry: expiryTime,
+			};
+			localStorage.setItem('roles', JSON.stringify(dataWithExpiry));
 			setLocalRoles(roles);
 		}
 	}, [isSuccess, roles]);

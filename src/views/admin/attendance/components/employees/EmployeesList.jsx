@@ -5,7 +5,14 @@ import EmployeeLoading from './EmployeeLoading';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
-const EmployeesList = ({ data, tab, isLoading, isFetching, queryParams }) => {
+const EmployeesList = ({
+	data,
+	tab,
+	isLoading,
+	isFetching,
+	queryParams,
+	loginRole,
+}) => {
 	const { data: officeSettings, isLoading: officeSettingsLoading } =
 		useFetchItemsQuery(
 			{ path: `/attendance/office-settings` },
@@ -32,6 +39,7 @@ const EmployeesList = ({ data, tab, isLoading, isFetching, queryParams }) => {
 							emp={emp}
 							tab={tab}
 							officeSettings={officeSettings?.doc}
+							loginRole={loginRole}
 						/>
 					))}
 				</Grid>

@@ -13,7 +13,7 @@ import UserLayout from 'layouts/user';
 import { ChakraProvider, ColorModeScript, Flex } from '@chakra-ui/react';
 import theme from 'theme/theme';
 import { ThemeEditorProvider } from '@hypertheme-editor/chakra-ui';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Provider, useSelector } from 'react-redux';
 import store from './redux/store';
@@ -35,6 +35,7 @@ import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
 import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
+import { getSmartTimezone } from 'hooks/useTimezone';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -42,16 +43,16 @@ function App() {
 	// chunk handler
 	useChunkErrorHandler();
 
+	useEffect(() => {
+		getSmartTimezone();
+	}, []);
+
 	const token = localStorage.getItem('token') || null;
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
-
-	// const assignedLeadMessage = (data) => {
-	// 	return ``;
-	// };
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
@@ -196,13 +197,6 @@ function App() {
 		return (
 			<>
 				<Notifications />
-
-				{/* {isPermissionModalOpen && (
-					<PermissionModal
-						isOpen={isPermissionModalOpen}
-						onClose={() => setIsPermissionModalOpen(false)}
-					/>
-				)} */}
 
 				{isModalOpen && (
 					<AnnouncementsModal

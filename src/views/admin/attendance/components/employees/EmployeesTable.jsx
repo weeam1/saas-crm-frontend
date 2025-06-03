@@ -19,7 +19,14 @@ import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import EmployeeAttendanceMark from './EmployeeAttendanceMark';
 
-const EmployeesTable = ({ data, tab, isLoading, isFetching, viewLoading }) => {
+const EmployeesTable = ({
+	data,
+	tab,
+	isLoading,
+	isFetching,
+	viewLoading,
+	loginRole,
+}) => {
 	const columns = [
 		'Employee',
 		'Email',
@@ -29,6 +36,10 @@ const EmployeesTable = ({ data, tab, isLoading, isFetching, viewLoading }) => {
 		'Attendance Mark',
 		'Action',
 	];
+
+	if (loginRole === 'Attendance') {
+		columns.splice(5, 1); // Remove 'Attendance Mark' column for Attendance role
+	}
 
 	const { data: officeSettings, isLoading: officeSettingsLoading } =
 		useFetchItemsQuery(
@@ -155,17 +166,19 @@ const EmployeesTable = ({ data, tab, isLoading, isFetching, viewLoading }) => {
 											{emp.agencyName ?? 'N/A'}
 										</Td>
 
-										<Td py='4' textAlign='center'>
-											{agencyId ? (
-												<EmployeeAttendanceMark
-													employeeId={emp._id}
-													todayRecord={emp.todayAttendanceRecord}
-													officeSetting={officeSetting}
-												/>
-											) : (
-												agencyNotFound
-											)}
-										</Td>
+										{['superAdmin', 'HR'].includes(loginRole) && (
+											<Td py='4' textAlign='center'>
+												{agencyId ? (
+													<EmployeeAttendanceMark
+														employeeId={emp._id}
+														todayRecord={emp.todayAttendanceRecord}
+														officeSetting={officeSetting}
+													/>
+												) : (
+													agencyNotFound
+												)}
+											</Td>
+										)}
 
 										<Td py={4} textAlign='center'>
 											<Button

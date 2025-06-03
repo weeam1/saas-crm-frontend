@@ -545,7 +545,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 											height='40px'
 										/>
 									</GridItem>
-									<GridItem colSpan={{ base: 12, md: 6 }}>
+									{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 										<FormLabel
 											fontSize='14px'
 											fontWeight='medium'
@@ -566,7 +566,7 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 											borderRadius='6px'
 											height='40px'
 										/>
-									</GridItem>
+									</GridItem> */}
 								</Grid>
 							</form>
 						)}
