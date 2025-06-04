@@ -1,22 +1,29 @@
-'use client';
-
-import { useEffect, useRef, useState } from 'react';
+import moment from 'moment';
+import { useEffect, useMemo, useState } from 'react';
+import { FaClock, FaPhoneAlt, FaHourglassHalf } from 'react-icons/fa';
 import {
 	Box,
 	Flex,
-	Heading,
 	Text,
-	Select,
 	useColorModeValue,
-	HStack,
-	VStack,
-	Square,
+	SimpleGrid,
 } from '@chakra-ui/react';
-import Chart from 'chart.js/auto';
-import moment from 'moment';
-import { fetchTotalTimeCallsRecordStats } from '../../../../../services/sip/index';
+import {
+	Bar,
+	Line,
+	XAxis,
+	YAxis,
+	Tooltip,
+	ResponsiveContainer,
+	Legend,
+	CartesianGrid,
+	ComposedChart,
+} from 'recharts';
+import { fetchTotalTimeCallsRecordStats } from 'services/sip/index';
+
 import TopFilter from '../TopFilter';
 import { dayOptions } from '../../helpers';
+import { StatCard } from '../StatCard';
 
 const formatSeconds = (seconds) => {
 	const hrs = Math.floor(seconds / 3600);
@@ -25,108 +32,28 @@ const formatSeconds = (seconds) => {
 	return `${hrs > 0 ? `${hrs} hrs ` : ''}${mins} min${secs > 0 ? ` ${secs}s` : ''}`;
 };
 
+const CustomTooltip = ({ active, payload, label }) => {
+	if (!active || !payload || payload.length === 0) return null;
+	return (
+		<Box bg='white' p={4} rounded='md' shadow='md' border='1px solid #e2e8f0'>
+			<Text fontWeight='bold'>{label}</Text>
+			{payload.map((entry, index) => (
+				<Text key={index} color={entry.color} fontSize='sm'>
+					{entry.name}: {Math.round(entry.value)}
+				</Text>
+			))}
+		</Box>
+	);
+};
+
 const CallsReport = () => {
 	const [days, setDays] = useState(30);
 	const [uniqueCalls, setUniqueCalls] = useState(0);
 	const [avgMinutes, setAvgMinutes] = useState(0);
 	const [totalSeconds, setTotalSeconds] = useState(0);
-	const [chartData, setChartData] = useState({
-		labels: [],
-		totalTime: [],
-		uniqueCalls: [],
-	});
+	const [chartData, setChartData] = useState([]);
 
 	const bgColor = useColorModeValue('white', 'gray.800');
-	const chartRef = useRef(null);
-	const chartInstance = useRef(null);
-
-	const updateChart = (data) => {
-		const labels = data.daily.map((d) => moment(d.date).format('MMMM D'));
-		const totalTime = data.daily.map(
-			(d) => parseFloat(d.duration.replace('s', '')) / 60
-		); // in minutes
-		const uniqueCalls = data.daily.map((d) => d.joinedCount);
-
-		setChartData({ labels, totalTime, uniqueCalls });
-
-		if (chartInstance.current) {
-			chartInstance.current.destroy();
-		}
-
-		const ctx = chartRef.current.getContext('2d');
-		chartInstance.current = new Chart(ctx, {
-			type: 'bar',
-			data: {
-				labels,
-				datasets: [
-					{
-						label: 'Total Time (minutes)',
-						data: totalTime,
-						backgroundColor: '#4299E1',
-						barPercentage: 0.5,
-						categoryPercentage: 0.5,
-						order: 2,
-						yAxisID: 'y',
-					},
-					{
-						label: 'Unique Calls',
-						data: uniqueCalls,
-						borderColor: '#38A169',
-						backgroundColor: 'transparent',
-						borderWidth: 2,
-						type: 'line',
-						pointRadius: 0,
-						tension: 0,
-						order: 2,
-						yAxisID: 'y1',
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					x: {
-						grid: { display: false, drawBorder: false },
-						ticks: {
-							font: { size: 12 },
-							padding: 10,
-							autoSkip: false,
-							maxRotation: 25,
-							minRotation: 25,
-						},
-						border: { display: false },
-					},
-					y: {
-						position: 'left',
-						beginAtZero: true,
-						suggestedMax: Math.max(...totalTime) + 10 || 10,
-						ticks: {
-							stepSize: 5,
-							callback: (value) => value,
-						},
-						grid: { color: '#E2E8F0', drawBorder: false },
-						border: { display: false },
-					},
-					y1: {
-						position: 'right',
-						beginAtZero: true,
-						suggestedMax: Math.max(...uniqueCalls) + 15 || 15,
-						ticks: {
-							stepSize: 10,
-							callback: (value) => value,
-						},
-						grid: { display: false, drawBorder: false },
-						border: { display: false },
-					},
-				},
-				plugins: {
-					legend: { display: false },
-					tooltip: { enabled: true },
-				},
-			},
-		});
-	};
 
 	useEffect(() => {
 		const getData = async () => {
@@ -138,18 +65,48 @@ const CallsReport = () => {
 					data.allTime.duration.replace('s', '')
 				);
 				setTotalSeconds(durationInSeconds);
-				updateChart(data);
+
+				const transformedData = data.daily.map((d) => ({
+					date: moment(d.date).format('MMM D'),
+					totalTime: parseFloat(d.duration.replace('s', '')) / 60,
+					uniqueCalls: d.joinedCount,
+				}));
+
+				setChartData(transformedData);
 			} catch (error) {
 				console.error('Error loading chart data:', error);
 			}
 		};
 
 		getData();
-
-		return () => {
-			if (chartInstance.current) chartInstance.current.destroy();
-		};
 	}, [days]);
+
+	const statusData = useMemo(
+		() => [
+			{
+				label: 'Total Time',
+				valueKey: 'totalTime',
+				icon: FaClock,
+				color: 'blue',
+				value: formatSeconds(totalSeconds),
+			},
+			{
+				label: 'Unique Calls',
+				valueKey: 'uniqueCalls',
+				icon: FaPhoneAlt,
+				color: 'green',
+				value: uniqueCalls,
+			},
+			{
+				label: 'Avg Call Duration',
+				valueKey: 'avgCallDuration',
+				icon: FaHourglassHalf,
+				color: 'purple',
+				value: formatSeconds(avgMinutes * 60),
+			},
+		],
+		[totalSeconds, uniqueCalls, avgMinutes]
+	);
 
 	return (
 		<Box p={8} bg={bgColor} rounded='md' shadow='sm'>
@@ -161,42 +118,68 @@ const CallsReport = () => {
 				<TopFilter view={days} setView={setDays} options={dayOptions} />
 			</Flex>
 
-			<Flex justify='space-between' mb={10} wrap='wrap'>
-				<VStack align='flex-start' spacing={1} minW='200px' mb={4}>
-					<HStack>
-						<Square size='16px' bg='blue.400' />
-						<Text color='gray.600' fontWeight='medium'>
-							Total Time
-						</Text>
-					</HStack>
-					<Text fontSize='2xl' fontWeight='bold'>
-						{formatSeconds(totalSeconds)}
-					</Text>
-				</VStack>
+			<SimpleGrid
+				px='6'
+				py='2'
+				columns={{ base: 1, sm: 1, md: 3 }}
+				spacing={6}
+				width='100%'
+			>
+				{statusData.map((item, index) => (
+					<StatCard
+						key={index}
+						title={item.label}
+						value={item.value}
+						icon={item.icon}
+						colorScheme={item.color}
+					/>
+				))}
+			</SimpleGrid>
 
-				<VStack align='flex-start' spacing={1} minW='200px' mb={4}>
-					<HStack>
-						<Box w='16px' h='2px' bg='green.400' my='auto' />
-						<Text color='gray.600' fontWeight='medium'>
-							Unique Calls
-						</Text>
-					</HStack>
-					<Text fontSize='2xl' fontWeight='bold'>
-						{uniqueCalls}
-					</Text>
-				</VStack>
-				<VStack align='flex-start' spacing={1} minW='200px' mb={4}>
-					<Text color='gray.600' fontWeight='medium'>
-						Average Call Duration
-					</Text>
-					<Text fontSize='2xl' fontWeight='bold'>
-						{formatSeconds(avgMinutes * 60)}
-					</Text>
-				</VStack>
-			</Flex>
-
-			<Box h='300px' w='100%'>
-				<canvas ref={chartRef} />
+			<Box h='450px' w='100%'>
+				<ResponsiveContainer width='100%' height='100%'>
+					<ComposedChart
+						data={chartData}
+						margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+					>
+						<CartesianGrid strokeDasharray='3 3' stroke='#e2e8f0' />
+						<XAxis
+							dataKey='date'
+							angle={-30}
+							fontSize='12px'
+							textAnchor='end'
+							height={60}
+							tick={{ fill: '#4a5568' }}
+						/>
+						<YAxis yAxisId='left' fontSize='12px' tick={{ fill: '#4a5568' }} />
+						<YAxis
+							yAxisId='right'
+							fontSize='12px'
+							orientation='right'
+							tick={{ fill: '#4a5568' }}
+						/>
+						<Tooltip content={<CustomTooltip />} />
+						<Legend />
+						<Bar
+							yAxisId='left'
+							dataKey='totalTime'
+							fill='#4299E1'
+							name='Total Time (min)'
+							barSize={25}
+							radius={[4, 4, 0, 0]}
+							animationDuration={1500}
+						/>
+						<Line
+							yAxisId='right'
+							type='monotone'
+							dataKey='uniqueCalls'
+							stroke='#38A169'
+							name='Unique Calls'
+							strokeWidth={2}
+							dot={true}
+						/>
+					</ComposedChart>
+				</ResponsiveContainer>
 			</Box>
 		</Box>
 	);

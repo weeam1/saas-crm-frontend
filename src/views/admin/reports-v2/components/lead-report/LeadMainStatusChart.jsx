@@ -1,9 +1,6 @@
-import { Box, Flex, Text, Circle } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import './../../styles/leadStatus.css';
-import PiChart from '../PiChart';
+
 import { getFilteredStats } from './../../helpers';
 import ActiveShapePieChart from '../ActiveShapePieChart';
 import NoData from 'components/Message/NoData';
@@ -28,12 +25,19 @@ const LeadMainStatusChart = ({ data, view }) => {
 			width='full'
 			p='2'
 			textAlign='center'
-			display='flex'
 			flexDirection='column'
 			alignItems='center'
 			justifyContent='center'
 		>
-			<Text fontWeight='bold'>Leads Main Status</Text>
+			<Text
+				fontSize='sm'
+				textAlign='center'
+				color='gray.600'
+				fontWeight='bold'
+				mb='8'
+			>
+				Leads Main Status
+			</Text>
 			{processedData?.length > 0 ? (
 				<ActiveShapePieChart data={processedData} />
 			) : (

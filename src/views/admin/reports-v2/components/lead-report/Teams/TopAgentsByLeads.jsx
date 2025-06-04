@@ -1,16 +1,7 @@
 import { Box, Text } from '@chakra-ui/react';
 
-import {
-	BarChart,
-	Bar,
-	XAxis,
-	YAxis,
-	Tooltip,
-	Cell,
-	ResponsiveContainer,
-} from 'recharts';
-import { BRAND_COLORS } from 'utils/helpers';
 import { getTopAgentsByLeads } from 'views/admin/reports-v2/helpers';
+import HorizontalSummaryChart from './HorizontalSummaryChart';
 
 const TopAgentsByLeads = ({ agents }) => {
 	const topAgents = getTopAgentsByLeads(agents, 5);
@@ -28,7 +19,8 @@ const TopAgentsByLeads = ({ agents }) => {
 			<Text fontSize='lg' fontWeight='bold' mb={4}>
 				📊 Top Agents by Leads
 			</Text>
-			<ResponsiveContainer width='99%' height={250}>
+			<HorizontalSummaryChart data={data} type='Leads' />;
+			{/* <ResponsiveContainer width='99%' height={250}>
 				<BarChart
 					data={data}
 					layout='vertical'
@@ -44,7 +36,7 @@ const TopAgentsByLeads = ({ agents }) => {
 						))}
 					</Bar>
 				</BarChart>
-			</ResponsiveContainer>
+			</ResponsiveContainer> */}
 		</Box>
 	);
 };

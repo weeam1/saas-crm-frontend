@@ -12,6 +12,7 @@ import {
 import { useFetchItemsQuery } from 'api/apiSlice';
 import DashboardShimmer from 'views/admin/attendance/components/dashboard/DashboardShimmer';
 import AttendanceStats from './AttendanceStats';
+import AttendanceRoleChart from './AttendanceRoleChart';
 
 const AttendanceReport = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
@@ -210,6 +211,7 @@ const AttendanceReport = () => {
 					Attendance Report
 				</Text>
 				<AttendanceStats
+					data={data}
 					stats={stats}
 					lineChartData={lineChartData}
 					lineChartOptions={lineChartOptions}

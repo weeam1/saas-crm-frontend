@@ -5,7 +5,6 @@ import {
 	YAxis,
 	CartesianGrid,
 	Tooltip,
-	Legend,
 	ResponsiveContainer,
 	Cell,
 	LabelList,
@@ -38,7 +37,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const HiringSummaryBarChart = ({ data }) => {
-	// Custom colors for each bar
 	const colors = ['#3182ce', '#38a169', '#dd6b20'];
 
 	return (

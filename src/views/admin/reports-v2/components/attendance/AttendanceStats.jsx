@@ -7,14 +7,19 @@ import {
 	Grid,
 	Button,
 	ButtonGroup,
+	Divider,
 } from '@chakra-ui/react';
 import { IoIosAddCircleOutline } from 'react-icons/io';
 import { FaArrowTrendUp } from 'react-icons/fa6';
 import { IoMdTrendingDown } from 'react-icons/io';
 import Chart from 'react-apexcharts';
 import { Link as RouterLink } from 'react-router-dom';
+import AttendanceRoleChart from './AttendanceRoleChart';
+import AttendanceAreaChart from './AttendanceAreaChart';
 
 const AttendanceStats = ({
+	data,
+	attendanceStats,
 	stats,
 	barChartOptions,
 	barChartData,
@@ -173,7 +178,7 @@ const AttendanceStats = ({
 					))}
 				</SimpleGrid>
 				<Box py={6}>
-					<Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+					{/* <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
 						<Box bg='white' p={6} borderRadius='lg' shadow='md'>
 							<Flex justify='space-between' align='center' mb={4}>
 								<Text fontSize='lg' fontWeight='bold'>
@@ -224,7 +229,10 @@ const AttendanceStats = ({
 								height={300}
 							/>
 						</Box>
-					</Grid>
+					</Grid> */}
+					<AttendanceRoleChart data={data} />
+					<Divider color='gray.800' my='2' size='md' />
+					<AttendanceAreaChart />
 				</Box>
 			</Box>
 		</>

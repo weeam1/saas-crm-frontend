@@ -22,6 +22,7 @@ import {
 	PieChart,
 	Pie,
 	Cell,
+	LabelList,
 } from 'recharts';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
@@ -159,23 +160,34 @@ export default function LeadsCharts() {
 								Lead Analytics Comparison
 							</Text>
 							<SafeResponsiveChart>
-								<BarChart
-									data={chartData.analytics}
-									barSize={30}
-									radius={[4, 4, 0, 0]}
-									animationDuration={1500}
-								>
+								<BarChart data={chartData.analytics} barSize={30}>
 									<CartesianGrid
 										strokeDasharray='3 3'
 										vertical={false}
 										stroke='#e2e8f0'
 									/>
 									<XAxis dataKey='label' fontSize='12px' />
-									<YAxis allowDecimals={false} fontSize='12px' />
+									<YAxis
+										allowDecimals={false}
+										fontSize='12px'
+										domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
+									/>
 									<Tooltip cursor={{ fill: '#ebf8ff' }} />
 									<Legend />
-									<Bar dataKey='current' fill='#D99A36' name='Current' />
-									<Bar dataKey='previous' fill='#EDD199' name='Previous' />
+									<Bar
+										dataKey='current'
+										fill='#D99A36'
+										name='Current'
+										radius={[4, 4, 0, 0]}
+										animationDuration={1500}
+									></Bar>
+									<Bar
+										dataKey='previous'
+										fill='#EDD199'
+										name='Previous'
+										radius={[4, 4, 0, 0]}
+										animationDuration={1500}
+									></Bar>
 								</BarChart>
 							</SafeResponsiveChart>
 						</Box>
@@ -207,8 +219,20 @@ export default function LeadsCharts() {
 									<YAxis allowDecimals={false} fontSize='12px' />
 									<Tooltip cursor={{ fill: '#ebf8ff' }} />
 									<Legend />
-									<Bar dataKey='current' fill='#D99A36' name='Current' />
-									<Bar dataKey='previous' fill='#EDD199' name='Previous' />
+									<Bar
+										dataKey='current'
+										fill='#D99A36'
+										name='Current'
+										radius={[4, 4, 0, 0]}
+										animationDuration={1500}
+									/>
+									<Bar
+										dataKey='previous'
+										fill='#EDD199'
+										name='Previous'
+										radius={[4, 4, 0, 0]}
+										animationDuration={1500}
+									/>
 								</BarChart>
 							</SafeResponsiveChart>
 						</Box>

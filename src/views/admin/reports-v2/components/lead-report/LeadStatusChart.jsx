@@ -1,10 +1,9 @@
 import { Box, Text } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
+
 import { getFilteredStats } from './../../helpers';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import BarChartComponent from '../BarChart';
 import NoData from 'components/Message/NoData';
+import StatusBarChart from '../StatusBarChart';
 
 const LeadStatusChart = ({ data, queryParams, view }) => {
 	const [processedData, setProcessedData] = useState([]);
@@ -21,8 +20,6 @@ const LeadStatusChart = ({ data, queryParams, view }) => {
 		}
 	}, [data, view]);
 
-	console.log(processedData);
-
 	return (
 		<Box
 			p='2'
@@ -33,15 +30,21 @@ const LeadStatusChart = ({ data, queryParams, view }) => {
 			alignItems='center'
 			justifyContent='center'
 		>
-			<Text fontWeight='bold' mb={8}>
+			<Text
+				fontSize='sm'
+				textAlign='center'
+				color='gray.600'
+				fontWeight='bold'
+				mb='2'
+			>
 				Leads Status
 			</Text>
 
 			<Box w='100%'>
 				{processedData?.length > 0 ? (
-					<BarChartComponent
+					<StatusBarChart
 						data={processedData}
-						containerHeight={250}
+						containerHeight={350}
 						barSize={25}
 						layout='vertical'
 						showGrid
