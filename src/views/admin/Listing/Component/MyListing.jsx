@@ -53,6 +53,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const [selectedListing, setSelectedListing] = useState(null);
   const notesModalDisclosure = useDisclosure();
   const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "superAdmin";
+
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -306,12 +308,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        overflowY="auto"
-      >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"
@@ -472,10 +469,41 @@ const MyListing = ({ listingType, listingUnitType }) => {
                               "rejected",
                               "active",
                               "inactive",
+                              "draft",
                             ].includes(listing.status)
                           }
                         >
                           <option value="pending">Pending</option>
+                          <option value="draft">Draft</option>
+                        </Select>
+                      ) : listing.status === "draft" ? (
+                        <Select
+                          value={listing.status}
+                          colorScheme="green"
+                          size="sm"
+                          width="150px"
+                          focusBorderColor="brand.500"
+                          bg={getStatusColor(listing.status) + ".100"}
+                          color={getStatusColor(listing.status) + ".800"}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              listing._id,
+                              e.target.value,
+                              listing.status
+                            )
+                          }
+                          isDisabled={
+                            ![
+                              "approved",
+                              "rejected",
+                              "active",
+                              "inactive",
+                              "draft",
+                            ].includes(listing.status)
+                          }
+                        >
+                          <option value={isAdmin ?"active":"pending"}>Publish</option>
+                          <option value="draft">Draft</option>
                         </Select>
                       ) : (
                         <Switch

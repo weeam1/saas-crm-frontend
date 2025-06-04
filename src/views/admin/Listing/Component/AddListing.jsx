@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { skipToken } from '@reduxjs/toolkit/query';
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const validationSchema = Yup.object().shape({
   projectName: Yup.string().required("Project Name is required"),
@@ -49,9 +49,9 @@ const validationSchema = Yup.object().shape({
   developer: Yup.string().required("Developer is required"),
   ownerName: Yup.string().required("Owner name is required"),
   ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
-  subUnitType: Yup.string().when('$isSubUnitTypeRequired', {
+  subUnitType: Yup.string().when("$isSubUnitTypeRequired", {
     is: true,
-    then: (schema) => schema.required('Sub Unit Type is required'),
+    then: (schema) => schema.required("Sub Unit Type is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
 });
@@ -60,6 +60,7 @@ const AddListing = () => {
   const [files, setFiles] = useState([]);
   const [unitTypes, setUnitTypes] = useState([]);
   const [selectedUnitType, setSelectedUnitType] = useState(null);
+  const [loadingButton, setLoadingButton] = useState(null); 
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
 
@@ -75,7 +76,9 @@ const AddListing = () => {
 
   const { data: listingSubUnitType } = useFetchItemsQuery(
     selectedUnitType
-      ? { path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}` }
+      ? {
+          path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}`,
+        }
       : skipToken,
     { refetchOnMountOrArgChange: true, skip: !user._id || !selectedUnitType }
   );
@@ -110,6 +113,7 @@ const AddListing = () => {
       ownerName: "",
       ownerPhoneNumber: "",
       subUnitType: "",
+      status:""
     },
     validationSchema,
     validateOnChange: true,
@@ -153,7 +157,14 @@ const AddListing = () => {
     const selected = unitTypes.find((type) => type._id === unitTypeId);
     setSelectedUnitType(selected);
     formik.setFieldValue("unitType", unitTypeId);
-    formik.setFieldValue("subUnitType", ""); 
+    formik.setFieldValue("subUnitType", "");
+  };
+
+  const handleSubmitWithStatus = async (status) => {
+    setLoadingButton(status);
+    await formik.setFieldValue("status", status);
+    await formik.submitForm();
+    setLoadingButton(null);
   };
 
   return (
@@ -222,7 +233,9 @@ const AddListing = () => {
         {listingSubUnitType?.doc?.length > 0 && (
           <GridItem colSpan={1}>
             <FormControl
-              isInvalid={formik.touched.subUnitType && formik.errors.subUnitType}
+              isInvalid={
+                formik.touched.subUnitType && formik.errors.subUnitType
+              }
             >
               <FormLabel>Sub Unit Type</FormLabel>
               <Select
@@ -313,14 +326,14 @@ const AddListing = () => {
         {/* Price */}
         <GridItem colSpan={1}>
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
-            <FormLabel>Price</FormLabel>
+            <FormLabel>Selling Price</FormLabel>
             <Input
               type="number"
               name="price"
               value={formik.values.price}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter price"
+              placeholder="Enter selling price"
               focusBorderColor="brand.500"
               min="0"
             />
@@ -508,15 +521,25 @@ const AddListing = () => {
 
         {/* Submit Button */}
         <GridItem colSpan={2}>
-          <Flex justify="flex-end">
+          <Flex justify="flex-end" gap={4}>
             <Button
-              type="submit"
-              colorScheme="brand"
-              isLoading={formik.isSubmitting}
-              loadingText="Submitting"
-              isDisabled={!formik.isValid || formik.isSubmitting}
+              type="button"
+              variant="outline"
+              colorScheme="gray"
+              onClick={() => handleSubmitWithStatus("draft")}
+              isLoading={loadingButton === "draft"}
+              loadingText="Saving..."
             >
-              Add Listing
+              Save as Draft
+            </Button>
+            <Button
+              type="button"
+              colorScheme="brand"
+              onClick={() => handleSubmitWithStatus("pending")}
+              isLoading={loadingButton === "pending"}
+              loadingText="Publishing..."
+            >
+              Publish Listing
             </Button>
           </Flex>
         </GridItem>
