@@ -195,7 +195,7 @@ const ViewListing = () => {
           <FormControl>
             <FormLabel fontWeight="bold">Developer</FormLabel>
             <Input
-              value={listing.data?.developer?.developer_name || "N/A"}
+              value={listing.data?.developer || "N/A"}
               readOnly
               variant="filled"
               focusBorderColor="brand.500"
@@ -366,7 +366,7 @@ const ViewListing = () => {
             />
           </FormControl>
         </GridItem>
-        
+
         {/* Description */}
         <GridItem colSpan={2}>
           <FormControl>

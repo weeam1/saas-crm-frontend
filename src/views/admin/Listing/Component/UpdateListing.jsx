@@ -698,8 +698,8 @@ const UpdateListing = () => {
               placeholder="Select type"
               focusBorderColor="brand.500"
             >
-              <option value="AED">By AED</option>
-              <option value="PERCENT">By %</option>
+              <option value="AED">AED</option>
+              <option value="PERCENT">Percent</option>
             </Select>
             <FormErrorMessage>
               {formik.errors.brokerCommissionType}

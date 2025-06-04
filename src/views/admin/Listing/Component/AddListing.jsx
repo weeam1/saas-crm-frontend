@@ -21,7 +21,6 @@ import FileUpload from "./SubComponent/FileUpload";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { AddIcon } from "@chakra-ui/icons";
 
 const formatNumberWithCommas = (value) => {
   if (!value) return "";
@@ -377,24 +376,7 @@ const AddListing = () => {
           <FormControl
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
-            <FormLabel>
-              <Box
-                display="flex"
-                alignItems="center"
-                gap={2}
-                justifyContent="space-between"
-              >
-                <span>Developer</span>
-                <AddIcon
-                  boxSize={4}
-                  color="black"
-                  cursor="pointer"
-                  onClick={() => navigate("/invoice?tab=developers")}
-                  _hover={{ color: "brand.500" }}
-                  mr={1}
-                />
-              </Box>
-            </FormLabel>
+            <FormLabel>Developer</FormLabel>
             <Box position="relative" ref={inputRef}>
               <Input
                 name="developer"
@@ -402,14 +384,7 @@ const AddListing = () => {
                 onChange={(e) => {
                   setDeveloperInput(e.target.value);
                   setShowDevSuggestions(true);
-                  const selectedDev = developers?.doc?.find(
-                    (dev) => dev.developer_name === e.target.value
-                  );
-                  if (selectedDev) {
-                    formik.setFieldValue("developer", selectedDev._id);
-                  } else {
-                    formik.setFieldValue("developer", e.target.value);
-                  }
+                  formik.setFieldValue("developer", e.target.value); // Always set name
                 }}
                 onFocus={() => setShowDevSuggestions(true)}
                 onBlur={formik.handleBlur}
@@ -441,7 +416,7 @@ const AddListing = () => {
                       _hover={{ bg: "gray.100" }}
                       onMouseDown={() => {
                         setDeveloperInput(dev.developer_name);
-                        formik.setFieldValue("developer", dev._id);
+                        formik.setFieldValue("developer", dev.developer_name); // Set name, not id
                         setShowDevSuggestions(false);
                       }}
                     >
@@ -658,8 +633,8 @@ const AddListing = () => {
               placeholder="Select type"
               focusBorderColor="brand.500"
             >
-              <option value="AED">By AED</option>
-              <option value="PERCENT">By %</option>
+              <option value="AED">AED</option>
+              <option value="PERCENT">Percent</option>
             </Select>
             <FormErrorMessage>
               {formik.errors.brokerCommissionType}

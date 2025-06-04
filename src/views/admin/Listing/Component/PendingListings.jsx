@@ -383,8 +383,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing?.developer?.developer_name
-                        ? listing?.developer?.developer_name
+                      {listing?.developer
+                        ? listing?.developer
                         : "N/A"}
                     </Td>
                     <Td

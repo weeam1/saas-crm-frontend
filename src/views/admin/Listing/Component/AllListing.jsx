@@ -441,8 +441,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing?.developer?.developer_name
-                        ? listing?.developer?.developer_name
+                      {listing?.developer
+                        ? listing?.developer
                         : "N/A"}
                     </Td>
                     <Td textAlign="center">
@@ -452,9 +452,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
                     </Td>
                     <Td textAlign="center">
                       {listing.brokerCommissionType === "AED"
-                        ? "By AED"
+                        ? "AED"
                         : listing.brokerCommissionType === "PERCENT"
-                          ? "By Percent"
+                          ? "Percent"
                           : "N/A"}
                     </Td>
                     <Td textAlign="center">
