@@ -117,7 +117,7 @@ const ViewListing = () => {
     }
   };
 
-  console.log("listing", listing)
+  console.log("listing", listing);
   return (
     <Box>
       <AppButton
@@ -330,6 +330,43 @@ const ViewListing = () => {
             </GridItem>
           </>
         )}
+
+         {/* Broker Commission Type */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Broker Commission Type</FormLabel>
+            <Input
+              value={
+                listing.data?.brokerCommissionType === "AED"
+                  ? "By AED"
+                  : listing.data?.brokerCommissionType === "PERCENT"
+                    ? "By Percentage"
+                    : "N/A"
+              }
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
+        {/* Commission Value */}
+        <GridItem colSpan={1}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Commission Value</FormLabel>
+            <Input
+              value={
+                listing.data?.brokerCommissionValue
+                  ? `${listing.data.brokerCommissionValue}${listing.data?.brokerCommissionType === "%" ? " %" : listing.data?.brokerCommissionType === "AED" ? " AED" : ""}`
+                  : "N/A"
+              }
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+        
         {/* Description */}
         <GridItem colSpan={2}>
           <FormControl>
@@ -346,7 +383,7 @@ const ViewListing = () => {
             />
           </FormControl>
         </GridItem>
-
+       
         {/* Documents */}
         <GridItem colSpan={2}>
           <FormLabel fontWeight="bold">Documents</FormLabel>

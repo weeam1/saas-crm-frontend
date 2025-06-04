@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   FormControl,
@@ -23,13 +23,29 @@ import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
 import * as Yup from "yup";
-import { skipToken } from '@reduxjs/toolkit/query';
+import { skipToken } from "@reduxjs/toolkit/query";
+
+const formatNumberWithCommas = (value) => {
+  if (!value) return "";
+  const num = Number(value.toString().replace(/,/g, ""));
+  if (isNaN(num)) return "";
+  return num.toLocaleString("en-US");
+};
+
+const getPositiveNumber = (value) => {
+  const num = Number(value.toString().replace(/,/g, ""));
+  if (isNaN(num) || num < 0) return "";
+  return num;
+};
 
 const UpdateListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [selectedUnitType, setSelectedUnitType] = useState(null);
+  const [developerInput, setDeveloperInput] = useState("");
+  const [showDevSuggestions, setShowDevSuggestions] = useState(false);
+  const inputRef = useRef();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
 
@@ -57,10 +73,11 @@ const UpdateListing = () => {
     { skip: !id }
   );
 
-
   const { data: subUnitTypes } = useFetchItemsQuery(
     selectedUnitType
-      ? { path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}` }
+      ? {
+          path: `/listing/secondary/unit-types/sub-category/${selectedUnitType._id}`,
+        }
       : skipToken,
     { skip: !id || !selectedUnitType }
   );
@@ -70,7 +87,9 @@ const UpdateListing = () => {
       setFiles([...listing.data.documents]);
     }
     if (listing?.data?.unitType && unitTypes?.doc) {
-      const selected = unitTypes.doc.find(type => type._id === listing.data.unitType._id);
+      const selected = unitTypes.doc.find(
+        (type) => type._id === listing.data.unitType._id
+      );
       setSelectedUnitType(selected);
     }
   }, [listing, unitTypes]);
@@ -98,7 +117,9 @@ const UpdateListing = () => {
       documents: listing?.data?.documents || [],
       ownerName: listing?.data?.ownerName || "",
       ownerPhoneNumber: listing?.data?.ownerPhoneNumber || "",
-      subUnitType: listing?.data?.subUnitType?._id || "",
+      subUnitType: listing?.data?.subUnitType?._id || null,
+      brokerCommissionType: listing?.data?.brokerCommissionType || "",
+      brokerCommissionValue: listing?.data?.brokerCommissionValue || "",
     },
     validationSchema: Yup.object().shape({
       projectName: Yup.string().required("Project Name is required"),
@@ -106,10 +127,24 @@ const UpdateListing = () => {
       listingType: Yup.string().required("Listing Type is required"),
       description: Yup.string().required("Description is required"),
       area: Yup.number()
+        .transform((value, originalValue) => {
+          if (typeof originalValue === "string") {
+            const parsed = Number(originalValue.replace(/,/g, ""));
+            return isNaN(parsed) ? undefined : parsed;
+          }
+          return value;
+        })
         .typeError("Area must be a number")
         .positive("Area must be greater than 0")
         .required("Area is required"),
       price: Yup.number()
+        .transform((value, originalValue) => {
+          if (typeof originalValue === "string") {
+            const parsed = Number(originalValue.replace(/,/g, ""));
+            return isNaN(parsed) ? undefined : parsed;
+          }
+          return value;
+        })
         .typeError("Price must be a number")
         .positive("Price must be greater than 0")
         .required("Price is required"),
@@ -127,9 +162,13 @@ const UpdateListing = () => {
       developer: Yup.string().required("Developer is required"),
       ownerName: Yup.string().required("Owner name is required"),
       ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
-      subUnitType: Yup.string().when('$isSubUnitTypeRequired', {
+      brokerCommissionType: Yup.string(),
+      brokerCommissionValue: Yup.number()
+        .typeError("Commission Value must be a number")
+        .positive("Commission Value must be greater than 0"),
+      subUnitType: Yup.string().when("$isSubUnitTypeRequired", {
         is: true,
-        then: (schema) => schema.required('Sub Unit Type is required'),
+        then: (schema) => schema.required("Sub Unit Type is required"),
         otherwise: (schema) => schema.notRequired(),
       }),
     }),
@@ -140,6 +179,11 @@ const UpdateListing = () => {
       try {
         const payload = {
           ...values,
+          area: getPositiveNumber(values.area),
+          price: getPositiveNumber(values.price),
+          brokerCommissionValue: getPositiveNumber(
+            values.brokerCommissionValue
+          ),
           documents: [...files],
           agent: user._id,
           lastUpdatedBy: user._id,
@@ -164,8 +208,56 @@ const UpdateListing = () => {
     const selected = unitTypes?.doc?.find((type) => type._id === unitTypeId);
     setSelectedUnitType(selected);
     formik.setFieldValue("unitType", unitTypeId);
-    formik.setFieldValue("subUnitType", ""); 
+    formik.setFieldValue("subUnitType", "");
   };
+
+  const handlePriceChange = (e) => {
+    let value = e.target.value.replace(/,/g, "");
+    value = value.replace(/[^\d.]/g, "");
+    if (value.startsWith("-")) value = value.slice(1);
+    const parts = value.split(".");
+    if (parts.length > 2) value = parts[0] + "." + parts[1];
+    formik.setFieldValue("price", value ? formatNumberWithCommas(value) : "");
+  };
+
+  const handleAreaChange = (e) => {
+    let value = e.target.value.replace(/,/g, "");
+    value = value.replace(/[^\d.]/g, "");
+    if (value.startsWith("-")) value = value.slice(1);
+    const parts = value.split(".");
+    if (parts.length > 2) value = parts[0] + "." + parts[1];
+    formik.setFieldValue("area", value ? formatNumberWithCommas(value) : "");
+  };
+
+  useEffect(() => {
+    const selectedDev = developers?.doc?.find(
+      (dev) => dev._id === formik.values.developer
+    );
+    if (selectedDev) {
+      setDeveloperInput(selectedDev.developer_name);
+    } else {
+      setDeveloperInput(formik.values.developer);
+    }
+  }, [formik.values.developer, developers]);
+
+  const filteredDevelopers =
+    developers?.doc?.filter((dev) =>
+      developerInput
+        ? dev.developer_name
+            .toLowerCase()
+            .includes(developerInput.toLowerCase())
+        : false
+    ) || [];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setShowDevSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (isLoading) {
     return (
@@ -281,7 +373,9 @@ const UpdateListing = () => {
         {subUnitTypes?.doc?.length > 0 && (
           <GridItem colSpan={1}>
             <FormControl
-              isInvalid={formik.touched.subUnitType && formik.errors.subUnitType}
+              isInvalid={
+                formik.touched.subUnitType && formik.errors.subUnitType
+              }
             >
               <FormLabel>Sub Unit Type</FormLabel>
               <Select
@@ -332,20 +426,62 @@ const UpdateListing = () => {
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
             <FormLabel>Developer</FormLabel>
-            <Select
-              name="developer"
-              value={formik.values.developer}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Select developer"
-              focusBorderColor="brand.500"
-            >
-              {developers?.doc?.map((dev) => (
-                <option key={dev._id} value={dev._id}>
-                  {dev.developer_name}
-                </option>
-              ))}
-            </Select>
+            <Box position="relative" ref={inputRef}>
+              <Input
+                name="developer"
+                value={developerInput}
+                onChange={(e) => {
+                  setDeveloperInput(e.target.value);
+                  setShowDevSuggestions(true);
+                  const selectedDev = developers?.doc?.find(
+                    (dev) => dev.developer_name === e.target.value
+                  );
+                  if (selectedDev) {
+                    formik.setFieldValue("developer", selectedDev._id);
+                  } else {
+                    formik.setFieldValue("developer", e.target.value);
+                  }
+                }}
+                onFocus={() => setShowDevSuggestions(true)}
+                onBlur={formik.handleBlur}
+                placeholder="Type developer name"
+                focusBorderColor="brand.500"
+                autoComplete="off"
+                width="100%"
+              />
+              {showDevSuggestions && filteredDevelopers.length > 0 && (
+                <Box
+                  position="absolute"
+                  top="100%"
+                  left={0}
+                  width="100%"
+                  bg="white"
+                  border="1px solid #e2e8f0"
+                  borderRadius="md"
+                  boxShadow="md"
+                  zIndex={10}
+                  maxH="200px"
+                  overflowY="auto"
+                >
+                  {filteredDevelopers.map((dev) => (
+                    <Box
+                      key={dev._id}
+                      px={4}
+                      py={2}
+                      cursor="pointer"
+                      _hover={{ bg: "gray.100" }}
+                      onMouseDown={() => {
+                        setDeveloperInput(dev.developer_name);
+                        formik.setFieldValue("developer", dev._id);
+                        setShowDevSuggestions(false);
+                      }}
+                    >
+                      {dev.developer_name}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
             <FormErrorMessage>{formik.errors.developer}</FormErrorMessage>
           </FormControl>
         </GridItem>
@@ -355,13 +491,13 @@ const UpdateListing = () => {
           <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
-              type="number"
               name="area"
               value={formik.values.area}
-              onChange={formik.handleChange}
+              onChange={handleAreaChange}
               onBlur={formik.handleBlur}
               placeholder="Enter area in square feet"
               focusBorderColor="brand.500"
+              inputMode="decimal"
               min="0"
             />
             <FormErrorMessage>{formik.errors.area}</FormErrorMessage>
@@ -373,13 +509,13 @@ const UpdateListing = () => {
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Price</FormLabel>
             <Input
-              type="number"
               name="price"
               value={formik.values.price}
-              onChange={formik.handleChange}
+              onChange={handlePriceChange}
               onBlur={formik.handleBlur}
               placeholder="Enter price"
               focusBorderColor="brand.500"
+              inputMode="decimal"
               min="0"
             />
             <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
@@ -544,6 +680,57 @@ const UpdateListing = () => {
             </GridItem>
           </>
         )}
+
+        {/* Broker Commission Type */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.brokerCommissionType &&
+              formik.errors.brokerCommissionType
+            }
+          >
+            <FormLabel>Broker Commission Type</FormLabel>
+            <Select
+              name="brokerCommissionType"
+              value={formik.values.brokerCommissionType}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Select type"
+              focusBorderColor="brand.500"
+            >
+              <option value="AED">By AED</option>
+              <option value="PERCENT">By %</option>
+            </Select>
+            <FormErrorMessage>
+              {formik.errors.brokerCommissionType}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
+        {/* Commission Value */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.brokerCommissionValue &&
+              formik.errors.brokerCommissionValue
+            }
+          >
+            <FormLabel>Commission Value</FormLabel>
+            <Input
+              name="brokerCommissionValue"
+              value={formik.values.brokerCommissionValue}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter commission value"
+              focusBorderColor="brand.500"
+              inputMode="decimal"
+              min="0"
+            />
+            <FormErrorMessage>
+              {formik.errors.brokerCommissionValue}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem>
 
         {/* Description */}
         <GridItem colSpan={2}>

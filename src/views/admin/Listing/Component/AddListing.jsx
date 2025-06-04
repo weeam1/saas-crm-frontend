@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
   FormControl,
@@ -21,6 +21,20 @@ import FileUpload from "./SubComponent/FileUpload";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { AddIcon } from "@chakra-ui/icons";
+
+const formatNumberWithCommas = (value) => {
+  if (!value) return "";
+  const num = Number(value.toString().replace(/,/g, ""));
+  if (isNaN(num)) return "";
+  return num.toLocaleString("en-US");
+};
+
+const getPositiveNumber = (value) => {
+  const num = Number(value.toString().replace(/,/g, ""));
+  if (isNaN(num) || num < 0) return "";
+  return num;
+};
 
 const validationSchema = Yup.object().shape({
   projectName: Yup.string().required("Project Name is required"),
@@ -28,10 +42,24 @@ const validationSchema = Yup.object().shape({
   listingType: Yup.string().required("Listing Type is required"),
   description: Yup.string().required("Description is required"),
   area: Yup.number()
+    .transform((value, originalValue) => {
+      if (typeof originalValue === "string") {
+        const parsed = Number(originalValue.replace(/,/g, ""));
+        return isNaN(parsed) ? undefined : parsed;
+      }
+      return value;
+    })
     .typeError("Area must be a number")
     .positive("Area must be greater than 0")
     .required("Area is required"),
   price: Yup.number()
+    .transform((value, originalValue) => {
+      if (typeof originalValue === "string") {
+        const parsed = Number(originalValue.replace(/,/g, ""));
+        return isNaN(parsed) ? undefined : parsed;
+      }
+      return value;
+    })
     .typeError("Price must be a number")
     .positive("Price must be greater than 0")
     .required("Price is required"),
@@ -54,15 +82,22 @@ const validationSchema = Yup.object().shape({
     then: (schema) => schema.required("Sub Unit Type is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
+  brokerCommissionType: Yup.string(),
+  brokerCommissionValue: Yup.number()
+    .typeError("Commission Value must be a number")
+    .positive("Commission Value must be greater than 0"),
 });
 
 const AddListing = () => {
   const [files, setFiles] = useState([]);
   const [unitTypes, setUnitTypes] = useState([]);
   const [selectedUnitType, setSelectedUnitType] = useState(null);
-  const [loadingButton, setLoadingButton] = useState(null); 
+  const [loadingButton, setLoadingButton] = useState(null);
+  const [developerInput, setDeveloperInput] = useState("");
+  const [showDevSuggestions, setShowDevSuggestions] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
+  const inputRef = useRef();
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
@@ -113,7 +148,9 @@ const AddListing = () => {
       ownerName: "",
       ownerPhoneNumber: "",
       subUnitType: "",
-      status:""
+      status: "",
+      brokerCommissionType: "",
+      brokerCommissionValue: "",
     },
     validationSchema,
     validateOnChange: true,
@@ -125,6 +162,11 @@ const AddListing = () => {
       try {
         const payload = {
           ...values,
+          area: getPositiveNumber(values.area),
+          price: getPositiveNumber(values.price),
+          brokerCommissionValue: getPositiveNumber(
+            values.brokerCommissionValue
+          ),
           documents: [...files],
           agent: user._id,
           createdBy: user._id,
@@ -166,6 +208,55 @@ const AddListing = () => {
     await formik.submitForm();
     setLoadingButton(null);
   };
+
+  const handlePriceChange = (e) => {
+    let value = e.target.value.replace(/,/g, "");
+    value = value.replace(/[^\d.]/g, "");
+    if (value.startsWith("-")) value = value.slice(1);
+    const parts = value.split(".");
+    if (parts.length > 2) value = parts[0] + "." + parts[1];
+    formik.setFieldValue("price", value ? formatNumberWithCommas(value) : "");
+  };
+
+  const handleAreaChange = (e) => {
+    let value = e.target.value.replace(/,/g, "");
+    value = value.replace(/[^\d.]/g, "");
+    if (value.startsWith("-")) value = value.slice(1);
+    const parts = value.split(".");
+    if (parts.length > 2) value = parts[0] + "." + parts[1];
+    formik.setFieldValue("area", value ? formatNumberWithCommas(value) : "");
+  };
+
+  useEffect(() => {
+    const selectedDev = developers?.doc?.find(
+      (dev) => dev._id === formik.values.developer
+    );
+    if (selectedDev) {
+      setDeveloperInput(selectedDev.developer_name);
+    } else {
+      setDeveloperInput(formik.values.developer);
+    }
+    // eslint-disable-next-line
+  }, [formik.values.developer, developers]);
+
+  const filteredDevelopers =
+    developers?.doc?.filter((dev) =>
+      developerInput
+        ? dev.developer_name
+            .toLowerCase()
+            .includes(developerInput.toLowerCase())
+        : false
+    ) || [];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setShowDevSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <Box as="form" onSubmit={formik.handleSubmit}>
@@ -286,21 +377,80 @@ const AddListing = () => {
           <FormControl
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
-            <FormLabel>Developer</FormLabel>
-            <Select
-              name="developer"
-              value={formik.values.developer}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Select developer"
-              focusBorderColor="brand.500"
-            >
-              {developers?.doc?.map((dev) => (
-                <option key={dev._id} value={dev._id}>
-                  {dev.developer_name}
-                </option>
-              ))}
-            </Select>
+            <FormLabel>
+              <Box
+                display="flex"
+                alignItems="center"
+                gap={2}
+                justifyContent="space-between"
+              >
+                <span>Developer</span>
+                <AddIcon
+                  boxSize={4}
+                  color="black"
+                  cursor="pointer"
+                  onClick={() => navigate("/invoice?tab=developers")}
+                  _hover={{ color: "brand.500" }}
+                  mr={1}
+                />
+              </Box>
+            </FormLabel>
+            <Box position="relative" ref={inputRef}>
+              <Input
+                name="developer"
+                value={developerInput}
+                onChange={(e) => {
+                  setDeveloperInput(e.target.value);
+                  setShowDevSuggestions(true);
+                  const selectedDev = developers?.doc?.find(
+                    (dev) => dev.developer_name === e.target.value
+                  );
+                  if (selectedDev) {
+                    formik.setFieldValue("developer", selectedDev._id);
+                  } else {
+                    formik.setFieldValue("developer", e.target.value);
+                  }
+                }}
+                onFocus={() => setShowDevSuggestions(true)}
+                onBlur={formik.handleBlur}
+                placeholder="Type developer name"
+                focusBorderColor="brand.500"
+                autoComplete="off"
+                width="100%"
+              />
+              {showDevSuggestions && filteredDevelopers.length > 0 && (
+                <Box
+                  position="absolute"
+                  top="100%"
+                  left={0}
+                  width="100%"
+                  bg="white"
+                  border="1px solid #e2e8f0"
+                  borderRadius="md"
+                  boxShadow="md"
+                  zIndex={10}
+                  maxH="200px"
+                  overflowY="auto"
+                >
+                  {filteredDevelopers.map((dev) => (
+                    <Box
+                      key={dev._id}
+                      px={4}
+                      py={2}
+                      cursor="pointer"
+                      _hover={{ bg: "gray.100" }}
+                      onMouseDown={() => {
+                        setDeveloperInput(dev.developer_name);
+                        formik.setFieldValue("developer", dev._id);
+                        setShowDevSuggestions(false);
+                      }}
+                    >
+                      {dev.developer_name}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
             <FormErrorMessage>{formik.errors.developer}</FormErrorMessage>
           </FormControl>
         </GridItem>
@@ -310,13 +460,13 @@ const AddListing = () => {
           <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
-              type="number"
               name="area"
               value={formik.values.area}
-              onChange={formik.handleChange}
+              onChange={handleAreaChange}
               onBlur={formik.handleBlur}
               placeholder="Enter area in square feet"
               focusBorderColor="brand.500"
+              inputMode="decimal"
               min="0"
             />
             <FormErrorMessage>{formik.errors.area}</FormErrorMessage>
@@ -328,13 +478,13 @@ const AddListing = () => {
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Selling Price</FormLabel>
             <Input
-              type="number"
               name="price"
               value={formik.values.price}
-              onChange={formik.handleChange}
+              onChange={handlePriceChange}
               onBlur={formik.handleBlur}
               placeholder="Enter selling price"
               focusBorderColor="brand.500"
+              inputMode="decimal"
               min="0"
             />
             <FormErrorMessage>{formik.errors.price}</FormErrorMessage>
@@ -488,6 +638,57 @@ const AddListing = () => {
               focusBorderColor="brand.500"
             />
             <FormErrorMessage>{formik.errors.email}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
+        {/* Broker Commission Type */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.brokerCommissionType &&
+              formik.errors.brokerCommissionType
+            }
+          >
+            <FormLabel>Broker Commission Type</FormLabel>
+            <Select
+              name="brokerCommissionType"
+              value={formik.values.brokerCommissionType}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Select type"
+              focusBorderColor="brand.500"
+            >
+              <option value="AED">By AED</option>
+              <option value="PERCENT">By %</option>
+            </Select>
+            <FormErrorMessage>
+              {formik.errors.brokerCommissionType}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
+        {/* Commission Value */}
+        <GridItem colSpan={1}>
+          <FormControl
+            isInvalid={
+              formik.touched.brokerCommissionValue &&
+              formik.errors.brokerCommissionValue
+            }
+          >
+            <FormLabel>Commission Value</FormLabel>
+            <Input
+              name="brokerCommissionValue"
+              value={formik.values.brokerCommissionValue}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Enter commission value"
+              focusBorderColor="brand.500"
+              inputMode="decimal"
+              min="0"
+            />
+            <FormErrorMessage>
+              {formik.errors.brokerCommissionValue}
+            </FormErrorMessage>
           </FormControl>
         </GridItem>
 

@@ -75,6 +75,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
     "Building Age",
     "Developer",
     "Price",
+    "Commission Type",
+    "Commission Value",
+    "Total Price",
     "Size (sqft)",
     "Status",
     "Date",
@@ -416,6 +419,25 @@ const MyListing = ({ listingType, listingUnitType }) => {
                         ? `AED${listing.price.toLocaleString()}`
                         : "N/A"}
                     </Td>
+                    <Td textAlign="center">
+                      {listing.brokerCommissionType === "AED"
+                        ? "By AED"
+                        : listing.brokerCommissionType === "PERCENT"
+                          ? "By Percent"
+                          : "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.brokerCommissionValue
+                        ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
+                        : "0"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.totalPrice
+                        ? `AED${listing.totalPrice.toLocaleString()}`
+                        : listing.price
+                          ? `AED${listing.price.toLocaleString()}`
+                          : "N/A"}
+                    </Td>
                     <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
@@ -502,7 +524,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
                             ].includes(listing.status)
                           }
                         >
-                          <option value={isAdmin ?"active":"pending"}>Publish</option>
+                          <option value={isAdmin ? "active" : "pending"}>
+                            Publish
+                          </option>
                           <option value="draft">Draft</option>
                         </Select>
                       ) : (

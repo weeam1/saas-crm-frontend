@@ -77,6 +77,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
     "Building Age",
     "Developer",
     "Price",
+    "Commission Type",
+    "Commission Value",
+    "Total Price",
     "Size (sqft)",
     "status",
     "Date",
@@ -129,7 +132,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         duration: 3000,
         isClosable: true,
       });
-      console.log(response.data.viewRequests);
+  
       setTableData((prevData) =>
         prevData.map((listing) => {
           if (listing._id === listingId) {
@@ -352,7 +355,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         />
       </Box>
 
-      <Box borderRadius="lg" boxShadow="sm" bg="white"  overflowY="auto">
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
         <Table variant="striped" size="lg">
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
@@ -446,6 +449,25 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       {listing.price
                         ? `AED${listing.price.toLocaleString()}`
                         : "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.brokerCommissionType === "AED"
+                        ? "By AED"
+                        : listing.brokerCommissionType === "PERCENT"
+                          ? "By Percent"
+                          : "N/A"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.brokerCommissionValue
+                        ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
+                        : "0"}
+                    </Td>
+                    <Td textAlign="center">
+                      {listing.totalPrice
+                        ? `AED${listing.totalPrice.toLocaleString()}`
+                        : listing.price
+                          ? `AED${listing.price.toLocaleString()}`
+                          : "N/A"}
                     </Td>
                     <Td textAlign="center" size={"sm"}>
                       {listing.area ? listing.area.toLocaleString() : "N/A"}
