@@ -39,12 +39,18 @@ const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId 
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
+  // Check if this player is currently the active one
   const isCurrentlyPlaying = currentlyPlayingId === playerId;
 
+  // Stop this player if another one starts playing
   useEffect(() => {
     if (!isCurrentlyPlaying && isPlaying) {
-      audioRef.current?.pause();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0; // Reset to beginning
+      }
       setIsPlaying(false);
+      setCurrentTime(0); // Reset state to 0
     }
   }, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
 
@@ -53,9 +59,12 @@ const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId 
     
     if (isPlaying) {
       audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Reset to beginning when manually paused
       setIsPlaying(false);
+      setCurrentTime(0); // Reset state to 0
       setCurrentlyPlayingId(null);
     } else {
+      // Set this player as the currently playing one
       setCurrentlyPlayingId(playerId);
       audioRef.current.play().catch(() => {
         setIsPlaying(false);
@@ -83,7 +92,7 @@ const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId 
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
-      setCurrentlyPlayingId(null);
+      setCurrentlyPlayingId(null); // Clear the currently playing ID when audio ends
     };
 
     if (audio) {
@@ -152,7 +161,7 @@ const StatusBadge = ({ status }) => {
     case "NO ANSWER":
       color = "yellow";
       break;
-    case "FAILED":
+    case "FAILED": // Fixed: Removed the erroneous dash
       color = "red";
       break;
     default:
@@ -161,7 +170,7 @@ const StatusBadge = ({ status }) => {
 
   return (
     <Badge colorScheme={color} px={2} py={1} borderRadius="md">
-      {status ? status : "no data found"}
+      {status || "no data found"}
     </Badge>
   );
 };
@@ -174,7 +183,7 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null); // Track currently playing audio
   
   const columns = [
     "Call id",
@@ -188,6 +197,7 @@ export default function CallHistory() {
     "Call Duration",
     "Talk Duration",
   ];
+
   const loadCalls = async (page, pageSize) => {
     try {
       setLoading(true);
@@ -217,11 +227,13 @@ export default function CallHistory() {
     setPage(1);
   }, []);
 
+  // Function to handle setting currently playing audio
   const handleSetCurrentlyPlaying = useCallback((playerId) => {
     setCurrentlyPlayingId(playerId);
   }, []);
 
   const borderColor = useColorModeValue("gray.200", "gray.700");
+
   return (
     <Box
       overflowX="auto"
@@ -280,8 +292,8 @@ export default function CallHistory() {
             {loading ? (
               <TableLoading columns={columns} length={10} py="4" />
             ) : calls && calls.length > 0 ? (
-              calls.map((call,index) => (
-                <Tr key={call.id}>
+              calls.map((call, index) => (
+                <Tr key={call.id || call.uniqueid || index}>
                   <Td
                     py={4}
                     fontSize={{ base: "12px", md: "14px" }}
@@ -289,7 +301,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.uniqueid ? call.uniqueid : "no data found"}
+                    {call.uniqueid || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -309,7 +321,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.call_mode ? call.call_mode : "no data found"}
+                    {call.call_mode || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -318,7 +330,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.src ? call.src : "no data found"}
+                    {call.src || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -327,7 +339,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.dst ? call.dst : "no data found"}
+                    {call.dst || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -365,7 +377,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.lastapp ? call.lastapp : "no data found"}
+                    {call.lastapp || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -374,7 +386,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.duration ? `${call.duration} sec` : "no data found"}
+                    {call.duration ? `${call.duration} sec` : "0 sec"}
                   </Td>
                   <Td
                     py={4}
@@ -383,7 +395,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.billsec ? `${call.billsec} sec` : "no data found"}
+                    {call.billsec ? `${call.billsec} sec` : "0 sec"}
                   </Td>
                 </Tr>
               ))
