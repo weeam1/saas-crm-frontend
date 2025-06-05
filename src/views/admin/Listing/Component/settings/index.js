@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import TabNavigationDisplay from "../../../../../components/TabNavigationDisplay/TabNavigationDisplay";
-import ListingUnitTypes from "./components/ListingUnitTypes";
+import ListingUnitTypes from "./components/ListingUnitType/index";
 import ListingTypes from "./components/ListingTypes";
 import ListingStatus from "./components/ListingStatus";
 import AppButton from "components/shared/AppButton";
