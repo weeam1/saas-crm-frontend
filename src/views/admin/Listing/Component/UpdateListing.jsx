@@ -14,6 +14,7 @@ import {
   Flex,
   Textarea,
   FormErrorMessage,
+  useBreakpointValue
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -48,6 +49,8 @@ const UpdateListing = () => {
   const inputRef = useRef();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+
+    const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
   const {
     data: listing,
@@ -265,7 +268,7 @@ const UpdateListing = () => {
         <Skeleton height="40px" mb={4} />
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           {Array.from({ length: 12 }).map((_, i) => (
-            <GridItem key={i} colSpan={i % 3 === 0 ? 2 : 1}>
+            <GridItem key={i} colSpan={i % 3 === 0 ? 2 : colSpan}>
               <Skeleton height="40px" />
             </GridItem>
           ))}
@@ -320,13 +323,14 @@ const UpdateListing = () => {
       </AppButton>
 
       <Grid
-        templateColumns="repeat(2, 1fr)"
-        gap={6}
-        p={6}
-        bg="white"
-        borderRadius="md"
-        boxShadow="sm"
-      >
+         templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
+         gap={6}
+         p={{ base: 2, sm: 5 }}
+         bg="white"
+         borderRadius="md"
+         my={5}
+         mx={{ base: 0, sm: 2 }}
+       >
         {/* Project Name */}
         <GridItem colSpan={2}>
           <FormControl
@@ -346,7 +350,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Unit Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.unitType && formik.errors.unitType}
           >
@@ -371,7 +375,7 @@ const UpdateListing = () => {
 
         {/* Sub Unit Type */}
         {subUnitTypes?.doc?.length > 0 && (
-          <GridItem colSpan={1}>
+           <GridItem colSpan={colSpan}>
             <FormControl
               isInvalid={
                 formik.touched.subUnitType && formik.errors.subUnitType
@@ -397,7 +401,7 @@ const UpdateListing = () => {
           </GridItem>
         )}
         {/* Listing Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.listingType && formik.errors.listingType}
           >
@@ -421,7 +425,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Developer */}
-        <GridItem colSpan={1}>
+      <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
@@ -487,7 +491,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Area */}
-        <GridItem colSpan={1}>
+         <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
@@ -505,7 +509,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Price */}
-        <GridItem colSpan={1}>
+     <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Price</FormLabel>
             <Input
@@ -523,7 +527,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Currency */}
-        <GridItem colSpan={1}>
+      <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.currency && formik.errors.currency}
           >
@@ -542,7 +546,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Location */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.location && formik.errors.location}
           >
@@ -560,7 +564,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Building Age */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.buildingAge && formik.errors.buildingAge}
           >
@@ -580,7 +584,7 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
         {/* Owner Name */}
-        <GridItem colSpan={1}>
+         <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.ownerName && formik.errors.ownerName}
           >
@@ -597,7 +601,7 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
         {/* Owner Phone Number */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.ownerPhoneNumber && formik.errors.ownerPhoneNumber
@@ -620,7 +624,7 @@ const UpdateListing = () => {
         {isAdmin && (
           <>
             {/* Landlord */}
-            <GridItem colSpan={1}>
+             <GridItem colSpan={colSpan}>
               <FormControl
                 isInvalid={formik.touched.landlord && formik.errors.landlord}
               >
@@ -639,7 +643,7 @@ const UpdateListing = () => {
             </GridItem>
 
             {/* Phone Number */}
-            <GridItem colSpan={1}>
+             <GridItem colSpan={colSpan}>
               <FormControl
                 isInvalid={
                   formik.touched.phoneNumber && formik.errors.phoneNumber
@@ -660,7 +664,7 @@ const UpdateListing = () => {
             </GridItem>
 
             {/* Email */}
-            <GridItem colSpan={1}>
+            <GridItem colSpan={colSpan}>
               <FormControl
                 isInvalid={formik.touched.email && formik.errors.email}
               >
@@ -682,7 +686,7 @@ const UpdateListing = () => {
         )}
 
         {/* Broker Commission Type */}
-        <GridItem colSpan={1}>
+         <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionType &&
@@ -708,7 +712,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Commission Value */}
-        <GridItem colSpan={1}>
+         <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionValue &&
@@ -769,6 +773,7 @@ const UpdateListing = () => {
               isLoading={isUpdating}
               loadingText="Updating..."
               isDisabled={!formik.isValid || isUpdating}
+               width={{ base: "100%", sm: "auto" }}
             >
               Update Listing
             </Button>
