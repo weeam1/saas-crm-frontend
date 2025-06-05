@@ -1,13 +1,14 @@
-import { Box, Flex } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { Box } from '@chakra-ui/react';
 import LeadsCharts from './LeadCharts';
 import LeadFeedbacks from './LeadFeedbacks';
-// import Loader from 'components/loading/Loader';
 import TeamList from './Teams';
+// import LeadsHistoryByYear from './LeadsHistoryByYear';
 
 const LeadReport = () => {
 	return (
 		<Box p='2' mb='4'>
+			{/* <LeadsHistoryByYear /> */}
+
 			{/* Leads Charts */}
 			<LeadsCharts />
 

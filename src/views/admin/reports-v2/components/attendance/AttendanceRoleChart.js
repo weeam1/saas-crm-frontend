@@ -34,10 +34,10 @@ const AttendanceRoleChart = ({ data }) => {
 				<Text fontWeight='semibold'>{label}</Text>
 				<HStack>
 					<Text fontSize='sm' color='gray.600'>
-						Attendance:
+						Count:
 					</Text>
 					<Text fontSize='md' color='blue.400'>
-						{payload[0].value}%
+						{payload[0].value}
 					</Text>
 				</HStack>
 			</Box>
@@ -67,7 +67,7 @@ const AttendanceRoleChart = ({ data }) => {
 						tick={{ fill: '#4a5568', fontSize: 14 }}
 					/>
 					<YAxis
-						tickFormatter={(val) => `${Math.round(val)}%`}
+						// tickFormatter={(val) => `${Math.round(val)}`}
 						axisLine={true}
 						tickLine={false}
 						tick={{ fill: '#4a5568', fontSize: 12 }}
@@ -80,7 +80,7 @@ const AttendanceRoleChart = ({ data }) => {
 						<LabelList
 							dataKey='value'
 							position='top'
-							formatter={(val) => `${val}`}
+							// formatter={(val) => `${val}`}
 							fill='#2d3748'
 							fontSize={14}
 							fontWeight={500}
