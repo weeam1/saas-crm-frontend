@@ -67,8 +67,8 @@ const Survey = () => {
         gridTemplateColumns={{
           base: "repeat(1, minmax(240px, 1fr))",
           sm: "repeat(2, minmax(240px, 1fr))",
-          md: "repeat(4, minmax(240px, 1fr))",
-          lg: "repeat(5, minmax(240px, 1fr))",
+          md: "repeat(3, minmax(240px, 1fr))",
+          lg: "repeat(4, minmax(240px, 1fr))",
         }}
         gap={4}
         marginTop={{ base: 4, md: 6 }}
