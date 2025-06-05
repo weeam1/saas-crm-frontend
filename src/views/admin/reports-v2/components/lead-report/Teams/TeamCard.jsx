@@ -4,41 +4,35 @@ import {
 	VStack,
 	HStack,
 	Avatar,
-	Badge,
-	Collapse,
-	Button,
 	useColorModeValue,
 	Flex,
 	Icon,
-	Progress,
+	Button,
 } from '@chakra-ui/react';
+import Rating from 'components/shared/Rating';
 import { constant } from 'constant';
-import { FiTarget, FiTrendingUp, FiUsers } from 'react-icons/fi';
+import { FiTrendingUp, FiUsers } from 'react-icons/fi';
 import { HiOutlineArrowRightCircle } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
-
-const BENCHMARKS = {
-	leadTarget: 100, // 100 leads = good performance
-	agentTarget: 20, // 10 agents = full capacity
-};
-
-// 2. Calculate weighted score
-const calculatePerformance = (leads = 0, agents = 0) => {
-	const leadScore = Math.min((leads / BENCHMARKS.leadTarget) * 50, 50); // Leads contribute 70%
-	const agentScore = Math.min((agents / BENCHMARKS.agentTarget) * 50, 50); // Agents 30%
-	return Math.min(leadScore + agentScore, 100);
-};
+import { calculatePerformance } from 'views/admin/reports-v2/helpers';
+import TeamProgress from './TeamProgress';
+import { buttonStyle } from 'utils/btn';
 
 const TeamCard = ({ manager, index }) => {
 	const bg = useColorModeValue('white', 'gray.800');
 	const textColor = useColorModeValue('gray.700', 'gray.100');
 
-	const score = calculatePerformance(manager?.totalLeads, manager?.totalAgents);
+	// const { score, rating } = calculatePerformance(
+	// 	manager?.totalLeads,
+	// 	manager?.totalAgents,
+	// 	manager?.assignedLeads
+	// );
 
 	const navigate = useNavigate();
 
 	return (
 		<Box
+			key={manager._id}
 			position='relative'
 			bg={bg}
 			borderRadius='2xl'
@@ -64,7 +58,7 @@ const TeamCard = ({ manager, index }) => {
 				bgGradient='linear(to-b, brand.400, brand.600)'
 			/>
 
-			<Box
+			{/* <Box
 				position='absolute'
 				top={2}
 				right={3}
@@ -82,7 +76,7 @@ const TeamCard = ({ manager, index }) => {
 				cursor='pointer'
 			>
 				<Icon as={HiOutlineArrowRightCircle} boxSize='24px' color='green.500' />
-			</Box>
+			</Box> */}
 
 			<Flex align='center' gap={4} mb={4}>
 				<Avatar
@@ -116,7 +110,7 @@ const TeamCard = ({ manager, index }) => {
 				</VStack>
 			</Flex>
 			{/* Stats with Icons */}
-			<HStack spacing={3} mt={4}>
+			<HStack spacing={3} mt={4} mb='4'>
 				<StatBadge
 					icon={FiUsers}
 					label='Agents'
@@ -128,34 +122,30 @@ const TeamCard = ({ manager, index }) => {
 					value={manager?.totalLeads || 0}
 				/>
 			</HStack>
-			<Box mt={6} mb={2}>
-				<Flex justify='space-between' mb={1}>
-					<Text
-						fontSize='sm'
-						fontWeight='semibold'
-						color={useColorModeValue('gray.600', 'gray.300')}
-					>
-						Team Performance
-					</Text>
-					<Text fontSize='sm' fontWeight='bold' color='brand.500'>
-						{score}%
-					</Text>
-				</Flex>
 
-				<Progress
-					value={score}
-					width='full'
-					height='12px'
-					colorScheme='brand'
-					borderRadius='full'
-					bg={useColorModeValue('gray.100', 'gray.700')}
-					sx={{
-						'& > div': {
-							transition: 'all 0.4s ease-out',
-						},
-					}}
-				/>
-			</Box>
+			<Button
+				{...buttonStyle}
+				width='full'
+				leftIcon={<FiUsers />}
+				size='sm'
+				bg='softGray.100'
+				color='gray.800'
+				_active={{ bg: 'gray.200' }}
+				onClick={() =>
+					navigate(`/reporting-analytics/team-details/${manager._id}`)
+				}
+			>
+				View Team
+			</Button>
+
+			{/* <Box>
+				<Text fontSize='xs' color='gray.500' fontWeight='medium'>
+					Perfomance
+				</Text>
+				<Rating value={rating || 0} />
+
+				<TeamProgress score={score} />
+			</Box> */}
 		</Box>
 	);
 };

@@ -167,7 +167,6 @@ const Leads = ({
 			setRefetchLoading(true);
 		}
 	};
-	console.log({ selectedValues: selectedValues?.length });
 
 	return (
 		<Box>

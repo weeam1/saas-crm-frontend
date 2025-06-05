@@ -6,8 +6,10 @@ const ShimmerSkeleton = ({ width = '100%', height = 'full', ...props }) => {
 			height={height}
 			width={width}
 			borderRadius='4px'
-			startColor='gray.100'
-			endColor='gray.200'
+			// startColor='gray.100'
+			// endColor='gray.200'
+			startColor='softGray.400'
+			endColor='softGray.500'
 			{...props}
 		/>
 	);

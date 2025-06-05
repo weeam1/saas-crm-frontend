@@ -19,8 +19,11 @@ import { Link as RouterLink } from 'react-router-dom';
 import moment from 'moment-timezone';
 import AttendanceQRCode from './AttendanceQRCode';
 import { currentTZ } from 'utils/helpers';
+import AttendanceRoleChart from 'views/admin/reports-v2/components/attendance/AttendanceRoleChart';
+import AttendanceAreaChart from 'views/admin/reports-v2/components/attendance/AttendanceAreaChart';
 
 const RealTimeData = ({
+	data,
 	stats,
 	barChartOptions,
 	barChartData,
@@ -30,18 +33,7 @@ const RealTimeData = ({
 	setSelectedView,
 	setQueryParams,
 }) => {
-	// const currentDate = moment().tz(timezone).format('dddd, DD MMMM YYYY');
-	// const [time, setTime] = useState(moment().tz(timezone));
-	// const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
-	// const navigate = useNavigate();
-
-	// const tick = useCallback(() => {
-	// 	setTime(moment().tz(timezone));
-	// }, [timezone]);
-
-	// const tz = localStorage.getItem('timezone_cache');
 	const tz = localStorage.getItem('timezone_cache') || currentTZ;
-
 	const [time, setTime] = useState(() => moment().tz(tz));
 
 	const tick = useCallback(() => {
@@ -107,7 +99,7 @@ const RealTimeData = ({
 
 	return (
 		<>
-			<Box minH='100vh' bg='white' p='6' rounded='md'>
+			<Box bg='white' p='6' rounded='md'>
 				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
 					<Box p={6} borderRadius='lg' bg='white' boxShadow='md' minH='150px'>
 						<Flex
@@ -237,8 +229,8 @@ const RealTimeData = ({
 						))}
 					</SimpleGrid>
 				</Grid>
-				<Box py={6}>
-					<Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+				<Box py={8} my='4'>
+					{/* <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
 						<Box bg='white' p={6} borderRadius='lg' shadow='md'>
 							<Flex justify='space-between' align='center' mb={4}>
 								<Text fontSize='lg' fontWeight='bold'>
@@ -289,7 +281,9 @@ const RealTimeData = ({
 								height={300}
 							/>
 						</Box>
-					</Grid>
+					</Grid> */}
+					<AttendanceRoleChart data={data} />
+					<AttendanceAreaChart />
 				</Box>
 			</Box>
 		</>

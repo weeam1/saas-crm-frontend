@@ -1,13 +1,6 @@
-import React, { useState } from 'react';
 import { Box } from '@chakra-ui/react';
-import {
-	PieChart,
-	Pie,
-	Sector,
-	ResponsiveContainer,
-	Tooltip,
-	Cell,
-} from 'recharts';
+import React, { useState } from 'react';
+import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 // import { PieChart, Pie, Sector, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -161,56 +154,27 @@ const ActiveShapePieChart = ({ data }) => {
 	const [activeIndex, setActiveIndex] = useState(0);
 
 	return (
-		<ResponsiveContainer width='100%' height={280}>
-			<PieChart>
-				<Pie
-					activeIndex={activeIndex}
-					activeShape={renderActiveShape}
-					data={data}
-					cx='50%'
-					cy='50%'
-					innerRadius={70}
-					outerRadius={90}
-					fill='#E5B668'
-					dataKey='value'
-					onMouseEnter={(_, index) => setActiveIndex(index)}
-				/>
-			</PieChart>
-		</ResponsiveContainer>
+		<Box w='100%'>
+			<ResponsiveContainer width='100%' height={300}>
+				<PieChart>
+					<Pie
+						activeIndex={activeIndex}
+						activeShape={renderActiveShape}
+						data={data}
+						cx='50%'
+						cy='50%'
+						innerRadius={70}
+						outerRadius={90}
+						// innerRadius='80%'
+						// outerRadius='100%'
+						fill='#E5B668'
+						dataKey='value'
+						onMouseEnter={(_, index) => setActiveIndex(index)}
+					/>
+				</PieChart>
+			</ResponsiveContainer>
+		</Box>
 	);
 };
-
-// const ActiveShapePieChart = ({ stats }) => {
-// 	const [activeIndex, setActiveIndex] = useState(0);
-// 	const handleActive = (_, index) => setActiveIndex(index);
-
-// 	return (
-// 		<Box w='100%'>
-// 			<ResponsiveContainer width='100%' height={300}>
-// 				<PieChart>
-// 					<Pie
-// 						activeIndex={activeIndex}
-// 						activeShape={renderActiveShape}
-// 						data={stats}
-// 						cx='50%'
-// 						cy='50%'
-// 						innerRadius={60}
-// 						outerRadius={80}
-// 						dataKey='value'
-// 						onMouseEnter={handleActive}
-// 					>
-// 						{stats.map((entry, index) => (
-// 							<Cell key={`cell-${index}`} fill={entry.bgColor} />
-// 						))}
-// 					</Pie>
-// 					{/* <Tooltip
-// 						formatter={(value, name, { payload }) => [value, payload.label]}
-// 						contentStyle={{ fontSize: '14px' }}
-// 					/> */}
-// 				</PieChart>
-// 			</ResponsiveContainer>
-// 		</Box>
-// 	);
-// };
 
 export default ActiveShapePieChart;
