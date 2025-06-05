@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
-import Pagination from "../../../../developers/components/Pagination";
+import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
 import {
   useFetchItemsQuery,
@@ -50,21 +50,18 @@ const ListingTypes = () => {
     status: true,
   });
 
-  const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
-    return params;
-  };
+  const buildQueryParams = () => ({
+    page: currentPage,
+    limit: pageSize,
+  });
 
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     { path: `/listing/secondary/types`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  const [createItemMuation] = useCreateItemMutation();
-  const [updateItemMuation] = useUpdateItemMutation();
+  const [createItemMutation] = useCreateItemMutation();
+  const [updateItemMutation] = useUpdateItemMutation();
   const [deleteItemMutation] = useDeleteItemMutation();
 
   const columns = ["Name", "Status", "Created At", "Actions"];
@@ -77,7 +74,7 @@ const ListingTypes = () => {
   }, [data]);
 
   const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize.target.value);
+    setPageSize(newPageSize);
     setCurrentPage(1);
     refetch();
   };
@@ -97,13 +94,13 @@ const ListingTypes = () => {
   const handleSubmit = async () => {
     try {
       if (isEditMode) {
-        await updateItemMuation({
+        await updateItemMutation({
           path: `/listing/secondary/types/${currentType._id}`,
           body: formData,
         }).unwrap();
         toast.success("Listing type updated successfully");
       } else {
-        await createItemMuation({
+        await createItemMutation({
           path: "/listing/secondary/types",
           body: formData,
         }).unwrap();
@@ -153,7 +150,7 @@ const ListingTypes = () => {
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
-      await updateItemMuation({
+      await updateItemMutation({
         path: `/listing/secondary/types/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
@@ -194,8 +191,9 @@ const ListingTypes = () => {
         </Button>
       </Flex>
 
+      {/* Pagination Controls */}
       <Box mx={1} mb={1}>
-        <Pagination
+        <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
@@ -212,7 +210,6 @@ const ListingTypes = () => {
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
-        maxH={"calc(60vh - 100px)"}
         overflowY="auto"
       >
         <Table variant="striped" size="lg" bg="white">

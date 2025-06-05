@@ -33,6 +33,8 @@ import { FiSearch } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { ViewIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
 
 const PendingListings = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -49,6 +51,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
 
+  const Navigate = useNavigate();
+
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
     "SR.No",
@@ -64,6 +68,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "Date",
     "Created By",
     "Status",
+    "View Listing",
     "Action",
   ];
 
@@ -256,7 +261,6 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
-        maxH={"calc(60vh - 100px)"}
         overflowY="auto"
       >
         <Table variant="striped" size="lg" bg="white">
@@ -379,8 +383,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing?.developer?.developer_name
-                        ? listing?.developer?.developer_name
+                      {listing?.developer
+                        ? listing?.developer
                         : "N/A"}
                     </Td>
                     <Td
@@ -430,6 +434,21 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       >
                         {listing.status}
                       </Badge>
+                    </Td>
+                    <Td textAlign="center">
+                      <IconButton
+                        aria-label="View"
+                        icon={<ViewIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{
+                          backgroundColor: "#c09f5f",
+                          color: "white",
+                        }}
+                        onClick={() =>
+                          Navigate(`/listing/view-listing/${listing._id}`)
+                        }
+                      />
                     </Td>
                     <Td
                       py={4}
