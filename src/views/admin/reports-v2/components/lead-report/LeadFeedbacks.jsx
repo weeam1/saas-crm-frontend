@@ -8,6 +8,7 @@ import Loader from 'components/loading/Loader';
 import TopFilter from '../TopFilter';
 import { viewOptions } from '../../helpers';
 import CardShimmer from '../CardShimmer';
+import NoData from 'components/Message/NoData';
 
 const LeadFeedbacks = () => {
 	const { filters } = useLeadReportFilters();
@@ -89,6 +90,17 @@ const LeadFeedbacks = () => {
 
 				{mainStatusData?.doc?.stats && (
 					<LeadMainStatusChart data={mainStatusData?.doc?.stats} view={view} />
+				)}
+
+				{!statusData?.doc?.stats && !mainStatusData?.doc?.stats && (
+					<Box
+						w='full'
+						display='flex'
+						alignItems='center'
+						justifyContent='center'
+					>
+						<NoData label='feedbacks' />
+					</Box>
 				)}
 			</Stack>
 		</Box>

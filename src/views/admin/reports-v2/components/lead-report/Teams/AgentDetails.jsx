@@ -20,8 +20,14 @@ const AgentDetails = ({ agents }) => {
 
 	return (
 		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4'>
-			<Flex justify='space-between' align='center' mb={4}>
-				<Text fontSize='xl' fontWeight='bold'>
+			<Flex
+				justify='space-between'
+				align='center'
+				mb={4}
+				gap='2'
+				flexDir={{ base: 'column', md: 'row' }}
+			>
+				<Text fontSize={{ base: 'md', md: 'xl' }} fontWeight='bold'>
 					{selectedAgent?.fullName || ''} Agent Overview
 				</Text>
 				<AgentFilter
@@ -69,8 +75,8 @@ const AgentDetails = ({ agents }) => {
 					justify='space-between'
 					align='center'
 					mb={4}
-					gap={3}
-					flexDir={{ base: 'column', md: 'row' }}
+					gap={2}
+					// flexDir={{ base: 'column', md: 'row' }}
 				>
 					<Text
 						fontSize={{ base: 'sm', md: 'md', lg: 'xl' }}
