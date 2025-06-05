@@ -48,7 +48,8 @@ const AgentFilter = ({ agents = [], onSelect, selectedAgent }) => {
 				fontWeight='medium'
 				rounded='md'
 			>
-				{selectedAgent?.fullName || 'Select Agent'}
+				{/* {selectedAgent?.fullName || 'Select Agent'} */}
+				Select Agent
 			</Button>
 
 			<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
