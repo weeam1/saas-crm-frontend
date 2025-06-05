@@ -291,8 +291,9 @@ const Dashboard = () => {
 					<Loader />
 				</Box>
 			) : (
-				<Box p='2' fontFamily="'DM Sans', sans-serif">
+				<Box p='2'>
 					<RealTimeData
+						data={data}
 						stats={stats}
 						lineChartData={lineChartData}
 						lineChartOptions={lineChartOptions}

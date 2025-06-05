@@ -45,14 +45,14 @@ const AttendanceRoleChart = ({ data }) => {
 	};
 
 	return (
-		<Box p='2'>
+		<Box>
 			<Text fontSize='lg' color='gray.800' fontWeight='bold' mb='8'>
 				Weekly Attendance
 			</Text>
 			<ResponsiveContainer width='100%' height={300}>
 				<BarChart
 					data={chartData}
-					margin={{ top: 20, right: 20, bottom: 40, left: 20 }}
+					margin={{ top: 20, right: 20, bottom: 40, left: 0 }}
 					barSize={40}
 				>
 					<CartesianGrid
@@ -62,16 +62,15 @@ const AttendanceRoleChart = ({ data }) => {
 					/>
 					<XAxis
 						dataKey='name'
-						axisLine={false}
+						axisLine={true}
 						tickLine={false}
 						tick={{ fill: '#4a5568', fontSize: 14 }}
 					/>
 					<YAxis
 						tickFormatter={(val) => `${Math.round(val)}%`}
-						axisLine={false}
+						axisLine={true}
 						tickLine={false}
 						tick={{ fill: '#4a5568', fontSize: 12 }}
-						// domain={[0, (dataMax) => Math.ceil(dataMax * 1.2)]}
 					/>
 					<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
 					<Bar dataKey='value' radius={[4, 4, 0, 0]}>
@@ -81,7 +80,7 @@ const AttendanceRoleChart = ({ data }) => {
 						<LabelList
 							dataKey='value'
 							position='top'
-							formatter={(val) => `${val}%`}
+							formatter={(val) => `${val}`}
 							fill='#2d3748'
 							fontSize={14}
 							fontWeight={500}

@@ -12,97 +12,6 @@ import {
 } from 'recharts';
 import { Box, Circle, Flex, Text } from '@chakra-ui/react';
 
-// export const CustomTooltip = ({ active, payload }) => {
-// 	if (active && payload && payload.length) {
-// 		const item = payload[0].payload;
-// 		return (
-// 			<Box bg='white' p={3} rounded='md' shadow='md' border='1px solid #e2e8f0'>
-// 				<Flex align='center' gap={2}>
-// 					<Circle size='12px' bg={item.bgColor} />
-// 					<Text fontWeight='bold' fontSize='sm' color={item.textColor}>
-// 						{item.label}
-// 					</Text>
-// 				</Flex>
-// 				<Text fontSize='sm' color='gray.600'>
-// 					{item.value} leads ({(item.percent * 100).toFixed(1)}%)
-// 				</Text>
-// 			</Box>
-// 		);
-// 	}
-// 	return null;
-// };
-
-// const BarChartComponent = ({
-// 	data,
-// 	containerWidth = '100%',
-// 	containerHeight = 300,
-// 	barSize = 40,
-// 	layout = 'vertical',
-// 	dataKey = 'value',
-// 	labelKey = 'name',
-// 	showGrid = true,
-// 	XAxisFontSize = '12px',
-// 	YAxisFontSize = '12px',
-// 	showPercent = false,
-// }) => {
-// 	return (
-// 		<ResponsiveContainer width={containerWidth} height={containerHeight}>
-// 			<BarChart
-// 				data={data}
-// 				layout={layout}
-// 				margin={{ top: 10, right: 30, left: 30, bottom: 5 }}
-// 				barSize={barSize}
-// 			>
-// 				{showGrid && (
-// 					<CartesianGrid
-// 						strokeDasharray='3 3'
-// 						vertical={false}
-// 						stroke='#e2e8f0'
-// 					/>
-// 				)}
-
-// 				<XAxis
-// 					type={layout === 'vertical' ? 'number' : 'category'}
-// 					// fontSize={XAxisFontSize}
-// 					tickLine={false}
-// 					axisLine={false}
-// 					tick={{ fill: '#4a5568', fontSize: XAxisFontSize }}
-// 				/>
-// 				<YAxis
-// 					type={layout === 'vertical' ? 'category' : 'number'}
-// 					dataKey={labelKey}
-// 					tickLine={false}
-// 					axisLine={false}
-// 					tick={{ fill: '#4a5568', fontSize: YAxisFontSize }}
-// 				/>
-// 				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
-// 				<Bar
-// 					dataKey={dataKey}
-// 					vertical={false}
-// 					stroke='#e2e8f0'
-// 					animationDuration={1500}
-// 				>
-// 					{data.map((entry, index) => (
-// 						<Cell
-// 							key={`bar-${index}`}
-// 							fill={entry.bgColor || '#3182CE'}
-// 							stroke={entry.textColor || '#1A202C'}
-// 						/>
-// 					))}
-
-// 					<LabelList
-// 						dataKey='value'
-// 						position={layout === 'vertical' ? 'right' : 'top'}
-// 						fill='#2d3748'
-// 						fontSize={10}
-// 						fontWeight={400}
-// 					/>
-// 				</Bar>
-// 			</BarChart>
-// 		</ResponsiveContainer>
-// 	);
-// };
-
 export const CustomTooltip = ({ active, payload }) => {
 	if (active && payload && payload.length) {
 		const item = payload[0].payload;
@@ -161,7 +70,7 @@ const StatusBarChart = ({
 	axisFontSize = '12px',
 	customColors = [],
 	margin = { top: 20, right: 30, left: 5, bottom: 20 },
-	borderRadius = [4, 4, 0, 0], // For horizontal layout
+	borderRadius = [4, 4, 0, 0], // horizontal layout
 	barGap = 4,
 }) => {
 	// Default color palette if not provided
@@ -190,7 +99,7 @@ const StatusBarChart = ({
 					type={layout === 'vertical' ? 'number' : 'category'}
 					dataKey={layout === 'vertical' ? null : labelKey}
 					tickLine={false}
-					axisLine={false}
+					axisLine={true}
 					tick={{ fill: '#4a5568', fontSize: axisFontSize }}
 					// height={layout === 'vertical' ? 0 : 40}
 					domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
@@ -200,20 +109,12 @@ const StatusBarChart = ({
 					type={layout === 'vertical' ? 'category' : 'number'}
 					dataKey={layout === 'vertical' ? labelKey : null}
 					tickLine={false}
-					axisLine={false}
+					axisLine={true}
 					tick={{ fill: '#4a5568', fontSize: axisFontSize }}
 					// width={layout === 'vertical' ? 120 : 60}
 				/>
 
-				<Tooltip
-					content={<CustomTooltip />}
-					cursor={{ fill: '#ebf8ff' }}
-					// cursor={{
-					// 	fill: 'rgba(49, 130, 206, 0.1)',
-					// 	stroke: '#3182CE',
-					// 	strokeWidth: 1,
-					// }}
-				/>
+				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
 
 				{/* {showLegend && (
 					<Legend
@@ -240,8 +141,6 @@ const StatusBarChart = ({
 						<Cell
 							key={`cell-${index}`}
 							fill={entry.bgColor || colors[index % colors.length]}
-							// stroke={entry.borderColor || '#4A5568'}
-							// strokeWidth={1}
 						/>
 					))}
 

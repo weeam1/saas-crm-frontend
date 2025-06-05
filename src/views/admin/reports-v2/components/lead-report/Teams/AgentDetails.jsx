@@ -19,7 +19,7 @@ const AgentDetails = ({ agents }) => {
 	const [view, setView] = useState('top5');
 
 	return (
-		<Box p={6} bg='white' rounded='lg' shadow='sm' mb='4'>
+		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4'>
 			<Flex justify='space-between' align='center' mb={4}>
 				<Text fontSize='xl' fontWeight='bold'>
 					{selectedAgent?.fullName || ''} Agent Overview
@@ -32,7 +32,11 @@ const AgentDetails = ({ agents }) => {
 				/>
 			</Flex>
 
-			<Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap={6}>
+			<Grid
+				templateColumns='repeat(auto-fit, minmax(200px, 1fr))'
+				p='2'
+				gap={6}
+			>
 				<StatCard
 					title='Total Leads'
 					value={selectedAgent.leadData.totalLeads}

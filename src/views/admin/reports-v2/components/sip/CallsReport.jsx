@@ -7,6 +7,7 @@ import {
 	Text,
 	useColorModeValue,
 	SimpleGrid,
+	HStack,
 } from '@chakra-ui/react';
 import {
 	Bar,
@@ -24,6 +25,7 @@ import { fetchTotalTimeCallsRecordStats } from 'services/sip/index';
 import TopFilter from '../TopFilter';
 import { dayOptions } from '../../helpers';
 import { StatCard } from '../StatCard';
+import RefButton from '../RefButton';
 
 const formatSeconds = (seconds) => {
 	const hrs = Math.floor(seconds / 3600);
@@ -109,11 +111,17 @@ const CallsReport = () => {
 	);
 
 	return (
-		<Box p={8} bg={bgColor} rounded='md' shadow='sm'>
+		<Box p={6} bg={bgColor} rounded='md' shadow='sm'>
 			<Flex justify='space-between' align='center' mb={8}>
-				<Text fontSize='2xl' fontWeight='bold'>
-					Calls Report
-				</Text>
+				<HStack>
+					<Text
+						fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
+						fontWeight='bold'
+					>
+						Call Stats Report
+					</Text>
+					<RefButton to='/sip' label='Call Logs Module' />
+				</HStack>
 
 				<TopFilter view={days} setView={setDays} options={dayOptions} />
 			</Flex>
@@ -146,17 +154,27 @@ const CallsReport = () => {
 						<XAxis
 							dataKey='date'
 							angle={-30}
-							fontSize='12px'
+							// fontSize='12px'
 							textAnchor='end'
 							height={60}
-							tick={{ fill: '#4a5568' }}
+							axisLine={true}
+							tickLine={false}
+							tick={{ fill: '#4a5568', fontSize: 12 }}
 						/>
-						<YAxis yAxisId='left' fontSize='12px' tick={{ fill: '#4a5568' }} />
+						<YAxis
+							yAxisId='left'
+							axisLine={true}
+							tickLine={false}
+							// fontSize='12px'
+							tick={{ fill: '#4a5568', fontSize: 12 }}
+						/>
 						<YAxis
 							yAxisId='right'
-							fontSize='12px'
+							// fontSize='12px'
+							axisLine={true}
+							tickLine={false}
 							orientation='right'
-							tick={{ fill: '#4a5568' }}
+							tick={{ fill: '#4a5568', fontSize: 12 }}
 						/>
 						<Tooltip content={<CustomTooltip />} />
 						<Legend />

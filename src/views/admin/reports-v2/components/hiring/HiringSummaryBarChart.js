@@ -53,12 +53,12 @@ const HiringSummaryBarChart = ({ data }) => {
 				/>
 				<XAxis
 					dataKey='name'
-					axisLine={false}
+					axisLine={true}
 					tickLine={false}
 					tick={{ fill: '#4a5568', fontSize: 14 }}
 				/>
 				<YAxis
-					axisLine={false}
+					axisLine={true}
 					tickLine={false}
 					tick={{ fill: '#4a5568', fontSize: 12 }}
 				/>

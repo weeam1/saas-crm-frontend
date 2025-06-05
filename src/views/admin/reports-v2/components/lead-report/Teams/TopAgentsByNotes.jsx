@@ -19,7 +19,7 @@ const TopAgentsByNotes = ({ agents }) => {
 			<Text fontSize='lg' fontWeight='bold' mb={4}>
 				📝 Top Agents by Notes
 			</Text>
-			<HorizontalSummaryChart data={data} type='Notes' />;
+			<HorizontalSummaryChart data={data} type='Notes' />
 			{/* <ResponsiveContainer width='99%' height={250}>
 				<BarChart
 					data={data}

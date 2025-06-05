@@ -7,12 +7,13 @@ import {
 	Tooltip,
 	CartesianGrid,
 } from 'recharts';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CardShimmer from '../CardShimmer';
 import NoData from 'components/Message/NoData';
+import DateFilter from 'views/admin/attendance/components/DateFilter';
 
 const AttendanceAreaChart = () => {
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
@@ -26,8 +27,8 @@ const AttendanceAreaChart = () => {
 	const {
 		data: stats,
 		isLoading: statsLoading,
-		refetch: statsRefetch,
-		isFetching: statsIsFetching,
+		refetch: refetchStats,
+		// isFetching: isFetchingStats,
 	} = useFetchItemsQuery(
 		{ path: `/attendance/reports`, params: queryParams },
 		{ refetchOnMountOrArgChange: true }
@@ -62,8 +63,37 @@ const AttendanceAreaChart = () => {
 		return { minY: min, maxY: max };
 	}, [chartData]);
 
+	const onFilterChange = (value) => {
+		const newMonth = Number(value.month);
+		const newYear = Number(value.year);
+
+		setMonth(newMonth);
+		setYear(newYear);
+
+		// refetch stats with new month and year
+		setQueryParams({ month: newMonth, year: newYear });
+		refetchStats();
+	};
+
+	console.log('Attendance stats:', stats);
+	console.log('Attendance chart data:', chartData);
+
 	return (
-		<Box h='350px' w='100%' p='2'>
+		<Box w='100%' py='2' px='2'>
+			<Stack
+				justifyContent='space-between'
+				flexDir={{ base: 'column', md: 'row' }}
+				alignItems='center'
+				mb='4'
+			>
+				<Text fontSize='lg' color='gray.800' fontWeight='bold' mb='8'>
+					Attendance Statistics
+				</Text>
+
+				{/* Attendance date filter */}
+				<DateFilter onFilterChange={onFilterChange} />
+			</Stack>
+
 			{statsLoading ? (
 				<CardShimmer
 					count={1}
@@ -71,32 +101,24 @@ const AttendanceAreaChart = () => {
 					columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
 				/>
 			) : stats?.data && chartData?.length ? (
-				<>
-					<Text fontSize='lg' color='gray.800' fontWeight='bold' mb='8'>
-						Attendance Statistics
-					</Text>
-
+				<Box h='350px'>
 					<ResponsiveContainer width='100%' height='100%'>
 						<AreaChart
 							data={chartData}
 							margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
 						>
-							<CartesianGrid
-								strokeDasharray='3 3'
-								vertical={true}
-								stroke='#e2e8f0'
-							/>
+							<CartesianGrid strokeDasharray='3 3' stroke='#e2e8f0' />
 							<XAxis
 								dataKey='date'
 								tick={{ fill: '#4A5568', fontSize: 12 }}
-								axisLine={false}
+								axisLine={true}
 								tickLine={false}
 							/>
 							<YAxis
 								domain={[minY, maxY]}
 								allowDecimals={false}
 								tick={{ fill: '#4A5568', fontSize: 12 }}
-								axisLine={false}
+								axisLine={true}
 								tickLine={false}
 								tickCount={6}
 							/>
@@ -104,6 +126,8 @@ const AttendanceAreaChart = () => {
 							<Area
 								type='monotone'
 								dataKey='count'
+								// stroke='#D99A36'
+								// fill='#E5B668'
 								stroke='#3182ce'
 								fill='#90cdf4'
 								name='Attendance Count'
@@ -113,7 +137,7 @@ const AttendanceAreaChart = () => {
 							/>
 						</AreaChart>
 					</ResponsiveContainer>
-				</>
+				</Box>
 			) : (
 				<NoData label='attendance stats' />
 			)}

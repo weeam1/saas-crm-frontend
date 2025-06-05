@@ -102,7 +102,7 @@ const HorizontalSummaryChart = ({ data, type }) => {
 				/>
 				<XAxis
 					type='number'
-					axisLine={false}
+					axisLine={true}
 					tickLine={false}
 					tick={{ fill: '#4a5568', fontSize: 12 }}
 					domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
@@ -110,7 +110,7 @@ const HorizontalSummaryChart = ({ data, type }) => {
 				<YAxis
 					dataKey='name'
 					type='category'
-					axisLine={false}
+					axisLine={true}
 					tickLine={false}
 					tick={{ fill: '#4a5568', fontSize: 12 }}
 					width={120}

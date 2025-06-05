@@ -45,7 +45,7 @@ const LeadFeedbacks = () => {
 		);
 
 	return statusLoading || mainStatusLoading ? (
-		<Box w='full'>
+		<Box w='full' p='6' bg='white' my='2' rounded='md' shadow='sm'>
 			<CardShimmer
 				count={2}
 				height='400px'
@@ -53,7 +53,7 @@ const LeadFeedbacks = () => {
 			/>
 		</Box>
 	) : (
-		<Box bg='white' my='2' rounded='md' shadow='sm' p='4'>
+		<Box bg='white' my='2' rounded='md' shadow='sm' p='6'>
 			<Flex
 				justify='space-between'
 				align='center'
@@ -61,7 +61,11 @@ const LeadFeedbacks = () => {
 				gap={3}
 				flexDir={{ base: 'column', md: 'row' }}
 			>
-				<Text fontSize='2xl' fontWeight='bold' mb='2'>
+				<Text
+					fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
+					fontWeight='bold'
+					mb='2'
+				>
 					Lead Feedbacks
 				</Text>
 

@@ -151,31 +151,7 @@ export default function User(props) {
 			),
 			component: LeadScreen,
 		},
-		{
-			name: 'Survey',
-			layout: [ROLE_PATH.user],
-			path: '/survey',
-			icon: (
-				<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-			),
-			component: Survey,
-		},
-		{
-			name: 'Survey Board',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/survey/survey-leader-board',
-			under: 'Survey',
-			parentName: 'Survey',
-			component: LeaderBoard,
-		},
-		{
-			name: 'Take Survey',
-			layout: [ROLE_PATH.user],
-			path: '/survey/take-survey/:id',
-			under: 'Survey',
-			parentName: 'Survey',
-			component: TakeSurvey,
-		},
+
 		{
 			name: 'Leads Pool',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -273,6 +249,32 @@ export default function User(props) {
 			under: 'users',
 			path: '/userView/:id',
 			component: UserView,
+		},
+
+		{
+			name: 'Survey',
+			layout: [ROLE_PATH.user],
+			path: '/survey',
+			icon: (
+				<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
+			),
+			component: Survey,
+		},
+		{
+			name: 'Survey Board',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/survey/survey-leader-board',
+			under: 'Survey',
+			parentName: 'Survey',
+			component: LeaderBoard,
+		},
+		{
+			name: 'Take Survey',
+			layout: [ROLE_PATH.user],
+			path: '/survey/take-survey/:id',
+			under: 'Survey',
+			parentName: 'Survey',
+			component: TakeSurvey,
 		},
 	];
 

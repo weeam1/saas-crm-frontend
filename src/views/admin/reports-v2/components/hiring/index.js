@@ -1,9 +1,10 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, HStack, Text } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import HiringStatusCards from './HiringStatusCards';
 import CardShimmer from '../CardShimmer';
 import HiringSummaryBarChart from './HiringSummaryBarChart';
+import RefButton from '../RefButton';
 
 const HiringReport = () => {
 	const { data, isLoading } = useFetchItemsQuery(
@@ -29,10 +30,13 @@ const HiringReport = () => {
 	];
 
 	return (
-		<Box p={6} bg='white' rounded='lg' shadow='sm' mb='4' mx='2'>
-			<Text fontSize='2xl' fontWeight='bold' mb='4'>
-				Hiring Report
-			</Text>
+		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4' mx='2'>
+			<HStack>
+				<Text fontSize={{ base: 'md', md: 'xl', lg: '2xl' }} fontWeight='bold'>
+					Hiring Report
+				</Text>
+				<RefButton to='/hiring?tab=dashboard' label='Hiring Module' />
+			</HStack>
 
 			<HiringStatusCards stats={data?.doc} />
 

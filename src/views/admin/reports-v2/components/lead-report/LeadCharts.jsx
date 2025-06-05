@@ -31,6 +31,7 @@ import TopFilter from '../TopFilter';
 import { PERIOD_OPTIONS } from '../../helpers';
 import CardShimmer from '../CardShimmer';
 import NoData from 'components/Message/NoData';
+import RefButton from '../RefButton';
 
 const normalizeBarData = (doc) => [
 	{
@@ -79,7 +80,7 @@ const normalizeAssignmentsData = (doc) => [
 ];
 
 export default function LeadsCharts() {
-	const [period, setPeriod] = useState('today');
+	const [period, setPeriod] = useState('weekly');
 
 	const [chartData, setChartData] = useState({
 		analytics: [],
@@ -121,7 +122,7 @@ export default function LeadsCharts() {
 	// if (!isSuccess || !data?.doc) return <NoData label='data' />;
 
 	return (
-		<VStack spacing={6} w='full' bg='white' rounded='md' shadow='sm' p='4'>
+		<VStack spacing={6} w='full' bg='white' rounded='md' shadow='sm' p='6'>
 			{isLoading ? (
 				<CardShimmer
 					count={2}
@@ -131,9 +132,15 @@ export default function LeadsCharts() {
 			) : data?.doc ? (
 				<>
 					<HStack w='full' justify='space-between'>
-						<Text fontSize='2xl' fontWeight='bold'>
-							Lead Report
-						</Text>
+						<HStack>
+							<Text
+								fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
+								fontWeight='bold'
+							>
+								Lead Report
+							</Text>
+							<RefButton to='/lead' label='Lead Module' />
+						</HStack>
 
 						<TopFilter
 							view={period}

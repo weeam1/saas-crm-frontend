@@ -19,7 +19,7 @@ const TopAgentsByLeads = ({ agents }) => {
 			<Text fontSize='lg' fontWeight='bold' mb={4}>
 				📊 Top Agents by Leads
 			</Text>
-			<HorizontalSummaryChart data={data} type='Leads' />;
+			<HorizontalSummaryChart data={data} type='Leads' />
 			{/* <ResponsiveContainer width='99%' height={250}>
 				<BarChart
 					data={data}

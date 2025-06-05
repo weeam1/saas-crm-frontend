@@ -54,6 +54,7 @@ import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import CreateSurvey from 'views/admin/survey/CreateSurvey';
 import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
 import Report from 'views/admin/reports-v2';
+import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -141,12 +142,12 @@ const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
 // const Report = React.lazy(() => import('views/admin/reports'));
 // const Report = React.lazy(() => import('views/admin/reports-v2'));
 
-const TeamDetailsScreen = React.lazy(
-	() =>
-		import(
-			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
-		)
-);
+// const TeamDetailsScreen = React.lazy(
+// 	() =>
+// 		import(
+// 			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
+// 		)
+// );
 // Auth Imports
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 // admin setting

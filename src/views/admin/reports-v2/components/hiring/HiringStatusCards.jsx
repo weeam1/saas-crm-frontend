@@ -61,7 +61,7 @@ const HiringStatusCards = ({ stats }) => {
 			spacing={6}
 			width='100%'
 			px='6'
-			py='2'
+			py='4'
 		>
 			{statusData.map((item, index) => (
 				<StatCard

@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	HStack,
+	IconButton,
+	Text,
+	Tooltip,
+} from '@chakra-ui/react';
 import {
 	FaUsers,
 	FaClock,
@@ -8,11 +15,13 @@ import {
 	FaMoon,
 	FaFileAlt,
 } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useFetchItemsQuery } from 'api/apiSlice';
 import DashboardShimmer from 'views/admin/attendance/components/dashboard/DashboardShimmer';
 import AttendanceStats from './AttendanceStats';
-import AttendanceRoleChart from './AttendanceRoleChart';
+import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import RefButton from '../RefButton';
 
 const AttendanceReport = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
@@ -206,10 +215,18 @@ const AttendanceReport = () => {
 		</Box>
 	) : (
 		<>
-			<Box bg='white' rounded='md' shadow='sm' p='6' mb='4' mx='2'>
-				<Text fontSize='2xl' fontWeight='bold'>
-					Attendance Report
-				</Text>
+			<Box bg='white' rounded='md' shadow='sm' p='8' mb='4' mx='2'>
+				<HStack>
+					<Text
+						fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
+						fontWeight='bold'
+					>
+						Attendance Report
+					</Text>
+
+					<RefButton to='/attendance' label='Attendance Module' />
+				</HStack>
+
 				<AttendanceStats
 					data={data}
 					stats={stats}
