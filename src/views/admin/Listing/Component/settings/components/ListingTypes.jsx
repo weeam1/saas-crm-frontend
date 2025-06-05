@@ -194,7 +194,7 @@ const ListingTypes = () => {
         </Button>
       </Flex>
 
-      <Box mx={1} mb={1}>
+      {/* <Box mx={1} mb={1}>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -206,7 +206,7 @@ const ListingTypes = () => {
           refetching={isLoading}
           loading={isLoading}
         />
-      </Box>
+      </Box> */}
 
       <Box
         borderRadius="lg"
