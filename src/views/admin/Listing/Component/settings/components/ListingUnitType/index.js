@@ -248,7 +248,6 @@ const UnitType = () => {
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
-        maxH={"calc(60vh - 100px)"}
         overflowY="auto"
       >
         <Table variant="striped" size="lg" bg="white">
