@@ -31,23 +31,38 @@ const formatTime = (time) => {
   const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
-const AudioPlayer = ({ url }) => {
+
+const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
+  const isCurrentlyPlaying = currentlyPlayingId === playerId;
+
+  useEffect(() => {
+    if (!isCurrentlyPlaying && isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    }
+  }, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
+
   const togglePlay = () => {
     if (!audioRef.current) return;
+    
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
     } else {
+      setCurrentlyPlayingId(playerId);
       audioRef.current.play().catch(() => {
         setIsPlaying(false);
+        setCurrentlyPlayingId(null);
       });
+      setIsPlaying(true);
     }
-    setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
@@ -68,6 +83,7 @@ const AudioPlayer = ({ url }) => {
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      setCurrentlyPlayingId(null);
     };
 
     if (audio) {
@@ -136,7 +152,7 @@ const StatusBadge = ({ status }) => {
     case "NO ANSWER":
       color = "yellow";
       break;
-    case -"FAILED":
+    case "FAILED":
       color = "red";
       break;
     default:
@@ -158,6 +174,8 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  
   const columns = [
     "Call id",
     "Call date",
@@ -198,6 +216,11 @@ export default function CallHistory() {
     setPageSize(e.target.value);
     setPage(1);
   }, []);
+
+  const handleSetCurrentlyPlaying = useCallback((playerId) => {
+    setCurrentlyPlayingId(playerId);
+  }, []);
+
   const borderColor = useColorModeValue("gray.200", "gray.700");
   return (
     <Box
@@ -256,8 +279,8 @@ export default function CallHistory() {
           <Tbody>
             {loading ? (
               <TableLoading columns={columns} length={10} py="4" />
-            ) : calls ? (
-              calls.map((call) => (
+            ) : calls && calls.length > 0 ? (
+              calls.map((call,index) => (
                 <Tr key={call.id}>
                   <Td
                     py={4}
@@ -316,6 +339,9 @@ export default function CallHistory() {
                     {call.recording ? (
                       <AudioPlayer
                         url={`https://webrtc.weeam.info/file/${call.recording}`}
+                        currentlyPlayingId={currentlyPlayingId}
+                        setCurrentlyPlayingId={handleSetCurrentlyPlaying}
+                        playerId={call.id || call.uniqueid || `player-${index}`}
                       />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
