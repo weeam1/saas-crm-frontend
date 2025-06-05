@@ -93,7 +93,7 @@ const AudioPlayer = ({ url }) => {
   };
 
   return (
-    <Flex align="center" w="100%" gap={2}>
+    <Flex align="center" w="260px" gap={2}>
       <audio ref={audioRef} src={url} preload="metadata" />
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
@@ -113,6 +113,7 @@ const AudioPlayer = ({ url }) => {
         onChangeEnd={() => setIsSeeking(false)}
         onChange={handleSeek}
         isDisabled={isNaN(duration)}
+        w="140px"
       >
         <SliderTrack bg="gray.200">
           <SliderFilledTrack bg="blue.400" />
@@ -164,10 +165,10 @@ export default function CallHistory() {
     "Call from",
     "Call to",
     "Recording",
+    "Status",
     "Type",
     "Call Duration",
     "Talk Duration",
-    "Status",
   ];
   const loadCalls = async (page, pageSize) => {
     try {
@@ -221,14 +222,7 @@ export default function CallHistory() {
         loading={loading}
       />
 
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        maxH={"calc(70vh - 100px)"}
-        overflowY="auto"
-        mt={3}
-      >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto" mt={3}>
         <Table variant="striped" size="sm" bg="white">
           <Thead
             position="sticky"
@@ -314,9 +308,9 @@ export default function CallHistory() {
                   </Td>
                   <Td
                     py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
+                    fontSize={{ base: "11px", md: "13px" }}
                     fontWeight="400"
-                    minWidth="100px"
+                    minWidth="180px"
                     textAlign={"center"}
                   >
                     {call.recording ? (
@@ -328,6 +322,15 @@ export default function CallHistory() {
                         no data found
                       </Text>
                     )}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    <StatusBadge status={call.disposition} />
                   </Td>
                   <Td
                     py={4}
@@ -356,22 +359,13 @@ export default function CallHistory() {
                   >
                     {call.billsec ? `${call.billsec} sec` : "no data found"}
                   </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    <StatusBadge status={call.disposition} />
-                  </Td>
                 </Tr>
               ))
             ) : (
               <Tr borderColor="gray.200" textAlign="center">
                 <Td
                   borderBottom="none"
-                  colSpan="9"
+                  colSpan="10"
                   fontSize={{ base: "12px", md: "15px" }}
                   fontWeight="500"
                   color="gray.500"

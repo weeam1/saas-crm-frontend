@@ -111,7 +111,7 @@ const UpdateListing = () => {
       phoneNumber: listing?.data?.phoneNumber || "",
       email: listing?.data?.email || "",
       buildingAge: listing?.data?.buildingAge || "",
-      developer: listing?.data?.developer?._id || "",
+      developer: listing?.data?.developer || "",
       status: listing?.data?.status || "pending",
       isConfidential: listing?.data?.isConfidential || false,
       documents: listing?.data?.documents || [],

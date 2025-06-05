@@ -416,7 +416,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       textAlign={"center"}
                     >
                       {listing.price
-                        ? `AED${listing.price.toLocaleString()}`
+                        ? `AED ${listing.price.toLocaleString()}`
                         : "N/A"}
                     </Td>
                     <Td textAlign="center">
@@ -433,9 +433,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
                     </Td>
                     <Td textAlign="center">
                       {listing.totalPrice
-                        ? `AED${listing.totalPrice.toLocaleString()}`
+                        ? `AED ${listing.totalPrice.toLocaleString()}`
                         : listing.price
-                          ? `AED${listing.price.toLocaleString()}`
+                          ? `AED ${listing.price.toLocaleString()}`
                           : "N/A"}
                     </Td>
                     <Td
