@@ -376,7 +376,7 @@ const ViewSurveyResponse = () => {
     currentUserData?.submittedQuestions === surveyData?.questionsCount;
 
   return (
-    <Flex h="100vh" overflow="hidden" position="relative">
+    <Flex h="100vh" overflow="hidden" position="relative"  p={{base:2, sm:2}}>
       {/* Main Content Area */}
       <Box
         flex="1"

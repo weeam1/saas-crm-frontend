@@ -245,7 +245,13 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH={"85vh"}
+        overflowY="auto"
+      >
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"

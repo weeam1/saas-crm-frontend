@@ -260,6 +260,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         boxShadow="sm"
         bg="white"
         overflowY="auto"
+        maxH={"85vh"}
       >
         <Table variant="striped" size="lg" bg="white">
           <Thead

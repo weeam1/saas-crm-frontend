@@ -288,7 +288,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
           >
             Add New
           </Button>
-          
+
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
@@ -321,7 +321,13 @@ const MyListing = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH={"85vh"}
+        overflowY="auto"
+      >
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"

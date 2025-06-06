@@ -224,6 +224,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
                   ? {}
                   : { bg: "brand.400", color: "white" }
               }
+              _active = {{
+                bg: "brand.300"
+              }}
               onClick={() => {
                 if (isAdmin) {
                   navigate(`/survey/view-survey/${data.id || data._id}`);
