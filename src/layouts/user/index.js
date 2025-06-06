@@ -20,6 +20,7 @@ import {
 	FaDollarSign,
 	FaRegCalendarCheck,
 	FaRegCopy,
+	FaList,
 } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,7 +30,7 @@ import Report from 'views/admin/reports';
 import DailyReport from 'views/admin/dailyReport';
 import Announcements from 'views/admin/announcement';
 import Hiring from 'views/admin/hiring';
-import { FaClipboardUser } from 'react-icons/fa6';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
 import Candidates from 'views/admin/hiring/candidates';
 import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
@@ -37,6 +38,13 @@ import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
 import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
 import OfficeSettings from 'views/admin/agencies/OfficeSetting';
 import Expenses from 'views/admin/expenses';
+import AddListing from 'views/admin/Listing/Component/AddListing';
+import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
+import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
+import SettingPage from 'views/admin/Listing/Component/settings/index';
+import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
+import TakeSurvey from 'views/admin/survey/TakeSurvey';
+import LeaderBoard from 'views/admin/survey/LeaderBoard';
 
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -77,6 +85,8 @@ const InvoiceDevelopers = React.lazy(
 const DeveloperInvoices = React.lazy(
 	() => import('views/admin/invoice/developers/DeveloperInvoices')
 );
+const Listing = React.lazy(() => import('views/admin/Listing'));
+const Survey = React.lazy(() => import('views/admin/survey'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -141,6 +151,17 @@ export default function User(props) {
 			),
 			component: LeadScreen,
 		},
+
+		{
+			name: 'Leads Pool',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/pool',
+			icon: (
+				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+			),
+			component: LeadPoolAgent,
+		},
+
 		{
 			name: 'Attendance',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -163,6 +184,37 @@ export default function User(props) {
 			parentName: 'Attendance',
 			component: MyAttendance,
 		},
+		{
+			name: 'Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing',
+			icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+			component: Listing,
+		},
+		{
+			name: 'Adding Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/add-listing',
+			under: 'listing',
+			parentName: 'Listing',
+			component: AddListing,
+		},
+		{
+			name: 'View Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/view-listing/:id',
+			under: 'listing',
+			parentName: 'Listing',
+			component: ViewListing,
+		},
+		{
+			name: 'Update Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/update/:id',
+			under: 'listing',
+			parentName: 'Listing',
+			component: UpdateListing,
+		},
 		// {
 		// 	name: 'HR Module',
 		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -173,15 +225,6 @@ export default function User(props) {
 		// 	component: HRModule,
 		// },
 
-		{
-			name: 'Leads Pool',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/pool',
-			icon: (
-				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadPoolAgent,
-		},
 		{
 			name: 'Sign In',
 			layout: '/auth',
@@ -198,6 +241,41 @@ export default function User(props) {
 		// 	),
 		// 	component: CurrencyPoints,
 		// },
+
+		{
+			name: 'User View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			parentName: 'Users',
+			under: 'users',
+			path: '/userView/:id',
+			component: UserView,
+		},
+
+		{
+			name: 'Survey',
+			layout: [ROLE_PATH.user],
+			path: '/survey',
+			icon: (
+				<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
+			),
+			component: Survey,
+		},
+		{
+			name: 'Survey Board',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/survey/survey-leader-board',
+			under: 'Survey',
+			parentName: 'Survey',
+			component: LeaderBoard,
+		},
+		{
+			name: 'Take Survey',
+			layout: [ROLE_PATH.user],
+			path: '/survey/take-survey/:id',
+			under: 'Survey',
+			parentName: 'Survey',
+			component: TakeSurvey,
+		},
 	];
 
 	if (user?.roles[0]?.roleName === 'Manager') {
@@ -210,6 +288,31 @@ export default function User(props) {
 		});
 		// Remove the "Leads Pool" route
 		routes = routes.filter((route) => route.name !== 'Leads Pool');
+	}
+
+	if (user?.roles[0]?.roleName === 'Manager') {
+		routes.push({
+			name: 'Adding Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/add-listing',
+			under: 'listing',
+			parentName: 'Listing',
+			component: AddListing,
+		});
+		// Remove the "Adding Listing" route
+		routes = routes.filter((route) => route.name !== 'Adding Listing');
+	}
+	if (user?.roles[0]?.roleName === 'Manager') {
+		routes.push({
+			name: 'Update Listing',
+			layout: [ROLE_PATH.user],
+			path: '/listing/update/:id',
+			under: 'listing',
+			parentName: 'Listing',
+			component: UpdateListing,
+		});
+		// Remove the "Updating Listing" route
+		routes = routes.filter((route) => route.name !== 'Update Listing');
 	}
 
 	if (user?.roles[0]?.roleName === 'HR') {
@@ -290,6 +393,41 @@ export default function User(props) {
 				under: 'users',
 				path: '/userView/:id',
 				component: UserView,
+			},
+
+			{
+				name: 'Offer View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring/interviewed-candidates/offer-letter/view/:id',
+				under: 'offerView',
+				parentName: 'Hiring',
+				component: OfferView,
+			},
+
+			{
+				name: 'Survey',
+				layout: [ROLE_PATH.user],
+				path: '/survey',
+				icon: (
+					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
+				),
+				component: Survey,
+			},
+			{
+				name: 'Survey Board',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/survey/survey-leader-board',
+				under: 'Survey',
+				parentName: 'Survey',
+				component: LeaderBoard,
+			},
+			{
+				name: 'Take Survey',
+				layout: [ROLE_PATH.user],
+				path: '/survey/take-survey/:id',
+				under: 'Survey',
+				parentName: 'Survey',
+				component: TakeSurvey,
 			},
 
 			// ------------- Invoice Module Routes ------------------------ //
@@ -450,6 +588,32 @@ export default function User(props) {
 				under: 'my-attendance',
 				parentName: 'Attendance',
 				component: MyAttendance,
+			},
+
+			{
+				name: 'Survey',
+				layout: [ROLE_PATH.user],
+				path: '/survey',
+				icon: (
+					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
+				),
+				component: Survey,
+			},
+			{
+				name: 'Survey Board',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/survey/survey-leader-board',
+				under: 'Survey',
+				parentName: 'Survey',
+				component: LeaderBoard,
+			},
+			{
+				name: 'Take Survey',
+				layout: [ROLE_PATH.user],
+				path: '/survey/take-survey/:id',
+				under: 'Survey',
+				parentName: 'Survey',
+				component: TakeSurvey,
 			},
 		];
 
@@ -925,6 +1089,10 @@ export default function User(props) {
 														<Route
 															path='interviewed-candidates/offer-letter/:id'
 															element={<OfferLetter />}
+														/>
+														<Route
+															path='interviewed-candidates/offer-letter/veiw/:id'
+															element={<OfferView />}
 														/>
 													</Route>
 												</>

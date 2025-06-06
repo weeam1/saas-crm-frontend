@@ -17,7 +17,7 @@ import {
 import { CloseIcon, AddIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 
@@ -27,7 +27,14 @@ const validationSchema = Yup.object().shape({
   amount: Yup.number()
     .typeError("Amount must be a number")
     .required("Amount is required")
-    .positive("Amount must be positive"),
+    .positive("Amount must be positive")
+    .min(0, "Amount must be greater than 0"),
+  vat: Yup.number()
+    .typeError("Amount must be a number")
+    .required("Amount is required")
+    .positive("Amount must be positive")
+    .min(0, "Amount must be greater than 0")
+      .max(100, "vat must be less than 100"),
 });
 
 const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
@@ -35,12 +42,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
   const [newType, setNewType] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  const {
-    data: types,
-    isLoading,
-    isError,
-    refetch,
-  } = useFetchItemsQuery(
+  const { data: types, refetch } = useFetchItemsQuery(
     { path: `/expense_types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
@@ -50,6 +52,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
       type: "",
       description: "",
       amount: "",
+      vat: "",
     },
     validationSchema,
     onSubmit: (values) => {
@@ -77,6 +80,11 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
     }
   };
 
+  useEffect(() =>{
+    if(isOpen){
+      formik.resetForm();
+    }
+  },[isOpen])
   return (
     <>
       <Modal
@@ -155,6 +163,20 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   />
                   {formik.touched.amount && formik.errors.amount && (
                     <p style={{ color: "red" }}>{formik.errors.amount}</p>
+                  )}
+                </div>
+                <div>
+                  <FormLabel>VAT %</FormLabel>
+                  <Input
+                    name="vat"
+                    type="number"
+                    value={formik.values.vat}
+                    onChange={formik.handleChange}
+                    placeholder="e.g., 200.0"
+                    focusBorderColor="brand.500"
+                  />
+                  {formik.touched.vat && formik.errors.vat && (
+                    <p style={{ color: "red" }}>{formik.errors.vat}</p>
                   )}
                 </div>
               </Grid>

@@ -37,7 +37,7 @@ const NavigationBoxes = () => {
 
 	// Show all items for superAdmin and HR; otherwise, only show "My Attendance"
 	const menuItems =
-		role === 'superAdmin'
+		role === 'superAdmin' || role === 'Attendance'
 			? allMenuItems.filter(
 					(item) =>
 						item.label !== 'My Attendance' && item.label !== 'Office Settings'
@@ -47,25 +47,29 @@ const NavigationBoxes = () => {
 				: allMenuItems.filter((item) => item.label === 'My Attendance');
 
 	return (
-		<SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} p={6}>
-			{menuItems.map((item) => (
-				<Box
-					key={item.label}
-					p={6}
-					bg='white'
-					borderRadius='lg'
-					textAlign='center'
-					cursor='pointer'
-					_hover={{ bg: 'brand.400', color: 'white' }}
-					onClick={() => navigate(item.route)}
-				>
-					<Icon as={item.icon} boxSize={8} mb={2} />
-					<Text fontSize='md' fontWeight='bold'>
-						{item.label}
-					</Text>
-				</Box>
-			))}
-		</SimpleGrid>
+		<Box>
+			<SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} p={6}>
+				{menuItems.map((item) => (
+					<Box
+						key={item.label}
+						p={6}
+						bg='white'
+						borderRadius='lg'
+						textAlign='center'
+						cursor='pointer'
+						_hover={{ bg: 'brand.400', color: 'white' }}
+						onClick={() => navigate(item.route)}
+					>
+						<Icon as={item.icon} boxSize={8} mb={2} />
+						<Text fontSize='md' fontWeight='bold'>
+							{item.label}
+						</Text>
+					</Box>
+				))}
+			</SimpleGrid>
+
+			{/* <AttendanceQRCode /> */}
+		</Box>
 	);
 };
 

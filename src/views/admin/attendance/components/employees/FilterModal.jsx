@@ -12,19 +12,22 @@ import {
 	FormLabel,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { buttonStyle } from '../../constants';
+import { buttonStyle, getLocalAttendanceFilter } from '../../constants';
 import { useSearchParams } from 'react-router-dom';
 
 const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
 	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
 
 	const [searchParams] = useSearchParams();
-	const currentAgency = searchParams.get('agency') || '';
+	const currentAgency =
+		searchParams.get('agency') || getLocalAttendanceFilter() || '';
 	const [selectedAgency, setSelectedAgency] = useState(currentAgency);
 
 	const handleApplyFilters = () => {
 		updateFilters({ agency: selectedAgency });
 		selectedAgency !== '' && setSearchClear(true);
+
+		localStorage.setItem('attendanceAgencyFilter', selectedAgency);
 		onClose();
 	};
 

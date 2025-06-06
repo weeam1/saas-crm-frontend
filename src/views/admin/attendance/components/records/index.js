@@ -1,19 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, HStack, Text, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import AttendanceHeader from '../AttendanceHeader';
 import RecordTable from './RecordTable';
-import TablePagination from 'components/pagination/TablePagination';
+// import TablePagination from 'components/pagination/TablePagination';
 import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
-import RecordShimmer from './RecordShimmer';
+import ExportAttendanceReport from '../ExportAttendanceReport';
+import AttendanceStatusFilter from '../AttendanceStatusFilter';
+import TopPagination from 'components/pagination/TopPagination';
 
 export default function Records() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchClear, setSearchClear] = useState(false);
+	const currentStatus = searchParams.get('status') || '';
+	const [status, setStatus] = useState(currentStatus);
+
 	const navigate = useNavigate();
 	const searchTermRef = useRef('');
 
@@ -28,42 +33,34 @@ export default function Records() {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	// const { data: officeSettings, isLoading: officeSettingsLoading } =
-	// 	useFetchItemsQuery(
-	// 		{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-	// 		{
-	// 			refetchOnMountOrArgChange: true,
-	// 		}
-	// 	);
-
-	// const timezone =  officeSettings?.doc?.timezone ?? 'Asia/Dubai';
-
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
 	const [year, setYear] = useState(() => new Date().getFullYear());
 
-	const [pageSize, setPageSize] = useState(10);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [gopageValue, setGopageValue] = useState(1);
+	// const [pageSize, setPageSize] = useState(10);
+	// const [currentPage, setCurrentPage] = useState(1);
+	// const [gopageValue, setGopageValue] = useState(1);
 
 	useEffect(() => {
 		const page = Math.max(Number(searchParams.get('page')) || 1, 1);
 		const pageSize = Math.min(
-			Math.max(Number(searchParams.get('pageSize')) || 10, 1),
+			Math.max(Number(searchParams.get('limit')) || 10, 1),
 			100
 		);
 
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || 'All';
+		const status = searchParams.get('status') || '';
 
 		setSearchParams(
 			(prev) => {
 				const newParams = {
 					page,
-					pageSize,
+					limit: pageSize,
 					month: searchParams.get('month') || month,
 					year: searchParams.get('year') || year,
 					...(search && { search }),
 					...(agency && { agency }),
+					...((status || status === 0) && { status }),
 				};
 
 				return newParams;
@@ -76,14 +73,16 @@ export default function Records() {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const agency = searchParams.get('agency') || 'All';
+		const status = searchParams.get('status') || '';
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
-			limit: Number(searchParams.get('pageSize')) || 10,
+			limit: Number(searchParams.get('limit')) || 10,
 			month: searchParams.get('month') || month,
 			year: searchParams.get('year') || year,
 			...(search && { search }),
 			...(agency && { agency }),
+			...((status || status === 0) && { status }),
 		};
 	}, [searchParams]);
 
@@ -105,8 +104,8 @@ export default function Records() {
 				const updatedParams = { ...prevParams, ...newFilters };
 
 				if (updatedParams.page) updatedParams.page = Number(updatedParams.page);
-				if (updatedParams.pageSize)
-					updatedParams.pageSize = Number(updatedParams.pageSize);
+				if (updatedParams.limit)
+					updatedParams.limit = Number(updatedParams.limit);
 
 				// Prevent updating if nothing has changed
 				if (JSON.stringify(prevParams) === JSON.stringify(updatedParams)) {
@@ -119,19 +118,24 @@ export default function Records() {
 		);
 	};
 
-	const handleGotoPage = (page) => {
-		updateFilters({ page: Number(page + 1) });
+	// const handleGotoPage = (page) => {
+	// 	updateFilters({ page: Number(page + 1) });
+	// };
+
+	const handlePageSize = (size) => {
+		console.log({ size });
+		updateFilters({ page: 1, limit: Number(size) });
 	};
 
-	const handlePageSizeChange = (size) => {
-		updateFilters({ page: 1, pageSize: size });
+	const handlePageChange = (page) => {
+		updateFilters({ page: Number(page) });
 	};
 
 	useEffect(() => {
 		attendanceRefetch();
 
-		setCurrentPage(queryParams.page);
-		setPageSize(queryParams.limit);
+		// setCurrentPage(queryParams.page);
+		// setPageSize(queryParams.limit);
 
 		setMonth(queryParams.month);
 		setYear(queryParams.year);
@@ -154,15 +158,17 @@ export default function Records() {
 	const handleClear = () => {
 		searchTermRef.current = '';
 		document.getElementById('searchInput').value = '';
-		updateFilters({ page: 1, role: 'All' });
+		updateFilters({ page: 1 });
 
 		setSearchParams((prev) => {
 			const newParams = new URLSearchParams(prev);
 			newParams.delete('search');
 			newParams.delete('agency');
+			newParams.delete('status');
 			return newParams;
 		});
 		setSearchClear(false);
+		setStatus('');
 	};
 
 	const onFilterChange = (value) => {
@@ -170,6 +176,11 @@ export default function Records() {
 		const newYear = Number(value.year);
 
 		updateFilters({ month: newMonth, year: newYear });
+	};
+
+	const onStatusChange = (value) => {
+		setStatus(value);
+		updateFilters({ status: value, page: 1 });
 	};
 
 	if (error) {
@@ -187,10 +198,26 @@ export default function Records() {
 				Back
 			</AppButton>
 
-			<Box display='flex' alignItems='center' mb={4} bg='white' mt='2' p={4}>
+			<Box
+				display='flex'
+				justifyContent='space-between'
+				alignItems='center'
+				flexDir={{ base: 'column', md: 'row' }}
+				gap='2'
+				mb={4}
+				bg='white'
+				mt='2'
+				p={4}
+			>
 				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					Attendance Records
 				</Text>
+				<HStack gap='2'>
+					<AttendanceStatusFilter status={status} onChange={onStatusChange} />
+					{['superAdmin', 'HR'].includes(role) && (
+						<ExportAttendanceReport month={month} year={year} />
+					)}
+				</HStack>
 			</Box>
 			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
 				{/* Header */}
@@ -202,10 +229,23 @@ export default function Records() {
 					handleSearch={handleSearch}
 					handleClear={handleClear}
 					searchClear={searchClear}
-					content={['date', 'agencyFilter']}
+					content={['date', 'agencyFilter', 'report']}
 					filterOpen={filterOnOpen}
 					onDateFilterChange={onFilterChange}
 				/>
+
+				{!isLoading && (
+					<TopPagination
+						currentPage={queryParams.page}
+						totalPages={data?.totalPages}
+						onPageChange={handlePageChange}
+						totalItems={data?.totalDocs}
+						itemsPerPage={queryParams.limit}
+						refetching={isFetching}
+						loading={isLoading}
+						handlePageSize={handlePageSize}
+					/>
+				)}
 
 				<RecordTable
 					records={data}
@@ -213,9 +253,10 @@ export default function Records() {
 					isLoading={isLoading}
 					isFetching={isFetching}
 					refetch={attendanceRefetch}
+					role={role}
 				/>
 
-				{data?.doc && (
+				{/* {data?.doc && (
 					<TablePagination
 						gotoPage={handleGotoPage}
 						gopageValue={gopageValue}
@@ -231,7 +272,7 @@ export default function Records() {
 						pageIndex={currentPage - 1}
 						totalDocs={data?.totalDocs}
 					/>
-				)}
+				)} */}
 
 				{filterIsOpen && (
 					<FilterModal

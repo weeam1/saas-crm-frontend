@@ -11,20 +11,34 @@ import {
   Button,
   FormLabel,
   SimpleGrid,
-  Select
+  Select,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useFetchItemsQuery } from "api/apiSlice";
+import * as Yup from "yup";
+import { useEffect } from "react";
 
 const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
-    const user = JSON.parse(localStorage.getItem("user")) || {};
-  
-    const {
-      data: types,
-    } = useFetchItemsQuery(
-      { path: `/expense_types` },
-      { refetchOnMountOrArgChange: true, skip: !user._id }
-    );
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const validationSchema = Yup.object().shape({
+    type: Yup.string().required("Type is required"),
+    description: Yup.string().required("Description is required"),
+    amount: Yup.number()
+      .typeError("Amount must be a number")
+      .required("Amount is required")
+      .positive("Amount must be positive")
+      .min(0, "Amount must be greater than 0"),
+    vat: Yup.number()
+      .typeError("Amount must be a number")
+      .required("Amount is required")
+      .positive("Amount must be positive")
+      .min(0, "vat must be greater than 0")
+      .max(100, "vat must be less than 100"),
+  });
+  const { data: types } = useFetchItemsQuery(
+    { path: `/expense_types` },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -37,17 +51,28 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
       location: data?.addedBy?.location || "",
       phoneNumber: data?.addedBy?.phoneNumber || "",
       agencyName: data?.addedBy?.agency?.name || "",
+      vat: data?.vat || "",
     },
+    validationSchema,
     onSubmit: (values) => {
       const updated = {
         ...data,
         type: values.type,
         description: values.description,
         amount: values.amount,
+        vat: values.vat,
       };
-      if (onSubmit) {onSubmit(updated)};
+      if (onSubmit) {
+        onSubmit(updated);
+      }
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
@@ -68,14 +93,14 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                   <FormLabel>Type</FormLabel>
                   <Select
                     name="type"
-                    value={formik.values.type} 
+                    value={formik.values.type}
                     onChange={formik.handleChange}
                     placeholder="Select type"
                     focusBorderColor="brand.500"
                   >
                     {types?.doc?.length > 0 ? (
                       types.doc.map((type) => (
-                        <option key={type._id} value={type._id} >
+                        <option key={type._id} value={type._id}>
                           {type.name}
                         </option>
                       ))
@@ -83,6 +108,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                       <option value="">No types available</option>
                     )}
                   </Select>
+                  {formik.touched.type && formik.errors.type && (
+                    <p style={{ color: "red" }}>{formik.errors.type}</p>
+                  )}
                 </div>
                 <div>
                   <FormLabel>Description</FormLabel>
@@ -93,6 +121,9 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                     placeholder="e.g., Office rent or utilities"
                     focusBorderColor="brand.500"
                   />
+                  {formik.touched.description && formik.errors.description && (
+                    <p style={{ color: "red" }}>{formik.errors.description}</p>
+                  )}
                 </div>
                 <div>
                   <FormLabel>Amount</FormLabel>
@@ -104,6 +135,23 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                     placeholder="e.g., 5050"
                     focusBorderColor="brand.500"
                   />
+                  {formik.touched.amount && formik.errors.amount && (
+                    <p style={{ color: "red" }}>{formik.errors.amount}</p>
+                  )}
+                </div>
+                <div>
+                  <FormLabel>VAT%</FormLabel>
+                  <Input
+                    name="vat"
+                    type="number"
+                    value={formik.values.vat}
+                    onChange={formik.handleChange}
+                    placeholder="e.g. 200.0"
+                    focusBorderColor="brand.500"
+                  />
+                  {formik.touched.vat && formik.errors.vat && (
+                    <p style={{ color: "red" }}>{formik.errors.vat}</p>
+                  )}
                 </div>
               </>
             ) : (
@@ -190,6 +238,15 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
                       bg="gray.50"
                     />
                   </div>
+                  <div>
+                    <FormLabel>VAT %</FormLabel>
+                    <Input
+                      value={formik.values.vat}
+                      isReadOnly
+                      focusBorderColor="gray.300"
+                      bg="gray.50"
+                    />
+                  </div>
                 </SimpleGrid>
               </>
             )}
@@ -197,9 +254,7 @@ const ExpenseInputModal = ({ isOpen, onClose, data, isEditable, onSubmit }) => {
         </ModalBody>
 
         <ModalFooter justifyContent="space-between">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
+          <Button onClick={onClose}>Close</Button>
           {isEditable && (
             <Button type="submit" variant="brand">
               Submit

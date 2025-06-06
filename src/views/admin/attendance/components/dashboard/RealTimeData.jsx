@@ -8,18 +8,22 @@ import {
 	Grid,
 	Button,
 	ButtonGroup,
+	HStack,
 } from '@chakra-ui/react';
 import { IoIosAddCircleOutline } from 'react-icons/io';
 import { PiSunLight } from 'react-icons/pi';
 import { FaArrowTrendUp } from 'react-icons/fa6';
 import { IoMdTrendingDown } from 'react-icons/io';
 import Chart from 'react-apexcharts';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import moment from 'moment-timezone';
-
-const timezone = 'Asia/Karachi';
+import AttendanceQRCode from './AttendanceQRCode';
+import { currentTZ } from 'utils/helpers';
+import AttendanceRoleChart from 'views/admin/reports-v2/components/attendance/AttendanceRoleChart';
+import AttendanceAreaChart from 'views/admin/reports-v2/components/attendance/AttendanceAreaChart';
 
 const RealTimeData = ({
+	data,
 	stats,
 	barChartOptions,
 	barChartData,
@@ -29,14 +33,20 @@ const RealTimeData = ({
 	setSelectedView,
 	setQueryParams,
 }) => {
-	const currentDate = moment().tz(timezone).format('dddd, DD MMMM YYYY');
-	const [time, setTime] = useState(moment().tz(timezone));
-	const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
-	const navigate = useNavigate();
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+	const [time, setTime] = useState(() => moment().tz(tz));
 
 	const tick = useCallback(() => {
-		setTime(moment().tz(timezone));
-	}, [timezone]);
+		setTime(moment().tz(tz));
+	}, [tz]);
+
+	useEffect(() => {
+		const interval = setInterval(tick, 1000);
+		return () => clearInterval(interval);
+	}, [tick]);
+
+	const timeString = useMemo(() => time.format('hh:mm:ss A'), [time]);
+	const currentDate = useMemo(() => time.format('dddd, DD MMMM YYYY'), [time]);
 
 	useEffect(() => {
 		const timerID = setInterval(tick, 1000);
@@ -89,10 +99,13 @@ const RealTimeData = ({
 
 	return (
 		<>
-			<Box minH='100vh' bg='white' p='6' rounded='md'>
+			<Box bg='white' p='6' rounded='md'>
 				<Grid templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
 					<Box p={6} borderRadius='lg' bg='white' boxShadow='md' minH='150px'>
-						<Flex align='center'>
+						<Flex
+							align='center'
+							justifyContent={{ base: 'center', md: 'start' }}
+						>
 							<Icon as={PiSunLight} boxSize={12} color='#DAA520' mr={3} />
 							<Text fontSize='2xl' fontWeight='bold' color='#9295ab'>
 								{timeString}
@@ -101,19 +114,18 @@ const RealTimeData = ({
 						<Text fontSize='sm' color='#9295ab' mt={2}>
 							Realtime insight
 						</Text>
-						<Box
-							display='flex'
-							flexDirection='column'
+						<HStack
+							alignItems='flex-start'
 							justifyContent='center'
-							mt={{ base: 4, lg: 8 }}
+							flexDir={{ base: 'column', lg: 'row' }}
 						>
-							<Text fontSize='sm' fontWeight='bold' mt={4}>
-								Today:
-							</Text>
-							<Text fontSize='18px' fontWeight='bold'>
+							<Text fontSize='18px' mb='2' fontWeight='bold'>
 								{currentDate}
 							</Text>
-						</Box>
+							<Box justifySelf='flex-end' w='fit-content'>
+								<AttendanceQRCode />
+							</Box>
+						</HStack>
 					</Box>
 					<SimpleGrid columns={{ base: '1fr', md: 2, lg: 3 }} spacing={5}>
 						{stats.map((stat, index) => (
@@ -217,8 +229,8 @@ const RealTimeData = ({
 						))}
 					</SimpleGrid>
 				</Grid>
-				<Box py={6}>
-					<Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
+				<Box py={8} my='4'>
+					{/* <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
 						<Box bg='white' p={6} borderRadius='lg' shadow='md'>
 							<Flex justify='space-between' align='center' mb={4}>
 								<Text fontSize='lg' fontWeight='bold'>
@@ -269,7 +281,9 @@ const RealTimeData = ({
 								height={300}
 							/>
 						</Box>
-					</Grid>
+					</Grid> */}
+					<AttendanceRoleChart data={data} />
+					<AttendanceAreaChart />
 				</Box>
 			</Box>
 		</>

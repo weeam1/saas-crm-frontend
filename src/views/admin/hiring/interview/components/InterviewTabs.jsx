@@ -13,7 +13,7 @@ import SelectInterviewers from './SelectInterviewers';
 import HiringInfo from './HiringInfo';
 import EvaluationPoints from './EvaluationPoints';
 import { toast } from 'react-toastify';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -26,6 +26,7 @@ const InterviewTabs = memo(
 		user,
 		activeTabIndex,
 		isLeadInterviewer,
+		isCreatedBy,
 		interviewRefetch,
 		setInterviewersSelected,
 		isInterviewerSubmittedPoints,
@@ -34,6 +35,19 @@ const InterviewTabs = memo(
 		const [updateItemMutation, { isLoading: updatingInterview }] =
 			useUpdateItemMutation();
 
+		const userRole = user?.roles[0]?.roleName || user?.role;
+
+		const [loading, setLoading] = useState(false);
+
+		useEffect(() => {
+			if (loading) {
+				const timer = setTimeout(() => {
+					setLoading(false);
+				}, 2000);
+
+				return () => clearTimeout(timer);
+			}
+		}, [loading]);
 		// const interviewerEvaluationPoints = interview?.evaluations?.filter(
 		// 	(item) => item.interviewer._id === user._id
 		// )[0];
@@ -48,18 +62,16 @@ const InterviewTabs = memo(
 
 		// Memoize computed values
 		const isInvitedInterviewer = useMemo(
-			() => interview?.totalInterviewers > 0,
-			[interview?.totalInterviewers]
+			() =>
+				interview?.isMultiRound
+					? interview?.nextRound?.totalInterviewers > 0
+					: interview?.totalInterviewers > 0,
+			[
+				interview?.isMultiRound,
+				interview?.nextRound?.totalInterviewers,
+				interview?.totalInterviewers,
+			]
 		);
-
-		// Memoize functions
-		// const handleHiringInfoSubmit = useCallback(
-		// 	async (data) => {
-		// 		// setHiringData(data);
-		// 		handleTabChange(2);
-		// 	},
-		// 	[handleTabChange]
-		// );
 
 		const navigate = useNavigate();
 
@@ -75,6 +87,9 @@ const InterviewTabs = memo(
 				hiringInfo.amount = data.jobType === 'Commission' ? null : data.amount;
 				hiringInfo.commission =
 					data.jobType === 'Salary' ? null : data.commission;
+				hiringInfo.incentive = data.incentive || null;
+
+				hiringInfo.isNextRound = data.isNextRound;
 
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
@@ -84,9 +99,13 @@ const InterviewTabs = memo(
 				toast.success('Interview data updated successfully');
 
 				// Redirect to the appropriate page based on the interviewer
-				const redirectUrl = isLeadInterviewer
-					? '/hiring/interviewed-candidates'
-					: '/';
+				const redirectUrl = hiringInfo.isNextRound
+					? `/hiring?tab=multi-round-interviewed`
+					: isLeadInterviewer
+						? `/hiring?tab=interviewed-candidates`
+						: ['superAdmin', 'HR'].includes(userRole)
+							? '/hiring'
+							: '/';
 
 				navigate(redirectUrl);
 			} catch (error) {
@@ -94,9 +113,7 @@ const InterviewTabs = memo(
 			}
 		};
 
-		console.log({ interview });
-
-		return positionsLoading ? (
+		return positionsLoading || loading ? (
 			<Loader />
 		) : (
 			<Box
@@ -128,6 +145,7 @@ const InterviewTabs = memo(
 							shadow='sm'
 						>
 							{/* Conditionally render the "Select Interviewers" tab separately if not invited */}
+							{/* {isCreatedBy && ( */}
 							<Tab
 								isDisabled={isInvitedInterviewer}
 								_selected={{ bg: 'brand.400', color: 'white' }}
@@ -135,12 +153,15 @@ const InterviewTabs = memo(
 								rounded='md'
 								color={isInvitedInterviewer ? 'brand.500' : 'gray.800'}
 								width='full'
+								fontSize={{ base: 'sm', md: 'md' }}
 							>
 								<HStack>
 									<LuUsers />
 									<Text>Select Interviewers</Text>
 								</HStack>
 							</Tab>
+							{/* )} */}
+
 							<Tab
 								isDisabled={
 									!isInvitedInterviewer || isInterviewerSubmittedPoints
@@ -150,6 +171,7 @@ const InterviewTabs = memo(
 								rounded='md'
 								color={isInterviewerSubmittedPoints ? 'brand.500' : 'gray.800'}
 								width='full'
+								fontSize={{ base: 'sm', md: 'md' }}
 							>
 								<HStack>
 									<LuCheckSquare />
@@ -169,6 +191,7 @@ const InterviewTabs = memo(
 										: 'gray.800'
 								}
 								width='full'
+								fontSize={{ base: 'sm', md: 'md' }}
 							>
 								<HStack>
 									<LuFileText />
@@ -203,6 +226,7 @@ const InterviewTabs = memo(
 							width={{ base: '100%', md: '700px' }}
 							mx='auto'
 						>
+							{/* {isCreatedBy && ( */}
 							<TabPanel p={{ base: 4, md: 8 }}>
 								<SelectInterviewers
 									user={user}
@@ -210,8 +234,11 @@ const InterviewTabs = memo(
 									interviewRefetch={interviewRefetch}
 									setInterviewersSelected={setInterviewersSelected}
 									handleTabChange={handleTabChange}
+									isInvitedInterviewer={isInvitedInterviewer}
+									setLoading={setLoading}
 								/>
 							</TabPanel>
+							{/* )} */}
 
 							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
 								<EvaluationPoints
@@ -222,6 +249,15 @@ const InterviewTabs = memo(
 									interviewRefetch={interviewRefetch}
 									isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
 								/>
+
+								{/* <InterviewEvaluationTabs
+									interviewDoc={interview}
+									nextRoundDoc={interview?.nextRound}
+									isLeadInterviewer={isLeadInterviewer}
+									handleTabChange={handleTabChange}
+									interviewRefetch={interviewRefetch}
+									isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
+								/> */}
 							</TabPanel>
 							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
 								<HiringInfo

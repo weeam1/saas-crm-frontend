@@ -13,11 +13,9 @@ import {
 	Input,
 	FormErrorMessage,
 	Flex,
-	Select,
 } from '@chakra-ui/react';
 import { toast } from 'react-toastify';
 import { AddIcon } from '@chakra-ui/icons';
-import { useFetchItemsQuery } from 'api/apiSlice';
 
 const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +26,6 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 		swift_code: '',
 		bank_name: '',
 		branch_address: '',
-		developer_id: '',
 	});
 	const [errors, setErrors] = useState({
 		account_holder_name: '',
@@ -37,21 +34,7 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 		swift_code: '',
 		bank_name: '',
 		branch_address: '',
-		developer_id: '',
 	});
-	const [developers, setDevelopers] = useState([]); // Local state for developers
-
-	const shouldFetchDevelopers = isOpen || propsIsOpen;
-
-	const {
-		data: developersData,
-		isLoading: developersLoading,
-		error: developersError,
-		isFetching,
-	} = useFetchItemsQuery(
-		{ path: '/developer/getALL' },
-		{ skip: !shouldFetchDevelopers }
-	);
 
 	const handleOpen = () => setIsOpen(true);
 
@@ -64,7 +47,6 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 			swift_code: '',
 			bank_name: '',
 			branch_address: '',
-			developer_id: '',
 		});
 		setErrors({
 			account_holder_name: '',
@@ -73,25 +55,8 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 			swift_code: '',
 			bank_name: '',
 			branch_address: '',
-			developer_id: '',
 		});
 	};
-
-	// Update local developers state when data is fetched
-	useEffect(() => {
-		if (developersData && developersData.data) {
-			// Map the API response to the expected format
-			const devs = developersData.data.map((dev) => ({
-				id: dev._id, // Map "_id" to "id"
-				name: `${dev.developer_name} (TRN: ${dev.trn})`, // Include TRN in the display name
-			}));
-			setDevelopers(devs);
-		}
-		if (developersError) {
-			toast.error('Failed to load developers. Please try again.');
-			console.error('Developers fetch error:', developersError);
-		}
-	}, [developersData, developersError]);
 
 	const validateField = (name, value) => {
 		let error = '';
@@ -148,9 +113,7 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 				else if (value.trim().length < 5)
 					error = 'Branch address must be at least 5 characters long';
 				break;
-			case 'developer_id':
-				if (!value.trim()) error = 'Developer selection is required';
-				break;
+
 			default:
 				break;
 		}
@@ -180,9 +143,6 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 				break;
 			case 'bank_name':
 			case 'branch_address':
-			case 'developer_id':
-				filteredValue = value;
-				break;
 			default:
 				break;
 		}
@@ -336,34 +296,6 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
 								</FormErrorMessage>
 							</FormControl>
 						</Flex>
-
-						<FormControl mb={3} isInvalid={!!errors.developer_id}>
-							<FormLabel fontFamily='DM Sans'>Developer</FormLabel>
-							<Select
-								name='developer_id'
-								value={formData.developer_id}
-								onChange={handleChange}
-								placeholder={
-									developersLoading || isFetching
-										? 'Loading developers...'
-										: developers.length === 0
-											? 'No developers available'
-											: 'Select a developer'
-								}
-								borderRadius='8px'
-								fontFamily='DM Sans'
-								isDisabled={developersLoading || isFetching}
-							>
-								{developers.map((developer) => (
-									<option key={developer.id} value={developer.id}>
-										{developer.name}
-									</option>
-								))}
-							</Select>
-							<FormErrorMessage fontFamily='DM Sans'>
-								{errors.developer_id}
-							</FormErrorMessage>
-						</FormControl>
 
 						<FormControl mb={3} isInvalid={!!errors.branch_address}>
 							<FormLabel fontFamily='DM Sans'>Branch Address</FormLabel>

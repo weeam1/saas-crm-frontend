@@ -82,6 +82,7 @@ export default function InvoiceCheckTable(props) {
 		currentPage,
 		searchTerm,
 		setSearchTerm,
+		developer,
 	} = props;
 
 	const textColor = useColorModeValue('gray.500', 'white');
@@ -252,7 +253,8 @@ export default function InvoiceCheckTable(props) {
 								fontWeight='700'
 								mb={{ base: 2, md: 0 }}
 							>
-								Invoices (<CountUpComponent targetNumber={totalItems} />)
+								{developer?.data?.developer_name ?? ''} Invoices (
+								<CountUpComponent targetNumber={totalItems} />)
 							</Text>
 							<CustomSearchInput
 								fetchData={fetchData}
@@ -417,7 +419,7 @@ export default function InvoiceCheckTable(props) {
 															onChange={(e) => handleCheckboxChange(e, row._id)}
 															me='10px'
 														/>
-														<Text color='brand.600' fontSize='sm'>
+														<Text color='brand.600' fontSize='sm' minW='180px'>
 															{date
 																? format(date, 'MMM d, yyyy h:mm a')
 																: 'N/A'}
@@ -430,14 +432,21 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='100px'
 													>
 														{row.claimType ? `${row.claimType}` : 'Pending'}
 													</Text>
 												);
 											} else if (column.Header === 'Developer') {
 												cellData = (
-													<Text fontSize='sm' fontWeight='700'>
+													<Text fontSize='sm' fontWeight='700' minW='150px'>
 														{row.developer?.developer_name || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Project') {
+												cellData = (
+													<Text fontSize='sm' fontWeight='700' minW='150px'>
+														{row.project?.name || 'N/A'}
 													</Text>
 												);
 											} else if (column.Header === 'Bank Account') {
@@ -446,13 +455,14 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='150px'
 													>
 														{row.bank_account?.account_holder_name || '-'}
 													</Text>
 												);
 											} else if (column.Header === 'Invoice Number') {
 												cellData = (
-													<Text fontSize='sm'>
+													<Text fontSize='sm' minW='150px'>
 														<Flex alignItems='center'>
 															{row.invoiceNo || '-'}
 															<IconButton
@@ -475,6 +485,7 @@ export default function InvoiceCheckTable(props) {
 														color={textColor}
 														fontSize='sm'
 														fontWeight='700'
+														minW='150px'
 													>
 														{row.totalAmount
 															? `${row.totalAmount} AED`

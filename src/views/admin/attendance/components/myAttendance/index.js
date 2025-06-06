@@ -12,6 +12,8 @@ import { IoArrowBack } from 'react-icons/io5';
 import AppButton from 'components/shared/AppButton';
 import AttendanceShimmer from './AttendanceShimmer';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import CreateAttendance from './CreateAttendance';
+import { FaPlus } from 'react-icons/fa';
 
 const Attendance = () => {
 	const { id: employeeId } = useParams();
@@ -19,14 +21,6 @@ const Attendance = () => {
 
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
-
-	// const { data: officeSettings, isLoading: officeSettingsLoading } =
-	// 	useFetchItemsQuery(
-	// 		{ path: `/attendance/office-settings/agency/${user?.agency?._id}` },
-	// 		{
-	// 			refetchOnMountOrArgChange: true,
-	// 		}
-	// 	);
 
 	const { data: employee, isLoading: employeeLoading } = useFetchItemsQuery(
 		{
@@ -41,6 +35,7 @@ const Attendance = () => {
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
 	const [year, setYear] = useState(() => new Date().getFullYear());
 	const [timezone, setTimezone] = useState('Asia/Dubai');
+	const [addAttendance, setAddAttendance] = useState(false);
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
@@ -67,23 +62,6 @@ const Attendance = () => {
 
 	const navigate = useNavigate();
 
-	// if (employee?.agency?._id) {
-	// 	return (
-	// 		<Box
-	// 			alignSelf='center'
-	// 			p='4'
-	// 			bg='gray.100'
-	// 			color='red.400'
-	// 			rounded='sm'
-	// 			as={Link}
-	// 			to={`/userView/${employee._id}`}
-	// 			_hover={{ textDecoration: 'underline' }}
-	// 		>
-	// 			Add Employee agency
-	// 		</Box>
-	// 	);
-	// }
-
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>
 			<AttendanceShimmer />
@@ -107,10 +85,33 @@ const Attendance = () => {
 				>
 					Back
 				</AppButton>
-				<Box display='flex' alignItems='center' mt={2} mb='4' bg='white' p={4}>
+				<Box
+					display='flex'
+					justifyContent='space-between'
+					alignItems='center'
+					mt={2}
+					mb='4'
+					bg='white'
+					p={4}
+				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 						Attendance Record
 					</Text>
+
+					{['HR', 'superAdmin'].includes(role) && (
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='brand.400'
+							py='2'
+							px='5'
+							leftIcon={<FaPlus />}
+							aria-label='Add attendance'
+							onClick={() => setAddAttendance(true)}
+						>
+							Add
+						</Button>
+					)}
 				</Box>
 
 				{error ? (
@@ -123,7 +124,7 @@ const Attendance = () => {
 								employee={data?.employee}
 								refetch={refetch}
 							/>
-							{(role === 'superAdmin' || role === 'HR') && (
+							{['HR', 'superAdmin'].includes(role) && (
 								<AttendanceMark
 									data={data}
 									timezone={timezone}
@@ -154,6 +155,16 @@ const Attendance = () => {
 								/>
 							</Box>
 						</Box>
+
+						{/* Create attendance modal */}
+						{addAttendance && (
+							<CreateAttendance
+								isOpen={addAttendance}
+								onClose={() => setAddAttendance(false)}
+								employeeId={employeeId}
+								refetch={refetch}
+							/>
+						)}
 					</Flex>
 				)}
 			</Box>

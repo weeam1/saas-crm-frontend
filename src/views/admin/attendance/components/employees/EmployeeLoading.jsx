@@ -9,14 +9,14 @@ const EmployeeLoading = ({ size = 6 }) => {
 				md: 'repeat(2, 1fr)',
 				lg: 'repeat(auto-fill, minmax(360px, 1fr))',
 			}}
-			height='fit-content'
+			// height='fit-content'
 			gap={4}
 			p='4'
 		>
 			{[...Array(size)].map((_, index) => (
 				<Skeleton
 					key={index}
-					height='170px'
+					height='200px'
 					borderRadius='md'
 					// minWidth='full'
 					startColor='softGray.400'

@@ -7,6 +7,8 @@ import { constant } from 'constant';
 
 const { getApi } = require('services/api');
 
+const server = 'baseUrl';
+
 export const setAuthHeader = (headers) => {
 	const token = localStorage.getItem('accessToken');
 
@@ -15,9 +17,15 @@ export const setAuthHeader = (headers) => {
 	}
 };
 
-export const fetchAgentLeadsSats = async (userId) => {
+export const fetchAgentLeadsSats = async (
+	userId,
+	type = 'assigned',
+	selectedLeads = 1
+) => {
 	try {
-		const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+		const { data } = await getApi(
+			`api/lead/leads-stats/${userId}?type=${type}&selectedLeads=${selectedLeads}`
+		);
 
 		return data?.doc;
 	} catch (error) {
@@ -91,6 +99,10 @@ export const sendLeadFeedback = async ({ email, phone, status, action }) => {
 
 		const eventNameMapMStatus = {
 			interested: 'Lead_Interested',
+			'interested-buyer': 'Lead_Interested',
+			'interested-seller': 'Lead_Interested',
+			'secondary-request': 'Lead_Interested',
+			'change-agent': 'Lead_Interested',
 			'not-interested': 'Lead_Not_Interested',
 			junk: 'Lead_Unqualified',
 			deal: 'Lead_Qualified',
@@ -218,5 +230,137 @@ export const getNotificationCount = async (userId) => {
 		return res?.data ?? null;
 	} catch (err) {
 		console.log(err);
+	}
+};
+
+// export const generateReportApi = async ({
+// 	agency,
+// 	month,
+// 	year,
+// 	format,
+// 	server = 'baseUrl',
+// }) => {
+// 	const queryString = new URLSearchParams({
+// 		agency,
+// 		month,
+// 		year,
+// 		format,
+// 	}).toString();
+
+// 	const headers = {};
+// 	setAuthHeader(headers);
+
+// 	try {
+// 		const response = await axios.get(
+// 			`${constant[server]}api/attendance/monthly-records?${queryString}`,
+// 			{
+// 				headers,
+// 				responseType: 'blob', // crucial for binary files!
+// 				validateStatus: (status) => status >= 200 && status < 300, // handle non-2xx as errors
+// 			}
+// 		);
+
+// 		const contentType =
+// 			response.headers['content-type'] || 'application/octet-stream';
+
+// 		return {
+// 			blob: response.data,
+// 			contentType,
+// 		};
+// 	} catch (error) {
+// 		// axios error shape:
+// 		// error.response → server responded
+// 		// error.request  → no response (network issue)
+// 		// error.message  → generic error
+
+// 		if (error.response) {
+// 			const reader = new FileReader();
+// 			reader.readAsText(error.response.data);
+// 			const errorText = await new Promise((resolve) => {
+// 				reader.onload = () => resolve(reader.result);
+// 			});
+// 			let message;
+// 			try {
+// 				const parsed = JSON.parse(errorText);
+// 				message = parsed.message || 'Failed to generate report';
+// 			} catch {
+// 				message = 'Failed to generate report';
+// 			}
+// 			throw new Error(message);
+// 		} else {
+// 			throw new Error(error.message || 'Failed to generate report');
+// 		}
+// 	}
+// };
+
+export const generateReportApi = async (payload) => {
+	const {
+		agency,
+		format,
+		type = 'month', // 'month' or 'range'
+		month,
+		year,
+		startDate,
+		endDate,
+	} = payload;
+
+	if (!agency || !format) {
+		throw new Error(
+			'Missing required parameters: agency and format are required.'
+		);
+	}
+
+	const params = new URLSearchParams();
+	params.append('agency', agency);
+	params.append('format', format);
+	params.append('type', type); // explicitly tell backend what type of filter
+
+	if (type === 'month') {
+		if (!month || !year) {
+			throw new Error('Month and year are required for monthly report.');
+		}
+		params.append('month', month);
+		params.append('year', year);
+	} else if (type === 'range') {
+		if (!startDate || !endDate) {
+			throw new Error('Start and end dates are required for range report.');
+		}
+		params.append('startDate', startDate);
+		params.append('endDate', endDate);
+	}
+
+	const url = `${constant[server]}api/attendance/monthly-records?${params.toString()}`;
+
+	const headers = {};
+	setAuthHeader(headers);
+
+	try {
+		const response = await axios.get(url, {
+			headers,
+			responseType: 'blob',
+			validateStatus: (status) => status >= 200 && status < 300,
+		});
+
+		const contentType =
+			response.headers['content-type'] || 'application/octet-stream';
+
+		return {
+			blob: response.data,
+			contentType,
+		};
+	} catch (error) {
+		let message = 'Failed to generate report';
+		if (error.response && error.response.data instanceof Blob) {
+			try {
+				const text = await error.response.data.text();
+				const parsed = JSON.parse(text);
+				message = parsed?.message || message;
+			} catch {
+				// Fallback to default message
+			}
+		} else if (error.message) {
+			message = error.message;
+		}
+		throw new Error(message);
 	}
 };

@@ -38,6 +38,7 @@ const AdvancedSearchModal = ({
 	};
 
 	const initialValues = {
+		intID: '',
 		leadName: '',
 		leadStatus: '',
 		eLeadStatus: '',
@@ -123,6 +124,8 @@ const AdvancedSearchModal = ({
 									? 'No Manager'
 									: value;
 						}
+
+						if (key === 'intID') key = 'Lead ID';
 
 						// Add formatted value to tags for UI
 						acc.tags.push(`${key}: ${displayValue}`);

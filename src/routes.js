@@ -21,6 +21,8 @@ import {
 	FaUserCircle,
 	FaDollarSign,
 	FaRegCopy,
+	FaList,
+	FaPhone,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -33,7 +35,7 @@ import ChangeImage from 'views/admin/image';
 import Validation from 'views/admin/validation';
 import CustomField from 'views/admin/customField';
 import TableField from 'views/admin/tableField';
-import { FaClipboardUser } from 'react-icons/fa6';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 import DeveloperDetails from 'views/admin/developers/components/DeveloperView';
 
 import Employees from 'views/admin/attendance/components/employees';
@@ -42,10 +44,20 @@ import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
+import SettingPage from 'views/admin/Listing/Component/settings/index';
+import AddListing from 'views/admin/Listing/Component/AddListing';
+import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
+import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
+import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 
+import LeaderBoard from 'views/admin/survey/LeaderBoard';
+import CreateSurvey from 'views/admin/survey/CreateSurvey';
+import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
+import Report from 'views/admin/reports-v2';
+import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
-
+const Survey = React.lazy(() => import('views/admin/survey'));
 // My component
 const Contact = React.lazy(() => import('views/admin/contact'));
 const ContactView = React.lazy(() => import('views/admin/contact/View'));
@@ -127,7 +139,15 @@ const ShortListedCandidates = React.lazy(
 const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
 const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
 
-const Report = React.lazy(() => import('views/admin/reports'));
+// const Report = React.lazy(() => import('views/admin/reports'));
+// const Report = React.lazy(() => import('views/admin/reports-v2'));
+
+// const TeamDetailsScreen = React.lazy(
+// 	() =>
+// 		import(
+// 			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
+// 		)
+// );
 // Auth Imports
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 // admin setting
@@ -139,8 +159,11 @@ const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
+
 const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
+const Listing = React.lazy(() => import('views/admin/Listing'));
+
 // const Employees = React.lazy(
 // 	() => import('views/admin/attendance/components/employees')
 // );
@@ -186,13 +209,22 @@ const routes = [
 		),
 		component: LeadScreen,
 	},
+
 	{
-		name: 'Expenses',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-		component: Expenses,
+		name: 'Leads Pool',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/pool',
+		icon: (
+			<Icon
+				as={MdOutlineAdminPanelSettings}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: LeadPoolAdmin,
 	},
+
 	{
 		name: 'Announcement',
 		layout: [ROLE_PATH.superAdmin],
@@ -272,20 +304,6 @@ const routes = [
 		parentName: 'develoeper',
 		component: DeveloperDetails,
 	},
-	{
-		name: 'Leads Pool',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/pool',
-		icon: (
-			<Icon
-				as={MdOutlineAdminPanelSettings}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: LeadPoolAdmin,
-	},
 
 	// {
 	// 	name: 'Points',
@@ -345,20 +363,11 @@ const routes = [
 		component: InvoiceModule,
 	},
 	{
-		name: 'Bank Accounts',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/invoice/bank-accounts',
-		parentName: 'Invoice',
-		under: 'bank-accounts',
-		component: BankAccounts,
-	},
-	{
-		name: 'Invoice Developers',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'developer-invoices',
-		path: '/invoice/developers',
-		parentName: 'Invoice',
-		component: InvoiceDevelopers,
+		name: 'Expenses',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/expenses',
+		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
+		component: Expenses,
 	},
 	{
 		name: 'Developer Invoices',
@@ -384,6 +393,7 @@ const routes = [
 		path: '/invoice/developers/invoices/entries/:id',
 		component: AddEntry,
 	},
+
 	// -----------------------------Admin setting-------------------------------------
 	{
 		name: 'Admin Setting',
@@ -486,6 +496,14 @@ const routes = [
 		component: OfferLetter,
 	},
 	{
+		name: 'Offer View',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/interviewed-candidates/offer-letter/view/:id',
+		under: 'offerView',
+		parentName: 'Hiring',
+		component: OfferView,
+	},
+	{
 		name: 'Positions',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/hiring/settings',
@@ -493,7 +511,107 @@ const routes = [
 		parentName: 'Hiring',
 		component: Positions,
 	},
+
 	// ------------- Phone Routes ------------------------
+	{
+		name: 'Call Logs',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip',
+		icon: <Icon as={FaPhone} width='20px' height='20px' color='inherit' />,
+		component: Sip,
+	},
+	{
+		name: 'Sip Dashboard',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/dashboard',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipDashboard,
+	},
+	{
+		name: 'Sip history',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/sip/history',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipHistory,
+	},
+
+	// Listing --------------------------------------
+	{
+		name: 'Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing',
+		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+		component: Listing,
+	},
+	{
+		name: 'Adding Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/add-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: AddListing,
+	},
+	{
+		name: 'View Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/view-listing/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ViewListing,
+	},
+	{
+		name: 'Update Listing',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/update/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: UpdateListing,
+	},
+	{
+		name: 'Listing Setting',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/settings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: SettingPage,
+	},
+
+	// Survey Routes
+
+	{
+		name: 'Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey',
+		icon: <Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />,
+		component: Survey,
+	},
+	{
+		name: 'Survey Board',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/survey/survey-leader-board',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: LeaderBoard,
+	},
+	{
+		name: 'Create Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey/create-survey',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: CreateSurvey,
+	},
+	{
+		name: 'view Survey',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/survey/view-survey/:id',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: ViewSurveyResponse,
+	},
+
 	// {
 	// 	name: 'Call',
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -654,20 +772,28 @@ const routes = [
 	// 	),
 	// 	component: DailyReport,
 	// },
-	// {
-	// 	name: 'Reporting and Analytics',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/reporting-analytics',
-	// 	icon: (
-	// 		<Icon
-	// 			as={MdInsertChartOutlined}
-	// 			width='20px'
-	// 			height='20px'
-	// 			color='inherit'
-	// 		/>
-	// 	),
-	// 	component: Report,
-	// },
+	{
+		name: 'Reports',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics',
+		icon: (
+			<Icon
+				as={MdInsertChartOutlined}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Report,
+	},
+	{
+		name: 'Team Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics/team-details/:id',
+		parent: 'Reports',
+		under: 'Reports',
+		component: TeamDetailsScreen,
+	},
 
 	// ------------- user Routes ------------------------
 	{
@@ -730,38 +856,6 @@ const routes = [
 		path: '/sign-in',
 		icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 		component: SignInCentered,
-	},
-
-	// ========================= sip layout ============================
-	{
-		name: 'Sip',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip',
-		icon: (
-			<Icon
-				as={FaRegCalendarCheck}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: Sip,
-	},
-	{
-		name: 'Sip Dashboard',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/dashboard',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipDashboard,
-	},
-	{
-		name: 'Sip history',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/history',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipHistory,
 	},
 ];
 

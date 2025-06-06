@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	HStack,
 	Button,
@@ -22,16 +22,16 @@ const TopPagination = ({
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
-	console.log({
-		currentPage,
-		totalPages,
-		onPageChange,
-		totalItems,
-		itemsPerPage,
-		refetching,
-		loading,
-		handlePageSize,
-	});
+	// console.log({
+	// 	currentPage,
+	// 	totalPages,
+	// 	onPageChange,
+	// 	totalItems,
+	// 	itemsPerPage,
+	// 	refetching,
+	// 	loading,
+	// 	handlePageSize,
+	// });
 
 	useEffect(() => {
 		setGotoPage(currentPage);
@@ -86,7 +86,7 @@ const TopPagination = ({
 		currentPageSize = 10,
 		maxLimit = 100
 	) => {
-		const steps = [5, 10, 20];
+		const steps = [10, 20];
 		const max = Math.min(totalItems || currentPageSize, maxLimit);
 
 		for (let i = 30; i <= max; i += 10) {
@@ -103,6 +103,19 @@ const TopPagination = ({
 			.filter((n) => n <= max && n > 0)
 			.sort((a, b) => a - b);
 	};
+
+	const onPageSizeChange = useCallback(
+		(e) => {
+			const limit = Number(e.target.value);
+			// if (limit <= totalItems)
+			handlePageSize?.(limit);
+			const opts = generatePageSizeOptions(totalItems, limit, 100);
+			if (!opts.includes(limit)) {
+				handlePageSize?.(Math.max(...opts.filter(Boolean))); // or default to 10
+			}
+		},
+		[handlePageSize]
+	);
 
 	return (
 		<HStack
@@ -214,16 +227,19 @@ const TopPagination = ({
 					size='sm'
 					w={{ base: '32' }}
 					value={itemsPerPage}
+					// value={
+					// 	generatePageSizeOptions(totalItems, itemsPerPage).includes(
+					// 		itemsPerPage
+					// 	)
+					// 		? itemsPerPage
+					// 		: Math.min(totalItems, 100)
+					// }
 					color='gray.800'
 					bg='softGray.400'
 					borderRadius='md'
 					border='2px solid'
 					_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
-					onChange={(e) => {
-						const val = Number(e.target.value);
-						// setPageSize(val);
-						handlePageSize?.(val);
-					}}
+					onChange={onPageSizeChange}
 					isDisabled={!totalItems || loading || refetching}
 				>
 					{generatePageSizeOptions(totalItems, itemsPerPage).map((size) => (
@@ -231,6 +247,24 @@ const TopPagination = ({
 							Show {size}
 						</option>
 					))}
+					{/* <option key={10} value={10}>
+						Show 10
+					</option>
+					<option key={20} value={20}>
+						Show 20
+					</option>
+					<option key={50} value={50}>
+						Show 50
+					</option>
+					<option key={60} value={60}>
+						Show 60
+					</option>
+					<option key={80} value={80}>
+						Show 80
+					</option>
+					<option key={100} value={100}>
+						Show 100
+					</option> */}
 				</Select>
 
 				<Button

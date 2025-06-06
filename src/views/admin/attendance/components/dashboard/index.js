@@ -79,7 +79,7 @@ const Dashboard = () => {
 
 			change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'green.500',
-			link: '/attendance/record',
+			link: '/attendance/record?status=1',
 		},
 		{
 			label: 'Absent',
@@ -89,7 +89,7 @@ const Dashboard = () => {
 
 			change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'red.500',
-			link: '/attendance/record',
+			link: '/attendance/record?status=0',
 		},
 		{
 			label: 'Late Arrival',
@@ -100,7 +100,7 @@ const Dashboard = () => {
 				data?.lateArrival?.change > 0 ? 'more' : 'less'
 			} than yesterday`,
 			changeColor: 'red.500',
-			link: '/attendance/record',
+			link: '/attendance/record?status=2',
 		},
 		{
 			label: 'Early Departures',
@@ -109,7 +109,7 @@ const Dashboard = () => {
 			icon: FaMoon,
 			change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'green.500',
-			link: '/attendance/record',
+			link: '/attendance/record?status=1',
 		},
 		{
 			label: 'Time-off',
@@ -118,65 +118,9 @@ const Dashboard = () => {
 			icon: FaFileAlt,
 			change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? 'more' : 'less'} than yesterday`,
 			changeColor: 'blue.500',
-			link: '/attendance/record',
+			link: '/attendance/record', // time off skip direct link
 		},
 	];
-
-	// const lineChartOptions = useMemo(
-	// 	() => ({
-	// 		chart: { type: 'line', toolbar: { show: false } },
-	// 		stroke: {
-	// 			curve: 'smooth',
-	// 			width: 4,
-	// 			colors: ['#D99A36'],
-	// 		}, // Thicker line
-	// 		markers: {
-	// 			size: 8, // Larger markers
-	// 			colors: ['#fff'],
-	// 			strokeColors: '#D99A36', // Brand-colored marker outline
-	// 			strokeWidth: 4,
-	// 			hover: { size: 10 }, // Enlarge on hover
-	// 		},
-	// 		fill: {
-	// 			type: 'gradient',
-	// 			gradient: {
-	// 				shade: 'light',
-	// 				shadeIntensity: 0.5,
-	// 				opacityFrom: 0.5, // Stronger gradient at the top
-	// 				opacityTo: 0,
-	// 				stops: [0, 90, 100],
-	// 				colorStops: [
-	// 					{ offset: 0, color: '#F5ECCB', opacity: 1 },
-	// 					{ offset: 100, color: 'rgba(72, 187, 120, 0)', opacity: 0 },
-	// 				],
-	// 			},
-	// 		},
-	// 		xaxis: {
-	// 			categories: data?.labels ?? [],
-	// 			labels: { style: { colors: '#555', fontSize: '14px' } }, // Improved readability
-	// 		},
-	// 		yaxis: {
-	// 			min: 0,
-	// 			max: 100,
-	// 			labels: { formatter: (val) => `${Math.round(val)}%` },
-	// 		},
-	// 		tooltip: {
-	// 			enabled: true,
-	// 			theme: 'light',
-	// 			y: { formatter: (val) => `${val}%` },
-	// 		},
-	// 		grid: {
-	// 			borderColor: '#C4C4C4',
-	// 			strokeDashArray: 4,
-	// 		},
-	// 	}),
-	// 	[data?.labels]
-	// );
-
-	// const lineChartData = useMemo(
-	// 	() => [{ name: 'Attendance', data: data?.attendancePercentages ?? [] }],
-	// 	[data?.attendancePercentages]
-	// );
 
 	const lineChartOptions = useMemo(
 		() => ({
@@ -305,13 +249,15 @@ const Dashboard = () => {
 		</Box>
 	) : (
 		<>
-			<AppButton
-				ml='2'
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/attendance')}
-			>
-				Back
-			</AppButton>
+			{role !== 'Attendance' && (
+				<AppButton
+					ml='2'
+					leftIcon={<IoArrowBack />}
+					onClick={() => navigate('/attendance')}
+				>
+					Back
+				</AppButton>
+			)}
 
 			<Flex
 				bg='white'
@@ -345,8 +291,9 @@ const Dashboard = () => {
 					<Loader />
 				</Box>
 			) : (
-				<Box p='2' fontFamily="'DM Sans', sans-serif">
+				<Box p='2'>
 					<RealTimeData
+						data={data}
 						stats={stats}
 						lineChartData={lineChartData}
 						lineChartOptions={lineChartOptions}

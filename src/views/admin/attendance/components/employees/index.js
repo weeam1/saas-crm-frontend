@@ -11,6 +11,7 @@ import AttendanceHeader from '../AttendanceHeader';
 import EmployeesTable from './EmployeesTable';
 import AppButton from 'components/shared/AppButton';
 import TopPagination from 'components/pagination/TopPagination';
+import { getLocalAttendanceFilter } from '../../constants';
 
 const Employees = () => {
 	const PAGE_SIZE = 20;
@@ -19,6 +20,11 @@ const Employees = () => {
 	const [view, setView] = useState(() => {
 		return localStorage.getItem('employeesView') || 'grid';
 	});
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const role =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
 	const [viewLoading, setViewLoading] = useState(false);
 
@@ -32,7 +38,8 @@ const Employees = () => {
 		const pageSize = Number(searchParams.get('pageSize')) || PAGE_SIZE;
 		const role = searchParams.get('role') || 'All';
 		const search = searchParams.get('search') || '';
-		const agency = searchParams.get('agency') || 'All';
+		const agency =
+			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
 		const layout = searchParams.get('layout') || view;
 
 		if (agency || search) {
@@ -45,7 +52,7 @@ const Employees = () => {
 					page,
 					pageSize,
 					role,
-					// layout,
+					layout,
 					...(search && { search }),
 					...(agency && { agency }),
 				};
@@ -59,14 +66,15 @@ const Employees = () => {
 	const queryParams = useMemo(() => {
 		const search = searchParams.get('search') || '';
 		const role = searchParams.get('role') || 'All';
-		const agency = searchParams.get('agency') || 'All';
+		const agency =
+			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
 		const layout = searchParams.get('layout') || view;
 
 		return {
 			page: Number(searchParams.get('page')) || 1,
 			pageSize: Number(searchParams.get('pageSize')) || PAGE_SIZE,
 			role,
-			// layout,
+			layout,
 			...(search && { search }),
 			...(agency && { agency }),
 		};
@@ -134,6 +142,8 @@ const Employees = () => {
 		document.getElementById('searchInput').value = '';
 		updateFilters({ page: 1, role: 'All' });
 
+		localStorage.removeItem('attendanceAgencyFilter');
+
 		setSearchParams((prev) => {
 			const newParams = new URLSearchParams(prev);
 			newParams.delete('search');
@@ -144,7 +154,7 @@ const Employees = () => {
 	};
 
 	const handleViewChange = (newView) => {
-		// updateFilters({ layout: view });
+		updateFilters({ layout: view });
 		setView(newView);
 		setViewLoading(true);
 
@@ -161,6 +171,7 @@ const Employees = () => {
 				isFetching={isFetching}
 				viewLoading={viewLoading}
 				queryParams={queryParams}
+				loginRole={role}
 			/>
 		) : (
 			<EmployeesTable
@@ -169,6 +180,7 @@ const Employees = () => {
 				isFetching={isFetching}
 				viewLoading={viewLoading}
 				queryParams={queryParams}
+				loginRole={role}
 			/>
 		);
 

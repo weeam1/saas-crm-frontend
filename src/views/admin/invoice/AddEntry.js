@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	Flex,
@@ -19,6 +19,7 @@ import {
 	MenuItem,
 	IconButton,
 	Tooltip,
+	Breadcrumb,
 } from '@chakra-ui/react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import DeleteIconSvg from '../../../assets/img/bankaccount/Vector.png';
@@ -35,6 +36,7 @@ import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import { format } from 'date-fns';
+import BreadCrumb from 'components/shared/BreadCrumb';
 
 const AddEntry = ({ props }) => {
 	const textColor = useColorModeValue('gray.500', 'white');
@@ -64,7 +66,7 @@ const AddEntry = ({ props }) => {
 		'VAT %',
 		'VAT Amount',
 		'Commission incl. VAT',
-		'Total',
+		// 'Total',
 		'Created Date',
 		'Action',
 	];
@@ -84,6 +86,7 @@ const AddEntry = ({ props }) => {
 	);
 	const docLength = entriesData?.doc.length;
 	const developerId = entriesData?.doc?.[0]?.invoice?.developer?.id;
+	const invoiceId = entriesData?.doc?.[0]?.invoice?._id;
 
 	const [tableData, setTableData] = useState([]);
 	const [summary, setSummary] = useState({
@@ -141,6 +144,24 @@ const AddEntry = ({ props }) => {
 		});
 	};
 
+	console.log({ tableData, invoiceId, developerId });
+
+	const breadcrumbItems = useMemo(
+		() => [
+			{ label: 'Developers', path: '/invoice?tab=developers' },
+			{
+				label: 'Invoices',
+				path: `/invoice/developers/invoices/${developerId}`,
+			},
+			{
+				label: 'Invoice Entry',
+				path: `/invoice/developers/invoices/entries/${invoiceId}`,
+			},
+		],
+		[invoiceId, developerId]
+	);
+
+	console.log({ breadcrumbItems });
 	const handleEditClick = (entryId) => {
 		setSelectedId(entryId);
 		setIsEditModalOpen(true);
@@ -183,6 +204,8 @@ const AddEntry = ({ props }) => {
 
 	return (
 		<Box>
+			<BreadCrumb items={breadcrumbItems} />
+
 			<AppButton leftIcon={<IoArrowBack />} onClick={goBack} mb='4'>
 				Back
 			</AppButton>
@@ -447,7 +470,7 @@ const AddEntry = ({ props }) => {
 												}
 											)}
 										</Td>
-										<Td
+										{/* <Td
 											textAlign='center'
 											borderColor='gray.200'
 											fontSize={fontSizeTd}
@@ -460,7 +483,7 @@ const AddEntry = ({ props }) => {
 												minimumFractionDigits: 2,
 												maximumFractionDigits: 2,
 											})}
-										</Td>
+										</Td> */}
 										<Td
 											textAlign='center'
 											borderColor='gray.200'
@@ -550,7 +573,7 @@ const AddEntry = ({ props }) => {
 											borderColor='gray.200'
 											py={3}
 										>
-											Subtotal
+											Unit Total
 										</Td>
 										<Td
 											fontSize={fontSizeSummaryValue}
@@ -635,7 +658,7 @@ const AddEntry = ({ props }) => {
 										</Td>
 									</Tr>
 
-									<Tr>
+									{/* <Tr>
 										<Td
 											fontSize={fontSizeSummaryLabel}
 											color='gray.600'
@@ -658,7 +681,7 @@ const AddEntry = ({ props }) => {
 												maximumFractionDigits: 2,
 											})}
 										</Td>
-									</Tr>
+									</Tr> */}
 								</Tbody>
 							</Table>
 						</Box>

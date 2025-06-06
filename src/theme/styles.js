@@ -3,6 +3,7 @@ import { mode } from '@chakra-ui/theme-tools';
 export const globalStyles = extendTheme({
 	colors: {
 		brand: {
+			50: '#FAF7E7',
 			100: '#F5ECCB',
 			200: '#EDD199',
 			300: '#E5B668',
@@ -109,15 +110,15 @@ export const globalStyles = extendTheme({
 		global: (props) => ({
 			body: {
 				overflowX: 'hidden',
-				bg: mode('secondaryGray.300', 'navy.900')(props),
-				fontFamily: 'Inter,sans-serif',
+				bg: mode('secondaryGray.300', 'navy.800')(props),
+				fontFamily: 'DM Sans, sans-serif',
 				letterSpacing: '-0.5px',
 			},
 			input: {
 				color: 'gray.700',
 			},
 			html: {
-				fontFamily: 'Inter,sans-serif',
+				fontFamily: 'DM Sans, sans-serif',
 			},
 		}),
 	},

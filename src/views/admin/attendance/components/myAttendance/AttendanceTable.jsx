@@ -9,7 +9,8 @@ import {
 	Td,
 	Divider,
 	useDisclosure,
-	Button,
+	IconButton,
+	Tooltip,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
 import { format } from 'date-fns';
@@ -18,6 +19,9 @@ import { useState } from 'react';
 import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import { ATTENDANCE_STATUS_CONFIG, STATUS_CONFIG } from '../../constants';
+import MessageViewModal from 'components/modals/MessageViewModal';
+import { LuStickyNote } from 'react-icons/lu';
 
 const AttendanceTable = ({
 	attendanceRecord,
@@ -26,6 +30,12 @@ const AttendanceTable = ({
 	isFetching,
 	refetch,
 }) => {
+	const [leaveNote, setLeaveNote] = useState({
+		title: 'Message',
+		message: 'N/A',
+		modal: false,
+	});
+
 	const columns = [
 		'S.No',
 		'Day',
@@ -44,10 +54,9 @@ const AttendanceTable = ({
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	const filterdColumns =
-		role === 'superAdmin'
-			? columns
-			: columns.filter((column) => column !== 'Action');
+	const filterdColumns = ['HR', 'superAdmin'].includes(role)
+		? columns
+		: columns.filter((column) => column !== 'Action');
 
 	const [editData, setEditData] = useState(null);
 
@@ -102,25 +111,42 @@ const AttendanceTable = ({
 							<TableLoading columns={filterdColumns} length={11} py='4' />
 						) : attendanceRecord?.length > 0 ? (
 							attendanceRecord?.map((entry, index) => {
-								let textColor = 'black';
-								let rowBgGradient = 'none';
-								let statusBgColor = 'transparent';
-								let statusText = '';
+								// let textColor = 'black';
+								// let rowBgGradient = 'none';
+								// let statusBgColor = 'transparent';
+								// let statusText = '';
 
-								if (entry.status === 0) {
-									statusBgColor = '#FFE5EE';
-									textColor = '#AA0000';
-									statusText = 'Absent';
-								} else if (entry.status === 1) {
-									statusBgColor = '#E6EFFC';
-									textColor = '#0764E6';
-									statusText = 'Office';
-									rowBgGradient = 'linear(to-r, #E0F7FF, white)';
-								} else if (entry.status === 2) {
-									statusBgColor = '#FFF8E7';
-									textColor = '#D5B500';
-									statusText = 'Late';
-								}
+								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
+									bg: '#F0F0F0',
+									text: '#000',
+									label: 'Unknown',
+								};
+
+								const {
+									bg: statusBgColor,
+									text: textColor,
+									label: statusText,
+									gradient: rowBgGradient,
+								} = config;
+
+								// if (entry.status === 0) {
+								// 	statusBgColor = '#FFE5EE';
+								// 	textColor = '#AA0000';
+								// 	statusText = 'Absent';
+								// } else if (entry.status === 1) {
+								// 	statusBgColor = '#E6EFFC';
+								// 	textColor = '#0764E6';
+								// 	statusText = 'Office';
+								// 	rowBgGradient = 'linear(to-r, #E0F7FF, white)';
+								// } else if (entry.status === 2) {
+								// 	statusBgColor = '#FFF8E7';
+								// 	textColor = '#D5B500';
+								// 	statusText = 'Late';
+								// } else if (entry.status === 3) {
+								// 	statusBgColor = '#FFF8E7';
+								// 	textColor = '#D5B500';
+								// 	statusText = 'Leave';
+								// }
 
 								return (
 									<Tr
@@ -169,7 +195,7 @@ const AttendanceTable = ({
 										<Td borderBottom='none' py={4} minWidth='150px'>
 											{format(new Date(entry.date), 'd MMM, yyyy')}
 										</Td>
-										<Td borderBottom='none' py={4}>
+										<Td borderBottom='none' py={4} minWidth='160px'>
 											<Box
 												bg={statusBgColor}
 												color={textColor}
@@ -179,9 +205,26 @@ const AttendanceTable = ({
 												borderRadius='md'
 												display='inline-block'
 												minWidth='fit-content'
+												mr={2}
 											>
-												{statusText}
+												{entry?.status === 3 && entry?.leaveType
+													? entry.leaveType.charAt(0).toUpperCase() +
+														entry.leaveType.slice(1) +
+														' ' +
+														statusText
+													: statusText}
 											</Box>
+
+											{/* <Box
+												bg={statusBgColor}
+												color={textColor}
+												fontWeight='bold'
+												px={2}
+												py={1}
+												borderRadius='md'
+												display='inline-block'
+												minWidth='fit-content'
+											></Box> */}
 										</Td>
 										<Td
 											borderBottom='none'
@@ -214,14 +257,38 @@ const AttendanceTable = ({
 														: '0m'
 													: 'Pending'}
 										</Td>
-										{role === 'superAdmin' && (
-											<Td py={4}>
-												<Button
+										{['HR', 'superAdmin'].includes(role) && (
+											<Td py={4} minWidth='100px'>
+												<IconButton
 													rounded='full'
+													aria-label='Leave note'
+													icon={<FaEdit />}
+													size='xs'
+													colorScheme='green'
+													variant='solid'
+													mr='1'
 													onClick={() => handleEdit(entry)}
-												>
-													<FaEdit color='green' />
-												</Button>
+												/>
+
+												{entry?.leaveNote && entry?.status === 3 && (
+													<Tooltip label='Leave Note' hasArrow>
+														<IconButton
+															aria-label='Leave note'
+															// icon={<FaNoteSticky />}
+															icon={<LuStickyNote />}
+															size='xs'
+															colorScheme='teal'
+															variant='solid'
+															onClick={() => {
+																setLeaveNote({
+																	message: entry.leaveNote,
+																	title: 'Leave Note',
+																	modal: true,
+																});
+															}}
+														/>
+													</Tooltip>
+												)}
 											</Td>
 										)}
 									</Tr>
@@ -255,6 +322,15 @@ const AttendanceTable = ({
 					data={editData}
 					refetch={refetch}
 					updateKey='myAttendance'
+				/>
+			)}
+
+			{leaveNote?.modal && (
+				<MessageViewModal
+					title={leaveNote.title}
+					message={leaveNote.message}
+					isOpen={leaveNote.modal}
+					onClose={() => setLeaveNote({ modal: false })}
 				/>
 			)}
 		</>

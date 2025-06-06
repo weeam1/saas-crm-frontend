@@ -103,7 +103,11 @@ const BulkAssignModal = (props) => {
 			setIsLoading(true);
 
 			if (values?.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(values.agentAssigned);
+				const stats = await fetchAgentLeadsSats(
+					values.agentAssigned,
+					'bulk',
+					selectedValues?.length
+				);
 
 				if (!stats.canAddLeads) {
 					setIsLoading(false);

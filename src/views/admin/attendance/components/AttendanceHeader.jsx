@@ -131,14 +131,15 @@ const AttendanceHeader = ({
 						<Button
 							{...buttonStyle}
 							variant='solid'
-							bg='red.400'
+							bg='softGray.100'
 							w='fit-content'
-							color='white'
+							color='gray.800'
 							sx={{
 								svg: {
-									fill: 'white',
+									fill: 'gray.800',
 								},
 							}}
+							_active={{ bg: 'gray.200' }}
 							leftIcon={<BiX />}
 							aria-label='Clear'
 							onClick={handleClear}

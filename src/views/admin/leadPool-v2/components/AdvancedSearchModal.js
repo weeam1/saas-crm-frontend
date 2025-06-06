@@ -37,6 +37,7 @@ const AdvancedSearchModal = ({
 	const tree = useSelector((state) => state.user.tree);
 
 	const initialValues = {
+		intID: '',
 		leadName: '',
 		leadStatus: '',
 		eLeadStatus: '',
@@ -106,6 +107,8 @@ const AdvancedSearchModal = ({
 									? 'No Manager'
 									: value;
 						}
+
+						if (key === 'intID') key = 'Lead ID';
 
 						acc.tags.push(`${key}: ${displayValue}`);
 					}

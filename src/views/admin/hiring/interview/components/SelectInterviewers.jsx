@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -18,12 +18,15 @@ import keys from 'config/keys';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
+import SelectInterviewOwner from './SelectInterviewOwner';
 
 const SelectInterviewers = ({
 	interview,
 	user,
 	handleTabChange,
 	interviewRefetch,
+	isInvitedInterviewer,
+	setLoading,
 }) => {
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
@@ -33,10 +36,10 @@ const SelectInterviewers = ({
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (interview?.totalInterviewers > 0) {
+		if (isInvitedInterviewer && interview?._id) {
 			navigate(`/hiring/interview/${interview._id}?phase=evaluation-points`);
 		}
-	}, [interview._id, interview?.totalInterviewers, navigate]);
+	}, [interview._id, isInvitedInterviewer, navigate]);
 
 	const [updateItemMutation, { isLoading: updatingInterview }] =
 		useUpdateItemMutation();
@@ -44,15 +47,60 @@ const SelectInterviewers = ({
 	const userRole = user?.roles[0]?.roleName || user?.role;
 
 	const [selectedIds, setSelectedIds] = useState([]);
+	const [selectedUsers, setSelectedUsers] = useState([]);
+	const [isModalOpen, setModalOpen] = useState(false);
+	const [selectedInterviewer, setSelectedInterviewer] = useState(null);
+
+	const handleSelectOwner = (id) => setSelectedInterviewer(id);
+
+	const combinedUsers = useMemo(() => {
+		const userGroups = [
+			allUsers?.doc?.managers,
+			allUsers?.doc?.admins,
+			allUsers?.doc?.hrStaff,
+		];
+		return userGroups.flat().filter(Boolean);
+	}, [allUsers]);
+
+	const handleSelectUser = (id) => {
+		const selectedUser = combinedUsers.find((u) => u?._id === id);
+		if (!selectedUser) {
+			console.warn(`User with id ${id} not found in combinedUsers`);
+			return;
+		}
+
+		setSelectedUsers((prev) => {
+			// Prevent duplicates
+			const exists = prev.some((u) => u._id === id);
+			if (exists) return prev;
+
+			// Add user at the top
+			return [selectedUser, ...prev];
+		});
+	};
 
 	const handleCheckboxChange = (id) => {
-		setSelectedIds((prev) =>
-			prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-		);
+		setSelectedIds((prev) => {
+			const isSelected = prev.includes(id);
+			if (isSelected) {
+				//  user is unchecked → remove from selectedUsers
+				setSelectedUsers((users) => users.filter((u) => u._id !== id));
+				return prev.filter((item) => item !== id);
+			} else {
+				//  user is checked → add to selectedUsers
+				handleSelectUser(id);
+				return [...prev, id];
+			}
+		});
+	};
+
+	const handleSelectInterviewerClose = () => {
+		setModalOpen(false);
+		setSelectedInterviewer(null);
 	};
 
 	const renderUserList = (users) => {
-		const filteredUsers = users.filter((item) => item._id !== user._id);
+		// const filteredUsers = users.filter((item) => item._id !== user._id);
 		return (
 			<VStack
 				// spacing={4}
@@ -74,7 +122,7 @@ const SelectInterviewers = ({
 					},
 				}}
 			>
-				{filteredUsers?.map((user) => (
+				{users?.map((user) => (
 					<Box
 						key={user._id}
 						display='flex'
@@ -108,10 +156,27 @@ const SelectInterviewers = ({
 		);
 	};
 
+	// console.log({ selectedIds, selectedInterviewer });
+
+	// const getSenderName = (id) => {
+	// 	return combinedUsers.find((user) => user._id === id)?.name;
+	// };
+
 	const handleSendInvite = async (selectedIds) => {
 		try {
 			if (selectedIds.length > 0) {
-				const sender_name = `${user.firstName} ${user.lastName}`;
+				if (!selectedInterviewer) {
+					// handleSelectUser(user._id);
+					setSelectedInterviewer(selectedIds[0]);
+					return setModalOpen(true);
+				} else setModalOpen(false);
+
+				// const receiverIds =
+				// 	selectedInterviewer !== user._id
+				// 		? [...selectedIds]
+				// 		: selectedIds;
+
+				const sender_name = user?.fullName;
 
 				const interviewData = {
 					sender_id: user._id,
@@ -123,6 +188,8 @@ const SelectInterviewers = ({
 					candidate_job_type: interview?.candidate?.position.name,
 				};
 
+				console.log(interviewData);
+
 				const { data } = await axios.post(
 					`${keys.socketUrl}/interview_invite`,
 					interviewData
@@ -130,23 +197,40 @@ const SelectInterviewers = ({
 
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
-					body: { interviewers: selectedIds },
+					body: {
+						interviewers: selectedIds,
+						leadInterviewer: selectedInterviewer,
+					},
 				}).unwrap();
 
 				toast.success('Interview invite sent successfully.');
+
+				// if selected interviewer is another user then redirect to default page
+				const createdUser = selectedIds?.find((id) => id === user._id);
+
+				// if user is not selected for interviwers list
+				if (!createdUser) {
+					return navigate('/hiring');
+				} else if (createdUser && selectedInterviewer !== user._id) {
+					setLoading(true);
+					handleTabChange(1);
+				}
+
+				// Else if user is own owner of interview then move to next tab
 				handleTabChange(1);
 			} else {
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
-					body: { interviewers: [user._id] },
+					body: { interviewers: [user._id], leadInterviewer: user._id },
 				}).unwrap();
 				handleTabChange(1);
 			}
+
+			// Refetch the interview data
+			interviewRefetch();
 		} catch (err) {
 			console.log(err);
 			toast.error('Failed to send announcement.');
-		} finally {
-			interviewRefetch();
 		}
 	};
 
@@ -212,6 +296,17 @@ const SelectInterviewers = ({
 						? 'Skip'
 						: `Send Invite (${selectedIds.length})`}
 			</Button>
+
+			{isModalOpen && (
+				<SelectInterviewOwner
+					isOpen={isModalOpen}
+					onClose={handleSelectInterviewerClose}
+					users={selectedUsers}
+					selectedId={selectedInterviewer}
+					onSelect={handleSelectOwner}
+					onConfirm={() => handleSendInvite(selectedIds)}
+				/>
+			)}
 		</Box>
 	);
 };

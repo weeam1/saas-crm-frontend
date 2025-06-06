@@ -37,6 +37,7 @@ import ReportChart from './components/ReportChart';
 import TodaySummary from './components/TodaySummary';
 import LeadStatusTable from './components/LeadStatusStats';
 import LeadStatusStats from './components/LeadStatusStats';
+import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -62,7 +63,7 @@ export default function UserReports() {
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 	const user = JSON.parse(localStorage.getItem('user'));
-
+	const [listTop, setListTop] = useState('all');
 	const userRole =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -300,9 +301,15 @@ export default function UserReports() {
 				</>
 			)}
 
-			<LeadStatusStats doc={leadStatusData?.doc} />
+			{/* <LeadStatusStats
+				doc={leadStatusData?.doc}
+				listTop={listTop}
+				setListTop={setListTop}
+			/> */}
 
-			<Grid
+			<LeadStatusPieChart data={leadStatusData?.doc} />
+
+			{/* <Grid
 				Grid
 				templateColumns={{ base: 1, xl: 'repeat(12, 1fr)' }}
 				mt={5}
@@ -954,7 +961,7 @@ export default function UserReports() {
 					{/* <Flex mt={5} justifyContent={'center'}>
 						<PieChart leadData={leadData} />
 					</Flex> */}
-				</Card>
+			{/* </Card>
 
 				<Card>
 					<Grid templateColumns='repeat(12, 1fr)' gap={2} mb={2}>
@@ -1020,7 +1027,7 @@ export default function UserReports() {
 							</Box>
 						))}
 				</Card>
-			</SimpleGrid>
+			</SimpleGrid> */}
 		</Box>
 	);
 }

@@ -31,6 +31,7 @@ const Interviewed = ({
 	gopageValue,
 	setGopageValue,
 	setAdvanceSearch,
+	isRefetching,
 }) => {
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
 	const [searchData, setSearchData] = useState([]);
@@ -43,10 +44,13 @@ const Interviewed = ({
 	const headers = [
 		{ key: 'name', label: 'Name', width: '250px' }, // Name column width
 		{ key: 'email', label: 'Email', width: '250px' }, // Email column width
+		{ key: 'agency', label: 'Agency', width: '100px' }, // Email column width
 		{ key: 'position', label: 'Job Role', width: '150px' }, // Job Role column width
 		{ key: 'phone', label: 'Phone No', width: '150px' }, // Phone No column width
 		{ key: 'whatsApp', label: 'WhatsApp No', width: '150px' }, // WhatsApp No column width
 		{ key: 'type', label: 'Type', width: '150px' }, // WhatsApp No column width
+		{ key: 'status', label: 'Status', width: '100px' }, // WhatsApp No column width
+		{ key: 'rounds', label: 'Rounds', width: '50px' }, // WhatsApp No column width
 		{ key: 'percentageSocre', label: 'T.Percentage', width: '150px' }, // WhatsApp No column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
@@ -134,9 +138,15 @@ const Interviewed = ({
 	const navigate = useNavigate();
 
 	const handleSendOffer = (interviewId, offerType) => {
-		navigate(
-			`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
-		);
+		if (offerType === 'view') {
+			navigate(
+				`/hiring/interviewed-candidates/offer-letter/view/${interviewId}`
+			);
+		} else {
+			navigate(
+				`/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+			);
+		}
 	};
 
 	// Update filtered data on search change
@@ -202,6 +212,7 @@ const Interviewed = ({
 				handleSort={handleSort}
 				sortConfig={sortConfig}
 				loading={loading}
+				isRefetching={isRefetching}
 				handleViewResult={handleViewResult}
 				handleViewCandidate={handleViewCandidate}
 				handleSendOffer={handleSendOffer}
@@ -243,6 +254,7 @@ const Interviewed = ({
 					data={interview}
 					interviewId={interviewId}
 					refetch={refetch}
+					title='Interview Result'
 				/>
 			)}
 

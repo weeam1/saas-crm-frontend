@@ -14,10 +14,13 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { getCurrentInterviewRound } from 'views/admin/hiring/helpers';
+import { useMemo } from 'react';
 
 const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const navigate = useNavigate();
-	// const [interview, setInterview] = useState(null);
+
+	const user = JSON.parse(localStorage.getItem('user'));
 
 	const {
 		data: interview,
@@ -27,16 +30,33 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 		{
 			path: `/interviews/${item?.interview_id}`,
 		},
-		{ skip: !item?.interview_id }
+		{
+			skip: !item?.interview_id,
+			refetchOnMountOrArgChange: true,
+		}
 	);
 
+	const currentRound = getCurrentInterviewRound(interview?.doc);
+
+	const isInterviewerSubmittedPoints = useMemo(() => {
+		const points = currentRound?.evaluations?.find(
+			(item) => item.interviewer?._id === user?._id
+		);
+		return points?.status ?? false;
+	}, [currentRound?.evaluations, user?._id]);
+
 	const isInterviewCancel =
+		isInterviewerSubmittedPoints ||
 		interview?.doc?.status === 'end' ||
 		interview?.doc?.status === 'canceled' ||
+		(interview?.doc?.pendingEvaluations === 0 &&
+			!interview?.doc?.isMultiRound) ||
+		interview?.doc?.nextRound?.pendingEvaluations === 0 ||
 		error?.status === 404;
 
 	const handleJoinInterview = () => {
-		navigate(`/hiring/interview/${item.interview_id}?phase=evaluation-points`);
+		navigate(`/hiring/interview/${item.interview_id}`);
+		// window.location.href = `/hiring/interview/${item.interview_id}?phase=evaluation-points`;
 		onClose();
 	};
 
@@ -74,7 +94,9 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 
 				<ModalFooter>
 					{isLoading ? (
-						<Spinner px='2' />
+						<Box px='2'>
+							<Spinner />
+						</Box>
 					) : isInterviewCancel ? (
 						<Text fontSize='md' mx='4' color='blue.400'>
 							This invitaion is expired

@@ -10,11 +10,6 @@ const CardLoader = ({ count = 3 }) => {
 				'@media (min-width: 0px)': {
 					gridTemplateColumns: '1fr',
 				},
-				// // >= 812px
-				// '@media (min-width: 812px)': {
-				// 	gridTemplateColumns: '1fr',
-				// },
-				// >= 992px
 				'@media (min-width: 812px)': {
 					gridTemplateColumns: 'repeat(2, 1fr)',
 				},
@@ -44,7 +39,6 @@ const CardLoader = ({ count = 3 }) => {
 				},
 			}}
 			gap='2'
-			// minH='100vh'
 		>
 			{[...Array(count)].map((_, index) => (
 				<Skeleton

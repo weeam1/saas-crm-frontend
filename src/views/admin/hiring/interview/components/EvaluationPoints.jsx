@@ -6,6 +6,8 @@ import {
 	FormLabel,
 	Input,
 	Button,
+	IconButton,
+	HStack,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { Formik, Form, Field } from 'formik';
@@ -13,6 +15,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
+import InterviewResult from '../../interviewedCandidates/InterviewResult';
+import { MdVisibility } from 'react-icons/md';
 
 const evaluationFields = [
 	'Appearance',
@@ -55,6 +59,8 @@ const EvaluationPoints = ({
 	const [evaluationData, setLocalEvaluationData] =
 		useState(createInitialState());
 
+	const [resultModalOpen, setResultModalOpen] = useState(false);
+
 	const [searchParams] = useSearchParams();
 
 	const [updateItemMutation, { isLoading: pointsUpdating }] =
@@ -64,9 +70,19 @@ const EvaluationPoints = ({
 
 	useEffect(() => {
 		if (isInterviewerSubmittedPoints) {
-			navigate(`/hiring/interview/${interview?._id}?phase=hiring-info`);
+			// toast.error('Interview points already submitted!');
+			const target = isLeadInterviewer
+				? `/hiring/interview/${interview?._id}?phase=hiring-info`
+				: '/hiring';
+			navigate(target);
 		}
-	}, [interview?._id, isInterviewerSubmittedPoints, searchParams, navigate]);
+	}, [
+		interview?._id,
+		isInterviewerSubmittedPoints,
+		// searchParams,
+		navigate,
+		isLeadInterviewer,
+	]);
 
 	const handleSubmit = async (data) => {
 		try {
@@ -84,24 +100,52 @@ const EvaluationPoints = ({
 
 			toast.success('Interview data updated successfully');
 
-			isLeadInterviewer ? handleTabChange(2) : navigate('/');
+			if (isLeadInterviewer) {
+				handleTabChange(2);
+				interviewRefetch();
+			} else navigate('/hiring');
 		} catch (error) {
 			toast.error(error?.data?.message || 'Failed to update interview data');
-		} finally {
-			interviewRefetch();
 		}
 	};
 
 	return (
 		<Box>
-			<Text
-				fontSize={{ base: 'xl', md: '2xl' }}
-				fontWeight='bold'
+			<HStack
+				flexDir={{ base: 'column', md: 'row' }}
+				alignItems='center'
+				justifyContent='space-between'
 				mb={4}
-				textAlign='center'
+				borderBottom='2px'
+				borderColor='brand.200'
+				py='2'
 			>
-				Evaluation Points
-			</Text>
+				<Text
+					fontSize={{ base: 'xl', md: '2xl' }}
+					fontWeight='bold'
+					textAlign='center'
+				>
+					Evaluation Points
+				</Text>
+
+				{interview?.isMultiRound && (
+					<Button
+						bg='#EDC270'
+						color='gray.800'
+						fontSize={{ base: 'xs', md: 'sm' }}
+						fontWeight='normal'
+						shadow='sm'
+						h='2rem'
+						rounded='md'
+						_hover={{ bg: '#E0B960' }}
+						_active={{ bg: '#D4AC50' }}
+						onClick={() => setResultModalOpen(true)}
+					>
+						Previous Result
+					</Button>
+				)}
+			</HStack>
+
 			<Formik
 				initialValues={evaluationData}
 				validationSchema={validationSchema}
@@ -153,59 +197,6 @@ const EvaluationPoints = ({
 									) : null}
 								</FormControl>
 							))}
-
-							{/* {evaluationFields.map((field) => (
-								<FormControl
-									key={field}
-									isInvalid={errors[field] && touched[field]}
-								>
-									<FormLabel>
-										{field.replace(/([A-Z])/g, ' $1').trim()}
-									</FormLabel>
-									{field === 'Stability' || field === 'Information' ? (
-										// Render Select Input for Yes/No fields
-										<Field name={field}>
-											{({ field }) => (
-												<Select
-													{...field}
-													placeholder={`Select ${field.name}`}
-													bg='gray.100'
-													borderColor='gray.300'
-													_focus={{
-														borderColor: '#D99A36',
-														boxShadow: '0 0 0 1px #D99A36',
-													}}
-												>
-													<option value={10}>Yes</option>
-													<option value={0}>No</option>
-												</Select>
-											)}
-										</Field>
-									) : (
-										// Render Numeric Input for other fields
-										<Field name={field}>
-											{({ field }) => (
-												<Input
-													{...field}
-													type='number'
-													min={1}
-													max={10}
-													placeholder='0-10'
-													bg='gray.100'
-													borderColor='gray.300'
-													_focus={{
-														borderColor: '#D99A36',
-														boxShadow: '0 0 0 1px #D99A36',
-													}}
-												/>
-											)}
-										</Field>
-									)}
-									{errors[field] && touched[field] ? (
-										<Text color='red.500'>{errors[field]}</Text>
-									) : null}
-								</FormControl>
-							))} */}
 						</Grid>
 						<Button
 							bg='#EDC270'
@@ -229,6 +220,16 @@ const EvaluationPoints = ({
 					</Form>
 				)}
 			</Formik>
+
+			{resultModalOpen && (
+				<InterviewResult
+					onClose={() => setResultModalOpen(false)}
+					isOpen={resultModalOpen}
+					interviewId={interview?._id}
+					mode='running'
+					title='Previous Result'
+				/>
+			)}
 		</Box>
 	);
 };
