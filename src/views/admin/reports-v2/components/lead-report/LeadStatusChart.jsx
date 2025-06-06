@@ -1,35 +1,16 @@
-import { Box, Flex, Text, Circle } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
+
 import { getFilteredStats } from './../../helpers';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import PiChart from '../PiChart';
-import BarChartComponent from '../BarChart';
+import NoData from 'components/Message/NoData';
+import StatusBarChart from '../StatusBarChart';
 
-const LeadStatusChart = ({ queryParams, view }) => {
-	const { data, isLoading, isSuccess } = useFetchItemsQuery(
-		{
-			path: '/v2/reporting/feedbacks',
-			params: { ...queryParams, type: 'leadStatus' },
-		},
-		{ refetchOnMountOrArgChange: true }
-	);
-
-	// const filteredData = data?.doc?.stats
-	// 	? getFilteredStats(data?.doc?.stats, view)
-	// 	: {};
-
-	// const total = filteredData.reduce((sum, d) => sum + d.value, 0);
-	// const processedData = filteredData.map((item) => ({
-	// 	...item,
-	// 	percent: item.value / total,
-	// }));
-
+const LeadStatusChart = ({ data, queryParams, view }) => {
 	const [processedData, setProcessedData] = useState([]);
 
 	useEffect(() => {
-		if (isSuccess && data?.doc?.stats) {
-			const filteredData = getFilteredStats(data.doc.stats, view);
+		if (data) {
+			const filteredData = getFilteredStats(data, view);
 			const total = filteredData.reduce((sum, d) => sum + d.value, 0);
 			const calculatedData = filteredData.map((item) => ({
 				...item,
@@ -37,65 +18,42 @@ const LeadStatusChart = ({ queryParams, view }) => {
 			}));
 			setProcessedData(calculatedData);
 		}
-	}, [data, isSuccess, view]);
+	}, [data, view]);
 
-	return isLoading ? (
-		<Loader />
-	) : (
-		processedData && (
-			<Box
-				// boxShadow='md'
-				p='2'
-				// bg='white'
-				width='full'
+	return (
+		<Box
+			p='2'
+			width='full'
+			textAlign='center'
+			display='flex'
+			flexDirection='column'
+			alignItems='center'
+			justifyContent='center'
+		>
+			<Text
+				fontSize='sm'
 				textAlign='center'
-				display='flex'
-				flexDirection='column'
-				alignItems='center'
-				justifyContent='center'
+				color='gray.600'
+				fontWeight='bold'
+				mb='2'
 			>
-				<Text fontWeight='bold' mb={8}>
-					Leads Status
-				</Text>
+				Leads Status
+			</Text>
 
-				{/* <Box>
-					<PiChart data={processedData} />
-				</Box> */}
-
-				<Box w='100%'>
-					<BarChartComponent
+			<Box w='100%'>
+				{processedData?.length > 0 ? (
+					<StatusBarChart
 						data={processedData}
-						containerHeight={250}
+						containerHeight={350}
 						barSize={25}
 						layout='vertical'
 						showGrid
 					/>
-				</Box>
-				{/* <ResponsiveContainer width={300} height={300}>
-				<PieChart>
-					<Pie
-						data={processedData}
-						dataKey='value'
-						cx='50%'
-						cy='50%'
-						innerRadius={50}
-						outerRadius={140}
-						paddingAngle={1}
-						isAnimationActive
-					>
-						{processedData.map((entry, index) => (
-							<Cell
-								key={`cell-${index}`}
-								fill={entry.bgColor}
-								stroke={entry.textColor}
-							/>
-						))}
-					</Pie>
-					<Tooltip content={<CustomTooltip />} />
-				</PieChart>
-			</ResponsiveContainer> */}
+				) : (
+					<NoData label='leads status' />
+				)}
 			</Box>
-		)
+		</Box>
 	);
 };
 

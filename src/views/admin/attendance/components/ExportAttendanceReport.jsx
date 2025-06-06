@@ -150,8 +150,6 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 		}
 	};
 
-	console.log({ filterType });
-
 	const buildReportPayload = (format) => {
 		const base = { agency: selectedAgency, format, type: filterType };
 		if (filterType === 'month') return { ...base, month, year };
@@ -199,13 +197,7 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 							dateFilterHandler={dateFilterHandler}
 							monthFilterHandler={monthFilterHandler}
 						/>
-						{/* {filterType === 'range' ? (
-							<DateRangeFilter dateFilterHanlder={dateRangeFilterHanlder} />
-						) : (
-							<DateFilter onFilterChange={onDateFilterChange} />
-						)} */}
-						{/* <DateRangeFilter dateFilterHanlder={dateRangeFilterHanlder} />
-						<DateFilter onFilterChange={onDateFilterChange} /> */}
+
 						{isAdmin && (
 							<FormControl mb={2} mt='2'>
 								<FormLabel>Agency</FormLabel>

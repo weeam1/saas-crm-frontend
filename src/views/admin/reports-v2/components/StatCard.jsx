@@ -32,18 +32,19 @@ export const StatCard = ({
 		trend > 0 ? 'green.500' : trend < 0 ? 'red.500' : 'gray.500';
 	const trendIcon = trend > 0 ? FiArrowUp : trend < 0 ? FiArrowDown : FiMinus;
 
-	const formattedValue = Number(value).toLocaleString(undefined, {
-		minimumFractionDigits: precision,
-		maximumFractionDigits: precision,
-	});
+	const formattedValue =
+		typeof value === 'number'
+			? Number(value).toLocaleString(undefined, {
+					minimumFractionDigits: precision,
+					maximumFractionDigits: precision,
+				})
+			: value;
 
 	return (
 		<Box
 			bg={bgColor}
 			p={5}
-			// boxShadow='base'
-			// border='1px solid'
-			// borderColor={borderColor}
+			shadow='sm'
 			rounded='lg'
 			whileHover={{ y: -2 }}
 			transition='all 0.2s ease'
@@ -82,7 +83,7 @@ export const StatCard = ({
 				alignItems='center'
 			>
 				<Text
-					fontSize='2xl'
+					fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
 					fontWeight='semibold'
 					color={textColor}
 					lineHeight='1.2'

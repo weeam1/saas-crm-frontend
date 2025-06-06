@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
-	Flex,
+	Button,
+	HStack,
 	IconButton,
-	useDisclosure,
-	Heading,
+	Text,
+	Tooltip,
 } from '@chakra-ui/react';
 import {
 	FaUsers,
@@ -14,39 +15,23 @@ import {
 	FaMoon,
 	FaFileAlt,
 } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 
-import { useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
-import RealTimeData from './RealTimeData';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import { FiFilter } from 'react-icons/fi';
-import AgencyFilter from './AgencyFilter';
-import AppButton from 'components/shared/AppButton';
-import DashboardShimmer from './DashboardShimmer';
+import DashboardShimmer from 'views/admin/attendance/components/dashboard/DashboardShimmer';
+import AttendanceStats from './AttendanceStats';
+import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import RefButton from '../RefButton';
 
-const Dashboard = () => {
+const AttendanceReport = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
-	const [selectedAgency, setSelectedAgency] = useState({});
-	const [agency, setAgency] = useState(null);
-
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const navigate = useNavigate();
 
 	const user = JSON.parse(localStorage.getItem('user'));
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	useEffect(() => {
-		if (user?.agency && role !== 'superAdmin') {
-			setSelectedAgency(user.agency);
-			setAgency(user?.agency?.name);
-		}
-	}, []);
-
 	const [queryParams, setQueryParams] = useState({
 		timeframe: selectedView,
-		agency: '',
 	});
 
 	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
@@ -224,99 +209,38 @@ const Dashboard = () => {
 		},
 	];
 
-	const [loading, setLoading] = useState(true);
-	const [refetching, setRefetching] = useState(false);
-
-	useEffect(() => {
-		const timer = setTimeout(() => setLoading(false), 2500);
-		return () => clearTimeout(timer);
-	}, []);
-
-	useEffect(() => {
-		if (!isFetching) setRefetching(false);
-	}, [isFetching]);
-
-	const handleApplyFilter = (newAgency) => {
-		setQueryParams((prev) => ({ ...prev, agency: newAgency }));
-		onClose();
-		setRefetching(true);
-		setAgency(selectedAgency?.name ?? null);
-	};
-
-	return loading ? (
+	return isLoading ? (
 		<Box h='100vh'>
 			<DashboardShimmer />
 		</Box>
 	) : (
 		<>
-			{role !== 'Attendance' && (
-				<AppButton
-					ml='2'
-					leftIcon={<IoArrowBack />}
-					onClick={() => navigate('/attendance')}
-				>
-					Back
-				</AppButton>
-			)}
+			<Box bg='white' rounded='md' shadow='sm' p='8' mb='4' mx='2'>
+				<HStack>
+					<Text
+						fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
+						fontWeight='bold'
+					>
+						Attendance Report
+					</Text>
 
-			<Flex
-				bg='white'
-				justifyContent='space-between'
-				py='2'
-				px='4'
-				mx='2'
-				my='2'
-				rounded='md'
-				alignItems='center'
-			>
-				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-					{agency ? `${agency} Agency` : 'All Agencies'}
-				</Heading>
-				{role === 'superAdmin' && (
-					<IconButton
-						icon={<FiFilter />}
-						onClick={onOpen}
-						aria-label='Filter Date'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
-				)}
-			</Flex>
+					<RefButton to='/attendance' label='Attendance Module' />
+				</HStack>
 
-			{loading || refetching ? (
-				<Box h='100vh'>
-					<Loader />
-				</Box>
-			) : (
-				<Box p='2'>
-					<RealTimeData
-						data={data}
-						stats={stats}
-						lineChartData={lineChartData}
-						lineChartOptions={lineChartOptions}
-						barChartData={barChartData}
-						barChartOptions={barChartOptions}
-						selectedView={selectedView}
-						setSelectedView={setSelectedView}
-						setQueryParams={setQueryParams}
-					/>
-				</Box>
-			)}
-
-			{isOpen && (
-				<AgencyFilter
-					handleApplyFilter={handleApplyFilter}
-					isOpen={isOpen}
-					onClose={onClose}
-					selectedAgency={selectedAgency}
-					setSelectedAgency={setSelectedAgency}
+				<AttendanceStats
+					data={data}
+					stats={stats}
+					lineChartData={lineChartData}
+					lineChartOptions={lineChartOptions}
+					barChartData={barChartData}
+					barChartOptions={barChartOptions}
+					selectedView={selectedView}
+					setSelectedView={setSelectedView}
+					setQueryParams={setQueryParams}
 				/>
-			)}
+			</Box>
 		</>
 	);
 };
 
-export default Dashboard;
+export default AttendanceReport;

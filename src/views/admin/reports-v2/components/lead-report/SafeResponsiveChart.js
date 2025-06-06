@@ -2,14 +2,11 @@ import { Box } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from 'react';
 import { ResponsiveContainer } from 'recharts';
 
-const SafeResponsiveChart = ({
-	children,
-	height = '300px',
-	width = '100%',
-}) => {
+const SafeResponsiveChart = ({ children, height = '300px', width = '99%' }) => {
 	const [dimensions, setDimensions] = useState({
-		width: '100%',
-		height: '100%',
+		width: '99%',
+		// height: '100%',
+		aspect: 1,
 	});
 	const containerRef = useRef(null);
 

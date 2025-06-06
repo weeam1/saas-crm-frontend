@@ -32,6 +32,8 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import {
   IoArrowBack,
@@ -59,7 +61,13 @@ const ViewSurveyResponse = () => {
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
   const [userPoints, setUserPoints] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const isDesktop = useBreakpointValue({ base: false, lg: true });
+
+  const isMobile = useBreakpointValue({
+    base: true,
+    sm: true,
+    sx: true,
+    lg: false,
+  });
 
   const {
     data: survey,
@@ -375,6 +383,7 @@ const ViewSurveyResponse = () => {
         overflowY="auto"
         pr={{ base: 0, lg: SIDEBAR_WIDTH }}
         transition="padding-right 0.3s"
+        pb={isMobile ? "80px" : 0}
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
           <Breadcrumb items={items} />
@@ -404,9 +413,25 @@ const ViewSurveyResponse = () => {
 
           {/* Loading state when changing users */}
           {(isLoadingResponse || isFetchingResponse) && (
-            <Flex justify="center" my={8}>
-              <Spinner size="xl" color="brand.500" />
-            </Flex>
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              {[1, 2, 3].map((i) => (
+                <Box key={i} mb={6}>
+                  <SkeletonText
+                    noOfLines={1}
+                    spacing="4"
+                    skeletonHeight="4"
+                    width="60%"
+                    mb={2}
+                  />
+                  <Skeleton height="20px" width="90%" mb={2} />
+                  <Skeleton height="20px" width="80%" mb={2} />
+                  <Skeleton height="20px" width="70%" />
+                </Box>
+              ))}
+              <Flex justify="flex-end" mt={8}>
+                <Skeleton height="32px" width="100px" borderRadius="4px" />
+              </Flex>
+            </Box>
           )}
 
           {/* Survey Questions and Responses */}
@@ -651,55 +676,129 @@ const ViewSurveyResponse = () => {
       </Box>
 
       {/* Desktop Sidebar */}
-      {isDesktop ? (
-        <Box
-          width={SIDEBAR_WIDTH}
-          height="calc(100vh - 78px)"
-          borderLeft="1px solid"
-          borderColor="gray.200"
-          bg="white"
-          overflowY="auto"
-          position="fixed"
-          top="80px"
-          right="0"
-          zIndex="10"
-          display="flex"
-          flexDirection="column"
-        >
-          {SidebarContent}
-        </Box>
-      ) : (
-        <>
-          {/* Mobile Search Button */}
-          <Button
-            position="fixed"
-            bottom="24px"
-            right="24px"
-            zIndex="20"
-            bg="#EDC270"
-            color="#000"
-            leftIcon={<IoSearch />}
-            borderRadius="full"
-            size="lg"
-            boxShadow="lg"
-            onClick={onOpen}
-            _hover={{ bg: "#e0b85c" }}
-            _active={{ bg: "#d1a94b" }}
-          >
-            Search
-          </Button>
+      <Box
+        width={SIDEBAR_WIDTH}
+        height="calc(100vh - 78px)"
+        borderLeft="1px solid"
+        borderColor="gray.200"
+        bg="white"
+        overflowY="auto"
+        position="fixed"
+        top="80px"
+        right="0"
+        zIndex="10"
+        display="flex"
+        flexDirection="column"
+        sx={{
+          // >= 0px
+          "@media (min-width: 0px)": {
+            display: "none",
+          },
+          // // >= 812px
+          // '@media (min-width: 812px)': {
+          // 	gridTemplateColumns: '1fr',
+          // },
+          // >= 992px
+          "@media (min-width: 600px)": {
+            display: "none",
+          },
+          // >= 1280px
+          "@media (min-width: 1040px)": {
+            display: "block",
+          },
+          // >= 1664px
+          "@media (min-width: 1564px)": {
+            display: "block",
+          },
+          // >= 1920px (e.g., Full HD+)
+          "@media (min-width: 2120px)": {
+            display: "block",
+          },
+          // >= 2560px (2.5K / QHD)
+          "@media (min-width: 2560px)": {
+            display: "block",
+          },
+          // >= 3840px (4K)
+          "@media (min-width: 3840px)": {
+            display: "block",
+          },
+          // >= 7680px (8K)
+          "@media (min-width: 7680px)": {
+            display: "block",
+          },
+        }}
+      >
+        {SidebarContent}
+      </Box>
 
-          {/* Mobile Sidebar Drawer */}
-          <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
-              <DrawerBody p={0}>{SidebarContent}</DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </>
-      )}
+      <>
+        {/* Mobile Search Button */}
+        <Button
+          position="fixed"
+          bottom="24px"
+          right="24px"
+          zIndex="20"
+          bg="#EDC270"
+          color="#000"
+          leftIcon={<IoSearch />}
+          borderRadius="full"
+          size="lg"
+          boxShadow="lg"
+          onClick={onOpen}
+          _hover={{ bg: "#e0b85c" }}
+          _active={{ bg: "#d1a94b" }}
+          sx={{
+            // >= 0px
+            "@media (min-width: 0px)": {
+              display: "block",
+            },
+            // // >= 812px
+            // '@media (min-width: 812px)': {
+            // 	gridTemplateColumns: '1fr',
+            // },
+            // >= 992px
+            "@media (min-width: 600px)": {
+              display: "block",
+            },
+            // >= 1280px
+            "@media (min-width: 1040px)": {
+              display: "none",
+            },
+            // >= 1664px
+            "@media (min-width: 1564px)": {
+              display: "none",
+            },
+            // >= 1920px (e.g., Full HD+)
+            "@media (min-width: 2120px)": {
+              display: "none",
+            },
+            // >= 2560px (2.5K / QHD)
+            "@media (min-width: 2560px)": {
+              display: "none",
+            },
+            // >= 3840px (4K)
+            "@media (min-width: 3840px)": {
+              display: "none",
+            },
+            // >= 7680px (8K)
+            "@media (min-width: 7680px)": {
+              display: "none",
+            },
+          }}
+        >
+          Search
+        </Button>
+
+        {/* Mobile Sidebar Drawer */}
+        <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
+            <DrawerBody p={0}>{SidebarContent}</DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </>
     </Flex>
   );
 };
