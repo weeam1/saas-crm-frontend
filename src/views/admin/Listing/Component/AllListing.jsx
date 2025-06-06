@@ -132,7 +132,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         duration: 3000,
         isClosable: true,
       });
-  
+
       setTableData((prevData) =>
         prevData.map((listing) => {
           if (listing._id === listingId) {
@@ -318,17 +318,15 @@ const AllListing = ({ listingType, listingUnitType }) => {
 
   return (
     <Box bg="white" px={2} marginTop={"-16px"}>
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
+      <Flex
+        justifyContent="space-between"
+        p={3}
+        alignItems={"center"}
+      >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
         </Text>
-        <Flex justifyContent="space-between" alignItems="center" gap={2}>
-          <ActiveFiltersDisplay
-            filters={filters}
-            onClearFilters={handleClearFilters}
-            listingTypes={listingType?.doc}
-            unitTypes={listingUnitType?.doc}
-          />
+        <Flex justifyContent={{base:"flex-end", sm: "flex-end", lg: "normal"}}>
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
@@ -341,7 +339,14 @@ const AllListing = ({ listingType, listingUnitType }) => {
           />
         </Flex>
       </Flex>
-      <Box mb={1}>
+
+      <ActiveFiltersDisplay
+        filters={filters}
+        onClearFilters={handleClearFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+      />
+      <Box my={2}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -441,9 +446,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing?.developer
-                        ? listing?.developer
-                        : "N/A"}
+                      {listing?.developer ? listing?.developer : "N/A"}
                     </Td>
                     <Td textAlign="center">
                       {listing.price

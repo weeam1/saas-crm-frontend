@@ -47,7 +47,7 @@ const NavigationLinks = () => {
 								borderRadius='full'
 								p='1'
 							/>
-							<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold'>
+							<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold' textAlign={"center"}>
 								New Survey
 							</Text>
 						</Flex>

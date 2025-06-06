@@ -214,26 +214,25 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           View Requests
         </Text>
-        <Flex justifyContent="space-between" alignItems="center" gap={2}>
-          <ActiveFiltersDisplay
-            filters={filters}
-            onClearFilters={handleClearFilters}
-            listingTypes={listingType?.doc}
-            unitTypes={listingUnitType?.doc}
-          />
-          <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            boxShadow="md"
-          />
-        </Flex>
+
+        <IconButton
+          icon={<FiSearch />}
+          onClick={() => setIsFilterOpen(true)}
+          aria-label="Search Listings"
+          colorScheme="brand"
+          variant="solid"
+          size="sm"
+          borderRadius="full"
+          boxShadow="md"
+        />
       </Flex>
-      <Box mb={1}>
+      <ActiveFiltersDisplay
+        filters={filters}
+        onClearFilters={handleClearFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+      />
+      <Box my={2}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -246,12 +245,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        overflowY="auto"
-      >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"
@@ -388,7 +382,10 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {request?.listing?.createdAt
-                        ? format(request?.listing?.createdAt, "MMM d, yyyy h:mm a")
+                        ? format(
+                            request?.listing?.createdAt,
+                            "MMM d, yyyy h:mm a"
+                          )
                         : "N/A"}
                     </Td>
                     <Td
