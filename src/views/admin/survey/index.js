@@ -8,19 +8,25 @@ import SurveyCardLoading from './Loader/SurveyCardLoading';
 import { useFetchItemsQuery } from 'api/apiSlice';
 const Survey = () => {
 	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+	const [pageSize, setPageSize] = useState(12);
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 	const [closesAt, setClosesAt] = useState(false);
 	const [search, setSearch] = useState('');
 
 	const buildQueryParams = () => {
+		const user = JSON.parse(localStorage.getItem('user'));
+		const role =
+			user?.role === 'superAdmin'
+				? 'superAdmin'
+				: (user?.roles?.[0]?.roleName ?? 'unknown');
+
 		const params = {
 			page: currentPage,
 			limit: pageSize,
 		};
 
-		if (closesAt) params.closesAt = closesAt;
+		if (role !== 'superAdmin') params.closesAt = closesAt;
 		if (search) params.search = search;
 		if (startDate) params.after = startDate;
 		if (endDate) params.before = endDate;
