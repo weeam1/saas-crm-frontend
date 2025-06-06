@@ -61,7 +61,8 @@ const ViewSurveyResponse = () => {
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
   const [userPoints, setUserPoints] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [isButtonDisable, setIsButtonDisable] = useState(false);
+  const [surveyResponseData, setSurveyResponseData] = useState([]);
   const isMobile = useBreakpointValue({
     base: true,
     sm: true,
@@ -137,6 +138,7 @@ const ViewSurveyResponse = () => {
   useEffect(() => {
     setEvaluations([]);
     if (surveyResponse?.doc) {
+      setSurveyResponseData(surveyResponse?.doc);
       const initialEvaluations =
         surveyResponse?.doc.questions?.map((question) => ({
           question: question.question,
@@ -172,6 +174,7 @@ const ViewSurveyResponse = () => {
 
   const handleSubmitEvaluation = async () => {
     try {
+      setIsButtonDisable(true);
       const submittedEvaluations = evaluations.filter(
         (e) => e.liked !== null && e.liked !== undefined
       );
@@ -196,10 +199,28 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
-      refetch();
-      refetchResponse();
+      setSurveyResponseData((prevData) => {
+        if (!prevData || !Array.isArray(prevData.questions)) return prevData;
+
+        const updatedQuestions = prevData.questions.map((question) => {
+          const matchedEvaluation = submittedEvaluations.find(
+            (evaluation) => evaluation.question === question.question
+          );
+          return {
+            ...question,
+            liked: matchedEvaluation?.liked ?? question.liked,
+          };
+        });
+
+        return {
+          ...prevData,
+          questions: updatedQuestions,
+        };
+      });
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
+    } finally {
+      setIsButtonDisable(false);
     }
   };
 
@@ -211,7 +232,6 @@ const ViewSurveyResponse = () => {
       // refetch();
     }
   };
-
   if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
 
   if (isSurveyError)
@@ -415,7 +435,7 @@ const ViewSurveyResponse = () => {
           </Heading>
 
           {/* Loading state when changing users */}
-          {(isLoadingResponse || isFetchingResponse) && (
+          {isLoadingResponse && (
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               {[1, 2, 3].map((i) => (
                 <Box key={i} mb={6}>
@@ -438,7 +458,7 @@ const ViewSurveyResponse = () => {
           )}
 
           {/* Survey Questions and Responses */}
-          {!isLoadingResponse && !isFetchingResponse && (
+          {surveyResponseData && (
             <Box
               bg="white"
               p={6}
@@ -457,15 +477,14 @@ const ViewSurveyResponse = () => {
 
               {surveyData.questions && surveyData.questions.length > 0 ? (
                 surveyData.questions.map((question, index) => {
-                  const answerData = surveyResponse?.doc?.questions?.find(
+                  const answerData = surveyResponseData?.questions?.find(
                     (q) => q.question === question._id
                   );
                   const answer = answerData?.answer;
                   const currentEval = evaluations.find(
                     (e) => e.question === question._id
                   );
-                  console.log("Current evaluation:", currentEval?.liked);
-                  if (!surveyResponse?.doc) {
+                  if (!surveyResponseData) {
                     return (
                       <Box
                         key={question._id}
@@ -666,7 +685,8 @@ const ViewSurveyResponse = () => {
                       !hasChangedEvaluation ||
                       !evaluations.some(
                         (e) => e.liked !== undefined && e.liked !== null
-                      )
+                      ) ||
+                      isButtonDisable
                     }
                   >
                     Submit
