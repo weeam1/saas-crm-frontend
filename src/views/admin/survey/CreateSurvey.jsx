@@ -46,7 +46,7 @@ const CreateSurvey = () => {
     managers = [],
     agents = [],
   } = useFetchUserHierarchy(user);
-  console.log("managers", managers);
+
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
   const toggleCalendar = (calendar) => {
@@ -221,7 +221,7 @@ const CreateSurvey = () => {
     await fetchManagerAgents(managerId);
   };
   return (
-    <Box p={{ base: 1, md: 2 }}>
+    <Box p={{ base: 2, md: 2 }}>
       <Breadcrumb items={items} />
 
       {/* Back Button */}

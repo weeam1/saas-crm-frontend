@@ -88,7 +88,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
       onClose();
       refetch();
     } catch (error) {
-      toast.error("Unable to delete the survey. Please try again.");
+      console.log("error", error);
+
+      toast.error(error?.data?.message);
     } finally {
       setIsDeleting(false);
     }
@@ -97,18 +99,18 @@ const SurveyCard = ({ data, isActive, refetch }) => {
   return (
     <>
       <Box
-      width="100%"
-      height="100%"
-      borderWidth="1px"
-      borderRadius="lg"
-      p={cardPadding}
-      bg="#FFFFFF"
-      position="relative"
-      boxShadow="sm"
-      display="flex"
-      flexDirection="column"
-      justifyContent="space-between"
-    >
+        width="100%"
+        height="100%"
+        borderWidth="1px"
+        borderRadius="lg"
+        p={cardPadding}
+        bg="#FFFFFF"
+        position="relative"
+        boxShadow="sm"
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+      >
         <Box
           display="flex"
           justifyContent={isAdmin ? "space-between" : "flex-end"}
@@ -165,9 +167,11 @@ const SurveyCard = ({ data, isActive, refetch }) => {
               }}
             >
               {data.name
-                ? data.name.charAt(0).toUpperCase() + data.name.slice(1).toLowerCase()
+                ? data.name.charAt(0).toUpperCase() +
+                  data.name.slice(1).toLowerCase()
                 : "" || data.title
-                  ? data.title.charAt(0).toUpperCase() + data.title.slice(1).toLowerCase()
+                  ? data.title.charAt(0).toUpperCase() +
+                    data.title.slice(1).toLowerCase()
                   : ""}
             </Text>
           </Box>
@@ -224,6 +228,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
                   ? {}
                   : { bg: "brand.400", color: "white" }
               }
+              _active={{
+                bg: "brand.300",
+              }}
               onClick={() => {
                 if (isAdmin) {
                   navigate(`/survey/view-survey/${data.id || data._id}`);
@@ -255,7 +262,11 @@ const SurveyCard = ({ data, isActive, refetch }) => {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent maxW="900px">
+        <ModalContent
+          mx={{ base: 2, sm: 4, md: 8 }}
+          w={{ base: "95vw", sm: "90vw", md: "500px" }}
+          maxW="100vw"
+        >
           {" "}
           {/* Increased width */}
           <ModalHeader>Delete Survey</ModalHeader>

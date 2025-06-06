@@ -318,15 +318,13 @@ const AllListing = ({ listingType, listingUnitType }) => {
 
   return (
     <Box bg="white" px={2} marginTop={"-16px"}>
-      <Flex
-        justifyContent="space-between"
-        p={3}
-        alignItems={"center"}
-      >
+      <Flex justifyContent="space-between" p={3} alignItems={"center"}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           All Listings
         </Text>
-        <Flex justifyContent={{base:"flex-end", sm: "flex-end", lg: "normal"}}>
+        <Flex
+          justifyContent={{ base: "flex-end", sm: "flex-end", lg: "normal" }}
+        >
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
@@ -360,7 +358,13 @@ const AllListing = ({ listingType, listingUnitType }) => {
         />
       </Box>
 
-      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        overflowY="auto"
+        maxH={"85vh"}
+      >
         <Table variant="striped" size="lg">
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>

@@ -376,7 +376,12 @@ const ViewSurveyResponse = () => {
     currentUserData?.submittedQuestions === surveyData?.questionsCount;
 
   return (
-    <Flex h="100vh" overflow="hidden" position="relative">
+    <Flex
+      h="100vh"
+      overflow="hidden"
+      position="relative"
+      p={{ base: 2, sm: 2 }}
+    >
       {/* Main Content Area */}
       <Box
         flex="1"
@@ -387,7 +392,15 @@ const ViewSurveyResponse = () => {
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
           <Breadcrumb items={items} />
-
+          <Flex justify="flex-start" mb={4}>
+            <AppButton
+              ml="2"
+              leftIcon={<IoArrowBack />}
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </AppButton>
+          </Flex>
           <Heading
             as="h1"
             mb={2}
@@ -400,16 +413,6 @@ const ViewSurveyResponse = () => {
                 surveyData.title.slice(1).toLowerCase()
               : ""}
           </Heading>
-
-          <Flex justify="flex-start" mb={4}>
-            <AppButton
-              ml="2"
-              leftIcon={<IoArrowBack />}
-              onClick={() => navigate(-1)}
-            >
-              Back
-            </AppButton>
-          </Flex>
 
           {/* Loading state when changing users */}
           {(isLoadingResponse || isFetchingResponse) && (

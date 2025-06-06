@@ -18,7 +18,7 @@ import {
   NumberInputField,
   Box,
   Text,
-  useBreakpointValue
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -33,7 +33,7 @@ const AdvancedSearchModal = ({
   initialFilters,
   clearFilter,
 }) => {
-  const colSpan = useBreakpointValue({ base: 1, sm: 1, md:2 });
+  const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
   const months = [
     { value: "1", label: "January" },
@@ -215,7 +215,7 @@ const AdvancedSearchModal = ({
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
-            <VStack spacing={4}>
+            <VStack spacing={4} overflow="scroll" height="65vh">
               <FormControl>
                 <FormLabel>Project Name</FormLabel>
                 <Input

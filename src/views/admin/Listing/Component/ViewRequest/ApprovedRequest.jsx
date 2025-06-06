@@ -106,7 +106,6 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     return params;
   };
 
-
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
@@ -206,23 +205,23 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Approved Requests
         </Text>
-          <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            boxShadow="md"
-          />
+        <IconButton
+          icon={<FiSearch />}
+          onClick={() => setIsFilterOpen(true)}
+          aria-label="Search Listings"
+          colorScheme="brand"
+          variant="solid"
+          size="sm"
+          borderRadius="full"
+          boxShadow="md"
+        />
       </Flex>
-       <ActiveFiltersDisplay
-            filters={filters}
-            onClearFilters={handleClearFilters}
-            listingTypes={listingType?.doc}
-            unitTypes={listingUnitType?.doc}
-          />
+      <ActiveFiltersDisplay
+        filters={filters}
+        onClearFilters={handleClearFilters}
+        listingTypes={listingType?.doc}
+        unitTypes={listingUnitType?.doc}
+      />
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -240,6 +239,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
+        maxH={"85vh"}
         overflowY="auto"
       >
         <Table variant="striped" size="lg" bg="white">

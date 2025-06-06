@@ -36,7 +36,7 @@ const AdvancedSearchModal = ({
 
   const toUTCString = (date) => {
     return date
-      ? moment(date).utcOffset(0, true).startOf('day').toISOString()
+      ? moment(date).utcOffset(0, true).startOf("day").toISOString()
       : null;
   };
 
@@ -98,7 +98,9 @@ const AdvancedSearchModal = ({
 
     const initialValues = {
       agency: initialFilters.agency || "",
-      from: initialFilters.from ? toUTCString(new Date(initialFilters.from)) : null,
+      from: initialFilters.from
+        ? toUTCString(new Date(initialFilters.from))
+        : null,
       to: initialFilters.to ? toUTCString(new Date(initialFilters.to)) : null,
     };
 
@@ -110,11 +112,7 @@ const AdvancedSearchModal = ({
   }, [formik.values, initialFilters]);
 
   const isFilterEmpty = React.useMemo(() => {
-    return (
-      !formik.values.agency && 
-      !formik.values.from && 
-      !formik.values.to
-    );
+    return !formik.values.agency && !formik.values.from && !formik.values.to;
   }, [formik.values]);
 
   useEffect(() => {
@@ -133,7 +131,11 @@ const AdvancedSearchModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent
+        mx={{ base: 2, sm: 4, md: 8 }}
+        w={{ base: "95vw", sm: "90vw", md: "500px" }}
+        maxW="100vw"
+      >
         <ModalHeader>Advanced Search</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
@@ -155,7 +157,7 @@ const AdvancedSearchModal = ({
                   ))}
                 </Select>
               </FormControl>
-              
+
               <Box w="full">
                 <SimpleGrid columns={2} gap={4}>
                   <FormControl>
@@ -164,14 +166,18 @@ const AdvancedSearchModal = ({
                       selectedDate={formik.values.from}
                       handleDateChange={(date) => {
                         formik.setFieldValue("from", date);
-                        if (formik.values.to && date && date > formik.values.to) {
+                        if (
+                          formik.values.to &&
+                          date &&
+                          date > formik.values.to
+                        ) {
                           formik.setFieldValue("to", null);
                         }
                       }}
                       placeholder="Select start date"
                       maxDate={formik.values.to || new Date()}
-                      isCalendarOpen={openCalendar === 'from'}
-                      toggleCalendar={() => toggleCalendar('from')}
+                      isCalendarOpen={openCalendar === "from"}
+                      toggleCalendar={() => toggleCalendar("from")}
                     />
                   </FormControl>
 
@@ -181,15 +187,19 @@ const AdvancedSearchModal = ({
                       selectedDate={formik.values.to}
                       handleDateChange={(date) => {
                         formik.setFieldValue("to", date);
-                        if (formik.values.from && date && date < formik.values.from) {
+                        if (
+                          formik.values.from &&
+                          date &&
+                          date < formik.values.from
+                        ) {
                           formik.setFieldValue("from", null);
                         }
                       }}
                       placeholder="Select end date"
                       minDate={formik.values.from}
                       maxDate={new Date()}
-                      isCalendarOpen={openCalendar === 'to'}
-                      toggleCalendar={() => toggleCalendar('to')}
+                      isCalendarOpen={openCalendar === "to"}
+                      toggleCalendar={() => toggleCalendar("to")}
                     />
                   </FormControl>
                 </SimpleGrid>
