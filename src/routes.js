@@ -55,6 +55,7 @@ import CreateSurvey from 'views/admin/survey/CreateSurvey';
 import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
 import Report from 'views/admin/reports-v2';
 import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
+import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -576,6 +577,14 @@ const routes = [
 		under: 'listing',
 		parentName: 'Listing',
 		component: SettingPage,
+	},
+	{
+		name: 'Sub Unit Types',
+		layout: [ROLE_PATH.superAdmin],
+		path: '/listing/settings/sub-unit-types',
+		under: 'listing',
+		parentName: 'Listing',
+		component: SubUnitType,
 	},
 
 	// Survey Routes
