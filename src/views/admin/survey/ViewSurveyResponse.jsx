@@ -22,7 +22,6 @@ import {
   Textarea,
   useBreakpointValue,
   Button,
-  Spinner,
   Alert,
   AlertIcon,
   useDisclosure,
@@ -146,6 +145,8 @@ const ViewSurveyResponse = () => {
         })) || [];
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
+    } else{
+      setSurveyResponseData([])
     }
   }, [surveyResponse, currentUserId, survey, id]);
 
@@ -228,8 +229,8 @@ const ViewSurveyResponse = () => {
     if (userId !== currentUserId) {
       setCurrentUserId(userId);
       onClose();
-      // refetchResponse();
-      // refetch();
+      refetchResponse();
+      refetch();
     }
   };
   if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
@@ -435,7 +436,7 @@ const ViewSurveyResponse = () => {
           </Heading>
 
           {/* Loading state when changing users */}
-          {isLoadingResponse && (
+          {(isLoadingResponse  || isFetchingResponse )&& (
             <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
               {[1, 2, 3].map((i) => (
                 <Box key={i} mb={6}>
@@ -458,7 +459,7 @@ const ViewSurveyResponse = () => {
           )}
 
           {/* Survey Questions and Responses */}
-          {surveyResponseData && (
+          {surveyResponseData && !isLoadingResponse  && !isFetchingResponse && (
             <Box
               bg="white"
               p={6}
