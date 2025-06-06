@@ -85,7 +85,15 @@ const validationSchema = Yup.object().shape({
   brokerCommissionType: Yup.string(),
   brokerCommissionValue: Yup.number()
     .typeError("Commission Value must be a number")
-    .positive("Commission Value must be greater than 0"),
+    .when("brokerCommissionType", {
+      is: "PERCENT",
+      then: (schema) =>
+        schema
+          .min(0, "Percentage must be between 0 and 100")
+          .max(100, "Percentage must be between 0 and 100"),
+      otherwise: (schema) =>
+        schema.positive("Commission Value must be greater than 0"),
+    }),
 });
 
 const AddListing = () => {
@@ -662,7 +670,16 @@ const AddListing = () => {
               placeholder="Enter commission value"
               focusBorderColor="brand.500"
               inputMode="decimal"
-              min="0"
+              min={
+                formik.values.brokerCommissionType === "PERCENT"
+                  ? "0"
+                  : undefined
+              }
+              max={
+                formik.values.brokerCommissionType === "PERCENT"
+                  ? "100"
+                  : undefined
+              }
             />
             <FormErrorMessage>
               {formik.errors.brokerCommissionValue}
