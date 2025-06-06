@@ -30,6 +30,7 @@ const NavigationLinks = () => {
 						_hover={{ bg: '#FF7A7A' }}
 						transition='background 0.2s ease'
 						onClick={() => navigate('/survey/create-survey')}
+						p={{base:5, sm: 5, md: 3}}
 					>
 						<Flex
 							direction='column'
@@ -47,7 +48,7 @@ const NavigationLinks = () => {
 								borderRadius='full'
 								p='1'
 							/>
-							<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold'>
+							<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold' textAlign={"center"} px={{base:2, sm: 2, md: 0}}>
 								New Survey
 							</Text>
 						</Flex>
@@ -65,6 +66,7 @@ const NavigationLinks = () => {
 					_hover={{ bg: '#7AFF7F' }}
 					transition='background 0.2s ease'
 					onClick={() => navigate('/survey/survey-leader-board')}
+					p={{base:5, sm: 5, md: 3}}
 				>
 					<Flex
 						direction='column'
@@ -79,7 +81,7 @@ const NavigationLinks = () => {
 							mb={2}
 							boxSize={{ base: 6, md: 8 }}
 						/>
-						<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold'>
+						<Text fontSize={{ base: 'xs', md: 'xs' }} fontWeight='bold' textAlign={"center"} px={{base:2, sm: 2, md: 0}}>
 							Leader board
 						</Text>
 					</Flex>

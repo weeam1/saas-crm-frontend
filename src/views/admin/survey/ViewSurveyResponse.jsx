@@ -22,7 +22,6 @@ import {
   Textarea,
   useBreakpointValue,
   Button,
-  Spinner,
   Alert,
   AlertIcon,
   useDisclosure,
@@ -32,6 +31,8 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import {
   IoArrowBack,
@@ -59,7 +60,14 @@ const ViewSurveyResponse = () => {
   const [hasChangedEvaluation, setHasChangedEvaluation] = useState(false);
   const [userPoints, setUserPoints] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const isDesktop = useBreakpointValue({ base: false, lg: true });
+  const [isButtonDisable, setIsButtonDisable] = useState(false);
+  const [surveyResponseData, setSurveyResponseData] = useState([]);
+  const isMobile = useBreakpointValue({
+    base: true,
+    sm: true,
+    sx: true,
+    lg: false,
+  });
 
   const {
     data: survey,
@@ -129,6 +137,7 @@ const ViewSurveyResponse = () => {
   useEffect(() => {
     setEvaluations([]);
     if (surveyResponse?.doc) {
+      setSurveyResponseData(surveyResponse?.doc);
       const initialEvaluations =
         surveyResponse?.doc.questions?.map((question) => ({
           question: question.question,
@@ -136,6 +145,8 @@ const ViewSurveyResponse = () => {
         })) || [];
       setEvaluations(initialEvaluations);
       setHasChangedEvaluation(false);
+    } else{
+      setSurveyResponseData([])
     }
   }, [surveyResponse, currentUserId, survey, id]);
 
@@ -164,6 +175,7 @@ const ViewSurveyResponse = () => {
 
   const handleSubmitEvaluation = async () => {
     try {
+      setIsButtonDisable(true);
       const submittedEvaluations = evaluations.filter(
         (e) => e.liked !== null && e.liked !== undefined
       );
@@ -188,10 +200,28 @@ const ViewSurveyResponse = () => {
             )?.liked ?? evaluation.liked,
         }))
       );
-      refetch();
-      refetchResponse();
+      setSurveyResponseData((prevData) => {
+        if (!prevData || !Array.isArray(prevData.questions)) return prevData;
+
+        const updatedQuestions = prevData.questions.map((question) => {
+          const matchedEvaluation = submittedEvaluations.find(
+            (evaluation) => evaluation.question === question.question
+          );
+          return {
+            ...question,
+            liked: matchedEvaluation?.liked ?? question.liked,
+          };
+        });
+
+        return {
+          ...prevData,
+          questions: updatedQuestions,
+        };
+      });
     } catch (err) {
       toast.error(err?.data?.message || "Failed to submit evaluation");
+    } finally {
+      setIsButtonDisable(false);
     }
   };
 
@@ -203,7 +233,6 @@ const ViewSurveyResponse = () => {
       refetch();
     }
   };
-
   if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
 
   if (isSurveyError)
@@ -368,17 +397,31 @@ const ViewSurveyResponse = () => {
     currentUserData?.submittedQuestions === surveyData?.questionsCount;
 
   return (
-    <Flex h="100vh" overflow="hidden" position="relative">
+    <Flex
+      h="100vh"
+      overflow="hidden"
+      position="relative"
+      p={{ base: 2, sm: 2 }}
+    >
       {/* Main Content Area */}
       <Box
         flex="1"
         overflowY="auto"
         pr={{ base: 0, lg: SIDEBAR_WIDTH }}
         transition="padding-right 0.3s"
+        pb={isMobile ? "80px" : 0}
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
           <Breadcrumb items={items} />
-
+          <Flex justify="flex-start" mb={4}>
+            <AppButton
+              ml="2"
+              leftIcon={<IoArrowBack />}
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </AppButton>
+          </Flex>
           <Heading
             as="h1"
             mb={2}
@@ -392,25 +435,31 @@ const ViewSurveyResponse = () => {
               : ""}
           </Heading>
 
-          <Flex justify="flex-start" mb={4}>
-            <AppButton
-              ml="2"
-              leftIcon={<IoArrowBack />}
-              onClick={() => navigate(-1)}
-            >
-              Back
-            </AppButton>
-          </Flex>
-
           {/* Loading state when changing users */}
-          {(isLoadingResponse || isFetchingResponse) && (
-            <Flex justify="center" my={8}>
-              <Spinner size="xl" color="brand.500" />
-            </Flex>
+          {(isLoadingResponse  || isFetchingResponse )&& (
+            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
+              {[1, 2, 3].map((i) => (
+                <Box key={i} mb={6}>
+                  <SkeletonText
+                    noOfLines={1}
+                    spacing="4"
+                    skeletonHeight="4"
+                    width="60%"
+                    mb={2}
+                  />
+                  <Skeleton height="20px" width="90%" mb={2} />
+                  <Skeleton height="20px" width="80%" mb={2} />
+                  <Skeleton height="20px" width="70%" />
+                </Box>
+              ))}
+              <Flex justify="flex-end" mt={8}>
+                <Skeleton height="32px" width="100px" borderRadius="4px" />
+              </Flex>
+            </Box>
           )}
 
           {/* Survey Questions and Responses */}
-          {!isLoadingResponse && !isFetchingResponse && (
+          {surveyResponseData && !isLoadingResponse  && !isFetchingResponse && (
             <Box
               bg="white"
               p={6}
@@ -429,15 +478,14 @@ const ViewSurveyResponse = () => {
 
               {surveyData.questions && surveyData.questions.length > 0 ? (
                 surveyData.questions.map((question, index) => {
-                  const answerData = surveyResponse?.doc?.questions?.find(
+                  const answerData = surveyResponseData?.questions?.find(
                     (q) => q.question === question._id
                   );
                   const answer = answerData?.answer;
                   const currentEval = evaluations.find(
                     (e) => e.question === question._id
                   );
-                  console.log("Current evaluation:", currentEval?.liked);
-                  if (!surveyResponse?.doc) {
+                  if (!surveyResponseData) {
                     return (
                       <Box
                         key={question._id}
@@ -638,7 +686,8 @@ const ViewSurveyResponse = () => {
                       !hasChangedEvaluation ||
                       !evaluations.some(
                         (e) => e.liked !== undefined && e.liked !== null
-                      )
+                      ) ||
+                      isButtonDisable
                     }
                   >
                     Submit
@@ -651,55 +700,129 @@ const ViewSurveyResponse = () => {
       </Box>
 
       {/* Desktop Sidebar */}
-      {isDesktop ? (
-        <Box
-          width={SIDEBAR_WIDTH}
-          height="calc(100vh - 78px)"
-          borderLeft="1px solid"
-          borderColor="gray.200"
-          bg="white"
-          overflowY="auto"
-          position="fixed"
-          top="80px"
-          right="0"
-          zIndex="10"
-          display="flex"
-          flexDirection="column"
-        >
-          {SidebarContent}
-        </Box>
-      ) : (
-        <>
-          {/* Mobile Search Button */}
-          <Button
-            position="fixed"
-            bottom="24px"
-            right="24px"
-            zIndex="20"
-            bg="#EDC270"
-            color="#000"
-            leftIcon={<IoSearch />}
-            borderRadius="full"
-            size="lg"
-            boxShadow="lg"
-            onClick={onOpen}
-            _hover={{ bg: "#e0b85c" }}
-            _active={{ bg: "#d1a94b" }}
-          >
-            Search
-          </Button>
+      <Box
+        width={SIDEBAR_WIDTH}
+        height="calc(100vh - 78px)"
+        borderLeft="1px solid"
+        borderColor="gray.200"
+        bg="white"
+        overflowY="auto"
+        position="fixed"
+        top="80px"
+        right="0"
+        zIndex="10"
+        display="flex"
+        flexDirection="column"
+        sx={{
+          // >= 0px
+          "@media (min-width: 0px)": {
+            display: "none",
+          },
+          // // >= 812px
+          // '@media (min-width: 812px)': {
+          // 	gridTemplateColumns: '1fr',
+          // },
+          // >= 992px
+          "@media (min-width: 600px)": {
+            display: "none",
+          },
+          // >= 1280px
+          "@media (min-width: 1040px)": {
+            display: "block",
+          },
+          // >= 1664px
+          "@media (min-width: 1564px)": {
+            display: "block",
+          },
+          // >= 1920px (e.g., Full HD+)
+          "@media (min-width: 2120px)": {
+            display: "block",
+          },
+          // >= 2560px (2.5K / QHD)
+          "@media (min-width: 2560px)": {
+            display: "block",
+          },
+          // >= 3840px (4K)
+          "@media (min-width: 3840px)": {
+            display: "block",
+          },
+          // >= 7680px (8K)
+          "@media (min-width: 7680px)": {
+            display: "block",
+          },
+        }}
+      >
+        {SidebarContent}
+      </Box>
 
-          {/* Mobile Sidebar Drawer */}
-          <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
-              <DrawerBody p={0}>{SidebarContent}</DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </>
-      )}
+      <>
+        {/* Mobile Search Button */}
+        <Button
+          position="fixed"
+          bottom="24px"
+          right="24px"
+          zIndex="20"
+          bg="#EDC270"
+          color="#000"
+          leftIcon={<IoSearch />}
+          borderRadius="full"
+          size="lg"
+          boxShadow="lg"
+          onClick={onOpen}
+          _hover={{ bg: "#e0b85c" }}
+          _active={{ bg: "#d1a94b" }}
+          sx={{
+            // >= 0px
+            "@media (min-width: 0px)": {
+              display: "block",
+            },
+            // // >= 812px
+            // '@media (min-width: 812px)': {
+            // 	gridTemplateColumns: '1fr',
+            // },
+            // >= 992px
+            "@media (min-width: 600px)": {
+              display: "block",
+            },
+            // >= 1280px
+            "@media (min-width: 1040px)": {
+              display: "none",
+            },
+            // >= 1664px
+            "@media (min-width: 1564px)": {
+              display: "none",
+            },
+            // >= 1920px (e.g., Full HD+)
+            "@media (min-width: 2120px)": {
+              display: "none",
+            },
+            // >= 2560px (2.5K / QHD)
+            "@media (min-width: 2560px)": {
+              display: "none",
+            },
+            // >= 3840px (4K)
+            "@media (min-width: 3840px)": {
+              display: "none",
+            },
+            // >= 7680px (8K)
+            "@media (min-width: 7680px)": {
+              display: "none",
+            },
+          }}
+        >
+          Search
+        </Button>
+
+        {/* Mobile Sidebar Drawer */}
+        <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader borderBottomWidth="1px">Survey Users</DrawerHeader>
+            <DrawerBody p={0}>{SidebarContent}</DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </>
     </Flex>
   );
 };

@@ -4,9 +4,6 @@ import { Box, Skeleton, SkeletonText, Flex } from "@chakra-ui/react";
 const SurveyCardLoading = () => {
   return (
     <Box
-      width={{ base: "95%", sm: "220px", md: "240px", lg: "260px" }}
-      minW="180px"
-      maxW="100%"
       borderWidth="1px"
       borderRadius="lg"
       p={{ base: 2, md: 3, lg: 3 }}

@@ -8,19 +8,25 @@ import SurveyCardLoading from './Loader/SurveyCardLoading';
 import { useFetchItemsQuery } from 'api/apiSlice';
 const Survey = () => {
 	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+	const [pageSize, setPageSize] = useState(12);
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 	const [closesAt, setClosesAt] = useState(false);
 	const [search, setSearch] = useState('');
 
 	const buildQueryParams = () => {
+		const user = JSON.parse(localStorage.getItem('user'));
+		const role =
+			user?.role === 'superAdmin'
+				? 'superAdmin'
+				: (user?.roles?.[0]?.roleName ?? 'unknown');
+
 		const params = {
 			page: currentPage,
 			limit: pageSize,
 		};
 
-		if (closesAt) params.closesAt = closesAt;
+		if (role !== 'superAdmin') params.closesAt = closesAt;
 		if (search) params.search = search;
 		if (startDate) params.after = startDate;
 		if (endDate) params.before = endDate;
@@ -69,10 +75,6 @@ const Survey = () => {
 					'@media (min-width: 0px)': {
 						gridTemplateColumns: '1fr',
 					},
-					// // >= 812px
-					// '@media (min-width: 812px)': {
-					// 	gridTemplateColumns: '1fr',
-					// },
 					// >= 992px
 					'@media (min-width: 600px)': {
 						gridTemplateColumns: 'repeat(2, 1fr)',
@@ -102,29 +104,21 @@ const Survey = () => {
 						gridTemplateColumns: 'repeat(8, 1fr)',
 					},
 				}}
-				// gridTemplateColumns={{
-				// 	base: 'repeat(1, minmax(240px, 1fr))',
-				// 	sm: 'repeat(2, minmax(240px, 1fr))',
-				// 	md: 'repeat(3, minmax(240px, 1fr))',
-				// 	lg: 'repeat(4, minmax(240px, 1fr))',
-				// }}
-				gap={2}
+				gap={3}
 				marginTop={{ base: 4, md: 6 }}
-				// mx='2'
 				p='4'
 				width='100%'
-				// maxWidth="1400px"
 				justifyItems='center'
 			>
 				{isLoading || isFetching
 					? Array.from({ length: 6 }).map((_, idx) => (
-							<Box key={idx} minWidth='240px' width='100%' mb={4}>
+							<Box key={idx} minWidth='240px' width='100%'>
 								<SurveyCardLoading />
 							</Box>
 						))
 					: surveys?.doc?.surveys.length > 0 &&
 						surveys?.doc?.surveys.map((survey) => (
-							<Box key={survey._id} minWidth='240px' width='100%' mb={4}>
+							<Box key={survey._id} minWidth='240px' width='100%'>
 								<SurveyCard
 									isActive={survey.status === 'active'}
 									data={{

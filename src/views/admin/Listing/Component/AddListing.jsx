@@ -11,6 +11,7 @@ import {
   Flex,
   Textarea,
   FormErrorMessage,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import AppButton from "components/shared/AppButton";
@@ -84,7 +85,15 @@ const validationSchema = Yup.object().shape({
   brokerCommissionType: Yup.string(),
   brokerCommissionValue: Yup.number()
     .typeError("Commission Value must be a number")
-    .positive("Commission Value must be greater than 0"),
+    .when("brokerCommissionType", {
+      is: "PERCENT",
+      then: (schema) =>
+        schema
+          .min(0, "Percentage must be between 0 and 100")
+          .max(100, "Percentage must be between 0 and 100"),
+      otherwise: (schema) =>
+        schema.positive("Commission Value must be greater than 0"),
+    }),
 });
 
 const AddListing = () => {
@@ -97,6 +106,8 @@ const AddListing = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const navigate = useNavigate();
   const inputRef = useRef();
+
+  const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
@@ -269,13 +280,13 @@ const AddListing = () => {
       </AppButton>
 
       <Grid
-        templateColumns="repeat(2, 1fr)"
+        templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
         gap={6}
-        p={5}
+        p={{ base: 2, sm: 5 }}
         bg="white"
         borderRadius="md"
         my={5}
-        mx={2}
+        mx={{ base: 0, sm: 2 }}
       >
         {/* Project Name */}
         <GridItem colSpan={2}>
@@ -296,7 +307,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Unit Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.unitType && formik.errors.unitType}
           >
@@ -321,7 +332,7 @@ const AddListing = () => {
 
         {/* Sub Unit Type */}
         {listingSubUnitType?.doc?.length > 0 && (
-          <GridItem colSpan={1}>
+          <GridItem colSpan={colSpan}>
             <FormControl
               isInvalid={
                 formik.touched.subUnitType && formik.errors.subUnitType
@@ -348,7 +359,7 @@ const AddListing = () => {
         )}
 
         {/* Listing Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.listingType && formik.errors.listingType}
           >
@@ -372,7 +383,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Developer */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
@@ -384,7 +395,7 @@ const AddListing = () => {
                 onChange={(e) => {
                   setDeveloperInput(e.target.value);
                   setShowDevSuggestions(true);
-                  formik.setFieldValue("developer", e.target.value); // Always set name
+                  formik.setFieldValue("developer", e.target.value);
                 }}
                 onFocus={() => setShowDevSuggestions(true)}
                 onBlur={formik.handleBlur}
@@ -416,7 +427,7 @@ const AddListing = () => {
                       _hover={{ bg: "gray.100" }}
                       onMouseDown={() => {
                         setDeveloperInput(dev.developer_name);
-                        formik.setFieldValue("developer", dev.developer_name); // Set name, not id
+                        formik.setFieldValue("developer", dev.developer_name);
                         setShowDevSuggestions(false);
                       }}
                     >
@@ -431,7 +442,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Area */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
@@ -449,7 +460,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Price */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Selling Price</FormLabel>
             <Input
@@ -467,7 +478,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Currency */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.currency && formik.errors.currency}
           >
@@ -486,7 +497,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Location */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.location && formik.errors.location}
           >
@@ -504,7 +515,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Building Age */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.buildingAge && formik.errors.buildingAge}
           >
@@ -525,7 +536,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Owner Name */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.ownerName && formik.errors.ownerName}
           >
@@ -542,7 +553,7 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
         {/* Owner Phone Number */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.ownerPhoneNumber && formik.errors.ownerPhoneNumber
@@ -564,7 +575,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Landlord */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.landlord && formik.errors.landlord}
           >
@@ -582,7 +593,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Phone Number */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.phoneNumber && formik.errors.phoneNumber}
           >
@@ -600,7 +611,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Email */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.email && formik.errors.email}>
             <FormLabel>Email</FormLabel>
             <Input
@@ -617,7 +628,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Broker Commission Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionType &&
@@ -643,7 +654,7 @@ const AddListing = () => {
         </GridItem>
 
         {/* Commission Value */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionValue &&
@@ -659,7 +670,16 @@ const AddListing = () => {
               placeholder="Enter commission value"
               focusBorderColor="brand.500"
               inputMode="decimal"
-              min="0"
+              min={
+                formik.values.brokerCommissionType === "PERCENT"
+                  ? "0"
+                  : undefined
+              }
+              max={
+                formik.values.brokerCommissionType === "PERCENT"
+                  ? "100"
+                  : undefined
+              }
             />
             <FormErrorMessage>
               {formik.errors.brokerCommissionValue}
@@ -697,7 +717,7 @@ const AddListing = () => {
 
         {/* Submit Button */}
         <GridItem colSpan={2}>
-          <Flex justify="flex-end" gap={4}>
+          <Flex justify="flex-end" gap={4} wrap="wrap">
             <Button
               type="button"
               variant="outline"
@@ -705,6 +725,8 @@ const AddListing = () => {
               onClick={() => handleSubmitWithStatus("draft")}
               isLoading={loadingButton === "draft"}
               loadingText="Saving..."
+              width={{ base: "100%", sm: "auto" }}
+              mb={{ base: 2, sm: 0 }}
             >
               Save as Draft
             </Button>
@@ -714,6 +736,7 @@ const AddListing = () => {
               onClick={() => handleSubmitWithStatus("pending")}
               isLoading={loadingButton === "pending"}
               loadingText="Publishing..."
+              width={{ base: "100%", sm: "auto" }}
             >
               Publish Listing
             </Button>

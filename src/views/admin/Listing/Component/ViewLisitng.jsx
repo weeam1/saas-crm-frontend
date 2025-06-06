@@ -12,6 +12,7 @@ import {
   Text,
   Flex,
   Textarea,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -25,6 +26,8 @@ const ViewListing = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+
+  const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
   const {
     data: listing,
@@ -42,7 +45,7 @@ const ViewListing = () => {
         <Skeleton height="40px" mb={4} />
         <Grid templateColumns="repeat(2, 1fr)" gap={6}>
           {Array.from({ length: 12 }).map((_, i) => (
-            <GridItem key={i} colSpan={i % 3 === 0 ? 2 : 1}>
+            <GridItem key={i} colSpan={i % 3 === 0 ? 2 : colSpan}>
               <Skeleton height="40px" />
             </GridItem>
           ))}
@@ -130,13 +133,13 @@ const ViewListing = () => {
       </AppButton>
 
       <Grid
-        templateColumns="repeat(2, 1fr)"
-        gap={10}
-        p={5}
-        bg={"white"}
-        borderRadius={"md"}
+        templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
+        gap={6}
+        p={{ base: 2, sm: 5 }}
+        bg="white"
+        borderRadius="md"
         my={5}
-        mx={2}
+        mx={{ base: 0, sm: 2 }}
       >
         {/* Project Name */}
         <GridItem colSpan={2}>
@@ -152,7 +155,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Unit Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Unit Type</FormLabel>
             <Input
@@ -165,7 +168,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Unit Sub Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Unit Sub Type</FormLabel>
             <Input
@@ -178,7 +181,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Listing Type */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Listing Type</FormLabel>
             <Input
@@ -191,7 +194,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Developer */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Developer</FormLabel>
             <Input
@@ -204,7 +207,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Area */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Area (sqft)</FormLabel>
             <Input
@@ -217,7 +220,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Price */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Price</FormLabel>
             <Input
@@ -247,7 +250,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Building Age */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Building Age</FormLabel>
             <Input
@@ -263,7 +266,7 @@ const ViewListing = () => {
           </FormControl>
         </GridItem>
         {/* Owner Name */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Owner name</FormLabel>
             <Input
@@ -276,7 +279,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Owner Phone Number */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Owner Phone Number</FormLabel>
             <Input
@@ -291,7 +294,7 @@ const ViewListing = () => {
         {isAdmin && (
           <>
             {/* Landlord */}
-            <GridItem colSpan={1}>
+            <GridItem colSpan={colSpan}>
               <FormControl>
                 <FormLabel fontWeight="bold">Landlord</FormLabel>
                 <Input
@@ -304,7 +307,7 @@ const ViewListing = () => {
             </GridItem>
 
             {/* Phone Number */}
-            <GridItem colSpan={1}>
+            <GridItem colSpan={colSpan}>
               <FormControl>
                 <FormLabel fontWeight="bold">Phone Number</FormLabel>
                 <Input
@@ -317,7 +320,7 @@ const ViewListing = () => {
             </GridItem>
 
             {/* Email */}
-            <GridItem colSpan={1}>
+            <GridItem colSpan={colSpan}>
               <FormControl>
                 <FormLabel fontWeight="bold">Email</FormLabel>
                 <Input
@@ -331,8 +334,8 @@ const ViewListing = () => {
           </>
         )}
 
-         {/* Broker Commission Type */}
-        <GridItem colSpan={1}>
+        {/* Broker Commission Type */}
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Broker Commission Type</FormLabel>
             <Input
@@ -351,7 +354,7 @@ const ViewListing = () => {
         </GridItem>
 
         {/* Commission Value */}
-        <GridItem colSpan={1}>
+        <GridItem colSpan={colSpan}>
           <FormControl>
             <FormLabel fontWeight="bold">Commission Value</FormLabel>
             <Input
@@ -383,7 +386,7 @@ const ViewListing = () => {
             />
           </FormControl>
         </GridItem>
-       
+
         {/* Documents */}
         <GridItem colSpan={2}>
           <FormLabel fontWeight="bold">Documents</FormLabel>
@@ -394,12 +397,13 @@ const ViewListing = () => {
                 return (
                   <Flex
                     key={index}
-                    align="center"
                     justify="space-between"
                     p={3}
                     mb={2}
                     bg="gray.50"
                     borderRadius="md"
+                    flexDir={{base: "column", sm: "column" , md: "row"}}
+                    gap={{base: "4", sm: "4", md: "0"}}
                   >
                     <Text>{fileName}</Text>
                     <AppButton

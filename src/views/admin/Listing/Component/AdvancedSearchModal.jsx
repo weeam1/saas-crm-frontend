@@ -18,6 +18,7 @@ import {
   NumberInputField,
   Box,
   Text,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -32,6 +33,8 @@ const AdvancedSearchModal = ({
   initialFilters,
   clearFilter,
 }) => {
+  const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
+
   const months = [
     { value: "1", label: "January" },
     { value: "2", label: "February" },
@@ -64,7 +67,7 @@ const AdvancedSearchModal = ({
 
   const toUTCString = (date) => {
     return date
-      ? moment(date).utcOffset(0, true).startOf('day').toISOString()
+      ? moment(date).utcOffset(0, true).startOf("day").toISOString()
       : null;
   };
 
@@ -80,7 +83,9 @@ const AdvancedSearchModal = ({
       maxArea: initialFilters.maxArea || "",
       month: initialFilters.month || "",
       year: initialFilters.year || "",
-      startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
+      startFrom: initialFilters.startFrom
+        ? new Date(initialFilters.startFrom)
+        : null,
       startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
       ...initialFilters,
     },
@@ -90,13 +95,13 @@ const AdvancedSearchModal = ({
         startFrom: values.startFrom ? toUTCString(values.startFrom) : undefined,
         startTo: values.startTo ? toUTCString(values.startTo) : undefined,
       };
-        cleanedValues = Object.fromEntries(
+      cleanedValues = Object.fromEntries(
         Object.entries(values).map(([key, value]) => [
           key,
           value === "" ? undefined : value,
         ])
       );
-    onApplyFilters(cleanedValues);
+      onApplyFilters(cleanedValues);
       onClose();
     },
   });
@@ -187,8 +192,12 @@ const AdvancedSearchModal = ({
           maxArea: initialFilters.maxArea || "",
           month: initialFilters.month || "",
           year: initialFilters.year || "",
-          startFrom: initialFilters.startFrom ? new Date(initialFilters.startFrom) : null,
-          startTo: initialFilters.startTo ? new Date(initialFilters.startTo) : null,
+          startFrom: initialFilters.startFrom
+            ? new Date(initialFilters.startFrom)
+            : null,
+          startTo: initialFilters.startTo
+            ? new Date(initialFilters.startTo)
+            : null,
         },
       });
     }
@@ -197,12 +206,16 @@ const AdvancedSearchModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent
+        mx={{ base: 2, sm: 4, md: 8 }}
+        w={{ base: "95vw", sm: "90vw", md: "500px" }}
+        maxW="100vw"
+      >
         <ModalHeader>Advanced search</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
-            <VStack spacing={4}>
+            <VStack spacing={4} overflow="scroll" height="65vh">
               <FormControl>
                 <FormLabel>Project Name</FormLabel>
                 <Input
@@ -225,7 +238,7 @@ const AdvancedSearchModal = ({
                 />
               </FormControl>
 
-              <SimpleGrid columns={2} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
                   <FormLabel>Listing Type</FormLabel>
                   <Select
@@ -266,16 +279,18 @@ const AdvancedSearchModal = ({
                 <Text fontSize="md" fontWeight="semibold" mb={3}>
                   Date Range
                 </Text>
-                <SimpleGrid columns={2} gap={4}>
+                <SimpleGrid columns={colSpan} gap={4}>
                   <FormControl>
                     <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startFrom}
-                      handleDateChange={(date) => formik.setFieldValue("startFrom", date)}
+                      handleDateChange={(date) =>
+                        formik.setFieldValue("startFrom", date)
+                      }
                       placeholder="Select start date"
                       maxDate={formik.values.startTo || new Date()}
-                      isCalendarOpen={openCalendar === 'startFrom'}
-                      toggleCalendar={() => toggleCalendar('startFrom')}
+                      isCalendarOpen={openCalendar === "startFrom"}
+                      toggleCalendar={() => toggleCalendar("startFrom")}
                     />
                   </FormControl>
 
@@ -283,18 +298,20 @@ const AdvancedSearchModal = ({
                     <FormLabel>End Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startTo}
-                      handleDateChange={(date) => formik.setFieldValue("startTo", date)}
+                      handleDateChange={(date) =>
+                        formik.setFieldValue("startTo", date)
+                      }
                       placeholder="Select end date"
                       minDate={formik.values.startFrom}
                       maxDate={new Date()}
-                      isCalendarOpen={openCalendar === 'startTo'}
-                      toggleCalendar={() => toggleCalendar('startTo')}
+                      isCalendarOpen={openCalendar === "startTo"}
+                      toggleCalendar={() => toggleCalendar("startTo")}
                     />
                   </FormControl>
                 </SimpleGrid>
               </Box>
 
-              <SimpleGrid columns={2} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
                   <FormLabel>Month</FormLabel>
                   <Select
@@ -324,7 +341,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={2} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
                   <FormLabel>Min Price (AED)</FormLabel>
                   <NumberInput
@@ -354,7 +371,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={2} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
                   <FormLabel>Min Area (sqft)</FormLabel>
                   <NumberInput

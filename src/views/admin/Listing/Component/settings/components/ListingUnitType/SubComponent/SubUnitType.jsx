@@ -214,12 +214,7 @@ const SubUnitType = () => {
 
   console.log("Unit Type Data:", data);
   return (
-    <Box
-      overflowY="auto"
-      scrollBehavior="smooth"
-      boxShadow="sm"
-      px={2}
-    >
+    <Box overflowY="auto" scrollBehavior="smooth" boxShadow="sm" px={2}>
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
@@ -414,8 +409,8 @@ const SubUnitType = () => {
         <Modal isOpen={isOpen} onClose={onClose} isCentered>
           <ModalOverlay />
           <ModalContent
-            mx={{ base: 2, sm: 4, md: 8 }} 
-            w={{ base: "95vw", sm: "90vw", md: "500px" }} 
+            mx={{ base: 2, sm: 4, md: 8 }}
+            w={{ base: "95vw", sm: "90vw", md: "500px" }}
             maxW="100vw"
           >
             <ModalHeader>
@@ -496,6 +491,10 @@ const SubUnitType = () => {
                 borderRadius="3px"
                 size="md"
                 onClick={handleSubmit}
+                _hover={{ bg: "brand.400", color: "white" }}
+                _active={{
+                  bg: "brand.300",
+                }}
               >
                 Save
               </Button>
@@ -505,7 +504,6 @@ const SubUnitType = () => {
 
         {/* Unit Type Modal */}
         <Modal
-        
           isOpen={isUnitTypeModalOpen}
           onClose={() => {
             setIsUnitTypeModalOpen(false);
@@ -570,6 +568,10 @@ const SubUnitType = () => {
                 borderRadius="3px"
                 size="md"
                 onClick={handleUnitTypeSave}
+                _hover={{ bg: "brand.400", color: "white" }}
+                _active={{
+                  bg: "brand.300",
+                }}
               >
                 Save
               </Button>
