@@ -355,7 +355,13 @@ const LeaderBoard = () => {
       </Box>
 
       {/* Leaderboard Table */}
-      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        overflowY="auto"
+        maxH={"85vh"}
+      >
         <Table variant="striped" size="lg">
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
@@ -388,8 +394,8 @@ const LeaderBoard = () => {
                 leaderboardData.doc.leaderboard.map((item, index) => (
                   <Tr key={item._id}>
                     <Td
-                      py={2} 
-                      px={2} 
+                      py={2}
+                      px={2}
                       fontSize={{ base: "sm", md: "md" }}
                       fontWeight="400"
                       minWidth="40px"
@@ -398,7 +404,12 @@ const LeaderBoard = () => {
                     >
                       {index + 1}
                     </Td>
-                    <Td fontWeight="medium" textAlign={"center"} whiteSpace="nowrap" px={2}>
+                    <Td
+                      fontWeight="medium"
+                      textAlign={"center"}
+                      whiteSpace="nowrap"
+                      px={2}
+                    >
                       <Flex alignItems="center" gap={1}>
                         {item.profileImage ? (
                           <Avatar
@@ -410,16 +421,29 @@ const LeaderBoard = () => {
                           <Avatar size="sm" name={item.fullName} />
                         )}
                         <Box>
-                          <Text fontSize="sm" fontWeight="bold" whiteSpace="nowrap">
+                          <Text
+                            fontSize="sm"
+                            fontWeight="bold"
+                            whiteSpace="nowrap"
+                          >
                             {item.fullName}
                           </Text>
-                          <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                          <Text
+                            fontSize="xs"
+                            color="gray.500"
+                            whiteSpace="nowrap"
+                          >
                             {item.email}
                           </Text>
                         </Box>
                       </Flex>
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={2}
+                      whiteSpace="nowrap"
+                    >
                       {formatSurveyTaken(
                         item.completedSurveyCount,
                         item.invitedSurveyCount
@@ -445,11 +469,16 @@ const LeaderBoard = () => {
                         `${item.avgScore}%`
                       ) : (
                         <Text fontSize="xs" color="gray.500">
-                         N/A
+                          N/A
                         </Text>
                       )}
                     </Td>
-                    <Td textAlign="center" fontWeight="bold" px={2} whiteSpace="nowrap">
+                    <Td
+                      textAlign="center"
+                      fontWeight="bold"
+                      px={2}
+                      whiteSpace="nowrap"
+                    >
                       {item?.totalScore > 0 ? (
                         <Badge
                           colorScheme={
@@ -469,15 +498,25 @@ const LeaderBoard = () => {
                           #{item.rank}
                         </Badge>
                       ) : (
-                       <Text fontSize="xs" color="gray.500">
+                        <Text fontSize="xs" color="gray.500">
                           N/A
                         </Text>
                       )}
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={2}
+                      whiteSpace="nowrap"
+                    >
                       {item.role}
                     </Td>
-                    <Td textAlign="center" fontSize={{ base: "sm", md: "md" }} px={2} whiteSpace="nowrap">
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={2}
+                      whiteSpace="nowrap"
+                    >
                       {item.agency}
                     </Td>
                   </Tr>
