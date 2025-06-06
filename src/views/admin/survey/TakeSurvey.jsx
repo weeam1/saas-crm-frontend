@@ -189,6 +189,15 @@ const TakeSurvey = () => {
   return (
     <Box p={{ base: 2, md: 4 }}>
       <Breadcrumb items={items} />
+
+      <AppButton
+        leftIcon={<IoArrowBack />}
+        onClick={() => navigate(-1)}
+        mb={4}
+        size="sm"
+      >
+        Back
+      </AppButton>
       {/* Survey Title */}
       <Heading
         as="h1"
@@ -203,16 +212,6 @@ const TakeSurvey = () => {
           ? survey.title.charAt(0).toUpperCase() + survey.title.slice(1)
           : ""}
       </Heading>
-
-      <AppButton
-        leftIcon={<IoArrowBack />}
-        onClick={() => navigate(-1)}
-        mb={4}
-        size="sm"
-      >
-        Back
-      </AppButton>
-
       <Box
         bg="#FFFFFF"
         p={{ base: 4, md: 6 }}

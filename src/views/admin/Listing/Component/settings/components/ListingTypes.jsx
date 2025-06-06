@@ -154,12 +154,14 @@ const ListingTypes = () => {
         path: `/listing/secondary/types/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-  
+
       toast.success(`Listing type status updated successfully`);
-      refetch(); 
+      refetch();
     } catch (error) {
       console.error(error);
-      toast.error(error.data?.message || "Failed to update listing type status");
+      toast.error(
+        error.data?.message || "Failed to update listing type status"
+      );
     }
   };
   return (
@@ -206,12 +208,7 @@ const ListingTypes = () => {
         />
       </Box>
 
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        overflowY="auto"
-      >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto">
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"
@@ -267,7 +264,7 @@ const ListingTypes = () => {
                     <Switch
                       colorScheme="green"
                       isChecked={type.status}
-                      onChange={() => handleStatusChange(type)} 
+                      onChange={() => handleStatusChange(type)}
                     />
                   </Td>
                   <Td
@@ -369,6 +366,10 @@ const ListingTypes = () => {
               borderRadius="3px"
               size="md"
               onClick={handleSubmit}
+              _hover={{ bg: "brand.400", color: "white" }}
+              _active={{
+                bg: "brand.300",
+              }}
             >
               Save
             </Button>
