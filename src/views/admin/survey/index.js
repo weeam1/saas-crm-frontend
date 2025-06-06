@@ -75,10 +75,6 @@ const Survey = () => {
 					'@media (min-width: 0px)': {
 						gridTemplateColumns: '1fr',
 					},
-					// // >= 812px
-					// '@media (min-width: 812px)': {
-					// 	gridTemplateColumns: '1fr',
-					// },
 					// >= 992px
 					'@media (min-width: 600px)': {
 						gridTemplateColumns: 'repeat(2, 1fr)',
@@ -108,29 +104,21 @@ const Survey = () => {
 						gridTemplateColumns: 'repeat(8, 1fr)',
 					},
 				}}
-				// gridTemplateColumns={{
-				// 	base: 'repeat(1, minmax(240px, 1fr))',
-				// 	sm: 'repeat(2, minmax(240px, 1fr))',
-				// 	md: 'repeat(3, minmax(240px, 1fr))',
-				// 	lg: 'repeat(4, minmax(240px, 1fr))',
-				// }}
-				gap={2}
+				gap={3}
 				marginTop={{ base: 4, md: 6 }}
-				// mx='2'
 				p='4'
 				width='100%'
-				// maxWidth="1400px"
 				justifyItems='center'
 			>
 				{isLoading || isFetching
 					? Array.from({ length: 6 }).map((_, idx) => (
-							<Box key={idx} minWidth='240px' width='100%' mb={4}>
+							<Box key={idx} minWidth='240px' width='100%'>
 								<SurveyCardLoading />
 							</Box>
 						))
 					: surveys?.doc?.surveys.length > 0 &&
 						surveys?.doc?.surveys.map((survey) => (
-							<Box key={survey._id} minWidth='240px' width='100%' mb={4}>
+							<Box key={survey._id} minWidth='240px' width='100%'>
 								<SurveyCard
 									isActive={survey.status === 'active'}
 									data={{
