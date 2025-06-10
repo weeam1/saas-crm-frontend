@@ -57,10 +57,10 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 							},
 							{ key: 'agentAssigned', value: '' },
 							{ key: 'agentAssignedDate', value: null },
-							{
-								key: 'leadType',
-								value: res?.data?.leadType || null,
-							},
+							// {
+							// 	key: 'leadType',
+							// 	value: res?.data?.leadType || null,
+							// },
 							{
 								key: 'isReleased',
 								value: res?.data?.isReleased,

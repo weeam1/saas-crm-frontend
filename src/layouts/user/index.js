@@ -184,6 +184,7 @@ export default function User(props) {
 			parentName: 'Attendance',
 			component: MyAttendance,
 		},
+<<<<<<< HEAD
 		{
 			name: 'Listing',
 			layout: [ROLE_PATH.user],
@@ -191,6 +192,18 @@ export default function User(props) {
 			icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
 			component: Listing,
 		},
+=======
+		// {
+		// 	name: 'HR Module',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/hrmodule',
+		// 	icon: (
+		// 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: HRModule,
+		// },
+
+>>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 		{
 			name: 'Adding Listing',
 			layout: [ROLE_PATH.user],
@@ -241,6 +254,7 @@ export default function User(props) {
 		// 	),
 		// 	component: CurrencyPoints,
 		// },
+<<<<<<< HEAD
 
 		{
 			name: 'User View',
@@ -276,6 +290,8 @@ export default function User(props) {
 			parentName: 'Survey',
 			component: TakeSurvey,
 		},
+=======
+>>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 	];
 
 	if (user?.roles[0]?.roleName === 'Manager') {
@@ -395,6 +411,7 @@ export default function User(props) {
 				component: UserView,
 			},
 
+<<<<<<< HEAD
 			{
 				name: 'Offer View',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -430,6 +447,8 @@ export default function User(props) {
 				component: TakeSurvey,
 			},
 
+=======
+>>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 			// ------------- Invoice Module Routes ------------------------ //
 			// {
 			// 	name: 'Invoice',

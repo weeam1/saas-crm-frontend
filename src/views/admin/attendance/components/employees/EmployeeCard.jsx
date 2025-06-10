@@ -1,15 +1,24 @@
 import { Link } from 'react-router-dom';
 import { Box, Avatar, Text, Badge } from '@chakra-ui/react';
 import { constant } from 'constant';
+import EmployeeAttendanceMark from './EmployeeAttendanceMark';
 
-const EmployeeCard = ({ emp, index, tab }) => {
+const EmployeeCard = ({ emp, index, tab, officeSettings }) => {
+	console.log('emp', emp);
+
+	const agencyId = emp?.agency?._id;
+
+	const officeSetting = officeSettings?.find(
+		(office) => office?.agency?._id === agencyId
+	);
+
+	console.log('officeSetting', officeSetting, agencyId);
+
 	return (
 		<Box
 			key={index}
-			as={Link}
-			to={`/attendance/employees/${emp._id}`}
 			px={4}
-			py='8'
+			py='2'
 			borderRadius='lg'
 			bg='white'
 			display='flex'
@@ -33,7 +42,16 @@ const EmployeeCard = ({ emp, index, tab }) => {
 					{emp.agencyName}
 				</Badge>
 			)}
-			<Box display='flex' alignItems='center' mb={3}>
+			<Box
+				as={Link}
+				to={`/attendance/employees/${emp._id}`}
+				display='flex'
+				alignItems='center'
+				mb={3}
+				p='2'
+				rounded='sm'
+				_hover={{ bg: 'gray.100' }}
+			>
 				<Avatar
 					src={
 						emp?.profileImage ? `${constant['baseUrl']}${emp.profileImage}` : ''
@@ -63,6 +81,27 @@ const EmployeeCard = ({ emp, index, tab }) => {
 					</Text>
 				</Box>
 			</Box>
+
+			{agencyId && officeSetting ? (
+				<EmployeeAttendanceMark
+					employeeId={emp._id}
+					todayRecord={emp.todayAttendanceRecord}
+					officeSetting={officeSetting}
+				/>
+			) : (
+				<Box
+					alignSelf='center'
+					p='2'
+					bg='gray.100'
+					color='red.400'
+					rounded='sm'
+					as={Link}
+					to={`/userView/${emp._id}`}
+					_hover={{ textDecoration: 'underline' }}
+				>
+					Add Employee agency
+				</Box>
+			)}
 		</Box>
 	);
 };

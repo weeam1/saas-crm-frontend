@@ -31,6 +31,13 @@ const InterviewedCandidates = () => {
 	const [gopageValue, setGopageValue] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
 
+	const [isRefetching, setIsRefetching] = useState(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => setIsRefetching(false), 2000);
+		return () => clearTimeout(timer);
+	}, [isRefetching]);
+
 	const [queryParams, setQueryParams] = useState({
 		page: currentPage,
 		limit: pageSize,
@@ -86,6 +93,7 @@ const InterviewedCandidates = () => {
 			page: currentPage,
 			limit: pageSize,
 		}));
+		setIsRefetching(true);
 	}, [currentPage, pageSize]);
 
 	// Automatically refetch when queryParams change
@@ -116,80 +124,6 @@ const InterviewedCandidates = () => {
 		});
 		setData(sortedData);
 	};
-
-	// const handleSearch = (params) => {
-	// 	// Filter out empty or undefined values
-	// 	const filteredParams = Object.entries(params)
-	// 		.filter(([_, value]) => value !== '' && value !== undefined)
-	// 		.reduce((acc, [key, value]) => {
-	// 			acc[key] = value;
-	// 			return acc;
-	// 		}, {});
-
-	// 	let { ...advancedSearch } = filteredParams;
-
-	// 	// Update tags for UI display (all filtered params including status)
-	// 	const tags = Object.entries(filteredParams).map(([key, value]) => {
-	// 		let formattedValue = value;
-
-	// 		// If the key is "position", map value through positionOptions
-	// 		if (key === 'position') {
-	// 			const matchedOption = positionOptions?.doc?.find(
-	// 				(option) => option._id === value
-	// 			);
-
-	// 			formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
-
-	// 			// Update advancedSearch to store label instead of ID
-	// 			advancedSearch = { ...advancedSearch, position: formattedValue };
-	// 		}
-
-	// 		return {
-	// 			key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
-	// 			value: formattedValue,
-	// 		};
-	// 	});
-
-	// 	setSearchTags(tags);
-
-	// 	// Prepare the query parameters
-	// 	const queryParams = {
-	// 		advancedSearch: JSON.stringify(advancedSearch),
-	// 		page: 1,
-	// 		limit: pageSize,
-	// 	};
-
-	// 	// Merge and update query parameters for refetch
-	// 	setQueryParams((prev) => ({ ...prev, ...queryParams }));
-	// 	// set current page 1
-	// 	setCurrentPage(1);
-	// };
-
-	// const removeTag = (key) => {
-	// 	// Remove the tag with the specified key
-	// 	const updatedTags = searchTags.filter((tag) => tag.key !== key);
-	// 	setSearchTags(updatedTags);
-
-	// 	console.log({ updatedTags });
-
-	// 	// Convert the updated tags back into query parameters
-	// 	const updatedParams = updatedTags.reduce(
-	// 		(acc, { key, value }) => ({ ...acc, [key]: value }),
-	// 		{}
-	// 	);
-
-	// 	const { ...advancedSearch } = updatedParams;
-
-	// 	// Prepare the query parameters
-	// 	const queryParams = {
-	// 		advancedSearch: JSON.stringify(advancedSearch),
-	// 		page: 1,
-	// 		limit: pageSize,
-	// 	};
-	// 	// update query parameters
-	// 	setQueryParams(queryParams);
-	// 	setCurrentPage(1);
-	// };
 
 	const handleSearch = (params) => {
 		// Filter out empty or undefined values
@@ -241,6 +175,8 @@ const InterviewedCandidates = () => {
 					advancedSearch.experienceYears = matchedOption.value; // Keep ID for actual search
 				}
 			}
+
+			setIsRefetching(true);
 
 			return {
 				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
@@ -310,8 +246,13 @@ const InterviewedCandidates = () => {
 	return showContent ? (
 		<Loader />
 	) : (
-		<Box>
-			<Button
+		<Box
+			// marginTop={'-32px'}
+			// marginLeft={'-4px'}
+			// borderRadius={'0px'}
+			fontFamily="'DM Sans', sans-serif"
+		>
+			{/* <Button
 				colorScheme='gray'
 				borderRadius='5px'
 				size={{ base: 'sm', md: 'md' }}
@@ -323,7 +264,7 @@ const InterviewedCandidates = () => {
 				mb={4}
 			>
 				Back
-			</Button>
+			</Button> */}
 			{/* <Box mb={4}>
 				{searchTags?.map(({ key, value }) => (
 					<Tag
@@ -354,6 +295,7 @@ const InterviewedCandidates = () => {
 				handlePageSizeChange={handlePageSizeChange}
 				handleGotoPage={handleGotoPage}
 				gopageValue={gopageValue}
+				isRefetching={isRefetching}
 				setGopageValue={setGopageValue}
 				setAdvanceSearch={setAdvanceSearch}
 			/>

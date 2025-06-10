@@ -1,78 +1,40 @@
-import { useState, useEffect } from 'react';
-import {
-	Button,
-	HStack,
-	Box,
-	Flex,
-	useBreakpointValue,
-} from '@chakra-ui/react';
+
+import { Box, Button, Flex } from '@chakra-ui/react';
 
 const Tabs = ({ activeTab, setActiveTab }) => {
 	const tabs = ['All', 'Pending', 'Approved', 'Rejected'];
 
-	const resolvedWidth = useBreakpointValue({
-		base: '90px',
-		sm: '100px',
-		md: '120px',
-	});
-
-	const [buttonWidth, setButtonWidth] = useState('120px');
-
-	useEffect(() => {
-		if (resolvedWidth) {
-			setButtonWidth(resolvedWidth);
-		}
-	}, [resolvedWidth]);
-
 	return (
-		<Box width='100%'>
+		<Box width="100%">
 			<Flex
-				justifyContent='space-between'
-				alignItems='center'
+				width="100%"
+				flexWrap="wrap"
+				justifyContent={{ base: 'center', md: 'flex-start' }}
 				p={2}
-				width='100%'
-				flexWrap='wrap'
-				gap={{ base: 2, md: 0 }}
-				flexDirection={{ base: 'column', md: 'row' }}
 			>
-				<HStack
-					gap={{
-						base: { column: 2, row: 2 },
-						sm: { column: 4, row: 6 },
-						md: { column: 3, row: 4 },
-					}}
-					flexWrap='wrap'
-					justify={{ base: 'center', md: 'start' }}
-					width='100%'
-				>
-					{tabs.map((tab) => (
-						<Button
-							key={tab}
-							sx={{
-								...(tab !== 'All' && {
-									'@media screen and (max-width: 30em)': {
-										marginTop: '5px !important',
-										marginBottom: '0px !important',
-									},
-								}),
-							}}
-							borderRadius='6px'
-							w={buttonWidth}
-							minWidth={resolvedWidth}
-							h='42px'
-							onClick={() => setActiveTab(tab)}
-							bg={activeTab === tab ? '#b79045' : 'white'}
-							color={activeTab === tab ? 'white' : 'black'}
-							_hover={{ bg: activeTab === tab ? 'brand.400' : 'white' }}
-							border='1px solid'
-							borderColor='gray.300'
-							fontFamily='DM Sans'
-							fontWeight='400'
-						>
-							{tab}
-						</Button>
-					))}
-				</HStack>
+				{tabs.map((tab, index) => (
+					<Button
+					key={index}
+					variant="unstyled"
+					onClick={() => setActiveTab(tab)}
+					bg={activeTab === tab ? "#EDD199" : "softGray.50"}
+					color={activeTab === tab ? "black" : "gray.500"}
+					fontWeight={activeTab === tab ? "semi-bold" : "normal"}
+					borderTop={
+					  activeTab === tab
+						? "4px solid #B79045"
+						: "4px solid transparent"
+					}
+					borderRadius="0"
+					h="42px"
+					minW="100px"
+					_focus={{ outline: "none" }}
+					outline="none"
+					fontFamily="DM Sans"
+				  >
+					{tab}
+				  </Button>
+				))}
 			</Flex>
 		</Box>
 	);

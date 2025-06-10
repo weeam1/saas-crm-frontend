@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Divider, Button, Flex } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
 import AttendanceMark from './AttendanceMark';
 import Header from './Header';
@@ -12,6 +12,8 @@ import { IoArrowBack } from 'react-icons/io5';
 import AppButton from 'components/shared/AppButton';
 import AttendanceShimmer from './AttendanceShimmer';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import CreateAttendance from './CreateAttendance';
+import { FaPlus } from 'react-icons/fa';
 
 const Attendance = () => {
 	const { id: employeeId } = useParams();
@@ -41,6 +43,7 @@ const Attendance = () => {
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
 	const [year, setYear] = useState(() => new Date().getFullYear());
 	const [timezone, setTimezone] = useState('Asia/Dubai');
+	const [addAttendance, setAddAttendance] = useState(false);
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
@@ -90,10 +93,31 @@ const Attendance = () => {
 				>
 					Back
 				</AppButton>
-				<Box display='flex' alignItems='center' mt={2} mb='4' bg='white' p={4}>
+				<Box
+					display='flex'
+					justifyContent='space-between'
+					alignItems='center'
+					mt={2}
+					mb='4'
+					bg='white'
+					p={4}
+				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 						Attendance Record
 					</Text>
+
+					<Button
+						{...buttonStyle}
+						variant='solid'
+						bg='brand.400'
+						py='2'
+						px='5'
+						leftIcon={<FaPlus />}
+						aria-label='Add attendance'
+						onClick={() => setAddAttendance(true)}
+					>
+						Add
+					</Button>
 				</Box>
 
 				{error ? (
@@ -137,6 +161,16 @@ const Attendance = () => {
 								/>
 							</Box>
 						</Box>
+
+						{/* Create attendance modal */}
+						{addAttendance && (
+							<CreateAttendance
+								isOpen={addAttendance}
+								onClose={() => setAddAttendance(false)}
+								employeeId={employeeId}
+								refetch={refetch}
+							/>
+						)}
 					</Flex>
 				)}
 			</Box>

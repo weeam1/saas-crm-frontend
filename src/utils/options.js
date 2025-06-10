@@ -25,6 +25,7 @@ export const visaOptions = [
 	{ label: 'Visit Visa', value: 'Visit Visa' },
 	{ label: 'Residential Visa', value: 'Residential Visa' },
 	{ label: 'Canceled Visa', value: 'Canceled Visa' },
+	{ label: 'Citizen', value: 'Citizen' },
 ];
 
 // export const leadStatus = [

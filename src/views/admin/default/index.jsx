@@ -10,6 +10,7 @@ import {
 	Progress,
 	Box,
 	Text,
+	useColorMode,
 } from '@chakra-ui/react';
 // Assets
 // Custom components
@@ -18,22 +19,27 @@ import MiniStatistics from 'components/card/MiniStatistics';
 import IconBox from 'components/icons/IconBox';
 import { HSeparator } from 'components/separator/Separator';
 import { useEffect, useState } from 'react';
-import { LuBuilding2 } from 'react-icons/lu';
 import { MdAddTask, MdContacts, MdLeaderboard } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { getApi } from 'services/api';
 import Chart from 'components/charts/LineChart.js';
 // import Chart from "../reports/components/chart";
 import { HasAccess } from '../../../redux/accessUtils';
-import PieChart from 'components/charts/PieChart';
 import CountUpComponent from '../../../../src/components/countUpComponent/countUpComponent';
 import RevenueProgressBar from 'components/navbar/RevenueProgressBar';
 import MonthlyRevenueChart from './components/MonthlyRevenueChart';
 import { PiPhoneCallBold } from 'react-icons/pi';
 import Header from './components/Header';
-import Invoice from './Invoice';
+import DashboardStatCards from './components/DashboardStatCards';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
+import ReportChart from './components/ReportChart';
+import TodaySummary from './components/TodaySummary';
+import LeadStatusTable from './components/LeadStatusStats';
+import LeadStatusStats from './components/LeadStatusStats';
 
 export default function UserReports() {
+	const { colorMode } = useColorMode();
 	// Chakra Color Mode
 	const viewsState = HasAccess([
 		'Contacts',
@@ -56,6 +62,9 @@ export default function UserReports() {
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 	const user = JSON.parse(localStorage.getItem('user'));
+
+	const userRole =
+		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
 	const [revenue, setRevenue] = useState({
 		totalRevenue: 0,
@@ -100,70 +109,96 @@ export default function UserReports() {
 
 	const navigate = useNavigate();
 
-	const fetchTasks = async () => {
-		let taskData;
-		// setTimeout(async () => {
-		if (user.role === 'superAdmin') {
-			taskData = await getApi('api/task/');
-		} else if (
-			taskView?.create ||
-			taskView?.update ||
-			taskView?.delete ||
-			taskView?.view
-		) {
-			taskData = await getApi(`api/task/?createBy=${user._id}`);
+	const { data: stats = {}, isLoading } = useFetchItemsQuery(
+		{ path: '/dashboard/stats' },
+		{
+			refetchOnMountOrArgChange: true,
+			skip: !userRole === 'superAdmin',
 		}
+	);
 
-		setTask(taskData?.data);
-	};
+	const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
+		useFetchItemsQuery(
+			{ path: '/dashboard/today_summary' },
+			{
+				refetchOnMountOrArgChange: true,
+				skip: !userRole === 'superAdmin',
+			}
+		);
 
-	const fetchContacts = async () => {
-		let contact;
-		if (user.role === 'superAdmin') {
-			contact = await getApi('api/contact/');
-		} else if (
-			contactsView?.create ||
-			contactsView?.update ||
-			contactsView?.delete ||
-			contactsView?.view
-		) {
-			contact = await getApi(`api/contact/?createBy=${user._id}`);
-		}
+	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
+		useFetchItemsQuery(
+			{ path: '/dashboard/leads/leadStatus_stats' },
+			{
+				refetchOnMountOrArgChange: true,
+				skip: !userRole === 'superAdmin',
+			}
+		);
 
-		setContactData(contact?.data);
-	};
+	// const fetchTasks = async () => {
+	// 	let taskData;
+	// 	// setTimeout(async () => {
+	// 	if (user.role === 'superAdmin') {
+	// 		taskData = await getApi('api/task/');
+	// 	} else if (
+	// 		taskView?.create ||
+	// 		taskView?.update ||
+	// 		taskView?.delete ||
+	// 		taskView?.view
+	// 	) {
+	// 		taskData = await getApi(`api/task/?createBy=${user._id}`);
+	// 	}
 
-	const fetchLeads = async () => {
-		let lead;
-		if (user.role === 'superAdmin') {
-			lead = await getApi('api/lead');
-		} else if (
-			leadView?.create ||
-			leadView?.update ||
-			leadView?.delete ||
-			leadView?.view
-		) {
-			lead = await getApi(
-				`api/lead/?role=${user?.roles[0]?.roleName}&user=${user._id}`
-			);
-		}
-		setLeadData(lead?.data?.totalLeads || 0);
-	};
+	// 	setTask(taskData?.data);
+	// };
 
-	const fetchCalls = async () => {
-		let call;
-		if (user.role === 'superAdmin') {
-			call = await getApi('api/phoneCall/');
-		} else if (
-			callView?.create ||
-			callView?.update ||
-			callView?.delete ||
-			callView?.view
-		) {
-			call = await getApi(`api/phoneCall/?sender=${user._id}`);
-		}
-		setCallData(call?.data);
-	};
+	// const fetchContacts = async () => {
+	// 	let contact;
+	// 	if (user.role === 'superAdmin') {
+	// 		contact = await getApi('api/contact/');
+	// 	} else if (
+	// 		contactsView?.create ||
+	// 		contactsView?.update ||
+	// 		contactsView?.delete ||
+	// 		contactsView?.view
+	// 	) {
+	// 		contact = await getApi(`api/contact/?createBy=${user._id}`);
+	// 	}
+
+	// 	setContactData(contact?.data);
+	// };
+
+	// const fetchLeads = async () => {
+	// 	let lead;
+	// 	if (user.role === 'superAdmin') {
+	// 		lead = await getApi('api/lead');
+	// 	} else if (
+	// 		leadView?.create ||
+	// 		leadView?.update ||
+	// 		leadView?.delete ||
+	// 		leadView?.view
+	// 	) {
+	// 		lead = await getApi(
+	// 			`api/lead/?role=${user?.roles[0]?.roleName}&user=${user._id}`
+	// 		);
+	// 	}
+	// 	setLeadData(lead?.data?.totalLeads || 0);
+	// };
+
+	// const fetchCalls = async () => {
+	// 	let call;
+	// 	if (user.role === 'superAdmin') {
+	// 		call = await getApi('api/phoneCall/');
+	// 	} else if (
+	// 		callView?.create ||
+	// 		callView?.update ||
+	// 		callView?.delete ||
+	// 		callView?.view
+	// 	) {
+	// 		call = await getApi(`api/phoneCall/?sender=${user._id}`);
+	// 	}
+	// 	setCallData(call?.data);
+	// };
 
 	const fetchProgressChart = async () => {
 		let result = await getApi(
@@ -178,10 +213,10 @@ export default function UserReports() {
 
 	useEffect(() => {
 		if (!viewsState?.every((view) => view === undefined) && !fetched) {
-			fetchLeads();
-			fetchTasks();
-			fetchCalls();
-			fetchContacts();
+			// fetchLeads();
+			// fetchTasks();
+			// fetchCalls();
+			// fetchContacts();
 			fetchProgressChart();
 			setFetched(true);
 		}
@@ -250,130 +285,24 @@ export default function UserReports() {
 		},
 	];
 
-	return (
-		<>
+	return isLoading || todaySummaryLoading || leadStatusLoading ? (
+		<Loader />
+	) : (
+		<Box fontFamily="'DM Sans', sans-serif">
 			<Header />
+			{userRole === 'superAdmin' && (
+				<>
+					<TodaySummary summary={todaySummary?.summary} />
 
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap='20px' mb='20px'>
-				{/* , "2xl": 6 */}
-				{(taskView?.create ||
-					taskView?.update ||
-					taskView?.delete ||
-					taskView?.view) && (
-					<MiniStatistics
-						onClick={() => navigate('/task')}
-						startContent={
-							<IconBox
-								w='40px'
-								h='40px'
-								bg={boxBg}
-								icon={
-									<Icon w='20px' h='20px' as={MdAddTask} color={brandColor} />
-								}
-							/>
-						}
-						name='Tasks'
-						value={task?.length || 0}
-					/>
-				)}
-				{(contactsView?.create ||
-					contactsView?.update ||
-					contactsView?.delete ||
-					contactsView?.view) && (
-					<MiniStatistics
-						onClick={() => navigate('/contacts')}
-						startContent={
-							<IconBox
-								w='40px'
-								h='40px'
-								bg={boxBg}
-								icon={
-									<Icon w='20px' h='20px' as={MdContacts} color={brandColor} />
-								}
-							/>
-						}
-						name='Contacts'
-						value={contactData?.length || 0}
-					/>
-				)}
-				{(leadView?.create ||
-					leadView?.update ||
-					leadView?.delete ||
-					leadView?.view) && (
-					<MiniStatistics
-						onClick={() => navigate('/lead')}
-						startContent={
-							<IconBox
-								w='40px'
-								h='40px'
-								bg={boxBg}
-								icon={
-									<Icon
-										w='20px'
-										h='20px'
-										as={MdLeaderboard}
-										color={brandColor}
-									/>
-								}
-							/>
-						}
-						name='Leads'
-						value={leadData || 0}
-					/>
-				)}
-				{(callView?.create ||
-					callView?.update ||
-					callView?.delete ||
-					callView?.view) && (
-					<MiniStatistics
-						onClick={() => navigate('/phone-call')}
-						startContent={
-							<IconBox
-								w='40px'
-								h='40px'
-								bg={boxBg}
-								icon={
-									<Icon
-										w='20px'
-										h='20px'
-										as={PiPhoneCallBold}
-										color={brandColor}
-									/>
-								}
-							/>
-						}
-						name='Calls'
-						value={callData?.length || 0}
-					/>
-				)}
-			</SimpleGrid>
+					<DashboardStatCards colorMode={colorMode} stats={stats} />
 
-			<Grid Grid templateColumns='repeat(12, 1fr)' gap={3}>
-				{/* <GridItem rowSpan={2} colSpan={{ base: 12, md: 6 }}>
-          <Card>
-            <ReactApexChart options={options} series={[44, 55, 67, 83]} type="radialBar" height={350} />
-          </Card>
-        </GridItem>
-        <GridItem rowSpan={2} colSpan={{ base: 12, md: 6 }}>
-          <Card>
-            <ReactApexChart options={options4} series={[71, 63, 77]} type="radialBar" height={350} />
-          </Card>
-        </GridItem> */}
+					<ReportChart stats={stats} />
+				</>
+			)}
 
-				<GridItem rowSpan={2} colSpan={{ base: 12, md: 12 }}>
-					<Card>
-						<Flex mb={5} alignItems={'center'} justifyContent={'space-between'}>
-							<Heading size='md'>Report</Heading>
-						</Flex>
-						<Box mb={3}>
-							<HSeparator />
-						</Box>
-						<Chart dashboard={'dashboard'} data={data} />
-					</Card>
-				</GridItem>
-			</Grid>
+			<LeadStatusStats doc={leadStatusData?.doc} />
 
-			<Grid
+			{/* <Grid
 				Grid
 				templateColumns={{ base: 1, xl: 'repeat(12, 1fr)' }}
 				mt={5}
@@ -1025,7 +954,7 @@ export default function UserReports() {
 					{/* <Flex mt={5} justifyContent={'center'}>
 						<PieChart leadData={leadData} />
 					</Flex> */}
-				</Card>
+			{/* </Card>
 
 				<Card>
 					<Grid templateColumns='repeat(12, 1fr)' gap={2} mb={2}>
@@ -1091,7 +1020,7 @@ export default function UserReports() {
 							</Box>
 						))}
 				</Card>
-			</SimpleGrid>
-		</>
+			</SimpleGrid> */}
+		</Box>
 	);
 }

@@ -6,7 +6,7 @@ import { constant } from 'constant';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
-
+// lead pool for agent
 const Index = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const location = useLocation();
@@ -24,6 +24,7 @@ const Index = () => {
 	const [error, setError] = useState(null);
 	const [searchedData, setSearchedData] = useState([]);
 	const [displaySearchData, setDisplaySearchData] = useState(false);
+	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const [userData, setUserData] = useState(null);
 	const [buyLoading, setBuyLoading] = useState({});
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -34,6 +35,8 @@ const Index = () => {
 	const fetchLockRef = useRef(false);
 	const lastFetchRef = useRef(null);
 	const cancelTokenRef = useRef(null);
+
+	const [forceRefresh, setForceRefresh] = useState(false);
 
 	const debounce = (func, delay) => {
 		let timeoutId;
@@ -62,10 +65,8 @@ const Index = () => {
 	const fetchTabData = async (tab, page = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
 
-		console.log({ page });
-
 		const fetchKey = `${tab}_${page}_${size}`;
-		if (lastFetchRef.current === fetchKey) return;
+		if (lastFetchRef.current === fetchKey && !forceRefresh) return;
 
 		fetchLockRef.current = true;
 		setIsLoading(true);
@@ -115,8 +116,6 @@ const Index = () => {
 				ip: lead?.ip?.split('-')?.[1] || lead?.ip || '',
 			}));
 
-			console.log({ newData });
-
 			setData(newData);
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(
@@ -134,10 +133,9 @@ const Index = () => {
 			fetchLockRef.current = false;
 			setIsLoading(false);
 			setHasFetched(true);
+			forceRefresh && setForceRefresh(false);
 		}
 	};
-
-	console.log({ data });
 
 	const fetchSearchedData = async (term = '', pageNo = 1, size = pageSize) => {
 		if (fetchLockRef.current) return;
@@ -183,7 +181,7 @@ const Index = () => {
 				setDisplaySearchData(true);
 				setSearchedData(newData);
 				setData(newData);
-				setCurrentPage(1);
+				setCurrentPage(pageNo);
 
 				setTotalPages(
 					result.data?.totalPages || Math.ceil(newData.length / size) || 0
@@ -266,11 +264,12 @@ const Index = () => {
 					}))
 				: [];
 
-			setDisplaySearchData(true);
+			// setDisplaySearchData(true);
+			setDisplayAdvSearchData(true);
 			setSearchedData(validatedData);
 			setData(validatedData);
-			setCurrentPage(1);
-			updateUrl(1, size, activeTab);
+			setCurrentPage(pageNo);
+			updateUrl(pageNo, size, activeTab);
 
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(result.data?.totalLeads || validatedData.length || 0);
@@ -311,6 +310,14 @@ const Index = () => {
 		}
 	};
 
+	const refreshBuyLeads = (leadId) => {
+		const filterLeads = (leads) => leads.filter((lead) => lead._id !== leadId);
+
+		displaySearchData
+			? setSearchedData((prev) => filterLeads(prev))
+			: setData((prev) => filterLeads(prev));
+	};
+
 	const sendRequest = async (leadId) => {
 		if (isPurchasing) return;
 		setIsPurchasing(true);
@@ -341,10 +348,17 @@ const Index = () => {
 			}
 
 			const payload = { leadId, agentId: user._id, approvalStatus: 'pending' };
-			const approvalResponse = await postApi('api/adminApproval/add', payload);
-			if (approvalResponse.status !== 200) {
-				throw new Error('Failed to send lead for approval');
-			}
+
+			await axios.post(constant['baseUrl'] + 'api/adminApproval/add', payload, {
+				headers: {
+					Authorization:
+						localStorage.getItem('token') || sessionStorage.getItem('token'),
+				},
+			});
+			// const approvalResponse = await postApi('api/adminApproval/add', payload);
+			// if (approvalResponse.status !== 200) {
+			// 	throw new Error('Failed to send lead for approval');
+			// }
 
 			const updatedCoins = currentCoins - coinCost;
 			const updateResponse = await putApi(`api/user/edit/${user._id}`, {
@@ -353,7 +367,9 @@ const Index = () => {
 
 			if (updateResponse.status === 200) {
 				setUserData((prev) => ({ ...prev, coins: updatedCoins }));
-				setData(data.filter((lead) => lead._id !== leadId));
+				// filter the leads
+				refreshBuyLeads(leadId);
+
 				setTotalLeads((prev) => prev - 1);
 				toast.success('Lead purchased and sent for approval', {
 					position: toast.POSITION.TOP_RIGHT,
@@ -363,11 +379,25 @@ const Index = () => {
 				throw new Error('Failed to update user coins');
 			}
 		} catch (error) {
-			console.error('Send Request Error:', error);
-			toast.error(error.message || 'Failed to purchase lead', {
-				position: toast.POSITION.TOP_RIGHT,
-				autoClose: 3000,
-			});
+			// console.error('Send Request Error:', error);
+			// toast.error(error?.response?.data?.message || 'Failed to purchase lead', {
+			// 	position: toast.POSITION.TOP_RIGHT,
+			// 	autoClose: 3000,
+			// });
+
+			if (error.response?.status === 400) {
+				const errorDetails =
+					error.response.data?.message || 'Invalid input provided.';
+				toast.error(`${errorDetails}`);
+
+				if (errorDetails?.startsWith(`We're sorry`)) {
+					setForceRefresh(true);
+					debouncedFetchTabData(activeTab, currentPage, pageSize);
+				}
+			} else {
+				console.error('Unexpected error:', error);
+				toast.error('Something went wrong!');
+			}
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
 			setIsPurchasing(false);
@@ -427,15 +457,16 @@ const Index = () => {
 	};
 
 	const debouncedFetchTabData = useCallback(debounce(fetchTabData, 300), [
-		dateTime,
 		user,
 		currentState,
 		activeTab,
 	]);
+
 	const debouncedFetchSearchedData = useCallback(
 		debounce(fetchSearchedData, 300),
-		[dateTime, user, activeTab]
+		[user, activeTab]
 	);
+
 	const debouncedFetchAdvancedSearch = useCallback(
 		debounce(fetchAdvancedSearch, 300),
 		[dateTime, user, activeTab]
@@ -490,8 +521,8 @@ const Index = () => {
 				setPageSize={(size) => {
 					setPageSize(size);
 					updateUrl(currentPage, size, activeTab);
-					setData([]);
-					debouncedFetchTabData(activeTab, currentPage, size);
+					// setData([]);
+					// debouncedFetchTabData(activeTab, currentPage, size);
 				}}
 				user={user}
 				dateTime={dateTime}
@@ -514,8 +545,8 @@ const Index = () => {
 				setCurrentPage={(page) => {
 					setCurrentPage(page);
 					updateUrl(page, pageSize, activeTab);
-					setData([]);
-					debouncedFetchTabData(activeTab, page, pageSize);
+					// setData([]);
+					// debouncedFetchTabData(activeTab, page, pageSize);
 				}}
 				setData={setData}
 				setTotalPages={setTotalPages}
@@ -523,6 +554,8 @@ const Index = () => {
 				setIsLoading={setIsLoading}
 				displaySearchData={displaySearchData}
 				setDisplaySearchData={setDisplaySearchData}
+				setDisplayAdvSearchData={setDisplayAdvSearchData}
+				displayAdvSearchData={displayAdvSearchData}
 				userData={userData}
 				sendRequest={sendRequest}
 				cancelRequest={cancelRequest}

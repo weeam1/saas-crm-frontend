@@ -55,8 +55,8 @@ const validationSchema = Yup.object().shape({
 			schema
 				.typeError('Commission must be a number')
 				.required('Commission is required')
-				.min(1, 'Commission must be at least 1')
-				.max(100, 'Commission must be between 1 to 100'),
+				.min(0, 'Commission must be at least 0')
+				.max(100, 'Commission must be between 0 to 100'),
 		otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
 	}),
 	joiningDate: Yup.date().required('Joining date is required'),
@@ -262,16 +262,17 @@ const OfferLetter = () => {
 										<CustomInput
 											label='Commission %'
 											name='commission'
-											min={1}
+											min={0}
 											max={100}
 											type='number'
-											onKeyDown={(e) =>
-												['e', 'E', '+', '-'].includes(e.key) &&
-												e.preventDefault()
-											}
-											onInput={(e) =>
-												(e.target.value = e.target.value.replace(/[^0-9]/g, ''))
-											}
+											step='any'
+											// onKeyDown={(e) =>
+											// 	['e', 'E', '+', '-'].includes(e.key) &&
+											// 	e.preventDefault()
+											// }
+											// onInput={(e) =>
+											// 	(e.target.value = e.target.value.replace(/[^0-9]/g, ''))
+											// }
 											placeholder={offerDetails.commission}
 											isReadOnly={!isEditing}
 											isInvalid={errors.commission && touched.commission}

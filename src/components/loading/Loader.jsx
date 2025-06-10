@@ -8,6 +8,7 @@ const Loader = () => {
 			alignItems={'center'}
 			height='full'
 			width='100%'
+			overflow={'hidden'}
 		>
 			<CircularProgress
 				size='10'

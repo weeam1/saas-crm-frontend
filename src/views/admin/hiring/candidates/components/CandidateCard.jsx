@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	Heading,
+	HStack,
+	Icon,
+	Text,
+	VStack,
+} from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { FaWhatsapp, FaPhone, FaEye } from 'react-icons/fa6';
 import { useState } from 'react';
@@ -9,6 +18,7 @@ import { toast } from 'react-toastify';
 import FlagBadge from '../../_components/FlagBadge';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMissingFile } from './../../../../../redux/missingFilesSlice';
+import { FaBriefcase, FaUser } from 'react-icons/fa';
 
 const CandidateCard = ({ candidate, refetch, mode }) => {
 	const {
@@ -22,6 +32,8 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 		invited,
 		interviewDate,
 		interviewTime,
+		gender,
+		experienceYears,
 		createdAt,
 	} = candidate;
 	const [isApplicationOpen, setApplicationOpen] = useState(false);
@@ -157,35 +169,64 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 						</Button>
 					</Flex>
 
-					<Flex flexDirection='column' gap='1' py='10px'>
-						{mode !== 'interview' && (
-							<Flex gap='2' alignItems='center'>
-								<StatusBadge status={status} color={statusColor} size={8} />
-								<FlagBadge item={candidate} />
-							</Flex>
-						)}
+					<HStack justifyContent='space-between'>
+						<Flex flexDirection='column' gap='1' py='10px'>
+							{mode !== 'interview' && (
+								<Flex gap='2' alignItems='center'>
+									<StatusBadge status={status} color={statusColor} size={8} />
+									<FlagBadge item={candidate} />
+								</Flex>
+							)}
 
-						<Flex
-							alignItems='center'
-							gap='1'
-							fontSize='.8rem'
-							fontWeight='semibold'
-							color='gray.800'
-						>
-							<FaWhatsapp style={{ marginRight: '4px' }} />
-							<p>{whatsApp}</p>
+							<HStack justifyContent='space-between'>
+								<Box>
+									<Flex
+										alignItems='center'
+										gap='1'
+										fontSize='.8rem'
+										fontWeight='semibold'
+										color='gray.800'
+									>
+										<FaWhatsapp style={{ marginRight: '4px' }} />
+										<p>{whatsApp}</p>
+									</Flex>
+									<Flex
+										alignItems='center'
+										gap='1'
+										fontSize='.8rem'
+										fontWeight='semibold'
+										color='gray.800'
+									>
+										<FaPhone />
+										{phone}
+									</Flex>
+								</Box>
+
+								<Flex flexDir='column'>
+									<Flex
+										alignItems='center'
+										gap='1'
+										fontSize='.8rem'
+										fontWeight='semibold'
+										color='gray.800'
+									>
+										<Icon as={FaUser} boxSize='3' />
+										<Text>{gender ?? 'N/A'}</Text>
+									</Flex>
+									<Flex
+										alignItems='center'
+										gap='1'
+										fontSize='.8rem'
+										fontWeight='semibold'
+										color='gray.800'
+									>
+										<Icon as={FaBriefcase} boxSize='3' />
+										<Text>{experienceYears} years</Text>
+									</Flex>
+								</Flex>
+							</HStack>
 						</Flex>
-						<Flex
-							alignItems='center'
-							gap='1'
-							fontSize='.8rem'
-							fontWeight='semibold'
-							color='gray.800'
-						>
-							<FaPhone />
-							{phone}
-						</Flex>
-					</Flex>
+					</HStack>
 
 					<Flex
 						alignItems='center'

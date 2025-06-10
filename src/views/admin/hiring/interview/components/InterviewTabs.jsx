@@ -26,6 +26,7 @@ const InterviewTabs = memo(
 		user,
 		activeTabIndex,
 		isLeadInterviewer,
+		isCreatedBy,
 		interviewRefetch,
 		setInterviewersSelected,
 		isInterviewerSubmittedPoints,
@@ -48,18 +49,16 @@ const InterviewTabs = memo(
 
 		// Memoize computed values
 		const isInvitedInterviewer = useMemo(
-			() => interview?.totalInterviewers > 0,
-			[interview?.totalInterviewers]
+			() =>
+				interview?.isMultiRound
+					? interview?.nextRound?.totalInterviewers > 0
+					: interview?.totalInterviewers > 0,
+			[
+				interview?.isMultiRound,
+				interview?.nextRound?.totalInterviewers,
+				interview?.totalInterviewers,
+			]
 		);
-
-		// Memoize functions
-		// const handleHiringInfoSubmit = useCallback(
-		// 	async (data) => {
-		// 		// setHiringData(data);
-		// 		handleTabChange(2);
-		// 	},
-		// 	[handleTabChange]
-		// );
 
 		const navigate = useNavigate();
 
@@ -76,6 +75,8 @@ const InterviewTabs = memo(
 				hiringInfo.commission =
 					data.jobType === 'Salary' ? null : data.commission;
 
+				hiringInfo.isNextRound = data.isNextRound;
+
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
 					body: { hiringData: hiringInfo },
@@ -85,7 +86,7 @@ const InterviewTabs = memo(
 
 				// Redirect to the appropriate page based on the interviewer
 				const redirectUrl = isLeadInterviewer
-					? '/hiring/interviewed-candidates'
+					? `hiring?tab=interviewed+candidates`
 					: '/';
 
 				navigate(redirectUrl);
@@ -94,7 +95,7 @@ const InterviewTabs = memo(
 			}
 		};
 
-		console.log({ interview });
+		console.log({ isInterviewerSubmittedPoints, isInvitedInterviewer });
 
 		return positionsLoading ? (
 			<Loader />
@@ -128,6 +129,7 @@ const InterviewTabs = memo(
 							shadow='sm'
 						>
 							{/* Conditionally render the "Select Interviewers" tab separately if not invited */}
+							{/* {isCreatedBy && ( */}
 							<Tab
 								isDisabled={isInvitedInterviewer}
 								_selected={{ bg: 'brand.400', color: 'white' }}
@@ -141,6 +143,8 @@ const InterviewTabs = memo(
 									<Text>Select Interviewers</Text>
 								</HStack>
 							</Tab>
+							{/* )} */}
+
 							<Tab
 								isDisabled={
 									!isInvitedInterviewer || isInterviewerSubmittedPoints
@@ -203,6 +207,7 @@ const InterviewTabs = memo(
 							width={{ base: '100%', md: '700px' }}
 							mx='auto'
 						>
+							{/* {isCreatedBy && ( */}
 							<TabPanel p={{ base: 4, md: 8 }}>
 								<SelectInterviewers
 									user={user}
@@ -210,8 +215,10 @@ const InterviewTabs = memo(
 									interviewRefetch={interviewRefetch}
 									setInterviewersSelected={setInterviewersSelected}
 									handleTabChange={handleTabChange}
+									isInvitedInterviewer={isInvitedInterviewer}
 								/>
 							</TabPanel>
+							{/* )} */}
 
 							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
 								<EvaluationPoints

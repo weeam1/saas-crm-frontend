@@ -31,7 +31,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment';
 import OfficeShimmer from './OfficeShimmer';
 
-const OfficeSettings = () => {
+const OfficeSettings = ({ userId }) => {
 	const searchTermRef = useRef('');
 	const [searchClear, setSearchClear] = useState(false);
 
@@ -79,8 +79,9 @@ const OfficeSettings = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const navigate = useNavigate();
-	const { id: agencyId } = useParams();
 
+	let { id } = useParams();
+	const agencyId = id || userId;
 	const { data: officeSettings, isLoading: officeSettingsLoading } =
 		useFetchItemsQuery(
 			{ path: `/attendance/office-settings/${agencyId}` },
@@ -142,7 +143,7 @@ const OfficeSettings = () => {
 			const settings = officeSettings?.doc;
 			setOfficeCheckinTime(settings?.checkinTime || '09: 00 AM');
 			setOfficeCheckoutTime(settings?.checkoutTime || '06: 00 PM');
-			setOfficeTimezone(settings?.timezone || 'Asia/Karachi');
+			setOfficeTimezone(settings?.timezone || 'Asia/Dubai');
 			setOfficeOffDays(settings?.offDays || [0]);
 			setOfficeGracePeriod(settings?.gracePeriod || 0);
 			setSpecialUsers(settings?.specialUsers || []);
@@ -288,29 +289,11 @@ const OfficeSettings = () => {
 		<OfficeShimmer />
 	) : officeSettings ? (
 		<>
-			<AppButton
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/agencies')}
-			>
-				Back
-			</AppButton>
-
 			<Box
-				p={{ base: 3, md: 5 }}
-				borderRadius='lg'
 				fontFamily="'DM Sans', sans-serif"
+				marginTop={'-16px'}
+				marginLeft={'-4px'}
 			>
-				<Box bg='white' p='2' shadow='sm' rounded='md'>
-					<Text
-						size='md'
-						fontWeight='semibold'
-						fontSize={{ base: '20px', md: '32px' }}
-						textAlign={{ base: 'center', md: 'left' }}
-					>
-						{officeSettings?.doc?.agency?.name} Agency – Office Settings
-					</Text>
-				</Box>
-
 				<RoleTabs updateFilters={updateFilters} key='office' />
 
 				<Flex

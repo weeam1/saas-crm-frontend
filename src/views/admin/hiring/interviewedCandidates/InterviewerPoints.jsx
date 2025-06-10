@@ -10,7 +10,6 @@ import {
 import DisplayField from 'components/displays/DisplayField';
 
 const InterviewerPoints = ({ isOpen, onClose, evaluation }) => {
-	console.log({ evaluation });
 	return (
 		<Drawer isOpen={isOpen} onClose={onClose} placement='left' size='sm'>
 			<DrawerOverlay />

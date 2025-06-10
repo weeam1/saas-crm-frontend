@@ -9,13 +9,12 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-const FeedbackView = ({ item, isOpen, onClose }) => {
-	console.log({ item });
+const FeedbackView = ({ title, message, isOpen, onClose }) => {
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Feedback</ModalHeader>
+				<ModalHeader>{title}</ModalHeader>
 				<ModalBody>
 					<Box
 						border='none'
@@ -28,7 +27,7 @@ const FeedbackView = ({ item, isOpen, onClose }) => {
 						minH='100px' // Set a maximum height for the box
 						overflowY='auto' // Enable vertical scrolling
 					>
-						{item.message}
+						{message}
 					</Box>
 				</ModalBody>
 

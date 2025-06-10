@@ -16,10 +16,19 @@ import { toast } from 'react-toastify';
 import { buttonStyle } from '../constants';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import moment from 'moment';
+import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
+
+	console.log(data?.checkout);
+
+	const today = new Date().toISOString().split('T')[0];
+
+	const isToday = data?.date === today;
+
+	const showCheckout = isToday ? data?.checkout : true;
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
@@ -35,9 +44,13 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 		try {
 			if (data?._id) {
+				const updatedData = showCheckout
+					? { checkin: checkInTime, checkout: checkOutTime }
+					: { checkin: checkInTime };
+
 				const res = await updateItemMutation({
 					path: `/attendance/${data?._id}`,
-					body: { checkin: checkInTime, checkout: checkOutTime },
+					body: updatedData,
 				}).unwrap();
 
 				toast.success('Attendance record update successfully');
@@ -68,26 +81,37 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 				<ModalBody>
 					<HStack
 						flexDir={{ base: 'column', md: 'row' }}
-						justify='space-around'
+						justifyContent='center'
 						alignItems='center'
 						gap={2}
+						// width='100%'
+						width='fit-content'
 					>
-						<Box flex='1'>
+						<Box
+							flex='1'
+							bg='softGray.50'
+							p='2'
+							width='fit-content'
+							rounded='md'
+						>
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check In
 							</Text>
-							<CustomTimePicker value={checkInTime} onChange={setCheckInTime} />
+							{/* <CustomTimePicker value={checkInTime} onChange={setCheckInTime} /> */}
+							<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 						</Box>
 
-						<Box flex='1'>
-							<Text mb={2} fontWeight='400' fontSize='lg'>
-								Check Out
-							</Text>
-							<CustomTimePicker
-								value={checkOutTime}
-								onChange={setCheckOutTime}
-							/>
-						</Box>
+						{showCheckout && (
+							<Box flex='1' bg='softGray.50' p='2' rounded='md'>
+								<Text mb={2} fontWeight='400' fontSize='lg'>
+									Check Out
+								</Text>
+								<NormalTimePicker
+									value={checkOutTime}
+									onChange={setCheckOutTime}
+								/>
+							</Box>
+						)}
 					</HStack>
 				</ModalBody>
 				<ModalFooter>

@@ -1,9 +1,7 @@
 import { memo, useState } from 'react';
-import { Box, Button, Flex, Icon } from '@chakra-ui/react';
+import { Box, Button, Flex } from '@chakra-ui/react';
 import InvitedData from './InvitedData';
 import ShortListedData from './ShortListedData';
-import { useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
 import Loader from 'components/loading/Loader';
@@ -30,8 +28,6 @@ const ShortListedCandidates = memo(() => {
 		},
 	});
 
-	const navigate = useNavigate();
-
 	const tabData = [
 		{
 			title: 'Short Listed',
@@ -51,8 +47,8 @@ const ShortListedCandidates = memo(() => {
 	return invitedCandidatesLoading ? (
 		<Loader />
 	) : (
-		<Box>
-			<Button
+		<Box fontFamily="'DM Sans', sans-serif">
+			{/* <Button
 				colorScheme='gray'
 				borderRadius='5px'
 				size={{ base: 'sm', md: 'md' }}
@@ -64,7 +60,7 @@ const ShortListedCandidates = memo(() => {
 				mb={4}
 			>
 				Back
-			</Button>
+			</Button> */}
 
 			{!isManager && (
 				<MeetingSection
@@ -164,7 +160,7 @@ const ShortListedCandidates = memo(() => {
 			</Tabs> */}
 
 			<Box>
-				<Flex gap='2' px='4' width='fit-content'>
+				<Flex gap='2' width='fit-content'>
 					{filteredTabData.map((tab, index) => (
 						<TabButton
 							key={index}
@@ -181,12 +177,12 @@ const ShortListedCandidates = memo(() => {
 					p='4'
 					bg='white'
 					shadow='sm'
-					rounded='md'
 					minH='100px'
 					transition='opacity 0.3s ease, transform 0.3s ease'
 					opacity={1}
 					transform='translateY(0px)'
 					key={activeTab}
+					marginTop={'-0px'}
 				>
 					{tabData[activeTab].component}
 				</Box>
@@ -198,14 +194,15 @@ const ShortListedCandidates = memo(() => {
 const TabButton = ({ isActive, onClick, children }) => (
 	<Button
 		onClick={onClick}
-		bg={isActive ? 'brand.400' : 'white'}
-		color={isActive ? 'white' : 'gray.800'}
-		_hover={{ bg: isActive ? 'brand.500' : 'gray.100' }}
-		_focus={{ boxShadow: 'none' }}
-		rounded='md'
+		bg={isActive ? '#EDD199' : 'softGray.50'}
+		color={isActive ? 'black' : 'gray.500'}
+		borderTop={isActive ? '4px solid #B79045' : '4px solid transparent'}
+		fontWeight={isActive ? 'semi-bold' : 'normal'}
+		_focus={{ outline: 'none', boxShadow: 'none' }}
+		_hover={{ bg: isActive ? '#EDD199' : 'gray.100' }}
+		rounded='none'
 		shadow='sm'
 		fontSize='lg'
-		fontWeight='normal'
 		transition='all 0.3s ease'
 	>
 		{children}
