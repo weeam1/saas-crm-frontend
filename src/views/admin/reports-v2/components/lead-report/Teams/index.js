@@ -49,6 +49,18 @@ const TeamList = () => {
 						'@media screen and (min-width: 1536px)': {
 							gridTemplateColumns: 'repeat(4, 1fr)', // 2xl (custom)
 						},
+						// >= 1920px (e.g., Full HD+)
+						'@media (min-width: 2120px)': {
+							gridTemplateColumns: 'repeat(5, 1fr)',
+						},
+						// >= 2560px (2.5K / QHD)
+						'@media (min-width: 2560px)': {
+							gridTemplateColumns: 'repeat(6, 1fr)',
+						},
+						// >= 3840px (4K)
+						'@media (min-width: 3840px)': {
+							gridTemplateColumns: 'repeat(7, 1fr)',
+						},
 					}}
 					spacing={6}
 					p={2}

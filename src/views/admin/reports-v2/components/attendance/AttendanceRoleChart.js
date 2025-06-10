@@ -47,7 +47,11 @@ const AttendanceRoleChart = ({ data }) => {
 
 	return (
 		<Box>
-			<Text fontSize='lg' color='gray.800' fontWeight='bold' mb='8'>
+			<Text
+				fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+				color='gray.700'
+				fontWeight='bold'
+			>
 				Weekly Attendance
 			</Text>
 

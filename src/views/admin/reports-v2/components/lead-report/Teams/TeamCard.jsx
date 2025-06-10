@@ -75,7 +75,7 @@ const TeamCard = ({ manager, index }) => {
 				<Icon as={HiOutlineArrowRightCircle} boxSize='24px' color='green.500' />
 			</Box> */}
 
-			<Flex align='center' gap={4} mb={4}>
+			<Flex align='center' gap={2} mb={4}>
 				<Avatar
 					src={
 						manager?.profileImage
@@ -83,13 +83,13 @@ const TeamCard = ({ manager, index }) => {
 							: ''
 					}
 					name={manager?.fullName}
-					size='lg'
+					size='md'
 				/>
 
 				<VStack align='start' spacing={0}>
 					<Text
 						// fontSize={{ base: 'xs', md: 'sm' }}
-						fontSize={{ base: '10px', md: '16px' }}
+						fontSize={{ base: '10px', md: '14px' }}
 						fontWeight='bold'
 						color={textColor}
 						maxWidth={{ base: '200px', md: '200px' }}
@@ -98,9 +98,9 @@ const TeamCard = ({ manager, index }) => {
 						{manager?.fullName}
 					</Text>
 					<Text
-						fontSize={{ base: 'xs', md: 'sm' }}
+						fontSize={{ base: '10px', md: '12px' }}
 						color={useColorModeValue('gray.500', 'gray.400')}
-						maxWidth={{ base: 'full', md: '250px' }}
+						maxWidth={{ base: '250px', md: '250px' }}
 						isTruncated
 					>
 						{manager?.username}
@@ -129,6 +129,7 @@ const TeamCard = ({ manager, index }) => {
 				bg='softGray.100'
 				color='gray.800'
 				_active={{ bg: 'gray.200' }}
+				_hover={{ bg: 'brand.200' }}
 				onClick={() =>
 					navigate(`/reporting-analytics/team-details/${manager._id}`)
 				}

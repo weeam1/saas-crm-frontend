@@ -186,14 +186,14 @@ export default function LeadsCharts() {
 										fill='#D99A36'
 										name='Current'
 										radius={[4, 4, 0, 0]}
-										animationDuration={1500}
+										animationDuration={500}
 									></Bar>
 									<Bar
 										dataKey='previous'
 										fill='#EDD199'
 										name='Previous'
 										radius={[4, 4, 0, 0]}
-										animationDuration={1500}
+										animationDuration={500}
 									></Bar>
 								</BarChart>
 							</SafeResponsiveChart>
@@ -231,14 +231,14 @@ export default function LeadsCharts() {
 										fill='#D99A36'
 										name='Current'
 										radius={[4, 4, 0, 0]}
-										animationDuration={1500}
+										animationDuration={500}
 									/>
 									<Bar
 										dataKey='previous'
 										fill='#EDD199'
 										name='Previous'
 										radius={[4, 4, 0, 0]}
-										animationDuration={1500}
+										animationDuration={500}
 									/>
 								</BarChart>
 							</SafeResponsiveChart>
