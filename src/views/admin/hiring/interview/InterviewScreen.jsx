@@ -29,7 +29,7 @@ const InterviewScreen = memo(() => {
 	);
 
 	useEffect(() => {
-		const timer = setTimeout(() => setIsRefetching(false), 2500);
+		const timer = setTimeout(() => setIsRefetching(false), 3000);
 		return () => clearTimeout(timer);
 	}, []);
 
@@ -58,7 +58,7 @@ const InterviewScreen = memo(() => {
 	// 	[interview?.doc]
 	// );
 
-	const currentRound = getCurrentInterviewRound(interview);
+	const currentRound = getCurrentInterviewRound(interview?.doc);
 
 	const isLeadInterviewer = useMemo(
 		() => currentRound?.leadInterviewer?._id === user?._id,
@@ -75,6 +75,13 @@ const InterviewScreen = memo(() => {
 			(item) => item.interviewer?._id === user?._id
 		);
 		return points?.status ?? false;
+	}, [currentRound?.evaluations, user?._id]);
+
+	const isInterviewerValid = useMemo(() => {
+		const isValid = currentRound?.evaluations?.find(
+			(item) => item.interviewer?._id === user?._id
+		);
+		return isValid ? true : false;
 	}, [currentRound?.evaluations, user?._id]);
 
 	// // Memoize isLeadInterviewer check
@@ -110,7 +117,7 @@ const InterviewScreen = memo(() => {
 		if (!interview?.doc) return;
 
 		const isInterviewCompleted = ['end', 'canceled', 'rejected'].includes(
-			interview.doc.status
+			interview?.doc?.status
 		);
 
 		const isFinalStatusAsLead =
@@ -121,9 +128,9 @@ const InterviewScreen = memo(() => {
 
 		if (isInterviewCompleted || isFinalStatusAsLead) {
 			toast.error('This interview has already completed.');
-			navigate('/');
+			navigate('/hiring');
 		}
-	}, [interview, navigate]);
+	}, [interview?.doc, isLeadInterviewer, navigate]);
 
 	// Optimize cancellation function
 	const handleCancelInterview = useCallback(
@@ -142,17 +149,14 @@ const InterviewScreen = memo(() => {
 		[updateItemMutation, navigate]
 	);
 
-	// Conditional loading
-	if (interviewLoading || cancellingInterview) return <Loader />;
-
-	console.log({
-		isLeadInterviewer,
-		isInterviewerSubmittedPoints,
-		interviewersSelected,
-	});
+	// console.log({
+	// 	isLeadInterviewer,
+	// 	isInterviewerSubmittedPoints,
+	// 	interviewersSelected,
+	// });
 
 	// Render content
-	return isRefetching ? (
+	return isRefetching || interviewLoading || cancellingInterview ? (
 		<Loader />
 	) : interview && interview?.doc ? (
 		<Box>
@@ -221,7 +225,7 @@ const InterviewScreen = memo(() => {
 					<InterviewTabs
 						handleTabChange={handleTabChange}
 						activeTabIndex={activeTabIndex}
-						interview={interview.doc}
+						interview={interview?.doc}
 						interviewRefetch={interviewRefetch}
 						user={user}
 						isLeadInterviewer={isLeadInterviewer}

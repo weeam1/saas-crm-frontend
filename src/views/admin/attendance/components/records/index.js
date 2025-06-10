@@ -214,7 +214,9 @@ export default function Records() {
 				</Text>
 				<HStack gap='2'>
 					<AttendanceStatusFilter status={status} onChange={onStatusChange} />
-					<ExportAttendanceReport month={month} year={year} />
+					{['superAdmin', 'HR'].includes(role) && (
+						<ExportAttendanceReport month={month} year={year} />
+					)}
 				</HStack>
 			</Box>
 			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
@@ -251,6 +253,7 @@ export default function Records() {
 					isLoading={isLoading}
 					isFetching={isFetching}
 					refetch={attendanceRefetch}
+					role={role}
 				/>
 
 				{/* {data?.doc && (

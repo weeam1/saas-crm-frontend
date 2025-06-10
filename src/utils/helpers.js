@@ -1,3 +1,7 @@
+import moment from 'moment';
+
+export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export const formattedDate = (_date) => {
 	if (_date === '') {
 		return '';
@@ -15,6 +19,21 @@ export const formattedDate = (_date) => {
 	const formattedDate = date.toLocaleDateString('en-US', options);
 
 	return formattedDate;
+};
+
+export const toUTCString = (date) => {
+	return date
+		? moment(date).utcOffset(0, true).startOf('day').toISOString()
+		: null;
+};
+
+export const formatDNS = (dateStr) => {
+	const date = new Date(dateStr);
+	return date.toLocaleDateString('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+	});
 };
 
 export const extractLocationData = (ipString, countryNames) => {
@@ -103,3 +122,17 @@ const merge = (left, right) => {
 
 	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
 };
+
+export const BRAND_COLORS = [
+	'#B79045',
+	'#D99A36',
+	'#E5B668',
+	'#EDD199',
+	'#F5ECCB',
+];
+
+export const formattedValue = (value, precision = 0) =>
+	Number(value).toLocaleString(undefined, {
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});

@@ -9,7 +9,6 @@ import {
 	Td,
 	Divider,
 	useDisclosure,
-	Button,
 	IconButton,
 	Tooltip,
 } from '@chakra-ui/react';
@@ -21,7 +20,6 @@ import { FaEdit } from 'react-icons/fa';
 import AttendanceUpdate from '../AttendanceUpdate';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { ATTENDANCE_STATUS_CONFIG, STATUS_CONFIG } from '../../constants';
-import { FaNoteSticky } from 'react-icons/fa6';
 import MessageViewModal from 'components/modals/MessageViewModal';
 import { LuStickyNote } from 'react-icons/lu';
 
@@ -56,10 +54,9 @@ const AttendanceTable = ({
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
-	const filterdColumns =
-		role === 'superAdmin'
-			? columns
-			: columns.filter((column) => column !== 'Action');
+	const filterdColumns = ['HR', 'superAdmin'].includes(role)
+		? columns
+		: columns.filter((column) => column !== 'Action');
 
 	const [editData, setEditData] = useState(null);
 
@@ -260,7 +257,7 @@ const AttendanceTable = ({
 														: '0m'
 													: 'Pending'}
 										</Td>
-										{role === 'superAdmin' && (
+										{['HR', 'superAdmin'].includes(role) && (
 											<Td py={4} minWidth='100px'>
 												<IconButton
 													rounded='full'

@@ -5,12 +5,14 @@ import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { formattedDate } from 'utils/helpers';
 import { InfoIcon } from '@chakra-ui/icons';
 
-const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
+const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
 	const [offerBody, setOfferBody] = useState(offerDetails?.offerMail || '');
 
-	// ✅ Memoized Offer Details (Fixed, Non-Editable)
+	// Memoized Offer Details (Fixed, Non-Editable)
 	const staticOfferDetails = useMemo(() => {
 		const joiningDate = formattedDate(offerDetails.joiningDate);
+
+		if (interview?.offerBody) return interview?.offerBody;
 
 		return `
     <div contenteditable="false" style="background:#f3f4f6; padding:10px; border-radius:5px;">
@@ -28,6 +30,12 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails }) => {
 					? `<strong>Commission:</strong> ${offerDetails.commission}% <br/>`
 					: ''
 			}
+
+			${
+				offerDetails?.incentive &&
+				`<strong>Incentive:</strong> ${offerDetails.incentive} <br/>`
+			}
+							
       <strong>Joining Date:</strong> ${joiningDate} <br/>
       <strong>Location:</strong> ${offerDetails.location} <br/>
 

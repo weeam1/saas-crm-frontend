@@ -122,7 +122,7 @@ export function SidebarResponsive(props) {
 				<DrawerContent
 					boxShadow={'xl'}
 					// w='285px'
-					// maxW='285px'
+					maxW='200px'
 					bg={sidebarBackgroundColor}
 				>
 					<DrawerCloseButton
@@ -142,6 +142,7 @@ export function SidebarResponsive(props) {
 								routes={routes}
 								openSidebar={openSidebar}
 								setOpenSidebar={setOpenSidebar}
+								onSidebarClose={handlesidebarClose}
 							/>
 						</Scrollbars>
 					</DrawerBody>

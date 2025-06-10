@@ -211,7 +211,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 										color='gray.800'
 									>
 										<Icon as={FaUser} boxSize='3' />
-										<Text>{gender ?? 'N/A'}</Text>
+										<Text>{gender || 'N/A'}</Text>
 									</Flex>
 									<Flex
 										alignItems='center'
@@ -268,7 +268,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 				</Box>
 
 				<Box textAlign='right' fontSize='sm' color='gray.800'>
-					{invited ? (
+					{invited || mode === 'interview' ? (
 						<Flex
 							fontSize='xs'
 							alignItems='center'
@@ -300,15 +300,17 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 				</Box>
 			</Box>
 
-			<CandidateView
-				isOpen={isApplicationOpen}
-				onClose={() => setApplicationOpen(false)}
-				candidate={candidate}
-				onViewCV={handleViewCV}
-				onDownloadCV={handleDownloadCV}
-				missingFiles={missingFiles}
-				refetch={refetch}
-			/>
+			{isApplicationOpen && (
+				<CandidateView
+					isOpen={isApplicationOpen}
+					onClose={() => setApplicationOpen(false)}
+					candidate={candidate}
+					onViewCV={handleViewCV}
+					onDownloadCV={handleDownloadCV}
+					missingFiles={missingFiles}
+					refetch={refetch}
+				/>
+			)}
 		</>
 	);
 };

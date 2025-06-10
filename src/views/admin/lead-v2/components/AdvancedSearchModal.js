@@ -50,6 +50,7 @@ const AdvancedSearchModal = ({
 	};
 
 	const initialValues = {
+		intID: '',
 		leadName: '',
 		leadStatus: '',
 		eLeadStatus: '',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 // function CountUpComponent({ targetNumber }) {
 //     const [count, setCount] = useState(0);
@@ -18,13 +18,13 @@ import React, { useState, useEffect } from "react";
 //     return <span>{typeof targetNumber === "number" ? count : targetNumber}</span>
 // }
 
-import { Text } from "@chakra-ui/react";
+import { Text } from '@chakra-ui/react';
 
 function CountUpComponent({ targetNumber, duration = 500 }) {
 	const [count, setCount] = useState(0);
 
 	useEffect(() => {
-		if (typeof targetNumber !== "number" || targetNumber < 0) return;
+		if (typeof targetNumber !== 'number' || targetNumber < 0) return;
 
 		let startTime = null;
 
@@ -49,7 +49,7 @@ function CountUpComponent({ targetNumber, duration = 500 }) {
 		return () => setCount(0); // Reset on unmount
 	}, [targetNumber, duration]);
 
-	return <span>{typeof targetNumber === "number" ? count : targetNumber}</span>;
+	return <span>{typeof targetNumber === 'number' ? count : targetNumber}</span>;
 }
 
 export default CountUpComponent;

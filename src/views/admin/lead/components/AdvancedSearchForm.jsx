@@ -20,6 +20,7 @@ const AdvancedSearchForm = (props) => {
 	// Define field configurations
 	const fields = useMemo(
 		() => [
+			{ name: 'intID', label: 'Lead ID', placeholder: 'Enter Lead ID' },
 			{ name: 'leadName', label: 'Name', placeholder: 'Enter Lead Name' },
 			{ name: 'leadEmail', label: 'Email', placeholder: 'Enter Lead Email' },
 			{

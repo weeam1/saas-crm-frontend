@@ -26,6 +26,7 @@ const SelectInterviewers = ({
 	handleTabChange,
 	interviewRefetch,
 	isInvitedInterviewer,
+	setLoading,
 }) => {
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
@@ -82,18 +83,16 @@ const SelectInterviewers = ({
 		setSelectedIds((prev) => {
 			const isSelected = prev.includes(id);
 			if (isSelected) {
-				// ✅ user is unchecked → remove from selectedUsers
+				//  user is unchecked → remove from selectedUsers
 				setSelectedUsers((users) => users.filter((u) => u._id !== id));
 				return prev.filter((item) => item !== id);
 			} else {
-				// ✅ user is checked → add to selectedUsers
+				//  user is checked → add to selectedUsers
 				handleSelectUser(id);
 				return [...prev, id];
 			}
 		});
 	};
-
-	// console.log(selectedUsers);
 
 	const handleSelectInterviewerClose = () => {
 		setModalOpen(false);
@@ -101,7 +100,7 @@ const SelectInterviewers = ({
 	};
 
 	const renderUserList = (users) => {
-		const filteredUsers = users.filter((item) => item._id !== user._id);
+		// const filteredUsers = users.filter((item) => item._id !== user._id);
 		return (
 			<VStack
 				// spacing={4}
@@ -123,7 +122,7 @@ const SelectInterviewers = ({
 					},
 				}}
 			>
-				{filteredUsers?.map((user) => (
+				{users?.map((user) => (
 					<Box
 						key={user._id}
 						display='flex'
@@ -167,27 +166,29 @@ const SelectInterviewers = ({
 		try {
 			if (selectedIds.length > 0) {
 				if (!selectedInterviewer) {
-					handleSelectUser(user._id);
-					setSelectedInterviewer(user._id);
+					// handleSelectUser(user._id);
+					setSelectedInterviewer(selectedIds[0]);
 					return setModalOpen(true);
 				} else setModalOpen(false);
 
-				const receiverIds =
-					selectedInterviewer !== user._id
-						? [...selectedIds, user._id]
-						: selectedIds;
+				// const receiverIds =
+				// 	selectedInterviewer !== user._id
+				// 		? [...selectedIds]
+				// 		: selectedIds;
 
 				const sender_name = user?.fullName;
 
 				const interviewData = {
-					sender_id: selectedInterviewer,
+					sender_id: user._id,
 					sender_name,
 					sender_role: userRole,
-					receiver_ids: receiverIds,
+					receiver_ids: selectedIds,
 					interview_id: interview._id,
 					candidate_name: interview?.candidate?.name,
 					candidate_job_type: interview?.candidate?.position.name,
 				};
+
+				console.log(interviewData);
 
 				const { data } = await axios.post(
 					`${keys.socketUrl}/interview_invite`,
@@ -197,7 +198,7 @@ const SelectInterviewers = ({
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
 					body: {
-						interviewers: receiverIds,
+						interviewers: selectedIds,
 						leadInterviewer: selectedInterviewer,
 					},
 				}).unwrap();
@@ -205,11 +206,18 @@ const SelectInterviewers = ({
 				toast.success('Interview invite sent successfully.');
 
 				// if selected interviewer is another user then redirect to default page
-				if (selectedInterviewer !== user._id) {
+				const createdUser = selectedIds?.find((id) => id === user._id);
+
+				// if user is not selected for interviwers list
+				if (!createdUser) {
 					return navigate('/hiring');
+				} else if (createdUser && selectedInterviewer !== user._id) {
+					setLoading(true);
+					handleTabChange(1);
 				}
+
 				// Else if user is own owner of interview then move to next tab
-				else handleTabChange(1);
+				handleTabChange(1);
 			} else {
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,

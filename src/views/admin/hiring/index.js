@@ -11,15 +11,14 @@ const DEFAULT_TAB = 'dashboard';
 
 const Hiring = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const tabFromParams = searchParams.get('tab') || DEFAULT_TAB;
 	const user = JSON.parse(localStorage.getItem('user'));
 	const isManager = user?.roles[0]?.roleName === 'Manager';
-
 	const [tabKey, setTabKey] = useState(0);
 
-	const tabsData = [
+	const allTabs = [
 		{
 			label: 'Dashboard',
+			param: 'dashboard',
 			title: 'Hiring Dashboard Overview',
 			description:
 				'Monitor key recruitment statistics, candidate pipelines, and ongoing interviews.',
@@ -27,6 +26,7 @@ const Hiring = () => {
 		},
 		{
 			label: 'Candidates',
+			param: 'candidates',
 			title: 'All Registered Candidates',
 			description:
 				'View a list of all candidates who have applied. Filter, search, and manage candidate profiles here.',
@@ -34,20 +34,23 @@ const Hiring = () => {
 		},
 		{
 			label: 'Short Listed',
+			param: 'short-listed',
 			title: 'Short Listed Candidates',
 			description:
 				'Candidates who have been selected for the next round. Review and manage their progress.',
 			component: <ShortListedCandidates key={tabKey} />,
 		},
 		{
-			label: 'Final Interviewed',
-			title: 'Final Interviewed Candidates Overview',
+			label: 'Multi-Round Interviewed',
+			param: 'multi-round-interviewed',
+			title: 'Multi-Round interviewed Candidates Overview',
 			description:
-				'See candidates who have final round interviews. Track interview outcomes and feedback.',
+				'See candidates who have multi-round interviews. Track interview outcomes and feedback.',
 			component: <InterviewedRound key={tabKey} />,
 		},
 		{
 			label: 'Interviewed Candidates',
+			param: 'interviewed-candidates',
 			title: 'Interviewed Candidates Overview',
 			description:
 				'See candidates who have completed their interviews. Track interview outcomes and feedback.',
@@ -55,43 +58,52 @@ const Hiring = () => {
 		},
 	];
 
-	const filteredTabs = isManager
-		? tabsData.filter((tab) => tab.label === 'Short Listed')
-		: tabsData;
+	const tabsData = isManager
+		? allTabs.filter((tab) => tab.param === 'short-listed')
+		: allTabs;
 
-	const initialIndex = filteredTabs.findIndex(
-		(tab) => tab.label.toLowerCase() === tabFromParams?.toLowerCase()
+	// const tabFromParams = searchParams.get("tab") || DEFAULT_TAB;
+
+	const defaultTab = tabsData[0]?.param || DEFAULT_TAB;
+	const tabFromParams = searchParams.get('tab') || defaultTab;
+
+	const activeTabIndex = Math.max(
+		0,
+		tabsData.findIndex((tab) => tab.param === tabFromParams.toLowerCase())
 	);
-	const [activeTabIndex, setActiveTabIndex] = useState(
-		initialIndex !== -1 ? initialIndex : 0
-	);
+
+	// useEffect(() => {
+	// 	if (
+	// 		!searchParams.get('tab') ||
+	// 		!tabsData.some((tab) => tab.param === searchParams.get('tab'))
+	// 	) {
+	// 		setSearchParams({ tab: DEFAULT_TAB });
+	// 	}
+	// }, [searchParams, setSearchParams, tabsData]);
 
 	useEffect(() => {
-		if (filteredTabs[activeTabIndex].label.toLowerCase() !== tabFromParams) {
-			setSearchParams({
-				tab: filteredTabs[activeTabIndex].label.toLowerCase(),
-			});
+		const tab = searchParams.get('tab');
+		if (!tab || !tabsData.some((t) => t.param === tab)) {
+			setSearchParams({ tab: defaultTab });
 		}
-	}, [activeTabIndex, filteredTabs, setSearchParams, tabFromParams]);
+	}, [searchParams, setSearchParams, tabsData]);
 
 	const handleTabChange = (index) => {
-		const selectedTab = filteredTabs[index].label.toLowerCase();
-
-		if (selectedTab !== tabFromParams) {
-			setSearchParams({ tab: selectedTab });
-
-			if (index === activeTabIndex) {
-				setTabKey((prev) => prev + 1);
-			} else {
-				setActiveTabIndex(index);
-			}
+		const tabParam = tabsData[index].param;
+		setSearchParams({ tab: tabParam });
+		if (index === activeTabIndex) {
+			setTabKey((prev) => prev + 1);
 		}
 	};
 
 	return (
 		<>
 			<TabNavigationDisplay
-				tabsData={filteredTabs}
+				tabsData={tabsData.map((tab) => ({
+					...tab,
+					component:
+						tab.param === tabFromParams.toLowerCase() ? tab.component : null,
+				}))}
 				activeTab={activeTabIndex}
 				onTabChange={handleTabChange}
 			/>

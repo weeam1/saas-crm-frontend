@@ -21,9 +21,9 @@ import { FaPlay, FaPause } from "react-icons/fa";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
-import Loader from "components/loading/Loader";
 import TableLoading from "components/loading/TableLoading";
-import { ca } from "date-fns/locale";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
 
@@ -31,23 +31,47 @@ const formatTime = (time) => {
   const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
-const AudioPlayer = ({ url }) => {
+
+const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
+  // Check if this player is currently the active one
+  const isCurrentlyPlaying = currentlyPlayingId === playerId;
+
+  // Stop this player if another one starts playing
+  useEffect(() => {
+    if (!isCurrentlyPlaying && isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0; // Reset to beginning
+      }
+      setIsPlaying(false);
+      setCurrentTime(0); // Reset state to 0
+    }
+  }, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
+
   const togglePlay = () => {
     if (!audioRef.current) return;
+    
     if (isPlaying) {
       audioRef.current.pause();
+      audioRef.current.currentTime = 0; // Reset to beginning when manually paused
+      setIsPlaying(false);
+      setCurrentTime(0); // Reset state to 0
+      setCurrentlyPlayingId(null);
     } else {
+      // Set this player as the currently playing one
+      setCurrentlyPlayingId(playerId);
       audioRef.current.play().catch(() => {
         setIsPlaying(false);
+        setCurrentlyPlayingId(null);
       });
+      setIsPlaying(true);
     }
-    setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
@@ -68,6 +92,7 @@ const AudioPlayer = ({ url }) => {
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      setCurrentlyPlayingId(null); // Clear the currently playing ID when audio ends
     };
 
     if (audio) {
@@ -93,7 +118,7 @@ const AudioPlayer = ({ url }) => {
   };
 
   return (
-    <Flex align="center" w="100%" gap={2}>
+    <Flex align="center" w="260px" gap={2}>
       <audio ref={audioRef} src={url} preload="metadata" />
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
@@ -113,6 +138,7 @@ const AudioPlayer = ({ url }) => {
         onChangeEnd={() => setIsSeeking(false)}
         onChange={handleSeek}
         isDisabled={isNaN(duration)}
+        w="140px"
       >
         <SliderTrack bg="gray.200">
           <SliderFilledTrack bg="blue.400" />
@@ -135,7 +161,7 @@ const StatusBadge = ({ status }) => {
     case "NO ANSWER":
       color = "yellow";
       break;
-    case -"FAILED":
+    case "FAILED": // Fixed: Removed the erroneous dash
       color = "red";
       break;
     default:
@@ -144,7 +170,7 @@ const StatusBadge = ({ status }) => {
 
   return (
     <Badge colorScheme={color} px={2} py={1} borderRadius="md">
-      {status ? status : "no data found"}
+      {status || "no data found"}
     </Badge>
   );
 };
@@ -157,6 +183,8 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null); // Track currently playing audio
+  
   const columns = [
     "Call id",
     "Call date",
@@ -164,11 +192,12 @@ export default function CallHistory() {
     "Call from",
     "Call to",
     "Recording",
+    "Status",
     "Type",
     "Call Duration",
     "Talk Duration",
-    "Status",
   ];
+
   const loadCalls = async (page, pageSize) => {
     try {
       setLoading(true);
@@ -197,7 +226,14 @@ export default function CallHistory() {
     setPageSize(e.target.value);
     setPage(1);
   }, []);
+
+  // Function to handle setting currently playing audio
+  const handleSetCurrentlyPlaying = useCallback((playerId) => {
+    setCurrentlyPlayingId(playerId);
+  }, []);
+
   const borderColor = useColorModeValue("gray.200", "gray.700");
+
   return (
     <Box
       overflowX="auto"
@@ -207,7 +243,7 @@ export default function CallHistory() {
       bg="white"
       p={3}
       marginTop={"-16px"}
-			marginLeft={"-4px"}
+      marginLeft={"-4px"}
     >
       <Pagination
         currentPage={page}
@@ -221,14 +257,7 @@ export default function CallHistory() {
         loading={loading}
       />
 
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        maxH={"calc(70vh - 100px)"}
-        overflowY="auto"
-        mt={3}
-      >
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto" mt={3}>
         <Table variant="striped" size="sm" bg="white">
           <Thead
             position="sticky"
@@ -262,9 +291,9 @@ export default function CallHistory() {
           <Tbody>
             {loading ? (
               <TableLoading columns={columns} length={10} py="4" />
-            ) : (
-              calls.map((call) => (
-                <Tr key={call.id}>
+            ) : calls && calls.length > 0 ? (
+              calls.map((call, index) => (
+                <Tr key={call.id || call.uniqueid || index}>
                   <Td
                     py={4}
                     fontSize={{ base: "12px", md: "14px" }}
@@ -272,7 +301,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.uniqueid ? call.uniqueid : "no data found"}
+                    {call.uniqueid || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -292,7 +321,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.call_mode ? call.call_mode : "no data found"}
+                    {call.call_mode || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -301,7 +330,7 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.src ? call.src : "no data found"}
+                    {call.src || "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -310,18 +339,21 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.dst ? call.dst : "no data found"}
+                    {call.dst || "no data found"}
                   </Td>
                   <Td
                     py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
+                    fontSize={{ base: "11px", md: "13px" }}
                     fontWeight="400"
-                    minWidth="100px"
+                    minWidth="180px"
                     textAlign={"center"}
                   >
                     {call.recording ? (
                       <AudioPlayer
                         url={`https://webrtc.weeam.info/file/${call.recording}`}
+                        currentlyPlayingId={currentlyPlayingId}
+                        setCurrentlyPlayingId={handleSetCurrentlyPlaying}
+                        playerId={call.id || call.uniqueid || `player-${index}`}
                       />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
@@ -336,45 +368,53 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.lastapp ? call.lastapp : "no data found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {call.duration ? `${call.duration} sec` : "no data found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {call.billsec ? `${call.billsec} sec` : "no data found"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
                     <StatusBadge status={call.disposition} />
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.lastapp || "no data found"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.duration ? `${call.duration} sec` : "0 sec"}
+                  </Td>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.billsec ? `${call.billsec} sec` : "0 sec"}
                   </Td>
                 </Tr>
               ))
+            ) : (
+              <Tr borderColor="gray.200" textAlign="center">
+                <Td
+                  borderBottom="none"
+                  colSpan="10"
+                  fontSize={{ base: "12px", md: "15px" }}
+                  fontWeight="500"
+                  color="gray.500"
+                  textAlign="center"
+                >
+                  <NoData label="listing" />
+                </Td>
+              </Tr>
             )}
           </Tbody>
         </Table>
-        {!loading && calls?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No call history found.
-          </Text>
-        )}
       </Box>
     </Box>
   );

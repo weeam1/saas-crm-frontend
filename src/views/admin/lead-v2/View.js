@@ -660,16 +660,19 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 													</Text>
 													<Text>{data?.interest ? data?.interest : 'N/A'}</Text>
 												</GridItem>
-												<GridItem colSpan={{ base: 12, md: 6 }}>
-													<Text
-														color={'blackAlpha.900'}
-														fontSize='sm'
-														fontWeight='bold'
-													>
-														IP Address
-													</Text>
-													<Text>{data?.ip ? data?.ip : 'N/A'}</Text>
-												</GridItem>
+												{!['Agent'].includes(user?.roles[0]?.roleName) && (
+													<GridItem colSpan={{ base: 12, md: 6 }}>
+														<Text
+															color={'blackAlpha.900'}
+															fontSize='sm'
+															fontWeight='bold'
+														>
+															IP Address
+														</Text>
+														<Text>{data?.ip ? data?.ip : 'N/A'}</Text>
+													</GridItem>
+												)}
+
 												<GridItem colSpan={{ base: 12, md: 6 }}>
 													<Text
 														color={'blackAlpha.900'}

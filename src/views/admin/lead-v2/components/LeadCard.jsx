@@ -87,11 +87,11 @@ const LeadCard = memo(
 					borderWidth='1px'
 					borderRadius='md'
 					p={2}
-					bg='white'
+					bg={localChecked ? 'brand.50' : 'white'}
 					width='100%'
 					flexBasis={cardWidth}
 					boxShadow='sm'
-					_hover={{ boxShadow: 'lg' }}
+					_hover={{ boxShadow: 'lg', bg: 'brand.50' }}
 					transition='all 0.2s ease-in-out'
 					position='relative'
 				>

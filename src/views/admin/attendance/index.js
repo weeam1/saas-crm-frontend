@@ -37,7 +37,7 @@ const NavigationBoxes = () => {
 
 	// Show all items for superAdmin and HR; otherwise, only show "My Attendance"
 	const menuItems =
-		role === 'superAdmin'
+		role === 'superAdmin' || role === 'Attendance'
 			? allMenuItems.filter(
 					(item) =>
 						item.label !== 'My Attendance' && item.label !== 'Office Settings'

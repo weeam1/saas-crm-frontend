@@ -42,5 +42,6 @@
 }
 
 .react-calendar__month-view__days__day--weekend {
-	color: #e0b960;
+	/* color: #e0b960; */
+	color: #333;
 }

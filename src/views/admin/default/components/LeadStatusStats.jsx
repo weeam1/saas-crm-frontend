@@ -9,7 +9,7 @@ import {
 	Tooltip,
 	Legend,
 } from 'chart.js';
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text, Select } from '@chakra-ui/react';
 
 // Register Chart.js components
 Chart.register(
@@ -21,169 +21,7 @@ Chart.register(
 	Legend
 );
 
-// const LeadStatusStats = ({ doc }) => {
-// 	const { leadStatusStats: data, totalLeads } = doc;
-// 	const chartRef = useRef(null);
-// 	const chartInstance = useRef(null);
-
-// 	useEffect(() => {
-// 		if (chartRef.current && data.length > 0) {
-// 			// Sort data by percentage (descending)
-// 			const sortedData = [...data].sort((a, b) => b.percent - a.percent);
-
-// 			// Find max percentage to use as 100% reference
-// 			const maxPercentage = Math.max(...sortedData.map((item) => item.percent));
-// 			const referencePercentage = Math.ceil(maxPercentage / 10) * 10; // Round up to nearest 10
-
-// 			if (chartInstance.current) {
-// 				chartInstance.current.destroy();
-// 			}
-
-// 			const ctx = chartRef.current.getContext('2d');
-
-// 			chartInstance.current = new Chart(ctx, {
-// 				type: 'bar',
-// 				data: {
-// 					labels: sortedData.map((item) => item.label),
-// 					datasets: [
-// 						{
-// 							label: 'Percentage',
-// 							data: sortedData.map((item) => item.percent),
-// 							backgroundColor: sortedData.map((item) => item.bgColor),
-// 							borderColor: sortedData.map((item) => `${item.bgColor}80`),
-// 							borderWidth: 1,
-// 							hoverBackgroundColor: sortedData.map(
-// 								(item) => `${item.bgColor}CC`
-// 							),
-// 							hoverBorderColor: sortedData.map((item) => item.bgColor),
-// 							barThickness: 20,
-// 						},
-// 					],
-// 				},
-// 				options: {
-// 					indexAxis: 'y',
-// 					responsive: true,
-// 					maintainAspectRatio: false,
-// 					plugins: {
-// 						legend: {
-// 							display: false,
-// 						},
-// 						title: {
-// 							display: true,
-// 							text: `Total Leads: ${totalLeads}`,
-// 							font: {
-// 								size: 16,
-// 								weight: 'bold',
-// 							},
-// 							padding: {
-// 								top: 10,
-// 								bottom: 30,
-// 							},
-// 						},
-// 						tooltip: {
-// 							callbacks: {
-// 								label: (context) => {
-// 									const item = sortedData[context.dataIndex];
-// 									return [
-// 										`Count: ${item.value}`,
-// 										`Percentage: ${item.percent.toFixed(1)}% (of total)`,
-// 										`Relative: ${((item.percent / maxPercentage) * 100).toFixed(1)}% (of max)`,
-// 									];
-// 								},
-// 							},
-// 						},
-// 						datalabels: {
-// 							display: true,
-// 							color: (context) => {
-// 								// Use textColor from data or calculate contrast color
-// 								return sortedData[context.dataIndex].textColor || '#000';
-// 							},
-// 							anchor: 'center',
-// 							align: 'center',
-// 							formatter: (value, context) => {
-// 								const item = sortedData[context.dataIndex];
-// 								return `${item.percent.toFixed(1)}%`;
-// 							},
-// 							font: {
-// 								weight: 'bold',
-// 								size: 12,
-// 							},
-// 						},
-// 					},
-// 					scales: {
-// 						x: {
-// 							beginAtZero: true,
-// 							max: referencePercentage,
-// 							title: {
-// 								display: true,
-// 								text: 'Percentage (Relative Scale)',
-// 								font: {
-// 									weight: 'bold',
-// 								},
-// 							},
-// 							grid: {
-// 								color: 'rgba(0, 0, 0, 0.05)',
-// 							},
-// 							ticks: {
-// 								callback: (value) => `${value}%`,
-// 								stepSize: referencePercentage > 50 ? 10 : 2,
-// 							},
-// 						},
-// 						y: {
-// 							grid: {
-// 								display: false,
-// 							},
-// 							ticks: {
-// 								color: '#333',
-// 								font: {
-// 									weight: 500,
-// 									size: 12,
-// 								},
-// 								padding: 10,
-// 							},
-// 						},
-// 					},
-// 					animation: {
-// 						duration: 800,
-// 						easing: 'easeInOutQuad',
-// 					},
-// 					layout: {
-// 						padding: {
-// 							top: 40,
-// 							left: 20,
-// 							right: 20,
-// 							bottom: 20,
-// 						},
-// 					},
-// 				},
-// 			});
-// 		}
-
-// 		return () => {
-// 			if (chartInstance.current) {
-// 				chartInstance.current.destroy();
-// 			}
-// 		};
-// 	}, [data, totalLeads]);
-
-// 	return (
-// 		<Box
-// 			position='relative'
-// 			height='700px'
-// 			width='100%'
-// 			bg='white'
-// 			borderRadius='md'
-// 			p='4'
-// 			boxShadow='md'
-// 		>
-// 			<canvas ref={chartRef} />
-// 		</Box>
-// 	);
-// };
-
-// Register Chart.js components
-
-const LeadStatusStats = ({ doc }) => {
+const LeadStatusStats = ({ doc, listTop, setListTop }) => {
 	const { leadStatusStats: data, totalLeads } = doc;
 	const chartRef = useRef(null);
 	const chartInstance = useRef(null);
@@ -254,11 +92,31 @@ const LeadStatusStats = ({ doc }) => {
 						padding: { top: 10, bottom: 30 },
 					},
 					tooltip: {
+						enabled: true,
+						backgroundColor: 'white',
+						borderColor: '#E2E8F0',
+						borderWidth: 1,
+						borderRadius: 8,
+						padding: 12,
+						boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+						titleColor: '#1A202C',
+						titleFont: { size: 14, weight: '600' },
+						bodyColor: '#4A5568',
+						bodyFont: { size: 12 },
+						bodySpacing: 4,
 						callbacks: {
+							title: () => 'Info',
 							label: (context) => {
 								const item = sortedData[context.dataIndex];
-								return `Count: ${item.value} (${item.percent.toFixed(1)}%)`;
+								return `${item.label}: ${item.value || item.percent}`;
 							},
+							labelColor: () => ({
+								borderColor: 'transparent',
+								backgroundColor: '#3182CE',
+								borderRadius: '50%',
+								width: 8,
+								height: 8,
+							}),
 						},
 					},
 					datalabels: {
@@ -281,7 +139,6 @@ const LeadStatusStats = ({ doc }) => {
 						max: referencePercentage,
 						title: {
 							display: true,
-							text: 'Percentage (%)',
 							font: { weight: 'bold' },
 						},
 						grid: { color: 'rgba(0, 0, 0, 0.05)' },
@@ -391,9 +248,27 @@ const LeadStatusStats = ({ doc }) => {
 				boxShadow='sm'
 				my='2'
 			>
-				<Text fontSize='xl' fontWeight='bold' mb={1}>
-					Lead Status Summary
-				</Text>
+				<Box
+					display={'flex'}
+					justifyContent={'space-between'}
+					alignItems={'center'}
+				>
+					<Text fontSize='xl' fontWeight='bold' mb={1}>
+						Lead Status Summary
+					</Text>
+					<Select
+						value={listTop}
+						onChange={(e) => setListTop(e.target.value)}
+						size='sm'
+						width='150px'
+						focusBorderColor='brand.500'
+					>
+						<option value='all'>All</option>
+						<option value='2'>Top 2</option>
+						<option value='5'>Top 5</option>
+						<option value='10'>Top 10</option>
+					</Select>
+				</Box>
 				<canvas ref={chartRef} style={{ display: 'block' }} />
 			</Box>
 		)

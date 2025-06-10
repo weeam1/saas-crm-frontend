@@ -35,6 +35,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../../redux/imageSlice';
 import { setUser } from '../../../redux/localSlice';
 import webSocketService from 'services/WebSocketService';
+import { getSmartTimezone } from 'hooks/useTimezone';
 
 function SignIn() {
 	// Chakra color mode
@@ -88,6 +89,10 @@ function SignIn() {
 		};
 	}, [socket]);
 
+	useEffect(() => {
+		getSmartTimezone();
+	}, []);
+
 	// const login = async () => {
 	// 	try {
 	// 		setIsLoding(true);
@@ -112,7 +117,12 @@ function SignIn() {
 	const login = async () => {
 		try {
 			setIsLoding(true);
-			let response = await postApi('api/user/login', values, true);
+			const loginDetails = {
+				username: values?.username?.trim().toLowerCase(),
+				password: values.password,
+			};
+
+			let response = await postApi('api/user/login', loginDetails, true);
 
 			if (response && response.status === 200) {
 				const userActive = response?.data?.user?.isActive;

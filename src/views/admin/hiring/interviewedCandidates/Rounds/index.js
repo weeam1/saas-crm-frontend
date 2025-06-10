@@ -237,12 +237,7 @@ const InterviewedCandidates = () => {
 	return showContent ? (
 		<Loader />
 	) : (
-		<Box
-			marginTop={'-32px'}
-			marginLeft={'-4px'}
-			borderRadius={'0px'}
-			fontFamily="'DM Sans', sans-serif"
-		>
+		<Box fontFamily="'DM Sans', sans-serif">
 			<SearchTags removeTag={removeTag} searchTags={searchTags} />
 			<InterviewedRound
 				allData={allData}

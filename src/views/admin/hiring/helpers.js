@@ -18,7 +18,7 @@ export const genderOptions = [
 ];
 
 export const experienceYearsOptions = [
-	{ label: '0 Years', value: '0' },
+	{ label: 'Less then 1 Year', value: '0' },
 	{ label: '1 Year', value: '1' },
 	{ label: '2 Years', value: '2' },
 	{ label: '3 Years', value: '3' },
@@ -32,9 +32,9 @@ export const experienceYearsOptions = [
 ];
 
 export const getCurrentInterviewRound = (interview) => {
-	return interview?.doc?.isMultiRound && interview?.doc?.nextRound
-		? interview?.doc?.nextRound
-		: interview?.doc;
+	return interview?.isMultiRound && interview?.nextRound
+		? interview?.nextRound
+		: interview;
 };
 
 export const getInterviewStatusConfig = (status) => {

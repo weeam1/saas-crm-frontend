@@ -170,7 +170,7 @@ const InterviewedRound = ({
 				<HStack gap='2'>
 					<FaUserCheck w='14' h='14' />
 					<Heading size='md' color='gray.800'>
-						Final Interviewed
+						Multi-Round Interviewed
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={totalDocs || 0} />})
@@ -206,6 +206,7 @@ const InterviewedRound = ({
 				handleViewResult={handleViewResult}
 				handleViewCandidate={handleViewCandidate}
 				handleSendOffer={handleSendOffer}
+				refetch={refetch}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -244,6 +245,8 @@ const InterviewedRound = ({
 					data={interview}
 					interviewId={interviewId}
 					refetch={refetch}
+					mode='running'
+					title='Previous Result'
 				/>
 			)}
 		</Box>

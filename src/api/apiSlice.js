@@ -65,9 +65,10 @@ export const apiSlice = createApi({
 
     // DELETE request
     deleteItem: builder.mutation({
-      query: ({ path }) => ({
+      query: ({ path,body }) => ({
         url: path,
         method: "DELETE",
+        body
       }),
     }),
 
