@@ -21,11 +21,8 @@ import {
 	FaUserCircle,
 	FaDollarSign,
 	FaRegCopy,
-<<<<<<< HEAD
 	FaList,
 	FaPhone,
-=======
->>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -47,14 +44,11 @@ import MyAttendance from 'views/admin/attendance/components/myAttendance';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import SipDashboard from 'views/admin/sip/component/Dashboard';
 import SipHistory from 'views/admin/sip/component/History';
-<<<<<<< HEAD
 import SettingPage from 'views/admin/Listing/Component/settings/index';
 import AddListing from 'views/admin/Listing/Component/AddListing';
 import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
 import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
 import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
-=======
->>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 
 import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import CreateSurvey from 'views/admin/survey/CreateSurvey';
@@ -68,8 +62,8 @@ const Survey = React.lazy(() => import('views/admin/survey'));
 // My component
 const Contact = React.lazy(() => import('views/admin/contact'));
 const ContactView = React.lazy(() => import('views/admin/contact/View'));
-const ContactImport = React.lazy(() =>
-	import('views/admin/contact/components/ContactImport')
+const ContactImport = React.lazy(
+	() => import('views/admin/contact/components/ContactImport')
 );
 
 const User = React.lazy(() => import('views/admin/users'));
@@ -77,8 +71,8 @@ const UserView = React.lazy(() => import('views/admin/users/View'));
 
 const Property = React.lazy(() => import('views/admin/property'));
 const PropertyView = React.lazy(() => import('views/admin/property/View'));
-const PropertyImport = React.lazy(() =>
-	import('views/admin/property/components/PropertyImport')
+const PropertyImport = React.lazy(
+	() => import('views/admin/property/components/PropertyImport')
 );
 
 const Lead = React.lazy(() => import('views/admin/lead'));
@@ -86,32 +80,32 @@ const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const CallHistory = React.lazy(() => import('views/admin/callHistory'));
 const LeadCycle = React.lazy(() => import('views/admin/leadCycle'));
 const LeadView = React.lazy(() => import('views/admin/lead/View'));
-const LeadImport = React.lazy(() =>
-	import('views/admin/lead/components/LeadImport')
+const LeadImport = React.lazy(
+	() => import('views/admin/lead/components/LeadImport')
 );
 
 const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
 const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
-const InvoiceDevelopers = React.lazy(() =>
-	import('views/admin/invoice/developers')
+const InvoiceDevelopers = React.lazy(
+	() => import('views/admin/invoice/developers')
 );
 
-const DeveloperInvoices = React.lazy(() =>
-	import('views/admin/invoice/developers/DeveloperInvoices')
+const DeveloperInvoices = React.lazy(
+	() => import('views/admin/invoice/developers/DeveloperInvoices')
 );
 
 const Task = React.lazy(() => import('views/admin/task'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
-const OfficeSettings = React.lazy(() =>
-	import('views/admin/agencies/OfficeSetting')
+const OfficeSettings = React.lazy(
+	() => import('views/admin/agencies/OfficeSetting')
 );
 
-const TaskView = React.lazy(() =>
-	import('views/admin/task/components/taskView')
+const TaskView = React.lazy(
+	() => import('views/admin/task/components/taskView')
 );
 const Calender = React.lazy(() => import('views/admin/calender'));
 const Payments = React.lazy(() => import('views/admin/payments'));
@@ -120,8 +114,8 @@ const Role = React.lazy(() => import('views/admin/role'));
 const Document = React.lazy(() => import('views/admin/document'));
 
 const EmailHistory = React.lazy(() => import('views/admin/emailHistory'));
-const EmailHistoryView = React.lazy(() =>
-	import('views/admin/emailHistory/View')
+const EmailHistoryView = React.lazy(
+	() => import('views/admin/emailHistory/View')
 );
 
 const Meeting = React.lazy(() => import('views/admin/meeting'));
@@ -129,18 +123,18 @@ const MettingView = React.lazy(() => import('views/admin/meeting/View'));
 
 const Hiring = React.lazy(() => import('views/admin/hiring'));
 const Positions = React.lazy(() => import('views/admin/hiring/positions'));
-const OfferLetter = React.lazy(() =>
-	import('views/admin/hiring/interviewedCandidates/OfferLetter')
+const OfferLetter = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
 );
-const InterviewScreen = React.lazy(() =>
-	import('views/admin/hiring/interview/InterviewScreen')
+const InterviewScreen = React.lazy(
+	() => import('views/admin/hiring/interview/InterviewScreen')
 );
-const InterviewedCandidates = React.lazy(() =>
-	import('views/admin/hiring/interviewedCandidates')
+const InterviewedCandidates = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates')
 );
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
-const ShortListedCandidates = React.lazy(() =>
-	import('views/admin/hiring/shortListedCandidates')
+const ShortListedCandidates = React.lazy(
+	() => import('views/admin/hiring/shortListedCandidates')
 );
 
 const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
@@ -232,13 +226,6 @@ const routes = [
 		component: LeadPoolAdmin,
 	},
 
-	{
-		name: 'Expenses',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-		component: Expenses,
-	},
 	{
 		name: 'Announcement',
 		layout: [ROLE_PATH.superAdmin],
@@ -527,7 +514,6 @@ const routes = [
 	},
 
 	// ------------- Phone Routes ------------------------
-<<<<<<< HEAD
 	{
 		name: 'Call Logs',
 		layout: [ROLE_PATH.superAdmin],
@@ -645,18 +631,6 @@ const routes = [
 	// 	component: PhoneCall,
 	// },
 
-=======
-	// {
-	// 	name: 'Call',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/phone-call',
-	// 	icon: (
-	// 		<Icon as={PiPhoneCallBold} width='20px' height='20px' color='inherit' />
-	// 	),
-	// 	component: PhoneCall,
-	// },
-
->>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 	// {
 	// 	name: 'Call ',
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -807,7 +781,6 @@ const routes = [
 	// 	),
 	// 	component: DailyReport,
 	// },
-<<<<<<< HEAD
 	{
 		name: 'Reports',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -830,22 +803,6 @@ const routes = [
 		under: 'Reports',
 		component: TeamDetailsScreen,
 	},
-=======
-	// {
-	// 	name: 'Reporting and Analytics',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/reporting-analytics',
-	// 	icon: (
-	// 		<Icon
-	// 			as={MdInsertChartOutlined}
-	// 			width='20px'
-	// 			height='20px'
-	// 			color='inherit'
-	// 		/>
-	// 	),
-	// 	component: Report,
-	// },
->>>>>>> 201fe35d55bc8f86aac993a8703a86f4d50387b9
 
 	// ------------- user Routes ------------------------
 	{
@@ -908,38 +865,6 @@ const routes = [
 		path: '/sign-in',
 		icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
 		component: SignInCentered,
-	},
-
-	// ========================= sip layout ============================
-	{
-		name: 'Sip',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip',
-		icon: (
-			<Icon
-				as={FaRegCalendarCheck}
-				width='20px'
-				height='20px'
-				color='inherit'
-			/>
-		),
-		component: Sip,
-	},
-	{
-		name: 'Sip Dashboard',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/dashboard',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipDashboard,
-	},
-	{
-		name: 'Sip history',
-		layout: [ROLE_PATH.superAdmin],
-		path: '/sip/history',
-		under: 'Sip',
-		parentName: 'Sip',
-		component: SipHistory,
 	},
 ];
 
