@@ -11,6 +11,7 @@ import {
 import AdminNavbarLinks from 'components/navbar/NavbarLinksAdmin';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
 import { AiOutlineMenuFold } from 'react-icons/ai';
@@ -59,6 +60,7 @@ export default function AdminNavbar(props) {
 			setScrolled(false);
 		}
 	};
+
 	return (
 		<Box
 			position={navbarPosition}
@@ -78,7 +80,8 @@ export default function AdminNavbar(props) {
 			transition-property='box-shadow, background-color, filter, border'
 			transitionTimingFunction='linear, linear, linear, linear'
 			alignItems={{ xl: 'center' }}
-			display={secondary ? 'block' : 'flex'}
+			// display={secondary ? 'block' : 'flex'}
+			// display='flex'
 			justifyContent={{ xl: 'center' }}
 			lineHeight='25.6px'
 			mx='auto'
@@ -96,20 +99,16 @@ export default function AdminNavbar(props) {
 			top={{ base: '0px' }}
 			w={{
 				base: '100vw',
-				// base: 'calc(100vw - 0%)',
-				// md: 'calc(100vw - 0%)',
-				// lg: 'calc(100vw - 0%)',
-				// xl: openSidebar === true ? 'calc(100vw - 286px)' : 'calc(100vw - 80px)',
-				// '2xl': openSidebar === true ? 'calc(100vw - 286px)' : 'calc(100vw - 80px)'
 			}}
 			sx={{ boxShadow: '14px 17px 40px 4px rgba(112, 144, 176, 0.08)' }}
 		>
 			<Flex
 				w='100%'
-				flexDirection={{
-					sm: 'column',
-					md: 'row',
-				}}
+				// flexDirection={{
+				// 	sm: 'column',
+				// 	md: 'row',
+				// }}
+				justifyContent='space-between'
 				alignItems={{ xl: 'center' }}
 				mb={gap}
 			>
@@ -119,7 +118,66 @@ export default function AdminNavbar(props) {
 					display={'flex'}
 					alignItems={'center'}
 				>
-					{/*
+					<Box
+						display={{ base: 'none', xl: 'flex' }}
+						mx={4}
+						onClick={() => setOpenSidebar(!openSidebar)}
+						style={{ fontSize: '25px' }}
+					>
+						{openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
+					</Box>
+
+					<Box
+						as={RouterLink}
+						color={mainText}
+						to='/'
+						// display={{ base: 'flex', xl: 'none' }}
+					>
+						{BrandLogo ? (
+							<Image
+								style={{ height: '40px' }}
+								src={BrandLogo}
+								alt='Logo'
+								cursor='pointer'
+								objectFit='contain'
+								userSelect='none'
+								// my={2}
+							/>
+						) : (
+							<Heading my={4} ps={4} cursor={'pointer'} userSelect={'none'}>
+								CRM
+							</Heading>
+						)}
+					</Box>
+				</Box>
+				<Flex alignItems={'center'}>
+					<AdminNavbarLinks
+						setOpenSidebar={setOpenSidebar}
+						openSidebar={openSidebar}
+						onOpen={props.onOpen}
+						logoText={props.logoText}
+						secondary={props.secondary}
+						fixed={props.fixed}
+						scrolled={scrolled}
+						routes={routes}
+					/>
+				</Flex>
+			</Flex>
+			{secondary ? <Text color='white'>{message}</Text> : null}
+		</Box>
+	);
+}
+
+AdminNavbar.propTypes = {
+	brandText: PropTypes.string,
+	variant: PropTypes.string,
+	secondary: PropTypes.bool,
+	fixed: PropTypes.bool,
+	onOpen: PropTypes.func,
+};
+
+{
+	/*
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
 							<BreadcrumbLink as={rrd.Link} to='/admin/default' color={secondaryText}>
@@ -141,19 +199,16 @@ export default function AdminNavbar(props) {
 						</BreadcrumbItem>
 
 					</Breadcrumb>
-					*/}
-					<Box
-						display={{ base: 'none', xl: 'flex' }}
-						mx={4}
-						onClick={() => setOpenSidebar(!openSidebar)}
-						style={{ fontSize: '25px' }}
-					>
-						{openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
-					</Box>
-					<Flex display={{ base: 'none', xl: 'flex' }}>
+					*/
+}
+
+{
+	/* <Flex display={{ base: 'none', xl: 'flex' }}>
 						{/* {(largeLogo && largeLogo[0]?.logoLgImg) ||
-						(largeLogo && largeLogo[0]?.logoSmImg) ? ( */}
-						{BrandLogo ? (
+						(largeLogo && largeLogo[0]?.logoSmImg) ? ( */
+}
+{
+	/* {BrandLogo ? (
 							<Image
 								style={{
 									// width: openSidebar ? 'px' : '60px',
@@ -182,72 +237,5 @@ export default function AdminNavbar(props) {
 								CRM.
 							</Heading>
 						)}
-					</Flex>
-
-					<Link color={mainText} display={{ base: 'flex', xl: 'none' }}>
-						{/* {largeLogo && largeLogo[0]?.logoLgImg ? ( */}
-						{BrandLogo ? (
-							<Image
-								style={{ height: '40px' }}
-								src={BrandLogo}
-								alt='Logo'
-								cursor='pointer'
-								objectFit='contain'
-								userSelect='none'
-								// my={2}
-							/>
-						) : (
-							<Heading my={4} ps={4} cursor={'pointer'} userSelect={'none'}>
-								CRM
-							</Heading>
-						)}
-					</Link>
-
-					{/* <Link
-            color={mainText}
-            href="#"
-            pt="2px"
-            bg="inherit"
-            ps="30px"
-            display={{ sm: "none", xl: "flex" }}
-            borderRadius="inherit"
-            fontWeight="bold"
-            fontSize="34px"
-            _hover={{ color: { mainText } }}
-            _active={{
-              bg: "inherit",
-              transform: "none",
-              borderColor: "transparent",
-            }}
-            _focus={{
-              boxShadow: "none",
-            }}
-          >
-            {brandText}
-          </Link> */}
-				</Box>
-				<Flex alignItems={'center'} ms='auto' w={{ sm: '100%', md: 'unset' }}>
-					<AdminNavbarLinks
-						setOpenSidebar={setOpenSidebar}
-						openSidebar={openSidebar}
-						onOpen={props.onOpen}
-						logoText={props.logoText}
-						secondary={props.secondary}
-						fixed={props.fixed}
-						scrolled={scrolled}
-						routes={routes}
-					/>
-				</Flex>
-			</Flex>
-			{secondary ? <Text color='white'>{message}</Text> : null}
-		</Box>
-	);
+					</Flex>  */
 }
-
-AdminNavbar.propTypes = {
-	brandText: PropTypes.string,
-	variant: PropTypes.string,
-	secondary: PropTypes.bool,
-	fixed: PropTypes.bool,
-	onOpen: PropTypes.func,
-};

@@ -9,12 +9,9 @@ import {
 	Icon,
 	Button,
 } from '@chakra-ui/react';
-import Rating from 'components/shared/Rating';
 import { constant } from 'constant';
 import { FiTrendingUp, FiUsers } from 'react-icons/fi';
-import { HiOutlineArrowRightCircle } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
-import { calculatePerformance } from 'views/admin/reports-v2/helpers';
 import TeamProgress from './TeamProgress';
 import { buttonStyle } from 'utils/btn';
 
@@ -91,10 +88,11 @@ const TeamCard = ({ manager, index }) => {
 
 				<VStack align='start' spacing={0}>
 					<Text
-						fontSize={{ base: 'sm', md: 'md' }}
+						// fontSize={{ base: 'xs', md: 'sm' }}
+						fontSize={{ base: '10px', md: '16px' }}
 						fontWeight='bold'
 						color={textColor}
-						maxWidth={{ base: 'full', md: '250px' }}
+						maxWidth={{ base: '200px', md: '200px' }}
 						isTruncated
 					>
 						{manager?.fullName}

@@ -3,13 +3,18 @@ import { Box, Flex, Stack, Text } from '@chakra-ui/react';
 //   Custom components
 import Brand from 'components/sidebar/components/Brand';
 import Links from 'components/sidebar/components/Links';
-import SidebarCard from 'components/sidebar/components/SidebarCard';
-import React from 'react';
 
 // FUNCTIONS
 
 function SidebarContent(props) {
-	const { routes, setOpenSidebar, openSidebar, from, largeLogo } = props;
+	const {
+		routes,
+		setOpenSidebar,
+		openSidebar,
+		onSidebarClose,
+		from,
+		largeLogo,
+	} = props;
 	// SIDEBAR
 	return (
 		<Flex direction='column' height='100%' borderRadius='30px'>
@@ -26,6 +31,7 @@ function SidebarContent(props) {
 						key={routes}
 						openSidebar={openSidebar}
 						setOpenSidebar={setOpenSidebar}
+						onSidebarClose={onSidebarClose}
 					/>
 				</Box>
 			</Stack>

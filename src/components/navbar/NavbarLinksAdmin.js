@@ -132,7 +132,7 @@ export default function HeaderLinks(props) {
 
 	return (
 		<Flex
-			w={{ sm: '100%', md: 'auto' }}
+			// w={{ sm: '100%', md: 'auto' }}
 			alignItems='center'
 			justifyContent={'end'}
 			flexDirection='row'
@@ -142,7 +142,7 @@ export default function HeaderLinks(props) {
 			// borderRadius='30px'
 			// boxShadow={shadow}
 		>
-			<Flex
+			{/* <Flex
 				bg={ethBg}
 				display={secondary ? 'flex' : 'none'}
 				borderRadius='30px'
@@ -175,7 +175,7 @@ export default function HeaderLinks(props) {
 						ETH
 					</Text>
 				</Text>
-			</Flex>
+			</Flex> */}
 
 			<SidebarResponsive
 				routes={routes}
