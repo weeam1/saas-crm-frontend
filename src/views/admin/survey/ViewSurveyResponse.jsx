@@ -240,8 +240,8 @@ const ViewSurveyResponse = () => {
 		if (userId !== currentUserId) {
 			setCurrentUserId(userId);
 			onClose();
-			refetchResponse();
-			refetch();
+			// refetchResponse();
+			// refetch();
 		}
 	};
 	if (isLoadingSurvey) return <ViewSurveyResponseLoading />;
