@@ -57,15 +57,17 @@ export default function Default(props) {
 				</Flex>
 
 				<Stat my='auto' mt={3}>
-					<StatNumber
-						ms={2}
-						color={active ? 'white' : textColor}
-						fontSize={{
-							base: '2xl',
-						}}
-					>
-						<CountUpComponent targetNumber={formatValue} />
-					</StatNumber>
+					{value && (
+						<StatNumber
+							ms={2}
+							color={active ? 'white' : textColor}
+							fontSize={{
+								base: '2xl',
+							}}
+						>
+							<CountUpComponent targetNumber={formatValue} />
+						</StatNumber>
+					)}
 
 					{growth ? (
 						<Flex align='center'>

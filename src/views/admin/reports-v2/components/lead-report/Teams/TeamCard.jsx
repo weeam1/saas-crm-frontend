@@ -88,8 +88,8 @@ const TeamCard = ({ manager, index }) => {
 
 				<VStack align='start' spacing={0}>
 					<Text
-						// fontSize={{ base: 'xs', md: 'sm' }}
-						fontSize={{ base: '10px', md: '14px' }}
+						fontSize={{ base: 'sm', md: 'md' }}
+						// fontSize={{ base: '14px', md: '18px' }}
 						fontWeight='bold'
 						color={textColor}
 						maxWidth={{ base: '200px', md: '200px' }}
@@ -98,7 +98,7 @@ const TeamCard = ({ manager, index }) => {
 						{manager?.fullName}
 					</Text>
 					<Text
-						fontSize={{ base: '10px', md: '12px' }}
+						fontSize={{ base: '12px', md: '14px' }}
 						color={useColorModeValue('gray.500', 'gray.400')}
 						maxWidth={{ base: '250px', md: '250px' }}
 						isTruncated

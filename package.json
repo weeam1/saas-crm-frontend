@@ -27,6 +27,7 @@
 		"browser-image-compression": "^2.0.2",
 		"chakra-dayzed-datepicker": "^0.3.0",
 		"chakra-ui-autocomplete": "^1.4.5",
+		"chart.js": "^4.4.9",
 		"crypto-js": "^4.2.0",
 		"date-fns": "^4.1.0",
 		"dayzed": "^3.2.3",
