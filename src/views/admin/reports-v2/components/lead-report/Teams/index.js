@@ -46,7 +46,7 @@ const TeamList = () => {
 						'@media screen and (min-width: 1280px)': {
 							gridTemplateColumns: 'repeat(3, 1fr)', // xl
 						},
-						'@media screen and (min-width: 1536px)': {
+						'@media screen and (min-width: 1680px)': {
 							gridTemplateColumns: 'repeat(4, 1fr)', // 2xl (custom)
 						},
 						// >= 1920px (e.g., Full HD+)
