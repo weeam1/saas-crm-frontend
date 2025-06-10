@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useCreateItemMutation } from 'api/apiSlice';
 import * as yup from 'yup';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -63,7 +64,10 @@ const AddEntryModal = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [createItemMutation, { isLoading: mutationLoading }] =
 		useCreateItemMutation();
-
+	const location = useLocation();
+	const navigate = useNavigate();
+	const queryParams = new URLSearchParams(location.search);
+	const incomingPayment = queryParams.get('incomingPayment');
 	const initialValues = {
 		unit_no: '',
 		name_of_referring_party: '',
@@ -477,7 +481,7 @@ const AddEntryModal = (props) => {
 									height='40px'
 								/>
 							</GridItem>
-							<GridItem colSpan={{ base: 12, md: 6 }}>
+							{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 								<FormLabel
 									fontSize='14px'
 									fontWeight='medium'
@@ -498,7 +502,7 @@ const AddEntryModal = (props) => {
 									borderRadius='6px'
 									height='40px'
 								/>
-							</GridItem>
+							</GridItem> */}
 						</Grid>
 					</form>
 				</ModalBody>
