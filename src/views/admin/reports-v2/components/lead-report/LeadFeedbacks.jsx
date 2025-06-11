@@ -6,7 +6,8 @@ import LeadMainStatusChart from './LeadMainStatusChart';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import TopFilter from '../TopFilter';
 import { viewOptions } from '../../helpers';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
+
 import NoData from 'components/Message/NoData';
 
 const LeadFeedbacks = () => {

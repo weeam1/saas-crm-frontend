@@ -126,7 +126,7 @@ const EditNote = ({
 							onClick={handleEditNote}
 							disabled={isUpdating || !noteValue.trim() ? true : false}
 						>
-							{isUpdating ? <Spinner /> : 'Update'}
+							{isUpdating ? 'Updating...' : 'Update'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

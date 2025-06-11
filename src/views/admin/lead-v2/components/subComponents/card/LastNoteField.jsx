@@ -13,7 +13,7 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
-import CustomTooltip from '../CustomTooltip';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const LastNoteField = ({ label, value }) => {
 	const labelColor = useColorModeValue('softGray.200', 'gray.300');

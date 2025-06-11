@@ -8,15 +8,13 @@ import {
 	ResponsiveContainer,
 	LabelList,
 	Cell,
-	Legend,
-	PieChart,
 } from 'recharts';
 import { Box, Text, Flex } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
+
 import NoData from 'components/Message/NoData';
-import { Pie } from 'react-chartjs-2';
 
 const CustomTooltip = ({ active, payload }) => {
 	if (!active || !payload || !payload.length) return null;

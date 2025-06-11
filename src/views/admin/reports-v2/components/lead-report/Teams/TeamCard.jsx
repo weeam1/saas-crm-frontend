@@ -12,7 +12,6 @@ import {
 import { constant } from 'constant';
 import { FiTrendingUp, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import TeamProgress from './TeamProgress';
 import { buttonStyle } from 'utils/btn';
 
 const TeamCard = ({ manager, index }) => {

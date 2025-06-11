@@ -18,18 +18,13 @@ import {
 	CartesianGrid,
 	Tooltip,
 	Legend,
-	ResponsiveContainer,
-	PieChart,
-	Pie,
-	Cell,
-	LabelList,
 } from 'recharts';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import SafeResponsiveChart from './SafeResponsiveChart';
 import TopFilter from '../TopFilter';
 import { PERIOD_OPTIONS } from '../../helpers';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
+
 import NoData from 'components/Message/NoData';
 import RefButton from '../RefButton';
 

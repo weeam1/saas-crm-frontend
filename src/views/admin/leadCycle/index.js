@@ -8,6 +8,8 @@ import {
 	CircularProgress,
 	Flex,
 	Heading,
+	Icon,
+	Text,
 	useColorModeValue,
 } from '@chakra-ui/react';
 import { HSeparator } from 'components/separator/Separator';
@@ -25,6 +27,8 @@ import {
 import Spinner from 'components/spinner/Spinner';
 import { useStateContext } from 'contexts/store';
 import Loader from 'components/loading/Loader';
+import CardShimmer from 'components/loading/CardShimmer';
+import { FiClock } from 'react-icons/fi';
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
 		this.type = type;
@@ -44,8 +48,6 @@ const LeadCycle = ({}) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const { isLeadCycle, setIsLeadCycle } = useStateContext();
 
-	console.log('LOADING STATUS: ', loading);
-
 	const fetchData = async () => {
 		try {
 			console.log('fetching data ');
@@ -56,11 +58,8 @@ const LeadCycle = ({}) => {
 
 			const timelineData = [];
 			let createdByName = 'Unknown';
-			if (response.lead?.createBy?.firstName) {
-				createdByName =
-					response.lead.createBy.firstName +
-					' ' +
-					response.lead.createBy.lastName;
+			if (response.lead?.createBy?.fullName) {
+				createdByName = response.lead.createBy.fullName;
 			}
 			const leadCreatedItem = new TimelineItem(
 				'creation',
@@ -74,7 +73,7 @@ const LeadCycle = ({}) => {
 					const newCallItem = new TimelineItem(
 						updated.type,
 						updated.updatedAt,
-						updated.updatedBy?.firstName + ' ' + updated.updatedBy?.lastName,
+						updated.updatedBy?.fullName,
 						updated.updatedData
 					);
 					timelineData.push(newCallItem);
@@ -99,47 +98,48 @@ const LeadCycle = ({}) => {
 	return (
 		<>
 			<Modal
-				size='2xl'
+				size='3xl'
 				onClose={() => setIsLeadCycle({ isOpen: false, id: null })}
 				isOpen={isLeadCycle?.isOpen}
 				isCentered
 			>
 				<ModalOverlay />
-				<ModalContent>
+				<ModalContent m='2'>
 					<ModalHeader>Lead Cycle</ModalHeader>
-					<ModalCloseButton />
+					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody overflow='hidden' width='100%'>
 						<Box
 							width='100%'
-							m='0'
-							background='brand'
-							maxH='400px' // Set max height for the modal body
-							overflowY='auto' // Enable vertical scrolling when content exceeds max height
-							sx={{
-								'&::-webkit-scrollbar': {
-									width: '6px', // Custom scrollbar width
-								},
-								'&::-webkit-scrollbar-thumb': {
-									background: 'brand.500', // Custom brand color (adjust according to your theme)
-									borderRadius: '8px',
-								},
-								'&::-webkit-scrollbar-thumb:hover': {
-									background: 'brand.600', // Slightly darker on hover
-								},
-							}}
+							p='4'
+							h={{ base: '50vh', md: '70vh' }}
+							scrollBehavior='smooth'
+							overflowY='scroll'
 						>
 							{loading ? (
-								<Loader />
+								<CardShimmer
+									count={6}
+									height='100px'
+									columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
+								/>
 							) : (
-								<div>
-									{/* <Heading size="lg" mb={4}>
-                    Lead Cycle for <small>{leadName}</small>
-                  </Heading> */}
-									<HSeparator />
-									<Box mt={5} pl={10}>
-										<LeadHistoryTimeline timelineData={data} />
-									</Box>
-								</div>
+								<>
+									{/* <Flex align='center' mb={6}>
+										<Icon as={FiClock} color='brand.500' boxSize={6} mr={3} />
+										<Box>
+											<Text
+												fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+												fontWeight='bold'
+											>
+												Lead Activity Timeline
+											</Text>
+											<Text color='gray.600' fontSize='sm' mt={1}>
+												Complete history for <strong>{leadName}</strong>
+											</Text>
+										</Box>
+									</Flex>
+									<HSeparator mb={6} /> */}
+									<LeadHistoryTimeline timelineData={data} />
+								</>
 							)}
 						</Box>
 					</ModalBody>

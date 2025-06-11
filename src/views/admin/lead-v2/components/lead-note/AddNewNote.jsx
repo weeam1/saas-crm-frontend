@@ -110,7 +110,7 @@ const AddNewNote = ({
 							onClick={handleAddNote}
 							disabled={isLoding || !noteValue.trim() ? true : false}
 						>
-							{isLoding ? <Spinner /> : 'Add'}
+							{isLoding ? 'Loading...' : 'Add'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

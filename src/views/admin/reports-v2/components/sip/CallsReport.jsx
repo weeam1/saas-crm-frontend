@@ -28,7 +28,7 @@ import { dayOptions } from '../../helpers';
 import { StatCard } from '../StatCard';
 import RefButton from '../RefButton';
 import { useLocation } from 'react-router-dom';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const formatSeconds = (seconds) => {
 	const hrs = Math.floor(seconds / 3600);

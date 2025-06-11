@@ -1,10 +1,8 @@
-import { useSelector } from 'react-redux';
 import { Box, SimpleGrid, Text } from '@chakra-ui/react';
 import TeamCard from './TeamCard';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import NoData from 'components/Message/NoData';
-import CardShimmer from '../../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const TeamList = () => {
 	const { data, isLoading } = useFetchItemsQuery(

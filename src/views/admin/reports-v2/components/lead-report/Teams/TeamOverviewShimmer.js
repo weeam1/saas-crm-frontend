@@ -7,7 +7,7 @@ import {
 	HStack,
 } from '@chakra-ui/react';
 import ShimmerSkeleton from 'components/loading/ShimmerSkeleton';
-import CardShimmer from '../../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const TeamOverviewShimmer = () => {
 	return (

@@ -7,13 +7,13 @@ import {
 	Tooltip,
 	CartesianGrid,
 } from 'recharts';
-import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useEffect, useMemo, useState } from 'react';
-import CardShimmer from '../CardShimmer';
+import { useMemo, useState } from 'react';
 import NoData from 'components/Message/NoData';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const AttendanceAreaChart = () => {
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
