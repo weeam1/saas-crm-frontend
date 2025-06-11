@@ -110,7 +110,7 @@ const LeadCycle = ({}) => {
 					<ModalBody overflow='hidden' width='100%'>
 						<Box
 							width='100%'
-							p='4'
+							p='2'
 							h={{ base: '50vh', md: '70vh' }}
 							scrollBehavior='smooth'
 							overflowY='scroll'

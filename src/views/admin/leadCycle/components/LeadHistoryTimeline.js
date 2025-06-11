@@ -144,8 +144,13 @@ export default function LeadHistoryTimeline({ timelineData }) {
 					/>
 
 					{/* Timeline content */}
-					<Box flex={1} px={4} py='1'>
-						<Flex justify='space-between' align='center' mb={2}>
+					<Box flex={1} pr='2' py='1'>
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							justify='space-between'
+							align={{ base: 'flex-start', md: 'center' }}
+							mb={2}
+						>
 							<Badge
 								colorScheme={getBadgeColor(item.type)}
 								variant='subtle'
@@ -153,20 +158,25 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								shadow='sm'
 								px={2}
 								py={1}
-								fontSize='xs'
+								fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
 								textTransform='uppercase'
 							>
 								{getTypeLabel(item.type)}
 							</Badge>
-							<Text fontSize='sm' color='gray.500'>
+							<Text fontSize={{ base: '10px', md: 'sm' }} color='gray.500'>
 								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
 							</Text>
 						</Flex>
 
-						<Box bg='white' p={4} borderRadius='lg' boxShadow='sm'>
+						<Box
+							bg='white'
+							p={{ base: 2, md: 4 }}
+							borderRadius='lg'
+							boxShadow='sm'
+						>
 							{/* Dynamic content based on type */}
 							{item.type === 'creation' && (
-								<Text fontSize='md'>
+								<Text fontSize={{ base: 'sm', md: 'md' }}>
 									🎯 <strong>Lead created</strong> by{' '}
 									<Text as='span' color='blue.500' fontWeight='600'>
 										{item?.updatedBy}
@@ -177,18 +187,18 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							{(item.type === 'assignment-manager' ||
 								item.type === 'assignment-agent') && (
 								<Box>
-									<Text fontSize='md' mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
-										<strong>
+										{/* <strong>
 											Assigned to{' '}
 											{item.type === 'assignment-manager' ? 'manager' : 'agent'}
 											:
-										</strong>{' '}
+										</strong>{' '} */}
 										<Text as='span' color='teal.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 										By{' '}
 										<Text as='span' color='brand.500'>
 											{item?.updatedBy}
@@ -199,13 +209,14 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'status' && (
 								<Box>
-									<Text fontSize='md' mb={1}>
-										🔄 <strong>Status changed to:</strong>{' '}
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										{/* <strong>Status changed to:</strong>{' '} */}
 										<Text as='span' color='purple.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 										By{' '}
 										<Text as='span' color='brand.500'>
 											{item?.updatedBy}
@@ -216,13 +227,14 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'mStatus' && (
 								<Box>
-									<Text fontSize='md' mb={1}>
-										🔄 <strong>Main Status changed to:</strong>{' '}
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										{/* <strong>Main Status changed to:</strong>{' '} */}
 										<Text as='span' color='brand.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 										By{' '}
 										<Text as='span' color='brand.500'>
 											{item?.updatedBy}
@@ -233,13 +245,14 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'lead-buy' && (
 								<Box>
-									<Text fontSize='md' mb={1}>
-										💰 <strong>Lead purchased by:</strong>{' '}
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										💰
+										{/* <strong>Lead purchased by:</strong>{' '} */}
 										<Text as='span' color='green.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 										By{' '}
 										<Text as='span' color='brand.500'>
 											{item?.updatedBy}

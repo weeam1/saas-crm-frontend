@@ -73,25 +73,21 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
 						</HStack>
 						{user?.role === 'superAdmin' && (
 							<Box display='flex' gap={1}>
-								<CustomTooltip label='Edit Note' hasArrow>
-									<IconButton
-										aria-label='Edit Note'
-										icon={<FiEdit />}
-										size='sm'
-										variant='ghost'
-										onClick={() => onEdit(note)}
-									/>
-								</CustomTooltip>
+								<IconButton
+									aria-label='Edit Note'
+									icon={<FiEdit />}
+									size='sm'
+									variant='ghost'
+									onClick={() => onEdit(note)}
+								/>
 
-								<CustomTooltip label='Delete Note' hasArrow position='top'>
-									<IconButton
-										aria-label='Delete Note'
-										icon={<FiTrash2 />}
-										size='sm'
-										variant='ghost'
-										onClick={() => setDeleteModalOpen(true)}
-									/>
-								</CustomTooltip>
+								<IconButton
+									aria-label='Delete Note'
+									icon={<FiTrash2 />}
+									size='sm'
+									variant='ghost'
+									onClick={() => setDeleteModalOpen(true)}
+								/>
 							</Box>
 						)}
 					</Flex>
