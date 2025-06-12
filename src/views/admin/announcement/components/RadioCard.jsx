@@ -16,15 +16,17 @@ const RadioCard = (props) => {
 				borderWidth='1px'
 				borderRadius='md'
 				boxShadow='md'
+				bg='softGray.100'
 				_checked={{
 					bg: 'brand.500',
 					color: 'white',
 					borderColor: 'brand.500',
 				}}
 				_focus={{
-					boxShadow: 'outline',
+					// boxShadow: 'outline',
+					outline: 'none',
 				}}
-				px={4}
+				px={{ base: 3, md: 6 }}
 				py={2}
 				textAlign='center'
 			>

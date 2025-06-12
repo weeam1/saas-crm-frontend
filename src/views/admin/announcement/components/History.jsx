@@ -1,21 +1,19 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { toast } from "react-toastify";
-import AnnouncementList from "./AnnouncementList";
-import useFetchAnnouncements from "hooks/useFetchAnnouncements";
+import { toast } from 'react-toastify';
+import AnnouncementList from './AnnouncementList';
+import useFetchAnnouncements from 'hooks/useFetchAnnouncements';
 
 const History = ({ user }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10; // Number of announcements per page
 
 	// Use the custom hook
-	const { list, loading, totalPages } = useFetchAnnouncements(
+	const { list, loading, totalPages, totalResults } = useFetchAnnouncements(
 		user?._id,
 		currentPage,
 		itemsPerPage
 	);
-
-	console.log({ list });
 
 	const handleViewMore = () => {
 		setCurrentPage((prevPage) => prevPage + 1);
@@ -23,7 +21,7 @@ const History = ({ user }) => {
 
 	const handleCopy = (message) => {
 		navigator.clipboard.writeText(message).then(() => {
-			toast.success("The message has been copied successfully.");
+			toast.success('The message has been copied successfully.');
 		});
 	};
 
@@ -33,6 +31,7 @@ const History = ({ user }) => {
 			list={list}
 			currentPage={currentPage}
 			totalPages={totalPages}
+			totalResults={totalResults}
 			handleCopy={handleCopy}
 			handleViewMore={handleViewMore}
 		/>

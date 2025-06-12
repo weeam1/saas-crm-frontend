@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify"; // Ensure you have the react-toastify library
-import keys from "config/keys";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify'; // Ensure you have the react-toastify library
+import keys from 'config/keys';
 
 const useFetchAnnouncements = (userId, currentPage, itemsPerPage) => {
 	const [list, setList] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [totalPages, setTotalPages] = useState(0);
+	const [totalResults, setTotalResults] = useState(0);
 
 	const getAnnouncements = async () => {
 		setLoading(true);
@@ -21,15 +22,16 @@ const useFetchAnnouncements = (userId, currentPage, itemsPerPage) => {
 				// Append new announcements to the existing list
 				setList((prevList) => [...prevList, ...data.announcements]);
 				setTotalPages(data.total_pages);
+				setTotalResults(data?.total_announcements);
 			} else {
 				setList([]); // Clear list if no announcements
 				setTotalPages(0);
 			}
 		} catch (error) {
 			if (error.response?.status === 307) {
-				console.log("Redirected to:", error.response.headers.location);
+				console.log('Redirected to:', error.response.headers.location);
 			} else {
-				toast.error("Failed to fetch announcements.");
+				toast.error('Failed to fetch announcements.');
 			}
 		} finally {
 			setLoading(false);
@@ -43,7 +45,7 @@ const useFetchAnnouncements = (userId, currentPage, itemsPerPage) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [userId, currentPage]);
 
-	return { list, loading, totalPages };
+	return { list, loading, totalPages, totalResults };
 };
 
 export default useFetchAnnouncements;

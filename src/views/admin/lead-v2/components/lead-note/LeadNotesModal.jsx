@@ -103,7 +103,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='5xl' isCentered>
 			<ModalOverlay />
-			<ModalContent mx='1'>
+			<ModalContent m='2'>
 				<ModalHeader>
 					<Flex justify='space-between' align='center' pt='8'>
 						<Text>Lead Notes</Text>
@@ -124,7 +124,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody>
 					<Box
-						h={{ base: '50vh', md: '70vh' }}
+						h={{ base: '50vh', md: '60vh', lg: '70vh' }}
 						overflow='scroll'
 						scrollBehavior='smooth'
 						p='2'
