@@ -23,6 +23,9 @@ import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { FiSearch } from "react-icons/fi";
+import ActiveFiltersDisplay from "./Component/ActiveFiltersDisplay";
+import AdvancedSearchModal from "./Component/AdvancedSearchModal";
 
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
@@ -32,7 +35,12 @@ const formatTime = (time) => {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
-const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId }) => {
+const AudioPlayer = ({
+  url,
+  currentlyPlayingId,
+  setCurrentlyPlayingId,
+  playerId,
+}) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -56,7 +64,7 @@ const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId 
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    
+
     if (isPlaying) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0; // Reset to beginning when manually paused
@@ -183,8 +191,11 @@ export default function CallHistory() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null); // Track currently playing audio
-  
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+
   const columns = [
     "Call id",
     "Call date",
@@ -198,25 +209,43 @@ export default function CallHistory() {
     "Talk Duration",
   ];
 
-  const loadCalls = async (page, pageSize) => {
+  const buildQueryParams = useCallback(() => {
+    const params = {
+      page: page,
+      limit: pageSize,
+    };
+
+    if (filters.all_from) params.all_from = filters.all_from;
+    if (filters.call_to) params.call_to = filters.call_to;
+    if (filters.clid) params.clid = filters.clid;
+    if (filters.start_date) params.start_date = filters.start_date;
+    if (filters.end_date) params.end_date = filters.end_date;
+    if (filters.disposition) params.disposition = filters.disposition;
+
+    return params;
+  }, [page, pageSize, filters]);
+
+  const loadCalls = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await fetchCallHistoryData(page, pageSize);
+      const params = buildQueryParams();
+      const data = await fetchCallHistoryData(params);
+
       setCalls(data.data || []);
-      setTotalItems(data.total_records);
-      setTotalPages(data.total_pages);
-      setPage(data.page);
-      setPageSize(data.page_size);
+      setTotalItems(data.total_records || 0);
+      setTotalPages(data.total_pages || 1);
+      if (data.page) setPage(data.page);
+      if (data.page_size) setPageSize(data.page_size);
     } catch (err) {
       setError("Failed to fetch call history");
     } finally {
       setLoading(false);
     }
-  };
+  }, [buildQueryParams]);
 
   useEffect(() => {
-    loadCalls(page, pageSize);
-  }, [page, pageSize]);
+    loadCalls();
+  }, [loadCalls]);
 
   const handlePageChange = useCallback((newPage) => {
     setPage(newPage);
@@ -232,6 +261,32 @@ export default function CallHistory() {
     setCurrentlyPlayingId(playerId);
   }, []);
 
+  const handleClearFilters = useCallback((filterKey) => {
+    if (filterKey) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters[filterKey];
+        return newFilters;
+      });
+    } else {
+      setFilters({});
+    }
+    setPage(1);
+    setFilterChanged((prev) => !prev);
+  }, []);
+
+  const handleApplyFilters = useCallback((newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined && value !== null
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setPage(1);
+    setFilterChanged((prev) => !prev);
+  }, []);
+
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
@@ -245,6 +300,27 @@ export default function CallHistory() {
       marginTop={"-16px"}
       marginLeft={"-4px"}
     >
+      <Flex
+        justifyContent={{ base: "flex-end", sm: "flex-end", lg: "flex-end" }}
+        m={3}
+      >
+        <IconButton
+          icon={<FiSearch />}
+          onClick={() => setIsFilterOpen(true)}
+          aria-label="Search Listings"
+          colorScheme="brand"
+          variant="solid"
+          size="sm"
+          borderRadius="full"
+          boxShadow="md"
+        />
+      </Flex>
+      <Box m={3}>
+        <ActiveFiltersDisplay
+          filters={filters}
+          onClearFilters={handleClearFilters}
+        />
+      </Box>
       <Pagination
         currentPage={page}
         totalPages={totalPages}
@@ -416,6 +492,13 @@ export default function CallHistory() {
           </Tbody>
         </Table>
       </Box>
+      <AdvancedSearchModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={filters}
+        clearFilter={filterChanged}
+      />
     </Box>
   );
 }
