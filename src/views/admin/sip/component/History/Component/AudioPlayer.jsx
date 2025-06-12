@@ -1,0 +1,167 @@
+import { useEffect, useRef, useState } from "react";
+import WaveSurfer from "wavesurfer.js";
+import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
+import { FaPlay, FaPause } from "react-icons/fa";
+
+const formatTime = (seconds) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId }) => {
+  const waveformRef = useRef(null);
+  const wavesurferRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [error, setError] = useState(null);
+
+  const isCurrentlyPlaying = currentlyPlayingId === playerId;
+
+  const validateAudio = async (audioUrl) => {
+    try {
+      const response = await fetch(audioUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioContext = new AudioContext();
+      await audioContext.decodeAudioData(arrayBuffer);
+      audioContext.close();
+      return true;
+    } catch (err) {
+      console.error("Audio validation failed:", err);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    let wavesurfer;
+
+    (async () => {
+      if (!url || !waveformRef.current) return;
+
+      const isValid = await validateAudio(url);
+      if (!isValid) {
+        setError("Audio is corrupted or unsupported");
+        return;
+      }
+
+      wavesurfer = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: "#CBD5E0",
+        progressColor: "#000",
+        cursorColor: "transparent",
+        barWidth: 2,
+        barRadius: 2,
+        height: 80,
+        responsive: true,
+        backend: "WebAudio",
+      });
+
+      wavesurferRef.current = wavesurfer;
+
+      wavesurfer.load(url);
+
+      wavesurfer.on("ready", () => {
+        setDuration(wavesurfer.getDuration());
+        setError(null);
+      });
+
+      wavesurfer.on("audioprocess", () => {
+        setCurrentTime(wavesurfer.getCurrentTime());
+      });
+
+      wavesurfer.on("seek", () => {
+        setCurrentTime(wavesurfer.getCurrentTime());
+      });
+
+      wavesurfer.on("finish", () => {
+        setIsPlaying(false);
+        setCurrentlyPlayingId(null);
+      });
+
+      wavesurfer.on("error", (err) => {
+        console.error("WaveSurfer error:", err);
+        setError("Audio is corrupted or unsupported");
+      });
+    })();
+
+    return () => {
+      wavesurfer?.destroy();
+    };
+  }, [url]);
+
+useEffect(() => {
+  if (!isCurrentlyPlaying && isPlaying) {
+    const ws = wavesurferRef.current;
+    if (ws) {
+      ws.pause();
+      ws.seekTo(0); 
+    }
+    setIsPlaying(false);
+  }
+}, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
+
+
+  const togglePlay = () => {
+    if (!wavesurferRef.current || error) return;
+
+    if (isPlaying) {
+      wavesurferRef.current.pause();
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
+    } else {
+      setCurrentlyPlayingId(playerId);
+      wavesurferRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  if (error) {
+    return (
+      <Flex align="center" gap={4} p={3} bg="transparent" borderRadius="md">
+        <Text fontSize="md" color="red.500" fontWeight="medium">
+          {error}
+        </Text>
+      </Flex>
+    );
+  }
+
+  return (
+    <Flex
+      align="center"
+      gap={4}
+      p={3}
+      bg="transparent"
+      borderRadius="md"
+      w="100%"
+      maxW="800px"
+    >
+      <IconButton
+        aria-label={isPlaying ? "Pause" : "Play"}
+        icon={isPlaying ? <FaPause size="18px" /> : <FaPlay size="18px" />}
+        size="lg"
+        onClick={togglePlay}
+        bg="transparent"
+        color="gray.500"
+        borderRadius="full"
+        w="40px"
+        h="40px"
+        minW="40px"
+        _hover={{ bg: "gray.100" }}
+      />
+      <Box
+        ref={waveformRef}
+        flex="1"
+        h="80px"
+        minW="0"
+        cursor="pointer"
+        onClick={togglePlay}
+      />
+      <Text fontSize="sm" minW="50px" textAlign="right" color="gray.700">
+        {formatTime(duration - currentTime)}
+      </Text>
+    </Flex>
+  );
+};
+
+export default AudioPlayer;
