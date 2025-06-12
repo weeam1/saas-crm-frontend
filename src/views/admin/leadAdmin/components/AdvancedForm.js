@@ -23,7 +23,14 @@ const AdvancedSearchForm = (props) => {
 	} = props;
 
 	const user = JSON.parse(localStorage.getItem('user')) || userProp;
-	const { agents } = useFetchUserHierarchy(user);
+	// const { agents } = useFetchUserHierarchy(user);
+
+	const getAllAgents = (tree) => {
+		const agentsList = Object.values(tree?.agents || {}).flat();
+		return agentsList;
+	};
+
+	const agents = getAllAgents(tree);
 
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.[0]?.roleName === 'Agent';
@@ -273,7 +280,7 @@ const AdvancedSearchForm = (props) => {
 							<option value=''>Select agent</option>
 							{agents?.map((agent) => (
 								<option key={agent._id} value={agent._id}>
-									{agent?.name}
+									{agent?.fullName}
 								</option>
 							))}
 							<option value={-1}>No Agent</option>

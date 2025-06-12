@@ -14,6 +14,7 @@ import {
 	ModalCloseButton,
 	Flex,
 	Button,
+	HStack,
 } from '@chakra-ui/react';
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -28,6 +29,7 @@ import { useDispatch } from 'react-redux';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
@@ -106,7 +108,16 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 			<ModalContent m='2'>
 				<ModalHeader>
 					<Flex justify='space-between' align='center' pt='8'>
-						<Text>Lead Notes</Text>
+						<HStack
+							gap='1'
+							color='gray.800'
+							fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+							fontWeight='600'
+							mb='4'
+						>
+							<Text>Lead Notes</Text>
+							<CountUpComponent targetNumber={allNotes?.length || 0} />
+						</HStack>
 						<Button
 							{...buttonStyle}
 							variant='solid'

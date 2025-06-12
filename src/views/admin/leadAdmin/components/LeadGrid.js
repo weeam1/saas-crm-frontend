@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Grid, Text } from '@chakra-ui/react';
 import LeadCard from '../Leads/LeadCard';
+import NoData from 'components/Message/NoData';
 
 const LeadGrid = ({ leads, approveChangeHandler }) => {
 	const gridColumns =
@@ -44,21 +45,8 @@ const LeadGrid = ({ leads, approveChangeHandler }) => {
 					))}
 				</Grid>
 			) : (
-				<Box
-					display='flex'
-					justifyContent='center'
-					alignItems='center'
-					minH='200px'
-					p={4}
-				>
-					<Text
-						fontSize='lg'
-						color='gray.500'
-						fontFamily='DM Sans'
-						textAlign='center'
-					>
-						No data found
-					</Text>
+				<Box textAlign='center'>
+					<NoData label='leads' />
 				</Box>
 			)}
 		</Box>

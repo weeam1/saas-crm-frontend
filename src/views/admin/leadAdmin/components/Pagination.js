@@ -41,12 +41,13 @@ const Pagination = ({
 	setFormValues,
 	isFormReset,
 	setIsFormReset,
+	tagValues,
 	setGetTagValues,
 	clearAdvancedSearch,
 	approveChangeHandler,
 	formValues = {},
 	isAgent,
-	searchNotFound,
+	// searchNotFound,
 	isSuperAdmin,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage || 1);
@@ -390,13 +391,14 @@ const Pagination = ({
 						loading={loading}
 						searchQuery={searchQuery}
 						formValues={formValues}
+						tagValues={tagValues}
 						setSearchQuery={setSearchQuery}
 					/>
 				)}
 				<Divider borderColor='#E7E7E7' my={4} borderWidth='1.5px' />
 
 				<Box mt={4} flex='1' overflow='auto' fontFamily='DM Sans'>
-					{searchNotFound && !loading ? (
+					{/* {searchNotFound && !loading ? (
 						<Text
 							color='red.500'
 							fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
@@ -405,15 +407,15 @@ const Pagination = ({
 						>
 							{searchNotFound}
 						</Text>
-					) : (
-						<TabContent
-							activeTab={activeTab}
-							leadsdata={leads}
-							loading={loading || !leads}
-							approveChangeHandler={approveChangeHandler}
-							pageSize={pageSize}
-						/>
-					)}
+					) : ( */}
+					<TabContent
+						activeTab={activeTab}
+						leadsdata={leads}
+						loading={loading || !leads}
+						approveChangeHandler={approveChangeHandler}
+						pageSize={pageSize}
+					/>
+					{/* )} */}
 				</Box>
 			</Box>
 
