@@ -16,6 +16,7 @@ import {
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
+  Icon,
 } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
@@ -26,6 +27,12 @@ import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { FiSearch } from "react-icons/fi";
 import ActiveFiltersDisplay from "./Component/ActiveFiltersDisplay";
 import AdvancedSearchModal from "./Component/AdvancedSearchModal";
+import Vector from "assets/icons/Vector.png";
+import subway_call_2 from "assets/icons/subway_call-2.png";
+import subway_call_3 from "assets/icons/subway_call-3.png";
+import { FaPhone } from "react-icons/fa6";
+import IncomingCallIcon from "assets/icons/incomming-call.png";
+import OutgoingCallIcon from "assets/icons/Outgoing-call.png";
 
 const formatTime = (time) => {
   if (!isFinite(time) || time < 0) return "00:00";
@@ -161,24 +168,35 @@ const AudioPlayer = ({
 };
 
 const StatusBadge = ({ status }) => {
+  return (
+    <Badge bg={"transparent"} px={2} py={1} color={"black"}>
+      {status || "no data found"}
+    </Badge>
+  );
+};
+
+const StatusColor = ({ children, status }) => {
   let color;
   switch (status) {
     case "ANSWERED":
-      color = "green";
+      color = "#DEFFF3";
       break;
     case "NO ANSWER":
-      color = "yellow";
+      color = "#F8E3FF";
       break;
-    case "FAILED": // Fixed: Removed the erroneous dash
-      color = "red";
+    case "FAILED":
+      color = "#FFE0E0";
+      break;
+    case "BUSY":
+      color = "#FFE0E0";
       break;
     default:
-      color = "gray";
+      color = "gray.500";
   }
 
   return (
-    <Badge colorScheme={color} px={2} py={1} borderRadius="md">
-      {status || "no data found"}
+    <Badge bg={color} px={2} py={1} borderRadius={"15px"} color={"black"}>
+      {children}
     </Badge>
   );
 };
@@ -289,6 +307,27 @@ export default function CallHistory() {
 
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
+  const CallHelper = (callMode) => {
+    let color = "";
+    let text = "";
+    switch (callMode) {
+      case "Outgoing":
+        color = "#E11111";
+
+        break;
+      case "Incoming":
+        color = "#1EB006";
+        break;
+      default:
+        color = "black";
+    }
+    return (
+      <Flex gap={2} alignItems={"center"} color={color}>
+        <Box>{CallModeIcon(callMode)}</Box>
+        <Box>{callMode}</Box>
+      </Flex>
+    );
+  };
   return (
     <Box
       overflowX="auto"
@@ -397,7 +436,9 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.call_mode || "no data found"}
+                    {call.call_mode
+                      ? CallHelper(call.call_mode)
+                      : "no data found"}
                   </Td>
                   <Td
                     py={4}
@@ -414,6 +455,7 @@ export default function CallHistory() {
                     fontWeight="400"
                     minWidth="100px"
                     textAlign={"center"}
+                    color={"#8247FF"}
                   >
                     {call.dst || "no data found"}
                   </Td>
@@ -444,7 +486,14 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    <StatusBadge status={call.disposition} />
+                    <Flex align="center" justify="center" gap={1}>
+                      <StatusColor status={call.disposition}>
+                        <Flex alignItems={"center"}>
+                          <CallStatusIcon status={call.disposition} />
+                          <StatusBadge status={call.disposition} />
+                        </Flex>
+                      </StatusColor>
+                    </Flex>
                   </Td>
                   <Td
                     py={4}
@@ -502,3 +551,63 @@ export default function CallHistory() {
     </Box>
   );
 }
+
+const CallStatusIcon = ({ status }) => {
+  switch (status) {
+    case "ANSWERED":
+      return (
+        <img
+          src={Vector}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#DEFFF3"
+        />
+      );
+    case "NO ANSWER":
+      return (
+        <img
+          src={subway_call_2}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="##F8E3FF"
+        />
+      );
+    case "FAILED":
+    case "BUSY":
+      return (
+        <img
+          src={subway_call_3}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#DEFFF3"
+        />
+      );
+    default:
+      return <Icon as={FaPhone} color="gray.500" h={"1rem"} w={"1rem"} />;
+  }
+};
+
+const CallModeIcon = (callMode) => {
+  switch (callMode) {
+    case "Outgoing":
+      return (
+        <img
+          src={OutgoingCallIcon}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#E11111"
+        />
+      );
+    case "Incoming":
+      return (
+        <img
+          src={IncomingCallIcon}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#1EB006"
+        />
+      );
+    default:
+      return "";
+  }
+};
