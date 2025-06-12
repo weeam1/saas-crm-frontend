@@ -84,8 +84,7 @@ const AdvancedSearchModal = ({
         disposition: "",
       },
     });
-    onApplyFilters({});
-    onClose();
+
   };
 
   const cleanedInitialFilters = useMemo(() => {
@@ -160,10 +159,10 @@ const AdvancedSearchModal = ({
           <ModalBody>
             <VStack spacing={4} overflow="scroll" height="65vh" pb={5}>
               <FormControl>
-                <FormLabel>CAll From</FormLabel>
+                <FormLabel>Call From</FormLabel>
                 <Input
                   name="call_from"
-                  placeholder="e.g. caller from"
+                  placeholder="Enter call from"
                   value={formik.values.call_from}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
@@ -174,7 +173,7 @@ const AdvancedSearchModal = ({
                 <FormLabel>Call To</FormLabel>
                 <Input
                   name="call_to"
-                  placeholder="e.g. called to"
+                  placeholder="Enter called to"
                   value={formik.values.call_to}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
@@ -182,10 +181,10 @@ const AdvancedSearchModal = ({
               </FormControl>
 
               <FormControl>
-                <FormLabel>CLID</FormLabel>
+                <FormLabel>Clid</FormLabel>
                 <Input
                   name="clid"
-                  placeholder="e.g. CLID"
+                  placeholder="Enter call id"
                   value={formik.values.clid}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
