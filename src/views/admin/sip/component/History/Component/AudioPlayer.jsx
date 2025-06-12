@@ -4,12 +4,18 @@ import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 
 const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
+  const safeSeconds = Math.max(0, seconds);
+  const mins = Math.floor(safeSeconds / 60);
+  const secs = Math.floor(safeSeconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId }) => {
+const AudioPlayer = ({
+  url,
+  currentlyPlayingId,
+  setCurrentlyPlayingId,
+  playerId,
+}) => {
   const waveformRef = useRef(null);
   const wavesurferRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,7 +47,7 @@ const AudioPlayer = ({ url, currentlyPlayingId, setCurrentlyPlayingId, playerId 
 
       const isValid = await validateAudio(url);
       if (!isValid) {
-        setError("Audio is corrupted or unsupported");
+        setError("No audio available");
         return;
       }
 
@@ -118,11 +124,14 @@ useEffect(() => {
 
   if (error) {
     return (
-      <Flex align="center" gap={4} p={3} bg="transparent" borderRadius="md">
-        <Text fontSize="md" color="red.500" fontWeight="medium">
-          {error}
-        </Text>
-      </Flex>
+      <Text
+        fontSize="md"
+        color="black"
+        fontWeight="medium"
+        textAlign={"center"}
+      >
+        {error}
+      </Text>
     );
   }
 
@@ -133,8 +142,9 @@ useEffect(() => {
       p={3}
       bg="transparent"
       borderRadius="md"
+      minW="300px"
+      maxW="600px"
       w="100%"
-      maxW="800px"
     >
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
@@ -153,6 +163,7 @@ useEffect(() => {
         ref={waveformRef}
         flex="1"
         h="80px"
+        w="100%"
         minW="0"
         cursor="pointer"
         onClick={togglePlay}
