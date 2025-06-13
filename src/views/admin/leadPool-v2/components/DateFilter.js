@@ -77,7 +77,7 @@ const DateFilter = ({
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent m='2'>
 				<ModalHeader>Date Range Filter</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>

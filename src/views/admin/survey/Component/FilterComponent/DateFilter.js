@@ -10,25 +10,15 @@ import {
 	ModalFooter,
 	VStack,
 } from '@chakra-ui/react';
-import { buttonStyle } from './constants';
-
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import moment from 'moment';
+import { buttonStyle } from 'utils/btn';
 
-const DateFilter = ({
-	setQueryParams,
-	setRefetchLoading,
-	setCurrentPage,
-	onClose,
-	isOpen,
-	setSearchQueryParams,
-	setSearchTags,
-	setSearchClear,
-}) => {
+const DateFilter = ({ dateFitlerHanlder, onClose, isOpen }) => {
 	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
 
 	const toggleCalendar = (calendar) => {
@@ -56,26 +46,9 @@ const DateFilter = ({
 			const from = toUTCString(values.startDate);
 			const to = toUTCString(values.endDate);
 
-			// // Update query params for RTK Query
-			// setQueryParams((prev) => ({
-			// 	...prev,
-			// 	page: 1,
-			// 	dateTime: from && to ? `${from}|${to}` : from || to,
-			// }));
+			console.log({ from, to });
 
-			setSearchQueryParams({
-				dateTime: from && to ? `${from}|${to}` : from || to,
-			});
-			// setCurrentPage(1);
-
-			// const searchValues = [
-			// 	`Start: ${formattedDate(from)}`,
-			// 	`End: ${formattedDate(to)}`,
-			// ];
-			// setSearchTags(searchValues);
-			setRefetchLoading(true);
-			// setSearchClear(true);
-			onClose();
+			dateFitlerHanlder({ from, to });
 		},
 	});
 
@@ -126,7 +99,7 @@ const DateFilter = ({
 						bg='brand.400'
 						py='2'
 						px='5'
-						aria-label='New lead'
+						aria-label='Apply Filter'
 						onClick={formik.handleSubmit}
 						isDisabled={!formik.dirty || !formik.isValid}
 					>

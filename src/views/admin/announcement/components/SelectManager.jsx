@@ -12,7 +12,7 @@ const SelectManager = ({
 		<Select
 			size='md'
 			value={selectedManager}
-			width={{ base: '260px', md: '320px' }}
+			width={{ base: 'full', md: '320px' }}
 			placeholder='Select a Team'
 			onChange={handleManager}
 			cursor='pointer'
@@ -23,7 +23,8 @@ const SelectManager = ({
 			_focus={{
 				outline: 'none',
 			}}
-			px={2}
+			fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+			// px={2}
 		>
 			{managerList.map((manager) => (
 				<option key={manager._id} value={manager._id}>

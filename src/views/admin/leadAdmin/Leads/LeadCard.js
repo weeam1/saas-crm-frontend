@@ -14,6 +14,8 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+	useBreakpointValue,
+	Flex,
 } from '@chakra-ui/react';
 import { InfoIcon, CopyIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import { useSelector } from 'react-redux';
@@ -160,10 +162,10 @@ const LeadCard = ({
 			lid,
 		});
 	};
-	const nationalityFontSize =
-		nationality && nationality.length > 30
-			? { base: '5px', md: '10px' }
-			: { base: '5px', md: '10px' };
+	// const nationalityFontSize =
+	// 	nationality && nationality.length > 30
+	// 		? { base: '5px', md: '10px' }
+	// 		: { base: '5px', md: '10px' };
 
 	const renderActionSection = () => {
 		const statusLower = localApprovalStatus?.toLowerCase();
@@ -232,7 +234,6 @@ const LeadCard = ({
 							size='xs'
 							w='50%'
 							maxW='100px'
-							fontFamily='DM Sans'
 							borderRadius='5px'
 							_hover={{ bg: '#32BD00' }}
 							onClick={() => handleApprovalChange('accept')}
@@ -247,7 +248,6 @@ const LeadCard = ({
 							size='xs'
 							w='50%'
 							maxW='100px'
-							fontFamily='DM Sans'
 							borderRadius='5px'
 							_hover={{ bg: '#D32F2F' }}
 							onClick={() => handleApprovalChange('reject')}
@@ -262,12 +262,7 @@ const LeadCard = ({
 		} else if (tab === 'Accepted') {
 			return (
 				<Box bg='#4BFF79' w='100%' p={1} borderRadius='5px' textAlign='center'>
-					<Text
-						fontSize='xs'
-						color='black'
-						fontWeight='bold'
-						fontFamily='DM Sans'
-					>
+					<Text fontSize='xs' color='black' fontWeight='bold'>
 						Accepted
 					</Text>
 				</Box>
@@ -288,12 +283,7 @@ const LeadCard = ({
 						borderRadius='5px'
 						textAlign='center'
 					>
-						<Text
-							fontSize='xs'
-							color='white'
-							fontWeight='bold'
-							fontFamily='DM Sans'
-						>
+						<Text fontSize='xs' color='white' fontWeight='bold'>
 							Rejected
 						</Text>
 					</Box>
@@ -315,14 +305,22 @@ const LeadCard = ({
 		}
 	};
 
+	const cardWidth = useBreakpointValue({
+		base: '50%', // Full width on mobile
+		// sm: '48%', // Two cards per row on small screens
+		md: '33.33%', // Three cards per row on medium screens
+		lg: '25%', // Three cards per row on larger screens
+	});
+
 	return (
 		<Box
 			borderRadius='lg'
-			p={3}
+			p={2}
 			w='100%'
-			h='320px'
-			overflow='hidden'
+			// h='320px'
+			// overflow='hidden'
 			bg='white'
+			flexBasis={cardWidth}
 			border='1px solid'
 			borderColor={borderColor}
 			transition='box-shadow 0.2s ease-in-out'
@@ -336,8 +334,17 @@ const LeadCard = ({
 				onViewLead={handleLeadsModal}
 				leadId={leadId || _id}
 			/>
-			<HStack align='start' spacing={2} w='100%' h='calc(100% - 30px)' flex='2'>
-				<VStack align='start' spacing={2} flex='2' w='60%' minW={0}>
+			<HStack
+				justifyContent='space-between'
+				align='stretch'
+				wrap='wrap'
+				// align='start'
+				// spacing={2}
+				// w='100%'
+				// h='calc(100% - 30px)'
+				// flex='2'
+			>
+				<VStack align='start' flex='1'>
 					<Text
 						fontSize='12px'
 						fontWeight='bold'
@@ -405,32 +412,32 @@ const LeadCard = ({
 						/>
 					</HStack>
 					<VStack align='start' spacing={0} height='3rem' w='100%'>
-						<Text fontSize='xs' color='#C1C1C1' fontFamily='DM Sans'>
+						<Text fontSize='xs' color='#C1C1C1'>
 							Requested by
 						</Text>
-						<Text
-							fontSize='xs'
-							color='gray.500'
-							fontFamily='DM Sans'
-							isTruncated
-						>
+						<Text fontSize='xs' color='gray.500' isTruncated>
 							{agentName || 'N/A'}
 						</Text>
 					</VStack>
-					<Box flex='1' w='100%' display='flex' alignItems='flex-end'>
-						{renderActionSection()}
-					</Box>
+					<Box w='100%'>{renderActionSection()}</Box>
 				</VStack>
 				<VStack
-					align='start'
-					spacing={2}
-					flex='1'
-					w='40%'
-					minW={0}
-					h='100%'
-					justify='space-between'
+					minWidth={{ base: '100%', md: 'fit-content' }}
+					gap={1}
+					flexDirection={{ base: 'row', md: 'column' }}
+					justifySelf='end'
+					justifyContent='space-between'
+					align='flex-start'
+					px='2'
+					// align='start'
+					// spacing={2}
+					// flex='1'
+					// w='40%'
+					// minW={0}
+					// h='100%'
+					// justify='space-between'
 				>
-					<VStack spacing={2} w='100%' align='start' pl={2}>
+					<VStack w='100%' align='start'>
 						<InfoPair
 							label='City'
 							value={<Text fontWeight='bold'>{city || 'N/A'}</Text>}
@@ -444,24 +451,17 @@ const LeadCard = ({
 							value={
 								<Text
 									fontWeight='bold'
-									fontFamily='DM Sans'
-									fontSize={nationalityFontSize}
 									wordBreak='break-word'
 									whiteSpace='normal'
 									maxW='100%'
 								>
-									{nationality}
+									{nationality || 'N/A'}
 								</Text>
 							}
 						/>
 					</VStack>
-					<VStack align='start' spacing={1} w='100%' pl={2}>
-						<Text
-							fontSize='xs'
-							color='#AEBAC9'
-							fontWeight='bold'
-							fontFamily='DM Sans'
-						>
+					<Box gap='2'>
+						<Text fontSize='xs' color='#AEBAC9' fontWeight='bold'>
 							Info
 						</Text>
 						{[
@@ -471,19 +471,15 @@ const LeadCard = ({
 							{ label: 'Medium', value: 'N/A' },
 							{ label: 'In UAE?', value: 'Yes' },
 						].map((item) => (
-							<HStack
+							<Flex
 								key={item.label}
-								w='100%'
+								alignItems='center'
+								// width='fit-content'
 								justify='space-between'
-								spacing={0}
-								lineHeight='18px'
+								mb='1'
+								gap='2'
 							>
-								<Text
-									fontSize='10px'
-									color='black'
-									fontWeight={500}
-									fontFamily='DM Sans'
-								>
+								<Text fontSize='10px' color='black' fontWeight={500}>
 									{item.label}
 								</Text>
 								{/* <Tooltip label={item.value} placement="right" hasArrow>
@@ -498,17 +494,12 @@ const LeadCard = ({
 								<CustomTooltip label={item.value}>
 									<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
 								</CustomTooltip>
-							</HStack>
+							</Flex>
 						))}
-					</VStack>
+					</Box>
 				</VStack>
 			</HStack>
-			<Text
-				fontSize='10px'
-				fontFamily="'DM Sans', sans-serif"
-				display='flex'
-				justifyContent='flex-end'
-			>
+			<Text fontSize='10px' display='flex' justifyContent='flex-end'>
 				<Box as='span' color='#171923'>
 					Lead time:{' '}
 				</Box>
@@ -536,7 +527,7 @@ const LeadCard = ({
 };
 
 const CardHeader = ({ id, onViewLeadCycle, onViewLead, leadId }) => (
-	<HStack justifyContent='space-between' w='100%'>
+	<HStack justifyContent='space-between'>
 		<HStack>
 			<Icon
 				as={FaEye}

@@ -9,13 +9,13 @@ import DateFilter from './DateFilter';
 import LeadsModals from './LeadsModals';
 import { HasAccess } from './../../../../redux/accessUtils';
 import AdvancedSearchModal from './AdvancedSearchModal';
-import SearchTags from './SearchTags';
 import { buttonStyle } from './constants';
 import { BiX } from 'react-icons/bi';
 import NoData from './subComponents/NoData';
 import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
 import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
+import SearchTags from 'components/search/SearchTags';
 
 const Leads = ({
 	data,

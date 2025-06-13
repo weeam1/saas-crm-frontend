@@ -26,7 +26,8 @@ const RadioCard = (props) => {
 					// boxShadow: 'outline',
 					outline: 'none',
 				}}
-				px={{ base: 3, md: 6 }}
+				fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+				px={{ base: 2, md: 4, lg: 6 }}
 				py={2}
 				textAlign='center'
 			>
