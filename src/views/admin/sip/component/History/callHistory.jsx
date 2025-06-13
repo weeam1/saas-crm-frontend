@@ -101,7 +101,7 @@ export default function CallHistory() {
       limit: pageSize,
     };
 
-    if (filters.all_from) params.all_from = filters.all_from;
+    if (filters.call_from) params.call_from = filters.call_from;
     if (filters.call_to) params.call_to = filters.call_to;
     if (filters.clid) params.clid = filters.clid;
     if (filters.start_date) params.start_date = filters.start_date;

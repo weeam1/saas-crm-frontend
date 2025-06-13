@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, Tooltip } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
+import CustomTooltip from "components/shared/CustomTooltip";
 
 const formatTime = (seconds) => {
   const safeSeconds = Math.max(0, seconds);
@@ -96,17 +97,16 @@ const AudioPlayer = ({
     };
   }, [url]);
 
-useEffect(() => {
-  if (!isCurrentlyPlaying && isPlaying) {
-    const ws = wavesurferRef.current;
-    if (ws) {
-      ws.pause();
-      ws.seekTo(0); 
+  useEffect(() => {
+    if (!isCurrentlyPlaying && isPlaying) {
+      const ws = wavesurferRef.current;
+      if (ws) {
+        ws.pause();
+        ws.seekTo(0);
+      }
+      setIsPlaying(false);
     }
-    setIsPlaying(false);
-  }
-}, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
-
+  }, [currentlyPlayingId, isCurrentlyPlaying, isPlaying]);
 
   const togglePlay = () => {
     if (!wavesurferRef.current || error) return;
@@ -122,19 +122,6 @@ useEffect(() => {
     }
   };
 
-  if (error) {
-    return (
-      <Text
-        fontSize="md"
-        color="black"
-        fontWeight="medium"
-        textAlign={"center"}
-      >
-        {error}
-      </Text>
-    );
-  }
-
   return (
     <Flex
       align="center"
@@ -146,28 +133,50 @@ useEffect(() => {
       maxW="600px"
       w="100%"
     >
-      <IconButton
-        aria-label={isPlaying ? "Pause" : "Play"}
-        icon={isPlaying ? <FaPause size="18px" /> : <FaPlay size="18px" />}
-        size="lg"
-        onClick={togglePlay}
-        bg="transparent"
-        color="gray.500"
-        borderRadius="full"
-        w="40px"
-        h="40px"
-        minW="40px"
-        _hover={{ bg: "gray.100" }}
-      />
+      <CustomTooltip
+        label={error ? "No audio found" : ""}
+        fontSize="sm"
+        placement="top"
+        hasArrow
+      >
+        <IconButton
+          aria-label={isPlaying ? "Pause" : "Play"}
+          icon={isPlaying ? <FaPause size="18px" /> : <FaPlay size="18px" />}
+          size="lg"
+          onClick={togglePlay}
+          bg="transparent"
+          color="gray.500"
+          borderRadius="full"
+          w="40px"
+          h="40px"
+          minW="40px"
+          _hover={{ bg: "gray.100" }}
+        />
+      </CustomTooltip>
+
       <Box
         ref={waveformRef}
         flex="1"
         h="80px"
         w="100%"
         minW="0"
-        cursor="pointer"
-        onClick={togglePlay}
-      />
+        cursor={error ? "not-allowed" : "pointer"}
+        position="relative"
+        onClick={!error ? togglePlay : undefined}
+      >
+        {error && (
+          <Box
+            position="absolute"
+            top="50%"
+            left="0"
+            right="0"
+            height="2px"
+            bg="gray.300"
+            transform="translateY(-50%)"
+          />
+        )}
+      </Box>
+
       <Text fontSize="sm" minW="50px" textAlign="right" color="gray.700">
         {formatTime(duration - currentTime)}
       </Text>
