@@ -73,13 +73,13 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 			<VStack gap='2' width='100%'>
 				<CardShimmer
 					count={4}
-					height='300px'
+					height='230px'
 					columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 2, '2xl': 2 }}
 				/>
 				<CardShimmer
 					count={1}
-					height='100px'
-					width={{ base: 'full', md: '50%' }}
+					height='140px'
+					width={{ base: 'full' }}
 					columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
 				/>
 			</VStack>
@@ -100,7 +100,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	};
 
 	return (
-		<Grid templateColumns={`repeat(${responsiveCols}, 1fr)`} gap={6}>
+		<Grid templateColumns={`repeat(${responsiveCols}, 1fr)`} gap={2}>
 			{/* Basic Information Section */}
 			<GridItem colSpan={sectionColSpan}>
 				<SectionCard title='Basic Information'>
@@ -212,27 +212,32 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 			</GridItem>
 
 			{/* Technical Details Section */}
-			{!['Agent'].includes(user?.roles[0]?.roleName) && (
-				<GridItem colSpan={sectionColSpan}>
-					<SectionCard title='Technical Details'>
-						<DetailGrid>
+			<GridItem colSpan={2}>
+				<SectionCard title='Technical Details'>
+					<DetailGrid>
+						<DetailItem
+							label='City'
+							value={leadIp?.city}
+							textTransform='capitalize'
+						/>
+						<DetailItem
+							label='Country'
+							value={leadIp?.country}
+							textTransform='capitalize'
+						/>
+						{!['Agent'].includes(user?.roles[0]?.roleName) && (
 							<DetailItem label='IP Address' value={data?.ip} />
-							<DetailItem
-								label='Location'
-								value={data?.ip ? `${leadIp?.city}, ${leadIp?.country}` : 'N/A'}
-								textTransform='capitalize'
-							/>
-						</DetailGrid>
-					</SectionCard>
-				</GridItem>
-			)}
+						)}
+					</DetailGrid>
+				</SectionCard>
+			</GridItem>
 		</Grid>
 	);
 };
 
 const SectionCard = ({ title, children }) => (
 	<Box
-		p={5}
+		p={4}
 		rounded='lg'
 		shadow='md'
 		bg='gray.100'
@@ -240,7 +245,7 @@ const SectionCard = ({ title, children }) => (
 		borderColor='gray.100'
 		height='100%'
 	>
-		<Heading size='md' mb={4} color='gray.700' fontWeight='600'>
+		<Heading size='sm' mb={4} color='gray.700' fontWeight='600'>
 			{title}
 		</Heading>
 		<HSeparator mb='2' />
@@ -256,7 +261,7 @@ const DetailGrid = ({ children }) => (
 
 const DetailItem = ({ label, value, isLink = false, ...props }) => (
 	<Box>
-		<Text fontSize='sm' color='gray.500' fontWeight='500' mb={1}>
+		<Text fontSize='xs' color='gray.500' fontWeight='500' mb={1}>
 			{label}
 		</Text>
 		{isLink && value !== 'N/A' ? (
@@ -266,7 +271,13 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => (
 				</a>
 			</Text>
 		) : (
-			<Text color='gray.800' fontWeight='500' isTruncated {...props}>
+			<Text
+				fontSize='sm'
+				color='gray.800'
+				fontWeight='500'
+				isTruncated
+				{...props}
+			>
 				{value || 'N/A'}
 			</Text>
 		)}
