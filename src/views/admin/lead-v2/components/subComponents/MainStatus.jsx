@@ -13,8 +13,8 @@ import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
-import CustomTooltip from './CustomTooltip';
 import { sendLeadFeedback } from 'api';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);

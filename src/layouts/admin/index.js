@@ -204,7 +204,7 @@ export default function Dashboard(props) {
 								<Navbar
 									onOpen={onOpen}
 									routes={routes}
-									logoText={'Horizon UI Dashboard PRO'}
+									logoText={'CRM Dashboard'}
 									brandText={getActiveRoute(routes)}
 									secondary={getActiveNavbar(routes)}
 									message={getActiveNavbarText(routes)}

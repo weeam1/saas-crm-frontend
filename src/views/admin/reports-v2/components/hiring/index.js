@@ -1,8 +1,8 @@
 import { Box, HStack, Text } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import HiringStatusCards from './HiringStatusCards';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
+
 import HiringSummaryBarChart from './HiringSummaryBarChart';
 import RefButton from '../RefButton';
 

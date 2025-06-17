@@ -98,6 +98,7 @@ import AddLead from './AddLead';
 import EditLead from './EditLead';
 import Card from 'components/card/Card';
 import { formattedDate } from 'utils/helpers';
+import SearchTags from 'components/search/SearchTags';
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -931,21 +932,23 @@ const CheckTable = React.memo((props) => {
 				</Grid>
 				{/* Search tags */}
 				<Wrap gap='2' my={2}>
-					{getTagValues &&
-						getTagValues.map((item) => (
-							<Tag
-								size='sm'
-								p={2}
-								key={item}
-								borderRadius='full'
-								variant='solid'
-								backgroundColor='brand.100'
-								color='brand.800'
-								width='fit-content'
-							>
-								<TagLabel>{item}</TagLabel>
-							</Tag>
-						))}
+					{
+						getTagValues && <SearchTags searchTags={getTagValues} />
+
+						// getTagValues.map((item) => (
+						// 	<Tag
+						// 		size='sm'
+						// 		p={2}
+						// 		key={item}
+						// 		borderRadius='full'
+						// 		variant='solid'
+						// 		backgroundColor='brand.100'
+						// 		color='brand.800'
+						// 		width='fit-content'
+						// 	>
+						// 		<TagLabel>{item}</TagLabel>
+						// 	</Tag>
+					}
 				</Wrap>
 				{bulkAssign && selectedValues?.length && (
 					<BulkAssignModal

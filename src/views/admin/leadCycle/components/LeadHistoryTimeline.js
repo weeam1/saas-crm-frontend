@@ -1,24 +1,25 @@
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Badge, Box, Flex, Text } from '@chakra-ui/react';
+import { formatPostDate } from 'utils/helpers';
 
-function formatDateTime(date) {
-	const options = {
-		day: '2-digit',
-		month: 'long',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-		hour12: false,
-		timeZone: 'Asia/Dubai',
-	};
+// function formatDateTime(date) {
+// 	const options = {
+// 		day: '2-digit',
+// 		month: 'long',
+// 		year: 'numeric',
+// 		hour: '2-digit',
+// 		minute: '2-digit',
+// 		second: '2-digit',
+// 		hour12: false,
+// 		timeZone: 'Asia/Dubai',
+// 	};
 
-	return date.toLocaleString('en-GB', options).replace(',', '');
-}
+// 	return date.toLocaleString('en-GB', options).replace(',', '');
+// }
 
 export default function LeadHistoryTimeline({ timelineData }) {
 	return (
 		<>
-			{timelineData.map((item) => {
+			{/* {timelineData.map((item) => {
 				return (
 					<Flex
 						pb={8}
@@ -30,7 +31,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 					>
 						<Box>
 							<Text color={'#858585'}>
-								{formatDateTime(new Date(item?.updatedAt))}
+								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
 							</Text>
 							{item?.type === 'creation' && (
 								<Text color={'black'} fontSize={18} mb={3}>
@@ -59,7 +60,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 									<Text color={'black'} fontSize={18} mb={1}>
 										Lead assigned to agent:
 										<strong>
-											{' '}
 											<u>{item?.updatedData}</u>
 										</strong>
 									</Text>
@@ -113,7 +113,194 @@ export default function LeadHistoryTimeline({ timelineData }) {
 						></Box>
 					</Flex>
 				);
-			})}
+			})} */}
+
+			{timelineData.map((item, index) => (
+				<Flex
+					key={index}
+					pb={8}
+					pl={8}
+					py={2}
+					borderLeft='2px solid'
+					borderColor='gray.200'
+					alignItems='flex-start'
+					position='relative'
+					bg='whitesmoke'
+					// _hover={{ bg: 'gray.100' }}
+					transition='all 0.2s'
+				>
+					{/* Timeline dot */}
+					<Box
+						w={6}
+						h={6}
+						bg={getStatusColor(item.type)}
+						borderRadius='full'
+						position='absolute'
+						top={2}
+						left={0}
+						transform='translateX(-50%)'
+						border='3px solid white'
+						boxShadow='md'
+					/>
+
+					{/* Timeline content */}
+					<Box flex={1} pr='2' py='1'>
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							justify='space-between'
+							align={{ base: 'flex-start', md: 'center' }}
+							mb={2}
+						>
+							<Badge
+								colorScheme={getBadgeColor(item.type)}
+								variant='subtle'
+								borderRadius='md'
+								shadow='sm'
+								px={2}
+								py={1}
+								fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+								textTransform='uppercase'
+							>
+								{getTypeLabel(item.type)}
+							</Badge>
+							<Text fontSize={{ base: '10px', md: 'sm' }} color='gray.500'>
+								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
+							</Text>
+						</Flex>
+
+						<Box
+							bg='white'
+							p={{ base: 2, md: 4 }}
+							borderRadius='lg'
+							boxShadow='sm'
+						>
+							{/* Dynamic content based on type */}
+							{item.type === 'creation' && (
+								<Text fontSize={{ base: 'sm', md: 'md' }}>
+									🎯 <strong>Lead created</strong> by{' '}
+									<Text as='span' color='blue.500' fontWeight='600'>
+										{item?.updatedBy}
+									</Text>
+								</Text>
+							)}
+
+							{(item.type === 'assignment-manager' ||
+								item.type === 'assignment-agent') && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
+										{/* <strong>
+											Assigned to{' '}
+											{item.type === 'assignment-manager' ? 'manager' : 'agent'}
+											:
+										</strong>{' '} */}
+										<Text as='span' color='teal.500' fontWeight='600'>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+
+							{item.type === 'status' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										{/* <strong>Status changed to:</strong>{' '} */}
+										<Text as='span' color='purple.500' fontWeight='600'>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+
+							{item.type === 'mStatus' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										{/* <strong>Main Status changed to:</strong>{' '} */}
+										<Text as='span' color='brand.500' fontWeight='600'>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+
+							{item.type === 'lead-buy' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										💰
+										{/* <strong>Lead purchased by:</strong>{' '} */}
+										<Text as='span' color='green.500' fontWeight='600'>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+						</Box>
+					</Box>
+				</Flex>
+			))}
 		</>
 	);
 }
+
+// Helper functions
+const getStatusColor = (type) => {
+	const colors = {
+		creation: 'blue.500',
+		'assignment-manager': 'teal.500',
+		'assignment-agent': 'cyan.500',
+		status: 'purple.500',
+		mStatus: 'brand.500',
+		'lead-buy': 'green.500',
+	};
+	return colors[type] || 'gray.500';
+};
+
+const getBadgeColor = (type) => {
+	const colors = {
+		creation: 'blue',
+		'assignment-manager': 'teal',
+		'assignment-agent': 'cyan',
+		status: 'purple',
+		mStatus: 'brand',
+		'lead-buy': 'green',
+	};
+	return colors[type] || 'gray';
+};
+
+const getTypeLabel = (type) => {
+	const labels = {
+		creation: 'Created',
+		'assignment-manager': 'Manager Assigned',
+		'assignment-agent': 'Agent Assigned',
+		status: 'Status Changed',
+		mStatus: 'M Status Changed',
+		'lead-buy': 'Purchased',
+	};
+	return labels[type] || type;
+};

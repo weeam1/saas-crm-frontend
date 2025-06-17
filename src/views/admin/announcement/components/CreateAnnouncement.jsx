@@ -6,6 +6,7 @@ import {
 	useRadioGroup,
 	HStack,
 	Icon,
+	Flex,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -14,10 +15,12 @@ import { toast } from 'react-toastify';
 import keys from 'config/keys';
 
 import RadioCard from './RadioCard';
-import { MdSend } from 'react-icons/md';
+import { MdAnnouncement, MdSend } from 'react-icons/md';
 import MessageSuccessModal from './MessageSuccessModal';
 import SelectManager from './SelectManager';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
+import { buttonStyle } from 'utils/btn';
+import { HiSpeakerphone } from 'react-icons/hi';
 
 const CreateAnnouncement = ({ user }) => {
 	// Fetch the all users data from hook
@@ -188,83 +191,108 @@ const CreateAnnouncement = ({ user }) => {
 
 	return (
 		<Box
-			p={6}
-			maxW='800px'
-			mx='auto'
-			borderWidth={1}
-			borderRadius='md'
+			p={{ base: 4, md: 8, lg: 10 }}
 			shadow='md'
+			rounded='md'
 			background='white'
 		>
-			<Text as='h3' fontSize='2xl' fontWeight='bold' mb={6} textAlign='center'>
-				Announcement
-			</Text>
-			<form onSubmit={handleSend}>
-				<Textarea
-					placeholder='Type your message...'
-					value={message}
-					onChange={(e) => setMessage(e.target.value)}
-					mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
-					size='lg'
-					height='36'
-					resize='vertical'
-					focusBorderColor='orange.200'
-					backgroundColor='gray.100'
-				/>
-
-				{isSuperAdmin && (
-					<>
-						<Text fontWeight='bold' mb={{ base: 1, md: 2 }}>
-							Send to:
-						</Text>
-						<HStack
-							{...group}
-							spacing={{ base: 2, md: 4 }} // Adjust spacing for different screen sizes
-							mb={{ base: 2, md: 4 }} // Adjust margin based on screen size
-							wrap='wrap' // Allow items to wrap on smaller screens
-							gap='2'
-						>
-							{options.map((value) => {
-								const radio = getRadioProps({ value });
-								return (
-									<RadioCard key={value} {...radio}>
-										{value.charAt(0).toUpperCase() + value.slice(1)}
-									</RadioCard>
-								);
-							})}
-							<SelectManager
-								// selectedRole={selectedRole}
-								selectedManager={selectedManager}
-								managerList={managers}
-								handleManager={handleManager}
-								isDisabled={selectedRole !== 'team'}
-							/>
-						</HStack>
-					</>
-				)}
-
-				{isManager && (
-					<Text mb={{ base: 1, md: 3 }} color='gray.500'>
-						Note: Announcement will be sent all agents under you.
+			<HStack
+				mb={4}
+				spacing={3}
+				bg='brand.200'
+				px='4'
+				py='4'
+				rounded='md'
+				shadow='sm'
+			>
+				<Flex rounded='full' p={{ base: 2, md: 4 }} bg='brand.100'>
+					<Icon as={HiSpeakerphone} boxSize={8} color='brand.500' />
+				</Flex>
+				<Box color='gray.700'>
+					<Text
+						fontSize={{ base: 'xl', md: '2xl', lg: '3xl' }}
+						fontWeight='extrabold'
+					>
+						Announcement
 					</Text>
-				)}
+					<Text fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}>
+						Broadcast important messages to your team or the entire platform.
+					</Text>
+				</Box>
+			</HStack>
+			<Box maxWidth={{ base: 'full', md: '1200px' }} mx='auto'>
+				<form onSubmit={handleSend}>
+					<Textarea
+						placeholder='Type your message...'
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+						mb={{ base: 2, md: 4 }}
+						size='lg'
+						fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+						height='60'
+						resize='none'
+						overflowY='auto'
+						focusBorderColor='brand.200'
+						backgroundColor='gray.100'
+					/>
 
-				<Button
-					colorScheme='brand'
-					color='white'
-					w={{ base: 'full', md: 'auto' }} // Full width on smaller screens
-					px={{ base: 4, md: 6 }} // Adjust padding based on screen size
-					type='submit'
-					isDisabled={
-						!message.trim() ||
-						(!isManager && !selectedRole) ||
-						(selectedRole === 'team' && !selectedManager)
-					}
-					leftIcon={<Icon as={MdSend} />}
-				>
-					{loading ? 'Sending...' : 'Send'}
-				</Button>
-			</form>
+					{isSuperAdmin && (
+						<>
+							<Text fontWeight='bold' mb={{ base: 1, md: 2 }}>
+								Send to:
+							</Text>
+							<HStack
+								{...group}
+								spacing={{ base: 2, md: 4 }}
+								mb={{ base: 2, md: 4 }}
+								wrap='wrap'
+								gap='2'
+							>
+								{options.map((value) => {
+									const radio = getRadioProps({ value });
+									return (
+										<RadioCard key={value} {...radio}>
+											{value.charAt(0).toUpperCase() + value.slice(1)}
+										</RadioCard>
+									);
+								})}
+								<SelectManager
+									// selectedRole={selectedRole}
+									selectedManager={selectedManager}
+									managerList={managers}
+									handleManager={handleManager}
+									isDisabled={selectedRole !== 'team'}
+								/>
+							</HStack>
+						</>
+					)}
+
+					{isManager && (
+						<Text mb={{ base: 1, md: 3 }} color='gray.500'>
+							Note: Announcement will be sent all agents under you.
+						</Text>
+					)}
+
+					<Flex justifyContent='flex-end'>
+						<Button
+							{...buttonStyle}
+							colorScheme='brand'
+							w={{ base: 'full', md: 'auto' }}
+							px={{ base: 6, md: 12 }}
+							py={{ base: 3, md: 5 }}
+							type='submit'
+							isDisabled={
+								!message.trim() ||
+								(!isManager && !selectedRole) ||
+								(selectedRole === 'team' && !selectedManager)
+							}
+							leftIcon={<Icon as={MdSend} />}
+						>
+							{loading ? 'Sending...' : 'Send'}
+						</Button>
+					</Flex>
+				</form>
+			</Box>
 
 			{/* Success Modal */}
 			<MessageSuccessModal

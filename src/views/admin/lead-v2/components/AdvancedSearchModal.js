@@ -2,8 +2,8 @@ import { useSelector } from 'react-redux';
 import { validationLeadSearchSchema } from 'schema/leadSchema';
 import { useFormik } from 'formik';
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import useFilteredQueryParams from '../useFilteredQueryParams';
+import { leadStatus } from 'utils/options';
+import { mainLeadStatus } from 'utils/options';
 
 const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedSearchForm'));
 
@@ -100,12 +100,13 @@ const AdvancedSearchModal = ({
 									? 'Interested'
 									: value === 'pending'
 										? 'Not Interested'
-										: value;
+										: leadStatus[value];
 						}
 
 						// Special formatting for leadStatus
 						if (key === 'eLeadStatus') {
-							displayValue = value === '-1' ? 'No E.Status' : value;
+							displayValue =
+								value === '-1' ? 'No E.Status' : mainLeadStatus[value];
 						}
 
 						// Handle agentAssigned

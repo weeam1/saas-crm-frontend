@@ -66,10 +66,10 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 				gap='2'
 				p={4}
 				mb={2}
-				bg={useColorModeValue('gray.50', 'gray.700')}
+				bg={useColorModeValue('gray.100', 'gray.700')}
 				borderRadius='md'
 				boxShadow='sm'
-				_hover={{ bg: useColorModeValue('gray.100', 'gray.600') }}
+				_hover={{ bg: useColorModeValue('gray.50', 'gray.600') }}
 			>
 				{/* Left Section */}
 				<Flex align='center' justifyContent='space-between' gap={4}>

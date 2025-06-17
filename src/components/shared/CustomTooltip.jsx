@@ -6,6 +6,7 @@ const CustomTooltip = ({
 	children,
 	hasArrow = true,
 	openDelay = 100,
+	placement = 'top',
 	...props
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,7 @@ const CustomTooltip = ({
 			whiteSpace='pre-line'
 			isOpen={isMobile ? isOpen : undefined} // Mobile: Open on tap
 			openDelay={openDelay}
+			placement={placement}
 			{...props}
 		>
 			<Box

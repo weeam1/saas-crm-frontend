@@ -10,10 +10,10 @@ import { fetchAgentLeadsSats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
-import CustomTooltip from './CustomTooltip';
 import { sendLeadNotification } from 'api';
 import { format } from 'date-fns';
 import { mergeSort } from 'utils/helpers';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');

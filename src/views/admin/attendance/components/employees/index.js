@@ -5,7 +5,6 @@ import EmployeesList from './EmployeesList';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import RoleTabs from './RoleTabs';
-import Pagination from './Pagination';
 import FilterModal from './FilterModal';
 import AttendanceHeader from '../AttendanceHeader';
 import EmployeesTable from './EmployeesTable';

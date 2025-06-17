@@ -7,13 +7,13 @@ import {
 	Tooltip,
 	CartesianGrid,
 } from 'recharts';
-import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useEffect, useMemo, useState } from 'react';
-import CardShimmer from '../CardShimmer';
+import { useMemo, useState } from 'react';
 import NoData from 'components/Message/NoData';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const AttendanceAreaChart = () => {
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
@@ -75,19 +75,21 @@ const AttendanceAreaChart = () => {
 		refetchStats();
 	};
 
-	console.log('Attendance stats:', stats);
-	console.log('Attendance chart data:', chartData);
-
 	return (
-		<Box w='100%' py='2' px='2'>
+		<Box w='100%' py='2'>
 			<Stack
 				justifyContent='space-between'
-				flexDir={{ base: 'column', md: 'row' }}
+				// flexDir={{ base: 'column', md: 'row' }}
+				flexDir={{ base: 'row' }}
 				alignItems='center'
 				mb='4'
 			>
-				<Text fontSize='lg' color='gray.800' fontWeight='bold' mb='8'>
-					Attendance Statistics
+				<Text
+					fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+					color='gray.700'
+					fontWeight='bold'
+				>
+					Attendance Stats
 				</Text>
 
 				{/* Attendance date filter */}

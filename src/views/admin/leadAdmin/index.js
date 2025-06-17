@@ -74,7 +74,7 @@ const LeadScreen = () => {
 	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const [displaySearchData, setDisplaySearchData] = useState(false);
 	const [dateTime, setDateTime] = useState({ from: '', to: '' });
-	const [searchNotFound, setSearchNotFound] = useState(null);
+	// const [searchNotFound, setSearchNotFound] = useState(null);
 
 	const resetToDefaults = () => {
 		setCurrentPage(defaultPage);
@@ -94,7 +94,7 @@ const LeadScreen = () => {
 		setDisplayAdvSearchData(false);
 		setDisplaySearchData(false);
 		setDateTime({ from: '', to: '' });
-		setSearchNotFound(null);
+		// setSearchNotFound(null);
 
 		window.history.replaceState({}, '', location.pathname);
 		sessionStorage.clear();
@@ -134,7 +134,7 @@ const LeadScreen = () => {
 			try {
 				setLoading(true);
 				setError(null);
-				setSearchNotFound(null);
+				// setSearchNotFound(null);
 
 				const queryParams = new URLSearchParams();
 				if (tab !== 'All') {
@@ -176,7 +176,7 @@ const LeadScreen = () => {
 			try {
 				setLoading(true);
 				setError(null);
-				setSearchNotFound(null);
+				// setSearchNotFound(null);
 
 				const queryParams = new URLSearchParams({
 					term: term || '',
@@ -206,15 +206,15 @@ const LeadScreen = () => {
 				setCurrentPage(page);
 
 				// Handle empty search results
-				if (validatedData.length === 0) {
-					if (page === 1) {
-						setSearchNotFound(`Search data not found for: "${term}"`);
-					} else {
-						setSearchNotFound(
-							`No more results found for: "${term}" on page ${page}`
-						);
-					}
-				}
+				// if (validatedData.length === 0) {
+				// 	if (page === 1) {
+				// 		setSearchNotFound(`Search data not found for: "${term}"`);
+				// 	} else {
+				// 		setSearchNotFound(
+				// 			`No more results found for: "${term}" on page ${page}`
+				// 		);
+				// 	}
+				// }
 
 				setLeads((prevLeads) => ({ ...prevLeads, approvals: validatedData }));
 			} catch (err) {
@@ -241,7 +241,7 @@ const LeadScreen = () => {
 			try {
 				setLoading(true);
 				setError(null);
-				setSearchNotFound(null);
+				// setSearchNotFound(null);
 
 				const cleanedData = Object.fromEntries(
 					Object.entries(data).filter(
@@ -281,27 +281,27 @@ const LeadScreen = () => {
 				setTotalPages(result.data?.totalPages || 0);
 				setTotalLeads(result.data?.totalLeads || 0);
 
-				if (validatedData.length === 0 && result.data?.totalLeads === 0) {
-					const searchCriteria = Object.entries(cleanedData)
-						.map(([key, value]) => {
-							if (key === 'agentAssigned') {
-								const agentName = getUserNameById(value, users) || value;
-								return `agentAssigned: ${agentName}`;
-							}
+				// if (validatedData.length === 0 && result.data?.totalLeads === 0) {
+				// 	const searchCriteria = Object.entries(cleanedData)
+				// 		.map(([key, value]) => {
+				// 			if (key === 'agentAssigned') {
+				// 				const agentName = getUserNameById(value, users) || value;
+				// 				return `agentAssigned: ${agentName}`;
+				// 			}
 
-							if (key === 'from') {
-								return `Start: ${formattedDate(value)}`;
-							}
+				// 			if (key === 'from') {
+				// 				return `Start: ${formattedDate(value)}`;
+				// 			}
 
-							if (key === 'to') {
-								return `End: ${formattedDate(value)}`;
-							}
+				// 			if (key === 'to') {
+				// 				return `End: ${formattedDate(value)}`;
+				// 			}
 
-							return `${key}: ${value}`;
-						})
-						.join(', ');
-					setSearchNotFound(`Search data not found for: ${searchCriteria}`);
-				}
+				// 			return `${key}: ${value}`;
+				// 		})
+				// 		.join(', ');
+				// 	setSearchNotFound(`Search data not found for: ${searchCriteria}`);
+				// }
 
 				setLeads((prevLeads) => ({ ...prevLeads, approvals: validatedData }));
 			} catch (err) {
@@ -326,7 +326,7 @@ const LeadScreen = () => {
 		setFormValues({});
 		setGetTagValues([]);
 		setIsFormReset(true);
-		setSearchNotFound(null);
+		// setSearchNotFound(null);
 		fetchLeads(activeTab, currentPage, pageSize);
 	}, [activeTab, currentPage, pageSize, fetchLeads]);
 
@@ -590,7 +590,7 @@ const LeadScreen = () => {
 			setSearchedData([]);
 			setDisplayAdvSearchData(false);
 			setDisplaySearchData(false);
-			setSearchNotFound(null);
+			// setSearchNotFound(null);
 			setGetTagValues([]);
 			setIsFormReset(true);
 			updateUrlAndStorage(pageSize);
@@ -608,7 +608,7 @@ const LeadScreen = () => {
 				fetchSearchedData(query, 1, pageSize, activeTab);
 			} else {
 				setDisplaySearchData(false);
-				setSearchNotFound(null);
+				// setSearchNotFound(null);
 				fetchLeads(activeTab, 1, pageSize);
 			}
 		},
@@ -643,13 +643,14 @@ const LeadScreen = () => {
 				setFormValues={setFormValues}
 				isFormReset={isFormReset}
 				setIsFormReset={setIsFormReset}
+				tagValues={tagValues}
 				setGetTagValues={setGetTagValues}
 				clearAdvancedSearch={clearAdvancedSearch}
 				formValues={formValues}
 				isAgent={isAgent}
 				isSuperAdmin={isSuperAdmin}
 				approveChangeHandler={approveChangeHandler}
-				searchNotFound={searchNotFound}
+				// searchNotFound={searchNotFound}
 			/>
 		</div>
 	);

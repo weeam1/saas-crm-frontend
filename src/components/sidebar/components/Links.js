@@ -30,7 +30,7 @@ export function SidebarLinks(props) {
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
-	const { routes, setOpenSidebar, openSidebar } = props;
+	const { routes, setOpenSidebar, onSidebarClose, openSidebar } = props;
 
 	// verifies if routeName is the one active (in browser input)
 	const activeRoute = (routeName) => {
@@ -104,6 +104,7 @@ export function SidebarLinks(props) {
 											w='100%'
 											alignItems='center'
 											justifyContent='center'
+											onClick={() => onSidebarClose && onSidebarClose()}
 											// onClick={() => setOpenSidebar(!openSidebar)}
 										>
 											<Box
@@ -140,7 +141,8 @@ export function SidebarLinks(props) {
 											w='100%'
 											alignItems='center'
 											justifyContent='center'
-											//  onClick={() => setOpenSidebar(!openSidebar)}
+											onClick={() => onSidebarClose && onSidebarClose()}
+											// onClick={() => setOpenSidebar(!openSidebar)}
 										>
 											<Box
 												color={

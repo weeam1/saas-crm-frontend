@@ -1,13 +1,13 @@
-import { Box, Flex, Stack, Tab, TabList, Tabs, Text } from '@chakra-ui/react';
+import { Box, Flex, Stack, Text } from '@chakra-ui/react';
 import LeadStatusChart from './LeadStatusChart';
 import { useLeadReportFilters } from 'hooks/reports/useLeadReportFilters';
 import { useMemo, useState } from 'react';
 import LeadMainStatusChart from './LeadMainStatusChart';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import TopFilter from '../TopFilter';
 import { viewOptions } from '../../helpers';
-import CardShimmer from '../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
+
 import NoData from 'components/Message/NoData';
 
 const LeadFeedbacks = () => {
@@ -31,7 +31,7 @@ const LeadFeedbacks = () => {
 	const { data: statusData, isLoading: statusLoading } = useFetchItemsQuery(
 		{
 			path: '/v2/reporting/feedbacks',
-			params: { ...queryParams, type: 'mainStatus' },
+			params: { ...queryParams, type: 'status' },
 		},
 		{ refetchOnMountOrArgChange: true }
 	);

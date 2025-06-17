@@ -1,4 +1,4 @@
-import { Skeleton, Box, Flex, Grid } from '@chakra-ui/react';
+import { Skeleton, Box, Grid } from '@chakra-ui/react';
 import React from 'react';
 
 const CardsLoading = ({ count = 6 }) => {

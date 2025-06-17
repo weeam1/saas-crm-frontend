@@ -21,6 +21,102 @@ export const formattedDate = (_date) => {
 	return formattedDate;
 };
 
+// export const formatPostDate = (date, timezone) => {
+// 	const now = new Date();
+// 	let inputDate = new Date(date);
+
+// 	console.log(inputDate);
+
+// 	// Apply timezone offset if provided
+// 	if (timezone) {
+// 		const offset = inputDate.getTimezoneOffset() * 60000;
+// 		const timezoneOffset = parseInt(timezone) * 3600000;
+// 		console.log(offset, timezoneOffset);
+// 		inputDate = new Date(inputDate.getTime() + offset + timezoneOffset);
+
+// 		console.log(inputDate);
+// 	}
+
+// 	const seconds = Math.floor((now - inputDate) / 1000);
+
+// 	// Less than 1 minute
+// 	// if (seconds < 60) {
+// 	// 	return seconds <= 0 ? 'now' : `${seconds} sec ago`;
+// 	// }
+
+// 	if (seconds < 60) {
+// 		return 'now';
+// 	}
+
+// 	// Less than 1 hour
+// 	const minutes = Math.floor(seconds / 60);
+// 	if (minutes < 60) {
+// 		return `${minutes} min ago`;
+// 	}
+
+// 	// Less than 24 hours
+// 	const hours = Math.floor(minutes / 60);
+// 	if (hours < 24) {
+// 		return `${hours}h ago`;
+// 	}
+
+// 	// 24 hours or older - show full date with time
+// 	const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// 	const weekday = weekdays[inputDate.getDay()];
+// 	const day = inputDate.getDate().toString().padStart(2, '0');
+// 	const month = [
+// 		'Jan',
+// 		'Feb',
+// 		'Mar',
+// 		'Apr',
+// 		'May',
+// 		'Jun',
+// 		'Jul',
+// 		'Aug',
+// 		'Sep',
+// 		'Oct',
+// 		'Nov',
+// 		'Dec',
+// 	][inputDate.getMonth()];
+// 	const year = inputDate.getFullYear().toString().slice(-2);
+
+// 	// Format time as 09:24 PM
+// 	let hours12 = inputDate.getHours();
+// 	const ampm = hours12 >= 12 ? 'PM' : 'AM';
+// 	hours12 = hours12 % 12;
+// 	hours12 = hours12 ? hours12 : 12; // the hour '0' should be '12'
+// 	const mins = inputDate.getMinutes().toString().padStart(2, '0');
+// 	const timeString = `${hours12}:${mins} ${ampm}`;
+
+// 	return `${weekday} ${day} ${month} ${year}, ${timeString}`;
+// };
+
+export const formatPostDate = (date, timezone) => {
+	try {
+		// Create moment objects with timezone handling
+		const now = timezone ? moment().tz(timezone) : moment();
+		const inputDate = timezone ? moment(date).tz(timezone) : moment(date);
+
+		if (!inputDate.isValid()) return 'Invalid date';
+
+		// Calculate difference in seconds
+		const diffSeconds = now.diff(inputDate, 'seconds');
+
+		console.log(diffSeconds);
+
+		// Relative time formats
+		if (diffSeconds < 60) return 'now';
+		if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`;
+		if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)}h ago`;
+
+		// Format full date with timezone
+		return inputDate.format('ddd DD MMM YY, hh:mm A');
+	} catch (error) {
+		console.error('Date formatting error:', error);
+		return 'Invalid date';
+	}
+};
+
 export const toUTCString = (date) => {
 	return date
 		? moment(date).utcOffset(0, true).startOf('day').toISOString()

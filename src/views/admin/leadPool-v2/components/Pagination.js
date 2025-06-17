@@ -21,6 +21,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import DateFilterButton from './DateFilterButton';
 import DateFilter from './DateFilter';
 import { formattedDate } from 'utils/helpers';
+import SearchTags from 'components/search/SearchTags';
 
 const Pagination = ({
 	data,
@@ -477,8 +478,13 @@ const Pagination = ({
 				</Flex>
 
 				{displaySearchData && (
-					<Flex justifyContent='space-between' alignItems='center' p={3}>
-						<HStack spacing={2}>
+					<Flex
+						justifyContent='space-between'
+						alignItems='center'
+						flexWrap='wrap'
+						p={3}
+					>
+						{/* <HStack spacing={2}>
 							<Text
 								fontFamily='DM Sans'
 								fontSize={{ base: 'sm', md: 'md', lg: '14px' }}
@@ -495,7 +501,10 @@ const Pagination = ({
 								{searchTerm ||
 									(tags.length > 0 ? tags.join(', ') : 'No filters applied')}
 							</Text>
-						</HStack>
+						</HStack> */}
+
+						<SearchTags searchTags={tags} />
+
 						<Button
 							bg='#f56565'
 							color='white'

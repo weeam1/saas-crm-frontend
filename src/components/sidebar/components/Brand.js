@@ -29,30 +29,28 @@ export function SidebarBrand(props) {
 				background: '#fff',
 			}}
 		>
-			<Flex>
-				{/* {largeLogo && (largeLogo[0]?.logoLgImg || largeLogo[0]?.logoSmImg) ? ( */}
-				{BrandLogo ? (
-					<Image
-						style={{ height: '52px' }}
-						src={BrandLogo} // Set the source path of your image
-						alt='Logo' // Set the alt text for accessibility
-						cursor='pointer'
-						onClick={() => !from && setOpenSidebar(!openSidebar)}
-						userSelect='none'
-						objectFit='contain'
-						my={2}
-					/>
-				) : (
-					<Heading
-						my={3}
-						cursor={'pointer'}
-						onClick={() => !from && setOpenSidebar(!openSidebar)}
-						userSelect={'none'}
-					>
-						CRM.
-					</Heading>
-				)}
-			</Flex>
+			{/* {largeLogo && (largeLogo[0]?.logoLgImg || largeLogo[0]?.logoSmImg) ? ( */}
+			{BrandLogo ? (
+				<Image
+					style={{ height: '52px' }}
+					src={BrandLogo} // Set the source path of your image
+					alt='Logo' // Set the alt text for accessibility
+					cursor='pointer'
+					onClick={() => !from && setOpenSidebar(!openSidebar)}
+					userSelect='none'
+					objectFit='contain'
+					my={2}
+				/>
+			) : (
+				<Heading
+					my={3}
+					cursor={'pointer'}
+					onClick={() => !from && setOpenSidebar(!openSidebar)}
+					userSelect={'none'}
+				>
+					CRM.
+				</Heading>
+			)}
 		</Flex>
 	);
 }

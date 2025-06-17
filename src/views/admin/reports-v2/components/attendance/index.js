@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-	Box,
-	Button,
-	HStack,
-	IconButton,
-	Text,
-	Tooltip,
-} from '@chakra-ui/react';
+import { Box, HStack, Text } from '@chakra-ui/react';
 import {
 	FaUsers,
 	FaClock,
@@ -15,12 +8,10 @@ import {
 	FaMoon,
 	FaFileAlt,
 } from 'react-icons/fa';
-import { Link as RouterLink } from 'react-router-dom';
 
 import { useFetchItemsQuery } from 'api/apiSlice';
 import DashboardShimmer from 'views/admin/attendance/components/dashboard/DashboardShimmer';
 import AttendanceStats from './AttendanceStats';
-import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import RefButton from '../RefButton';
 
 const AttendanceReport = () => {

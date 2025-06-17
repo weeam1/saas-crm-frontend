@@ -61,11 +61,11 @@ const AddNewNote = ({
 
 	return (
 		<div>
-			<Modal size='2xl' onClose={onClose} isOpen={isOpen} isCentered>
+			<Modal size='3xl' onClose={onClose} isOpen={isOpen} isCentered>
 				<ModalOverlay />
-				<ModalContent fontFamily="'DM Sans', sans-serif">
+				<ModalContent m='2'>
 					<ModalHeader>Add a new note</ModalHeader>
-					<ModalCloseButton />
+					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody>
 						<Textarea
 							style={{
@@ -110,7 +110,7 @@ const AddNewNote = ({
 							onClick={handleAddNote}
 							disabled={isLoding || !noteValue.trim() ? true : false}
 						>
-							{isLoding ? <Spinner /> : 'Add'}
+							{isLoding ? 'Loading...' : 'Add'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

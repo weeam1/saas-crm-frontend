@@ -9,13 +9,9 @@ import {
 	Icon,
 	Button,
 } from '@chakra-ui/react';
-import Rating from 'components/shared/Rating';
 import { constant } from 'constant';
 import { FiTrendingUp, FiUsers } from 'react-icons/fi';
-import { HiOutlineArrowRightCircle } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
-import { calculatePerformance } from 'views/admin/reports-v2/helpers';
-import TeamProgress from './TeamProgress';
 import { buttonStyle } from 'utils/btn';
 
 const TeamCard = ({ manager, index }) => {
@@ -78,7 +74,7 @@ const TeamCard = ({ manager, index }) => {
 				<Icon as={HiOutlineArrowRightCircle} boxSize='24px' color='green.500' />
 			</Box> */}
 
-			<Flex align='center' gap={4} mb={4}>
+			<Flex align='center' gap={2} mb={4}>
 				<Avatar
 					src={
 						manager?.profileImage
@@ -86,23 +82,24 @@ const TeamCard = ({ manager, index }) => {
 							: ''
 					}
 					name={manager?.fullName}
-					size='lg'
+					size='md'
 				/>
 
 				<VStack align='start' spacing={0}>
 					<Text
 						fontSize={{ base: 'sm', md: 'md' }}
+						// fontSize={{ base: '14px', md: '18px' }}
 						fontWeight='bold'
 						color={textColor}
-						maxWidth={{ base: 'full', md: '250px' }}
+						maxWidth={{ base: '200px', md: '200px' }}
 						isTruncated
 					>
 						{manager?.fullName}
 					</Text>
 					<Text
-						fontSize={{ base: 'xs', md: 'sm' }}
+						fontSize={{ base: '12px', md: '14px' }}
 						color={useColorModeValue('gray.500', 'gray.400')}
-						maxWidth={{ base: 'full', md: '250px' }}
+						maxWidth={{ base: '250px', md: '250px' }}
 						isTruncated
 					>
 						{manager?.username}
@@ -131,6 +128,7 @@ const TeamCard = ({ manager, index }) => {
 				bg='softGray.100'
 				color='gray.800'
 				_active={{ bg: 'gray.200' }}
+				_hover={{ bg: 'brand.200' }}
 				onClick={() =>
 					navigate(`/reporting-analytics/team-details/${manager._id}`)
 				}

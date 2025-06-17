@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Box,
   Table,
@@ -133,19 +133,18 @@ export default function CallHistory() {
     loadCalls();
   }, [loadCalls]);
 
-  const handlePageChange = useCallback((newPage) => {
-    setPage(newPage);
-  }, []);
+	useEffect(() => {
+		loadCalls(page, pageSize);
+	}, [page, pageSize]);
 
-  const handlePageSizeChange = useCallback((e) => {
-    setPageSize(e.target.value);
-    setPage(1);
-  }, []);
+	const handlePageChange = useCallback((newPage) => {
+		setPage(newPage);
+	}, []);
 
-  // Function to handle setting currently playing audio
-  const handleSetCurrentlyPlaying = useCallback((playerId) => {
-    setCurrentlyPlayingId(playerId);
-  }, []);
+	const handlePageSizeChange = useCallback((e) => {
+		setPageSize(e.target.value);
+		setPage(1);
+	}, []);
 
   const handleClearFilters = useCallback((filterKey) => {
     if (filterKey) {
@@ -479,3 +478,4 @@ const CallModeIcon = (callMode) => {
       return "";
   }
 };
+

@@ -1,10 +1,8 @@
-import { useSelector } from 'react-redux';
 import { Box, SimpleGrid, Text } from '@chakra-ui/react';
 import TeamCard from './TeamCard';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import NoData from 'components/Message/NoData';
-import CardShimmer from '../../CardShimmer';
+import CardShimmer from 'components/loading/CardShimmer';
 
 const TeamList = () => {
 	const { data, isLoading } = useFetchItemsQuery(
@@ -46,8 +44,20 @@ const TeamList = () => {
 						'@media screen and (min-width: 1280px)': {
 							gridTemplateColumns: 'repeat(3, 1fr)', // xl
 						},
-						'@media screen and (min-width: 1536px)': {
+						'@media screen and (min-width: 1680px)': {
 							gridTemplateColumns: 'repeat(4, 1fr)', // 2xl (custom)
+						},
+						// >= 1920px (e.g., Full HD+)
+						'@media (min-width: 2120px)': {
+							gridTemplateColumns: 'repeat(5, 1fr)',
+						},
+						// >= 2560px (2.5K / QHD)
+						'@media (min-width: 2560px)': {
+							gridTemplateColumns: 'repeat(6, 1fr)',
+						},
+						// >= 3840px (4K)
+						'@media (min-width: 3840px)': {
+							gridTemplateColumns: 'repeat(7, 1fr)',
 						},
 					}}
 					spacing={6}

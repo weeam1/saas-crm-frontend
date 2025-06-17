@@ -99,6 +99,7 @@ const DateFilter = ({ onFilterChange }) => {
 				bg='softGray.50'
 				color='gray.800'
 				borderRadius='md'
+				size='md'
 				onClick={() => setShowCalendar(!showCalendar)}
 			>
 				{moment(date).format('MMM YYYY')}

@@ -12,10 +12,10 @@ import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch } from 'react-redux';
-import CustomTooltip from './CustomTooltip';
 import InvitationModal from './InvitationModal';
 import { eventLeadStatus } from 'utils/options';
 import { sendLeadFeedback } from 'api';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
