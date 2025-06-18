@@ -15,6 +15,7 @@ export const ROLE = {
 	user: 'user',
 	hr: 'HR',
 	accountant: 'accountant',
+	attendance: 'attendance',
 	manager: 'manager',
 	teamleader: 'teamleader',
 	telecaller: 'telecaller',
