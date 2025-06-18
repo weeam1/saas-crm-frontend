@@ -43,15 +43,41 @@ import {
   FiMic,
   FiImage,
   FiSend,
-  FiChevronRight,
   FiChevronLeft,
   FiSearch,
 } from "react-icons/fi";
 import { IoMdMic, IoMdClose } from "react-icons/io";
-import { FaPlay, FaPause, FaCheck, FaCheckDouble } from "react-icons/fa";
+import {
+  FaPlay,
+  FaPause,
+  FaCheck,
+  FaCheckDouble,
+} from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { RiSendPlaneFill } from "react-icons/ri";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import WaveSurfer from "wavesurfer.js";
+
+const whatsappColors = {
+  primary: "#008069",
+  secondary: "#00A884",
+  incomingBg: "gray.300",
+  outgoingBg: "#D9FDD3",
+  textDark: "#111B21",
+  textLight: "#FFFFFF",
+  textSecondary: "#667781",
+  sidebarBg: "#F0F2F5",
+  headerBg: "#F0F2F5",
+  inputBg: "#FFFFFF",
+  recordingDot: "#34B7F1",
+  userHoverBg: "rgba(0, 0, 0, 0.05)",
+  userSelectedBg: "rgba(0, 0, 0, 0.08)",
+  messageHoverBg: "rgba(0, 0, 0, 0.03)",
+  timeStampColor: "#667781",
+  replyBg: "#F0F2F5",
+  replyBorder: "#D1D7DB",
+  chatHeaderBg: "#F0F2F5",
+};
 
 const formatTime = (seconds) => {
   const safeSeconds = Math.max(0, seconds);
@@ -64,15 +90,19 @@ const formatDateHeader = (date) => {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  
+
   const messageDate = new Date(date);
-  
+
   if (messageDate.toDateString() === today.toDateString()) {
     return "Today";
   } else if (messageDate.toDateString() === yesterday.toDateString()) {
     return "Yesterday";
   } else {
-    return messageDate.toLocaleDateString([], { weekday: 'long' });
+    return messageDate.toLocaleDateString([], {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
   }
 };
 
@@ -105,8 +135,8 @@ const VoiceMessagePlayer = ({ url, isSelf }) => {
 
         wavesurfer = WaveSurfer.create({
           container: waveformRef.current,
-          waveColor: isSelf ? "#ffffff80" : "#CBD5E0",
-          progressColor: isSelf ? "#ffffff" : "#4a9eff",
+          waveColor: "#66778180",
+          progressColor: "#008069",
           cursorColor: "transparent",
           barWidth: 2,
           barRadius: 2,
@@ -165,14 +195,16 @@ const VoiceMessagePlayer = ({ url, isSelf }) => {
   };
 
   return (
-    <Flex align="center" gap={3} w="100%">
+    <Flex align="center" gap={3} w="100%" mt={1}>
       <IconButton
         aria-label={isPlaying ? "Pause" : "Play"}
         icon={isPlaying ? <FaPause size="12px" /> : <FaPlay size="12px" />}
         size="sm"
         onClick={togglePlay}
-        colorScheme={isSelf ? "whiteAlpha" : "blackAlpha"}
         variant="ghost"
+        color={whatsappColors.textSecondary}
+        bg="transparent"
+        _hover={{ bg: "transparent" }}
         isDisabled={!!error || isLoading}
       />
 
@@ -194,10 +226,13 @@ const VoiceMessagePlayer = ({ url, isSelf }) => {
             bottom="0"
             align="center"
             justify="center"
-            bg={isSelf ? "rgba(0, 92, 75, 0.1)" : "rgba(255, 255, 255, 0.5)"}
+            bg={isSelf ? "rgba(0, 128, 105, 0.1)" : "rgba(255, 255, 255, 0.5)"}
           >
             {isLoading ? (
-              <Spinner size="sm" />
+              <Spinner
+                size="sm"
+                color={isSelf ? "white" : whatsappColors.primary}
+              />
             ) : (
               <Text
                 fontSize="xs"
@@ -214,9 +249,11 @@ const VoiceMessagePlayer = ({ url, isSelf }) => {
         fontSize="xs"
         minW="40px"
         textAlign="right"
-        color={isSelf ? "whiteAlpha.800" : "gray.600"}
+        color={"#66778180"}
       >
-        {error ? "--:--" : formatTime(isPlaying ? duration - currentTime : duration)}
+        {error
+          ? "--:--"
+          : formatTime(isPlaying ? duration - currentTime : duration)}
       </Text>
     </Flex>
   );
@@ -232,12 +269,14 @@ const Whatsapp = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [audioLevel, setAudioLevel] = useState(0);
+  const [replyingTo, setReplyingTo] = useState(null);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const fileInputRef = useRef(null);
   const timerRef = useRef(null);
   const analyserRef = useRef(null);
   const animationRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
 
@@ -253,6 +292,7 @@ const Whatsapp = () => {
       time: "10:30 AM",
       unread: 2,
       lastSeen: "10:30 AM",
+      status: "online",
     },
     {
       id: 2,
@@ -262,6 +302,7 @@ const Whatsapp = () => {
       time: "9:15 AM",
       unread: 0,
       lastSeen: "9:15 AM",
+      status: "online",
     },
     {
       id: 3,
@@ -271,6 +312,7 @@ const Whatsapp = () => {
       time: "Yesterday",
       unread: 5,
       lastSeen: "Yesterday",
+      status: "last seen today at 12:45 PM",
     },
     {
       id: 4,
@@ -280,6 +322,7 @@ const Whatsapp = () => {
       time: "Yesterday",
       unread: 0,
       lastSeen: "Yesterday",
+      status: "last seen yesterday at 8:30 PM",
     },
     {
       id: 5,
@@ -289,6 +332,7 @@ const Whatsapp = () => {
       time: "Monday",
       unread: 1,
       lastSeen: "Monday",
+      status: "last seen Monday at 3:20 PM",
     },
     {
       id: 6,
@@ -298,6 +342,47 @@ const Whatsapp = () => {
       time: "Tuesday",
       unread: 0,
       lastSeen: "Monday",
+      status: "last seen Tuesday at 10:15 AM",
+    },
+    {
+      id: 7,
+      name: "Emma Watson",
+      avatar: "https://randomuser.me/api/portraits/women/3.jpg",
+      lastMessage: "Did you see the new movie?",
+      time: "Wednesday",
+      unread: 3,
+      lastSeen: "Wednesday",
+      status: "last seen today at 2:30 PM",
+    },
+    {
+      id: 8,
+      name: "Robert Downey",
+      avatar: "https://randomuser.me/api/portraits/men/5.jpg",
+      lastMessage: "I'm Iron Man",
+      time: "Thursday",
+      unread: 0,
+      lastSeen: "Thursday",
+      status: "online",
+    },
+    {
+      id: 9,
+      name: "Scarlett Johansson",
+      avatar: "https://randomuser.me/api/portraits/women/4.jpg",
+      lastMessage: "Avengers assemble!",
+      time: "Friday",
+      unread: 2,
+      lastSeen: "Friday",
+      status: "last seen yesterday at 7:45 PM",
+    },
+    {
+      id: 10,
+      name: "Chris Evans",
+      avatar: "https://randomuser.me/api/portraits/men/6.jpg",
+      lastMessage: "I can do this all day",
+      time: "Saturday",
+      unread: 1,
+      lastSeen: "Saturday",
+      status: "last seen today at 9:15 AM",
     },
   ]).current;
 
@@ -306,9 +391,10 @@ const Whatsapp = () => {
     id: 0,
     name: "You",
     avatar: "https://randomuser.me/api/portraits/men/5.jpg",
+    status: "online",
   }).current;
 
-  // Messages data with different dates for testing
+  // Messages data 
   const allMessages = useRef({
     1: [
       {
@@ -316,7 +402,7 @@ const Whatsapp = () => {
         sender: users[0],
         text: "Hey there!",
         type: "text",
-        timestamp: new Date(Date.now() - 86400000 * 2), // 2 days ago
+        timestamp: new Date(Date.now() - 86400000 * 2),
         status: "read",
       },
       {
@@ -324,23 +410,23 @@ const Whatsapp = () => {
         sender: currentUser,
         text: "Hi! How are you?",
         type: "text",
-        timestamp: new Date(Date.now() - 86400000), // 1 day ago
+        timestamp: new Date(Date.now() - 86400000), 
         status: "read",
       },
       {
         id: 3,
         sender: users[0],
-        text: "I'm good, thanks for asking!",
+        text: "I'm good, thanks for asking! How about you? I was thinking we could meet up this weekend if you're free.",
         type: "text",
-        timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+        timestamp: new Date(Date.now() - 3600000),
         status: "delivered",
       },
       {
         id: 4,
         sender: currentUser,
-        text: "Great to hear!",
+        text: "Great to hear! Yeah, weekend sounds good. What time works for you?",
         type: "text",
-        timestamp: new Date(), // Now
+        timestamp: new Date(), 
         status: "read",
       },
     ],
@@ -348,9 +434,17 @@ const Whatsapp = () => {
       {
         id: 1,
         sender: users[1],
-        text: "Hi, don't forget our meeting",
+        text: "Hi, don't forget our meeting at 3 PM tomorrow. We'll be discussing the quarterly reports.",
         type: "text",
         timestamp: new Date(Date.now() - 7200000),
+        status: "read",
+      },
+      {
+        id: 2,
+        sender: currentUser,
+        text: "Got it, I'll prepare the presentation slides and send them over tonight.",
+        type: "text",
+        timestamp: new Date(Date.now() - 3600000),
         status: "read",
       },
     ],
@@ -358,18 +452,26 @@ const Whatsapp = () => {
       {
         id: 1,
         sender: currentUser,
-        text: "I've sent the files",
+        text: "I've sent the files you requested. Let me know if you need anything else.",
         type: "text",
-        timestamp: new Date(Date.now() - 86400000 * 3), // 3 days ago
+        timestamp: new Date(Date.now() - 86400000 * 3),
         status: "read",
       },
       {
         id: 2,
         sender: users[2],
-        text: "Please send them again",
+        text: "Please send them again, I can't seem to find them in my email. Maybe there was an issue with the attachment?",
         type: "text",
         timestamp: new Date(Date.now() - 43200000),
         status: "delivered",
+      },
+      {
+        id: 3,
+        sender: currentUser,
+        text: "Sure, I'll resend them now. Also, I've uploaded them to the shared drive just in case.",
+        type: "text",
+        timestamp: new Date(Date.now() - 1800000),
+        status: "sent",
       },
     ],
   }).current;
@@ -395,6 +497,14 @@ const Whatsapp = () => {
     };
   }, []);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const handleSendMessage = useCallback(() => {
     if (!inputMessage.trim() && !selectedImage) return;
 
@@ -409,12 +519,14 @@ const Whatsapp = () => {
         type: selectedImage ? "image" : "text",
         timestamp: new Date(),
         status: "sent",
+        replyTo: replyingTo,
       };
 
       const updatedMessages = [...messages, newMessage];
       setMessages(updatedMessages);
       setInputMessage("");
       setSelectedImage(null);
+      setReplyingTo(null);
       setIsSending(false);
 
       allMessages[activeChat] = updatedMessages;
@@ -451,7 +563,7 @@ const Whatsapp = () => {
     }, 500);
 
     toast.success("Message sent!");
-  }, [inputMessage, selectedImage, messages, activeChat]);
+  }, [inputMessage, selectedImage, messages, activeChat, replyingTo]);
 
   const handleImageUpload = useCallback((e) => {
     const file = e.target.files[0];
@@ -473,7 +585,9 @@ const Whatsapp = () => {
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
       setIsRecording(false);
       setRecordingTime(0);
       setAudioLevel(0);
@@ -487,7 +601,9 @@ const Whatsapp = () => {
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
     }
   }, [isRecording]);
 
@@ -502,7 +618,8 @@ const Whatsapp = () => {
         chunksRef.current = [];
 
         // Setup audio analyzer
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
         analyserRef.current = audioContext.createAnalyser();
         analyserRef.current.fftSize = 32;
         const microphone = audioContext.createMediaStreamSource(stream);
@@ -516,7 +633,7 @@ const Whatsapp = () => {
             sum += dataArray[i];
           }
           const average = sum / dataArray.length;
-          setAudioLevel(Math.min(average / 50, 1)); // Normalize to 0-1 range
+          setAudioLevel(Math.min(average / 50, 1)); 
           animationRef.current = requestAnimationFrame(analyzeAudio);
         };
 
@@ -620,70 +737,99 @@ const Whatsapp = () => {
     return users.find((user) => user.id === activeChat) || users[0];
   }, [users, activeChat]);
 
-  const sidebarBg = useColorModeValue("gray.100", "gray.800");
-  const chatBg = useColorModeValue("gray.50", "gray.700");
+  const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, "gray.800");
 
   const UserList = useMemo(
     () => () => (
-      <Box overflowY="auto" h="100%" >
-        <Box p={3}>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
-              <FiSearch color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search contacts"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              bg="white"
-            />
-          </InputGroup>
-        </Box>
-        <Divider />
-        <Box mb={20}>
+      <Box 
+        overflowY="auto" 
+        h="calc(100% - 120px)"
+        bg={sidebarBg}
+        css={{
+          "&::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: whatsappColors.primary,
+            borderRadius: "3px",
+          },
+        }}
+      >
         {filteredUsers.map((user) => (
           <React.Fragment key={user.id}>
             <Flex
               p={3}
               align="center"
               cursor="pointer"
-              bg={activeChat === user.id ? "whatsapp.300" : "transparent"}
-              _hover={{ bg: "whatsapp.100" }}
+              bg={
+                activeChat === user.id
+                  ? whatsappColors.userSelectedBg
+                  : "transparent"
+              }
+              _hover={{ bg: whatsappColors.userHoverBg }}
               onClick={() => {
                 setActiveChat(user.id);
                 if (isMobile) onClose();
               }}
+              transition="background 0.2s ease"
             >
-              <Avatar src={user.avatar} size="md" mr={3} />
-              <Box flex="1">
+              <Box position="relative">
+                <Avatar src={user.avatar} size="md" mr={3} />
+                {user.status === "online" && (
+                  <Box
+                    position="absolute"
+                    bottom="0"
+                    right="3"
+                    w="12px"
+                    h="12px"
+                    bg="green.500"
+                    borderRadius="full"
+                    border="2px solid"
+                    borderColor={sidebarBg}
+                  />
+                )}
+              </Box>
+              <Box flex="1" overflow="hidden">
                 <Flex justify="space-between">
-                  <Text fontWeight="bold">{user.name}</Text>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontWeight="bold" color={whatsappColors.textDark}>
+                    {user.name}
+                  </Text>
+                  <Text fontSize="xs" color={whatsappColors.timeStampColor}>
                     {user.time}
                   </Text>
                 </Flex>
                 <Flex justify="space-between" mt={1}>
-                  <Text fontSize="sm" color="gray.600" isTruncated maxW="180px">
+                  <Text
+                    fontSize="sm"
+                    color={whatsappColors.textSecondary}
+                    isTruncated
+                    maxW="180px"
+                  >
                     {user.lastMessage}
                   </Text>
                   {user.unread > 0 && (
-                    <Badge colorScheme="green" borderRadius="full" px={2}>
+                    <Badge
+                      colorScheme="green"
+                      borderRadius="full"
+                      px={2}
+                      bg={whatsappColors.primary}
+                      color="white"
+                    >
                       {user.unread}
                     </Badge>
                   )}
                 </Flex>
-                <Text fontSize="xs" color="gray.500" mt={1}>
-                  Last seen: {user.lastSeen}
-                </Text>
               </Box>
             </Flex>
-            <Divider />
+            <Divider borderColor="gray.300" />
           </React.Fragment>
         ))}
-        </Box>
       </Box>
     ),
-    [filteredUsers, activeChat, searchQuery, isMobile, onClose]
+    [filteredUsers, activeChat, isMobile, onClose, sidebarBg]
   );
 
   // Group messages by date
@@ -693,109 +839,208 @@ const Whatsapp = () => {
 
     messages.forEach((message, index) => {
       const messageDate = formatDateHeader(message.timestamp);
-      
+
       if (messageDate !== currentDate) {
         groups.push({
-          type: 'date',
+          type: "date",
           date: messageDate,
-          id: `date-${messageDate}-${index}`
+          id: `date-${messageDate}-${index}`,
         });
         currentDate = messageDate;
       }
-      
+
       groups.push({
-        type: 'message',
+        type: "message",
         message,
-        id: message.id
+        id: message.id,
       });
     });
 
     return groups;
   }, [messages]);
 
-  return (
-    <Flex h="80vh" overflow="hidden" position="relative">
-      {/* Desktop Sidebar */}
-      {!isMobile && (
+  // Generate waveform data based on current audio level
+  const generateWaveformData = () => {
+    const bars = [];
+    const barCount = 50;
+    const maxHeight = 30;
+
+    for (let i = 0; i < barCount; i++) {
+      const noise = Math.random() * 0.3;
+      const positionFactor = Math.abs(i - barCount / 2) / (barCount / 2);
+      const height = Math.max(
+        5,
+        audioLevel * maxHeight * (1 - positionFactor * 0.7) + noise * 10
+      );
+
+      bars.push(
         <Box
-          w="300px"
-          bg={sidebarBg}
-          borderRight="1px solid"
-          borderColor="gray.200"
-          display={{ base: "none", md: "block" }}
-        >
-          {/* Sidebar Header */}
-          <Flex
-            p={3}
-            align="center"
-            justify="space-between"
-            borderBottom="1px solid"
-            borderColor="gray.200"
-          >
-            <Flex align="center">
-              <Avatar src={currentUser.avatar} size="sm" mr={2} />
-              <Text fontWeight="bold">Chats</Text>
-            </Flex>
-          </Flex>
-          <Divider />
+          key={i}
+          w="2px"
+          h={`${height}px`}
+          bg={whatsappColors.primary}
+          borderRadius="full"
+          opacity={0.6 + Math.random() * 0.4}
+          transition="height 0.1s ease"
+        />
+      );
+    }
+    return bars;
+  };
 
-          <UserList />
-        </Box>
-      )}
-
+  return (
+    <Flex
+      h="80vh"
+      overflow="hidden"
+      position="relative"
+      borderRadius="lg"
+      boxShadow="lg"
+    >
       {/* Mobile Drawer */}
       <Drawer
         isOpen={isOpen}
         placement="left"
         onClose={onClose}
         finalFocusRef={btnRef}
+        h="80vh" 
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent maxW="320px" bg={sidebarBg}>
           <DrawerCloseButton />
-          <DrawerHeader>
+          <DrawerHeader p={3} bg={sidebarBg}>
             <Flex align="center">
               <Avatar src={currentUser.avatar} size="sm" mr={2} />
-              <Text>Chats</Text>
+              <Text fontWeight="bold" color={whatsappColors.textDark}>
+                Chats
+              </Text>
             </Flex>
           </DrawerHeader>
-          <Divider />
           <DrawerBody p={0}>
+            <Box p={3} bg={sidebarBg}>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <FiSearch color="gray.300" />
+                </InputLeftElement>
+                <Input
+                  placeholder="Search contacts"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  bg="white"
+                  borderRadius="lg"
+                  border="none"
+                  boxShadow="sm"
+                />
+              </InputGroup>
+            </Box>
+            <Divider borderColor="gray.300" />
             <UserList />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
 
+      {/* Desktop Sidebar */}
+      <Box
+        w={{ base: "100%", md: "30%" }}
+        bg={sidebarBg}
+        borderRight="1px solid"
+        borderColor="gray.200"
+        display={{ base: "none", md: "block" }}
+        h="100%"
+        overflow="hidden"
+        position="relative"
+      >
+        {/* Fixed Sidebar Header */}
+        <Box
+          position="sticky"
+          top="0"
+          zIndex="1"
+          bg={sidebarBg}
+          borderBottom="1px solid"
+          borderColor="gray.300"
+        >
+          <Flex
+            p={3}
+            align="center"
+            justify="space-between"
+            bg={sidebarBg}
+          >
+            <Flex align="center">
+              <Avatar src={currentUser.avatar} size="sm" mr={2} />
+              <Text fontWeight="bold" color={whatsappColors.textDark}>
+                Chats
+              </Text>
+            </Flex>
+            <IconButton
+              icon={<BsThreeDotsVertical />}
+              aria-label="Menu"
+              variant="ghost"
+              color={whatsappColors.textSecondary}
+            />
+          </Flex>
+          
+          {/* Fixed Search Box */}
+          <Box p={3} bg={sidebarBg}>
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <FiSearch color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search contacts"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                bg="white"
+                borderRadius="lg"
+                border="none"
+                boxShadow="sm"
+              />
+            </InputGroup>
+          </Box>
+          <Divider borderColor="gray.300" />
+        </Box>
+
+        <UserList />
+      </Box>
+
       {/* Chat Area */}
-      <Box flex={1} display="flex" flexDirection="column" bg={chatBg}>
+      <Box
+        flex={1}
+        display="flex"
+        flexDirection="column"
+        bg="white"
+        h="100%"
+      >
         {/* Chat Header */}
         <Flex
-          bg="#005c4b"
-          color="white"
+          bg={whatsappColors.chatHeaderBg}
+          color={whatsappColors.textDark}
           p={3}
           alignItems="center"
           justifyContent="space-between"
+          borderBottom="1px solid"
+          borderColor="gray.200"
+          position="sticky"
+          top="0"
+          zIndex="1"
         >
           <Flex alignItems="center">
-            {isMobile && (
-              <IconButton
-                icon={<FiChevronRight />}
-                aria-label="Show sidebar"
-                mr={2}
-                onClick={onOpen}
-                color="white"
-                background="transparent"
-                ref={btnRef}
-              />
-            )}
-            <Avatar src={getActiveUser().avatar} size="sm" mr={2} />
+            <IconButton
+              icon={<FiChevronLeft />}
+              aria-label="Show sidebar"
+              mr={2}
+              onClick={isMobile ? onOpen : null}
+              color={whatsappColors.textSecondary}
+              background="transparent"
+              display={{ base: "flex", md: "none" }}
+            />
+            <Avatar src={getActiveUser().avatar} size="sm" mr={3} />
             <Box>
               <Text fontWeight="bold">{getActiveUser().name}</Text>
-              <Text fontSize="xs">Online</Text>
+              <Text fontSize="xs" color={whatsappColors.textSecondary}>
+                {getActiveUser().status}
+              </Text>
             </Box>
           </Flex>
         </Flex>
-        <Divider />
 
         {/* Chat messages */}
         <Box
@@ -804,29 +1049,29 @@ const Whatsapp = () => {
           overflowY="auto"
           css={{
             "&::-webkit-scrollbar": {
-              width: "4px",
-            },
-            "&::-webkit-scrollbar-track": {
               width: "6px",
             },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
             "&::-webkit-scrollbar-thumb": {
-              background: "#888",
-              borderRadius: "24px",
+              background: whatsappColors.primary,
+              borderRadius: "3px",
             },
           }}
         >
           <VStack spacing={4} align="stretch">
             {groupedMessages.map((item) => {
-              if (item.type === 'date') {
+              if (item.type === "date") {
                 return (
                   <Flex key={item.id} justify="center" my={2}>
                     <Box
-                      bg="gray.200"
+                      bg="rgba(0, 0, 0, 0.1)"
                       px={3}
                       py={1}
                       borderRadius="full"
                     >
-                      <Text fontSize="sm" color="gray.600">
+                      <Text fontSize="xs" color="gray.600">
                         {item.date}
                       </Text>
                     </Box>
@@ -835,69 +1080,117 @@ const Whatsapp = () => {
               }
 
               const message = item.message;
+              const isSelf = message.sender.id === currentUser.id;
+              const showAvatar =
+                !isSelf &&
+                (!groupedMessages[item.id - 1]?.message ||
+                  groupedMessages[item.id - 1]?.message.sender.id !==
+                    message.sender.id);
+
               return (
                 <React.Fragment key={item.id}>
                   <Flex
                     direction="column"
-                    align={
-                      message.sender.id === currentUser.id
-                        ? "flex-end"
-                        : "flex-start"
-                    }
+                    align={isSelf ? "flex-end" : "flex-start"}
+                    _hover={{ bg: whatsappColors.messageHoverBg }}
+                    p={1}
+                    borderRadius="md"
+                    transition="background 0.2s ease"
+                    mt={showAvatar ? 3 : 1}
                   >
-                    <Flex align="center" mb={1}>
-                      <Avatar
-                        src={message.sender.avatar}
-                        size="xs"
-                        mr={2}
-                        display={
-                          message.sender.id === currentUser.id ? "none" : "block"
-                        }
-                      />
-                      <Text fontSize="xs" color="gray.500">
-                        {message.sender.name} •{" "}
-                        {formatMessageTime(message.timestamp)}
-                      </Text>
-                    </Flex>
+                    {showAvatar && (
+                      <Flex align="center" mb={1}>
+                        <Avatar src={message.sender.avatar} size="xs" mr={2} />
+                        <Text
+                          fontSize="xs"
+                          color={whatsappColors.timeStampColor}
+                        >
+                          {message.sender.name}
+                        </Text>
+                      </Flex>
+                    )}
+
+                    {/* Reply indicator */}
+                    {message.replyTo && (
+                      <Box
+                        bg={whatsappColors.replyBg}
+                        borderLeft={`3px solid ${whatsappColors.replyBorder}`}
+                        borderRadius="md"
+                        p={2}
+                        mb={1}
+                        maxW="80%"
+                        alignSelf={isSelf ? "flex-end" : "flex-start"}
+                      >
+                        <Text
+                          fontSize="xs"
+                          color={whatsappColors.textSecondary}
+                        >
+                          Replying to {message.replyTo.sender.name}
+                        </Text>
+                        <Text
+                          fontSize="sm"
+                          color={whatsappColors.textDark}
+                          isTruncated
+                        >
+                          {message.replyTo.text || "Media message"}
+                        </Text>
+                      </Box>
+                    )}
 
                     {message.type === "text" && (
                       <Box
                         position="relative"
                         bg={
-                          message.sender.id === currentUser.id
-                            ? "#005c4b"
-                            : "white"
+                          isSelf
+                            ? whatsappColors.outgoingBg
+                            : whatsappColors.incomingBg
                         }
                         px={4}
                         py={2}
                         borderRadius="lg"
                         maxW="80%"
+                        boxShadow="sm"
                         color={
-                          message.sender.id === currentUser.id ? "white" : "black"
+                          isSelf
+                            ? whatsappColors.textDark
+                            : whatsappColors.textDark
                         }
+                        borderTopLeftRadius={
+                          !isSelf && !showAvatar ? "4px" : "lg"
+                        }
+                        borderTopRightRadius={isSelf ? "4px" : "lg"}
                       >
-                        <Text>{message.text}</Text>
-                        {message.sender.id === currentUser.id && (
-                          <Box
-                            position="absolute"
-                            right="2"
-                            bottom="1"
+                        <Text whiteSpace="pre-wrap">{message.text}</Text>
+                        <Flex
+                          justifyContent={"flex-end"}
+                          align="center"
+                          gap={1}
+                        >
+                          <Text
                             fontSize="10px"
-                            color={
-                              message.sender.id === currentUser.id
-                                ? "whiteAlpha.700"
-                                : "gray.500"
-                            }
+                            color={whatsappColors.timeStampColor}
+                            mr={1}
                           >
-                            {message.status === "read" ? (
-                              <FaCheckDouble color="#34B7F1" />
-                            ) : message.status === "delivered" ? (
-                              <FaCheckDouble />
-                            ) : (
-                              <FaCheck />
-                            )}
-                          </Box>
-                        )}
+                            {formatMessageTime(message.timestamp)}
+                          </Text>
+                          {isSelf && (
+                            <>
+                              {message.status === "read" ? (
+                                <FaCheckDouble size="10px" color="#34B7F1" />
+                              ) : message.status === "delivered" ? (
+                                <FaCheckDouble
+                                  size="10px"
+                                  color={whatsappColors.timeStampColor}
+                                />
+                              ) : (
+                                <FaCheck
+                                  size="10px"
+                                  color={whatsappColors.timeStampColor}
+                                />
+                              )}
+                            </>
+                          )}
+                        </Flex>
                       </Box>
                     )}
 
@@ -905,16 +1198,19 @@ const Whatsapp = () => {
                       <Box
                         position="relative"
                         bg={
-                          message.sender.id === currentUser.id
-                            ? "#005c4b"
-                            : "white"
+                          isSelf
+                            ? whatsappColors.outgoingBg
+                            : whatsappColors.incomingBg
                         }
-                        color={
-                          message.sender.id === currentUser.id ? "white" : "black"
-                        }
+                        color={isSelf ? "white" : "black"}
                         p={2}
                         borderRadius="lg"
                         maxW="80%"
+                        boxShadow="sm"
+                        borderTopLeftRadius={
+                          !isSelf && !showAvatar ? "4px" : "lg"
+                        }
+                        borderTopRightRadius={isSelf ? "4px" : "lg"}
                       >
                         <img
                           src={message.image}
@@ -926,27 +1222,28 @@ const Whatsapp = () => {
                             objectFit: "contain",
                           }}
                         />
-                        {message.sender.id === currentUser.id && (
-                          <Box
-                            position="absolute"
-                            right="2"
-                            bottom="2"
-                            fontSize="10px"
-                            color={
-                              message.sender.id === currentUser.id
-                                ? "whiteAlpha.700"
-                                : "gray.500"
-                            }
-                          >
-                            {message.status === "read" ? (
-                              <FaCheckDouble color="#34B7F1" />
-                            ) : message.status === "delivered" ? (
-                              <FaCheckDouble />
-                            ) : (
-                              <FaCheck />
-                            )}
-                          </Box>
-                        )}
+                        <Flex
+                          justifyContent={"flex-end"}
+                          align="center"
+                          gap={1}
+                          px={1}
+                          borderRadius="md"
+                        >
+                          <Text fontSize="10px" color="white" mr={1}>
+                            {formatMessageTime(message.timestamp)}
+                          </Text>
+                          {isSelf && (
+                            <>
+                              {message.status === "read" ? (
+                                <FaCheckDouble size="10px" color="#34B7F1" />
+                              ) : message.status === "delivered" ? (
+                                <FaCheckDouble size="10px" color="white" />
+                              ) : (
+                                <FaCheck size="10px" color="white" />
+                              )}
+                            </>
+                          )}
+                        </Flex>
                       </Box>
                     )}
 
@@ -954,54 +1251,70 @@ const Whatsapp = () => {
                       <Box
                         position="relative"
                         bg={
-                          message.sender.id === currentUser.id
-                            ? "#005c4b"
-                            : "white"
+                          isSelf
+                            ? whatsappColors.outgoingBg
+                            : whatsappColors.incomingBg
                         }
                         px={4}
                         py={2}
                         borderRadius="lg"
                         maxW="80%"
                         minW="200px"
+                        boxShadow="sm"
                         color={
-                          message.sender.id === currentUser.id ? "white" : "black"
+                          isSelf
+                            ? whatsappColors.textDark
+                            : whatsappColors.textDark
                         }
+                        borderTopLeftRadius={
+                          !isSelf && !showAvatar ? "4px" : "lg"
+                        }
+                        borderTopRightRadius={isSelf ? "4px" : "lg"}
                       >
                         <VoiceMessagePlayer
                           url={message.audioUrl}
-                          isSelf={message.sender.id === currentUser.id}
+                          isSelf={isSelf}
                         />
-                        {message.sender.id === currentUser.id && (
-                          <Box
-                            position="absolute"
-                            right="2"
-                            bottom="2"
+                        <Flex
+                          justifyContent={"flex-end"}
+                          align="center"
+                          gap={1}
+                        >
+                          <Text
                             fontSize="10px"
-                            color={
-                              message.sender.id === currentUser.id
-                                ? "whiteAlpha.700"
-                                : "gray.500"
-                            }
+                            color={whatsappColors.timeStampColor}
+                            mr={1}
                           >
-                            {message.status === "read" ? (
-                              <FaCheckDouble color="#34B7F1" />
-                            ) : message.status === "delivered" ? (
-                              <FaCheckDouble />
-                            ) : (
-                              <FaCheck />
-                            )}
-                          </Box>
-                        )}
+                            {formatMessageTime(message.timestamp)}
+                          </Text>
+                          {isSelf && (
+                            <>
+                              {message.status === "read" ? (
+                                <FaCheckDouble size="10px" color="#34B7F1" />
+                              ) : message.status === "delivered" ? (
+                                <FaCheckDouble
+                                  size="10px"
+                                  color={whatsappColors.timeStampColor}
+                                />
+                              ) : (
+                                <FaCheck
+                                  size="10px"
+                                  color={whatsappColors.timeStampColor}
+                                />
+                              )}
+                            </>
+                          )}
+                        </Flex>
                       </Box>
                     )}
                   </Flex>
-                  <Divider opacity={0.2} />
                 </React.Fragment>
               );
             })}
+            <div ref={messagesEndRef} />
             {isSending && (
-              <Flex justify="flex-end">
-                <Spinner size="sm" />
+              <Flex justify="flex-end" pr={4}>
+                <Spinner size="sm" color={whatsappColors.primary} />
               </Flex>
             )}
           </VStack>
@@ -1042,8 +1355,42 @@ const Whatsapp = () => {
           </ModalContent>
         </Modal>
 
+        {/* Reply preview */}
+        {replyingTo && (
+          <Flex
+            bg={whatsappColors.replyBg}
+            p={2}
+            align="center"
+            justify="space-between"
+            borderBottom="1px solid"
+            borderColor="gray.200"
+          >
+            <Box flex={1}>
+              <Text fontSize="sm" color={whatsappColors.primary}>
+                Replying to {replyingTo.sender.name}
+              </Text>
+              <Text fontSize="sm" isTruncated>
+                {replyingTo.text || "Media message"}
+              </Text>
+            </Box>
+            <IconButton
+              icon={<IoMdClose />}
+              aria-label="Cancel reply"
+              size="sm"
+              variant="ghost"
+              onClick={() => setReplyingTo(null)}
+            />
+          </Flex>
+        )}
+
         {/* Input area */}
-        <Box bg="gray.200" p={3}>
+        <Box
+          bg={whatsappColors.inputBg}
+          p={3}
+          boxShadow="md"
+          borderTop="1px solid"
+          borderColor="gray.200"
+        >
           {selectedImage && (
             <Flex
               bg="white"
@@ -1069,34 +1416,25 @@ const Whatsapp = () => {
                 justify="space-between"
                 align="center"
                 w="80%"
+                boxShadow="md"
               >
                 <HStack spacing={3} w="100%">
                   <Box
                     w="10px"
                     h="10px"
-                    bg="red.500"
+                    bg={whatsappColors.recordingDot}
                     borderRadius="full"
                     animation="pulse 1s infinite"
                   />
-                  <Box 
-                    flex={1} 
-                    h="2px" 
-                    bg="gray.200" 
-                    position="relative"
-                    overflow="hidden"
+                  <HStack
+                    spacing={1}
+                    flex={1}
+                    justify="center"
+                    h="30px"
+                    align="center"
                   >
-                    <Box
-                      position="absolute"
-                      top="0"
-                      left="0"
-                      right="0"
-                      bottom="0"
-                      bg="#4a9eff"
-                      transformOrigin="left"
-                      transform={`scaleX(${0.2 + audioLevel * 0.8})`}
-                      transition="transform 0.1s ease-out"
-                    />
-                  </Box>
+                    {generateWaveformData()}
+                  </HStack>
                   <Text fontSize="sm" fontWeight="bold" minW="40px">
                     {formatTime(recordingTime)}
                   </Text>
@@ -1107,10 +1445,13 @@ const Whatsapp = () => {
                     aria-label="Cancel recording"
                     size="sm"
                     onClick={cancelRecording}
+                    color={whatsappColors.textSecondary}
                   />
                   <Button
                     size="sm"
-                    colorScheme="whatsapp"
+                    bg={whatsappColors.primary}
+                    color="white"
+                    _hover={{ bg: whatsappColors.secondary }}
                     onClick={stopRecording}
                     leftIcon={<FiSend />}
                   >
@@ -1134,17 +1475,22 @@ const Whatsapp = () => {
                 aria-label="Attach image"
                 mr={2}
                 onClick={() => fileInputRef.current.click()}
+                color={whatsappColors.textSecondary}
+                variant="ghost"
               />
             </Tooltip>
 
             <Input
               flex={1}
-              bg="white"
+              bg="gray.300"
               placeholder="Type a message..."
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-              _focus={{ borderColor: "brand" }}
+              borderRadius="full"
+              border="none"
+              boxShadow="sm"
+              _focus={{ boxShadow: "md" }}
             />
 
             {isRecording ? (
@@ -1156,24 +1502,32 @@ const Whatsapp = () => {
                 onClick={stopRecording}
               />
             ) : (
-              <Tooltip label="Record voice message">
-                <IconButton
-                  icon={<FiMic />}
-                  aria-label="Record voice message"
-                  ml={2}
-                  onClick={startRecording}
-                />
-              </Tooltip>
+              <>
+                {inputMessage ? (
+                  <IconButton
+                    icon={<RiSendPlaneFill />}
+                    aria-label="Send message"
+                    colorScheme="whatsapp"
+                    ml={2}
+                    onClick={handleSendMessage}
+                    disabled={
+                      (!inputMessage.trim() && !selectedImage) || isSending
+                    }
+                  />
+                ) : (
+                  <Tooltip label="Record voice message">
+                    <IconButton
+                      icon={<FiMic />}
+                      aria-label="Record voice message"
+                      ml={2}
+                      onClick={startRecording}
+                      color={whatsappColors.textSecondary}
+                      variant="ghost"
+                    />
+                  </Tooltip>
+                )}
+              </>
             )}
-
-            <IconButton
-              icon={<FiSend />}
-              aria-label="Send message"
-              colorScheme="whatsapp"
-              ml={2}
-              onClick={handleSendMessage}
-              disabled={(!inputMessage.trim() && !selectedImage) || isSending}
-            />
           </Flex>
         </Box>
       </Box>
