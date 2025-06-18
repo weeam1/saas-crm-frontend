@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Table,
@@ -12,13 +12,8 @@ import {
   IconButton,
   Badge,
   useColorModeValue,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
   Icon,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause } from "react-icons/fa";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
@@ -133,18 +128,19 @@ export default function CallHistory() {
     loadCalls();
   }, [loadCalls]);
 
-	useEffect(() => {
-		loadCalls(page, pageSize);
-	}, [page, pageSize]);
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage);
+  }, []);
 
-	const handlePageChange = useCallback((newPage) => {
-		setPage(newPage);
-	}, []);
+  const handlePageSizeChange = useCallback((e) => {
+    setPageSize(e.target.value);
+    setPage(1);
+  }, []);
 
-	const handlePageSizeChange = useCallback((e) => {
-		setPageSize(e.target.value);
-		setPage(1);
-	}, []);
+  // Function to handle setting currently playing audio
+  const handleSetCurrentlyPlaying = useCallback((playerId) => {
+    setCurrentlyPlayingId(playerId);
+  }, []);
 
   const handleClearFilters = useCallback((filterKey) => {
     if (filterKey) {
@@ -478,4 +474,3 @@ const CallModeIcon = (callMode) => {
       return "";
   }
 };
-
