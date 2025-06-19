@@ -24,7 +24,6 @@ import {
   Spinner,
   VStack,
   HStack,
-  Badge,
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
@@ -34,7 +33,6 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
-  Center,
   InputGroup,
   InputLeftElement,
   Divider,
@@ -47,11 +45,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  FormControl,
-  FormLabel,
-  Textarea,
-  Grid,
-  GridItem,
 } from "@chakra-ui/react";
 import {
   FiMic,
@@ -62,489 +55,21 @@ import {
   FiVideo,
   FiMusic,
   FiDownload,
-  FiTrash2,
-  FiEdit,
   FiUser,
-  FiPlus,
 } from "react-icons/fi";
 import { IoMdMic, IoMdClose } from "react-icons/io";
-import {
-  FaPlay,
-  FaPause,
-  FaCheck,
-  FaCheckDouble,
-  FaSmile,
-} from "react-icons/fa";
+import { FaCheck, FaCheckDouble, FaSmile } from "react-icons/fa";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { RiSendPlaneFill } from "react-icons/ri";
 import { toast } from "react-toastify";
-import WaveSurfer from "wavesurfer.js";
 import EmojiPicker from "emoji-picker-react";
 
-const whatsappColors = {
-  primary: "#008069",
-  secondary: "#00A884",
-  incomingBg: "gray.300",
-  outgoingBg: "#D9FDD3",
-  textDark: "#111B21",
-  textLight: "#FFFFFF",
-  textSecondary: "#667781",
-  sidebarBg: "#F0F2F5",
-  headerBg: "#F0F2F5",
-  inputBg: "#FFFFFF",
-  recordingDot: "#34B7F1",
-  userHoverBg: "rgba(0, 0, 0, 0.05)",
-  userSelectedBg: "rgba(0, 0, 0, 0.08)",
-  messageHoverBg: "rgba(0, 0, 0, 0.03)",
-  timeStampColor: "#667781",
-  replyBg: "#F0F2F5",
-  replyBorder: "#D1D7DB",
-  chatHeaderBg: "#F0F2F5",
-};
+import ContactModal from "./components/ContactModal";
+import FileMessage from "./components/FileMessage";
+import UserList from "./components/UserList";
+import VoiceMessagePlayer from "./components/VoiceMessagePlayer";
 
-const formatTime = (seconds) => {
-  const safeSeconds = Math.max(0, seconds);
-  const mins = Math.floor(safeSeconds / 60);
-  const secs = Math.floor(safeSeconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
-
-const formatDateHeader = (date) => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const messageDate = new Date(date);
-
-  if (messageDate.toDateString() === today.toDateString()) {
-    return "Today";
-  } else if (messageDate.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
-  } else {
-    return messageDate.toLocaleDateString([], {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    });
-  }
-};
-
-const VoiceMessagePlayer = ({ url, isSelf, onPause }) => {
-  const waveformRef = useRef(null);
-  const wavesurferRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    let wavesurfer;
-    let timeoutId;
-
-    const initWaveSurfer = async () => {
-      if (!url || !waveformRef.current) return;
-
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        timeoutId = setTimeout(() => {
-          if (isLoading) {
-            setError("Audio loading timed out");
-            setIsLoading(false);
-          }
-        }, 10000);
-
-        wavesurfer = WaveSurfer.create({
-          container: waveformRef.current,
-          waveColor: "#66778180",
-          progressColor: "#008069",
-          cursorColor: "transparent",
-          barWidth: 2,
-          barRadius: 2,
-          barGap: 1,
-          height: 32,
-          responsive: true,
-          backend: "WebAudio",
-          normalize: true,
-          interact: true,
-        });
-
-        wavesurferRef.current = wavesurfer;
-
-        wavesurfer.load(url);
-
-        wavesurfer.on("ready", () => {
-          clearTimeout(timeoutId);
-          setDuration(wavesurfer.getDuration());
-          setError(null);
-          setIsLoading(false);
-        });
-
-        wavesurfer.on("audioprocess", () => {
-          setCurrentTime(wavesurfer.getCurrentTime());
-        });
-
-        wavesurfer.on("finish", () => {
-          setIsPlaying(false);
-          if (onPause) onPause(true);
-        });
-
-        wavesurfer.on("error", (err) => {
-          clearTimeout(timeoutId);
-          console.error("WaveSurfer error:", err);
-          setError("Failed to load audio");
-          setIsLoading(false);
-        });
-
-        wavesurfer.on("interaction", () => {
-          setIsDragging(true);
-        });
-
-        wavesurfer.on("interaction-end", () => {
-          setIsDragging(false);
-        });
-      } catch (err) {
-        clearTimeout(timeoutId);
-        console.error("WaveSurfer init error:", err);
-        setError("Audio error");
-        setIsLoading(false);
-      }
-    };
-
-    initWaveSurfer();
-
-    return () => {
-      clearTimeout(timeoutId);
-      wavesurfer?.destroy();
-    };
-  }, [url, isSelf]);
-
-  const togglePlay = () => {
-    if (!wavesurferRef.current || error || isLoading) return;
-    wavesurferRef.current.playPause();
-    const newIsPlaying = !isPlaying;
-    setIsPlaying(newIsPlaying);
-    if (onPause) {
-      onPause(!newIsPlaying);
-    }
-  };
-
-  return (
-    <Flex align="center" gap={3} w="100%" mt={1}>
-      <IconButton
-        aria-label={isPlaying ? "Pause" : "Play"}
-        icon={isPlaying ? <FaPause size="12px" /> : <FaPlay size="12px" />}
-        size="sm"
-        onClick={togglePlay}
-        variant="ghost"
-        color={whatsappColors.textSecondary}
-        bg="transparent"
-        _hover={{ bg: "transparent" }}
-        isDisabled={!!error || isLoading}
-      />
-
-      <Box
-        ref={waveformRef}
-        flex="1"
-        h="32px"
-        minW="120px"
-        position="relative"
-        cursor={error || isLoading ? "not-allowed" : "pointer"}
-        onClick={togglePlay}
-      >
-        {(isLoading || error) && (
-          <Flex
-            position="absolute"
-            top="0"
-            left="0"
-            right="0"
-            bottom="0"
-            align="center"
-            justify="center"
-            bg={isSelf ? "rgba(0, 128, 105, 0.1)" : "rgba(255, 255, 255, 0.5)"}
-          >
-            {isLoading ? (
-              <Spinner
-                size="sm"
-                color={isSelf ? "white" : whatsappColors.primary}
-              />
-            ) : (
-              <Text
-                fontSize="xs"
-                color={isSelf ? "whiteAlpha.800" : "gray.500"}
-              >
-                Audio unavailable
-              </Text>
-            )}
-          </Flex>
-        )}
-      </Box>
-
-      <Text fontSize="xs" minW="40px" textAlign="right" color={"#66778180"}>
-        {error
-          ? "--:--"
-          : formatTime(isPlaying ? duration - currentTime : duration)}
-      </Text>
-    </Flex>
-  );
-};
-
-const FileMessage = ({ file, isSelf, onDownload, timestamp, status }) => {
-  const getFileIcon = () => {
-    if (file.type.includes("image")) return <FiImage size="24px" />;
-    if (file.type.includes("video")) return <FiVideo size="24px" />;
-    if (file.type.includes("audio")) return <FiMusic size="24px" />;
-    return <FiFile size="24px" />;
-  };
-
-  const getFileType = () => {
-    if (file.type.includes("image")) return "Image";
-    if (file.type.includes("video")) return "Video";
-    if (file.type.includes("audio")) return "Audio";
-    return file.name.split(".").pop().toUpperCase() + " File";
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  };
-
-  return (
-    <Box
-      bg={isSelf ? whatsappColors.outgoingBg : whatsappColors.incomingBg}
-      borderRadius="lg"
-      maxW={{ base: "90%", md: "80%" }}
-      boxShadow="sm"
-      w="100%"
-      p={2}
-    >
-      <Flex align="center">
-        <Box mr={3}>{getFileIcon()}</Box>
-        <Box flex={1} minW="0" overflow="hidden">
-          <Text fontWeight="bold" isTruncated>
-            {file.name}
-          </Text>
-          <Text fontSize="sm" color={whatsappColors.textSecondary} isTruncated>
-            {getFileType()} • {formatFileSize(file.size)}
-          </Text>
-        </Box>
-      </Flex>
-      <Flex justify="space-between" align="center" mt={2}>
-        <Button
-          size="sm"
-          colorScheme="whatsapp"
-          color="white"
-          leftIcon={<FiDownload />}
-          onClick={onDownload}
-          flexShrink={0}
-        >
-          Download
-        </Button>
-        <Flex align="center" gap={1} minW="fit-content">
-          <Text fontSize="10px" color={whatsappColors.timeStampColor} mr={1}>
-            {timestamp}
-          </Text>
-          {isSelf && (
-            <>
-              {status === "read" ? (
-                <FaCheckDouble size="10px" color="#34B7F1" />
-              ) : status === "delivered" ? (
-                <FaCheckDouble
-                  size="10px"
-                  color={whatsappColors.timeStampColor}
-                />
-              ) : (
-                <FaCheck size="10px" color={whatsappColors.timeStampColor} />
-              )}
-            </>
-          )}
-        </Flex>
-      </Flex>
-    </Box>
-  );
-};
-
-const ContactModal = ({
-  isOpen,
-  onClose,
-  contacts,
-  onUpdateContact,
-  onDeleteContact,
-  onAddContact,
-}) => {
-  const [editingContact, setEditingContact] = useState(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
-
-  const handleEdit = (contact) => {
-    setEditingContact(contact);
-    setName(contact.name);
-    setEmail(contact.email || "");
-    setPhone(contact.phone || "");
-  };
-
-  const handleUpdate = () => {
-    if (name.trim() && editingContact) {
-      onUpdateContact(editingContact.id, { name, email, phone });
-      setEditingContact(null);
-      setName("");
-      setEmail("");
-      setPhone("");
-    }
-  };
-
-  const handleAddContact = () => {
-    if (name.trim()) {
-      onAddContact({ name, email, phone });
-      setIsAdding(false);
-      setName("");
-      setEmail("");
-      setPhone("");
-    }
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Manage Contacts</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          {isAdding ? (
-            <Box>
-              <FormControl mb={4}>
-                <FormLabel>Name</FormLabel>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter name"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
-                  type="email"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Phone</FormLabel>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter phone number"
-                  type="tel"
-                />
-              </FormControl>
-              <Flex justify="flex-end">
-                <Button mr={2} onClick={() => setIsAdding(false)}>
-                  Cancel
-                </Button>
-                <Button colorScheme="whatsapp" onClick={handleAddContact}>
-                  Add Contact
-                </Button>
-              </Flex>
-            </Box>
-          ) : editingContact ? (
-            <Box>
-              <FormControl mb={4}>
-                <FormLabel>Edit Contact Name</FormLabel>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter new name"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
-                  type="email"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Phone</FormLabel>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter phone number"
-                  type="tel"
-                />
-              </FormControl>
-              <Flex justify="flex-end">
-                <Button mr={2} onClick={() => setEditingContact(null)}>
-                  Cancel
-                </Button>
-                <Button colorScheme="whatsapp" onClick={handleUpdate}>
-                  Save
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <>
-              <Flex justify="flex-end" mb={4}>
-                <Button
-                  leftIcon={<FiPlus />}
-                  colorScheme="whatsapp"
-                  onClick={() => setIsAdding(true)}
-                >
-                  Add Contact
-                </Button>
-              </Flex>
-              <VStack spacing={4} align="stretch">
-                {contacts.map((contact) => (
-                  <Flex key={contact.id} justify="space-between" align="center">
-                    <Flex align="center">
-                      <Avatar src={contact.avatar} size="sm" mr={3} />
-                      <Box>
-                        <Text fontWeight="medium">{contact.name}</Text>
-                        {contact.email && (
-                          <Text fontSize="xs" color="gray.500">
-                            {contact.email}
-                          </Text>
-                        )}
-                        {contact.phone && (
-                          <Text fontSize="xs" color="gray.500">
-                            {contact.phone}
-                          </Text>
-                        )}
-                      </Box>
-                    </Flex>
-                    <HStack>
-                      <IconButton
-                        icon={<FiEdit />}
-                        aria-label="Edit contact"
-                        size="sm"
-                        onClick={() => handleEdit(contact)}
-                      />
-                      <IconButton
-                        icon={<FiTrash2 />}
-                        aria-label="Delete contact"
-                        size="sm"
-                        colorScheme="red"
-                        onClick={() => onDeleteContact(contact.id)}
-                      />
-                    </HStack>
-                  </Flex>
-                ))}
-              </VStack>
-            </>
-          )}
-        </ModalBody>
-      </ModalContent>
-    </Modal>
-  );
-};
+import { formatTime, formatDateHeader, formatMessageTime, whatsappColors } from "utils/helpers.js";
 
 const Whatsapp = () => {
   const [messages, setMessages] = useState([]);
@@ -561,6 +86,8 @@ const Whatsapp = () => {
   const [pausedVoiceMessages, setPausedVoiceMessages] = useState(new Set());
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
+  
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const fileInputRef = useRef(null);
@@ -929,6 +456,7 @@ const Whatsapp = () => {
 
   const cancelRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
+      setIsRecordingCanceled(true); // Mark recording as canceled
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream
         .getTracks()
@@ -939,12 +467,14 @@ const Whatsapp = () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      chunksRef.current = [];
       toast.info("Recording cancelled");
     }
   }, [isRecording]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
+      setIsRecordingCanceled(false); // Mark recording as not canceled
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream
         .getTracks()
@@ -955,6 +485,8 @@ const Whatsapp = () => {
   const startRecording = useCallback(() => {
     setRecordingTime(0);
     setAudioLevel(0);
+    chunksRef.current = [];
+    setIsRecordingCanceled(false); // Reset cancel state
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
@@ -998,85 +530,86 @@ const Whatsapp = () => {
             cancelAnimationFrame(animationRef.current);
           }
 
-          try {
-            const audioBlob = new Blob(chunksRef.current, {
-              type: "audio/webm",
-            });
-            const audioUrl = URL.createObjectURL(audioBlob);
+          // Only process if we have chunks AND recording wasn't canceled
+          if (chunksRef.current.length > 0 && !isRecordingCanceled) {
+            try {
+              const audioBlob = new Blob(chunksRef.current, {
+                type: "audio/webm",
+              });
+              const audioUrl = URL.createObjectURL(audioBlob);
 
-            const audio = new Audio();
-            audio.src = audioUrl;
+              const audio = new Audio();
+              audio.src = audioUrl;
 
-            await new Promise((resolve) => {
-              audio.onloadedmetadata = resolve;
-              audio.onerror = () => {
-                console.error("Failed to load audio metadata");
-                resolve();
-              };
-            });
+              await new Promise((resolve) => {
+                audio.onloadedmetadata = resolve;
+                audio.onerror = () => {
+                  console.error("Failed to load audio metadata");
+                  resolve();
+                };
+              });
 
-            const duration = Math.round(audio.duration || recordingTime);
+              const duration = Math.round(audio.duration || recordingTime);
 
-            const newMessage = {
-              id: Date.now(),
-              sender: currentUser,
-              audioUrl,
-              type: "voice",
-              timestamp: new Date(),
-              duration,
-              status: "sent",
-            };
-
-            const updatedMessages = [...messages, newMessage];
-            setMessages(updatedMessages);
-            allMessages[activeChat] = updatedMessages;
-            toast.success("Voice message sent!");
-
-            setTimeout(() => {
-              const replyMessage = {
-                id: Date.now() + 1,
-                sender: users.find((u) => u.id === activeChat),
-                text: "Thanks for the voice message!",
-                type: "text",
+              const newMessage = {
+                id: Date.now(),
+                sender: currentUser,
+                audioUrl,
+                type: "voice",
                 timestamp: new Date(),
-                status: "delivered",
+                duration,
+                status: "sent",
               };
-              const updatedWithReply = [...updatedMessages, replyMessage];
-              setMessages(updatedWithReply);
-              allMessages[activeChat] = updatedWithReply;
+
+              const updatedMessages = [...messages, newMessage];
+              setMessages(updatedMessages);
+              allMessages[activeChat] = updatedMessages;
+              toast.success("Voice message sent!");
 
               setTimeout(() => {
-                setMessages((prev) =>
-                  prev.map((msg) =>
+                const replyMessage = {
+                  id: Date.now() + 1,
+                  sender: users.find((u) => u.id === activeChat),
+                  text: "Thanks for the voice message!",
+                  type: "text",
+                  timestamp: new Date(),
+                  status: "delivered",
+                };
+                const updatedWithReply = [...updatedMessages, replyMessage];
+                setMessages(updatedWithReply);
+                allMessages[activeChat] = updatedWithReply;
+
+                setTimeout(() => {
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === newMessage.id ? { ...msg, status: "read" } : msg
+                    )
+                  );
+                  allMessages[activeChat] = allMessages[activeChat].map((msg) =>
                     msg.id === newMessage.id ? { ...msg, status: "read" } : msg
-                  )
-                );
-                allMessages[activeChat] = allMessages[activeChat].map((msg) =>
-                  msg.id === newMessage.id ? { ...msg, status: "read" } : msg
-                );
-              }, 1000);
-            }, 2000);
-          } catch (err) {
-            console.error("Error processing voice message:", err);
-            toast.error("Failed to send voice message");
-          } finally {
-            setIsRecording(false);
-            setRecordingTime(0);
-            setAudioLevel(0);
+                  );
+                }, 1000);
+              }, 2000);
+            } catch (err) {
+              console.error("Error processing voice message:", err);
+              toast.error("Failed to send voice message");
+            }
           }
+
+          setIsRecording(false);
+          setRecordingTime(0);
+          setAudioLevel(0);
+          setIsRecordingCanceled(false); // Reset for next recording
+          chunksRef.current = []; // Clear chunks for next recording
         };
 
-        mediaRecorderRef.current.start();
+        mediaRecorderRef.current.start(100);
       })
       .catch((err) => {
         toast.error("Microphone access denied: " + err.message);
         setIsRecording(false);
       });
-  }, [messages, activeChat, recordingTime]);
-
-  const formatMessageTime = (date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+  }, [messages, activeChat, recordingTime, isRecordingCanceled]);
 
   const getActiveUser = useCallback(() => {
     return users.find((user) => user.id === activeChat) || users[0];
@@ -1130,99 +663,6 @@ const Whatsapp = () => {
 
   const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, "gray.800");
 
-  const UserList = useMemo(
-    () => () => (
-      <Box
-        overflowY="auto"
-        h="calc(100% - 120px)"
-        bg={sidebarBg}
-        css={{
-          "&::-webkit-scrollbar": {
-            width: "6px",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "transparent",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: whatsappColors.primary,
-            borderRadius: "3px",
-          },
-        }}
-      >
-        {filteredUsers.map((user) => (
-          <React.Fragment key={user.id}>
-            <Flex
-              p={3}
-              align="center"
-              cursor="pointer"
-              bg={
-                activeChat === user.id
-                  ? whatsappColors.userSelectedBg
-                  : "transparent"
-              }
-              _hover={{ bg: whatsappColors.userHoverBg }}
-              onClick={() => {
-                setActiveChat(user.id);
-                if (isMobile) onClose();
-              }}
-              transition="background 0.2s ease"
-            >
-              <Box position="relative">
-                <Avatar src={user.avatar} size="md" mr={3} />
-                {user.status === "online" && (
-                  <Box
-                    position="absolute"
-                    bottom="0"
-                    right="3"
-                    w="12px"
-                    h="12px"
-                    bg="green.500"
-                    borderRadius="full"
-                    border="2px solid"
-                    borderColor={sidebarBg}
-                  />
-                )}
-              </Box>
-              <Box flex="1" overflow="hidden">
-                <Flex justify="space-between">
-                  <Text fontWeight="bold" color={whatsappColors.textDark}>
-                    {user.name}
-                  </Text>
-                  <Text fontSize="xs" color={whatsappColors.timeStampColor}>
-                    {user.time}
-                  </Text>
-                </Flex>
-                <Flex justify="space-between" mt={1}>
-                  <Text
-                    fontSize="sm"
-                    color={whatsappColors.textSecondary}
-                    isTruncated
-                    maxW="180px"
-                  >
-                    {user.lastMessage}
-                  </Text>
-                  {user.unread > 0 && (
-                    <Badge
-                      colorScheme="green"
-                      borderRadius="full"
-                      px={2}
-                      bg={whatsappColors.primary}
-                      color="white"
-                    >
-                      {user.unread}
-                    </Badge>
-                  )}
-                </Flex>
-              </Box>
-            </Flex>
-            <Divider borderColor="gray.300" />
-          </React.Fragment>
-        ))}
-      </Box>
-    ),
-    [filteredUsers, activeChat, isMobile, onClose, sidebarBg]
-  );
-
   // Group messages by date
   const groupedMessages = useMemo(() => {
     const groups = [];
@@ -1253,7 +693,7 @@ const Whatsapp = () => {
   // Generate waveform data based on current audio level
   const generateWaveformData = () => {
     const bars = [];
-    const barCount = 16; // Reduced for better mobile visibility
+    const barCount = 16;
     const maxHeight = 24;
 
     for (let i = 0; i < barCount; i++) {
@@ -1324,8 +764,14 @@ const Whatsapp = () => {
               </InputGroup>
             </Box>
             <Divider borderColor="gray.300" />
-            <UserList />
-            {/* Moved the three-dot menu to the bottom of the drawer */}
+            <UserList
+              users={filteredUsers}
+              activeChat={activeChat}
+              setActiveChat={setActiveChat}
+              isMobile={isMobile}
+              onClose={onClose}
+              sidebarBg={sidebarBg}
+            />
             <Flex
               p={3}
               justify="flex-end"
@@ -1384,23 +830,23 @@ const Whatsapp = () => {
                 Chats
               </Text>
             </Flex>
-              <Menu placement="top-end" display= {{base: "none",sm:"none", md: "block"}}>
-                <MenuButton
-                  as={IconButton}
-                  icon={<BsThreeDotsVertical />}
-                  variant="ghost"
-                  color={whatsappColors.textSecondary}
-                  size="sm"
-                />
-                <MenuList>
-                  <MenuItem
-                    icon={<FiUser />}
-                    onClick={() => setIsContactModalOpen(true)}
-                  >
-                    Manage Contacts
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+            <Menu placement="top-end" display={{ base: "none", sm: "none", md: "block" }}>
+              <MenuButton
+                as={IconButton}
+                icon={<BsThreeDotsVertical />}
+                variant="ghost"
+                color={whatsappColors.textSecondary}
+                size="sm"
+              />
+              <MenuList>
+                <MenuItem
+                  icon={<FiUser />}
+                  onClick={() => setIsContactModalOpen(true)}
+                >
+                  Manage Contacts
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </Flex>
 
           {/* Fixed Search Box */}
@@ -1423,7 +869,14 @@ const Whatsapp = () => {
           <Divider borderColor="gray.300" />
         </Box>
 
-        <UserList />
+        <UserList
+          users={filteredUsers}
+          activeChat={activeChat}
+          setActiveChat={setActiveChat}
+          isMobile={isMobile}
+          onClose={onClose}
+          sidebarBg={sidebarBg}
+        />
       </Box>
 
       {/* Chat Area */}
