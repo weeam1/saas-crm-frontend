@@ -11,17 +11,20 @@ import {
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import InvitationModal from './InvitationModal';
 import { eventLeadStatus } from 'utils/options';
 import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { extractLocationData } from 'utils/helpers';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+
+	const countries = useSelector((state) => state.countries.countryNames);
 
 	const [loading, setLoading] = useState(false);
 	const [inviteModal, setInviteModal] = useState(false);
@@ -61,11 +64,15 @@ const Status = ({ lead }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
+					const { ip } = extractLocationData(lead?.ip, countries);
+
 					sendLeadFeedback({
 						email: leadEmail,
 						phone: leadPhone,
 						status: data.leadStatus,
 						action: 'Status',
+						ip,
+						fcblid: lead?.fcblid || null,
 					});
 				}
 			}
