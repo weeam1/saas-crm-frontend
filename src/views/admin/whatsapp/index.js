@@ -1,1882 +1,1923 @@
 import React, {
-  useState,
-  useRef,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+	useState,
+	useRef,
+	useEffect,
+	useMemo,
+	useCallback,
+} from 'react';
 import {
-  Box,
-  Flex,
-  Text,
-  Avatar,
-  Input,
-  Button,
-  IconButton,
-  Tooltip,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Spinner,
-  VStack,
-  HStack,
-  useColorModeValue,
-  useBreakpointValue,
-  useDisclosure,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  DrawerHeader,
-  DrawerBody,
-  InputGroup,
-  InputLeftElement,
-  Divider,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  PopoverArrow,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-} from "@chakra-ui/react";
+	Box,
+	Flex,
+	Text,
+	Avatar,
+	Input,
+	Button,
+	IconButton,
+	Tooltip,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalFooter,
+	ModalBody,
+	ModalCloseButton,
+	Spinner,
+	VStack,
+	HStack,
+	useColorModeValue,
+	useBreakpointValue,
+	useDisclosure,
+	Drawer,
+	DrawerOverlay,
+	DrawerContent,
+	DrawerCloseButton,
+	DrawerHeader,
+	DrawerBody,
+	InputGroup,
+	InputLeftElement,
+	Divider,
+	Popover,
+	PopoverTrigger,
+	PopoverContent,
+	PopoverBody,
+	PopoverArrow,
+	Menu,
+	MenuButton,
+	MenuList,
+	MenuItem,
+} from '@chakra-ui/react';
 import {
-  FiMic,
-  FiImage,
-  FiChevronLeft,
-  FiSearch,
-  FiFile,
-  FiVideo,
-  FiMusic,
-  FiDownload,
-  FiUser,
-  FiSettings,
-} from "react-icons/fi";
-import { IoMdMic, IoMdClose } from "react-icons/io";
-import { FaCheck, FaCheckDouble, FaSmile } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { RiSendPlaneFill } from "react-icons/ri";
-import { toast } from "react-toastify";
-import EmojiPicker from "emoji-picker-react";
+	FiMic,
+	FiImage,
+	FiChevronLeft,
+	FiSearch,
+	FiFile,
+	FiVideo,
+	FiMusic,
+	FiDownload,
+	FiUser,
+	FiSettings,
+} from 'react-icons/fi';
+import { IoMdMic, IoMdClose } from 'react-icons/io';
+import { FaCheck, FaCheckDouble, FaSmile } from 'react-icons/fa';
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { RiSendPlaneFill } from 'react-icons/ri';
+import { toast } from 'react-toastify';
+import EmojiPicker from 'emoji-picker-react';
 
-import ContactModal from "./components/ContactModal";
-import FileMessage from "./components/FileMessage";
-import UserList from "./components/UserList";
-import VoiceMessagePlayer from "./components/VoiceMessagePlayer";
+import ContactModal from './components/ContactModal';
+import FileMessage from './components/FileMessage';
+import UserList from './components/UserList';
+import VoiceMessagePlayer from './components/VoiceMessagePlayer';
 
 import {
-  formatTime,
-  formatDateHeader,
-  formatMessageTime,
-  whatsappColors,
-} from "utils/helpers.js";
+	formatTime,
+	formatDateHeader,
+	formatMessageTime,
+	whatsappColors,
+} from 'utils/helpers.js';
+import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
+import ChatMessages from './components/ChatMessages';
 
-const user = JSON.parse(localStorage.getItem("user"));
-const isSuperAdmin = user?.role === "superAdmin";
+const user = JSON.parse(localStorage.getItem('user'));
+const isSuperAdmin = user?.role === 'superAdmin';
 
 const Whatsapp = () => {
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [activeChat, setActiveChat] = useState(1);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [pausedVoiceMessages, setPausedVoiceMessages] = useState(new Set());
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
-  const [isWhatsappApiModalOpen, setIsWhatsappApiModalOpen] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
-  const fileInputRef = useRef(null);
-  const audioInputRef = useRef(null);
-  const videoInputRef = useRef(null);
-  const docInputRef = useRef(null);
-  const timerRef = useRef(null);
-  const analyserRef = useRef(null);
-  const animationRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef();
-
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // Users data
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-      lastMessage: "Hey, how are you doing?",
-      time: "10:30 AM",
-      unread: 2,
-      lastSeen: "10:30 AM",
-      status: "online",
-      email: "john@example.com",
-      phone: "+1234567890",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-      lastMessage: "Meeting at 3 PM",
-      time: "9:15 AM",
-      unread: 0,
-      lastSeen: "9:15 AM",
-      status: "online",
-      email: "jane@example.com",
-      phone: "+1987654321",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-      lastMessage: "Please send the files",
-      time: "Yesterday",
-      unread: 5,
-      lastSeen: "Yesterday",
-      status: "last seen today at 12:45 PM",
-      phone: "+1122334455",
-    },
-    {
-      id: 4,
-      name: "Sarah Williams",
-      avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-      lastMessage: "Thanks for your help!",
-      time: "Yesterday",
-      unread: 0,
-      lastSeen: "Yesterday",
-      status: "last seen yesterday at 8:30 PM",
-      email: "sarah@example.com",
-    },
-    {
-      id: 5,
-      name: "David Brown",
-      avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-      lastMessage: "Let's catch up soon",
-      time: "Monday",
-      unread: 1,
-      lastSeen: "Monday",
-      status: "last seen Monday at 3:20 PM",
-      phone: "+1555666777",
-    },
-    {
-      id: 6,
-      name: "Zarak",
-      avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-      lastMessage: "Let's catch up soon",
-      time: "Tuesday",
-      unread: 0,
-      lastSeen: "Monday",
-      status: "last seen Tuesday at 10:15 AM",
-      email: "zarak@example.com",
-      phone: "+1777888999",
-    },
-    {
-      id: 7,
-      name: "Emma Watson",
-      avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-      lastMessage: "Did you see the new movie?",
-      time: "Wednesday",
-      unread: 3,
-      lastSeen: "Wednesday",
-      status: "last seen today at 2:30 PM",
-      email: "emma@example.com",
-    },
-    {
-      id: 8,
-      name: "Robert Downey",
-      avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-      lastMessage: "I'm Iron Man",
-      time: "Thursday",
-      unread: 0,
-      lastSeen: "Thursday",
-      status: "online",
-      phone: "+1888999000",
-    },
-    {
-      id: 9,
-      name: "Scarlett Johansson",
-      avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-      lastMessage: "Avengers assemble!",
-      time: "Friday",
-      unread: 2,
-      lastSeen: "Friday",
-      status: "last seen yesterday at 7:45 PM",
-      email: "scarlett@example.com",
-      phone: "+1999111222",
-    },
-    {
-      id: 10,
-      name: "Chris Evans",
-      avatar: "https://randomuser.me/api/portraits/men/6.jpg",
-      lastMessage: "I can do this all day",
-      time: "Saturday",
-      unread: 1,
-      lastSeen: "Saturday",
-      status: "last seen today at 9:15 AM",
-      phone: "+1222333444",
-    },
-  ]);
-
-  // Current user data
-  const currentUser = useRef({
-    id: 0,
-    name: "You",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    status: "online",
-  }).current;
-
-  // Messages data
-  const allMessages = useRef({
-    1: [
-      {
-        id: 1,
-        sender: users[0],
-        text: "Hey there!",
-        type: "text",
-        timestamp: new Date(Date.now() - 86400000 * 2),
-        status: "read",
-      },
-      {
-        id: 2,
-        sender: currentUser,
-        text: "Hi! How are you?",
-        type: "text",
-        timestamp: new Date(Date.now() - 86400000),
-        status: "read",
-      },
-      {
-        id: 3,
-        sender: users[0],
-        text: "I'm good, thanks for asking! How about you? I was thinking we could meet up this weekend if you're free.",
-        type: "text",
-        timestamp: new Date(Date.now() - 3600000),
-        status: "delivered",
-      },
-      {
-        id: 4,
-        sender: currentUser,
-        text: "Great to hear! Yeah, weekend sounds good. What time works for you?",
-        type: "text",
-        timestamp: new Date(),
-        status: "read",
-      },
-    ],
-    2: [
-      {
-        id: 1,
-        sender: users[1],
-        text: "Hi, don't forget our meeting at 3 PM tomorrow. We'll be discussing the quarterly reports.",
-        type: "text",
-        timestamp: new Date(Date.now() - 7200000),
-        status: "read",
-      },
-      {
-        id: 2,
-        sender: currentUser,
-        text: "Got it, I'll prepare the presentation slides and send them over tonight.",
-        type: "text",
-        timestamp: new Date(Date.now() - 3600000),
-        status: "read",
-      },
-    ],
-    3: [
-      {
-        id: 1,
-        sender: currentUser,
-        text: "I've sent the files you requested. Let me know if you need anything else.",
-        type: "text",
-        timestamp: new Date(Date.now() - 86400000 * 3),
-        status: "read",
-      },
-      {
-        id: 2,
-        sender: users[2],
-        text: "Please send them again, I can't seem to find them in my email. Maybe there was an issue with the attachment?",
-        type: "text",
-        timestamp: new Date(Date.now() - 43200000),
-        status: "delivered",
-      },
-      {
-        id: 3,
-        sender: currentUser,
-        text: "Sure, I'll resend them now. Also, I've uploaded them to the shared drive just in case.",
-        type: "text",
-        timestamp: new Date(Date.now() - 1800000),
-        status: "sent",
-      },
-    ],
-  }).current;
-
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [users, searchQuery]);
-
-  useEffect(() => {
-    setMessages(allMessages[activeChat] || []);
-  }, [activeChat]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleSendMessage = useCallback(() => {
-    if (!inputMessage.trim() && !selectedFile) return;
-
-    setIsSending(true);
-
-    setTimeout(() => {
-      const newMessage = {
-        id: Date.now(),
-        sender: currentUser,
-        text: inputMessage,
-        file: selectedFile,
-        type: selectedFile
-          ? selectedFile.type.includes("image")
-            ? "image"
-            : selectedFile.type.includes("video")
-              ? "video"
-              : selectedFile.type.includes("audio")
-                ? "audio"
-                : "file"
-          : "text",
-        timestamp: new Date(),
-        status: "sent",
-        replyTo: replyingTo,
-      };
-
-      const updatedMessages = [...messages, newMessage];
-      setMessages(updatedMessages);
-      setInputMessage("");
-      setSelectedFile(null);
-      setReplyingTo(null);
-      setIsSending(false);
-
-      allMessages[activeChat] = updatedMessages;
-
-      setTimeout(
-        () => {
-          let replyText = "";
-          if (selectedFile) {
-            if (selectedFile.type.includes("image")) {
-              replyText = "Nice picture!";
-            } else if (selectedFile.type.includes("video")) {
-              replyText = "Great video!";
-            } else if (selectedFile.type.includes("audio")) {
-              replyText = "Thanks for the audio!";
-            } else {
-              replyText = "Thanks for the file!";
-            }
-          } else {
-            replyText = `Reply to: ${inputMessage || "your message"}`;
-          }
-
-          const replyMessage = {
-            id: Date.now() + 1,
-            sender: users.find((u) => u.id === activeChat),
-            text: replyText,
-            type: "text",
-            timestamp: new Date(),
-            status: "delivered",
-          };
-          const updatedWithReply = [...updatedMessages, replyMessage];
-          setMessages(updatedWithReply);
-          allMessages[activeChat] = updatedWithReply;
-
-          setTimeout(() => {
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === newMessage.id ? { ...msg, status: "read" } : msg
-              )
-            );
-            allMessages[activeChat] = allMessages[activeChat].map((msg) =>
-              msg.id === newMessage.id ? { ...msg, status: "read" } : msg
-            );
-          }, 1000);
-        },
-        Math.random() * 2000 + 1000
-      );
-    }, 500);
-
-    toast.success("Message sent!");
-  }, [inputMessage, selectedFile, messages, activeChat, replyingTo]);
-
-  const handleFileUpload = useCallback((e, type = "image") => {
-    const file = e.target.files[0];
-    if (file) {
-      if (type === "video" && file.size > 100 * 1024 * 1024) {
-        toast.error("Video size should be less than 100MB");
-        return;
-      } else if (file.size > 25 * 1024 * 1024) {
-        toast.error("File size should be less than 25MB");
-        return;
-      }
-
-      setSelectedFile({
-        url: URL.createObjectURL(file),
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        file,
-      });
-      toast.info(
-        `${type.charAt(0).toUpperCase() + type.slice(1)} selected, click send to share`
-      );
-    }
-  }, []);
-
-  const handleDownloadFile = (file) => {
-    const a = document.createElement("a");
-    a.href = file.url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const cancelRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      setIsRecordingCanceled(true);
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-      setIsRecording(false);
-      setRecordingTime(0);
-      setAudioLevel(0);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      chunksRef.current = [];
-      toast.info("Recording cancelled");
-    }
-  }, [isRecording]);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      setIsRecordingCanceled(false);
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-    }
-  }, [isRecording]);
-
-  const startRecording = useCallback(() => {
-    setRecordingTime(0);
-    setAudioLevel(0);
-    chunksRef.current = [];
-    setIsRecordingCanceled(false); // Reset cancel state
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        setIsRecording(true);
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        chunksRef.current = [];
-
-        // Setup audio analyzer
-        const audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
-        analyserRef.current = audioContext.createAnalyser();
-        analyserRef.current.fftSize = 32;
-        const microphone = audioContext.createMediaStreamSource(stream);
-        microphone.connect(analyserRef.current);
-        const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-
-        const analyzeAudio = () => {
-          analyserRef.current.getByteFrequencyData(dataArray);
-          let sum = 0;
-          for (let i = 0; i < dataArray.length; i++) {
-            sum += dataArray[i];
-          }
-          const average = sum / dataArray.length;
-          setAudioLevel(Math.min(average / 50, 1));
-          animationRef.current = requestAnimationFrame(analyzeAudio);
-        };
-
-        analyzeAudio();
-
-        timerRef.current = setInterval(() => {
-          setRecordingTime((prev) => prev + 1);
-        }, 1000);
-
-        mediaRecorderRef.current.ondataavailable = (e) => {
-          chunksRef.current.push(e.data);
-        };
-
-        mediaRecorderRef.current.onstop = async () => {
-          clearInterval(timerRef.current);
-          if (animationRef.current) {
-            cancelAnimationFrame(animationRef.current);
-          }
-
-          // Only process if we have chunks AND recording wasn't canceled
-          if (chunksRef.current.length > 0 && !isRecordingCanceled) {
-            try {
-              const audioBlob = new Blob(chunksRef.current, {
-                type: "audio/webm",
-              });
-              const audioUrl = URL.createObjectURL(audioBlob);
-
-              const audio = new Audio();
-              audio.src = audioUrl;
-
-              await new Promise((resolve) => {
-                audio.onloadedmetadata = resolve;
-                audio.onerror = () => {
-                  console.error("Failed to load audio metadata");
-                  resolve();
-                };
-              });
-
-              const duration = Math.round(audio.duration || recordingTime);
-
-              const newMessage = {
-                id: Date.now(),
-                sender: currentUser,
-                audioUrl,
-                type: "voice",
-                timestamp: new Date(),
-                duration,
-                status: "sent",
-              };
-
-              const updatedMessages = [...messages, newMessage];
-              setMessages(updatedMessages);
-              allMessages[activeChat] = updatedMessages;
-              toast.success("Voice message sent!");
-
-              setTimeout(() => {
-                const replyMessage = {
-                  id: Date.now() + 1,
-                  sender: users.find((u) => u.id === activeChat),
-                  text: "Thanks for the voice message!",
-                  type: "text",
-                  timestamp: new Date(),
-                  status: "delivered",
-                };
-                const updatedWithReply = [...updatedMessages, replyMessage];
-                setMessages(updatedWithReply);
-                allMessages[activeChat] = updatedWithReply;
-
-                setTimeout(() => {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === newMessage.id
-                        ? { ...msg, status: "read" }
-                        : msg
-                    )
-                  );
-                  allMessages[activeChat] = allMessages[activeChat].map(
-                    (msg) =>
-                      msg.id === newMessage.id
-                        ? { ...msg, status: "read" }
-                        : msg
-                  );
-                }, 1000);
-              }, 2000);
-            } catch (err) {
-              console.error("Error processing voice message:", err);
-              toast.error("Failed to send voice message");
-            }
-          }
-
-          setIsRecording(false);
-          setRecordingTime(0);
-          setAudioLevel(0);
-          setIsRecordingCanceled(false); // Reset for next recording
-          chunksRef.current = []; // Clear chunks for next recording
-        };
-
-        mediaRecorderRef.current.start(100);
-      })
-      .catch((err) => {
-        toast.error("Microphone access denied: " + err.message);
-        setIsRecording(false);
-      });
-  }, [messages, activeChat, recordingTime, isRecordingCanceled]);
-
-  const getActiveUser = useCallback(() => {
-    return users.find((user) => user.id === activeChat) || users[0];
-  }, [users, activeChat]);
-
-  const onEmojiClick = (emojiData) => {
-    setInputMessage((prev) => prev + emojiData.emoji);
-  };
-
-  const handleVoiceMessagePause = useCallback((messageId, isPaused) => {
-    setPausedVoiceMessages((prev) => {
-      const newSet = new Set(prev);
-      if (isPaused) {
-        newSet.add(messageId);
-      } else {
-        newSet.delete(messageId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const updateContact = (id, newData) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) => (user.id === id ? { ...user, ...newData } : user))
-    );
-    toast.success("Contact updated successfully");
-  };
-
-  const deleteContact = (id) => {
-    setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-    toast.success("Contact deleted successfully");
-  };
-
-  const addContact = (newContact) => {
-    const newId = Math.max(...users.map((u) => u.id), 0) + 1;
-    const newUser = {
-      id: newId,
-      name: newContact.name,
-      avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? "men" : "women"}/${Math.floor(Math.random() * 50)}.jpg`,
-      lastMessage: "",
-      time: "Just now",
-      unread: 0,
-      lastSeen: "Just now",
-      status: "online",
-      email: newContact.email,
-      phone: newContact.phone,
-    };
-    setUsers((prev) => [...prev, newUser]);
-    toast.success("Contact added successfully");
-  };
-
-  const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, "gray.800");
-
-  // Group messages by date
-  const groupedMessages = useMemo(() => {
-    const groups = [];
-    let currentDate = null;
-
-    messages.forEach((message, index) => {
-      const messageDate = formatDateHeader(message.timestamp);
-
-      if (messageDate !== currentDate) {
-        groups.push({
-          type: "date",
-          date: messageDate,
-          id: `date-${messageDate}-${index}`,
-        });
-        currentDate = messageDate;
-      }
-
-      groups.push({
-        type: "message",
-        message,
-        id: message.id,
-      });
-    });
-
-    return groups;
-  }, [messages]);
-
-  // Generate waveform data based on current audio level
-  const generateWaveformData = () => {
-    const bars = [];
-    const barCount = 16;
-    const maxHeight = 24;
-
-    for (let i = 0; i < barCount; i++) {
-      const noise = Math.random() * 0.3;
-      const positionFactor = Math.abs(i - barCount / 2) / (barCount / 2);
-      const height = Math.max(
-        3,
-        audioLevel * maxHeight * (1 - positionFactor * 0.7) + noise * 6
-      );
-
-      bars.push(
-        <Box
-          key={i}
-          w="2px"
-          h={`${height}px`}
-          bg={whatsappColors.primary}
-          borderRadius="full"
-          opacity={0.6 + Math.random() * 0.4}
-          transition="height 0.1s ease"
-        />
-      );
-    }
-    return bars;
-  };
-
-  return (
-    <>
-      <Flex justify={"flex-end"}>
-        {isSuperAdmin && (
-          <IconButton
-            icon={<FiSettings />}
-            aria-label="WhatsApp API Settings"
-            variant="ghost"
-            onClick={() => setIsWhatsappApiModalOpen(true)}
-          />
-        )}
-      </Flex>
-      <Flex
-        h="80vh"
-        overflow="hidden"
-        position="relative"
-        borderRadius="lg"
-        boxShadow="lg"
-      >
-        {/* Mobile Drawer */}
-        <Drawer
-          isOpen={isOpen}
-          placement="left"
-          onClose={onClose}
-          finalFocusRef={btnRef}
-          h="80vh"
-        >
-          <DrawerOverlay />
-          <DrawerContent maxW="320px" bg={sidebarBg}>
-            <DrawerCloseButton />
-            <DrawerHeader p={3} bg={sidebarBg}>
-              <Flex align="center">
-                <Avatar src={currentUser.avatar} size="sm" mr={2} />
-                <Text fontWeight="bold" color={whatsappColors.textDark}>
-                  Chats
-                </Text>
-              </Flex>
-            </DrawerHeader>
-            <DrawerBody p={0}>
-              <Box p={3} bg={sidebarBg}>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <FiSearch color="gray.300" />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="Search contacts"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    bg="white"
-                    borderRadius="lg"
-                    border="none"
-                    boxShadow="sm"
-                  />
-                </InputGroup>
-              </Box>
-              <Divider borderColor="gray.300" />
-              <UserList
-                users={filteredUsers}
-                activeChat={activeChat}
-                setActiveChat={setActiveChat}
-                isMobile={isMobile}
-                onClose={onClose}
-                sidebarBg={sidebarBg}
-              />
-              <Flex
-                p={3}
-                justify="flex-end"
-                position="sticky"
-                bottom="0"
-                bg={sidebarBg}
-                borderTop="1px solid"
-                borderColor="gray.200"
-              >
-                <Menu placement="top-end">
-                  <MenuButton
-                    as={IconButton}
-                    icon={<BsThreeDotsVertical />}
-                    variant="ghost"
-                    color={whatsappColors.textSecondary}
-                    size="sm"
-                  />
-                  <MenuList>
-                    <MenuItem
-                      icon={<FiUser />}
-                      onClick={() => setIsContactModalOpen(true)}
-                    >
-                      Manage Contacts
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Flex>
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-
-        {/* Desktop Sidebar */}
-        <Box
-          w={{ base: "100%", md: "30%" }}
-          bg={sidebarBg}
-          borderRight="1px solid"
-          borderColor="gray.200"
-          display={{ base: "none", md: "block" }}
-          h="100%"
-          overflow="hidden"
-          position="relative"
-        >
-          {/* Fixed Sidebar Header */}
-          <Box
-            position="sticky"
-            top="0"
-            zIndex="1"
-            bg={sidebarBg}
-            borderBottom="1px solid"
-            borderColor="gray.300"
-          >
-            <Flex p={3} align="center" justify="space-between" bg={sidebarBg}>
-              <Flex align="center">
-                <Avatar src={currentUser.avatar} size="sm" mr={2} />
-                <Text fontWeight="bold" color={whatsappColors.textDark}>
-                  Chats
-                </Text>
-              </Flex>
-              <Menu
-                placement="top-end"
-                display={{ base: "none", sm: "none", md: "block" }}
-              >
-                <MenuButton
-                  as={IconButton}
-                  icon={<BsThreeDotsVertical />}
-                  variant="ghost"
-                  color={whatsappColors.textSecondary}
-                  size="sm"
-                />
-                <MenuList>
-                  <MenuItem
-                    icon={<FiUser />}
-                    onClick={() => setIsContactModalOpen(true)}
-                  >
-                    Manage Contacts
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            </Flex>
-
-            {/* Fixed Search Box */}
-            <Box p={3} bg={sidebarBg}>
-              <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <FiSearch color="gray.300" />
-                </InputLeftElement>
-                <Input
-                  placeholder="Search contacts"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  bg="white"
-                  borderRadius="lg"
-                  border="none"
-                  boxShadow="sm"
-                />
-              </InputGroup>
-            </Box>
-            <Divider borderColor="gray.300" />
-          </Box>
-
-          <UserList
-            users={filteredUsers}
-            activeChat={activeChat}
-            setActiveChat={setActiveChat}
-            isMobile={isMobile}
-            onClose={onClose}
-            sidebarBg={sidebarBg}
-          />
-        </Box>
-
-        {/* Chat Area */}
-        <Box flex={1} display="flex" flexDirection="column" bg="white" h="100%">
-          {/* Chat Header */}
-          <Flex
-            bg={whatsappColors.chatHeaderBg}
-            color={whatsappColors.textDark}
-            p={3}
-            alignItems="center"
-            justifyContent="space-between"
-            borderBottom="1px solid"
-            borderColor="gray.200"
-            position="sticky"
-            top="0"
-            zIndex="1"
-          >
-            <Flex alignItems="center">
-              <IconButton
-                icon={<FiChevronLeft />}
-                aria-label="Show sidebar"
-                mr={2}
-                onClick={isMobile ? onOpen : null}
-                color={whatsappColors.textSecondary}
-                background="transparent"
-                display={{ base: "flex", md: "none" }}
-              />
-              <Avatar src={getActiveUser().avatar} size="sm" mr={3} />
-              <Box>
-                <Text fontWeight="bold">{getActiveUser().name}</Text>
-                <Text fontSize="xs" color={whatsappColors.textSecondary}>
-                  {getActiveUser().status}
-                </Text>
-              </Box>
-            </Flex>
-          </Flex>
-
-          {/* Chat messages */}
-          <Box
-            flex={1}
-            p={4}
-            overflowY="auto"
-            css={{
-              "&::-webkit-scrollbar": {
-                width: "6px",
-              },
-              "&::-webkit-scrollbar-track": {
-                background: "transparent",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                background: whatsappColors.primary,
-                borderRadius: "3px",
-              },
-            }}
-          >
-            <VStack spacing={4} align="stretch">
-              {groupedMessages.map((item) => {
-                if (item.type === "date") {
-                  return (
-                    <Flex key={item.id} justify="center" my={2}>
-                      <Box
-                        bg="rgba(0, 0, 0, 0.1)"
-                        px={3}
-                        py={1}
-                        borderRadius="full"
-                      >
-                        <Text fontSize="xs" color="gray.600">
-                          {item.date}
-                        </Text>
-                      </Box>
-                    </Flex>
-                  );
-                }
-
-                const message = item.message;
-                const isSelf = message.sender.id === currentUser.id;
-                const showAvatar =
-                  !isSelf &&
-                  (!groupedMessages[item.id - 1]?.message ||
-                    groupedMessages[item.id - 1]?.message.sender.id !==
-                      message.sender.id);
-
-                return (
-                  <React.Fragment key={item.id}>
-                    <Flex
-                      direction="column"
-                      align={isSelf ? "flex-end" : "flex-start"}
-                      _hover={{ bg: whatsappColors.messageHoverBg }}
-                      p={1}
-                      borderRadius="md"
-                      transition="background 0.2s ease"
-                      mt={showAvatar ? 3 : 1}
-                    >
-                      {showAvatar && (
-                        <Flex align="center" mb={1}>
-                          <Avatar
-                            src={message.sender.avatar}
-                            size="xs"
-                            mr={2}
-                          />
-                          <Text
-                            fontSize="xs"
-                            color={whatsappColors.timeStampColor}
-                          >
-                            {message.sender.name}
-                          </Text>
-                        </Flex>
-                      )}
-
-                      {/* Reply indicator */}
-                      {message.replyTo && (
-                        <Box
-                          bg={whatsappColors.replyBg}
-                          borderLeft={`3px solid ${whatsappColors.replyBorder}`}
-                          borderRadius="md"
-                          p={2}
-                          mb={1}
-                          maxW={{ base: "90%", md: "80%" }}
-                          alignSelf={isSelf ? "flex-end" : "flex-start"}
-                        >
-                          <Text
-                            fontSize="xs"
-                            color={whatsappColors.textSecondary}
-                          >
-                            {message.replyTo.sender.name}
-                          </Text>
-                          <Text
-                            fontSize="sm"
-                            color={whatsappColors.textDark}
-                            isTruncated
-                          >
-                            {message.replyTo.text || "Media message"}
-                          </Text>
-                        </Box>
-                      )}
-
-                      {message.type === "text" && (
-                        <Box
-                          position="relative"
-                          bg={
-                            isSelf
-                              ? whatsappColors.outgoingBg
-                              : whatsappColors.incomingBg
-                          }
-                          px={4}
-                          py={2}
-                          borderRadius="lg"
-                          maxW={{ base: "90%", md: "80%" }}
-                          boxShadow="sm"
-                          color={
-                            isSelf
-                              ? whatsappColors.textDark
-                              : whatsappColors.textDark
-                          }
-                          borderTopLeftRadius={
-                            !isSelf && !showAvatar ? "4px" : "lg"
-                          }
-                          borderTopRightRadius={isSelf ? "4px" : "lg"}
-                          wordBreak="break-word"
-                        >
-                          <Text whiteSpace="pre-wrap" overflowWrap="break-word">
-                            {message.text}
-                          </Text>
-                          <Flex
-                            justifyContent={"flex-end"}
-                            align="center"
-                            gap={1}
-                          >
-                            <Text
-                              fontSize="10px"
-                              color={whatsappColors.timeStampColor}
-                              mr={1}
-                            >
-                              {formatMessageTime(message.timestamp)}
-                            </Text>
-                            {isSelf && (
-                              <>
-                                {message.status === "read" ? (
-                                  <FaCheckDouble size="10px" color="#34B7F1" />
-                                ) : message.status === "delivered" ? (
-                                  <FaCheckDouble
-                                    size="10px"
-                                    color={whatsappColors.timeStampColor}
-                                  />
-                                ) : (
-                                  <FaCheck
-                                    size="10px"
-                                    color={whatsappColors.timeStampColor}
-                                  />
-                                )}
-                              </>
-                            )}
-                          </Flex>
-                        </Box>
-                      )}
-
-                      {message.type === "image" && (
-                        <Box
-                          position="relative"
-                          bg={
-                            isSelf
-                              ? whatsappColors.outgoingBg
-                              : whatsappColors.incomingBg
-                          }
-                          color={isSelf ? "white" : "black"}
-                          p={2}
-                          borderRadius="lg"
-                          maxW={{ base: "90%", md: "80%" }}
-                          boxShadow="sm"
-                          borderTopLeftRadius={
-                            !isSelf && !showAvatar ? "4px" : "lg"
-                          }
-                          borderTopRightRadius={isSelf ? "4px" : "lg"}
-                        >
-                          <img
-                            src={message.file.url}
-                            alt="shared"
-                            style={{
-                              maxWidth: "100%",
-                              borderRadius: "8px",
-                              maxHeight: "300px",
-                              objectFit: "contain",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => setSelectedImage(message.file.url)}
-                          />
-                          <Flex
-                            justifyContent={"space-between"}
-                            align="center"
-                            mt={2}
-                          >
-                            <Button
-                              size="sm"
-                              colorScheme="whatsapp"
-                              color="white"
-                              leftIcon={<FiDownload />}
-                              onClick={() => handleDownloadFile(message.file)}
-                            >
-                              Download
-                            </Button>
-                            <Flex align="center" gap={1}>
-                              <Text
-                                fontSize="10px"
-                                color={isSelf ? "whiteAlpha.800" : "gray.600"}
-                                mr={1}
-                              >
-                                {formatMessageTime(message.timestamp)}
-                              </Text>
-                              {isSelf && (
-                                <>
-                                  {message.status === "read" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color="#34B7F1"
-                                    />
-                                  ) : message.status === "delivered" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  ) : (
-                                    <FaCheck
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </Flex>
-                          </Flex>
-                        </Box>
-                      )}
-
-                      {message.type === "video" && (
-                        <Box
-                          position="relative"
-                          bg={
-                            isSelf
-                              ? whatsappColors.outgoingBg
-                              : whatsappColors.incomingBg
-                          }
-                          color={isSelf ? "white" : "black"}
-                          p={2}
-                          borderRadius="lg"
-                          maxW={{ base: "90%", md: "80%" }}
-                          boxShadow="sm"
-                          borderTopLeftRadius={
-                            !isSelf && !showAvatar ? "4px" : "lg"
-                          }
-                          borderTopRightRadius={isSelf ? "4px" : "lg"}
-                        >
-                          <video
-                            controls
-                            style={{
-                              maxWidth: "100%",
-                              borderRadius: "8px",
-                              maxHeight: "300px",
-                              objectFit: "contain",
-                            }}
-                          >
-                            <source
-                              src={message.file.url}
-                              type={message.file.type}
-                            />
-                            Your browser does not support the video tag.
-                          </video>
-                          <Flex
-                            justifyContent={"space-between"}
-                            align="center"
-                            mt={2}
-                          >
-                            <Button
-                              size="sm"
-                              colorScheme="whatsapp"
-                              color="white"
-                              leftIcon={<FiDownload />}
-                              onClick={() => handleDownloadFile(message.file)}
-                            >
-                              Download
-                            </Button>
-                            <Flex align="center" gap={1}>
-                              <Text
-                                fontSize="10px"
-                                color={isSelf ? "whiteAlpha.800" : "gray.600"}
-                                mr={1}
-                              >
-                                {formatMessageTime(message.timestamp)}
-                              </Text>
-                              {isSelf && (
-                                <>
-                                  {message.status === "read" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color="#34B7F1"
-                                    />
-                                  ) : message.status === "delivered" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  ) : (
-                                    <FaCheck
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </Flex>
-                          </Flex>
-                        </Box>
-                      )}
-
-                      {message.type === "audio" && (
-                        <Box
-                          position="relative"
-                          bg={
-                            isSelf
-                              ? whatsappColors.outgoingBg
-                              : whatsappColors.incomingBg
-                          }
-                          color={isSelf ? "white" : "black"}
-                          p={2}
-                          borderRadius="lg"
-                          maxW={{ base: "90%", md: "80%" }}
-                          boxShadow="sm"
-                          borderTopLeftRadius={
-                            !isSelf && !showAvatar ? "4px" : "lg"
-                          }
-                          borderTopRightRadius={isSelf ? "4px" : "lg"}
-                        >
-                          <audio
-                            controls
-                            style={{
-                              width: "100%",
-                            }}
-                          >
-                            <source
-                              src={message.file.url}
-                              type={message.file.type}
-                            />
-                            Your browser does not support the audio element.
-                          </audio>
-                          <Flex
-                            justifyContent={"space-between"}
-                            align="center"
-                            mt={2}
-                          >
-                            <Button
-                              size="sm"
-                              colorScheme="whatsapp"
-                              color="white"
-                              leftIcon={<FiDownload />}
-                              onClick={() => handleDownloadFile(message.file)}
-                            >
-                              Download
-                            </Button>
-                            <Flex align="center" gap={1}>
-                              <Text
-                                fontSize="10px"
-                                color={isSelf ? "whiteAlpha.800" : "gray.600"}
-                                mr={1}
-                              >
-                                {formatMessageTime(message.timestamp)}
-                              </Text>
-                              {isSelf && (
-                                <>
-                                  {message.status === "read" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color="#34B7F1"
-                                    />
-                                  ) : message.status === "delivered" ? (
-                                    <FaCheckDouble
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  ) : (
-                                    <FaCheck
-                                      size="10px"
-                                      color={isSelf ? "white" : "gray.600"}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </Flex>
-                          </Flex>
-                        </Box>
-                      )}
-
-                      {message.type === "voice" && (
-                        <Box
-                          position="relative"
-                          bg={
-                            isSelf
-                              ? whatsappColors.outgoingBg
-                              : whatsappColors.incomingBg
-                          }
-                          px={4}
-                          py={2}
-                          borderRadius="lg"
-                          maxW={{ base: "90%", md: "80%" }}
-                          minW="200px"
-                          boxShadow="sm"
-                          color={
-                            isSelf
-                              ? whatsappColors.textDark
-                              : whatsappColors.textDark
-                          }
-                          borderTopLeftRadius={
-                            !isSelf && !showAvatar ? "4px" : "lg"
-                          }
-                          borderTopRightRadius={isSelf ? "4px" : "lg"}
-                        >
-                          <VoiceMessagePlayer
-                            url={message.audioUrl}
-                            isSelf={isSelf}
-                            onPause={(paused) =>
-                              handleVoiceMessagePause(message.id, paused)
-                            }
-                          />
-                          <Flex
-                            justifyContent={"flex-end"}
-                            align="center"
-                            gap={1}
-                          >
-                            <Text
-                              fontSize="10px"
-                              color={whatsappColors.timeStampColor}
-                              mr={1}
-                            >
-                              {formatMessageTime(message.timestamp)}
-                            </Text>
-                            {isSelf && (
-                              <>
-                                {message.status === "read" ? (
-                                  <FaCheckDouble size="10px" color="#34B7F1" />
-                                ) : message.status === "delivered" ? (
-                                  <FaCheckDouble
-                                    size="10px"
-                                    color={whatsappColors.timeStampColor}
-                                  />
-                                ) : (
-                                  <FaCheck
-                                    size="10px"
-                                    color={whatsappColors.timeStampColor}
-                                  />
-                                )}
-                              </>
-                            )}
-                          </Flex>
-                        </Box>
-                      )}
-
-                      {message.type === "file" && (
-                        <FileMessage
-                          file={message.file}
-                          isSelf={isSelf}
-                          onDownload={() => handleDownloadFile(message.file)}
-                          timestamp={formatMessageTime(message.timestamp)}
-                          status={message.status}
-                        />
-                      )}
-                    </Flex>
-                  </React.Fragment>
-                );
-              })}
-              <div ref={messagesEndRef} />
-              {isSending && (
-                <Flex justify="flex-end" pr={4}>
-                  <Spinner size="sm" color={whatsappColors.primary} />
-                </Flex>
-              )}
-            </VStack>
-          </Box>
-
-          {/* File preview modal */}
-          <Modal
-            isOpen={!!selectedFile}
-            onClose={() => setSelectedFile(null)}
-            size={
-              selectedFile?.type.includes("image") ||
-              selectedFile?.type.includes("video")
-                ? "xl"
-                : "md"
-            }
-          >
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>File Preview</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Text
-                  fontSize="sm"
-                  fontWeight="bold"
-                  mb={2}
-                  maxW="100%"
-                  isTruncated
-                  textAlign="center"
-                >
-                  {selectedFile?.name}
-                </Text>
-                {selectedFile?.type.includes("image") ? (
-                  <>
-                    <img
-                      src={selectedFile.url}
-                      alt="preview"
-                      style={{
-                        width: "100%",
-                        maxHeight: "400px",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </>
-                ) : selectedFile?.type.includes("video") ? (
-                  <>
-                    <video
-                      controls
-                      style={{
-                        width: "100%",
-                        maxHeight: "400px",
-                        objectFit: "contain",
-                      }}
-                    >
-                      <source src={selectedFile.url} type={selectedFile.type} />
-                      Your browser does not support the video tag.
-                    </video>
-                  </>
-                ) : selectedFile?.type.includes("audio") ? (
-                  <>
-                    <audio controls style={{ width: "100%" }}>
-                      <source src={selectedFile.url} type={selectedFile.type} />
-                      Your browser does not support the audio element.
-                    </audio>
-                  </>
-                ) : (
-                  <FileMessage
-                    file={selectedFile}
-                    isSelf={true}
-                    onDownload={() => handleDownloadFile(selectedFile)}
-                  />
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  colorScheme="whatsapp"
-                  mr={3}
-                  onClick={() => {
-                    handleSendMessage();
-                    setSelectedFile(null);
-                  }}
-                >
-                  Send
-                </Button>
-                <Button variant="ghost" onClick={() => setSelectedFile(null)}>
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-
-          {/* Image preview modal */}
-          <Modal
-            isOpen={!!selectedImage}
-            onClose={() => setSelectedImage(null)}
-          >
-            <ModalOverlay />
-            <ModalContent
-              maxW={{ base: "90vw", md: "70vw" }}
-              maxH="90vh"
-              marginX={{ base: 2, md: 4 }}
-            >
-              <ModalCloseButton bg="rgba(0,0,0,0.5)" color="white" />
-              <ModalBody
-                p={0}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                <img
-                  src={selectedImage}
-                  alt="preview"
-                  style={{
-                    maxWidth: "100%",
-                    maxHeight: "80vh",
-                    objectFit: "contain",
-                  }}
-                />
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-
-          {/* Contact management modal */}
-          <ContactModal
-            isOpen={isContactModalOpen}
-            onClose={() => setIsContactModalOpen(false)}
-            contacts={users}
-            onUpdateContact={updateContact}
-            onDeleteContact={deleteContact}
-            onAddContact={addContact}
-          />
-
-          {/* WhatsApp API Settings Modal */}
-          <Modal
-            isOpen={isWhatsappApiModalOpen}
-            onClose={() => setIsWhatsappApiModalOpen(false)}
-            isCentered
-          >
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>WhatsApp API Configuration</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <VStack spacing={4}>
-                  <Box w="100%">
-                    <Text mb={2}>API Key</Text>
-                    <Input
-                      placeholder="Enter your WhatsApp API key"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                    />
-                  </Box>
-                </VStack>
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  colorScheme="whatsapp"
-                  onClick={() => {
-                    toast.success("WhatsApp API configured successfully");
-                    setIsWhatsappApiModalOpen(false);
-                  }}
-                >
-                  Save WhatsApp API
-                </Button>
-                <Button
-                  variant="ghost"
-                  ml={3}
-                  onClick={() => setIsWhatsappApiModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-
-          {/* Reply preview */}
-          {replyingTo && (
-            <Flex
-              bg={whatsappColors.replyBg}
-              p={2}
-              align="center"
-              justify="space-between"
-              borderBottom="1px solid"
-              borderColor="gray.200"
-            >
-              <Box flex={1}>
-                <Text fontSize="sm" color={whatsappColors.primary}>
-                  Replying to {replyingTo.sender.name}
-                </Text>
-                <Text fontSize="sm" isTruncated>
-                  {replyingTo.text || "Media message"}
-                </Text>
-              </Box>
-              <IconButton
-                icon={<IoMdClose />}
-                aria-label="Cancel reply"
-                size="sm"
-                variant="ghost"
-                onClick={() => setReplyingTo(null)}
-              />
-            </Flex>
-          )}
-
-          {/* Input area */}
-          <Box
-            bg={whatsappColors.inputBg}
-            p={3}
-            boxShadow="md"
-            borderTop="1px solid"
-            borderColor="gray.200"
-          >
-            {selectedFile && (
-              <Flex
-                bg="white"
-                p={2}
-                mb={2}
-                borderRadius="md"
-                justify="space-between"
-                align="center"
-              >
-                <Text fontSize="sm" isTruncated flex={1}>
-                  {selectedFile.type.split("/")[0].charAt(0).toUpperCase() +
-                    selectedFile.type.split("/")[0].slice(1)}{" "}
-                  ready to send
-                </Text>
-                <Button size="sm" onClick={() => setSelectedFile(null)}>
-                  Cancel
-                </Button>
-              </Flex>
-            )}
-            {isRecording && (
-              <Flex
-                bg="white"
-                p={2}
-                mb={2}
-                borderRadius="lg"
-                justify="space-between"
-                align="center"
-                w="100%"
-                boxShadow="md"
-              >
-                <HStack spacing={2} flex={1} overflow="hidden">
-                  <Box
-                    w="10px"
-                    h="10px"
-                    bg={whatsappColors.recordingDot}
-                    borderRadius="full"
-                    animation="pulse 1s infinite"
-                    flexShrink={0}
-                  />
-                  <HStack
-                    spacing={1}
-                    flex={1}
-                    justify="center"
-                    h="24px"
-                    align="center"
-                    overflow="hidden"
-                    px={1}
-                  >
-                    {generateWaveformData()}
-                  </HStack>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="bold"
-                    minW="40px"
-                    textAlign="right"
-                    flexShrink={0}
-                  >
-                    {formatTime(recordingTime)}
-                  </Text>
-                </HStack>
-                <HStack ml={2} spacing={1}>
-                  <IconButton
-                    icon={<IoMdClose />}
-                    aria-label="Cancel recording"
-                    size="sm"
-                    onClick={cancelRecording}
-                    color={whatsappColors.textSecondary}
-                    variant="ghost"
-                  />
-                  <IconButton
-                    icon={<RiSendPlaneFill />}
-                    aria-label="Send recording"
-                    size="sm"
-                    bg={whatsappColors.primary}
-                    color="white"
-                    _hover={{ bg: whatsappColors.secondary }}
-                    onClick={stopRecording}
-                  />
-                </HStack>
-              </Flex>
-            )}
-            <Flex align="center">
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={(e) => handleFileUpload(e, "image")}
-                style={{ display: "none" }}
-              />
-              <input
-                type="file"
-                accept="audio/*"
-                ref={audioInputRef}
-                onChange={(e) => handleFileUpload(e, "audio")}
-                style={{ display: "none" }}
-              />
-              <input
-                type="file"
-                accept="video/*"
-                ref={videoInputRef}
-                onChange={(e) => handleFileUpload(e, "video")}
-                style={{ display: "none" }}
-              />
-              <input
-                type="file"
-                ref={docInputRef}
-                onChange={(e) => handleFileUpload(e, "document")}
-                style={{ display: "none" }}
-              />
-
-              {/* Attachment menu */}
-              <Popover placement="top-start">
-                <PopoverTrigger>
-                  <IconButton
-                    icon={<BsThreeDotsVertical />}
-                    aria-label="Attach file"
-                    mr={2}
-                    color={whatsappColors.textSecondary}
-                    variant="ghost"
-                  />
-                </PopoverTrigger>
-                <PopoverContent w="auto">
-                  <PopoverArrow />
-                  <PopoverBody p={1}>
-                    <VStack spacing={1} align="stretch">
-                      <Button
-                        leftIcon={<FiImage />}
-                        size="sm"
-                        variant="ghost"
-                        justifyContent="flex-start"
-                        onClick={() => fileInputRef.current.click()}
-                      >
-                        Image
-                      </Button>
-                      <Button
-                        leftIcon={<FiVideo />}
-                        size="sm"
-                        variant="ghost"
-                        justifyContent="flex-start"
-                        onClick={() => videoInputRef.current.click()}
-                      >
-                        Video
-                      </Button>
-                      <Button
-                        leftIcon={<FiMusic />}
-                        size="sm"
-                        variant="ghost"
-                        justifyContent="flex-start"
-                        onClick={() => audioInputRef.current.click()}
-                      >
-                        Audio
-                      </Button>
-                      <Button
-                        leftIcon={<FiFile />}
-                        size="sm"
-                        variant="ghost"
-                        justifyContent="flex-start"
-                        onClick={() => docInputRef.current.click()}
-                      >
-                        Document
-                      </Button>
-                    </VStack>
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-
-              {/* Emoji picker */}
-              <Popover
-                isOpen={showEmojiPicker}
-                onClose={() => setShowEmojiPicker(false)}
-                placement="top-start"
-              >
-                <PopoverTrigger>
-                  <IconButton
-                    icon={<FaSmile />}
-                    aria-label="Select emoji"
-                    mr={2}
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    color={whatsappColors.textSecondary}
-                    variant="ghost"
-                  />
-                </PopoverTrigger>
-                <PopoverContent w="auto">
-                  <PopoverArrow />
-                  <PopoverBody p={0}>
-                    <EmojiPicker
-                      width={300}
-                      height={350}
-                      onEmojiClick={onEmojiClick}
-                      previewConfig={{ showPreview: false }}
-                    />
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-
-              <Input
-                flex={1}
-                bg="gray.300"
-                placeholder="Type a message..."
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                borderRadius="full"
-                border="none"
-                boxShadow="sm"
-                _focus={{ boxShadow: "md" }}
-              />
-
-              {isRecording ? (
-                <IconButton
-                  icon={<IoMdMic />}
-                  aria-label="Stop recording"
-                  colorScheme="red"
-                  ml={2}
-                  onClick={stopRecording}
-                />
-              ) : (
-                <>
-                  {inputMessage || selectedFile ? (
-                    <IconButton
-                      icon={<RiSendPlaneFill />}
-                      aria-label="Send message"
-                      colorScheme="whatsapp"
-                      ml={2}
-                      onClick={handleSendMessage}
-                      disabled={
-                        (!inputMessage.trim() && !selectedFile) || isSending
-                      }
-                    />
-                  ) : (
-                    <Tooltip label="Record voice message">
-                      <IconButton
-                        icon={<FiMic />}
-                        aria-label="Record voice message"
-                        ml={2}
-                        onClick={startRecording}
-                        color={whatsappColors.textSecondary}
-                        variant="ghost"
-                      />
-                    </Tooltip>
-                  )}
-                </>
-              )}
-            </Flex>
-          </Box>
-        </Box>
-      </Flex>
-    </>
-  );
+	const [messages, setMessages] = useState([]);
+	const [inputMessage, setInputMessage] = useState('');
+	const [selectedFile, setSelectedFile] = useState(null);
+	const [isRecording, setIsRecording] = useState(false);
+	const [isSending, setIsSending] = useState(false);
+	const [activeChat, setActiveChat] = useState(null);
+	const [recordingTime, setRecordingTime] = useState(0);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [audioLevel, setAudioLevel] = useState(0);
+	const [replyingTo, setReplyingTo] = useState(null);
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [pausedVoiceMessages, setPausedVoiceMessages] = useState(new Set());
+	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+	const [selectedImage, setSelectedImage] = useState(null);
+	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
+	const [isWhatsappApiModalOpen, setIsWhatsappApiModalOpen] = useState(false);
+	const [apiKey, setApiKey] = useState('');
+
+	const mediaRecorderRef = useRef(null);
+	const chunksRef = useRef([]);
+	const fileInputRef = useRef(null);
+	const audioInputRef = useRef(null);
+	const videoInputRef = useRef(null);
+	const docInputRef = useRef(null);
+	const timerRef = useRef(null);
+	const analyserRef = useRef(null);
+	const animationRef = useRef(null);
+	const messagesEndRef = useRef(null);
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const btnRef = useRef();
+
+	const isMobile = useBreakpointValue({ base: true, md: false });
+
+	// Users data
+	// const [users, setUsers] = useState([
+	// 	{
+	// 		id: 1,
+	// 		name: 'John Doe',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+	// 		lastMessage: 'Hey, how are you doing?',
+	// 		time: '10:30 AM',
+	// 		unread: 2,
+	// 		lastSeen: '10:30 AM',
+	// 		status: 'online',
+	// 		email: 'john@example.com',
+	// 		phone: '+1234567890',
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		name: 'Jane Smith',
+	// 		avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+	// 		lastMessage: 'Meeting at 3 PM',
+	// 		time: '9:15 AM',
+	// 		unread: 0,
+	// 		lastSeen: '9:15 AM',
+	// 		status: 'online',
+	// 		email: 'jane@example.com',
+	// 		phone: '+1987654321',
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		name: 'Mike Johnson',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+	// 		lastMessage: 'Please send the files',
+	// 		time: 'Yesterday',
+	// 		unread: 5,
+	// 		lastSeen: 'Yesterday',
+	// 		status: 'last seen today at 12:45 PM',
+	// 		phone: '+1122334455',
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		name: 'Sarah Williams',
+	// 		avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
+	// 		lastMessage: 'Thanks for your help!',
+	// 		time: 'Yesterday',
+	// 		unread: 0,
+	// 		lastSeen: 'Yesterday',
+	// 		status: 'last seen yesterday at 8:30 PM',
+	// 		email: 'sarah@example.com',
+	// 	},
+	// 	{
+	// 		id: 5,
+	// 		name: 'David Brown',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+	// 		lastMessage: "Let's catch up soon",
+	// 		time: 'Monday',
+	// 		unread: 1,
+	// 		lastSeen: 'Monday',
+	// 		status: 'last seen Monday at 3:20 PM',
+	// 		phone: '+1555666777',
+	// 	},
+	// 	{
+	// 		id: 6,
+	// 		name: 'Zarak',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
+	// 		lastMessage: "Let's catch up soon",
+	// 		time: 'Tuesday',
+	// 		unread: 0,
+	// 		lastSeen: 'Monday',
+	// 		status: 'last seen Tuesday at 10:15 AM',
+	// 		email: 'zarak@example.com',
+	// 		phone: '+1777888999',
+	// 	},
+	// 	{
+	// 		id: 7,
+	// 		name: 'Emma Watson',
+	// 		avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
+	// 		lastMessage: 'Did you see the new movie?',
+	// 		time: 'Wednesday',
+	// 		unread: 3,
+	// 		lastSeen: 'Wednesday',
+	// 		status: 'last seen today at 2:30 PM',
+	// 		email: 'emma@example.com',
+	// 	},
+	// 	{
+	// 		id: 8,
+	// 		name: 'Robert Downey',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
+	// 		lastMessage: "I'm Iron Man",
+	// 		time: 'Thursday',
+	// 		unread: 0,
+	// 		lastSeen: 'Thursday',
+	// 		status: 'online',
+	// 		phone: '+1888999000',
+	// 	},
+	// 	{
+	// 		id: 9,
+	// 		name: 'Scarlett Johansson',
+	// 		avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
+	// 		lastMessage: 'Avengers assemble!',
+	// 		time: 'Friday',
+	// 		unread: 2,
+	// 		lastSeen: 'Friday',
+	// 		status: 'last seen yesterday at 7:45 PM',
+	// 		email: 'scarlett@example.com',
+	// 		phone: '+1999111222',
+	// 	},
+	// 	{
+	// 		id: 10,
+	// 		name: 'Chris Evans',
+	// 		avatar: 'https://randomuser.me/api/portraits/men/6.jpg',
+	// 		lastMessage: 'I can do this all day',
+	// 		time: 'Saturday',
+	// 		unread: 1,
+	// 		lastSeen: 'Saturday',
+	// 		status: 'last seen today at 9:15 AM',
+	// 		phone: '+1222333444',
+	// 	},
+	// ]);
+
+	const [users, setUsers] = useState([]);
+
+	const [chatQuery, setChatQuery] = useState({
+		from: 654212707774447,
+		to: 923149730064,
+		page: 1,
+		limit: 100,
+	});
+
+	const { data: contacts, isLoading: usersLoading } = useFetchItemsQuery({
+		path: '/whatsapp/contacts',
+	});
+
+	const { data: chatData, isLoading: messagesLoading } = useFetchItemsQuery({
+		path: '/whatsapp/chat_history',
+		params: chatQuery,
+	});
+
+	const [createMessageAPI, { isLoading: sendingMessage }] =
+		useCreateItemMutation();
+
+	console.log(chatData);
+
+	useEffect(() => {
+		if (contacts?.doc) {
+			console.log('users set state');
+			setUsers(contacts?.doc);
+			setActiveChat(contacts?.doc[0]?._id || null);
+		}
+	}, [contacts?.doc]);
+
+	// Current user data
+	const currentUser = useRef({
+		id: 0,
+		name: 'You',
+		avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
+		status: 'online',
+	}).current;
+
+	// Messages data
+	const allMessages = useRef({
+		1: [
+			{
+				id: users[0]?._id,
+				sender: users[0],
+				text: 'Hey there!',
+				type: 'text',
+				timestamp: new Date(Date.now() - 86400000 * 2),
+				status: 'read',
+			},
+			{
+				id: 2,
+				sender: currentUser,
+				text: 'Hi! How are you?',
+				type: 'text',
+				timestamp: new Date(Date.now() - 86400000),
+				status: 'read',
+			},
+			{
+				id: 3,
+				sender: users[0],
+				text: "I'm good, thanks for asking! How about you? I was thinking we could meet up this weekend if you're free.",
+				type: 'text',
+				timestamp: new Date(Date.now() - 3600000),
+				status: 'delivered',
+			},
+			{
+				id: 4,
+				sender: currentUser,
+				text: 'Great to hear! Yeah, weekend sounds good. What time works for you?',
+				type: 'text',
+				timestamp: new Date(),
+				status: 'read',
+			},
+		],
+		2: [
+			{
+				id: 1,
+				sender: users[1],
+				text: "Hi, don't forget our meeting at 3 PM tomorrow. We'll be discussing the quarterly reports.",
+				type: 'text',
+				timestamp: new Date(Date.now() - 7200000),
+				status: 'read',
+			},
+			{
+				id: 2,
+				sender: currentUser,
+				text: "Got it, I'll prepare the presentation slides and send them over tonight.",
+				type: 'text',
+				timestamp: new Date(Date.now() - 3600000),
+				status: 'read',
+			},
+		],
+		3: [
+			{
+				id: 1,
+				sender: currentUser,
+				text: "I've sent the files you requested. Let me know if you need anything else.",
+				type: 'text',
+				timestamp: new Date(Date.now() - 86400000 * 3),
+				status: 'read',
+			},
+			{
+				id: 2,
+				sender: users[2],
+				text: "Please send them again, I can't seem to find them in my email. Maybe there was an issue with the attachment?",
+				type: 'text',
+				timestamp: new Date(Date.now() - 43200000),
+				status: 'delivered',
+			},
+			{
+				id: 3,
+				sender: currentUser,
+				text: "Sure, I'll resend them now. Also, I've uploaded them to the shared drive just in case.",
+				type: 'text',
+				timestamp: new Date(Date.now() - 1800000),
+				status: 'sent',
+			},
+		],
+	}).current;
+
+	// const filteredUsers = useMemo(() => {
+	// 	return users.filter((user) =>
+	// 		user.name.toLowerCase().includes(searchQuery.toLowerCase())
+	// 	);
+	// }, [users, searchQuery]);
+
+	useEffect(() => {
+		setMessages(allMessages[activeChat] || []);
+	}, [activeChat]);
+
+	useEffect(() => {
+		return () => {
+			if (timerRef.current) {
+				clearInterval(timerRef.current);
+			}
+			if (animationRef.current) {
+				cancelAnimationFrame(animationRef.current);
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages]);
+
+	const scrollToBottom = () => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	};
+
+	const handleSendMessage = useCallback(async () => {
+		if (!inputMessage.trim() && !selectedFile) return;
+
+		setIsSending(true);
+		try {
+			const res = await createMessageAPI({
+				path: '/whatsapp/messages',
+				body: {
+					from: 654212707774447,
+					to: 923149730064,
+					type: 'text',
+					message: inputMessage,
+				},
+			}).unwrap();
+
+			console.log({ res });
+		} catch (err) {
+			console.log(err);
+			toast.error(err?.data?.message?.expired || 'Message could not send!');
+		}
+
+		// setTimeout(() => {
+		// 	const newMessage = {
+		// 		id: Date.now(),
+		// 		sender: currentUser,
+		// 		text: inputMessage,
+		// 		file: selectedFile,
+		// 		type: selectedFile
+		// 			? selectedFile.type.includes('image')
+		// 				? 'image'
+		// 				: selectedFile.type.includes('video')
+		// 					? 'video'
+		// 					: selectedFile.type.includes('audio')
+		// 						? 'audio'
+		// 						: 'file'
+		// 			: 'text',
+		// 		timestamp: new Date(),
+		// 		status: 'sent',
+		// 		replyTo: replyingTo,
+		// 	};
+
+		// 	const updatedMessages = [...messages, newMessage];
+		// 	setMessages(updatedMessages);
+		// 	setInputMessage('');
+		// 	setSelectedFile(null);
+		// 	setReplyingTo(null);
+		// 	setIsSending(false);
+
+		// 	allMessages[activeChat] = updatedMessages;
+
+		// 	setTimeout(
+		// 		() => {
+		// 			let replyText = '';
+		// 			if (selectedFile) {
+		// 				if (selectedFile.type.includes('image')) {
+		// 					replyText = 'Nice picture!';
+		// 				} else if (selectedFile.type.includes('video')) {
+		// 					replyText = 'Great video!';
+		// 				} else if (selectedFile.type.includes('audio')) {
+		// 					replyText = 'Thanks for the audio!';
+		// 				} else {
+		// 					replyText = 'Thanks for the file!';
+		// 				}
+		// 			} else {
+		// 				replyText = `Reply to: ${inputMessage || 'your message'}`;
+		// 			}
+
+		// 			const replyMessage = {
+		// 				id: Date.now() + 1,
+		// 				sender: users.find((u) => u.id === activeChat),
+		// 				text: replyText,
+		// 				type: 'text',
+		// 				timestamp: new Date(),
+		// 				status: 'delivered',
+		// 			};
+		// 			const updatedWithReply = [...updatedMessages, replyMessage];
+		// 			setMessages(updatedWithReply);
+		// 			allMessages[activeChat] = updatedWithReply;
+
+		// 			setTimeout(() => {
+		// 				setMessages((prev) =>
+		// 					prev.map((msg) =>
+		// 						msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
+		// 					)
+		// 				);
+		// 				allMessages[activeChat] = allMessages[activeChat].map((msg) =>
+		// 					msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
+		// 				);
+		// 			}, 1000);
+		// 		},
+		// 		Math.random() * 2000 + 1000
+		// 	);
+		// }, 500);
+	}, [inputMessage, selectedFile, messages, activeChat, replyingTo]);
+
+	const handleFileUpload = useCallback((e, type = 'image') => {
+		const file = e.target.files[0];
+		if (file) {
+			if (type === 'video' && file.size > 100 * 1024 * 1024) {
+				toast.error('Video size should be less than 100MB');
+				return;
+			} else if (file.size > 25 * 1024 * 1024) {
+				toast.error('File size should be less than 25MB');
+				return;
+			}
+
+			setSelectedFile({
+				url: URL.createObjectURL(file),
+				name: file.name,
+				type: file.type,
+				size: file.size,
+				file,
+			});
+			toast.info(
+				`${type.charAt(0).toUpperCase() + type.slice(1)} selected, click send to share`
+			);
+		}
+	}, []);
+
+	const handleDownloadFile = (file) => {
+		const a = document.createElement('a');
+		a.href = file.url;
+		a.download = file.name;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	};
+
+	const cancelRecording = useCallback(() => {
+		if (mediaRecorderRef.current && isRecording) {
+			setIsRecordingCanceled(true);
+			mediaRecorderRef.current.stop();
+			mediaRecorderRef.current.stream
+				.getTracks()
+				.forEach((track) => track.stop());
+			setIsRecording(false);
+			setRecordingTime(0);
+			setAudioLevel(0);
+			if (animationRef.current) {
+				cancelAnimationFrame(animationRef.current);
+			}
+			chunksRef.current = [];
+			toast.info('Recording cancelled');
+		}
+	}, [isRecording]);
+
+	const stopRecording = useCallback(() => {
+		if (mediaRecorderRef.current && isRecording) {
+			setIsRecordingCanceled(false);
+			mediaRecorderRef.current.stop();
+			mediaRecorderRef.current.stream
+				.getTracks()
+				.forEach((track) => track.stop());
+		}
+	}, [isRecording]);
+
+	const startRecording = useCallback(() => {
+		setRecordingTime(0);
+		setAudioLevel(0);
+		chunksRef.current = [];
+		setIsRecordingCanceled(false); // Reset cancel state
+		navigator.mediaDevices
+			.getUserMedia({ audio: true })
+			.then((stream) => {
+				setIsRecording(true);
+				mediaRecorderRef.current = new MediaRecorder(stream);
+				chunksRef.current = [];
+
+				// Setup audio analyzer
+				const audioContext = new (window.AudioContext ||
+					window.webkitAudioContext)();
+				analyserRef.current = audioContext.createAnalyser();
+				analyserRef.current.fftSize = 32;
+				const microphone = audioContext.createMediaStreamSource(stream);
+				microphone.connect(analyserRef.current);
+				const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+
+				const analyzeAudio = () => {
+					analyserRef.current.getByteFrequencyData(dataArray);
+					let sum = 0;
+					for (let i = 0; i < dataArray.length; i++) {
+						sum += dataArray[i];
+					}
+					const average = sum / dataArray.length;
+					setAudioLevel(Math.min(average / 50, 1));
+					animationRef.current = requestAnimationFrame(analyzeAudio);
+				};
+
+				analyzeAudio();
+
+				timerRef.current = setInterval(() => {
+					setRecordingTime((prev) => prev + 1);
+				}, 1000);
+
+				mediaRecorderRef.current.ondataavailable = (e) => {
+					chunksRef.current.push(e.data);
+				};
+
+				mediaRecorderRef.current.onstop = async () => {
+					clearInterval(timerRef.current);
+					if (animationRef.current) {
+						cancelAnimationFrame(animationRef.current);
+					}
+
+					// Only process if we have chunks AND recording wasn't canceled
+					if (chunksRef.current.length > 0 && !isRecordingCanceled) {
+						try {
+							const audioBlob = new Blob(chunksRef.current, {
+								type: 'audio/webm',
+							});
+							const audioUrl = URL.createObjectURL(audioBlob);
+
+							const audio = new Audio();
+							audio.src = audioUrl;
+
+							await new Promise((resolve) => {
+								audio.onloadedmetadata = resolve;
+								audio.onerror = () => {
+									console.error('Failed to load audio metadata');
+									resolve();
+								};
+							});
+
+							const duration = Math.round(audio.duration || recordingTime);
+
+							const newMessage = {
+								id: Date.now(),
+								sender: currentUser,
+								audioUrl,
+								type: 'voice',
+								timestamp: new Date(),
+								duration,
+								status: 'sent',
+							};
+
+							const updatedMessages = [...messages, newMessage];
+							setMessages(updatedMessages);
+							allMessages[activeChat] = updatedMessages;
+							toast.success('Voice message sent!');
+
+							setTimeout(() => {
+								const replyMessage = {
+									id: Date.now() + 1,
+									sender: users.find((u) => u.id === activeChat),
+									text: 'Thanks for the voice message!',
+									type: 'text',
+									timestamp: new Date(),
+									status: 'delivered',
+								};
+								const updatedWithReply = [...updatedMessages, replyMessage];
+								setMessages(updatedWithReply);
+								allMessages[activeChat] = updatedWithReply;
+
+								setTimeout(() => {
+									setMessages((prev) =>
+										prev.map((msg) =>
+											msg.id === newMessage.id
+												? { ...msg, status: 'read' }
+												: msg
+										)
+									);
+									allMessages[activeChat] = allMessages[activeChat].map(
+										(msg) =>
+											msg.id === newMessage.id
+												? { ...msg, status: 'read' }
+												: msg
+									);
+								}, 1000);
+							}, 2000);
+						} catch (err) {
+							console.error('Error processing voice message:', err);
+							toast.error('Failed to send voice message');
+						}
+					}
+
+					setIsRecording(false);
+					setRecordingTime(0);
+					setAudioLevel(0);
+					setIsRecordingCanceled(false); // Reset for next recording
+					chunksRef.current = []; // Clear chunks for next recording
+				};
+
+				mediaRecorderRef.current.start(100);
+			})
+			.catch((err) => {
+				toast.error('Microphone access denied: ' + err.message);
+				setIsRecording(false);
+			});
+	}, [messages, activeChat, recordingTime, isRecordingCanceled]);
+
+	const getActiveUser = useCallback(() => {
+		return users.find((user) => user.phoneNumber === activeChat) || users[0];
+	}, [users, activeChat]);
+
+	console.log(getActiveUser());
+
+	const onEmojiClick = (emojiData) => {
+		setInputMessage((prev) => prev + emojiData.emoji);
+	};
+
+	const handleVoiceMessagePause = useCallback((messageId, isPaused) => {
+		setPausedVoiceMessages((prev) => {
+			const newSet = new Set(prev);
+			if (isPaused) {
+				newSet.add(messageId);
+			} else {
+				newSet.delete(messageId);
+			}
+			return newSet;
+		});
+	}, []);
+
+	const [updateTokenAPI, { isLoading: tokenUpdating }] =
+		useUpdateItemMutation();
+
+	const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, 'gray.800');
+
+	// Group messages by date
+	const groupedMessages = useMemo(() => {
+		const groups = [];
+		let currentDate = null;
+
+		messages.forEach((message, index) => {
+			const messageDate = formatDateHeader(message.timestamp);
+
+			if (messageDate !== currentDate) {
+				groups.push({
+					type: 'date',
+					date: messageDate,
+					id: `date-${messageDate}-${index}`,
+				});
+				currentDate = messageDate;
+			}
+
+			groups.push({
+				type: 'message',
+				message,
+				id: message.id,
+			});
+		});
+
+		return groups;
+	}, [messages]);
+
+	// Generate waveform data based on current audio level
+	const generateWaveformData = () => {
+		const bars = [];
+		const barCount = 16;
+		const maxHeight = 24;
+
+		for (let i = 0; i < barCount; i++) {
+			const noise = Math.random() * 0.3;
+			const positionFactor = Math.abs(i - barCount / 2) / (barCount / 2);
+			const height = Math.max(
+				3,
+				audioLevel * maxHeight * (1 - positionFactor * 0.7) + noise * 6
+			);
+
+			bars.push(
+				<Box
+					key={i}
+					w='2px'
+					h={`${height}px`}
+					bg={whatsappColors.primary}
+					borderRadius='full'
+					opacity={0.6 + Math.random() * 0.4}
+					transition='height 0.1s ease'
+				/>
+			);
+		}
+		return bars;
+	};
+
+	const handleSaveToken = async () => {
+		try {
+			if (!apiKey.trim()) {
+				toast.error('Api key is required!');
+				return;
+			}
+
+			const res = await updateTokenAPI({
+				path: `/whatsapp/config`,
+				body: { token: apiKey },
+			}).unwrap();
+
+			toast.success('WhatsApp API configured successfully');
+			setIsWhatsappApiModalOpen(false);
+		} catch (error) {
+			console.log(error);
+
+			toast.error(error?.data?.message || 'Token are not save!');
+		}
+	};
+
+	if (usersLoading) {
+		return <Loader />;
+	}
+
+	return (
+		<>
+			<Flex justify={'flex-end'}>
+				{isSuperAdmin && (
+					<IconButton
+						icon={<FiSettings />}
+						aria-label='WhatsApp API Settings'
+						variant='ghost'
+						onClick={() => setIsWhatsappApiModalOpen(true)}
+					/>
+				)}
+			</Flex>
+			<Flex
+				h='80vh'
+				overflow='hidden'
+				position='relative'
+				borderRadius='lg'
+				boxShadow='lg'
+			>
+				{/* Mobile Drawer */}
+				<Drawer
+					isOpen={isOpen}
+					placement='left'
+					onClose={onClose}
+					finalFocusRef={btnRef}
+					h='80vh'
+				>
+					<DrawerOverlay />
+					<DrawerContent maxW='320px' bg={sidebarBg}>
+						<DrawerCloseButton />
+						<DrawerHeader p={3} bg={sidebarBg}>
+							<Flex align='center'>
+								<Avatar src={currentUser.avatar} size='sm' mr={2} />
+								<Text fontWeight='bold' color={whatsappColors.textDark}>
+									Chats
+								</Text>
+							</Flex>
+						</DrawerHeader>
+						<DrawerBody p={0}>
+							<Box p={3} bg={sidebarBg}>
+								<InputGroup>
+									<InputLeftElement pointerEvents='none'>
+										<FiSearch color='gray.300' />
+									</InputLeftElement>
+									<Input
+										placeholder='Search contacts'
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										bg='white'
+										borderRadius='lg'
+										border='none'
+										boxShadow='sm'
+									/>
+								</InputGroup>
+							</Box>
+							<Divider borderColor='gray.300' />
+							<UserList
+								users={users}
+								activeChat={activeChat}
+								setActiveChat={setActiveChat}
+								isMobile={isMobile}
+								onClose={onClose}
+								sidebarBg={sidebarBg}
+							/>
+							<Flex
+								p={3}
+								justify='flex-end'
+								position='sticky'
+								bottom='0'
+								bg={sidebarBg}
+								borderTop='1px solid'
+								borderColor='gray.200'
+							>
+								<Menu placement='top-end'>
+									<MenuButton
+										as={IconButton}
+										icon={<BsThreeDotsVertical />}
+										variant='ghost'
+										color={whatsappColors.textSecondary}
+										size='sm'
+									/>
+									<MenuList>
+										<MenuItem
+											icon={<FiUser />}
+											onClick={() => setIsContactModalOpen(true)}
+										>
+											Manage Contacts
+										</MenuItem>
+									</MenuList>
+								</Menu>
+							</Flex>
+						</DrawerBody>
+					</DrawerContent>
+				</Drawer>
+
+				{/* Desktop Sidebar */}
+				<Box
+					w={{ base: '100%', md: '30%' }}
+					bg={sidebarBg}
+					borderRight='1px solid'
+					borderColor='gray.200'
+					display={{ base: 'none', md: 'block' }}
+					h='100%'
+					overflow='hidden'
+					position='relative'
+				>
+					{/* Fixed Sidebar Header */}
+					<Box
+						position='sticky'
+						top='0'
+						zIndex='1'
+						bg={sidebarBg}
+						borderBottom='1px solid'
+						borderColor='gray.300'
+					>
+						<Flex p={3} align='center' justify='space-between' bg={sidebarBg}>
+							<Flex align='center'>
+								<Avatar src={currentUser.avatar} size='sm' mr={2} />
+								<Text fontWeight='bold' color={whatsappColors.textDark}>
+									Chats
+								</Text>
+							</Flex>
+							<Menu
+								placement='top-end'
+								display={{ base: 'none', sm: 'none', md: 'block' }}
+							>
+								<MenuButton
+									as={IconButton}
+									icon={<BsThreeDotsVertical />}
+									variant='ghost'
+									color={whatsappColors.textSecondary}
+									size='sm'
+								/>
+								<MenuList>
+									<MenuItem
+										icon={<FiUser />}
+										onClick={() => setIsContactModalOpen(true)}
+									>
+										Manage Contacts
+									</MenuItem>
+								</MenuList>
+							</Menu>
+						</Flex>
+
+						{/* Fixed Search Box */}
+						<Box p={3} bg={sidebarBg}>
+							<InputGroup>
+								<InputLeftElement pointerEvents='none'>
+									<FiSearch color='gray.300' />
+								</InputLeftElement>
+								<Input
+									placeholder='Search contacts'
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									bg='white'
+									borderRadius='lg'
+									border='none'
+									boxShadow='sm'
+								/>
+							</InputGroup>
+						</Box>
+						<Divider borderColor='gray.300' />
+					</Box>
+
+					<UserList
+						users={users}
+						activeChat={activeChat}
+						setActiveChat={setActiveChat}
+						isMobile={isMobile}
+						onClose={onClose}
+						sidebarBg={sidebarBg}
+					/>
+				</Box>
+
+				{/* Chat Area */}
+				<Box flex={1} display='flex' flexDirection='column' bg='white' h='100%'>
+					{/* Chat Header */}
+					{activeChat && (
+						<Flex
+							bg={whatsappColors.chatHeaderBg}
+							color={whatsappColors.textDark}
+							p={3}
+							alignItems='center'
+							justifyContent='space-between'
+							borderBottom='1px solid'
+							borderColor='gray.200'
+							position='sticky'
+							top='0'
+							zIndex='1'
+						>
+							<Flex alignItems='center'>
+								<IconButton
+									icon={<FiChevronLeft />}
+									aria-label='Show sidebar'
+									mr={2}
+									onClick={isMobile ? onOpen : null}
+									color={whatsappColors.textSecondary}
+									background='transparent'
+									display={{ base: 'flex', md: 'none' }}
+								/>
+								<Avatar src={''} size='sm' mr={3} />
+								<Box>
+									<Text fontWeight='bold'>{activeChat?.name}</Text>
+									<Text fontSize='xs' color={whatsappColors.textSecondary}>
+										{activeChat?.status}
+									</Text>
+								</Box>
+							</Flex>
+						</Flex>
+					)}
+
+					<ChatMessages
+						to={activeChat?.phoneNumber}
+						chat={chatData?.doc}
+						isSending={isSending}
+					/>
+
+					{/* Chat messages */}
+					{/* <Box
+						flex={1}
+						p={4}
+						overflowY='auto'
+						css={{
+							'&::-webkit-scrollbar': {
+								width: '6px',
+							},
+							'&::-webkit-scrollbar-track': {
+								background: 'transparent',
+							},
+							'&::-webkit-scrollbar-thumb': {
+								background: whatsappColors.primary,
+								borderRadius: '3px',
+							},
+						}}
+					> */}
+					{/* <VStack spacing={4} align='stretch'>
+							// {groupedMessages.map((item) => {
+							// 	// if (item.type === 'date') {
+							// 	// 	return (
+							// 	// 		<Flex key={item.id} justify='center' my={2}>
+							// 	// 			<Box
+							// 	// 				bg='rgba(0, 0, 0, 0.1)'
+							// 	// 				px={3}
+							// 	// 				py={1}
+							// 	// 				borderRadius='full'
+							// 	// 			>
+							// 	// 				<Text fontSize='xs' color='gray.600'>
+							// 	// 					{item.date}
+							// 	// 				</Text>
+							// 	// 			</Box>
+							// 	// 		</Flex>
+							// 	// 	);
+							// 	// }
+							// 	// const message = item.message;
+							// 	// const isSelf = message.sender.id === currentUser.id;
+							// 	// const showAvatar =
+							// 	// 	!isSelf &&
+							// 	// 	(!groupedMessages[item.id - 1]?.message ||
+							// 	// 		groupedMessages[item.id - 1]?.message.sender.id !==
+							// 	// 			message.sender.id);
+							// 	// return (
+							// 	// 	<React.Fragment key={item.id}>
+							// 	// 		<Flex
+							// 	// 			direction='column'
+							// 	// 			align={isSelf ? 'flex-end' : 'flex-start'}
+							// 	// 			_hover={{ bg: whatsappColors.messageHoverBg }}
+							// 	// 			p={1}
+							// 	// 			borderRadius='md'
+							// 	// 			transition='background 0.2s ease'
+							// 	// 			mt={showAvatar ? 3 : 1}
+							// 	// 		>
+							// 	// 			{showAvatar && (
+							// 	// 				<Flex align='center' mb={1}>
+							// 	// 					<Avatar
+							// 	// 						src={message.sender.avatar}
+							// 	// 						size='xs'
+							// 	// 						mr={2}
+							// 	// 					/>
+							// 	// 					<Text
+							// 	// 						fontSize='xs'
+							// 	// 						color={whatsappColors.timeStampColor}
+							// 	// 					>
+							// 	// 						{message.sender.name}
+							// 	// 					</Text>
+							// 	// 				</Flex>
+							// 	// 			)}
+							// 	// 			{/* Reply indicator 
+									{message.replyTo && (
+							// 	// 				<Box
+							// 	// 					bg={whatsappColors.replyBg}
+							// 	// 					borderLeft={`3px solid ${whatsappColors.replyBorder}`}
+							// 	// 					borderRadius='md'
+							// 	// 					p={2}
+							// 	// 					mb={1}
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					alignSelf={isSelf ? 'flex-end' : 'flex-start'}
+							// 	// 				>
+							// 	// 					<Text
+							// 	// 						fontSize='xs'
+							// 	// 						color={whatsappColors.textSecondary}
+							// 	// 					>
+							// 	// 						{message.replyTo.sender.name}
+							// 	// 					</Text>
+							// 	// 					<Text
+							// 	// 						fontSize='sm'
+							// 	// 						color={whatsappColors.textDark}
+							// 	// 						isTruncated
+							// 	// 					>
+							// 	// 						{message.replyTo.text || 'Media message'}
+							// 	// 					</Text>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'text' && (
+							// 	// 				<Box
+							// 	// 					position='relative'
+							// 	// 					bg={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.outgoingBg
+							// 	// 							: whatsappColors.incomingBg
+							// 	// 					}
+							// 	// 					px={4}
+							// 	// 					py={2}
+							// 	// 					borderRadius='lg'
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					boxShadow='sm'
+							// 	// 					color={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.textDark
+							// 	// 							: whatsappColors.textDark
+							// 	// 					}
+							// 	// 					borderTopLeftRadius={
+							// 	// 						!isSelf && !showAvatar ? '4px' : 'lg'
+							// 	// 					}
+							// 	// 					borderTopRightRadius={isSelf ? '4px' : 'lg'}
+							// 	// 					wordBreak='break-word'
+							// 	// 				>
+							// 	// 					<Text whiteSpace='pre-wrap' overflowWrap='break-word'>
+							// 	// 						{message.text}
+							// 	// 					</Text>
+							// 	// 					<Flex
+							// 	// 						justifyContent={'flex-end'}
+							// 	// 						align='center'
+							// 	// 						gap={1}
+							// 	// 					>
+							// 	// 						<Text
+							// 	// 							fontSize='10px'
+							// 	// 							color={whatsappColors.timeStampColor}
+							// 	// 							mr={1}
+							// 	// 						>
+							// 	// 							{formatMessageTime(message.timestamp)}
+							// 	// 						</Text>
+							// 	// 						{isSelf && (
+							// 	// 							<>
+							// 	// 								{message.status === 'read' ? (
+							// 	// 									<FaCheckDouble size='10px' color='#34B7F1' />
+							// 	// 								) : message.status === 'delivered' ? (
+							// 	// 									<FaCheckDouble
+							// 	// 										size='10px'
+							// 	// 										color={whatsappColors.timeStampColor}
+							// 	// 									/>
+							// 	// 								) : (
+							// 	// 									<FaCheck
+							// 	// 										size='10px'
+							// 	// 										color={whatsappColors.timeStampColor}
+							// 	// 									/>
+							// 	// 								)}
+							// 	// 							</>
+							// 	// 						)}
+							// 	// 					</Flex>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'image' && (
+							// 	// 				<Box
+							// 	// 					position='relative'
+							// 	// 					bg={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.outgoingBg
+							// 	// 							: whatsappColors.incomingBg
+							// 	// 					}
+							// 	// 					color={isSelf ? 'white' : 'black'}
+							// 	// 					p={2}
+							// 	// 					borderRadius='lg'
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					boxShadow='sm'
+							// 	// 					borderTopLeftRadius={
+							// 	// 						!isSelf && !showAvatar ? '4px' : 'lg'
+							// 	// 					}
+							// 	// 					borderTopRightRadius={isSelf ? '4px' : 'lg'}
+							// 	// 				>
+							// 	// 					<img
+							// 	// 						src={message.file.url}
+							// 	// 						alt='shared'
+							// 	// 						style={{
+							// 	// 							maxWidth: '100%',
+							// 	// 							borderRadius: '8px',
+							// 	// 							maxHeight: '300px',
+							// 	// 							objectFit: 'contain',
+							// 	// 							cursor: 'pointer',
+							// 	// 						}}
+							// 	// 						onClick={() => setSelectedImage(message.file.url)}
+							// 	// 					/>
+							// 	// 					<Flex
+							// 	// 						justifyContent={'space-between'}
+							// 	// 						align='center'
+							// 	// 						mt={2}
+							// 	// 					>
+							// 	// 						<Button
+							// 	// 							size='sm'
+							// 	// 							colorScheme='whatsapp'
+							// 	// 							color='white'
+							// 	// 							leftIcon={<FiDownload />}
+							// 	// 							onClick={() => handleDownloadFile(message.file)}
+							// 	// 						>
+							// 	// 							Download
+							// 	// 						</Button>
+							// 	// 						<Flex align='center' gap={1}>
+							// 	// 							<Text
+							// 	// 								fontSize='10px'
+							// 	// 								color={isSelf ? 'whiteAlpha.800' : 'gray.600'}
+							// 	// 								mr={1}
+							// 	// 							>
+							// 	// 								{formatMessageTime(message.timestamp)}
+							// 	// 							</Text>
+							// 	// 							{isSelf && (
+							// 	// 								<>
+							// 	// 									{message.status === 'read' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color='#34B7F1'
+							// 	// 										/>
+							// 	// 									) : message.status === 'delivered' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									) : (
+							// 	// 										<FaCheck
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									)}
+							// 	// 								</>
+							// 	// 							)}
+							// 	// 						</Flex>
+							// 	// 					</Flex>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'video' && (
+							// 	// 				<Box
+							// 	// 					position='relative'
+							// 	// 					bg={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.outgoingBg
+							// 	// 							: whatsappColors.incomingBg
+							// 	// 					}
+							// 	// 					color={isSelf ? 'white' : 'black'}
+							// 	// 					p={2}
+							// 	// 					borderRadius='lg'
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					boxShadow='sm'
+							// 	// 					borderTopLeftRadius={
+							// 	// 						!isSelf && !showAvatar ? '4px' : 'lg'
+							// 	// 					}
+							// 	// 					borderTopRightRadius={isSelf ? '4px' : 'lg'}
+							// 	// 				>
+							// 	// 					<video
+							// 	// 						controls
+							// 	// 						style={{
+							// 	// 							maxWidth: '100%',
+							// 	// 							borderRadius: '8px',
+							// 	// 							maxHeight: '300px',
+							// 	// 							objectFit: 'contain',
+							// 	// 						}}
+							// 	// 					>
+							// 	// 						<source
+							// 	// 							src={message.file.url}
+							// 	// 							type={message.file.type}
+							// 	// 						/>
+							// 	// 						Your browser does not support the video tag.
+							// 	// 					</video>
+							// 	// 					<Flex
+							// 	// 						justifyContent={'space-between'}
+							// 	// 						align='center'
+							// 	// 						mt={2}
+							// 	// 					>
+							// 	// 						<Button
+							// 	// 							size='sm'
+							// 	// 							colorScheme='whatsapp'
+							// 	// 							color='white'
+							// 	// 							leftIcon={<FiDownload />}
+							// 	// 							onClick={() => handleDownloadFile(message.file)}
+							// 	// 						>
+							// 	// 							Download
+							// 	// 						</Button>
+							// 	// 						<Flex align='center' gap={1}>
+							// 	// 							<Text
+							// 	// 								fontSize='10px'
+							// 	// 								color={isSelf ? 'whiteAlpha.800' : 'gray.600'}
+							// 	// 								mr={1}
+							// 	// 							>
+							// 	// 								{formatMessageTime(message.timestamp)}
+							// 	// 							</Text>
+							// 	// 							{isSelf && (
+							// 	// 								<>
+							// 	// 									{message.status === 'read' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color='#34B7F1'
+							// 	// 										/>
+							// 	// 									) : message.status === 'delivered' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									) : (
+							// 	// 										<FaCheck
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									)}
+							// 	// 								</>
+							// 	// 							)}
+							// 	// 						</Flex>
+							// 	// 					</Flex>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'audio' && (
+							// 	// 				<Box
+							// 	// 					position='relative'
+							// 	// 					bg={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.outgoingBg
+							// 	// 							: whatsappColors.incomingBg
+							// 	// 					}
+							// 	// 					color={isSelf ? 'white' : 'black'}
+							// 	// 					p={2}
+							// 	// 					borderRadius='lg'
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					boxShadow='sm'
+							// 	// 					borderTopLeftRadius={
+							// 	// 						!isSelf && !showAvatar ? '4px' : 'lg'
+							// 	// 					}
+							// 	// 					borderTopRightRadius={isSelf ? '4px' : 'lg'}
+							// 	// 				>
+							// 	// 					<audio
+							// 	// 						controls
+							// 	// 						style={{
+							// 	// 							width: '100%',
+							// 	// 						}}
+							// 	// 					>
+							// 	// 						<source
+							// 	// 							src={message.file.url}
+							// 	// 							type={message.file.type}
+							// 	// 						/>
+							// 	// 						Your browser does not support the audio element.
+							// 	// 					</audio>
+							// 	// 					<Flex
+							// 	// 						justifyContent={'space-between'}
+							// 	// 						align='center'
+							// 	// 						mt={2}
+							// 	// 					>
+							// 	// 						<Button
+							// 	// 							size='sm'
+							// 	// 							colorScheme='whatsapp'
+							// 	// 							color='white'
+							// 	// 							leftIcon={<FiDownload />}
+							// 	// 							onClick={() => handleDownloadFile(message.file)}
+							// 	// 						>
+							// 	// 							Download
+							// 	// 						</Button>
+							// 	// 						<Flex align='center' gap={1}>
+							// 	// 							<Text
+							// 	// 								fontSize='10px'
+							// 	// 								color={isSelf ? 'whiteAlpha.800' : 'gray.600'}
+							// 	// 								mr={1}
+							// 	// 							>
+							// 	// 								{formatMessageTime(message.timestamp)}
+							// 	// 							</Text>
+							// 	// 							{isSelf && (
+							// 	// 								<>
+							// 	// 									{message.status === 'read' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color='#34B7F1'
+							// 	// 										/>
+							// 	// 									) : message.status === 'delivered' ? (
+							// 	// 										<FaCheckDouble
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									) : (
+							// 	// 										<FaCheck
+							// 	// 											size='10px'
+							// 	// 											color={isSelf ? 'white' : 'gray.600'}
+							// 	// 										/>
+							// 	// 									)}
+							// 	// 								</>
+							// 	// 							)}
+							// 	// 						</Flex>
+							// 	// 					</Flex>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'voice' && (
+							// 	// 				<Box
+							// 	// 					position='relative'
+							// 	// 					bg={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.outgoingBg
+							// 	// 							: whatsappColors.incomingBg
+							// 	// 					}
+							// 	// 					px={4}
+							// 	// 					py={2}
+							// 	// 					borderRadius='lg'
+							// 	// 					maxW={{ base: '90%', md: '80%' }}
+							// 	// 					minW='200px'
+							// 	// 					boxShadow='sm'
+							// 	// 					color={
+							// 	// 						isSelf
+							// 	// 							? whatsappColors.textDark
+							// 	// 							: whatsappColors.textDark
+							// 	// 					}
+							// 	// 					borderTopLeftRadius={
+							// 	// 						!isSelf && !showAvatar ? '4px' : 'lg'
+							// 	// 					}
+							// 	// 					borderTopRightRadius={isSelf ? '4px' : 'lg'}
+							// 	// 				>
+							// 	// 					<VoiceMessagePlayer
+							// 	// 						url={message.audioUrl}
+							// 	// 						isSelf={isSelf}
+							// 	// 						onPause={(paused) =>
+							// 	// 							handleVoiceMessagePause(message.id, paused)
+							// 	// 						}
+							// 	// 					/>
+							// 	// 					<Flex
+							// 	// 						justifyContent={'flex-end'}
+							// 	// 						align='center'
+							// 	// 						gap={1}
+							// 	// 					>
+							// 	// 						<Text
+							// 	// 							fontSize='10px'
+							// 	// 							color={whatsappColors.timeStampColor}
+							// 	// 							mr={1}
+							// 	// 						>
+							// 	// 							{formatMessageTime(message.timestamp)}
+							// 	// 						</Text>
+							// 	// 						{isSelf && (
+							// 	// 							<>
+							// 	// 								{message.status === 'read' ? (
+							// 	// 									<FaCheckDouble size='10px' color='#34B7F1' />
+							// 	// 								) : message.status === 'delivered' ? (
+							// 	// 									<FaCheckDouble
+							// 	// 										size='10px'
+							// 	// 										color={whatsappColors.timeStampColor}
+							// 	// 									/>
+							// 	// 								) : (
+							// 	// 									<FaCheck
+							// 	// 										size='10px'
+							// 	// 										color={whatsappColors.timeStampColor}
+							// 	// 									/>
+							// 	// 								)}
+							// 	// 							</>
+							// 	// 						)}
+							// 	// 					</Flex>
+							// 	// 				</Box>
+							// 	// 			)}
+							// 	// 			{message.type === 'file' && (
+							// 	// 				<FileMessage
+							// 	// 					file={message.file}
+							// 	// 					isSelf={isSelf}
+							// 	// 					onDownload={() => handleDownloadFile(message.file)}
+							// 	// 					timestamp={formatMessageTime(message.timestamp)}
+							// 	// 					status={message.status}
+							// 	// 				/>
+							// 	// 			)}
+							// 	// 		</Flex>
+							// 	// 	</React.Fragment>
+							// 	// );
+							// })}
+
+							// {/* <div ref={messagesEndRef} /> 
+							{isSending && (
+							// 	<Flex justify='flex-end' pr={4}>
+							// 		<Spinner size='sm' color={whatsappColors.primary} />
+							// 	</Flex>
+							// )}
+						{/* </VStack> */}
+					{/* </Box> */}
+
+					{/* File preview modal */}
+					{/* <Modal
+						isOpen={!!selectedFile}
+						onClose={() => setSelectedFile(null)}
+						size={
+							selectedFile?.type.includes('image') ||
+							selectedFile?.type.includes('video')
+								? 'xl'
+								: 'md'
+						}
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>File Preview</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<Text
+									fontSize='sm'
+									fontWeight='bold'
+									mb={2}
+									maxW='100%'
+									isTruncated
+									textAlign='center'
+								>
+									{selectedFile?.name}
+								</Text>
+								{selectedFile?.type.includes('image') ? (
+									<>
+										<img
+											src={selectedFile.url}
+											alt='preview'
+											style={{
+												width: '100%',
+												maxHeight: '400px',
+												objectFit: 'contain',
+											}}
+										/>
+									</>
+								) : selectedFile?.type.includes('video') ? (
+									<>
+										<video
+											controls
+											style={{
+												width: '100%',
+												maxHeight: '400px',
+												objectFit: 'contain',
+											}}
+										>
+											<source src={selectedFile.url} type={selectedFile.type} />
+											Your browser does not support the video tag.
+										</video>
+									</>
+								) : selectedFile?.type.includes('audio') ? (
+									<>
+										<audio controls style={{ width: '100%' }}>
+											<source src={selectedFile.url} type={selectedFile.type} />
+											Your browser does not support the audio element.
+										</audio>
+									</>
+								) : (
+									<FileMessage
+										file={selectedFile}
+										isSelf={true}
+										onDownload={() => handleDownloadFile(selectedFile)}
+									/>
+								)}
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									colorScheme='whatsapp'
+									mr={3}
+									onClick={() => {
+										handleSendMessage();
+										setSelectedFile(null);
+									}}
+								>
+									Send
+								</Button>
+								<Button variant='ghost' onClick={() => setSelectedFile(null)}>
+									Cancel
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal> */}
+
+					{/* Image preview modal */}
+					{/* <Modal
+						isOpen={!!selectedImage}
+						onClose={() => setSelectedImage(null)}
+					>
+						<ModalOverlay />
+						<ModalContent
+							maxW={{ base: '90vw', md: '70vw' }}
+							maxH='90vh'
+							marginX={{ base: 2, md: 4 }}
+						>
+							<ModalCloseButton bg='rgba(0,0,0,0.5)' color='white' />
+							<ModalBody
+								p={0}
+								display='flex'
+								justifyContent='center'
+								alignItems='center'
+							>
+								<img
+									src={selectedImage}
+									alt='preview'
+									style={{
+										maxWidth: '100%',
+										maxHeight: '80vh',
+										objectFit: 'contain',
+									}}
+								/>
+							</ModalBody>
+						</ModalContent>
+					</Modal> */}
+
+					{/* Contact management modal */}
+					<ContactModal
+						isOpen={isContactModalOpen}
+						onClose={() => setIsContactModalOpen(false)}
+						contacts={users}
+						setContacts={setUsers}
+					/>
+
+					{/* WhatsApp API Settings Modal */}
+					<Modal
+						isOpen={isWhatsappApiModalOpen}
+						onClose={() => setIsWhatsappApiModalOpen(false)}
+						isCentered
+					>
+						<ModalOverlay />
+						<ModalContent>
+							<ModalHeader>WhatsApp API Configuration</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody>
+								<VStack spacing={4}>
+									<Box w='100%'>
+										<Text mb={2}>API Key</Text>
+										<Input
+											placeholder='Enter your WhatsApp API key'
+											value={apiKey}
+											onChange={(e) => setApiKey(e.target.value)}
+										/>
+									</Box>
+								</VStack>
+							</ModalBody>
+							<ModalFooter>
+								<Button colorScheme='whatsapp' onClick={handleSaveToken}>
+									Save WhatsApp API
+								</Button>
+								<Button
+									variant='ghost'
+									ml={3}
+									onClick={() => setIsWhatsappApiModalOpen(false)}
+								>
+									Cancel
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+
+					{/* Reply preview */}
+					{replyingTo && (
+						<Flex
+							bg={whatsappColors.replyBg}
+							p={2}
+							align='center'
+							justify='space-between'
+							borderBottom='1px solid'
+							borderColor='gray.200'
+						>
+							<Box flex={1}>
+								<Text fontSize='sm' color={whatsappColors.primary}>
+									Replying to {replyingTo.sender.name}
+								</Text>
+								<Text fontSize='sm' isTruncated>
+									{replyingTo.text || 'Media message'}
+								</Text>
+							</Box>
+							<IconButton
+								icon={<IoMdClose />}
+								aria-label='Cancel reply'
+								size='sm'
+								variant='ghost'
+								onClick={() => setReplyingTo(null)}
+							/>
+						</Flex>
+					)}
+
+					{/* Input area */}
+					<Box
+						bg={whatsappColors.inputBg}
+						p={3}
+						boxShadow='md'
+						borderTop='1px solid'
+						borderColor='gray.200'
+					>
+						{selectedFile && (
+							<Flex
+								bg='white'
+								p={2}
+								mb={2}
+								borderRadius='md'
+								justify='space-between'
+								align='center'
+							>
+								<Text fontSize='sm' isTruncated flex={1}>
+									{selectedFile.type.split('/')[0].charAt(0).toUpperCase() +
+										selectedFile.type.split('/')[0].slice(1)}{' '}
+									ready to send
+								</Text>
+								<Button size='sm' onClick={() => setSelectedFile(null)}>
+									Cancel
+								</Button>
+							</Flex>
+						)}
+						{isRecording && (
+							<Flex
+								bg='white'
+								p={2}
+								mb={2}
+								borderRadius='lg'
+								justify='space-between'
+								align='center'
+								w='100%'
+								boxShadow='md'
+							>
+								<HStack spacing={2} flex={1} overflow='hidden'>
+									<Box
+										w='10px'
+										h='10px'
+										bg={whatsappColors.recordingDot}
+										borderRadius='full'
+										animation='pulse 1s infinite'
+										flexShrink={0}
+									/>
+									<HStack
+										spacing={1}
+										flex={1}
+										justify='center'
+										h='24px'
+										align='center'
+										overflow='hidden'
+										px={1}
+									>
+										{generateWaveformData()}
+									</HStack>
+									<Text
+										fontSize='sm'
+										fontWeight='bold'
+										minW='40px'
+										textAlign='right'
+										flexShrink={0}
+									>
+										{formatTime(recordingTime)}
+									</Text>
+								</HStack>
+								<HStack ml={2} spacing={1}>
+									<IconButton
+										icon={<IoMdClose />}
+										aria-label='Cancel recording'
+										size='sm'
+										onClick={cancelRecording}
+										color={whatsappColors.textSecondary}
+										variant='ghost'
+									/>
+									<IconButton
+										icon={<RiSendPlaneFill />}
+										aria-label='Send recording'
+										size='sm'
+										bg={whatsappColors.primary}
+										color='white'
+										_hover={{ bg: whatsappColors.secondary }}
+										onClick={stopRecording}
+									/>
+								</HStack>
+							</Flex>
+						)}
+						<Flex align='center'>
+							<input
+								type='file'
+								accept='image/*'
+								ref={fileInputRef}
+								onChange={(e) => handleFileUpload(e, 'image')}
+								style={{ display: 'none' }}
+							/>
+							<input
+								type='file'
+								accept='audio/*'
+								ref={audioInputRef}
+								onChange={(e) => handleFileUpload(e, 'audio')}
+								style={{ display: 'none' }}
+							/>
+							<input
+								type='file'
+								accept='video/*'
+								ref={videoInputRef}
+								onChange={(e) => handleFileUpload(e, 'video')}
+								style={{ display: 'none' }}
+							/>
+							<input
+								type='file'
+								ref={docInputRef}
+								onChange={(e) => handleFileUpload(e, 'document')}
+								style={{ display: 'none' }}
+							/>
+
+							{/* Attachment menu */}
+							<Popover placement='top-start'>
+								<PopoverTrigger>
+									<IconButton
+										icon={<BsThreeDotsVertical />}
+										aria-label='Attach file'
+										mr={2}
+										color={whatsappColors.textSecondary}
+										variant='ghost'
+									/>
+								</PopoverTrigger>
+								<PopoverContent w='auto'>
+									<PopoverArrow />
+									<PopoverBody p={1}>
+										<VStack spacing={1} align='stretch'>
+											<Button
+												leftIcon={<FiImage />}
+												size='sm'
+												variant='ghost'
+												justifyContent='flex-start'
+												onClick={() => fileInputRef.current.click()}
+											>
+												Image
+											</Button>
+											<Button
+												leftIcon={<FiVideo />}
+												size='sm'
+												variant='ghost'
+												justifyContent='flex-start'
+												onClick={() => videoInputRef.current.click()}
+											>
+												Video
+											</Button>
+											<Button
+												leftIcon={<FiMusic />}
+												size='sm'
+												variant='ghost'
+												justifyContent='flex-start'
+												onClick={() => audioInputRef.current.click()}
+											>
+												Audio
+											</Button>
+											<Button
+												leftIcon={<FiFile />}
+												size='sm'
+												variant='ghost'
+												justifyContent='flex-start'
+												onClick={() => docInputRef.current.click()}
+											>
+												Document
+											</Button>
+										</VStack>
+									</PopoverBody>
+								</PopoverContent>
+							</Popover>
+
+							{/* Emoji picker */}
+							<Popover
+								isOpen={showEmojiPicker}
+								onClose={() => setShowEmojiPicker(false)}
+								placement='top-start'
+							>
+								<PopoverTrigger>
+									<IconButton
+										icon={<FaSmile />}
+										aria-label='Select emoji'
+										mr={2}
+										onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+										color={whatsappColors.textSecondary}
+										variant='ghost'
+									/>
+								</PopoverTrigger>
+								<PopoverContent w='auto'>
+									<PopoverArrow />
+									<PopoverBody p={0}>
+										<EmojiPicker
+											width={300}
+											height={350}
+											onEmojiClick={onEmojiClick}
+											previewConfig={{ showPreview: false }}
+										/>
+									</PopoverBody>
+								</PopoverContent>
+							</Popover>
+
+							<Input
+								flex={1}
+								bg='gray.300'
+								placeholder='Type a message...'
+								value={inputMessage}
+								onChange={(e) => setInputMessage(e.target.value)}
+								onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+								borderRadius='full'
+								border='none'
+								boxShadow='sm'
+								_focus={{ boxShadow: 'md' }}
+							/>
+
+							{isRecording ? (
+								<IconButton
+									icon={<IoMdMic />}
+									aria-label='Stop recording'
+									colorScheme='red'
+									ml={2}
+									onClick={stopRecording}
+								/>
+							) : (
+								<>
+									{inputMessage || selectedFile ? (
+										<IconButton
+											icon={<RiSendPlaneFill />}
+											aria-label='Send message'
+											colorScheme='whatsapp'
+											ml={2}
+											onClick={handleSendMessage}
+											disabled={
+												(!inputMessage.trim() && !selectedFile) || isSending
+											}
+										/>
+									) : (
+										<Tooltip label='Record voice message'>
+											<IconButton
+												icon={<FiMic />}
+												aria-label='Record voice message'
+												ml={2}
+												onClick={startRecording}
+												color={whatsappColors.textSecondary}
+												variant='ghost'
+											/>
+										</Tooltip>
+									)}
+								</>
+							)}
+						</Flex>
+					</Box>
+				</Box>
+			</Flex>
+		</>
+	);
 };
 
 export default Whatsapp;

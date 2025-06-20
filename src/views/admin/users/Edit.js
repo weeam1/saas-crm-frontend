@@ -26,7 +26,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
 import { useDispatch } from 'react-redux';
-import { setActiveTree, setTree, setUser } from '../../../redux/localSlice';
+import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
