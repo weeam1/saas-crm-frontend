@@ -32,6 +32,7 @@
 		"date-fns": "^4.1.0",
 		"dayzed": "^3.2.3",
 		"dotenv": "^16.4.7",
+		"emoji-picker-react": "^4.12.2",
 		"exceljs": "^4.4.0",
 		"formik": "^2.4.2",
 		"framer-motion": "^4.1.17",
@@ -74,6 +75,7 @@
 		"slick-carousel": "^1.8.1",
 		"stylis-plugin-rtl": "2.0.2",
 		"use-debounce": "^10.0.4",
+		"wavesurfer.js": "^7.9.5",
 		"xlsx": "^0.18.5",
 		"yup": "^1.2.0"
 	},

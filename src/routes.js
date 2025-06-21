@@ -23,6 +23,7 @@ import {
 	FaRegCopy,
 	FaList,
 	FaPhone,
+	FaWhatsapp,
 } from 'react-icons/fa';
 import { LuBuilding2 } from 'react-icons/lu';
 import { PiPhoneCallBold } from 'react-icons/pi';
@@ -56,6 +57,8 @@ import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
 import Report from 'views/admin/reports-v2';
 import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
 import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
+import { components } from 'react-select';
+import Whatsapp from 'views/admin/whatsapp';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -620,6 +623,13 @@ const routes = [
 		parentName: 'Survey',
 		component: ViewSurveyResponse,
 	},
+	// {
+	// 	name: 'whatsapp',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/whatsapp',
+	// 	icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+	// 	component: Whatsapp
+	// },
 
 	// {
 	// 	name: 'Call',
