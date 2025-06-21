@@ -5,6 +5,7 @@ import { formatMessageTime } from 'utils/helpers';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
+import { getTimeFormat } from './helpers';
 
 const ChatMessages = ({
 	chat,
@@ -149,7 +150,7 @@ const ChatMessages = ({
 													: whatsappColors.incomingBg
 											}
 											px={4}
-											py={2}
+											py={1}
 											borderRadius='lg'
 											maxW={{ base: '90%', md: '80%' }}
 											boxShadow='sm'
@@ -172,7 +173,7 @@ const ChatMessages = ({
 													mr={1}
 												>
 													{/* {formatMessageTime(message.sendAt)} */}
-													{message.sendAt}
+													{getTimeFormat(message.sentAt)}
 												</Text>
 												{isSelf && (
 													<>
