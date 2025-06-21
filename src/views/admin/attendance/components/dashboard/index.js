@@ -228,7 +228,7 @@ const Dashboard = () => {
 	const [refetching, setRefetching] = useState(false);
 
 	useEffect(() => {
-		const timer = setTimeout(() => setLoading(false), 2500);
+		const timer = setTimeout(() => setLoading(false), 3500);
 		return () => clearTimeout(timer);
 	}, []);
 

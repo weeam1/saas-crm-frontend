@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { formattedDate } from './../../../utils/helpers';
+import { leadLabels } from 'utils/searchLabels';
+import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 32;
@@ -267,10 +269,11 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 						? 'Interested'
 						: value === 'pending'
 							? 'Not Interested'
-							: value;
+							: leadStatusLabels[value];
 			}
 			if (key === 'eLeadStatus') {
-				displayValue = value === '-1' ? 'No E.Status' : value;
+				displayValue =
+					value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
 			}
 			if (key === 'agentAssigned') {
 				const agentsArray = Object.values(tree.agents).flatMap(
@@ -296,9 +299,9 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 						: value;
 			}
 
-			if (key === 'intID') key = 'Lead ID';
+			// if (key === 'intID') key = 'Lead ID';
 
-			tags.push(`${key}: ${displayValue}`);
+			tags.push(`${leadLabels[key]}: ${displayValue}`);
 		});
 	}
 

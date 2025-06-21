@@ -4,53 +4,73 @@ import {
 	ModalContent,
 	ModalOverlay,
 	ModalCloseButton,
+	ModalHeader,
+	Flex,
+	Button,
+	Text,
+	HStack,
 } from '@chakra-ui/react';
-import View from './View';
-import { motion } from 'framer-motion';
-
-const modalVariants = {
-	hidden: { opacity: 0, scale: 0.95, y: 20 },
-	visible: {
-		opacity: 1,
-		scale: 1,
-		y: 0,
-		transition: { duration: 0.3, ease: 'easeOut' },
-	},
-	exit: {
-		opacity: 0,
-		scale: 0.95,
-		y: -20,
-		transition: { duration: 0.2, ease: 'easeIn' },
-	},
-};
+import LeadDetails from './LeadDetails';
+import { buttonStyle } from 'utils/btn';
+import LeadNotesModal from './components/lead-note/LeadNotesModal';
+import { useState } from 'react';
+import { FaPen } from 'react-icons/fa';
 
 const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
-	return (
-		<Modal onClose={onClose} isOpen={leadsModal.isOpen} isCentered>
-			<ModalOverlay
-				as={motion.div}
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				exit={{ opacity: 0 }}
-			/>
+	const [leadNotes, setLeadNotes] = useState(false);
 
-			<ModalContent
-				as={motion.div}
-				variants={modalVariants}
-				initial='hidden'
-				animate='visible'
-				exit='exit'
-				overflowY='scroll'
-				height='90vh'
-				style={{ maxWidth: '90vw' }}
-			>
-				<ModalCloseButton />
-				<Box p={4} pt={16}>
-					<View
+	return (
+		<Modal onClose={onClose} isOpen={leadsModal.isOpen} size='6xl' isCentered>
+			<ModalOverlay />
+
+			<ModalContent m='2'>
+				<ModalHeader>
+					<Flex justify='space-between' align='center' pt='6'>
+						<HStack
+							gap='1'
+							color='gray.800'
+							fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+							fontWeight='600'
+							px='2'
+							// mb='4'
+						>
+							<Text> Lead Details</Text>
+						</HStack>
+						<Button
+							{...buttonStyle}
+							variant='solid'
+							bg='softGray.100'
+							color='gray.800'
+							py='2'
+							px='5'
+							leftIcon={<FaPen />}
+							aria-label='lead notes'
+							onClick={() => setLeadNotes(true)}
+						>
+							Lead Notes
+						</Button>
+					</Flex>
+				</ModalHeader>
+				<ModalCloseButton _focus={{ outline: 'none' }} />
+				<Box
+					p={4}
+					maxH={{ base: '50vh', md: '60vh', lg: '90vh' }}
+					overflow='scroll'
+					scrollBehavior='smooth'
+				>
+					<LeadDetails
+						leadId={leadsModal.lid}
 						isInLeadPool={isInLeadPool}
-						param={{ id: leadsModal.lid }}
 						reFreshData={reFreshData}
 					/>
+
+					{leadNotes && (
+						<LeadNotesModal
+							leadId={leadsModal.lid}
+							isOpen={leadNotes}
+							onClose={() => setLeadNotes(false)}
+						/>
+					)}
 				</Box>
 			</ModalContent>
 		</Modal>

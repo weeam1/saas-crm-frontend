@@ -12,14 +12,17 @@ import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
-import { useDispatch } from 'react-redux';
-import CustomTooltip from './CustomTooltip';
+import { useDispatch, useSelector } from 'react-redux';
 import { sendLeadFeedback } from 'api';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { extractLocationData } from 'utils/helpers';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 	const [label, setLabel] = useState('');
 	const [loading, setLoading] = useState(false);
+
+	const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
 
@@ -55,11 +58,15 @@ const MainStatus = ({ lead, role }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
+					const { ip } = extractLocationData(lead?.ip, countries);
+
 					sendLeadFeedback({
 						email: leadEmail,
 						phone: leadPhone,
 						status: data.eLeadStatus,
 						action: 'MStatus',
+						ip,
+						fcblid: lead?.fcblid || null,
 					});
 				}
 			} else if (response.status === 400) {

@@ -29,12 +29,10 @@ import {
 import FolderTreeView from 'components/FolderTreeView/folderTreeView';
 import Card from 'components/card/Card';
 import { HSeparator } from 'components/separator/Separator';
-import Spinner from 'components/spinner/Spinner';
 import { constant } from 'constant';
-import moment from 'moment/moment';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { getApi, postApi } from 'services/api';
+import { getApi } from 'services/api';
 import ColumnsTable from '../contact/components/ColumnsTable';
 import TaskColumnsTable from '../task/components/ColumnsTable';
 import MeetingColumnsTable from '../meeting/components/ColumnsTable';
@@ -148,8 +146,6 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 	useEffect(() => {
 		fetchData();
 	}, [action]);
-
-	// }, [edit, addEmailHistory, addPhoneCall])
 
 	function toCamelCase(text) {
 		return text?.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -774,7 +770,6 @@ const View = ({ param, reFreshData, isInLeadPool }) => {
 														fontSize='sm'
 														fontWeight='bold'
 													>
-														{' '}
 														Lead Assigned Agent
 													</Text>
 													<Text>

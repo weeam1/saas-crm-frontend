@@ -490,6 +490,36 @@ export default function User(props) {
 		// 	// Only show the "Hiring" route for HR role
 		routes = hiringRoutes;
 	}
+	if (user?.roles[0]?.roleName === 'Attendance') {
+		// Define the "Candidates" route
+		const attendanceRoutes = [
+			{
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: AttendanceDashboard,
+			},
+
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
+			},
+		];
+
+		routes = attendanceRoutes;
+	}
 
 	if (user?.roles[0]?.roleName === 'accountant') {
 		const accountantRoutes = [
@@ -1101,6 +1131,13 @@ export default function User(props) {
 													<Route
 														path='/*'
 														element={<Navigate to='/invoice' />}
+													/>
+												</>
+											) : user?.roles[0]?.roleName === 'Attendance' ? (
+												<>
+													<Route
+														path='/*'
+														element={<Navigate to='/attendance/dashboard' />}
 													/>
 												</>
 											) : (

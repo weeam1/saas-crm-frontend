@@ -1,5 +1,3 @@
-'use client';
-
 import { Select } from '@chakra-ui/react';
 
 const SelectManager = ({
@@ -14,26 +12,20 @@ const SelectManager = ({
 		<Select
 			size='md'
 			value={selectedManager}
-			width={{ base: '260px', md: '320px' }}
+			width={{ base: 'full', md: '320px' }}
 			placeholder='Select a Team'
 			onChange={handleManager}
 			cursor='pointer'
-			borderWidth='1px'
-			borderRadius='md'
-			boxShadow='md'
+			bg='brand.200'
+			color='gray.800'
+			outline='none'
 			isDisabled={isDisabled}
-			_selected={{
-				bg: 'brand.500',
-				color: 'white',
-				borderColor: 'brand.500',
-			}}
 			_focus={{
-				boxShadow: 'outline',
+				outline: 'none',
 			}}
-			px={2}
-			// py={2}
+			fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+			// px={2}
 		>
-			{/* <option value="allManagers">All Managers</option> */}
 			{managerList.map((manager) => (
 				<option key={manager._id} value={manager._id}>
 					Team: {manager.name}

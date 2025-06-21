@@ -14,6 +14,9 @@ import {
 	Spinner,
 	Flex,
 } from '@chakra-ui/react';
+import { leadLabels } from 'utils/searchLabels';
+import { leadStatusLabels } from 'utils/searchLabels';
+import { mainLeadStatusLabels } from 'utils/searchLabels';
 
 const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedForm'));
 
@@ -22,13 +25,12 @@ const AdvancedSearchModal = ({
 	advanceSearch,
 	isLoading,
 	fetchAdvancedSearch,
-
 	setSearchClear,
 	setFormValues,
 	isFormReset,
 	setIsFormReset,
 	pageSize,
-	setGetTagValues, // Renamed to match prop usage
+	setGetTagValues,
 	setDisplaySearchData,
 	onClearSearch,
 	setQueryData,
@@ -79,10 +81,11 @@ const AdvancedSearchModal = ({
 									? 'Interested'
 									: value === 'pending'
 										? 'Not Interested'
-										: value;
+										: leadStatusLabels[value];
 						}
 						if (key === 'eLeadStatus') {
-							displayValue = value === '-1' ? 'No E.Status' : value;
+							displayValue =
+								value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
 						}
 						if (key === 'agentAssigned') {
 							const agentsArray = Object.values(tree.agents).flatMap(
@@ -108,9 +111,9 @@ const AdvancedSearchModal = ({
 									: value;
 						}
 
-						if (key === 'intID') key = 'Lead ID';
+						// if (key === 'intID') key = 'Lead ID';
 
-						acc.tags.push(`${key}: ${displayValue}`);
+						acc.tags.push(`${leadLabels[key]}: ${displayValue}`);
 					}
 					return acc;
 				},
@@ -119,7 +122,7 @@ const AdvancedSearchModal = ({
 
 			fetchAdvancedSearch(cleanedData, 1, pageSize);
 			setAdvanceSearch(false);
-			setGetTagValues(tags); // Use parent callback
+			setGetTagValues(tags);
 			setSearchClear(true);
 			setFormValues(values);
 			setQueryData(cleanedData);

@@ -1,8 +1,20 @@
-import { Box, GridItem, Text, IconButton } from '@chakra-ui/react';
+import {
+	Box,
+	GridItem,
+	Text,
+	IconButton,
+	Avatar,
+	HStack,
+	Flex,
+	Divider,
+} from '@chakra-ui/react';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
-import { format } from 'date-fns';
+import { constant } from 'constant';
 import { useState } from 'react';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { formatPostDate } from 'utils/helpers';
+import NoteBody from './NoteBody';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const NoteCard = ({ id, note, onEdit, onDelete }) => {
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -16,33 +28,49 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
 
 	return (
 		<>
-			<GridItem key={id} colSpan={{ base: 12, md: 6, lg: 6 }}>
+			<GridItem key={id}>
 				<Box
 					bg='whitesmoke'
-					borderRadius='10px'
-					p={4}
-					m={1}
-					h='100%'
-					position='relative'
-					boxShadow='sm'
-					_hover={{ boxShadow: 'md' }}
+					borderRadius='lg'
+					p={{ base: 2, md: 4 }}
+					// h='100%'
+					shadow='sm'
 				>
-					{/* Header: Name + Timestamp + Actions */}
-					<Box
-						display='flex'
-						justifyContent='space-between'
-						alignItems='flex-start'
-						mb={2}
-					>
-						<Box>
-							<Text fontWeight='bold' color='black'>
-								{note.addedBy?.firstName + ' ' + note.addedBy?.lastName}
-							</Text>
-							<Text fontSize='13px' color='gray.600'>
-								{format(new Date(note?.createdAt), 'MMM d, yyyy h:mm a')}
-							</Text>
-						</Box>
-
+					{/* Header */}
+					<Flex justify='space-between' align='flex-start' mb={2}>
+						<HStack align='center'>
+							<Avatar
+								src={
+									note.addedBy?.profileImage
+										? `${constant.baseUrl}${note.addedBy.profileImage}`
+										: undefined
+								}
+								name={note.addedBy?.fullName ?? 'User'}
+								boxSize={{ base: '40px', md: '50px' }}
+								bg='brand.200'
+								color='gray.800'
+								imgProps={{
+									loading: 'lazy',
+									referrerPolicy: 'no-referrer',
+									style: {
+										objectFit: 'cover',
+										imageRendering: 'auto',
+									},
+								}}
+							/>
+							<Box>
+								<Text
+									fontWeight='semibold'
+									fontSize={{ base: 'sm', md: 'md' }}
+									noOfLines={1}
+								>
+									{note.addedBy?.fullName}
+								</Text>
+								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									{formatPostDate(new Date(note?.createdAt))}
+								</Text>
+							</Box>
+						</HStack>
 						{user?.role === 'superAdmin' && (
 							<Box display='flex' gap={1}>
 								<IconButton
@@ -52,6 +80,7 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
 									variant='ghost'
 									onClick={() => onEdit(note)}
 								/>
+
 								<IconButton
 									aria-label='Delete Note'
 									icon={<FiTrash2 />}
@@ -61,21 +90,25 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
 								/>
 							</Box>
 						)}
-					</Box>
+					</Flex>
 
 					{/* Note Body */}
-					<Box overflowY='auto' maxH='200px'>
+					{/* <Box overflowY='auto' maxH='200px' p='1'>
 						<Text
 							as='pre'
-							fontWeight='semibold'
+							// fontWeight='semibold'
 							whiteSpace='pre-wrap'
 							overflowWrap='break-word'
 							wordBreak='break-word'
-							color='black'
+							color='gray.600'
+							fontFamily='DM Sans, sans-serif'
 						>
 							{note?.note}
 						</Text>
-					</Box>
+					</Box> */}
+
+					<Divider color='gray.600' />
+					<NoteBody text={note?.note} />
 				</Box>
 			</GridItem>
 

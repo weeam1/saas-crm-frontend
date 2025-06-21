@@ -41,12 +41,13 @@ const Pagination = ({
 	setFormValues,
 	isFormReset,
 	setIsFormReset,
+	tagValues,
 	setGetTagValues,
 	clearAdvancedSearch,
 	approveChangeHandler,
 	formValues = {},
 	isAgent,
-	searchNotFound,
+	// searchNotFound,
 	isSuperAdmin,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage || 1);
@@ -150,14 +151,7 @@ const Pagination = ({
 
 	return (
 		<>
-			<Box
-				width='100%'
-				bg='white'
-				p={5}
-				borderRadius='10px'
-				minHeight='100%'
-				fontFamily='DM Sans'
-			>
+			<Box width='100%' bg='white' p={5} borderRadius='10px' minHeight='100%'>
 				<LeadsProgress
 					totalLeads={totalItems}
 					searchQuery={searchQuery}
@@ -175,198 +169,187 @@ const Pagination = ({
 				</HStack>
 
 				<Flex
-					direction={{ base: 'column', lg: 'row' }}
+					flexDirection={{ base: 'column', lg: 'row' }}
 					justifyContent='space-between'
-					alignItems='center'
-					gap={3}
-					width='100%'
 					flexWrap='wrap'
+					alignItems='center'
+					width='full'
+					gap='2'
 				>
-					<Box
-						bg='softGray.50'
-						border='1px solid'
-						borderColor='softGray.600'
-						borderRadius='md'
-						p={{ base: 1, md: 2 }}
+					{/* <Box
+						// minWidth={{ base: '100%', lg: 'fit-content' }}
+						// justifyContent={{
+						// 	base: 'center',
+						// 	md: 'space-between',
+						// 	lg: 'space-between',
+						// }}
+						fontSize={'sm'}
+					> */}
+					<HStack
+						spacing={3}
+						p={2}
+						gap='2'
 						flex='1'
-						minWidth={{ base: '100%', lg: '300px' }}
-						overflow='auto'
-						fontFamily='DM Sans'
+						flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
+						flexWrap='wrap'
+						bg='softGray.50'
+						borderRadius='md'
+						align='center'
+						justifyContent={{
+							base: 'center',
+							md: 'space-between',
+							lg: 'space-between',
+						}}
+						width='100%'
+						maxWidth='100%'
+						fontSize={leadValueFontSize}
 					>
-						<HStack
-							spacing={3}
-							p={2}
-							gap='2'
-							flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
-							flexWrap='wrap'
-							bg='softGray.50'
-							borderRadius='md'
-							align='center'
-							justifyContent={{
-								base: 'center',
-								md: 'space-between',
-								lg: 'space-between',
-							}}
-							width='100%'
-							maxWidth='100%'
-							fontSize={leadValueFontSize}
-						>
-							{/* First & Previous Buttons */}
-							<HStack
-								flexDirection='row'
-								flexWrap='wrap'
-								justifyContent='center'
-							>
-								<Button
-									{...buttonStyle}
-									onClick={handleFirst}
-									isDisabled={loading || currentPage === 1}
-									variant='solid'
-									bg='softGray.600'
-									color='black'
-									py='1'
-									px='3'
-									leftIcon={
-										<IoPlaySkipForwardSharp
-											style={{ transform: 'rotate(180deg)' }}
-										/>
-									}
-									aria-label='First Page'
-								>
-									First
-								</Button>
-
-								<Button
-									{...buttonStyle}
-									onClick={handlePrevious}
-									isDisabled={loading || currentPage === 1}
-									variant='solid'
-									py='1'
-									px='3'
-									bg='softGray.600'
-									color='black'
-									leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
-									aria-label='Previous Page'
-								>
-									Previous
-								</Button>
-							</HStack>
-
-							{/* Go To Page */}
-							<HStack fontWeight='medium' color='gray.800' spacing={1}>
-								<Text fontSize='12px'>Go to</Text>
-								<NumberInput
-									value={gotoPage}
-									onChange={handleGoToChange}
-									onBlur={handleGoToBlur}
-									min={1}
-									max={totalPagesForTab}
-									size='sm'
-									borderRadius='md'
-									width='5rem'
-									bg='softGray.50'
-									border='1px solid softGray.600'
-									allowMouseWheel={false}
-									clampValueOnBlur={false}
-									isDisabled={loading}
-								>
-									<NumberInputField
-										aria-label='Go to page'
-										textAlign='center'
-										borderRadius='md'
-										onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
-										border='2px solid'
-										borderColor='softGray.600'
-										_focus={{
-											outline: 'none',
-											bg: 'softGray.50',
-											border: '1px solid',
-											borderColor: 'brand.500',
-										}}
-										_active={{ bg: 'softGray.400' }}
-										isDisabled={loading}
+						{/* First & Previous Buttons */}
+						<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
+							<Button
+								{...buttonStyle}
+								onClick={handleFirst}
+								isDisabled={loading || currentPage === 1}
+								variant='solid'
+								bg='softGray.600'
+								color='black'
+								py='1'
+								px='3'
+								leftIcon={
+									<IoPlaySkipForwardSharp
+										style={{ transform: 'rotate(180deg)' }}
 									/>
-								</NumberInput>
-								<Text>of {totalPagesForTab.toLocaleString()}</Text>
-							</HStack>
-
-							{/* Showing range */}
-							<Text color='gray.800' fontSize='12px'>
-								Showing {startIndex.toLocaleString()} -{' '}
-								{endIndex.toLocaleString()} of {totalItems.toLocaleString()}
-							</Text>
-
-							{/* Page Size Selector and Next/Last Buttons */}
-							<HStack
-								flexDirection='row'
-								flexWrap='wrap'
-								justifyContent='center'
+								}
+								aria-label='First Page'
 							>
-								<Select
-									size='sm'
-									w={{ base: '32' }}
-									value={pageSize}
-									color='gray.800'
-									bg='softGray.400'
-									borderRadius='md'
-									border='2px solid'
-									_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
-									onChange={(e) => {
-										onPageSizeChange(Number(e.target.value));
-									}}
-									isDisabled={loading}
-								>
-									{[25, 50, 80, 100].map((size) => (
-										<option key={size} value={size}>
-											Show {size}
-										</option>
-									))}
-								</Select>
+								First
+							</Button>
 
-								<Button
-									{...buttonStyle}
-									onClick={handleNext}
-									isDisabled={loading || currentPage === totalPagesForTab}
-									variant='solid'
-									bg='softGray.600'
-									py='1'
-									px='3'
-									color='black'
-									rightIcon={<FaPlay />}
-									aria-label='Next Page'
-								>
-									Next
-								</Button>
-
-								<Button
-									{...buttonStyle}
-									onClick={handleLast}
-									isDisabled={loading || currentPage === totalPagesForTab}
-									variant='solid'
-									bg='softGray.600'
-									color='black'
-									py='1'
-									px='3'
-									rightIcon={<IoPlaySkipForwardSharp />}
-									aria-label='Last Page'
-								>
-									Last
-								</Button>
-							</HStack>
+							<Button
+								{...buttonStyle}
+								onClick={handlePrevious}
+								isDisabled={loading || currentPage === 1}
+								variant='solid'
+								py='1'
+								px='3'
+								bg='softGray.600'
+								color='black'
+								leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
+								aria-label='Previous Page'
+							>
+								Previous
+							</Button>
 						</HStack>
-					</Box>
+
+						{/* Go To Page */}
+						<HStack fontWeight='medium' color='gray.800' spacing={1}>
+							<Text fontSize='12px'>Go to</Text>
+							<NumberInput
+								value={gotoPage}
+								onChange={handleGoToChange}
+								onBlur={handleGoToBlur}
+								min={1}
+								max={totalPagesForTab}
+								size='sm'
+								borderRadius='md'
+								width='5rem'
+								bg='softGray.50'
+								border='1px solid softGray.600'
+								allowMouseWheel={false}
+								clampValueOnBlur={false}
+								isDisabled={loading}
+							>
+								<NumberInputField
+									aria-label='Go to page'
+									textAlign='center'
+									borderRadius='md'
+									onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
+									border='2px solid'
+									borderColor='softGray.600'
+									_focus={{
+										outline: 'none',
+										bg: 'softGray.50',
+										border: '1px solid',
+										borderColor: 'brand.500',
+									}}
+									_active={{ bg: 'softGray.400' }}
+									isDisabled={loading}
+								/>
+							</NumberInput>
+							<Text>of {totalPagesForTab.toLocaleString()}</Text>
+						</HStack>
+
+						{/* Showing range */}
+						<Text color='gray.800' fontSize='12px'>
+							Showing {startIndex.toLocaleString()} -{' '}
+							{endIndex.toLocaleString()} of {totalItems.toLocaleString()}
+						</Text>
+
+						{/* Page Size Selector and Next/Last Buttons */}
+						<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
+							<Select
+								size='sm'
+								w={{ base: '32' }}
+								value={pageSize}
+								color='gray.800'
+								bg='softGray.400'
+								borderRadius='md'
+								border='2px solid'
+								_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
+								onChange={(e) => {
+									onPageSizeChange(Number(e.target.value));
+								}}
+								isDisabled={loading}
+							>
+								{[25, 50, 80, 100].map((size) => (
+									<option key={size} value={size}>
+										Show {size}
+									</option>
+								))}
+							</Select>
+
+							<Button
+								{...buttonStyle}
+								onClick={handleNext}
+								isDisabled={loading || currentPage === totalPagesForTab}
+								variant='solid'
+								bg='softGray.600'
+								py='1'
+								px='3'
+								color='black'
+								rightIcon={<FaPlay />}
+								aria-label='Next Page'
+							>
+								Next
+							</Button>
+
+							<Button
+								{...buttonStyle}
+								onClick={handleLast}
+								isDisabled={loading || currentPage === totalPagesForTab}
+								variant='solid'
+								bg='softGray.600'
+								color='black'
+								py='1'
+								px='3'
+								rightIcon={<IoPlaySkipForwardSharp />}
+								aria-label='Last Page'
+							>
+								Last
+							</Button>
+						</HStack>
+					</HStack>
+					{/* </Box> */}
 
 					<Box
-						bg='softGray.50'
+						bg='softGray.100'
 						border='1px solid'
 						borderColor='softGray.600'
 						borderRadius='md'
 						p={{ base: 2, md: 3 }}
-						flex='1'
-						minWidth={{ base: '100%', lg: '200px' }}
-						maxWidth={{ lg: '470px' }}
+						minWidth={{ base: 'full', lg: '200px' }}
+						// maxWidth={{ lg: '470px' }}
 						mt={{ base: 2, lg: 0 }}
-						fontFamily='DM Sans'
 					>
 						<SearchBox
 							onSearch={setSearchQuery}
@@ -390,13 +373,14 @@ const Pagination = ({
 						loading={loading}
 						searchQuery={searchQuery}
 						formValues={formValues}
+						tagValues={tagValues}
 						setSearchQuery={setSearchQuery}
 					/>
 				)}
 				<Divider borderColor='#E7E7E7' my={4} borderWidth='1.5px' />
 
 				<Box mt={4} flex='1' overflow='auto' fontFamily='DM Sans'>
-					{searchNotFound && !loading ? (
+					{/* {searchNotFound && !loading ? (
 						<Text
 							color='red.500'
 							fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
@@ -405,15 +389,15 @@ const Pagination = ({
 						>
 							{searchNotFound}
 						</Text>
-					) : (
-						<TabContent
-							activeTab={activeTab}
-							leadsdata={leads}
-							loading={loading || !leads}
-							approveChangeHandler={approveChangeHandler}
-							pageSize={pageSize}
-						/>
-					)}
+					) : ( */}
+					<TabContent
+						activeTab={activeTab}
+						leadsdata={leads}
+						loading={loading || !leads}
+						approveChangeHandler={approveChangeHandler}
+						pageSize={pageSize}
+					/>
+					{/* )} */}
 				</Box>
 			</Box>
 

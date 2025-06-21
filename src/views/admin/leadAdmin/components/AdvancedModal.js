@@ -1,238 +1,244 @@
-import { useSelector } from "react-redux";
-import { validationLeadSearchSchema } from "schema/leadSchema";
-import { useFormik } from "formik";
-import React, { useEffect } from "react";
+import { useSelector } from 'react-redux';
+import { validationLeadSearchSchema } from 'schema/leadSchema';
+import { useFormik } from 'formik';
+import React, { useEffect } from 'react';
+import { leadLabels } from 'utils/searchLabels';
+import { leadStatusLabels } from 'utils/searchLabels';
+import { mainLeadStatusLabels } from 'utils/searchLabels';
 
-const LazyAdvancedSearchForm = React.lazy(() => import("./AdvancedForm"));
+const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedForm'));
 
 const {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Spinner,
-  Flex,
-} = require("@chakra-ui/react");
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalCloseButton,
+	ModalBody,
+	ModalFooter,
+	Button,
+	Spinner,
+	Flex,
+} = require('@chakra-ui/react');
 
 const AdvancedSearchModal = ({
-  setAdvaceSearch,
-  advaceSearch,
-  isLoading,
-  fetchAdvancedSearch,
-  setSearchClear,
-  setFormValues,
-  isFormReset,
-  setIsFormReset,
-  pageSize,
-  setGetTagValues,
+	setAdvaceSearch,
+	advaceSearch,
+	isLoading,
+	fetchAdvancedSearch,
+	setSearchClear,
+	setFormValues,
+	isFormReset,
+	setIsFormReset,
+	pageSize,
+	setGetTagValues,
 }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const tree = useSelector((state) => state.user.tree);
+	const user = JSON.parse(localStorage.getItem('user'));
+	const tree = useSelector((state) => state.user.tree);
 
-  const formClearHanlder = () => {
-    // handleClear();
-    formikResetForm();
-  };
+	const formClearHanlder = () => {
+		// handleClear();
+		formikResetForm();
+	};
 
-  const initialValues = {
-    leadName: "",
-    leadStatus: "",
-    eLeadStatus: "",
-    leadEmail: "",
-    leadPhoneNumber: "",
-    managerAssigned: "",
-    agentAssigned: "",
-    leadWhatsappNumber: "",
-    nationality: "",
-    ip: "",
-    leadAddress: "",
-    leadCampaign: "",
-    leadSourceDetails: "",
-    leadSourceMedium: "",
-    pageUrl: "",
-    r_u_in_uae: "",
-    timetocall: "",
-    leadLang: "",
-    lastNote: "",
-    budget: "",
-  };
+	const initialValues = {
+		leadName: '',
+		leadStatus: '',
+		eLeadStatus: '',
+		leadEmail: '',
+		leadPhoneNumber: '',
+		managerAssigned: '',
+		agentAssigned: '',
+		leadWhatsappNumber: '',
+		nationality: '',
+		ip: '',
+		leadAddress: '',
+		leadCampaign: '',
+		leadSourceDetails: '',
+		leadSourceMedium: '',
+		pageUrl: '',
+		r_u_in_uae: '',
+		timetocall: '',
+		leadLang: '',
+		lastNote: '',
+		budget: '',
+	};
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema: validationLeadSearchSchema,
-    onSubmit: (values, { formikResetForm }) => {
-      // Initialize cleanedData and tags
-      const { cleanedData, tags } = Object.entries(values).reduce(
-        (acc, [key, value]) => {
-          if (value !== "" && value !== undefined) {
-            // Add raw value to cleanedData for API
-            acc.cleanedData[key] = value;
+	const formik = useFormik({
+		initialValues,
+		validationSchema: validationLeadSearchSchema,
+		onSubmit: (values, { formikResetForm }) => {
+			// Initialize cleanedData and tags
+			const { cleanedData, tags } = Object.entries(values).reduce(
+				(acc, [key, value]) => {
+					if (value !== '' && value !== undefined) {
+						// Add raw value to cleanedData for API
+						acc.cleanedData[key] = value;
 
-            let displayValue = value;
+						let displayValue = value;
 
-            // Special formatting rules for score range
-            if (key === "fromLeadScore" || key === "toLeadScore") {
-              displayValue = `${values.fromLeadScore || 0}-${
-                values.toLeadScore || "max"
-              }`;
-            }
+						// Special formatting rules for score range
+						if (key === 'fromLeadScore' || key === 'toLeadScore') {
+							displayValue = `${values.fromLeadScore || 0}-${
+								values.toLeadScore || 'max'
+							}`;
+						}
 
-            // Special formatting for leadStatus
-            if (key === "leadStatus") {
-              displayValue =
-                value === "active"
-                  ? "Interested"
-                  : value === "pending"
-                    ? "Not Interested"
-                    : value;
-            }
+						// Special formatting for leadStatus
+						if (key === 'leadStatus') {
+							displayValue =
+								value === 'active'
+									? 'Interested'
+									: value === 'pending'
+										? 'Not Interested'
+										: leadStatusLabels[value];
+						}
 
-            // Special formatting for leadStatus
-            if (key === "eLeadStatus") {
-              displayValue = value === "-1" ? "No E.Status" : value;
-            }
+						// Special formatting for leadStatus
+						if (key === 'eLeadStatus') {
+							displayValue =
+								value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
+						}
 
-            // Handle agentAssigned
-            if (key === "agentAssigned") {
-              const agentsArray = Object.values(tree.agents).flatMap(
-                (managerArray) => managerArray
-              );
-              const assignedAgent = agentsArray.find(
-                (agent) => agent?._id?.toString() === value
-              );
+						// Handle agentAssigned
+						if (key === 'agentAssigned') {
+							const agentsArray = Object.values(tree.agents).flatMap(
+								(managerArray) => managerArray
+							);
+							const assignedAgent = agentsArray.find(
+								(agent) => agent?._id?.toString() === value
+							);
 
-              displayValue = assignedAgent
-                ? `${assignedAgent.firstName} ${assignedAgent.lastName}`
-                : value === "-1"
-                  ? "No Agent"
-                  : value;
-            }
+							console.log(assignedAgent, agentsArray);
 
-            // Handle managerAssigned
-            if (key === "managerAssigned") {
-              const assignedManager = tree.managers.find(
-                (user) => user?._id?.toString() === value
-              );
+							displayValue = assignedAgent
+								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+								: value === '-1'
+									? 'No Agent'
+									: value;
+						}
 
-              displayValue = assignedManager
-                ? `${assignedManager.firstName} ${assignedManager.lastName}`
-                : value === "-1"
-                  ? "No Manager"
-                  : value;
-            }
+						// Handle managerAssigned
+						if (key === 'managerAssigned') {
+							const assignedManager = tree.managers.find(
+								(user) => user?._id?.toString() === value
+							);
 
-            // Add formatted value to tags for UI
-            acc.tags.push(`${key}: ${displayValue}`);
-          }
+							displayValue = assignedManager
+								? `${assignedManager.firstName} ${assignedManager.lastName}`
+								: value === '-1'
+									? 'No Manager'
+									: value;
+						}
 
-          return acc;
-        },
-        { cleanedData: {}, tags: [] }
-      );
+						// Add formatted value to tags for UI
+						acc.tags.push(`${leadLabels[key]}: ${displayValue}`);
+					}
 
-      // Call API with cleaned data
-      fetchAdvancedSearch(cleanedData, 1, pageSize);
-      setAdvaceSearch(false);
+					return acc;
+				},
+				{ cleanedData: {}, tags: [] }
+			);
 
-      // Update UI with tags
-      setGetTagValues(tags);
-      setSearchClear(true);
-      setFormValues(values);
-    },
-  });
+			// Call API with cleaned data
+			fetchAdvancedSearch(cleanedData, 1, pageSize);
+			setAdvaceSearch(false);
 
-  const {
-    errors,
-    touched,
-    values,
-    handleBlur,
-    handleChange,
-    handleSubmit,
-    resetForm: formikResetForm,
-    dirty,
-  } = formik;
+			// Update UI with tags
+			setGetTagValues(tags);
+			setSearchClear(true);
+			setFormValues(values);
+		},
+	});
 
-  useEffect(() => {
-    if (isFormReset) {
-      formikResetForm();
-      setIsFormReset(false);
-    }
-  }, [isFormReset, formikResetForm, setIsFormReset]);
+	const {
+		errors,
+		touched,
+		values,
+		handleBlur,
+		handleChange,
+		handleSubmit,
+		resetForm: formikResetForm,
+		dirty,
+	} = formik;
 
-  return (
-    <React.Suspense
-      fallback={
-        <Flex
-          position="fixed"
-          top="0"
-          left="0"
-          right="0"
-          bottom="0"
-          alignItems="center"
-          justifyContent="center"
-          bg="rgba(0, 0, 0, 0.1)"
-          zIndex={9999}
-        >
-          <Spinner size="xl" color="brand.500" />
-        </Flex>
-      }
-    >
-      <Modal
-        size="6xl"
-        onClose={() => {
-          setAdvaceSearch(false);
-          // formikResetForm();
-        }}
-        isOpen={advaceSearch}
-        isCentered
-        motionPreset="slideInBottom"
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Advance Search</ModalHeader>
-          <ModalCloseButton
-            onClick={() => {
-              setAdvaceSearch(false);
-              formikResetForm();
-            }}
-          />
-          <ModalBody width="100%">
-            <LazyAdvancedSearchForm
-              values={values}
-              errors={errors}
-              touched={touched}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-              user={user}
-              tree={tree}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="red"
-              variant="outline"
-              size="sm"
-              mr={2}
-              onClick={formClearHanlder}
-            >
-              Clear
-            </Button>
-            <Button
-              colorScheme="brand"
-              size="sm"
-              onClick={handleSubmit}
-              disabled={isLoading || !dirty ? true : false}
-            >
-              {isLoading ? "Search" : "Search"}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </React.Suspense>
-  );
+	useEffect(() => {
+		if (isFormReset) {
+			formikResetForm();
+			setIsFormReset(false);
+		}
+	}, [isFormReset, formikResetForm, setIsFormReset]);
+
+	return (
+		<React.Suspense
+			fallback={
+				<Flex
+					position='fixed'
+					top='0'
+					left='0'
+					right='0'
+					bottom='0'
+					alignItems='center'
+					justifyContent='center'
+					bg='rgba(0, 0, 0, 0.1)'
+					zIndex={9999}
+				>
+					<Spinner size='xl' color='brand.500' />
+				</Flex>
+			}
+		>
+			<Modal
+				size='6xl'
+				onClose={() => {
+					setAdvaceSearch(false);
+					// formikResetForm();
+				}}
+				isOpen={advaceSearch}
+				isCentered
+				motionPreset='slideInBottom'
+			>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader>Advance Search</ModalHeader>
+					<ModalCloseButton
+						onClick={() => {
+							setAdvaceSearch(false);
+							formikResetForm();
+						}}
+					/>
+					<ModalBody width='100%'>
+						<LazyAdvancedSearchForm
+							values={values}
+							errors={errors}
+							touched={touched}
+							handleChange={handleChange}
+							handleBlur={handleBlur}
+							user={user}
+							tree={tree}
+						/>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							colorScheme='red'
+							variant='outline'
+							size='sm'
+							mr={2}
+							onClick={formClearHanlder}
+						>
+							Clear
+						</Button>
+						<Button
+							colorScheme='brand'
+							size='sm'
+							onClick={handleSubmit}
+							disabled={isLoading || !dirty ? true : false}
+						>
+							{isLoading ? 'Search' : 'Search'}
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</React.Suspense>
+	);
 };
 export default AdvancedSearchModal;

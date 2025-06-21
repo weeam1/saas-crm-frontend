@@ -38,6 +38,7 @@ export const leadSchema = yup.object({
 });
 
 export const validationLeadSearchSchema = yup.object({
+	intID: yup.number().typeError('Enter a valid ID'),
 	leadName: yup.string(),
 	leadStatus: yup.string(),
 	eLeadStatus: yup.string(),

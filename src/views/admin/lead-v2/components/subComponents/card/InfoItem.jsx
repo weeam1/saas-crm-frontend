@@ -1,7 +1,8 @@
 import { Flex, Text, Icon, useColorModeValue } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { leadIconSize, leadlabelFontSize } from '../../constants';
-import CustomTooltip from '../CustomTooltip';
+import CustomTooltip from 'components/shared/CustomTooltip';
+// import CustomTooltip from '../CustomTooltip';
 
 const InfoItem = ({
 	label,

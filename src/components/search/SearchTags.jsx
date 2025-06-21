@@ -1,5 +1,7 @@
 import { Tag, TagLabel, HStack } from '@chakra-ui/react';
-import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
+// import { leadlabelFontSize } from 'views/admin/lead-v2/components/constants';
+
+const labelFontSize = 'clamp(0.75rem, min(1.1vw, 0.75rem), 1rem)';
 
 const SearchTags = ({ searchTags }) => {
 	return (
@@ -16,7 +18,7 @@ const SearchTags = ({ searchTags }) => {
 						px={4}
 						py={2}
 					>
-						<TagLabel fontSize={leadlabelFontSize}>{`${value}`}</TagLabel>
+						<TagLabel fontSize={labelFontSize}>{`${value}`}</TagLabel>
 					</Tag>
 				) : null
 			)}

@@ -1,9 +1,7 @@
-import React from 'react';
 import {
 	Box,
 	Text,
 	IconButton,
-	Tooltip,
 	useClipboard,
 	useColorModeValue,
 	HStack,
@@ -15,7 +13,7 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
-import CustomTooltip from '../CustomTooltip';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const EntityField = ({
 	label,
@@ -56,7 +54,7 @@ const EntityField = ({
 				)}
 
 				{isCopy && value && (
-					<Tooltip
+					<CustomTooltip
 						label={hasCopied ? 'Copied!' : 'Copy'}
 						closeOnClick={false}
 						hasArrow
@@ -70,7 +68,7 @@ const EntityField = ({
 							aria-label='Copy text'
 							{...iconProps}
 						/>
-					</Tooltip>
+					</CustomTooltip>
 				)}
 				{isInfo && value && (
 					<CustomTooltip label={value || 'N/A'}>

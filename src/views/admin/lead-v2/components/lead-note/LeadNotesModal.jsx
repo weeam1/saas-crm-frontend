@@ -14,6 +14,7 @@ import {
 	ModalCloseButton,
 	Flex,
 	Button,
+	HStack,
 } from '@chakra-ui/react';
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -26,6 +27,9 @@ import EditNote from './EditNote';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import { useDispatch } from 'react-redux';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
+import CardShimmer from 'components/loading/CardShimmer';
+import NoData from 'components/Message/NoData';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
@@ -99,12 +103,21 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='5xl'>
+		<Modal isOpen={isOpen} onClose={onClose} size='5xl' isCentered>
 			<ModalOverlay />
-			<ModalContent fontFamily="'DM Sans', sans-serif">
+			<ModalContent m='2'>
 				<ModalHeader>
 					<Flex justify='space-between' align='center' pt='8'>
-						<Text>Lead Notes</Text>
+						<HStack
+							gap='1'
+							color='gray.800'
+							fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+							fontWeight='600'
+							mb='4'
+						>
+							<Text>Lead Notes</Text>
+							<CountUpComponent targetNumber={allNotes?.length || 0} />
+						</HStack>
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -119,54 +132,41 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 						</Button>
 					</Flex>
 				</ModalHeader>
-				<ModalCloseButton />
+				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody>
-					{notesLoading ? (
-						<Box
-							display='flex'
-							justifyContent='center'
-							alignItems='center'
-							p='4'
-							height='60vh'
-						>
-							<Loader />
-						</Box>
-					) : (
-						<VStack
-							height='60vh'
-							overflow='scroll'
-							mt={4}
-							alignItems='flex-start'
-						>
-							{allNotes.length > 0 ? (
-								<Grid
-									width='100%'
-									templateColumns='repeat(12, 1fr)'
-									gap={4}
-									mb={2}
-								>
-									{allNotes.map((note, id) => (
-										<NoteCard
-											id={id}
-											note={note}
-											onDelete={handleDeleteNote}
-											onEdit={handleEditNote}
-										/>
-									))}
-								</Grid>
-							) : (
-								<Text
-									textAlign='center'
-									width='100%'
-									color={textColor}
-									fontSize='sm'
-									fontWeight='700'
-								>
-									<DataNotFound />
-								</Text>
-							)}
-						</VStack>
-					)}
+					<Box
+						h={{ base: '50vh', md: '60vh', lg: '70vh' }}
+						overflow='scroll'
+						scrollBehavior='smooth'
+						p='2'
+					>
+						{notesLoading ? (
+							<CardShimmer
+								count={5}
+								height='100px'
+								columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
+							/>
+						) : (
+							<VStack alignItems='flex-start'>
+								{allNotes.length > 0 ? (
+									<Grid width='100%' templateColumns='1fr' gap={4} mb={2}>
+										{allNotes.map((note, id) => (
+											<NoteCard
+												id={id}
+												note={note}
+												onDelete={handleDeleteNote}
+												onEdit={handleEditNote}
+											/>
+										))}
+									</Grid>
+								) : (
+									<Box mx='auto' h='full'>
+										<NoData label='notes' />
+									</Box>
+								)}
+							</VStack>
+						)}
+					</Box>
 
 					{addNote && (
 						<AddNewNote
