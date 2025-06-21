@@ -494,16 +494,9 @@ export default function User(props) {
 		// Define the "Candidates" route
 		const attendanceRoutes = [
 			{
-				name: 'Office Settings',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/office-settings/:id',
-				under: 'office-settings',
-				component: OfficeSettings,
-			},
-			{
 				name: 'Attendance',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
+				path: '/attendance/dashboard',
 				icon: (
 					<Icon
 						as={FaRegCalendarCheck}
@@ -512,41 +505,9 @@ export default function User(props) {
 						color='inherit'
 					/>
 				),
-				component: Attendance,
-			},
-
-			{
-				name: 'Attendance Dashboard',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				under: 'employees',
-				parentName: 'Attendance',
 				component: AttendanceDashboard,
 			},
-			{
-				name: 'Employees',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: Employees,
-			},
-			{
-				name: 'Attendance Record',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/record',
-				under: 'attendance-record',
-				parentName: 'Attendance',
-				component: Records,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
+
 			{
 				name: 'User View',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -554,31 +515,6 @@ export default function User(props) {
 				under: 'users',
 				path: '/userView/:id',
 				component: UserView,
-			},
-			{
-				name: 'Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey',
-				icon: (
-					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-				),
-				component: Survey,
-			},
-			{
-				name: 'Survey Board',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/survey/survey-leader-board',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: LeaderBoard,
-			},
-			{
-				name: 'Take Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey/take-survey/:id',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: TakeSurvey,
 			},
 		];
 
@@ -1201,7 +1137,7 @@ export default function User(props) {
 												<>
 													<Route
 														path='/*'
-														element={<Navigate to='/attendance' />}
+														element={<Navigate to='/attendance/dashboard' />}
 													/>
 												</>
 											) : (

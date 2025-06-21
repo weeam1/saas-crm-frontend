@@ -14,6 +14,7 @@ import countriesReducer, {
 } from './countriesSlice';
 import usersReducer from './usersSlice';
 import leadsReducer from './leadsSlice';
+import whatsappReducer from './whatsappSlice';
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
 
@@ -25,6 +26,7 @@ const store = configureStore({
 		positions: positionsReducer,
 		countries: countriesReducer,
 		users: usersReducer,
+		whatsapp: whatsappReducer,
 		images: imageReducer,
 		user: userReducer,
 		announcements: announcementsReducer,

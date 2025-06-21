@@ -233,36 +233,35 @@ export const formattedValue = (value, precision = 0) =>
 		maximumFractionDigits: precision,
 	});
 
-
-	export const formatTime = (seconds) => {
-  const safeSeconds = Math.max(0, seconds);
-  const mins = Math.floor(safeSeconds / 60);
-  const secs = Math.floor(safeSeconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+export const formatTime = (seconds) => {
+	const safeSeconds = Math.max(0, seconds);
+	const mins = Math.floor(safeSeconds / 60);
+	const secs = Math.floor(safeSeconds % 60);
+	return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
 export const formatDateHeader = (date) => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+	const today = new Date();
+	const yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
 
-  const messageDate = new Date(date);
+	const messageDate = new Date(date);
 
-  if (messageDate.toDateString() === today.toDateString()) {
-    return "Today";
-  } else if (messageDate.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
-  } else {
-    return messageDate.toLocaleDateString([], {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    });
-  }
+	if (messageDate.toDateString() === today.toDateString()) {
+		return 'Today';
+	} else if (messageDate.toDateString() === yesterday.toDateString()) {
+		return 'Yesterday';
+	} else {
+		return messageDate.toLocaleDateString([], {
+			weekday: 'long',
+			month: 'short',
+			day: 'numeric',
+		});
+	}
 };
 
 export const formatMessageTime = (date) => {
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 export const whatsappColors = {

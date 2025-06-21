@@ -118,7 +118,8 @@ export const sendLeadFeedback = async ({
 		const eventNameMapStatus = {
 			pending: 'Lead_Unqualified',
 			broker: 'Lead_Unqualified',
-			will_attend_the_show: 'Lead_Qualified',
+			will_attend_the_show: 'Lead_Interested',
+			// will_attend_the_show: 'Lead_Qualified',
 		};
 
 		const event_name =

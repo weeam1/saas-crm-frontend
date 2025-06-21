@@ -1,201 +1,255 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  VStack,
-  HStack,
-  Flex,
-  Text,
-  Avatar,
-  IconButton,
-  Box
-} from "@chakra-ui/react";
-import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalCloseButton,
+	Button,
+	FormControl,
+	FormLabel,
+	Input,
+	VStack,
+	HStack,
+	Flex,
+	Text,
+	Avatar,
+	IconButton,
+	Box,
+} from '@chakra-ui/react';
+import { FiEdit, FiPlus } from 'react-icons/fi';
+import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
+import NoData from 'components/Message/NoData';
 
-const ContactModal = ({
-  isOpen,
-  onClose,
-  contacts,
-  onUpdateContact,
-  onDeleteContact,
-  onAddContact,
-}) => {
-  const [editingContact, setEditingContact] = useState(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
+const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
+	const [editingContact, setEditingContact] = useState(null);
+	const [name, setName] = useState('');
+	const [phoneNumber, setPhoneNumber] = useState('');
+	const [isAdding, setIsAdding] = useState(false);
 
-  const handleEdit = (contact) => {
-    setEditingContact(contact);
-    setName(contact.name);
-    setEmail(contact.email || "");
-    setPhone(contact.phone || "");
-  };
+	const clearState = () => {
+		setName('');
+		setPhoneNumber('');
+	};
 
-  const handleUpdate = () => {
-    if (name.trim() && editingContact) {
-      onUpdateContact(editingContact.id, { name, email, phone });
-      setEditingContact(null);
-      setName("");
-      setEmail("");
-      setPhone("");
-    }
-  };
+	const [createContactAPI, { isLoading: contactCreating }] =
+		useCreateItemMutation();
 
-  const handleAddContact = () => {
-    if (name.trim()) {
-      onAddContact({ name, email, phone });
-      setIsAdding(false);
-      setName("");
-      setEmail("");
-      setPhone("");
-    }
-  };
+	const [updateContactAPI, { isLoading: contactUpdating }] =
+		useUpdateItemMutation();
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Manage Contacts</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          {isAdding ? (
-            <Box>
-              <FormControl mb={4}>
-                <FormLabel>Name</FormLabel>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter name"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
-                  type="email"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Phone</FormLabel>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter phone number"
-                  type="tel"
-                />
-              </FormControl>
-              <Flex justify="flex-end">
-                <Button mr={2} onClick={() => setIsAdding(false)}>
-                  Cancel
-                </Button>
-                <Button colorScheme="whatsapp" onClick={handleAddContact}>
-                  Add Contact
-                </Button>
-              </Flex>
-            </Box>
-          ) : editingContact ? (
-            <Box>
-              <FormControl mb={4}>
-                <FormLabel>Edit Contact Name</FormLabel>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter new name"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
-                  type="email"
-                />
-              </FormControl>
-              <FormControl mb={4}>
-                <FormLabel>Phone</FormLabel>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter phone number"
-                  type="tel"
-                />
-              </FormControl>
-              <Flex justify="flex-end">
-                <Button mr={2} onClick={() => setEditingContact(null)}>
-                  Cancel
-                </Button>
-                <Button colorScheme="whatsapp" onClick={handleUpdate}>
-                  Save
-                </Button>
-              </Flex>
-            </Box>
-          ) : (
-            <>
-              <Flex justify="flex-end" mb={4}>
-                <Button
-                  leftIcon={<FiPlus />}
-                  colorScheme="whatsapp"
-                  onClick={() => setIsAdding(true)}
-                >
-                  Add Contact
-                </Button>
-              </Flex>
-              <VStack spacing={4} align="stretch">
-                {contacts.map((contact) => (
-                  <Flex key={contact.id} justify="space-between" align="center">
-                    <Flex align="center">
-                      <Avatar src={contact.avatar} size="sm" mr={3} />
-                      <Box>
-                        <Text fontWeight="medium">{contact.name}</Text>
-                        {contact.email && (
-                          <Text fontSize="xs" color="gray.500">
-                            {contact.email}
-                          </Text>
-                        )}
-                        {contact.phone && (
-                          <Text fontSize="xs" color="gray.500">
-                            {contact.phone}
-                          </Text>
-                        )}
-                      </Box>
-                    </Flex>
-                    <HStack>
-                      <IconButton
-                        icon={<FiEdit />}
-                        aria-label="Edit contact"
-                        size="sm"
-                        onClick={() => handleEdit(contact)}
-                      />
-                      <IconButton
-                        icon={<FiTrash2 />}
-                        aria-label="Delete contact"
-                        size="sm"
-                        colorScheme="red"
-                        onClick={() => onDeleteContact(contact.id)}
-                      />
-                    </HStack>
-                  </Flex>
-                ))}
-              </VStack>
-            </>
-          )}
-        </ModalBody>
-      </ModalContent>
-    </Modal>
-  );
+	const handleAddContact = async () => {
+		try {
+			const newContact = { name, phoneNumber };
+			const newUser = await createContactAPI({
+				path: '/whatsapp/contacts',
+				body: newContact,
+			}).unwrap();
+
+			setContacts((prev) => [...prev, newUser?.doc]);
+			toast.success('Contact added successfully');
+			setIsAdding(false);
+			clearState();
+		} catch (err) {
+			console.log(err);
+			toast.error(err?.data?.message || 'Contact did not added!');
+		}
+	};
+
+	const handleUpdateContact = async (id) => {
+		try {
+			const updateData = { name, phoneNumber };
+
+			const res = await updateContactAPI({
+				path: `/whatsapp/contacts/${id}`,
+				body: updateData,
+			}).unwrap();
+
+			setContacts((prevUsers) =>
+				prevUsers.map((user) => (user._id === id ? res?.doc : user))
+			);
+			toast.success('Contact updated successfully');
+			setEditingContact(null);
+			clearState();
+		} catch (err) {
+			console.log(err);
+			toast.error(err?.data?.message || 'Contact did not added!');
+		}
+	};
+
+	const deleteContact = (id) => {
+		setContacts((prevUsers) => prevUsers.filter((user) => user._id !== id));
+		toast.success('Contact deleted successfully');
+	};
+
+	const handleEdit = (contact) => {
+		setEditingContact(contact);
+		setName(contact.name);
+		setPhoneNumber(contact.phoneNumber);
+	};
+
+	return (
+		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
+			<ModalOverlay />
+			<ModalContent>
+				<ModalHeader>Manage Contacts</ModalHeader>
+				<ModalCloseButton />
+				<ModalBody>
+					{isAdding ? (
+						<Box>
+							<FormControl mb={4}>
+								<FormLabel>Name</FormLabel>
+								<Input
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									placeholder='Enter name'
+								/>
+							</FormControl>
+							{/* <FormControl mb={4}>
+								<FormLabel>Email</FormLabel>
+								<Input
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									placeholder='Enter email'
+									type='email'
+								/>
+							</FormControl> */}
+							<FormControl mb={4}>
+								<FormLabel>phoneNumber</FormLabel>
+								<Input
+									value={phoneNumber}
+									onChange={(e) => setPhoneNumber(e.target.value)}
+									placeholder='Enter phone number'
+									type='tel'
+								/>
+							</FormControl>
+							<Flex justify='flex-end'>
+								<Button mr={2} onClick={() => setIsAdding(false)}>
+									Cancel
+								</Button>
+								<Button
+									colorScheme='whatsapp'
+									disabled={contactCreating}
+									onClick={handleAddContact}
+								>
+									{contactCreating ? 'Loading...' : 'Add'}
+								</Button>
+							</Flex>
+						</Box>
+					) : editingContact ? (
+						<Box>
+							<FormControl mb={4}>
+								<FormLabel>Edit Contact Name</FormLabel>
+								<Input
+									value={name}
+									onChange={(e) => setName(e.target.value)}
+									placeholder='Enter new name'
+								/>
+							</FormControl>
+							{/* <FormControl mb={4}>
+								<FormLabel>Email</FormLabel>
+								<Input
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									placeholder='Enter email'
+									type='email'
+								/>
+							</FormControl> */}
+							<FormControl mb={4}>
+								<FormLabel>Phone Number</FormLabel>
+								<Input
+									value={phoneNumber}
+									onChange={(e) => setPhoneNumber(e.target.value)}
+									placeholder='Enter phone number'
+									type='tel'
+								/>
+							</FormControl>
+							<Flex justify='flex-end'>
+								<Button mr={2} onClick={() => setEditingContact(null)}>
+									Cancel
+								</Button>
+								<Button
+									colorScheme='whatsapp'
+									disabled={contactUpdating}
+									onClick={() => handleUpdateContact(editingContact._id)}
+								>
+									{contactUpdating ? 'Loading...' : 'Save'}
+								</Button>
+							</Flex>
+						</Box>
+					) : (
+						<>
+							<Flex justify='flex-end' mb={4}>
+								<Button
+									leftIcon={<FiPlus />}
+									colorScheme='whatsapp'
+									onClick={() => setIsAdding(true)}
+								>
+									Add Contact
+								</Button>
+							</Flex>
+							<VStack
+								maxH='50vh'
+								overflow='scroll'
+								p='2'
+								spacing={4}
+								align='stretch'
+							>
+								{contacts?.length > 0 ? (
+									contacts?.map((contact) => (
+										<Flex
+											key={contact._id}
+											justify='space-between'
+											bg='gray.100'
+											p='2'
+											rounded='md'
+											align='center'
+										>
+											<Flex align='center'>
+												<Avatar src={contact.avatar} size='sm' mr={3} />
+												<Box>
+													<Text fontWeight='medium'>{contact.name}</Text>
+													{/* {contact.email && (
+													<Text fontSize='xs' color='gray.500'>
+														{contact.email}
+													</Text>
+												)} */}
+													{contact.phoneNumber && (
+														<Text fontSize='xs' color='gray.500'>
+															{contact.phoneNumber}
+														</Text>
+													)}
+												</Box>
+											</Flex>
+											<HStack>
+												<IconButton
+													icon={<FiEdit />}
+													aria-label='Edit contact'
+													size='sm'
+													onClick={() => handleEdit(contact)}
+												/>
+												{/* <IconButton
+												icon={<FiTrash2 />}
+												aria-label='Delete contact'
+												size='sm'
+												colorScheme='red'
+												onClick={() => deleteContact(contact.id)}
+											/> */}
+											</HStack>
+										</Flex>
+									))
+								) : (
+									<NoData label='contact' />
+								)}
+							</VStack>
+						</>
+					)}
+				</ModalBody>
+			</ModalContent>
+		</Modal>
+	);
 };
 
 export default ContactModal;
