@@ -45,6 +45,7 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+	Icon,
 } from '@chakra-ui/react';
 import {
 	FiMic,
@@ -59,7 +60,7 @@ import {
 	FiSettings,
 } from 'react-icons/fi';
 import { IoMdMic, IoMdClose } from 'react-icons/io';
-import { FaCheck, FaCheckDouble, FaSmile } from 'react-icons/fa';
+import { FaCheck, FaCheckDouble, FaSmile, FaWhatsapp } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import { toast } from 'react-toastify';
@@ -263,7 +264,7 @@ const Whatsapp = () => {
 		if (contacts?.doc) {
 			console.log('users set state');
 			setUsers(contacts?.doc);
-			setActiveChat(contacts?.doc[0]?._id || null);
+			// setActiveChat(contacts?.doc[0]?._id || null);
 		}
 	}, [contacts?.doc]);
 
@@ -961,45 +962,73 @@ const Whatsapp = () => {
 				{/* Chat Area */}
 				<Box flex={1} display='flex' flexDirection='column' bg='white' h='100%'>
 					{/* Chat Header */}
-					{activeChat && (
-						<Flex
-							bg={whatsappColors.chatHeaderBg}
-							color={whatsappColors.textDark}
-							p={3}
-							alignItems='center'
-							justifyContent='space-between'
-							borderBottom='1px solid'
-							borderColor='gray.200'
-							position='sticky'
-							top='0'
-							zIndex='1'
-						>
-							<Flex alignItems='center'>
-								<IconButton
-									icon={<FiChevronLeft />}
-									aria-label='Show sidebar'
-									mr={2}
-									onClick={isMobile ? onOpen : null}
-									color={whatsappColors.textSecondary}
-									background='transparent'
-									display={{ base: 'flex', md: 'none' }}
-								/>
-								<Avatar src={''} size='sm' mr={3} />
-								<Box>
-									<Text fontWeight='bold'>{activeChat?.name}</Text>
-									<Text fontSize='xs' color={whatsappColors.textSecondary}>
-										{activeChat?.status}
-									</Text>
-								</Box>
+					{activeChat ? (
+						<>
+							<Flex
+								bg={whatsappColors.chatHeaderBg}
+								color={whatsappColors.textDark}
+								p={3}
+								alignItems='center'
+								justifyContent='space-between'
+								borderBottom='1px solid'
+								borderColor='gray.200'
+								position='sticky'
+								top='0'
+								zIndex='1'
+							>
+								<Flex alignItems='center'>
+									<IconButton
+										icon={<FiChevronLeft />}
+										aria-label='Show sidebar'
+										mr={2}
+										onClick={isMobile ? onOpen : null}
+										color={whatsappColors.textSecondary}
+										background='transparent'
+										display={{ base: 'flex', md: 'none' }}
+									/>
+									<Avatar src={''} size='sm' mr={3} />
+									<Box>
+										<Text fontWeight='bold'>{activeChat?.name}</Text>
+										<Text fontSize='xs' color={whatsappColors.textSecondary}>
+											{activeChat?.status}
+										</Text>
+									</Box>
+								</Flex>
 							</Flex>
-						</Flex>
-					)}
 
-					<ChatMessages
-						to={activeChat?.phoneNumber}
-						chat={chatData?.doc}
-						isSending={isSending}
-					/>
+							<ChatMessages
+								to={activeChat?.phoneNumber}
+								chat={chatData?.doc}
+								isSending={isSending}
+							/>
+						</>
+					) : (
+						<Box
+							bg='white'
+							color='white'
+							w='full'
+							h='100vh'
+							display='flex'
+							alignItems='center'
+							justifyContent='center'
+							px={4}
+						>
+							<VStack spacing={4} align='center' textAlign='center'>
+								<Icon as={FaWhatsapp} boxSize={12} color='gray.500' />
+
+								<Text fontSize='xl' color='gray.400' fontWeight='semibold'>
+									WhatsApp for CRM
+								</Text>
+
+								<Text fontSize='sm' color='gray.400' maxW='sm'>
+									Send and receive customer messages directly from WEEAM CRM.
+									{/* <br />
+									Stay connected across devices without keeping your phone
+									online. */}
+								</Text>
+							</VStack>
+						</Box>
+					)}
 
 					{/* Chat messages */}
 					{/* <Box
