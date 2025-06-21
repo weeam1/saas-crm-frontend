@@ -6,6 +6,10 @@ import {
 	GridItem,
 	useBreakpointValue,
 	VStack,
+	HStack,
+	IconButton,
+	useClipboard,
+	Icon,
 } from '@chakra-ui/react';
 import { HSeparator } from 'components/separator/Separator';
 import { useEffect, useState } from 'react';
@@ -18,6 +22,11 @@ import { leadStatusLabels } from 'utils/searchLabels';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
 import { format } from 'date-fns';
+import { CopyIcon } from '@chakra-ui/icons';
+import { InfoIcon } from '@chakra-ui/icons';
+
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { leadIconSize } from './components/constants';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
@@ -259,29 +268,49 @@ const DetailGrid = ({ children }) => (
 	</Grid>
 );
 
-const DetailItem = ({ label, value, isLink = false, ...props }) => (
-	<Box>
-		<Text fontSize='xs' color='gray.500' fontWeight='500' mb={1}>
-			{label}
-		</Text>
-		{isLink && value !== 'N/A' ? (
-			<Text color='blue.400' isTruncated fontWeight='500' {...props}>
-				<a href={value} target='_blank' rel='noreferrer'>
-					{value}
-				</a>
+const DetailItem = ({ label, value, isLink = false, ...props }) => {
+	const { hasCopied, onCopy } = useClipboard(value || '');
+	return (
+		<Box>
+			<Text fontSize='xs' color='gray.500' fontWeight='500' mb={1}>
+				{label}
 			</Text>
-		) : (
-			<Text
-				fontSize='sm'
-				color='gray.800'
-				fontWeight='500'
-				isTruncated
-				{...props}
-			>
-				{value || 'N/A'}
-			</Text>
-		)}
-	</Box>
-);
+			{isLink && value !== 'N/A' ? (
+				<HStack>
+					<Text
+						color='blue.400'
+						isTruncated
+						fontWeight='500'
+						maxWidth='200px'
+						{...props}
+					>
+						<a href={value} target='_blank' rel='noreferrer'>
+							{value}
+						</a>
+					</Text>
+
+					<CustomTooltip label={value || 'N/A'}>
+						<Icon
+							as={InfoIcon}
+							boxSize={leadIconSize}
+							color='blue.300'
+							cursor='pointer'
+						/>
+					</CustomTooltip>
+				</HStack>
+			) : (
+				<Text
+					fontSize='sm'
+					color='gray.800'
+					fontWeight='500'
+					isTruncated
+					{...props}
+				>
+					{value || 'N/A'}
+				</Text>
+			)}
+		</Box>
+	);
+};
 
 export default LeadDetails;

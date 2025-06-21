@@ -25,6 +25,7 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 import { FiChevronDown } from "react-icons/fi";
@@ -50,7 +51,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
-
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
 
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
@@ -205,16 +206,28 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Approved Requests
         </Text>
-        <IconButton
-          icon={<FiSearch />}
-          onClick={() => setIsFilterOpen(true)}
-          aria-label="Search Listings"
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          boxShadow="md"
-        />
+        {isMobile ? (
+          <IconButton
+            icon={<FiSearch />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Search Listings"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
+        ) : (
+          <Button
+            colorScheme="brand"
+            size="md"
+            borderRadius="full"
+            py={3}
+            px={6}
+          >
+            Advanced Search
+          </Button>
+        )}
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}

@@ -93,7 +93,14 @@ const hash = (data) => {
 };
 
 // send lead feedback
-export const sendLeadFeedback = async ({ email, phone, status, action }) => {
+export const sendLeadFeedback = async ({
+	email,
+	phone,
+	ip,
+	fbclid,
+	status,
+	action,
+}) => {
 	try {
 		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
 
@@ -125,6 +132,8 @@ export const sendLeadFeedback = async ({ email, phone, status, action }) => {
 
 		if (hashedEmail) user_data.em = [hashedEmail];
 		if (hashedPhone) user_data.ph = [hashedPhone];
+		if (ip) user_data.client_ip_address = ip;
+		if (fbclid) user_data.fbc = fbclid;
 
 		const eventData = {
 			data: [

@@ -285,3 +285,19 @@ export const whatsappColors = {
   replyBorder: "#D1D7DB",
   chatHeaderBg: "#F0F2F5",
 };
+
+export const formatCallDuration = (seconds) => {
+  const sec = parseInt(seconds, 10) || 0;
+
+  const hrs = Math.floor(sec / 3600);
+  const mins = Math.floor((sec % 3600) / 60);
+  const remainingSecs = sec % 60;
+
+  const parts = [];
+
+  if (hrs > 0) parts.push(`${hrs} hr`);
+  if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
+  parts.push(`${remainingSecs} sec`);
+
+  return parts.join(" ");
+};
