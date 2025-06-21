@@ -623,13 +623,13 @@ const routes = [
 		parentName: 'Survey',
 		component: ViewSurveyResponse,
 	},
-	// {
-	// 	name: 'whatsapp',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/whatsapp',
-	// 	icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-	// 	component: Whatsapp
-	// },
+	{
+		name: 'whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp',
+		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		component: Whatsapp,
+	},
 
 	// {
 	// 	name: 'Call',

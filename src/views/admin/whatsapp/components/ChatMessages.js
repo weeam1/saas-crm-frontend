@@ -1,25 +1,27 @@
 import { Flex, Box, VStack, Text, Spinner } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
-import React, { useState, useEffect, useRef } from 'react';
-import { formatMessageTime } from 'utils/helpers';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { getTimeFormat } from './helpers';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	setChatHistory,
+	prependMessages,
+} from '../../../../redux/whatsappSlice';
 
-const ChatMessages = ({
-	chat,
-	isSending,
-	from = '654212707774447',
-	to = 923149730064,
-}) => {
+const ChatMessages = ({ chat, isSending, from = '654212707774447', to }) => {
 	const messagesEndRef = useRef(null);
+	const scrollRef = useRef();
+
+	const messages = useSelector((state) => state.whatsapp.chats[to] || []);
 
 	const [chatQuery, setChatQuery] = useState({
-		from: from,
-		to: 923149730064,
+		from,
+		to,
 		page: 1,
-		limit: 100,
+		limit: 10,
 	});
 
 	const {
@@ -32,54 +34,85 @@ const ChatMessages = ({
 			path: '/whatsapp/chat_history',
 			params: chatQuery,
 		},
-		{ refetchOnMountOrArgChange: true }
+		{
+			skip: !to && !from,
+			refetchOnMountOrArgChange: true,
+		}
 	);
+
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (to) {
-			setChatQuery((prev) => ({ ...prev, to }));
+			setChatQuery((prev) => ({ ...prev, to, page: 1, limit: 10 }));
 			refetchChat({
 				path: '/whatsapp/chat_history',
 				params: chatQuery,
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [to]);
 
+	// Append or prepend messages on data fetch
 	useEffect(() => {
-		scrollToBottom();
-	}, [chatData?.doc]);
+		if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
+			dispatch(prependMessages({ chatId: to, messages: chatData?.doc }));
+		} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
+			dispatch(setChatHistory({ chatId: to, messages: chatData?.doc }));
+		}
 
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
+		const el = scrollRef.current;
+		if (el && chatQuery.page === 1) {
+			el.scrollTop = el.scrollHeight;
+		}
+	}, [chatData?.doc, chatQuery.page, dispatch, to]);
 
-	console.log({ chatData });
+	// Scroll detection
+	const handleScroll = useCallback(() => {
+		const container = scrollRef.current;
+
+		console.log('Scroll lookup: ', container.scrollTop);
+		if (!container) return;
+
+		if (
+			container.scrollTop === 0 &&
+			!chatFetching &&
+			chatQuery?.page <= chatData?.pagination?.totalPages
+		) {
+			setChatQuery((prev) => ({
+				...prev,
+				page: prev.page + 1,
+			}));
+		}
+	}, [chatFetching]);
+
+	useEffect(() => {
+		const container = scrollRef.current;
+		if (container) {
+			container.addEventListener('scroll', handleScroll);
+			return () => container.removeEventListener('scroll', handleScroll);
+		}
+	}, [handleScroll]);
 
 	return (
 		<Box
-			flex={1}
-			p={4}
-			maxHeight='screen'
-			overflowY='scroll'
-			scrollBehviour='smooth'
-			// css={{
-			// 	'&::-webkit-scrollbar': {
-			// 		width: '6px',
-			// 	},
-			// 	'&::-webkit-scrollbar-track': {
-			// 		background: 'transparent',
-			// 	},
-			// 	'&::-webkit-scrollbar-thumb': {
-			// 		background: whatsappColors.primary,
-			// 		borderRadius: '3px',
-			// 	},
-			// }}
+			ref={scrollRef}
+			flex='1'
+			px={4}
+			py={2}
+			overflowY='auto'
+			scrollBehavior='smooth'
+			maxH='100vh'
+			bg='gray.100'
+			color='white'
 		>
 			<VStack spacing={4} align='stretch'>
-				{chatLoading || chatFetching ? (
+				{chatFetching && <Loader />}
+
+				{chatLoading ? (
 					<Loader />
-				) : chatData?.doc?.length > 0 ? (
-					chatData?.doc.map((message) => {
+				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
+					messages?.map((message) => {
 						if (message.type === 'date') {
 							return (
 								<Flex key={message.id} justify='center' my={2}>

@@ -81,6 +81,8 @@ import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import ChatMessages from './components/ChatMessages';
+import { useDispatch } from 'react-redux';
+import { appendMessage } from '../../../redux/whatsappSlice';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -116,6 +118,8 @@ const Whatsapp = () => {
 	const messagesEndRef = useRef(null);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
+
+	const dispatch = useDispatch();
 
 	const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -394,16 +398,21 @@ const Whatsapp = () => {
 				path: '/whatsapp/messages',
 				body: {
 					from: 654212707774447,
-					to: 923149730064,
+					to: activeChat.phoneNumber,
 					type: 'text',
 					message: inputMessage,
 				},
 			}).unwrap();
 
-			console.log({ res });
+			// Add a new message
+			dispatch(
+				appendMessage({ chatId: activeChat.phoneNumber, message: res?.data })
+			);
 		} catch (err) {
 			console.log(err);
 			toast.error(err?.data?.message?.expired || 'Message could not send!');
+		} finally {
+			setIsSending(false);
 		}
 
 		// setTimeout(() => {
