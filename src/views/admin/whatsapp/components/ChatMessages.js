@@ -10,23 +10,22 @@ import {
 	setChatHistory,
 	prependMessages,
 } from '../../../../redux/whatsappSlice';
-import { FiDownload, FiMessageCircle } from 'react-icons/fi';
+import { FiMessageCircle } from 'react-icons/fi';
 import axios from 'axios';
 import { constant } from 'constant';
 import { renderMessageContent } from './MessageContent';
 
-const ChatMessages = ({ chat, isSending, from = '654212707774447', to }) => {
+const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
 	const scrollRef = useRef();
 
 	const [mediaUrls, setMediaUrls] = useState({});
 	const [isMediaLoading, setIsMediaLoading] = useState(false);
 
-	const messages = useSelector((state) => state.whatsapp.chats[to] || []);
+	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({
-		from,
-		to,
+		roomId,
 		page: 1,
 		limit: 10,
 	});
@@ -42,7 +41,7 @@ const ChatMessages = ({ chat, isSending, from = '654212707774447', to }) => {
 			params: chatQuery,
 		},
 		{
-			skip: !to && !from,
+			skip: !roomId,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -67,42 +66,30 @@ const ChatMessages = ({ chat, isSending, from = '654212707774447', to }) => {
 		}
 	};
 
-	// useEffect(() => {
-	// 	if (mediaBlob instanceof Blob && mediaId) {
-	// 		const blobUrl = URL.createObjectURL(mediaBlob);
-
-	// 		console.log(blobUrl);
-	// 		setLoadedMedia((prev) => ({ ...prev, [mediaId]: blobUrl }));
-	// 		setMediaId(null);
-	// 		return () => URL.revokeObjectURL(blobUrl);
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [mediaBlob]);
-
 	useEffect(() => {
 		if (to) {
-			setChatQuery((prev) => ({ ...prev, to, page: 1, limit: 40 }));
+			setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
 			refetchChat({
 				path: '/whatsapp/chat_history',
 				params: chatQuery,
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [to]);
+	}, [roomId]);
 
 	// Append or prepend messages on data fetch
 	useEffect(() => {
 		if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
-			dispatch(prependMessages({ chatId: to, messages: chatData?.doc }));
+			dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
 		} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
-			dispatch(setChatHistory({ chatId: to, messages: chatData?.doc }));
+			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
 		}
 
 		const el = scrollRef.current;
 		if (el && chatQuery.page === 1) {
 			el.scrollTop = el.scrollHeight;
 		}
-	}, [chatData?.doc, chatQuery.page, dispatch, to]);
+	}, [chatData?.doc, chatQuery.page, dispatch]);
 
 	// Scroll detection
 	const handleScroll = useCallback(() => {

@@ -131,24 +131,14 @@ const Whatsapp = () => {
 
 	const [users, setUsers] = useState([]);
 
-	const [chatQuery, setChatQuery] = useState({
-		from: 654212707774447,
-		to: 923149730064,
-		page: 1,
-		limit: 100,
-	});
-
 	const { data: contacts, isLoading: usersLoading } = useFetchItemsQuery({
 		path: '/whatsapp/contacts',
 	});
 
-	const { data: chatData, isLoading: messagesLoading } = useFetchItemsQuery({
-		path: '/whatsapp/chat_history',
-		params: chatQuery,
-	});
-
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
+
+	console.log({ activeChat });
 
 	useEffect(() => {
 		if (contacts?.doc) {
@@ -855,9 +845,9 @@ const Whatsapp = () => {
 
 							<ChatMessages
 								to={activeChat?.phoneNumber}
-								chat={chatData?.doc}
 								isSending={isSending}
 								from={bussinessPhone}
+								roomId={activeChat.roomId}
 							/>
 						</>
 					) : (
