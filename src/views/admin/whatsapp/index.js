@@ -48,6 +48,8 @@ import {
 	Icon,
 	Image,
 	Textarea,
+	FormControl,
+	FormLabel,
 } from '@chakra-ui/react';
 import {
 	FiMic,
@@ -108,6 +110,7 @@ const Whatsapp = () => {
 	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
 	const [isWhatsappApiModalOpen, setIsWhatsappApiModalOpen] = useState(false);
 	const [apiKey, setApiKey] = useState('');
+	const [bussinessPhone, setBussinessPhone] = useState('');
 
 	const mediaRecorderRef = useRef(null);
 	const chunksRef = useRef([]);
@@ -611,7 +614,7 @@ const Whatsapp = () => {
 
 			const res = await updateTokenAPI({
 				path: `/whatsapp/config`,
-				body: { token: apiKey },
+				body: { token: apiKey, phoneNumber: bussinessPhone },
 			}).unwrap();
 
 			toast.success('WhatsApp API configured successfully');
@@ -1185,14 +1188,29 @@ const Whatsapp = () => {
 					<ModalCloseButton />
 					<ModalBody>
 						<VStack spacing={4}>
-							<Box w='100%'>
-								<Text mb={2}>API Key</Text>
+							<FormControl mb={4}>
+								<FormLabel htmlFor='api-key'>API Key</FormLabel>
 								<Input
+									id='api-key'
 									placeholder='Enter your WhatsApp API key'
 									value={apiKey}
 									onChange={(e) => setApiKey(e.target.value)}
+									bg='gray.50'
+									required
 								/>
-							</Box>
+							</FormControl>
+
+							<FormControl>
+								<FormLabel htmlFor='business-phone'>Business Phone</FormLabel>
+								<Input
+									id='business-phone'
+									placeholder='Enter your business phone number'
+									value={bussinessPhone}
+									onChange={(e) => setBussinessPhone(e.target.value)}
+									bg='gray.50'
+									required
+								/>
+							</FormControl>
 						</VStack>
 					</ModalBody>
 					<ModalFooter>
