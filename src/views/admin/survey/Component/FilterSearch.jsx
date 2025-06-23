@@ -44,6 +44,8 @@ const FilterSearch = ({
 		setStartDate(from);
 		setEndDate(to);
 		dateTimeOnClose();
+		onPageChange(1)
+		
 	};
 
 	const handleClear = () => {

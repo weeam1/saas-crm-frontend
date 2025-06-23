@@ -210,6 +210,11 @@ export default function CallHistory({ setTotalCallRecord }) {
       toast.error("Failed to copy!", { autoClose: 2000 });
     }
   };
+
+  useEffect(() => {
+    setCurrentlyPlayingId(null);
+  }, [page, calls]);
+
   return (
     <Box
       overflowX="auto"
@@ -342,7 +347,10 @@ export default function CallHistory({ setTotalCallRecord }) {
                     <Flex align="center" justify="center" gap={2}>
                       {call.dst || "no data found"}
                       {call.dst && (
-                        <CustomTooltip label={copied ? "Copied!" : "Copy"} hasArrow>
+                        <CustomTooltip
+                          label={copied ? "Copied!" : "Copy"}
+                          hasArrow
+                        >
                           <IconButton
                             icon={<FiCopy />}
                             size="xs"
@@ -368,7 +376,7 @@ export default function CallHistory({ setTotalCallRecord }) {
                         currentlyPlayingId={currentlyPlayingId}
                         setCurrentlyPlayingId={handleSetCurrentlyPlaying}
                         playerId={call.id || call.uniqueid || `player-${index}`}
-                         timestamp={new Date(call.calldate)}
+                        timestamp={new Date(call.calldate)}
                       />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
@@ -408,7 +416,9 @@ export default function CallHistory({ setTotalCallRecord }) {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.duration ? `${formatCallDuration(call.duration)}` : "0 sec"}
+                    {call.duration
+                      ? `${formatCallDuration(call.duration)}`
+                      : "0 sec"}
                   </Td>
                   <Td
                     py={4}
@@ -417,7 +427,9 @@ export default function CallHistory({ setTotalCallRecord }) {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.billsec ? `${formatCallDuration(call.billsec)}` : "0 sec"}
+                    {call.billsec
+                      ? `${formatCallDuration(call.billsec)}`
+                      : "0 sec"}
                   </Td>
                 </Tr>
               ))

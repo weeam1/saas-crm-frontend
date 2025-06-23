@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Box, Flex, IconButton, Text, Button, Tooltip } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, Button } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { format } from "date-fns";
@@ -39,7 +39,7 @@ const AudioPlayer = ({
   useEffect(() => {
     let wavesurfer;
 
-    (async () => {
+    const initialize = async () => {
       if (!url || !waveformRef.current) return;
 
       try {
@@ -57,6 +57,8 @@ const AudioPlayer = ({
         setError("Audio is not available");
         return;
       }
+
+      if (!waveformRef.current) return;
 
       wavesurfer = WaveSurfer.create({
         container: waveformRef.current,
@@ -100,10 +102,16 @@ const AudioPlayer = ({
         console.error("WaveSurfer error:", err);
         setError("Audio is not available");
       });
-    })();
+    };
+
+    initialize();
 
     return () => {
-      wavesurfer?.destroy();
+      if (wavesurferRef.current) {
+        wavesurferRef.current.pause(); 
+        wavesurferRef.current.destroy(); 
+        wavesurferRef.current = null;
+      }
     };
   }, [url]);
 
