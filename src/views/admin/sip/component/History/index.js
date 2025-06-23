@@ -1,8 +1,8 @@
 import CallHistory from "./callHistory";
-const SipHistory = () => {
+const SipHistory = ({setTotalCallRecord}) => {
   return (
     <>
-      <CallHistory />
+      <CallHistory setTotalCallRecord={setTotalCallRecord}/>
     </>
   );
 };
