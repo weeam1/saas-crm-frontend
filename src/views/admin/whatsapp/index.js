@@ -277,13 +277,26 @@ const Whatsapp = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	};
 
+	const { data: config } = useFetchItemsQuery({
+		path: '/whatsapp/config',
+	});
+
+	useEffect(() => {
+		if (config?.doc) {
+			setBussinessPhone(config?.doc?.phoneNumber);
+			setApiKey(config?.doc?.token);
+		}
+	}, [config?.doc]);
+
+	console.log(config);
+
 	const handleSendMessage = useCallback(async () => {
 		const inputText = inputMessage.trim();
 		if (!inputText && !selectedFile && !activeChat) return;
 
 		const formData = new FormData();
 
-		formData.append('from', '654212707774447');
+		formData.append('from', bussinessPhone ?? '654212707774447');
 		formData.append('to', activeChat.phoneNumber);
 
 		// Determine message type
@@ -621,7 +634,6 @@ const Whatsapp = () => {
 			setIsWhatsappApiModalOpen(false);
 		} catch (error) {
 			console.log(error);
-
 			toast.error(error?.data?.message || 'Token are not save!');
 		}
 	};
@@ -845,6 +857,7 @@ const Whatsapp = () => {
 								to={activeChat?.phoneNumber}
 								chat={chatData?.doc}
 								isSending={isSending}
+								from={bussinessPhone}
 							/>
 						</>
 					) : (
