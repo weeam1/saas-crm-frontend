@@ -46,6 +46,8 @@ import {
 	MenuList,
 	MenuItem,
 	Icon,
+	Image,
+	Textarea,
 } from '@chakra-ui/react';
 import {
 	FiMic,
@@ -83,6 +85,7 @@ import Loader from 'components/loading/Loader';
 import ChatMessages from './components/ChatMessages';
 import { useDispatch } from 'react-redux';
 import { appendMessage } from '../../../redux/whatsappSlice';
+import { resolveMessageType } from './components/helpers';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -122,124 +125,6 @@ const Whatsapp = () => {
 	const dispatch = useDispatch();
 
 	const isMobile = useBreakpointValue({ base: true, md: false });
-
-	// Users data
-	// const [users, setUsers] = useState([
-	// 	{
-	// 		id: 1,
-	// 		name: 'John Doe',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-	// 		lastMessage: 'Hey, how are you doing?',
-	// 		time: '10:30 AM',
-	// 		unread: 2,
-	// 		lastSeen: '10:30 AM',
-	// 		status: 'online',
-	// 		email: 'john@example.com',
-	// 		phone: '+1234567890',
-	// 	},
-	// 	{
-	// 		id: 2,
-	// 		name: 'Jane Smith',
-	// 		avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-	// 		lastMessage: 'Meeting at 3 PM',
-	// 		time: '9:15 AM',
-	// 		unread: 0,
-	// 		lastSeen: '9:15 AM',
-	// 		status: 'online',
-	// 		email: 'jane@example.com',
-	// 		phone: '+1987654321',
-	// 	},
-	// 	{
-	// 		id: 3,
-	// 		name: 'Mike Johnson',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-	// 		lastMessage: 'Please send the files',
-	// 		time: 'Yesterday',
-	// 		unread: 5,
-	// 		lastSeen: 'Yesterday',
-	// 		status: 'last seen today at 12:45 PM',
-	// 		phone: '+1122334455',
-	// 	},
-	// 	{
-	// 		id: 4,
-	// 		name: 'Sarah Williams',
-	// 		avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-	// 		lastMessage: 'Thanks for your help!',
-	// 		time: 'Yesterday',
-	// 		unread: 0,
-	// 		lastSeen: 'Yesterday',
-	// 		status: 'last seen yesterday at 8:30 PM',
-	// 		email: 'sarah@example.com',
-	// 	},
-	// 	{
-	// 		id: 5,
-	// 		name: 'David Brown',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-	// 		lastMessage: "Let's catch up soon",
-	// 		time: 'Monday',
-	// 		unread: 1,
-	// 		lastSeen: 'Monday',
-	// 		status: 'last seen Monday at 3:20 PM',
-	// 		phone: '+1555666777',
-	// 	},
-	// 	{
-	// 		id: 6,
-	// 		name: 'Zarak',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-	// 		lastMessage: "Let's catch up soon",
-	// 		time: 'Tuesday',
-	// 		unread: 0,
-	// 		lastSeen: 'Monday',
-	// 		status: 'last seen Tuesday at 10:15 AM',
-	// 		email: 'zarak@example.com',
-	// 		phone: '+1777888999',
-	// 	},
-	// 	{
-	// 		id: 7,
-	// 		name: 'Emma Watson',
-	// 		avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-	// 		lastMessage: 'Did you see the new movie?',
-	// 		time: 'Wednesday',
-	// 		unread: 3,
-	// 		lastSeen: 'Wednesday',
-	// 		status: 'last seen today at 2:30 PM',
-	// 		email: 'emma@example.com',
-	// 	},
-	// 	{
-	// 		id: 8,
-	// 		name: 'Robert Downey',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-	// 		lastMessage: "I'm Iron Man",
-	// 		time: 'Thursday',
-	// 		unread: 0,
-	// 		lastSeen: 'Thursday',
-	// 		status: 'online',
-	// 		phone: '+1888999000',
-	// 	},
-	// 	{
-	// 		id: 9,
-	// 		name: 'Scarlett Johansson',
-	// 		avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-	// 		lastMessage: 'Avengers assemble!',
-	// 		time: 'Friday',
-	// 		unread: 2,
-	// 		lastSeen: 'Friday',
-	// 		status: 'last seen yesterday at 7:45 PM',
-	// 		email: 'scarlett@example.com',
-	// 		phone: '+1999111222',
-	// 	},
-	// 	{
-	// 		id: 10,
-	// 		name: 'Chris Evans',
-	// 		avatar: 'https://randomuser.me/api/portraits/men/6.jpg',
-	// 		lastMessage: 'I can do this all day',
-	// 		time: 'Saturday',
-	// 		unread: 1,
-	// 		lastSeen: 'Saturday',
-	// 		status: 'last seen today at 9:15 AM',
-	// 		phone: '+1222333444',
-	// 	},
-	// ]);
 
 	const [users, setUsers] = useState([]);
 
@@ -390,104 +275,54 @@ const Whatsapp = () => {
 	};
 
 	const handleSendMessage = useCallback(async () => {
-		if (!inputMessage.trim() && !selectedFile) return;
+		const inputText = inputMessage.trim();
+		if (!inputText && !selectedFile && !activeChat) return;
+
+		const formData = new FormData();
+
+		formData.append('from', '654212707774447');
+		formData.append('to', activeChat.phoneNumber);
+
+		// Determine message type
+		const isMedia = Boolean(selectedFile);
+		const messageType = isMedia ? resolveMessageType(selectedFile) : 'text';
+		formData.append('type', messageType);
+
+		if (inputText && isMedia) {
+			formData.append('caption', inputText);
+		} else {
+			formData.append('message', inputText);
+		}
+
+		if (isMedia) {
+			formData.append('file', selectedFile.file);
+		}
 
 		setIsSending(true);
 		try {
 			const res = await createMessageAPI({
 				path: '/whatsapp/messages',
-				body: {
-					from: 654212707774447,
-					to: activeChat.phoneNumber,
-					type: 'text',
-					message: inputMessage,
-				},
+				body: formData,
 			}).unwrap();
 
-			// Add a new message
 			dispatch(
-				appendMessage({ chatId: activeChat.phoneNumber, message: res?.data })
+				appendMessage({
+					chatId: activeChat.phoneNumber,
+					message: res?.data,
+				})
 			);
+
+			// Optionally reset input + file
+			setInputMessage('');
+			setSelectedFile(null);
 		} catch (err) {
-			console.log(err);
-			toast.error(err?.data?.message?.expired || 'Message could not send!');
+			console.error(err);
+			toast.error(err?.data?.message?.expired || 'Message could not be sent!');
 		} finally {
 			setIsSending(false);
 		}
-
-		// setTimeout(() => {
-		// 	const newMessage = {
-		// 		id: Date.now(),
-		// 		sender: currentUser,
-		// 		text: inputMessage,
-		// 		file: selectedFile,
-		// 		type: selectedFile
-		// 			? selectedFile.type.includes('image')
-		// 				? 'image'
-		// 				: selectedFile.type.includes('video')
-		// 					? 'video'
-		// 					: selectedFile.type.includes('audio')
-		// 						? 'audio'
-		// 						: 'file'
-		// 			: 'text',
-		// 		timestamp: new Date(),
-		// 		status: 'sent',
-		// 		replyTo: replyingTo,
-		// 	};
-
-		// 	const updatedMessages = [...messages, newMessage];
-		// 	setMessages(updatedMessages);
-		// 	setInputMessage('');
-		// 	setSelectedFile(null);
-		// 	setReplyingTo(null);
-		// 	setIsSending(false);
-
-		// 	allMessages[activeChat] = updatedMessages;
-
-		// 	setTimeout(
-		// 		() => {
-		// 			let replyText = '';
-		// 			if (selectedFile) {
-		// 				if (selectedFile.type.includes('image')) {
-		// 					replyText = 'Nice picture!';
-		// 				} else if (selectedFile.type.includes('video')) {
-		// 					replyText = 'Great video!';
-		// 				} else if (selectedFile.type.includes('audio')) {
-		// 					replyText = 'Thanks for the audio!';
-		// 				} else {
-		// 					replyText = 'Thanks for the file!';
-		// 				}
-		// 			} else {
-		// 				replyText = `Reply to: ${inputMessage || 'your message'}`;
-		// 			}
-
-		// 			const replyMessage = {
-		// 				id: Date.now() + 1,
-		// 				sender: users.find((u) => u.id === activeChat),
-		// 				text: replyText,
-		// 				type: 'text',
-		// 				timestamp: new Date(),
-		// 				status: 'delivered',
-		// 			};
-		// 			const updatedWithReply = [...updatedMessages, replyMessage];
-		// 			setMessages(updatedWithReply);
-		// 			allMessages[activeChat] = updatedWithReply;
-
-		// 			setTimeout(() => {
-		// 				setMessages((prev) =>
-		// 					prev.map((msg) =>
-		// 						msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
-		// 					)
-		// 				);
-		// 				allMessages[activeChat] = allMessages[activeChat].map((msg) =>
-		// 					msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
-		// 				);
-		// 			}, 1000);
-		// 		},
-		// 		Math.random() * 2000 + 1000
-		// 	);
-		// }, 500);
-	}, [inputMessage, selectedFile, messages, activeChat, replyingTo]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [inputMessage, selectedFile, createMessageAPI, dispatch]);
 
 	const handleFileUpload = useCallback((e, type = 'image') => {
 		const file = e.target.files[0];
@@ -1070,7 +905,7 @@ const Whatsapp = () => {
 						borderTop='1px solid'
 						borderColor='gray.200'
 					>
-						{selectedFile && (
+						{/* {selectedFile && (
 							<Flex
 								bg='white'
 								p={2}
@@ -1088,7 +923,7 @@ const Whatsapp = () => {
 									Cancel
 								</Button>
 							</Flex>
-						)}
+						)} */}
 						{isRecording && (
 							<Flex
 								bg='white'
@@ -1265,16 +1100,36 @@ const Whatsapp = () => {
 								</PopoverContent>
 							</Popover>
 
-							<Input
+							{/* <Input
 								flex={1}
 								bg='gray.200'
-								placeholder='Type a message...'
 								value={inputMessage}
 								onChange={(e) => setInputMessage(e.target.value)}
 								onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
 								borderRadius='full'
 								border='none'
 								boxShadow='sm'
+								_focus={{ boxShadow: 'md' }}
+							/> */}
+
+							<Textarea
+								flex={1}
+								bg='gray.200'
+								placeholder='Type a message...'
+								value={!selectedFile ? inputMessage : ''}
+								onChange={(e) => setInputMessage(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' && !e.shiftKey) {
+										e.preventDefault();
+										handleSendMessage();
+									}
+								}}
+								resize='none'
+								border='none'
+								rows={1}
+								maxH='200px'
+								overflowY='auto'
+								scrollBehavior='smooth'
 								_focus={{ boxShadow: 'md' }}
 							/>
 
@@ -1362,6 +1217,151 @@ const Whatsapp = () => {
 				contacts={users}
 				setContacts={setUsers}
 			/>
+
+			{/* File preview modal */}
+			<Modal
+				isOpen={!!selectedFile}
+				onClose={() => setSelectedFile(null)}
+				size={
+					selectedFile?.type.includes('image') ||
+					selectedFile?.type.includes('video')
+						? '2xl'
+						: 'md'
+				}
+				isCentered
+			>
+				<ModalOverlay />
+				<ModalContent m='4' w='400px' minWidth='fit-content'>
+					<ModalHeader>Preview</ModalHeader>
+					{/* <ModalCloseButton /> */}
+					<ModalBody>
+						{/* <Text
+							fontSize='sm'
+							fontWeight='bold'
+							mb={2}
+							maxW='100%'
+							isTruncated
+							textAlign='center'
+						>
+							{selectedFile?.name}
+						</Text> */}
+						{selectedFile?.type.includes('image') ? (
+							<>
+								<Image
+									src={selectedFile.url}
+									alt='preview'
+									w='100%' // full width
+									h='auto' // height auto based on image ratio
+									maxH='500px' // limit height
+									objectFit='contain' // preserve aspect ratio
+									borderRadius='md' // optional: rounded corners
+								/>
+							</>
+						) : selectedFile?.type.includes('video') ? (
+							<>
+								<video
+									controls
+									style={{
+										width: '100%',
+										maxHeight: '400px',
+										objectFit: 'contain',
+									}}
+								>
+									<source src={selectedFile.url} type={selectedFile.type} />
+									Your browser does not support the video tag.
+								</video>
+							</>
+						) : selectedFile?.type.includes('audio') ? (
+							<>
+								<audio controls style={{ width: '100%' }}>
+									<source src={selectedFile.url} type={selectedFile.type} />
+									Your browser does not support the audio element.
+								</audio>
+							</>
+						) : (
+							<FileMessage
+								file={selectedFile}
+								isSelf={true}
+								onDownload={() => handleDownloadFile(selectedFile)}
+							/>
+						)}
+
+						<Textarea
+							flex={1}
+							bg='gray.200'
+							placeholder='Caption (optional)'
+							value={inputMessage}
+							onChange={(e) => setInputMessage(e.target.value)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' && !e.shiftKey) {
+									e.preventDefault();
+									handleSendMessage();
+								}
+							}}
+							resize='none'
+							border='none'
+							rows={1}
+							maxH='120px'
+							overflowY='auto'
+							scrollBehavior='smooth'
+							_focus={{ boxShadow: 'md' }}
+						/>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							rounded='md'
+							px='6'
+							variant='ghost'
+							onClick={() => setSelectedFile(null)}
+						>
+							Cancel
+						</Button>
+						<Button
+							rounded='md'
+							px='6'
+							colorScheme='whatsapp'
+							onClick={() => {
+								handleSendMessage();
+								setSelectedFile(null);
+							}}
+						>
+							Send
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+
+			{/* Image preview modal */}
+			<Modal
+				isOpen={!!selectedImage}
+				isCentered
+				onClose={() => setSelectedImage(null)}
+			>
+				<ModalOverlay />
+				<ModalContent
+					maxW={{ base: '90vw', md: '70vw' }}
+					maxH='90vh'
+					marginX={{ base: 2, md: 4 }}
+				>
+					{/* <ModalCloseButton bg='rgba(0,0,0,0.5)' color='white' /> */}
+					<ModalBody
+						p={0}
+						display='flex'
+						justifyContent='center'
+						alignItems='center'
+					>
+						<img
+							src={selectedImage}
+							alt='preview'
+							style={{
+								maxWidth: '100%',
+								maxHeight: '80vh',
+								objectFit: 'contain',
+							}}
+						/>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 		</>
 	);
 };
