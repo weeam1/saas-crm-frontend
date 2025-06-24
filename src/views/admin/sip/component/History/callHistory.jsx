@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   Icon,
 } from "@chakra-ui/react";
+import { FiCopy } from "react-icons/fi";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import moment from "moment";
 import Pagination from "../../../developers/components/Pagination";
@@ -29,6 +30,9 @@ import { FaPhone } from "react-icons/fa6";
 import IncomingCallIcon from "assets/icons/incomming-call.png";
 import OutgoingCallIcon from "assets/icons/Outgoing-call.png";
 import AudioPlayer from "./Component/AudioPlayer";
+import CustomTooltip from "../../../../../components/shared/CustomTooltip"
+import { toast } from "react-toastify";
+import {formatCallDuration} from "utils/helpers"
 
 const StatusBadge = ({ status }) => {
   return (
@@ -64,7 +68,7 @@ const StatusColor = ({ children, status }) => {
   );
 };
 
-export default function CallHistory() {
+export default function CallHistory({ setTotalCallRecord }) {
   const [calls, setCalls] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -76,6 +80,7 @@ export default function CallHistory() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const columns = [
     "Call id",
@@ -114,6 +119,7 @@ export default function CallHistory() {
 
       setCalls(data.data || []);
       setTotalItems(data.total_records || 0);
+      setTotalCallRecord(data.total_records || 0);
       setTotalPages(data.total_pages || 1);
       if (data.page) setPage(data.page);
       if (data.page_size) setPageSize(data.page_size);
@@ -191,6 +197,24 @@ export default function CallHistory() {
       </Flex>
     );
   };
+
+  const handleCopy = async (number) => {
+    if (!number) return;
+
+    try {
+      await navigator.clipboard.writeText(number);
+      setCopied(true);
+      toast.success(`Copied: ${number}`, { autoClose: 2000 });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy!", { autoClose: 2000 });
+    }
+  };
+
+  useEffect(() => {
+    setCurrentlyPlayingId(null);
+  }, [page, calls]);
+
   return (
     <Box
       overflowX="auto"
@@ -285,11 +309,11 @@ export default function CallHistory() {
                     py={4}
                     fontSize={{ base: "12px", md: "14px" }}
                     fontWeight="400"
-                    minWidth="100px"
+                    minWidth="200px"
                     textAlign={"center"}
                   >
                     {call.calldate
-                      ? moment(call.calldate).format("MM/DD/YYYY hh:mmA")
+                      ? moment(call.calldate).format("dddd D, MMMM YYYY")
                       : "no data found"}
                   </Td>
                   <Td
@@ -320,13 +344,30 @@ export default function CallHistory() {
                     textAlign={"center"}
                     color={"#8247FF"}
                   >
-                    {call.dst || "no data found"}
+                    <Flex align="center" justify="center" gap={2}>
+                      {call.dst || "no data found"}
+                      {call.dst && (
+                        <CustomTooltip
+                          label={copied ? "Copied!" : "Copy"}
+                          hasArrow
+                        >
+                          <IconButton
+                            icon={<FiCopy />}
+                            size="xs"
+                            aria-label="Copy phone number"
+                            variant="ghost"
+                            colorScheme="purple"
+                            onClick={() => handleCopy(call.dst)}
+                          />
+                        </CustomTooltip>
+                      )}
+                    </Flex>
                   </Td>
                   <Td
                     py={4}
                     fontSize={{ base: "11px", md: "13px" }}
                     fontWeight="400"
-                    minWidth="180px"
+                    minWidth="400px"
                     textAlign={"center"}
                   >
                     {call.recording ? (
@@ -335,6 +376,7 @@ export default function CallHistory() {
                         currentlyPlayingId={currentlyPlayingId}
                         setCurrentlyPlayingId={handleSetCurrentlyPlaying}
                         playerId={call.id || call.uniqueid || `player-${index}`}
+                        timestamp={new Date(call.calldate)}
                       />
                     ) : (
                       <Text fontSize="sm" color="gray.500">
@@ -374,7 +416,9 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.duration ? `${call.duration} sec` : "0 sec"}
+                    {call.duration
+                      ? `${formatCallDuration(call.duration)}`
+                      : "0 sec"}
                   </Td>
                   <Td
                     py={4}
@@ -383,7 +427,9 @@ export default function CallHistory() {
                     minWidth="100px"
                     textAlign={"center"}
                   >
-                    {call.billsec ? `${call.billsec} sec` : "0 sec"}
+                    {call.billsec
+                      ? `${formatCallDuration(call.billsec)}`
+                      : "0 sec"}
                   </Td>
                 </Tr>
               ))

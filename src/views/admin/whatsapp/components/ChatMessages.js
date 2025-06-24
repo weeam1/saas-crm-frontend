@@ -1,25 +1,33 @@
-import { Flex, Box, VStack, Text, Spinner } from '@chakra-ui/react';
+import { Flex, Box, VStack, Text, Spinner, Button } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
-import React, { useState, useEffect, useRef } from 'react';
-import { formatMessageTime } from 'utils/helpers';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { getTimeFormat } from './helpers';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	setChatHistory,
+	prependMessages,
+} from '../../../../redux/whatsappSlice';
+import { FiMessageCircle } from 'react-icons/fi';
+import axios from 'axios';
+import { constant } from 'constant';
+import { renderMessageContent } from './MessageContent';
 
-const ChatMessages = ({
-	chat,
-	isSending,
-	from = '654212707774447',
-	to = 923149730064,
-}) => {
+const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
+	const scrollRef = useRef();
+
+	const [mediaUrls, setMediaUrls] = useState({});
+	const [isMediaLoading, setIsMediaLoading] = useState(false);
+
+	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({
-		from: from,
-		to: 923149730064,
+		roomId,
 		page: 1,
-		limit: 100,
+		limit: 10,
 	});
 
 	const {
@@ -32,54 +40,106 @@ const ChatMessages = ({
 			path: '/whatsapp/chat_history',
 			params: chatQuery,
 		},
-		{ refetchOnMountOrArgChange: true }
+		{
+			skip: !roomId,
+			refetchOnMountOrArgChange: true,
+		}
 	);
+
+	const dispatch = useDispatch();
+
+	const downloadMedia = async (mediaId) => {
+		try {
+			setIsMediaLoading(true);
+			const response = await axios.get(
+				`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
+				{
+					responseType: 'blob',
+				}
+			);
+			const blobUrl = URL.createObjectURL(response.data);
+			setMediaUrls((prev) => ({ ...prev, [mediaId]: blobUrl }));
+		} catch (err) {
+			console.error('Failed to load image:', err);
+		} finally {
+			setIsMediaLoading(false);
+		}
+	};
 
 	useEffect(() => {
 		if (to) {
-			setChatQuery((prev) => ({ ...prev, to }));
+			setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
 			refetchChat({
 				path: '/whatsapp/chat_history',
 				params: chatQuery,
 			});
 		}
-	}, [to]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [roomId]);
+
+	// Append or prepend messages on data fetch
+	useEffect(() => {
+		if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
+			dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
+		} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
+			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
+		}
+
+		const el = scrollRef.current;
+		if (el && chatQuery.page === 1) {
+			el.scrollTop = el.scrollHeight;
+		}
+	}, [chatData?.doc, chatQuery.page, dispatch]);
+
+	// Scroll detection
+	const handleScroll = useCallback(() => {
+		const container = scrollRef.current;
+
+		console.log('Scroll lookup: ', container.scrollTop);
+		if (!container) return;
+
+		if (
+			container.scrollTop === 0 &&
+			!chatFetching &&
+			chatQuery?.page <= chatData?.pagination?.totalPages
+		) {
+			setChatQuery((prev) => ({
+				...prev,
+				page: prev.page + 1,
+			}));
+		}
+	}, [chatFetching]);
 
 	useEffect(() => {
-		scrollToBottom();
-	}, [chatData?.doc]);
+		const container = scrollRef.current;
+		if (container) {
+			container.addEventListener('scroll', handleScroll);
+			return () => container.removeEventListener('scroll', handleScroll);
+		}
+	}, [handleScroll]);
 
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
-
-	console.log({ chatData });
+	console.log({ mediaUrls });
 
 	return (
 		<Box
-			flex={1}
-			p={4}
-			maxHeight='screen'
-			overflowY='scroll'
-			scrollBehviour='smooth'
-			// css={{
-			// 	'&::-webkit-scrollbar': {
-			// 		width: '6px',
-			// 	},
-			// 	'&::-webkit-scrollbar-track': {
-			// 		background: 'transparent',
-			// 	},
-			// 	'&::-webkit-scrollbar-thumb': {
-			// 		background: whatsappColors.primary,
-			// 		borderRadius: '3px',
-			// 	},
-			// }}
+			ref={scrollRef}
+			flex='1'
+			px={4}
+			py={2}
+			overflowY='auto'
+			scrollBehavior='smooth'
+			maxH='100vh'
+			bg='gray.100'
+			color='white'
+			whiteSpace='pre-wrap'
 		>
 			<VStack spacing={4} align='stretch'>
-				{chatLoading || chatFetching ? (
+				{/* {chatFetching && <Loader />} */}
+
+				{chatLoading ? (
 					<Loader />
-				) : chatData?.doc?.length > 0 ? (
-					chatData?.doc.map((message) => {
+				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
+					messages?.map((message) => {
 						if (message.type === 'date') {
 							return (
 								<Flex key={message.id} justify='center' my={2}>
@@ -104,44 +164,71 @@ const ChatMessages = ({
 								<Flex
 									direction='column'
 									align={isSelf ? 'flex-end' : 'flex-start'}
-									_hover={{ bg: whatsappColors.messageHoverBg }}
 									p={1}
 									borderRadius='md'
-									transition='background 0.2s ease'
-									// mt={showAvatar ? 3 : 1}
 								>
-									{/* {showAvatar && (
-									<Flex align='center' mb={1}>
-										<Avatar src={message.sender.avatar} size='xs' mr={2} />
-										<Text fontSize='xs' color={whatsappColors.timeStampColor}>
-											{message.sender.name}
-										</Text>
-									</Flex>
-								)} */}
-									{/* Reply indicator */}
-									{/* {message.replyTo && (
 									<Box
-										bg={whatsappColors.replyBg}
-										borderLeft={`3px solid ${whatsappColors.replyBorder}`}
-										borderRadius='md'
-										p={2}
-										mb={1}
+										position='relative'
+										bg={
+											isSelf
+												? whatsappColors.outgoingBg
+												: whatsappColors.incomingBg
+										}
+										px={4}
+										py={2}
+										borderRadius='lg'
 										maxW={{ base: '90%', md: '80%' }}
-										alignSelf={isSelf ? 'flex-end' : 'flex-start'}
+										boxShadow='sm'
+										color={whatsappColors.textDark}
+										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
+										borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										wordBreak='break-word'
 									>
-										<Text fontSize='xs' color={whatsappColors.textSecondary}>
-											{message.replyTo.sender.name}
-										</Text>
-										<Text
-											fontSize='sm'
-											color={whatsappColors.textDark}
-											isTruncated
+										{/* Render dynamic message content */}
+										{renderMessageContent({
+											message,
+											mediaUrls,
+											onDownloadMedia: downloadMedia,
+											isSelf,
+										})}
+
+										{message?.media?.caption && message?.media?.caption}
+
+										{/* Time + Status Tick */}
+										<Flex
+											justifyContent='flex-end'
+											align='center'
+											gap={1}
+											// mt={2}
 										>
-											{message.replyTo.text || 'Media message'}
-										</Text>
+											<Text
+												fontSize='10px'
+												color={whatsappColors.timeStampColor}
+											>
+												{getTimeFormat(message.sentAt)}
+											</Text>
+
+											{isSelf && (
+												<>
+													{message.status === 'read' ? (
+														<FaCheckDouble size='10px' color='#34B7F1' />
+													) : message.status === 'delivered' ? (
+														<FaCheckDouble
+															size='10px'
+															color={whatsappColors.timeStampColor}
+														/>
+													) : (
+														<FaCheck
+															size='10px'
+															color={whatsappColors.timeStampColor}
+														/>
+													)}
+												</>
+											)}
+										</Flex>
 									</Box>
-								)} */}
-									{message.type === 'text' && (
+
+									{/* {message.type === 'text' && (
 										<Box
 											position='relative'
 											bg={
@@ -172,7 +259,6 @@ const ChatMessages = ({
 													color={whatsappColors.timeStampColor}
 													mr={1}
 												>
-													{/* {formatMessageTime(message.sendAt)} */}
 													{getTimeFormat(message.sentAt)}
 												</Text>
 												{isSelf && (
@@ -194,56 +280,54 @@ const ChatMessages = ({
 												)}
 											</Flex>
 										</Box>
-									)}
+									)} */}
 									{/* {message.type === 'image' && (
-									<Box
-										position='relative'
-										bg={
-											isSelf
-												? whatsappColors.outgoingBg
-												: whatsappColors.incomingBg
-										}
-										color={isSelf ? 'white' : 'black'}
-										p={2}
-										borderRadius='lg'
-										maxW={{ base: '90%', md: '80%' }}
-										boxShadow='sm'
-										borderTopLeftRadius={!isSelf && !showAvatar ? '4px' : 'lg'}
-										borderTopRightRadius={isSelf ? '4px' : 'lg'}
-									>
-										<img
-											src={message.file.url}
-											alt='shared'
-											style={{
-												maxWidth: '100%',
-												borderRadius: '8px',
-												maxHeight: '300px',
-												objectFit: 'contain',
-												cursor: 'pointer',
-											}}
-											onClick={() => setSelectedImage(message.file.url)}
-										/>
-										<Flex
-											justifyContent={'space-between'}
-											align='center'
-											mt={2}
+										<Box
+											position='relative'
+											bg={
+												isSelf
+													? whatsappColors.outgoingBg
+													: whatsappColors.incomingBg
+											}
+											color={isSelf ? 'white' : 'black'}
+											p={2}
+											borderRadius='lg'
+											maxW={{ base: '90%', md: '80%' }}
+											boxShadow='sm'
+											borderTopRightRadius={isSelf ? '4px' : 'lg'}
 										>
-											<Button
-												size='sm'
-												colorScheme='whatsapp'
-												color='white'
-												leftIcon={<FiDownload />}
-												onClick={() => handleDownloadFile(message.file)}
-											>
-												Download
-											</Button>
-											<Flex align='center' gap={1}>
+											{loadedMedia[message.media.id] ? (
+												<img
+													src={loadedMedia[message.media.id]}
+													alt='shared'
+													style={{
+														maxWidth: '100%',
+														borderRadius: '8px',
+														maxHeight: '300px',
+														objectFit: 'contain',
+													}}
+												/>
+											) : isMediaLoading ? (
+												<Spinner size='sm' />
+											) : (
+												<Button
+													size='sm'
+													colorScheme='whatsapp'
+													color='white'
+													leftIcon={<FiDownload />}
+													onClick={() => fetchAndSetImage(message.media.id)}
+												>
+													Download
+												</Button>
+											)}
+
+											<Flex justifyContent={'flex-end'} align='center' gap={1}>
 												<Text
 													fontSize='10px'
-													color={isSelf ? 'whiteAlpha.800' : 'gray.600'}
+													color={whatsappColors.timeStampColor}
 													mr={1}
 												>
-													{formatMessageTime(message.timestamp)}
+													{getTimeFormat(message.sentAt)}
 												</Text>
 												{isSelf && (
 													<>
@@ -252,20 +336,19 @@ const ChatMessages = ({
 														) : message.status === 'delivered' ? (
 															<FaCheckDouble
 																size='10px'
-																color={isSelf ? 'white' : 'gray.600'}
+																color={whatsappColors.timeStampColor}
 															/>
 														) : (
 															<FaCheck
 																size='10px'
-																color={isSelf ? 'white' : 'gray.600'}
+																color={whatsappColors.timeStampColor}
 															/>
 														)}
 													</>
 												)}
 											</Flex>
-										</Flex>
-									</Box>
-								)} */}
+										</Box>
+									)} */}
 									{/* {message.type === 'video' && (
 									<Box
 										position='relative'
@@ -474,7 +557,21 @@ const ChatMessages = ({
 						);
 					})
 				) : (
-					<Text>No Chat data avaliable</Text>
+					<Flex
+						direction='column'
+						align='center'
+						justify='center'
+						h='60vh'
+						overflow='hidden'
+						py={10}
+						color='gray.500'
+					>
+						<FiMessageCircle size={48} />
+						<Text mt={3} fontSize='md' fontWeight='medium'>
+							No chat history available
+						</Text>
+						<Text fontSize='sm'>Start a conversation to see messages here</Text>
+					</Flex>
 				)}
 				{/* <div ref={messagesEndRef} /> */}
 				{isSending && (

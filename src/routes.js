@@ -628,7 +628,7 @@ const routes = [
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 	// 	path: '/whatsapp',
 	// 	icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-	// 	component: Whatsapp
+	// 	component: Whatsapp,
 	// },
 
 	// {
