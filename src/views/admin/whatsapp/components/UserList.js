@@ -7,16 +7,22 @@ import {
 	Badge,
 	Divider,
 	Button,
+	VStack,
 } from '@chakra-ui/react';
 
+import { useSelector } from 'react-redux';
+
 const UserList = ({
-	users,
+	// users,
 	activeChat,
 	setActiveChat,
 	isMobile,
 	onClose,
 	sidebarBg,
+	handleAddContact,
 }) => {
+	const contacts = useSelector((state) => state.whatsapp.contacts || []);
+
 	return (
 		<Box
 			overflowY='auto'
@@ -35,9 +41,9 @@ const UserList = ({
 				},
 			}}
 		>
-			{users?.length > 0 ? (
-				users.map((user) => (
-					<React.Fragment key={user.id}>
+			{contacts?.length > 0 ? (
+				contacts?.map((user, i) => (
+					<React.Fragment key={i || user.roomId}>
 						<Flex
 							p={3}
 							align='center'
@@ -71,7 +77,9 @@ const UserList = ({
 							<Box flex='1' overflow='hidden'>
 								<Flex justify='space-between'>
 									<Text fontWeight='bold' color='#111B21'>
-										{user.name === 'Unknown' ? user.phoneNumber : user.name}
+										{user?.name === 'Unknown' || !user?.name
+											? user.phoneNumber
+											: user.name}
 									</Text>
 									{/* <Text fontSize='xs' color='#667781'>
 										{user.time}
@@ -99,9 +107,27 @@ const UserList = ({
 					</React.Fragment>
 				))
 			) : (
-				<Box>
-					<Button>Add Contact</Button>
-				</Box>
+				<VStack
+					spacing={4}
+					justifyContent='center'
+					alignItems='center'
+					p={6}
+					h='30vh'
+				>
+					<Text fontSize='lg' fontWeight='medium' color='gray.600'>
+						No contacts found
+					</Text>
+
+					<Button
+						colorScheme='whatsapp'
+						size='md'
+						px={6}
+						py={4}
+						onClick={handleAddContact}
+					>
+						Add Contact
+					</Button>
+				</VStack>
 			)}
 		</Box>
 	);

@@ -21,7 +21,6 @@ import {
 	ModalFooter,
 	ModalBody,
 	ModalCloseButton,
-	Spinner,
 	VStack,
 	HStack,
 	useColorModeValue,
@@ -86,8 +85,10 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import ChatMessages from './components/ChatMessages';
 import { useDispatch } from 'react-redux';
-import { appendMessage } from '../../../redux/whatsappSlice';
+import { appendMessage, setContacts } from '../../../redux/whatsappSlice';
 import { resolveMessageType } from './components/helpers';
+
+import { useSocketEvents } from 'hooks/useSocketEvents';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -121,9 +122,29 @@ const Whatsapp = () => {
 	const timerRef = useRef(null);
 	const analyserRef = useRef(null);
 	const animationRef = useRef(null);
-	const messagesEndRef = useRef(null);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
+
+	const { registerUser } = useSocketEvents();
+
+	const { data: config } = useFetchItemsQuery({
+		path: '/whatsapp/config',
+	});
+
+	useEffect(() => {
+		if (config?.doc) {
+			setBussinessPhone(config?.doc?.phoneNumber);
+			setApiKey(config?.doc?.token);
+
+			// When you have both business phone and user ID
+			const registerPayload = {
+				phoneNumber: config?.doc?.phoneNumber,
+				userId: 23423,
+			};
+
+			registerUser(registerPayload);
+		}
+	}, [config?.doc]);
 
 	const dispatch = useDispatch();
 
@@ -144,6 +165,7 @@ const Whatsapp = () => {
 		if (contacts?.doc) {
 			console.log('users set state');
 			setUsers(contacts?.doc);
+			dispatch(setContacts(contacts?.doc));
 			// setActiveChat(contacts?.doc[0]?._id || null);
 		}
 	}, [contacts?.doc]);
@@ -259,26 +281,7 @@ const Whatsapp = () => {
 		};
 	}, []);
 
-	useEffect(() => {
-		scrollToBottom();
-	}, [messages]);
-
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
-
-	const { data: config } = useFetchItemsQuery({
-		path: '/whatsapp/config',
-	});
-
-	useEffect(() => {
-		if (config?.doc) {
-			setBussinessPhone(config?.doc?.phoneNumber);
-			setApiKey(config?.doc?.token);
-		}
-	}, [config?.doc]);
-
-	console.log(config);
+	console.log({ bussinessPhone });
 
 	const handleSendMessage = useCallback(async () => {
 		const inputText = inputMessage.trim();
@@ -313,7 +316,7 @@ const Whatsapp = () => {
 
 			dispatch(
 				appendMessage({
-					chatId: activeChat.phoneNumber,
+					chatId: activeChat.roomId,
 					message: res?.data,
 				})
 			);
@@ -803,6 +806,8 @@ const Whatsapp = () => {
 						isMobile={isMobile}
 						onClose={onClose}
 						sidebarBg={sidebarBg}
+						handleAddContact={() => setIsContactModalOpen(true)}
+						bussinessPhone={bussinessPhone}
 					/>
 				</Box>
 
@@ -835,7 +840,11 @@ const Whatsapp = () => {
 									/>
 									<Avatar src={''} size='sm' mr={3} />
 									<Box>
-										<Text fontWeight='bold'>{activeChat?.name}</Text>
+										<Text fontWeight='bold'>
+											{activeChat?.name === 'Unknown' || !activeChat?.name
+												? activeChat?.phoneNumber
+												: activeChat?.name}
+										</Text>
 										<Text fontSize='xs' color={whatsappColors.textSecondary}>
 											{activeChat?.status}
 										</Text>
@@ -847,8 +856,310 @@ const Whatsapp = () => {
 								to={activeChat?.phoneNumber}
 								isSending={isSending}
 								from={bussinessPhone}
-								roomId={activeChat.roomId}
+								roomId={activeChat?.roomId || null}
 							/>
+
+							{/* Reply preview */}
+							{replyingTo && (
+								<Flex
+									bg={whatsappColors.replyBg}
+									p={2}
+									align='center'
+									justify='space-between'
+									borderBottom='1px solid'
+									borderColor='gray.200'
+								>
+									<Box flex={1}>
+										<Text fontSize='sm' color={whatsappColors.primary}>
+											Replying to {replyingTo.sender.name}
+										</Text>
+										<Text fontSize='sm' isTruncated>
+											{replyingTo.text || 'Media message'}
+										</Text>
+									</Box>
+									<IconButton
+										icon={<IoMdClose />}
+										aria-label='Cancel reply'
+										size='sm'
+										variant='ghost'
+										onClick={() => setReplyingTo(null)}
+									/>
+								</Flex>
+							)}
+
+							{/* Input area */}
+							<Box
+								bg={whatsappColors.inputBg}
+								p={3}
+								boxShadow='md'
+								borderTop='1px solid'
+								borderColor='gray.200'
+							>
+								{/* {selectedFile && (
+							<Flex
+								bg='white'
+								p={2}
+								mb={2}
+								borderRadius='md'
+								justify='space-between'
+								align='center'
+							>
+								<Text fontSize='sm' isTruncated flex={1}>
+									{selectedFile.type.split('/')[0].charAt(0).toUpperCase() +
+										selectedFile.type.split('/')[0].slice(1)}{' '}
+									ready to send
+								</Text>
+								<Button size='sm' onClick={() => setSelectedFile(null)}>
+									Cancel
+								</Button>
+							</Flex>
+						)} */}
+								{isRecording && (
+									<Flex
+										bg='white'
+										p={2}
+										mb={2}
+										borderRadius='lg'
+										justify='space-between'
+										align='center'
+										w='100%'
+										boxShadow='md'
+									>
+										<HStack spacing={2} flex={1} overflow='hidden'>
+											<Box
+												w='10px'
+												h='10px'
+												bg={whatsappColors.recordingDot}
+												borderRadius='full'
+												animation='pulse 1s infinite'
+												flexShrink={0}
+											/>
+											<HStack
+												spacing={1}
+												flex={1}
+												justify='center'
+												h='24px'
+												align='center'
+												overflow='hidden'
+												px={1}
+											>
+												{generateWaveformData()}
+											</HStack>
+											<Text
+												fontSize='sm'
+												fontWeight='bold'
+												minW='40px'
+												textAlign='right'
+												flexShrink={0}
+											>
+												{formatTime(recordingTime)}
+											</Text>
+										</HStack>
+										<HStack ml={2} spacing={1}>
+											<IconButton
+												icon={<IoMdClose />}
+												aria-label='Cancel recording'
+												size='sm'
+												onClick={cancelRecording}
+												color={whatsappColors.textSecondary}
+												variant='ghost'
+											/>
+											<IconButton
+												icon={<RiSendPlaneFill />}
+												aria-label='Send recording'
+												size='sm'
+												bg={whatsappColors.primary}
+												color='white'
+												_hover={{ bg: whatsappColors.secondary }}
+												onClick={stopRecording}
+											/>
+										</HStack>
+									</Flex>
+								)}
+								<Flex align='center'>
+									<input
+										type='file'
+										accept='image/*'
+										ref={fileInputRef}
+										onChange={(e) => handleFileUpload(e, 'image')}
+										style={{ display: 'none' }}
+									/>
+									<input
+										type='file'
+										accept='audio/*'
+										ref={audioInputRef}
+										onChange={(e) => handleFileUpload(e, 'audio')}
+										style={{ display: 'none' }}
+									/>
+									<input
+										type='file'
+										accept='video/*'
+										ref={videoInputRef}
+										onChange={(e) => handleFileUpload(e, 'video')}
+										style={{ display: 'none' }}
+									/>
+									<input
+										type='file'
+										ref={docInputRef}
+										onChange={(e) => handleFileUpload(e, 'document')}
+										style={{ display: 'none' }}
+									/>
+
+									{/* Attachment menu */}
+									<Popover placement='top-start'>
+										<PopoverTrigger>
+											<IconButton
+												icon={<BsThreeDotsVertical />}
+												aria-label='Attach file'
+												mr={2}
+												color={whatsappColors.textSecondary}
+												variant='ghost'
+											/>
+										</PopoverTrigger>
+										<PopoverContent w='auto'>
+											<PopoverArrow />
+											<PopoverBody p={1}>
+												<VStack spacing={1} align='stretch'>
+													<Button
+														leftIcon={<FiImage />}
+														size='sm'
+														variant='ghost'
+														justifyContent='flex-start'
+														onClick={() => fileInputRef.current.click()}
+													>
+														Image
+													</Button>
+													<Button
+														leftIcon={<FiVideo />}
+														size='sm'
+														variant='ghost'
+														justifyContent='flex-start'
+														onClick={() => videoInputRef.current.click()}
+													>
+														Video
+													</Button>
+													<Button
+														leftIcon={<FiMusic />}
+														size='sm'
+														variant='ghost'
+														justifyContent='flex-start'
+														onClick={() => audioInputRef.current.click()}
+													>
+														Audio
+													</Button>
+													<Button
+														leftIcon={<FiFile />}
+														size='sm'
+														variant='ghost'
+														justifyContent='flex-start'
+														onClick={() => docInputRef.current.click()}
+													>
+														Document
+													</Button>
+												</VStack>
+											</PopoverBody>
+										</PopoverContent>
+									</Popover>
+
+									{/* Emoji picker */}
+									<Popover
+										isOpen={showEmojiPicker}
+										onClose={() => setShowEmojiPicker(false)}
+										placement='top-start'
+									>
+										<PopoverTrigger>
+											<IconButton
+												icon={<FaSmile />}
+												aria-label='Select emoji'
+												mr={2}
+												onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+												color={whatsappColors.textSecondary}
+												variant='ghost'
+											/>
+										</PopoverTrigger>
+										<PopoverContent w='auto'>
+											<PopoverArrow />
+											<PopoverBody p={0}>
+												<EmojiPicker
+													width={300}
+													height={350}
+													onEmojiClick={onEmojiClick}
+													previewConfig={{ showPreview: false }}
+												/>
+											</PopoverBody>
+										</PopoverContent>
+									</Popover>
+
+									{/* <Input
+								flex={1}
+								bg='gray.200'
+								value={inputMessage}
+								onChange={(e) => setInputMessage(e.target.value)}
+								onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+								borderRadius='full'
+								border='none'
+								boxShadow='sm'
+								_focus={{ boxShadow: 'md' }}
+							/> */}
+
+									<Textarea
+										flex={1}
+										bg='gray.200'
+										placeholder='Type a message...'
+										value={!selectedFile ? inputMessage : ''}
+										onChange={(e) => setInputMessage(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && !e.shiftKey) {
+												e.preventDefault();
+												handleSendMessage();
+											}
+										}}
+										resize='none'
+										border='none'
+										rows={1}
+										maxH='200px'
+										overflowY='auto'
+										scrollBehavior='smooth'
+										_focus={{ boxShadow: 'md' }}
+									/>
+
+									{isRecording ? (
+										<IconButton
+											icon={<IoMdMic />}
+											aria-label='Stop recording'
+											colorScheme='red'
+											ml={2}
+											onClick={stopRecording}
+										/>
+									) : (
+										<>
+											{inputMessage || selectedFile ? (
+												<IconButton
+													icon={<RiSendPlaneFill />}
+													aria-label='Send message'
+													colorScheme='whatsapp'
+													ml={2}
+													onClick={handleSendMessage}
+													disabled={
+														(!inputMessage.trim() && !selectedFile) || isSending
+													}
+												/>
+											) : (
+												<Tooltip label='Record voice message'>
+													<IconButton
+														icon={<FiMic />}
+														aria-label='Record voice message'
+														ml={2}
+														onClick={startRecording}
+														color={whatsappColors.textSecondary}
+														variant='ghost'
+													/>
+												</Tooltip>
+											)}
+										</>
+									)}
+								</Flex>
+							</Box>
 						</>
 					) : (
 						<Box
@@ -874,308 +1185,6 @@ const Whatsapp = () => {
 							</VStack>
 						</Box>
 					)}
-
-					{/* Reply preview */}
-					{replyingTo && (
-						<Flex
-							bg={whatsappColors.replyBg}
-							p={2}
-							align='center'
-							justify='space-between'
-							borderBottom='1px solid'
-							borderColor='gray.200'
-						>
-							<Box flex={1}>
-								<Text fontSize='sm' color={whatsappColors.primary}>
-									Replying to {replyingTo.sender.name}
-								</Text>
-								<Text fontSize='sm' isTruncated>
-									{replyingTo.text || 'Media message'}
-								</Text>
-							</Box>
-							<IconButton
-								icon={<IoMdClose />}
-								aria-label='Cancel reply'
-								size='sm'
-								variant='ghost'
-								onClick={() => setReplyingTo(null)}
-							/>
-						</Flex>
-					)}
-
-					{/* Input area */}
-					<Box
-						bg={whatsappColors.inputBg}
-						p={3}
-						boxShadow='md'
-						borderTop='1px solid'
-						borderColor='gray.200'
-					>
-						{/* {selectedFile && (
-							<Flex
-								bg='white'
-								p={2}
-								mb={2}
-								borderRadius='md'
-								justify='space-between'
-								align='center'
-							>
-								<Text fontSize='sm' isTruncated flex={1}>
-									{selectedFile.type.split('/')[0].charAt(0).toUpperCase() +
-										selectedFile.type.split('/')[0].slice(1)}{' '}
-									ready to send
-								</Text>
-								<Button size='sm' onClick={() => setSelectedFile(null)}>
-									Cancel
-								</Button>
-							</Flex>
-						)} */}
-						{isRecording && (
-							<Flex
-								bg='white'
-								p={2}
-								mb={2}
-								borderRadius='lg'
-								justify='space-between'
-								align='center'
-								w='100%'
-								boxShadow='md'
-							>
-								<HStack spacing={2} flex={1} overflow='hidden'>
-									<Box
-										w='10px'
-										h='10px'
-										bg={whatsappColors.recordingDot}
-										borderRadius='full'
-										animation='pulse 1s infinite'
-										flexShrink={0}
-									/>
-									<HStack
-										spacing={1}
-										flex={1}
-										justify='center'
-										h='24px'
-										align='center'
-										overflow='hidden'
-										px={1}
-									>
-										{generateWaveformData()}
-									</HStack>
-									<Text
-										fontSize='sm'
-										fontWeight='bold'
-										minW='40px'
-										textAlign='right'
-										flexShrink={0}
-									>
-										{formatTime(recordingTime)}
-									</Text>
-								</HStack>
-								<HStack ml={2} spacing={1}>
-									<IconButton
-										icon={<IoMdClose />}
-										aria-label='Cancel recording'
-										size='sm'
-										onClick={cancelRecording}
-										color={whatsappColors.textSecondary}
-										variant='ghost'
-									/>
-									<IconButton
-										icon={<RiSendPlaneFill />}
-										aria-label='Send recording'
-										size='sm'
-										bg={whatsappColors.primary}
-										color='white'
-										_hover={{ bg: whatsappColors.secondary }}
-										onClick={stopRecording}
-									/>
-								</HStack>
-							</Flex>
-						)}
-						<Flex align='center'>
-							<input
-								type='file'
-								accept='image/*'
-								ref={fileInputRef}
-								onChange={(e) => handleFileUpload(e, 'image')}
-								style={{ display: 'none' }}
-							/>
-							<input
-								type='file'
-								accept='audio/*'
-								ref={audioInputRef}
-								onChange={(e) => handleFileUpload(e, 'audio')}
-								style={{ display: 'none' }}
-							/>
-							<input
-								type='file'
-								accept='video/*'
-								ref={videoInputRef}
-								onChange={(e) => handleFileUpload(e, 'video')}
-								style={{ display: 'none' }}
-							/>
-							<input
-								type='file'
-								ref={docInputRef}
-								onChange={(e) => handleFileUpload(e, 'document')}
-								style={{ display: 'none' }}
-							/>
-
-							{/* Attachment menu */}
-							<Popover placement='top-start'>
-								<PopoverTrigger>
-									<IconButton
-										icon={<BsThreeDotsVertical />}
-										aria-label='Attach file'
-										mr={2}
-										color={whatsappColors.textSecondary}
-										variant='ghost'
-									/>
-								</PopoverTrigger>
-								<PopoverContent w='auto'>
-									<PopoverArrow />
-									<PopoverBody p={1}>
-										<VStack spacing={1} align='stretch'>
-											<Button
-												leftIcon={<FiImage />}
-												size='sm'
-												variant='ghost'
-												justifyContent='flex-start'
-												onClick={() => fileInputRef.current.click()}
-											>
-												Image
-											</Button>
-											<Button
-												leftIcon={<FiVideo />}
-												size='sm'
-												variant='ghost'
-												justifyContent='flex-start'
-												onClick={() => videoInputRef.current.click()}
-											>
-												Video
-											</Button>
-											<Button
-												leftIcon={<FiMusic />}
-												size='sm'
-												variant='ghost'
-												justifyContent='flex-start'
-												onClick={() => audioInputRef.current.click()}
-											>
-												Audio
-											</Button>
-											<Button
-												leftIcon={<FiFile />}
-												size='sm'
-												variant='ghost'
-												justifyContent='flex-start'
-												onClick={() => docInputRef.current.click()}
-											>
-												Document
-											</Button>
-										</VStack>
-									</PopoverBody>
-								</PopoverContent>
-							</Popover>
-
-							{/* Emoji picker */}
-							<Popover
-								isOpen={showEmojiPicker}
-								onClose={() => setShowEmojiPicker(false)}
-								placement='top-start'
-							>
-								<PopoverTrigger>
-									<IconButton
-										icon={<FaSmile />}
-										aria-label='Select emoji'
-										mr={2}
-										onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-										color={whatsappColors.textSecondary}
-										variant='ghost'
-									/>
-								</PopoverTrigger>
-								<PopoverContent w='auto'>
-									<PopoverArrow />
-									<PopoverBody p={0}>
-										<EmojiPicker
-											width={300}
-											height={350}
-											onEmojiClick={onEmojiClick}
-											previewConfig={{ showPreview: false }}
-										/>
-									</PopoverBody>
-								</PopoverContent>
-							</Popover>
-
-							{/* <Input
-								flex={1}
-								bg='gray.200'
-								value={inputMessage}
-								onChange={(e) => setInputMessage(e.target.value)}
-								onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-								borderRadius='full'
-								border='none'
-								boxShadow='sm'
-								_focus={{ boxShadow: 'md' }}
-							/> */}
-
-							<Textarea
-								flex={1}
-								bg='gray.200'
-								placeholder='Type a message...'
-								value={!selectedFile ? inputMessage : ''}
-								onChange={(e) => setInputMessage(e.target.value)}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' && !e.shiftKey) {
-										e.preventDefault();
-										handleSendMessage();
-									}
-								}}
-								resize='none'
-								border='none'
-								rows={1}
-								maxH='200px'
-								overflowY='auto'
-								scrollBehavior='smooth'
-								_focus={{ boxShadow: 'md' }}
-							/>
-
-							{isRecording ? (
-								<IconButton
-									icon={<IoMdMic />}
-									aria-label='Stop recording'
-									colorScheme='red'
-									ml={2}
-									onClick={stopRecording}
-								/>
-							) : (
-								<>
-									{inputMessage || selectedFile ? (
-										<IconButton
-											icon={<RiSendPlaneFill />}
-											aria-label='Send message'
-											colorScheme='whatsapp'
-											ml={2}
-											onClick={handleSendMessage}
-											disabled={
-												(!inputMessage.trim() && !selectedFile) || isSending
-											}
-										/>
-									) : (
-										<Tooltip label='Record voice message'>
-											<IconButton
-												icon={<FiMic />}
-												aria-label='Record voice message'
-												ml={2}
-												onClick={startRecording}
-												color={whatsappColors.textSecondary}
-												variant='ghost'
-											/>
-										</Tooltip>
-									)}
-								</>
-							)}
-						</Flex>
-					</Box>
 				</Box>
 			</Flex>
 

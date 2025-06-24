@@ -13,11 +13,10 @@ import {
 import { FiMessageCircle } from 'react-icons/fi';
 import axios from 'axios';
 import { constant } from 'constant';
-import { renderMessageContent } from './MessageContent';
+import { MessageContent } from './MessageContent';
 
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
-	const scrollRef = useRef();
 
 	const [mediaUrls, setMediaUrls] = useState({});
 	const [isMediaLoading, setIsMediaLoading] = useState(false);
@@ -48,6 +47,20 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 
 	const dispatch = useDispatch();
 
+	// Scroll to bottom when messages change
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages, chatFetching]);
+
+	// Scroll to bottom on initial render
+	useEffect(() => {
+		scrollToBottom();
+	}, []);
+
+	const scrollToBottom = () => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	};
+
 	const downloadMedia = async (mediaId) => {
 		try {
 			setIsMediaLoading(true);
@@ -69,10 +82,10 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	useEffect(() => {
 		if (to) {
 			setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
-			refetchChat({
-				path: '/whatsapp/chat_history',
-				params: chatQuery,
-			});
+			// refetchChat({
+			// 	path: '/whatsapp/chat_history',
+			// 	params: chatQuery,
+			// });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [roomId]);
@@ -84,45 +97,37 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
 			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
 		}
-
-		const el = scrollRef.current;
-		if (el && chatQuery.page === 1) {
-			el.scrollTop = el.scrollHeight;
-		}
 	}, [chatData?.doc, chatQuery.page, dispatch]);
 
 	// Scroll detection
-	const handleScroll = useCallback(() => {
-		const container = scrollRef.current;
+	// const handleScroll = useCallback(() => {
+	// 	const container = scrollRef.current;
 
-		console.log('Scroll lookup: ', container.scrollTop);
-		if (!container) return;
+	// 	console.log('Scroll lookup: ', container.scrollTop);
+	// 	if (!container) return;
 
-		if (
-			container.scrollTop === 0 &&
-			!chatFetching &&
-			chatQuery?.page <= chatData?.pagination?.totalPages
-		) {
-			setChatQuery((prev) => ({
-				...prev,
-				page: prev.page + 1,
-			}));
-		}
-	}, [chatFetching]);
+	// 	if (
+	// 		container.scrollTop === 0 &&
+	// 		!chatFetching &&
+	// 		chatQuery?.page <= chatData?.pagination?.totalPages
+	// 	) {
+	// 		setChatQuery((prev) => ({
+	// 			...prev,
+	// 			page: prev.page + 1,
+	// 		}));
+	// 	}
+	// }, [chatFetching]);
 
-	useEffect(() => {
-		const container = scrollRef.current;
-		if (container) {
-			container.addEventListener('scroll', handleScroll);
-			return () => container.removeEventListener('scroll', handleScroll);
-		}
-	}, [handleScroll]);
-
-	console.log({ mediaUrls });
+	// useEffect(() => {
+	// 	const container = scrollRef.current;
+	// 	if (container) {
+	// 		container.addEventListener('scroll', handleScroll);
+	// 		return () => container.removeEventListener('scroll', handleScroll);
+	// 	}
+	// }, [handleScroll]);
 
 	return (
 		<Box
-			ref={scrollRef}
 			flex='1'
 			px={4}
 			py={2}
@@ -134,12 +139,10 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 			whiteSpace='pre-wrap'
 		>
 			<VStack spacing={4} align='stretch'>
-				{/* {chatFetching && <Loader />} */}
-
-				{chatLoading ? (
+				{chatLoading || chatFetching ? (
 					<Loader />
 				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
-					messages?.map((message) => {
+					messages?.map((message, index) => {
 						if (message.type === 'date') {
 							return (
 								<Flex key={message.id} justify='center' my={2}>
@@ -156,11 +159,10 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 								</Flex>
 							);
 						}
-						// const isSelf = message.sender.id === currentUser.id;
 						const isSelf = message.from === from;
 
 						return (
-							<React.Fragment key={message._id}>
+							<React.Fragment key={index + message?.messageId}>
 								<Flex
 									direction='column'
 									align={isSelf ? 'flex-end' : 'flex-start'}
@@ -185,13 +187,12 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										wordBreak='break-word'
 									>
 										{/* Render dynamic message content */}
-										{renderMessageContent({
-											message,
-											mediaUrls,
-											onDownloadMedia: downloadMedia,
-											isSelf,
-										})}
-
+										<MessageContent
+											message={message}
+											mediaUrls={mediaUrls}
+											onDownloadMedia={downloadMedia}
+											isSelf={isSelf}
+										/>
 										{message?.media?.caption && message?.media?.caption}
 
 										{/* Time + Status Tick */}
@@ -579,6 +580,9 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 						<Spinner size='sm' color={whatsappColors.primary} />
 					</Flex>
 				)}
+
+				{/* Anchor to scroll to */}
+				<Box ref={messagesEndRef} />
 			</VStack>
 		</Box>
 	);
