@@ -160,7 +160,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
                       py={4}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      minWidth="200px"
+                      minWidth="100px"
                       textAlign={"center"}
                     >
                       {index + 1}
