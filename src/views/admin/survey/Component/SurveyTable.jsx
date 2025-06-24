@@ -101,22 +101,15 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 
   return (
     <>
-      <Box borderRadius="md" boxShadow="sm" bg="white">
-        <Table
-          variant="striped"
-          size="sm"
-          bg="white"
-          height={data?.doc?.surveys?.length > 8 ? "70vh" : "fit-content"}
-          overflowY="auto"
-          scrollBehavior="smooth"
-        >
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-          >
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        overflowY="auto"
+        maxH={"85vh"}
+      >
+        <Table variant="striped" size="lg">
+          <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
               {columns.map((header, index) => (
                 <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
@@ -160,7 +153,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
                       py={4}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      minWidth="200px"
+                      minWidth="100px"
                       textAlign={"center"}
                     >
                       {index + 1}

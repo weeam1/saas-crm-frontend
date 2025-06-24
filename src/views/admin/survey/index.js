@@ -55,9 +55,6 @@ const Survey = () => {
   const handleViewChange = (newView) => {
     setView(newView);
     localStorage.setItem("surveysView", newView);
-	refetch();
-	setCurrentPage(1)
-	setPageSize(10)
   };
 
 
