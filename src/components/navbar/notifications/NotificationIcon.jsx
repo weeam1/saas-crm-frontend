@@ -10,7 +10,8 @@ import { getNotificationCount } from 'api';
 
 const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 10; // Number of announcements per page
+	const itemsPerPage = 10;
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [notificationCount, setNotificationCount] = useState(0);
 
@@ -70,31 +71,6 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 
 	return (
 		<Menu ref={ref}>
-			{/* <MenuButton
-				as={IconButton}
-				icon={<BellIcon />}
-				variant='solid'
-				rounded='full'
-				colorScheme='brand'
-				aria-label='Notifications'
-				position='relative' // Ensures badge is positioned correctly
-			>
-				{notificationCount > 0 && (
-					<Badge
-						colorScheme='red'
-						borderRadius='full'
-						position='absolute'
-						top='2px'
-						right='2px'
-						fontSize='0.8em'
-						px='2'
-						py='0.5'
-					>
-						{notificationCount}
-					</Badge>
-				)}
-			</MenuButton> */}
-
 			<Box position='relative' display='inline-block'>
 				<MenuButton
 					as={IconButton}
@@ -115,7 +91,7 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 						fontSize='.7em'
 						p='2'
 					>
-						{notificationCount}
+						{notificationCount > 99 ? '99+' : notificationCount}
 					</Badge>
 				)}
 			</Box>
@@ -124,6 +100,7 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 				unreadCount={20}
 				loading={loading}
 				notificationList={notificationList}
+				notificationCount={notificationCount}
 				loadMoreNotifications={handleLoadMore}
 				onClose={handleClose}
 				hideLoadMoreBtn={currentPage === totalPages}

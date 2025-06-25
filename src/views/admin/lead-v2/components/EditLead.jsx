@@ -17,6 +17,7 @@ import RenderFields from 'components/shared/RenderFields';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
+import { useMemo } from 'react';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -87,34 +88,31 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	// role === 'Agent' || role === 'Manager'
 	// leadData?.oldPhoneNumber
 
-	const allowedFields = ['Agent', 'Manager'].includes(role)
-		? fields.filter((field) => field.name === 'leadName')
-		: fields;
+	// const allowedFields = ['Agent', 'Manager'].includes(role)
+	// 	? fields.filter((field) => field.name === 'leadName')
+	// 	: fields;
 
-	// const allowedFields = (() => {
-	// 	if (!['Agent', 'Manager'].includes(role)) {
-	// 		return fields; // Return all fields for non-Agent/Manager roles
-	// 	}
+	const allowedFields = useMemo(() => {
+		if (role === 'superAdmin') {
+			return fields;
+		}
 
-	// 	const baseFields = fields.filter((field) => field.name === 'leadName');
+		// Agent role edit phone number only
+		const phoneField =
+			role === 'Agent'
+				? fields.filter((field) => field.name === 'leadPhoneNumber')
+				: [];
 
-	// 	// Add phone fields if oldPhoneNumber is null
-	// 	const phoneFields = !leadData?.oldPhoneNumber
-	// 		? fields.filter(
-	// 				(field) =>
-	// 					field.name === 'leadWhatsappNumber' ||
-	// 					field.name === 'leadPhoneNumber'
-	// 			)
-	// 		: [];
+		console.log({ phoneField, role });
 
-	// 	// Add name field if leadEStatus is 'show'
-	// 	// const nameField =
-	// 	// 	leadData?.eLeadStatus === 'show'
-	// 	// 		? fields.filter((field) => field.name === 'leadName')
-	// 	// 		: [];
+		// Add name field if leadEStatus is 'show'
+		const nameField =
+			leadData?.eLeadStatus === 'show'
+				? fields.filter((field) => field.name === 'leadName')
+				: [];
 
-	// 	return [...baseFields, ...phoneFields];
-	// })();
+		return [...nameField, ...phoneField];
+	}, []);
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 

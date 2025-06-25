@@ -143,7 +143,6 @@ const LeadCycle = ({}) => {
 							)}
 						</Box>
 					</ModalBody>
-					<ModalFooter></ModalFooter>
 				</ModalContent>
 			</Modal>
 		</>
