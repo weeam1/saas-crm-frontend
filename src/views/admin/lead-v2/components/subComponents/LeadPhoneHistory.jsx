@@ -9,7 +9,6 @@ import {
 	ModalCloseButton,
 	ModalBody,
 	Badge,
-	VStack,
 	Icon,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -45,7 +44,7 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 							columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
 						/>
 					) : phoneHistory?.doc && phoneHistory?.results > 0 ? (
-						<VStack
+						<Box
 							p={2}
 							w='full'
 							overflowY='auto'
@@ -57,17 +56,16 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 									key={`${item._id}-${index}`}
 									p={4}
 									bg='white'
-									borderRadius='lg'
-									boxShadow='sm'
+									rounded='lg'
+									shadow='md'
 									borderLeft='4px solid'
 									borderColor='brand.400'
 									w='full'
+									mb='4'
 								>
-									<Flex justify='space-between' mb={2}>
-										<Text fontSize='xs' color='gray.500'>
-											{formatPostDate(item.createdAt)}
-										</Text>
-									</Flex>
+									<Text fontSize='xs' mb='2' color='gray.500'>
+										{formatPostDate(item.createdAt)}
+									</Text>
 
 									<Flex align='center' mb={2}>
 										<Badge
@@ -97,7 +95,7 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 									</Text>
 								</Box>
 							))}
-						</VStack>
+						</Box>
 					) : (
 						<NoData label='phone history' />
 					)}

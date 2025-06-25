@@ -5,21 +5,14 @@ import {
 	MdInsertChartOutlined,
 	MdLeaderboard,
 	MdLock,
-	MdPeopleOutline,
 } from 'react-icons/md';
 
 import React from 'react';
-import { AiFillFolderOpen, AiOutlineMail } from 'react-icons/ai';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import {
-	FaCalendarAlt,
-	FaFile,
-	FaRupeeSign,
 	FaTasks,
 	FaWpforms,
 	FaRegCalendarCheck,
-	FaUserCircle,
-	FaDollarSign,
 	FaRegCopy,
 	FaList,
 	FaPhone,
@@ -168,21 +161,9 @@ const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
 const Listing = React.lazy(() => import('views/admin/Listing'));
 
-// const Employees = React.lazy(
-// 	() => import('views/admin/attendance/components/employees')
-// );
-// const Records = React.lazy(
-// 	() => import('views/admin/attendance/components/records')
-// );
-// const MyAttendance = React.lazy(
-// 	() => import('views/admin/attendance/components/myAttendance')
-// );
-// const AttendanceDashboard = React.lazy(
-// 	() => import('views/admin/attendance/components/dashboard')
-// );
-
-//leadpool v2
-// const LeadPoolVersion2 = React.lazy(() => import("views/admin/leadPool-v2"));
+const WathsappSettings = React.lazy(
+	() => import('/views/admin/whatsapp/WhatsappSettings')
+);
 
 const routes = [
 	// ========================== Dashboard ==========================
@@ -838,6 +819,13 @@ const routes = [
 		path: '/lead-settings',
 		under: 'lead-settings',
 		component: LeadSetting,
+	},
+	{
+		name: 'Whatsapp Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/settings-whatsapp',
+		under: 'settings-whatsapp',
+		// component: WhatsappSettings,
 	},
 	{
 		name: 'Agencies',
