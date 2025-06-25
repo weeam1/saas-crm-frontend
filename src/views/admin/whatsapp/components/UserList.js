@@ -71,7 +71,7 @@ const UserList = ({
 							<Box flex='1' overflow='hidden'>
 								<Flex justify='space-between'>
 									<Text fontWeight='bold' color='#111B21'>
-										{user.name}
+										{user.name === 'Unknown' ? user.phoneNumber : user.name}
 									</Text>
 									{/* <Text fontSize='xs' color='#667781'>
 										{user.time}

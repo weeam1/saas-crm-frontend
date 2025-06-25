@@ -24,6 +24,7 @@ import {
   Input,
   Badge,
   Textarea,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import {
@@ -66,6 +67,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const isAdmin = user?.role === "superAdmin";
   const isAgent = user?.roles?.[0]?.roleName === "Agent";
   const isManager = user?.roles?.[0]?.roleName === "Manager";
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const baseColumns = [
     "SR.No",
@@ -325,16 +327,28 @@ const AllListing = ({ listingType, listingUnitType }) => {
         <Flex
           justifyContent={{ base: "flex-end", sm: "flex-end", lg: "normal" }}
         >
-          <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            boxShadow="md"
-          />
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="md"
+              borderRadius="full"
+              py={3}
+              px={6}
+            >
+              Advanced Search
+            </Button>
+          )}
         </Flex>
       </Flex>
 
