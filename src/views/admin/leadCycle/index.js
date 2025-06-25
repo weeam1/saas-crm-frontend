@@ -111,7 +111,7 @@ const LeadCycle = ({}) => {
 						<Box
 							width='100%'
 							p='2'
-							h={{ base: '50vh', md: '70vh' }}
+							maxH={{ base: '50vh', md: '70vh' }}
 							scrollBehavior='smooth'
 							overflowY='scroll'
 						>

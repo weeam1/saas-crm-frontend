@@ -33,8 +33,6 @@ const LeadsModals = (props) => {
 		setViewLead({ isOpen: false, lid: null });
 	};
 
-	console.log({ lead });
-
 	return (
 		<>
 			{viewLead?.isOpen && (
@@ -45,11 +43,16 @@ const LeadsModals = (props) => {
 				/>
 			)}
 
-			{viewPhoneHistory && (
+			{viewPhoneHistory?.modal && (
 				<LeadPhoneHistory
-					isOpen={viewPhoneHistory}
-					onClose={() => setViewPhoneHistory(false)}
-					leadId={lead._id}
+					isOpen={viewPhoneHistory?.modal}
+					onClose={() =>
+						setViewPhoneHistory({
+							modal: false,
+							leadId: null,
+						})
+					}
+					leadId={viewPhoneHistory?.leadId}
 				/>
 			)}
 

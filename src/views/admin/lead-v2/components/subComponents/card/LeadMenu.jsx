@@ -109,8 +109,10 @@ const LeadMenu = ({
 					<MenuItem
 						py={2.5}
 						onClick={() => {
-							setViewPhoneHistory(true);
-							setLeadDetails(lead);
+							setViewPhoneHistory({
+								modal: true,
+								leadId: lead._id,
+							});
 						}}
 						icon={<FaHistory fontSize={15} />}
 					>

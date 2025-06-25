@@ -94,7 +94,10 @@ const Leads = ({
 		lid: null,
 	});
 	const [editLead, setEditLead] = useState(false);
-	const [viewPhoneHistory, setViewPhoneHistory] = useState(false);
+	const [viewPhoneHistory, setViewPhoneHistory] = useState({
+		modal: false,
+		leadId: null,
+	});
 	const [leadDetails, setLeadDetails] = useState(null);
 	const [sendEmail, setSendEmail] = useState(false);
 	const [deleteLead, setDeleteLead] = useState(false);
