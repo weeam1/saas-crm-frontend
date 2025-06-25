@@ -161,8 +161,8 @@ const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
 const Listing = React.lazy(() => import('views/admin/Listing'));
 
-const WathsappSettings = React.lazy(
-	() => import('/views/admin/whatsapp/WhatsappSettings')
+const WhatsappSettings = React.lazy(
+	() => import('views/admin/whatsapp/WhatsappSettings')
 );
 
 const routes = [
@@ -820,13 +820,13 @@ const routes = [
 		under: 'lead-settings',
 		component: LeadSetting,
 	},
-	{
-		name: 'Whatsapp Settings',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/settings-whatsapp',
-		under: 'settings-whatsapp',
-		// component: WhatsappSettings,
-	},
+	// {
+	// 	name: 'Whatsapp Settings',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/settings-whatsapp',
+	// 	under: 'settings-whatsapp',
+	// 	component: WhatsappSettings,
+	// },
 	{
 		name: 'Agencies',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
