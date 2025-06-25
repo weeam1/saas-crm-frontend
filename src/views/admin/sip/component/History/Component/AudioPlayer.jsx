@@ -63,8 +63,8 @@ const AudioPlayer = ({
       wavesurfer = WaveSurfer.create({
         container: waveformRef.current,
         waveColor: "#B0B3B8",
-        progressColor: "#1C63D5",
-        cursorColor: "#1C63D5",
+        progressColor: "brand.500",
+        cursorColor: "brand.500",
         cursorWidth: 6,
         barWidth: 2,
         barRadius: 1,
@@ -143,7 +143,7 @@ const AudioPlayer = ({
   return (
     <Flex
       direction="column"
-      bg="#242626"
+      bg="brand.100"
       p="12px 16px"
       borderRadius="20px"
       w="100%"
@@ -164,7 +164,7 @@ const AudioPlayer = ({
             icon={isPlaying ? <FaPause /> : <FaPlay />}
             size="sm"
             bg="transparent"
-            color="#1C63D5"
+            color="brand.500"
             _hover={{ bg: "transparent" }}
             _active={{ bg: "transparent" }}
           />
@@ -182,11 +182,11 @@ const AudioPlayer = ({
             {error && (
               <CustomTooltip
                 label={"No audio found"}
-                fontSize="sm"
+                fontSize="xs"
                 placement="top"
                 hasArrow
               >
-                <Text color="red.400" fontSize="sm" textAlign="center">
+                <Text color="red.400" fontSize="xs" textAlign="center">
                   {error}
                 </Text>
               </CustomTooltip>
@@ -201,8 +201,8 @@ const AudioPlayer = ({
           py={2}
           fontSize="13px"
           onClick={cyclePlaybackRate}
-          bg="gray.600"
-          _hover={{ bg: "gray.500" }}
+          bg="brand.500"
+          _hover={{ bg: "brand.400" }}
           color="white"
           borderRadius="full"
           minW="60px"
@@ -213,10 +213,10 @@ const AudioPlayer = ({
 
       {/* Time & Timestamp */}
       <Flex justify="space-between" px="44px">
-        <Text fontSize="xs" color="gray.300">
+        <Text fontSize="xs" color="brand.500">
           {formatTime(duration)}
         </Text>
-        <Text fontSize="xs" color="gray.500">
+        <Text fontSize="xs" color="brand.500">
           {format(timestamp, "h:mm a")}
         </Text>
       </Flex>
