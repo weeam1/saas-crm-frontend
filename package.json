@@ -74,6 +74,7 @@
 		"redux": "^5.0.1",
 		"redux-thunk": "^3.1.0",
 		"slick-carousel": "^1.8.1",
+		"socket.io-client": "^4.8.1",
 		"stylis-plugin-rtl": "2.0.2",
 		"use-debounce": "^10.0.4",
 		"wavesurfer.js": "^7.9.5",

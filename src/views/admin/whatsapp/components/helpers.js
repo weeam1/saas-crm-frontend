@@ -4,8 +4,7 @@ export const getTimeFormat = (isoString) => {
 	return format(new Date(isoString), 'h:mm a').toUpperCase();
 };
 
-
-export const resolveMessageType = (file: File | null): string => {
+export const resolveMessageType = (file) => {
 	if (!file) return 'text';
 
 	const type = file.type;
@@ -16,4 +15,16 @@ export const resolveMessageType = (file: File | null): string => {
 
 	// For PDFs, DOCX, etc.
 	return 'document';
+};
+
+export const generateRoomId = (val1, val2) => {
+	console.log({ val1, val2 });
+
+	const [a, b] = [
+		val1?.toString()?.toLowerCase(),
+		val2?.toString()?.toLowerCase(),
+	].sort();
+
+	const roomId = `${a}_${b}`;
+	return roomId;
 };

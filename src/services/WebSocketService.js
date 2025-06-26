@@ -1,15 +1,4 @@
 import keys from 'config/keys';
-import { toast } from 'react-toastify';
-import { addAnnouncement } from './../redux/announcementsSlice';
-import { newNotifyItem } from './../redux/webSocketReducer';
-
-import store from './../redux/store';
-
-import newAnnouncementSound from 'assets/sounds/new-notification.mp3';
-// import { showNotification } from './NotificationService';
-
-// Create an audio instance
-const announcementSound = new Audio(newAnnouncementSound);
 
 class WebSocketService {
 	constructor() {

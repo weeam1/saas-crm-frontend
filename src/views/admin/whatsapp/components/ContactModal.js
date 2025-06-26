@@ -17,17 +17,30 @@ import {
 	Avatar,
 	IconButton,
 	Box,
+	FormErrorMessage,
 } from '@chakra-ui/react';
 import { FiEdit, FiPlus } from 'react-icons/fi';
 import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import NoData from 'components/Message/NoData';
+import { generateRoomId } from './helpers';
+import { useDispatch, useSelector } from 'react-redux';
 
-const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
+import { addContact, updateContact } from '../../../../redux/whatsappSlice';
+
+const ContactModal = ({
+	isOpen,
+	onClose,
+	bussinessPhone,
+	// contacts,
+	setContacts,
+}) => {
 	const [editingContact, setEditingContact] = useState(null);
 	const [name, setName] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const [isAdding, setIsAdding] = useState(false);
+
+	const contacts = useSelector((state) => state.whatsapp.contacts || []);
 
 	const clearState = () => {
 		setName('');
@@ -40,15 +53,30 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 	const [updateContactAPI, { isLoading: contactUpdating }] =
 		useUpdateItemMutation();
 
+	const dispatch = useDispatch();
+
 	const handleAddContact = async () => {
 		try {
 			const newContact = { name, phoneNumber };
+
+			const roomId = generateRoomId(phoneNumber, bussinessPhone);
+
 			const newUser = await createContactAPI({
 				path: '/whatsapp/contacts',
 				body: newContact,
 			}).unwrap();
 
-			setContacts((prev) => [...prev, newUser?.doc]);
+			console.log({ roomId });
+
+			const contact = {
+				...newContact,
+				_id: newUser?.doc?._id,
+				roomId,
+			};
+
+			// setContacts((prev) => [...prev, contact]);
+
+			dispatch(addContact(contact));
 			toast.success('Contact added successfully');
 			setIsAdding(false);
 			clearState();
@@ -58,18 +86,31 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 		}
 	};
 
-	const handleUpdateContact = async (id) => {
+	const handleUpdateContact = async (data) => {
 		try {
 			const updateData = { name, phoneNumber };
 
-			const res = await updateContactAPI({
-				path: `/whatsapp/contacts/${id}`,
+			console.log({ data });
+
+			if (data._id) {
+				updateData.id = data._id;
+			}
+
+			const res = await createContactAPI({
+				path: '/whatsapp/contacts',
 				body: updateData,
 			}).unwrap();
 
-			setContacts((prevUsers) =>
-				prevUsers.map((user) => (user._id === id ? res?.doc : user))
-			);
+			const contact = {
+				...updateData,
+				_id: res?.doc?._id,
+			};
+
+			dispatch(updateContact(contact));
+
+			// setContacts((prevUsers) =>
+			// 	prevUsers.map((user) => (user.roomId === data.roomId ? contact : user))
+			// );
 			toast.success('Contact updated successfully');
 			setEditingContact(null);
 			clearState();
@@ -117,13 +158,17 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 								/>
 							</FormControl> */}
 							<FormControl mb={4}>
-								<FormLabel>phoneNumber</FormLabel>
+								<FormLabel>Phone Number</FormLabel>
 								<Input
 									value={phoneNumber}
 									onChange={(e) => setPhoneNumber(e.target.value)}
 									placeholder='Enter phone number'
 									type='tel'
 								/>
+								{/* <Text fontSize='xs' color='gray.700'>
+									Enter a valid phone number with country code (digits only, no
+									+ or spaces). Example: 923001234567.
+								</Text> */}
 							</FormControl>
 							<Flex justify='flex-end'>
 								<Button mr={2} onClick={() => setIsAdding(false)}>
@@ -131,7 +176,7 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 								</Button>
 								<Button
 									colorScheme='whatsapp'
-									disabled={contactCreating}
+									disabled={contactCreating || !phoneNumber}
 									onClick={handleAddContact}
 								>
 									{contactCreating ? 'Loading...' : 'Add'}
@@ -173,7 +218,7 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 								<Button
 									colorScheme='whatsapp'
 									disabled={contactUpdating}
-									onClick={() => handleUpdateContact(editingContact._id)}
+									onClick={() => handleUpdateContact(editingContact)}
 								>
 									{contactUpdating ? 'Loading...' : 'Save'}
 								</Button>
@@ -198,9 +243,9 @@ const ContactModal = ({ isOpen, onClose, contacts, setContacts }) => {
 								align='stretch'
 							>
 								{contacts?.length > 0 ? (
-									contacts?.map((contact) => (
+									contacts?.map((contact, i) => (
 										<Flex
-											key={contact._id}
+											key={i || contact.roomId}
 											justify='space-between'
 											bg='gray.100'
 											p='2'

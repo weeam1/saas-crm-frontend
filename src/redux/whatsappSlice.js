@@ -10,6 +10,31 @@ const whatsappSlice = createSlice({
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
 		},
+
+		addContact: (state, action) => {
+			const newContact = action.payload;
+			const exists = state.contacts.some(
+				(contact) => contact.phoneNumber === newContact.phoneNumber
+			);
+
+			if (!exists) {
+				state.contacts.unshift(newContact);
+			}
+		},
+
+		updateContact: (state, action) => {
+			const updated = action.payload;
+			const index = state.contacts.findIndex(
+				(contact) => contact.phoneNumber === updated.phoneNumber
+			);
+
+			if (index !== -1) {
+				state.contacts[index] = {
+					...state.contacts[index],
+					...updated,
+				};
+			}
+		},
 		setChatHistory(state, action) {
 			const { chatId, messages } = action.payload;
 
@@ -34,7 +59,13 @@ const whatsappSlice = createSlice({
 	},
 });
 
-export const { setContacts, setChatHistory, prependMessages, appendMessage } =
-	whatsappSlice.actions;
+export const {
+	setContacts,
+	addContact,
+	updateContact,
+	setChatHistory,
+	prependMessages,
+	appendMessage,
+} = whatsappSlice.actions;
 
 export default whatsappSlice.reducer;

@@ -11,7 +11,7 @@ import {
 
 const MEDIA_TYPES = ['image', 'document', 'video', 'audio'];
 
-export const renderMessageContent = ({
+export const MessageContent = ({
 	message,
 	mediaUrls,
 	onDownloadMedia,
