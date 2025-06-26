@@ -15,6 +15,7 @@
 		"@fullcalendar/resource": "^6.1.8",
 		"@fullcalendar/resource-timeline": "^6.1.8",
 		"@fullcalendar/scrollgrid": "^6.1.8",
+		"@hookform/resolvers": "^5.1.1",
 		"@hypertheme-editor/chakra-ui": "^0.1.5",
 		"@react-pdf-viewer/core": "^3.12.0",
 		"@react-pdf-viewer/default-layout": "^3.12.0",
@@ -78,7 +79,7 @@
 		"use-debounce": "^10.0.4",
 		"wavesurfer.js": "^7.9.5",
 		"xlsx": "^0.18.5",
-		"yup": "^1.2.0"
+		"yup": "^1.6.1"
 	},
 	"scripts": {
 		"start": "set PORT=3006 && react-scripts start",

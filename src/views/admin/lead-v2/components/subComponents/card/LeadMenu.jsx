@@ -34,12 +34,15 @@ const LeadMenu = ({
 	setSelectedValues,
 	setDeleteLead,
 	refreshData,
+	setViewPhoneHistory,
 }) => {
 	const navigate = useNavigate();
 	const leadId = lead?._id;
 	const phoneNumber = lead?.leadPhoneNumber;
 
-	const allowedUserEdit = lead?.eLeadStatus === 'show';
+	// agent edit the lead only phone and lead name (when status is show)
+	const allowedUserEdit =
+		user?.roles[0]?.roleName === 'Agent' ? true : lead?.eLeadStatus === 'show';
 
 	const { setIsLeadCycle } = useStateContext();
 
@@ -102,6 +105,21 @@ const LeadMenu = ({
 				>
 					View Lead Cycle
 				</MenuItem>
+				{user?.role === 'superAdmin' && (
+					<MenuItem
+						py={2.5}
+						onClick={() => {
+							setViewPhoneHistory({
+								modal: true,
+								leadId: lead._id,
+							});
+						}}
+						icon={<FaHistory fontSize={15} />}
+					>
+						View Phone History
+					</MenuItem>
+				)}
+
 				<MenuItem
 					py={2.5}
 					onClick={() => navigate(`/leadHistory/${leadId}`)}

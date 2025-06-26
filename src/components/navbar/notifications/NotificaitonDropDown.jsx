@@ -16,6 +16,7 @@ const NotificationDropDown = ({
 	notificationList,
 	loadMoreNotifications,
 	hideLoadMoreBtn,
+	notificationCount,
 }) => {
 	const users = useSelector((state) => state.user.users);
 
