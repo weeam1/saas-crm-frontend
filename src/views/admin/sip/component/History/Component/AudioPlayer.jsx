@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Box, Flex, IconButton, Text, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Text,
+  Button,
+  Spinner,
+  Fade,
+} from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { format } from "date-fns";
@@ -24,8 +32,10 @@ const AudioPlayer = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1);
   const isMountedRef = useRef(true);
+  const loadIdRef = useRef(0);
 
   const isCurrentlyPlaying = currentlyPlayingId === playerId;
 
@@ -38,109 +48,126 @@ const AudioPlayer = ({
   };
 
   useEffect(() => {
-  isMountedRef.current = true;
-  let wavesurfer;
-  const abortController = new AbortController();
+    const controller = new AbortController();
+    const thisLoadId = ++loadIdRef.current;
+    isMountedRef.current = true;
+    setLoading(true);
 
-  const initWaveSurfer = async () => {
-    if (!url || !waveformRef.current) return;
+    const cleanupPrevious = () => {
+      return new Promise((resolve) => {
+        if (wavesurferRef.current) {
+          wavesurferRef.current.pause();
+          wavesurferRef.current.unAll();
+          wavesurferRef.current.destroy();
+          wavesurferRef.current = null;
+        }
+        resolve();
+      });
+    };
 
-    try {
-      const response = await fetch(url, { signal: abortController.signal });
-      const arrayBuffer = await response.arrayBuffer();
+    const initWaveSurfer = async () => {
+      await cleanupPrevious();
 
-      // AudioContext setup
-      const audioContext = new AudioContext();
-      let decoded;
+      if (!url || !waveformRef.current) return;
 
       try {
-        decoded = await audioContext.decodeAudioData(arrayBuffer);
-      } catch (decodeErr) {
-        if (decodeErr.name === "AbortError") {
-          console.warn("decodeAudioData aborted");
+        // Simulate a delay of 1 second before loading
+        await new Promise((res) => setTimeout(res, 1000));
+
+        const response = await fetch(url, { signal: controller.signal });
+        const arrayBuffer = await response.arrayBuffer();
+
+        const audioContext = new AudioContext();
+        const decoded = await audioContext.decodeAudioData(arrayBuffer);
+        await audioContext.close();
+
+        if (!decoded.duration || decoded.duration === 0) {
+          throw new Error("Audio duration is zero");
+        }
+      } catch (err) {
+        if (err.name === "AbortError") {
+          console.warn("Fetch/Decode aborted safely");
           return;
         }
-        throw decodeErr; 
-      }
-
-      await audioContext.close();
-
-      if (!decoded.duration || decoded.duration === 0) {
-        throw new Error("Audio duration is zero");
-      }
-    } catch (err) {
-      if (err.name === "AbortError") {
-        console.warn("Fetch or decode aborted, safe to ignore.");
+        console.error("Validation error:", err);
+        if (isMountedRef.current) {
+          setError("Audio not available");
+          setLoading(false);
+        }
         return;
       }
-      console.error("Audio validation failed:", err);
-      if (isMountedRef.current) setError("Audio is not available");
-      return;
-    }
 
-    if (!waveformRef.current || !isMountedRef.current) return;
+      if (!isMountedRef.current || loadIdRef.current !== thisLoadId) return;
 
-    wavesurfer = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: "#B0B3B8",
-      progressColor: "brand.500",
-      cursorColor: "brand.500",
-      cursorWidth: 6,
-      barWidth: 2,
-      barRadius: 1,
-      height: 6,
-      responsive: true,
-      normalize: true,
-      backend: "WebAudio",
-      playbackRate: playbackRate,
-      preservePitch: true,
-    });
+      const wavesurfer = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: "#B0B3B8",
+        progressColor: "brand.500",
+        cursorColor: "brand.500",
+        cursorWidth: 6,
+        barWidth: 2,
+        barRadius: 1,
+        height: 6,
+        responsive: true,
+        normalize: true,
+        backend: "WebAudio",
+        playbackRate,
+        preservePitch: true,
+      });
 
-    wavesurferRef.current = wavesurfer;
-    wavesurfer.load(url);
+      wavesurferRef.current = wavesurfer;
 
-    wavesurfer.on("ready", () => {
-      if (!isMountedRef.current) return;
-      setDuration(wavesurfer.getDuration());
-      setError(null);
-      wavesurfer.setPlaybackRate(playbackRate, true);
-    });
-
-    wavesurfer.on("finish", () => {
-      if (!isMountedRef.current) return;
-      setIsPlaying(false);
-      setCurrentlyPlayingId(null);
-    });
-
-    wavesurfer.on("interaction", () => {
-      if (!isMountedRef.current) return;
-      if (!isPlaying) {
-        wavesurfer.play();
-        setIsPlaying(true);
-        setCurrentlyPlayingId(playerId);
+      try {
+        wavesurfer.load(url);
+      } catch (e) {
+        console.warn("WaveSurfer.load threw", e);
       }
-    });
 
-    wavesurfer.on("error", (err) => {
-      if (isMountedRef.current) {
-        console.error("WaveSurfer error:", err);
-        setError("Audio is not available");
-      }
-    });
-  };
+      wavesurfer.on("ready", () => {
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          setDuration(wavesurfer.getDuration());
+          setError(null);
+          setLoading(false);
+          wavesurfer.setPlaybackRate(playbackRate, true);
+        }
+      });
 
-  initWaveSurfer();
+      wavesurfer.on("finish", () => {
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          setIsPlaying(false);
+          setCurrentlyPlayingId(null);
+        }
+      });
 
-  return () => {
-    isMountedRef.current = false;
-    abortController.abort();
-    if (wavesurferRef.current) {
-      wavesurferRef.current.pause();
-      wavesurferRef.current.destroy();
-      wavesurferRef.current = null;
-    }
-  };
-}, [url]);
+      wavesurfer.on("error", (e) => {
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          console.error("WaveSurfer error:", e);
+          setError("Audio error");
+          setLoading(false);
+        }
+      });
+
+      wavesurfer.on("interaction", () => {
+        if (
+          !isPlaying &&
+          isMountedRef.current &&
+          loadIdRef.current === thisLoadId
+        ) {
+          wavesurfer.play();
+          setIsPlaying(true);
+          setCurrentlyPlayingId(playerId);
+        }
+      });
+    };
+
+    initWaveSurfer();
+
+    return () => {
+      isMountedRef.current = false;
+      controller.abort();
+      cleanupPrevious();
+    };
+  }, [url]);
 
   useEffect(() => {
     if (!isCurrentlyPlaying && isPlaying) {
@@ -154,7 +181,7 @@ const AudioPlayer = ({
   }, [currentlyPlayingId]);
 
   const togglePlay = () => {
-    if (!wavesurferRef.current || error) return;
+    if (!wavesurferRef.current || error || loading) return;
 
     if (isPlaying) {
       wavesurferRef.current.pause();
@@ -190,6 +217,7 @@ const AudioPlayer = ({
             aria-label="Play/Pause"
             icon={isPlaying ? <FaPause /> : <FaPlay />}
             size="sm"
+            isDisabled={!!error || loading}
             bg="transparent"
             color="brand.500"
             _hover={{ bg: "transparent" }}
@@ -205,20 +233,26 @@ const AudioPlayer = ({
             cursor={error ? "not-allowed" : "pointer"}
             position="relative"
             zIndex={1}
-          >
-            {error && (
-              <CustomTooltip
-                label={"No audio found"}
-                fontSize="xs"
-                placement="top"
-                hasArrow
+          />
+          {loading && (
+            <Fade in={loading}>
+              <Flex
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                align="center"
+                justify="center"
               >
-                <Text color="red.400" fontSize="xs" textAlign="center">
-                  {error}
-                </Text>
-              </CustomTooltip>
-            )}
-          </Box>
+                <Spinner color="brand.500" size="sm" />
+              </Flex>
+            </Fade>
+          )}
+          {error && (
+            <Text color="red.400" fontSize="xs" textAlign="center">
+              {error}
+            </Text>
+          )}
         </Box>
 
         {/* Speed Toggle  */}
