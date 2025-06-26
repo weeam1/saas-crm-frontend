@@ -21,8 +21,14 @@ export const MessageContent = ({
 	const mediaId = message.media?.id;
 
 	// Text message
-	if (!isMedia) {
+	if (message.type === 'text') {
 		return message.content;
+	} else if (message.type === 'unsupported') {
+		return (
+			<Text fontSize='xs' color='red.400' fontWeight='semibold'>
+				Not supported!
+			</Text>
+		);
 	}
 
 	const mediaUrl = mediaUrls[mediaId];

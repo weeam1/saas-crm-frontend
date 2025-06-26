@@ -143,6 +143,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 					<Loader />
 				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
 					messages?.map((message, index) => {
+						if (message.type === 'unsupported') return null;
+
 						if (message.type === 'date') {
 							return (
 								<Flex key={message.id} justify='center' my={2}>
@@ -193,6 +195,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 											onDownloadMedia={downloadMedia}
 											isSelf={isSelf}
 										/>
+
 										{message?.media?.caption && message?.media?.caption}
 
 										{/* Time + Status Tick */}
