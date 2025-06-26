@@ -25,6 +25,7 @@ const AudioPlayer = ({
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(null);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const isMountedRef = useRef(true);
 
   const isCurrentlyPlaying = currentlyPlayingId === playerId;
 
@@ -37,83 +38,109 @@ const AudioPlayer = ({
   };
 
   useEffect(() => {
-    let wavesurfer;
+  isMountedRef.current = true;
+  let wavesurfer;
+  const abortController = new AbortController();
 
-    const initialize = async () => {
-      if (!url || !waveformRef.current) return;
+  const initWaveSurfer = async () => {
+    if (!url || !waveformRef.current) return;
+
+    try {
+      const response = await fetch(url, { signal: abortController.signal });
+      const arrayBuffer = await response.arrayBuffer();
+
+      // AudioContext setup
+      const audioContext = new AudioContext();
+      let decoded;
 
       try {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioContext = new AudioContext();
-        const decoded = await audioContext.decodeAudioData(arrayBuffer);
-        audioContext.close();
-
-        if (!decoded.duration || decoded.duration === 0) {
-          throw new Error("Zero duration");
+        decoded = await audioContext.decodeAudioData(arrayBuffer);
+      } catch (decodeErr) {
+        if (decodeErr.name === "AbortError") {
+          console.warn("decodeAudioData aborted");
+          return;
         }
-      } catch (err) {
-        console.error("Audio validation failed:", err);
-        setError("Audio is not available");
+        throw decodeErr; 
+      }
+
+      await audioContext.close();
+
+      if (!decoded.duration || decoded.duration === 0) {
+        throw new Error("Audio duration is zero");
+      }
+    } catch (err) {
+      if (err.name === "AbortError") {
+        console.warn("Fetch or decode aborted, safe to ignore.");
         return;
       }
+      console.error("Audio validation failed:", err);
+      if (isMountedRef.current) setError("Audio is not available");
+      return;
+    }
 
-      if (!waveformRef.current) return;
+    if (!waveformRef.current || !isMountedRef.current) return;
 
-      wavesurfer = WaveSurfer.create({
-        container: waveformRef.current,
-        waveColor: "#B0B3B8",
-        progressColor: "brand.500",
-        cursorColor: "brand.500",
-        cursorWidth: 6,
-        barWidth: 2,
-        barRadius: 1,
-        height: 6,
-        responsive: true,
-        normalize: true,
-        backend: "WebAudio",
-        playbackRate: playbackRate,
-        preservePitch: true,
-      });
+    wavesurfer = WaveSurfer.create({
+      container: waveformRef.current,
+      waveColor: "#B0B3B8",
+      progressColor: "brand.500",
+      cursorColor: "brand.500",
+      cursorWidth: 6,
+      barWidth: 2,
+      barRadius: 1,
+      height: 6,
+      responsive: true,
+      normalize: true,
+      backend: "WebAudio",
+      playbackRate: playbackRate,
+      preservePitch: true,
+    });
 
-      wavesurferRef.current = wavesurfer;
-      wavesurfer.load(url);
+    wavesurferRef.current = wavesurfer;
+    wavesurfer.load(url);
 
-      wavesurfer.on("ready", () => {
-        setDuration(wavesurfer.getDuration());
-        setError(null);
-        wavesurfer.setPlaybackRate(playbackRate, true);
-      });
+    wavesurfer.on("ready", () => {
+      if (!isMountedRef.current) return;
+      setDuration(wavesurfer.getDuration());
+      setError(null);
+      wavesurfer.setPlaybackRate(playbackRate, true);
+    });
 
-      wavesurfer.on("finish", () => {
-        setIsPlaying(false);
-        setCurrentlyPlayingId(null);
-      });
+    wavesurfer.on("finish", () => {
+      if (!isMountedRef.current) return;
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
+    });
 
-      wavesurfer.on("interaction", () => {
-        if (!isPlaying) {
-          wavesurfer.play();
-          setIsPlaying(true);
-          setCurrentlyPlayingId(playerId);
-        }
-      });
+    wavesurfer.on("interaction", () => {
+      if (!isMountedRef.current) return;
+      if (!isPlaying) {
+        wavesurfer.play();
+        setIsPlaying(true);
+        setCurrentlyPlayingId(playerId);
+      }
+    });
 
-      wavesurfer.on("error", (err) => {
+    wavesurfer.on("error", (err) => {
+      if (isMountedRef.current) {
         console.error("WaveSurfer error:", err);
         setError("Audio is not available");
-      });
-    };
-
-    initialize();
-
-    return () => {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.pause(); 
-        wavesurferRef.current.destroy(); 
-        wavesurferRef.current = null;
       }
-    };
-  }, [url]);
+    });
+  };
+
+  initWaveSurfer();
+
+  return () => {
+    isMountedRef.current = false;
+    abortController.abort();
+    if (wavesurferRef.current) {
+      wavesurferRef.current.pause();
+      wavesurferRef.current.destroy();
+      wavesurferRef.current = null;
+    }
+  };
+}, [url]);
 
   useEffect(() => {
     if (!isCurrentlyPlaying && isPlaying) {
