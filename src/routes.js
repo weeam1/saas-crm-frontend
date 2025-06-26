@@ -604,13 +604,13 @@ const routes = [
 		parentName: 'Survey',
 		component: ViewSurveyResponse,
 	},
-	// {
-	// 	name: 'whatsapp',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/whatsapp',
-	// 	icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-	// 	component: Whatsapp,
-	// },
+	{
+		name: 'whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp',
+		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		component: Whatsapp,
+	},
 
 	// {
 	// 	name: 'Call',
@@ -820,13 +820,13 @@ const routes = [
 		under: 'lead-settings',
 		component: LeadSetting,
 	},
-	// {
-	// 	name: 'Whatsapp Settings',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/settings-whatsapp',
-	// 	under: 'settings-whatsapp',
-	// 	component: WhatsappSettings,
-	// },
+	{
+		name: 'Whatsapp Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/settings-whatsapp',
+		under: 'settings-whatsapp',
+		component: WhatsappSettings,
+	},
 	{
 		name: 'Agencies',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

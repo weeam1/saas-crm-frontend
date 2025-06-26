@@ -10,11 +10,13 @@ import {
 	ModalBody,
 	Badge,
 	Icon,
+	Avatar,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
-import { FiArrowRight } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
+import { FiArrowRight, FiMessageSquare, FiPhone } from 'react-icons/fi';
 import { formatPostDate } from 'utils/helpers';
 
 const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
@@ -30,7 +32,7 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 	);
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='xl' isCentered>
+		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
 			<ModalContent m='2'>
 				<ModalHeader>Phone Number History</ModalHeader>
@@ -50,50 +52,21 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 							overflowY='auto'
 							scrollBehavior='smooth'
 							maxH='60vh'
+							css={{
+								'&::-webkit-scrollbar': {
+									width: '4px',
+								},
+								'&::-webkit-scrollbar-track': {
+									width: '6px',
+								},
+								'&::-webkit-scrollbar-thumb': {
+									background: 'brand.200',
+									borderRadius: '24px',
+								},
+							}}
 						>
-							{phoneHistory?.doc?.map((item, index) => (
-								<Box
-									key={`${item._id}-${index}`}
-									p={4}
-									bg='white'
-									rounded='lg'
-									shadow='md'
-									borderLeft='4px solid'
-									borderColor='brand.400'
-									w='full'
-									mb='4'
-								>
-									<Text fontSize='xs' mb='2' color='gray.500'>
-										{formatPostDate(item.createdAt)}
-									</Text>
-
-									<Flex align='center' mb={2}>
-										<Badge
-											colorScheme='red'
-											variant='subtle'
-											mr={2}
-											px={2}
-											py={1}
-											fontSize={{ base: 'xs', lg: 'md' }}
-										>
-											{item.oldPhoneNumber || 'N/A'}
-										</Badge>
-										<Icon as={FiArrowRight} color='gray.400' mx={2} />
-										<Badge
-											colorScheme='green'
-											variant='subtle'
-											px={2}
-											py={1}
-											fontSize={{ base: 'xs', lg: 'md' }}
-										>
-											{item.newPhoneNumber || 'N/A'}
-										</Badge>
-									</Flex>
-
-									<Text fontSize='sm' color='gray.600'>
-										Updated by: <strong>{item.updatedBy?.fullName}</strong>
-									</Text>
-								</Box>
+							{phoneHistory?.doc.map((item) => (
+								<HistoryItem key={item._id} item={item} />
 							))}
 						</Box>
 					) : (
@@ -106,3 +79,108 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 };
 
 export default LeadPhoneHistory;
+
+// Reusable HistoryItem component
+const HistoryItem = ({ item }) => (
+	<Box
+		key={item._id}
+		p={4}
+		bg='gray.100'
+		rounded='lg'
+		shadow='md'
+		borderLeft='4px solid'
+		borderColor='brand.400'
+		w='full'
+		mb={4}
+		transition='all 0.2s'
+		_hover={{
+			transform: 'translateY(-2px)',
+			shadow: 'lg',
+		}}
+	>
+		<Flex justify='space-between' align='center' mb={3}>
+			<Text fontSize='xs' color='gray.500'>
+				{formatPostDate(item.createdAt)}
+			</Text>
+		</Flex>
+
+		<Box>
+			{item.newPhoneNumber && (
+				<>
+					<BadgeWithLabel
+						label='Old Phone'
+						value={item.oldPhoneNumber}
+						valueColorScheme='red'
+						icon={FiPhone}
+					/>
+
+					<BadgeWithLabel
+						label='New Phone'
+						value={item.newPhoneNumber}
+						valueColorScheme='blue'
+						icon={FiPhone}
+					/>
+				</>
+			)}
+
+			{item.newWhatsappNumber && (
+				<>
+					<BadgeWithLabel
+						label='Old WhatsApp'
+						value={item.oldWhatsappNumber}
+						valueColorScheme='red'
+						icon={FaWhatsapp}
+					/>
+
+					<BadgeWithLabel
+						label='New Whatsapp'
+						value={item.newWhatsappNumber}
+						valueColorScheme='green'
+						icon={FaWhatsapp}
+					/>
+				</>
+			)}
+		</Box>
+
+		<Text fontSize='sm' color='gray.600'>
+			Updated by: <strong>{item.updatedBy?.fullName}</strong>
+		</Text>
+	</Box>
+);
+
+// Reusable BadgeWithLabel component
+const BadgeWithLabel = ({
+	label,
+	value,
+	valueColorScheme = 'gray',
+	labelColorScheme = 'gray',
+	icon,
+	...props
+}) => (
+	<Flex align='center' mb={2}>
+		<Badge
+			colorScheme={labelColorScheme}
+			variant='subtle'
+			mr={2}
+			px={2}
+			py={1}
+			fontSize={{ base: 'xs', md: 'sm' }}
+			display='flex'
+			alignItems='center'
+			textTransform='capitalize'
+		>
+			{icon && <Icon color={`${valueColorScheme}.400`} as={icon} mr={1} />}
+			{label}
+		</Badge>
+		<Badge
+			colorScheme={valueColorScheme}
+			variant='subtle'
+			px={2}
+			py={1}
+			fontSize={{ base: 'xs', md: 'sm' }}
+			{...props}
+		>
+			{value || 'N/A'}
+		</Badge>
+	</Flex>
+);

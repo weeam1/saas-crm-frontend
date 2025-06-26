@@ -100,7 +100,9 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		// Agent role edit phone number only
 		const phoneField =
 			role === 'Agent'
-				? fields.filter((field) => field.name === 'leadPhoneNumber')
+				? fields.filter((field) =>
+						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
+					)
 				: [];
 
 		console.log({ phoneField, role });
