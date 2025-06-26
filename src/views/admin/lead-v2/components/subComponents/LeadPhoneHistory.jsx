@@ -42,7 +42,7 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 					{isLoading ? (
 						<CardShimmer
 							count={4}
-							height='80px'
+							height='100px'
 							columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
 						/>
 					) : phoneHistory?.doc && phoneHistory?.results > 0 ? (
@@ -133,7 +133,7 @@ const HistoryItem = ({ item }) => (
 					/>
 
 					<BadgeWithLabel
-						label='New Whatsapp'
+						label='New WhatsApp'
 						value={item.newWhatsappNumber}
 						valueColorScheme='green'
 						icon={FaWhatsapp}
@@ -142,7 +142,7 @@ const HistoryItem = ({ item }) => (
 			)}
 		</Box>
 
-		<Text fontSize='sm' color='gray.600'>
+		<Text fontSize='sm' justifySelf='flex-end' color='gray.600'>
 			Updated by: <strong>{item.updatedBy?.fullName}</strong>
 		</Text>
 	</Box>
