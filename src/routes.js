@@ -52,6 +52,8 @@ import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Tea
 import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
 import { components } from 'react-select';
 import Whatsapp from 'views/admin/whatsapp';
+import AdminWhatsapp from 'views/admin/whatsapp/AdminWhatsapp';
+import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -605,11 +607,26 @@ const routes = [
 		component: ViewSurveyResponse,
 	},
 	{
-		name: 'whatsapp',
+		name: 'whatsapp chat',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp-v2',
+		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		component: Whatsapp,
+	},
+	{
+		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp',
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-		component: Whatsapp,
+		component: AdminWhatsapp,
+	},
+	{
+		name: 'User Whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/chat/:id',
+		under: 'whatsapp',
+		parent: 'whatsapp',
+		component: UserWhatsapp,
 	},
 
 	// {

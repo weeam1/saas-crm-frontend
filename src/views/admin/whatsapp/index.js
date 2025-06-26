@@ -1196,7 +1196,7 @@ const Whatsapp = () => {
 			>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>WhatsApp API Configuration</ModalHeader>
+					<ModalHeader>WhatsApp Configuration</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						<VStack spacing={4}>
@@ -1227,7 +1227,7 @@ const Whatsapp = () => {
 					</ModalBody>
 					<ModalFooter>
 						<Button colorScheme='whatsapp' onClick={handleSaveToken}>
-							Save WhatsApp API
+							Save WhatsApp
 						</Button>
 						<Button
 							variant='ghost'

@@ -22,9 +22,14 @@ const WhatsappSettings = () => {
 
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
-	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery({
-		path: 'whatsapp/users',
-	});
+	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+		{
+			path: 'whatsapp/users',
+		},
+		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	useEffect(() => {
 		if (data?.doc && data?.doc?.length > 0) {

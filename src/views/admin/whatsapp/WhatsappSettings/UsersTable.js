@@ -7,21 +7,21 @@ import {
 	Th,
 	Td,
 	Text,
-	Avatar,
 	Flex,
-	Switch,
 	Badge,
 	IconButton,
 	Tooltip,
-	Button,
+	useClipboard,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
-import { constant } from 'constant';
 
 import NoData from 'components/Message/NoData';
 import { FiEdit, FiTrash } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { CopyIcon } from '@chakra-ui/icons';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import UserAvatar from 'components/shared/UserAvatar';
 
 const UsersTable = ({
 	data,
@@ -33,8 +33,7 @@ const UsersTable = ({
 	const columns = [
 		'User',
 		'Email',
-		'Phone ID',
-		'Whatsapp',
+		'Phone Number',
 		'Agency',
 		'Status',
 		'Action',
@@ -75,9 +74,9 @@ const UsersTable = ({
 					) : data?.length > 0 ? (
 						data.map((item) => (
 							<Tr key={item._id}>
-								<Td>
+								<Td minW='300px' isTruncated>
 									<Flex align='center' gap={2}>
-										<Avatar
+										<UserAvatar
 											size='sm'
 											name={item?.user?.fullName}
 											src={item?.user?.profileImage}
@@ -85,9 +84,14 @@ const UsersTable = ({
 										{item?.user?.fullName}
 									</Flex>
 								</Td>
-								<Td textAlign='center'>{item?.user.username || 'N/A'}</Td>
-								<Td textAlign='center'>{item?.phoneNumber || 'N/A'}</Td>
-								<Td textAlign='center'>
+								<Td minW='300px' textAlign='center'>
+									{item?.user.username || 'N/A'}
+								</Td>
+								<Td minW='200px' textAlign='left'>
+									<CopyPhoneCell value={item?.phoneNumber} />
+								</Td>
+
+								{/* <Td textAlign='center'>
 									<Button
 										leftIcon={<FaWhatsapp />}
 										aria-label='Go to WhatsApp'
@@ -100,7 +104,7 @@ const UsersTable = ({
 									>
 										WhatsApp
 									</Button>
-								</Td>
+								</Td> */}
 								<Td textAlign='center'>{item?.user?.agency?.name || 'N/A'}</Td>
 								<Td textAlign='center'>
 									<Badge
@@ -114,7 +118,7 @@ const UsersTable = ({
 										{item?.isActive ? 'Enable' : 'Disable'}
 									</Badge>
 								</Td>
-								<Td textAlign='center'>
+								<Td textAlign='center' minWidth='150px'>
 									<Tooltip label='Edit' hasArrow placement='top'>
 										<IconButton
 											icon={<FiEdit />}
@@ -149,6 +153,32 @@ const UsersTable = ({
 				</Tbody>
 			</Table>
 		</Box>
+	);
+};
+
+const CopyPhoneCell = ({ value }) => {
+	const { hasCopied, onCopy } = useClipboard(value || '');
+
+	if (!value) return <Text textAlign='center'>N/A</Text>;
+
+	return (
+		<Flex align='center' gap={2}>
+			<Text>{value}</Text>
+			<CustomTooltip
+				label={hasCopied ? `${value} Copied!` : 'Copy'}
+				hasArrow
+				closeOnClick={false}
+			>
+				<IconButton
+					icon={<CopyIcon />}
+					size='xs'
+					fontSize='xs'
+					variant='ghost'
+					aria-label='Copy phone number'
+					onClick={onCopy}
+				/>
+			</CustomTooltip>
+		</Flex>
 	);
 };
 
