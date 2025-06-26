@@ -4,11 +4,16 @@ const whatsappSlice = createSlice({
 	name: 'whatsapp',
 	initialState: {
 		contacts: [],
+		currentUser: {},
 		chats: {},
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+		},
+
+		setCurrentUser: (state, action) => {
+			state.currentUser = action.payload;
 		},
 
 		addContact: (state, action) => {
@@ -66,6 +71,7 @@ export const {
 	setChatHistory,
 	prependMessages,
 	appendMessage,
+	setCurrentUser,
 } = whatsappSlice.actions;
 
 export default whatsappSlice.reducer;

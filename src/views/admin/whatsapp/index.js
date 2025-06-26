@@ -84,16 +84,20 @@ import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import ChatMessages from './components/ChatMessages';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { appendMessage, setContacts } from '../../../redux/whatsappSlice';
 import { resolveMessageType } from './components/helpers';
 
 import { useSocketEvents } from 'hooks/useSocketEvents';
+import UserAvatar from 'components/shared/UserAvatar';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
 
 const Whatsapp = () => {
+	const users = useSelector((state) => state.whatsapp.contacts || []);
+	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
+
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState('');
 	const [selectedFile, setSelectedFile] = useState(null);
@@ -109,7 +113,6 @@ const Whatsapp = () => {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
-	const [isWhatsappApiModalOpen, setIsWhatsappApiModalOpen] = useState(false);
 	const [apiKey, setApiKey] = useState('');
 	const [bussinessPhone, setBussinessPhone] = useState('');
 
@@ -137,46 +140,40 @@ const Whatsapp = () => {
 			setApiKey(config?.doc?.token);
 
 			// When you have both business phone and user ID
-			const registerPayload = {
-				phoneNumber: config?.doc?.phoneNumber,
-				userId: 23423,
-			};
+			if (currentUser) {
+				const registerPayload = {
+					phoneNumber: currentUser?.phoneNumber,
+					userId: currentUser?.user?._id || '',
+				};
 
-			registerUser(registerPayload);
+				registerUser(registerPayload);
+			}
 		}
-	}, [config?.doc]);
+	}, [config?.doc, currentUser, registerUser]);
 
 	const dispatch = useDispatch();
 
 	const isMobile = useBreakpointValue({ base: true, md: false });
 
-	const [users, setUsers] = useState([]);
+	// const [users, setUsers] = useState([]);
 
-	const { data: contacts, isLoading: usersLoading } = useFetchItemsQuery({
-		path: '/whatsapp/contacts',
-	});
+	// const { data: contacts, isLoading: usersLoading } = useFetchItemsQuery({
+	// 	path: '/whatsapp/contacts',
+	// });
 
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
 
-	console.log({ activeChat });
+	console.log({ currentUser });
 
-	useEffect(() => {
-		if (contacts?.doc) {
-			console.log('users set state');
-			setUsers(contacts?.doc);
-			dispatch(setContacts(contacts?.doc));
-			// setActiveChat(contacts?.doc[0]?._id || null);
-		}
-	}, [contacts?.doc]);
-
-	// Current user data
-	const currentUser = useRef({
-		id: 0,
-		name: 'You',
-		avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-		status: 'online',
-	}).current;
+	// useEffect(() => {
+	// 	if (contacts?.doc) {
+	// 		console.log('users set state');
+	// 		// setUsers(contacts?.doc);
+	// 		dispatch(setContacts(contacts?.doc));
+	// 		// setActiveChat(contacts?.doc[0]?._id || null);
+	// 	}
+	// }, [contacts?.doc]);
 
 	// Messages data
 	const allMessages = useRef({
@@ -280,8 +277,6 @@ const Whatsapp = () => {
 			}
 		};
 	}, []);
-
-	console.log({ bussinessPhone });
 
 	const handleSendMessage = useCallback(async () => {
 		const inputText = inputMessage.trim();
@@ -532,8 +527,6 @@ const Whatsapp = () => {
 		return users.find((user) => user.phoneNumber === activeChat) || users[0];
 	}, [users, activeChat]);
 
-	console.log(getActiveUser());
-
 	const onEmojiClick = (emojiData) => {
 		setInputMessage((prev) => prev + emojiData.emoji);
 	};
@@ -549,9 +542,6 @@ const Whatsapp = () => {
 			return newSet;
 		});
 	}, []);
-
-	const [updateTokenAPI, { isLoading: tokenUpdating }] =
-		useUpdateItemMutation();
 
 	const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, 'gray.800');
 
@@ -611,42 +601,8 @@ const Whatsapp = () => {
 		return bars;
 	};
 
-	const handleSaveToken = async () => {
-		try {
-			if (!apiKey.trim()) {
-				toast.error('Api key is required!');
-				return;
-			}
-
-			const res = await updateTokenAPI({
-				path: `/whatsapp/config`,
-				body: { token: apiKey, phoneNumber: bussinessPhone },
-			}).unwrap();
-
-			toast.success('WhatsApp API configured successfully');
-			setIsWhatsappApiModalOpen(false);
-		} catch (error) {
-			console.log(error);
-			toast.error(error?.data?.message || 'Token are not save!');
-		}
-	};
-
-	if (usersLoading) {
-		return <Loader />;
-	}
-
 	return (
 		<>
-			<Flex justify={'flex-end'}>
-				{isSuperAdmin && (
-					<IconButton
-						icon={<FiSettings />}
-						aria-label='WhatsApp API Settings'
-						variant='ghost'
-						onClick={() => setIsWhatsappApiModalOpen(true)}
-					/>
-				)}
-			</Flex>
 			<Flex
 				h='80vh'
 				overflow='hidden'
@@ -667,9 +623,18 @@ const Whatsapp = () => {
 						<DrawerCloseButton />
 						<DrawerHeader p={3} bg={sidebarBg}>
 							<Flex align='center'>
-								<Avatar src={currentUser.avatar} size='sm' mr={2} />
-								<Text fontWeight='bold' color={whatsappColors.textDark}>
-									Chats
+								<UserAvatar
+									src={currentUser?.user?.profileImage}
+									name={currentUser?.user?.fullName}
+									size='lg'
+								/>
+								<Text
+									fontWeight='bold'
+									isTruncated
+									maxWidth='200px'
+									color={whatsappColors.textDark}
+								>
+									{currentUser?.user?.fullName}
 								</Text>
 							</Flex>
 						</DrawerHeader>
@@ -751,10 +716,19 @@ const Whatsapp = () => {
 						borderColor='gray.300'
 					>
 						<Flex p={3} align='center' justify='space-between' bg={sidebarBg}>
-							<Flex align='center'>
-								<Avatar src={currentUser.avatar} size='sm' mr={2} />
-								<Text fontWeight='bold' color={whatsappColors.textDark}>
-									Chats
+							<Flex align='center' gap='2'>
+								<UserAvatar
+									src={currentUser?.user?.profileImage}
+									name={currentUser?.user?.fullName}
+									size='sm'
+								/>
+								<Text
+									fontWeight='bold'
+									isTruncated
+									maxWidth='150px'
+									color={whatsappColors.textDark}
+								>
+									{currentUser?.user?.fullName}
 								</Text>
 							</Flex>
 							<Menu
@@ -1188,64 +1162,11 @@ const Whatsapp = () => {
 				</Box>
 			</Flex>
 
-			{/* WhatsApp API Settings Modal */}
-			<Modal
-				isOpen={isWhatsappApiModalOpen}
-				onClose={() => setIsWhatsappApiModalOpen(false)}
-				isCentered
-			>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>WhatsApp Configuration</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<VStack spacing={4}>
-							<FormControl mb={4}>
-								<FormLabel htmlFor='api-key'>API Key</FormLabel>
-								<Input
-									id='api-key'
-									placeholder='Enter your WhatsApp API key'
-									value={apiKey}
-									onChange={(e) => setApiKey(e.target.value)}
-									bg='gray.50'
-									required
-								/>
-							</FormControl>
-
-							<FormControl>
-								<FormLabel htmlFor='business-phone'>Business Phone</FormLabel>
-								<Input
-									id='business-phone'
-									placeholder='Enter your business phone number'
-									value={bussinessPhone}
-									onChange={(e) => setBussinessPhone(e.target.value)}
-									bg='gray.50'
-									required
-								/>
-							</FormControl>
-						</VStack>
-					</ModalBody>
-					<ModalFooter>
-						<Button colorScheme='whatsapp' onClick={handleSaveToken}>
-							Save WhatsApp
-						</Button>
-						<Button
-							variant='ghost'
-							ml={3}
-							onClick={() => setIsWhatsappApiModalOpen(false)}
-						>
-							Cancel
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-
 			{/* Contact management modal */}
 			<ContactModal
 				isOpen={isContactModalOpen}
 				onClose={() => setIsContactModalOpen(false)}
 				contacts={users}
-				setContacts={setUsers}
 			/>
 
 			{/* File preview modal */}

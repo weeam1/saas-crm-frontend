@@ -17,7 +17,6 @@ import {
 	Avatar,
 	IconButton,
 	Box,
-	FormErrorMessage,
 } from '@chakra-ui/react';
 import { FiEdit, FiPlus } from 'react-icons/fi';
 import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
@@ -25,16 +24,9 @@ import { toast } from 'react-toastify';
 import NoData from 'components/Message/NoData';
 import { generateRoomId } from './helpers';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { addContact, updateContact } from '../../../../redux/whatsappSlice';
 
-const ContactModal = ({
-	isOpen,
-	onClose,
-	bussinessPhone,
-	// contacts,
-	setContacts,
-}) => {
+const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 	const [editingContact, setEditingContact] = useState(null);
 	const [name, setName] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');

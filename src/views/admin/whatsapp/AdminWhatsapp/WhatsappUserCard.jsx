@@ -70,13 +70,6 @@ const WhatsappUserCard = ({ data }) => {
 						src={user?.profileImage}
 						name={user?.fullName}
 						size='lg'
-						badge={
-							isActive ? (
-								<Box color='green.500' position='absolute' bottom={0} right={0}>
-									<MdVerified size='1.2em' />
-								</Box>
-							) : null
-						}
 					/>
 					<Box flex='1' minW={0}>
 						<Flex align='center' gap={2}>
@@ -125,7 +118,7 @@ const WhatsappUserCard = ({ data }) => {
 						<Text as='span' color={secondaryTextColor}>
 							Role:{' '}
 						</Text>
-						{user?.roles?.[0]?.roleName || 'No role assigned'}
+						{user?.roles?.[0]?.roleName || user?.role}
 					</Text>
 				</Flex>
 				<Flex align='center' gap={3}>
