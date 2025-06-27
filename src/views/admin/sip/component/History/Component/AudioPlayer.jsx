@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import WaveSurfer from "wavesurfer.js";
-import { Box, Flex, IconButton, Text, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Text,
+  Button,
+  Spinner,
+  Fade,
+} from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { format } from "date-fns";
@@ -24,7 +32,10 @@ const AudioPlayer = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const isMountedRef = useRef(true);
+  const loadIdRef = useRef(0);
 
   const isCurrentlyPlaying = currentlyPlayingId === playerId;
 
@@ -37,34 +48,62 @@ const AudioPlayer = ({
   };
 
   useEffect(() => {
-    let wavesurfer;
+    const controller = new AbortController();
+    const thisLoadId = ++loadIdRef.current;
+    isMountedRef.current = true;
+    setLoading(true);
 
-    const initialize = async () => {
+    const cleanupPrevious = () => {
+      return new Promise((resolve) => {
+        if (wavesurferRef.current) {
+          wavesurferRef.current.pause();
+          wavesurferRef.current.unAll();
+          wavesurferRef.current.destroy();
+          wavesurferRef.current = null;
+        }
+        resolve();
+      });
+    };
+
+    const initWaveSurfer = async () => {
+      await cleanupPrevious();
+
       if (!url || !waveformRef.current) return;
 
       try {
-        const response = await fetch(url);
+        // Simulate a delay of 1 second before loading
+        await new Promise((res) => setTimeout(res, 1000));
+
+        const response = await fetch(url, { signal: controller.signal });
         const arrayBuffer = await response.arrayBuffer();
+
         const audioContext = new AudioContext();
         const decoded = await audioContext.decodeAudioData(arrayBuffer);
-        audioContext.close();
+        await audioContext.close();
 
         if (!decoded.duration || decoded.duration === 0) {
-          throw new Error("Zero duration");
+          throw new Error("Audio duration is zero");
         }
       } catch (err) {
-        console.error("Audio validation failed:", err);
-        setError("Audio is not available");
+        if (err.name === "AbortError") {
+          console.warn("Fetch/Decode aborted safely");
+          return;
+        }
+        console.error("Validation error:", err);
+        if (isMountedRef.current) {
+          setError("Audio not available");
+          setLoading(false);
+        }
         return;
       }
 
-      if (!waveformRef.current) return;
+      if (!isMountedRef.current || loadIdRef.current !== thisLoadId) return;
 
-      wavesurfer = WaveSurfer.create({
+      const wavesurfer = WaveSurfer.create({
         container: waveformRef.current,
         waveColor: "#B0B3B8",
-        progressColor: "#1C63D5",
-        cursorColor: "#1C63D5",
+        progressColor: "brand.500",
+        cursorColor: "brand.500",
         cursorWidth: 6,
         barWidth: 2,
         barRadius: 1,
@@ -72,46 +111,61 @@ const AudioPlayer = ({
         responsive: true,
         normalize: true,
         backend: "WebAudio",
-        playbackRate: playbackRate,
+        playbackRate,
         preservePitch: true,
       });
 
       wavesurferRef.current = wavesurfer;
-      wavesurfer.load(url);
+
+      try {
+        wavesurfer.load(url);
+      } catch (e) {
+        console.warn("WaveSurfer.load threw", e);
+      }
 
       wavesurfer.on("ready", () => {
-        setDuration(wavesurfer.getDuration());
-        setError(null);
-        wavesurfer.setPlaybackRate(playbackRate, true);
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          setDuration(wavesurfer.getDuration());
+          setError(null);
+          setLoading(false);
+          wavesurfer.setPlaybackRate(playbackRate, true);
+        }
       });
 
       wavesurfer.on("finish", () => {
-        setIsPlaying(false);
-        setCurrentlyPlayingId(null);
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          setIsPlaying(false);
+          setCurrentlyPlayingId(null);
+        }
+      });
+
+      wavesurfer.on("error", (e) => {
+        if (isMountedRef.current && loadIdRef.current === thisLoadId) {
+          console.error("WaveSurfer error:", e);
+          setError("Audio error");
+          setLoading(false);
+        }
       });
 
       wavesurfer.on("interaction", () => {
-        if (!isPlaying) {
+        if (
+          !isPlaying &&
+          isMountedRef.current &&
+          loadIdRef.current === thisLoadId
+        ) {
           wavesurfer.play();
           setIsPlaying(true);
           setCurrentlyPlayingId(playerId);
         }
       });
-
-      wavesurfer.on("error", (err) => {
-        console.error("WaveSurfer error:", err);
-        setError("Audio is not available");
-      });
     };
 
-    initialize();
+    initWaveSurfer();
 
     return () => {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.pause(); 
-        wavesurferRef.current.destroy(); 
-        wavesurferRef.current = null;
-      }
+      isMountedRef.current = false;
+      controller.abort();
+      cleanupPrevious();
     };
   }, [url]);
 
@@ -127,7 +181,7 @@ const AudioPlayer = ({
   }, [currentlyPlayingId]);
 
   const togglePlay = () => {
-    if (!wavesurferRef.current || error) return;
+    if (!wavesurferRef.current || error || loading) return;
 
     if (isPlaying) {
       wavesurferRef.current.pause();
@@ -143,7 +197,7 @@ const AudioPlayer = ({
   return (
     <Flex
       direction="column"
-      bg="#242626"
+      bg="brand.100"
       p="12px 16px"
       borderRadius="20px"
       w="100%"
@@ -163,8 +217,9 @@ const AudioPlayer = ({
             aria-label="Play/Pause"
             icon={isPlaying ? <FaPause /> : <FaPlay />}
             size="sm"
+            isDisabled={!!error || loading}
             bg="transparent"
-            color="#1C63D5"
+            color="brand.500"
             _hover={{ bg: "transparent" }}
             _active={{ bg: "transparent" }}
           />
@@ -178,20 +233,26 @@ const AudioPlayer = ({
             cursor={error ? "not-allowed" : "pointer"}
             position="relative"
             zIndex={1}
-          >
-            {error && (
-              <CustomTooltip
-                label={"No audio found"}
-                fontSize="sm"
-                placement="top"
-                hasArrow
+          />
+          {loading && (
+            <Fade in={loading}>
+              <Flex
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                align="center"
+                justify="center"
               >
-                <Text color="red.400" fontSize="sm" textAlign="center">
-                  {error}
-                </Text>
-              </CustomTooltip>
-            )}
-          </Box>
+                <Spinner color="brand.500" size="sm" />
+              </Flex>
+            </Fade>
+          )}
+          {error && (
+            <Text color="red.400" fontSize="xs" textAlign="center">
+              {error}
+            </Text>
+          )}
         </Box>
 
         {/* Speed Toggle  */}
@@ -201,8 +262,8 @@ const AudioPlayer = ({
           py={2}
           fontSize="13px"
           onClick={cyclePlaybackRate}
-          bg="gray.600"
-          _hover={{ bg: "gray.500" }}
+          bg="brand.500"
+          _hover={{ bg: "brand.400" }}
           color="white"
           borderRadius="full"
           minW="60px"
@@ -213,10 +274,10 @@ const AudioPlayer = ({
 
       {/* Time & Timestamp */}
       <Flex justify="space-between" px="44px">
-        <Text fontSize="xs" color="gray.300">
+        <Text fontSize="xs" color="brand.500">
           {formatTime(duration)}
         </Text>
-        <Text fontSize="xs" color="gray.500">
+        <Text fontSize="xs" color="brand.500">
           {format(timestamp, "h:mm a")}
         </Text>
       </Flex>
