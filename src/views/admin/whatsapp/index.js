@@ -163,8 +163,7 @@ const Whatsapp = () => {
 
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
-
-	console.log({ currentUser });
+	const [uploadMedia, { isLoading: uploadingMedia }] = useCreateItemMutation();
 
 	// useEffect(() => {
 	// 	if (contacts?.doc) {
@@ -292,9 +291,9 @@ const Whatsapp = () => {
 		const messageType = isMedia ? resolveMessageType(selectedFile) : 'text';
 		formData.append('type', messageType);
 
-		if (inputText && isMedia) {
+		if (inputText && isMedia && messageType !== 'audio') {
 			formData.append('caption', inputText);
-		} else {
+		} else if (messageType === 'text') {
 			formData.append('message', inputText);
 		}
 
@@ -321,14 +320,14 @@ const Whatsapp = () => {
 			setSelectedFile(null);
 		} catch (err) {
 			console.error(err);
-			toast.error(err?.data?.message?.expired || 'Message could not be sent!');
+			toast.error(err?.data?.message || 'Message could not be sent!');
 		} finally {
 			setIsSending(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [inputMessage, selectedFile, createMessageAPI, dispatch]);
 
-	const handleFileUpload = useCallback((e, type = 'image') => {
+	const handleFileUpload = useCallback(async (e, type = 'image') => {
 		const file = e.target.files[0];
 		if (file) {
 			if (type === 'video' && file.size > 100 * 1024 * 1024) {
@@ -346,9 +345,6 @@ const Whatsapp = () => {
 				size: file.size,
 				file,
 			});
-			toast.info(
-				`${type.charAt(0).toUpperCase() + type.slice(1)} selected, click send to share`
-			);
 		}
 	}, []);
 
@@ -622,15 +618,16 @@ const Whatsapp = () => {
 					<DrawerContent maxW='320px' bg={sidebarBg}>
 						<DrawerCloseButton />
 						<DrawerHeader p={3} bg={sidebarBg}>
-							<Flex align='center'>
+							<Flex align='center' gap='2'>
 								<UserAvatar
 									src={currentUser?.user?.profileImage}
 									name={currentUser?.user?.fullName}
-									size='lg'
+									size='sm'
 								/>
 								<Text
 									fontWeight='bold'
 									isTruncated
+									fontSize='sm'
 									maxWidth='200px'
 									color={whatsappColors.textDark}
 								>
@@ -651,6 +648,7 @@ const Whatsapp = () => {
 										bg='white'
 										borderRadius='lg'
 										border='none'
+										fontSize='sm'
 										boxShadow='sm'
 									/>
 								</InputGroup>
@@ -812,7 +810,7 @@ const Whatsapp = () => {
 										background='transparent'
 										display={{ base: 'flex', md: 'none' }}
 									/>
-									<Avatar src={''} size='sm' mr={3} />
+									<UserAvatar src={activeChat?.avatar} size='sm' mr={3} />
 									<Box>
 										<Text fontWeight='bold'>
 											{activeChat?.name === 'Unknown' || !activeChat?.name
@@ -980,7 +978,7 @@ const Whatsapp = () => {
 									/>
 
 									{/* Attachment menu */}
-									<Popover placement='top-start'>
+									<Popover placement='top-start' _focus={{ outline: 'none' }}>
 										<PopoverTrigger>
 											<IconButton
 												icon={<BsThreeDotsVertical />}
@@ -1112,6 +1110,7 @@ const Whatsapp = () => {
 													icon={<RiSendPlaneFill />}
 													aria-label='Send message'
 													colorScheme='whatsapp'
+													px='6'
 													ml={2}
 													onClick={handleSendMessage}
 													disabled={
@@ -1237,26 +1236,28 @@ const Whatsapp = () => {
 							/>
 						)}
 
-						<Textarea
-							flex={1}
-							bg='gray.200'
-							placeholder='Caption (optional)'
-							value={inputMessage}
-							onChange={(e) => setInputMessage(e.target.value)}
-							onKeyDown={(e) => {
-								if (e.key === 'Enter' && !e.shiftKey) {
-									e.preventDefault();
-									handleSendMessage();
-								}
-							}}
-							resize='none'
-							border='none'
-							rows={1}
-							maxH='120px'
-							overflowY='auto'
-							scrollBehavior='smooth'
-							_focus={{ boxShadow: 'md' }}
-						/>
+						{!selectedFile?.type?.startsWith('audio') && (
+							<Textarea
+								flex={1}
+								bg='gray.200'
+								placeholder='Caption (optional)'
+								value={inputMessage}
+								onChange={(e) => setInputMessage(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' && !e.shiftKey) {
+										e.preventDefault();
+										handleSendMessage();
+									}
+								}}
+								resize='none'
+								border='none'
+								rows={1}
+								maxH='120px'
+								overflowY='auto'
+								scrollBehavior='smooth'
+								_focus={{ boxShadow: 'md' }}
+							/>
+						)}
 					</ModalBody>
 					<ModalFooter>
 						<Button

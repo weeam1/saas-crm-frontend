@@ -6,10 +6,17 @@ const whatsappSlice = createSlice({
 		contacts: [],
 		currentUser: {},
 		chats: {},
+		mediaUrls: {},
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+		},
+
+		setMediaUrl(state, action) {
+			const { mediaId, url } = action.payload;
+
+			state.mediaUrls[mediaId] = url;
 		},
 
 		setCurrentUser: (state, action) => {
@@ -42,8 +49,6 @@ const whatsappSlice = createSlice({
 		},
 		setChatHistory(state, action) {
 			const { chatId, messages } = action.payload;
-
-			console.log({ chatId, messages });
 			state.chats[chatId] = messages;
 		},
 
@@ -58,8 +63,22 @@ const whatsappSlice = createSlice({
 		},
 		appendMessage(state, action) {
 			const { chatId, message } = action.payload;
+
 			if (!state.chats[chatId]) state.chats[chatId] = [];
-			state.chats[chatId].push(message);
+
+			// if message already exisit then update the status
+			const index = state.chats[chatId].findIndex(
+				(msg) => msg.messageId === message.messageId
+			);
+
+			if (index !== -1) {
+				state.chats[chatId][index] = {
+					...state.chats[chatId][index],
+					...message,
+				};
+			}
+			// else push new message
+			else state.chats[chatId].push(message);
 		},
 	},
 });
@@ -72,6 +91,7 @@ export const {
 	prependMessages,
 	appendMessage,
 	setCurrentUser,
+	setMediaUrl,
 } = whatsappSlice.actions;
 
 export default whatsappSlice.reducer;

@@ -63,17 +63,19 @@ const AddWhatsappUser = ({
 				<ModalHeader>{mode} Whatsapp User</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody pb={4}>
-					<FormControl isInvalid={errors.userId} mb={4}>
-						<FormLabel>User</FormLabel>
-						<SearchUsers
-							selectedUserId={
-								mode === 'Edit' ? (initialValues?.userId ?? null) : null
-							}
-							users={usersData?.doc || []}
-							onSelectUser={handleSelectUser}
-						/>
-						<FormErrorMessage>{errors.userId?.message}</FormErrorMessage>
-					</FormControl>
+					{mode === 'Add' && (
+						<FormControl isInvalid={errors.userId} mb={4}>
+							<FormLabel>User</FormLabel>
+							<SearchUsers
+								selectedUserId={
+									mode === 'Edit' ? (initialValues?.userId ?? null) : null
+								}
+								users={usersData?.doc || []}
+								onSelectUser={handleSelectUser}
+							/>
+							<FormErrorMessage>{errors.userId?.message}</FormErrorMessage>
+						</FormControl>
+					)}
 
 					<FormControl mb='4' isInvalid={errors.phoneNumber}>
 						<FormLabel>Phone Number</FormLabel>

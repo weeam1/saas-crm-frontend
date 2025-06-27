@@ -13,17 +13,16 @@ import {
 	FormLabel,
 	Input,
 	VStack,
-	useToast,
 	IconButton,
 } from '@chakra-ui/react';
 import { FaCog } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const WhatsappConfigModal = () => {
 	const [isOpen, setIsOpen] = useState(false);
 
 	const [apiKey, setApiKey] = useState('');
-	const [businessPhone, setBusinessPhone] = useState('');
-	const toast = useToast();
+	// const [businessPhone, setBusinessPhone] = useState('');
 
 	const [updateTokenAPI, { isLoading: tokenUpdating }] =
 		useUpdateItemMutation();
@@ -31,16 +30,19 @@ const WhatsappConfigModal = () => {
 	const handleSaveToken = async () => {
 		try {
 			if (!apiKey.trim()) {
-				toast.error('Api key is required!');
+				toast.error('Access token is required!');
 				return;
 			}
 
 			const res = await updateTokenAPI({
 				path: `/whatsapp/config`,
-				body: { token: apiKey, phoneNumber: businessPhone },
+				body: {
+					token: apiKey,
+					// phoneNumber: businessPhone
+				},
 			}).unwrap();
 
-			toast.success('WhatsApp API configured successfully');
+			toast.success('WhatsApp configured successfully');
 			onClose();
 		} catch (error) {
 			console.log(error);
@@ -69,17 +71,17 @@ const WhatsappConfigModal = () => {
 					<ModalBody>
 						<VStack spacing={4}>
 							<FormControl mb={4}>
-								<FormLabel htmlFor='api-key'>API Key</FormLabel>
+								<FormLabel htmlFor='api-key'>Access Token</FormLabel>
 								<Input
 									id='api-key'
-									placeholder='Enter your WhatsApp API key'
+									placeholder='Enter your WhatsApp token'
 									value={apiKey}
 									onChange={(e) => setApiKey(e.target.value)}
 									bg='gray.50'
 									required
 								/>
 							</FormControl>
-
+							{/* 
 							<FormControl>
 								<FormLabel htmlFor='business-phone'>Business Phone</FormLabel>
 								<Input
@@ -90,7 +92,7 @@ const WhatsappConfigModal = () => {
 									bg='gray.50'
 									required
 								/>
-							</FormControl>
+							</FormControl> */}
 						</VStack>
 					</ModalBody>
 					<ModalFooter>
@@ -108,7 +110,7 @@ const WhatsappConfigModal = () => {
 							onClick={() => {
 								onClose();
 								setApiKey('');
-								setBusinessPhone('');
+								// setBusinessPhone('');
 							}}
 							isDisabled={tokenUpdating}
 						>

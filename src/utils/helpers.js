@@ -265,38 +265,38 @@ export const formatMessageTime = (date) => {
 };
 
 export const whatsappColors = {
-  primary: "#008069",
-  secondary: "#00A884",
-  incomingBg: "gray.300",
-  outgoingBg: "#D9FDD3",
-  textDark: "#111B21",
-  textLight: "#FFFFFF",
-  textSecondary: "#667781",
-  sidebarBg: "#F0F2F5",
-  headerBg: "#F0F2F5",
-  inputBg: "#FFFFFF",
-  recordingDot: "#34B7F1",
-  userHoverBg: "rgba(0, 0, 0, 0.05)",
-  userSelectedBg: "rgba(0, 0, 0, 0.08)",
-  messageHoverBg: "rgba(0, 0, 0, 0.03)",
-  timeStampColor: "#667781",
-  replyBg: "#F0F2F5",
-  replyBorder: "#D1D7DB",
-  chatHeaderBg: "#F0F2F5",
+	primary: '#008069',
+	secondary: '#00A884',
+	incomingBg: 'softGray.100',
+	outgoingBg: '#D9FDD3',
+	textDark: '#111B21',
+	textLight: '#FFFFFF',
+	textSecondary: '#667781',
+	sidebarBg: '#F0F2F5',
+	headerBg: '#F0F2F5',
+	inputBg: '#FFFFFF',
+	recordingDot: '#34B7F1',
+	userHoverBg: 'rgba(0, 0, 0, 0.05)',
+	userSelectedBg: 'rgba(0, 0, 0, 0.08)',
+	messageHoverBg: 'rgba(0, 0, 0, 0.03)',
+	timeStampColor: '#667781',
+	replyBg: '#F0F2F5',
+	replyBorder: '#D1D7DB',
+	chatHeaderBg: '#F0F2F5',
 };
 
 export const formatCallDuration = (seconds) => {
-  const sec = parseInt(seconds, 10) || 0;
+	const sec = parseInt(seconds, 10) || 0;
 
-  const hrs = Math.floor(sec / 3600);
-  const mins = Math.floor((sec % 3600) / 60);
-  const remainingSecs = sec % 60;
+	const hrs = Math.floor(sec / 3600);
+	const mins = Math.floor((sec % 3600) / 60);
+	const remainingSecs = sec % 60;
 
-  const parts = [];
+	const parts = [];
 
-  if (hrs > 0) parts.push(`${hrs} hr`);
-  if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
-  parts.push(`${remainingSecs} sec`);
+	if (hrs > 0) parts.push(`${hrs} hr`);
+	if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
+	parts.push(`${remainingSecs} sec`);
 
-  return parts.join(" ");
+	return parts.join(' ');
 };

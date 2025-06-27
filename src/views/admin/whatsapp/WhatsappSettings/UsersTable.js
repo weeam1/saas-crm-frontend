@@ -48,6 +48,7 @@ const UsersTable = ({
 			borderRadius='md'
 			boxShadow='sm'
 			bg='white'
+			py='2'
 		>
 			<Table variant='striped' size='md'>
 				<Thead position='sticky' top={0} bg='white' zIndex={2}>

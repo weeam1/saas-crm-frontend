@@ -5,7 +5,7 @@ import UsersTable from './UsersTable';
 import AddWhatsappUser from './AddWhatsappUser';
 import { buttonStyle } from 'utils/btn';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
@@ -14,6 +14,7 @@ import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
+import TopPagination from 'components/pagination/TopPagination';
 
 const WhatsappSettings = () => {
 	const [actionMode, setActionMode] = useState('Add');
@@ -21,10 +22,22 @@ const WhatsappSettings = () => {
 	const [users, setUsers] = useState([]);
 
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [pagination, setPagination] = useState({
+		page: 1,
+		limit: 10,
+	});
+
+	const queryParams = useMemo(() => {
+		return {
+			page: pagination.page,
+			limit: pagination.limit,
+		};
+	}, [pagination]);
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
 			path: 'whatsapp/users',
+			params: queryParams,
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -85,6 +98,7 @@ const WhatsappSettings = () => {
 						if (item._id === userId) {
 							return {
 								...item,
+								user: res?.doc?.user,
 								phoneNumber: res?.doc?.phoneNumber,
 								isActive: res?.doc?.isActive,
 							};
@@ -155,7 +169,16 @@ const WhatsappSettings = () => {
 		} catch (err) {
 			console.error(err);
 			toast.error(err?.data?.message || 'Failed to delete User!');
+		} finally {
+			setDeleteModalOpen(false);
 		}
+	};
+	const handlePageChange = (page) => {
+		setPagination((prev) => ({ ...prev, page: Number(page) }));
+	};
+
+	const handlePageSize = (limit) => {
+		setPagination({ page: 1, limit: Number(limit) });
 	};
 
 	const navigate = useNavigate();
@@ -190,6 +213,19 @@ const WhatsappSettings = () => {
 						Add User
 					</Button>
 				</Flex>
+
+				{!isLoading && (
+					<TopPagination
+						currentPage={queryParams.page}
+						totalPages={data?.totalPages}
+						onPageChange={handlePageChange}
+						totalItems={data?.totalItems}
+						itemsPerPage={queryParams.limit}
+						refetching={isFetching}
+						loading={isLoading}
+						handlePageSize={handlePageSize}
+					/>
+				)}
 
 				<UsersTable
 					data={users}

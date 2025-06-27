@@ -18,9 +18,6 @@ import { MessageContent } from './MessageContent';
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
 
-	const [mediaUrls, setMediaUrls] = useState({});
-	const [isMediaLoading, setIsMediaLoading] = useState(false);
-
 	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({
@@ -61,31 +58,27 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 	};
 
-	const downloadMedia = async (mediaId) => {
-		try {
-			setIsMediaLoading(true);
-			const response = await axios.get(
-				`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
-				{
-					responseType: 'blob',
-				}
-			);
-			const blobUrl = URL.createObjectURL(response.data);
-			setMediaUrls((prev) => ({ ...prev, [mediaId]: blobUrl }));
-		} catch (err) {
-			console.error('Failed to load image:', err);
-		} finally {
-			setIsMediaLoading(false);
-		}
-	};
+	// const downloadMedia = async (mediaId) => {
+	// 	try {
+	// 		setIsMediaLoading(true);
+	// 		const response = await axios.get(
+	// 			`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
+	// 			{
+	// 				responseType: 'blob',
+	// 			}
+	// 		);
+	// 		const blobUrl = URL.createObjectURL(response.data);
+	// 		setMediaUrls((prev) => ({ ...prev, [mediaId]: blobUrl }));
+	// 	} catch (err) {
+	// 		console.error('Failed to load image:', err);
+	// 	} finally {
+	// 		setIsMediaLoading(false);
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (to) {
 			setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
-			// refetchChat({
-			// 	path: '/whatsapp/chat_history',
-			// 	params: chatQuery,
-			// });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [roomId]);
@@ -98,33 +91,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
 		}
 	}, [chatData?.doc, chatQuery.page, dispatch]);
-
-	// Scroll detection
-	// const handleScroll = useCallback(() => {
-	// 	const container = scrollRef.current;
-
-	// 	console.log('Scroll lookup: ', container.scrollTop);
-	// 	if (!container) return;
-
-	// 	if (
-	// 		container.scrollTop === 0 &&
-	// 		!chatFetching &&
-	// 		chatQuery?.page <= chatData?.pagination?.totalPages
-	// 	) {
-	// 		setChatQuery((prev) => ({
-	// 			...prev,
-	// 			page: prev.page + 1,
-	// 		}));
-	// 	}
-	// }, [chatFetching]);
-
-	// useEffect(() => {
-	// 	const container = scrollRef.current;
-	// 	if (container) {
-	// 		container.addEventListener('scroll', handleScroll);
-	// 		return () => container.removeEventListener('scroll', handleScroll);
-	// 	}
-	// }, [handleScroll]);
 
 	return (
 		<Box
@@ -145,22 +111,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 					messages?.map((message, index) => {
 						if (message.type === 'unsupported') return null;
 
-						if (message.type === 'date') {
-							return (
-								<Flex key={message.id} justify='center' my={2}>
-									<Box
-										bg='rgba(0, 0, 0, 0.1)'
-										px={3}
-										py={1}
-										borderRadius='full'
-									>
-										<Text fontSize='xs' color='gray.600'>
-											{message.date}
-										</Text>
-									</Box>
-								</Flex>
-							);
-						}
 						const isSelf = message.from === from;
 
 						return (
@@ -189,12 +139,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										wordBreak='break-word'
 									>
 										{/* Render dynamic message content */}
-										<MessageContent
-											message={message}
-											mediaUrls={mediaUrls}
-											onDownloadMedia={downloadMedia}
-											isSelf={isSelf}
-										/>
+										<MessageContent message={message} isSelf={isSelf} />
 
 										{message?.media?.caption && message?.media?.caption}
 

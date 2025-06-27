@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useSelector } from 'react-redux';
+import UserAvatar from 'components/shared/UserAvatar';
 
 const UserList = ({
 	// users,
@@ -59,7 +60,7 @@ const UserList = ({
 							transition='background 0.2s ease'
 						>
 							<Box position='relative'>
-								<Avatar src={user.avatar} size='md' mr={3} />
+								<UserAvatar src={user?.avatar} size='md' mr={3} />
 								{/* {user.status === 'online' && (
 									<Box
 										position='absolute'
@@ -75,7 +76,10 @@ const UserList = ({
 								)} */}
 							</Box>
 							<Box flex='1' overflow='hidden'>
-								<Flex justify='space-between'>
+								<Flex
+									fontSize={{ base: 'sm', md: 'md' }}
+									justify='space-between'
+								>
 									<Text fontWeight='bold' color='#111B21'>
 										{user?.name === 'Unknown' || !user?.name
 											? user.phoneNumber

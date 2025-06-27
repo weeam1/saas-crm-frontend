@@ -1,4 +1,11 @@
-import { Box, Button, Flex, Text, VStack } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	Text,
+	CircularProgress,
+	VStack,
+} from '@chakra-ui/react';
 import {
 	FiDownload,
 	FiExternalLink,
@@ -8,17 +15,24 @@ import {
 	FiMusic,
 	FiVideo,
 } from 'react-icons/fi';
+import { useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
+import { useMediaDownloader } from 'hooks/useMediaDownloader';
+const MotionBox = motion(Box);
 
 const MEDIA_TYPES = ['image', 'document', 'video', 'audio'];
 
-export const MessageContent = ({
-	message,
-	mediaUrls,
-	onDownloadMedia,
-	isSelf,
-}) => {
+export const MessageContent = ({ message, isSelf }) => {
+	const mediaUrls = useSelector((state) => state.whatsapp.mediaUrls || {});
+
 	const isMedia = MEDIA_TYPES.includes(message.type);
 	const mediaId = message.media?.id;
+
+	const { downloadMedia, isLoading } = useMediaDownloader();
+
+	const onDownload = () => {
+		downloadMedia(mediaId);
+	};
 
 	// Text message
 	if (message.type === 'text') {
@@ -33,22 +47,52 @@ export const MessageContent = ({
 
 	const mediaUrl = mediaUrls[mediaId];
 
+	console.log({ mediaUrls, mediaUrl });
+
 	// Media message placeholder
 	return (
-		<VStack textAlign='center' mb='1' minW='400px'>
+		<VStack align='center' mb='1'>
 			{!mediaUrl ? (
 				<>
-					<MediaIcon type={message.type} size={50} />
-					<Button
-						size='xs'
-						rounded='md'
-						colorScheme='whatsapp'
-						leftIcon={<FiDownload />}
-						mt={2}
-						onClick={() => onDownloadMedia(mediaId)}
+					<MotionBox
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ duration: 0.25 }}
 					>
-						Download
-					</Button>
+						{isLoading ? (
+							<Box position='relative' display='inline-flex'>
+								<CircularProgress
+									isIndeterminate
+									color='whatsapp.500'
+									size='60px'
+									thickness='4px'
+								/>
+								<Box
+									position='absolute'
+									top='50%'
+									left='50%'
+									transform='translate(-50%, -50%)'
+								>
+									<MediaIcon type={message.type} size={32} />
+								</Box>
+							</Box>
+						) : (
+							<VStack>
+								<MediaIcon type={message.type} size={50} />
+								<Button
+									size='xs'
+									rounded='md'
+									colorScheme='whatsapp'
+									leftIcon={<FiDownload />}
+									mt={2}
+									px='6'
+									onClick={() => onDownload(mediaId)}
+								>
+									Download
+								</Button>
+							</VStack>
+						)}
+					</MotionBox>
 				</>
 			) : (
 				<MediaPreview type={message.type} url={mediaUrl} />
