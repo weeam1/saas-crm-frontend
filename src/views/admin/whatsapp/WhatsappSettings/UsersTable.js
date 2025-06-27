@@ -30,14 +30,7 @@ const UsersTable = ({
 	handleEdit,
 	handleDelete,
 }) => {
-	const columns = [
-		'User',
-		'Email',
-		'Phone Number',
-		'Agency',
-		'Status',
-		'Action',
-	];
+	const columns = ['User', 'Email', 'Phone ID', 'Agency', 'Status', 'Action'];
 
 	const navigate = useNavigate();
 

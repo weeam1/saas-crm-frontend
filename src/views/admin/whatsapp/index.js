@@ -136,7 +136,7 @@ const Whatsapp = () => {
 
 	useEffect(() => {
 		if (config?.doc) {
-			setBussinessPhone(config?.doc?.phoneNumber);
+			setBussinessPhone(currentUser?.phoneNumber);
 			setApiKey(config?.doc?.token);
 
 			// When you have both business phone and user ID

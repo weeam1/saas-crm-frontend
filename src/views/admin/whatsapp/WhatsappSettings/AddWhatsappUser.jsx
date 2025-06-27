@@ -78,7 +78,7 @@ const AddWhatsappUser = ({
 					)}
 
 					<FormControl mb='4' isInvalid={errors.phoneNumber}>
-						<FormLabel>Phone Number</FormLabel>
+						<FormLabel>Phone ID</FormLabel>
 						<Input
 							placeholder='1234567890'
 							{...register('phoneNumber')}
