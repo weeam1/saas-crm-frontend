@@ -135,7 +135,7 @@ const WhatsappUserCard = ({ data }) => {
 			</Stack>
 
 			<Flex justify='space-between' align='center'>
-				{/* <Badge
+				<Badge
 					colorScheme={isActive ? 'green' : 'red'}
 					px={3}
 					py={1}
@@ -144,7 +144,7 @@ const WhatsappUserCard = ({ data }) => {
 					fontWeight='medium'
 				>
 					{isActive ? 'Active' : 'Disabled'}
-				</Badge> */}
+				</Badge>
 
 				<Button
 					leftIcon={<FaWhatsapp size='1.2em' />}

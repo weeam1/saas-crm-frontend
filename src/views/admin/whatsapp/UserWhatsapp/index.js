@@ -1,6 +1,6 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { redirect, useNavigate, useParams } from 'react-router-dom';
 import Whatsapp from '../index';
 import { setContacts, setCurrentUser } from '../../../../redux/whatsappSlice';
 import { useDispatch } from 'react-redux';
@@ -14,14 +14,28 @@ import { HStack } from '@chakra-ui/react';
 const UserWhatsapp = () => {
 	const { id } = useParams();
 
+	const [userId, setUserId] = useState('');
+
+	const user = JSON.parse(localStorage.getItem('user'));
+
+	const userRole = user?.roles[0]?.roleName || user?.role;
+
+	useEffect(() => {
+		if (id) {
+			setUserId(id);
+		} else if (user?._id && userRole !== 'superAdmin') {
+			setUserId(user?._id);
+		} else redirect('/');
+	}, [id, user?._id, userRole]);
+
 	const { data: contactsData, isLoading: usersLoading } = useFetchItemsQuery(
 		{
 			path: '/whatsapp/contacts',
-			params: { userId: id },
+			params: { userId },
 		},
 		{
 			refetchOnMountOrArgChange: true,
-			skip: !id,
+			skip: !userId,
 		}
 	);
 
@@ -41,15 +55,18 @@ const UserWhatsapp = () => {
 		<Loader />
 	) : (
 		<>
-			<HStack justify='space-between' mb='2'>
-				<AppButton
-					leftIcon={<FaChevronLeft />}
-					onClick={() => navigate('/whatsapp')}
-				>
-					Back
-				</AppButton>
-				<WhatsappConfigModal />
-			</HStack>
+			{userRole === 'superAdmin' && (
+				<HStack justify='space-between' mb='2'>
+					<AppButton
+						leftIcon={<FaChevronLeft />}
+						onClick={() => navigate('/whatsapp')}
+					>
+						Back
+					</AppButton>
+					<WhatsappConfigModal />
+				</HStack>
+			)}
+
 			<Whatsapp />
 		</>
 	);

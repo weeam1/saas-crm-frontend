@@ -18,13 +18,18 @@ import {
 	IconButton,
 	Box,
 } from '@chakra-ui/react';
-import { FiEdit, FiPlus } from 'react-icons/fi';
-import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
+import { FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { useCreateItemMutation, useDeleteItemMutation } from 'api/apiSlice';
+
 import { toast } from 'react-toastify';
 import NoData from 'components/Message/NoData';
 import { generateRoomId } from './helpers';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact, updateContact } from '../../../../redux/whatsappSlice';
+import {
+	addContact,
+	updateContact,
+	deleteContact,
+} from '../../../../redux/whatsappSlice';
 
 const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 	const [editingContact, setEditingContact] = useState(null);
@@ -39,34 +44,35 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 		setPhoneNumber('');
 	};
 
-	const [createContactAPI, { isLoading: contactCreating }] =
+	const [createContactAPI, { isLoading: contactUpdating }] =
 		useCreateItemMutation();
 
-	const [updateContactAPI, { isLoading: contactUpdating }] =
-		useUpdateItemMutation();
+	const [deleteContactAPI, { isLoading: contactDeleting }] =
+		useDeleteItemMutation();
 
 	const dispatch = useDispatch();
 
 	const handleAddContact = async () => {
 		try {
-			const newContact = { name, phoneNumber };
-
 			const roomId = generateRoomId(phoneNumber, bussinessPhone);
+
+			const newContact = {
+				name,
+				phoneNumber,
+				roomId,
+				ownerId: bussinessPhone,
+			};
 
 			const newUser = await createContactAPI({
 				path: '/whatsapp/contacts',
 				body: newContact,
 			}).unwrap();
 
-			console.log({ roomId });
-
 			const contact = {
 				...newContact,
 				_id: newUser?.doc?._id,
 				roomId,
 			};
-
-			// setContacts((prev) => [...prev, contact]);
 
 			dispatch(addContact(contact));
 			toast.success('Contact added successfully');
@@ -81,8 +87,6 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 	const handleUpdateContact = async (data) => {
 		try {
 			const updateData = { name, phoneNumber };
-
-			console.log({ data });
 
 			if (data._id) {
 				updateData.id = data._id;
@@ -100,9 +104,6 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 
 			dispatch(updateContact(contact));
 
-			// setContacts((prevUsers) =>
-			// 	prevUsers.map((user) => (user.roomId === data.roomId ? contact : user))
-			// );
 			toast.success('Contact updated successfully');
 			setEditingContact(null);
 			clearState();
@@ -112,9 +113,21 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 		}
 	};
 
-	const deleteContact = (id) => {
-		setContacts((prevUsers) => prevUsers.filter((user) => user._id !== id));
-		toast.success('Contact deleted successfully');
+	const onDeleteContact = async (id) => {
+		try {
+			await deleteContactAPI({
+				path: `/whatsapp/contacts/${id}`,
+			}).unwrap();
+
+			dispatch(deleteContact(id));
+
+			toast.success('Contact deleted successfully');
+			setEditingContact(null);
+			clearState();
+		} catch (err) {
+			console.log(err);
+			toast.error(err?.data?.message || 'Contact did not deleted!');
+		}
 	};
 
 	const handleEdit = (contact) => {
@@ -140,21 +153,13 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 									placeholder='Enter name'
 								/>
 							</FormControl>
-							{/* <FormControl mb={4}>
-								<FormLabel>Email</FormLabel>
-								<Input
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder='Enter email'
-									type='email'
-								/>
-							</FormControl> */}
+
 							<FormControl mb={4}>
 								<FormLabel>Phone Number</FormLabel>
 								<Input
 									value={phoneNumber}
 									onChange={(e) => setPhoneNumber(e.target.value)}
-									placeholder='Enter phone number'
+									placeholder='Enter correct phone number'
 									type='tel'
 								/>
 								{/* <Text fontSize='xs' color='gray.700'>
@@ -168,10 +173,10 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 								</Button>
 								<Button
 									colorScheme='whatsapp'
-									disabled={contactCreating || !phoneNumber}
+									disabled={contactUpdating || !phoneNumber}
 									onClick={handleAddContact}
 								>
-									{contactCreating ? 'Loading...' : 'Add'}
+									{contactUpdating ? 'Loading...' : 'Add'}
 								</Button>
 							</Flex>
 						</Box>
@@ -248,11 +253,7 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 												<Avatar src={contact.avatar} size='sm' mr={3} />
 												<Box>
 													<Text fontWeight='medium'>{contact.name}</Text>
-													{/* {contact.email && (
-													<Text fontSize='xs' color='gray.500'>
-														{contact.email}
-													</Text>
-												)} */}
+
 													{contact.phoneNumber && (
 														<Text fontSize='xs' color='gray.500'>
 															{contact.phoneNumber}
@@ -268,12 +269,12 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 													onClick={() => handleEdit(contact)}
 												/>
 												{/* <IconButton
-												icon={<FiTrash2 />}
-												aria-label='Delete contact'
-												size='sm'
-												colorScheme='red'
-												onClick={() => deleteContact(contact.id)}
-											/> */}
+													icon={<FiTrash2 />}
+													aria-label='Delete contact'
+													size='sm'
+													colorScheme='red'
+													onClick={() => onDeleteContact(contact._id)}
+												/> */}
 											</HStack>
 										</Flex>
 									))

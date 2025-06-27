@@ -47,8 +47,6 @@ export const MessageContent = ({ message, isSelf }) => {
 
 	const mediaUrl = mediaUrls[mediaId];
 
-	console.log({ mediaUrls, mediaUrl });
-
 	// Media message placeholder
 	return (
 		<VStack align='center' mb='1'>

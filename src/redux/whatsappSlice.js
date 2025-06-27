@@ -13,6 +13,12 @@ const whatsappSlice = createSlice({
 			state.contacts = action.payload;
 		},
 
+		deleteContact: (state, action) => {
+			const id = action.payload;
+
+			state.contacts.filter((item) => item._id === id);
+		},
+
 		setMediaUrl(state, action) {
 			const { mediaId, url } = action.payload;
 
@@ -92,6 +98,7 @@ export const {
 	appendMessage,
 	setCurrentUser,
 	setMediaUrl,
+	deleteContact,
 } = whatsappSlice.actions;
 
 export default whatsappSlice.reducer;

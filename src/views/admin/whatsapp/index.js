@@ -136,11 +136,11 @@ const Whatsapp = () => {
 
 	useEffect(() => {
 		if (config?.doc) {
-			setBussinessPhone(currentUser?.phoneNumber);
 			setApiKey(config?.doc?.token);
 
 			// When you have both business phone and user ID
 			if (currentUser) {
+				setBussinessPhone(currentUser?.phoneNumber);
 				const registerPayload = {
 					phoneNumber: currentUser?.phoneNumber,
 					userId: currentUser?.user?._id || '',
@@ -1166,6 +1166,7 @@ const Whatsapp = () => {
 				isOpen={isContactModalOpen}
 				onClose={() => setIsContactModalOpen(false)}
 				contacts={users}
+				bussinessPhone={bussinessPhone}
 			/>
 
 			{/* File preview modal */}
