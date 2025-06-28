@@ -25,14 +25,14 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 
 			<ModalContent m='2'>
 				<ModalHeader>
-					<Flex justify='space-between' align='center' pt='6'>
+					<Flex justify='space-between' align='center' pt='5'>
 						<HStack
 							gap='1'
 							color='gray.800'
-							fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+							fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
 							fontWeight='600'
-							px='2'
-							// mb='4'
+							px='1'
+							mt='5'
 						>
 							<Text> Lead Details</Text>
 						</HStack>
@@ -41,8 +41,8 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 							variant='solid'
 							bg='softGray.100'
 							color='gray.800'
-							py='2'
-							px='5'
+							py='1'
+							px='3'
 							leftIcon={<FaPen />}
 							aria-label='lead notes'
 							onClick={() => setLeadNotes(true)}
@@ -53,7 +53,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 				</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<Box
-					p={4}
+				p={4}
 					maxH={{ base: '50vh', md: '60vh', lg: '90vh' }}
 					overflow='scroll'
 					scrollBehavior='smooth'
