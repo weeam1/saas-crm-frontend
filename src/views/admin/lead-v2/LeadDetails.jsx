@@ -74,8 +74,8 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		hideContact = user?._id !== data?.agentAssigned;
 	}
 
-	const responsiveCols = useBreakpointValue({ base: 1, md: 2, lg: 2 });
-	const sectionColSpan = useBreakpointValue({ base: 1, md: 1, lg: 1 });
+	const responsiveCols = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });
+	const sectionColSpan = useBreakpointValue({ base: 1, sm: 1, md: 1, lg: 1 });
 
 	if (isLoading) {
 		return (
@@ -109,9 +109,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	};
 
 	return (
-		<Grid templateColumns={`repeat(${responsiveCols}, 1fr)`} gap={2}>
+		<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(1,1fr)' }} gap={2}>
 			{/* Basic Information Section */}
-			<GridItem colSpan={sectionColSpan}>
+			<GridItem colSpan={{base:1, sm: 1,md:2}}>
 				<SectionCard title='Basic Information'>
 					<DetailGrid>
 						<DetailItem label='Lead Name' value={data?.leadName} />
