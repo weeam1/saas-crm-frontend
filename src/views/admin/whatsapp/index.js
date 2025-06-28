@@ -477,8 +477,10 @@ const Whatsapp = () => {
 								};
 							});
 
-							// send message
-							handleSendMessage();
+							if (voiceFile) {
+								// send message
+								handleSendMessage();
+							}
 
 							// const duration = Math.round(audio.duration || recordingTime);
 
@@ -495,7 +497,6 @@ const Whatsapp = () => {
 							// const updatedMessages = [...messages, newMessage];
 							// setMessages(updatedMessages);
 							// allMessages[activeChat] = updatedMessages;
-							toast.success('Voice message sent!');
 
 							// setTimeout(() => {
 							// 	const replyMessage = {
@@ -545,7 +546,7 @@ const Whatsapp = () => {
 				toast.error('Microphone access denied: ' + err.message);
 				setIsRecording(false);
 			});
-	}, [messages, activeChat, recordingTime, isRecordingCanceled]);
+	}, [messages, activeChat, recordingTime]);
 
 	const getActiveUser = useCallback(() => {
 		return users.find((user) => user.phoneNumber === activeChat) || users[0];
@@ -974,7 +975,7 @@ const Whatsapp = () => {
 												color={whatsappColors.textSecondary}
 												variant='ghost'
 											/>
-											<IconButton
+											{/* <IconButton
 												icon={<RiSendPlaneFill />}
 												aria-label='Send recording'
 												size='sm'
@@ -982,7 +983,7 @@ const Whatsapp = () => {
 												color='white'
 												_hover={{ bg: whatsappColors.secondary }}
 												onClick={stopRecording}
-											/>
+											/> */}
 										</HStack>
 									</Flex>
 
