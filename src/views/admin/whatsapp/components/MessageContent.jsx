@@ -18,6 +18,11 @@ import {
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { useMediaDownloader } from 'hooks/useMediaDownloader';
+import { useEffect, useState } from 'react';
+import MediaIcon from './placeholder/MediaIcon';
+import MediaLoadingEffect from './placeholder/MediaLoadingPlaceholder';
+import MediaPreview from './Media/MediaPreview';
+
 const MotionBox = motion(Box);
 
 const MEDIA_TYPES = ['image', 'document', 'video', 'audio'];
@@ -25,14 +30,60 @@ const MEDIA_TYPES = ['image', 'document', 'video', 'audio'];
 export const MessageContent = ({ message, isSelf }) => {
 	const mediaUrls = useSelector((state) => state.whatsapp.mediaUrls || {});
 
+	const [progress, setProgress] = useState(0);
+
 	const isMedia = MEDIA_TYPES.includes(message.type);
-	const mediaId = message.media?.id;
+	const mediaId = message?.media?.id;
 
 	const { downloadMedia, isLoading } = useMediaDownloader();
+
+	useEffect(() => {
+		if (mediaId) {
+			downloadMedia(mediaId);
+		}
+	}, [mediaId]);
 
 	const onDownload = () => {
 		downloadMedia(mediaId);
 	};
+
+	useEffect(() => {
+		let interval;
+		let timeout;
+
+		if (isLoading) {
+			// Simulate progress during loading
+			setProgress(0);
+
+			interval = setInterval(() => {
+				setProgress((prev) => {
+					// Simulate uneven progress for realism
+					const increment = 1 + Math.random() * 4;
+					return Math.min(prev + increment, 90); // Stop at 90% for realistic effect
+				});
+			}, 200);
+		} else if (progress < 100) {
+			// When loading stops, animate to 100%
+			const remaining = 100 - progress;
+			const steps = Math.min(remaining, 10); // Complete in max 10 steps
+
+			interval = setInterval(() => {
+				setProgress((prev) => {
+					const newProgress = prev + remaining / steps;
+					if (newProgress >= 100) {
+						clearInterval(interval);
+						return 100;
+					}
+					return newProgress;
+				});
+			}, 50);
+		}
+
+		return () => {
+			clearInterval(interval);
+			clearTimeout(timeout);
+		};
+	}, [isLoading, progress]);
 
 	// Text message
 	if (message.type === 'text') {
@@ -58,32 +109,34 @@ export const MessageContent = ({ message, isSelf }) => {
 						transition={{ duration: 0.25 }}
 					>
 						{isLoading ? (
-							<Box position='relative' display='inline-flex'>
-								<CircularProgress
-									isIndeterminate
-									color='whatsapp.500'
-									size='60px'
-									thickness='4px'
-								/>
-								<Box
-									position='absolute'
-									top='50%'
-									left='50%'
-									transform='translate(-50%, -50%)'
-								>
-									<MediaIcon type={message.type} size={32} />
-								</Box>
-							</Box>
+							<MediaLoadingEffect type={message.type} progress={progress} />
 						) : (
-							<VStack>
-								<MediaIcon type={message.type} size={50} />
+							// <Box position='relative' display='inline-flex'>
+							// 	<CircularProgress
+							// 		isIndeterminate
+							// 		color='whatsapp.500'
+							// 		size='60px'
+							// 		thickness='4px'
+							// 	/>
+							// 	<Box
+							// 		position='absolute'
+							// 		top='50%'
+							// 		left='50%'
+							// 		transform='translate(-50%, -50%)'
+							// 	>
+							// 		<MediaIcon type={message.type} size={32} />
+							// 	</Box>
+							// </Box>
+							<VStack justify='space-between' gap='4' w='300px' h='200px'>
+								<MediaIcon type={message.type} size={120} />
 								<Button
 									size='xs'
 									rounded='md'
 									colorScheme='whatsapp'
 									leftIcon={<FiDownload />}
 									mt={2}
-									px='6'
+									py='4'
+									px='12'
 									onClick={() => onDownload(mediaId)}
 								>
 									Download
@@ -99,107 +152,80 @@ export const MessageContent = ({ message, isSelf }) => {
 	);
 };
 
-const MediaPreview = ({ type, url }) => {
-	switch (type) {
-		case 'image':
-			return (
-				<img
-					src={url}
-					alt='shared'
-					style={{
-						maxWidth: '100%',
-						maxHeight: '300px',
-						borderRadius: '8px',
-						objectFit: 'contain',
-					}}
-				/>
-			);
-		case 'video':
-			return (
-				<video
-					controls
-					src={url}
-					style={{ width: '100%', maxHeight: '300px' }}
-				/>
-			);
-		case 'audio':
-			return <audio controls src={url} />;
-		case 'document':
-			return (
-				<Flex direction='column' align='flex-start' gap={2}>
-					<Flex
-						align='center'
-						bg='gray.100'
-						px={3}
-						py={2}
-						borderRadius='md'
-						w='100%'
-						boxShadow='sm'
-						gap={2}
-					>
-						<FiFileText size={24} />
-						<Box>
-							<Text fontSize='sm' fontWeight='semibold'>
-								Document File
-							</Text>
-						</Box>
-					</Flex>
+// const MediaPreview = ({ type, url }) => {
+// 	switch (type) {
+// 		case 'image':
+// 			return (
+// 				<img
+// 					src={url}
+// 					alt='shared'
+// 					style={{
+// 						maxWidth: '100%',
+// 						maxHeight: '300px',
+// 						borderRadius: '8px',
+// 						objectFit: 'contain',
+// 					}}
+// 				/>
+// 			);
+// 		case 'video':
+// 			return (
+// 				<video
+// 					controls
+// 					src={url}
+// 					style={{ width: '100%', maxHeight: '300px' }}
+// 				/>
+// 			);
+// 		case 'audio':
+// 			return <audio controls src={url} />;
+// 		case 'document':
+// 			return (
+// 				<Flex direction='column' align='flex-start' gap={2}>
+// 					<Flex
+// 						align='center'
+// 						bg='gray.100'
+// 						px={3}
+// 						py={2}
+// 						borderRadius='md'
+// 						w='100%'
+// 						boxShadow='sm'
+// 						gap={2}
+// 					>
+// 						<FiFileText size={24} />
+// 						<Box>
+// 							<Text fontSize='sm' fontWeight='semibold'>
+// 								Document File
+// 							</Text>
+// 						</Box>
+// 					</Flex>
 
-					<Flex gap={2}>
-						<Button
-							size='sm'
-							variant='outline'
-							leftIcon={<FiDownload />}
-							as='a'
-							href={url}
-							download
-						>
-							Download
-						</Button>
+// 					<Flex gap={2}>
+// 						<Button
+// 							size='sm'
+// 							variant='outline'
+// 							leftIcon={<FiDownload />}
+// 							as='a'
+// 							href={url}
+// 							download
+// 						>
+// 							Download
+// 						</Button>
 
-						<Button
-							size='sm'
-							variant='outline'
-							leftIcon={<FiExternalLink />}
-							onClick={() => window.open(url, '_blank')}
-						>
-							Open
-						</Button>
-					</Flex>
-				</Flex>
-			);
+// 						<Button
+// 							size='sm'
+// 							variant='outline'
+// 							leftIcon={<FiExternalLink />}
+// 							onClick={() => window.open(url, '_blank')}
+// 						>
+// 							Open
+// 						</Button>
+// 					</Flex>
+// 				</Flex>
+// 			);
 
-		default:
-			return <Text>Unsupported media type</Text>;
-	}
-};
-
-const MediaIcon = ({ type, size = 24 }) => {
-	const styleConfig = {
-		image: { icon: FiImage, bg: 'blue.50', color: 'blue.500' },
-		video: { icon: FiVideo, bg: 'purple.50', color: 'purple.500' },
-		audio: { icon: FiMusic, bg: 'green.50', color: 'green.500' },
-		document: { icon: FiFileText, bg: 'orange.50', color: 'orange.500' },
-		default: { icon: FiFile, bg: 'gray.50', color: 'gray.500' },
-	};
-
-	const { icon: Icon, bg, color } = styleConfig[type] || styleConfig.default;
-
-	return (
-		<Box
-			as='span'
-			display='inline-flex'
-			alignItems='center'
-			justifyContent='center'
-			borderRadius='md'
-			bg={bg}
-			w={`calc(${size}px + 16px)`}
-			h={`calc(${size}px + 16px)`}
-		>
-			<Icon size={size} color={color} />
-		</Box>
-	);
-};
+// 		default:
+// 			return <Text>Unsupported media type</Text>;
+// 	}
+// };
 
 // switch (type) {
 // 	case 'image':

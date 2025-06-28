@@ -63,7 +63,13 @@ import {
 	FiSettings,
 } from 'react-icons/fi';
 import { IoMdMic, IoMdClose } from 'react-icons/io';
-import { FaCheck, FaCheckDouble, FaSmile, FaWhatsapp } from 'react-icons/fa';
+import {
+	FaCheck,
+	FaCheckDouble,
+	FaInfo,
+	FaSmile,
+	FaWhatsapp,
+} from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import { toast } from 'react-toastify';
@@ -72,14 +78,8 @@ import EmojiPicker from 'emoji-picker-react';
 import ContactModal from './components/ContactModal';
 import FileMessage from './components/FileMessage';
 import UserList from './components/UserList';
-import VoiceMessagePlayer from './components/VoiceMessagePlayer';
 
-import {
-	formatTime,
-	formatDateHeader,
-	formatMessageTime,
-	whatsappColors,
-} from 'utils/helpers.js';
+import { formatTime, formatDateHeader, whatsappColors } from 'utils/helpers.js';
 import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
@@ -90,6 +90,7 @@ import { resolveMessageType } from './components/helpers';
 
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import UserAvatar from 'components/shared/UserAvatar';
+import MediaLimitsModal from './components/Media/MediaLimitsModal';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -97,6 +98,12 @@ const isSuperAdmin = user?.role === 'superAdmin';
 const Whatsapp = () => {
 	const users = useSelector((state) => state.whatsapp.contacts || []);
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
+
+	const {
+		isOpen: isMediaLimitOpen,
+		onOpen: onMediaLimitOpen,
+		onClose: onMediaLimitClose,
+	} = useDisclosure();
 
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState('');
@@ -116,6 +123,8 @@ const Whatsapp = () => {
 	const [apiKey, setApiKey] = useState('');
 	const [bussinessPhone, setBussinessPhone] = useState('');
 
+	const [voiceFile, setVoiceFile] = useState(null);
+
 	const mediaRecorderRef = useRef(null);
 	const chunksRef = useRef([]);
 	const fileInputRef = useRef(null);
@@ -127,6 +136,8 @@ const Whatsapp = () => {
 	const animationRef = useRef(null);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
+
+	console.log({ mediaRecorderRef });
 
 	const { registerUser } = useSocketEvents();
 
@@ -155,24 +166,9 @@ const Whatsapp = () => {
 
 	const isMobile = useBreakpointValue({ base: true, md: false });
 
-	// const [users, setUsers] = useState([]);
-
-	// const { data: contacts, isLoading: usersLoading } = useFetchItemsQuery({
-	// 	path: '/whatsapp/contacts',
-	// });
-
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
 	const [uploadMedia, { isLoading: uploadingMedia }] = useCreateItemMutation();
-
-	// useEffect(() => {
-	// 	if (contacts?.doc) {
-	// 		console.log('users set state');
-	// 		// setUsers(contacts?.doc);
-	// 		dispatch(setContacts(contacts?.doc));
-	// 		// setActiveChat(contacts?.doc[0]?._id || null);
-	// 	}
-	// }, [contacts?.doc]);
 
 	// Messages data
 	const allMessages = useRef({
@@ -256,12 +252,6 @@ const Whatsapp = () => {
 		],
 	}).current;
 
-	// const filteredUsers = useMemo(() => {
-	// 	return users.filter((user) =>
-	// 		user.name.toLowerCase().includes(searchQuery.toLowerCase())
-	// 	);
-	// }, [users, searchQuery]);
-
 	useEffect(() => {
 		setMessages(allMessages[activeChat] || []);
 	}, [activeChat]);
@@ -277,7 +267,14 @@ const Whatsapp = () => {
 		};
 	}, []);
 
+	console.log({ mediaRecorderRef });
+
 	const handleSendMessage = useCallback(async () => {
+		console.log({ isRecording, send: mediaRecorderRef, voiceFile });
+
+		setInputMessage('');
+		if (isSending) return;
+
 		const inputText = inputMessage.trim();
 		if (!inputText && !selectedFile && !activeChat) return;
 
@@ -288,7 +285,11 @@ const Whatsapp = () => {
 
 		// Determine message type
 		const isMedia = Boolean(selectedFile);
-		const messageType = isMedia ? resolveMessageType(selectedFile) : 'text';
+		const messageType = voiceFile
+			? 'audio'
+			: isMedia
+				? resolveMessageType(selectedFile)
+				: 'text';
 		formData.append('type', messageType);
 
 		if (inputText && isMedia && messageType !== 'audio') {
@@ -297,8 +298,9 @@ const Whatsapp = () => {
 			formData.append('message', inputText);
 		}
 
-		if (isMedia) {
-			formData.append('file', selectedFile.file);
+		if (isMedia || voiceFile) {
+			const file = voiceFile ?? selectedFile.file;
+			formData.append('file', file);
 		}
 
 		setIsSending(true);
@@ -317,24 +319,40 @@ const Whatsapp = () => {
 
 			// Optionally reset input + file
 			setInputMessage('');
-			setSelectedFile(null);
 		} catch (err) {
 			console.error(err);
 			toast.error(err?.data?.message || 'Message could not be sent!');
 		} finally {
 			setIsSending(false);
+			setVoiceFile(null);
+			setSelectedFile(null);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [inputMessage, selectedFile, createMessageAPI, dispatch]);
 
+	// const handleVoiceMessageSend = ({ file, type, duration }) => {
+	// 	// Handle the audio file (upload to backend, etc.)
+	// 	console.log(
+	// 		'Audio file:',
+	// 		file,
+	// 		'Type:',
+	// 		type,
+	// 		'Duration:',
+	// 		duration
+	// 	);
+	// }
+
 	const handleFileUpload = useCallback(async (e, type = 'image') => {
 		const file = e.target.files[0];
 		if (file) {
-			if (type === 'video' && file.size > 100 * 1024 * 1024) {
-				toast.error('Video size should be less than 100MB');
+			if (['video', 'audio'].includes(type) && file.size > 16 * 1024 * 1024) {
+				toast.error('Video size should be less than 16MB');
 				return;
-			} else if (file.size > 25 * 1024 * 1024) {
-				toast.error('File size should be less than 25MB');
+			} else if ((type === 'image', file.size > 5 * 1024 * 1024)) {
+				toast.error('File size should be less than 5MB');
+				return;
+			} else if ((type === 'document', file.size > 100 * 1024 * 1024)) {
+				toast.error('File size should be less than 100MB');
 				return;
 			}
 
@@ -389,7 +407,7 @@ const Whatsapp = () => {
 		setRecordingTime(0);
 		setAudioLevel(0);
 		chunksRef.current = [];
-		setIsRecordingCanceled(false); // Reset cancel state
+		setIsRecordingCanceled(false);
 		navigator.mediaDevices
 			.getUserMedia({ audio: true })
 			.then((stream) => {
@@ -437,8 +455,15 @@ const Whatsapp = () => {
 					if (chunksRef.current.length > 0 && !isRecordingCanceled) {
 						try {
 							const audioBlob = new Blob(chunksRef.current, {
-								type: 'audio/webm',
+								type: 'audio/ogg; codecs=opus',
 							});
+
+							const file = new File([audioBlob], 'recording.ogg', {
+								type: 'audio/ogg; codecs=opus',
+							});
+
+							setVoiceFile(file);
+
 							const audioUrl = URL.createObjectURL(audioBlob);
 
 							const audio = new Audio();
@@ -452,52 +477,55 @@ const Whatsapp = () => {
 								};
 							});
 
-							const duration = Math.round(audio.duration || recordingTime);
+							// send message
+							handleSendMessage();
 
-							const newMessage = {
-								id: Date.now(),
-								sender: currentUser,
-								audioUrl,
-								type: 'voice',
-								timestamp: new Date(),
-								duration,
-								status: 'sent',
-							};
+							// const duration = Math.round(audio.duration || recordingTime);
 
-							const updatedMessages = [...messages, newMessage];
-							setMessages(updatedMessages);
-							allMessages[activeChat] = updatedMessages;
+							// const newMessage = {
+							// 	id: Date.now(),
+							// 	sender: currentUser,
+							// 	audioUrl,
+							// 	type: 'voice',
+							// 	timestamp: new Date(),
+							// 	duration,
+							// 	status: 'sent',
+							// };
+
+							// const updatedMessages = [...messages, newMessage];
+							// setMessages(updatedMessages);
+							// allMessages[activeChat] = updatedMessages;
 							toast.success('Voice message sent!');
 
-							setTimeout(() => {
-								const replyMessage = {
-									id: Date.now() + 1,
-									sender: users.find((u) => u.id === activeChat),
-									text: 'Thanks for the voice message!',
-									type: 'text',
-									timestamp: new Date(),
-									status: 'delivered',
-								};
-								const updatedWithReply = [...updatedMessages, replyMessage];
-								setMessages(updatedWithReply);
-								allMessages[activeChat] = updatedWithReply;
+							// setTimeout(() => {
+							// 	const replyMessage = {
+							// 		id: Date.now() + 1,
+							// 		sender: users.find((u) => u.id === activeChat),
+							// 		text: 'Thanks for the voice message!',
+							// 		type: 'text',
+							// 		timestamp: new Date(),
+							// 		status: 'delivered',
+							// 	};
+							// 	const updatedWithReply = [...updatedMessages, replyMessage];
+							// 	setMessages(updatedWithReply);
+							// 	allMessages[activeChat] = updatedWithReply;
 
-								setTimeout(() => {
-									setMessages((prev) =>
-										prev.map((msg) =>
-											msg.id === newMessage.id
-												? { ...msg, status: 'read' }
-												: msg
-										)
-									);
-									allMessages[activeChat] = allMessages[activeChat].map(
-										(msg) =>
-											msg.id === newMessage.id
-												? { ...msg, status: 'read' }
-												: msg
-									);
-								}, 1000);
-							}, 2000);
+							// 	setTimeout(() => {
+							// 		setMessages((prev) =>
+							// 			prev.map((msg) =>
+							// 				msg.id === newMessage.id
+							// 					? { ...msg, status: 'read' }
+							// 					: msg
+							// 			)
+							// 		);
+							// 		allMessages[activeChat] = allMessages[activeChat].map(
+							// 			(msg) =>
+							// 				msg.id === newMessage.id
+							// 					? { ...msg, status: 'read' }
+							// 					: msg
+							// 		);
+							// 	}, 1000);
+							// }, 2000);
 						} catch (err) {
 							console.error('Error processing voice message:', err);
 							toast.error('Failed to send voice message');
@@ -747,9 +775,19 @@ const Whatsapp = () => {
 									>
 										Manage Contacts
 									</MenuItem>
+									<MenuItem icon={<FaInfo />} onClick={onMediaLimitOpen}>
+										Media Limit
+									</MenuItem>
 								</MenuList>
 							</Menu>
 						</Flex>
+
+						{isMediaLimitOpen && (
+							<MediaLimitsModal
+								isOpen={isMediaLimitOpen}
+								onClose={onMediaLimitClose}
+							/>
+						)}
 
 						{/* Fixed Search Box */}
 						<Box p={3} bg={sidebarBg}>
@@ -947,6 +985,15 @@ const Whatsapp = () => {
 											/>
 										</HStack>
 									</Flex>
+
+									// <VoiceMessageRecorder
+									// 	isRecording={isRecording}
+									// 	setIsRecording={setIsRecording}
+									// 	onSend={handleVoiceMessageSend}
+									// 	onCancel={() => {
+									// 		// Handle recording cancellation
+									// 	}}
+									// />
 								)}
 								<Flex align='center'>
 									<input

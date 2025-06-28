@@ -11,9 +11,8 @@ import {
 	prependMessages,
 } from '../../../../redux/whatsappSlice';
 import { FiMessageCircle } from 'react-icons/fi';
-import axios from 'axios';
-import { constant } from 'constant';
 import { MessageContent } from './MessageContent';
+import ChatDate from './dates/ChatDate';
 
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
@@ -23,7 +22,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const [chatQuery, setChatQuery] = useState({
 		roomId,
 		page: 1,
-		limit: 10,
+		limit: 15,
 	});
 
 	const {
@@ -43,58 +42,108 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	);
 
 	const dispatch = useDispatch();
+	const containerRef = useRef(null);
+	const prevScrollHeight = useRef(0);
+	const [loadingOlder, setLoadingOlder] = useState(false);
 
 	// Scroll to bottom when messages change
+	// useEffect(() => {
+	// 	scrollToBottom();
+	// }, [messages, chatFetching]);
+
+	// --- initial + room change load -
 	useEffect(() => {
-		scrollToBottom();
-	}, [messages, chatFetching]);
-
-	// Scroll to bottom on initial render
-	useEffect(() => {
-		scrollToBottom();
-	}, []);
-
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
-
-	// const downloadMedia = async (mediaId) => {
-	// 	try {
-	// 		setIsMediaLoading(true);
-	// 		const response = await axios.get(
-	// 			`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
-	// 			{
-	// 				responseType: 'blob',
-	// 			}
-	// 		);
-	// 		const blobUrl = URL.createObjectURL(response.data);
-	// 		setMediaUrls((prev) => ({ ...prev, [mediaId]: blobUrl }));
-	// 	} catch (err) {
-	// 		console.error('Failed to load image:', err);
-	// 	} finally {
-	// 		setIsMediaLoading(false);
-	// 	}
-	// };
-
-	useEffect(() => {
-		if (to) {
-			setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		setChatQuery({ roomId, page: 1, limit: 10 });
 	}, [roomId]);
 
-	// Append or prepend messages on data fetch
+	// --- when chatData arrives -------
 	useEffect(() => {
-		if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
-			dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
-		} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
-			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
+		if (!chatData?.doc) return;
+
+		if (chatQuery.page === 1) {
+			dispatch(setChatHistory({ chatId: roomId, messages: chatData.doc }));
+			// scroll to bottom
+			requestAnimationFrame(() => {
+				containerRef.current.scrollTop = containerRef.current.scrollHeight;
+			});
+		} else {
+			// preserve scroll pos
+			const c = containerRef.current;
+			prevScrollHeight.current = c.scrollHeight;
+
+			dispatch(prependMessages({ chatId: roomId, messages: chatData.doc }));
+			setLoadingOlder(false);
+
+			// restore
+			requestAnimationFrame(() => {
+				c.scrollTop = c.scrollHeight - prevScrollHeight.current;
+			});
 		}
-	}, [chatData?.doc, chatQuery.page, dispatch]);
+	}, [chatData?.doc, chatQuery.page, dispatch, roomId]);
+
+	// --- scroll listener -------------
+	useEffect(() => {
+		const c = containerRef.current;
+
+		console.log('Scroll top: ', c);
+		const { scrollTop, scrollHeight, clientHeight } = c;
+		const maxScroll = scrollHeight - clientHeight;
+		if (maxScroll <= 0) return;
+
+		const scrollRatio = scrollTop / maxScroll;
+		// when within top 10%
+
+		console.log({ scrollTop, scrollHeight, clientHeight, scrollRatio });
+
+		const onScroll = () => {
+			if (
+				c.scrollTop === 0 &&
+				!loadingOlder &&
+				!chatFetching &&
+				chatQuery.page < (chatData?.pagination?.totalPages || Infinity)
+			) {
+				setLoadingOlder(true);
+				setChatQuery((q) => ({ ...q, page: q.page + 1 }));
+			}
+		};
+		c.addEventListener('scroll', onScroll);
+		return () => c.removeEventListener('scroll', onScroll);
+	}, [
+		loadingOlder,
+		chatFetching,
+		chatQuery.page,
+		chatData?.pagination?.totalPages,
+	]);
+
+	// // Scroll to bottom on initial render
+	// useEffect(() => {
+	// 	scrollToBottom();
+	// }, []);
+
+	// const scrollToBottom = () => {
+	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// };
+
+	// useEffect(() => {
+	// 	if (to) {
+	// 		setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [roomId]);
+
+	// // Append or prepend messages on data fetch
+	// useEffect(() => {
+	// 	if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
+	// 		dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
+	// 	} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
+	// 		dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
+	// 	}
+	// }, [chatData?.doc, chatQuery.page, dispatch]);
 
 	return (
 		<Box
 			flex='1'
+			ref={containerRef}
 			px={4}
 			py={2}
 			overflowY='auto'
@@ -105,7 +154,9 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 			whiteSpace='pre-wrap'
 		>
 			<VStack spacing={4} align='stretch'>
-				{chatLoading || chatFetching ? (
+				{loadingOlder && <Spinner size='sm' alignSelf='center' mb={2} />}
+
+				{chatLoading ? (
 					<Loader />
 				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
 					messages?.map((message, index) => {
@@ -115,6 +166,11 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 
 						return (
 							<React.Fragment key={index + message?.messageId}>
+								<ChatDate
+									date={message.createdAt}
+									prevDate={messages[index - 1]?.createdAt}
+								/>
+
 								<Flex
 									direction='column'
 									align={isSelf ? 'flex-end' : 'flex-start'}
@@ -131,7 +187,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										px={4}
 										py={2}
 										borderRadius='lg'
-										maxW={{ base: '90%', md: '80%' }}
+										maxW={{ base: '90%', md: '60%' }}
 										boxShadow='sm'
 										color={whatsappColors.textDark}
 										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}

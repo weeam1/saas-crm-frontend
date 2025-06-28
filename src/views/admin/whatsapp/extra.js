@@ -1,5 +1,99 @@
 {
 	/* Chat messages */
+
+	{
+		/* {selectedFile && (
+                <Flex
+                  bg='white'
+                  p={2}
+                  mb={2}
+                  borderRadius='md'
+                  justify='space-between'
+                  align='center'
+                >
+                  <Text fontSize='sm' isTruncated flex={1}>
+                    {selectedFile.type.split('/')[0].charAt(0).toUpperCase() +
+                      selectedFile.type.split('/')[0].slice(1)}{' '}
+                    ready to send
+                  </Text>
+                  <Button size='sm' onClick={() => setSelectedFile(null)}>
+                    Cancel
+                  </Button>
+                </Flex>
+              )} */
+	}
+	{
+		/* {isRecording && (
+                    // <Flex
+                    // 	bg='white'
+                    // 	p={2}
+                    // 	mb={2}
+                    // 	borderRadius='lg'
+                    // 	justify='space-between'
+                    // 	align='center'
+                    // 	w='100%'
+                    // 	boxShadow='md'
+                    // >
+                    // 	<HStack spacing={2} flex={1} overflow='hidden'>
+                    // 		<Box
+                    // 			w='10px'
+                    // 			h='10px'
+                    // 			bg={whatsappColors.recordingDot}
+                    // 			borderRadius='full'
+                    // 			animation='pulse 1s infinite'
+                    // 			flexShrink={0}
+                    // 		/>
+                    // 		<HStack
+                    // 			spacing={1}
+                    // 			flex={1}
+                    // 			justify='center'
+                    // 			h='24px'
+                    // 			align='center'
+                    // 			overflow='hidden'
+                    // 			px={1}
+                    // 		>
+                    // 			{generateWaveformData()}
+                    // 		</HStack>
+                    // 		<Text
+                    // 			fontSize='sm'
+                    // 			fontWeight='bold'
+                    // 			minW='40px'
+                    // 			textAlign='right'
+                    // 			flexShrink={0}
+                    // 		>
+                    // 			{formatTime(recordingTime)}
+                    // 		</Text>
+                    // 	</HStack>
+                    // 	<HStack ml={2} spacing={1}>
+                    // 		<IconButton
+                    // 			icon={<IoMdClose />}
+                    // 			aria-label='Cancel recording'
+                    // 			size='sm'
+                    // 			onClick={cancelRecording}
+                    // 			color={whatsappColors.textSecondary}
+                    // 			variant='ghost'
+                    // 		/>
+                    // 		<IconButton
+                    // 			icon={<RiSendPlaneFill />}
+                    // 			aria-label='Send recording'
+                    // 			size='sm'
+                    // 			bg={whatsappColors.primary}
+                    // 			color='white'
+                    // 			_hover={{ bg: whatsappColors.secondary }}
+                    // 			onClick={stopRecording}
+                    // 		/>
+                    // 	</HStack>
+                    // </Flex>
+  
+                    // <VoiceRecorder
+                    // 	onSend={(blob) => {
+                    // 		const form = new FormData();
+                    // 		form.append('voice', blob);
+                    // 		// axios.post('/upload', form) or socket.emit('send_voice', ...)
+                    // 	}}
+                    // />
+                  )} */
+	}
 }
 {
 	/* <Box
