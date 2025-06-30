@@ -85,16 +85,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	useEffect(() => {
 		const c = containerRef.current;
 
-		console.log('Scroll top: ', c);
-		const { scrollTop, scrollHeight, clientHeight } = c;
-		const maxScroll = scrollHeight - clientHeight;
-		if (maxScroll <= 0) return;
-
-		const scrollRatio = scrollTop / maxScroll;
-		// when within top 10%
-
-		console.log({ scrollTop, scrollHeight, clientHeight, scrollRatio });
-
 		const onScroll = () => {
 			if (
 				c.scrollTop === 0 &&

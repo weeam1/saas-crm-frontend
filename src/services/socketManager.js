@@ -1,6 +1,5 @@
 import { constant } from 'constant';
 import socketService from './socketService';
-import keys from 'config/keys';
 
 class SocketManager {
 	constructor() {
@@ -11,7 +10,7 @@ class SocketManager {
 		if (this.connectionEstablished) return;
 
 		return socketService
-			.connect(keys.baseUrl)
+			.connect(constant['baseUrl'])
 			.then(() => {
 				this.connectionEstablished = true;
 			})

@@ -28,7 +28,7 @@ class SocketService {
 			path: '/socket.io',
 			// transports: ['socket.io'],
 			reconnection: true,
-			// reconnectionAttempts: this.maxReconnectionAttempts,
+			reconnectionAttempts: this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,

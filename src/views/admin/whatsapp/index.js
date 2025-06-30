@@ -82,7 +82,6 @@ import UserList from './components/UserList';
 import { formatTime, formatDateHeader, whatsappColors } from 'utils/helpers.js';
 import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import ChatMessages from './components/ChatMessages';
 import { useDispatch, useSelector } from 'react-redux';
 import { appendMessage, setContacts } from '../../../redux/whatsappSlice';
@@ -136,8 +135,6 @@ const Whatsapp = () => {
 	const animationRef = useRef(null);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
-
-	console.log({ mediaRecorderRef });
 
 	const { registerUser } = useSocketEvents();
 
@@ -267,11 +264,7 @@ const Whatsapp = () => {
 		};
 	}, []);
 
-	console.log({ mediaRecorderRef });
-
 	const handleSendMessage = useCallback(async () => {
-		console.log({ isRecording, send: mediaRecorderRef, voiceFile });
-
 		setInputMessage('');
 		if (isSending) return;
 
