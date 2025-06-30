@@ -224,6 +224,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
             borderRadius="full"
             py={3}
             px={6}
+            onClick={() => setIsFilterOpen(true)}
           >
             Advanced Search
           </Button>

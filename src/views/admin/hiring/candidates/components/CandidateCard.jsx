@@ -19,6 +19,7 @@ import FlagBadge from '../../_components/FlagBadge';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMissingFile } from './../../../../../redux/missingFilesSlice';
 import { FaBriefcase, FaUser } from 'react-icons/fa';
+import { formatName } from 'utils/helpers';
 
 const CandidateCard = ({ candidate, refetch, mode }) => {
 	const {
@@ -129,7 +130,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 					<Flex alignItems='flex-start' gap='2' justifyContent='space-between'>
 						<Box>
 							<Heading width='10rem' size='md' isTruncated>
-								{name}
+								{formatName(name)}
 							</Heading>
 
 							<Text
