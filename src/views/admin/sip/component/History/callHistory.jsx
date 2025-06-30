@@ -49,8 +49,8 @@ const CallHistory = ({ setTotalCallRecord }) => {
     if (filters.call_from) params.call_from = filters.call_from;
     if (filters.call_to) params.call_to = filters.call_to;
     if (filters.clid) params.clid = filters.clid;
-    if (filters.start_date) params.start_date = filters.start_date;
-    if (filters.end_date) params.end_date = filters.end_date;
+    if (filters.start_date) params.start_date = new Date(filters.start_date).toISOString().slice(0, 10);
+    if (filters.end_date) params.end_date = new Date(filters.end_date).toISOString().slice(0, 10);
     if (filters.disposition) params.disposition = filters.disposition;
 
     console.log({ filters, params });
