@@ -66,6 +66,7 @@ const RenderFields = ({ fields }) => {
 						<Input
 							id={field.name}
 							type={field.type}
+							f
 							{...formikField}
 							bg='gray.100'
 							borderColor='gray.300'

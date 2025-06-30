@@ -129,25 +129,6 @@ const AttendanceTable = ({
 									gradient: rowBgGradient,
 								} = config;
 
-								// if (entry.status === 0) {
-								// 	statusBgColor = '#FFE5EE';
-								// 	textColor = '#AA0000';
-								// 	statusText = 'Absent';
-								// } else if (entry.status === 1) {
-								// 	statusBgColor = '#E6EFFC';
-								// 	textColor = '#0764E6';
-								// 	statusText = 'Office';
-								// 	rowBgGradient = 'linear(to-r, #E0F7FF, white)';
-								// } else if (entry.status === 2) {
-								// 	statusBgColor = '#FFF8E7';
-								// 	textColor = '#D5B500';
-								// 	statusText = 'Late';
-								// } else if (entry.status === 3) {
-								// 	statusBgColor = '#FFF8E7';
-								// 	textColor = '#D5B500';
-								// 	statusText = 'Leave';
-								// }
-
 								return (
 									<Tr
 										key={entry._id}
@@ -214,17 +195,6 @@ const AttendanceTable = ({
 														statusText
 													: statusText}
 											</Box>
-
-											{/* <Box
-												bg={statusBgColor}
-												color={textColor}
-												fontWeight='bold'
-												px={2}
-												py={1}
-												borderRadius='md'
-												display='inline-block'
-												minWidth='fit-content'
-											></Box> */}
 										</Td>
 										<Td
 											borderBottom='none'
@@ -248,7 +218,7 @@ const AttendanceTable = ({
 											fontWeight='400'
 											minWidth='120px'
 										>
-											{entry.status === 0
+											{[0, 3].includes(entry.status)
 												? '0m'
 												: entry.checkin && entry.checkout
 													? entry.totalWorkingHours?.hours ||

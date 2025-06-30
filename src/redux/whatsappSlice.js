@@ -64,7 +64,7 @@ const whatsappSlice = createSlice({
 			if (!state.chats[chatId]) {
 				state.chats[chatId] = messages;
 			} else {
-				state.chats[chatId] = [...state.chats[chatId], ...messages];
+				state.chats[chatId] = [...messages, ...state.chats[chatId]];
 			}
 		},
 		appendMessage(state, action) {

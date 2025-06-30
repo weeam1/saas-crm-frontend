@@ -101,6 +101,7 @@ const Leads = ({
 	const [leadDetails, setLeadDetails] = useState(null);
 	const [sendEmail, setSendEmail] = useState(false);
 	const [deleteLead, setDeleteLead] = useState(false);
+	const [leadAddtionalInfo, setLeadAddtionalInfo] = useState(false);
 
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 
@@ -325,6 +326,8 @@ const Leads = ({
 							setSelectAllChecked={setSelectAllChecked}
 							selectAllChecked={selectAllChecked}
 							setViewPhoneHistory={setViewPhoneHistory}
+							setLeadAddtionalInfo={setLeadAddtionalInfo}
+							leadAddtionalInfo={leadAddtionalInfo}
 						/>
 					))}
 				</Grid>
@@ -352,6 +355,8 @@ const Leads = ({
 				setDeleteLead={setDeleteLead}
 				viewPhoneHistory={viewPhoneHistory}
 				setViewPhoneHistory={setViewPhoneHistory}
+				setLeadAddtionalInfo={setLeadAddtionalInfo}
+				leadAddtionalInfo={leadAddtionalInfo}
 			/>
 
 			{/* Date time filter */}

@@ -263,7 +263,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 										>
-											{entry.status === 0
+											{[0, 3].includes(entry.status)
 												? '0m'
 												: entry.checkin && entry.checkout
 													? entry.totalWorkingHours?.hours ||
@@ -289,7 +289,6 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 													<Tooltip label='Leave Note' hasArrow>
 														<IconButton
 															aria-label='Leave note'
-															// icon={<FaNoteSticky />}
 															icon={<LuStickyNote />}
 															size='xs'
 															colorScheme='teal'

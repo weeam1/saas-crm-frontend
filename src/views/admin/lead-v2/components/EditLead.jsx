@@ -85,13 +85,6 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'adset', label: 'Adset', type: 'text' },
 	];
 
-	// role === 'Agent' || role === 'Manager'
-	// leadData?.oldPhoneNumber
-
-	// const allowedFields = ['Agent', 'Manager'].includes(role)
-	// 	? fields.filter((field) => field.name === 'leadName')
-	// 	: fields;
-
 	const allowedFields = useMemo(() => {
 		if (role === 'superAdmin') {
 			return fields;
@@ -104,8 +97,6 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
 					)
 				: [];
-
-		console.log({ phoneField, role });
 
 		// Add name field if leadEStatus is 'show'
 		const nameField =

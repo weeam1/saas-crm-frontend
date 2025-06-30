@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStateContext } from 'contexts/store';
 
 import ReleaseLead from '../../ReleaseLead';
+import { AiFillInfoCircle } from 'react-icons/ai';
 
 const LeadMenu = ({
 	lead,
@@ -35,6 +36,7 @@ const LeadMenu = ({
 	setDeleteLead,
 	refreshData,
 	setViewPhoneHistory,
+	setLeadAddtionalInfo,
 }) => {
 	const navigate = useNavigate();
 	const leadId = lead?._id;
@@ -161,6 +163,17 @@ const LeadMenu = ({
 						Create Follow Up
 					</MenuItem>
 				)}
+
+				<MenuItem
+					py={2.5}
+					onClick={() => {
+						setLeadAddtionalInfo(true);
+						setLeadDetails(lead);
+					}}
+					icon={<AiFillInfoCircle fontSize={15} />}
+				>
+					Addtional Info
+				</MenuItem>
 				{access?.delete && user?.role === 'superAdmin' && (
 					<MenuItem
 						py={2.5}

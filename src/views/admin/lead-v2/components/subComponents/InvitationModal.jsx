@@ -27,8 +27,6 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 
 	const [emailAccess] = HasAccess(['Email']);
 
-	console.log({ emailAccess });
-
 	const handleInvite = async () => {
 		try {
 			setLoading(true);
