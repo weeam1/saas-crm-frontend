@@ -28,6 +28,8 @@ const LeadCard = memo(
 		setLeadDetails,
 		setViewPhoneHistory,
 		queryParams,
+		setLeadAddtionalInfo,
+		leadAddtionalInfo,
 	}) => {
 		const cardWidth = useBreakpointValue({
 			base: '100%', // Full width on mobile
@@ -135,6 +137,7 @@ const LeadCard = memo(
 							setLeadDetails={setLeadDetails}
 							refreshData={refreshLeads}
 							setViewPhoneHistory={setViewPhoneHistory}
+							setLeadAddtionalInfo={setLeadAddtionalInfo}
 						/>
 					</Box>
 					<Flex
