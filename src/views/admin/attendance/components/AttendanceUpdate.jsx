@@ -10,6 +10,7 @@ import {
 	ModalFooter,
 	Box,
 	HStack,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
@@ -17,12 +18,19 @@ import { buttonStyle } from '../constants';
 import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import moment from 'moment';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
+import AttendanceSelector from './myAttendance/AttendanceSelectors';
+import LeaveNoteModal from './myAttendance/LeaveNoteModal';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
+	const [attendanceStatus, setAttendanceStatus] = useState('present');
 
-	console.log(data?.checkout);
+	const {
+		isOpen: noteIsOpen,
+		onOpen: noteOnOpen,
+		onClose: noteOnClose,
+	} = useDisclosure();
 
 	const today = new Date().toISOString().split('T')[0];
 
@@ -33,21 +41,37 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
-	const handleSave = async () => {
-		const checkIn = moment(checkInTime, 'hh:mm A');
-		const checkOut = moment(checkOutTime, 'hh:mm A');
+	const handleSave = async (values) => {
+		let updatedData = {};
 
-		if (checkOut.isBefore(checkIn)) {
-			toast.error('Check-Out time must be greater than Check-In time!');
-			return;
+		if (attendanceStatus === 'leave') {
+			updatedData = {
+				status: 3,
+				leaveNote: values.note,
+				leaveType: values.leaveType,
+			};
+		} else if (attendanceStatus === 'absent') {
+			updatedData = { status: 0 };
+		} else {
+			updatedData = {
+				status: 1,
+				checkin: checkInTime,
+				...(showCheckout && {
+					checkout: checkOutTime,
+				}),
+			};
+
+			const checkIn = moment(checkInTime, 'hh:mm A');
+			const checkOut = moment(checkOutTime, 'hh:mm A');
+
+			if (checkOut.isBefore(checkIn)) {
+				toast.error('Check-Out time must be greater than Check-In time!');
+				return;
+			}
 		}
 
 		try {
 			if (data?._id) {
-				const updatedData = showCheckout
-					? { checkin: checkInTime, checkout: checkOutTime }
-					: { checkin: checkInTime };
-
 				const res = await updateItemMutation({
 					path: `/attendance/${data?._id}`,
 					body: updatedData,
@@ -55,12 +79,16 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 				toast.success('Attendance record update successfully');
 				if (updateKey === 'record') {
+					const updated = res?.doc;
 					const updatedFields = {
-						checkin: checkInTime,
-						checkout: checkOutTime,
-						status: res?.doc?.status,
-						updatedAt: res?.doc?.updatedAt,
-						totalWorkingHours: res?.doc?.totalWorkingHours,
+						checkin: updated?.checkin,
+						checkout: showCheckout ? updated?.checkout : null,
+						status: updated?.status,
+						updatedAt: updated?.updatedAt,
+						totalWorkingHours: updated?.totalWorkingHours,
+						leaveNote: updated?.leaveNote,
+						leaveType: updated?.leaveType,
+						checkinNote: updated?.checkinNote,
 					};
 
 					refetch(data?._id, updatedFields);
@@ -77,9 +105,18 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 		<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Edit Attendance Timing</ModalHeader>
+				<ModalHeader>Update Attendance</ModalHeader>
 				<ModalBody>
-					<HStack
+					<AttendanceSelector
+						checkInTime={checkInTime}
+						checkOutTime={checkOutTime}
+						setCheckInTime={setCheckInTime}
+						setCheckOutTime={setCheckOutTime}
+						attendanceStatus={attendanceStatus}
+						setAttendanceStatus={setAttendanceStatus}
+						showCheckout={showCheckout}
+					/>
+					{/* <HStack
 						flexDir={{ base: 'column', md: 'row' }}
 						justifyContent='center'
 						alignItems='center'
@@ -97,7 +134,6 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 							<Text mb={2} fontWeight='400' fontSize='lg'>
 								Check In
 							</Text>
-							{/* <CustomTimePicker value={checkInTime} onChange={setCheckInTime} /> */}
 							<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 						</Box>
 
@@ -112,7 +148,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 								/>
 							</Box>
 						)}
-					</HStack>
+					</HStack> */}
 				</ModalBody>
 				<ModalFooter>
 					<Button
@@ -124,7 +160,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						py='5'
 						px='8'
 						mr='3'
-						fontSize='lg'
+						fontSize='md'
 						aria-label='close'
 						onClick={onClose}
 					>
@@ -136,13 +172,22 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						bg='brand.400'
 						py='5'
 						px='8'
-						fontSize='lg'
+						fontSize='md'
 						aria-label='update'
-						onClick={handleSave}
+						onClick={attendanceStatus === 'leave' ? noteOnOpen : handleSave}
 					>
-						{isUpdating ? 'Updating...' : 'Update'}
+						{isUpdating ? 'Updating...' : 'Save'}
 					</Button>
 				</ModalFooter>
+
+				{noteIsOpen && (
+					<LeaveNoteModal
+						isOpen={noteIsOpen}
+						onClose={noteOnClose}
+						onSubmit={handleSave}
+						isLoading={isUpdating}
+					/>
+				)}
 			</ModalContent>
 		</Modal>
 	);

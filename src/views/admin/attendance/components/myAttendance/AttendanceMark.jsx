@@ -9,6 +9,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import { FaBan } from 'react-icons/fa';
 import LeaveNoteModal from './LeaveNoteModal';
+import CheckinNoteModal from './CheckinNoteModal';
 
 const AttendanceMark = ({
 	timezone,
@@ -25,6 +26,12 @@ const AttendanceMark = ({
 		isOpen: noteIsOpen,
 		onOpen: noteOnOpen,
 		onClose: noteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: checkinNoteIsOpen,
+		onOpen: checkinNoteOnOpen,
+		onClose: checkinNoteOnClose,
 	} = useDisclosure();
 
 	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
@@ -73,10 +80,10 @@ const AttendanceMark = ({
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
 
-	const handleCheckIn = async () => {
+	const handleCheckIn = async ({ note = '' }) => {
 		try {
 			// if (timePicker) {
-			const bodyData = { employeeId, selectedTime };
+			const bodyData = { employeeId, selectedTime, checkinNote: note };
 			// } else bodyData = { employeeId: data.employee._id };
 
 			setCheckinLoading(true);
@@ -172,7 +179,7 @@ const AttendanceMark = ({
 		checkIn: {
 			bg: 'green.400',
 			_active: 'green.500',
-			onClick: handleCheckIn,
+			onClick: checkinNoteOnOpen,
 			text: 'In',
 		},
 		checkOut: {
@@ -292,6 +299,15 @@ const AttendanceMark = ({
 										onClose={noteOnClose}
 										onSubmit={handleLeave}
 										isLoading={leaveLoading}
+									/>
+								)}
+
+								{checkinNoteIsOpen && (
+									<CheckinNoteModal
+										isOpen={checkinNoteIsOpen}
+										onClose={checkinNoteOnClose}
+										onSubmit={handleCheckIn}
+										isLoading={checkinLoading}
 									/>
 								)}
 							</>

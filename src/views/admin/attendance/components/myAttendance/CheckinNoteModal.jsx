@@ -9,44 +9,28 @@ import {
 	ModalCloseButton,
 	Button,
 	Textarea,
-	Select,
 	FormControl,
 	FormLabel,
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
 
-const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
+const CheckinNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	const [note, setNote] = useState('');
-	const [leaveType, setLeaveType] = useState('paid');
 
 	const handleSubmit = async () => {
-		await onSubmit({ note, leaveType });
+		await onSubmit({ note });
 		setNote('');
-		setLeaveType('paid');
 	};
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
 			<ModalContent mx='4'>
-				<ModalHeader>Leave Note</ModalHeader>
+				<ModalHeader>Check-In Note</ModalHeader>
 				<ModalCloseButton />
-
 				<ModalBody>
-					<FormControl mb={4}>
-						<FormLabel>Leave Type</FormLabel>
-						<Select
-							value={leaveType}
-							onChange={(e) => setLeaveType(e.target.value)}
-							focusBorderColor='brand.500'
-						>
-							<option value='paid'>Paid Leave</option>
-							<option value='unpaid'>Unpaid Leave</option>
-						</Select>
-					</FormControl>
-
 					<FormControl>
-						<FormLabel>Leave Note (optional)</FormLabel>
+						<FormLabel>Note (optional)</FormLabel>
 						<Textarea
 							placeholder='Type Note...'
 							value={note}
@@ -83,4 +67,4 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	);
 };
 
-export default LeaveNoteModal;
+export default CheckinNoteModal;

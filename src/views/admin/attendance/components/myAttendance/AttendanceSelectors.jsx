@@ -42,6 +42,7 @@ function AttendanceSelector({
 	setCheckOutTime,
 	attendanceStatus,
 	setAttendanceStatus,
+	showCheckout = true,
 }) {
 	const options = ['present', 'absent', 'leave'];
 
@@ -55,7 +56,7 @@ function AttendanceSelector({
 
 	return (
 		<Box width='100%'>
-			{/* <Text mb={2} fontWeight='600'>
+			<Text mb={2} color='gray.700' fontWeight='600'>
 				Attendance Status
 			</Text>
 
@@ -68,7 +69,7 @@ function AttendanceSelector({
 						</CustomRadio>
 					);
 				})}
-			</HStack> */}
+			</HStack>
 
 			{attendanceStatus === 'present' && (
 				<HStack
@@ -85,12 +86,17 @@ function AttendanceSelector({
 						<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 					</Box>
 
-					<Box bg='softGray.50' p={3} rounded='md' minW='200px'>
-						<Text mb={2} fontWeight='500'>
-							Check Out
-						</Text>
-						<NormalTimePicker value={checkOutTime} onChange={setCheckOutTime} />
-					</Box>
+					{showCheckout && (
+						<Box bg='softGray.50' p={3} rounded='md' minW='200px'>
+							<Text mb={2} fontWeight='500'>
+								Check Out
+							</Text>
+							<NormalTimePicker
+								value={checkOutTime}
+								onChange={setCheckOutTime}
+							/>
+						</Box>
+					)}
 				</HStack>
 			)}
 		</Box>

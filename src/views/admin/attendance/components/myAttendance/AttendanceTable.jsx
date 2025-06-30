@@ -30,7 +30,7 @@ const AttendanceTable = ({
 	isFetching,
 	refetch,
 }) => {
-	const [leaveNote, setLeaveNote] = useState({
+	const [note, setNote] = useState({
 		title: 'Message',
 		message: 'N/A',
 		modal: false,
@@ -241,7 +241,7 @@ const AttendanceTable = ({
 												/>
 
 												{entry?.leaveNote && entry?.status === 3 && (
-													<Tooltip label='Leave Note' hasArrow>
+													<Tooltip label='Leave Note' hasArrow placement='top'>
 														<IconButton
 															aria-label='Leave note'
 															// icon={<FaNoteSticky />}
@@ -250,9 +250,32 @@ const AttendanceTable = ({
 															colorScheme='teal'
 															variant='solid'
 															onClick={() => {
-																setLeaveNote({
+																setNote({
 																	message: entry.leaveNote,
 																	title: 'Leave Note',
+																	modal: true,
+																});
+															}}
+														/>
+													</Tooltip>
+												)}
+
+												{entry?.checkinNote && (
+													<Tooltip
+														label='Check-In Note'
+														hasArrow
+														placement='top'
+													>
+														<IconButton
+															aria-label='Check-In note'
+															icon={<LuStickyNote />}
+															size='xs'
+															colorScheme='teal'
+															variant='solid'
+															onClick={() => {
+																setNote({
+																	message: entry?.checkinNote,
+																	title: 'Check-In Note',
 																	modal: true,
 																});
 															}}
@@ -295,12 +318,12 @@ const AttendanceTable = ({
 				/>
 			)}
 
-			{leaveNote?.modal && (
+			{note?.modal && (
 				<MessageViewModal
-					title={leaveNote.title}
-					message={leaveNote.message}
-					isOpen={leaveNote.modal}
-					onClose={() => setLeaveNote({ modal: false })}
+					title={note.title}
+					message={note.message}
+					isOpen={note.modal}
+					onClose={() => setNote({ modal: false })}
 				/>
 			)}
 		</>

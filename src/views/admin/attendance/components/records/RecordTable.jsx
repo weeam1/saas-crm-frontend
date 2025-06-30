@@ -91,14 +91,17 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 	};
 
 	const handleRefetchUpdate = (id, updatedFields) => {
+		console.log({ id, updatedFields });
+
 		setData(
 			(prevData) =>
 				prevData?.map((item) =>
-					// eslint-disable-next-line eqeqeq
-					item?._id == id ? Object.assign({}, item, updatedFields) : item
+					item?._id === id ? { ...item, ...updatedFields } : item
 				) || prevData
 		);
 	};
+
+	console.log(data);
 
 	return (
 		<>
