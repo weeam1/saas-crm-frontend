@@ -18,7 +18,7 @@ import {
 	useCreateItemMutation,
 } from 'api/apiSlice';
 import * as Yup from 'yup';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { toast } from 'react-toastify';
 import RenderFields from 'components/shared/RenderFields';
 import { buttonStyle } from './../../../leadPool-v2/components/constants';
@@ -115,7 +115,7 @@ const LeadAdditionalInfoModal = ({ isOpen, onClose, leadId }) => {
 									)}
 
 									<Grid
-										height={{ base: '60vh', md: '80vh' }}
+										maxHeight={{ base: '60vh', md: '70vh' }}
 										overflow='scroll'
 										scrollBehavior='smoth'
 										templateColumns={{ base: '1fr', md: 'repeat(1, 1fr)' }}
@@ -160,19 +160,16 @@ const leadAdditionalFields = [
 		name: 'clientOccupation',
 		label: 'Client Occupation',
 		type: 'text',
-		required: true,
 	},
 	{
 		name: 'actualBudget',
 		label: 'Budget',
 		type: 'number',
-		required: true,
 	},
 	{
 		name: 'preferredPropertyType',
 		label: 'Property Type',
 		type: 'select',
-		required: true,
 		options: [
 			{ label: 'Investment', value: 'investment' },
 			{ label: 'End Use', value: 'end_use' },
@@ -183,7 +180,6 @@ const leadAdditionalFields = [
 		name: 'readinessToPurchase',
 		label: 'Readiness',
 		type: 'select',
-		required: true,
 		options: [
 			{ label: 'Immediate', value: 'immediate' },
 			{ label: 'Few Months', value: 'few_months' },
@@ -194,7 +190,6 @@ const leadAdditionalFields = [
 		name: 'preferredCommunicationMethod',
 		label: 'Communication Method',
 		type: 'select',
-		required: true,
 		options: [
 			{ label: 'Phone', value: 'phone' },
 			{ label: 'Email', value: 'email' },
@@ -205,19 +200,16 @@ const leadAdditionalFields = [
 		name: 'specificNeeds',
 		label: 'Specific Needs',
 		type: 'textarea',
-		required: true,
 	},
 	{
 		name: 'followUpSchedule',
 		label: 'Follow-up Schedule',
 		type: 'text',
-		required: true,
 	},
 	{
 		name: 'clientPriorityLevel',
 		label: 'Priority',
 		type: 'select',
-		required: true,
 		options: [
 			{ label: 'Hot', value: 'hot' },
 			{ label: 'Warm', value: 'warm' },
@@ -228,7 +220,6 @@ const leadAdditionalFields = [
 		name: 'additionalNotes',
 		label: 'Additional Notes',
 		type: 'textarea',
-		required: true,
 	},
 ];
 
