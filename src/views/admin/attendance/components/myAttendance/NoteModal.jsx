@@ -14,11 +14,11 @@ import {
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
 
-const CheckinNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
+const NoteModal = ({ title, isOpen, onClose, onSubmit, isLoading }) => {
 	const [note, setNote] = useState('');
 
 	const handleSubmit = async () => {
-		await onSubmit({ note });
+		onSubmit({ note });
 		setNote('');
 	};
 
@@ -26,7 +26,7 @@ const CheckinNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
 			<ModalContent mx='4'>
-				<ModalHeader>Check-In Note</ModalHeader>
+				<ModalHeader>{title}</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
 					<FormControl>
@@ -67,4 +67,4 @@ const CheckinNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	);
 };
 
-export default CheckinNoteModal;
+export default NoteModal;

@@ -20,7 +20,7 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	const [leaveType, setLeaveType] = useState('paid');
 
 	const handleSubmit = async () => {
-		await onSubmit({ note, leaveType });
+		onSubmit({ note, leaveType });
 		setNote('');
 		setLeaveType('paid');
 	};

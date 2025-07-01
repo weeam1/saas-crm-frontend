@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { FaBan, FaCalendarCheck } from 'react-icons/fa';
 import LeaveNoteModal from '../myAttendance/LeaveNoteModal';
-import CheckinNoteModal from '../myAttendance/CheckinNoteModal';
+import NoteModal from '../myAttendance/NoteModal';
 
 const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const { timezone } = officeSetting;
@@ -23,6 +23,12 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		isOpen: checkinNoteIsOpen,
 		onOpen: checkinNoteOnOpen,
 		onClose: checkinNoteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: absentNoteIsOpen,
+		onOpen: absentNoteOnOpen,
+		onClose: absentNoteOnClose,
 	} = useDisclosure();
 
 	const [status, setStatus] = useState(null);
@@ -76,12 +82,12 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		}
 	};
 
-	const handleAbsence = async () => {
+	const handleAbsence = async ({ note = '' }) => {
 		try {
 			setAbsentLoading(true);
 			await createItemMutation({
 				path: '/attendance/absent',
-				body: { employeeId },
+				body: { employeeId, absentNote: note },
 			}).unwrap();
 
 			toast.success('Employee Absent successfully');
@@ -138,7 +144,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const buttonVariants = {
 		checkIn: { bg: 'green.400', onClick: checkinNoteOnOpen, text: 'In' },
 		checkOut: { bg: '#D8A541', onClick: handleCheckOut, text: 'Out' },
-		absent: { bg: 'red.400', onClick: handleAbsence, text: 'Absent' },
+		absent: { bg: 'red.400', onClick: absentNoteOnOpen, text: 'Absent' },
 		leave: { bg: 'teal.400', onClick: noteOnOpen, text: 'On Leave' },
 	};
 
@@ -220,11 +226,22 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 								)}
 
 								{checkinNoteIsOpen && (
-									<CheckinNoteModal
+									<NoteModal
+										title='Check In Note'
 										isOpen={checkinNoteIsOpen}
 										onClose={checkinNoteOnClose}
 										onSubmit={handleCheckIn}
 										isLoading={checkinLoading}
+									/>
+								)}
+
+								{absentNoteIsOpen && (
+									<NoteModal
+										title='Absent Note'
+										isOpen={absentNoteIsOpen}
+										onClose={absentNoteOnClose}
+										onSubmit={handleAbsence}
+										isLoading={absentLoading}
 									/>
 								)}
 							</>

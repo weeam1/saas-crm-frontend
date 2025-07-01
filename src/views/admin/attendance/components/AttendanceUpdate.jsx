@@ -1,25 +1,21 @@
 import { useState } from 'react';
 import {
 	Button,
-	Text,
 	Modal,
 	ModalOverlay,
 	ModalContent,
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
-	Box,
-	HStack,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { buttonStyle } from '../constants';
-import CustomTimePicker from 'components/customDatePicker/CustomDatePicker';
 import moment from 'moment';
-import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import AttendanceSelector from './myAttendance/AttendanceSelectors';
 import LeaveNoteModal from './myAttendance/LeaveNoteModal';
+import NoteModal from './myAttendance/NoteModal';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
@@ -30,6 +26,18 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 		isOpen: noteIsOpen,
 		onOpen: noteOnOpen,
 		onClose: noteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: checkinNoteIsOpen,
+		onOpen: checkinNoteOnOpen,
+		onClose: checkinNoteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: absentNoteIsOpen,
+		onOpen: absentNoteOnOpen,
+		onClose: absentNoteOnClose,
 	} = useDisclosure();
 
 	const today = new Date().toISOString().split('T')[0];
@@ -51,10 +59,11 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 				leaveType: values.leaveType,
 			};
 		} else if (attendanceStatus === 'absent') {
-			updatedData = { status: 0 };
+			updatedData = { status: 0, absentNote: values.note };
 		} else {
 			updatedData = {
 				status: 1,
+				checkinNote: values.note,
 				checkin: checkInTime,
 				...(showCheckout && {
 					checkout: checkOutTime,
@@ -89,6 +98,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						leaveNote: updated?.leaveNote,
 						leaveType: updated?.leaveType,
 						checkinNote: updated?.checkinNote,
+						absentNote: updated?.absentNote,
 					};
 
 					refetch(data?._id, updatedFields);
@@ -99,6 +109,16 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 			toast.error(e?.data?.message || 'Error in employee update');
 		}
 		onClose();
+	};
+
+	const onSaveClick = () => {
+		if (attendanceStatus === 'leave') {
+			noteOnOpen();
+		} else if (attendanceStatus === 'absent') {
+			absentNoteOnOpen();
+		} else {
+			checkinNoteOnOpen();
+		}
 	};
 
 	return (
@@ -174,7 +194,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						px='8'
 						fontSize='md'
 						aria-label='update'
-						onClick={attendanceStatus === 'leave' ? noteOnOpen : handleSave}
+						onClick={onSaveClick}
 					>
 						{isUpdating ? 'Updating...' : 'Save'}
 					</Button>
@@ -184,7 +204,36 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					<LeaveNoteModal
 						isOpen={noteIsOpen}
 						onClose={noteOnClose}
-						onSubmit={handleSave}
+						onSubmit={(values) => {
+							noteOnClose();
+							handleSave(values);
+						}}
+						isLoading={isUpdating}
+					/>
+				)}
+
+				{checkinNoteIsOpen && (
+					<NoteModal
+						title='Check In Note'
+						isOpen={checkinNoteIsOpen}
+						onClose={checkinNoteOnClose}
+						onSubmit={(values) => {
+							checkinNoteOnClose();
+							handleSave(values);
+						}}
+						isLoading={isUpdating}
+					/>
+				)}
+
+				{absentNoteIsOpen && (
+					<NoteModal
+						title='Absent Note'
+						isOpen={absentNoteIsOpen}
+						onClose={absentNoteOnClose}
+						onSubmit={(values) => {
+							absentNoteOnClose();
+							handleSave(values);
+						}}
 						isLoading={isUpdating}
 					/>
 				)}

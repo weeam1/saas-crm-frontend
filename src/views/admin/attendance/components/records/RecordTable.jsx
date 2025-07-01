@@ -27,7 +27,7 @@ import { LuStickyNote } from 'react-icons/lu';
 import MessageViewModal from 'components/modals/MessageViewModal';
 
 const RecordTable = ({ records, isLoading, isFetching, role }) => {
-	const [leaveNote, setLeaveNote] = useState({
+	const [note, setNote] = useState({
 		title: 'Message',
 		message: 'N/A',
 		modal: false,
@@ -288,7 +288,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 													onClick={() => handleEdit(entry)}
 												/>
 
-												{entry?.leaveNote && entry?.status === 3 && (
+												{entry?.note && entry?.status === 3 && (
 													<Tooltip label='Leave Note' hasArrow>
 														<IconButton
 															aria-label='Leave note'
@@ -297,8 +297,8 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 															colorScheme='teal'
 															variant='solid'
 															onClick={() => {
-																setLeaveNote({
-																	message: entry.leaveNote,
+																setNote({
+																	message: entry.note,
 																	title: 'Leave Note',
 																	modal: true,
 																});
@@ -306,6 +306,54 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 														/>
 													</Tooltip>
 												)}
+
+												{entry?.absentNote?.length > 0 &&
+													entry?.status === 0 && (
+														<Tooltip
+															label='Absent Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Absent note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.absentNote,
+																		title: 'Absent Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
+
+												{[1, 2].includes(entry?.status) &&
+													entry?.checkinNote?.length > 0 && (
+														<Tooltip
+															label='Check-In Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Check-In note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry?.checkinNote,
+																		title: 'Check-In Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 											</Td>
 										)}
 									</Tr>
@@ -339,12 +387,12 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 				/>
 			)}
 
-			{leaveNote?.modal && (
+			{note?.modal && (
 				<MessageViewModal
-					title={leaveNote.title}
-					message={leaveNote.message}
-					isOpen={leaveNote.modal}
-					onClose={() => setLeaveNote({ modal: false })}
+					title={note.title}
+					message={note.message}
+					isOpen={note.modal}
+					onClose={() => setNote({ modal: false })}
 				/>
 			)}
 		</>

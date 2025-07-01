@@ -19,7 +19,7 @@ import { toast } from 'react-toastify';
 import { buttonStyle } from 'utils/btn';
 import LeaveNoteModal from './LeaveNoteModal';
 import AttendanceSelector from './AttendanceSelectors';
-import CheckinNoteModal from './CheckinNoteModal';
+import NoteModal from './NoteModal';
 
 const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 	const [checkInTime, setCheckInTime] = useState('09:00 AM');
@@ -47,6 +47,12 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		onClose: checkinNoteOnClose,
 	} = useDisclosure();
 
+	const {
+		isOpen: absentNoteIsOpen,
+		onOpen: absentNoteOnOpen,
+		onClose: absentNoteOnClose,
+	} = useDisclosure();
+
 	const [createItemMutation, { isLoading: isUpdating }] =
 		useCreateItemMutation();
 
@@ -59,7 +65,7 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		setInitialPayload(basePayload);
 
 		const actionHandlers = {
-			absent: () => handleAttendanceAction('absent', basePayload),
+			absent: absentNoteOnOpen,
 			leave: noteOnOpen,
 			present: checkinNoteOnOpen,
 		};
@@ -115,6 +121,15 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		await handleAttendanceAction('leave', {
 			...values,
 			...initialPayload,
+		});
+	};
+
+	const handleAbsent = async ({ note = '' }) => {
+		absentNoteOnClose();
+
+		handleAttendanceAction('absent', {
+			...initialPayload,
+			absentNote: note || '',
 		});
 	};
 
@@ -221,10 +236,21 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 			)}
 
 			{checkinNoteIsOpen && (
-				<CheckinNoteModal
+				<NoteModal
+					title='Check In Note'
 					isOpen={checkinNoteIsOpen}
 					onClose={checkinNoteOnClose}
 					onSubmit={handlePresent}
+					isLoading={isUpdating}
+				/>
+			)}
+
+			{absentNoteIsOpen && (
+				<NoteModal
+					title='Absent Note'
+					isOpen={absentNoteIsOpen}
+					onClose={absentNoteOnClose}
+					onSubmit={handleAbsent}
 					isLoading={isUpdating}
 				/>
 			)}

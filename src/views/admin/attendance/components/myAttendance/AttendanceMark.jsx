@@ -9,7 +9,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import { FaBan } from 'react-icons/fa';
 import LeaveNoteModal from './LeaveNoteModal';
-import CheckinNoteModal from './CheckinNoteModal';
+import NoteModal from './NoteModal';
 
 const AttendanceMark = ({
 	timezone,
@@ -32,6 +32,12 @@ const AttendanceMark = ({
 		isOpen: checkinNoteIsOpen,
 		onOpen: checkinNoteOnOpen,
 		onClose: checkinNoteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: absentNoteIsOpen,
+		onOpen: absentNoteOnOpen,
+		onClose: absentNoteOnClose,
 	} = useDisclosure();
 
 	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
@@ -134,12 +140,12 @@ const AttendanceMark = ({
 		}
 	};
 
-	const handleAbsence = async () => {
+	const handleAbsence = async ({ note = '' }) => {
 		try {
 			setAbsentLoading(true);
 			await createItemMutation({
 				path: '/attendance/absent',
-				body: { employeeId },
+				body: { employeeId, absentNote: note },
 			}).unwrap();
 
 			toast.success('Employee Absent successfully');
@@ -191,7 +197,7 @@ const AttendanceMark = ({
 		absent: {
 			bg: 'red.400',
 			_active: 'read.400',
-			onClick: handleAbsence,
+			onClick: absentNoteOnOpen,
 			text: 'Absent',
 		},
 		leave: {
@@ -303,11 +309,22 @@ const AttendanceMark = ({
 								)}
 
 								{checkinNoteIsOpen && (
-									<CheckinNoteModal
+									<NoteModal
+										title='Check In Note'
 										isOpen={checkinNoteIsOpen}
 										onClose={checkinNoteOnClose}
 										onSubmit={handleCheckIn}
 										isLoading={checkinLoading}
+									/>
+								)}
+
+								{absentNoteIsOpen && (
+									<NoteModal
+										title='Absent Note'
+										isOpen={absentNoteIsOpen}
+										onClose={absentNoteOnClose}
+										onSubmit={handleAbsence}
+										isLoading={absentLoading}
 									/>
 								)}
 							</>

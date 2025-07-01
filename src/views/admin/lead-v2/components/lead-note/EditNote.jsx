@@ -44,7 +44,6 @@ const EditNote = ({
 		const latestNoteText = updatedNotes[0]?.note || '';
 
 		if (latestNote) {
-			console.log('latest note');
 			dispatch(
 				updateLeadField({
 					id: leadId,

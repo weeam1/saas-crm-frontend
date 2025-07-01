@@ -263,6 +263,29 @@ const AttendanceTable = ({
 															/>
 														</Tooltip>
 													)}
+												{entry?.absentNote?.length > 0 &&
+													entry?.status === 0 && (
+														<Tooltip
+															label='Absent Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Absent note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.absentNote,
+																		title: 'Absent Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 
 												{[1, 2].includes(entry?.status) &&
 													entry?.checkinNote?.length > 0 && (
