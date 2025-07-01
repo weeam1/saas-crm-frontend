@@ -54,8 +54,10 @@ const RenderFields = ({ fields }) => {
 								borderColor: '#D99A36',
 								boxShadow: '0 0 0 1px #D99A36',
 							}}
-							placeholder={field.label}
 						>
+							<option value='' style={{ color: '#666' }} disabled>
+								Select {field.label}
+							</option>
 							{field.options.map((option) => (
 								<option key={option.value} value={option.value}>
 									{option.label}

@@ -116,6 +116,8 @@ const AttendanceTable = ({
 								// let statusBgColor = 'transparent';
 								// let statusText = '';
 
+								console.log({ note: entry?.checkinNote });
+
 								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
 									bg: '#F0F0F0',
 									text: '#000',
@@ -240,48 +242,53 @@ const AttendanceTable = ({
 													onClick={() => handleEdit(entry)}
 												/>
 
-												{entry?.leaveNote && entry?.status === 3 && (
-													<Tooltip label='Leave Note' hasArrow placement='top'>
-														<IconButton
-															aria-label='Leave note'
-															// icon={<FaNoteSticky />}
-															icon={<LuStickyNote />}
-															size='xs'
-															colorScheme='teal'
-															variant='solid'
-															onClick={() => {
-																setNote({
-																	message: entry.leaveNote,
-																	title: 'Leave Note',
-																	modal: true,
-																});
-															}}
-														/>
-													</Tooltip>
-												)}
+												{entry?.leaveNote?.length > 0 &&
+													entry?.status === 3 && (
+														<Tooltip
+															label='Leave Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Leave note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.leaveNote,
+																		title: 'Leave Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 
-												{entry?.checkinNote && (
-													<Tooltip
-														label='Check-In Note'
-														hasArrow
-														placement='top'
-													>
-														<IconButton
-															aria-label='Check-In note'
-															icon={<LuStickyNote />}
-															size='xs'
-															colorScheme='teal'
-															variant='solid'
-															onClick={() => {
-																setNote({
-																	message: entry?.checkinNote,
-																	title: 'Check-In Note',
-																	modal: true,
-																});
-															}}
-														/>
-													</Tooltip>
-												)}
+												{[1, 2].includes(entry?.status) &&
+													entry?.checkinNote?.length > 0 && (
+														<Tooltip
+															label='Check-In Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Check-In note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry?.checkinNote,
+																		title: 'Check-In Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 											</Td>
 										)}
 									</Tr>
@@ -291,7 +298,8 @@ const AttendanceTable = ({
 							<Tr borderColor='gray.200' textAlign='center'>
 								<Td
 									borderBottom='none'
-									colSpan='9'
+									colSpan='10'
+									py='12'
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
 									color='gray.500'
