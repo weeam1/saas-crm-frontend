@@ -288,24 +288,25 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 													onClick={() => handleEdit(entry)}
 												/>
 
-												{entry?.note && entry?.status === 3 && (
-													<Tooltip label='Leave Note' hasArrow>
-														<IconButton
-															aria-label='Leave note'
-															icon={<LuStickyNote />}
-															size='xs'
-															colorScheme='teal'
-															variant='solid'
-															onClick={() => {
-																setNote({
-																	message: entry.note,
-																	title: 'Leave Note',
-																	modal: true,
-																});
-															}}
-														/>
-													</Tooltip>
-												)}
+												{entry?.leaveNote?.length > 0 &&
+													entry?.status === 3 && (
+														<Tooltip label='Leave Note' hasArrow>
+															<IconButton
+																aria-label='Leave note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.leaveNote,
+																		title: 'Leave Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 
 												{entry?.absentNote?.length > 0 &&
 													entry?.status === 0 && (
