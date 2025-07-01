@@ -52,6 +52,7 @@ const AudioPlayer = ({
     const thisLoadId = ++loadIdRef.current;
     isMountedRef.current = true;
     setLoading(true);
+    setError(null);
 
     const cleanupPrevious = () => {
       return new Promise((resolve) => {
@@ -71,11 +72,16 @@ const AudioPlayer = ({
       if (!url || !waveformRef.current) return;
 
       try {
-        // Simulate a delay of 1 second before loading
         await new Promise((res) => setTimeout(res, 1000));
 
         const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error("Failed to load audio");
+
         const arrayBuffer = await response.arrayBuffer();
+
+        if (controller.signal.aborted) {
+          return;
+        }
 
         const audioContext = new AudioContext();
         const decoded = await audioContext.decodeAudioData(arrayBuffer);
@@ -86,10 +92,10 @@ const AudioPlayer = ({
         }
       } catch (err) {
         if (err.name === "AbortError") {
-          console.warn("Fetch/Decode aborted safely");
+          // Gracefully handle silent abort
           return;
         }
-        console.error("Validation error:", err);
+        console.error("Audio load error:", err);
         if (isMountedRef.current) {
           setError("Audio not available");
           setLoading(false);
@@ -164,7 +170,7 @@ const AudioPlayer = ({
 
     return () => {
       isMountedRef.current = false;
-      controller.abort();
+      controller.abort(); // cancel fetch/audio loading
       cleanupPrevious();
     };
   }, [url]);
@@ -205,7 +211,6 @@ const AudioPlayer = ({
       gap={2}
     >
       <Flex align="center" gap={4}>
-        {/* Play / Pause Button */}
         <CustomTooltip
           label={error ? "No audio found" : ""}
           fontSize="sm"
@@ -224,9 +229,8 @@ const AudioPlayer = ({
             _active={{ bg: "transparent" }}
           />
         </CustomTooltip>
-        {/* Waveform  */}
+
         <Box flex="1" position="relative">
-          {/* Wave Container */}
           <Box
             ref={waveformRef}
             w="100%"
@@ -255,7 +259,6 @@ const AudioPlayer = ({
           )}
         </Box>
 
-        {/* Speed Toggle  */}
         <Button
           size="sm"
           px={4}
@@ -272,7 +275,6 @@ const AudioPlayer = ({
         </Button>
       </Flex>
 
-      {/* Time & Timestamp */}
       <Flex justify="space-between" px="44px">
         <Text fontSize="xs" color="brand.500">
           {formatTime(duration)}

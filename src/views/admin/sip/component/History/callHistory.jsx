@@ -20,6 +20,7 @@ import { formatCallDuration } from "utils/helpers";
 import ViewToggle from "./ViewToggle";
 import CallTableView from "./CallTableView";
 import CallGrid from "./CallGrid";
+import TopPagination from "components/pagination/TopPagination";
 
 const CallHistory = ({ setTotalCallRecord }) => {
   const [calls, setCalls] = useState([]);
@@ -58,24 +59,29 @@ const CallHistory = ({ setTotalCallRecord }) => {
     return params;
   }, [page, pageSize, filters]);
 
-  const loadCalls = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = buildQueryParams();
-      const data = await fetchCallHistoryData(params);
+const loadCalls = useCallback(async () => {
+  try {
+    setLoading(true);
+    const params = buildQueryParams();
+    const data = await fetchCallHistoryData(params);
 
-      setCalls(data.data || []);
-      setTotalItems(data.total_records || 0);
-      setTotalCallRecord(data.total_records || 0);
-      setTotalPages(data.total_pages || 1);
-      if (data.page) setPage(data.page);
-      if (data.page_size) setPageSize(data.page_size);
-    } catch (err) {
-      setError("Failed to fetch call history");
-    } finally {
-      setLoading(false);
+    setCalls(data.data || []);
+    setTotalItems(data.total_records || 0);
+    setTotalCallRecord(data.total_records || 0);
+    setTotalPages(data.total_pages || 1);
+    if (data.page) setPage(data.page);
+
+    if (data.page_size && pageSize === 10 && page === 1) {
+      setPageSize(data.page_size);
     }
-  }, [buildQueryParams]);
+
+  } catch (err) {
+    setError("Failed to fetch call history");
+  } finally {
+    setLoading(false);
+  }
+}, [buildQueryParams, pageSize, page]);
+
 
   useEffect(() => {
     loadCalls();
@@ -85,8 +91,8 @@ const CallHistory = ({ setTotalCallRecord }) => {
     setPage(newPage);
   }, []);
 
-  const handlePageSizeChange = useCallback((e) => {
-    setPageSize(e.target.value);
+  const handlePageSizeChange = useCallback((value) => {
+    setPageSize(value);
     setPage(1);
   }, []);
 
@@ -187,18 +193,17 @@ const CallHistory = ({ setTotalCallRecord }) => {
         />
       </Box>
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-        totalItems={totalItems}
-        itemsPerPage={pageSize}
-        setPageSize={setPageSize}
-        handlePageSize={handlePageSizeChange}
-        refetching={loading}
-        loading={loading}
-      />
-
+  <TopPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={loading}
+          loading={loading}
+        />
       {loading ? (
         view === "table" ? (
           <TableLoading
