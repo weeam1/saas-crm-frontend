@@ -15,9 +15,10 @@ import {
 	InputRightElement,
 	InputGroup,
 	Text,
+	Icon,
 } from '@chakra-ui/react';
 import './date.css';
-import { FaRegCalendar } from 'react-icons/fa';
+import { FaRegCalendar, FaClock } from 'react-icons/fa';
 import { useState } from 'react';
 import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -85,7 +86,6 @@ const ArrangeInterview = ({
 
 	return (
 		<>
-			{/* Modal */}
 			<Modal isOpen={isOpen} onClose={onClose} isCentered size='lg'>
 				<ModalOverlay />
 				<ModalContent p='1rem'>
@@ -145,28 +145,43 @@ const ArrangeInterview = ({
 							)}
 						</FormControl>
 
-						{/* Time Input */}
+						{/* Time Input with Custom Icon */}
 						<FormControl isInvalid={errors?.showTime}>
 							<FormLabel>Select Time</FormLabel>
-							<Input
-								type='time'
-								value={showTime}
-								onChange={handleTimeChange}
-								focusBorderColor={errors?.showTime ? 'red.500' : '#E0B960'}
-								bg='#F2F2F2'
-								required
-								borderRadius='md'
-								borderColor={errors?.showTime ? 'red.500' : 'gray.300'}
-								placeholder='Select a time'
-								shadow='sm'
-								pl='1rem'
-								pr='.5rem'
-								sx={{
-									'&::-webkit-calendar-picker-indicator': {
-										cursor: 'pointer',
-									},
-								}}
-							/>
+							<InputGroup>
+								<Input
+									type='time'
+									value={showTime}
+									onChange={handleTimeChange}
+									focusBorderColor={errors?.showTime ? 'red.500' : '#E0B960'}
+									bg='#F2F2F2'
+									required
+									borderRadius='md'
+									borderColor={errors?.showTime ? 'red.500' : 'gray.300'}
+									placeholder='Select a time'
+									shadow='sm'
+									pl='1rem'
+									pr='2.5rem'
+									sx={{
+										'&::-webkit-calendar-picker-indicator': {
+											position: 'absolute',
+											right: '0',
+											width: '100%',
+											height: '100%',
+											margin: '0',
+											padding: '0',
+											opacity: '0', // Make it invisible but clickable
+											cursor: 'pointer',
+										},
+									}}
+								/>
+								<InputRightElement pointerEvents='none' pr='5px'>
+									<Icon
+										as={FaClock}
+										color={errors?.showTime ? 'red.500' : 'gray.800'}
+									/>
+								</InputRightElement>
+							</InputGroup>
 							{errors?.showTime && (
 								<Text color='red.500' fontSize='sm'>
 									{errors?.showTime}

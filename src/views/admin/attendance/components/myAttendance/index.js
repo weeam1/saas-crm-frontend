@@ -86,21 +86,22 @@ const Attendance = () => {
 				>
 					Back
 				</AppButton>
-				<Box
-					display='flex'
+				<Flex
 					justifyContent='space-between'
 					alignItems='center'
+					flexDir={{ base: 'column', md: 'row' }}
 					mt={2}
 					mb='4'
 					bg='white'
 					p={4}
+					gap='4'
 				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 						Attendance Record
 					</Text>
 
 					{['HR', 'superAdmin'].includes(role) && (
-						<Stack direction={{ base: 'column', md: 'row' }} spacing={2}>
+						<Stack direction={{ base: 'row' }} spacing={2}>
 							<ExportEmployeeAttendanceReport
 								month={month}
 								year={year}
@@ -121,7 +122,7 @@ const Attendance = () => {
 							</Button>
 						</Stack>
 					)}
-				</Box>
+				</Flex>
 
 				{error ? (
 					<ErrorMessage message='No results found. Please check your query.' />
