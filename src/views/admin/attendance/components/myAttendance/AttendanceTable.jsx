@@ -116,8 +116,6 @@ const AttendanceTable = ({
 								// let statusBgColor = 'transparent';
 								// let statusText = '';
 
-								console.log({ note: entry?.checkinNote });
-
 								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
 									bg: '#F0F0F0',
 									text: '#000',

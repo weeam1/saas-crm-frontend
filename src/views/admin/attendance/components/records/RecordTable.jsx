@@ -267,12 +267,12 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											fontWeight='400'
 										>
 											{[0, 3].includes(entry.status)
-												? '0m'
+												? '0'
 												: entry.checkin && entry.checkout
 													? entry.totalWorkingHours?.hours ||
 														entry.totalWorkingHours?.minutes
 														? `${entry.totalWorkingHours.hours ? `${entry.totalWorkingHours.hours}h ` : ''}${entry.totalWorkingHours.minutes ? `${entry.totalWorkingHours.minutes}m` : ''}`
-														: '0m'
+														: '0'
 													: 'Pending'}
 										</Td>
 										{['HR', 'superAdmin'].includes(role) && (
