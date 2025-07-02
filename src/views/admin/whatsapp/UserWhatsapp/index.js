@@ -8,7 +8,6 @@ import { useDispatch } from 'react-redux';
 import Loader from 'components/loading/Loader';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
-import WhatsappConfigModal from './WhatsappConfigModal';
 import { HStack } from '@chakra-ui/react';
 
 const UserWhatsapp = () => {
@@ -63,7 +62,6 @@ const UserWhatsapp = () => {
 					>
 						Back
 					</AppButton>
-					<WhatsappConfigModal />
 				</HStack>
 			)}
 

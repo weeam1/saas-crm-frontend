@@ -8,7 +8,6 @@ class SocketService {
 		this.events = new Map();
 		this.connectionStatus = 'disconnected';
 		this.reconnectionAttempts = 0;
-		this.maxReconnectionAttempts = 5;
 		this.connectionPromise = null;
 	}
 
@@ -23,17 +22,19 @@ class SocketService {
 			return this.connectionPromise;
 		}
 
+		console.log('Connecting to socket URL:', url);
+
 		// Default options with merging
 		const defaultOptions = {
 			path: '/socket.io',
 			// transports: ['socket.io'],
 			reconnection: true,
-			reconnectionAttempts: this.maxReconnectionAttempts,
+			// reconnectionAttempts: this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
 			forceNew: true,
-			timeout: 2000,
+			timeout: 5000,
 		};
 
 		this.socket = io(url, { ...defaultOptions, ...options });
@@ -73,28 +74,17 @@ class SocketService {
 				reject(error);
 			});
 
-			// Reconnection handling
-			this.socket.on('reconnect_attempt', (attempt) => {
-				this.reconnectionAttempts = attempt;
-				this.connectionStatus = 'reconnecting';
-				console.log(
-					`Reconnection attempt ${attempt}/${this.maxReconnectionAttempts}`
-				);
-			});
-
-			// Reconnection failed
-			this.socket.on('reconnect_failed', () => {
-				this.connectionStatus = 'failed';
-				console.error('Socket reconnection failed');
-			});
-
 			// Disconnection
 			this.socket.on('disconnect', (reason) => {
 				this.connectionStatus = 'disconnected';
 				console.log('Socket disconnected:', reason);
-				if (reason === 'io server disconnect') {
-					// The server forcibly disconnected the socket
-					this.socket.connect();
+				console.log('Socket disconnected:', reason);
+				if (
+					reason === 'io server disconnect' ||
+					reason === 'ping timeout' ||
+					reason === 'transport close'
+				) {
+					this.connectionPromise = null;
 				}
 			});
 		});

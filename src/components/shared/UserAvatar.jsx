@@ -9,6 +9,7 @@ const UserAvatar = ({ src, name, size = 'md', fallbackSrc = '', ...props }) => {
 			src={avatarSrc}
 			name={name}
 			size={size}
+			shadow='sm'
 			bg={avatarSrc ? 'gray.100' : 'brand.500'}
 			color={avatarSrc ? '#333' : 'white'}
 			{...props}

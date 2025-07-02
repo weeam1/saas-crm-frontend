@@ -17,7 +17,6 @@ import TableLoading from 'components/loading/TableLoading';
 
 import NoData from 'components/Message/NoData';
 import { FiEdit, FiTrash } from 'react-icons/fi';
-import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { CopyIcon } from '@chakra-ui/icons';
 import CustomTooltip from 'components/shared/CustomTooltip';

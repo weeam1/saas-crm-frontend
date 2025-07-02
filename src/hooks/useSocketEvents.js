@@ -1,26 +1,40 @@
-import { useCallback, useEffect } from 'react';
+import keys from 'config/keys';
+import { useCallback, useEffect, useState } from 'react';
 import socketService from 'services/socketService';
 
 export function useSocketEvents() {
-	useEffect(() => {
-		(async () => {
-			try {
-				// await socketService.connect('http://localhost:5000');
-				await socketService.connect('https://stageapi.weeam.info');
-			} catch (err) {
-				console.error('Socket connection failed:', err);
+	const [isConnected, setIsConnected] = useState(false);
+
+	const connect = useCallback(async () => {
+		try {
+			// await socketService.connect('http://localhost:5000');
+			await socketService.connect(keys.socketIoUrl);
+
+			if (socketService.socket) {
+				setIsConnected(socketService.socket.connected);
+
+				// also listen to socket events to track future changes
+				socketService.socket.on('connect', () => setIsConnected(true));
+				socketService.socket.on('disconnect', () => setIsConnected(false));
 			}
-		})();
+		} catch (err) {
+			console.error('Socket connection failed:', err);
+			setIsConnected(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		connect();
 
 		return () => {
-			// cleanup on unmount
 			socketService.disconnect();
 		};
 	}, []);
 
 	// Register user payload
 	const registerUser = useCallback((payload) => {
-		socketService.emit('register', payload).catch(console.error);
+		console.log('Registering user with payload:', payload);
+		socketService.registerUser(payload);
 	}, []);
 
 	// General-purpose emit
@@ -28,5 +42,5 @@ export function useSocketEvents() {
 		return socketService.emit(event, data);
 	}, []);
 
-	return { registerUser, emit };
+	return { registerUser, isConnected, emit };
 }

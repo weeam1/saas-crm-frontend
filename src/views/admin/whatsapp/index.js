@@ -136,28 +136,41 @@ const Whatsapp = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
 
-	const { registerUser } = useSocketEvents();
+	const { registerUser, isConnected } = useSocketEvents();
 
-	const { data: config } = useFetchItemsQuery({
-		path: '/whatsapp/config',
-	});
+	// const { data: config } = useFetchItemsQuery({
+	// 	path: '/whatsapp/config',
+	// });
 
 	useEffect(() => {
-		if (config?.doc) {
-			setApiKey(config?.doc?.token);
+		if (currentUser?.phoneNumber && isConnected) {
+			setBussinessPhone(currentUser?.phoneNumber);
+			const registerPayload = {
+				phoneNumber: currentUser?.phoneNumber,
+				userId: currentUser?.user?._id || '',
+			};
 
-			// When you have both business phone and user ID
-			if (currentUser) {
-				setBussinessPhone(currentUser?.phoneNumber);
-				const registerPayload = {
-					phoneNumber: currentUser?.phoneNumber,
-					userId: currentUser?.user?._id || '',
-				};
-
-				registerUser(registerPayload);
-			}
+			registerUser(registerPayload);
 		}
-	}, [config?.doc, currentUser, registerUser]);
+	}, [currentUser, registerUser, isConnected]);
+	// useEffect(() => {
+	// 	if (config?.doc) {
+	// 		setApiKey(config?.doc?.token);
+
+	// 		// When you have both business phone and user ID
+	// 		if (currentUser?.phoneNumber) {
+	// 			setBussinessPhone(currentUser?.phoneNumber);
+	// 			const registerPayload = {
+	// 				phoneNumber: currentUser?.phoneNumber,
+	// 				userId: currentUser?.user?._id || '',
+	// 			};
+
+	// 			console.log({ registerPayload });
+
+	// 			registerUser(registerPayload);
+	// 		}
+	// 	}
+	// }, [config?.doc, currentUser, registerUser, isConnected]);
 
 	const dispatch = useDispatch();
 
