@@ -44,7 +44,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
   const buildQueryParams = useCallback(() => {
     const params = {
       page: page,
-      limit: pageSize,
+      page_size: pageSize,
     };
 
     if (filters.call_from) params.call_from = filters.call_from;
