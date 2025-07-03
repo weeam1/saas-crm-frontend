@@ -19,8 +19,9 @@ import {
 	Spinner,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiMessageSquare } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 	const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -40,6 +41,12 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 			refetchOnMountOrArgChange: true,
 		}
 	);
+
+	useEffect(() => {
+		if (templates?.doc?.length > 0) {
+			setSelectedTemplate(templates.doc[0]);
+		}
+	}, [templates?.doc]);
 
 	//  Extract template body + footer
 	const templateBody =
@@ -71,6 +78,10 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 	// console.log({ previewText, placeholderValues });
 
 	const handleSendTemplate = () => {
+		if (!placeholderValues[1]) {
+			return toast.error('Please enter the name placeholder value.');
+		}
+
 		onSend({
 			message: previewText,
 			templateName: selectedTemplate.name,
@@ -158,7 +169,7 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 												<Flex justify='space-between' align='center' mb={2}>
 													<Text
 														fontWeight='bold'
-														fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+														fontSize={{ base: 'xs', md: 'sm' }}
 													>
 														{template.name}
 													</Text>
