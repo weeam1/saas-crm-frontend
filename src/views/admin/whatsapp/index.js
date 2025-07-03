@@ -284,6 +284,8 @@ const Whatsapp = () => {
 		};
 	}, []);
 
+	console.log('isSending', isSending);
+
 	const handleSendMessage = useCallback(
 		async (values) => {
 			if (!bussinessPhone) {
@@ -292,8 +294,8 @@ const Whatsapp = () => {
 				);
 			}
 
-			setInputMessage('');
-			if (isSending) return;
+			console.log({ values });
+
 			const formData = new FormData();
 
 			if (values?.type === 'template') {
@@ -331,6 +333,9 @@ const Whatsapp = () => {
 			formData.append('from', bussinessPhone);
 			formData.append('to', activeChat.phoneNumber);
 
+			setInputMessage('');
+			// if (isSending) return;
+
 			setIsSending(true);
 			try {
 				const res = await createMessageAPI({
@@ -347,7 +352,9 @@ const Whatsapp = () => {
 
 				// Optionally reset input + file
 				setInputMessage('');
-				values?.type === 'template' && onWATemplateClose();
+				if (values?.type === 'template') {
+					onWATemplateClose();
+				}
 			} catch (err) {
 				if (err.status === 403 && err?.data.message.includes('session')) {
 					// open template modal if session expired
@@ -670,6 +677,7 @@ const Whatsapp = () => {
 					isOpen={isWATemplateOpen}
 					accountId={currentUser?.businessId}
 					onSend={handleSendMessage}
+					isLoading={isSending}
 				/>
 			)}
 

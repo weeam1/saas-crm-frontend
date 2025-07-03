@@ -23,13 +23,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiMessageSquare } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
-const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
+const WhatsappTemplates = ({
+	isOpen,
+	onClose,
+	onSend,
+	accountId,
+	isLoading,
+}) => {
 	const [selectedTemplate, setSelectedTemplate] = useState(null);
 	const [placeholderValues, setPlaceholderValues] = useState({});
 
 	const {
 		data: templates = [],
-		isLoading,
+		isLoading: isTemplatesLoading,
 		isError,
 	} = useFetchItemsQuery(
 		{
@@ -78,9 +84,11 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 	// console.log({ previewText, placeholderValues });
 
 	const handleSendTemplate = () => {
-		if (!placeholderValues[1]) {
-			return toast.error('Please enter the name placeholder value.');
-		}
+		// if (!placeholderValues[1]) {
+		// 	return toast.error('Please enter the name placeholder value.');
+		// }
+
+		console.log('send template');
 
 		onSend({
 			message: previewText,
@@ -99,6 +107,7 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 				size='5xl'
 				isCentered
 				motionPreset='slideInBottom'
+				closeOnOverlayClick={false}
 			>
 				<ModalOverlay bg='blackAlpha.600' backdropFilter='blur(4px)' />
 				<ModalContent
@@ -114,13 +123,14 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 						</Flex>
 					</ModalHeader>
 					<ModalCloseButton
+						disabled={isLoading}
 						color='white'
 						_hover={{ bg: 'green.600' }}
 						_focus={{ outline: 'none' }}
 					/>
 
 					<ModalBody p={6}>
-						{isLoading ? (
+						{isTemplatesLoading ? (
 							<Flex justify='center' align='center' minH='200px'>
 								<Spinner size='xl' color='green.500' />
 							</Flex>
@@ -299,11 +309,21 @@ const WhatsappTemplates = ({ isOpen, onClose, onSend, accountId }) => {
 
 					<ModalFooter bg='gray.50' py={3}>
 						<Flex justify='space-between' w='full'>
-							<Button variant='ghost' colorScheme='gray' onClick={onClose}>
+							<Button
+								variant='ghost'
+								colorScheme='gray'
+								onClick={onClose}
+								disabled={isLoading}
+							>
 								Close
 							</Button>
 							{selectedTemplate && (
-								<Button colorScheme='green' onClick={handleSendTemplate}>
+								<Button
+									colorScheme='green'
+									onClick={handleSendTemplate}
+									isLoading={isLoading}
+									isDisabled={isLoading}
+								>
 									Send Template
 								</Button>
 							)}
