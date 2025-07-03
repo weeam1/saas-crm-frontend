@@ -26,7 +26,12 @@ const schema = Yup.object().shape({
 	userId: Yup.string().required('User is required'),
 	phoneNumber: Yup.string()
 		.required('Phone number is required')
-		.matches(/^\+?[0-9]{7,15}$/, 'Invalid phone number'),
+		.matches(/^[0-9]+$/, 'Invalid phone number: only digits allowed'),
+
+	businessId: Yup.string()
+		.required('Business ID is required')
+		.matches(/^[0-9]+$/, 'Invalid business ID: only digits allowed'),
+
 	isActive: Yup.boolean().required('Status is required'),
 });
 
@@ -46,10 +51,13 @@ const AddWhatsappUser = ({
 		register,
 		handleSubmit,
 		setValue,
+
 		formState: { errors },
 	} = useForm({
 		defaultValues: initialValues,
 		resolver: yupResolver(schema),
+		mode: 'onChange', // validate on each keypress
+		reValidateMode: 'onChange', // re-validate on each change
 	});
 
 	const handleSelectUser = (user) => {
@@ -80,7 +88,7 @@ const AddWhatsappUser = ({
 					<FormControl mb='4' isInvalid={errors.phoneNumber}>
 						<FormLabel>Phone ID</FormLabel>
 						<Input
-							placeholder='1234567890'
+							placeholder='Enter phone number id'
 							{...register('phoneNumber')}
 							_focus={{
 								borderColor: '#D99A36',
@@ -89,6 +97,20 @@ const AddWhatsappUser = ({
 							}}
 						/>
 						<FormErrorMessage>{errors.phoneNumber?.message}</FormErrorMessage>
+					</FormControl>
+
+					<FormControl mb='4' isInvalid={errors.businessId}>
+						<FormLabel>Business ID</FormLabel>
+						<Input
+							placeholder='Enter business id'
+							{...register('businessId')}
+							_focus={{
+								borderColor: '#D99A36',
+								boxShadow: '0 0 0 1px #D99A36',
+								outline: 'none',
+							}}
+						/>
+						<FormErrorMessage>{errors.businessId?.message}</FormErrorMessage>
 					</FormControl>
 
 					<FormControl isInvalid={errors.isActive}>

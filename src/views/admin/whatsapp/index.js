@@ -90,6 +90,7 @@ import { resolveMessageType } from './components/helpers';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import UserAvatar from 'components/shared/UserAvatar';
 import MediaLimitsModal from './components/Media/MediaLimitsModal';
+import WhatsappTemplates from './components/modals/WhatsappTemplates';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -102,6 +103,12 @@ const Whatsapp = () => {
 		isOpen: isMediaLimitOpen,
 		onOpen: onMediaLimitOpen,
 		onClose: onMediaLimitClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: isWATemplateOpen,
+		onOpen: onWATemplateOpen,
+		onClose: onWATemplateClose,
 	} = useDisclosure();
 
 	const [messages, setMessages] = useState([]);
@@ -277,64 +284,86 @@ const Whatsapp = () => {
 		};
 	}, []);
 
-	const handleSendMessage = useCallback(async () => {
-		setInputMessage('');
-		if (isSending) return;
+	const handleSendMessage = useCallback(
+		async (values) => {
+			if (!bussinessPhone) {
+				return toast.error(
+					'Please set your business phone number in settings.'
+				);
+			}
 
-		const inputText = inputMessage.trim();
-		if (!inputText && !selectedFile && !activeChat) return;
-
-		const formData = new FormData();
-
-		formData.append('from', bussinessPhone ?? '654212707774447');
-		formData.append('to', activeChat.phoneNumber);
-
-		// Determine message type
-		const isMedia = Boolean(selectedFile);
-		const messageType = voiceFile
-			? 'audio'
-			: isMedia
-				? resolveMessageType(selectedFile)
-				: 'text';
-		formData.append('type', messageType);
-
-		if (inputText && isMedia && messageType !== 'audio') {
-			formData.append('caption', inputText);
-		} else if (messageType === 'text') {
-			formData.append('message', inputText);
-		}
-
-		if (isMedia || voiceFile) {
-			const file = voiceFile ?? selectedFile.file;
-			formData.append('file', file);
-		}
-
-		setIsSending(true);
-		try {
-			const res = await createMessageAPI({
-				path: '/whatsapp/messages',
-				body: formData,
-			}).unwrap();
-
-			dispatch(
-				appendMessage({
-					chatId: activeChat.roomId,
-					message: res?.data,
-				})
-			);
-
-			// Optionally reset input + file
 			setInputMessage('');
-		} catch (err) {
-			console.error(err);
-			toast.error(err?.data?.message || 'Message could not be sent!');
-		} finally {
-			setIsSending(false);
-			setVoiceFile(null);
-			setSelectedFile(null);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [inputMessage, selectedFile, createMessageAPI, dispatch]);
+			if (isSending) return;
+			const formData = new FormData();
+
+			if (values?.type === 'template') {
+				formData.append('templateName', values.templateName);
+				formData.append('languageCode', values.languageCode);
+				formData.append('message', values.message);
+				formData.append('type', values.type);
+				formData.append('palceholder', values.palceholder);
+			} else {
+				const inputText = inputMessage.trim();
+				if (!inputText && !selectedFile && !activeChat) return;
+
+				// Determine message type
+				const isMedia = Boolean(selectedFile);
+				const messageType = voiceFile
+					? 'audio'
+					: isMedia
+						? resolveMessageType(selectedFile)
+						: 'text';
+				formData.append('type', messageType);
+
+				if (inputText && isMedia && messageType !== 'audio') {
+					formData.append('caption', inputText);
+				} else if (messageType === 'text') {
+					formData.append('message', inputText);
+				}
+
+				if (isMedia || voiceFile) {
+					const file = voiceFile ?? selectedFile.file;
+					formData.append('file', file);
+				}
+			}
+
+			// important fields
+			formData.append('from', bussinessPhone);
+			formData.append('to', activeChat.phoneNumber);
+
+			setIsSending(true);
+			try {
+				const res = await createMessageAPI({
+					path: '/whatsapp/messages',
+					body: formData,
+				}).unwrap();
+
+				dispatch(
+					appendMessage({
+						chatId: activeChat.roomId,
+						message: res?.data,
+					})
+				);
+
+				// Optionally reset input + file
+				setInputMessage('');
+				values?.type === 'template' && onWATemplateClose();
+			} catch (err) {
+				if (err.status === 403 && err?.data.message.includes('session')) {
+					// open template modal if session expired
+					onWATemplateOpen();
+				}
+				console.error(err);
+				toast.error(err?.data?.message || 'Message could not be sent!');
+			} finally {
+				setIsSending(false);
+				setVoiceFile(null);
+				setSelectedFile(null);
+			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		},
+		[inputMessage, selectedFile, createMessageAPI, dispatch]
+	);
 
 	// const handleVoiceMessageSend = ({ file, type, duration }) => {
 	// 	// Handle the audio file (upload to backend, etc.)
@@ -482,13 +511,14 @@ const Whatsapp = () => {
 									resolve();
 								};
 							});
+							const duration = Math.round(audio.duration || recordingTime);
 
-							if (voiceFile) {
+							console.log('Audio duration:', duration);
+
+							if (voiceFile && duration > 0) {
 								// send message
 								handleSendMessage();
 							}
-
-							// const duration = Math.round(audio.duration || recordingTime);
 
 							// const newMessage = {
 							// 	id: Date.now(),
@@ -634,6 +664,15 @@ const Whatsapp = () => {
 
 	return (
 		<>
+			{isWATemplateOpen && (
+				<WhatsappTemplates
+					onClose={onWATemplateClose}
+					isOpen={isWATemplateOpen}
+					accountId={currentUser?.businessId}
+					onSend={handleSendMessage}
+				/>
+			)}
+
 			<Flex
 				h='80vh'
 				overflow='hidden'
@@ -981,7 +1020,7 @@ const Whatsapp = () => {
 												color={whatsappColors.textSecondary}
 												variant='ghost'
 											/>
-											{/* <IconButton
+											<IconButton
 												icon={<RiSendPlaneFill />}
 												aria-label='Send recording'
 												size='sm'
@@ -989,7 +1028,7 @@ const Whatsapp = () => {
 												color='white'
 												_hover={{ bg: whatsappColors.secondary }}
 												onClick={stopRecording}
-											/> */}
+											/>
 										</HStack>
 									</Flex>
 
@@ -1155,7 +1194,7 @@ const Whatsapp = () => {
 											aria-label='Stop recording'
 											colorScheme='red'
 											ml={2}
-											onClick={stopRecording}
+											onClick={cancelRecording}
 										/>
 									) : (
 										<>

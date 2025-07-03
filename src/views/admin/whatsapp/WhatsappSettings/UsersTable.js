@@ -29,7 +29,15 @@ const UsersTable = ({
 	handleEdit,
 	handleDelete,
 }) => {
-	const columns = ['User', 'Email', 'Phone ID', 'Agency', 'Status', 'Action'];
+	const columns = [
+		'User',
+		'Email',
+		'Phone ID',
+		'Business ID',
+		'Agency',
+		'Status',
+		'Action',
+	];
 
 	const navigate = useNavigate();
 
@@ -82,6 +90,9 @@ const UsersTable = ({
 								</Td>
 								<Td minW='200px' textAlign='left'>
 									<CopyPhoneCell value={item?.phoneNumber} />
+								</Td>
+								<Td minW='200px' textAlign='left'>
+									<CopyPhoneCell value={item?.businessId} />
 								</Td>
 
 								{/* <Td textAlign='center'>

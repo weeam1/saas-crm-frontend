@@ -14,6 +14,15 @@ import { FiMessageCircle } from 'react-icons/fi';
 import { MessageContent } from './MessageContent';
 import ChatDate from './dates/ChatDate';
 
+const MESSAGE_TYPES = [
+	'text',
+	'image',
+	'template',
+	'video',
+	'audio',
+	'document',
+];
+
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
 
@@ -45,11 +54,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const containerRef = useRef(null);
 	const prevScrollHeight = useRef(0);
 	const [loadingOlder, setLoadingOlder] = useState(false);
-
-	// Scroll to bottom when messages change
-	// useEffect(() => {
-	// 	scrollToBottom();
-	// }, [messages, chatFetching]);
 
 	// --- initial + room change load -
 	useEffect(() => {
@@ -105,15 +109,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		chatData?.pagination?.totalPages,
 	]);
 
-	// // Scroll to bottom on initial render
-	// useEffect(() => {
-	// 	scrollToBottom();
-	// }, []);
-
-	// const scrollToBottom = () => {
-	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	// };
-
 	// useEffect(() => {
 	// 	if (to) {
 	// 		setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
@@ -150,7 +145,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 					<Loader />
 				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
 					messages?.map((message, index) => {
-						if (message.type === 'unsupported') return null;
+						if (!MESSAGE_TYPES.includes(message.type)) return null;
 
 						const isSelf = message.from === from;
 
@@ -177,7 +172,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										px={4}
 										py={2}
 										borderRadius='lg'
-										maxW={{ base: '90%', md: '60%' }}
+										// maxW={{ base: '90%', md: '60%' }}
+										maxWidth={{ base: '200px', md: '250px', lg: '400px' }}
 										boxShadow='sm'
 										color={whatsappColors.textDark}
 										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
