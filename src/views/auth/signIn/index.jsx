@@ -136,6 +136,7 @@ function SignIn() {
                 value={values.username}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                _focus={{ borderColor: 'brand.500' }}
               />
             </InputGroup>
             <FormErrorMessage>{errors.username}</FormErrorMessage>
@@ -151,6 +152,7 @@ function SignIn() {
                 value={values.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                 _focus={{ borderColor: 'brand.500' }}
               />
               <InputRightElement>
                 <Icon
