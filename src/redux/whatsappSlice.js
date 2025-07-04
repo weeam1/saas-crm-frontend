@@ -12,6 +12,9 @@ const whatsappSlice = createSlice({
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+
+			// localStorage.removeItem('activeChat');
+			// localStorage.setItem('activeChat', JSON.stringify(action.payload));
 		},
 
 		setActiveChat: (state, action) => {
