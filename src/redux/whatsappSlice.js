@@ -61,12 +61,32 @@ const whatsappSlice = createSlice({
 		// update messages (pagination scroll bar top)
 		prependMessages(state, action) {
 			const { chatId, messages } = action.payload;
+
 			if (!state.chats[chatId]) {
 				state.chats[chatId] = messages;
 			} else {
-				state.chats[chatId] = [...messages, ...state.chats[chatId]];
+				// Get existing message IDs for quick lookup
+				const existingIds = new Set(state.chats[chatId].map((msg) => msg._id));
+
+				// Filter out any messages that already exist
+				const uniqueNewMessages = messages.filter(
+					(msg) => !existingIds.has(msg._id)
+				);
+
+				// Only prepend if there are unique messages
+				if (uniqueNewMessages.length > 0) {
+					state.chats[chatId] = [...uniqueNewMessages, ...state.chats[chatId]];
+				}
 			}
 		},
+		// prependMessages(state, action) {
+		// 	const { chatId, messages } = action.payload;
+		// 	if (!state.chats[chatId]) {
+		// 		state.chats[chatId] = messages;
+		// 	} else {
+		// 		state.chats[chatId] = [...messages, ...state.chats[chatId]];
+		// 	}
+		// },
 		appendMessage(state, action) {
 			const { chatId, message } = action.payload;
 

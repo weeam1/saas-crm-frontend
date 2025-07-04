@@ -172,8 +172,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										px={4}
 										py={2}
 										borderRadius='lg'
-										// maxW={{ base: '90%', md: '60%' }}
-										maxWidth={{ base: '200px', md: '250px', lg: '400px' }}
+										maxW={{ base: '80%', md: '60%' }}
+										// maxWidth={{ base: '200px', md: '250px', lg: '400px' }}
 										boxShadow='sm'
 										color={whatsappColors.textDark}
 										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}

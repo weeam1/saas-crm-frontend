@@ -24,7 +24,7 @@ const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
 	const [selectedAgency, setSelectedAgency] = useState(currentAgency);
 
 	const handleApplyFilters = () => {
-		updateFilters({ agency: selectedAgency });
+		updateFilters({ agency: selectedAgency, page: 1 });
 		selectedAgency !== '' && setSearchClear(true);
 
 		localStorage.setItem('attendanceAgencyFilter', selectedAgency);
