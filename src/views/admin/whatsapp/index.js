@@ -61,6 +61,7 @@ import {
 	FiDownload,
 	FiUser,
 	FiSettings,
+	FiMessageSquare,
 } from 'react-icons/fi';
 import { IoMdMic, IoMdClose } from 'react-icons/io';
 import {
@@ -92,6 +93,7 @@ import { useSocketEvents } from 'hooks/useSocketEvents';
 import UserAvatar from 'components/shared/UserAvatar';
 import MediaLimitsModal from './components/Media/MediaLimitsModal';
 import WhatsappTemplates from './components/modals/WhatsappTemplates';
+import useIsMobile from './components/useIsMobile';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -99,6 +101,8 @@ const isSuperAdmin = user?.role === 'superAdmin';
 const Whatsapp = () => {
 	const users = useSelector((state) => state.whatsapp.contacts || []);
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
+	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
+	const contacts = useSelector((state) => state.whatsapp.contacts || []);
 
 	const {
 		isOpen: isMediaLimitOpen,
@@ -117,7 +121,7 @@ const Whatsapp = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isSending, setIsSending] = useState(false);
-	const [activeChat, setActiveChat] = useState(null);
+	// const [activeChat, setActiveChat] = useState(null);
 	const [recordingTime, setRecordingTime] = useState(0);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [audioLevel, setAudioLevel] = useState(0);
@@ -151,6 +155,17 @@ const Whatsapp = () => {
 	const btnRef = useRef();
 
 	const { registerUser, isConnected } = useSocketEvents();
+
+	const filteredContacts = useMemo(() => {
+		if (!searchQuery.trim()) return contacts;
+
+		const query = searchQuery.trim().toLowerCase();
+
+		return contacts.filter(({ name = '', phoneNumber = '' }) => {
+			const combined = `${name} ${phoneNumber}`.toLowerCase();
+			return combined.includes(query);
+		});
+	}, [contacts, searchQuery]);
 
 	// const { data: config } = useFetchItemsQuery({
 	// 	path: '/whatsapp/config',
@@ -188,7 +203,8 @@ const Whatsapp = () => {
 
 	const dispatch = useDispatch();
 
-	const isMobile = useBreakpointValue({ base: true, md: false });
+	// const isMobile = useBreakpointValue({ base: true, md: false });
+	const isMobile = useIsMobile();
 
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
@@ -323,8 +339,10 @@ const Whatsapp = () => {
 
 				const inputText = inputMessage.trim();
 
-				if (!activeChat) {
-					return toast.error('Please select a chat to send a message.');
+				console.log('Active chat: ', activeChat);
+
+				if (!activeChat?.phoneNumber) {
+					return toast.error('Something is wrong, Refresh & try again.');
 				} else if (messageType === 'text' && !inputText) {
 					return toast.error('Please write something to send the message');
 				}
@@ -585,7 +603,7 @@ const Whatsapp = () => {
 				streamRef.current = null;
 			}
 
-			// ✅ Wait for ondataavailable to populate file/blob
+			//  Wait for ondataavailable to populate file/blob
 			if (recordingDataPromiseRef.current?.promise) {
 				await recordingDataPromiseRef.current.promise;
 			}
@@ -976,101 +994,119 @@ const Whatsapp = () => {
 				/>
 			)}
 
+			<Button
+				onClick={isMobile ? onOpen : null}
+				aria-label='Show sidebar'
+				bg='softGray.50'
+				color={whatsappColors.textSecondary}
+				p={0}
+				mb='2'
+				w='40px'
+				h='40px'
+				borderRadius='full'
+				display={{ base: 'flex', md: 'none' }}
+				alignItems='center'
+				justifyContent='center'
+			>
+				<FiMessageSquare size={20} />
+			</Button>
+
 			<Flex
-				h='80vh'
+				h='85vh'
 				overflow='hidden'
 				position='relative'
+				flexDir={{ base: 'column', md: 'row' }}
 				borderRadius='lg'
+				gap={{ base: 2, md: 0 }}
 				boxShadow='lg'
 			>
 				{/* Mobile Drawer */}
-				{isOpen && (
-					<Drawer
-						isOpen={isOpen}
-						placement='left'
-						onClose={onClose}
-						finalFocusRef={btnRef}
-						h='80vh'
-					>
-						<DrawerOverlay />
-						<DrawerContent maxW='320px' bg={sidebarBg}>
-							<DrawerCloseButton />
-							<DrawerHeader p={3} bg={sidebarBg}>
-								<Flex align='center' gap='2'>
-									<UserAvatar
-										src={currentUser?.user?.profileImage}
-										name={currentUser?.user?.fullName}
+				<Drawer
+					isOpen={isOpen}
+					placement='left'
+					onClose={onClose}
+					finalFocusRef={btnRef}
+					h='80vh'
+				>
+					<DrawerOverlay />
+					<DrawerContent maxW='320px' bg={sidebarBg}>
+						<DrawerCloseButton />
+						<DrawerHeader p={3} bg={sidebarBg}>
+							<Flex align='center' gap='2'>
+								<UserAvatar
+									src={currentUser?.user?.profileImage}
+									name={currentUser?.user?.fullName}
+									size='sm'
+								/>
+								<Text
+									fontWeight='bold'
+									isTruncated
+									fontSize='sm'
+									maxWidth='200px'
+									color={whatsappColors.textDark}
+								>
+									{currentUser?.user?.fullName}
+								</Text>
+							</Flex>
+						</DrawerHeader>
+						<DrawerBody p={0}>
+							<Box p={3} bg={sidebarBg}>
+								<InputGroup>
+									<InputLeftElement pointerEvents='none'>
+										<FiSearch color='gray.300' />
+									</InputLeftElement>
+									<Input
+										placeholder='Search contacts'
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										bg='white'
+										borderRadius='lg'
+										border='none'
+										fontSize='sm'
+										boxShadow='sm'
+									/>
+								</InputGroup>
+							</Box>
+							<Divider borderColor='gray.300' />
+							<UserList
+								users={users}
+								// activeChat={activeChat}
+								// setActiveChat={setActiveChat}
+								isMobile={isMobile}
+								contacts={filteredContacts}
+								onClose={onClose}
+								sidebarBg={sidebarBg}
+							/>
+							<Flex
+								p={3}
+								justify='flex-end'
+								position='sticky'
+								bottom='0'
+								bg={sidebarBg}
+								borderTop='1px solid'
+								borderColor='gray.200'
+							>
+								<Menu placement='top-end'>
+									<MenuButton
+										as={IconButton}
+										icon={<BsThreeDotsVertical />}
+										variant='ghost'
+										color={whatsappColors.textSecondary}
 										size='sm'
 									/>
-									<Text
-										fontWeight='bold'
-										isTruncated
-										fontSize='sm'
-										maxWidth='200px'
-										color={whatsappColors.textDark}
-									>
-										{currentUser?.user?.fullName}
-									</Text>
-								</Flex>
-							</DrawerHeader>
-							<DrawerBody p={0}>
-								<Box p={3} bg={sidebarBg}>
-									<InputGroup>
-										<InputLeftElement pointerEvents='none'>
-											<FiSearch color='gray.300' />
-										</InputLeftElement>
-										<Input
-											placeholder='Search contacts'
-											value={searchQuery}
-											onChange={(e) => setSearchQuery(e.target.value)}
-											bg='white'
-											borderRadius='lg'
-											border='none'
-											fontSize='sm'
-											boxShadow='sm'
-										/>
-									</InputGroup>
-								</Box>
-								<Divider borderColor='gray.300' />
-								<UserList
-									users={users}
-									activeChat={activeChat}
-									setActiveChat={setActiveChat}
-									isMobile={isMobile}
-									onClose={onClose}
-									sidebarBg={sidebarBg}
-								/>
-								<Flex
-									p={3}
-									justify='flex-end'
-									position='sticky'
-									bottom='0'
-									bg={sidebarBg}
-									borderTop='1px solid'
-									borderColor='gray.200'
-								>
-									<Menu placement='top-end'>
-										<MenuButton
-											as={IconButton}
-											icon={<BsThreeDotsVertical />}
-											variant='ghost'
-											color={whatsappColors.textSecondary}
-											size='sm'
-										/>
-										<MenuList>
-											<MenuItem
-												icon={<FiUser />}
-												onClick={() => setIsContactModalOpen(true)}
-											>
-												Manage Contacts
-											</MenuItem>
-										</MenuList>
-									</Menu>
-								</Flex>
-							</DrawerBody>
-						</DrawerContent>
-					</Drawer>
-				)}
+									<MenuList>
+										<MenuItem
+											icon={<FiUser />}
+											onClick={() => setIsContactModalOpen(true)}
+										>
+											Manage Contacts
+										</MenuItem>
+									</MenuList>
+								</Menu>
+							</Flex>
+						</DrawerBody>
+					</DrawerContent>
+				</Drawer>
 
 				{/* Desktop Sidebar */}
 				<Box
@@ -1162,9 +1198,10 @@ const Whatsapp = () => {
 
 					<UserList
 						users={users}
-						activeChat={activeChat}
-						setActiveChat={setActiveChat}
+						// activeChat={activeChat}
+						// setActiveChat={setActiveChat}
 						isMobile={isMobile}
+						contacts={filteredContacts}
 						onClose={onClose}
 						sidebarBg={sidebarBg}
 						handleAddContact={() => setIsContactModalOpen(true)}
@@ -1190,15 +1227,6 @@ const Whatsapp = () => {
 								zIndex='1'
 							>
 								<Flex alignItems='center'>
-									<IconButton
-										icon={<FiChevronLeft />}
-										aria-label='Show sidebar'
-										mr={2}
-										onClick={isMobile ? onOpen : null}
-										color={whatsappColors.textSecondary}
-										background='transparent'
-										display={{ base: 'flex', md: 'none' }}
-									/>
 									<UserAvatar src={activeChat?.avatar} size='sm' mr={3} />
 									<Box>
 										<Text fontWeight='bold'>

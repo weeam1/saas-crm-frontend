@@ -10,19 +10,29 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import UserAvatar from 'components/shared/UserAvatar';
+import { setActiveChat } from '../../../../redux/whatsappSlice';
 
 const UserList = ({
 	// users,
-	activeChat,
-	setActiveChat,
+	// activeChat,
+	// setActiveChat,
+	contacts,
 	isMobile,
 	onClose,
 	sidebarBg,
 	handleAddContact,
 }) => {
-	const contacts = useSelector((state) => state.whatsapp.contacts || []);
+	// const contacts = useSelector((state) => state.whatsapp.contacts || []);
+	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
+
+	const dispatch = useDispatch();
+
+	const handleActiveChat = (user) => {
+		dispatch(setActiveChat(user));
+		if (isMobile) onClose();
+	};
 
 	return (
 		<Box
@@ -54,8 +64,7 @@ const UserList = ({
 							}
 							_hover={{ bg: 'rgba(0, 0, 0, 0.05)' }}
 							onClick={() => {
-								setActiveChat(user);
-								if (isMobile) onClose();
+								handleActiveChat(user);
 							}}
 							transition='background 0.2s ease'
 						>

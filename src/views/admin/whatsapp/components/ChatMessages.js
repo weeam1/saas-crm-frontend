@@ -68,19 +68,19 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 			dispatch(setChatHistory({ chatId: roomId, messages: chatData.doc }));
 			// scroll to bottom
 			requestAnimationFrame(() => {
-				containerRef.current.scrollTop = containerRef.current.scrollHeight;
+				containerRef.current.scrollTop = containerRef.current?.scrollHeight;
 			});
 		} else {
 			// preserve scroll pos
 			const c = containerRef.current;
-			prevScrollHeight.current = c.scrollHeight;
+			prevScrollHeight.current = c?.scrollHeight;
 
 			dispatch(prependMessages({ chatId: roomId, messages: chatData.doc }));
 			setLoadingOlder(false);
 
 			// restore
 			requestAnimationFrame(() => {
-				c.scrollTop = c.scrollHeight - prevScrollHeight.current;
+				c.scrollTop = c?.scrollHeight - prevScrollHeight.current;
 			});
 		}
 	}, [chatData?.doc, chatQuery.page, dispatch, roomId]);

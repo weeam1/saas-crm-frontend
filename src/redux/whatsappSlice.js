@@ -7,10 +7,15 @@ const whatsappSlice = createSlice({
 		currentUser: {},
 		chats: {},
 		mediaUrls: {},
+		activeChat: null,
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+		},
+
+		setActiveChat: (state, action) => {
+			state.activeChat = action.payload;
 		},
 
 		deleteContact: (state, action) => {
@@ -118,6 +123,7 @@ export const {
 	appendMessage,
 	setCurrentUser,
 	setMediaUrl,
+	setActiveChat,
 	deleteContact,
 } = whatsappSlice.actions;
 

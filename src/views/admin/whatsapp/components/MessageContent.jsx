@@ -111,8 +111,8 @@ export const MessageContent = ({ message, isSelf }) => {
 				) : !mediaUrl ? (
 					<VStack justify='space-between' gap='4' w='300px'>
 						<MediaIcon type={message.type} size={100} />
-						<Text fontSize='sm' color='red.400'>
-							Error file not found!
+						<Text fontSize='xs' color='gray.600'>
+							This Media is not available because something is wrong.
 						</Text>
 						{/* <Button
 							size='xs'
