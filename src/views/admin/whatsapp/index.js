@@ -131,7 +131,6 @@ const Whatsapp = () => {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
-	const [apiKey, setApiKey] = useState('');
 	const [bussinessPhone, setBussinessPhone] = useState('');
 
 	// const [voiceFile, setVoiceFile] = useState(null);
@@ -210,92 +209,6 @@ const Whatsapp = () => {
 		useCreateItemMutation();
 	const [uploadMedia, { isLoading: uploadingMedia }] = useCreateItemMutation();
 
-	// Messages data
-	const allMessages = useRef({
-		1: [
-			{
-				id: users[0]?._id,
-				sender: users[0],
-				text: 'Hey there!',
-				type: 'text',
-				timestamp: new Date(Date.now() - 86400000 * 2),
-				status: 'read',
-			},
-			{
-				id: 2,
-				sender: currentUser,
-				text: 'Hi! How are you?',
-				type: 'text',
-				timestamp: new Date(Date.now() - 86400000),
-				status: 'read',
-			},
-			{
-				id: 3,
-				sender: users[0],
-				text: "I'm good, thanks for asking! How about you? I was thinking we could meet up this weekend if you're free.",
-				type: 'text',
-				timestamp: new Date(Date.now() - 3600000),
-				status: 'delivered',
-			},
-			{
-				id: 4,
-				sender: currentUser,
-				text: 'Great to hear! Yeah, weekend sounds good. What time works for you?',
-				type: 'text',
-				timestamp: new Date(),
-				status: 'read',
-			},
-		],
-		2: [
-			{
-				id: 1,
-				sender: users[1],
-				text: "Hi, don't forget our meeting at 3 PM tomorrow. We'll be discussing the quarterly reports.",
-				type: 'text',
-				timestamp: new Date(Date.now() - 7200000),
-				status: 'read',
-			},
-			{
-				id: 2,
-				sender: currentUser,
-				text: "Got it, I'll prepare the presentation slides and send them over tonight.",
-				type: 'text',
-				timestamp: new Date(Date.now() - 3600000),
-				status: 'read',
-			},
-		],
-		3: [
-			{
-				id: 1,
-				sender: currentUser,
-				text: "I've sent the files you requested. Let me know if you need anything else.",
-				type: 'text',
-				timestamp: new Date(Date.now() - 86400000 * 3),
-				status: 'read',
-			},
-			{
-				id: 2,
-				sender: users[2],
-				text: "Please send them again, I can't seem to find them in my email. Maybe there was an issue with the attachment?",
-				type: 'text',
-				timestamp: new Date(Date.now() - 43200000),
-				status: 'delivered',
-			},
-			{
-				id: 3,
-				sender: currentUser,
-				text: "Sure, I'll resend them now. Also, I've uploaded them to the shared drive just in case.",
-				type: 'text',
-				timestamp: new Date(Date.now() - 1800000),
-				status: 'sent',
-			},
-		],
-	}).current;
-
-	useEffect(() => {
-		setMessages(allMessages[activeChat] || []);
-	}, [activeChat]);
-
 	useEffect(() => {
 		return () => {
 			if (timerRef.current) {
@@ -347,10 +260,6 @@ const Whatsapp = () => {
 					return toast.error('Please write something to send the message');
 				}
 
-				// if (messageType !== 'text' && !selectedFile && !voiceFile) {
-				// 	return toast.error('Please first selected media file!');
-				// }
-
 				formData.append('type', messageType);
 
 				if (inputText && isMedia && messageType !== 'audio') {
@@ -367,7 +276,7 @@ const Whatsapp = () => {
 
 			// important fields
 			formData.append('from', bussinessPhone);
-			formData.append('to', activeChat.phoneNumber);
+			formData.append('to', activeChat?.phoneNumber);
 
 			setInputMessage('');
 			// if (isSending) return;
@@ -409,7 +318,7 @@ const Whatsapp = () => {
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		},
-		[inputMessage, selectedFile, createMessageAPI, dispatch]
+		[inputMessage, activeChat, selectedFile, createMessageAPI, dispatch]
 	);
 
 	// const handleVoiceMessageSend = ({ file, type, duration }) => {
