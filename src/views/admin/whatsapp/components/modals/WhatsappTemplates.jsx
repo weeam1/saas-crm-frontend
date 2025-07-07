@@ -88,8 +88,6 @@ const WhatsappTemplates = ({
 		// 	return toast.error('Please enter the name placeholder value.');
 		// }
 
-		console.log('send template');
-
 		onSend({
 			message: previewText,
 			templateName: selectedTemplate.name,
@@ -154,48 +152,50 @@ const WhatsappTemplates = ({
 										scrollBehavior='smooth'
 										p='2'
 									>
-										{templates?.doc?.map((template) => (
-											<Box
-												key={template.id}
-												cursor='pointer'
-												p={2}
-												mb={3}
-												borderRadius='lg'
-												borderWidth='1px'
-												borderColor={
-													selectedTemplate?.id === template.id
-														? 'green.300'
-														: 'gray.200'
-												}
-												bg={
-													selectedTemplate?.id === template.id
-														? 'green.50'
-														: 'white'
-												}
-												_hover={{ borderColor: 'green.300', bg: 'green.50' }}
-												transition='all 0.2s'
-												onClick={() => setSelectedTemplate(template)}
-											>
-												<Flex justify='space-between' align='center' mb={2}>
-													<Text
-														fontWeight='bold'
-														fontSize={{ base: 'xs', md: 'sm' }}
-													>
-														{template.name}
-													</Text>
-													<Badge
-														colorScheme={
-															template.status === 'APPROVED'
-																? 'green'
-																: 'orange'
-														}
-														fontSize='xs'
-													>
-														{template.status}
-													</Badge>
-												</Flex>
-											</Box>
-										))}
+										{templates?.doc
+											?.filter((temp) => !temp.name.includes('hello_world'))
+											.map((template) => (
+												<Box
+													key={template.id}
+													cursor='pointer'
+													p={2}
+													mb={3}
+													borderRadius='lg'
+													borderWidth='1px'
+													borderColor={
+														selectedTemplate?.id === template.id
+															? 'green.300'
+															: 'gray.200'
+													}
+													bg={
+														selectedTemplate?.id === template.id
+															? 'green.50'
+															: 'white'
+													}
+													_hover={{ borderColor: 'green.300', bg: 'green.50' }}
+													transition='all 0.2s'
+													onClick={() => setSelectedTemplate(template)}
+												>
+													<Flex justify='space-between' align='center' mb={2}>
+														<Text
+															fontWeight='bold'
+															fontSize={{ base: 'xs', md: 'sm' }}
+														>
+															{template.name}
+														</Text>
+														<Badge
+															colorScheme={
+																template.status === 'APPROVED'
+																	? 'green'
+																	: 'orange'
+															}
+															fontSize='xs'
+														>
+															{template.status}
+														</Badge>
+													</Flex>
+												</Box>
+											))}
 									</SimpleGrid>
 								</Box>
 

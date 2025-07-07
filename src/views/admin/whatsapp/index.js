@@ -62,6 +62,7 @@ import {
 	FiUser,
 	FiSettings,
 	FiMessageSquare,
+	FiMessageCircle,
 } from 'react-icons/fi';
 import { IoMdMic, IoMdClose } from 'react-icons/io';
 import {
@@ -94,6 +95,7 @@ import UserAvatar from 'components/shared/UserAvatar';
 import MediaLimitsModal from './components/Media/MediaLimitsModal';
 import WhatsappTemplates from './components/modals/WhatsappTemplates';
 import useIsMobile from './components/useIsMobile';
+import WhatsappDirectChatModal from './components/modals/WhatsappDirectChat';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -108,6 +110,12 @@ const Whatsapp = () => {
 		isOpen: isMediaLimitOpen,
 		onOpen: onMediaLimitOpen,
 		onClose: onMediaLimitClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: isDirectMessageOpen,
+		onOpen: onDirectMessageOpen,
+		onClose: onDirectMessageClose,
 	} = useDisclosure();
 
 	const {
@@ -131,7 +139,7 @@ const Whatsapp = () => {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 	const [selectedImage, setSelectedImage] = useState(null);
 	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
-	const [bussinessPhone, setBussinessPhone] = useState('');
+	const [businessPhone, setBusinessPhone] = useState('');
 
 	// const [voiceFile, setVoiceFile] = useState(null);
 
@@ -172,7 +180,7 @@ const Whatsapp = () => {
 
 	useEffect(() => {
 		if (currentUser?.phoneNumber && isConnected) {
-			setBussinessPhone(currentUser?.phoneNumber);
+			setBusinessPhone(currentUser?.phoneNumber);
 			const registerPayload = {
 				phoneNumber: currentUser?.phoneNumber,
 				userId: currentUser?.user?._id || '',
@@ -187,7 +195,7 @@ const Whatsapp = () => {
 
 	// 		// When you have both business phone and user ID
 	// 		if (currentUser?.phoneNumber) {
-	// 			setBussinessPhone(currentUser?.phoneNumber);
+	// 			setBusinessPhone(currentUser?.phoneNumber);
 	// 			const registerPayload = {
 	// 				phoneNumber: currentUser?.phoneNumber,
 	// 				userId: currentUser?.user?._id || '',
@@ -222,7 +230,7 @@ const Whatsapp = () => {
 
 	const handleSendMessage = useCallback(
 		async (values) => {
-			// if (!bussinessPhone) {
+			// if (!businessPhone) {
 			// 	return toast.error(
 			// 		'Please set your business phone number in settings.'
 			// 	);
@@ -275,7 +283,7 @@ const Whatsapp = () => {
 			}
 
 			// important fields
-			formData.append('from', bussinessPhone);
+			formData.append('from', businessPhone);
 			formData.append('to', activeChat?.phoneNumber);
 
 			setInputMessage('');
@@ -321,29 +329,23 @@ const Whatsapp = () => {
 		[inputMessage, activeChat, selectedFile, createMessageAPI, dispatch]
 	);
 
-	// const handleVoiceMessageSend = ({ file, type, duration }) => {
-	// 	// Handle the audio file (upload to backend, etc.)
-	// 	console.log(
-	// 		'Audio file:',
-	// 		file,
-	// 		'Type:',
-	// 		type,
-	// 		'Duration:',
-	// 		duration
-	// 	);
-	// }
+	console.log({ fileInputRef });
 
 	const handleFileUpload = useCallback(async (e, type = 'image') => {
 		const file = e.target.files[0];
+		console.log(file);
 		if (file) {
 			if (['video', 'audio'].includes(type) && file.size > 16 * 1024 * 1024) {
 				toast.error('Video size should be less than 16MB');
+				e.target.value = null;
 				return;
 			} else if ((type === 'image', file.size > 5 * 1024 * 1024)) {
 				toast.error('File size should be less than 5MB');
+				e.target.value = null;
 				return;
 			} else if ((type === 'document', file.size > 100 * 1024 * 1024)) {
 				toast.error('File size should be less than 100MB');
+				e.target.value = null;
 				return;
 			}
 
@@ -393,8 +395,6 @@ const Whatsapp = () => {
 	// 			.forEach((track) => track.stop());
 	// 	}
 	// }, [isRecording]);
-
-	// New refs/state
 
 	const startRecording = useCallback(() => {
 		setRecordingTime(0);
@@ -903,6 +903,14 @@ const Whatsapp = () => {
 				/>
 			)}
 
+			{isDirectMessageOpen && (
+				<WhatsappDirectChatModal
+					isOpen={isDirectMessageOpen}
+					onClose={onDirectMessageClose}
+					businessPhone={businessPhone}
+				/>
+			)}
+
 			<Button
 				onClick={isMobile ? onOpen : null}
 				aria-label='Show sidebar'
@@ -1074,6 +1082,12 @@ const Whatsapp = () => {
 									<MenuItem icon={<FaInfo />} onClick={onMediaLimitOpen}>
 										Media Limit
 									</MenuItem>
+									<MenuItem
+										icon={<FiMessageCircle />}
+										onClick={onDirectMessageOpen}
+									>
+										Direct Message
+									</MenuItem>
 								</MenuList>
 							</Menu>
 						</Flex>
@@ -1114,7 +1128,7 @@ const Whatsapp = () => {
 						onClose={onClose}
 						sidebarBg={sidebarBg}
 						handleAddContact={() => setIsContactModalOpen(true)}
-						bussinessPhone={bussinessPhone}
+						businessPhone={businessPhone}
 					/>
 				</Box>
 
@@ -1153,7 +1167,7 @@ const Whatsapp = () => {
 							<ChatMessages
 								to={activeChat?.phoneNumber}
 								isSending={isSending}
-								from={bussinessPhone}
+								from={businessPhone}
 								roomId={activeChat?.roomId || null}
 							/>
 
@@ -1502,7 +1516,7 @@ const Whatsapp = () => {
 					isOpen={isContactModalOpen}
 					onClose={() => setIsContactModalOpen(false)}
 					contacts={users}
-					bussinessPhone={bussinessPhone}
+					businessPhone={businessPhone}
 				/>
 			)}
 

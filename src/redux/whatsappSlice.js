@@ -51,7 +51,7 @@ const whatsappSlice = createSlice({
 		updateContact: (state, action) => {
 			const updated = action.payload;
 			const index = state.contacts.findIndex(
-				(contact) => contact.phoneNumber === updated.phoneNumber
+				(contact) => contact._id === updated._id
 			);
 
 			if (index !== -1) {
@@ -61,6 +61,7 @@ const whatsappSlice = createSlice({
 				};
 			}
 		},
+
 		setChatHistory(state, action) {
 			const { chatId, messages } = action.payload;
 			state.chats[chatId] = messages;

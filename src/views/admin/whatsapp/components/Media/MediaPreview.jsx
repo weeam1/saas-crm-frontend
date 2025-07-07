@@ -31,7 +31,7 @@ const MediaPreview = ({ message, url, isLoading }) => {
 	const { downloadMediaFile } = useMediaDownloader();
 
 	const handleFullscreenOpen = () => {
-		if (type === 'image' || type === 'video') {
+		if (['image', 'video'].includes(type)) {
 			setIsFullscreenLoading(true);
 			onOpen();
 		}
@@ -153,7 +153,7 @@ const MediaPreview = ({ message, url, isLoading }) => {
 
 	return (
 		<>
-			<Box position='relative' width='100%'>
+			<Box position='relative' width='100%' onClick={handleFullscreenOpen}>
 				{renderMedia()}
 
 				{(type === 'image' || type === 'video') && (

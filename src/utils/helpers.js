@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { toast } from 'react-toastify';
 
 export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -19,6 +20,17 @@ export const formattedDate = (_date) => {
 	const formattedDate = date.toLocaleDateString('en-US', options);
 
 	return formattedDate;
+};
+
+export const validatePhoneNumber = (phoneNumber) => {
+	const sanitized = phoneNumber.replace(/\s+/g, '').replace(/^(\+?)/, '');
+
+	if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
+		console.log('invalid number', sanitized);
+		return null;
+	}
+
+	return sanitized;
 };
 
 // export const formatPostDate = (date, timezone) => {
@@ -302,6 +314,6 @@ export const formatCallDuration = (seconds) => {
 };
 
 export const formatName = (name) => {
-  if (!name) return "";
-  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+	if (!name) return '';
+	return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };

@@ -69,7 +69,12 @@ const UserList = ({
 							transition='background 0.2s ease'
 						>
 							<Box position='relative'>
-								<UserAvatar src={user?.avatar} size='md' mr={3} />
+								<UserAvatar
+									name={user?.name}
+									src={user?.avatar}
+									size='md'
+									mr={3}
+								/>
 								{/* {user.status === 'online' && (
 									<Box
 										position='absolute'

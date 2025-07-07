@@ -1,9 +1,8 @@
 import { Flex, Box, VStack, Text, Spinner, Button } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import { getTimeFormat } from './helpers';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -25,13 +24,14 @@ const MESSAGE_TYPES = [
 
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
+	const [fetchChatLoading, setFetchChatLoading] = useState(false);
 
 	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({
 		roomId,
 		page: 1,
-		limit: 15,
+		limit: 20,
 	});
 
 	const {
@@ -50,48 +50,59 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		}
 	);
 
+	useEffect(() => {
+		if (!chatFetching && fetchChatLoading) {
+			setFetchChatLoading(false);
+		}
+	}, [chatFetching, fetchChatLoading]);
+
 	const dispatch = useDispatch();
 	const containerRef = useRef(null);
-	const prevScrollHeight = useRef(0);
+	// const prevScrollHeight = useRef(0);
 	const [loadingOlder, setLoadingOlder] = useState(false);
 
 	// --- initial + room change load -
 	useEffect(() => {
-		setChatQuery({ roomId, page: 1, limit: 10 });
+		setChatQuery({ roomId, page: 1, limit: 20 });
+		setFetchChatLoading(true);
+		console.log('ROOM UPDATED: ', roomId);
 	}, [roomId]);
 
 	// --- when chatData arrives -------
 	useEffect(() => {
-		if (!chatData?.doc) return;
+		if (!chatData?.doc && !containerRef?.current) return;
+
+		const conainter = containerRef.current;
 
 		if (chatQuery.page === 1) {
-			dispatch(setChatHistory({ chatId: roomId, messages: chatData.doc }));
+			dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
 			// scroll to bottom
 			requestAnimationFrame(() => {
-				containerRef.current.scrollTop = containerRef.current?.scrollHeight;
+				conainter.scrollTop = conainter.scrollHeight;
 			});
 		} else {
-			// preserve scroll pos
-			const c = containerRef.current;
-			prevScrollHeight.current = c?.scrollHeight;
+			const prevHeight = conainter.scrollHeight;
+			// prevScrollHeight.current = conainter?.scrollHeight;
 
-			dispatch(prependMessages({ chatId: roomId, messages: chatData.doc }));
+			dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
 			setLoadingOlder(false);
 
 			// restore
 			requestAnimationFrame(() => {
-				c.scrollTop = c?.scrollHeight - prevScrollHeight.current;
+				conainter.scrollTop = conainter?.scrollHeight - prevHeight;
 			});
 		}
 	}, [chatData?.doc, chatQuery.page, dispatch, roomId]);
 
 	// --- scroll listener -------------
 	useEffect(() => {
-		const c = containerRef.current;
+		if (!containerRef.current) return;
+
+		const conainter = containerRef.current;
 
 		const onScroll = () => {
 			if (
-				c.scrollTop === 0 &&
+				conainter.scrollTop === 0 &&
 				!loadingOlder &&
 				!chatFetching &&
 				chatQuery.page < (chatData?.pagination?.totalPages || Infinity)
@@ -100,30 +111,14 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 				setChatQuery((q) => ({ ...q, page: q.page + 1 }));
 			}
 		};
-		c.addEventListener('scroll', onScroll);
-		return () => c.removeEventListener('scroll', onScroll);
+		conainter.addEventListener('scroll', onScroll);
+		return () => conainter.removeEventListener('scroll', onScroll);
 	}, [
 		loadingOlder,
 		chatFetching,
 		chatQuery.page,
 		chatData?.pagination?.totalPages,
 	]);
-
-	// useEffect(() => {
-	// 	if (to) {
-	// 		setChatQuery((prev) => ({ ...prev, roomId, page: 1 }));
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [roomId]);
-
-	// // Append or prepend messages on data fetch
-	// useEffect(() => {
-	// 	if (chatData?.doc?.length > 0 && chatQuery.page > 1) {
-	// 		dispatch(prependMessages({ chatId: roomId, messages: chatData?.doc }));
-	// 	} else if (chatData?.doc?.length > 0 && chatQuery.page === 1) {
-	// 		dispatch(setChatHistory({ chatId: roomId, messages: chatData?.doc }));
-	// 	}
-	// }, [chatData?.doc, chatQuery.page, dispatch]);
 
 	return (
 		<Box
@@ -136,13 +131,14 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 			maxH='100vh'
 			bg='gray.100'
 			color='white'
-			whiteSpace='pre-wrap'
 		>
 			<VStack spacing={4} align='stretch'>
 				{loadingOlder && <Spinner size='sm' alignSelf='center' mb={2} />}
 
-				{chatLoading ? (
-					<Loader />
+				{chatLoading || fetchChatLoading ? (
+					<Box textAlign='center' p='4'>
+						<Spinner color='whatsapp.500' />
+					</Box>
 				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
 					messages?.map((message, index) => {
 						if (!MESSAGE_TYPES.includes(message.type)) return null;
@@ -178,6 +174,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										color={whatsappColors.textDark}
 										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
 										borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										whiteSpace='pre-wrap'
 										wordBreak='break-word'
 									>
 										{/* Render dynamic message content */}
