@@ -12,6 +12,7 @@ import {
 import { FiMessageCircle } from 'react-icons/fi';
 import { MessageContent } from './MessageContent';
 import ChatDate from './dates/ChatDate';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
 const MESSAGE_TYPES = [
 	'text',
@@ -25,6 +26,7 @@ const MESSAGE_TYPES = [
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
 	const [fetchChatLoading, setFetchChatLoading] = useState(false);
+	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
 	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
@@ -33,6 +35,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		page: 1,
 		limit: 15,
 	});
+
+	const [updateMarkAsRead] = useUpdateItemMutation();
 
 	const {
 		data: chatData,
@@ -60,6 +64,20 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const containerRef = useRef(null);
 	// const prevScrollHeight = useRef(0);
 	const [loadingOlder, setLoadingOlder] = useState(false);
+
+	const handleMarkAsRead = async () => {
+		try {
+			await updateMarkAsRead({
+				path: '/whatsapp/mark_as_read',
+				body: {
+					roomId,
+					phoneId: from,
+				},
+			}).unwrap();
+		} catch (err) {
+			console.log(err);
+		}
+	};
 
 	// --- initial + room change load -
 	useEffect(() => {
@@ -124,7 +142,12 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		if (!containerRef.current || loadingOlder || chatFetching) return;
 
 		containerRef.current.scrollTop = containerRef.current.scrollHeight;
-	}, [messages.length]); // scroll to bottom when new message arrives
+
+		// if user online then call the api mark as read
+		// if (activeChat?.unreadCount > 0) {
+		handleMarkAsRead();
+		// }
+	}, [messages.length]);
 
 	return (
 		<Box
@@ -165,23 +188,44 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 									borderRadius='md'
 								>
 									<Box
+										// position='relative'
+										// bg={
+										// 	isSelf
+										// 		? whatsappColors.outgoingBg
+										// 		: whatsappColors.incomingBg
+										// }
+										// px={4}
+										// py={2}
+										// borderRadius='lg'
+										// maxW={{ base: '80%', md: '60%' }}
+										// boxShadow='sm'
+										// color={whatsappColors.textDark}
+										// borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
+										// borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										// whiteSpace='pre-wrap'
+										// wordBreak='break-word'
 										position='relative'
+										alignSelf={isSelf ? 'flex-end' : 'flex-start'}
 										bg={
 											isSelf
 												? whatsappColors.outgoingBg
 												: whatsappColors.incomingBg
 										}
 										px={4}
-										py={2}
+										py={1}
 										borderRadius='lg'
-										maxW={{ base: '80%', md: '60%' }}
-										// maxWidth={{ base: '200px', md: '250px', lg: '400px' }}
+										maxW={{ base: '85%', md: '70%' }}
 										boxShadow='sm'
 										color={whatsappColors.textDark}
-										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
-										borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										// Rounded corners logic
+										borderTopLeftRadius={!isSelf ? 0 : 'lg'}
+										borderTopRightRadius={isSelf ? 0 : 'lg'}
+										// Typography
 										whiteSpace='pre-wrap'
 										wordBreak='break-word'
+										// Animation
+										transition='all 0.2s ease'
+										transformOrigin={isSelf ? 'top right' : 'top left'}
 									>
 										{/* Render dynamic message content */}
 										<MessageContent message={message} isSelf={isSelf} />

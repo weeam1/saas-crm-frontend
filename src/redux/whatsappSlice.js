@@ -18,7 +18,12 @@ const whatsappSlice = createSlice({
 		},
 
 		setActiveChat: (state, action) => {
-			state.activeChat = action.payload;
+			const chat = action.payload;
+			state.activeChat = chat;
+
+			// Reset unread count
+			const room = state.contacts.find((r) => r.roomId === chat.roomId);
+			if (room) room.unreadCount = 0;
 		},
 
 		deleteContact: (state, action) => {
@@ -113,7 +118,28 @@ const whatsappSlice = createSlice({
 				};
 			}
 			// else push new message
-			else state.chats[chatId].push(message);
+			else {
+				state.chats[chatId].push(message);
+				const contact = state.contacts.find(
+					(r) => r.roomId === message?.roomId
+				);
+
+				// Update message metadata
+				contact.lastMessage = message.content || '';
+				contact.lastMessageAt = message.sentAt;
+				contact.type = message.type;
+
+				// Increment unread count if not active chat
+				if (state.activeChat.roomId !== message.roomId) {
+					contact.unreadCount += 1;
+				}
+
+				// Move contact to the top
+				state.contacts = [
+					contact,
+					...state.contacts.filter((item, i) => item.roomId !== contact.roomId),
+				];
+			}
 		},
 	},
 });

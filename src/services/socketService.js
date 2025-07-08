@@ -22,8 +22,6 @@ class SocketService {
 			return this.connectionPromise;
 		}
 
-		console.log('Connecting to socket URL:', url);
-
 		// Default options with merging
 		const defaultOptions = {
 			path: '/socket.io',
