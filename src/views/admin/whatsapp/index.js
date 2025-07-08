@@ -96,6 +96,7 @@ import MediaLimitsModal from './components/Media/MediaLimitsModal';
 import WhatsappTemplates from './components/modals/WhatsappTemplates';
 import useIsMobile from './components/useIsMobile';
 import WhatsappDirectChatModal from './components/modals/WhatsappDirectChat';
+import MenuOptions from './components/MenuOptions';
 
 const user = JSON.parse(localStorage.getItem('user'));
 const isSuperAdmin = user?.role === 'superAdmin';
@@ -329,8 +330,6 @@ const Whatsapp = () => {
 		[inputMessage, activeChat, selectedFile, createMessageAPI, dispatch]
 	);
 
-	console.log({ fileInputRef });
-
 	const handleFileUpload = useCallback(async (e, type = 'image') => {
 		const file = e.target.files[0];
 		console.log(file);
@@ -339,11 +338,11 @@ const Whatsapp = () => {
 				toast.error('Video size should be less than 16MB');
 				e.target.value = null;
 				return;
-			} else if ((type === 'image', file.size > 5 * 1024 * 1024)) {
+			} else if (type === 'image' && file.size > 5 * 1024 * 1024) {
 				toast.error('File size should be less than 5MB');
 				e.target.value = null;
 				return;
-			} else if ((type === 'document', file.size > 100 * 1024 * 1024)) {
+			} else if (type === 'document' && file.size > 100 * 1024 * 1024) {
 				toast.error('File size should be less than 100MB');
 				e.target.value = null;
 				return;
@@ -903,33 +902,33 @@ const Whatsapp = () => {
 				/>
 			)}
 
-			{isDirectMessageOpen && (
-				<WhatsappDirectChatModal
-					isOpen={isDirectMessageOpen}
-					onClose={onDirectMessageClose}
-					businessPhone={businessPhone}
-				/>
-			)}
-
-			<Button
-				onClick={isMobile ? onOpen : null}
-				aria-label='Show sidebar'
-				bg='softGray.50'
-				color={whatsappColors.textSecondary}
-				p={0}
-				mb='2'
-				w='40px'
-				h='40px'
-				borderRadius='full'
+			<HStack
+				justifyContent='space-between'
 				display={{ base: 'flex', md: 'none' }}
-				alignItems='center'
-				justifyContent='center'
+				align='center'
+				zIndex='1000'
 			>
-				<FiMessageSquare size={20} />
-			</Button>
+				<Button
+					onClick={isMobile ? onOpen : null}
+					aria-label='Show sidebar'
+					bg='softGray.50'
+					color={whatsappColors.textSecondary}
+					p={0}
+					mb='2'
+					w='40px'
+					h='40px'
+					borderRadius='full'
+					alignItems='center'
+					justifyContent='center'
+				>
+					<FiMessageSquare size={20} />
+				</Button>
+
+				<MenuOptions businessPhone={businessPhone} />
+			</HStack>
 
 			<Flex
-				h='85vh'
+				h='80vh'
 				overflow='hidden'
 				position='relative'
 				flexDir={{ base: 'column', md: 'row' }}
@@ -1061,43 +1060,8 @@ const Whatsapp = () => {
 									{currentUser?.user?.fullName}
 								</Text>
 							</Flex>
-							<Menu
-								placement='top-end'
-								display={{ base: 'none', sm: 'none', md: 'block' }}
-							>
-								<MenuButton
-									as={IconButton}
-									icon={<BsThreeDotsVertical />}
-									variant='ghost'
-									color={whatsappColors.textSecondary}
-									size='sm'
-								/>
-								<MenuList>
-									<MenuItem
-										icon={<FiUser />}
-										onClick={() => setIsContactModalOpen(true)}
-									>
-										Manage Contacts
-									</MenuItem>
-									<MenuItem icon={<FaInfo />} onClick={onMediaLimitOpen}>
-										Media Limit
-									</MenuItem>
-									<MenuItem
-										icon={<FiMessageCircle />}
-										onClick={onDirectMessageOpen}
-									>
-										Direct Message
-									</MenuItem>
-								</MenuList>
-							</Menu>
+							<MenuOptions businessPhone={businessPhone} />
 						</Flex>
-
-						{isMediaLimitOpen && (
-							<MediaLimitsModal
-								isOpen={isMediaLimitOpen}
-								onClose={onMediaLimitClose}
-							/>
-						)}
 
 						{/* Fixed Search Box */}
 						<Box p={3} bg={sidebarBg}>
@@ -1147,7 +1111,7 @@ const Whatsapp = () => {
 								borderColor='gray.200'
 								position='sticky'
 								top='0'
-								zIndex='1'
+								zIndex='0'
 							>
 								<Flex alignItems='center'>
 									<UserAvatar src={activeChat?.avatar} size='sm' mr={3} />
@@ -1509,16 +1473,6 @@ const Whatsapp = () => {
 					)}
 				</Box>
 			</Flex>
-
-			{/* Contact management modal */}
-			{isContactModalOpen && (
-				<ContactModal
-					isOpen={isContactModalOpen}
-					onClose={() => setIsContactModalOpen(false)}
-					contacts={users}
-					businessPhone={businessPhone}
-				/>
-			)}
 
 			{/* File preview modal */}
 			{selectedFile && (

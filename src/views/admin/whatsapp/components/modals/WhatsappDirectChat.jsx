@@ -41,41 +41,39 @@ const WhatsappDirectChatModal = ({ isOpen, onClose, businessPhone }) => {
 	};
 
 	return (
-		<Box p={4}>
-			<Modal isOpen={isOpen} onClose={onClose} isCentered>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Start WhatsApp Conversation</ModalHeader>
-					<ModalCloseButton />
+		<Modal isOpen={isOpen} onClose={onClose} isCentered>
+			<ModalOverlay />
+			<ModalContent m='4'>
+				<ModalHeader>Start WhatsApp Conversation</ModalHeader>
+				<ModalCloseButton />
 
-					<ModalBody pb={6}>
-						<FormControl mb={4}>
-							<FormLabel>Phone Number</FormLabel>
-							<Input
-								placeholder='e.g. 15551234567'
-								value={phoneNumber}
-								onChange={(e) => setPhoneNumber(e.target.value)}
-								autoFocus
-							/>
-						</FormControl>
-					</ModalBody>
+				<ModalBody pb={6}>
+					<FormControl mb={4}>
+						<FormLabel>Phone Number</FormLabel>
+						<Input
+							placeholder='e.g. 15551234567'
+							value={phoneNumber}
+							onChange={(e) => setPhoneNumber(e.target.value)}
+							autoFocus
+						/>
+					</FormControl>
+				</ModalBody>
 
-					<ModalFooter>
-						<Button colorScheme='gray' mr={3} onClick={onClose}>
-							Cancel
-						</Button>
+				<ModalFooter>
+					<Button colorScheme='gray' mr={3} onClick={onClose}>
+						Cancel
+					</Button>
 
-						<Button
-							colorScheme='whatsapp'
-							isDisabled={!phoneNumber}
-							onClick={handleOpenChat}
-						>
-							Open Chat
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</Box>
+					<Button
+						colorScheme='whatsapp'
+						isDisabled={!phoneNumber}
+						onClick={handleOpenChat}
+					>
+						Open Chat
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
 	);
 };
 

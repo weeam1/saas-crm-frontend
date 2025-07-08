@@ -1,6 +1,6 @@
 import { Flex, Box, VStack, Text, Spinner, Button } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { getTimeFormat } from './helpers';
@@ -31,7 +31,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const [chatQuery, setChatQuery] = useState({
 		roomId,
 		page: 1,
-		limit: 20,
+		limit: 15,
 	});
 
 	const {
@@ -63,13 +63,13 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 
 	// --- initial + room change load -
 	useEffect(() => {
-		setChatQuery({ roomId, page: 1, limit: 20 });
+		setChatQuery({ roomId, page: 1, limit: 15 });
 		setFetchChatLoading(true);
 		console.log('ROOM UPDATED: ', roomId);
 	}, [roomId]);
 
 	// --- when chatData arrives -------
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!chatData?.doc && !containerRef?.current) return;
 
 		const conainter = containerRef.current;
@@ -119,6 +119,12 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		chatQuery.page,
 		chatData?.pagination?.totalPages,
 	]);
+
+	useLayoutEffect(() => {
+		if (!containerRef.current || loadingOlder || chatFetching) return;
+
+		containerRef.current.scrollTop = containerRef.current.scrollHeight;
+	}, [messages.length]); // scroll to bottom when new message arrives
 
 	return (
 		<Box
