@@ -15,6 +15,8 @@ import {
   Flex,
   Button,
   Badge,
+  Box,
+  Text,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
@@ -38,11 +40,16 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
-      <ModalContent mx={{ base: 4, sm: 6 }} >
+      <ModalContent mx={{ base: 4, sm: 6 }}>
         <ModalHeader>Task Details</ModalHeader>
         <ModalCloseButton />
         <ModalBody maxHeight="60vh" overflowY="auto">
           <VStack spacing={4}>
+            <Box w="100%" p={3} bg="gray.50" borderRadius="md">
+              <Text fontWeight="bold">Assignment Type:</Text>
+              <Text>{task.assign_type === "manager" ? "Manager Task" : "Agent Task"}</Text>
+            </Box>
+
             <FormControl>
               <FormLabel>Title</FormLabel>
               <Input value={task.title || ""} isReadOnly bg="gray.50" />
@@ -105,6 +112,17 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                 </Badge>
               </FormControl>
             </Flex>
+
+            {task.assign_type === "agent" && (
+              <FormControl>
+                <FormLabel>Team Lead</FormLabel>
+                <Input
+                  value={task.team_lead?.fullName || "N/A"}
+                  isReadOnly
+                  bg="gray.50"
+                />
+              </FormControl>
+            )}
 
             <Flex gap={4} w="100%" flexDirection={{ base: "column", md: "row" }}>
               <FormControl>

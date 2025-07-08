@@ -273,7 +273,7 @@ const TaskV2 = () => {
       <ActiveFiltersDisplay
         filters={filters}
         onClearFilters={handleClearFilters}
-         users={allUsers}
+        users={allUsers}
       />
 
       <Box mb={1}>
@@ -489,6 +489,7 @@ const TaskV2 = () => {
         initialFilters={filters}
         clearFilter={filterChanged}
         users={allUsers}
+        user={user}
       />
 
       <AddTaskModal

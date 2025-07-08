@@ -18,6 +18,8 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
+import { getApi } from "services/api";
+import { toast } from "react-toastify";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -26,21 +28,45 @@ const AdvancedSearchModal = ({
   initialFilters,
   users,
   clearFilter,
+  user, 
 }) => {
   const [filters, setFilters] = useState(initialFilters);
   const [showOverdue, setShowOverdue] = useState(false);
   const [showTodays, setShowTodays] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(null);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
-  console.log("users", users);
   useEffect(() => {
     if (isOpen) {
       setFilters(initialFilters);
       setShowOverdue(initialFilters.overdue || false);
       setShowTodays(initialFilters.todays || false);
+      
+      if (user?.role === "superAdmin") {
+        setFilteredUsers(users);
+      } else if (user?.roles?.[0]?.roleName === "Manager") {
+        fetchTeamMembers(user._id);
+      } else {
+        setFilteredUsers([]);
+      }
     }
-  }, [isOpen, initialFilters]);
+  }, [isOpen, initialFilters, user, users]);
+
+  const fetchTeamMembers = async (managerId) => {
+    setIsLoadingUsers(true);
+    try {
+      const apiUrl = `api/v2/user/hierarchy?managerId=${managerId}`;
+      const { data } = await getApi(apiUrl);
+      setFilteredUsers(data.doc || []);
+    } catch (error) {
+      toast.error("Failed to fetch team members");
+      setFilteredUsers([]);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -133,21 +159,26 @@ const AdvancedSearchModal = ({
               </FormControl>
             </SimpleGrid>
 
-            <FormControl>
-              <FormLabel>Assigned To</FormLabel>
-              <Select
-                value={filters.assignedTo || ""}
-                onChange={(e) => setFilters({ ...filters, assignedTo: e.target.value })}
-                placeholder="Select assignee"
-                focusBorderColor="brand.500"
-              >
-                {users.map((user) => (
-                  <option key={user._id} value={user._id}>
-                    {user.name}
-                  </option>
-                ))}
-              </Select>
-            </FormControl>
+            {(user?.role === "superAdmin" || user?.roles?.[0]?.roleName === "Manager") && (
+              <FormControl>
+                <FormLabel>Assigned To</FormLabel>
+                <Select
+                  value={filters.assignedTo || ""}
+                  onChange={(e) => setFilters({ ...filters, assignedTo: e.target.value })}
+                  placeholder={
+                    isLoadingUsers ? "Loading users..." : "Select assignee"
+                  }
+                  focusBorderColor="brand.500"
+                  isDisabled={isLoadingUsers}
+                >
+                  {filteredUsers.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
 
             <FormControl>
               <FormLabel>Due Date Range</FormLabel>
