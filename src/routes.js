@@ -95,6 +95,7 @@ const DeveloperInvoices = React.lazy(
 );
 
 const Task = React.lazy(() => import('views/admin/task'));
+const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
@@ -409,6 +410,13 @@ const routes = [
 	//   component: Communication,
 	// },
 	// ------------- Task Routes ------------------------
+		{
+		name: 'Task',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/task',
+		icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+		component: TaskV2,
+	},
 	// {
 	// 	name: 'Task',
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
