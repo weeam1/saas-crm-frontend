@@ -46,8 +46,10 @@ const MediaPreview = ({ message, url, isLoading }) => {
 		onClose();
 	};
 
+	console.log(message?.media);
+
 	const documentFileName =
-		message?.media?.filename ||
+		message?.media.fileName ||
 		message?.rawPayload?.document?.filename ||
 		'Document File';
 
@@ -107,7 +109,7 @@ const MediaPreview = ({ message, url, isLoading }) => {
 								gap={2}
 							>
 								<FiFileText size={20} />
-								<Text fontSize='sm' fontWeight='medium' noOfLines={1}>
+								<Text fontSize='sm' fontWeight='medium' noOfLines={3}>
 									{documentFileName}
 								</Text>
 							</Flex>

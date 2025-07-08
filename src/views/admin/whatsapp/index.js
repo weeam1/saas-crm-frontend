@@ -1061,7 +1061,7 @@ const Whatsapp = () => {
 
 				{/* Desktop Sidebar */}
 				<Box
-					w={{ base: '100%', md: '30%' }}
+					w={{ base: '100%', md: '30%', lg: '25%' }}
 					bg={sidebarBg}
 					borderRight='1px solid'
 					borderColor='gray.200'
