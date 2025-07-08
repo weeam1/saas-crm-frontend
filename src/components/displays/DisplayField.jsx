@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { format } from 'date-fns';
 
-const DisplayField = ({ label, value }) => {
+const DisplayField = ({ label, value, ...props }) => {
 	if (label === 'Date of Birth') {
 		value = format(new Date(value), 'd MMM, yyyy');
 	}
@@ -21,6 +21,7 @@ const DisplayField = ({ label, value }) => {
 				shadow='sm'
 				maxH='200px' // Set a maximum height for the box
 				overflowY='auto' // Enable vertical scrolling
+				{...props}
 			>
 				{value === undefined || value === null || value === '' ? 'N/A' : value}
 			</Box>

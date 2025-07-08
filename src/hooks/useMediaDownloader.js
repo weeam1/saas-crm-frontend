@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMediaUrl } from '../redux/whatsappSlice';
 import { constant } from 'constant';
+import { toast } from 'react-toastify';
 
 export const useMediaDownloader = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -39,5 +40,81 @@ export const useMediaDownloader = () => {
 		}
 	};
 
-	return { downloadMedia, isLoading };
+	const downloadMediaFile = async (
+		mediaId,
+		type = 'download',
+		baseFilename = 'file'
+	) => {
+		try {
+			setIsLoading(true);
+
+			const response = await axios.get(
+				`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
+				{ responseType: 'blob' }
+			);
+
+			const contentType = response.headers['content-type'];
+			const ext = getExtensionFromContentType(contentType);
+			const filename = `${baseFilename}.${ext}`;
+
+			const blob = new Blob([response.data], { type: contentType });
+			const url = URL.createObjectURL(blob);
+
+			if (type === 'open') {
+				const viewableTypes = [
+					'application/pdf',
+					'image/jpeg',
+					'image/png',
+					'text/plain',
+				];
+				if (viewableTypes.includes(contentType)) {
+					const newTab = window.open(url, '_blank');
+					if (!newTab) toast.error('Popup blocked.');
+				} else {
+					toast.warning('Preview not supported. Downloading instead.');
+					triggerDownload(url, filename);
+				}
+			} else {
+				triggerDownload(url, filename);
+			}
+
+			// Optional: revoke URL after short delay
+			setTimeout(() => URL.revokeObjectURL(url), 2000);
+		} catch (err) {
+			console.error('Download error:', err);
+			toast.error('Failed to download file.');
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const triggerDownload = (url, filename) => {
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		toast.success('Download started');
+	};
+
+	return { downloadMedia, downloadMediaFile, isLoading };
+};
+
+const getExtensionFromContentType = (contentType) => {
+	return mimeToExtension[contentType] || 'bin';
+};
+
+const mimeToExtension = {
+	'application/pdf': 'pdf',
+	'application/msword': 'doc',
+	'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+		'docx',
+	'application/vnd.ms-excel': 'xls',
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+	'image/jpeg': 'jpg',
+	'image/png': 'png',
+	'text/plain': 'txt',
+	'application/zip': 'zip',
+	'application/json': 'json',
 };

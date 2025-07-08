@@ -234,9 +234,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 							value={leadIp?.country}
 							textTransform='capitalize'
 						/>
-						{!['Agent'].includes(user?.roles[0]?.roleName) && (
+						{/* {!['Agent'].includes(user?.roles[0]?.roleName) && (
 							<DetailItem label='IP Address' value={data?.ip} />
-						)}
+						)} */}
 					</DetailGrid>
 				</SectionCard>
 			</GridItem>

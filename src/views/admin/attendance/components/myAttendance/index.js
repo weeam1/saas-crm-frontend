@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Text, Divider, Button, Flex } from '@chakra-ui/react';
+import { Box, Text, Divider, Button, Flex, Stack } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
@@ -14,6 +14,7 @@ import AttendanceShimmer from './AttendanceShimmer';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import CreateAttendance from './CreateAttendance';
 import { FaPlus } from 'react-icons/fa';
+import ExportEmployeeAttendanceReport from './ExportEmployeeAttendanceReport';
 
 const Attendance = () => {
 	const { id: employeeId } = useParams();
@@ -85,34 +86,43 @@ const Attendance = () => {
 				>
 					Back
 				</AppButton>
-				<Box
-					display='flex'
+				<Flex
 					justifyContent='space-between'
 					alignItems='center'
+					flexDir={{ base: 'column', md: 'row' }}
 					mt={2}
 					mb='4'
 					bg='white'
 					p={4}
+					gap='4'
 				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 						Attendance Record
 					</Text>
 
 					{['HR', 'superAdmin'].includes(role) && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
-							py='2'
-							px='5'
-							leftIcon={<FaPlus />}
-							aria-label='Add attendance'
-							onClick={() => setAddAttendance(true)}
-						>
-							Add
-						</Button>
+						<Stack direction={{ base: 'row' }} spacing={2}>
+							<ExportEmployeeAttendanceReport
+								month={month}
+								year={year}
+								employee={employee}
+							/>
+
+							<Button
+								{...buttonStyle}
+								variant='solid'
+								bg='brand.400'
+								py='2'
+								px='5'
+								leftIcon={<FaPlus />}
+								aria-label='Add attendance'
+								onClick={() => setAddAttendance(true)}
+							>
+								Add
+							</Button>
+						</Stack>
 					)}
-				</Box>
+				</Flex>
 
 				{error ? (
 					<ErrorMessage message='No results found. Please check your query.' />

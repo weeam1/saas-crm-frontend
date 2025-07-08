@@ -11,6 +11,8 @@ const keys = {
 	fbPixelAPI: process.env.REACT_APP_FB_PIXEL_API,
 	fbPixelId: process.env.REACT_APP_FB_PIXEL_ID,
 	fbPixelToken: process.env.REACT_APP_FB_PIXEL_TOKEN,
+
+	socketIoUrl: process.env.REACT_APP_SOCKET_IO_URL,
 };
 
 export default keys;

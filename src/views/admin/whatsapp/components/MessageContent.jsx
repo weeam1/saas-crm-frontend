@@ -25,7 +25,7 @@ import MediaPreview from './Media/MediaPreview';
 
 const MotionBox = motion(Box);
 
-const MEDIA_TYPES = ['image', 'document', 'video', 'audio'];
+const MEDIA_TYPES = ['image', 'video', 'audio'];
 
 export const MessageContent = ({ message, isSelf }) => {
 	const mediaUrls = useSelector((state) => state.whatsapp.mediaUrls || {});
@@ -86,7 +86,7 @@ export const MessageContent = ({ message, isSelf }) => {
 	}, [isLoading, progress]);
 
 	// Text message
-	if (message.type === 'text') {
+	if (['text', 'template'].includes(message.type)) {
 		return message.content;
 	} else if (message.type === 'unsupported') {
 		return (
@@ -101,53 +101,36 @@ export const MessageContent = ({ message, isSelf }) => {
 	// Media message placeholder
 	return (
 		<VStack align='center' mb='1'>
-			{!mediaUrl ? (
-				<>
-					<MotionBox
-						initial={{ opacity: 0, scale: 0.9 }}
-						animate={{ opacity: 1, scale: 1 }}
-						transition={{ duration: 0.25 }}
-					>
-						{isLoading ? (
-							<MediaLoadingEffect type={message.type} progress={progress} />
-						) : (
-							// <Box position='relative' display='inline-flex'>
-							// 	<CircularProgress
-							// 		isIndeterminate
-							// 		color='whatsapp.500'
-							// 		size='60px'
-							// 		thickness='4px'
-							// 	/>
-							// 	<Box
-							// 		position='absolute'
-							// 		top='50%'
-							// 		left='50%'
-							// 		transform='translate(-50%, -50%)'
-							// 	>
-							// 		<MediaIcon type={message.type} size={32} />
-							// 	</Box>
-							// </Box>
-							<VStack justify='space-between' gap='4' w='300px' h='200px'>
-								<MediaIcon type={message.type} size={120} />
-								<Button
-									size='xs'
-									rounded='md'
-									colorScheme='whatsapp'
-									leftIcon={<FiDownload />}
-									mt={2}
-									py='4'
-									px='12'
-									onClick={() => onDownload(mediaId)}
-								>
-									Download
-								</Button>
-							</VStack>
-						)}
-					</MotionBox>
-				</>
-			) : (
-				<MediaPreview type={message.type} url={mediaUrl} />
-			)}
+			<MotionBox
+				initial={{ opacity: 0, scale: 0.9 }}
+				animate={{ opacity: 1, scale: 1 }}
+				transition={{ duration: 0.25 }}
+			>
+				{isLoading ? (
+					<MediaLoadingEffect type={message.type} progress={progress} />
+				) : !mediaUrl ? (
+					<VStack justify='space-between' gap='4' w='300px'>
+						<MediaIcon type={message.type} size={100} />
+						<Text fontSize='xs' color='gray.600'>
+							This Media is not available because something is wrong.
+						</Text>
+						{/* <Button
+							size='xs'
+							rounded='md'
+							colorScheme='whatsapp'
+							leftIcon={<FiDownload />}
+							mt={2}
+							py='4'
+							px='12'
+							onClick={() => onDownload(mediaId)}
+						>
+							Download
+						</Button> */}
+					</VStack>
+				) : (
+					<MediaPreview message={message} url={mediaUrl} />
+				)}
+			</MotionBox>
 		</VStack>
 	);
 };

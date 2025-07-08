@@ -7,8 +7,6 @@ import {
 	ModalFooter,
 	Button,
 	Box,
-	HStack,
-	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -17,18 +15,17 @@ import moment from 'moment';
 // Custom components
 import { useCreateItemMutation } from 'api/apiSlice';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
-import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
 import { toast } from 'react-toastify';
 import { buttonStyle } from 'utils/btn';
 import LeaveNoteModal from './LeaveNoteModal';
 import AttendanceSelector from './AttendanceSelectors';
+import NoteModal from './NoteModal';
 
 const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 	const [checkInTime, setCheckInTime] = useState('09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState('06:00 PM');
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [openCalendar, setOpenCalendar] = useState(null);
-	const [absentLoading, setAbsentLoading] = useState(false);
 	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const [attendanceStatus, setAttendanceStatus] = useState('present');
@@ -44,93 +41,20 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		onClose: noteOnClose,
 	} = useDisclosure();
 
+	const {
+		isOpen: checkinNoteIsOpen,
+		onOpen: checkinNoteOnOpen,
+		onClose: checkinNoteOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: absentNoteIsOpen,
+		onOpen: absentNoteOnOpen,
+		onClose: absentNoteOnClose,
+	} = useDisclosure();
+
 	const [createItemMutation, { isLoading: isUpdating }] =
 		useCreateItemMutation();
-
-	// const handleSave = async () => {
-	// 	const payload = {
-	// 		employeeId,
-	// 		date: moment(selectedDate).format('YYYY-MM-DD'),
-	// 	};
-
-	// 	setInitialPayload(payload);
-
-	// 	if (attendanceStatus === 'absent') {
-	// 		handleAbsence(payload);
-	// 		return;
-	// 	} else if (attendanceStatus === 'leave') {
-	// 		noteOnOpen();
-	// 		return;
-	// 	} else if (attendanceStatus === 'present') {
-	// 		handlePresent(payload);
-	// 		return;
-	// 	}
-	// };
-
-	// const handlePresent = async (initialPayload) => {
-	// 	try {
-	// 		const checkIn = moment(checkInTime, 'hh:mm A');
-	// 		const checkOut = moment(checkOutTime, 'hh:mm A');
-
-	// 		if (checkOut.isBefore(checkIn)) {
-	// 			toast.error('Check-Out time must be after Check-In!');
-	// 			return;
-	// 		}
-	// 		const payload = {
-	// 			...initialPayload,
-	// 			checkin: checkInTime,
-	// 			checkout: checkOutTime,
-	// 		};
-
-	// 		await createItemMutation({
-	// 			path: `/attendance`,
-	// 			body: payload,
-	// 		}).unwrap();
-
-	// 		toast.success('Attendance record added successfully');
-	// 		refetch({ force: true });
-	// 		onClose();
-	// 	} catch (err) {
-	// 		toast.error(err?.data?.message || 'Record adding failed');
-	// 	}
-	// };
-
-	// const handleAbsence = async (initialPayload) => {
-	// 	try {
-	// 		await createItemMutation({
-	// 			path: '/attendance/absent',
-	// 			body: initialPayload,
-	// 		}).unwrap();
-
-	// 		toast.success('Attendance record added successfully');
-	// 		refetch({ force: true });
-	// 		onClose();
-	// 	} catch (e) {
-	// 		console.log(e);
-	// 		toast.error(e?.data?.message || 'Error in employee absent');
-	// 	}
-	// };
-
-	// const handleLeave = async (values) => {
-	// 	try {
-	// 		const bodyData = { ...values, ...initialPayload };
-
-	// 		await createItemMutation({
-	// 			path: '/attendance/leave',
-	// 			body: bodyData,
-	// 		}).unwrap();
-
-	// 		toast.success('Attendance record added successfully');
-
-	// 		refetch({ force: true });
-	// 		onClose();
-	// 	} catch (e) {
-	// 		console.log(e);
-	// 		toast.error(e?.data?.message || 'Error in employee leave');
-	// 	} finally {
-	// 		noteOnClose();
-	// 	}
-	// };
 
 	const handleSave = async () => {
 		const basePayload = {
@@ -141,9 +65,9 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		setInitialPayload(basePayload);
 
 		const actionHandlers = {
-			absent: () => handleAttendanceAction('absent', basePayload),
+			absent: absentNoteOnOpen,
 			leave: noteOnOpen,
-			present: () => handlePresent(basePayload),
+			present: checkinNoteOnOpen,
 		};
 
 		if (actionHandlers[attendanceStatus]) {
@@ -151,7 +75,7 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 		}
 	};
 
-	const handlePresent = async (payload) => {
+	const handlePresent = async ({ note }) => {
 		const checkIn = moment(checkInTime, 'hh:mm A');
 		const checkOut = moment(checkOutTime, 'hh:mm A');
 
@@ -160,8 +84,11 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 			return;
 		}
 
+		checkinNoteOnClose();
+
 		await handleAttendanceAction('present', {
-			...payload,
+			...initialPayload,
+			checkinNote: note,
 			checkin: checkInTime,
 			checkout: checkOutTime,
 		});
@@ -190,14 +117,20 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 	};
 
 	const handleLeave = async (values) => {
-		try {
-			await handleAttendanceAction('leave', {
-				...values,
-				...initialPayload,
-			});
-		} finally {
-			noteOnClose();
-		}
+		noteOnClose();
+		await handleAttendanceAction('leave', {
+			...values,
+			...initialPayload,
+		});
+	};
+
+	const handleAbsent = async ({ note = '' }) => {
+		absentNoteOnClose();
+
+		handleAttendanceAction('absent', {
+			...initialPayload,
+			absentNote: note || '',
+		});
 	};
 
 	const toggleCalendar = (target) => {
@@ -271,7 +204,7 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 							py='5'
 							px='8'
 							mr='3'
-							fontSize='lg'
+							fontSize='md'
 							aria-label='close'
 							onClick={onClose}
 						>
@@ -283,9 +216,10 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 							bg='brand.400'
 							py='5'
 							px='8'
-							fontSize='lg'
+							fontSize='md'
 							aria-label='add'
 							onClick={handleSave}
+							isLoading={isUpdating}
 						>
 							{isUpdating ? 'Loading...' : 'Add'}
 						</Button>
@@ -297,7 +231,27 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 					isOpen={noteIsOpen}
 					onClose={noteOnClose}
 					onSubmit={handleLeave}
-					isLoading={leaveLoading}
+					isLoading={isUpdating}
+				/>
+			)}
+
+			{checkinNoteIsOpen && (
+				<NoteModal
+					title='Check In Note'
+					isOpen={checkinNoteIsOpen}
+					onClose={checkinNoteOnClose}
+					onSubmit={handlePresent}
+					isLoading={isUpdating}
+				/>
+			)}
+
+			{absentNoteIsOpen && (
+				<NoteModal
+					title='Absent Note'
+					isOpen={absentNoteIsOpen}
+					onClose={absentNoteOnClose}
+					onSubmit={handleAbsent}
+					isLoading={isUpdating}
 				/>
 			)}
 		</>

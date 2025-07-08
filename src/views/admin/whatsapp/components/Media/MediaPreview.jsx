@@ -11,6 +11,7 @@ import {
 	useDisclosure,
 	Spinner,
 	IconButton,
+	HStack,
 } from '@chakra-ui/react';
 import {
 	FiFileText,
@@ -19,13 +20,18 @@ import {
 	FiMaximize,
 	FiX,
 } from 'react-icons/fi';
+import { useMediaDownloader } from 'hooks/useMediaDownloader';
 
-const MediaPreview = ({ type, url, isLoading }) => {
+const MediaPreview = ({ message, url, isLoading }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [isFullscreenLoading, setIsFullscreenLoading] = useState(false);
 
+	const { type, sentAt } = message || {};
+
+	const { downloadMediaFile } = useMediaDownloader();
+
 	const handleFullscreenOpen = () => {
-		if (type === 'image' || type === 'video') {
+		if (['image', 'video'].includes(type)) {
 			setIsFullscreenLoading(true);
 			onOpen();
 		}
@@ -39,6 +45,11 @@ const MediaPreview = ({ type, url, isLoading }) => {
 		setIsFullscreenLoading(false);
 		onClose();
 	};
+
+	const documentFileName =
+		message?.media?.filename ||
+		message?.rawPayload?.document?.filename ||
+		'Document File';
 
 	const renderMedia = (fullscreen = false) => {
 		switch (type) {
@@ -72,9 +83,16 @@ const MediaPreview = ({ type, url, isLoading }) => {
 				);
 			case 'audio':
 				return <audio controls src={url} />;
+
 			case 'document':
 				return (
-					<Flex direction='column' align='flex-start' gap={2} width='100%'>
+					<Flex
+						width={{ base: '200px', md: '250px', lg: '300px' }}
+						direction='column'
+						gap={1}
+						p='1'
+						bg='gray.200'
+					>
 						<Flex
 							align='center'
 							bg='gray.100'
@@ -85,35 +103,47 @@ const MediaPreview = ({ type, url, isLoading }) => {
 							boxShadow='sm'
 							gap={2}
 						>
-							<FiFileText size={24} />
-							<Box>
-								<Text fontSize='sm' fontWeight='semibold'>
-									Document File
-								</Text>
-							</Box>
+							<FiFileText size={20} />
+							<Text fontSize='sm' fontWeight='medium' noOfLines={1}>
+								{documentFileName}
+							</Text>
 						</Flex>
 
-						<Flex gap={2}>
+						<HStack spacing={2} pt={1}>
 							<Button
-								size='sm'
-								variant='outline'
-								leftIcon={<FiDownload />}
-								as='a'
-								href={url}
-								download
+								w='full'
+								size='xs'
+								rounded='md'
+								colorScheme='whatsapp'
+								leftIcon={<FiDownload size={14} />}
+								onClick={() =>
+									downloadMediaFile(
+										message?.media?.id,
+										'download',
+										documentFileName
+									)
+								}
 							>
 								Download
 							</Button>
 
 							<Button
-								size='sm'
-								variant='outline'
-								leftIcon={<FiExternalLink />}
-								onClick={() => window.open(url, '_blank')}
+								w='full'
+								size='xs'
+								rounded='md'
+								colorScheme='whatsapp'
+								leftIcon={<FiExternalLink size={14} />}
+								onClick={() =>
+									downloadMediaFile(
+										message?.media?.id,
+										'open',
+										documentFileName
+									)
+								}
 							>
 								Open
 							</Button>
-						</Flex>
+						</HStack>
 					</Flex>
 				);
 			default:
@@ -123,7 +153,7 @@ const MediaPreview = ({ type, url, isLoading }) => {
 
 	return (
 		<>
-			<Box position='relative' width='100%'>
+			<Box position='relative' width='100%' onClick={handleFullscreenOpen}>
 				{renderMedia()}
 
 				{(type === 'image' || type === 'video') && (

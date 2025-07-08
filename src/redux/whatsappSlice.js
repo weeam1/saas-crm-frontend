@@ -7,10 +7,18 @@ const whatsappSlice = createSlice({
 		currentUser: {},
 		chats: {},
 		mediaUrls: {},
+		activeChat: null,
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+
+			// localStorage.removeItem('activeChat');
+			// localStorage.setItem('activeChat', JSON.stringify(action.payload));
+		},
+
+		setActiveChat: (state, action) => {
+			state.activeChat = action.payload;
 		},
 
 		deleteContact: (state, action) => {
@@ -43,7 +51,7 @@ const whatsappSlice = createSlice({
 		updateContact: (state, action) => {
 			const updated = action.payload;
 			const index = state.contacts.findIndex(
-				(contact) => contact.phoneNumber === updated.phoneNumber
+				(contact) => contact._id === updated._id
 			);
 
 			if (index !== -1) {
@@ -53,6 +61,7 @@ const whatsappSlice = createSlice({
 				};
 			}
 		},
+
 		setChatHistory(state, action) {
 			const { chatId, messages } = action.payload;
 			state.chats[chatId] = messages;
@@ -61,12 +70,32 @@ const whatsappSlice = createSlice({
 		// update messages (pagination scroll bar top)
 		prependMessages(state, action) {
 			const { chatId, messages } = action.payload;
+
 			if (!state.chats[chatId]) {
 				state.chats[chatId] = messages;
 			} else {
-				state.chats[chatId] = [...messages, ...state.chats[chatId]];
+				// Get existing message IDs for quick lookup
+				const existingIds = new Set(state.chats[chatId].map((msg) => msg._id));
+
+				// Filter out any messages that already exist
+				const uniqueNewMessages = messages.filter(
+					(msg) => !existingIds.has(msg._id)
+				);
+
+				// Only prepend if there are unique messages
+				if (uniqueNewMessages.length > 0) {
+					state.chats[chatId] = [...uniqueNewMessages, ...state.chats[chatId]];
+				}
 			}
 		},
+		// prependMessages(state, action) {
+		// 	const { chatId, messages } = action.payload;
+		// 	if (!state.chats[chatId]) {
+		// 		state.chats[chatId] = messages;
+		// 	} else {
+		// 		state.chats[chatId] = [...messages, ...state.chats[chatId]];
+		// 	}
+		// },
 		appendMessage(state, action) {
 			const { chatId, message } = action.payload;
 
@@ -98,6 +127,7 @@ export const {
 	appendMessage,
 	setCurrentUser,
 	setMediaUrl,
+	setActiveChat,
 	deleteContact,
 } = whatsappSlice.actions;
 

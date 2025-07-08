@@ -17,7 +17,6 @@ import TableLoading from 'components/loading/TableLoading';
 
 import NoData from 'components/Message/NoData';
 import { FiEdit, FiTrash } from 'react-icons/fi';
-import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { CopyIcon } from '@chakra-ui/icons';
 import CustomTooltip from 'components/shared/CustomTooltip';
@@ -30,7 +29,15 @@ const UsersTable = ({
 	handleEdit,
 	handleDelete,
 }) => {
-	const columns = ['User', 'Email', 'Phone ID', 'Agency', 'Status', 'Action'];
+	const columns = [
+		'User',
+		'Email',
+		'Phone ID',
+		'Business ID',
+		'Agency',
+		'Status',
+		'Action',
+	];
 
 	const navigate = useNavigate();
 
@@ -83,6 +90,9 @@ const UsersTable = ({
 								</Td>
 								<Td minW='200px' textAlign='left'>
 									<CopyPhoneCell value={item?.phoneNumber} />
+								</Td>
+								<Td minW='200px' textAlign='left'>
+									<CopyPhoneCell value={item?.businessId} />
 								</Td>
 
 								{/* <Td textAlign='center'>

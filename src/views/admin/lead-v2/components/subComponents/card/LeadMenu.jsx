@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 import {
 	Menu,
 	MenuButton,
@@ -16,6 +17,11 @@ import { useStateContext } from 'contexts/store';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
+import { useDispatch, useSelector } from 'react-redux';
+import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
+
+import { setActiveChat } from '../../../../../../redux/whatsappSlice';
+import { validatePhoneNumber } from 'utils/helpers';
 
 const LeadMenu = ({
 	lead,
@@ -39,14 +45,59 @@ const LeadMenu = ({
 	setLeadAddtionalInfo,
 }) => {
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
+
+	// const loginUser = useSelector((state) => state.user.user);
+
 	const leadId = lead?._id;
-	const phoneNumber = lead?.leadPhoneNumber;
+	const phoneNumber =
+		typeof lead?.leadPhoneNumber === 'object'
+			? lead?.leadPhoneNumber?.result
+			: lead?.leadPhoneNumber;
+	const whatsappNumber =
+		typeof lead.leadWhatsappNumber === 'object'
+			? lead.leadWhatsappNumber?.result
+			: lead.leadWhatsappNumber;
 
 	// agent edit the lead only phone and lead name (when status is show)
 	const allowedUserEdit =
 		user?.roles[0]?.roleName === 'Agent' ? true : lead?.eLeadStatus === 'show';
 
 	const { setIsLeadCycle } = useStateContext();
+
+	const handleOpenWhatsapp = async () => {
+		const businessPhone = user?.whatsappDetails?.phoneNumber;
+
+		if (!businessPhone) {
+			toast.error(
+				user?.role === 'superAdmin'
+					? 'Please first setup our whatsapp!'
+					: 'Can not open the whatsapp, please contact with Admin.'
+			);
+			return;
+		}
+
+		const validNum = validatePhoneNumber(whatsappNumber);
+
+		if (!validNum) return toast.error('Not valid WhatsApp number!');
+
+		const roomId = generateRoomId(validNum, businessPhone);
+
+		const newContact = {
+			phoneNumber: validNum,
+			roomId,
+			ownerId: businessPhone,
+		};
+
+		dispatch(setActiveChat(newContact));
+
+		const redirectUrl =
+			user?.role === 'superAdmin'
+				? `/whatsapp/chat/${user._id}`
+				: `/whatsapp/chat`;
+
+		navigate(redirectUrl);
+	};
 
 	return (
 		<Menu isLazy closeOnSelect={false}>
@@ -133,7 +184,7 @@ const LeadMenu = ({
 					py={2.5}
 					display={{ sm: 'block', xl: 'none' }}
 					onClick={() => {
-						if (phoneNumber) window.location.href = `tel:+92${phoneNumber}`;
+						if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
 					}}
 					icon={<PhoneIcon fontSize={15} />}
 				>
@@ -141,12 +192,7 @@ const LeadMenu = ({
 				</MenuItem>
 				<MenuItem
 					py={2.5}
-					onClick={() => {
-						if (phoneNumber)
-							window.open(
-								`https://api.whatsapp.com/send/?phone=${phoneNumber}`
-							);
-					}}
+					onClick={handleOpenWhatsapp}
 					icon={<BsWhatsapp fontSize={15} />}
 				>
 					Open in WhatsApp

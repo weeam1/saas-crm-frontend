@@ -1,5 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
+
 export const globalStyles = extendTheme({
 	colors: {
 		brand: {
@@ -108,6 +109,10 @@ export const globalStyles = extendTheme({
 
 	styles: {
 		global: (props) => ({
+			'*:focus': {
+				outline: 'none !important',
+				boxShadow: 'none !important',
+			},
 			body: {
 				overflowX: 'hidden',
 				bg: mode('secondaryGray.300', 'navy.800')(props),

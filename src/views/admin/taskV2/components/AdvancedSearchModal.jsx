@@ -35,6 +35,7 @@ const AdvancedSearchModal = ({
   const [openCalendar, setOpenCalendar] = useState(null);
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
+  console.log("users", users);
   useEffect(() => {
     if (isOpen) {
       setFilters(initialFilters);

@@ -16,7 +16,7 @@ const WhatsappCards = ({ data, isLoading, isFetching }) => {
 				<SimpleGrid
 					sx={{
 						display: 'grid',
-						gridTemplateColumns: 'repeat(1, 1fr)', // default
+						gridTemplateColumns: 'repeat(1, 1fr)',
 
 						'@media screen and (min-width: 640px)': {
 							gridTemplateColumns: 'repeat(1, 1fr)', // sm

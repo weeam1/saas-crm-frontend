@@ -30,8 +30,9 @@ import {
 	updateContact,
 	deleteContact,
 } from '../../../../redux/whatsappSlice';
+import { validatePhoneNumber } from 'utils/helpers';
 
-const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
+const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 	const [editingContact, setEditingContact] = useState(null);
 	const [name, setName] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
@@ -54,13 +55,18 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 
 	const handleAddContact = async () => {
 		try {
-			const roomId = generateRoomId(phoneNumber, bussinessPhone);
+			const validNum = validatePhoneNumber(phoneNumber);
+
+			if (!validNum)
+				return toast.error('Please enter a valid WhatsApp number!');
+
+			const roomId = generateRoomId(validNum, businessPhone);
 
 			const newContact = {
 				name,
-				phoneNumber,
+				phoneNumber: validNum,
 				roomId,
-				ownerId: bussinessPhone,
+				ownerId: businessPhone,
 			};
 
 			const newUser = await createContactAPI({
@@ -86,10 +92,18 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 
 	const handleUpdateContact = async (data) => {
 		try {
-			const updateData = { name, phoneNumber };
+			const validNum = validatePhoneNumber(phoneNumber);
 
-			if (data._id) {
-				updateData.id = data._id;
+			if (!validNum)
+				return toast.error('Please enter a valid WhatsApp number!');
+
+			const updateData = { name, phoneNumber: validNum };
+			const roomId = generateRoomId(validNum, businessPhone);
+
+			if (data?._id) {
+				updateData.id = data?._id;
+			} else {
+				updateData.roomId = roomId;
 			}
 
 			const res = await createContactAPI({
@@ -99,10 +113,17 @@ const ContactModal = ({ isOpen, onClose, bussinessPhone, setContacts }) => {
 
 			const contact = {
 				...updateData,
+				roomId,
 				_id: res?.doc?._id,
 			};
 
-			dispatch(updateContact(contact));
+			console.log({ contact });
+
+			if (data?._id) {
+				dispatch(updateContact(contact));
+			} else {
+				dispatch(addContact(contact));
+			}
 
 			toast.success('Contact updated successfully');
 			setEditingContact(null);
