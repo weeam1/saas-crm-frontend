@@ -22,8 +22,10 @@ const whatsappSlice = createSlice({
 			state.activeChat = chat;
 
 			// Reset unread count
-			const room = state.contacts.find((r) => r.roomId === chat.roomId);
-			if (room) room.unreadCount = 0;
+			if (chat) {
+				const room = state.contacts.find((r) => r.roomId === chat.roomId);
+				if (room) room.unreadCount = 0;
+			}
 		},
 
 		deleteContact: (state, action) => {

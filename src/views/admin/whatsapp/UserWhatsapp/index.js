@@ -2,7 +2,11 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import React, { useEffect, useState } from 'react';
 import { redirect, useNavigate, useParams } from 'react-router-dom';
 import Whatsapp from '../index';
-import { setContacts, setCurrentUser } from '../../../../redux/whatsappSlice';
+import {
+	setActiveChat,
+	setContacts,
+	setCurrentUser,
+} from '../../../../redux/whatsappSlice';
 import { useDispatch } from 'react-redux';
 
 import Loader from 'components/loading/Loader';
@@ -18,6 +22,7 @@ const UserWhatsapp = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	const userRole = user?.roles[0]?.roleName || user?.role;
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (id) {
@@ -38,10 +43,9 @@ const UserWhatsapp = () => {
 		}
 	);
 
-	const dispatch = useDispatch();
-
 	useEffect(() => {
 		if (contactsData?.doc) {
+			dispatch(setActiveChat(null));
 			dispatch(setContacts(contactsData?.doc));
 			dispatch(setCurrentUser(contactsData?.userData));
 		}

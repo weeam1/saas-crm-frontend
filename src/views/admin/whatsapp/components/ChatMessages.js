@@ -143,11 +143,18 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 
 		containerRef.current.scrollTop = containerRef.current.scrollHeight;
 
-		// if user online then call the api mark as read
-		// if (activeChat?.unreadCount > 0) {
-		handleMarkAsRead();
-		// }
-	}, [messages.length]);
+		const handleVisibility = () => {
+			if (document.visibilityState === 'visible') {
+				handleMarkAsRead();
+			}
+		};
+
+		handleVisibility(); // Initial check
+		const visListener = () => handleVisibility();
+
+		document.addEventListener('visibilitychange', visListener);
+		return () => document.removeEventListener('visibilitychange', visListener);
+	}, [messages.length]); // Add hasUnreadMessages to dependencies
 
 	return (
 		<Box
@@ -223,9 +230,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 										// Typography
 										whiteSpace='pre-wrap'
 										wordBreak='break-word'
-										// Animation
-										transition='all 0.2s ease'
-										transformOrigin={isSelf ? 'top right' : 'top left'}
 									>
 										{/* Render dynamic message content */}
 										<MessageContent message={message} isSelf={isSelf} />
