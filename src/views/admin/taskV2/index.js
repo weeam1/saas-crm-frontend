@@ -273,6 +273,7 @@ const TaskV2 = () => {
       <ActiveFiltersDisplay
         filters={filters}
         onClearFilters={handleClearFilters}
+         users={allUsers}
       />
 
       <Box mb={1}>
