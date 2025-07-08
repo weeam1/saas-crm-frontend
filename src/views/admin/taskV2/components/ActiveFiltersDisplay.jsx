@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Tag, TagLabel, Text, TagCloseButton } from "@chakra-ui/react";
+import { Flex, Tag, TagLabel, TagCloseButton } from "@chakra-ui/react";
 import { format } from "date-fns";
 
 const ActiveFiltersDisplay = ({ filters, onClearFilters }) => {

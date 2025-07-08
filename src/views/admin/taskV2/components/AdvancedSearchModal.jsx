@@ -14,12 +14,10 @@ import {
   Button,
   VStack,
   Checkbox,
-  HStack,
   SimpleGrid,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
-import { format } from "date-fns";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -82,7 +80,7 @@ const AdvancedSearchModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
-      isCentered // Center the modal
+      isCentered
     >
       <ModalOverlay />
       <ModalContent mx={{ base: 2, sm: 4, md: 8 }} w={{ base: "95vw", sm: "90vw", md: "500px" }}>
@@ -145,7 +143,7 @@ const AdvancedSearchModal = ({
               >
                 {users.map((user) => (
                   <option key={user._id} value={user._id}>
-                    {user.fullName}
+                    {user.name}
                   </option>
                 ))}
               </Select>
