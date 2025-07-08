@@ -87,7 +87,8 @@ import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ChatMessages from './components/ChatMessages';
 import { useDispatch, useSelector } from 'react-redux';
-import { appendMessage, setContacts } from '../../../redux/whatsappSlice';
+import { appendMessage, setActiveChat } from '../../../redux/whatsappSlice';
+
 import { resolveMessageType } from './components/helpers';
 
 import { useSocketEvents } from 'hooks/useSocketEvents';
@@ -106,18 +107,6 @@ const Whatsapp = () => {
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 	const contacts = useSelector((state) => state.whatsapp.contacts || []);
-
-	const {
-		isOpen: isMediaLimitOpen,
-		onOpen: onMediaLimitOpen,
-		onClose: onMediaLimitClose,
-	} = useDisclosure();
-
-	const {
-		isOpen: isDirectMessageOpen,
-		onOpen: onDirectMessageOpen,
-		onClose: onDirectMessageClose,
-	} = useDisclosure();
 
 	const {
 		isOpen: isWATemplateOpen,
@@ -216,9 +205,9 @@ const Whatsapp = () => {
 
 	const [createMessageAPI, { isLoading: sendingMessage }] =
 		useCreateItemMutation();
-	const [uploadMedia, { isLoading: uploadingMedia }] = useCreateItemMutation();
 
 	useEffect(() => {
+		dispatch(setActiveChat(null));
 		return () => {
 			if (timerRef.current) {
 				clearInterval(timerRef.current);
@@ -811,10 +800,6 @@ const Whatsapp = () => {
 	// 			setIsRecording(false);
 	// 		});
 	// }, [messages, activeChat, recordingTime]);
-
-	const getActiveUser = useCallback(() => {
-		return users.find((user) => user.phoneNumber === activeChat) || users[0];
-	}, [users, activeChat]);
 
 	const onEmojiClick = (emojiData) => {
 		setInputMessage((prev) => prev + emojiData.emoji);
