@@ -10,6 +10,7 @@ import {
 	Flex,
 } from '@chakra-ui/react';
 import { FaPlay, FaPause } from 'react-icons/fa';
+import { FiMusic } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentAudio } from '../../../../../redux/whatsappSlice';
 
@@ -133,7 +134,7 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 						outline='none'
 						boxShadow='none'
 						_hover={{ bg: 'transparent', boxShadow: 'none' }}
-						_focus={{ boxShadow: 'none', outline: 'none' }}
+						_focus={{ boxShadow: 'none', outline: 'none', border: 'none' }}
 						_active={{
 							bg: 'transparent',
 							boxShadow: 'none',
@@ -141,7 +142,8 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 							border: 'none',
 						}}
 						h='fit-content'
-						p='1'
+						color='brand.400'
+						p='4px'
 						icon={isPlaying ? <FaPause /> : <FaPlay />}
 						onClick={handlePlayPause}
 						aria-label={isPlaying ? 'Pause' : 'Play'}
@@ -155,7 +157,7 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 							focusThumbOnChange={false}
 						>
 							<SliderTrack>
-								<SliderFilledTrack />
+								<SliderFilledTrack bg='brand.400' />
 							</SliderTrack>
 							<SliderThumb />
 						</Slider>
@@ -165,6 +167,19 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 							<Text fontSize='xs'>{formatTime(duration)}</Text>
 						</Flex>
 					</Box>
+					{/* Music Icon at End */}
+					<Flex
+						justifyContent='center'
+						alignItems='center'
+						bg='brand.400'
+						w='10'
+						h='10'
+						p='2'
+						borderRadius='full'
+						boxShadow='md'
+					>
+						<FiMusic color='white' size={16} />
+					</Flex>
 				</Flex>
 			</Flex>
 		</Box>
