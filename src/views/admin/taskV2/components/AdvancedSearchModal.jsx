@@ -18,7 +18,6 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
-import { toast } from "react-toastify";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -169,6 +168,7 @@ const AdvancedSearchModal = ({
                   placeholder="To date"
                   isCalendarOpen={openCalendar === "dueDateTo"}
                   toggleCalendar={() => toggleCalendar("dueDateTo")}
+                  minDate={filters.dueDateFrom} 
                 />
               </SimpleGrid>
             </FormControl>

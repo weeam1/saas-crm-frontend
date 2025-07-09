@@ -8,7 +8,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import React, { useRef, useEffect, useState } from "react";
-
 import { FaRegCalendar } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -96,13 +95,26 @@ const CustomDatePicker = ({
   inputStyles,
 }) => {
   const errorMessage = errors?.[errorKey];
-  const calendarRef = useRef();
+  const containerRef = useRef();
   const popupRef = useRef();
   const [popupStyle, setPopupStyle] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 640); // Tailwind/Chakra 'sm' size
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target)
+      ) {
         if (isCalendarOpen) toggleCalendar(null);
       }
     };
@@ -111,25 +123,57 @@ const CustomDatePicker = ({
   }, [isCalendarOpen]);
 
   useEffect(() => {
-    if (isCalendarOpen && popupRef.current) {
-      const rect = popupRef.current.getBoundingClientRect();
-      const overflowRight = rect.right > window.innerWidth;
-      if (overflowRight) {
-        const shift = rect.right - window.innerWidth + 8; // 8px padding
+    if (isCalendarOpen && popupRef.current && containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const popupHeight = 300;
+      const spaceBelow = window.innerHeight - containerRect.bottom;
+      const spaceAbove = containerRect.top;
+      const openAbove = spaceBelow < popupHeight && spaceAbove > popupHeight;
+
+      // Mobile behavior — full screen popup
+      if (isMobile) {
         setPopupStyle({
-          right: 0,
-          left: "auto",
-          minWidth: rect.width,
-          transform: `translateX(-${shift}px)`,
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 9999,
+          width: "90vw",
+          maxHeight: "80vh",
+          overflowY: "auto",
+          border: "1px solid #e2e8f0",
+          borderRadius: "md",
+          padding: "1rem",
         });
       } else {
-        setPopupStyle({});
+        const overflowRight =
+          containerRect.left + 300 > window.innerWidth;
+        const horizontalAdjust = overflowRight
+          ? {
+              right: 0,
+              left: "auto",
+              transform: "translateX(-8px)",
+            }
+          : {};
+
+        setPopupStyle({
+          position: "absolute",
+          zIndex: 9999,
+          width: "max-content",
+          minWidth: containerRect.width,
+          border: "1px solid #e2e8f0",
+          borderRadius: "md",
+          ...horizontalAdjust,
+          ...(openAbove
+            ? { bottom: "50px", top: "auto" }
+            : { top: "50px", bottom: "auto" }),
+        });
       }
     }
-  }, [isCalendarOpen]);
+  }, [isCalendarOpen, isMobile]);
 
   return (
-    <FormControl mb={4} isInvalid={!!errorMessage} ref={calendarRef}>
+    <FormControl mb={4} isInvalid={!!errorMessage} ref={containerRef}>
       <FormLabel>{label}</FormLabel>
       <Box position="relative" width="100%">
         <InputGroup>
@@ -140,7 +184,6 @@ const CustomDatePicker = ({
             required
             bg="#F2F2F2"
             borderColor={errorMessage ? "red.500" : "gray.300"}
-            // borderRadius="md"
             focusBorderColor={errorMessage ? "red.500" : "#E0B960"}
             {...inputStyles}
           />
@@ -153,17 +196,7 @@ const CustomDatePicker = ({
           </InputRightElement>
         </InputGroup>
         {isCalendarOpen && (
-          <Box
-            ref={popupRef}
-            position="absolute"
-            top="50px"
-            zIndex="10"
-            bg="white"
-            border="1px solid #e2e8f0"
-            // borderRadius="md"
-            boxShadow="0px 4px 6px rgba(0, 0, 0, 0.1)"
-            style={popupStyle}
-          >
+          <Box ref={popupRef} style={popupStyle}>
             <Calendar
               onChange={(date) => {
                 handleDateChange(date);
@@ -172,7 +205,6 @@ const CustomDatePicker = ({
               value={selectedDate}
               minDate={minDate}
               maxDate={maxDate}
-              className="custom-calendar"
             />
           </Box>
         )}
