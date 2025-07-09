@@ -577,8 +577,6 @@ const Whatsapp = () => {
 		}
 	};
 
-	console.log({ isRecordingCanceled });
-
 	const sendRecording = useCallback(async () => {
 		if (mediaRecorderRef.current && isRecording) {
 			setIsRecordingCanceled(false);
@@ -651,12 +649,6 @@ const Whatsapp = () => {
 			toast.info('Recording cancelled');
 		}
 	}, [isRecording]);
-
-	console.log({
-		audio: audioBlobRef.current,
-		file: voiceFileRef.current,
-		duration: voiceDurationRef.current,
-	});
 
 	// const startRecording = useCallback(() => {
 	// 	setRecordingTime(0);

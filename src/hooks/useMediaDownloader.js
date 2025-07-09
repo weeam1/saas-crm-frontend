@@ -11,33 +11,79 @@ export const useMediaDownloader = () => {
 
 	const mediaUrls = useSelector((state) => state.whatsapp.mediaUrls || {});
 
-	const downloadMedia = async (mediaId) => {
-		try {
-			setIsLoading(true);
+	// const downloadMedia = async (mediaId) => {
+	// 	try {
+	// 		setIsLoading(true);
 
-			if (mediaUrls[mediaId]) {
-				return setIsLoading(false);
+	// 		if (mediaUrls[mediaId]) {
+	// 			return setIsLoading(false);
+	// 		}
+
+	// 		const response = await axios.get(
+	// 			`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
+	// 			{
+	// 				responseType: 'blob',
+	// 			}
+	// 		);
+
+	// 		const blob = new Blob([response.data], {
+	// 			type: response.headers['content-type'],
+	// 		});
+
+	// 		const blobUrl = URL.createObjectURL(blob);
+
+	// 		dispatch(setMediaUrl({ mediaId, url: blobUrl }));
+	// 	} catch (err) {
+	// 		console.error('Failed to load media:', err);
+	// 	} finally {
+	// 		setIsLoading(false);
+	// 	}
+	// };
+
+	const downloadMedia = (mediaId) => {
+		const controller = new AbortController();
+
+		const fetchMedia = async () => {
+			let isMounted = true;
+
+			try {
+				if (mediaUrls[mediaId]) return;
+
+				setIsLoading(true);
+
+				const response = await axios.get(
+					`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
+					{
+						responseType: 'blob',
+						signal: controller.signal,
+					}
+				);
+
+				const blob = new Blob([response.data], {
+					type: response.headers['content-type'],
+				});
+				const blobUrl = URL.createObjectURL(blob);
+
+				if (isMounted) {
+					dispatch(setMediaUrl({ mediaId, url: blobUrl }));
+				}
+			} catch (error) {
+				if (axios.isCancel(error)) {
+					console.warn(`Request cancelled: ${mediaId}`);
+				} else {
+					console.error('Failed to download media:', error);
+				}
+			} finally {
+				if (isMounted) setIsLoading(false);
 			}
 
-			const response = await axios.get(
-				`${constant['baseUrl']}api/whatsapp/download/${mediaId}`,
-				{
-					responseType: 'blob',
-				}
-			);
+			return () => {
+				isMounted = false;
+				controller.abort(); // cancel axios request
+			};
+		};
 
-			const blob = new Blob([response.data], {
-				type: response.headers['content-type'],
-			});
-
-			const blobUrl = URL.createObjectURL(blob);
-
-			dispatch(setMediaUrl({ mediaId, url: blobUrl }));
-		} catch (err) {
-			console.error('Failed to load media:', err);
-		} finally {
-			setIsLoading(false);
-		}
+		fetchMedia();
 	};
 
 	const downloadMediaFile = async (

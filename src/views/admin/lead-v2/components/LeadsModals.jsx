@@ -30,13 +30,9 @@ const LeadsModals = (props) => {
 		leadAddtionalInfo,
 	} = props;
 
-	const [searchParams, setSearchParams] = useSearchParams();
-
 	const handleViewClose = () => {
 		setViewLead({ isOpen: false, lid: null });
 	};
-
-	console.log({ lead });
 
 	return (
 		<>

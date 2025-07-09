@@ -83,7 +83,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	useEffect(() => {
 		setChatQuery({ roomId, page: 1, limit: 15 });
 		setFetchChatLoading(true);
-		console.log('ROOM UPDATED: ', roomId);
 	}, [roomId]);
 
 	// --- when chatData arrives -------
@@ -144,7 +143,10 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		containerRef.current.scrollTop = containerRef.current.scrollHeight;
 
 		const handleVisibility = () => {
-			if (document.visibilityState === 'visible') {
+			if (
+				document.visibilityState === 'visible' &&
+				activeChat?.unreadCount > 0
+			) {
 				handleMarkAsRead();
 			}
 		};

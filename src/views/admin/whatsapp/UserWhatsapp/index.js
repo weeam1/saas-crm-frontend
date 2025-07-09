@@ -1,6 +1,11 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import React, { useEffect, useState } from 'react';
-import { redirect, useNavigate, useParams } from 'react-router-dom';
+import {
+	redirect,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from 'react-router-dom';
 import Whatsapp from '../index';
 import {
 	setActiveChat,
@@ -19,18 +24,18 @@ const UserWhatsapp = () => {
 
 	const [userId, setUserId] = useState('');
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	const loginUser = JSON.parse(localStorage.getItem('user'));
 
-	const userRole = user?.roles[0]?.roleName || user?.role;
+	const userRole = loginUser?.roles[0]?.roleName || loginUser?.role;
 	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (id) {
 			setUserId(id);
-		} else if (user?._id && userRole !== 'superAdmin') {
-			setUserId(user?._id);
+		} else if (loginUser?._id && userRole !== 'superAdmin') {
+			setUserId(loginUser?._id);
 		} else redirect('/');
-	}, [id, user?._id, userRole]);
+	}, [id, loginUser?._id, userRole]);
 
 	const { data: contactsData, isLoading: usersLoading } = useFetchItemsQuery(
 		{
@@ -43,14 +48,19 @@ const UserWhatsapp = () => {
 		}
 	);
 
+	const contacts = contactsData?.doc;
+	const user = contactsData?.userData;
+
 	useEffect(() => {
-		if (contactsData?.doc) {
-			dispatch(setActiveChat(null));
-			dispatch(setContacts(contactsData?.doc));
-			dispatch(setCurrentUser(contactsData?.userData));
+		return () => dispatch(setActiveChat(null));
+	}, []);
+
+	useEffect(() => {
+		if (contacts) {
+			dispatch(setContacts(contacts));
+			dispatch(setCurrentUser(user));
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [contactsData?.doc]);
+	}, [contacts, dispatch, user]);
 
 	const navigate = useNavigate();
 
