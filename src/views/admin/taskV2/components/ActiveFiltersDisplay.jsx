@@ -48,14 +48,16 @@ const ActiveFiltersDisplay = ({ filters, onClearFilters, users }) => {
       borderRadius="md"
       justify="space-between"
     >
-      {Object.entries(filters).map(([key, value]) => (
-        <Tag key={key} size="md" colorScheme="brand" borderRadius="full">
-          <Flex align="center" justify="space-between" w="100%">
-            <TagLabel>{getDisplayValue(key, value)}</TagLabel>
-            <TagCloseButton onClick={() => onClearFilters(key)} ml={2} />
-          </Flex>
-        </Tag>
-      ))}
+      <Flex gap={2} wrap="wrap">
+        {Object.entries(filters).map(([key, value]) => (
+          <Tag key={key} size="md" colorScheme="brand" borderRadius="full">
+            <Flex>
+              <TagLabel>{getDisplayValue(key, value)}</TagLabel>
+              <TagCloseButton onClick={() => onClearFilters(key)} ml={2} />
+            </Flex>
+          </Tag>
+        ))}
+      </Flex>
       <Tag
         size="md"
         colorScheme="red"

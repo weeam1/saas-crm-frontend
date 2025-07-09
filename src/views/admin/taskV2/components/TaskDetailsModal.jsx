@@ -45,11 +45,6 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
         <ModalCloseButton />
         <ModalBody maxHeight="60vh" overflowY="auto">
           <VStack spacing={4}>
-            <Box w="100%" p={3} bg="gray.50" borderRadius="md">
-              <Text fontWeight="bold">Assignment Type:</Text>
-              <Text>{task.assign_type === "manager" ? "Manager Task" : "Agent Task"}</Text>
-            </Box>
-
             <FormControl>
               <FormLabel>Title</FormLabel>
               <Input value={task.title || ""} isReadOnly bg="gray.50" />
@@ -113,17 +108,6 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
               </FormControl>
             </Flex>
 
-            {task.assign_type === "agent" && (
-              <FormControl>
-                <FormLabel>Team Lead</FormLabel>
-                <Input
-                  value={task.team_lead?.fullName || "N/A"}
-                  isReadOnly
-                  bg="gray.50"
-                />
-              </FormControl>
-            )}
-
             <Flex gap={4} w="100%" flexDirection={{ base: "column", md: "row" }}>
               <FormControl>
                 <FormLabel>Assigned To</FormLabel>
@@ -148,8 +132,8 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
               <FormLabel>Created At</FormLabel>
               <Input
                 value={
-                  task.created_at
-                    ? format(new Date(task.created_at), "MMM d, yyyy h:mm a")
+                  task.createdAt
+                    ? format(new Date(task.createdAt), "MMM d, yyyy h:mm a")
                     : "N/A"
                 }
                 isReadOnly

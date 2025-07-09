@@ -26,7 +26,7 @@ import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import AdvancedSearchModal from "./components/AdvancedSearchModal";
 import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay";
-import { format } from "date-fns";
+import moment from "moment";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 import TableLoading from "components/loading/TableLoading";
@@ -53,11 +53,7 @@ const TaskV2 = () => {
   const [tableData, setTableData] = useState([]);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-  const {
-    allUsers = [],
-    managers = [],
-    agents = [],
-  } = useFetchUserHierarchy(user);
+  const { allUsers = [], agents = [] } = useFetchUserHierarchy(user);
 
   const columns = [
     "SR.No",
@@ -107,12 +103,9 @@ const TaskV2 = () => {
       if (filters.type) params.type = filters.type;
       if (filters.status) params.status = filters.status;
       if (filters.dueDateFrom)
-        params.dueDateFrom = format(
-          new Date(filters.dueDateFrom),
-          "yyyy-MM-dd"
-        );
+        params.dueDateFrom = moment(filters.dueDateFrom).format("YYYY-MM-DD");
       if (filters.dueDateTo)
-        params.dueDateTo = format(new Date(filters.dueDateTo), "yyyy-MM-dd");
+        params.dueDateTo = moment(filters.dueDateTo).format("YYYY-MM-DD");
       if (filters.overdue) params.overdue = true;
       if (filters.todays) params.todays = true;
     }
@@ -207,6 +200,11 @@ const TaskV2 = () => {
     refetch();
   };
 
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return moment(date).isValid() ? moment(date).format("MMM D, YYYY") : "N/A";
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -232,7 +230,8 @@ const TaskV2 = () => {
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
           {(user?.role === "superAdmin" ||
-            user?.roles[0]?.roleName === "Manager") && (
+            user?.roles[0]?.roleName === "Manager" ||
+            user?.roles[0]?.roleName === "HR") && (
             <Button
               size="md"
               colorScheme="brand"
@@ -351,7 +350,7 @@ const TaskV2 = () => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {task.title}
+                      {task.title || "N/A"}
                     </Td>
                     <Td
                       textAlign="center"
@@ -362,12 +361,12 @@ const TaskV2 = () => {
                     >
                       {task.assigned_to?.fullName || "N/A"}
                     </Td>
-                    <Td textAlign="center" minWidth="150px">
-                      {format(new Date(task.due_date), "MMM d, yyyy")}
+                    <Td textAlign="center" minWidth="200px">
+                      {formatDate(task.due_date)}
                     </Td>
                     <Td textAlign="center">
                       <Badge colorScheme={priorityColors[task.priority]}>
-                        {task.priority}
+                        {task.priority || "N/A"}
                       </Badge>
                     </Td>
                     <Td
@@ -377,7 +376,7 @@ const TaskV2 = () => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {task.type}
+                      {task.type || "N/A"}
                     </Td>
                     <Td textAlign="center">
                       <Select
@@ -402,7 +401,7 @@ const TaskV2 = () => {
                       </Select>
                     </Td>
                     <Td textAlign="center" minWidth="150px">
-                      {format(new Date(task.created_at), "MMM d, yyyy")}
+                      {formatDate(task.createdAt)}
                     </Td>
                     <Td
                       py={4}
@@ -416,32 +415,36 @@ const TaskV2 = () => {
                         justifyContent="center"
                         alignItems={"center"}
                       >
-                        <IconButton
-                          aria-label="Edit"
-                          icon={<EditIcon />}
-                          size="sm"
-                          onClick={() => {
-                            setSelectedTaskForEdit(task);
-                            setIsEditModalOpen(true);
-                          }}
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
-                        />
-                        <IconButton
-                          aria-label="Delete"
-                          icon={<DeleteIcon />}
-                          size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
-                          onClick={() => handleDeleteTask(task._id)}
-                        />
-
+                        {(user?.role === "superAdmin" ||
+                          user?._id === task.assigned_by?._id) && (
+                          <>
+                            <IconButton
+                              aria-label="Edit"
+                              icon={<EditIcon />}
+                              size="sm"
+                              onClick={() => {
+                                setSelectedTaskForEdit(task);
+                                setIsEditModalOpen(true);
+                              }}
+                              color={"#c09f5f"}
+                              _hover={{
+                                backgroundColor: "#c09f5f",
+                                color: "white",
+                              }}
+                            />
+                            <IconButton
+                              aria-label="Delete"
+                              icon={<DeleteIcon />}
+                              size="sm"
+                              color={"#c09f5f"}
+                              _hover={{
+                                backgroundColor: "#c09f5f",
+                                color: "white",
+                              }}
+                              onClick={() => handleDeleteTask(task._id)}
+                            />
+                          </>
+                        )}
                         <IconButton
                           aria-label="View"
                           icon={<ViewIcon />}
@@ -488,7 +491,14 @@ const TaskV2 = () => {
         onApplyFilters={handleApplyFilters}
         initialFilters={filters}
         clearFilter={filterChanged}
-        users={allUsers}
+        users={
+          user?.role === "superAdmin"
+            ? allUsers
+            : user?.roles[0]?.roleName === "Manager" ||
+              user?.roles[0]?.roleName === "HR"
+            ? agents
+            : []
+        }
         user={user}
       />
 
@@ -498,11 +508,13 @@ const TaskV2 = () => {
         onSuccess={() => {
           refetch();
         }}
-        managers={managers}
-        agents={
-          user.role === "superAdmin"
+        users={
+          user?.role === "superAdmin"
+            ? allUsers
+            : user?.roles[0]?.roleName === "Manager" ||
+              user?.roles[0]?.roleName === "HR"
             ? agents
-            : agents.filter((a) => a.manager === user._id)
+            : []
         }
         user={user}
       />
@@ -518,11 +530,13 @@ const TaskV2 = () => {
             refetch();
           }}
           task={selectedTaskForEdit}
-          managers={managers}
-          agents={
-            user.role === "superAdmin"
+          users={
+            user?.role === "superAdmin"
+              ? allUsers
+              : user?.roles[0]?.roleName === "Manager" ||
+                user?.roles[0]?.roleName === "HR"
               ? agents
-              : agents.filter((a) => a.manager === user._id)
+              : []
           }
           user={user}
         />

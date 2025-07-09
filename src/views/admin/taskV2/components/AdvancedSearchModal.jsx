@@ -18,7 +18,6 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
-import { getApi } from "services/api";
 import { toast } from "react-toastify";
 
 const AdvancedSearchModal = ({
@@ -28,14 +27,12 @@ const AdvancedSearchModal = ({
   initialFilters,
   users,
   clearFilter,
-  user, 
+  user,
 }) => {
   const [filters, setFilters] = useState(initialFilters);
   const [showOverdue, setShowOverdue] = useState(false);
   const [showTodays, setShowTodays] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(null);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
   useEffect(() => {
@@ -43,30 +40,8 @@ const AdvancedSearchModal = ({
       setFilters(initialFilters);
       setShowOverdue(initialFilters.overdue || false);
       setShowTodays(initialFilters.todays || false);
-      
-      if (user?.role === "superAdmin") {
-        setFilteredUsers(users);
-      } else if (user?.roles?.[0]?.roleName === "Manager") {
-        fetchTeamMembers(user._id);
-      } else {
-        setFilteredUsers([]);
-      }
     }
-  }, [isOpen, initialFilters, user, users]);
-
-  const fetchTeamMembers = async (managerId) => {
-    setIsLoadingUsers(true);
-    try {
-      const apiUrl = `api/v2/user/hierarchy?managerId=${managerId}`;
-      const { data } = await getApi(apiUrl);
-      setFilteredUsers(data.doc || []);
-    } catch (error) {
-      toast.error("Failed to fetch team members");
-      setFilteredUsers([]);
-    } finally {
-      setIsLoadingUsers(false);
-    }
-  };
+  }, [isOpen, initialFilters]);
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -102,12 +77,7 @@ const AdvancedSearchModal = ({
     showTodays === (initialFilters.todays || false);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="lg"
-      isCentered
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
       <ModalContent mx={{ base: 2, sm: 4, md: 8 }} w={{ base: "95vw", sm: "90vw", md: "500px" }}>
         <ModalHeader>Advanced Search</ModalHeader>
@@ -159,19 +129,18 @@ const AdvancedSearchModal = ({
               </FormControl>
             </SimpleGrid>
 
-            {(user?.role === "superAdmin" || user?.roles?.[0]?.roleName === "Manager") && (
+            {(user?.role === "superAdmin" || 
+              user?.roles?.[0]?.roleName === "Manager" || 
+              user?.roles?.[0]?.roleName === "HR") && (
               <FormControl>
                 <FormLabel>Assigned To</FormLabel>
                 <Select
                   value={filters.assignedTo || ""}
                   onChange={(e) => setFilters({ ...filters, assignedTo: e.target.value })}
-                  placeholder={
-                    isLoadingUsers ? "Loading users..." : "Select assignee"
-                  }
+                  placeholder="Select assignee"
                   focusBorderColor="brand.500"
-                  isDisabled={isLoadingUsers}
                 >
-                  {filteredUsers.map((user) => (
+                  {users.map((user) => (
                     <option key={user._id} value={user._id}>
                       {user.name}
                     </option>

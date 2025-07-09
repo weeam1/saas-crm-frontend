@@ -22,6 +22,7 @@ import {
 	FaRegCopy,
 	FaList,
 	FaWhatsapp,
+	FaTasks
 } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -49,6 +50,7 @@ import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
+const TaskV2 = React.lazy(() => import("views/admin/taskV2"));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
@@ -455,6 +457,13 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
+			  {
+				name: "Task",
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: "/task",
+				icon: <Icon as={FaTasks} width="20px" height="20px" color="inherit" />,
+				component: TaskV2,
+			  },
 
 			// ------------- Invoice Module Routes ------------------------ //
 			// {

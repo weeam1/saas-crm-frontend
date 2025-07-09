@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -16,16 +16,12 @@ import {
   VStack,
   Flex,
   FormErrorMessage,
-  RadioGroup,
-  Radio,
-  Stack,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import { toast } from "react-toastify";
-import { getApi } from "services/api";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -34,72 +30,11 @@ const validationSchema = Yup.object().shape({
   assigned_to: Yup.string().required("Assigned to is required"),
   priority: Yup.string().required("Priority is required"),
   type: Yup.string().required("Type is required"),
-  assign_type: Yup.string().required("Assign type is required"),
 });
 
-const AddTaskModal = ({ isOpen, onClose, onSuccess, managers, agents, user }) => {
+const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
   const [createTask] = useCreateItemMutation();
-  const [filteredUsers, setFilteredUsers] = useState([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      formik.resetForm();
-      if (user?.roles[0]?.roleName === "Manager") {
-        formik.setFieldValue("assign_type", "agent");
-        formik.setFieldValue("team_lead", user._id);
-        fetchTeamMembers(user._id);
-      } else if (user.role === "superAdmin") {
-        formik.setFieldValue("assign_type", "manager");
-        formik.setFieldValue("team_lead", null);
-      }
-    }
-  }, [isOpen]);
-
-  const fetchTeamMembers = async (managerId) => {
-    setIsLoadingUsers(true);
-    try {
-      const apiUrl = `api/v2/user/hierarchy?managerId=${managerId}`;
-      const { data } = await getApi(apiUrl);
-      setFilteredUsers(data.doc || []);
-    } catch (error) {
-      toast.error("Failed to fetch team members");
-      setFilteredUsers([]);
-    } finally {
-      setIsLoadingUsers(false);
-    }
-  };
-
-  const handleAssignTypeChange = (value) => {
-    formik.setFieldValue("assign_type", value);
-    formik.setFieldValue("assigned_to", "");
-    
-    if (value === "manager") {
-      formik.setFieldValue("team_lead", null);
-      setFilteredUsers(managers);
-    } else if (value === "agent") {
-      if (user?.roles[0]?.roleName === "Manager") {
-        formik.setFieldValue("team_lead", user._id);
-        fetchTeamMembers(user._id);
-      } else if (user.role === "superAdmin") {
-        formik.setFieldValue("team_lead", null);
-        setFilteredUsers(agents);
-      }
-    }
-  };
-
-  const handleManagerChange = async (e) => {
-    const managerId = e.target.value;
-    formik.setFieldValue("team_lead", managerId);
-    formik.setFieldValue("assigned_to", "");
-    
-    if (managerId) {
-      await fetchTeamMembers(managerId);
-    } else {
-      setFilteredUsers(agents);
-    }
-  };
 
   const formik = useFormik({
     initialValues: {
@@ -107,10 +42,8 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, managers, agents, user }) =>
       description: "",
       due_date: null,
       assigned_to: "",
-      team_lead: user?.roles[0]?.roleName === "Manager" ? user._id : null,
       priority: "Medium",
       type: "Custom",
-      assign_type: user?.roles[0]?.roleName === "Manager" ? "agent" : "manager",
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
@@ -121,14 +54,6 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, managers, agents, user }) =>
           created_by: user._id,
           status: "Pending",
         };
-
-        if (values.assign_type === "manager") {
-          payload.team_lead = null;
-        }
-
-        if (values.assign_type === "agent" && !payload.team_lead && user?.roles[0]?.roleName === "Manager") {
-          payload.team_lead = user._id;
-        }
 
         await createTask({
           path: "/taskV2",
@@ -155,72 +80,23 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, managers, agents, user }) =>
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl" isCentered>
       <ModalOverlay />
-      <ModalContent
-        mx={{ base: 4, sm: 6 }} 
-        w="100%"
-        maxW="600px"
-      >
+      <ModalContent mx={{ base: 4, sm: 6 }} w="100%" maxW="600px">
         <ModalHeader>Create New Task</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody
-            overflowY="auto"
-            maxH={{ base: "70vh", md: "75vh" }}
-          >
+          <ModalBody overflowY="auto" maxH={{ base: "70vh", md: "75vh" }}>
             <VStack spacing={4} align="stretch">
-              <FormControl isRequired>
-                <FormLabel>Assign To</FormLabel>
-                <RadioGroup
-                  name="assign_type"
-                  value={formik.values.assign_type}
-                  onChange={handleAssignTypeChange}
-                >
-                  <Stack direction="row">
-                    <Radio value="manager" isDisabled={user?.roles[0]?.roleName === "Manager"}>
-                      Manager
-                    </Radio>
-                    <Radio value="agent">Agent</Radio>
-                  </Stack>
-                </RadioGroup>
-              </FormControl>
-
-              {formik.values.assign_type === "agent" && user.role === "superAdmin" && (
-                <FormControl>
-                  <FormLabel>Team Lead </FormLabel>
-                  <Select
-                    name="team_lead"
-                    value={formik.values.team_lead || ""}
-                    onChange={handleManagerChange}
-                    placeholder="Select team lead"
-                    focusBorderColor="#E0B960"
-                  >
-                    {managers.map((manager) => (
-                      <option key={manager._id} value={manager._id}>
-                        {manager.name}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-
               <FormControl isInvalid={formik.errors.assigned_to && formik.touched.assigned_to}>
-                <FormLabel>
-                  {formik.values.assign_type === "manager" ? "Assign To Manager" : "Assign To Agent"}
-                </FormLabel>
+                <FormLabel>Assigned To</FormLabel>
                 <Select
                   name="assigned_to"
                   value={formik.values.assigned_to}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder={
-                    isLoadingUsers 
-                      ? "Loading users..." 
-                      : `Select ${formik.values.assign_type}`
-                  }
-                  isDisabled={isLoadingUsers || filteredUsers.length === 0}
+                  placeholder="Select user"
                   focusBorderColor={formik.errors.assigned_to ? "red.500" : "#E0B960"}
                 >
-                  {filteredUsers.map((user) => (
+                  {users.map((user) => (
                     <option key={user._id} value={user._id}>
                       {user.name}
                     </option>
@@ -255,11 +131,7 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, managers, agents, user }) =>
                 <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
               </FormControl>
 
-              <Flex
-                gap={4}
-                w="100%"
-                direction={{ base: "column", md: "row" }}
-              >
+              <Flex gap={4} w="100%" direction={{ base: "column", md: "row" }}>
                 <FormControl isInvalid={formik.errors.due_date && formik.touched.due_date}>
                   <FormLabel>Due Date</FormLabel>
                   <CustomDatePicker
