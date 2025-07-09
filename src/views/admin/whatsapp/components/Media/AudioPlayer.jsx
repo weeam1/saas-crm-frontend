@@ -126,7 +126,7 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 
 			<Flex direction='column' gap={3}>
 				{/* Play/Pause and Progress */}
-				<Flex alignItems='center' gap={4}>
+				<Flex justify='flex-start' gap={4}>
 					<IconButton
 						bg='transparent'
 						border='none'
@@ -140,6 +140,8 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 							outline: 'none',
 							border: 'none',
 						}}
+						h='fit-content'
+						p='1'
 						icon={isPlaying ? <FaPause /> : <FaPlay />}
 						onClick={handlePlayPause}
 						aria-label={isPlaying ? 'Pause' : 'Play'}
@@ -159,8 +161,8 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 						</Slider>
 
 						<Flex justifyContent='space-between'>
-							<Text fontSize='sm'>{formatTime(currentTime)}</Text>
-							<Text fontSize='sm'>{formatTime(duration)}</Text>
+							<Text fontSize='xs'>{formatTime(currentTime)}</Text>
+							<Text fontSize='xs'>{formatTime(duration)}</Text>
 						</Flex>
 					</Box>
 				</Flex>

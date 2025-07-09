@@ -145,7 +145,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		const handleVisibility = () => {
 			if (
 				document.visibilityState === 'visible' &&
-				activeChat?.unreadCount > 0
+				activeChat?.unreadCount > 0 &&
+				from
 			) {
 				handleMarkAsRead();
 			}
