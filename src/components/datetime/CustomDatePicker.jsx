@@ -141,7 +141,6 @@ const CustomDatePicker = ({
           width: "90vw",
           maxHeight: "80vh",
           overflowY: "auto",
-          border: "1px solid #e2e8f0",
           borderRadius: "md",
           padding: "1rem",
         });
@@ -161,7 +160,6 @@ const CustomDatePicker = ({
           zIndex: 9999,
           width: "max-content",
           minWidth: containerRect.width,
-          border: "1px solid #e2e8f0",
           borderRadius: "md",
           ...horizontalAdjust,
           ...(openAbove
