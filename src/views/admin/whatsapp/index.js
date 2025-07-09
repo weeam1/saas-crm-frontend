@@ -83,7 +83,7 @@ import { formatTime, formatDateHeader, whatsappColors } from 'utils/helpers.js';
 import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
 import ChatMessages from './components/ChatMessages';
 import { useDispatch, useSelector } from 'react-redux';
-import { appendMessage } from '../../../redux/whatsappSlice';
+import { appendMessage, setCurrentAudio } from '../../../redux/whatsappSlice';
 
 import { resolveMessageType } from './components/helpers';
 
@@ -279,7 +279,14 @@ const Whatsapp = () => {
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		},
-		[inputMessage, activeChat, selectedFile, createMessageAPI, dispatch]
+		[
+			inputMessage,
+			activeChat,
+			selectedFile,
+			voiceFileRef?.current,
+			createMessageAPI,
+			dispatch,
+		]
 	);
 
 	const handleFileUpload = useCallback(async (e, type = 'image') => {
@@ -306,6 +313,8 @@ const Whatsapp = () => {
 				size: file.size,
 				file,
 			});
+
+			e.target.value = null;
 		}
 	}, []);
 
@@ -430,6 +439,7 @@ const Whatsapp = () => {
 	// }, []);
 
 	const startRecording = useCallback(() => {
+		dispatch(setCurrentAudio(null));
 		setRecordingTime(0);
 		setAudioLevel(0);
 		setIsRecordingCanceled(false);
@@ -478,6 +488,8 @@ const Whatsapp = () => {
 				};
 
 				recorder.ondataavailable = (typedArray) => {
+					if (isRecordingCanceled) return;
+
 					const audioBlob = new Blob([typedArray], {
 						type: 'audio/ogg; codecs=opus',
 					});
@@ -565,6 +577,8 @@ const Whatsapp = () => {
 		}
 	};
 
+	console.log({ isRecordingCanceled });
+
 	const sendRecording = useCallback(async () => {
 		if (mediaRecorderRef.current && isRecording) {
 			setIsRecordingCanceled(false);
@@ -601,7 +615,7 @@ const Whatsapp = () => {
 
 			handleSendMessage(); // or upload logic
 		}
-	}, [handleSendMessage, isRecording]);
+	}, [isRecording]);
 
 	const cancelRecording = useCallback(() => {
 		if (mediaRecorderRef.current && isRecording) {
@@ -630,13 +644,19 @@ const Whatsapp = () => {
 			setRecordingTime(0);
 			setAudioLevel(0);
 			voiceFileRef.current = null;
-			voiceDurationRef.current = 0;
 			audioBlobRef.current = null;
+			voiceDurationRef.current = 0;
 			recordingDataPromiseRef.current = null;
 
 			toast.info('Recording cancelled');
 		}
 	}, [isRecording]);
+
+	console.log({
+		audio: audioBlobRef.current,
+		file: voiceFileRef.current,
+		duration: voiceDurationRef.current,
+	});
 
 	// const startRecording = useCallback(() => {
 	// 	setRecordingTime(0);

@@ -8,13 +8,11 @@ const whatsappSlice = createSlice({
 		chats: {},
 		mediaUrls: {},
 		activeChat: null,
+		currentAudioId: null,
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
-
-			// localStorage.removeItem('activeChat');
-			// localStorage.setItem('activeChat', JSON.stringify(action.payload));
 		},
 
 		setActiveChat: (state, action) => {
@@ -38,6 +36,9 @@ const whatsappSlice = createSlice({
 			const { mediaId, url } = action.payload;
 
 			state.mediaUrls[mediaId] = url;
+		},
+		setCurrentAudio(state, action) {
+			state.currentAudioId = action.payload;
 		},
 
 		setCurrentUser: (state, action) => {
@@ -156,6 +157,7 @@ export const {
 	setCurrentUser,
 	setMediaUrl,
 	setActiveChat,
+	setCurrentAudio,
 	deleteContact,
 } = whatsappSlice.actions;
 

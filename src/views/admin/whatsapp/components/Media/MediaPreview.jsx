@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
 	Flex,
 	Box,
@@ -21,10 +21,18 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import { useMediaDownloader } from 'hooks/useMediaDownloader';
+import AudioPlayer from './AudioPlayer';
+import { useDispatch } from 'react-redux';
+import { setCurrentAudio } from '../../../../../redux/whatsappSlice';
 
 const MediaPreview = ({ message, url, isLoading }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [isFullscreenLoading, setIsFullscreenLoading] = useState(false);
+
+	const dispatch = useDispatch();
+	const handlePlayPause = (id) => {
+		dispatch(setCurrentAudio(id));
+	};
 
 	const { type, sentAt } = message || {};
 
@@ -45,8 +53,6 @@ const MediaPreview = ({ message, url, isLoading }) => {
 		setIsFullscreenLoading(false);
 		onClose();
 	};
-
-	console.log(message?.media);
 
 	const documentFileName =
 		message?.media.fileName ||
@@ -84,15 +90,29 @@ const MediaPreview = ({ message, url, isLoading }) => {
 					/>
 				);
 			case 'audio':
-				return <audio controls src={url} />;
+				return (
+					<AudioPlayer
+						key={message.messageId}
+						id={message.messageId}
+						audioSrc={url}
+						onPlayPause={handlePlayPause}
+					/>
+				);
 
 			case 'document':
 				if (message?.media?.mimeType.includes('audio'))
-					return <audio controls src={url} />;
+					return (
+						<AudioPlayer
+							key={message._id}
+							id={message._id}
+							audioSrc={url}
+							onPlayPause={handlePlayPause}
+						/>
+					);
 				else
 					return (
 						<Flex
-							width={{ base: '200px', md: '250px', lg: '300px' }}
+							width={{ base: '200px', md: '250px', lg: '350px' }}
 							direction='column'
 							gap={1}
 							p='1'
@@ -132,22 +152,24 @@ const MediaPreview = ({ message, url, isLoading }) => {
 									Download
 								</Button>
 
-								<Button
-									w='full'
-									size='xs'
-									rounded='md'
-									colorScheme='whatsapp'
-									leftIcon={<FiExternalLink size={14} />}
-									onClick={() =>
-										downloadMediaFile(
-											message?.media?.id,
-											'open',
-											documentFileName
-										)
-									}
-								>
-									Open
-								</Button>
+								{message?.media?.mimeType.includes('pdf') && (
+									<Button
+										w='full'
+										size='xs'
+										rounded='md'
+										colorScheme='whatsapp'
+										leftIcon={<FiExternalLink size={14} />}
+										onClick={() =>
+											downloadMediaFile(
+												message?.media?.id,
+												'open',
+												documentFileName
+											)
+										}
+									>
+										Open
+									</Button>
+								)}
 							</HStack>
 						</Flex>
 					);

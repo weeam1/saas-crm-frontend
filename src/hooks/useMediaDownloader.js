@@ -101,20 +101,56 @@ export const useMediaDownloader = () => {
 	return { downloadMedia, downloadMediaFile, isLoading };
 };
 
-const getExtensionFromContentType = (contentType) => {
-	return mimeToExtension[contentType] || 'bin';
-};
+// const getExtensionFromContentType = (contentType) => {
+// 	return mimeToExtension[contentType] || 'bin';
+// };
 
-const mimeToExtension = {
-	'application/pdf': 'pdf',
-	'application/msword': 'doc',
-	'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-		'docx',
-	'application/vnd.ms-excel': 'xls',
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-	'image/jpeg': 'jpg',
-	'image/png': 'png',
-	'text/plain': 'txt',
-	'application/zip': 'zip',
-	'application/json': 'json',
+const getExtensionFromContentType = (mimeType) => {
+	const mimeToExt = {
+		// Images
+		'image/jpeg': '.jpg',
+		'image/png': '.png',
+		'image/gif': '.gif',
+		'image/webp': '.webp',
+
+		// Videos
+		'video/mp4': '.mp4',
+		'video/3gpp': '.3gp',
+
+		// Audio
+		'audio/mpeg': '.mp3',
+		'audio/ogg': '.ogg',
+		'audio/amr': '.amr',
+		'audio/aac': '.aac',
+
+		// Documents
+		'application/pdf': '.pdf',
+		'application/msword': '.doc',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+			'.docx',
+		'application/vnd.ms-excel': '.xls',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+			'.xlsx',
+		'application/vnd.ms-powerpoint': '.ppt',
+		'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+			'.pptx',
+		'text/plain': '.txt',
+		'application/rtf': '.rtf',
+
+		// Archives (document type for WhatsApp)
+		'application/zip': '.zip',
+		'application/x-rar-compressed': '.rar',
+		'application/x-7z-compressed': '.7z',
+		'application/x-tar': '.tar',
+		'application/gzip': '.gz',
+
+		// Archives
+		'application/x-bzip2': '.bz2',
+
+		// Misc
+		'application/octet-stream': '.bin',
+		'application/x-msdownload': '.exe',
+	};
+
+	return mimeToExt[mimeType.toLowerCase()];
 };
