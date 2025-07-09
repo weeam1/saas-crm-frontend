@@ -27,7 +27,7 @@ export const useMediaDownloader = () => {
 			);
 
 			const blob = new Blob([response.data], {
-				type: response.headers['Content-Type'],
+				type: response.headers['content-type'],
 			});
 
 			const blobUrl = URL.createObjectURL(blob);

@@ -112,7 +112,7 @@ const MediaPreview = ({ message, url, isLoading }) => {
 				else
 					return (
 						<Flex
-							width={{ base: '200px', md: '250px', lg: '350px' }}
+							width={{ base: '220px', md: '250px', lg: '350px' }}
 							direction='column'
 							gap={1}
 							p='1'

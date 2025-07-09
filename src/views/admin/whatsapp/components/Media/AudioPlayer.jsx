@@ -115,7 +115,7 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 	};
 
 	return (
-		<Box w='350px'>
+		<Box width={{ base: '220px', md: '250px', lg: '350px' }}>
 			<audio
 				ref={audioRef}
 				src={audioSrc}
