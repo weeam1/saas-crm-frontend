@@ -136,7 +136,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		chatData?.pagination?.totalPages,
 	]);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
 		if (!containerRef.current || loadingOlder || chatFetching) return;
 
 		containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -157,7 +157,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		document.addEventListener('visibilitychange', visListener);
 		return () => document.removeEventListener('visibilitychange', visListener);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [messages.length]);
+	}, [messages]);
 
 	return (
 		<Box
@@ -178,7 +178,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 					<Box textAlign='center' p='4'>
 						<Spinner color='whatsapp.500' />
 					</Box>
-				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
+				) : messages?.length > 0 ? (
 					messages?.map((message, index) => {
 						if (!MESSAGE_TYPES.includes(message.type)) return null;
 
