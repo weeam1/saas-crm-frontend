@@ -123,24 +123,40 @@ const whatsappSlice = createSlice({
 			// else push new message
 			else {
 				state.chats[chatId].push(message);
-				const contact = state.contacts.find(
-					(r) => r.roomId === message?.roomId
-				);
 
-				// Update message metadata
-				contact.lastMessage = message.content || '';
-				contact.lastMessageAt = message.sentAt;
-				contact.type = message.type;
+				const isActive = state.activeChat?.roomId === message?.roomId;
 
-				// Increment unread count if not active chat
-				if (state.activeChat.roomId !== message.roomId) {
-					contact.unreadCount += 1;
+				// Find existing contact
+				let contact = state.contacts.find((r) => r.roomId === message?.roomId);
+
+				if (!contact) {
+					// Create new contact with required fields
+					contact = {
+						phoneNumber: message.to,
+						roomId: message.roomId,
+						lastMessage: message?.content ?? '',
+						lastMessageAt: message?.sentAt ?? new Date().toISOString(),
+						type: message?.type,
+						unreadCount: isActive ? 0 : 1,
+					};
+				} else {
+					// Update existing contact's values
+					contact.lastMessage = message?.content ?? '';
+					contact.lastMessageAt = message?.sentAt ?? new Date().toISOString();
+					contact.type = message?.type;
+
+					if (typeof contact.unreadCount !== 'number') {
+						contact.unreadCount = 0;
+					}
+					if (!isActive) {
+						contact.unreadCount += 1;
+					}
 				}
 
-				// Move contact to the top
+				// Move contact to the top of the list
 				state.contacts = [
 					contact,
-					...state.contacts.filter((item, i) => item.roomId !== contact.roomId),
+					...state.contacts.filter((item) => item.roomId !== contact.roomId),
 				];
 			}
 		},

@@ -11,7 +11,6 @@ import {
 	Input,
 	FormControl,
 	FormLabel,
-	Box,
 } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
 import { generateRoomId } from '../helpers';
@@ -34,6 +33,10 @@ const WhatsappDirectChatModal = ({ isOpen, onClose, businessPhone }) => {
 			phoneNumber: validNum,
 			roomId,
 			ownerId: businessPhone,
+			type: '',
+			lastMessage: '',
+			lastMessageAt: '',
+			unreadCount: 0,
 		};
 
 		dispatch(setActiveChat(newContact));
