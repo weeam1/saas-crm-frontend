@@ -4,6 +4,7 @@ import SipDashboard from "./component/Dashboard";
 import SipHistory from "./component/History";
 import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
 import CallsReport from "../reports-v2/components/sip/CallsReport";
+import UserSetting from "./component/UserSetting";
 
 const DEFAULT_TAB = "dashboard";
 
@@ -54,6 +55,14 @@ const Sip = () => {
           <SipHistory key={tabKey} setTotalCallRecord={setTotalCallRecord} />
         ),
       },
+      {
+        label: "User Setting",
+        param: "user-setting",
+        title: "User Settings",
+        description:
+          "Manage your SIP user settings including registration, authentication, and other preferences to optimize your call experience.",
+        component: <UserSetting key={tabKey} />,
+      }
     ],
     [tabKey, totalCallRecord, animatedCount]
   );

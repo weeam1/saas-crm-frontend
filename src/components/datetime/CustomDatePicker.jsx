@@ -12,75 +12,6 @@ import { FaRegCalendar } from "react-icons/fa";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
-// const CustomDatePicker = ({
-// 	selectedDate,
-// 	handleDateChange,
-// 	errors,
-// 	errorKey,
-// 	label,
-// 	minDate,
-// 	maxDate,
-// 	placeholder,
-// 	isCalendarOpen,
-// 	toggleCalendar,
-// }) => {
-// 	const errorMessage = errors?.[errorKey];
-
-// 	return (
-// 		<FormControl mb={4} isInvalid={!!errorMessage}>
-// 			<FormLabel>{label}</FormLabel>
-// 			<Box position='relative' width='100%'>
-// 				<InputGroup>
-// 					<Input
-// 						value={selectedDate ? selectedDate.toLocaleDateString() : ''}
-// 						placeholder={placeholder}
-// 						readOnly
-// 						required
-// 						bg='#F2F2F2'
-// 						borderColor={errorMessage ? 'red.500' : 'gray.300'}
-// 						borderRadius='md'
-// 						focusBorderColor={errorMessage ? 'red.500' : '#E0B960'}
-// 					/>
-// 					<InputRightElement>
-// 						<FaRegCalendar
-// 							size={16}
-// 							cursor='pointer'
-// 							onClick={toggleCalendar}
-// 						/>
-// 					</InputRightElement>
-// 				</InputGroup>
-// 				{isCalendarOpen && (
-// 					<Box
-// 						position='absolute'
-// 						top='50px'
-// 						zIndex='10'
-// 						bg='white'
-// 						border='1px solid #e2e8f0'
-// 						borderRadius='md'
-// 						boxShadow='0px 4px 6px rgba(0, 0, 0, 0.1)'
-// 					>
-// 						<Calendar
-// 							onChange={(date) => {
-// 								handleDateChange(date);
-// 								toggleCalendar();
-// 							}}
-// 							value={selectedDate}
-// 							minDate={minDate}
-// 							maxDate={maxDate}
-// 							className='custom-calendar'
-// 						/>
-// 					</Box>
-// 				)}
-// 			</Box>
-// 			{errorMessage && (
-// 				<Text color='red.500' fontSize='sm'>
-// 					{errorMessage}
-// 				</Text>
-// 			)}
-// 		</FormControl>
-// 	);
-// };
-
 const CustomDatePicker = ({
   selectedDate,
   handleDateChange,
@@ -102,7 +33,7 @@ const CustomDatePicker = ({
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 640); // Tailwind/Chakra 'sm' size
+      setIsMobile(window.innerWidth <= 640);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -125,48 +56,37 @@ const CustomDatePicker = ({
   useEffect(() => {
     if (isCalendarOpen && popupRef.current && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
+      const popupWidth = 320; // Approximate width of calendar
       const popupHeight = 300;
+
+      const spaceRight = window.innerWidth - containerRect.right;
+      const spaceLeft = containerRect.left;
       const spaceBelow = window.innerHeight - containerRect.bottom;
       const spaceAbove = containerRect.top;
-      const openAbove = spaceBelow < popupHeight && spaceAbove > popupHeight;
 
-      // Mobile behavior — full screen popup
-      if (isMobile) {
-        setPopupStyle({
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 9999,
-          width: "90vw",
-          maxHeight: "80vh",
-          overflowY: "auto",
-          borderRadius: "md",
-          padding: "1rem",
-        });
-      } else {
-        const overflowRight =
-          containerRect.left + 300 > window.innerWidth;
-        const horizontalAdjust = overflowRight
-          ? {
-              right: 0,
-              left: "auto",
-              transform: "translateX(-8px)",
-            }
-          : {};
+      const openLeft = spaceRight < popupWidth && spaceLeft >= popupWidth;
+      const openAbove = spaceBelow < popupHeight && spaceAbove >= popupHeight;
 
-        setPopupStyle({
-          position: "absolute",
-          zIndex: 9999,
-          width: "max-content",
-          minWidth: containerRect.width,
-          borderRadius: "md",
-          ...horizontalAdjust,
-          ...(openAbove
-            ? { bottom: "50px", top: "auto" }
-            : { top: "50px", bottom: "auto" }),
-        });
-      }
+      const leftOffset = openLeft ? 'auto' : '0px';
+      const rightOffset = openLeft ? '0px' : 'auto';
+      const translateX = openLeft ? 'translateX(-100%)' : 'translateX(0)';
+      const topOffset = openAbove ? 'auto' : '50px';
+      const bottomOffset = openAbove ? '50px' : 'auto';
+
+      setPopupStyle({
+        position: 'absolute',
+        zIndex: 9999,
+        width: 'max-content',
+        minWidth: containerRect.width,
+        backgroundColor: 'white',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+        borderRadius: '8px',
+        top: topOffset,
+        bottom: bottomOffset,
+        left: leftOffset,
+        right: rightOffset,
+        transform: translateX,
+      });
     }
   }, [isCalendarOpen, isMobile]);
 
@@ -193,6 +113,7 @@ const CustomDatePicker = ({
             />
           </InputRightElement>
         </InputGroup>
+
         {isCalendarOpen && (
           <Box ref={popupRef} style={popupStyle}>
             <Calendar
