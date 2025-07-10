@@ -14,9 +14,10 @@ import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
-import { leadlabelFontSize } from '../../constants';
+import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
+import { format } from 'date-fns';
 
 const LeftCard = ({
 	lead,
@@ -244,7 +245,7 @@ const LeftCard = ({
 				{/* Last Note (occupy full width) */}
 				{!hiddenFields.includes('lastNote') && (
 					<GridItem colSpan={{ base: 1, md: 2 }}>
-						<LastNoteField label='Last Note' value={lead.lastNote} />
+						<LastNoteField label='Last Note' lead={lead} />
 					</GridItem>
 				)}
 			</Grid>

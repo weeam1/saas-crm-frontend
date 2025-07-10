@@ -1,4 +1,4 @@
-import { Flex, Box, VStack, Text, Spinner, Button } from '@chakra-ui/react';
+import { Flex, Box, VStack, Text, Spinner } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
@@ -42,7 +42,6 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		data: chatData,
 		isLoading: chatLoading,
 		isFetching: chatFetching,
-		refetch: refetchChat,
 	} = useFetchItemsQuery(
 		{
 			path: '/whatsapp/chat_history',
@@ -157,7 +156,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 
 		document.addEventListener('visibilitychange', visListener);
 		return () => document.removeEventListener('visibilitychange', visListener);
-	}, [messages.length]); // Add hasUnreadMessages to dependencies
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [messages.length]);
 
 	return (
 		<Box

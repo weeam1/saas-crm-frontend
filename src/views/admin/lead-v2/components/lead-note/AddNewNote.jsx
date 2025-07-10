@@ -8,13 +8,12 @@ import {
 	ModalHeader,
 	ModalOverlay,
 } from '@chakra-ui/react';
-import Spinner from 'components/spinner/Spinner';
 import { useState } from 'react';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { Textarea } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
-import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { updateMultipleLeadFields } from '../../../../../redux/leadsSlice';
 import { buttonStyle } from 'utils/btn';
 
 const AddNewNote = ({
@@ -41,17 +40,21 @@ const AddNewNote = ({
 				setNoteAdded((noteAdded) => (noteAdded === 0 ? 1 : 0));
 				setNoteValue('');
 
-				dispatch(
-					updateLeadField({
+				const updates = [
+					{
 						id: paramId,
-						key: 'lastNote',
-						value: noteValue,
-					})
-				);
+						lastNote: noteValue,
+						latestNote: {
+							createdAt: new Date().toISOString(),
+						},
+					},
+				];
+
+				dispatch(updateMultipleLeadFields({ updates }));
 				onClose();
 			} catch (error) {
 				console.log(error);
-				toast.error('Something went wrong!');
+				toast.error(error?.data?.message || 'Something went wrong!');
 			} finally {
 				setIsLoding(false);
 				refreshNotes();

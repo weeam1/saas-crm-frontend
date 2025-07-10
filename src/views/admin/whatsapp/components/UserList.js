@@ -1,31 +1,12 @@
 import React from 'react';
-import {
-	Box,
-	Flex,
-	Text,
-	Avatar,
-	Badge,
-	Divider,
-	Button,
-	VStack,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, Divider, VStack } from '@chakra-ui/react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import UserAvatar from 'components/shared/UserAvatar';
 import { setActiveChat } from '../../../../redux/whatsappSlice';
 import { formatLastMessageTime } from 'utils/helpers';
 
-const UserList = ({
-	// users,
-	// activeChat,
-	// setActiveChat,
-	contacts,
-	isMobile,
-	onClose,
-	sidebarBg,
-	handleAddContact,
-}) => {
-	// const contacts = useSelector((state) => state.whatsapp.contacts || []);
+const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
 	const dispatch = useDispatch();
@@ -136,7 +117,7 @@ const UserList = ({
 						No contacts found
 					</Text>
 
-					<Button
+					{/* <Button
 						colorScheme='whatsapp'
 						size='md'
 						px={6}
@@ -144,7 +125,7 @@ const UserList = ({
 						onClick={handleAddContact}
 					>
 						Add Contact
-					</Button>
+					</Button> */}
 				</VStack>
 			)}
 		</Box>

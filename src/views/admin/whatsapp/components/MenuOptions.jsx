@@ -36,7 +36,7 @@ const MenuOptions = ({ businessPhone }) => {
 	return (
 		<>
 			<Menu
-				placement='top-end'
+				placement='bottom-start'
 				display={{ base: 'none', sm: 'none', md: 'block' }}
 			>
 				<MenuButton

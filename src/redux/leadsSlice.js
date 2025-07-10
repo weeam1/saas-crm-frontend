@@ -87,9 +87,26 @@ const leadsSlice = createSlice({
 			}, {});
 
 			// Apply updates
-			state.doc = state.doc.map((lead) =>
-				updatesMap[lead._id] ? { ...lead, ...updatesMap[lead._id] } : lead
-			);
+			// state.doc = state.doc.map((lead) =>
+			// 	updatesMap[lead._id] ? { ...lead, ...updatesMap[lead._id] } : lead
+			// );
+
+			state.doc = state.doc.map((lead) => {
+				const update = updatesMap[lead._id];
+				if (!update) return lead;
+
+				const updatedLead = { ...lead, ...update };
+
+				// Handle nested latestNote update if present
+				if (update.latestNote) {
+					updatedLead.latestNote = {
+						...lead.latestNote,
+						...update.latestNote,
+					};
+				}
+
+				return updatedLead;
+			});
 		},
 
 		addOrUpdateLead: (state, action) => {

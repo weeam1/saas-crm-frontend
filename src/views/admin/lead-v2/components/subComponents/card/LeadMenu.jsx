@@ -17,7 +17,7 @@ import { useStateContext } from 'contexts/store';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';

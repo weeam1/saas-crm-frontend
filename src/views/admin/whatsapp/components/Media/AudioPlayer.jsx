@@ -56,6 +56,7 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 			audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
 			audio.removeEventListener('ended', handleEnded);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [audioSrc, dispatch]);
 
 	useEffect(() => {
@@ -69,36 +70,14 @@ const AudioPlayer = ({ id, audioSrc, onPlayPause }) => {
 		} else {
 			audio.pause();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isPlaying, dispatch]);
-
-	// useEffect(() => {
-	// 	const audio = audioRef.current;
-	// 	if (isPlaying) {
-	// 		audio.play().catch((error) => console.error('Play error:', error));
-	// 		audioInstances.clear();
-	// 		audioInstances.set(id, audioRef);
-	// 	} else {
-	// 		audio.pause();
-	// 		// Remove from instances map
-	// 		audioInstances.clear();
-	// 	}
-
-	// 	// Cleanup to pause audio when isPlaying changes or component unmounts
-	// 	return () => {
-	// 		audio.pause();
-	// 		audioInstances.clear();
-	// 	};
-	// }, [id, isPlaying]);
-
-	// const handlePlayPause = () => {
-	// 	onPlayPause(isPlaying ? null : id);
-	// };
 
 	const handlePlayPause = () => {
 		if (isPlaying) {
-			dispatch(setCurrentAudio(null)); // pause
+			dispatch(setCurrentAudio(null));
 		} else {
-			dispatch(setCurrentAudio(id)); // play this audio
+			dispatch(setCurrentAudio(id));
 		}
 	};
 

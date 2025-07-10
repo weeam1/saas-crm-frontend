@@ -1,11 +1,6 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import React, { useEffect, useState } from 'react';
-import {
-	redirect,
-	useNavigate,
-	useParams,
-	useSearchParams,
-} from 'react-router-dom';
+import { redirect, useNavigate, useParams } from 'react-router-dom';
 import Whatsapp from '../index';
 import {
 	setActiveChat,
@@ -53,6 +48,7 @@ const UserWhatsapp = () => {
 
 	useEffect(() => {
 		return () => dispatch(setActiveChat(null));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

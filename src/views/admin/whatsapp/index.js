@@ -9,7 +9,6 @@ import {
 	Box,
 	Flex,
 	Text,
-	Avatar,
 	Input,
 	Button,
 	IconButton,
@@ -38,69 +37,47 @@ import {
 	PopoverContent,
 	PopoverBody,
 	PopoverArrow,
-	Menu,
-	MenuButton,
-	MenuList,
-	MenuItem,
 	Icon,
 	Image,
 	Textarea,
-	FormControl,
-	FormLabel,
 } from '@chakra-ui/react';
 import {
 	FiMic,
 	FiImage,
-	FiChevronLeft,
 	FiSearch,
 	FiFile,
 	FiVideo,
 	FiMusic,
-	FiDownload,
-	FiUser,
-	FiSettings,
 	FiMessageSquare,
-	FiMessageCircle,
 } from 'react-icons/fi';
+import { useDispatch, useSelector } from 'react-redux';
 import { IoMdMic, IoMdClose } from 'react-icons/io';
-import {
-	FaCheck,
-	FaCheckDouble,
-	FaInfo,
-	FaSmile,
-	FaWhatsapp,
-} from 'react-icons/fa';
+import { FaSmile, FaWhatsapp } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 import EmojiPicker from 'emoji-picker-react';
 import Recorder from 'opus-recorder';
 
+import { useSocketEvents } from 'hooks/useSocketEvents';
+import { formatTime, whatsappColors } from 'utils/helpers.js';
+import { resolveMessageType } from './components/helpers';
+import { appendMessage, setCurrentAudio } from '../../../redux/whatsappSlice';
 import FileMessage from './components/FileMessage';
 import UserList from './components/UserList';
-
-import { formatTime, formatDateHeader, whatsappColors } from 'utils/helpers.js';
-import { useUpdateItemMutation, useCreateItemMutation } from 'api/apiSlice';
+import { useCreateItemMutation } from 'api/apiSlice';
 import ChatMessages from './components/ChatMessages';
-import { useDispatch, useSelector } from 'react-redux';
-import { appendMessage, setCurrentAudio } from '../../../redux/whatsappSlice';
-
-import { resolveMessageType } from './components/helpers';
-
-import { useSocketEvents } from 'hooks/useSocketEvents';
 import UserAvatar from 'components/shared/UserAvatar';
 import WhatsappTemplates from './components/modals/WhatsappTemplates';
 import useIsMobile from './components/useIsMobile';
 import MenuOptions from './components/MenuOptions';
 
-const user = JSON.parse(localStorage.getItem('user'));
-const isSuperAdmin = user?.role === 'superAdmin';
-
 const Whatsapp = () => {
-	const users = useSelector((state) => state.whatsapp.contacts || []);
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 	const contacts = useSelector((state) => state.whatsapp.contacts || []);
+
+	const { registerUser, isConnected } = useSocketEvents();
 
 	const {
 		isOpen: isWATemplateOpen,
@@ -112,28 +89,20 @@ const Whatsapp = () => {
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isSending, setIsSending] = useState(false);
-	// const [activeChat, setActiveChat] = useState(null);
 	const [recordingTime, setRecordingTime] = useState(0);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [audioLevel, setAudioLevel] = useState(0);
 	const [replyingTo, setReplyingTo] = useState(null);
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-	const [pausedVoiceMessages, setPausedVoiceMessages] = useState(new Set());
-	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-	const [selectedImage, setSelectedImage] = useState(null);
 	const [isRecordingCanceled, setIsRecordingCanceled] = useState(false);
 	const [businessPhone, setBusinessPhone] = useState('');
-
-	// const [voiceFile, setVoiceFile] = useState(null);
 
 	const voiceFileRef = useRef(null);
 	const audioBlobRef = useRef(null);
 	const voiceDurationRef = useRef(0);
-	// const recordingDataPromiseRef = useRef(null);
 	const recordingDataPromiseRef = useRef(null);
 
 	const mediaRecorderRef = useRef(null);
-	const chunksRef = useRef([]);
 	const fileInputRef = useRef(null);
 	const audioInputRef = useRef(null);
 	const videoInputRef = useRef(null);
@@ -144,8 +113,6 @@ const Whatsapp = () => {
 	const streamRef = useRef(null);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const btnRef = useRef();
-
-	const { registerUser, isConnected } = useSocketEvents();
 
 	const filteredContacts = useMemo(() => {
 		if (!searchQuery.trim()) return contacts;
@@ -172,11 +139,9 @@ const Whatsapp = () => {
 
 	const dispatch = useDispatch();
 
-	// const isMobile = useBreakpointValue({ base: true, md: false });
 	const isMobile = useIsMobile();
 
-	const [createMessageAPI, { isLoading: sendingMessage }] =
-		useCreateItemMutation();
+	const [createMessageAPI] = useCreateItemMutation();
 
 	useEffect(() => {
 		return () => {
@@ -279,6 +244,7 @@ const Whatsapp = () => {
 			}
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
 			inputMessage,
 			activeChat,
@@ -326,117 +292,6 @@ const Whatsapp = () => {
 		a.click();
 		document.body.removeChild(a);
 	};
-
-	// const cancelRecording = useCallback(() => {
-	// 	if (mediaRecorderRef.current && isRecording) {
-	// 		setIsRecordingCanceled(true);
-	// 		mediaRecorderRef.current.stop();
-	// 		mediaRecorderRef.current.stream
-	// 			.getTracks()
-	// 			.forEach((track) => track.stop());
-	// 		setIsRecording(false);
-	// 		setRecordingTime(0);
-	// 		setAudioLevel(0);
-	// 		if (animationRef.current) {
-	// 			cancelAnimationFrame(animationRef.current);
-	// 		}
-	// 		chunksRef.current = [];
-	// 		toast.info('Recording cancelled');
-	// 	}
-	// }, [isRecording]);
-
-	// const startRecording = useCallback(() => {
-	// 	setRecordingTime(0);
-	// 	setAudioLevel(0);
-	// 	setIsRecordingCanceled(false);
-
-	// 	console.log('recording started', recordingTime);
-
-	// 	navigator.mediaDevices
-	// 		.getUserMedia({ audio: true })
-	// 		.then((stream) => {
-	// 			setIsRecording(true);
-
-	// 			const recorder = new Recorder({
-	// 				encoderPath: '/workers/encoderWorker.min.js',
-	// 				encoderSampleRate: 16000,
-	// 				outputContainer: 'ogg',
-	// 				encoderBitRate: 16000,
-	// 				numberOfChannels: 1,
-	// 				resampleQuality: 3,
-	// 			});
-
-	// 			recorder.ondataavailable = (typedArray) => {
-	// 				const audioBlob = new Blob([typedArray], {
-	// 					type: 'audio/ogg; codecs=opus',
-	// 				});
-	// 				const file = new File([audioBlob], 'recording.ogg', {
-	// 					type: 'audio/ogg; codecs=opus',
-	// 				});
-
-	// 				// setVoiceFile(file);
-	// 				voiceFileRef.current = file;
-	// 				audioBlobRef.current = audioBlob;
-
-	// 				// Resolve the promise
-	// 				if (recordingDataPromiseRef.current) {
-	// 					recordingDataPromiseRef.current.resolve();
-	// 				}
-	// 			};
-
-	// 			recorder.onstop = () => {
-	// 				clearInterval(timerRef.current);
-	// 				if (animationRef.current) {
-	// 					cancelAnimationFrame(animationRef.current);
-	// 				}
-	// 				setIsRecording(false);
-	// 				setRecordingTime(0);
-	// 				setAudioLevel(0);
-	// 			};
-
-	// 			const audioContext = new (window.AudioContext ||
-	// 				window.webkitAudioContext)();
-	// 			analyserRef.current = audioContext.createAnalyser();
-	// 			analyserRef.current.fftSize = 32;
-	// 			const microphone = audioContext.createMediaStreamSource(stream);
-	// 			microphone.connect(analyserRef.current);
-	// 			const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-
-	// 			const analyzeAudio = () => {
-	// 				analyserRef.current.getByteFrequencyData(dataArray);
-	// 				let sum = 0;
-	// 				for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-	// 				const average = sum / dataArray.length;
-	// 				setAudioLevel(Math.min(average / 50, 1));
-	// 				animationRef.current = requestAnimationFrame(analyzeAudio);
-	// 			};
-	// 			analyzeAudio();
-
-	// 			timerRef.current = setInterval(() => {
-	// 				console.log('updated timer-------------');
-	// 				setRecordingTime((prev) => prev + 1);
-	// 			}, 1000);
-
-	// 			recordingDataPromiseRef.current = {};
-	// 			recordingDataPromiseRef.current.promise = new Promise((resolve) => {
-	// 				recordingDataPromiseRef.current.resolve = resolve;
-	// 			});
-
-	// 			recorder.start().catch((err) => {
-	// 				toast.error('Failed to start recording: ' + err.message);
-	// 				setIsRecording(false);
-	// 			});
-
-	// 			mediaRecorderRef.current = recorder;
-	// 			streamRef.current = stream;
-	// 		})
-	// 		.catch((err) => {
-	// 			toast.error('Microphone access denied: ' + err.message);
-	// 			setIsRecording(false);
-	// 			voiceFileRef.current = null;
-	// 			audioBlobRef.current = null;
-	// 		});
-	// }, []);
 
 	const startRecording = useCallback(() => {
 		dispatch(setCurrentAudio(null));
@@ -562,6 +417,7 @@ const Whatsapp = () => {
 				voiceFileRef.current = null;
 				audioBlobRef.current = null;
 			});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const getAudioDuration = async (blob) => {
@@ -613,6 +469,7 @@ const Whatsapp = () => {
 
 			handleSendMessage(); // or upload logic
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isRecording]);
 
 	const cancelRecording = useCallback(() => {
@@ -650,261 +507,9 @@ const Whatsapp = () => {
 		}
 	}, [isRecording]);
 
-	// const startRecording = useCallback(() => {
-	// 	setRecordingTime(0);
-	// 	setAudioLevel(0);
-	// 	setIsRecordingCanceled(false);
-	// 	navigator.mediaDevices
-	// 		.getUserMedia({ audio: true })
-	// 		.then((stream) => {
-	// 			setIsRecording(true);
-
-	// 			const recorder = new Recorder({
-	// 				encoderPath: '/workers/encoderWorker.min.js', // Include the worker file
-	// 				encoderSampleRate: 16000, // Matches WhatsApp's minimum 16kbps bitrate
-	// 				outputContainer: 'ogg', // Ensure OGG container
-	// 				encoderBitRate: 16000, // Set bitrate to 16kbps or higher
-	// 				numberOfChannels: 1, // Mono for WhatsApp voice messages
-	// 				resampleQuality: 3, // Default, adjust if needed
-	// 			});
-
-	// 			recorder.ondataavailable = (typedArray) => {
-	// 				const audioBlob = new Blob([typedArray], {
-	// 					type: 'audio/ogg; codecs=opus',
-	// 				});
-	// 				const file = new File([audioBlob], 'recording.ogg', {
-	// 					type: 'audio/ogg; codecs=opus',
-	// 				});
-	// 				setVoiceFile(file);
-
-	// 				const audioUrl = URL.createObjectURL(audioBlob);
-	// 				const audio = new Audio(audioUrl);
-	// 				audio.onloadedmetadata = () => {
-	// 					const duration = Math.round(audio.duration || recordingTime);
-
-	// 					if (file.size > 16 * 1024 * 1024) {
-	// 						toast.error('Voice message exceeds 16MB limit');
-	// 						return;
-	// 					}
-
-	// 					if (file && duration > 0) {
-	// 						console.log('Voice message ready:', file, duration);
-	// 						handleSendMessage();
-	// 					}
-	// 				};
-	// 			};
-
-	// 			recorder.onstop = () => {
-	// 				clearInterval(timerRef.current);
-	// 				if (animationRef.current) {
-	// 					cancelAnimationFrame(animationRef.current);
-	// 				}
-	// 				setIsRecording(false);
-	// 				setRecordingTime(0);
-	// 				setAudioLevel(0);
-	// 				setIsRecordingCanceled(false);
-	// 			};
-
-	// 			// Audio analyzer setup (unchanged)
-	// 			const audioContext = new (window.AudioContext ||
-	// 				window.webkitAudioContext)();
-	// 			analyserRef.current = audioContext.createAnalyser();
-	// 			analyserRef.current.fftSize = 32;
-	// 			const microphone = audioContext.createMediaStreamSource(stream);
-	// 			microphone.connect(analyserRef.current);
-	// 			const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-
-	// 			const analyzeAudio = () => {
-	// 				analyserRef.current.getByteFrequencyData(dataArray);
-	// 				let sum = 0;
-	// 				for (let i = 0; i < dataArray.length; i++) {
-	// 					sum += dataArray[i];
-	// 				}
-	// 				const average = sum / dataArray.length;
-	// 				setAudioLevel(Math.min(average / 50, 1));
-	// 				animationRef.current = requestAnimationFrame(analyzeAudio);
-	// 			};
-	// 			analyzeAudio();
-
-	// 			timerRef.current = setInterval(() => {
-	// 				setRecordingTime((prev) => prev + 1);
-	// 			}, 1000);
-
-	// 			recorder.start().catch((err) => {
-	// 				toast.error('Failed to start recording: ' + err.message);
-	// 				setIsRecording(false);
-	// 			});
-
-	// 			// Store recorder reference to stop it later
-	// 			mediaRecorderRef.current = recorder;
-	// 		})
-	// 		.catch((err) => {
-	// 			toast.error('Microphone access denied: ' + err.message);
-	// 			setIsRecording(false);
-	// 		});
-	// }, [recordingTime]);
-
-	// const startRecording = useCallback(() => {
-	// 	setRecordingTime(0);
-	// 	setAudioLevel(0);
-	// 	chunksRef.current = [];
-	// 	setIsRecordingCanceled(false);
-	// 	navigator.mediaDevices
-	// 		.getUserMedia({ audio: true })
-	// 		.then((stream) => {
-	// 			setIsRecording(true);
-	// 			mediaRecorderRef.current = new MediaRecorder(stream);
-	// 			chunksRef.current = [];
-
-	// 			// Setup audio analyzer
-	// 			const audioContext = new (window.AudioContext ||
-	// 				window.webkitAudioContext)();
-	// 			analyserRef.current = audioContext.createAnalyser();
-	// 			analyserRef.current.fftSize = 32;
-	// 			const microphone = audioContext.createMediaStreamSource(stream);
-	// 			microphone.connect(analyserRef.current);
-	// 			const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-
-	// 			const analyzeAudio = () => {
-	// 				analyserRef.current.getByteFrequencyData(dataArray);
-	// 				let sum = 0;
-	// 				for (let i = 0; i < dataArray.length; i++) {
-	// 					sum += dataArray[i];
-	// 				}
-	// 				const average = sum / dataArray.length;
-	// 				setAudioLevel(Math.min(average / 50, 1));
-	// 				animationRef.current = requestAnimationFrame(analyzeAudio);
-	// 			};
-
-	// 			analyzeAudio();
-
-	// 			timerRef.current = setInterval(() => {
-	// 				setRecordingTime((prev) => prev + 1);
-	// 			}, 1000);
-
-	// 			mediaRecorderRef.current.ondataavailable = (e) => {
-	// 				chunksRef.current.push(e.data);
-	// 			};
-
-	// 			mediaRecorderRef.current.onstop = async () => {
-	// 				clearInterval(timerRef.current);
-	// 				if (animationRef.current) {
-	// 					cancelAnimationFrame(animationRef.current);
-	// 				}
-
-	// 				// Only process if we have chunks AND recording wasn't canceled
-	// 				if (chunksRef.current.length > 0 && !isRecordingCanceled) {
-	// 					try {
-	// 						const audioBlob = new Blob(chunksRef.current, {
-	// 							type: 'audio/ogg; codecs=opus',
-	// 						});
-
-	// 						const file = new File([audioBlob], 'recording.ogg', {
-	// 							type: 'audio/ogg; codecs=opus',
-	// 						});
-
-	// 						setVoiceFile(file);
-
-	// 						const audioUrl = URL.createObjectURL(audioBlob);
-
-	// 						const audio = new Audio();
-	// 						audio.src = audioUrl;
-
-	// 						await new Promise((resolve) => {
-	// 							audio.onloadedmetadata = resolve;
-	// 							audio.onerror = () => {
-	// 								console.error('Failed to load audio metadata');
-	// 								resolve();
-	// 							};
-	// 						});
-	// 						const duration = Math.round(audio.duration || recordingTime);
-
-	// 						console.log('Audio duration:', duration);
-
-	// 						if (voiceFile && duration > 0) {
-	// 							// send message
-	// 							handleSendMessage();
-	// 						}
-
-	// 						// const newMessage = {
-	// 						// 	id: Date.now(),
-	// 						// 	sender: currentUser,
-	// 						// 	audioUrl,
-	// 						// 	type: 'voice',
-	// 						// 	timestamp: new Date(),
-	// 						// 	duration,
-	// 						// 	status: 'sent',
-	// 						// };
-
-	// 						// const updatedMessages = [...messages, newMessage];
-	// 						// setMessages(updatedMessages);
-	// 						// allMessages[activeChat] = updatedMessages;
-
-	// 						// setTimeout(() => {
-	// 						// 	const replyMessage = {
-	// 						// 		id: Date.now() + 1,
-	// 						// 		sender: users.find((u) => u.id === activeChat),
-	// 						// 		text: 'Thanks for the voice message!',
-	// 						// 		type: 'text',
-	// 						// 		timestamp: new Date(),
-	// 						// 		status: 'delivered',
-	// 						// 	};
-	// 						// 	const updatedWithReply = [...updatedMessages, replyMessage];
-	// 						// 	setMessages(updatedWithReply);
-	// 						// 	allMessages[activeChat] = updatedWithReply;
-
-	// 						// 	setTimeout(() => {
-	// 						// 		setMessages((prev) =>
-	// 						// 			prev.map((msg) =>
-	// 						// 				msg.id === newMessage.id
-	// 						// 					? { ...msg, status: 'read' }
-	// 						// 					: msg
-	// 						// 			)
-	// 						// 		);
-	// 						// 		allMessages[activeChat] = allMessages[activeChat].map(
-	// 						// 			(msg) =>
-	// 						// 				msg.id === newMessage.id
-	// 						// 					? { ...msg, status: 'read' }
-	// 						// 					: msg
-	// 						// 		);
-	// 						// 	}, 1000);
-	// 						// }, 2000);
-	// 					} catch (err) {
-	// 						console.error('Error processing voice message:', err);
-	// 						toast.error('Failed to send voice message');
-	// 					}
-	// 				}
-
-	// 				setIsRecording(false);
-	// 				setRecordingTime(0);
-	// 				setAudioLevel(0);
-	// 				setIsRecordingCanceled(false); // Reset for next recording
-	// 				chunksRef.current = []; // Clear chunks for next recording
-	// 			};
-
-	// 			mediaRecorderRef.current.start(100);
-	// 		})
-	// 		.catch((err) => {
-	// 			toast.error('Microphone access denied: ' + err.message);
-	// 			setIsRecording(false);
-	// 		});
-	// }, [messages, activeChat, recordingTime]);
-
 	const onEmojiClick = (emojiData) => {
 		setInputMessage((prev) => prev + emojiData.emoji);
 	};
-
-	const handleVoiceMessagePause = useCallback((messageId, isPaused) => {
-		setPausedVoiceMessages((prev) => {
-			const newSet = new Set(prev);
-			if (isPaused) {
-				newSet.add(messageId);
-			} else {
-				newSet.delete(messageId);
-			}
-			return newSet;
-		});
-	}, []);
 
 	const sidebarBg = useColorModeValue(whatsappColors.sidebarBg, 'gray.800');
 
@@ -1032,41 +637,11 @@ const Whatsapp = () => {
 							</Box>
 							<Divider borderColor='gray.300' />
 							<UserList
-								users={users}
-								// activeChat={activeChat}
-								// setActiveChat={setActiveChat}
 								isMobile={isMobile}
 								contacts={filteredContacts}
 								onClose={onClose}
 								sidebarBg={sidebarBg}
 							/>
-							<Flex
-								p={3}
-								justify='flex-end'
-								position='sticky'
-								bottom='0'
-								bg={sidebarBg}
-								borderTop='1px solid'
-								borderColor='gray.200'
-							>
-								<Menu placement='top-end'>
-									<MenuButton
-										as={IconButton}
-										icon={<BsThreeDotsVertical />}
-										variant='ghost'
-										color={whatsappColors.textSecondary}
-										size='sm'
-									/>
-									<MenuList>
-										<MenuItem
-											icon={<FiUser />}
-											onClick={() => setIsContactModalOpen(true)}
-										>
-											Manage Contacts
-										</MenuItem>
-									</MenuList>
-								</Menu>
-							</Flex>
 						</DrawerBody>
 					</DrawerContent>
 				</Drawer>
@@ -1131,14 +706,10 @@ const Whatsapp = () => {
 					</Box>
 
 					<UserList
-						users={users}
-						// activeChat={activeChat}
-						// setActiveChat={setActiveChat}
 						isMobile={isMobile}
 						contacts={filteredContacts}
 						onClose={onClose}
 						sidebarBg={sidebarBg}
-						handleAddContact={() => setIsContactModalOpen(true)}
 						businessPhone={businessPhone}
 					/>
 				</Box>
@@ -1218,25 +789,6 @@ const Whatsapp = () => {
 								borderTop='1px solid'
 								borderColor='gray.200'
 							>
-								{/* {selectedFile && (
-							<Flex
-								bg='white'
-								p={2}
-								mb={2}
-								borderRadius='md'
-								justify='space-between'
-								align='center'
-							>
-								<Text fontSize='sm' isTruncated flex={1}>
-									{selectedFile.type.split('/')[0].charAt(0).toUpperCase() +
-										selectedFile.type.split('/')[0].slice(1)}{' '}
-									ready to send
-								</Text>
-								<Button size='sm' onClick={() => setSelectedFile(null)}>
-									Cancel
-								</Button>
-							</Flex>
-						)} */}
 								{isRecording && (
 									<Flex
 										bg='white'
@@ -1298,15 +850,6 @@ const Whatsapp = () => {
 											/>
 										</HStack>
 									</Flex>
-
-									// <VoiceMessageRecorder
-									// 	isRecording={isRecording}
-									// 	setIsRecording={setIsRecording}
-									// 	onSend={handleVoiceMessageSend}
-									// 	onCancel={() => {
-									// 		// Handle recording cancellation
-									// 	}}
-									// />
 								)}
 								<Flex align='center'>
 									<input
@@ -1421,18 +964,6 @@ const Whatsapp = () => {
 											</PopoverBody>
 										</PopoverContent>
 									</Popover>
-
-									{/* <Input
-								flex={1}
-								bg='gray.200'
-								value={inputMessage}
-								onChange={(e) => setInputMessage(e.target.value)}
-								onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-								borderRadius='full'
-								border='none'
-								boxShadow='sm'
-								_focus={{ boxShadow: 'md' }}
-							/> */}
 
 									<Textarea
 										flex={1}

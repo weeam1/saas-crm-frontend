@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
 	Flex,
 	Box,
@@ -18,7 +18,6 @@ import {
 	FiDownload,
 	FiExternalLink,
 	FiMaximize,
-	FiX,
 } from 'react-icons/fi';
 import { useMediaDownloader } from 'hooks/useMediaDownloader';
 import AudioPlayer from './AudioPlayer';
@@ -34,7 +33,7 @@ const MediaPreview = ({ message, url, isLoading }) => {
 		dispatch(setCurrentAudio(id));
 	};
 
-	const { type, sentAt } = message || {};
+	const { type } = message || {};
 
 	const { downloadMediaFile } = useMediaDownloader();
 
