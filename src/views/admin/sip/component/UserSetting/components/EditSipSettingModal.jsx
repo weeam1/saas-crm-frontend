@@ -17,6 +17,7 @@ import {
   Tag,
   TagLabel,
   Text,
+  Select,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -24,6 +25,11 @@ import { useUpdateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { toast } from "react-toastify";
 
 const validationSchema = Yup.object().shape({
+  userId: Yup.string().required("User is required"),
+  sipId: Yup.string()
+    .required("SIP ID is required")
+    .matches(/^[1-9]\d{2,}$/, "Must be 3 digits or more starting from 100")
+    .test('min-value', 'Must be ≥ 100', value => parseInt(value) >= 100),
   sipIp: Yup.string()
     .required("SIP IP is required")
     .matches(
@@ -51,12 +57,6 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
   const [suggestions, setSuggestions] = useState({
     sipIp: [],
     sipPort: [],
-    sipPassword: []
-  });
-  const [selectedSuggestions, setSelectedSuggestions] = useState({
-    sipIp: null,
-    sipPort: null,
-    sipPassword: null
   });
 
   const { data: existingSettings } = useFetchItemsQuery({
@@ -68,7 +68,6 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
     if (existingSettings?.sipSettings?.length > 0) {
       const settings = existingSettings.sipSettings;
       
-      // Get unique values and shuffle them
       const shuffleArray = (array) => {
         return [...array].sort(() => Math.random() - 0.5);
       };
@@ -79,24 +78,23 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
       const uniquePorts = shuffleArray([...new Set(
         settings.filter(s => s._id !== sipSetting?._id).map(s => s.sipPort)
       )]);
-      const uniquePasswords = shuffleArray([...new Set(
-        settings.filter(s => s._id !== sipSetting?._id).map(s => s.sipPassword)
-      )]);
 
       setSuggestions({
         sipIp: uniqueIps.slice(0, 3),
         sipPort: uniquePorts.slice(0, 3),
-        sipPassword: uniquePasswords.slice(0, 3)
       });
     }
   }, [existingSettings, sipSetting]);
 
   const formik = useFormik({
     initialValues: {
+      userId: sipSetting?.userId._id || "",
+      sipId: sipSetting?.sipId || "",
       sipIp: sipSetting?.sipIp || "",
       sipPort: sipSetting?.sipPort || "",
       sipPassword: sipSetting?.sipPassword || "",
-      sipSimNumber: sipSetting?.sipSimNumber || ""
+      sipSimNumber: sipSetting?.sipSimNumber || "",
+      extensionId: sipSetting?.extensionId || ""
     },
     enableReinitialize: true,
     validationSchema,
@@ -104,7 +102,10 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
       try {
         await updateSipSetting({
           path: `/sipSetting/${sipSetting._id}`,
-          body: values
+          body: {
+            ...values,
+            extensionId: sipSetting.extensionId
+          }
         }).unwrap();
         
         toast.success("SIP Setting updated successfully");
@@ -120,27 +121,10 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
 
   const handleSuggestionClick = (field, value) => {
     formik.setFieldValue(field, value);
-    setSelectedSuggestions(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleRemoveSuggestion = (field) => {
-    formik.setFieldValue(field, "");
-    setSelectedSuggestions(prev => ({
-      ...prev,
-      [field]: null
-    }));
   };
 
   const handleClose = () => {
     formik.resetForm();
-    setSelectedSuggestions({
-      sipIp: null,
-      sipPort: null,
-      sipPassword: null
-    });
     onClose();
   };
 
@@ -153,30 +137,52 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
         <form onSubmit={formik.handleSubmit}>
           <ModalBody overflowY="auto" maxH={{ base: "70vh", md: "75vh" }}>
             <VStack spacing={4} align="stretch">
-              <FormControl>
+              <FormControl isInvalid={formik.errors.userId && formik.touched.userId}>
                 <FormLabel>User</FormLabel>
-                <Input
-                  value={sipSetting.userId?.fullName || "N/A"}
-                  isReadOnly
-                  focusBorderColor="#E0B960"
-                />
+                <Select
+                  name="userId"
+                  value={formik.values.userId}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  focusBorderColor={formik.errors.userId ? "red.500" : "#E0B960"}
+                >
+                  {users.map(user => (
+                    <option key={user._id} value={user._id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </Select>
+                <FormErrorMessage>{formik.errors.userId}</FormErrorMessage>
               </FormControl>
 
-              <FormControl>
+              <FormControl isInvalid={formik.errors.sipId && formik.touched.sipId}>
                 <FormLabel>SIP ID</FormLabel>
                 <Input
-                  value={sipSetting.sipId}
-                  isReadOnly
-                  focusBorderColor="#E0B960"
+                  name="sipId"
+                  value={formik.values.sipId}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  focusBorderColor={formik.errors.sipId ? "red.500" : "#E0B960"}
                 />
+                <FormErrorMessage>{formik.errors.sipId}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
                 <FormLabel>Extension ID</FormLabel>
                 <Input
-                  value={sipSetting.extensionId}
+                  value={formik.values.extensionId}
                   isReadOnly
-                  focusBorderColor="#E0B960"
+                  isDisabled
+                  bg="gray.100"
+                  color="gray.500"
+                  cursor="not-allowed"
+                  focusBorderColor="gray.200"
+                  _disabled={{
+                    bg: "gray.100",
+                    color: "gray.500",
+                    cursor: "not-allowed",
+                  }}
+                  disabled={true}
                 />
               </FormControl>
 
@@ -248,23 +254,6 @@ const EditSipSettingModal = ({ isOpen, onClose, onSuccess, sipSetting, users }) 
                   onBlur={formik.handleBlur}
                   focusBorderColor={formik.errors.sipPassword ? "red.500" : "#E0B960"}
                 />
-                {suggestions.sipPassword.length > 0 && !formik.values.sipPassword && (
-                  <Flex mt={2} gap={2} flexWrap="wrap">
-                    <Text fontSize="sm" color="gray.500">Suggestions:</Text>
-                    {suggestions.sipPassword.map((pass, index) => (
-                      <Tag 
-                        key={index} 
-                        size="md" 
-                        variant="subtle" 
-                        colorScheme="blue"
-                        cursor="pointer"
-                        onClick={() => handleSuggestionClick('sipPassword', pass)}
-                      >
-                        <TagLabel>••••••••</TagLabel>
-                      </Tag>
-                    ))}
-                  </Flex>
-                )}
                 <FormErrorMessage>{formik.errors.sipPassword}</FormErrorMessage>
               </FormControl>
 
