@@ -98,7 +98,7 @@ const EditSipSettingModal = ({
 
   const formik = useFormik({
     initialValues: {
-      userId: sipSetting?.userId._id || "",
+      userId: sipSetting?.userId?._id || "",
       sipId: sipSetting?.sipId || "",
       sipIp: sipSetting?.sipIp || "",
       sipPort: sipSetting?.sipPort || "",

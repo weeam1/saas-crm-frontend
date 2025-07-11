@@ -91,8 +91,11 @@ const AudioPlayer = ({
           throw new Error("Audio duration is zero");
         }
       } catch (err) {
-        if (err.name === "AbortError") {
-          // Gracefully handle silent abort
+        if (
+          err.name === "AbortError" ||
+          err.message?.toLowerCase().includes("user aborted") ||
+          err.message?.toLowerCase().includes("the user aborted a request")
+        ) {
           return;
         }
         console.error("Audio load error:", err);
@@ -170,7 +173,7 @@ const AudioPlayer = ({
 
     return () => {
       isMountedRef.current = false;
-      controller.abort(); // cancel fetch/audio loading
+      controller.abort(); 
       cleanupPrevious();
     };
   }, [url]);
