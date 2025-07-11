@@ -1,13 +1,19 @@
 import React from "react";
 import { Flex, Tag, TagLabel, TagCloseButton } from "@chakra-ui/react";
 
-const ActiveFiltersDisplay = ({ filters, onClearFilters }) => {
+const ActiveFiltersDisplay = ({ filters, onClearFilters, usersData }) => {
   const hasFilters = Object.keys(filters).length > 0;
 
   if (!hasFilters) return null;
 
   const getDisplayValue = (key, value) => {
     switch (key) {
+      case "userId":
+        if (usersData) {
+          const user = usersData.find((u) => u._id === value);
+          return `User: ${user ? user.fullName || value : value}`;
+        }
+        return `User: ${value}`;
       case "sipId":
         return `SIP ID: ${value}`;
       case "extensionId":

@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { FiSearch } from "react-icons/fi";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
 import AddSipSettingModal from "./components/AddSipSettingModal";
 import EditSipSettingModal from "./components/EditSipSettingModal";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
@@ -28,8 +27,6 @@ import AdvancedSearchModal from "./components/AdvancedSearchModal";
 import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay";
 
 const UserSetting = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const { allUsers = [] } = useFetchUserHierarchy(user);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState({});
@@ -65,6 +62,9 @@ const UserSetting = () => {
     },
   });
 
+  const { data: usersData } = useFetchItemsQuery({
+    path: "/v2/user/search_users",
+  });
   const [deleteSipSetting] = useDeleteItemMutation();
 
   const columns = [
@@ -91,7 +91,6 @@ const UserSetting = () => {
     setFilters(newFilters);
     setCurrentPage(1);
     setFilterChanged(true);
-    refetch();
   };
 
   const handleClearFilters = (filterKey) => {
@@ -104,7 +103,6 @@ const UserSetting = () => {
     }
     setCurrentPage(1);
     setFilterChanged(true);
-    refetch();
   };
 
   const handleDelete = async (id) => {
@@ -172,6 +170,7 @@ const UserSetting = () => {
       <ActiveFiltersDisplay
         filters={filters}
         onClearFilters={handleClearFilters}
+        usersData={usersData?.doc || []}
       />
 
       <TopPagination
@@ -229,12 +228,48 @@ const UserSetting = () => {
                     <Td textAlign="center">
                       {(currentPage - 1) * pageSize + index + 1}
                     </Td>
-                    <Td textAlign="center">{sip.userId?.fullName || "N/A"}</Td>
-                    <Td textAlign="center">{sip.sipId}</Td>
-                    <Td textAlign="center">{sip.extensionId}</Td>
-                    <Td textAlign="center">{sip.sipIp}</Td>
-                    <Td textAlign="center">{sip.sipPort}</Td>
-                    <Td textAlign="center">{sip.sipSimNumber || "N/A"}</Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="200px"
+                      textAlign={"center"}
+                    >
+                      {sip.userId?.fullName || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "12px", md: "14px" }}
+                    >
+                      {sip.sipId}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "12px", md: "14px" }}
+                    >
+                      {sip.extensionId}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "12px", md: "14px" }}
+                    >
+                      {sip.sipIp}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      fontSize={{ base: "12px", md: "14px" }}
+                    >
+                      {sip.sipPort}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="200px"
+                      textAlign={"center"}
+                    >
+                      {sip.sipSimNumber || "N/A"}
+                    </Td>
                     <Td textAlign="center">
                       <Flex justifyContent="center" gap={2}>
                         <IconButton
@@ -283,7 +318,8 @@ const UserSetting = () => {
         isOpen={isAddOpen}
         onClose={onAddClose}
         onSuccess={refetch}
-        users={allUsers}
+        existingSettings={data?.sipSettings || []}
+        usersData={usersData}
       />
 
       {selectedSip && (
@@ -292,7 +328,8 @@ const UserSetting = () => {
           onClose={onEditClose}
           onSuccess={refetch}
           sipSetting={selectedSip}
-          users={allUsers}
+          existingSettings={data?.sipSettings || []}
+          usersData={usersData}
         />
       )}
 
@@ -302,6 +339,7 @@ const UserSetting = () => {
         onApplyFilters={handleApplyFilters}
         initialFilters={filters}
         clearFilter={filterChanged}
+        usersData={usersData}
       />
     </Box>
   );
