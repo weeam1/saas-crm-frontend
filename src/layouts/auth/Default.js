@@ -100,11 +100,18 @@ function AuthIllustration({ children }) {
       >
         <Box
           display={{ base: "none", md: "block" }}
-          w="50%"
+          w={{ md: "40%", lg: "50%" }}
+          h="100%"
           bgImage="url('/image/Login_Page.jpg')"
-          bgSize="cover"
+          bgSize="fill"
+          bgRepeat="no-repeat"
           bgPos="center"
-        ></Box>
+          sx={{
+            "@media (max-width: 915px)": {
+              display: "none",
+            },
+          }}
+        />
         <Flex
           h={{ sm: "initial", md: "unset", lg: "100vh", xl: "97vh" }}
           className="auth-form"
