@@ -1,0 +1,58 @@
+/* Parent container styling */
+.custom-phone-input {
+	position: relative;
+}
+
+/* Default styles for input */
+.custom-phone-input .form-control {
+	width: 100%;
+	border: 1px solid #d1d5db; /* Default light gray border */
+	border-radius: 0.375rem; /* Rounded corners */
+	padding: 1.3rem 2.6rem;
+	/* padding: 14px; */
+	font-size: 1rem;
+	color: #4b5563; /* Dark gray text */
+	box-sizing: border-box;
+	transition:
+		border-color 0.3s ease,
+		box-shadow 0.3s ease;
+}
+
+/* Focus state for input */
+.custom-phone-input .form-control:focus {
+	border-color: #d99a36; /* Highlight color */
+	box-shadow: 0 0 0 1px #d99a36;
+	outline: none;
+}
+
+/* Error state for input */
+.custom-phone-input .form-control.error {
+	border-color: #f00; /* Red border for error */
+	box-shadow: 0 0 0 1px #f00; /* Error shadow */
+}
+
+/* Error message styling */
+.custom-phone-input .text-red-500 {
+	font-size: 0.875rem; /* Smaller font size */
+	margin-top: 0.25rem; /* Spacing below input */
+}
+
+.input-error {
+	border-color: #ef4444; /* Tailwind red-500 */
+	outline: none;
+	box-shadow: 0 0 0 1px #ef4444;
+}
+
+.phone-input-field {
+	border: 2px solid #ccc;
+	border-radius: 6px;
+	width: 100%;
+	padding: 8px 12px;
+	background-color: #fff;
+	outline: none;
+	transition: border-color 0.2s ease;
+}
+
+.phone-input-field:focus {
+	border-color: #3182ce; /* example focus color */
+}
