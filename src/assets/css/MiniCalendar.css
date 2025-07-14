@@ -155,3 +155,6 @@ body.chakra-ui-dark .react-calendar__tile--rangeEnd:enabled:focus {
   background: #7551ff;
   color: white;
 }
+.react-calendar {
+  max-width: 280px;
+}

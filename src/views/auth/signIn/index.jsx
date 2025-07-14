@@ -1,99 +1,67 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
-import AddAgent from './AddAgent';
-// Chakra imports
 import {
-	Box,
-	Button,
-	Checkbox,
-	Flex,
-	FormControl,
-	FormErrorMessage,
-	FormLabel,
-	Heading,
-	Icon,
-	Input,
-	InputGroup,
-	InputRightElement,
-	Link,
-	Text,
-	useColorModeValue,
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  Heading,
+  Icon,
+  Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+  Text,
+  useColorModeValue,
 } from '@chakra-ui/react';
-
-// Custom components
-import DefaultAuth from 'layouts/auth/Default';
-// Assets
-
-import { MdOutlineRemoveRedEye } from 'react-icons/md';
-import { RiEyeCloseLine } from 'react-icons/ri';
+import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { toast } from 'react-toastify';
 import { postApi } from 'services/api';
 import { loginSchema } from 'schema';
-import { toast } from 'react-toastify';
 import Spinner from 'components/spinner/Spinner';
+import AddAgent from './AddAgent';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../../redux/imageSlice';
 import { setUser } from '../../../redux/localSlice';
 import webSocketService from 'services/WebSocketService';
 import { getSmartTimezone } from 'hooks/useTimezone';
+import Logo_CRM from 'assets/logo-crm.png';
+import DefaultAuth from 'layouts/auth/Default';
 
 function SignIn() {
-	// Chakra color mode
-	const textColor = useColorModeValue('navy.700', 'white');
-	const textColorSecondary = 'gray.400';
-	const brandStars = useColorModeValue('brand.500', 'brand.400');
-	const [isLoding, setIsLoding] = React.useState(false);
-	const [checkBox, setCheckBox] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [addAgentModal, setAddAgentModal] = useState(false);
 
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		// Dispatch the fetchRoles action on component mount
-		dispatch(fetchImage('?isActive=true'));
-	}, [dispatch]);
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    resetForm,
+  } = useFormik({
+    initialValues: { username: '', password: '' },
+    validationSchema: loginSchema,
+    onSubmit: () => login(),
+  });
 
-	const image = useSelector((state) => state?.images?.image);
+  useEffect(() => {
+    dispatch(fetchImage('?isActive=true'));
+  }, [dispatch]);
 
-	const [show, setShow] = React.useState(false);
-	const [addAgentModal, setAddAgentModal] = useState(false);
-	const showPass = () => setShow(!show);
+  useEffect(() => {
+    getSmartTimezone();
+  }, []);
 
-	const initialValues = {
-		username: '',
-		password: '',
-	};
-	const {
-		errors,
-		values,
-		touched,
-		handleBlur,
-		handleChange,
-		resetForm,
-		handleSubmit,
-	} = useFormik({
-		initialValues: initialValues,
-		validationSchema: loginSchema,
-		onSubmit: (values, { resetForm }) => {
-			login();
-		},
-	});
-	const navigate = useNavigate();
-	let socket;
-
-	// Clean up the WebSocket connection when the component unmounts
-	useEffect(() => {
-		return () => {
-			if (socket) {
-				socket.close();
-			}
-		};
-	}, [socket]);
-
-	useEffect(() => {
-		getSmartTimezone();
-	}, []);
-
-	// const login = async () => {
+  // const login = async () => {
 	// 	try {
 	// 		setIsLoding(true);
 	// 		let response = await postApi("api/user/login", values, true);
@@ -114,240 +82,123 @@ function SignIn() {
 	// 	}
 	// };
 
-	const login = async () => {
-		try {
-			setIsLoding(true);
-			const loginDetails = {
-				username: values?.username?.trim().toLowerCase(),
-				password: values.password,
-			};
+  const login = async () => {
+    try {
+      setIsLoading(true);
+      const response = await postApi('api/user/login', {
+        username: values?.username?.trim().toLowerCase(),
+        password: values.password,
+      }, true);
 
-			let response = await postApi('api/user/login', loginDetails, true);
+      if (response?.status === 200) {
+        if (!response.data.user?.isActive) {
+          toast.error('Your account is not active. Please contact support.');
+          return;
+        }
+        toast.success('Login Successfully!');
+        resetForm();
+        dispatch(setUser(response.data.user));
+        webSocketService.connect(response.data.user._id);
+        navigate('/superAdmin');
+      } else {
+        toast.error(response.response.data?.error);
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error('An error occurred during login.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-			if (response && response.status === 200) {
-				const userActive = response?.data?.user?.isActive;
+  return (
+    <DefaultAuth>
+      <Flex w='100%' maxW='md' p={10} direction='column' align='center'>
+        <Heading fontSize='3xl' color='#b79045' mb={4} display='flex' gap={2}>
+          <Image src={Logo_CRM} alt='Weeam Logo' w='40px' h='40px' />
+          Weeam
+        </Heading>
 
-				if (!userActive) {
-					toast.error('Your account is not active. Please contact support.');
-					return;
-				}
+        <Text fontSize='2xl' fontWeight='semibold' color='gray.800' mb={2}>
+          Sign In Access
+        </Text>
+        <Text fontSize='sm' color='gray.500' maxW='md' mb={6}>
+          You must become a member to login and access the entire site.
+        </Text>
 
-				toast.success('Login Successfully!');
-				resetForm();
-				dispatch(setUser(response.data.user));
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <FormControl isInvalid={errors.username && touched.username} mb={4}>
+            <InputGroup>
+              <InputLeftElement><EmailIcon color='gray.400' /></InputLeftElement>
+              <Input
+                name='username'
+                placeholder='Enter email address'
+                value={values.username}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                _focus={{ borderColor: 'brand.500' }}
+              />
+            </InputGroup>
+            <FormErrorMessage>{errors.username}</FormErrorMessage>
+          </FormControl>
 
-				const userId = response?.data?.user?._id;
+          <FormControl isInvalid={errors.password && touched.password} mb={4}>
+            <InputGroup>
+              <InputLeftElement><LockIcon color='gray.400' /></InputLeftElement>
+              <Input
+                name='password'
+                type={showPassword ? 'text' : 'password'}
+                placeholder='Enter password'
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                 _focus={{ borderColor: 'brand.500' }}
+              />
+              <InputRightElement>
+                <Icon
+                  as={showPassword ? ViewOffIcon : ViewIcon}
+                  onClick={() => setShowPassword(!showPassword)}
+                  _hover={{ cursor: 'pointer' }}
+                  color='gray.500'
+                />
+              </InputRightElement>
+            </InputGroup>
+            <FormErrorMessage>{errors.password}</FormErrorMessage>
+          </FormControl>
 
-				webSocketService.connect(userId);
-				navigate('/superAdmin');
-			} else {
-				toast.error(response.response.data?.error);
-			}
-		} catch (e) {
-			console.log(e);
-			toast.error('An error occurred during login.');
-		} finally {
-			setIsLoding(false);
-		}
-	};
+          <Button
+            type='submit'
+            w='full'
+            colorScheme='brand'
+            isDisabled={isLoading}
+            color='white'
+            borderRadius='md'
+            mb={2}
+          >
+            {isLoading ? <Spinner /> : 'SIGN IN'}
+          </Button>
+        </form>
 
-	return (
-		<DefaultAuth
-			illustrationBackground={''}
-			image={
-				'https://images.unsplash.com/photo-1491975474562-1f4e30bc9468?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-			}
-		>
-			<Flex
-				maxW={{ base: '100%', md: 'max-content' }}
-				w='100%'
-				mx={{ base: 'auto', lg: '0px' }}
-				me='auto'
-				h='fit-content'
-				alignItems='start'
-				justifyContent='center'
-				mb={{ base: '30px', md: '60px' }}
-				px={{ base: '25px', md: '0px' }}
-				mt={{ base: '40px', md: '14vh' }}
-				flexDirection='column'
-			>
-				<Box me='auto'>
-					<Heading color={textColor} fontSize='36px' mb='10px'>
-						Sign In
-					</Heading>
-					<Text
-						mb='36px'
-						ms='4px'
-						color={textColorSecondary}
-						fontWeight='400'
-						fontSize='md'
-					>
-						Enter your email and password to sign in!
-					</Text>
-				</Box>
-				<Flex
-					zIndex='2'
-					direction='column'
-					w={{ base: '100%', md: '420px' }}
-					maxW='100%'
-					background='transparent'
-					borderRadius='15px'
-					mx={{ base: 'auto', lg: 'unset' }}
-					me='auto'
-					mb={{ base: '20px', md: 'auto' }}
-				>
-					<form onSubmit={handleSubmit}>
-						<FormControl isInvalid={errors.username && touched.username}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								color={textColor}
-								mb='8px'
-							>
-								Email<Text color={brandStars}>*</Text>
-							</FormLabel>
-							<Input
-								fontSize='sm'
-								onChange={handleChange}
-								onBlur={handleBlur}
-								value={values.username}
-								name='username'
-								ms={{ base: '0px', md: '0px' }}
-								type='email'
-								placeholder='mail@simmmple.com'
-								mb={errors.username && touched.username ? undefined : '24px'}
-								fontWeight='500'
-								size='lg'
-								borderColor={
-									errors.username && touched.username ? 'red.300' : null
-								}
-								className={
-									errors.username && touched.username ? 'isInvalid' : null
-								}
-							/>
-							{errors.username && touched.username && (
-								<FormErrorMessage mb='24px'>
-									{' '}
-									{errors.username}
-								</FormErrorMessage>
-							)}
-						</FormControl>
+        <Text mt={2} fontSize='sm' color='gray.500'>
+          OR
+        </Text>
 
-						<FormControl
-							isInvalid={errors.password && touched.password}
-							mb='24px'
-						>
-							<FormLabel
-								ms='4px'
-								fontSize='sm'
-								fontWeight='500'
-								color={textColor}
-								display='flex'
-							>
-								Password<Text color={brandStars}>*</Text>
-							</FormLabel>
-							<InputGroup size='md'>
-								<Input
-									isRequired={true}
-									fontSize='sm'
-									placeholder='Enter Your Password'
-									name='password'
-									mb={errors.password && touched.password ? undefined : '24px'}
-									value={values.password}
-									onChange={handleChange}
-									onBlur={handleBlur}
-									size='lg'
-									variant='auth'
-									type={show ? 'text' : 'password'}
-									borderColor={
-										errors.password && touched.password ? 'red.300' : null
-									}
-									className={
-										errors.password && touched.password ? 'isInvalid' : null
-									}
-								/>
-								<InputRightElement display='flex' alignItems='center' mt='4px'>
-									<Icon
-										color={textColorSecondary}
-										_hover={{ cursor: 'pointer' }}
-										as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-										onClick={showPass}
-									/>
-								</InputRightElement>
-							</InputGroup>
-							{errors.password && touched.password && (
-								<FormErrorMessage mb='24px'>
-									{' '}
-									{errors.password}
-								</FormErrorMessage>
-							)}
-							<Flex justifyContent='space-between' align='center' mb='24px'>
-								<FormControl display='flex' alignItems='center'>
-									<Checkbox
-										onChange={(e) => setCheckBox(e.target.checked)}
-										id='remember-login'
-										value={checkBox}
-										defaultChecked
-										colorScheme='brandScheme'
-										me='10px'
-									/>
-									<FormLabel
-										htmlFor='remember-login'
-										mb='0'
-										fontWeight='normal'
-										color={textColor}
-										fontSize='sm'
-									>
-										Keep me logged in
-									</FormLabel>
-								</FormControl>
-							</Flex>
+        <Button
+          onClick={() => setAddAgentModal(true)}
+          variant='ghost'
+          fontSize='sm'
+          fontWeight='500'
+          mt={2}
+        >
+          Signup as an agent
+        </Button>
 
-							<Flex
-								justifyContent='space-between'
-								align='center'
-								mb='24px'
-							></Flex>
-							<Button
-								fontSize='sm'
-								variant='brand'
-								fontWeight='500'
-								w='100%'
-								h='50'
-								type='submit'
-								disabled={isLoding ? true : false}
-							>
-								{isLoding ? <Spinner /> : 'Sign In'}
-							</Button>
-							<Text textAlign={'center'} mt={5} color={'grey'}>
-								OR
-							</Text>
-							<Button
-								onClick={() => setAddAgentModal(true)}
-								fontSize='sm'
-								variant='ghost'
-								fontWeight='500'
-								w='100%'
-								h='50'
-								type='button'
-							>
-								Signup as an agent
-							</Button>
-						</FormControl>
-					</form>
-				</Flex>
-			</Flex>
-
-			{addAgentModal && (
-				<AddAgent
-					onClose={() => setAddAgentModal(false)}
-					isOpen={addAgentModal}
-				/>
-			)}
-		</DefaultAuth>
-	);
+        {addAgentModal && (
+          <AddAgent onClose={() => setAddAgentModal(false)} isOpen={addAgentModal} />
+        )}
+      </Flex>
+    </DefaultAuth>
+  );
 }
 
 export default SignIn;
