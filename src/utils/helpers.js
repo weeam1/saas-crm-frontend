@@ -1,7 +1,39 @@
 import moment from 'moment';
-import { toast } from 'react-toastify';
 
 export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export const formatLastMessageTime = (timestamp) => {
+	if (!timestamp) return '';
+
+	// Fallback to browser timezone if none provided
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
+	// Create moment object with proper timezone
+	const m = moment(timestamp).tz(tz);
+
+	// Within last minute → "Now"
+	if (moment().tz(tz).diff(m) < 60 * 1000) {
+		return 'Now';
+	}
+
+	// Today → Show time (e.g., "2:30 PM")
+	if (m.isSame(moment().tz(tz), 'day')) {
+		return m.format('h:mm A');
+	}
+
+	// Yesterday → "Yesterday"
+	if (m.isSame(moment().tz(tz).subtract(1, 'day'), 'day')) {
+		return 'Yesterday';
+	}
+
+	// This year → Show day/month (e.g., "May 27")
+	if (m.isSame(moment().tz(tz), 'year')) {
+		return m.format('MMM D');
+	}
+
+	// Older than current year → Full date (e.g., "27/05/2023")
+	return m.format('DD/MM/YYYY');
+};
 
 export const formattedDate = (_date) => {
 	if (_date === '') {
@@ -113,8 +145,6 @@ export const formatPostDate = (date, timezone) => {
 
 		// Calculate difference in seconds
 		const diffSeconds = now.diff(inputDate, 'seconds');
-
-		console.log(diffSeconds);
 
 		// Relative time formats
 		if (diffSeconds < 60) return 'now';
@@ -272,8 +302,16 @@ export const formatDateHeader = (date) => {
 	}
 };
 
+// export const formatMessageTime = (date) => {
+// 	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+// };
+
 export const formatMessageTime = (date) => {
-	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	if (!date) return '';
+
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
+	return moment(date).tz(tz).format('h:mm A');
 };
 
 export const whatsappColors = {

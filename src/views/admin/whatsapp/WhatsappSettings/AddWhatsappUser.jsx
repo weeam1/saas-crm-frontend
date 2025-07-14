@@ -38,7 +38,7 @@ const schema = Yup.object().shape({
 const AddWhatsappUser = ({
 	isOpen,
 	onClose,
-	initialValues = { userId: null, phoneNumber: '', isActive: true },
+	initialValues,
 	onSubmit,
 	isLoading,
 	mode = 'Add',

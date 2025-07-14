@@ -57,6 +57,7 @@ const WhatsappSettings = () => {
 	const [initialValues, setInitalValues] = useState({
 		userId: null,
 		phoneNumber: '',
+		businessId: '',
 		isActive: true,
 	});
 
@@ -100,6 +101,7 @@ const WhatsappSettings = () => {
 								...item,
 								user: res?.doc?.user,
 								phoneNumber: res?.doc?.phoneNumber,
+								businessId: res?.doc?.businessId,
 								isActive: res?.doc?.isActive,
 							};
 						}
@@ -125,6 +127,7 @@ const WhatsappSettings = () => {
 		setInitalValues({
 			userId: data.user._id,
 			phoneNumber: data.phoneNumber,
+			businessId: data.businessId,
 			isActive: data.isActive,
 		});
 		addUserOnOpen();
@@ -135,6 +138,7 @@ const WhatsappSettings = () => {
 		setActionMode('Add');
 		setInitalValues({
 			phoneNumber: '',
+			businessId: '',
 			isActive: true,
 		});
 		addUserOnOpen();

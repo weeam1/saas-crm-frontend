@@ -117,8 +117,6 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 				_id: res?.doc?._id,
 			};
 
-			console.log({ contact });
-
 			if (data?._id) {
 				dispatch(updateContact(contact));
 			} else {

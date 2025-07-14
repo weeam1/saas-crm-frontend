@@ -28,7 +28,6 @@ const LeadNotes = ({ lid, noteAdded }) => {
 			// Filter the notes to only include those added by the current user
 			// const filteredNotes = (leadNotes.data || []).filter(note => note.addedBy?._id === user?._id || user?.role == "superAdmin");
 
-			console.log({ leadNotes });
 			// Set the filtered notes to state
 			// setAllNotes(filteredNotes);
 			setAllNotes(leadNotes.data || []);

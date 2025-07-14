@@ -29,7 +29,7 @@ const MediaLoadingPlaceholder = ({ type }) => {
 	if (type === 'audio') {
 		return (
 			<Box
-				width='300px'
+				width='350px'
 				height='60px'
 				bg='gray.50'
 				borderRadius='md'
@@ -44,28 +44,6 @@ const MediaLoadingPlaceholder = ({ type }) => {
 					backgroundSize='200% 200%'
 					animation='shimmer 1.5s infinite linear'
 				/>
-				<Box
-					display='flex'
-					alignItems='center'
-					position='relative'
-					zIndex='1'
-					height='100%'
-				>
-					<Box
-						width='40px'
-						height='40px'
-						bg='gray.200'
-						borderRadius='md'
-						mr={3}
-					/>
-					<Box
-						width='24px'
-						height='24px'
-						bg='gray.200'
-						borderRadius='full'
-						ml={3}
-					/>
-				</Box>
 			</Box>
 		);
 	}

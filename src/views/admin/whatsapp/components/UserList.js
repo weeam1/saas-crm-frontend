@@ -1,30 +1,12 @@
 import React from 'react';
-import {
-	Box,
-	Flex,
-	Text,
-	Avatar,
-	Badge,
-	Divider,
-	Button,
-	VStack,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, Divider, VStack } from '@chakra-ui/react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import UserAvatar from 'components/shared/UserAvatar';
 import { setActiveChat } from '../../../../redux/whatsappSlice';
+import { formatLastMessageTime } from 'utils/helpers';
 
-const UserList = ({
-	// users,
-	// activeChat,
-	// setActiveChat,
-	contacts,
-	isMobile,
-	onClose,
-	sidebarBg,
-	handleAddContact,
-}) => {
-	// const contacts = useSelector((state) => state.whatsapp.contacts || []);
+const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
 	const dispatch = useDispatch();
@@ -35,23 +17,7 @@ const UserList = ({
 	};
 
 	return (
-		<Box
-			overflowY='auto'
-			h='calc(100% - 120px)'
-			bg={sidebarBg}
-			css={{
-				'&::-webkit-scrollbar': {
-					width: '6px',
-				},
-				'&::-webkit-scrollbar-track': {
-					background: 'transparent',
-				},
-				'&::-webkit-scrollbar-thumb': {
-					background: '#008069',
-					borderRadius: '3px',
-				},
-			}}
-		>
+		<Box overflowY='auto' h='calc(100% - 120px)' bg={sidebarBg}>
 			{contacts?.length > 0 ? (
 				contacts?.map((user, i) => (
 					<React.Fragment key={i || user.roomId}>
@@ -60,7 +26,9 @@ const UserList = ({
 							align='center'
 							cursor='pointer'
 							bg={
-								activeChat === user.id ? 'rgba(0, 0, 0, 0.08)' : 'transparent'
+								activeChat?.phoneNumber === user?.phoneNumber
+									? 'rgba(0, 0, 0, 0.08)'
+									: 'transparent'
 							}
 							_hover={{ bg: 'rgba(0, 0, 0, 0.05)' }}
 							onClick={() => {
@@ -94,29 +62,42 @@ const UserList = ({
 									fontSize={{ base: 'sm', md: 'md' }}
 									justify='space-between'
 								>
-									<Text fontWeight='bold' color='#111B21'>
+									<Text
+										fontWeight='bold'
+										isTruncated
+										maxW='50%'
+										color='#111B21'
+									>
 										{user?.name === 'Unknown' || !user?.name
 											? user.phoneNumber
 											: user.name}
 									</Text>
-									{/* <Text fontSize='xs' color='#667781'>
-										{user.time}
-									</Text> */}
+									<Text
+										fontSize='xs'
+										color={user.unreadCount > 0 ? 'whatsapp.600' : '#667781'}
+									>
+										{formatLastMessageTime(user.lastMessageAt)}
+									</Text>
 								</Flex>
 								<Flex justify='space-between' mt={1}>
-									{/* <Text fontSize='sm' color='#667781' isTruncated maxW='180px'>
+									<Text fontSize='sm' color='#667781' isTruncated maxW='80%'>
 										{user.lastMessage}
-									</Text> */}
-									{user.unread > 0 && (
-										<Badge
-											colorScheme='green'
-											borderRadius='full'
-											px={2}
-											bg='#008069'
+									</Text>
+									{user.unreadCount > 0 && (
+										<Box
+											bg='whatsapp.600'
 											color='white'
+											minW='22px'
+											h='22px'
+											fontSize={{ base: 'xs', md: 'sm' }}
+											px='6px'
+											display='flex'
+											alignItems='center'
+											justifyContent='center'
+											borderRadius='full'
 										>
-											{user.unread}
-										</Badge>
+											{user.unreadCount}
+										</Box>
 									)}
 								</Flex>
 							</Box>
@@ -136,7 +117,7 @@ const UserList = ({
 						No contacts found
 					</Text>
 
-					<Button
+					{/* <Button
 						colorScheme='whatsapp'
 						size='md'
 						px={6}
@@ -144,7 +125,7 @@ const UserList = ({
 						onClick={handleAddContact}
 					>
 						Add Contact
-					</Button>
+					</Button> */}
 				</VStack>
 			)}
 		</Box>

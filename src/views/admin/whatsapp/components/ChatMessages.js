@@ -1,6 +1,6 @@
-import { Flex, Box, VStack, Text, Spinner, Button } from '@chakra-ui/react';
+import { Flex, Box, VStack, Text, Spinner } from '@chakra-ui/react';
 import { whatsappColors } from 'utils/helpers';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { FaCheck, FaCheckDouble } from 'react-icons/fa';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { getTimeFormat } from './helpers';
@@ -12,6 +12,7 @@ import {
 import { FiMessageCircle } from 'react-icons/fi';
 import { MessageContent } from './MessageContent';
 import ChatDate from './dates/ChatDate';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
 const MESSAGE_TYPES = [
 	'text',
@@ -25,20 +26,22 @@ const MESSAGE_TYPES = [
 const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const messagesEndRef = useRef(null);
 	const [fetchChatLoading, setFetchChatLoading] = useState(false);
+	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
 	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({
 		roomId,
 		page: 1,
-		limit: 20,
+		limit: 15,
 	});
+
+	const [updateMarkAsRead] = useUpdateItemMutation();
 
 	const {
 		data: chatData,
 		isLoading: chatLoading,
 		isFetching: chatFetching,
-		refetch: refetchChat,
 	} = useFetchItemsQuery(
 		{
 			path: '/whatsapp/chat_history',
@@ -61,15 +64,28 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	// const prevScrollHeight = useRef(0);
 	const [loadingOlder, setLoadingOlder] = useState(false);
 
+	const handleMarkAsRead = async () => {
+		try {
+			await updateMarkAsRead({
+				path: '/whatsapp/mark_as_read',
+				body: {
+					roomId,
+					phoneId: from,
+				},
+			}).unwrap();
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
 	// --- initial + room change load -
 	useEffect(() => {
-		setChatQuery({ roomId, page: 1, limit: 20 });
+		setChatQuery({ roomId, page: 1, limit: 15 });
 		setFetchChatLoading(true);
-		console.log('ROOM UPDATED: ', roomId);
 	}, [roomId]);
 
 	// --- when chatData arrives -------
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!chatData?.doc && !containerRef?.current) return;
 
 		const conainter = containerRef.current;
@@ -120,6 +136,29 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 		chatData?.pagination?.totalPages,
 	]);
 
+	useEffect(() => {
+		if (!containerRef.current || loadingOlder || chatFetching) return;
+
+		containerRef.current.scrollTop = containerRef.current.scrollHeight;
+
+		const handleVisibility = () => {
+			if (
+				document.visibilityState === 'visible' &&
+				activeChat?.unreadCount > 0 &&
+				from
+			) {
+				handleMarkAsRead();
+			}
+		};
+
+		handleVisibility(); // Initial check
+		const visListener = () => handleVisibility();
+
+		document.addEventListener('visibilitychange', visListener);
+		return () => document.removeEventListener('visibilitychange', visListener);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [messages]);
+
 	return (
 		<Box
 			flex='1'
@@ -139,7 +178,7 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 					<Box textAlign='center' p='4'>
 						<Spinner color='whatsapp.500' />
 					</Box>
-				) : chatData?.doc?.length > 0 && messages?.length > 0 ? (
+				) : messages?.length > 0 ? (
 					messages?.map((message, index) => {
 						if (!MESSAGE_TYPES.includes(message.type)) return null;
 
@@ -159,21 +198,39 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 									borderRadius='md'
 								>
 									<Box
+										// position='relative'
+										// bg={
+										// 	isSelf
+										// 		? whatsappColors.outgoingBg
+										// 		: whatsappColors.incomingBg
+										// }
+										// px={4}
+										// py={2}
+										// borderRadius='lg'
+										// maxW={{ base: '80%', md: '60%' }}
+										// boxShadow='sm'
+										// color={whatsappColors.textDark}
+										// borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
+										// borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										// whiteSpace='pre-wrap'
+										// wordBreak='break-word'
 										position='relative'
+										alignSelf={isSelf ? 'flex-end' : 'flex-start'}
 										bg={
 											isSelf
 												? whatsappColors.outgoingBg
 												: whatsappColors.incomingBg
 										}
 										px={4}
-										py={2}
+										py={1}
 										borderRadius='lg'
-										maxW={{ base: '80%', md: '60%' }}
-										// maxWidth={{ base: '200px', md: '250px', lg: '400px' }}
+										maxW={{ base: '85%', md: '70%' }}
 										boxShadow='sm'
 										color={whatsappColors.textDark}
-										borderTopLeftRadius={!isSelf ? '4px' : 'lg'}
-										borderTopRightRadius={isSelf ? '4px' : 'lg'}
+										// Rounded corners logic
+										borderTopLeftRadius={!isSelf ? 0 : 'lg'}
+										borderTopRightRadius={isSelf ? 0 : 'lg'}
+										// Typography
 										whiteSpace='pre-wrap'
 										wordBreak='break-word'
 									>

@@ -8,17 +8,22 @@ const whatsappSlice = createSlice({
 		chats: {},
 		mediaUrls: {},
 		activeChat: null,
+		currentAudioId: null,
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
-
-			// localStorage.removeItem('activeChat');
-			// localStorage.setItem('activeChat', JSON.stringify(action.payload));
 		},
 
 		setActiveChat: (state, action) => {
-			state.activeChat = action.payload;
+			const chat = action.payload;
+			state.activeChat = chat;
+
+			// Reset unread count
+			if (chat) {
+				const room = state.contacts.find((r) => r.roomId === chat.roomId);
+				if (room) room.unreadCount = 0;
+			}
 		},
 
 		deleteContact: (state, action) => {
@@ -31,6 +36,9 @@ const whatsappSlice = createSlice({
 			const { mediaId, url } = action.payload;
 
 			state.mediaUrls[mediaId] = url;
+		},
+		setCurrentAudio(state, action) {
+			state.currentAudioId = action.payload;
 		},
 
 		setCurrentUser: (state, action) => {
@@ -113,7 +121,44 @@ const whatsappSlice = createSlice({
 				};
 			}
 			// else push new message
-			else state.chats[chatId].push(message);
+			else {
+				state.chats[chatId].push(message);
+
+				const isActive = state.activeChat?.roomId === message?.roomId;
+
+				// Find existing contact
+				let contact = state.contacts.find((r) => r.roomId === message?.roomId);
+
+				if (!contact) {
+					// Create new contact with required fields
+					contact = {
+						phoneNumber: message.to,
+						roomId: message.roomId,
+						lastMessage: message?.content ?? '',
+						lastMessageAt: message?.sentAt ?? new Date().toISOString(),
+						type: message?.type,
+						unreadCount: isActive ? 0 : 1,
+					};
+				} else {
+					// Update existing contact's values
+					contact.lastMessage = message?.content ?? '';
+					contact.lastMessageAt = message?.sentAt ?? new Date().toISOString();
+					contact.type = message?.type;
+
+					if (typeof contact.unreadCount !== 'number') {
+						contact.unreadCount = 0;
+					}
+					if (!isActive) {
+						contact.unreadCount += 1;
+					}
+				}
+
+				// Move contact to the top of the list
+				state.contacts = [
+					contact,
+					...state.contacts.filter((item) => item.roomId !== contact.roomId),
+				];
+			}
 		},
 	},
 });
@@ -128,6 +173,7 @@ export const {
 	setCurrentUser,
 	setMediaUrl,
 	setActiveChat,
+	setCurrentAudio,
 	deleteContact,
 } = whatsappSlice.actions;
 

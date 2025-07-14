@@ -13,7 +13,9 @@ const UserAvatar = ({
 
 	...props
 }) => {
-	const avatarSrc = src ? `${constant.baseUrl}${src}` : fallbackSrc;
+	const avatarSrc = src?.includes(constant.baseUrl)
+		? `${constant.baseUrl}${src}`
+		: fallbackSrc;
 
 	return (
 		<Avatar

@@ -81,8 +81,6 @@ const WhatsappTemplates = ({
 		return body ? /\{\{\d+\}\}/.test(body) : false;
 	}, [selectedTemplate]);
 
-	// console.log({ previewText, placeholderValues });
-
 	const handleSendTemplate = () => {
 		// if (!placeholderValues[1]) {
 		// 	return toast.error('Please enter the name placeholder value.');
@@ -91,7 +89,7 @@ const WhatsappTemplates = ({
 		onSend({
 			message: previewText,
 			templateName: selectedTemplate.name,
-			palceholder: placeholderValues[1],
+			palceholder: placeholderValues[1] || '',
 			languageCode: selectedTemplate.language,
 			type: 'template',
 		});
@@ -146,7 +144,7 @@ const WhatsappTemplates = ({
 
 									<SimpleGrid
 										columns={1}
-										spacing={3}
+										spacing={1}
 										maxHeight='50vh'
 										overflowY='auto'
 										scrollBehavior='smooth'
@@ -155,44 +153,119 @@ const WhatsappTemplates = ({
 										{templates?.doc
 											?.filter((temp) => !temp.name.includes('hello_world'))
 											.map((template) => (
+												// <Box
+												// 	key={template.id}
+												// 	cursor='pointer'
+												// 	p={2}
+												// 	mb={3}
+												// 	borderRadius='lg'
+												// 	borderWidth='1px'
+												// 	borderColor={
+												// 		selectedTemplate?.id === template.id
+												// 			? 'green.300'
+												// 			: 'gray.200'
+												// 	}
+												// 	bg={
+												// 		selectedTemplate?.id === template.id
+												// 			? 'green.50'
+												// 			: 'white'
+												// 	}
+												// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
+												// 	transition='all 0.2s'
+												// 	onClick={() => setSelectedTemplate(template)}
+												// >
+												// 	<Flex justify='space-between' align='center' mb={2}>
+												// 		<Text
+												// 			fontWeight='bold'
+												// 			fontSize={{ base: 'xs', md: 'sm' }}
+												// 		>
+												// 			{template.name}
+												// 		</Text>
+												// 		<Badge
+												// 			colorScheme={
+												// 				template.status === 'APPROVED'
+												// 					? 'green'
+												// 					: 'orange'
+												// 			}
+												// 			fontSize='xs'
+												// 		>
+												// 			{template.status}
+												// 		</Badge>
+												// 	</Flex>
+												// </Box>
 												<Box
 													key={template.id}
 													cursor='pointer'
-													p={2}
+													p={3}
 													mb={3}
 													borderRadius='lg'
 													borderWidth='1px'
 													borderColor={
 														selectedTemplate?.id === template.id
 															? 'green.300'
-															: 'gray.200'
+															: 'gray.100'
 													}
 													bg={
 														selectedTemplate?.id === template.id
 															? 'green.50'
-															: 'white'
+															: 'gray.100'
 													}
-													_hover={{ borderColor: 'green.300', bg: 'green.50' }}
-													transition='all 0.2s'
+													_hover={{ borderColor: 'green.200' }}
+													transition='all 0.2s ease'
 													onClick={() => setSelectedTemplate(template)}
+													position='relative'
+													pl={10} // Add padding for the radio circle
 												>
-													<Flex justify='space-between' align='center' mb={2}>
+													{/* Custom radio circle */}
+													<Flex
+														position='absolute'
+														left={3}
+														top='50%'
+														transform='translateY(-50%)'
+														w={5}
+														h={5}
+														borderWidth='2px'
+														borderColor={
+															selectedTemplate?.id === template.id
+																? 'green.400'
+																: 'gray.300'
+														}
+														borderRadius='full'
+														align='center'
+														justify='center'
+													>
+														{selectedTemplate?.id === template.id && (
+															<Box
+																w={3}
+																h={3}
+																bg='green.400'
+																borderRadius='full'
+															/>
+														)}
+													</Flex>
+
+													<Flex justify='space-between' align='center'>
 														<Text
-															fontWeight='bold'
-															fontSize={{ base: 'xs', md: 'sm' }}
+															fontWeight='medium'
+															fontSize={{ base: 'sm', md: 'md' }}
+															color='gray.700'
 														>
 															{template.name}
 														</Text>
-														<Badge
+														{/* <Badge
 															colorScheme={
 																template.status === 'APPROVED'
 																	? 'green'
 																	: 'orange'
 															}
-															fontSize='xs'
+															fontSize='10px'
+															px={1.5}
+															py={0.5}
+															borderRadius='md'
+															variant='subtle'
 														>
 															{template.status}
-														</Badge>
+														</Badge> */}
 													</Flex>
 												</Box>
 											))}
@@ -262,18 +335,19 @@ const WhatsappTemplates = ({
 													<Text fontSize='sm'>
 														Language: {selectedTemplate.language}
 													</Text>
-													{/* <Text fontSize='sm'>
-													Status:{' '}
-													<Badge
-														colorScheme={
-															selectedTemplate.status === 'APPROVED'
-																? 'green'
-																: 'orange'
-														}
-													>
-														{selectedTemplate.status}
-													</Badge>
-												</Text> */}
+													<Text fontSize='sm'>
+														Status:
+														<Badge
+															colorScheme={
+																selectedTemplate.status === 'APPROVED'
+																	? 'green'
+																	: 'orange'
+															}
+															fontSize='x-small'
+														>
+															{selectedTemplate.status}
+														</Badge>
+													</Text>
 													<Text fontSize='sm'>
 														Category: {selectedTemplate.category}
 													</Text>

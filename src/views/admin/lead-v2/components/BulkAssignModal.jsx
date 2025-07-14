@@ -123,6 +123,8 @@ const BulkAssignModal = (props) => {
 				// refreshData();
 				const updates = createUpdates(selectedValues, values);
 
+				console.log({ updates });
+
 				dispatch(
 					updateMultipleLeadFields({
 						updates,

@@ -18,7 +18,6 @@ import {
 	FaBuilding,
 	FaCalendarAlt,
 } from 'react-icons/fa';
-import { MdVerified } from 'react-icons/md';
 import UserAvatar from 'components/shared/UserAvatar';
 import { formatPostDate } from 'utils/helpers';
 

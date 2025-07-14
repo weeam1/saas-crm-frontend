@@ -6,15 +6,7 @@ import {
 	CircularProgress,
 	VStack,
 } from '@chakra-ui/react';
-import {
-	FiDownload,
-	FiExternalLink,
-	FiFile,
-	FiFileText,
-	FiImage,
-	FiMusic,
-	FiVideo,
-} from 'react-icons/fi';
+
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { useMediaDownloader } from 'hooks/useMediaDownloader';
