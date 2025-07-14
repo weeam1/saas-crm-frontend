@@ -107,7 +107,7 @@ function AuthIllustration({ children }) {
           bgRepeat="no-repeat"
           bgPos="center"
           sx={{
-            "@media (max-width: 915px)": {
+            "@media (max-width: 988px)": {
               display: "none",
             },
           }}
