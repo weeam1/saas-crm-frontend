@@ -32,6 +32,7 @@ const AdvancedSearchModal = ({
   unitTypes,
   initialFilters,
   clearFilter,
+  countries
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
@@ -83,6 +84,7 @@ const AdvancedSearchModal = ({
       maxArea: initialFilters.maxArea || "",
       month: initialFilters.month || "",
       year: initialFilters.year || "",
+      country: initialFilters.country || "",
       startFrom: initialFilters.startFrom
         ? new Date(initialFilters.startFrom)
         : null,
@@ -119,6 +121,7 @@ const AdvancedSearchModal = ({
         maxArea: "",
         month: "",
         year: "",
+        country: "",
         startFrom: null,
         startTo: null,
       },
@@ -137,6 +140,7 @@ const AdvancedSearchModal = ({
       maxArea: initialFilters.maxArea || "",
       month: initialFilters.month || "",
       year: initialFilters.year || "",
+      country: initialFilters.country || "",
       startFrom: initialFilters.startFrom || null,
       startTo: initialFilters.startTo || null,
     };
@@ -163,6 +167,7 @@ const AdvancedSearchModal = ({
           maxArea: "",
           month: "",
           year: "",
+          country: "",
           startFrom: null,
           startTo: null,
         },
@@ -190,6 +195,7 @@ const AdvancedSearchModal = ({
           maxArea: initialFilters.maxArea || "",
           month: initialFilters.month || "",
           year: initialFilters.year || "",
+          country: initialFilters.country || "",
           startFrom: initialFilters.startFrom
             ? new Date(initialFilters.startFrom)
             : null,
@@ -225,16 +231,35 @@ const AdvancedSearchModal = ({
                 />
               </FormControl>
 
-              <FormControl>
-                <FormLabel>Location</FormLabel>
-                <Input
-                  name="location"
-                  placeholder="e.g. location"
-                  value={formik.values.location}
-                  onChange={formik.handleChange}
-                  focusBorderColor="brand.500"
-                />
-              </FormControl>
+              <SimpleGrid columns={colSpan} gap={4} w="full">
+                <FormControl>
+                  <FormLabel>Location</FormLabel>
+                  <Input
+                    name="location"
+                    placeholder="e.g. location"
+                    value={formik.values.location}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel>Country</FormLabel>
+                  <Select
+                    name="country"
+                    placeholder="Select Country"
+                    value={formik.values.country}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  >
+                    {countries?.map((country) => (
+                      <option key={country.code} value={country.name}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+              </SimpleGrid>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>

@@ -62,6 +62,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "Sub Unit Type",
     "Type",
     "Location",
+    'country',
     "Area (sqft)",
     "Building Age",
     "Developer",
@@ -104,6 +105,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       if (filters.year) params.year = filters.year;
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.country) params.country = filters.country;
     }
 
     return params;
@@ -113,7 +115,9 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
-
+   const { data: countries } = useFetchItemsQuery({
+    path: '/countries',
+    });
   // Update tableData when data changes
   useEffect(() => {
     if (data) {
@@ -370,6 +374,15 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       {listing.location || "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.country?.name || "N/A"}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -562,6 +575,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
         clearFilter={filterChanged}
+        countries={countries?.doc || []}
       />
     </Box>
   );

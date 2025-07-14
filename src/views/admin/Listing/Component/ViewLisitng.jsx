@@ -249,6 +249,19 @@ const ViewListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Country */}
+        <GridItem colSpan={colSpan}>
+          <FormControl>
+            <FormLabel fontWeight="bold">Country</FormLabel>
+            <Input
+              value={listing.data?.country?.name || "N/A"}
+              readOnly
+              variant="filled"
+              focusBorderColor="brand.500"
+            />
+          </FormControl>
+        </GridItem>
+
         {/* Building Age */}
         <GridItem colSpan={colSpan}>
           <FormControl>
@@ -402,8 +415,8 @@ const ViewListing = () => {
                     mb={2}
                     bg="gray.50"
                     borderRadius="md"
-                    flexDir={{base: "column", sm: "column" , md: "row"}}
-                    gap={{base: "4", sm: "4", md: "0"}}
+                    flexDir={{ base: "column", sm: "column", md: "row" }}
+                    gap={{ base: "4", sm: "4", md: "0" }}
                   >
                     <Text>{fileName}</Text>
                     <AppButton
