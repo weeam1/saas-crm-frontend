@@ -17,6 +17,7 @@ import RenderFields from 'components/shared/RenderFields';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
+import { useMemo } from 'react';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -84,37 +85,27 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'adset', label: 'Adset', type: 'text' },
 	];
 
-	// role === 'Agent' || role === 'Manager'
-	// leadData?.oldPhoneNumber
+	const allowedFields = useMemo(() => {
+		if (role === 'superAdmin') {
+			return fields;
+		}
 
-	const allowedFields = ['Agent', 'Manager'].includes(role)
-		? fields.filter((field) => field.name === 'leadName')
-		: fields;
+		// Agent role edit phone number only
+		const phoneField =
+			role === 'Agent'
+				? fields.filter((field) =>
+						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
+					)
+				: [];
 
-	// const allowedFields = (() => {
-	// 	if (!['Agent', 'Manager'].includes(role)) {
-	// 		return fields; // Return all fields for non-Agent/Manager roles
-	// 	}
+		// Add name field if leadEStatus is 'show'
+		const nameField =
+			leadData?.eLeadStatus === 'show'
+				? fields.filter((field) => field.name === 'leadName')
+				: [];
 
-	// 	const baseFields = fields.filter((field) => field.name === 'leadName');
-
-	// 	// Add phone fields if oldPhoneNumber is null
-	// 	const phoneFields = !leadData?.oldPhoneNumber
-	// 		? fields.filter(
-	// 				(field) =>
-	// 					field.name === 'leadWhatsappNumber' ||
-	// 					field.name === 'leadPhoneNumber'
-	// 			)
-	// 		: [];
-
-	// 	// Add name field if leadEStatus is 'show'
-	// 	// const nameField =
-	// 	// 	leadData?.eLeadStatus === 'show'
-	// 	// 		? fields.filter((field) => field.name === 'leadName')
-	// 	// 		: [];
-
-	// 	return [...baseFields, ...phoneFields];
-	// })();
+		return [...nameField, ...phoneField];
+	}, []);
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 

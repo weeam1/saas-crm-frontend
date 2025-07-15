@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://webrtc.weeam.info/cdr';
+const BASE_URL = 'https://webrtc.weeam.info/search';
 
-export const fetchCallHistoryData = async (page = 1, pageSize = 20) => {
+export const fetchCallHistoryData = async (filters) => {
 	try {
+		console.log({ fetch: filters });
 		const response = await axios.get(BASE_URL, {
-			params: { page, page_size: pageSize },
+			params: filters,
 		});
 		return response.data;
 	} catch (error) {
@@ -15,6 +16,7 @@ export const fetchCallHistoryData = async (page = 1, pageSize = 20) => {
 };
 
 const BASE_URL_2 = 'https://webrtc.weeam.info/call-stats';
+
 export const fetchTotalTimeCallsRecordStats = async (days = 30) => {
 	try {
 		const response = await axios.get(BASE_URL_2, {

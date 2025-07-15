@@ -18,10 +18,8 @@ import {
 } from '@chakra-ui/react';
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
-import DataNotFound from 'components/notFoundData';
 import AddNewNote from './AddNewNote';
 import { buttonStyle } from '../constants';
-import Loader from 'components/loading/Loader';
 import NoteCard from './NoteCard';
 import EditNote from './EditNote';
 import { useDeleteItemMutation } from 'api/apiSlice';

@@ -1,14 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-	Box,
-	Button,
-	Heading,
-	HStack,
-	Icon,
-	Tag,
-	TagCloseButton,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, Text } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
 import Applications from './components/Applications';
@@ -19,7 +10,6 @@ import NotFoundMessage from 'components/Message/NotFoundMessage';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { useNavigate } from 'react-router-dom';
 import Loader from 'components/loading/Loader';
-import { IoArrowBack } from 'react-icons/io5';
 import SearchTags from 'components/shared/SearchTags';
 import { experienceYearsOptions } from '../helpers';
 
@@ -60,14 +50,14 @@ const Candidates = () => {
 	useEffect(() => {
 		setQueryParams((prev) => ({
 			...prev,
-			page: currentPage, // Keep page in sync
+			page: currentPage,
 		}));
 	}, [currentPage]);
 
 	useEffect(() => {
 		setQueryParams((prev) => ({
 			...prev,
-			limit: pageSize, // Update limit when pageSize changes
+			limit: pageSize,
 		}));
 	}, [pageSize]);
 
@@ -245,6 +235,19 @@ const Candidates = () => {
 		setCurrentPage(1);
 	};
 
+	const clearAllTags = () => {
+		setSearchTags([]);
+
+		const queryParams = {
+			advancedSearch: JSON.stringify({}),
+			page: 1,
+			limit: pageSize,
+		};
+
+		setQueryParams(queryParams);
+		setCurrentPage(1);
+	};
+
 	if (error) {
 		return (
 			<ErrorMessage message={error?.data?.message || 'Something went wrong!'} />
@@ -270,12 +273,14 @@ const Candidates = () => {
 			<Box
 				display='flex'
 				justifyContent='space-between'
-				alignItems='center'
+				alignItems={{ base: 'start', md: 'center' }}
+				flexDir={{ base: 'column', md: 'row' }}
 				mb={6}
 				bg='white'
 				// rounded='md'
 				shadow='sm'
 				p='1rem'
+				gap='2'
 				marginTop={'-16px'}
 				fontFamily="'DM Sans', sans-serif"
 			>
@@ -287,7 +292,7 @@ const Candidates = () => {
 						</span>
 					)}
 				</Heading>
-				<HStack>
+				<HStack alignSelf='flex-end'>
 					{data?.results && (
 						<Text fontSize='sm' color='gray.500'>
 							({data?.results} showing)
@@ -304,7 +309,11 @@ const Candidates = () => {
 				</HStack>
 			</Box>
 
-			<SearchTags removeTag={removeTag} searchTags={searchTags} />
+			<SearchTags
+				removeTag={removeTag}
+				searchTags={searchTags}
+				clearAllTags={clearAllTags}
+			/>
 
 			{/* Display Search Tags */}
 			{isLoading ? (

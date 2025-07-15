@@ -14,10 +14,25 @@ import {
 	leadValueFontSize,
 } from '../../constants';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { format } from 'date-fns';
 
-const LastNoteField = ({ label, value }) => {
+const LastNoteField = ({ label, lead }) => {
 	const labelColor = useColorModeValue('softGray.200', 'gray.300');
 	const valueColor = useColorModeValue('gray.800', 'green.600');
+
+	const isLatestNote = lead?.latestNote?.createdAt;
+
+	const tooltipLabel = lead?.lastNote ? (
+		<div>
+			<p>{lead?.lastNote}</p>
+			<span>
+				{isLatestNote &&
+					format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}
+			</span>
+		</div>
+	) : (
+		'N/A'
+	);
 
 	return (
 		<Box display='flex' maxWidth='200px' flexDir='column'>
@@ -34,7 +49,7 @@ const LastNoteField = ({ label, value }) => {
 					</Text>
 				)}
 
-				<CustomTooltip label={value}>
+				<CustomTooltip label={tooltipLabel}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</CustomTooltip>
 			</HStack>
@@ -47,8 +62,14 @@ const LastNoteField = ({ label, value }) => {
 				isTruncated
 				color={valueColor}
 			>
-				{value || 'N/A'}
+				{lead.lastNote || 'N/A'}
 			</Text>
+
+			{isLatestNote && (
+				<Text fontSize={leadlabelFontSize} color='gray.700'>
+					{format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}
+				</Text>
+			)}
 		</Box>
 	);
 };

@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import {
-	Box,
-	Text,
-	Input,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -17,17 +14,12 @@ import {
 	FormLabel,
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
-import { toast } from 'react-toastify';
 
 const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	const [note, setNote] = useState('');
 	const [leaveType, setLeaveType] = useState('paid');
 
-	const handleSubmit = () => {
-		if (!note.trim()) {
-			toast.error('Please enter a leave note');
-			return;
-		}
+	const handleSubmit = async () => {
 		onSubmit({ note, leaveType });
 		setNote('');
 		setLeaveType('paid');
@@ -37,8 +29,9 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
 			<ModalOverlay />
 			<ModalContent mx='4'>
-				<ModalHeader>Leave Details</ModalHeader>
+				<ModalHeader>Leave Note</ModalHeader>
 				<ModalCloseButton />
+
 				<ModalBody>
 					<FormControl mb={4}>
 						<FormLabel>Leave Type</FormLabel>
@@ -53,9 +46,9 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 					</FormControl>
 
 					<FormControl>
-						<FormLabel>Leave Note</FormLabel>
+						<FormLabel>Leave Note (optional)</FormLabel>
 						<Textarea
-							placeholder='Enter leave details...'
+							placeholder='Type Note...'
 							value={note}
 							onChange={(e) => setNote(e.target.value)}
 							focusBorderColor='brand.500'
@@ -79,11 +72,10 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 					<Button
 						{...buttonStyle}
 						colorScheme='brand'
-						isDisabled={!note.trim()}
 						isLoading={isLoading}
 						onClick={handleSubmit}
 					>
-						{isLoading ? 'Submitting...' : 'Submit Leave'}
+						{isLoading ? 'Loading...' : 'Submit'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>

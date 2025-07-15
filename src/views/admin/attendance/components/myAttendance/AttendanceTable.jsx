@@ -30,7 +30,7 @@ const AttendanceTable = ({
 	isFetching,
 	refetch,
 }) => {
-	const [leaveNote, setLeaveNote] = useState({
+	const [note, setNote] = useState({
 		title: 'Message',
 		message: 'N/A',
 		modal: false,
@@ -129,25 +129,6 @@ const AttendanceTable = ({
 									gradient: rowBgGradient,
 								} = config;
 
-								// if (entry.status === 0) {
-								// 	statusBgColor = '#FFE5EE';
-								// 	textColor = '#AA0000';
-								// 	statusText = 'Absent';
-								// } else if (entry.status === 1) {
-								// 	statusBgColor = '#E6EFFC';
-								// 	textColor = '#0764E6';
-								// 	statusText = 'Office';
-								// 	rowBgGradient = 'linear(to-r, #E0F7FF, white)';
-								// } else if (entry.status === 2) {
-								// 	statusBgColor = '#FFF8E7';
-								// 	textColor = '#D5B500';
-								// 	statusText = 'Late';
-								// } else if (entry.status === 3) {
-								// 	statusBgColor = '#FFF8E7';
-								// 	textColor = '#D5B500';
-								// 	statusText = 'Leave';
-								// }
-
 								return (
 									<Tr
 										key={entry._id}
@@ -214,17 +195,6 @@ const AttendanceTable = ({
 														statusText
 													: statusText}
 											</Box>
-
-											{/* <Box
-												bg={statusBgColor}
-												color={textColor}
-												fontWeight='bold'
-												px={2}
-												py={1}
-												borderRadius='md'
-												display='inline-block'
-												minWidth='fit-content'
-											></Box> */}
 										</Td>
 										<Td
 											borderBottom='none'
@@ -248,7 +218,7 @@ const AttendanceTable = ({
 											fontWeight='400'
 											minWidth='120px'
 										>
-											{entry.status === 0
+											{[0, 3].includes(entry.status)
 												? '0m'
 												: entry.checkin && entry.checkout
 													? entry.totalWorkingHours?.hours ||
@@ -270,25 +240,76 @@ const AttendanceTable = ({
 													onClick={() => handleEdit(entry)}
 												/>
 
-												{entry?.leaveNote && entry?.status === 3 && (
-													<Tooltip label='Leave Note' hasArrow>
-														<IconButton
-															aria-label='Leave note'
-															// icon={<FaNoteSticky />}
-															icon={<LuStickyNote />}
-															size='xs'
-															colorScheme='teal'
-															variant='solid'
-															onClick={() => {
-																setLeaveNote({
-																	message: entry.leaveNote,
-																	title: 'Leave Note',
-																	modal: true,
-																});
-															}}
-														/>
-													</Tooltip>
-												)}
+												{entry?.leaveNote?.length > 0 &&
+													entry?.status === 3 && (
+														<Tooltip
+															label='Leave Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Leave note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.leaveNote,
+																		title: 'Leave Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
+												{entry?.absentNote?.length > 0 &&
+													entry?.status === 0 && (
+														<Tooltip
+															label='Absent Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Absent note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry.absentNote,
+																		title: 'Absent Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
+
+												{[1, 2].includes(entry?.status) &&
+													entry?.checkinNote?.length > 0 && (
+														<Tooltip
+															label='Check-In Note'
+															hasArrow
+															placement='top'
+														>
+															<IconButton
+																aria-label='Check-In note'
+																icon={<LuStickyNote />}
+																size='xs'
+																colorScheme='teal'
+																variant='solid'
+																onClick={() => {
+																	setNote({
+																		message: entry?.checkinNote,
+																		title: 'Check-In Note',
+																		modal: true,
+																	});
+																}}
+															/>
+														</Tooltip>
+													)}
 											</Td>
 										)}
 									</Tr>
@@ -298,7 +319,8 @@ const AttendanceTable = ({
 							<Tr borderColor='gray.200' textAlign='center'>
 								<Td
 									borderBottom='none'
-									colSpan='9'
+									colSpan='10'
+									py='12'
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
 									color='gray.500'
@@ -325,12 +347,12 @@ const AttendanceTable = ({
 				/>
 			)}
 
-			{leaveNote?.modal && (
+			{note?.modal && (
 				<MessageViewModal
-					title={leaveNote.title}
-					message={leaveNote.message}
-					isOpen={leaveNote.modal}
-					onClose={() => setLeaveNote({ modal: false })}
+					title={note.title}
+					message={note.message}
+					isOpen={note.modal}
+					onClose={() => setNote({ modal: false })}
 				/>
 			)}
 		</>

@@ -22,6 +22,7 @@ import {
   Input,
   Badge,
   IconButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
@@ -46,7 +47,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
-
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const columns = [
     "SR.No",
     "Requester",
@@ -215,16 +216,29 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           View Requests
         </Text>
 
-        <IconButton
-          icon={<FiSearch />}
-          onClick={() => setIsFilterOpen(true)}
-          aria-label="Search Listings"
-          colorScheme="brand"
-          variant="solid"
-          size="sm"
-          borderRadius="full"
-          boxShadow="md"
-        />
+        {isMobile ? (
+          <IconButton
+            icon={<FiSearch />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Search Listings"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
+        ) : (
+          <Button
+            colorScheme="brand"
+            size="md"
+            borderRadius="full"
+            py={3}
+            px={6}
+            onClick={() => setIsFilterOpen(true)}
+          >
+            Advanced Search
+          </Button>
+        )}
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}

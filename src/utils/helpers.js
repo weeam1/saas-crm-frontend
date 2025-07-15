@@ -2,6 +2,39 @@ import moment from 'moment';
 
 export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+export const formatLastMessageTime = (timestamp) => {
+	if (!timestamp) return '';
+
+	// Fallback to browser timezone if none provided
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
+	// Create moment object with proper timezone
+	const m = moment(timestamp).tz(tz);
+
+	// Within last minute → "Now"
+	if (moment().tz(tz).diff(m) < 60 * 1000) {
+		return 'Now';
+	}
+
+	// Today → Show time (e.g., "2:30 PM")
+	if (m.isSame(moment().tz(tz), 'day')) {
+		return m.format('h:mm A');
+	}
+
+	// Yesterday → "Yesterday"
+	if (m.isSame(moment().tz(tz).subtract(1, 'day'), 'day')) {
+		return 'Yesterday';
+	}
+
+	// This year → Show day/month (e.g., "May 27")
+	if (m.isSame(moment().tz(tz), 'year')) {
+		return m.format('MMM D');
+	}
+
+	// Older than current year → Full date (e.g., "27/05/2023")
+	return m.format('DD/MM/YYYY');
+};
+
 export const formattedDate = (_date) => {
 	if (_date === '') {
 		return '';
@@ -19,6 +52,17 @@ export const formattedDate = (_date) => {
 	const formattedDate = date.toLocaleDateString('en-US', options);
 
 	return formattedDate;
+};
+
+export const validatePhoneNumber = (phoneNumber) => {
+	const sanitized = phoneNumber.replace(/\s+/g, '').replace(/^(\+?)/, '');
+
+	if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
+		console.log('invalid number', sanitized);
+		return null;
+	}
+
+	return sanitized;
 };
 
 // export const formatPostDate = (date, timezone) => {
@@ -101,8 +145,6 @@ export const formatPostDate = (date, timezone) => {
 
 		// Calculate difference in seconds
 		const diffSeconds = now.diff(inputDate, 'seconds');
-
-		console.log(diffSeconds);
 
 		// Relative time formats
 		if (diffSeconds < 60) return 'now';
@@ -232,3 +274,84 @@ export const formattedValue = (value, precision = 0) =>
 		minimumFractionDigits: precision,
 		maximumFractionDigits: precision,
 	});
+
+export const formatTime = (seconds) => {
+	const safeSeconds = Math.max(0, seconds);
+	const mins = Math.floor(safeSeconds / 60);
+	const secs = Math.floor(safeSeconds % 60);
+	return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+export const formatDateHeader = (date) => {
+	const today = new Date();
+	const yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
+
+	const messageDate = new Date(date);
+
+	if (messageDate.toDateString() === today.toDateString()) {
+		return 'Today';
+	} else if (messageDate.toDateString() === yesterday.toDateString()) {
+		return 'Yesterday';
+	} else {
+		return messageDate.toLocaleDateString([], {
+			weekday: 'long',
+			month: 'short',
+			day: 'numeric',
+		});
+	}
+};
+
+// export const formatMessageTime = (date) => {
+// 	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+// };
+
+export const formatMessageTime = (date) => {
+	if (!date) return '';
+
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
+
+	return moment(date).tz(tz).format('h:mm A');
+};
+
+export const whatsappColors = {
+	primary: '#008069',
+	secondary: '#00A884',
+	incomingBg: 'softGray.100',
+	outgoingBg: '#D9FDD3',
+	textDark: '#111B21',
+	textLight: '#FFFFFF',
+	textSecondary: '#667781',
+	sidebarBg: '#F0F2F5',
+	headerBg: '#F0F2F5',
+	inputBg: '#FFFFFF',
+	recordingDot: '#34B7F1',
+	userHoverBg: 'rgba(0, 0, 0, 0.05)',
+	userSelectedBg: 'rgba(0, 0, 0, 0.08)',
+	messageHoverBg: 'rgba(0, 0, 0, 0.03)',
+	timeStampColor: '#667781',
+	replyBg: '#F0F2F5',
+	replyBorder: '#D1D7DB',
+	chatHeaderBg: '#F0F2F5',
+};
+
+export const formatCallDuration = (seconds) => {
+	const sec = parseInt(seconds, 10) || 0;
+
+	const hrs = Math.floor(sec / 3600);
+	const mins = Math.floor((sec % 3600) / 60);
+	const remainingSecs = sec % 60;
+
+	const parts = [];
+
+	if (hrs > 0) parts.push(`${hrs} hr`);
+	if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
+	parts.push(`${remainingSecs} sec`);
+
+	return parts.join(' ');
+};
+
+export const formatName = (name) => {
+	if (!name) return '';
+	return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+};

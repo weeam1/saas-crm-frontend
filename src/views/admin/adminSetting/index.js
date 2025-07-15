@@ -14,6 +14,7 @@ import {
 	MdConstruction,
 	MdDeveloperMode,
 } from 'react-icons/md';
+import { FaWhatsapp } from 'react-icons/fa6';
 
 const Index = () => {
 	const navigate = useNavigate();
@@ -185,6 +186,19 @@ const Index = () => {
 						/>
 					}
 					name='Agencies'
+				/>
+				<MiniStatistics
+					fontsize='md'
+					onClick={() => navigate('/settings-whatsapp')}
+					startContent={
+						<IconBox
+							w='56px'
+							h='56px'
+							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
+							icon={<Icon w='28px' h='28px' as={FaWhatsapp} color='white' />}
+						/>
+					}
+					name='Whatsapp Setting'
 				/>
 			</SimpleGrid>
 		</div>

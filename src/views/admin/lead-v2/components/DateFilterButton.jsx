@@ -1,20 +1,21 @@
-import { IconButton, Tooltip } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
+import CustomTooltip from 'components/shared/CustomTooltip';
 import { MdDateRange } from 'react-icons/md';
 
 const DateFilterButton = ({ onClick }) => {
 	return (
-		<Tooltip label='Date Filtered' hasArrow>
+		<CustomTooltip label='Date Filtered' hasArrow>
 			<IconButton
 				icon={<MdDateRange />}
-				onClick={onClick}
 				aria-label='Filter Date'
 				colorScheme='brand'
 				variant='solid'
 				size='sm'
 				borderRadius='full'
 				boxShadow='md'
+				onClick={onClick}
 			/>
-		</Tooltip>
+		</CustomTooltip>
 	);
 };
 

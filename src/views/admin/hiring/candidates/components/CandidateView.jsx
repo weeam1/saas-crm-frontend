@@ -88,7 +88,11 @@ const CandidateView = ({
 								}}
 								gap={3}
 							>
-								<DisplayField label='Name' value={candidate?.name} />
+								<DisplayField
+									label='Name'
+									value={candidate?.name}
+									textTransform='capitalize'
+								/>
 								<DisplayField label='Date of Birth' value={candidate?.dob} />
 								<DisplayField label='Email' value={candidate?.email} />
 								<DisplayField label='Phone' value={candidate?.phone} />

@@ -6,6 +6,7 @@ import {
 	useColorModeValue,
 	HStack,
 	Icon,
+	Button,
 } from '@chakra-ui/react';
 import { CopyIcon, InfoIcon } from '@chakra-ui/icons';
 import {
@@ -14,6 +15,7 @@ import {
 	leadValueFontSize,
 } from '../../constants';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { Link } from 'react-router-dom';
 
 const EntityField = ({
 	label,
@@ -29,6 +31,19 @@ const EntityField = ({
 
 	const labelColor = useColorModeValue('softGray.200', 'gray.300');
 	const valueColor = useColorModeValue('green.600', 'green.300');
+
+	const isPhoneNumber = label === 'Phone';
+	const isWhatsapp = label === 'WhatsApp';
+
+	const onEntityClick = () => {
+		if (!value || (!isPhoneNumber && !isWhatsapp)) return null;
+
+		if (isPhoneNumber) {
+			window.location.href = `tel:${value}`;
+		}
+		// Whatsapp redirect
+		else window.open(`https://wa.me/${value}`);
+	};
 
 	return (
 		<Box
@@ -83,16 +98,38 @@ const EntityField = ({
 			</HStack>
 
 			{/* Value */}
-			<Text
-				fontSize={leadValueFontSize}
-				fontWeight='medium'
-				color={valueColor}
-				textTransform='capitalize'
-				isTruncated={isInfo || isCopy}
-				{...valueProps}
-			>
-				{value || 'N/A'}
-			</Text>
+			{isPhoneNumber || isWhatsapp ? (
+				<Button
+					as='a'
+					onClick={onEntityClick}
+					target='_blank'
+					rel='noopener noreferrer'
+					variant='link'
+					cursor='pointer'
+				>
+					<Text
+						fontSize={leadValueFontSize}
+						fontWeight='medium'
+						color={valueColor}
+						textTransform='capitalize'
+						isTruncated={isInfo || isCopy}
+						{...valueProps}
+					>
+						{value || 'N/A'}
+					</Text>
+				</Button>
+			) : (
+				<Text
+					fontSize={leadValueFontSize}
+					fontWeight='medium'
+					color={valueColor}
+					textTransform='capitalize'
+					isTruncated={isInfo || isCopy}
+					{...valueProps}
+				>
+					{value || 'N/A'}
+				</Text>
+			)}
 		</Box>
 	);
 };

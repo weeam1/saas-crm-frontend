@@ -21,6 +21,8 @@ import {
 	FaRegCalendarCheck,
 	FaRegCopy,
 	FaList,
+	FaWhatsapp,
+	FaTasks
 } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,7 +47,10 @@ import SettingPage from 'views/admin/Listing/Component/settings/index';
 import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 import TakeSurvey from 'views/admin/survey/TakeSurvey';
 import LeaderBoard from 'views/admin/survey/LeaderBoard';
+import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
+const TaskV2 = React.lazy(() => import("views/admin/taskV2"));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
@@ -95,6 +100,18 @@ export default function User(props) {
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(true);
 	const user = JSON.parse(localStorage.getItem('user'));
+
+	const { data: whatsappUser } = useFetchItemsQuery(
+		{
+			path: `whatsapp/users/${user?._id}`,
+		},
+		{
+			skip: !user?._id || user?.role === 'superAdmin',
+		}
+	);
+
+	const whatsappActive = whatsappUser?.doc?.isActive;
+
 	const getRoute = () => {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
@@ -290,6 +307,17 @@ export default function User(props) {
 		routes = routes.filter((route) => route.name !== 'Leads Pool');
 	}
 
+	// if user has whatsapp and also enable then show it
+	if (whatsappActive) {
+		routes.push({
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+			component: UserWhatsapp,
+		});
+	}
+
 	if (user?.roles[0]?.roleName === 'Manager') {
 		routes.push({
 			name: 'Adding Listing',
@@ -429,6 +457,13 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
+			  {
+				name: "Task",
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: "/task",
+				icon: <Icon as={FaTasks} width="20px" height="20px" color="inherit" />,
+				component: TaskV2,
+			  },
 
 			// ------------- Invoice Module Routes ------------------------ //
 			// {

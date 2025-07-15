@@ -18,9 +18,9 @@ import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
 import { useDispatch } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
+import PhoneField from 'components/fields/PhoneField';
 
 const AddLead = ({ isOpen, onClose, size }) => {
-	// Initial values for Formik
 	const initialValues = {
 		leadName: '',
 		leadWhatsappNumber: '',
@@ -56,8 +56,8 @@ const AddLead = ({ isOpen, onClose, size }) => {
 	const fields = [
 		{ name: 'leadName', label: 'Name', type: 'text', required: true },
 		{ name: 'leadEmail', label: 'Email', type: 'email' },
-		{ name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
-		{ name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
+		// { name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
+		// { name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
@@ -138,7 +138,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 					validationSchema={validationSchema}
 					onSubmit={handleSubmit}
 				>
-					{() => (
+					{({ values, errors, touched, handleBlur, setFieldValue }) => (
 						<Form>
 							<DrawerBody>
 								<Grid
@@ -152,6 +152,26 @@ const AddLead = ({ isOpen, onClose, size }) => {
 									height={{ base: '60vh', md: '75vh' }}
 									p='4'
 								>
+									<PhoneField
+										name='leadWhatsappNumber'
+										label='WhatsApp'
+										country='ae'
+										value={values.leadWhatsappNumber}
+										error={errors.leadWhatsappNumber}
+										touched={touched.leadWhatsappNumber}
+										onChange={(val) => setFieldValue('leadWhatsappNumber', val)}
+										onBlur={handleBlur}
+									/>
+									<PhoneField
+										name='leadPhoneNumber'
+										label='Phone Number'
+										country='ae'
+										value={values.leadPhoneNumber}
+										error={errors.leadPhoneNumber}
+										touched={touched.leadPhoneNumber}
+										onChange={(val) => setFieldValue('leadPhoneNumber', val)}
+										onBlur={handleBlur}
+									/>
 									<RenderFields fields={fields} />
 								</Grid>
 							</DrawerBody>

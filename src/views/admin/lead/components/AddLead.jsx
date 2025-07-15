@@ -8,14 +8,7 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Button,
-	FormControl,
-	FormLabel,
-	Input,
-	Textarea,
-	Checkbox,
 	Grid,
-	Box,
-	Select,
 } from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -24,7 +17,7 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
-import { useFetchItemsQuery } from 'api/apiSlice';
+import PhoneField from 'components/fields/PhoneField';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik
@@ -62,8 +55,8 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	const fields = [
 		{ name: 'leadName', label: 'Name', type: 'text', required: true },
 		{ name: 'leadEmail', label: 'Email', type: 'email' },
-		{ name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
-		{ name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
+		// { name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
+		// { name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
@@ -132,83 +125,6 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		}
 	};
 
-	// Helper to render each field using Chakra UI and Formik's Field.
-	// const renderField = (field) => (
-	// 	<Field name={field.name} key={field.name}>
-	// 		{({ field: formikField, meta }) => (
-	// 			<FormControl mb={4} isInvalid={meta.touched && meta.error}>
-	// 				{/* For checkboxes and select, render differently */}
-	// 				{field.type !== 'checkbox' && (
-	// 					<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
-	// 				)}
-
-	// 				{field.type === 'textarea' ? (
-	// 					<Textarea
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				) : field.type === 'checkbox' ? (
-	// 					<Checkbox
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						isChecked={formikField.value}
-	// 					>
-	// 						{field.label}
-	// 					</Checkbox>
-	// 				) : field.type === 'select' ? (
-	// 					<Select
-	// 						id={field.name}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					>
-	// 						{field.options.map((option) => (
-	// 							<option key={option.value} value={option.value}>
-	// 								{option.label}
-	// 							</option>
-	// 						))}
-	// 					</Select>
-	// 				) : (
-	// 					<Input
-	// 						id={field.name}
-	// 						type={field.type}
-	// 						{...formikField}
-	// 						bg='gray.100'
-	// 						borderColor='gray.300'
-	// 						_focus={{
-	// 							borderColor: '#D99A36',
-	// 							boxShadow: '0 0 0 1px #D99A36',
-	// 						}}
-	// 						placeholder={field.label}
-	// 					/>
-	// 				)}
-
-	// 				{meta.touched && meta.error && (
-	// 					<div style={{ color: 'red', fontSize: '0.8em' }}>{meta.error}</div>
-	// 				)}
-	// 			</FormControl>
-	// 		)}
-	// 	</Field>
-	// );
-
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
 			<DrawerOverlay />
@@ -220,7 +136,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 					validationSchema={validationSchema}
 					onSubmit={handleSubmit}
 				>
-					{() => (
+					{({ values, errors, touched, handleBlur, setFieldValue }) => (
 						<Form>
 							<DrawerBody>
 								<Grid
@@ -234,6 +150,26 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 									height={{ base: '60vh', md: '80vh' }}
 									p='4'
 								>
+									<PhoneField
+										name='leadWhatsappNumber'
+										label='WhatsApp'
+										country='ae'
+										value={values.leadWhatsappNumber}
+										error={errors.leadWhatsappNumber}
+										touched={touched.leadWhatsappNumber}
+										onChange={(val) => setFieldValue('leadWhatsappNumber', val)}
+										onBlur={handleBlur}
+									/>
+									<PhoneField
+										name='leadPhoneNumber'
+										label='Phone Number'
+										country='ae'
+										value={values.leadPhoneNumber}
+										error={errors.leadPhoneNumber}
+										touched={touched.leadPhoneNumber}
+										onChange={(val) => setFieldValue('leadPhoneNumber', val)}
+										onBlur={handleBlur}
+									/>
 									<RenderFields fields={fields} />
 								</Grid>
 							</DrawerBody>

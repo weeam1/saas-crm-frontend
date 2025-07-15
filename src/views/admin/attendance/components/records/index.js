@@ -123,7 +123,6 @@ export default function Records() {
 	// };
 
 	const handlePageSize = (size) => {
-		console.log({ size });
 		updateFilters({ page: 1, limit: Number(size) });
 	};
 

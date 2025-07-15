@@ -23,6 +23,7 @@ import {
   Badge,
   Textarea,
   IconButton,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
@@ -50,7 +51,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
-
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -225,6 +226,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Pending Listings
         </Text>
+        {isMobile ? (
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
@@ -235,8 +237,20 @@ const PendingListings = ({ listingType, listingUnitType }) => {
             borderRadius="full"
             boxShadow="md"
           />
+        ) : (
+          <Button
+            colorScheme="brand"
+            size="md"
+            borderRadius="full"
+            py={3}
+            px={6}
+            onClick={() => setIsFilterOpen(true)}
+          >
+            Advanced Search
+          </Button>
+        )}
       </Flex>
-       <ActiveFiltersDisplay
+      <ActiveFiltersDisplay
         filters={filters}
         onClearFilters={handleClearFilters}
         listingTypes={listingType?.doc}
@@ -382,9 +396,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                       overflow="hidden"
                       textOverflow="ellipsis"
                     >
-                      {listing?.developer
-                        ? listing?.developer
-                        : "N/A"}
+                      {listing?.developer ? listing?.developer : "N/A"}
                     </Td>
                     <Td
                       py={4}

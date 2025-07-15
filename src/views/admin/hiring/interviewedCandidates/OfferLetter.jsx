@@ -34,6 +34,7 @@ import { formattedDate } from 'utils/helpers';
 import OfferLetterEditor from './OfferLetterEditor';
 import { jobTypes } from 'utils/options';
 import { toUTCString } from 'utils/helpers';
+import { buttonStyle } from 'utils/btn';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -368,7 +369,7 @@ const OfferLetter = () => {
 														<Calendar
 															onChange={handleDateChange}
 															value={selectedDate}
-															minDate={new Date()}
+															// minDate={new Date()}
 															className='custom-calendar'
 														/>
 													</Box>
@@ -436,14 +437,17 @@ const OfferLetter = () => {
 									setOfferDetails={setOfferDetails}
 								/>
 								<Flex justifyContent='flex-end'>
-									<CustomButton
+									<Button
+										{...buttonStyle}
+										colorScheme='brand'
 										isLoading={sendingOffer}
 										isDisabled={!isEditing}
+										type='submit'
 										py='3'
 										px='6'
 									>
 										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
-									</CustomButton>
+									</Button>
 								</Flex>
 							</Form>
 						)}

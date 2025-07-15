@@ -4,7 +4,8 @@ import EditLead from './EditLead';
 import AddLead from './AddLead';
 import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
 import Delete from '../Delete';
-import { useSearchParams } from 'react-router-dom';
+import LeadPhoneHistory from './subComponents/LeadPhoneHistory';
+import LeadAdditionalInfoModal from './lead-note/LeadAdditionalInfoModal';
 
 const LeadsModals = (props) => {
 	const {
@@ -22,9 +23,11 @@ const LeadsModals = (props) => {
 		setSelectedValues,
 		deleteLead,
 		setDeleteLead,
+		viewPhoneHistory,
+		setViewPhoneHistory,
+		setLeadAddtionalInfo,
+		leadAddtionalInfo,
 	} = props;
-
-	const [searchParams, setSearchParams] = useSearchParams();
 
 	const handleViewClose = () => {
 		setViewLead({ isOpen: false, lid: null });
@@ -37,6 +40,27 @@ const LeadsModals = (props) => {
 					leadsModal={viewLead}
 					onClose={handleViewClose}
 					reFreshData={refetchData}
+				/>
+			)}
+
+			{leadAddtionalInfo && (
+				<LeadAdditionalInfoModal
+					isOpen={leadAddtionalInfo}
+					onClose={() => setLeadAddtionalInfo(false)}
+					leadId={lead?._id}
+				/>
+			)}
+
+			{viewPhoneHistory?.modal && (
+				<LeadPhoneHistory
+					isOpen={viewPhoneHistory?.modal}
+					onClose={() =>
+						setViewPhoneHistory({
+							modal: false,
+							leadId: null,
+						})
+					}
+					leadId={viewPhoneHistory?.leadId}
 				/>
 			)}
 

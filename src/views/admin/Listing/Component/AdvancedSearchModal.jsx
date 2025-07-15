@@ -123,8 +123,6 @@ const AdvancedSearchModal = ({
         startTo: null,
       },
     });
-    onApplyFilters({});
-    onClose();
   };
 
   const cleanedInitialFilters = useMemo(() => {

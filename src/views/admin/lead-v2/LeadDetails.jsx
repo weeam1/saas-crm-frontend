@@ -74,20 +74,20 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		hideContact = user?._id !== data?.agentAssigned;
 	}
 
-	const responsiveCols = useBreakpointValue({ base: 1, md: 2, lg: 2 });
-	const sectionColSpan = useBreakpointValue({ base: 1, md: 1, lg: 1 });
+	const responsiveCols = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });
+	const sectionColSpan = useBreakpointValue({ base: 1, sm: 1, md: 1, lg: 1 });
 
 	if (isLoading) {
 		return (
 			<VStack gap='2' width='100%'>
 				<CardShimmer
 					count={4}
-					height='230px'
+					height='200px'
 					columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 2, '2xl': 2 }}
 				/>
 				<CardShimmer
 					count={1}
-					height='140px'
+					height='100px'
 					width={{ base: 'full' }}
 					columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, '2xl': 1 }}
 				/>
@@ -109,9 +109,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	};
 
 	return (
-		<Grid templateColumns={`repeat(${responsiveCols}, 1fr)`} gap={2}>
+		<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(1,1fr)' }} gap={2}>
 			{/* Basic Information Section */}
-			<GridItem colSpan={sectionColSpan}>
+			<GridItem colSpan={{base:1, sm: 1,md:2}}>
 				<SectionCard title='Basic Information'>
 					<DetailGrid>
 						<DetailItem label='Lead Name' value={data?.leadName} />
@@ -234,9 +234,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 							value={leadIp?.country}
 							textTransform='capitalize'
 						/>
-						{!['Agent'].includes(user?.roles[0]?.roleName) && (
+						{/* {!['Agent'].includes(user?.roles[0]?.roleName) && (
 							<DetailItem label='IP Address' value={data?.ip} />
-						)}
+						)} */}
 					</DetailGrid>
 				</SectionCard>
 			</GridItem>
@@ -246,7 +246,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 const SectionCard = ({ title, children }) => (
 	<Box
-		p={4}
+		p={2}
 		rounded='lg'
 		shadow='md'
 		bg='gray.100'
@@ -254,16 +254,16 @@ const SectionCard = ({ title, children }) => (
 		borderColor='gray.100'
 		height='100%'
 	>
-		<Heading size='sm' mb={4} color='gray.700' fontWeight='600'>
+		<Heading size='xs' mb={1} color='gray.700' fontWeight='500'>
 			{title}
 		</Heading>
-		<HSeparator mb='2' />
+		<HSeparator mb='1' />
 		{children}
 	</Box>
 );
 
 const DetailGrid = ({ children }) => (
-	<Grid templateColumns='repeat(2, 1fr)' gap={4}>
+	<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(2,1fr)' }} gap={4}>
 		{children}
 	</Grid>
 );
@@ -283,6 +283,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
 						fontWeight='500'
 						maxWidth='200px'
 						{...props}
+						fontSize={"xs"}
 					>
 						<a href={value} target='_blank' rel='noreferrer'>
 							{value}
@@ -300,7 +301,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
 				</HStack>
 			) : (
 				<Text
-					fontSize='sm'
+					fontSize='xs'
 					color='gray.800'
 					fontWeight='500'
 					isTruncated

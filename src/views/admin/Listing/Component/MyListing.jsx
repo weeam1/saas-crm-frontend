@@ -24,6 +24,7 @@ import {
   useDisclosure,
   Textarea,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiSearch } from "react-icons/fi";
@@ -64,6 +65,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState();
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const columns = [
     "SR.No",
@@ -289,16 +291,29 @@ const MyListing = ({ listingType, listingUnitType }) => {
             Add New
           </Button>
 
-          <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="full"
-            boxShadow="md"
-          />
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="md"
+              borderRadius="full"
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
         </Box>
       </Flex>
 

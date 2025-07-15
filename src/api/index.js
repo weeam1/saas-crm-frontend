@@ -118,7 +118,8 @@ export const sendLeadFeedback = async ({
 		const eventNameMapStatus = {
 			pending: 'Lead_Unqualified',
 			broker: 'Lead_Unqualified',
-			will_attend_the_show: 'Lead_Qualified',
+			will_attend_the_show: 'Lead_Interested',
+			// will_attend_the_show: 'Lead_Qualified',
 		};
 
 		const event_name =
@@ -339,6 +340,61 @@ export const generateReportApi = async (payload) => {
 	}
 
 	const url = `${constant[server]}api/attendance/monthly-records?${params.toString()}`;
+
+	const headers = {};
+	setAuthHeader(headers);
+
+	try {
+		const response = await axios.get(url, {
+			headers,
+			responseType: 'blob',
+			validateStatus: (status) => status >= 200 && status < 300,
+		});
+
+		const contentType =
+			response.headers['content-type'] || 'application/octet-stream';
+
+		return {
+			blob: response.data,
+			contentType,
+		};
+	} catch (error) {
+		let message = 'Failed to generate report';
+		if (error.response && error.response.data instanceof Blob) {
+			try {
+				const text = await error.response.data.text();
+				const parsed = JSON.parse(text);
+				message = parsed?.message || message;
+			} catch {
+				// Fallback to default message
+			}
+		} else if (error.message) {
+			message = error.message;
+		}
+		throw new Error(message);
+	}
+};
+
+export const generateEmployeeAttendanceReport = async (payload) => {
+	const { employeeId, format, type = 'month', month, year } = payload;
+
+	if (!format || !employeeId) {
+		throw new Error(
+			'Missing required parameters: employeeId and format are required.'
+		);
+	}
+
+	const params = new URLSearchParams();
+	params.append('format', format);
+	params.append('type', type); // explicitly tell backend what type of filter
+
+	if (!month || !year) {
+		throw new Error('Month and year are required for monthly report.');
+	}
+	params.append('month', month);
+	params.append('year', year);
+
+	const url = `${constant[server]}api/attendance/employee-report/${employeeId}?${params.toString()}`;
 
 	const headers = {};
 	setAuthHeader(headers);
