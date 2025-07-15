@@ -98,8 +98,6 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 		}
 	};
 
-	console.log({ preview, profileImage });
-
 	return (
 		<Box textAlign='center' mt={5}>
 			<Box position='relative' display='inline-block'>

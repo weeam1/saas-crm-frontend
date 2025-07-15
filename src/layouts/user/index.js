@@ -22,7 +22,8 @@ import {
 	FaRegCopy,
 	FaList,
 	FaWhatsapp,
-	FaTasks
+	FaTasks,
+	FaHandshake,
 } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -50,7 +51,7 @@ import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
-const TaskV2 = React.lazy(() => import("views/admin/taskV2"));
+const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
@@ -92,6 +93,7 @@ const DeveloperInvoices = React.lazy(
 );
 const Listing = React.lazy(() => import('views/admin/Listing'));
 const Survey = React.lazy(() => import('views/admin/survey'));
+const DealsScreen = React.lazy(() => import('views/admin/deals'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -177,6 +179,16 @@ export default function User(props) {
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
 			component: LeadPoolAgent,
+		},
+
+		{
+			name: 'Deals',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/deals',
+			icon: (
+				<Icon as={FaHandshake} width='20px' height='20px' color='inherit' />
+			),
+			component: DealsScreen,
 		},
 
 		{
@@ -457,13 +469,13 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
-			  {
-				name: "Task",
+			{
+				name: 'Task',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: "/task",
-				icon: <Icon as={FaTasks} width="20px" height="20px" color="inherit" />,
+				path: '/task',
+				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 				component: TaskV2,
-			  },
+			},
 
 			// ------------- Invoice Module Routes ------------------------ //
 			// {

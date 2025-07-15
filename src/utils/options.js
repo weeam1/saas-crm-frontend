@@ -32,6 +32,7 @@ export const visaOptions = [
 	{ label: 'Canceled Visa', value: 'Canceled Visa' },
 	{ label: 'Citizen', value: 'Citizen' },
 ];
+export const currencyOptions = [{ label: 'AED', value: 'AED' }];
 
 export const yesOrNoOptions = [
 	{ label: 'Yes', value: true },

@@ -95,20 +95,6 @@ const UsersTable = ({
 									<CopyPhoneCell value={item?.businessId} />
 								</Td>
 
-								{/* <Td textAlign='center'>
-									<Button
-										leftIcon={<FaWhatsapp />}
-										aria-label='Go to WhatsApp'
-										variant='solid'
-										size='sm'
-										colorScheme='whatsapp'
-										onClick={() =>
-											navigate(`/whatsapp?phoneNumber=${item.phoneNumber}`)
-										}
-									>
-										WhatsApp
-									</Button>
-								</Td> */}
 								<Td textAlign='center'>{item?.user?.agency?.name || 'N/A'}</Td>
 								<Td textAlign='center'>
 									<Badge
