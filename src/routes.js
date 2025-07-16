@@ -95,7 +95,7 @@ const InvoiceDevelopers = React.lazy(
 const DeveloperInvoices = React.lazy(
 	() => import('views/admin/invoice/developers/DeveloperInvoices')
 );
-
+const TaskV2 = React.lazy(() => import('views/admin/TaskV2'));
 const Task = React.lazy(() => import('views/admin/task'));
 const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
