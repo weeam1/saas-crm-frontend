@@ -39,8 +39,6 @@ const UsersTable = ({
 		'Action',
 	];
 
-	const navigate = useNavigate();
-
 	return (
 		<Box
 			maxH={'70vh'}

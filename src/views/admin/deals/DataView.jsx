@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useDisclosure } from '@chakra-ui/react';
+import { Text, useDisclosure } from '@chakra-ui/react';
 
 import DealDetailsModal from './components/DealDetailsModal';
 import EditDealModal from './components/EditDealModal';
 import DealTable from './components/DealTable';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import ConfirmationModal from 'components/Message/ConfirmationModal';
+import { WarningIcon } from '@chakra-ui/icons';
 
-const DataView = ({ deals, isLoading, isFetching, refetch }) => {
+const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
 	const {
 		isOpen: viewDealIsOpen,
 		onClose: viewDealOnClose,
@@ -20,7 +22,9 @@ const DataView = ({ deals, isLoading, isFetching, refetch }) => {
 		onOpen: editDealOnOpen,
 	} = useDisclosure();
 
+	const [isCancelledModalOpen, setCancelledModalOpen] = useState(false);
 	const [deal, setDeal] = useState(null);
+	const [dealId, setDealId] = useState();
 
 	const [updateDealStatus] = useUpdateItemMutation();
 
@@ -34,8 +38,10 @@ const DataView = ({ deals, isLoading, isFetching, refetch }) => {
 		editDealOnOpen();
 	};
 
-	const handleCancelled = async (dealId) => {
+	const handleCancelled = async () => {
 		try {
+			setCancelledModalOpen(false);
+
 			await updateDealStatus({
 				path: `/deals/status/${dealId}`,
 				body: { status: 'Cancelled' },
@@ -47,6 +53,11 @@ const DataView = ({ deals, isLoading, isFetching, refetch }) => {
 			console.log(error);
 			toast.error(error?.data?.message || 'Error: Deal is not updated!');
 		}
+	};
+
+	const openCancelledModal = (_dealId) => {
+		setCancelledModalOpen(true);
+		setDealId(_dealId);
 	};
 
 	return (
@@ -109,11 +120,23 @@ const DataView = ({ deals, isLoading, isFetching, refetch }) => {
 			<DealTable
 				data={deals}
 				isLoading={isLoading}
-				isFetching={isFetching}
+				isRefetching={isRefetching}
 				refetch={refetch}
 				handleEdit={editDealDeatailsHandler}
 				hanldeView={viewDealDeatailsHandler}
-				handleCancelled={handleCancelled}
+				handleCancelled={openCancelledModal}
+			/>
+
+			{/* Deal Cancellation Warning Modal */}
+			<ConfirmationModal
+				isOpen={isCancelledModalOpen}
+				onClose={() => setCancelledModalOpen(false)}
+				onConfirm={handleCancelled}
+				title='Warning! Cancel This Deal?'
+				message="Cancelling will mark this deal as 'Cancelled'. You can manually change the status later if needed."
+				confirmText='Cancel Deal'
+				cancelText='Keep Active'
+				confirmColor='warning'
 			/>
 
 			{viewDealIsOpen && (

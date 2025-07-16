@@ -10,6 +10,8 @@ import {
 	Badge,
 	IconButton,
 	HStack,
+	Flex,
+	Icon,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { FiEdit, FiEye, FiXCircle } from 'react-icons/fi';
@@ -24,15 +26,16 @@ import ViewDealInvoice from './_shared/ViewDealInvoice';
 const DealTable = ({
 	data,
 	isLoading,
-	isFetching,
+	isRefetching,
 	handleEdit,
 	hanldeView,
 	handleCancelled,
 }) => {
 	const columns = [
+		// 'Lead ID',
 		'Client Name',
-		// 'Manager',
-		// 'Agent',
+		'Manager',
+		'Agent',
 		'Project',
 		'Unit',
 		'Type',
@@ -81,18 +84,25 @@ const DealTable = ({
 				</Thead>
 
 				<Tbody fontSize='sm'>
-					{isLoading ? (
+					{isLoading || isRefetching ? (
 						<TableLoading columns={columns} length={10} py='4' />
 					) : data?.length > 0 ? (
 						data.map((deal, i) => (
 							<Tr key={deal._id}>
+								{/* <Td minW='100px' textAlign='left'>
+									{deal.lead?.intID || 'N/A'}
+								</Td> */}
 								<Td minW='200px' textAlign='left'>
 									{deal.lead?.leadName || 'N/A'}
 								</Td>
-								{/* <Td minW='200px' textAlign='center'>
-									{deal.manager?.fullName || 'N/A'}
-									{deal.agent?.fullName || 'N/A'}
-								</Td> */}
+								<Td minW='200px' textAlign='center' color='brand.500'>
+									{deal.manager?.fullName
+										? deal.manager.fullName
+										: 'No Manager'}
+								</Td>
+								<Td minW='200px' textAlign='center' color='brand.500'>
+									{deal.agent?.fullName ? deal.agent.fullName : 'No Agent'}
+								</Td>
 								<Td textAlign='center' minW='250px'>
 									{deal.projectName || 'N/A'}
 								</Td>
@@ -103,19 +113,7 @@ const DealTable = ({
 								{/* <Td textAlign='center'>{deal.salesPerson || 'N/A'}</Td> */}
 
 								<Td textAlign='center' minW='200px'>
-									<HStack
-										align='center'
-										justifyContent='center'
-										bg='brand.50'
-										p='2'
-										color='brand.500'
-										fontWeight='semibold'
-										rounded='md'
-									>
-										<Text fontSize='sm'>
-											{formatCurrency(deal.unitPrice, deal.currency)}
-										</Text>
-									</HStack>
+									{formatCurrency(deal.unitPrice, deal.currency)}
 								</Td>
 
 								<Td textAlign='center' minW='250px'>
@@ -187,26 +185,30 @@ const DealTable = ({
 									</CustomTooltip>
 
 									{deal.dealStatus !== 'Cancelled' && (
-										<CustomTooltip label='Deal Cancelled' variant='error'>
-											<IconButton
-												icon={<FiXCircle />}
-												aria-label='cancelled'
-												variant='ghost'
-												size='sm'
-												colorScheme='red'
-												onClick={() => handleCancelled(deal._id)}
-											/>
-										</CustomTooltip>
+										<>
+											<CustomTooltip label='Deal Cancelled' variant='error'>
+												<IconButton
+													icon={<FiXCircle />}
+													aria-label='cancelled'
+													variant='ghost'
+													size='sm'
+													colorScheme='red'
+													onClick={() => handleCancelled(deal._id)}
+												/>
+											</CustomTooltip>
+										</>
 									)}
 								</Td>
 							</Tr>
 						))
 					) : (
-						<Tr>
-							<Td colSpan={columns.length} textAlign='center' py={4}>
-								<NoData label='deals' />
-							</Td>
-						</Tr>
+						(!isRefetching || !isLoading) && (
+							<Tr>
+								<Td colSpan={columns.length} textAlign='center' py={4}>
+									<NoData label='deals' />
+								</Td>
+							</Tr>
+						)
 					)}
 				</Tbody>
 			</Table>
