@@ -187,7 +187,7 @@ const DealTable = ({
 									</CustomTooltip>
 
 									{deal.dealStatus !== 'Cancelled' && (
-										<CustomTooltip label='Cancelled'>
+										<CustomTooltip label='Deal Cancelled' variant='error'>
 											<IconButton
 												icon={<FiXCircle />}
 												aria-label='cancelled'
