@@ -19,10 +19,7 @@ import {
 	FaWhatsapp,
 	FaHandshake,
 } from 'react-icons/fa';
-import { LuBuilding2 } from 'react-icons/lu';
-import { PiPhoneCallBold } from 'react-icons/pi';
 import { FaCreativeCommonsBy } from 'react-icons/fa';
-import { SiGooglemeet } from 'react-icons/si';
 import { MdCampaign } from 'react-icons/md';
 
 import { ROLE_PATH } from './roles';
@@ -51,16 +48,12 @@ import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
 import Report from 'views/admin/reports-v2';
 import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
 import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
-import { components } from 'react-select';
-import Whatsapp from 'views/admin/whatsapp';
 import AdminWhatsapp from 'views/admin/whatsapp/AdminWhatsapp';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
 // My component
-const Contact = React.lazy(() => import('views/admin/contact'));
-const ContactView = React.lazy(() => import('views/admin/contact/View'));
 const ContactImport = React.lazy(
 	() => import('views/admin/contact/components/ContactImport')
 );
@@ -68,59 +61,24 @@ const ContactImport = React.lazy(
 const User = React.lazy(() => import('views/admin/users'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
 
-const Property = React.lazy(() => import('views/admin/property'));
-const PropertyView = React.lazy(() => import('views/admin/property/View'));
-const PropertyImport = React.lazy(
-	() => import('views/admin/property/components/PropertyImport')
-);
-
-const Lead = React.lazy(() => import('views/admin/lead'));
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
-const CallHistory = React.lazy(() => import('views/admin/callHistory'));
-const LeadCycle = React.lazy(() => import('views/admin/leadCycle'));
-const LeadView = React.lazy(() => import('views/admin/lead/View'));
-const LeadImport = React.lazy(
-	() => import('views/admin/lead/components/LeadImport')
-);
 
 const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
 const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
-const InvoiceDevelopers = React.lazy(
-	() => import('views/admin/invoice/developers')
-);
 
 const DeveloperInvoices = React.lazy(
 	() => import('views/admin/invoice/developers/DeveloperInvoices')
 );
 const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
-const Task = React.lazy(() => import('views/admin/task'));
-const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
 const OfficeSettings = React.lazy(
 	() => import('views/admin/agencies/OfficeSetting')
 );
-
-const TaskView = React.lazy(
-	() => import('views/admin/task/components/taskView')
-);
-const Calender = React.lazy(() => import('views/admin/calender'));
-const Payments = React.lazy(() => import('views/admin/payments'));
 const Role = React.lazy(() => import('views/admin/role'));
-
-const Document = React.lazy(() => import('views/admin/document'));
-
-const EmailHistory = React.lazy(() => import('views/admin/emailHistory'));
-const EmailHistoryView = React.lazy(
-	() => import('views/admin/emailHistory/View')
-);
-
-const Meeting = React.lazy(() => import('views/admin/meeting'));
-const MettingView = React.lazy(() => import('views/admin/meeting/View'));
-
 const Hiring = React.lazy(() => import('views/admin/hiring'));
 const Positions = React.lazy(() => import('views/admin/hiring/positions'));
 const OfferLetter = React.lazy(
@@ -137,27 +95,13 @@ const ShortListedCandidates = React.lazy(
 	() => import('views/admin/hiring/shortListedCandidates')
 );
 
-const PhoneCall = React.lazy(() => import('views/admin/phoneCall'));
-const PhoneCallView = React.lazy(() => import('views/admin/phoneCall/View'));
-
-// const Report = React.lazy(() => import('views/admin/reports'));
-// const Report = React.lazy(() => import('views/admin/reports-v2'));
-
-// const TeamDetailsScreen = React.lazy(
-// 	() =>
-// 		import(
-// 			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
-// 		)
-// );
 // Auth Imports
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 // admin setting
 const AdminSetting = React.lazy(() => import('views/admin/adminSetting'));
 // const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
-const HRModule = React.lazy(() => import('views/admin/hrModule'));
 const Announcement = React.lazy(() => import('views/admin/announcement'));
-const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 // Attendance module
 const Attendance = React.lazy(() => import('views/admin/attendance'));
 
