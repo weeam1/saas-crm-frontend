@@ -128,6 +128,15 @@ const leadsSlice = createSlice({
 				state.doc.unshift(newLead); // Add new lead at the top
 			}
 		},
+		deleteLead: (state, action) => {
+			const leadId = action.payload;
+
+			const index = state.doc.findIndex((lead) => lead._id === leadId);
+
+			if (index !== -1) {
+				state.doc.splice(index, 1);
+			}
+		},
 	},
 });
 
@@ -137,5 +146,6 @@ export const {
 	updateLeadFields,
 	updateMultipleLeadFields,
 	addOrUpdateLead,
+	deleteLead,
 } = leadsSlice.actions;
 export default leadsSlice.reducer;

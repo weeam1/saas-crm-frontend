@@ -44,7 +44,7 @@ const InfoSection = ({ lead }) => {
 			</Text>
 			<Box width='fit-content'>
 				{visibleInfoFields.map((item, idx) => (
-					<InfoItem key={idx} label={item.label} value={item.value} mb={1} />
+					<InfoItem key={idx} label={item.label} value={item.value} />
 				))}
 			</Box>
 		</Box>

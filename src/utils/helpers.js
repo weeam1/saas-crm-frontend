@@ -54,6 +54,14 @@ export const formattedDate = (_date) => {
 	return formattedDate;
 };
 
+export const formatCurrency = (amount, currency) => {
+	return new Intl.NumberFormat('en-AE', {
+		style: 'currency',
+		currency: currency || 'AED',
+		maximumFractionDigits: 0,
+	}).format(amount);
+};
+
 export const validatePhoneNumber = (phoneNumber) => {
 	const sanitized = phoneNumber.replace(/\s+/g, '').replace(/^(\+?)/, '');
 
