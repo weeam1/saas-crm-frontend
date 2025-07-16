@@ -457,6 +457,7 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
+			// Task management Task V2
 			  {
 				name: "Task",
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],

@@ -410,6 +410,7 @@ const routes = [
   //   component: Communication,
   // },
   // ------------- Task Routes ------------------------
+  // Task V2 Route
   {
     name: "Task",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
