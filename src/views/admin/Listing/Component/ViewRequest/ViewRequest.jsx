@@ -54,6 +54,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     "Phone",
     "Project",
     "Location",
+    "country",
     "Area (sqft)",
     "Building Age",
     "Developer",
@@ -94,6 +95,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       if (filters.year) params.year = filters.year;
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.country) params.country = filters.country;
     }
 
     return params;
@@ -106,6 +108,10 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const { data: countries } = useFetchItemsQuery({
+    path: "/countries",
+  });
 
   const openStatusModal = (listingId, requestId) => {
     setCurrentRequestId(requestId);
@@ -350,6 +356,15 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                       {request.listing?.location || "N/A"}
                     </Td>
                     <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {request.listing?.country?.name || "N/A"}
+                    </Td>
+                    <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
@@ -531,6 +546,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
         clearFilter={filterChanged}
+        countries={countries?.doc || []}
       />
     </Box>
   );

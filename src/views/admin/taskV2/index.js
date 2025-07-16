@@ -33,6 +33,7 @@ import TableLoading from "components/loading/TableLoading";
 import AddTaskModal from "./components/AddTaskModal";
 import EditTaskModal from "./components/EditTaskModal";
 import TaskDetailsModal from "./components/TaskDetailsModal";
+import { getApi } from "services/api";
 
 const TaskV2 = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -45,6 +46,7 @@ const TaskV2 = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null);
+  const [agents, setAgents] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [updateStatus] = useUpdateItemMutation();
@@ -53,7 +55,7 @@ const TaskV2 = () => {
   const [tableData, setTableData] = useState([]);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-  const { allUsers = [], agents = [] } = useFetchUserHierarchy(user);
+  const { allUsers = [] } = useFetchUserHierarchy(user);
 
   const columns = [
     "SR.No",
@@ -205,6 +207,17 @@ const TaskV2 = () => {
     return moment(date).isValid() ? moment(date).format("MMM D, YYYY") : "N/A";
   };
 
+  useEffect(() => {
+    async function fetchAgents() {
+      if (user?.roles[0]?.roleName === "Manager") {
+        const apiUrl = `api/v2/user/hierarchy?managerId=${user._id}`;
+        const { data } = await getApi(apiUrl);
+        console.log("Agents data:", data);
+        setAgents(data.doc || []);
+      }
+    }
+    fetchAgents();
+  }, []);
   return (
     <Box
       overflowY="auto"
@@ -230,8 +243,7 @@ const TaskV2 = () => {
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
           {(user?.role === "superAdmin" ||
-            user?.roles[0]?.roleName === "Manager" ||
-            user?.roles[0]?.roleName === "HR") && (
+            user?.roles[0]?.roleName === "Manager") && (
             <Button
               size="md"
               colorScheme="brand"
@@ -494,10 +506,9 @@ const TaskV2 = () => {
         users={
           user?.role === "superAdmin"
             ? allUsers
-            : user?.roles[0]?.roleName === "Manager" ||
-              user?.roles[0]?.roleName === "HR"
-            ? agents
-            : []
+            : user?.roles[0]?.roleName === "Manager" 
+              ? agents
+              : []
         }
         user={user}
       />
@@ -511,10 +522,9 @@ const TaskV2 = () => {
         users={
           user?.role === "superAdmin"
             ? allUsers
-            : user?.roles[0]?.roleName === "Manager" ||
-              user?.roles[0]?.roleName === "HR"
-            ? agents
-            : []
+            : user?.roles[0]?.roleName === "Manager"
+              ? agents
+              : []
         }
         user={user}
       />
@@ -534,9 +544,9 @@ const TaskV2 = () => {
             user?.role === "superAdmin"
               ? allUsers
               : user?.roles[0]?.roleName === "Manager" ||
-                user?.roles[0]?.roleName === "HR"
-              ? agents
-              : []
+                  user?.roles[0]?.roleName === "HR"
+                ? agents
+                : []
           }
           user={user}
         />
