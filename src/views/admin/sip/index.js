@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import SipDashboard from "./component/Dashboard";
+// import SipDashboard from "./component/Dashboard";
 import SipHistory from "./component/History";
 import TabNavigationDisplay from "components/TabNavigationDisplay/TabNavigationDisplay";
 import CallsReport from "../reports-v2/components/sip/CallsReport";

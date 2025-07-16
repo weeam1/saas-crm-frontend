@@ -13,7 +13,6 @@ import {
   IconButton,
   Select,
   useBreakpointValue,
-  Badge,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiSearch } from "react-icons/fi";
@@ -120,6 +119,10 @@ const TaskV2 = () => {
     { refetchOnMountOrArgChange: true }
   );
 
+  const { data: usersData } = useFetchItemsQuery({
+    path: "/v2/user/search_users",
+  });
+
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteTaskMutation({
@@ -218,6 +221,25 @@ const TaskV2 = () => {
     }
     fetchAgents();
   }, []);
+
+  const updateTaskPriority = async (taskId, priority) => {
+    try {
+      await updateStatus({
+        path: `/taskV2/${taskId}`,
+        body: { priority },
+      }).unwrap();
+
+      toast.success("Priority updated successfully");
+      setTableData((prevData) =>
+        prevData.map((task) =>
+          task._id === taskId ? { ...task, priority } : task
+        )
+      );
+    } catch (error) {
+      toast.error("Error updating priority");
+    }
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -377,9 +399,22 @@ const TaskV2 = () => {
                       {formatDate(task.due_date)}
                     </Td>
                     <Td textAlign="center">
-                      <Badge colorScheme={priorityColors[task.priority]}>
-                        {task.priority || "N/A"}
-                      </Badge>
+                      <Select
+                        value={task.priority}
+                        onChange={(e) =>
+                          updateTaskPriority(task._id, e.target.value)
+                        }
+                        size="sm"
+                        width="150px"
+                        focusBorderColor="brand.500"
+                        bg={priorityColors[task.priority] + ".100"}
+                        color={priorityColors[task.priority] + ".800"}
+                      >
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Urgent">Urgent</option>
+                      </Select>
                     </Td>
                     <Td
                       textAlign="center"
@@ -506,11 +541,12 @@ const TaskV2 = () => {
         users={
           user?.role === "superAdmin"
             ? allUsers
-            : user?.roles[0]?.roleName === "Manager" 
+            : user?.roles[0]?.roleName === "Manager"
               ? agents
               : []
         }
         user={user}
+        usersData={usersData}
       />
 
       <AddTaskModal
@@ -527,6 +563,7 @@ const TaskV2 = () => {
               : []
         }
         user={user}
+        usersData={usersData}
       />
 
       {selectedTaskForEdit && (
@@ -549,6 +586,7 @@ const TaskV2 = () => {
                 : []
           }
           user={user}
+          usersData={usersData}
         />
       )}
     </Box>

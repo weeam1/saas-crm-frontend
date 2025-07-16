@@ -15,8 +15,6 @@ import {
   Flex,
   Button,
   Badge,
-  Box,
-  Text,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
