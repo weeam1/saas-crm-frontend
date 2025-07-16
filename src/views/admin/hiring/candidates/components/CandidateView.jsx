@@ -12,6 +12,8 @@ import {
 	Box,
 	IconButton,
 	Tooltip,
+	Stack,
+	Text,
 } from '@chakra-ui/react';
 import ExperienceDetails from './ExperienceDetails';
 import DisplayField from 'components/displays/DisplayField';
@@ -60,22 +62,30 @@ const CandidateView = ({
 				<ModalOverlay />
 				<ModalContent mx='2' p={4}>
 					<ModalHeader display='flex' gap='2' alignItems='center'>
-						Application
-						{candidate?.isInterviewed && (
-							<StatusBadge status='Interviewed' color='green' />
-						)}
-						{/* Edit Icon Button */}
-						<Button
-							{...buttonStyle}
-							bg='gray.200'
-							color='gray.800'
-							py='2'
-							px='4'
-							leftIcon={<FiEdit />}
-							onClick={() => setIsEditModalOpen(true)}
+						<Stack
+							flexDir={{ base: 'column', md: 'row' }}
+							align={{ base: 'flex-start', md: 'center' }}
+							gap='4'
 						>
-							Edit
-						</Button>
+							<HStack>
+								<Text>Application</Text>
+								{candidate?.isInterviewed && (
+									<StatusBadge status='Interviewed' color='green' />
+								)}
+							</HStack>
+							{/* Edit Icon Button */}
+							<Button
+								{...buttonStyle}
+								bg='gray.200'
+								color='gray.800'
+								py='2'
+								px='4'
+								leftIcon={<FiEdit />}
+								onClick={() => setIsEditModalOpen(true)}
+							>
+								Edit
+							</Button>
+						</Stack>
 					</ModalHeader>
 					<ModalCloseButton mt='6' />
 					<ModalBody width='100%'>

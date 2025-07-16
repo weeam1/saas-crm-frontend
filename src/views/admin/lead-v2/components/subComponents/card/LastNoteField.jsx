@@ -24,7 +24,7 @@ const LastNoteField = ({ label, lead }) => {
 
 	const tooltipLabel = lead?.lastNote ? (
 		<div>
-			<p>{lead?.lastNote}</p>
+			<p style={{ marginBottom: '6px' }}>{lead?.lastNote}</p>
 			<span>
 				{isLatestNote &&
 					format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}

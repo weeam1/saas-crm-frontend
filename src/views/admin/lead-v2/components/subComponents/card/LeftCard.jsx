@@ -17,7 +17,6 @@ import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
-import { format } from 'date-fns';
 
 const LeftCard = ({
 	lead,
