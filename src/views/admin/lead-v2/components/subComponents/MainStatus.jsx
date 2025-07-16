@@ -11,26 +11,40 @@ import {
 import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
-import { updateLeadField } from '../../../../../redux/leadsSlice';
+import { deleteLead, updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
+import CloseDealModal from '../deals/CloseDealModal';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 	const [label, setLabel] = useState('');
 	const [loading, setLoading] = useState(false);
 
+	const [closeDeal, setCloseDeal] = useState(false);
+
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
 
-	const hanldeMainStatus = async (e) => {
+	const hanldeMainStatus = async (statusOrEvent, options = {}) => {
 		try {
+			const newStatus =
+				typeof statusOrEvent === 'string'
+					? statusOrEvent
+					: statusOrEvent?.target?.value;
+
 			const data = {
-				eLeadStatus: e.target.value,
+				eLeadStatus: newStatus,
 			};
+
+			const { skipDealModal = false } = options;
+
+			if (newStatus === 'deal' && !skipDealModal) {
+				return setCloseDeal(true);
+			}
 
 			setLoading(true);
 			const response = await putApi(
@@ -39,19 +53,23 @@ const MainStatus = ({ lead, role }) => {
 			);
 
 			if (response.status === 200) {
-				setSelected(data.eLeadStatus);
+				setSelected(newStatus);
 				toast.success('Main Lead Status Updated!');
 
 				dispatch(
 					updateLeadField({
 						id: lead?._id,
 						key: 'eLeadStatus',
-						value: data.eLeadStatus,
+						value: newStatus,
 					})
 				);
 
+				// if (newStatus === 'deal') {
+				// 	dispatch(deleteLead(lead?._id));
+				// }
+
 				// check if status is event lead status
-				if (eventMainLeadStatus.includes(data.eLeadStatus)) {
+				if (eventMainLeadStatus.includes(newStatus)) {
 					const leadEmail = lead?.leadEmail ?? '';
 					const leadPhone =
 						typeof lead?.leadPhoneNumber === 'object'
@@ -63,7 +81,7 @@ const MainStatus = ({ lead, role }) => {
 					sendLeadFeedback({
 						email: leadEmail,
 						phone: leadPhone,
-						status: data.eLeadStatus,
+						status: newStatus,
 						action: 'MStatus',
 						ip,
 						fcblid: lead?.fcblid || null,
@@ -91,6 +109,11 @@ const MainStatus = ({ lead, role }) => {
 		}
 	};
 
+	const handleCloseDealSuccess = async () => {
+		setCloseDeal(false);
+		hanldeMainStatus('deal', { skipDealModal: true });
+	};
+
 	useEffect(() => {
 		const selectedOption = mainLeadStatus.find(
 			(item) => item.value === selected
@@ -100,6 +123,7 @@ const MainStatus = ({ lead, role }) => {
 			setLabel(selectedOption?.label);
 		}
 	}, [selected]);
+
 	return (
 		<>
 			<HStack alignItems='center' justifyContent='space-between'>
@@ -123,11 +147,24 @@ const MainStatus = ({ lead, role }) => {
 				textColorCustom='white'
 				bgColorCustom='brand.300'
 				loading={loading}
-				isDisabled={(selected === 'deal' && role === 'Agent') || loading}
+				isDisabled={
+					(selected === 'deal' && ['Agent', 'Manager'].includes(role)) ||
+					loading
+				}
 				borderColorCustom='brand.600'
 				size={leadSelectInputSize}
 				onChange={hanldeMainStatus}
 			/>
+
+			{closeDeal && (
+				<CloseDealModal
+					isOpen={closeDeal}
+					onClose={() => setCloseDeal(false)}
+					lead={lead}
+					mode='add'
+					onSuccess={handleCloseDealSuccess}
+				/>
+			)}
 		</>
 	);
 };

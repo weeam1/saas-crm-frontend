@@ -68,6 +68,7 @@ import AddCoinsModal from '../AddCoinsModal';
 import RemoveCoinsModal from '../RemoveCoinsModal';
 import StatusToggle from './StatusToogle';
 import TableLoading from 'components/loading/TableLoading';
+import { formatCurrency } from 'utils/helpers';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -530,6 +531,7 @@ export default function CheckTable(props) {
 							) : data?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
+
 									return (
 										<Tr {...row?.getRowProps()} key={i}>
 											{row?.cells?.map((cell, index) => {
@@ -622,8 +624,33 @@ export default function CheckTable(props) {
 															fontSize='sm'
 															fontWeight='700'
 														>
-															{cell?.value}
+															{cell?.value || 'N/A'}
 														</Text>
+													);
+												} else if (cell?.column.Header === 'Target') {
+													data = (
+														<HStack
+															align='center'
+															justifyContent='center'
+															bg='brand.50'
+															p='2'
+															color='brand.500'
+															fontWeight='semibold'
+															rounded='md'
+														>
+															{cell?.value > 0 ? (
+																<>
+																	<Text fontSize='sm'>
+																		{formatCurrency(
+																			cell?.value,
+																			row.original.currency
+																		)}
+																	</Text>
+																</>
+															) : (
+																<Text>N/A</Text>
+															)}
+														</HStack>
 													);
 												} else if (cell?.column.Header === 'Status') {
 													data = (
@@ -654,10 +681,12 @@ export default function CheckTable(props) {
 																<Portal>
 																	<MenuList
 																		minW={'fit-content'}
-																		placement='bottom-end'
+																		placement='top'
 																		// transform={'translate(1520px, 173px);'}
 																	>
-																		{isAdmin && (
+																		{(isAdmin ||
+																			user?.roles[0]?.roleName ===
+																				'Manager') && (
 																			<MenuItem
 																				py={2.5}
 																				onClick={() => {

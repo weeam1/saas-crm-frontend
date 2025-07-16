@@ -1,47 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Flex,
-  Text,
-  IconButton,
-  Tooltip,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  FormLabel,
-  Switch,
-  Input,
-  Badge,
-  Textarea,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
+	Box,
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	Button,
+	Flex,
+	Text,
+	IconButton,
+	Tooltip,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	FormLabel,
+	Switch,
+	Input,
+	Badge,
+	Textarea,
+	useBreakpointValue,
+} from '@chakra-ui/react';
+import { DeleteIcon, EditIcon, ViewIcon } from '@chakra-ui/icons';
 import {
-  useFetchItemsQuery,
-  useCreateItemMutation,
-  useDeleteItemMutation,
-  useUpdateItemMutation,
-} from "api/apiSlice";
-import TableLoading from "components/loading/TableLoading";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import TopPagination from "components/pagination/TopPagination";
-import { FiSearch } from "react-icons/fi";
-import AdvancedSearchModal from "./AdvancedSearchModal";
-import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
-import { format } from "date-fns";
-import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+	useFetchItemsQuery,
+	useCreateItemMutation,
+	useDeleteItemMutation,
+	useUpdateItemMutation,
+} from 'api/apiSlice';
+import TableLoading from 'components/loading/TableLoading';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import TopPagination from 'components/pagination/TopPagination';
+import { FiSearch } from 'react-icons/fi';
+import AdvancedSearchModal from './AdvancedSearchModal';
+import ActiveFiltersDisplay from './SubComponent/ActiveFiltersDisplay';
+import { format } from 'date-fns';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 
 const AllListing = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);

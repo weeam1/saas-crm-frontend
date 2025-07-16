@@ -1,0 +1,39 @@
+/* Custom tooltip arrow styles */
+.tooltip-arrow::before {
+	content: '';
+	position: absolute;
+	border: 6px solid transparent;
+}
+
+.tooltip-arrow-top::before {
+	border-bottom-color: rgba(
+		31,
+		41,
+		55,
+		0.9
+	); /* Match bg-gray-800 with opacity */
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.tooltip-arrow-bottom::before {
+	border-top-color: rgba(31, 41, 55, 0.9);
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.tooltip-arrow-left::before {
+	border-right-color: rgba(31, 41, 55, 0.9);
+	left: 100%;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.tooltip-arrow-right::before {
+	border-left-color: rgba(31, 41, 55, 0.9);
+	right: 100%;
+	top: 50%;
+	transform: translateY(-50%);
+}

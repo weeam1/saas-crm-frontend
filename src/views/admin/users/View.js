@@ -140,7 +140,7 @@ const View = () => {
 								<Flex
 									justifyContent={{ base: 'start', sm: 'start', md: 'end' }}
 								>
-									{isAdmin ? (
+									{isAdmin || user?.roles[0]?.roleName === 'Manager' ? (
 										<Menu>
 											<MenuButton
 												variant='outline'

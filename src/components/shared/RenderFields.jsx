@@ -6,6 +6,7 @@ import {
 	Checkbox,
 	Select,
 } from '@chakra-ui/react';
+
 import { Field } from 'formik';
 
 const RenderFields = ({ fields }) => {
@@ -15,7 +16,14 @@ const RenderFields = ({ fields }) => {
 				<FormControl mb={4} isInvalid={meta.touched && meta.error}>
 					{/* For checkboxes and select, render differently */}
 					{field.type !== 'checkbox' && (
-						<FormLabel htmlFor={field.name}>{field.label}</FormLabel>
+						<FormLabel
+							htmlFor={field.name}
+							fontSize='sm'
+							fontWeight='semibold'
+							color='gray.600'
+						>
+							{field.label}
+						</FormLabel>
 					)}
 
 					{field.type === 'textarea' ? (
