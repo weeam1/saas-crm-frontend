@@ -22,7 +22,6 @@ const AdvancedSearchModal = ({
   onClose,
   onApplyFilters,
   initialFilters,
-  clearFilter,
   usersData,
 }) => {
   const [filters, setFilters] = useState(initialFilters);
