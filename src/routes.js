@@ -401,6 +401,51 @@ const routes = [
 		component: AdminSetting,
 	},
 
+  //   path: "/communication-integration",
+  //   icon: <Icon as={GiSatelliteCommunication} width='20px' height='20px' color='inherit' />,
+  //   component: Communication,
+  // },
+  // ------------- Task Routes ------------------------
+  // Task V2 Route
+  {
+    name: "Task",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/task",
+    icon: <Icon as={FaTasks} width="20px" height="20px" color="inherit" />,
+    component: TaskV2,
+  },
+  // {
+  // 	name: 'Task',
+  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  // 	path: '/task',
+  // 	icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+  // 	component: Task,
+  // },
+  // {
+  // 	name: 'Task ',
+  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  // 	under: 'task',
+  // 	parentName: 'Task',
+  // 	path: '/view/:id',
+  // 	component: TaskView,
+  // },
+  // // ------------- Meeting Routes ------------------------
+  // {
+  // 	name: 'Meeting',
+  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  // 	path: '/metting',
+  // 	icon: <Icon as={SiGooglemeet} width='20px' height='20px' color='inherit' />,
+  // 	component: Meeting,
+  // },
+  // {
+  // 	name: 'Meeting ',
+  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  // 	under: 'metting',
+  // 	parentName: 'Meeting',
+  // 	path: '/metting/:id',
+  // 	component: MettingView,
+  // },
+
 	// {
 	// 	name: "Announcement",
 	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.manager],
@@ -413,6 +458,7 @@ const routes = [
 	// {
 	//   name: "Communication Integration",
 	//   layout: [ROLE_PATH.admin, ROLE_PATH.user],
+
 
 	//   path: "/communication-integration",
 	//   icon: <Icon as={GiSatelliteCommunication} width='20px' height='20px' color='inherit' />,

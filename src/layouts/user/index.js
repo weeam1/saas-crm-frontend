@@ -469,8 +469,9 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
-			{
-				name: 'Task',
+			// Task management Task V2
+			  {
+				name: "Task",
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 				path: '/task',
 				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
