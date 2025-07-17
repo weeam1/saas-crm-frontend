@@ -18,6 +18,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
+import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -27,6 +28,7 @@ const AdvancedSearchModal = ({
   users,
   clearFilter,
   user,
+  usersData,
 }) => {
   const [filters, setFilters] = useState(initialFilters);
   const [showOverdue, setShowOverdue] = useState(false);
@@ -48,19 +50,19 @@ const AdvancedSearchModal = ({
 
   const handleApply = () => {
     const newFilters = { ...filters };
-    
+
     if (showOverdue) {
       newFilters.overdue = true;
     } else {
       delete newFilters.overdue;
     }
-    
+
     if (showTodays) {
       newFilters.todays = true;
     } else {
       delete newFilters.todays;
     }
-    
+
     onApplyFilters(newFilters);
     onClose();
   };
@@ -71,14 +73,21 @@ const AdvancedSearchModal = ({
     setShowTodays(false);
   };
 
-  const isFilterUnchanged = JSON.stringify(filters) === JSON.stringify(initialFilters) && 
-    showOverdue === (initialFilters.overdue || false) && 
+  const isFilterUnchanged =
+    JSON.stringify(filters) === JSON.stringify(initialFilters) &&
+    showOverdue === (initialFilters.overdue || false) &&
     showTodays === (initialFilters.todays || false);
 
+  const handleSelectUser = (user) => {
+    setFilters({ ...filters, assignedTo: user?._id || null });
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent mx={{ base: 2, sm: 4, md: 8 }} w={{ base: "95vw", sm: "90vw", md: "500px" }}>
+      <ModalContent
+        mx={{ base: 2, sm: 4, md: 8 }}
+        w={{ base: "95vw", sm: "90vw", md: "500px" }}
+      >
         <ModalHeader>Advanced Search</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -87,7 +96,9 @@ const AdvancedSearchModal = ({
               <FormLabel>Title</FormLabel>
               <Input
                 value={filters.title || ""}
-                onChange={(e) => setFilters({ ...filters, title: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, title: e.target.value })
+                }
                 placeholder="Search by title"
                 focusBorderColor="brand.500"
               />
@@ -98,7 +109,9 @@ const AdvancedSearchModal = ({
                 <FormLabel>Status</FormLabel>
                 <Select
                   value={filters.status || ""}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, status: e.target.value })
+                  }
                   placeholder="Select status"
                   focusBorderColor="brand.500"
                 >
@@ -113,7 +126,9 @@ const AdvancedSearchModal = ({
                 <FormLabel>Task Type</FormLabel>
                 <Select
                   value={filters.type || ""}
-                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, type: e.target.value })
+                  }
                   placeholder="Select type"
                   focusBorderColor="brand.500"
                 >
@@ -122,29 +137,24 @@ const AdvancedSearchModal = ({
                   <option value="Site Visit">Site Visit</option>
                   <option value="Call">Call</option>
                   <option value="Email">Email</option>
-                  <option value="Document Collection">Document Collection</option>
+                  <option value="Document Collection">
+                    Document Collection
+                  </option>
                   <option value="Custom">Custom</option>
                 </Select>
               </FormControl>
             </SimpleGrid>
 
-            {(user?.role === "superAdmin" || 
-              user?.roles?.[0]?.roleName === "Manager" || 
+            {(user?.role === "superAdmin" ||
+              user?.roles?.[0]?.roleName === "Manager" ||
               user?.roles?.[0]?.roleName === "HR") && (
               <FormControl>
                 <FormLabel>Assigned To</FormLabel>
-                <Select
-                  value={filters.assignedTo || ""}
-                  onChange={(e) => setFilters({ ...filters, assignedTo: e.target.value })}
-                  placeholder="Select assignee"
-                  focusBorderColor="brand.500"
-                >
-                  {users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.name}
-                    </option>
-                  ))}
-                </Select>
+                <SearchUsers
+                  selectedUserId={filters.assignedTo || null}
+                  users={usersData?.doc || []}
+                  onSelectUser={handleSelectUser}
+                />
               </FormControl>
             )}
 
@@ -168,7 +178,7 @@ const AdvancedSearchModal = ({
                   placeholder="To date"
                   isCalendarOpen={openCalendar === "dueDateTo"}
                   toggleCalendar={() => toggleCalendar("dueDateTo")}
-                  minDate={filters.dueDateFrom} 
+                  minDate={filters.dueDateFrom}
                 />
               </SimpleGrid>
             </FormControl>
@@ -197,7 +207,9 @@ const AdvancedSearchModal = ({
             variant="outline"
             mr={3}
             onClick={handleClear}
-            isDisabled={Object.keys(filters).length === 0 && !showOverdue && !showTodays}
+            isDisabled={
+              Object.keys(filters).length === 0 && !showOverdue && !showTodays
+            }
           >
             Clear
           </Button>
