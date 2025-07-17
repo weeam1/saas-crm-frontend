@@ -11,6 +11,7 @@ import { BiX } from 'react-icons/bi';
 import { useSelector } from 'react-redux';
 import TopPagination from 'components/pagination/TopPagination';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import { dealsLabels } from 'utils/searchLabels';
 
 const LIMIT = 10;
 
@@ -87,7 +88,6 @@ const DealsScreen = () => {
 
 		Object.entries(cleaned).forEach(([key, value]) => {
 			let displayValue = value;
-			let displayKey = key;
 
 			// Handle manager
 			if (key === 'manager') {
@@ -118,18 +118,26 @@ const DealsScreen = () => {
 
 			if (key === 'spaDone') {
 				displayValue = value ? 'Signed' : 'Pending';
-				displayKey = 'SPA';
 			}
 
 			if (key === 'invoiceSent') {
 				displayValue = value ? 'Yes' : 'No';
-				displayKey = 'Invoice Sent';
 			}
 
-			if (key === 'commissionStatus') displayKey = 'Commission Status';
+			if (key === 'closedBy') {
+				const closedByValue = filters.closedBy;
+				if (typeof closedByValue === 'object' && closedByValue !== null) {
+					displayValue = closedByValue.fullName;
+				}
+			}
 
-			tags.push(`${displayKey}: ${displayValue}`);
+			tags.push(`${dealsLabels[key]}: ${displayValue}`);
 		});
+
+		// Extract `closedBy._id`
+		if (cleaned.closedBy && typeof cleaned.closedBy === 'object') {
+			cleaned.closedBy = cleaned.closedBy._id;
+		}
 
 		setSearchTags(tags);
 		setSearchClear(true);

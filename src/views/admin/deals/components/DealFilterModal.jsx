@@ -10,12 +10,16 @@ import {
 	VStack,
 	HStack,
 	SimpleGrid,
+	GridItem,
+	FormLabel,
 } from '@chakra-ui/react';
 import { FormInput } from 'components/fields/FormFields';
 import { FormSelect } from 'components/fields/FormFields';
 import { useEffect, useMemo } from 'react';
 import { commissionStatuses } from '../dealUtils';
 import { useForm } from 'react-hook-form';
+import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const DealFilterModal = ({
 	isOpen,
@@ -24,14 +28,18 @@ const DealFilterModal = ({
 	initialFilters,
 	tree,
 }) => {
-	const { register, handleSubmit, reset, watch, setValue } = useForm();
+	const { data: usersData } = useFetchItemsQuery({
+		path: '/v2/user/search_users',
+	});
+
+	const { register, handleSubmit, reset, values, watch, setValue } = useForm();
 
 	const emptyFilters = {
 		manager: '',
+		closedBy: '',
 		agent: '',
 		spaDone: '',
 		dealStatus: '',
-		closedBy: '',
 		commissionStatus: '',
 		clientName: '',
 		clientNumber: '',
@@ -81,6 +89,12 @@ const DealFilterModal = ({
 		reset(emptyFilters);
 	};
 
+	const handleSelectUser = (user) => {
+		setValue('closedBy', user || null);
+	};
+
+	const selectedClosedBy = watch('closedBy');
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -113,6 +127,17 @@ const DealFilterModal = ({
 				<ModalBody p={{ base: 4, md: 6 }}>
 					<VStack spacing={4}>
 						<SimpleGrid columns={2} spacing={4} w='full'>
+							<GridItem colSpan={2}>
+								<FormLabel fontSize='sm' fontWeight='semibold' color='gray.600'>
+									Closed By
+								</FormLabel>
+								<SearchUsers
+									selectedUserId={selectedClosedBy?._id || null}
+									users={usersData?.doc || []}
+									onSelectUser={handleSelectUser}
+								/>
+							</GridItem>
+
 							{/* Manager Dropdown */}
 							<FormSelect
 								label='Manager'

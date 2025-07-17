@@ -1,5 +1,5 @@
 import NoData from 'components/Message/NoData';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
 	Box,
 	Input,
@@ -37,6 +37,13 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 		setSearch('');
 		onSelectUser(null);
 	};
+
+	// useEffect(() => {
+	// 	if (selectedUserId === null && selectedUser !== null) {
+	// 		handleClear();
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [selectedUserId]);
 
 	const filteredUsers =
 		search && !selectedUser
