@@ -127,14 +127,6 @@ const LeadsCards = () => {
 		}
 	};
 
-	if (leadsError) {
-		return (
-			<ErrorMessage
-				message={leadsError?.data?.message || 'Something went wrong!'}
-			/>
-		);
-	}
-
 	return (
 		<Box
 			py='8'
@@ -222,6 +214,7 @@ const LeadsCards = () => {
 
 			<Leads
 				data={leads}
+				leadsError={leadsError}
 				leadsLoading={leadsLoading}
 				leadsRefetching={leadsRefetching}
 				refreshLeads={refreshLeads}

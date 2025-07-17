@@ -129,12 +129,18 @@ const EditDealModal = React.memo(
 
 		const handleEditDeal = async (data) => {
 			try {
-				await updateDeal({ path: `/deals/${dealId}`, body: data }).unwrap();
+				const res = await updateDeal({
+					path: `/deals/${dealId}`,
+					body: data,
+				}).unwrap();
 
 				toast.success('Deal updated successfully');
 
 				handleClose();
-				onSuccess();
+
+				if (res?.doc) {
+					onSuccess(res.doc);
+				}
 			} catch (error) {
 				console.log(error);
 				toast.error(error?.data?.message || 'Error: Deal is not updated!');

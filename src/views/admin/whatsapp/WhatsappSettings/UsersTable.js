@@ -14,10 +14,8 @@ import {
 	useClipboard,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
-
 import NoData from 'components/Message/NoData';
 import { FiEdit, FiTrash } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { CopyIcon } from '@chakra-ui/icons';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import UserAvatar from 'components/shared/UserAvatar';
@@ -38,8 +36,6 @@ const UsersTable = ({
 		'Status',
 		'Action',
 	];
-
-	const navigate = useNavigate();
 
 	return (
 		<Box
