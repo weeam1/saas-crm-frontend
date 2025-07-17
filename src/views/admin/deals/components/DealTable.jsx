@@ -121,7 +121,7 @@ const DealTable = ({
 								</Td>
 
 								<Td minW='250px' textAlign='center'>
-									{format(new Date(deal?.createdAt), 'd MMM, yyyy h:mm a')}
+									{format(new Date(deal?.dealDate), 'd MMM, yyyy h:mm a')}
 								</Td>
 
 								<Td textAlign='center' minW='60px'>

@@ -46,6 +46,7 @@ export const dealsLabels = {
 	unitNumber: 'Unit Number',
 	unitType: 'Unit Type',
 	unitPrice: 'Unit Price',
+	invoiceSent: 'Invoice Sent',
 	downpaymentPaid: 'Downpayment Paid',
 	bookingAmountPaid: 'Booking Amount Paid',
 };

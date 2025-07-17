@@ -49,6 +49,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 		closedBy,
 		commissionStatus,
 		createdAt,
+		dealDate,
 		currency = 'AED',
 	} = deal;
 
@@ -218,7 +219,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 													Deal Close On
 												</Text>
 												<Text fontWeight='medium'>
-													{formatPostDate(createdAt)}
+													{formatPostDate(dealDate)}
 												</Text>
 											</Box>
 										</Stack>
