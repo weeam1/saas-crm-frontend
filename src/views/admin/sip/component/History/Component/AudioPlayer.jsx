@@ -1,23 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import WaveSurfer from "wavesurfer.js";
 import {
-  Box,
   Flex,
   IconButton,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
   Text,
   Button,
   Spinner,
-  Fade,
 } from "@chakra-ui/react";
 import { FaPlay, FaPause } from "react-icons/fa";
-import CustomTooltip from "components/shared/CustomTooltip";
-import { format } from "date-fns";
 
 const formatTime = (seconds) => {
-  const safeSeconds = Math.max(0, seconds);
-  const mins = Math.floor(safeSeconds / 60);
-  const secs = Math.floor(safeSeconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
+  const m = Math.floor(safe / 60);
+  const s = Math.floor(safe % 60);
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
 };
 
 const AudioPlayer = ({
@@ -25,189 +24,160 @@ const AudioPlayer = ({
   playerId,
   currentlyPlayingId,
   setCurrentlyPlayingId,
-  timestamp = new Date(),
-  duration
 }) => {
-  const waveformRef = useRef(null);
-  const wavesurferRef = useRef(null);
+  const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [shouldPlay, setShouldPlay] = useState(false);
-  const isCurrentlyPlaying = currentlyPlayingId === playerId;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const cyclePlaybackRate = () => {
-    const nextRate = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
-    setPlaybackRate(nextRate);
-    if (wavesurferRef.current) {
-      wavesurferRef.current.setPlaybackRate(nextRate);
-    }
-  };
+  const isCurrent = currentlyPlayingId === playerId;
 
   useEffect(() => {
-    return () => {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.pause();
-        wavesurferRef.current.unAll();
-        wavesurferRef.current.destroy();
-        wavesurferRef.current = null;
-      }
-    };
+    const audio = audioRef.current;
+    if (audio && !audio.src) {
+      audio.src = url;
+      audio.load(); 
+    }
   }, [url]);
 
   useEffect(() => {
-    if (!isCurrentlyPlaying && isPlaying) {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.pause();
-        wavesurferRef.current.seekTo(0);
-      }
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onLoadedMetadata = () => {
+      setDuration(audio.duration || 0);
+      setLoading(false);
+    };
+
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+
+    const onEnded = () => {
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
+    };
+
+    const onError = () => {
+      setError(true);
+      setLoading(false);
+    };
+
+    audio.addEventListener("loadedmetadata", onLoadedMetadata);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("error", onError);
+
+    return () => {
+      audio.pause();
+      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("error", onError);
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (!isCurrent && isPlaying) {
+      audio.pause();
+      audio.currentTime = 0;
       setIsPlaying(false);
     }
   }, [currentlyPlayingId]);
 
-  const togglePlay = async () => {
-    if (error || loading) return;
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio || error) return;
 
     if (isPlaying) {
-      wavesurferRef.current?.pause();
+      audio.pause();
       setIsPlaying(false);
       setCurrentlyPlayingId(null);
     } else {
       setCurrentlyPlayingId(playerId);
-      if (!wavesurferRef.current) {
-        setLoading(true);
-        setError(null);
-        setShouldPlay(true);
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error("Failed to load audio");
+      audio.playbackRate = playbackRate;
+      audio
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setError(false);
+        })
+        .catch(() => {
+          setError(true);
+          setIsPlaying(false);
+        });
+    }
+  };
 
-          const blob = await response.blob();
+  const handleSeek = (value) => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = value;
+      setCurrentTime(value);
+    }
+  };
 
-          const audioContext = new AudioContext();
-          const arrayBuffer = await blob.arrayBuffer();
-          const decoded = await audioContext.decodeAudioData(arrayBuffer);
-          await audioContext.close();
-
-          if (!decoded.duration || decoded.duration === 0) {
-            throw new Error("Audio duration is zero");
-          }
-
-          const wavesurfer = WaveSurfer.create({
-            container: waveformRef.current,
-            waveColor: "#B0B3B8",
-            progressColor: "#d99a36",
-            cursorColor: "#d99a55",
-            cursorWidth: 6,
-            barWidth: 2,
-            barRadius: 1,
-            height: 8,
-            responsive: true,
-            normalize: true,
-             backend: "MediaElement", 
-            playbackRate,
-            preservePitch: true,
-          });
-
-          wavesurferRef.current = wavesurfer;
-          wavesurfer.load(url);
-
-          wavesurfer.on("ready", () => {
-            setLoading(false);
-            setError(null);
-            wavesurfer.play();
-            setIsPlaying(true);
-          });
-
-          wavesurfer.on("finish", () => {
-            setIsPlaying(false);
-            setCurrentlyPlayingId(null);
-          });
-
-          wavesurfer.on("error", (e) => {
-            console.error("WaveSurfer error:", e);
-            setError("WaveSurfer failed to load");
-            setLoading(false);
-          });
-        } catch (err) {
-          console.error("Audio load error:", err);
-          setError("Unable to play audio");
-          setLoading(false);
-        }
-      } else {
-        wavesurferRef.current.play();
-        setIsPlaying(true);
-      }
+  const cyclePlaybackRate = () => {
+    const nextRate = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
+    setPlaybackRate(nextRate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = nextRate;
     }
   };
 
   return (
     <Flex
       direction="column"
-      bg="brand.100"
-      p="12px 16px"
-      borderRadius="20px"
+      bg="brand.200"
+      p="12px"
+      borderRadius="md"
       w="100%"
-      maxW="1500px"
-      gap={2}
+      maxW="800px"
+      gap={3}
+      color="white"
     >
+      <audio ref={audioRef} preload="metadata" />
+
       <Flex align="center" gap={4}>
-        <CustomTooltip
-          label={error ? "No audio found" : ""}
-          fontSize="sm"
-          placement="top"
-          hasArrow
-        >
-          <IconButton
-            onClick={togglePlay}
-            aria-label="Play/Pause"
-            icon={isPlaying ? <FaPause /> : <FaPlay />}
-            size="sm"
-            isDisabled={!!error || loading}
-            bg="transparent"
-            color="brand.500"
-            _hover={{ bg: "transparent" }}
-            _active={{ bg: "transparent" }}
-          />
-        </CustomTooltip>
-
-        <Box flex="1" position="relative">
-          <Box
-            w="100%"
-            position="relative"
-            zIndex={1}
-            cursor={error ? "not-allowed" : "pointer"}
-          >
-            {error ? (
-              <Box h="2px" bg="#B0B3B8" borderRadius="2px" />
-            ) : shouldPlay ? (
-              <Box ref={waveformRef} h="7px" />
+        <IconButton
+          onClick={togglePlay}
+          aria-label="Play/Pause"
+          icon={
+            loading ? (
+              <Spinner size="xs" color="white" />
+            ) : isPlaying ? (
+              <FaPause />
             ) : (
-              <Box h="2px" bg="#B0B3B8" borderRadius="2px" />
-            )}
-          </Box>
+              <FaPlay />
+            )
+          }
+          size="sm"
+          colorScheme="brand"
+          isDisabled={error}
+        />
 
-          {loading && (
-            <Fade in={loading}>
-              <Flex
-                position="absolute"
-                top="50%"
-                left="50%"
-                transform="translate(-50%, -50%)"
-                align="center"
-                justify="center"
-              >
-                <Spinner color="brand.500" size="sm" />
-              </Flex>
-            </Fade>
-          )}
-        </Box>
+        <Slider
+          flex="1"
+          value={currentTime}
+          max={duration}
+          min={0}
+          step={1}
+          onChange={handleSeek}
+          isDisabled={error || loading}
+          colorScheme="brand"
+        >
+          <SliderTrack>
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb boxSize={3} />
+        </Slider>
 
         <Button
           size="sm"
-          px={4}
-          py={2}
           fontSize="13px"
           onClick={cyclePlaybackRate}
           bg="brand.500"
@@ -220,12 +190,12 @@ const AudioPlayer = ({
         </Button>
       </Flex>
 
-      <Flex justify="space-between" px="44px">
+      <Flex justify="space-between" px={10}>
         <Text fontSize="xs" color="brand.500">
-          {formatTime(duration)}
+          {formatTime(currentTime)}
         </Text>
         <Text fontSize="xs" color="brand.500">
-          {format(timestamp, "h:mm a")}
+          {formatTime(duration)}
         </Text>
       </Flex>
     </Flex>
