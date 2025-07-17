@@ -39,7 +39,7 @@ const DealTable = ({
 		'Project',
 		'Unit',
 		'Type',
-		'Unit Price',
+		'Deal Amount',
 		'Closed By',
 		'Deal Date',
 
@@ -113,7 +113,7 @@ const DealTable = ({
 								{/* <Td textAlign='center'>{deal.salesPerson || 'N/A'}</Td> */}
 
 								<Td textAlign='center' minW='200px'>
-									{formatCurrency(deal.unitPrice, deal.currency)}
+									{formatCurrency(deal.bookingAmountPaid, deal.currency)}
 								</Td>
 
 								<Td textAlign='center' minW='250px'>
@@ -184,20 +184,21 @@ const DealTable = ({
 										/>
 									</CustomTooltip>
 
-									{deal.dealStatus !== 'Cancelled' && (
-										<>
-											<CustomTooltip label='Deal Cancelled' variant='error'>
-												<IconButton
-													icon={<FiXCircle />}
-													aria-label='cancelled'
-													variant='ghost'
-													size='sm'
-													colorScheme='red'
-													onClick={() => handleCancelled(deal._id)}
-												/>
-											</CustomTooltip>
-										</>
-									)}
+									{deal.dealStatus !== 'Cancelled' &&
+										deal.closedBy._id === loginedUser._id && (
+											<>
+												<CustomTooltip label='Deal Cancelled' variant='error'>
+													<IconButton
+														icon={<FiXCircle />}
+														aria-label='cancelled'
+														variant='ghost'
+														size='sm'
+														colorScheme='red'
+														onClick={() => handleCancelled(deal._id)}
+													/>
+												</CustomTooltip>
+											</>
+										)}
 								</Td>
 							</Tr>
 						))
