@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, Button, Flex, HStack, Text } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
@@ -73,16 +73,17 @@ const DealsScreen = () => {
 		}
 	}, [data?.doc]);
 
-	// Clean filters: remove keys with undefined, null, empty string
-	const cleanObject = (obj) =>
-		Object.fromEntries(
-			Object.entries(obj).filter(
-				([_, v]) => v !== undefined && v !== null && v !== ''
-			)
-		);
-
 	const handleDealFilters = (filters) => {
+		// Clean filters: remove keys with undefined, null, empty string
+		const cleanObject = (obj) =>
+			Object.fromEntries(
+				Object.entries(obj).filter(
+					([_, v]) => v !== undefined && v !== null && v !== ''
+				)
+			);
+
 		const cleaned = cleanObject(filters);
+		setFilters(cleaned);
 
 		console.log({ cleaned });
 
@@ -137,16 +138,16 @@ const DealsScreen = () => {
 			tags.push(`${dealsLabels[key]}: ${displayValue}`);
 		});
 
-		setFilters(cleaned);
+		let searchFilters = { ...cleaned };
 
 		// Extract `closedBy._id`
 		if (cleaned.closedBy && typeof cleaned.closedBy === 'object') {
-			cleaned.closedBy = cleaned.closedBy._id;
+			searchFilters.closedBy = cleaned.closedBy._id;
 		}
 
 		setSearchTags(tags);
 		setSearchClear(true);
-		setQueryParams((prev) => ({ ...prev, ...cleaned, page: 1 }));
+		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
 	};
 
 	const handlePageChange = (page) => {
@@ -163,8 +164,6 @@ const DealsScreen = () => {
 		setFilters([]);
 		setSearchClear(false);
 	};
-
-	console.log({ filters });
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>

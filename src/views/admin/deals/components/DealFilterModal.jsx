@@ -32,7 +32,7 @@ const DealFilterModal = ({
 		path: '/v2/user/search_users',
 	});
 
-	const { register, handleSubmit, reset, values, watch, setValue } = useForm();
+	const { register, handleSubmit, reset, watch, setValue } = useForm();
 
 	const emptyFilters = {
 		manager: '',
