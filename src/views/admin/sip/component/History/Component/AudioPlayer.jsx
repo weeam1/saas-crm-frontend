@@ -26,11 +26,11 @@ const AudioPlayer = ({
   currentlyPlayingId,
   setCurrentlyPlayingId,
   timestamp = new Date(),
+  duration
 }) => {
   const waveformRef = useRef(null);
   const wavesurferRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
@@ -114,7 +114,6 @@ const AudioPlayer = ({
           wavesurfer.load(url);
 
           wavesurfer.on("ready", () => {
-            setDuration(wavesurfer.getDuration());
             setLoading(false);
             setError(null);
             wavesurfer.play();

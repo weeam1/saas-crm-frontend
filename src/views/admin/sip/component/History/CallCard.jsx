@@ -165,6 +165,7 @@ const CallCard = ({
             setCurrentlyPlayingId={handleSetCurrentlyPlaying}
             playerId={call.id || call.uniqueid || `player-${index}`}
             timestamp={new Date(call.calldate)}
+            duration= {call?.duration}
             compact
           />
         ) : (
