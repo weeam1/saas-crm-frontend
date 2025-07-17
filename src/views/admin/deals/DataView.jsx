@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Text, useDisclosure } from '@chakra-ui/react';
+import { Box, Text, useDisclosure } from '@chakra-ui/react';
 
 import DealDetailsModal from './components/DealDetailsModal';
 import EditDealModal from './components/EditDealModal';
 import DealTable from './components/DealTable';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
-import { WarningIcon } from '@chakra-ui/icons';
 
-const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
+const DataView = ({ deals, setDeals, isLoading, isRefetching, refetch }) => {
 	const {
 		isOpen: viewDealIsOpen,
 		onClose: viewDealOnClose,
@@ -33,6 +32,14 @@ const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
 		viewDealOnOpen();
 	};
 
+	const updateDealsData = (deal) => {
+		setDeals((prevDeals) =>
+			prevDeals.map((item) =>
+				item._id === deal._id ? { ...item, ...deal } : item
+			)
+		);
+	};
+
 	const editDealDeatailsHandler = (data) => {
 		setDeal(data);
 		editDealOnOpen();
@@ -42,13 +49,15 @@ const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
 		try {
 			setCancelledModalOpen(false);
 
-			await updateDealStatus({
+			const res = await updateDealStatus({
 				path: `/deals/status/${dealId}`,
 				body: { status: 'Cancelled' },
 			}).unwrap();
 
 			toast.success('Deal closed cancelled successfully');
-			refetch();
+			if (res?.doc) {
+				updateDealsData(res.doc);
+			}
 		} catch (error) {
 			console.log(error);
 			toast.error(error?.data?.message || 'Error: Deal is not updated!');
@@ -61,7 +70,7 @@ const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
 	};
 
 	return (
-		<>
+		<Box py='2'>
 			{/* {isLoading || isFetching ? (
 				<CardShimmer
 					count={12}
@@ -158,10 +167,10 @@ const DataView = ({ deals, isLoading, isRefetching, refetch }) => {
 						setDeal(null);
 					}}
 					initialData={deal}
-					onSuccess={refetch}
+					onSuccess={updateDealsData}
 				/>
 			)}
-		</>
+		</Box>
 	);
 };
 

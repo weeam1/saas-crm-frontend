@@ -9,12 +9,13 @@ import DealFilterModal from './components/DealFilterModal';
 import SearchTags from 'components/search/SearchTags';
 import { BiX } from 'react-icons/bi';
 import { useSelector } from 'react-redux';
+import TopPagination from 'components/pagination/TopPagination';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const LIMIT = 10;
 
 const DealsScreen = () => {
 	const [deals, setDeals] = useState([]);
-	const [page, setPage] = useState(1);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [searchClear, setSearchClear] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
@@ -26,7 +27,13 @@ const DealsScreen = () => {
 
 	const [queryParams, setQueryParams] = useState({ page: 1, limit: LIMIT });
 
-	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+	const {
+		data,
+		isLoading,
+		isFetching,
+		refetch,
+		error: dealsError,
+	} = useFetchItemsQuery(
 		{ path: 'deals', params: queryParams },
 		{ refetchOnMountOrArgChange: true }
 	);
@@ -50,17 +57,11 @@ const DealsScreen = () => {
 		return () => {
 			clearTimeout(showTimer);
 		};
-	}, [isFetching, isLoading, page]);
-
-	// Sync page change into queryParams
-	useEffect(() => {
-		setQueryParams((prev) => ({ ...prev, page }));
-	}, [page]);
+	}, [isFetching, isLoading]);
 
 	// Refetch on queryParams change
 	useEffect(() => {
 		refetch({ path: '/deals', params: queryParams });
-		// setIsRefetching(true);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [queryParams]);
 
@@ -70,8 +71,6 @@ const DealsScreen = () => {
 			setDeals(data.doc);
 		}
 	}, [data?.doc]);
-
-	const totalPages = data?.meta?.totalPages || 1;
 
 	// Clean filters: remove keys with undefined, null, empty string
 	const cleanObject = (obj) =>
@@ -129,28 +128,24 @@ const DealsScreen = () => {
 
 			if (key === 'commissionStatus') displayKey = 'Commission Status';
 
-			// Default
 			tags.push(`${displayKey}: ${displayValue}`);
 		});
 
-		// setIsRefetching(true);
 		setSearchTags(tags);
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...cleaned, page: 1 }));
-		setPage(1);
 		setFilters(cleaned);
 	};
 
-	const handleNext = () => {
-		if (page < totalPages) setPage((prev) => prev + 1);
+	const handlePageChange = (page) => {
+		setQueryParams((prev) => ({ ...prev, page: Number(page) }));
 	};
 
-	const handlePrev = () => {
-		if (page > 1) setPage((prev) => prev - 1);
+	const handlePageSize = (limit) => {
+		setQueryParams({ page: 1, limit: Number(limit) });
 	};
 
 	const handleClear = () => {
-		setPage(1);
 		setQueryParams({ page: 1, limit: LIMIT });
 		setSearchTags([]);
 		setFilters([]);
@@ -163,8 +158,8 @@ const DealsScreen = () => {
 				<HStack gap='1' fontWeight='bold'>
 					<Text fontSize='lg'>Close Deals</Text>
 					<CountUpComponent
-						key={data?.meta?.results}
-						targetNumber={data?.meta?.results}
+						key={data?.meta?.total}
+						targetNumber={data?.meta?.total}
 					/>
 				</HStack>
 
@@ -177,7 +172,6 @@ const DealsScreen = () => {
 					Advanced Search
 				</Button>
 			</Flex>
-
 			{/* Search tags */}
 			{searchClear && searchTags && (
 				<Flex
@@ -193,12 +187,12 @@ const DealsScreen = () => {
 						<Button
 							{...buttonStyle}
 							variant='solid'
-							bg='red.400'
+							bg='softGray.100'
 							w='fit-content'
-							color='white'
+							color='gray.800'
 							sx={{
 								svg: {
-									fill: 'white',
+									fill: 'gray.800',
 								},
 							}}
 							leftIcon={<BiX />}
@@ -210,7 +204,18 @@ const DealsScreen = () => {
 					)}
 				</Flex>
 			)}
-
+			{!isLoading && (
+				<TopPagination
+					currentPage={queryParams.page}
+					totalPages={data?.meta?.totalPages}
+					onPageChange={handlePageChange}
+					totalItems={data?.meta?.total}
+					itemsPerPage={queryParams.limit}
+					refetching={isFetching}
+					loading={isLoading}
+					handlePageSize={handlePageSize}
+				/>
+			)}
 			{/* <DealCards
 				deals={deals}
 				isLoading={isLoading}
@@ -219,16 +224,19 @@ const DealsScreen = () => {
 				handlePrev={handlePrev}
 				refetch={refetch}
 			/> */}
-
-			<DataView
-				deals={deals}
-				isLoading={isLoading}
-				isRefetching={isRefetching}
-				handleNext={handleNext}
-				handlePrev={handlePrev}
-				refetch={refetch}
-			/>
-
+			{dealsError ? (
+				<ErrorMessage
+					message={dealsError?.data?.message || 'Something went wrong!'}
+				/>
+			) : (
+				<DataView
+					deals={deals}
+					setDeals={setDeals}
+					isLoading={isLoading}
+					isRefetching={isRefetching}
+					refetch={refetch}
+				/>
+			)}
 			{isFilterOpen && (
 				<DealFilterModal
 					isOpen={isFilterOpen}
@@ -238,46 +246,6 @@ const DealsScreen = () => {
 					tree={tree}
 				/>
 			)}
-
-			<Flex
-				justify='center'
-				align='center'
-				mt={6}
-				maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
-				mx='auto'
-			>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					onClick={handlePrev}
-					px={{ base: 2, md: 4, lg: 6 }}
-					isDisabled={page === 1 || isFetching}
-				>
-					Previous
-				</Button>
-				<Text
-					px={{ base: 2, md: 4, lg: 6 }}
-					align='center'
-					fontSize='sm'
-					flex={1}
-				>
-					Page {page} of {totalPages}
-				</Text>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					shadow='sm'
-					px={{ base: 2, md: 4, lg: 6 }}
-					onClick={handleNext}
-					isDisabled={page === totalPages || isFetching}
-				>
-					Next
-				</Button>
-			</Flex>
 		</Box>
 	);
 };

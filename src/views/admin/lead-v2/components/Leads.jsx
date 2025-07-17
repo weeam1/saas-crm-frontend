@@ -16,9 +16,11 @@ import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
 import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
 import SearchTags from 'components/search/SearchTags';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const Leads = ({
 	data,
+	leadsError,
 	leadsLoading,
 	leadsRefetching,
 	refreshLeads,
@@ -261,7 +263,11 @@ const Leads = ({
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
 
-			{!isLoaded || leadsLoading || refetchLoading ? (
+			{leadsError ? (
+				<ErrorMessage
+					message={leadsError?.data?.message || 'Something went wrong!'}
+				/>
+			) : !isLoaded || leadsLoading || refetchLoading ? (
 				<CardLoader count={pageSize} />
 			) : leads && leads?.totalLeads ? (
 				<Grid
