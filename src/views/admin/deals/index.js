@@ -84,6 +84,8 @@ const DealsScreen = () => {
 	const handleDealFilters = (filters) => {
 		const cleaned = cleanObject(filters);
 
+		console.log({ cleaned });
+
 		let tags = [];
 
 		Object.entries(cleaned).forEach(([key, value]) => {
@@ -126,6 +128,7 @@ const DealsScreen = () => {
 
 			if (key === 'closedBy') {
 				const closedByValue = filters.closedBy;
+
 				if (typeof closedByValue === 'object' && closedByValue !== null) {
 					displayValue = closedByValue.fullName;
 				}
@@ -133,6 +136,8 @@ const DealsScreen = () => {
 
 			tags.push(`${dealsLabels[key]}: ${displayValue}`);
 		});
+
+		setFilters(cleaned);
 
 		// Extract `closedBy._id`
 		if (cleaned.closedBy && typeof cleaned.closedBy === 'object') {
@@ -142,7 +147,6 @@ const DealsScreen = () => {
 		setSearchTags(tags);
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...cleaned, page: 1 }));
-		setFilters(cleaned);
 	};
 
 	const handlePageChange = (page) => {
@@ -159,6 +163,8 @@ const DealsScreen = () => {
 		setFilters([]);
 		setSearchClear(false);
 	};
+
+	console.log({ filters });
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
