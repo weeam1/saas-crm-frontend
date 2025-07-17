@@ -102,8 +102,6 @@ const DealsScreen = () => {
 		const cleaned = cleanObject(filters);
 		setFilters(cleaned);
 
-		console.log({ cleaned });
-
 		let tags = [];
 
 		Object.entries(cleaned).forEach(([key, value]) => {

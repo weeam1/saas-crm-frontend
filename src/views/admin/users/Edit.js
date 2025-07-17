@@ -563,7 +563,9 @@ const Edit = (props) => {
 								</>
 							)}
 
-							{(isAdmin || user?.roles[0]?.roleName === 'Manager') && (
+							{(isAdmin ||
+								(user?.roles[0]?.roleName === 'Manager' &&
+									user._id !== data._id)) && (
 								<>
 									<GridItem colSpan={{ base: 6 }}>
 										<FormLabel
