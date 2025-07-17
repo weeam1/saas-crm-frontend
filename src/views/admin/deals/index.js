@@ -137,11 +137,12 @@ const DealsScreen = () => {
 			}
 
 			if (key === 'spaDone') {
-				displayValue = value ? 'Signed' : 'Pending';
+				displayValue = value === 'true' ? 'Signed' : 'Pending';
 			}
 
 			if (key === 'invoiceSent') {
-				displayValue = value ? 'Yes' : 'No';
+				console.log(value);
+				displayValue = value === 'true' ? 'Yes' : 'No';
 			}
 
 			if (key === 'closedBy') {
