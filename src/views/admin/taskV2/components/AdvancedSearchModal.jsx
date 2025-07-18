@@ -160,7 +160,7 @@ const AdvancedSearchModal = ({
 
             <FormControl>
               <FormLabel>Due Date Range</FormLabel>
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <VStack width="100%" alignItems="flex-end">
                 <CustomDatePicker
                   selectedDate={filters.dueDateFrom}
                   handleDateChange={(date) =>
@@ -180,7 +180,7 @@ const AdvancedSearchModal = ({
                   toggleCalendar={() => toggleCalendar("dueDateTo")}
                   minDate={filters.dueDateFrom}
                 />
-              </SimpleGrid>
+              </VStack>
             </FormControl>
 
             <VStack align="start" w="full">

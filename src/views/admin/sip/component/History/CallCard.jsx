@@ -70,6 +70,9 @@ const CallCard = ({
       _hover={{ bg: hoverBg, shadow: "sm" }}
       transition="all 0.2s"
       cursor="pointer"
+      height="360px" 
+      display="flex"
+      flexDirection="column"
     >
       <Flex justify="space-between" align="center" mb={3}>
         <Badge
@@ -79,14 +82,15 @@ const CallCard = ({
           borderRadius="full"
           display="flex"
           alignItems="center"
+          minWidth="110px" 
         >
-          <Icon as={statusData.icon} mr={1} />
-          <Text fontSize="sm">{call.disposition || "Unknown"}</Text>
+          <Icon as={statusData.icon} mr={1} boxSize={3} />
+          <Text fontSize="xs">{call.disposition || "Unknown"}</Text>
         </Badge>
 
-        <Flex align="center">
-          <Icon as={callModeData.icon} color={callModeData.color} mr={1} />
-          <Text fontSize="sm" color={callModeData.color}>
+        <Flex align="center" minWidth="90px" justify="flex-end">
+          <Icon as={callModeData.icon} color={callModeData.color} mr={1} boxSize={3} />
+          <Text fontSize="xs" color={callModeData.color}>
             {call.call_mode || "Unknown"}
           </Text>
         </Flex>
@@ -94,83 +98,89 @@ const CallCard = ({
 
       <Divider my={2} />
 
-      <Box mb={3}>
-        <Text fontSize="xs" color="gray.500" mb={1}>
-          Call ID
-        </Text>
-        <Text fontSize="sm" fontWeight="medium">
-          {call.uniqueid || "N/A"}
-        </Text>
-      </Box>
-
-      <Flex justify="space-between" mb={3}>
-        <Box>
-          <Text fontSize="xs" color="gray.500" mb={1}>
-            From
-          </Text>
-          <Text fontSize="sm" fontWeight="medium">
-            {call.src || "N/A"}
-          </Text>
-        </Box>
-        <Box>
-          <Text fontSize="xs" color="gray.500" mb={1}>
-            To
-          </Text>
-          <Flex align="center">
-            <Text fontSize="sm" fontWeight="medium" color="#8247FF" mr={2}>
-              {call.dst || "N/A"}
+      <Box mb={3} flex="1">
+        <Flex direction="column" height="100%" justify="space-between">
+          <Box>
+            <Text fontSize="2xs" color="gray.500" mb={1}>
+              Call ID
             </Text>
-            {call.dst && (
-              <IconButton
-                icon={<FiCopy size={14} />}
-                size="xs"
-                aria-label="Copy number"
-                variant="ghost"
-                onClick={() => handleCopy(call.dst)}
-              />
-            )}
+            <Text fontSize="xs" fontWeight="medium" isTruncated>
+              {call.uniqueid || "N/A"}
+            </Text>
+          </Box>
+
+          <Flex justify="space-between" mb={3}>
+            <Box width="48%">
+              <Text fontSize="2xs" color="gray.500" mb={1}>
+                From
+              </Text>
+              <Text fontSize="xs" fontWeight="medium" isTruncated>
+                {call.src || "N/A"}
+              </Text>
+            </Box>
+            <Box width="48%">
+              <Text fontSize="2xs" color="gray.500" mb={1}>
+                To
+              </Text>
+              <Flex align="center">
+                <Text fontSize="xs" fontWeight="medium" color="#8247FF" isTruncated mr={2}>
+                  {call.dst || "N/A"}
+                </Text>
+                {call.dst && (
+                  <IconButton
+                    icon={<FiCopy size={12} />}
+                    size="2xs"
+                    aria-label="Copy number"
+                    variant="ghost"
+                    onClick={() => handleCopy(call.dst)}
+                  />
+                )}
+              </Flex>
+            </Box>
           </Flex>
-        </Box>
-      </Flex>
 
-      <Flex justify="space-between" mb={3}>
-        <Box>
-          <Text fontSize="xs" color="gray.500" mb={1}>
-            Date
-          </Text>
-          <Text fontSize="sm">
-            {call.calldate
-              ? moment(call.calldate).format("MMM D, YYYY h:mm A")
-              : "N/A"}
-          </Text>
-        </Box>
-        <Box textAlign="right">
-          <Text fontSize="xs" color="gray.500" mb={1}>
-            Duration
-          </Text>
-          <Text fontSize="sm">
-            {call.duration ? formatCallDuration(call.duration) : "0 sec"}
-          </Text>
-        </Box>
-      </Flex>
+          <Flex justify="space-between" mb={3}>
+            <Box width="48%">
+              <Text fontSize="2xs" color="gray.500" mb={1}>
+                Date
+              </Text>
+              <Text fontSize="xs" isTruncated>
+                {call.calldate
+                  ? moment(call.calldate).format("MMM D, h:mm A")
+                  : "N/A"}
+              </Text>
+            </Box>
+            <Box width="48%" textAlign="right">
+              <Text fontSize="2xs" color="gray.500" mb={1}>
+                Duration
+              </Text>
+              <Text fontSize="xs">
+                {call.duration ? formatCallDuration(call.duration) : "0 sec"}
+              </Text>
+            </Box>
+          </Flex>
 
-      <Box mt={3}>
-        <Text fontSize="xs" color="gray.500" mb={1}>
-          Recording
-        </Text>
-        {call.recording ? (
-          <AudioPlayer
-            url={`https://webrtc.weeam.info/file/${call.recording}`}
-            currentlyPlayingId={currentlyPlayingId}
-            setCurrentlyPlayingId={handleSetCurrentlyPlaying}
-            playerId={call.id || call.uniqueid || `player-${index}`}
-            timestamp={new Date(call.calldate)}
-            duration= {call?.duration}
-            compact
-          />
-        ) : (
-          <Text fontSize="sm" color="red.500">No recording</Text>
-        )}
+          <Box mt="auto">
+            <Text fontSize="2xs" color="gray.500" mb={1}>
+              Recording
+            </Text>
+            {call.recording ? (
+              <AudioPlayer
+                url={`https://webrtc.weeam.info/file/${call.recording}`}
+                currentlyPlayingId={currentlyPlayingId}
+                setCurrentlyPlayingId={handleSetCurrentlyPlaying}
+                playerId={call.id || call.uniqueid || `player-${index}`}
+                timestamp={new Date(call.calldate)}
+                duration={call?.duration}
+                compact
+              />
+            ) : (
+              <Text fontSize="xs" color="red.500">
+                No recording
+              </Text>
+            )}
+          </Box>
+        </Flex>
       </Box>
     </Box>
   );
