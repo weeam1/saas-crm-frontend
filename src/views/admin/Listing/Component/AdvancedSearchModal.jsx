@@ -32,7 +32,7 @@ const AdvancedSearchModal = ({
   unitTypes,
   initialFilters,
   clearFilter,
-  countries
+  countries,
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
@@ -214,6 +214,7 @@ const AdvancedSearchModal = ({
         mx={{ base: 2, sm: 4, md: 8 }}
         w={{ base: "95vw", sm: "90vw", md: "500px" }}
         maxW="100vw"
+        pb={2}
       >
         <ModalHeader>Advanced search</ModalHeader>
         <ModalCloseButton />
@@ -298,11 +299,11 @@ const AdvancedSearchModal = ({
               </SimpleGrid>
 
               {/* Date Range Section */}
-              <Box w="full" pt={2}>
+              <Box width="100%">
                 <Text fontSize="md" fontWeight="semibold" mb={3}>
                   Date Range
                 </Text>
-                <SimpleGrid columns={colSpan} gap={4}>
+                <VStack width="100%" alignItems="flex-end">
                   <FormControl>
                     <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker
@@ -331,7 +332,7 @@ const AdvancedSearchModal = ({
                       toggleCalendar={() => toggleCalendar("startTo")}
                     />
                   </FormControl>
-                </SimpleGrid>
+                </VStack>
               </Box>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
