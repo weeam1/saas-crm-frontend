@@ -156,7 +156,7 @@ const AudioPlayer = ({
               loading ? (
                 <Spinner size="xs" color="white" />
               ) : error || duration <= 0 ? (
-                <FaExclamationTriangle />
+                <FaPlay />
               ) : isPlaying ? (
                 <FaPause />
               ) : (
@@ -164,7 +164,7 @@ const AudioPlayer = ({
               )
             }
             size="sm"
-            colorScheme={isDisabled ? "red" : "brand"}
+            colorScheme={"brand"}
             isDisabled={isDisabled}
           />
 
