@@ -144,7 +144,7 @@ const AudioPlayer = ({
       maxW="800px"
       gap={3}
       color="white"
-      opacity={isDisabled ? 0.7 : 1}
+      opacity={1}
     >
       <audio ref={audioRef} preload="metadata" />
 
@@ -189,7 +189,7 @@ const AudioPlayer = ({
           fontSize="13px"
           onClick={cyclePlaybackRate}
           bg="brand.500"
-          _hover={{ bg: isDisabled ? "brand.500" : "brand.400" }}
+          _hover={{ bg: "brand.400" }}
           color="white"
           borderRadius="full"
           minW="60px"
