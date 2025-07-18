@@ -47,6 +47,12 @@ export const viewOptions = [
 	{ label: 'All', value: 'all' },
 ];
 
+export const yearsOptions = [
+	{ label: '2025', value: 2025 },
+	{ label: '2024', value: 2024 },
+	{ label: '2023', value: 2023 },
+];
+
 export const PERIOD_OPTIONS = [
 	{ label: 'Today', value: 'today' },
 	{ label: 'Weekly', value: 'weekly' },

@@ -12,11 +12,24 @@ import LeadStatusChart from '../LeadStatusChart';
 import LeadMainStatusChart from '../LeadMainStatusChart';
 import { viewOptions } from 'views/admin/reports-v2/helpers';
 import TopFilter from '../../TopFilter';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import SalesBarChart from '../SalesBarChart';
 
 const AgentDetails = ({ agents }) => {
 	const [selectedAgent, setSelectedAgent] = useState(agents[0]);
 
 	const [view, setView] = useState('top5');
+
+	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
+		{
+			path: '/deals/sales_report',
+			params: { userId: selectedAgent._id },
+		},
+		{
+			skip: !selectedAgent._id,
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	return (
 		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4'>
@@ -115,6 +128,9 @@ const AgentDetails = ({ agents }) => {
 					)}
 				</Stack>
 			</Box>
+
+			{/* Sales Report */}
+			{sales?.sales_report && <SalesBarChart data={sales?.sales_report} />}
 		</Box>
 	);
 };

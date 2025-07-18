@@ -185,7 +185,7 @@ const DealTable = ({
 									</CustomTooltip>
 
 									{deal.dealStatus !== 'Cancelled' &&
-										deal.closedBy._id === loginedUser._id && (
+										(isAdmin || deal.closedBy._id === loginedUser._id) && (
 											<>
 												<CustomTooltip label='Deal Cancelled' variant='error'>
 													<IconButton

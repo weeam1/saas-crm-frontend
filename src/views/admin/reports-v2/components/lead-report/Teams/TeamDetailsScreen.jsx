@@ -1,10 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-	Box,
-	Grid,
-	Heading,
-	useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Grid, Heading, useColorModeValue } from '@chakra-ui/react';
 
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { TeamStatsOverview } from './TeamStatsOverview';
@@ -81,7 +76,12 @@ const TeamDetailsScreen = () => {
 
 						{/* Overview Cards */}
 						<Grid
-							templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
+							templateColumns={{
+								base: 'repeat(1, 1fr)',
+								md: 'repeat(2, 1fr)',
+								lg: 'repeat(3, 1fr)',
+							}}
+							// templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
 							gap={6}
 							mb={8}
 						>
