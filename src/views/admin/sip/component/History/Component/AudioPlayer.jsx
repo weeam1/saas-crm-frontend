@@ -10,7 +10,7 @@ import {
   Button,
   Spinner,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause } from "react-icons/fa";
+import { FaPlay, FaPause, FaExclamationTriangle } from "react-icons/fa";
 
 const formatTime = (seconds) => {
   const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
@@ -34,12 +34,13 @@ const AudioPlayer = ({
   const [error, setError] = useState(false);
 
   const isCurrent = currentlyPlayingId === playerId;
+  const isDisabled = error || duration <= 0;
 
   useEffect(() => {
     const audio = audioRef.current;
     if (audio && !audio.src) {
       audio.src = url;
-      audio.load(); 
+      audio.load();
     }
   }, [url]);
 
@@ -50,6 +51,9 @@ const AudioPlayer = ({
     const onLoadedMetadata = () => {
       setDuration(audio.duration || 0);
       setLoading(false);
+      if (audio.duration <= 0 || !isFinite(audio.duration)) {
+        setError(true);
+      }
     };
 
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
@@ -91,7 +95,7 @@ const AudioPlayer = ({
 
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio || error) return;
+    if (!audio || isDisabled) return;
 
     if (isPlaying) {
       audio.pause();
@@ -115,13 +119,14 @@ const AudioPlayer = ({
 
   const handleSeek = (value) => {
     const audio = audioRef.current;
-    if (audio) {
+    if (audio && !isDisabled) {
       audio.currentTime = value;
       setCurrentTime(value);
     }
   };
 
   const cyclePlaybackRate = () => {
+    if (isDisabled) return;
     const nextRate = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
     setPlaybackRate(nextRate);
     if (audioRef.current) {
@@ -139,26 +144,29 @@ const AudioPlayer = ({
       maxW="800px"
       gap={3}
       color="white"
+      opacity={isDisabled ? 0.7 : 1}
     >
       <audio ref={audioRef} preload="metadata" />
 
       <Flex align="center" gap={4}>
-        <IconButton
-          onClick={togglePlay}
-          aria-label="Play/Pause"
-          icon={
-            loading ? (
-              <Spinner size="xs" color="white" />
-            ) : isPlaying ? (
-              <FaPause />
-            ) : (
-              <FaPlay />
-            )
-          }
-          size="sm"
-          colorScheme="brand"
-          isDisabled={error}
-        />
+          <IconButton
+            onClick={togglePlay}
+            aria-label="Play/Pause"
+            icon={
+              loading ? (
+                <Spinner size="xs" color="white" />
+              ) : error || duration <= 0 ? (
+                <FaExclamationTriangle />
+              ) : isPlaying ? (
+                <FaPause />
+              ) : (
+                <FaPlay />
+              )
+            }
+            size="sm"
+            colorScheme={isDisabled ? "red" : "brand"}
+            isDisabled={isDisabled}
+          />
 
         <Slider
           flex="1"
@@ -167,7 +175,7 @@ const AudioPlayer = ({
           min={0}
           step={1}
           onChange={handleSeek}
-          isDisabled={error || loading}
+          isDisabled={isDisabled || loading}
           colorScheme="brand"
         >
           <SliderTrack>
@@ -181,10 +189,11 @@ const AudioPlayer = ({
           fontSize="13px"
           onClick={cyclePlaybackRate}
           bg="brand.500"
-          _hover={{ bg: "brand.400" }}
+          _hover={{ bg: isDisabled ? "brand.500" : "brand.400" }}
           color="white"
           borderRadius="full"
           minW="60px"
+          isDisabled={isDisabled}
         >
           {playbackRate}x
         </Button>
