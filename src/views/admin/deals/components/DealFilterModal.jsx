@@ -51,6 +51,7 @@ const DealFilterModal = ({
 		unitPrice: '',
 		downpaymentPaid: '',
 		bookingAmountPaid: '',
+		invoiceSent: '',
 	};
 
 	useEffect(() => {

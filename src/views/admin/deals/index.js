@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Flex, HStack, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
 import { buttonStyle } from 'utils/btn';
@@ -12,6 +19,10 @@ import { useSelector } from 'react-redux';
 import TopPagination from 'components/pagination/TopPagination';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { dealsLabels } from 'utils/searchLabels';
+import DateFilterButton from '../lead-v2/components/DateFilterButton';
+import DateRangeFilter from './components/DateRangeFilter';
+import { formattedDate } from 'utils/helpers';
+import { format } from 'date-fns';
 
 const LIMIT = 10;
 
@@ -23,6 +34,12 @@ const DealsScreen = () => {
 	const [filters, setFilters] = useState([]);
 
 	const [isRefetching, setIsRefetching] = useState(false);
+
+	const {
+		isOpen: dateTimeIsOpen,
+		onOpen: dateTimeOnOpen,
+		onClose: dateTimeOnClose,
+	} = useDisclosure();
 
 	const tree = useSelector((state) => state.user.tree);
 
@@ -85,8 +102,6 @@ const DealsScreen = () => {
 		const cleaned = cleanObject(filters);
 		setFilters(cleaned);
 
-		console.log({ cleaned });
-
 		let tags = [];
 
 		Object.entries(cleaned).forEach(([key, value]) => {
@@ -120,11 +135,12 @@ const DealsScreen = () => {
 			}
 
 			if (key === 'spaDone') {
-				displayValue = value ? 'Signed' : 'Pending';
+				displayValue = value === 'true' ? 'Signed' : 'Pending';
 			}
 
 			if (key === 'invoiceSent') {
-				displayValue = value ? 'Yes' : 'No';
+				console.log(value);
+				displayValue = value === 'true' ? 'Yes' : 'No';
 			}
 
 			if (key === 'closedBy') {
@@ -148,6 +164,22 @@ const DealsScreen = () => {
 		setSearchTags(tags);
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
+	};
+
+	const handleDateFilter = (dateFilter) => {
+		dateTimeOnClose();
+		const { from, to } = dateFilter;
+
+		// refresh the params
+		setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT, from, to });
+
+		const searchValues = [
+			`Start: ${format(new Date(from), 'd MMM, yyyy')}`,
+			`End: ${format(new Date(to), 'd MMM, yyyy')}`,
+		];
+
+		setSearchTags(searchValues);
+		setSearchClear(true);
 	};
 
 	const handlePageChange = (page) => {
@@ -176,14 +208,18 @@ const DealsScreen = () => {
 					/>
 				</HStack>
 
-				<Button
-					onClick={() => setIsFilterOpen(true)}
-					colorScheme='brand'
-					variant='solid'
-					size='sm'
-				>
-					Advanced Search
-				</Button>
+				<HStack gap='2'>
+					<Button
+						onClick={() => setIsFilterOpen(true)}
+						colorScheme='brand'
+						variant='solid'
+						size='sm'
+					>
+						Advanced Search
+					</Button>
+
+					<DateFilterButton onClick={dateTimeOnOpen} />
+				</HStack>
 			</Flex>
 			{/* Search tags */}
 			{searchClear && searchTags && (
@@ -257,6 +293,14 @@ const DealsScreen = () => {
 					onFilterApply={handleDealFilters}
 					initialFilters={filters}
 					tree={tree}
+				/>
+			)}
+
+			{dateTimeIsOpen && (
+				<DateRangeFilter
+					isOpen={dateTimeIsOpen}
+					onClose={dateTimeOnClose}
+					handleDateFilter={handleDateFilter}
 				/>
 			)}
 		</Box>

@@ -629,28 +629,19 @@ export default function CheckTable(props) {
 													);
 												} else if (cell?.column.Header === 'Target') {
 													data = (
-														<HStack
-															align='center'
-															justifyContent='center'
-															bg='brand.50'
-															p='2'
-															color='brand.500'
-															fontWeight='semibold'
-															rounded='md'
-														>
-															{cell?.value > 0 ? (
-																<>
-																	<Text fontSize='sm'>
-																		{formatCurrency(
-																			cell?.value,
-																			row.original.currency
-																		)}
-																	</Text>
-																</>
-															) : (
-																<Text>N/A</Text>
-															)}
-														</HStack>
+														<Box textAlign='center'>
+															<Text
+																fontSize='sm'
+																color={textColor}
+																fontWeight='700'
+																textAlign='center'
+															>
+																{formatCurrency(
+																	cell?.value,
+																	row.original.currency
+																)}
+															</Text>
+														</Box>
 													);
 												} else if (cell?.column.Header === 'Status') {
 													data = (
