@@ -175,7 +175,7 @@ const AudioPlayer = ({
           min={0}
           step={1}
           onChange={handleSeek}
-          isDisabled={isDisabled || loading}
+          isDisabled={ loading}
           colorScheme="brand"
         >
           <SliderTrack>
@@ -193,7 +193,6 @@ const AudioPlayer = ({
           color="white"
           borderRadius="full"
           minW="60px"
-          isDisabled={isDisabled}
         >
           {playbackRate}x
         </Button>
