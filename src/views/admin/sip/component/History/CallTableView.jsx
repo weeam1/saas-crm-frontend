@@ -133,18 +133,20 @@ const CallHelper = ({ callMode }) => {
   }
   return (
     <Flex gap={2} alignItems={"center"} color={color}>
-      <Box><CallModeIcon callMode={callMode} /></Box>
+      <Box>
+        <CallModeIcon callMode={callMode} />
+      </Box>
       <Box>{callMode}</Box>
     </Flex>
   );
 };
 
-const CallTableView = ({ 
-  calls, 
-  currentlyPlayingId, 
-  handleSetCurrentlyPlaying, 
+const CallTableView = ({
+  calls,
+  currentlyPlayingId,
+  handleSetCurrentlyPlaying,
   handleCopy,
-  copied
+  copied,
 }) => {
   const columns = [
     "Call id",
@@ -175,7 +177,11 @@ const CallTableView = ({
             {columns.map((header, index) => (
               <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
                 <Box display="flex" alignItems="center" justifyContent="center">
-                  <Text fontSize={{ base: "12px", md: "14px" }} fontWeight="600" color="gray.700">
+                  <Text
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="600"
+                    color="gray.700"
+                  >
                     {header}
                   </Text>
                 </Box>
@@ -213,9 +219,11 @@ const CallTableView = ({
                 minWidth="100px"
                 textAlign={"center"}
               >
-                {call.call_mode
-                  ? <CallHelper callMode={call.call_mode} />
-                  : "no data found"}
+                {call.call_mode ? (
+                  <CallHelper callMode={call.call_mode} />
+                ) : (
+                  "no data found"
+                )}
               </Td>
               <Td
                 py={4}
@@ -237,10 +245,7 @@ const CallTableView = ({
                 <Flex align="center" justify="center" gap={2}>
                   {call.dst || "no data found"}
                   {call.dst && (
-                    <CustomTooltip
-                      label={copied ? "Copied!" : "Copy"}
-                      hasArrow
-                    >
+                    <CustomTooltip label={copied ? "Copied!" : "Copy"} hasArrow>
                       <IconButton
                         icon={<FiCopy />}
                         size="xs"
@@ -267,6 +272,7 @@ const CallTableView = ({
                     setCurrentlyPlayingId={handleSetCurrentlyPlaying}
                     playerId={call.id || call.uniqueid || `player-${index}`}
                     timestamp={new Date(call.calldate)}
+                    duration={call?.duration}
                   />
                 ) : (
                   <Text fontSize="sm" color="gray.500">
@@ -317,9 +323,7 @@ const CallTableView = ({
                 minWidth="100px"
                 textAlign={"center"}
               >
-                {call.billsec
-                  ? `${formatCallDuration(call.billsec)}`
-                  : "0 sec"}
+                {call.billsec ? `${formatCallDuration(call.billsec)}` : "0 sec"}
               </Td>
             </Tr>
           ))}
