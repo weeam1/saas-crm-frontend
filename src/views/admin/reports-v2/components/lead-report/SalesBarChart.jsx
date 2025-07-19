@@ -48,7 +48,7 @@ const MONTHS = [
 	'December',
 ];
 
-const SalesBarChart = ({ data }) => {
+const SalesBarChart = ({ data, title }) => {
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 	// Sales (bar) – Deep blue for trust/progress
 	const barColor = useColorModeValue('#2563EB', '#3B82F6');
@@ -197,7 +197,7 @@ const SalesBarChart = ({ data }) => {
 		<Box width='100%' height='500px'>
 			<Flex justify='space-between' align='center' p='2' mb={4}>
 				<Text fontSize='lg' fontWeight='semibold' color={textColor}>
-					Monthly Sales Performance
+					{title}
 				</Text>
 
 				{/* <TopFilter

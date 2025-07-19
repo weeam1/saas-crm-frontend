@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Flex, Text, Grid, Stack } from '@chakra-ui/react';
 import {
 	FiTrendingUp,
@@ -16,7 +16,18 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import SalesBarChart from '../SalesBarChart';
 
 const AgentDetails = ({ agents }) => {
-	const [selectedAgent, setSelectedAgent] = useState(agents[0]);
+	const sortedAgents = useMemo(
+		() =>
+			[...agents].sort(
+				(a, b) =>
+					(b.leadData?.closedDeals || 0) - (a.leadData?.closedDeals || 0)
+			),
+		[agents]
+	);
+
+	const [selectedAgent, setSelectedAgent] = useState(
+		sortedAgents.length > 0 ? sortedAgents[0] : null
+	);
 
 	const [view, setView] = useState('top5');
 
@@ -130,7 +141,9 @@ const AgentDetails = ({ agents }) => {
 			</Box>
 
 			{/* Sales Report */}
-			{sales?.sales_report && <SalesBarChart data={sales?.sales_report} />}
+			{sales?.sales_report && (
+				<SalesBarChart data={sales?.sales_report} title='Agent Monthly Sales' />
+			)}
 		</Box>
 	);
 };
