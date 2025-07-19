@@ -15,6 +15,7 @@ import countriesReducer, {
 import usersReducer from './usersSlice';
 import leadsReducer from './leadsSlice';
 import whatsappReducer from './whatsappSlice';
+import sipReducer from './sipSlice';
 
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
@@ -28,6 +29,7 @@ const store = configureStore({
 		countries: countriesReducer,
 		users: usersReducer,
 		whatsapp: whatsappReducer,
+		sip: sipReducer,
 		images: imageReducer,
 		user: userReducer,
 		announcements: announcementsReducer,
