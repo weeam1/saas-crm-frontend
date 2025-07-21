@@ -9,9 +9,17 @@ const sipSlice = createSlice({
 		setAudioTranscription(state, action) {
 			const { id, data } = action.payload;
 
-			console.log({ id, data });
+			if (!id || !data?.language) {
+				console.warn(
+					'Invalid transcription payload: missing id or language',
+					action.payload
+				);
+				return;
+			}
 
-			state.transcriptions[id] = data;
+			const key = `${id}_${data?.language}`;
+
+			state.transcriptions[key] = data;
 		},
 	},
 });

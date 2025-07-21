@@ -43,7 +43,8 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 				language: language,
 			};
 
-			const cachedData = storedTranscriptions[data.uniqueid];
+			const key = `${data.uniqueid}_${language}`;
+			const cachedData = storedTranscriptions[key];
 
 			if (cachedData && cachedData.language === language) {
 				setTranscription(cachedData);
@@ -73,11 +74,10 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 		}
 	};
 
-	const formatTime = (seconds) => {
-		const date = new Date(seconds * 1000);
-		return seconds >= 3600
-			? date.toISOString().substr(11, 8)
-			: date.toISOString().substr(14, 5);
+	const formatRecordingTime = (seconds) => {
+		const mins = Math.floor(seconds / 60);
+		const secs = Math.floor(seconds % 60);
+		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 	};
 
 	// const renderSegments = () => {
@@ -143,7 +143,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 		if (!transcription?.segments?.length) return null;
 
 		return (
-			<Box mt={4} maxH={{ base: '400px', md: '500px' }} overflowY='auto'>
+			<Box mt={4} maxH={{ base: '400px', md: '500px' }} p='2' overflowY='auto'>
 				<Stack spacing={2}>
 					{transcription.segments.map((seg, idx) => (
 						<Flex
@@ -165,7 +165,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 							>
 								<Icon as={FaPlay} boxSize={4} />
 								<Text fontSize='xs' mt={1}>
-									{seg.start.toFixed(2)}s
+									{formatRecordingTime(seg.start)}
 								</Text>
 							</Flex>
 
@@ -193,8 +193,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 			<ModalContent
 				borderRadius={{ base: 'none', md: 'xl' }}
 				boxShadow={{ base: 'none', md: '2xl' }}
-				maxH='90vh'
-				overflow='hidden'
+				m='2'
 			>
 				<ModalHeader
 					bg='brand.50'
@@ -208,7 +207,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 				</ModalHeader>
 				<ModalCloseButton />
 
-				<ModalBody overflowY='auto' p={{ base: 4, md: 8 }}>
+				<ModalBody p={{ base: 4, md: 8 }}>
 					<Box mb={6} mx='auto' maxWidth={{ base: 'full', md: '500px' }}>
 						<Text fontSize='sm' color='gray.500' mb={2}>
 							Select language and generate transcription
@@ -218,7 +217,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 							<Select
 								value={language}
 								onChange={(e) => setLanguage(e.target.value)}
-								maxW='300px'
+								maxW={{ base: 'full', md: '300px' }}
 								size='sm'
 							>
 								<option value='default'>Auto-detect (Native)</option>
@@ -243,7 +242,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 
 					{isLoading && (
 						<Box textAlign='center' py={10}>
-							<Spinner size='xl' thickness='3px' color='blue.500' />
+							<Spinner size='xl' thickness='3px' color='brand.500' />
 							<Text mt={4} fontSize='md' color='gray.600'>
 								Processing audio content...
 							</Text>
@@ -251,7 +250,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 								mt={4}
 								size='xs'
 								isIndeterminate
-								colorScheme='blue'
+								colorScheme='brand'
 								maxW='400px'
 								mx='auto'
 							/>

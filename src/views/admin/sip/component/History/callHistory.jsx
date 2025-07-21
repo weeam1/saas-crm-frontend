@@ -25,7 +25,7 @@ import TopPagination from 'components/pagination/TopPagination';
 const CallHistory = ({ setTotalCallRecord }) => {
 	const [calls, setCalls] = useState([]);
 	const [page, setPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+	const [pageSize, setPageSize] = useState(12);
 	const [totalItems, setTotalItems] = useState(0);
 	const [totalPages, setTotalPages] = useState(1);
 	const [loading, setLoading] = useState(false);
