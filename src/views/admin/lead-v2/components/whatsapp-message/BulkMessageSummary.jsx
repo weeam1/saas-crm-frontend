@@ -17,8 +17,8 @@ import {
 
 const BulkMessageSummary = ({ isOpen, onClose, summary = {} }) => {
 	const total = summary.success + summary.failed || 0;
-	const successRate = total ? Math.round((summary.success / total) * 100) : 0;
-	const failureRate = total ? 100 - successRate : 0;
+	// const successRate = total ? Math.round((summary.success / total) * 100) : 0;
+	// const failureRate = total ? 100 - successRate : 0;
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
@@ -51,13 +51,13 @@ const BulkMessageSummary = ({ isOpen, onClose, summary = {} }) => {
 							<Stat>
 								<StatLabel>Success ✅</StatLabel>
 								<StatNumber color='green.500'>{summary.success}</StatNumber>
-								<StatHelpText>{successRate}% delivered</StatHelpText>
+								{/* <StatHelpText>{successRate}% delivered</StatHelpText> */}
 							</Stat>
 
 							<Stat>
 								<StatLabel>Failed ❌</StatLabel>
 								<StatNumber color='red.500'>{summary.failed}</StatNumber>
-								<StatHelpText>{failureRate}% failed</StatHelpText>
+								{/* <StatHelpText>{failureRate}% failed</StatHelpText> */}
 							</Stat>
 						</Flex>
 					</Box>

@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
@@ -24,7 +24,7 @@ import { validatePhoneNumber } from 'utils/helpers';
 
 const LeadMenu = ({
 	lead,
-	user,
+	// user,
 	access,
 	callAccess,
 	emailAccess,
@@ -41,6 +41,8 @@ const LeadMenu = ({
 }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
+	const user = useSelector((state) => state.user.user);
 
 	// const loginUser = useSelector((state) => state.user.user);
 
@@ -67,7 +69,7 @@ const LeadMenu = ({
 			toast.error(
 				user?.role === 'superAdmin'
 					? 'Please first setup our whatsapp!'
-					: 'Can not open the whatsapp, please contact with Admin.'
+					: 'Your WhatsApp is not setup, please contact with Admin.'
 			);
 			return;
 		}

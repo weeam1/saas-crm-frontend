@@ -18,7 +18,7 @@ import { buttonStyle } from './components/constants';
 import BulkAssignModal from './components/BulkAssignModal';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import DateFilterButton from './components/DateFilterButton';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateLeads } from '../../../redux/leadsSlice';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -30,7 +30,9 @@ import { HasAccess } from './../../../redux/accessUtils';
 import BulkWhatsappModal from './components/whatsapp-message/BulkWhatsappModal';
 
 const LeadsCards = () => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const user = useSelector((state) => state.user.user);
 
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
 
@@ -175,7 +177,7 @@ const LeadsCards = () => {
 					justifyItems='flex-end'
 					alignItems='end'
 				>
-					<HStack>
+					<Flex wrap='wrap' gap='2'>
 						<AllCheckBox
 							leads={leads}
 							setSelectAllChecked={setSelectAllChecked}
@@ -232,7 +234,7 @@ const LeadsCards = () => {
 								New
 							</Button>
 						)}
-					</HStack>
+					</Flex>
 
 					<HStack>
 						<IconButton
