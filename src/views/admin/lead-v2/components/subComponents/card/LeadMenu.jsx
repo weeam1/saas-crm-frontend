@@ -122,7 +122,7 @@ const LeadMenu = ({
 					/>
 				)}
 
-				{callAccess?.create && (
+				{/* {callAccess?.create && (
 					<MenuItem
 						py={2.5}
 						// onClick={() => {
@@ -133,7 +133,7 @@ const LeadMenu = ({
 					>
 						Create Call
 					</MenuItem>
-				)}
+				)} */}
 				{emailAccess?.create && (
 					<MenuItem
 						py={2.5}
@@ -168,13 +168,13 @@ const LeadMenu = ({
 					</MenuItem>
 				)}
 
-				<MenuItem
+				{/* <MenuItem
 					py={2.5}
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
 					icon={<FaHistory fontSize={15} />}
 				>
 					View Call History
-				</MenuItem>
+				</MenuItem> */}
 				<MenuItem
 					py={2.5}
 					display={{ sm: 'block', xl: 'none' }}
