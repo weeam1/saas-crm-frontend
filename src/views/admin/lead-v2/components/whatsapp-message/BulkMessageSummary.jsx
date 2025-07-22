@@ -12,7 +12,6 @@ import {
 	StatLabel,
 	StatNumber,
 	StatHelpText,
-	Progress,
 	Divider,
 } from '@chakra-ui/react';
 

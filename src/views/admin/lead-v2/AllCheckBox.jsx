@@ -1,13 +1,16 @@
 import { Checkbox } from '@chakra-ui/react';
 import React from 'react';
+import { shallowEqual, useSelector } from 'react-redux';
 
 const AllCheckBox = ({
-	leads,
+	// leads,
 	selectedValues,
 	setSelectedLeads,
 	setSelectedValues,
 	setSelectAllChecked,
 }) => {
+	const leads = useSelector((state) => state.leads, shallowEqual);
+
 	const Ids = leads?.doc?.map((lead) => lead._id) || [];
 
 	const handleChecked = () => {
