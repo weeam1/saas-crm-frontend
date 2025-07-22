@@ -6,6 +6,7 @@ import {
   IconButton,
   Link,
   useColorModeValue,
+  Avatar,
 } from "@chakra-ui/react";
 import { FaEdit, FaFileInvoice } from "react-icons/fa";
 import { format } from "date-fns";
@@ -81,7 +82,7 @@ const DevelopersCardView = ({
             borderWidth="1px"
             borderRadius="lg"
             boxShadow="md"
-            bg="brand.100"
+            bg="white"
             borderColor={borderColor}
             position="relative"
             transition="all 0.2s"
@@ -93,16 +94,22 @@ const DevelopersCardView = ({
             minHeight={{ base: "220px", md: "260px" }}
           >
             <Box onClick={() => handleRowClick(developer._id)} cursor="pointer">
-              <Text
-                fontWeight="bold"
-                fontSize={{ base: "md", md: "lg" }}
-                color={headingColor}
-                isTruncated
-                maxW="70%"
-                mt={2}
-              >
-                {developer.developer_name || "N/A"}
-              </Text>
+              <Flex align="center" gap={3} mt={1}>
+                <Avatar
+                  size="sm"
+                  name={developer.developer_name}
+                  src={developer.imageUrl || ""}
+                />
+                <Text
+                  fontWeight="bold"
+                  fontSize={{ base: "md", md: "lg" }}
+                  color={headingColor}
+                  isTruncated
+                  maxW="70%"
+                >
+                  {developer.developer_name || "N/A"}
+                </Text>
+              </Flex>
 
               <Flex direction="column" gap={2} mt={3}>
                 <Flex align="center">
@@ -140,6 +147,14 @@ const DevelopersCardView = ({
                     {developer.country || "N/A"}
                   </Text>
                 </Flex>
+                <Flex align="center">
+                  <Text fontSize="sm" fontWeight="600" minW="70px">
+                    Phone Number:
+                  </Text>
+                  <Text fontSize="sm" color={textColor} isTruncated>
+                    {developer.phoneNumber || "N/A"}
+                  </Text>
+                </Flex>
               </Flex>
 
               <Text fontSize="xs" color="gray.500" mt={3} fontStyle="italic">
@@ -150,34 +165,34 @@ const DevelopersCardView = ({
               </Text>
             </Box>
 
-          <Flex justify="flex-end" mt={4} gap={2}>
-            <Link
-              as={RouterLink}
-              to={`/invoice/developers/invoices/${developer._id}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <IconButton
-                icon={<FaFileInvoice />}
-                size="sm"
-                aria-label="View Invoices"
-                colorScheme="brand"
-                variant="outline"
-              />
-            </Link>
+            <Flex justify="flex-end" mt={4} gap={2}>
+              <Link
+                as={RouterLink}
+                to={`/invoice/developers/invoices/${developer._id}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <IconButton
+                  icon={<FaFileInvoice />}
+                  size="sm"
+                  aria-label="View Invoices"
+                  colorScheme="brand"
+                  variant="outline"
+                />
+              </Link>
 
-            <IconButton
-              icon={<FaEdit />}
-              size="sm"
-              aria-label="Edit Developer"
-              colorScheme="brand"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEdit(true);
-                setSelectedId(developer._id);
-                setEditData(developer);
-              }}
-            />
-          </Flex>
+              <IconButton
+                icon={<FaEdit />}
+                size="sm"
+                aria-label="Edit Developer"
+                colorScheme="brand"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEdit(true);
+                  setSelectedId(developer._id);
+                  setEditData(developer);
+                }}
+              />
+            </Flex>
           </Box>
         </Box>
       ))}

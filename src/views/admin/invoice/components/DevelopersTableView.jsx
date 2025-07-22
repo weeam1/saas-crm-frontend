@@ -12,6 +12,7 @@ import {
   Link,
   Button,
   useColorModeValue,
+  Avatar,
 } from "@chakra-ui/react";
 import { FaEdit } from "react-icons/fa";
 import { format } from "date-fns";
@@ -108,7 +109,21 @@ const DevelopersTableView = ({
                         onClick={() => handleRowClick(row._id)}
                         _hover={{ textDecoration: "underline" }}
                       >
-                        {row.developer_name || "-"}
+                        <Flex align="center" gap={3} mt={1}>
+                          <Avatar
+                            size="sm"
+                            name={row.developer_name}
+                            src={row.imageUrl || ""}
+                          />
+                          <Text
+                            fontWeight="bold"
+                            fontSize={{ base: "md", md: "lg" }}
+                            isTruncated
+                            maxW="70%"
+                          >
+                            {row.developer_name || "N/A"}
+                          </Text>
+                        </Flex>
                       </Text>
                     );
                   } else if (column.Header === "Trn") {

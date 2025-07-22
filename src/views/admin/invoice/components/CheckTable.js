@@ -437,7 +437,7 @@ export default function CheckTable(props) {
             borderColor={borderColor}
             selectedValues={selectedValues}
             handleCheckboxChange={handleCheckboxChange}
-			isLoding={isLoding}
+			isLoading={isLoding}
 			isInitialLoading={isInitialLoading}
           />
         ) : (
@@ -449,7 +449,7 @@ export default function CheckTable(props) {
             setEditData={setEditData}
             selectedValues={selectedValues}
             handleCheckboxChange={handleCheckboxChange}
-			isLoding={isLoding}
+			isLoading={isLoding}
 			isInitialLoading={isInitialLoading}
           />
         )}
