@@ -4,6 +4,7 @@ import React from 'react';
 const AllCheckBox = ({
 	leads,
 	selectedValues,
+	setSelectedLeads,
 	setSelectedValues,
 	setSelectAllChecked,
 }) => {
@@ -12,6 +13,7 @@ const AllCheckBox = ({
 	const handleChecked = () => {
 		setSelectAllChecked(true);
 		setSelectedValues(selectedValues.length === Ids.length ? [] : Ids);
+		setSelectedLeads(leads?.doc);
 	};
 
 	return (

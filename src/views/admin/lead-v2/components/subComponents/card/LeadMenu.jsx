@@ -13,7 +13,6 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { MdTask } from 'react-icons/md';
 import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
-import { useStateContext } from 'contexts/store';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
@@ -29,18 +28,14 @@ const LeadMenu = ({
 	access,
 	callAccess,
 	emailAccess,
+	refreshData,
 
 	setLeadDetails,
-	setAddPhoneCall,
-	setCallSelectedId,
-	setTaskInits,
-	onTaskOpen,
-
+	setIsLeadCycle,
 	setEditLead,
 	setSendEmail,
 	setSelectedValues,
 	setDeleteLead,
-	refreshData,
 	setViewPhoneHistory,
 	setLeadAddtionalInfo,
 }) => {
@@ -63,7 +58,7 @@ const LeadMenu = ({
 	const allowedUserEdit =
 		user?.roles[0]?.roleName === 'Agent' ? true : lead?.eLeadStatus === 'show';
 
-	const { setIsLeadCycle } = useStateContext();
+	// const { setIsLeadCycle } = useStateContext();
 
 	const handleOpenWhatsapp = async () => {
 		const businessPhone = user?.whatsappDetails?.phoneNumber;

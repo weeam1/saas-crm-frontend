@@ -69,6 +69,8 @@ const BulkAssignModal = (props) => {
 		setSelectAllChecked,
 	} = props;
 
+	console.log({ selectedLeads });
+
 	const [isMounted, setIsMounted] = useState(true);
 
 	useEffect(() => {
