@@ -6,6 +6,8 @@ const initialState = {
 	totalLeads: null,
 	totalPages: null,
 	doc: [],
+	selectedIds: {},
+	selectedLeads: [],
 };
 
 const leadsSlice = createSlice({
@@ -137,6 +139,34 @@ const leadsSlice = createSlice({
 				state.doc.splice(index, 1);
 			}
 		},
+
+		toggleCheckItem: (state, action) => {
+			const { id, lead } = action.payload;
+
+			if (state.selectedIds[id]) {
+				delete state.selectedIds[id];
+				state.selectedLeads = state.selectedLeads.filter((l) => l._id !== id);
+			} else {
+				state.selectedIds[id] = true;
+				state.selectedLeads.push(lead);
+			}
+		},
+
+		selectAllCheck: (state, action) => {
+			const { allIds, allLeads } = action.payload;
+
+			state.selectedIds = {}; // reset
+			allIds.forEach((id) => {
+				state.selectedIds[id] = true;
+			});
+
+			state.selectedLeads = allLeads;
+		},
+
+		deselectAllCheck: (state) => {
+			state.selectedIds = {};
+			state.selectedLeads = [];
+		},
 	},
 });
 
@@ -147,5 +177,8 @@ export const {
 	updateMultipleLeadFields,
 	addOrUpdateLead,
 	deleteLead,
+	toggleCheckItem,
+	selectAllCheck,
+	deselectAllCheck,
 } = leadsSlice.actions;
 export default leadsSlice.reducer;

@@ -20,6 +20,10 @@ import sipReducer from './sipSlice';
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
 
+import { enableMapSet } from 'immer';
+
+enableMapSet();
+
 const store = configureStore({
 	reducer: {
 		leads: leadsReducer,
