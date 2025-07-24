@@ -3,49 +3,32 @@ import CardShimmer from 'components/loading/CardShimmer';
 import { SimpleGrid, useDisclosure } from '@chakra-ui/react';
 
 import { DealCard } from './components/DealCard';
-import DealDetailsModal from './components/DealDetailsModal';
-import { useState } from 'react';
-import EditDealModal from './components/EditDealModal';
+import { useSelector } from 'react-redux';
 
-const DealCards = ({ deals, isLoading, isFetching, refetch, setEditDeal }) => {
-	const {
-		isOpen: viewDealIsOpen,
-		onClose: viewDealOnClose,
-		onOpen: viewDealOnOpen,
-	} = useDisclosure();
-
-	const {
-		isOpen: editDealIsOpen,
-		onClose: editDealOnClose,
-		onOpen: editDealOnOpen,
-	} = useDisclosure();
-
-	const [deal, setDeal] = useState(null);
-
-	const viewDealDeatailsHandler = (data) => {
-		setDeal(data);
-		viewDealOnOpen();
-	};
-
-	const editDealDeatailsHandler = (data) => {
-		setDeal(data);
-		editDealOnOpen();
-	};
+const DealCards = ({
+	data,
+	isLoading,
+	isRefetching,
+	handleEdit,
+	handleView,
+	handleCancelled,
+}) => {
+	const loginedUser = useSelector((state) => state.user.user);
+	const isAdmin = loginedUser?.role === 'superAdmin';
 
 	return (
 		<>
-			{isLoading || isFetching ? (
+			{isLoading || isRefetching ? (
 				<CardShimmer
 					count={12}
 					height='300px'
 					columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4, '2xl': 4 }}
 				/>
-			) : deals?.length > 0 ? (
+			) : data?.length > 0 ? (
 				<SimpleGrid
 					sx={{
 						display: 'grid',
 						gridTemplateColumns: 'repeat(1, 1fr)',
-
 						'@media screen and (min-width: 640px)': {
 							gridTemplateColumns: 'repeat(1, 1fr)', // sm
 						},
@@ -59,7 +42,7 @@ const DealCards = ({ deals, isLoading, isFetching, refetch, setEditDeal }) => {
 							gridTemplateColumns: 'repeat(3, 1fr)', // xl
 						},
 						'@media screen and (min-width: 1680px)': {
-							gridTemplateColumns: 'repeat(3, 1fr)', // 2xl (custom)
+							gridTemplateColumns: 'repeat(4, 1fr)', // 2xl (custom)
 						},
 						// >= 1920px (e.g., Full HD+)
 						'@media (min-width: 2120px)': {
@@ -76,40 +59,19 @@ const DealCards = ({ deals, isLoading, isFetching, refetch, setEditDeal }) => {
 					}}
 					spacing={4}
 				>
-					{deals.map((item, idx) => (
+					{data.map((item, idx) => (
 						<DealCard
 							key={item._id + idx}
 							deal={item}
-							onViewDetails={viewDealDeatailsHandler}
-							onEditDeal={editDealDeatailsHandler}
+							loginedUser={loginedUser}
+							handleEdit={handleEdit}
+							handleView={handleView}
+							handleCancelled={handleCancelled}
 						/>
 					))}
 				</SimpleGrid>
 			) : (
 				<NoData label='users' />
-			)}
-
-			{viewDealIsOpen && (
-				<DealDetailsModal
-					isOpen={viewDealIsOpen}
-					onClose={() => {
-						viewDealOnClose();
-						setDeal(null);
-					}}
-					deal={deal}
-				/>
-			)}
-
-			{editDealIsOpen && (
-				<EditDealModal
-					isOpen={editDealIsOpen}
-					onClose={() => {
-						editDealOnClose();
-						setDeal(null);
-					}}
-					initialData={deal}
-					onSuccess={refetch}
-				/>
 			)}
 		</>
 	);

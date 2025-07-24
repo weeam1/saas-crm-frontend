@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa';
 import { CheckCircleIcon, TimeIcon } from '@chakra-ui/icons';
 import { formatPostDate, formatCurrency } from 'utils/helpers';
-import { FiXCircle } from 'react-icons/fi';
+import { FiX, FiXCircle } from 'react-icons/fi';
 import ViewDealInvoice from './_shared/ViewDealInvoice';
 
 // Modal component for detailed view
@@ -50,6 +50,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 		commissionStatus,
 		createdAt,
 		dealDate,
+		dealStatus,
 		currency = 'AED',
 	} = deal;
 
@@ -151,7 +152,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 													Client Name
 												</Text>
 												<Text fontWeight='medium' fontSize='lg'>
-													{lead?.leadName}
+													{lead?.leadName || 'N/A'}
 												</Text>
 											</Box>
 											<Divider />
@@ -161,7 +162,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 												</Text>
 												{/* <Stack spacing={1}> */}
 												<Text fontWeight='medium' fontSize='lg'>
-													{lead?.leadPhoneNumber}
+													{lead?.leadPhoneNumber || 'N/A'}
 												</Text>
 												{/* <Text fontSize='sm'>
 														{lead?.email || 'No email provided'}
@@ -337,8 +338,9 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 											value={invoiceSent ? 'Yes' : 'No'}
 											positive={invoiceSent}
 										/>
+
 										<Flex
-											gridColumn='1 / -1'
+											// gridColumn='1 / -1'
 											p={2}
 											borderRadius='md'
 											bg={
@@ -374,6 +376,34 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 												</Text>
 												<Text fontSize='sm' fontWeight='medium'>
 													{commissionStatus}
+												</Text>
+											</Box>
+										</Flex>
+										<Flex
+											// gridColumn='1 '
+											p={2}
+											borderRadius='md'
+											bg={dealStatus === 'Confirmed' ? 'green.50' : 'red.50'}
+											borderWidth='1px'
+											borderColor={
+												dealStatus === 'Confirmed' ? 'green.100' : 'red.100'
+											}
+											align='center'
+											gap={2}
+										>
+											<Icon
+												as={dealStatus === 'Confirmed' ? CheckCircleIcon : FiX}
+												color={
+													dealStatus === 'Confirmed' ? 'green.500' : 'red.500'
+												}
+												boxSize={4}
+											/>
+											<Box>
+												<Text fontSize='xs' color='gray.500'>
+													Deal Status
+												</Text>
+												<Text fontSize='sm' fontWeight='medium'>
+													{dealStatus}
 												</Text>
 											</Box>
 										</Flex>

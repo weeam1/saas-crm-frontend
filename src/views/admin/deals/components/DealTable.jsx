@@ -28,7 +28,7 @@ const DealTable = ({
 	isLoading,
 	isRefetching,
 	handleEdit,
-	hanldeView,
+	handleView,
 	handleCancelled,
 }) => {
 	const columns = [
@@ -180,7 +180,7 @@ const DealTable = ({
 											variant='ghost'
 											size='sm'
 											colorScheme='brand'
-											onClick={() => hanldeView(deal)}
+											onClick={() => handleView(deal)}
 										/>
 									</CustomTooltip>
 

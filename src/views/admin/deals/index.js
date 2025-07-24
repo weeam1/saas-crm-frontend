@@ -23,8 +23,9 @@ import DateFilterButton from '../lead-v2/components/DateFilterButton';
 import DateRangeFilter from './components/DateRangeFilter';
 import { formattedDate } from 'utils/helpers';
 import { format } from 'date-fns';
+import ViewToggle from 'components/toggle/ViewToogle';
 
-const LIMIT = 10;
+const LIMIT = 12;
 
 const DealsScreen = () => {
 	const [deals, setDeals] = useState([]);
@@ -33,6 +34,11 @@ const DealsScreen = () => {
 	const [searchTags, setSearchTags] = useState([]);
 	const [filters, setFilters] = useState([]);
 
+	const [view, setView] = useState(() => {
+		return localStorage.getItem('dealsView') || 'table';
+	});
+
+	// const [viewLoading, setViewLoading] = useState(false);
 	const [isRefetching, setIsRefetching] = useState(false);
 
 	const {
@@ -197,6 +203,15 @@ const DealsScreen = () => {
 		setSearchClear(false);
 	};
 
+	const handleViewChange = (newView) => {
+		setView(newView);
+		// setViewLoading(true);
+
+		// setTimeout(() => {
+		// 	setViewLoading(false);
+		// }, 1000);
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
@@ -219,6 +234,11 @@ const DealsScreen = () => {
 					</Button>
 
 					<DateFilterButton onClick={dateTimeOnOpen} />
+					<ViewToggle
+						cacheKey='dealsView'
+						view={view}
+						handleView={handleViewChange}
+					/>
 				</HStack>
 			</Flex>
 			{/* Search tags */}
@@ -280,6 +300,7 @@ const DealsScreen = () => {
 			) : (
 				<DataView
 					deals={deals}
+					view={view}
 					setDeals={setDeals}
 					isLoading={isLoading}
 					isRefetching={isRefetching}

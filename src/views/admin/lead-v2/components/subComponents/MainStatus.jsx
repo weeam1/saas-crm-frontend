@@ -54,7 +54,7 @@ const MainStatus = ({ lead, role }) => {
 
 			if (response.status === 200) {
 				setSelected(newStatus);
-				toast.success('Main Lead Status Updated!');
+				!skipDealModal && toast.success('Main Lead Status Updated!');
 
 				dispatch(
 					updateLeadField({

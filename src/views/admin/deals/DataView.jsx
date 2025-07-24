@@ -1,14 +1,22 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, useDisclosure } from '@chakra-ui/react';
 
 import DealDetailsModal from './components/DealDetailsModal';
 import EditDealModal from './components/EditDealModal';
 import DealTable from './components/DealTable';
+import DealCards from './DealCards';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 
-const DataView = ({ deals, setDeals, isLoading, isRefetching, refetch }) => {
+const DataView = ({
+	view,
+	deals,
+	setDeals,
+	isLoading,
+	isRefetching,
+	refetch,
+}) => {
 	const {
 		isOpen: viewDealIsOpen,
 		onClose: viewDealOnClose,
@@ -54,7 +62,7 @@ const DataView = ({ deals, setDeals, isLoading, isRefetching, refetch }) => {
 				body: { status: 'Cancelled' },
 			}).unwrap();
 
-			toast.success('Deal closed cancelled successfully');
+			toast.success('Closed Deal cancelled successfully');
 			if (res?.doc) {
 				updateDealsData(res.doc);
 			}
@@ -69,64 +77,32 @@ const DataView = ({ deals, setDeals, isLoading, isRefetching, refetch }) => {
 		setDealId(_dealId);
 	};
 
+	const layoutView =
+		view === 'grid' ? (
+			<DealCards
+				data={deals}
+				isLoading={isLoading}
+				isRefetching={isRefetching}
+				handleEdit={editDealDeatailsHandler}
+				handleView={viewDealDeatailsHandler}
+				handleCancelled={openCancelledModal}
+			/>
+		) : (
+			<DealTable
+				data={deals}
+				isLoading={isLoading}
+				isRefetching={isRefetching}
+				handleEdit={editDealDeatailsHandler}
+				handleView={viewDealDeatailsHandler}
+				handleCancelled={openCancelledModal}
+			/>
+		);
+
 	return (
 		<Box py='2'>
-			{/* {isLoading || isFetching ? (
-				<CardShimmer
-					count={12}
-					height='300px'
-					columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4, '2xl': 4 }}
-				/>
-			) : deals?.length > 0 ? (
-				<SimpleGrid
-					sx={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(1, 1fr)',
+			<Box mt='2'>{layoutView}</Box>
 
-						'@media screen and (min-width: 640px)': {
-							gridTemplateColumns: 'repeat(1, 1fr)', // sm
-						},
-						'@media screen and (min-width: 768px)': {
-							gridTemplateColumns: 'repeat(2, 1fr)', // md
-						},
-						'@media screen and (min-width: 1024px)': {
-							gridTemplateColumns: 'repeat(3, 1fr)', // lg
-						},
-						'@media screen and (min-width: 1280px)': {
-							gridTemplateColumns: 'repeat(3, 1fr)', // xl
-						},
-						'@media screen and (min-width: 1680px)': {
-							gridTemplateColumns: 'repeat(3, 1fr)', // 2xl (custom)
-						},
-						// >= 1920px (e.g., Full HD+)
-						'@media (min-width: 2120px)': {
-							gridTemplateColumns: 'repeat(4, 1fr)',
-						},
-						// >= 2560px (2.5K / QHD)
-						'@media (min-width: 2560px)': {
-							gridTemplateColumns: 'repeat(5, 1fr)',
-						},
-						// >= 3840px (4K)
-						'@media (min-width: 3840px)': {
-							gridTemplateColumns: 'repeat(6, 1fr)',
-						},
-					}}
-					spacing={4}
-				>
-					{deals.map((item, idx) => (
-						<DealCard
-							key={item._id + idx}
-							deal={item}
-							onViewDetails={viewDealDeatailsHandler}
-							onEditDeal={editDealDeatailsHandler}
-						/>
-					))}
-				</SimpleGrid>
-			) : (
-				<NoData label='users' />
-			)} */}
-
-			<DealTable
+			{/* <DealTable
 				data={deals}
 				isLoading={isLoading}
 				isRefetching={isRefetching}
@@ -134,7 +110,7 @@ const DataView = ({ deals, setDeals, isLoading, isRefetching, refetch }) => {
 				handleEdit={editDealDeatailsHandler}
 				hanldeView={viewDealDeatailsHandler}
 				handleCancelled={openCancelledModal}
-			/>
+			/> */}
 
 			{/* Deal Cancellation Warning Modal */}
 			<ConfirmationModal
