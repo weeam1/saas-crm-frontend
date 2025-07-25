@@ -1,4 +1,4 @@
-import { CloseIcon } from "@chakra-ui/icons";
+import { CloseIcon, AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import {
   Button,
   FormLabel,
@@ -17,6 +17,11 @@ import {
   useColorModeValue,
   Avatar,
   Center,
+  Box,
+  Stack,
+  useDisclosure,
+  FormControl,
+  Badge,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
@@ -26,16 +31,38 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useCreateItemMutation } from "api/apiSlice";
 
+// Brand colors
+const brandColors = {
+  50: "#fdf4e9",
+  100: "#f9e5c8",
+  200: "#f5d6a7",
+  300: "#f1c786",
+  400: "#edb865",
+  500: "#e9a944",
+  600: "#c78b38",
+  700: "#a56d2c",
+  800: "#834f20",
+  900: "#613114",
+};
+
 const userSchema = Yup.object().shape({
   trn: Yup.string().required("TRN is required"),
   developer_name: Yup.string().required("Developer Name is required"),
   email: Yup.string()
     .email("Invalid email format")
     .required("Email is required"),
-  address: Yup.string().required("Address is required"),
+  address: Yup.string()
+    .required("Address is required")
+    .min(5, "Address must be at least 5 characters"),
   country: Yup.string().required("Country is required"),
-  phoneNumber: Yup.string()
-    .required("Phone Number is required")
+  phoneNumber: Yup.string().required("Phone Number is required"),
+});
+
+const contactSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  role: Yup.string().required("Role is required"),
+  phoneNumber: Yup.string().required("Phone number is required"),
+  email: Yup.string().email("Invalid email format").optional(),
 });
 
 const AddUser = (props) => {
@@ -48,12 +75,21 @@ const AddUser = (props) => {
     pageSize,
     refetch,
   } = props;
+
   const [isLoading, setIsLoading] = useState(false);
   const [createItemMutation, { isLoading: mutationLoading }] =
     useCreateItemMutation();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const fileInputRef = useRef(null);
+  const [contacts, setContacts] = useState([]);
+  const [editingContactIndex, setEditingContactIndex] = useState(null);
+
+  const {
+    isOpen: isContactModalOpen,
+    onOpen: onContactModalOpen,
+    onClose: onContactModalClose,
+  } = useDisclosure();
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: "image/*",
@@ -82,6 +118,35 @@ const AddUser = (props) => {
     phoneNumber: "",
   };
 
+  const contactFormik = useFormik({
+    initialValues: {
+      name: "",
+      role: "",
+      phoneNumber: "",
+      email: "",
+    },
+    validationSchema: contactSchema,
+    onSubmit: (values, { resetForm }) => {
+      if (!values.name || !values.role || !values.phoneNumber) {
+        toast.error("Validation Error");
+        return;
+      }
+
+      if (editingContactIndex !== null) {
+        // Update existing contact
+        const updatedContacts = [...contacts];
+        updatedContacts[editingContactIndex] = values;
+        setContacts(updatedContacts);
+      } else {
+        // Add new contact
+        setContacts([...contacts, values]);
+      }
+      resetForm();
+      setEditingContactIndex(null);
+      onContactModalClose();
+    },
+  });
+
   const formik = useFormik({
     initialValues,
     validationSchema: userSchema,
@@ -105,6 +170,22 @@ const AddUser = (props) => {
     resetForm,
   } = formik;
 
+  const handleAddContact = () => {
+    contactFormik.resetForm();
+    setEditingContactIndex(null);
+    onContactModalOpen();
+  };
+
+  const handleEditContact = (index) => {
+    contactFormik.setValues(contacts[index]);
+    setEditingContactIndex(index);
+    onContactModalOpen();
+  };
+
+  const handleRemoveContact = (index) => {
+    setContacts(contacts.filter((_, i) => i !== index));
+  };
+
   const handleFileChange = (file) => {
     if (file) {
       setSelectedFile(file);
@@ -127,6 +208,16 @@ const AddUser = (props) => {
   };
 
   const AddData = async (values) => {
+    // Validate all contacts have required fields
+    const hasInvalidContacts = contacts.some(
+      (contact) => !contact.name || !contact.role || !contact.phoneNumber
+    );
+
+    if (hasInvalidContacts) {
+      toast.error("Validation Error");
+      return;
+    }
+
     const formData = new FormData();
 
     // Append all form values
@@ -134,16 +225,21 @@ const AddUser = (props) => {
       formData.append(key, values[key]);
     });
 
+    // Append contacts as JSON string only if all are valid
+    if (contacts.length > 0) {
+      formData.append("contactDetails", JSON.stringify(contacts));
+    }
+
     // Append the image file if selected
     if (selectedFile) {
       formData.append("image", selectedFile);
     }
 
     try {
-			// if (role === 'superAdmin' && !values.agency) {
-			// 	setFieldError('agency', 'Agency is required');
-			// 	return;
-			// }
+      // if (role === 'superAdmin' && !values.agency) {
+      // 	setFieldError('agency', 'Agency is required');
+      // 	return;
+      // }
       setIsLoading(true);
       const response = await createItemMutation({
         path: "/developer/add",
@@ -151,54 +247,33 @@ const AddUser = (props) => {
       }).unwrap();
 
       if (response.status === "success") {
-        toast({
-          title: "Developer added successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
+        toast.success("Developer added successfully");
         fetchData({ pageIndex, pageSize });
         setAction((prev) => !prev);
         resetForm();
         setSelectedFile(null);
         setPreviewImage(null);
+        setContacts([]);
         onClose();
-      } else {
-        if (response?.message) {
-          const errorMsg = response.message.toLowerCase();
-          // if (errorMsg.includes('trn')) {
-          // 	setFieldError('trn', 'Developer with this TRN already exists');
-          // } else if (errorMsg.includes('email')) {
-          // 	setFieldError('email', 'Developer with this email already exists');
-          // } else {
-          toast({
-            title: "Error adding developer",
-            description: response.message,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-        }
       }
     } catch (e) {
-     if (e?.data?.message) {
-				const errorMsg = e.data.message.toLowerCase();
-				// if (errorMsg.includes('trn')) {
-				// 	setFieldError('trn', 'Developer with this TRN already exists');
-				// } else if (errorMsg.includes('email')) {
-				// 	setFieldError('email', 'Developer with this email already exists');
-				// } else {
-				toast.error(e.data.message);
-				// }
-			} else {
-				toast.error('Something went wrong!');
-			}
+      if (e?.data?.message) {
+        toast.error(e?.data?.message);
+      } else if (e?.data?.error) {
+        toast.error(e?.data?.error);
+      } else {
+        toast.error("Error");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const isFormComplete = () => {
+    const hasValidContacts = contacts.every(
+      (contact) => contact.name && contact.role && contact.phoneNumber
+    );
+
     return (
       values.trn.trim() !== "" &&
       values.developer_name.trim() !== "" &&
@@ -206,288 +281,543 @@ const AddUser = (props) => {
       values.address.trim() !== "" &&
       values.country.trim() !== "" &&
       values.phoneNumber.trim() !== "" &&
-      isValid
+      isValid &&
+      (contacts.length === 0 || hasValidContacts)
     );
-  };
-
-  const brandColors = {
-    50: "#fdf4e9",
-    100: "#f9e5c8",
-    200: "#f5d6a7",
-    300: "#f1c786",
-    400: "#edb865",
-    500: "#e9a944",
-    600: "#c78b38",
-    700: "#a56d2c",
-    800: "#834f20",
-    900: "#613114",
   };
 
   const bgColor = useColorModeValue(brandColors[50], brandColors[800]);
   const borderColor = useColorModeValue(brandColors[200], brandColors[600]);
+  const textColor = useColorModeValue(brandColors[800], "white");
 
   return (
-    <Modal
-      size="3xl"
-      isOpen={isOpen}
-      onClose={onClose}
-      borderRadius="xl"
-      isCentered
-	  scrollBehavior="outside" 
-	  overflow="hide"
-    >
-      <ModalOverlay />
-      <ModalContent
-        fontFamily="'DM Sans', sans-serif"
+    <>
+      <Modal
+        size="3xl"
+        isOpen={isOpen}
+        onClose={() => {
+          resetForm();
+          removeImage();
+          setContacts([]);
+          onClose();
+        }}
         borderRadius="xl"
+        isCentered
+        scrollBehavior="outside"
+        overflow="hide"
       >
-        <ModalHeader
-          justifyContent="space-between"
-          display="flex"
-          bg={brandColors[200]}
-          color={brandColors[800]}
-          borderTopRadius="xl"
-        >
-          Add Developer
-          <IconButton
-            onClick={onClose}
-            icon={<CloseIcon />}
-            variant="ghost"
+        <ModalOverlay />
+        <ModalContent fontFamily="'DM Sans', sans-serif" borderRadius="xl">
+          <ModalHeader
+            justifyContent="space-between"
+            display="flex"
+            bg={brandColors[200]}
             color={brandColors[800]}
-            _hover={{ bg: brandColors[600], color: "white" }}
-          />
-        </ModalHeader>
-
-        <form onSubmit={handleSubmit}>
-          <ModalBody
-            borderRadius={"md"}
-			spacing={4} overflow="scroll" height="65vh"
+            borderTopRadius="xl"
           >
-            <Grid
-              templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-              gap={4}
-              p={4}
-            >
-              {/* Image Upload */}
-              <GridItem colSpan={{ base: 1, md: 2 }}>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Developer Image
-                </FormLabel>
-                <Flex
-                  {...getRootProps()}
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  p={6}
-                  border="2px dashed"
-                  borderColor={isDragActive ? brandColors[500] : borderColor}
-                  borderRadius="md"
-                  cursor="pointer"
-                  bg={useColorModeValue("white", brandColors[700])}
-                  _hover={{ borderColor: brandColors[500] }}
-                  onClick={handleFileInputClick}
-                >
-                  <input {...getInputProps()} ref={fileInputRef} />
-                  {previewImage ? (
-                    <>
-                      <Avatar size="xl" src={previewImage} mb={2} />
-                      <Button
-                        size="sm"
-                        colorScheme="brand"
-                        variant="outline"
-                        mt={2}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeImage();
-                        }}
-                      >
-                        Remove Image
-                      </Button>
-                    </>
-                  ) : (
-                    <Center flexDirection="column">
-                      <Text color={brandColors[500]} mb={2}>
-                        {isDragActive
-                          ? "Drop the image here"
-                          : "Drag & drop image here, or click to select"}
-                      </Text>
-                      <Button size="sm" colorScheme="brand" variant="outline">
-                        Select Image
-                      </Button>
-                    </Center>
-                  )}
-                </Flex>
-              </GridItem>
-
-              {/* TRN */}
-              <GridItem colSpan={{ base: 1, md: 2 }}>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  TRN
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.trn}
-                  name="trn"
-                  placeholder="TRN"
-                  fontWeight="500"
-                  borderColor={
-                    errors.trn && touched.trn ? "red.300" : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.trn && touched.trn && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.trn}
-                  </Text>
-                )}
-              </GridItem>
-
-              {/* Developer Name */}
-              <GridItem>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Developer Name
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.developer_name}
-                  name="developer_name"
-                  placeholder="Developer Name"
-                  fontWeight="500"
-                  borderColor={
-                    errors.developer_name && touched.developer_name
-                      ? "red.300"
-                      : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.developer_name && touched.developer_name && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.developer_name}
-                  </Text>
-                )}
-              </GridItem>
-
-              {/* Phone Number */}
-              <GridItem>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Phone Number
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  type="tel"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.phoneNumber}
-                  name="phoneNumber"
-                  placeholder="Phone Number"
-                  fontWeight="500"
-                  borderColor={
-                    errors.phoneNumber && touched.phoneNumber
-                      ? "red.300"
-                      : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.phoneNumber && touched.phoneNumber && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.phoneNumber}
-                  </Text>
-                )}
-              </GridItem>
-
-              {/* Email */}
-              <GridItem>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Email
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  type="email"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.email}
-                  name="email"
-                  placeholder="Email Address"
-                  fontWeight="500"
-                  borderColor={
-                    errors.email && touched.email ? "red.300" : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.email && touched.email && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.email}
-                  </Text>
-                )}
-              </GridItem>
-
-              {/* Country */}
-              <GridItem>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Country
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.country}
-                  name="country"
-                  placeholder="Country"
-                  fontWeight="500"
-                  borderColor={
-                    errors.country && touched.country ? "red.300" : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.country && touched.country && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.country}
-                  </Text>
-                )}
-              </GridItem>
-
-              {/* Address */}
-              <GridItem colSpan={{ base: 1, md: 2 }}>
-                <FormLabel fontSize="sm" fontWeight="500" mb="8px">
-                  Address
-                </FormLabel>
-                <Input
-                  fontSize="sm"
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  value={values.address}
-                  name="address"
-                  placeholder="Address"
-                  fontWeight="500"
-                  borderColor={
-                    errors.address && touched.address ? "red.300" : borderColor
-                  }
-                  focusBorderColor={brandColors[500]}
-                />
-                {errors.address && touched.address && (
-                  <Text mb="10px" color="red" fontSize="sm">
-                    {errors.address}
-                  </Text>
-                )}
-              </GridItem>
-            </Grid>
-          </ModalBody>
-          <ModalFooter justifyContent="flex-end" pt={8} pb={6} bg={bgColor}>
-            <Button
-              bg={brandColors[400]}
-              color="white"
-              size="sm"
-              borderRadius="5px"
+            Add Developer
+            <IconButton
               onClick={() => {
                 resetForm();
                 removeImage();
+                setContacts([]);
                 onClose();
               }}
-              _hover={{ bg: brandColors[500] }}
+              icon={<CloseIcon />}
+              variant="ghost"
+              color={brandColors[800]}
+              _hover={{ bg: brandColors[600], color: "white" }}
+            />
+          </ModalHeader>
+
+          <form onSubmit={handleSubmit}>
+            <ModalBody
+              borderRadius="md"
+              spacing={4}
+              overflow="scroll"
+              height="65vh"
+            >
+              <Grid
+                templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+                gap={4}
+                p={4}
+              >
+                {/* Image Upload */}
+                <GridItem colSpan={{ base: 1, md: 2 }}>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Developer Image
+                  </FormLabel>
+                  <Flex
+                    {...getRootProps()}
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    p={6}
+                    border="2px dashed"
+                    borderColor={isDragActive ? brandColors[500] : borderColor}
+                    borderRadius="md"
+                    cursor="pointer"
+                    bg={useColorModeValue("white", brandColors[700])}
+                    _hover={{ borderColor: brandColors[500] }}
+                    onClick={handleFileInputClick}
+                  >
+                    <input {...getInputProps()} ref={fileInputRef} />
+                    {previewImage ? (
+                      <>
+                        <Avatar size="xl" src={previewImage} mb={2} />
+                        <Button
+                          size="sm"
+                          colorScheme="brand"
+                          variant="outline"
+                          mt={2}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeImage();
+                          }}
+                        >
+                          Remove Image
+                        </Button>
+                      </>
+                    ) : (
+                      <Center flexDirection="column">
+                        <Text color={brandColors[500]} mb={2}>
+                          {isDragActive
+                            ? "Drop the image here"
+                            : "Drag & drop image here, or click to select"}
+                        </Text>
+                        <Button size="sm" colorScheme="brand" variant="outline">
+                          Select Image
+                        </Button>
+                      </Center>
+                    )}
+                  </Flex>
+                </GridItem>
+
+                {/* TRN */}
+                <GridItem colSpan={{ base: 1, md: 2 }}>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    TRN
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.trn}
+                    name="trn"
+                    placeholder="TRN"
+                    fontWeight="500"
+                    borderColor={
+                      errors.trn && touched.trn ? "red.300" : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.trn && touched.trn && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.trn}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Developer Name */}
+                <GridItem>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Developer Name
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.developer_name}
+                    name="developer_name"
+                    placeholder="Developer Name"
+                    fontWeight="500"
+                    borderColor={
+                      errors.developer_name && touched.developer_name
+                        ? "red.300"
+                        : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.developer_name && touched.developer_name && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.developer_name}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Phone Number */}
+                <GridItem>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Phone Number
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    type="tel"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.phoneNumber}
+                    name="phoneNumber"
+                    placeholder="Phone Number"
+                    fontWeight="500"
+                    borderColor={
+                      errors.phoneNumber && touched.phoneNumber
+                        ? "red.300"
+                        : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.phoneNumber && touched.phoneNumber && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.phoneNumber}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Email */}
+                <GridItem>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Email
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    type="email"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                    name="email"
+                    placeholder="Email Address"
+                    fontWeight="500"
+                    borderColor={
+                      errors.email && touched.email ? "red.300" : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.email && touched.email && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.email}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Country */}
+                <GridItem>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Country
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.country}
+                    name="country"
+                    placeholder="Country"
+                    fontWeight="500"
+                    borderColor={
+                      errors.country && touched.country
+                        ? "red.300"
+                        : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.country && touched.country && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.country}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Address */}
+                <GridItem colSpan={{ base: 1, md: 2 }}>
+                  <FormLabel fontSize="sm" fontWeight="500" mb="8px">
+                    Address
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.address}
+                    name="address"
+                    placeholder="Address"
+                    fontWeight="500"
+                    borderColor={
+                      errors.address && touched.address
+                        ? "red.300"
+                        : borderColor
+                    }
+                    focusBorderColor={brandColors[500]}
+                  />
+                  {errors.address && touched.address && (
+                    <Text mb="10px" color="red" fontSize="sm">
+                      {errors.address}
+                    </Text>
+                  )}
+                </GridItem>
+
+                {/* Contact Details Section */}
+                <GridItem colSpan={{ base: 1, md: 2 }}>
+                  <Flex justify="space-between" align="center" mb={4}>
+                    <FormLabel fontSize="sm" fontWeight="500" mb="0">
+                      Contact Details
+                    </FormLabel>
+                    <Button
+                      leftIcon={<AddIcon />}
+                      size="sm"
+                      colorScheme="brand"
+                      variant="outline"
+                      onClick={handleAddContact}
+                    >
+                      Add Contact
+                    </Button>
+                  </Flex>
+
+                  {contacts.length === 0 ? (
+                    <Box
+                      p={4}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      borderColor={borderColor}
+                      textAlign="center"
+                    >
+                      <Text color="gray.500">No contacts added yet</Text>
+                    </Box>
+                  ) : (
+                    <Stack spacing={3}>
+                      {contacts.map((contact, index) => (
+                        <Box
+                          key={index}
+                          p={4}
+                          borderWidth="1px"
+                          borderRadius="md"
+                          borderColor={borderColor}
+                          bg={brandColors[200]}
+                        >
+                          <Flex justify="space-between" align="center">
+                            <Box>
+                              <Flex align="center" mb={1}>
+                                <Text fontWeight="bold" mr={2}>
+                                  {contact.name}
+                                </Text>
+                                <Badge colorScheme="brand" variant="subtle">
+                                  {contact.role}
+                                </Badge>
+                              </Flex>
+                              <Text fontSize="sm">{contact.phoneNumber}</Text>
+                              {contact.email && (
+                                <Text fontSize="sm" color={textColor}>
+                                  {contact.email}
+                                </Text>
+                              )}
+                            </Box>
+                            <Flex>
+                              <IconButton
+                                icon={<EditIcon />}
+                                size="sm"
+                                aria-label="Edit contact"
+                                variant="ghost"
+                                colorScheme="brand"
+                                onClick={() => handleEditContact(index)}
+                                mr={1}
+                              />
+                              <IconButton
+                                icon={<DeleteIcon />}
+                                size="sm"
+                                aria-label="Delete contact"
+                                variant="ghost"
+                                colorScheme="red"
+                                onClick={() => handleRemoveContact(index)}
+                              />
+                            </Flex>
+                          </Flex>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                </GridItem>
+              </Grid>
+            </ModalBody>
+            <ModalFooter justifyContent="flex-end" pt={8} pb={6} bg={bgColor}>
+              <Button
+                bg={brandColors[400]}
+                color="white"
+                size="sm"
+                borderRadius="5px"
+                onClick={() => {
+                  resetForm();
+                  removeImage();
+                  setContacts([]);
+                  onClose();
+                }}
+                _hover={{ bg: brandColors[500] }}
+                fontFamily="'DM Sans', sans-serif"
+                minWidth="100px"
+                mr={3}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                bg={brandColors[600]}
+                color="white"
+                size="sm"
+                borderRadius="5px"
+                disabled={isLoading || mutationLoading || !isFormComplete()}
+                _hover={{ bg: brandColors[700] }}
+                fontFamily="'DM Sans', sans-serif"
+                minWidth="100px"
+              >
+                {isLoading || mutationLoading ? <Spinner /> : "Save"}
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+
+      {/* Contact Form Modal */}
+      <Modal
+        isOpen={isContactModalOpen}
+        onClose={() => {
+          contactFormik.resetForm();
+          setEditingContactIndex(null);
+          onContactModalClose();
+        }}
+        size="md"
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent fontFamily="'DM Sans', sans-serif" borderRadius="xl">
+          <ModalHeader
+            bg={brandColors[200]}
+            color={brandColors[800]}
+            borderTopRadius="xl"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            {editingContactIndex !== null ? "Edit Contact" : "Add Contact"}
+            <IconButton
+              icon={<CloseIcon />}
+              variant="ghost"
+              color={brandColors[800]}
+              _hover={{ bg: brandColors[600], color: "white" }}
+              onClick={() => {
+                contactFormik.resetForm();
+                setEditingContactIndex(null);
+                onContactModalClose();
+              }}
+            />
+          </ModalHeader>
+          <ModalBody p={6}>
+            <form onSubmit={contactFormik.handleSubmit}>
+              <Stack spacing={4}>
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500">
+                    Name
+                  </FormLabel>
+                  <Input
+                    name="name"
+                    value={contactFormik.values.name}
+                    onChange={contactFormik.handleChange}
+                    onBlur={contactFormik.handleBlur}
+                    isInvalid={
+                      contactFormik.touched.name && contactFormik.errors.name
+                    }
+                    placeholder="Enter Name"
+                    focusBorderColor={brandColors[500]}
+                    borderColor={borderColor}
+                  />
+                  {contactFormik.touched.name && contactFormik.errors.name && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {contactFormik.errors.name}
+                    </Text>
+                  )}
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500">
+                    Role
+                  </FormLabel>
+                  <Input
+                    name="role"
+                    value={contactFormik.values.role}
+                    onChange={contactFormik.handleChange}
+                    onBlur={contactFormik.handleBlur}
+                    isInvalid={
+                      contactFormik.touched.role && contactFormik.errors.role
+                    }
+                    placeholder="Enter Role"
+                    focusBorderColor={brandColors[500]}
+                    borderColor={borderColor}
+                  />
+                  {contactFormik.touched.role && contactFormik.errors.role && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {contactFormik.errors.role}
+                    </Text>
+                  )}
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500">
+                    Phone Number
+                  </FormLabel>
+                  <Input
+                    name="phoneNumber"
+                    value={contactFormik.values.phoneNumber}
+                    onChange={contactFormik.handleChange}
+                    onBlur={contactFormik.handleBlur}
+                    placeholder="Enter Phone Number"
+                    isInvalid={
+                      contactFormik.touched.phoneNumber &&
+                      contactFormik.errors.phoneNumber
+                    }
+                    focusBorderColor={brandColors[500]}
+                    borderColor={borderColor}
+                  />
+                  {contactFormik.touched.phoneNumber &&
+                    contactFormik.errors.phoneNumber && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {contactFormik.errors.phoneNumber}
+                      </Text>
+                    )}
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500">
+                    Email (Optional)
+                  </FormLabel>
+                  <Input
+                    name="email"
+                    type="email"
+                    value={contactFormik.values.email}
+                    onChange={contactFormik.handleChange}
+                    onBlur={contactFormik.handleBlur}
+                    isInvalid={
+                      contactFormik.touched.email && contactFormik.errors.email
+                    }
+                    placeholder="Enter Email"
+                    focusBorderColor={brandColors[500]}
+                    borderColor={borderColor}
+                  />
+                  {contactFormik.touched.email &&
+                    contactFormik.errors.email && (
+                      <Text color="red.500" fontSize="sm" mt={1}>
+                        {contactFormik.errors.email}
+                      </Text>
+                    )}
+                </FormControl>
+              </Stack>
+            </form>
+          </ModalBody>
+          <ModalFooter justifyContent="flex-end" pt={4} pb={6} bg={bgColor}>
+            <Button
+              variant="outline"
+              colorScheme="brand"
+              size="sm"
+              borderRadius="5px"
+              onClick={() => {
+                contactFormik.resetForm();
+                setEditingContactIndex(null);
+                onContactModalClose();
+              }}
               fontFamily="'DM Sans', sans-serif"
               minWidth="100px"
               mr={3}
@@ -500,17 +830,17 @@ const AddUser = (props) => {
               color="white"
               size="sm"
               borderRadius="5px"
-              disabled={isLoading || mutationLoading || !isFormComplete()}
+              onClick={() => contactFormik.handleSubmit()}
               _hover={{ bg: brandColors[700] }}
               fontFamily="'DM Sans', sans-serif"
               minWidth="100px"
             >
-              {isLoading || mutationLoading ? <Spinner /> : "Save"}
+              {editingContactIndex !== null ? "Update" : "Add"}
             </Button>
           </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Table,
@@ -13,12 +14,14 @@ import {
   Button,
   useColorModeValue,
   Avatar,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaUser, FaFileInvoice } from "react-icons/fa";
 import { format } from "date-fns";
 import DataNotFound from "components/notFoundData";
 import { buttonStyle } from "utils/btn";
 import TableLoading from "components/loading/TableLoading";
+import ContactDetailsModal from "./ContactDetailsModal";
 
 const DevelopersTableView = ({
   data,
@@ -32,8 +35,26 @@ const DevelopersTableView = ({
   isLoading,
   isInitialLoading,
 }) => {
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [developerName, setDeveloperName] = useState("");
+  const [developerImageUrl, setDeveloperImageUrl] = useState("");
+
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.300");
   const textColor = useColorModeValue("secondaryGray.900", "white");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+   const handleContactClick = (contacts, developer_name, imageUrl, e) => {
+    e?.stopPropagation();
+    setSelectedContacts(contacts);
+    setDeveloperName(developer_name);
+    setDeveloperImageUrl(imageUrl);
+    onOpen();
+  };
+
+  const capitalizeFirstLetter = (str) => {
+  if (!str) return "N/A";
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
 
   return (
     <Box
@@ -121,7 +142,7 @@ const DevelopersTableView = ({
                             isTruncated
                             maxW="70%"
                           >
-                            {row.developer_name || "N/A"}
+                            {capitalizeFirstLetter(row.developer_name) || "N/A"}
                           </Text>
                         </Flex>
                       </Text>
@@ -148,7 +169,7 @@ const DevelopersTableView = ({
                   } else if (column.Header === "Agency") {
                     cellData = (
                       <Text fontSize="sm" fontWeight="700">
-                        {row.agency?.name || "N/A"}
+                        {capitalizeFirstLetter(row.agency?.name) || "N/A"}
                       </Text>
                     );
                   } else if (column.Header === "Address") {
@@ -160,14 +181,36 @@ const DevelopersTableView = ({
                   } else if (column.Header === "Country") {
                     cellData = (
                       <Text fontSize="sm" fontWeight="700">
-                        {row.country || "N/A"}
+                        {capitalizeFirstLetter(row.country) || "N/A"}
                       </Text>
                     );
                   } else if (column.Header === "Status") {
                     cellData = (
                       <Text color={textColor} fontSize="sm" fontWeight="700">
-                        {row.status || "-"}
+                        {capitalizeFirstLetter(row.status) || "-"}
                       </Text>
+                    );
+                  } else if (column.Header === "Contact") {
+                    cellData = (
+                      <Flex justify="center">
+                        <Button
+                          {...buttonStyle}
+                          leftIcon={<FaUser />}
+                          onClick={(e) =>
+                            handleContactClick(
+                              row.contactDetails,
+                              row.developer_name,
+                              row.imageUrl,
+                              e
+                            )
+                          }
+                          colorScheme="brand"
+                          _hover={{ bg: "brand.400" }}
+                          _active={{ bg: "brand.400" }}
+                        >
+                          Contacts
+                        </Button>
+                      </Flex>
                     );
                   } else if (column.Header === "Action") {
                     cellData = (
@@ -213,6 +256,13 @@ const DevelopersTableView = ({
           )}
         </Tbody>
       </Table>
+      <ContactDetailsModal
+        isOpen={isOpen}
+        onClose={onClose}
+        contacts={selectedContacts}
+        developerName={developerName}
+        developerImageUrl={developerImageUrl}
+      />
     </Box>
   );
 };
