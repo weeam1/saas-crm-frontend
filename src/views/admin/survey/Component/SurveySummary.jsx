@@ -174,75 +174,73 @@ const SurveySummary = ({
           )}
         </Flex>
       </Flex>
-      {isAdmin && (
-        <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6}>
-          {isLoading
-            ? Array(4)
-                .fill(0)
-                .map((_, index) => <SkeletonCard key={`skeleton-${index}`} />)
-            : data.map((item, index) => (
-                <Box
-                  key={item.id || index}
-                  bg={vibrantColors.cards[index % vibrantColors.cards.length]}
-                  p={6}
-                  borderRadius="xl"
-                  boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.05)"
-                  transition="all 0.3s ease-out"
-                  position="relative"
-                  overflow="hidden"
-                  _hover={{
-                    transform: "translateY(-5px)",
-                    boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1)`,
-                  }}
-                  _before={{
-                    content: '""',
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "4px",
-                    height: "100%",
-                    bg: vibrantColors.accents[
-                      index % vibrantColors.accents.length
-                    ],
-                  }}
-                >
-                  <Stat>
-                    <StatLabel
-                      fontSize="sm"
-                      color="gray.600"
-                      fontWeight="600"
-                      mb={2}
+      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6}>
+        {isLoading
+          ? Array(4)
+              .fill(0)
+              .map((_, index) => <SkeletonCard key={`skeleton-${index}`} />)
+          : data.map((item, index) => (
+              <Box
+                key={item.id || index}
+                bg={vibrantColors.cards[index % vibrantColors.cards.length]}
+                p={6}
+                borderRadius="xl"
+                boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+                transition="all 0.3s ease-out"
+                position="relative"
+                overflow="hidden"
+                _hover={{
+                  transform: "translateY(-5px)",
+                  boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1)`,
+                }}
+                _before={{
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "4px",
+                  height: "100%",
+                  bg: vibrantColors.accents[
+                    index % vibrantColors.accents.length
+                  ],
+                }}
+              >
+                <Stat>
+                  <StatLabel
+                    fontSize="sm"
+                    color="gray.600"
+                    fontWeight="600"
+                    mb={2}
+                  >
+                    {item.label}
+                  </StatLabel>
+                  <StatNumber
+                    fontSize="24px"
+                    fontWeight="800"
+                    color={
+                      vibrantColors.accents[
+                        index % vibrantColors.accents.length
+                      ]
+                    }
+                    lineHeight="1.2"
+                  >
+                    {displayValue(index)}
+                  </StatNumber>
+                  {item.helpText && (
+                    <StatHelpText
+                      fontSize="xs"
+                      mb={0}
+                      mt={3}
+                      color="gray.500"
+                      fontWeight="500"
                     >
-                      {item.label}
-                    </StatLabel>
-                    <StatNumber
-                      fontSize="24px"
-                      fontWeight="800"
-                      color={
-                        vibrantColors.accents[
-                          index % vibrantColors.accents.length
-                        ]
-                      }
-                      lineHeight="1.2"
-                    >
-                      {displayValue(index)}
-                    </StatNumber>
-                    {item.helpText && (
-                      <StatHelpText
-                        fontSize="xs"
-                        mb={0}
-                        mt={3}
-                        color="gray.500"
-                        fontWeight="500"
-                      >
-                        {item.helpText}
-                      </StatHelpText>
-                    )}
-                  </Stat>
-                </Box>
-              ))}
-        </SimpleGrid>
-      )}
+                      {item.helpText}
+                    </StatHelpText>
+                  )}
+                </Stat>
+              </Box>
+            ))}
+      </SimpleGrid>
     </Box>
   );
 };

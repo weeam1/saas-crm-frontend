@@ -79,12 +79,10 @@ const Survey = () => {
         onSecondaryButtonClick={() => navigate("/survey/survey-leader-board")}
         isLoading={SurveyStatsLoading}
       />
-      {isAdmin && (
-        <SurveyGraph
-          isLoading={SurveyStatsLoading}
-          data={surveysStats?.data?.graphData}
-        />
-      )}
+      <SurveyGraph
+        isLoading={SurveyStatsLoading}
+        data={surveysStats?.data?.graphData}
+      />
       <Box
         bg="white"
         p={{ base: 3, md: 4 }}
