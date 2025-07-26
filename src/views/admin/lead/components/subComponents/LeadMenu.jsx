@@ -106,13 +106,18 @@ const LeadMenu = ({
 
 	return (
 		<>
-			<Menu isLazy closeOnSelect={false}>
+			<Menu
+				isLazy
+				closeOnSelect={false}
+				placement='bottom-start'
+				zIndex='10000'
+			>
 				<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
-				<MenuList minW='fit-content'>
+				<MenuList minW='fit-content' fontSize='xs'>
 					{(user?.role === 'superAdmin' && access?.update) ||
 					(user?.role !== 'superAdmin' && allowedUserEdit) ? (
 						<MenuItem
-							py={2.5}
+							// py={2.5}
 							onClick={() => {
 								setEditLead(true);
 								setLeadDetails(lead);
@@ -135,7 +140,7 @@ const LeadMenu = ({
 
 					{emailAccess?.create && (
 						<MenuItem
-							py={2.5}
+							// py={2.5}
 							onClick={() => {
 								setLeadDetails(lead);
 								setSelectedId(lead._id);
@@ -147,7 +152,6 @@ const LeadMenu = ({
 						</MenuItem>
 					)}
 					<MenuItem
-						py={2.5}
 						onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
 						icon={<FaHistory fontSize={15} />}
 					>
@@ -155,7 +159,6 @@ const LeadMenu = ({
 					</MenuItem>
 					{user?.role === 'superAdmin' && (
 						<MenuItem
-							py={2.5}
 							onClick={() => {
 								setViewPhoneHistory({
 									modal: true,
@@ -169,7 +172,6 @@ const LeadMenu = ({
 					)}
 
 					<MenuItem
-						py={2.5}
 						display={{ sm: 'block', xl: 'none' }}
 						onClick={() => {
 							if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
@@ -187,7 +189,6 @@ const LeadMenu = ({
 					</MenuItem>
 					{user?.roles[0]?.roleName === 'Agent' && (
 						<MenuItem
-							py={2.5}
 							// onClick={() => {
 							// 	setTaskInits(lead);
 							// 	onTaskOpen();
@@ -199,7 +200,6 @@ const LeadMenu = ({
 					)}
 
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setLeadAddtionalInfo(true);
 							setLeadDetails(lead);
@@ -210,7 +210,6 @@ const LeadMenu = ({
 					</MenuItem>
 					{access?.delete && user?.role === 'superAdmin' && (
 						<MenuItem
-							py={2.5}
 							color='red'
 							onClick={() => {
 								setSelectedValues([leadId]);
