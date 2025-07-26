@@ -26,6 +26,9 @@ const SurveySummary = ({
   isLoading,
 }) => {
   const [animatedValues, setAnimatedValues] = useState(data.map(() => 0));
+  const user = localStorage.getItem("user");
+  const isAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
+
   const vibrantColors = {
     cards: ["#F0F9FF", "#FEF6FF", "#FFF6F0", "#F0FFF4"],
     accents: ["#0EA5E9", "#D946EF", "#F97316", "#22C55E"],
@@ -118,129 +121,131 @@ const SurveySummary = ({
         >
           {title}
         </Heading>
-
-        <Flex gap={3} direction={{ base: "column", md: "row" }}>
-          {buttonText && (
-            <Button
-              bg={vibrantColors.buttons[0]}
-              color="white"
-              size="md"
-              onClick={onButtonClick}
-              _hover={{
-                opacity: 0.9,
-                transform: "translateY(-2px)",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              }}
-              _active={{
-                opacity: 1,
-                transform: "translateY(0)",
-              }}
-              fontWeight="600"
-              px={6}
-              borderRadius="lg"
-              transition="all 0.2s ease"
-              isDisabled={isLoading}
-              minW={isMobile ? "full" : "auto"}
-            >
-              {buttonText}
-            </Button>
-          )}
-
-          {secondaryButtonText && (
-            <Button
-              bg={vibrantColors.buttons[1]}
-              color="white"
-              size="md"
-              onClick={onSecondaryButtonClick}
-              _hover={{
-                opacity: 0.9,
-                transform: "translateY(-2px)",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-              }}
-              _active={{
-                opacity: 1,
-                transform: "translateY(0)",
-              }}
-              fontWeight="600"
-              px={6}
-              borderRadius="lg"
-              transition="all 0.2s ease"
-              isDisabled={isLoading}
-              minW={isMobile ? "full" : "auto"}
-            >
-              {secondaryButtonText}
-            </Button>
-          )}
-        </Flex>
-      </Flex>
-
-      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6}>
-        {isLoading
-          ? Array(4)
-              .fill(0)
-              .map((_, index) => <SkeletonCard key={`skeleton-${index}`} />)
-          : data.map((item, index) => (
-              <Box
-                key={item.id || index}
-                bg={vibrantColors.cards[index % vibrantColors.cards.length]}
-                p={6}
-                borderRadius="xl"
-                boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.05)"
-                transition="all 0.3s ease-out"
-                position="relative"
-                overflow="hidden"
+        {isAdmin && (
+          <Flex gap={3} direction={{ base: "column", md: "row" }}>
+            {buttonText && (
+              <Button
+                bg={vibrantColors.buttons[0]}
+                color="white"
+                size="md"
+                onClick={onButtonClick}
                 _hover={{
-                  transform: "translateY(-5px)",
-                  boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1)`,
+                  opacity: 0.9,
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                 }}
-                _before={{
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "4px",
-                  height: "100%",
-                  bg: vibrantColors.accents[
-                    index % vibrantColors.accents.length
-                  ],
+                _active={{
+                  opacity: 1,
+                  transform: "translateY(0)",
                 }}
+                fontWeight="600"
+                px={6}
+                borderRadius="lg"
+                transition="all 0.2s ease"
+                isDisabled={isLoading}
+                minW={isMobile ? "full" : "auto"}
               >
-                <Stat>
-                  <StatLabel
-                    fontSize="sm"
-                    color="gray.600"
-                    fontWeight="600"
-                    mb={2}
-                  >
-                    {item.label}
-                  </StatLabel>
-                  <StatNumber
-                    fontSize="24px"
-                    fontWeight="800"
-                    color={
-                      vibrantColors.accents[
-                        index % vibrantColors.accents.length
-                      ]
-                    }
-                    lineHeight="1.2"
-                  >
-                    {displayValue(index)}
-                  </StatNumber>
-                  {item.helpText && (
-                    <StatHelpText
-                      fontSize="xs"
-                      mb={0}
-                      mt={3}
-                      color="gray.500"
-                      fontWeight="500"
+                {buttonText}
+              </Button>
+            )}
+
+            {secondaryButtonText && (
+              <Button
+                bg={vibrantColors.buttons[1]}
+                color="white"
+                size="md"
+                onClick={onSecondaryButtonClick}
+                _hover={{
+                  opacity: 0.9,
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                }}
+                _active={{
+                  opacity: 1,
+                  transform: "translateY(0)",
+                }}
+                fontWeight="600"
+                px={6}
+                borderRadius="lg"
+                transition="all 0.2s ease"
+                isDisabled={isLoading}
+                minW={isMobile ? "full" : "auto"}
+              >
+                {secondaryButtonText}
+              </Button>
+            )}
+          </Flex>
+        )}
+      </Flex>
+      {isAdmin && (
+        <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6}>
+          {isLoading
+            ? Array(4)
+                .fill(0)
+                .map((_, index) => <SkeletonCard key={`skeleton-${index}`} />)
+            : data.map((item, index) => (
+                <Box
+                  key={item.id || index}
+                  bg={vibrantColors.cards[index % vibrantColors.cards.length]}
+                  p={6}
+                  borderRadius="xl"
+                  boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+                  transition="all 0.3s ease-out"
+                  position="relative"
+                  overflow="hidden"
+                  _hover={{
+                    transform: "translateY(-5px)",
+                    boxShadow: `0 10px 15px -3px rgba(0, 0, 0, 0.1)`,
+                  }}
+                  _before={{
+                    content: '""',
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "4px",
+                    height: "100%",
+                    bg: vibrantColors.accents[
+                      index % vibrantColors.accents.length
+                    ],
+                  }}
+                >
+                  <Stat>
+                    <StatLabel
+                      fontSize="sm"
+                      color="gray.600"
+                      fontWeight="600"
+                      mb={2}
                     >
-                      {item.helpText}
-                    </StatHelpText>
-                  )}
-                </Stat>
-              </Box>
-            ))}
-      </SimpleGrid>
+                      {item.label}
+                    </StatLabel>
+                    <StatNumber
+                      fontSize="24px"
+                      fontWeight="800"
+                      color={
+                        vibrantColors.accents[
+                          index % vibrantColors.accents.length
+                        ]
+                      }
+                      lineHeight="1.2"
+                    >
+                      {displayValue(index)}
+                    </StatNumber>
+                    {item.helpText && (
+                      <StatHelpText
+                        fontSize="xs"
+                        mb={0}
+                        mt={3}
+                        color="gray.500"
+                        fontWeight="500"
+                      >
+                        {item.helpText}
+                      </StatHelpText>
+                    )}
+                  </Stat>
+                </Box>
+              ))}
+        </SimpleGrid>
+      )}
     </Box>
   );
 };

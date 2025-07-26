@@ -22,6 +22,9 @@ const Survey = () => {
     return localStorage.getItem("surveysView") || "grid";
   });
 
+  const user = localStorage.getItem("user");
+  const isAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
+
   const navigate = useNavigate();
 
   const buildQueryParams = () => {
@@ -53,13 +56,11 @@ const Survey = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const {
-    data: surveysStats,
-    isLoading: SurveyStatsLoading,
-  } = useFetchItemsQuery(
-    { path: "/surveys/stats" },
-    { refetchOnMountOrArgChange: true }
-  );
+  const { data: surveysStats, isLoading: SurveyStatsLoading } =
+    useFetchItemsQuery(
+      { path: "/surveys/stats" },
+      { refetchOnMountOrArgChange: true }
+    );
 
   console.log("surveysStats", surveysStats);
   const handleViewChange = (newView) => {
@@ -74,14 +75,16 @@ const Survey = () => {
         data={surveysStats?.data?.summaryData}
         buttonText="+ Create Survey"
         onButtonClick={() => navigate("/survey/create-survey")}
-        secondaryButtonText = "LeaderBoard"
-        onSecondaryButtonClick = {() => navigate('/survey/survey-leader-board')}
+        secondaryButtonText="LeaderBoard"
+        onSecondaryButtonClick={() => navigate("/survey/survey-leader-board")}
         isLoading={SurveyStatsLoading}
       />
-      <SurveyGraph
-        isLoading={SurveyStatsLoading}
-        data={surveysStats?.data?.graphData}
-      />
+      {isAdmin && (
+        <SurveyGraph
+          isLoading={SurveyStatsLoading}
+          data={surveysStats?.data?.graphData}
+        />
+      )}
       <Box
         bg="white"
         p={{ base: 3, md: 4 }}
