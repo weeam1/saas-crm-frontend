@@ -121,61 +121,58 @@ const SurveySummary = ({
         >
           {title}
         </Heading>
-        {isAdmin && (
-          <Flex gap={3} direction={{ base: "column", md: "row" }}>
-            {buttonText && (
-              <Button
-                bg={vibrantColors.buttons[0]}
-                color="white"
-                size="md"
-                onClick={onButtonClick}
-                _hover={{
-                  opacity: 0.9,
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                }}
-                _active={{
-                  opacity: 1,
-                  transform: "translateY(0)",
-                }}
-                fontWeight="600"
-                px={6}
-                borderRadius="lg"
-                transition="all 0.2s ease"
-                isDisabled={isLoading}
-                minW={isMobile ? "full" : "auto"}
-              >
-                {buttonText}
-              </Button>
-            )}
-
-            {secondaryButtonText && (
-              <Button
-                bg={vibrantColors.buttons[1]}
-                color="white"
-                size="md"
-                onClick={onSecondaryButtonClick}
-                _hover={{
-                  opacity: 0.9,
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                }}
-                _active={{
-                  opacity: 1,
-                  transform: "translateY(0)",
-                }}
-                fontWeight="600"
-                px={6}
-                borderRadius="lg"
-                transition="all 0.2s ease"
-                isDisabled={isLoading}
-                minW={isMobile ? "full" : "auto"}
-              >
-                {secondaryButtonText}
-              </Button>
-            )}
-          </Flex>
-        )}
+        <Flex gap={3} direction={{ base: "column", md: "row" }}>
+          {buttonText && isAdmin && (
+            <Button
+              bg={vibrantColors.buttons[0]}
+              color="white"
+              size="md"
+              onClick={onButtonClick}
+              _hover={{
+                opacity: 0.9,
+                transform: "translateY(-2px)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              }}
+              _active={{
+                opacity: 1,
+                transform: "translateY(0)",
+              }}
+              fontWeight="600"
+              px={6}
+              borderRadius="lg"
+              transition="all 0.2s ease"
+              isDisabled={isLoading}
+              minW={isMobile ? "full" : "auto"}
+            >
+              {buttonText}
+            </Button>
+          )}
+          {secondaryButtonText && (
+            <Button
+              bg={vibrantColors.buttons[1]}
+              color="white"
+              size="md"
+              onClick={onSecondaryButtonClick}
+              _hover={{
+                opacity: 0.9,
+                transform: "translateY(-2px)",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              }}
+              _active={{
+                opacity: 1,
+                transform: "translateY(0)",
+              }}
+              fontWeight="600"
+              px={6}
+              borderRadius="lg"
+              transition="all 0.2s ease"
+              isDisabled={isLoading}
+              minW={isMobile ? "full" : "auto"}
+            >
+              {secondaryButtonText}
+            </Button>
+          )}
+        </Flex>
       </Flex>
       {isAdmin && (
         <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6}>
