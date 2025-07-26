@@ -204,6 +204,7 @@ const SurveySummary = ({
                     index % vibrantColors.accents.length
                   ],
                 }}
+                cursor={"pointer"}
               >
                 <Stat>
                   <StatLabel
