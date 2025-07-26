@@ -53,14 +53,29 @@ const BulkAssignModal = (props) => {
 			};
 			setIsLoading(true);
 
-			const stats = await fetchAgentLeadsSats(values.agentAssigned);
+			if (values?.agentAssigned) {
+				const stats = await fetchAgentLeadsSats(
+					values.agentAssigned,
+					'bulk',
+					selectedValues?.length
+				);
 
-			if (!stats.canAddLeads) {
-				setIsLoading(false);
-				setErrorLeadData(stats);
-				setErrorModal(true);
-				return;
+				if (!stats.canAddLeads) {
+					setIsLoading(false);
+					setErrorLeadData(stats);
+					setErrorModal(true);
+					return;
+				}
 			}
+
+			// const stats = await fetchAgentLeadsSats(values.agentAssigned);
+
+			// if (!stats.canAddLeads) {
+			// 	setIsLoading(false);
+			// 	setErrorLeadData(stats);
+			// 	setErrorModal(true);
+			// 	return;
+			// }
 
 			let res = await putApi(`api/lead/bulk-assign`, payload);
 			if (res.status === 200) {

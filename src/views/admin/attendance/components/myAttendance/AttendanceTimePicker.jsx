@@ -8,8 +8,6 @@ import {
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
-	Box,
-	HStack,
 	VStack,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';

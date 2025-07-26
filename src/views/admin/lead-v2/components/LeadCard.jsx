@@ -9,6 +9,7 @@ import { leadlabelFontSize } from './constants';
 
 import './checkbox.css';
 import LeadNotesModal from './lead-note/LeadNotesModal';
+import { useSelector } from 'react-redux';
 
 const LeadCard = ({
 	lead,
@@ -37,7 +38,7 @@ const LeadCard = ({
 		lg: '25%', // Three cards per row on larger screens
 	});
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	const user = useSelector((state) => state.user.user);
 
 	const [leadNotes, setLeadNotes] = useState(false);
 
@@ -50,8 +51,6 @@ const LeadCard = ({
 			const isChecked = event.target.checked;
 
 			setLocalChecked(isChecked);
-
-			console.log({ lead });
 
 			setTimeout(() => {
 				setSelectedValues((prev = []) =>
@@ -151,13 +150,14 @@ const LeadCard = ({
 				>
 					<LeftCard
 						lead={lead}
+						hiddenFields={hiddenFields}
 						setViewLead={setViewLead}
 						refreshLeads={refreshLeads}
 						role={role}
 						user={user}
 						queryParams={queryParams}
 					/>
-					<RightCard lead={lead} />
+					<RightCard lead={lead} hiddenFields={hiddenFields} />
 				</Flex>
 				{!hiddenFields.includes('createdDate') && (
 					<Box
