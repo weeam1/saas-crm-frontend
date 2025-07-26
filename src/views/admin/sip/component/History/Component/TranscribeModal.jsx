@@ -11,19 +11,25 @@ import {
 	Box,
 	Text,
 	Stack,
+	Menu,
 	Spinner,
 	Badge,
 	Flex,
 	IconButton,
 	Icon,
 	Progress,
+	FormControl,
+	FormLabel,
+	MenuItem,
+	MenuList,
+	MenuButton,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import { setAudioTranscription } from '../../../../../../redux/sipSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { CopyIcon, TimeIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, CopyIcon, TimeIcon } from '@chakra-ui/icons';
 import { FaAudioDescription, FaPlay } from 'react-icons/fa6';
 
 const TranscribeModal = ({ isOpen, onClose, data }) => {
@@ -188,7 +194,13 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='4xl' isCentered>
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			size='4xl'
+			blockScrollOnMount={false}
+			isCentered
+		>
 			<ModalOverlay backdropFilter='blur(4px)' bg='blackAlpha.600' />
 			<ModalContent
 				borderRadius={{ base: 'none', md: 'xl' }}
@@ -213,25 +225,85 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 							Select language and generate transcription
 						</Text>
 
-						<Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-							<Select
-								value={language}
-								onChange={(e) => setLanguage(e.target.value)}
-								maxW={{ base: 'full', md: '300px' }}
-								size='sm'
-							>
-								<option value='default'>Auto-detect (Native)</option>
-								<option value='en'>English</option>
-								<option value='ar'>Arabic</option>
-							</Select>
-
+						<Flex
+							direction={{ base: 'column', md: 'row' }}
+							align='center'
+							gap={4}
+						>
+							{/* <FormControl maxW={{ base: 'full', md: '300px' }} size='sm'>
+								<Select
+									value={language}
+									// onChange={(e) => setLanguage(e.target.value)}
+									onChange={(e) => {
+										e.stopPropagation();
+										setLanguage(e.target.value);
+									}}
+									onClick={(e) => e.stopPropagation()}
+									variant='outline'
+									_focus={{ borderColor: 'brand.500' }}
+								>
+									<option value='default'>Auto-detect (Native)</option>
+									<option value='en'>English</option>
+									<option value='ar'>Arabic</option>
+								</Select>
+							</ForControl> */}
+							<Menu>
+								<MenuButton
+									as={Button}
+									isDisabled={isLoading}
+									rightIcon={<ChevronDownIcon />}
+									variant='outline'
+									_focus={{ borderColor: 'brand.500', outline: 'none' }}
+									onClick={(e) => e.stopPropagation()}
+									w={{ base: 'full', md: '300px' }}
+									size='sm'
+								>
+									<Flex align='center'>
+										{language === 'default' && 'Auto-detect (Native)'}
+										{language === 'en' && 'English'}
+										{language === 'ar' && 'Arabic'}
+									</Flex>
+								</MenuButton>
+								<MenuList onClick={(e) => e.stopPropagation()} zIndex='modal'>
+									<MenuItem
+										onClick={(e) => {
+											e.preventDefault();
+											setLanguage('default');
+										}}
+										bg={language === 'default' ? 'gray.100' : 'transparent'}
+										fontWeight={language === 'default' ? 'bold' : 'normal'}
+									>
+										Auto-detect (Native)
+									</MenuItem>
+									<MenuItem
+										onClick={(e) => {
+											e.preventDefault();
+											setLanguage('en');
+										}}
+										bg={language === 'en' ? 'gray.100' : 'transparent'}
+										fontWeight={language === 'en' ? 'bold' : 'normal'}
+									>
+										English
+									</MenuItem>
+									<MenuItem
+										onClick={(e) => {
+											e.preventDefault();
+											setLanguage('ar');
+										}}
+										bg={language === 'ar' ? 'gray.100' : 'transparent'}
+										fontWeight={language === 'ar' ? 'bold' : 'normal'}
+									>
+										Arabic
+									</MenuItem>
+								</MenuList>
+							</Menu>
 							<Button
 								onClick={handleGenerateTranscribe}
 								colorScheme='brand'
 								// isLoading={isLoading}
 								// loadingText='Transcribing...'
 								isDisabled={isLoading}
-								size='sm'
+								size='md'
 								px={6}
 								flexShrink={0}
 							>

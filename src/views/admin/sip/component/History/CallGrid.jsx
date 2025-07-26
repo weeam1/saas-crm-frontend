@@ -8,6 +8,7 @@ const CallGrid = ({
 	calls,
 	currentlyPlayingId,
 	handleSetCurrentlyPlaying,
+	setCurrentlyPlayingId,
 	handleCopy,
 	loading,
 	pageSize,
@@ -22,6 +23,7 @@ const CallGrid = ({
 	const handleOpenTranscribe = (data) => {
 		setCurrentCall(data);
 		setTranscribeModal(true);
+		// setCurrentlyPlayingId(null);
 	};
 
 	const handleTranscribeClose = () => {

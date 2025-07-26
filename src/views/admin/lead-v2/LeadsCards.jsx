@@ -18,7 +18,7 @@ import { buttonStyle } from './components/constants';
 import BulkAssignModal from './components/BulkAssignModal';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import DateFilterButton from './components/DateFilterButton';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateLeads } from '../../../redux/leadsSlice';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -27,9 +27,15 @@ import { MdSettings } from 'react-icons/md';
 import AllCheckBox from './AllCheckBox';
 import useFilteredQueryParams from './useFilteredQueryParams';
 import { HasAccess } from './../../../redux/accessUtils';
+import BulkWhatsappModal from './components/whatsapp-message/BulkWhatsappModal';
 
 const LeadsCards = () => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const user = useSelector((state) => state.user.user);
+
+	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
+
 	const role =
 		user?.role === 'superAdmin'
 			? 'superAdmin'
@@ -52,6 +58,7 @@ const LeadsCards = () => {
 	const [selectAllChecked, setSelectAllChecked] = useState(false);
 
 	const [bulkAssign, setBulkAssign] = useState(false);
+	const [bulkWhatsappMessage, setBulkWhatsappMessage] = useState(false);
 	const [errorModal, setErrorModal] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 	const [manageCols, setManageCols] = useState(false);
@@ -127,6 +134,22 @@ const LeadsCards = () => {
 		}
 	};
 
+	const openWhatsappModal = () => {
+		if (selectedValues.length > 50) {
+			return toast.error(
+				'Bulk WhatsApp messages are limited to 50 leads. Please select fewer recipients.'
+			);
+		}
+		setBulkWhatsappMessage(true);
+	};
+
+	const onBulkMessageSuccess = () => {
+		setSelectedLeads([]);
+		setSelectedValues([]);
+		setSelectAllChecked(false);
+		setBulkWhatsappMessage(false);
+	};
+
 	return (
 		<Box
 			py='8'
@@ -154,13 +177,30 @@ const LeadsCards = () => {
 					justifyItems='flex-end'
 					alignItems='end'
 				>
-					<HStack>
+					<Flex wrap='wrap' gap='2'>
 						<AllCheckBox
 							leads={leads}
 							setSelectAllChecked={setSelectAllChecked}
 							selectedValues={selectedValues}
 							setSelectedValues={setSelectedValues}
+							setSelectedLeads={setSelectedLeads}
 						/>
+
+						{whatsappAccountId && ['superAdmin'].includes(role) && (
+							<Button
+								{...buttonStyle}
+								onClick={openWhatsappModal}
+								isDisabled={!(selectedValues && selectedValues?.length > 1)}
+								variant='solid'
+								bg='whatsapp.500'
+								_active={{ bg: 'whatsapp.600' }}
+								py='2'
+								px='5'
+								aria-label='Bulk Whatsapp Message'
+							>
+								Bulk Whatsapp
+							</Button>
+						)}
 
 						{['superAdmin', 'Manager'].includes(role) && (
 							<Button
@@ -179,6 +219,7 @@ const LeadsCards = () => {
 									: null}
 							</Button>
 						)}
+
 						{(permission?.create || role === 'superAdmin') && (
 							<Button
 								{...buttonStyle}
@@ -193,7 +234,7 @@ const LeadsCards = () => {
 								New
 							</Button>
 						)}
-					</HStack>
+					</Flex>
 
 					<HStack>
 						<IconButton
@@ -248,6 +289,18 @@ const LeadsCards = () => {
 					setSelectAllChecked={setSelectAllChecked}
 					setErrorLeadData={setErrorLeadData}
 					setErrorModal={setErrorModal}
+				/>
+			)}
+
+			{bulkWhatsappMessage && selectedValues?.length && (
+				<BulkWhatsappModal
+					isOpen={bulkWhatsappMessage}
+					onClose={() => setBulkWhatsappMessage(false)}
+					onSuccess={onBulkMessageSuccess}
+					setSelectedLeads={setSelectedLeads}
+					selectedLeads={selectedLeads}
+					whatsappAccountId={whatsappAccountId}
+					setSelectAllChecked={setSelectAllChecked}
 				/>
 			)}
 

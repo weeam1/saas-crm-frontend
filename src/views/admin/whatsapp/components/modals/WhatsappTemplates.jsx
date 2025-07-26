@@ -19,9 +19,8 @@ import {
 	Spinner,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FiMessageSquare } from 'react-icons/fi';
-import { toast } from 'react-toastify';
 
 const WhatsappTemplates = ({
 	isOpen,
@@ -48,11 +47,35 @@ const WhatsappTemplates = ({
 		}
 	);
 
+	// useEffect(() => {
+	// 	if (templates?.doc?.length > 0) {
+	// 		setSelectedTemplate(templates.doc[0]);
+	// 	}
+	// }, [templates?.doc]);
+
 	useEffect(() => {
-		if (templates?.doc?.length > 0) {
-			setSelectedTemplate(templates.doc[0]);
+		if (Array.isArray(templates?.doc)) {
+			const filtered = templates.doc.filter(
+				(template) =>
+					typeof template.name === 'string' &&
+					!template.name.toLowerCase().includes('hello_world')
+			);
+
+			if (filtered.length > 0) {
+				setSelectedTemplate(filtered[0]);
+			} else {
+				setSelectedTemplate(null);
+			}
 		}
 	}, [templates?.doc]);
+
+	const filteredTemplates = Array.isArray(templates?.doc)
+		? templates.doc.filter(
+				(template) =>
+					typeof template.name === 'string' &&
+					!template.name.toLowerCase().includes('hello_world')
+			)
+		: [];
 
 	//  Extract template body + footer
 	const templateBody =
@@ -139,7 +162,7 @@ const WhatsappTemplates = ({
 								{/* Template Selection Panel */}
 								<Box flex='1' minW='400px'>
 									<Text fontSize='sm' color='gray.500' mb={2}>
-										Available Templates ({templates.results})
+										Available Templates ({filteredTemplates.length})
 									</Text>
 
 									<SimpleGrid
@@ -150,109 +173,107 @@ const WhatsappTemplates = ({
 										scrollBehavior='smooth'
 										p='2'
 									>
-										{templates?.doc
-											?.filter((temp) => !temp.name.includes('hello_world'))
-											.map((template) => (
-												// <Box
-												// 	key={template.id}
-												// 	cursor='pointer'
-												// 	p={2}
-												// 	mb={3}
-												// 	borderRadius='lg'
-												// 	borderWidth='1px'
-												// 	borderColor={
-												// 		selectedTemplate?.id === template.id
-												// 			? 'green.300'
-												// 			: 'gray.200'
-												// 	}
-												// 	bg={
-												// 		selectedTemplate?.id === template.id
-												// 			? 'green.50'
-												// 			: 'white'
-												// 	}
-												// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
-												// 	transition='all 0.2s'
-												// 	onClick={() => setSelectedTemplate(template)}
-												// >
-												// 	<Flex justify='space-between' align='center' mb={2}>
-												// 		<Text
-												// 			fontWeight='bold'
-												// 			fontSize={{ base: 'xs', md: 'sm' }}
-												// 		>
-												// 			{template.name}
-												// 		</Text>
-												// 		<Badge
-												// 			colorScheme={
-												// 				template.status === 'APPROVED'
-												// 					? 'green'
-												// 					: 'orange'
-												// 			}
-												// 			fontSize='xs'
-												// 		>
-												// 			{template.status}
-												// 		</Badge>
-												// 	</Flex>
-												// </Box>
-												<Box
-													key={template.id}
-													cursor='pointer'
-													p={3}
-													mb={3}
-													borderRadius='lg'
-													borderWidth='1px'
+										{filteredTemplates?.map((template) => (
+											// <Box
+											// 	key={template.id}
+											// 	cursor='pointer'
+											// 	p={2}
+											// 	mb={3}
+											// 	borderRadius='lg'
+											// 	borderWidth='1px'
+											// 	borderColor={
+											// 		selectedTemplate?.id === template.id
+											// 			? 'green.300'
+											// 			: 'gray.200'
+											// 	}
+											// 	bg={
+											// 		selectedTemplate?.id === template.id
+											// 			? 'green.50'
+											// 			: 'white'
+											// 	}
+											// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
+											// 	transition='all 0.2s'
+											// 	onClick={() => setSelectedTemplate(template)}
+											// >
+											// 	<Flex justify='space-between' align='center' mb={2}>
+											// 		<Text
+											// 			fontWeight='bold'
+											// 			fontSize={{ base: 'xs', md: 'sm' }}
+											// 		>
+											// 			{template.name}
+											// 		</Text>
+											// 		<Badge
+											// 			colorScheme={
+											// 				template.status === 'APPROVED'
+											// 					? 'green'
+											// 					: 'orange'
+											// 			}
+											// 			fontSize='xs'
+											// 		>
+											// 			{template.status}
+											// 		</Badge>
+											// 	</Flex>
+											// </Box>
+											<Box
+												key={template.id}
+												cursor='pointer'
+												p={3}
+												mb={3}
+												borderRadius='lg'
+												borderWidth='1px'
+												borderColor={
+													selectedTemplate?.id === template.id
+														? 'green.300'
+														: 'gray.100'
+												}
+												bg={
+													selectedTemplate?.id === template.id
+														? 'green.50'
+														: 'gray.100'
+												}
+												_hover={{ borderColor: 'green.200' }}
+												transition='all 0.2s ease'
+												onClick={() => setSelectedTemplate(template)}
+												position='relative'
+												pl={10} // Add padding for the radio circle
+											>
+												{/* Custom radio circle */}
+												<Flex
+													position='absolute'
+													left={3}
+													top='50%'
+													transform='translateY(-50%)'
+													w={5}
+													h={5}
+													borderWidth='2px'
 													borderColor={
 														selectedTemplate?.id === template.id
-															? 'green.300'
-															: 'gray.100'
+															? 'green.400'
+															: 'gray.300'
 													}
-													bg={
-														selectedTemplate?.id === template.id
-															? 'green.50'
-															: 'gray.100'
-													}
-													_hover={{ borderColor: 'green.200' }}
-													transition='all 0.2s ease'
-													onClick={() => setSelectedTemplate(template)}
-													position='relative'
-													pl={10} // Add padding for the radio circle
+													borderRadius='full'
+													align='center'
+													justify='center'
 												>
-													{/* Custom radio circle */}
-													<Flex
-														position='absolute'
-														left={3}
-														top='50%'
-														transform='translateY(-50%)'
-														w={5}
-														h={5}
-														borderWidth='2px'
-														borderColor={
-															selectedTemplate?.id === template.id
-																? 'green.400'
-																: 'gray.300'
-														}
-														borderRadius='full'
-														align='center'
-														justify='center'
-													>
-														{selectedTemplate?.id === template.id && (
-															<Box
-																w={3}
-																h={3}
-																bg='green.400'
-																borderRadius='full'
-															/>
-														)}
-													</Flex>
+													{selectedTemplate?.id === template.id && (
+														<Box
+															w={3}
+															h={3}
+															bg='green.400'
+															borderRadius='full'
+														/>
+													)}
+												</Flex>
 
-													<Flex justify='space-between' align='center'>
-														<Text
-															fontWeight='medium'
-															fontSize={{ base: 'sm', md: 'md' }}
-															color='gray.700'
-														>
-															{template.name}
-														</Text>
-														{/* <Badge
+												<Flex justify='space-between' align='center'>
+													<Text
+														fontWeight='medium'
+														fontSize={{ base: 'sm', md: 'md' }}
+														color='gray.700'
+													>
+														{template.name}
+													</Text>
+													{/* <Badge
 															colorScheme={
 																template.status === 'APPROVED'
 																	? 'green'
@@ -266,9 +287,9 @@ const WhatsappTemplates = ({
 														>
 															{template.status}
 														</Badge> */}
-													</Flex>
-												</Box>
-											))}
+												</Flex>
+											</Box>
+										))}
 									</SimpleGrid>
 								</Box>
 

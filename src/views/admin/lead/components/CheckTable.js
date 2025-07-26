@@ -3,25 +3,13 @@ import {
 	Button,
 	Checkbox,
 	Flex,
-	FormLabel,
 	Grid,
 	GridItem,
-	HStack,
-	Input,
 	Menu,
 	MenuButton,
 	MenuItem,
 	MenuList,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
 	Table,
-	Tag,
-	TagLabel,
 	Tbody,
 	Td,
 	Text,
@@ -31,8 +19,6 @@ import {
 	MenuDivider,
 	useColorModeValue,
 	useDisclosure,
-	Skeleton,
-	Badge,
 	Wrap,
 } from '@chakra-ui/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -99,6 +85,8 @@ import EditLead from './EditLead';
 import Card from 'components/card/Card';
 import { formattedDate } from 'utils/helpers';
 import SearchTags from 'components/search/SearchTags';
+import LeadMenu from './subComponents/LeadMenu';
+import LeadCycle from 'views/admin/leadCycle';
 
 const CheckTable = React.memo((props) => {
 	const {
@@ -146,6 +134,8 @@ const CheckTable = React.memo((props) => {
 
 	const user = JSON.parse(localStorage.getItem('user'));
 
+	const countries = useSelector((state) => state.countries.countryNames);
+
 	const [leadsModal, setLeadsModal] = useState({
 		isOpen: false,
 		lid: null,
@@ -179,10 +169,14 @@ const CheckTable = React.memo((props) => {
 	}, [isLoding]);
 
 	useEffect(() => {
+		console.log('REFETCH DATA');
+
 		setData(tableData);
 	}, [refetchData, setData, tableData]);
 
 	useEffect(() => {
+		console.log('COLUMNS UPDATED');
+
 		const savedColumns =
 			JSON.parse(localStorage.getItem('userCustomColumns')) || [];
 		const updatedColumns = dynamicColumns.filter(
@@ -207,7 +201,7 @@ const CheckTable = React.memo((props) => {
 	const [manageColumns, setManageColumns] = useState(false);
 	const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn); // State to track changes
 	const [taskInits, setTaskInits] = useState({});
-	const { isLeadCycle, setIsLeadCycle } = useStateContext();
+	const [isLeadCycle, setIsLeadCycle] = useState(false);
 
 	const [formValues, setFormValues] = useState([]);
 	const [isFormReset, setIsFormReset] = useState(false);
@@ -240,34 +234,6 @@ const CheckTable = React.memo((props) => {
 			setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
 		}
 	};
-
-	// const toggleColumnVisibility = (columnKey) => {
-	// 	setColumn(columnKey); // Optional: Update any additional state tied to the current column.
-
-	// 	isColumnSelected = tempSelectedColumns?.some(
-	// 		(column) => column?.accessor === columnKey
-	// 	);
-
-	// 	console.log({ columnKey, isColumnSelected });
-
-	// 	if (isColumnSelected) {
-	// 		// Remove column from selected
-	// 		const updatedColumns = tempSelectedColumns?.filter(
-	// 			(column) => column?.accessor !== columnKey
-	// 		);
-	// 		console.log({ updatedColumns });
-	// 		setTempSelectedColumns([...updatedColumns]); // Spread to ensure a new array is created
-	// 	} else {
-	// 		// Add column to selected
-	// 		const columnToAdd = dynamicColumns?.find(
-	// 			(column) => column?.accessor === columnKey
-	// 		);
-	// 		console.log({ columnToAdd });
-	// 		if (columnToAdd) {
-	// 			setTempSelectedColumns((prevColumns) => [...prevColumns, columnToAdd]);
-	// 		}
-	// 	}
-	// };
 
 	const handleColumnClear = () => {
 		isColumnSelected = selectedColumns?.some(
@@ -302,117 +268,6 @@ const CheckTable = React.memo((props) => {
 			refetchData(pageIndex + 1, pageSize);
 		}
 	};
-
-	// const initialValues = {
-	// 	leadName: "",
-	// 	leadStatus: "",
-	// 	eLeadStatus: "",
-	// 	leadEmail: "",
-	// 	leadPhoneNumber: "",
-	// 	managerAssigned: "",
-	// 	agentAssigned: "",
-	// 	leadWhatsappNumber: "",
-	// 	nationality: "",
-	// 	ip: "",
-	// 	leadAddress: "",
-	// 	leadCampaign: "",
-	// 	leadSourceDetails: "",
-	// 	leadSourceMedium: "",
-	// 	pageUrl: "",
-	// 	r_u_in_uae: "",
-	// 	leadLang: "",
-	// };
-
-	// 	const formik = useFormik({
-	// 		initialValues,
-	// 		validationSchema: validationLeadSearchSchema,
-	// 		onSubmit: (values, { formikResetForm }) => {
-	// 			// Initialize cleanedData and tags
-	// 			const { cleanedData, tags } = Object.entries(values).reduce(
-	// 				(acc, [key, value]) => {
-	// 					if (value !== "" && value !== undefined) {
-	// 						// Add raw value to cleanedData for API
-	// 						acc.cleanedData[key] = value;
-
-	// 						let displayValue = value;
-
-	// 						// Special formatting rules for score range
-	// 						if (key === "fromLeadScore" || key === "toLeadScore") {
-	// 							displayValue = `${values.fromLeadScore || 0}-${
-	// 								values.toLeadScore || "max"
-	// 							}`;
-	// 						}
-
-	// 						// Special formatting for leadStatus
-	// 						if (key === "leadStatus") {
-	// 							displayValue =
-	// 								value === "active"
-	// 									? "Interested"
-	// 									: value === "pending"
-	// 										? "Not Interested"
-	// 										: value;
-	// 						}
-
-	// 						// Handle agentAssigned
-	// 						if (key === "agentAssigned") {
-	// 							const agentsArray = Object.values(tree.agents).flatMap(
-	// 								(managerArray) => managerArray
-	// 							);
-	// 							const assignedAgent = agentsArray.find(
-	// 								(agent) => agent?._id?.toString() === value
-	// 							);
-
-	// 							displayValue = assignedAgent
-	// 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
-	// 								: value === -1
-	// 									?"no Agent"
-	// 									: value;
-	// 						}
-
-	// 						// Handle managerAssigned
-	// 						if (key === "managerAssigned") {
-	// 							const assignedManager = tree.managers.find(
-	// 								(user) => user?._id?.toString() === value
-	// 							);
-
-	// 							displayValue = assignedManager
-	// 								? `${assignedManager.firstName} ${assignedManager.lastName}`
-	// 								: value === -1
-	// 									?"no Manager"
-	// 									: value;
-	// 						}
-
-	// 						// Add formatted value to tags for UI
-	// 						acc.tags.push(`${key}: ${displayValue}`);
-	// 					}
-
-	// 					return acc;
-	// 				},
-	// 				{ cleanedData: {}, tags: [] }
-	// 			);
-
-	// 			// Call API with cleaned data
-	// 			fetchAdvancedSearch(cleanedData, 1, pageSize);
-
-	// 			// Update UI with tags
-	// 			setGetTagValues(tags);
-	// 			setAdvaceSearch(false);
-	// 			setSearchClear(true);
-
-	// 			// Reset form values
-	// 			// resetForm();
-	// 		},
-	// 	});
-	// const {
-	// 	control,
-	// 	handleSubmit,
-	// 	setValue,
-	// 	reset,
-	// 	formState: { errors, isDirty },
-	// } = useForm({
-	// 	defaultValues: initialValues,
-	// 	resolver: yupResolver(validationLeadSearchSchema),
-	// });
 
 	const handleClear = () => {
 		// Clear parent states
@@ -623,19 +478,22 @@ const CheckTable = React.memo((props) => {
 		}
 	};
 
-	useEffect(() => {
-		setGopageValue(1);
-		setUpdatedPage(0);
-		if (displaySearchData) {
-			fetchSearchedData(searchbox.current?.value?.trim());
-		} else if (displayAdvSearchData) {
-			fetchAdvancedSearch();
-		} else {
-			fetchData();
-		}
-	}, [action]);
+	// useEffect(() => {
+	// 	console.log('ACTION ');
+
+	// 	setGopageValue(1);
+	// 	setUpdatedPage(0);
+	// 	if (displaySearchData) {
+	// 		fetchSearchedData(searchbox.current?.value?.trim());
+	// 	} else if (displayAdvSearchData) {
+	// 		fetchAdvancedSearch();
+	// 	} else {
+	// 		fetchData();
+	// 	}
+	// }, [action]);
 
 	useEffect(() => {
+		console.log('DATE TIME ');
 		setGopageValue(1);
 		setUpdatedPage(0);
 		if (
@@ -647,6 +505,8 @@ const CheckTable = React.memo((props) => {
 	}, [dateTime]);
 
 	useEffect(() => {
+		console.log('PAGE INDEX ');
+
 		setUpdatedPage(pageIndex);
 		if (displaySearchData) {
 			fetchSearchedData(
@@ -665,6 +525,8 @@ const CheckTable = React.memo((props) => {
 	}, [pageIndex]);
 
 	useEffect(() => {
+		console.log('PAGE SIZE ', pageSize);
+
 		setUpdatedPage(0);
 		setGopageValue(1);
 		if (displaySearchData) {
@@ -971,12 +833,24 @@ const CheckTable = React.memo((props) => {
 					/>
 				)}
 
-				<Box overflowY={'auto'} w='100%' className='table-fix-container'>
+				{/* // className='table-fix-container' */}
+				<Box
+					maxHeight='80vh'
+					overflowY='auto'
+					scrollBehavior='smooth'
+					borderRadius='md'
+					boxShadow='sm'
+					bg='white'
+				>
 					<Table
 						{...getTableProps()}
-						variant='striped'
 						color='gray.500'
 						mb='30px'
+						variant='striped'
+						size='md'
+					>
+						{/* <Table
+						variant='striped'
 						sx={{
 							'& tbody tr:hover': {
 								// Apply hover effect directly to rows
@@ -985,8 +859,8 @@ const CheckTable = React.memo((props) => {
 								transition: 'background-color 0.2s ease, box-shadow 0.2s ease', // Smooth transition
 							},
 						}}
-					>
-						<Thead zIndex={1} height='10vh'>
+					> */}
+						<Thead height='10vh'>
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr
 									{...headerGroup.getHeaderGroupProps()}
@@ -1075,10 +949,8 @@ const CheckTable = React.memo((props) => {
 								},
 							}}
 						>
-							{isLoding ? (
-								<TableLoading columns={columns} length={8} />
-							) : !showTable ? (
-								<TableLoading columns={columns} length={8} />
+							{isLoding || !showTable ? (
+								<TableLoading columns={columns} length={14} py='2' />
 							) : data?.length && page && page?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
@@ -1249,9 +1121,11 @@ const CheckTable = React.memo((props) => {
 														cellContent = (
 															<RenderStatus
 																id={cell?.row?.original?._id}
+																lead={cell?.row.original}
 																cellValue={cell?.value}
 																updateRowStatus={updateRowStatus}
 																rowOriginalStatus={row?.original?.leadStatus}
+																countries={countries}
 															/>
 														);
 													}
@@ -1268,6 +1142,7 @@ const CheckTable = React.memo((props) => {
 																// setUpdatedEStatus={setUpdatedEStatus}
 																id={cell?.row?.original?._id}
 																cellValue={cell?.value}
+																lead={cell?.row.original}
 																user={user}
 															/>
 														</div>
@@ -1517,174 +1392,191 @@ const CheckTable = React.memo((props) => {
 														/>
 													);
 												} else if (cell?.column.Header === 'Action') {
+													// data = (
+													// 	<Text
+													// 		fontSize='md'
+													// 		fontWeight='900'
+													// 		textAlign={'center'}
+													// 	>
+													// 		<Menu isLazy>
+													// 			<MenuButton>
+													// 				<CiMenuKebab />
+													// 			</MenuButton>
+													// 			<MenuList
+													// 				minW={'fit-content'}
+													// 				transform={'translate(1520px, 173px);'}
+													// 			>
+													// 				{/* {access?.update &&
+													// 				user?.role === 'superAdmin' ? (
+													// 					<MenuItem
+													// 						py={2.5}
+													// 						onClick={() => {
+
+													// 						}}
+													// 						icon={<EditIcon fontSize={15} mb={1} />}
+													// 					>
+													// 						Edit
+													// 					</MenuItem>
+													// 				) : (
+													// 					''
+													// 				)} */}
+													// 				{/* {callAccess?.create && (
+													// 					<MenuItem
+													// 						py={2.5}
+													// 						width={'165px'}
+													// 						onClick={() => {
+													// 							setAddPhoneCall(true);
+													// 							setCallSelectedId(
+													// 								cell?.row?.values._id
+													// 							);
+													// 						}}
+													// 						icon={<PhoneIcon fontSize={15} mb={1} />}
+													// 					>
+													// 						Create Call
+													// 					</MenuItem>
+													// 				)} */}
+													// 				{emailAccess?.create && (
+													// 					<MenuItem
+													// 						py={2.5}
+													// 						width={'165px'}
+													// 						onClick={() => {
+													// 							setAddEmailHistory(true);
+													// 							setSelectedId(cell?.row?.original._id);
+													// 							setLeadDetails(cell?.row?.original);
+													// 						}}
+													// 						icon={<EmailIcon fontSize={15} mb={1} />}
+													// 					>
+													// 						Send Email
+													// 					</MenuItem>
+													// 				)}
+													// 				<MenuItem
+													// 					py={2.5}
+													// 					width={'max-content'}
+													// 					onClick={() => {
+													// 						// navigate(
+													// 						//   "/leadCycle/" + row?.original?._id
+													// 						// );
+													// 						setIsLeadCycle({
+													// 							isOpen: true,
+													// 							id: row?.original?._id,
+													// 						});
+													// 					}}
+													// 					icon={<FaHistory fontSize={15} mb={1} />}
+													// 				>
+													// 					View Lead cycle
+													// 				</MenuItem>
+													// 				{/* <MenuItem
+													// 					py={2.5}
+													// 					width={'max-content'}
+													// 					onClick={() => {
+													// 						navigate(
+													// 							'/leadHistory/' + cell?.row?.values?._id
+													// 						);
+													// 					}}
+													// 					icon={<FaHistory fontSize={15} mb={1} />}
+													// 				>
+													// 					View Call history
+													// 				</MenuItem>
+
+													// 				<MenuItem
+													// 					display={{ sm: 'block', xl: 'none' }}
+													// 					py={2.5}
+													// 					width={'195px'}
+													// 					onClick={() => {
+													// 						const contact = parseInt(
+													// 							cell?.row?.values?.leadPhoneNumber
+													// 						);
+													// 						if (contact)
+													// 							document.location.href = `tel:+92${contact}`;
+													// 					}}
+													// 					icon={<PhoneIcon fontSize={15} mb={1} />}
+													// 				>
+													// 					Open in Dialpad
+													// 				</MenuItem> */}
+
+													// 				<MenuItem
+													// 					py={2.5}
+													// 					width={'210px'}
+													// 					onClick={() => {
+													// 						const contact = parseInt(
+													// 							cell?.row?.values?.leadWhatsappNumber
+													// 						);
+													// 						if (contact)
+													// 							window.open(
+													// 								`https://api.whatsapp.com/send/?phone=${contact}`
+													// 							);
+													// 					}}
+													// 					icon={<BsWhatsapp fontSize={15} mb={1} />}
+													// 				>
+													// 					Open in Whatsapp
+													// 				</MenuItem>
+													// 				{user?.roles[0]?.roleName === 'Agent' && (
+													// 					<MenuItem
+													// 						py={2.5}
+													// 						width={'210px'}
+													// 						onClick={() => {
+													// 							setTaskInits(row?.original);
+													// 							onTaskOpen();
+													// 						}}
+													// 						icon={<MdTask fontSize={15} mb={1} />}
+													// 					>
+													// 						Create Follow Up
+													// 					</MenuItem>
+													// 				)}
+													// 				{/* {access?.view && (
+													//           <MenuItem
+													//             py={2.5}
+													//             color={"green"}
+													//             onClick={() =>
+													//               navigate(
+													//                 `/leadView/${cell?.row?.original._id}`
+													//               )
+													//             }
+													//             icon={<ViewIcon fontSize={15} mb={1} />}
+													//           >
+													//             View
+													//           </MenuItem>
+													//         )} */}
+													// 				{access?.delete &&
+													// 				user?.role === 'superAdmin' ? (
+													// 					<MenuItem
+													// 						py={2.5}
+													// 						color={'red'}
+													// 						onClick={() => {
+													// 							setSelectedValues([
+													// 								cell?.row?.original._id,
+													// 							]);
+													// 							setDelete(true);
+													// 						}}
+													// 						icon={<DeleteIcon fontSize={15} mb={1} />}
+													// 					>
+													// 						Delete
+													// 					</MenuItem>
+													// 				) : (
+													// 					''
+													// 				)}
+													// 			</MenuList>
+													// 		</Menu>
+													// 	</Text>
+													// );
+
 													data = (
-														<Text
-															fontSize='md'
-															fontWeight='900'
-															textAlign={'center'}
-														>
-															<Menu isLazy>
-																<MenuButton>
-																	<CiMenuKebab />
-																</MenuButton>
-																<MenuList
-																	minW={'fit-content'}
-																	transform={'translate(1520px, 173px);'}
-																>
-																	{access?.update &&
-																	user?.role === 'superAdmin' ? (
-																		<MenuItem
-																			py={2.5}
-																			onClick={() => {
-																				setEdit(true);
-																				setSelectedId(cell?.row?.original._id);
-																				setLeadDetails(cell?.row?.original);
-																			}}
-																			icon={<EditIcon fontSize={15} mb={1} />}
-																		>
-																			Edit
-																		</MenuItem>
-																	) : (
-																		''
-																	)}
-																	{callAccess?.create && (
-																		<MenuItem
-																			py={2.5}
-																			width={'165px'}
-																			onClick={() => {
-																				setAddPhoneCall(true);
-																				setCallSelectedId(
-																					cell?.row?.values._id
-																				);
-																			}}
-																			icon={<PhoneIcon fontSize={15} mb={1} />}
-																		>
-																			Create Call
-																		</MenuItem>
-																	)}
-																	{emailAccess?.create && (
-																		<MenuItem
-																			py={2.5}
-																			width={'165px'}
-																			onClick={() => {
-																				setAddEmailHistory(true);
-																				setSelectedId(cell?.row?.original._id);
-																				setLeadDetails(cell?.row?.original);
-																			}}
-																			icon={<EmailIcon fontSize={15} mb={1} />}
-																		>
-																			Send Email
-																		</MenuItem>
-																	)}
-																	<MenuItem
-																		py={2.5}
-																		width={'max-content'}
-																		onClick={() => {
-																			// navigate(
-																			//   "/leadCycle/" + row?.original?._id
-																			// );
-																			setIsLeadCycle({
-																				isOpen: true,
-																				id: row?.original?._id,
-																			});
-																		}}
-																		icon={<FaHistory fontSize={15} mb={1} />}
-																	>
-																		View Lead cycle
-																	</MenuItem>
-																	<MenuItem
-																		py={2.5}
-																		width={'max-content'}
-																		onClick={() => {
-																			navigate(
-																				'/leadHistory/' + cell?.row?.values?._id
-																			);
-																		}}
-																		icon={<FaHistory fontSize={15} mb={1} />}
-																	>
-																		View Call history
-																	</MenuItem>
-
-																	<MenuItem
-																		display={{ sm: 'block', xl: 'none' }}
-																		py={2.5}
-																		width={'195px'}
-																		onClick={() => {
-																			const contact = parseInt(
-																				cell?.row?.values?.leadPhoneNumber
-																			);
-																			if (contact)
-																				document.location.href = `tel:+92${contact}`;
-																		}}
-																		icon={<PhoneIcon fontSize={15} mb={1} />}
-																	>
-																		Open in Dialpad
-																	</MenuItem>
-
-																	<MenuItem
-																		py={2.5}
-																		width={'210px'}
-																		onClick={() => {
-																			const contact = parseInt(
-																				cell?.row?.values?.leadPhoneNumber
-																			);
-																			if (contact)
-																				window.open(
-																					`https://api.whatsapp.com/send/?phone=${contact}`
-																				);
-																		}}
-																		icon={<BsWhatsapp fontSize={15} mb={1} />}
-																	>
-																		Open in Whatsapp
-																	</MenuItem>
-																	{user?.roles[0]?.roleName === 'Agent' && (
-																		<MenuItem
-																			py={2.5}
-																			width={'210px'}
-																			onClick={() => {
-																				setTaskInits(row?.original);
-																				onTaskOpen();
-																			}}
-																			icon={<MdTask fontSize={15} mb={1} />}
-																		>
-																			Create Follow Up
-																		</MenuItem>
-																	)}
-																	{/* {access?.view && (
-                                    <MenuItem
-                                      py={2.5}
-                                      color={"green"}
-                                      onClick={() =>
-                                        navigate(
-                                          `/leadView/${cell?.row?.original._id}`
-                                        )
-                                      }
-                                      icon={<ViewIcon fontSize={15} mb={1} />}
-                                    >
-                                      View
-                                    </MenuItem>
-                                  )} */}
-																	{access?.delete &&
-																	user?.role === 'superAdmin' ? (
-																		<MenuItem
-																			py={2.5}
-																			color={'red'}
-																			onClick={() => {
-																				setSelectedValues([
-																					cell?.row?.original._id,
-																				]);
-																				setDelete(true);
-																			}}
-																			icon={<DeleteIcon fontSize={15} mb={1} />}
-																		>
-																			Delete
-																		</MenuItem>
-																	) : (
-																		''
-																	)}
-																</MenuList>
-															</Menu>
-														</Text>
+														<LeadMenu
+															lead={row.original}
+															refetchData={tableDataUpdate}
+															setEditLead={setEdit}
+															setSelectedId={setSelectedId}
+															setLeadDetails={setLeadDetails}
+															setSelectedValues={setSelectedValues}
+															setDeleteLead={setDelete}
+															access={access}
+															emailAccess={emailAccess}
+															callAccess={callAccess}
+															onTaskOpen={onTaskOpen}
+															setTaskInits={setTaskInits} // set lead
+															setIsLeadCycle={setIsLeadCycle}
+															setSendEmail={setAddEmailHistory}
+														/>
 													);
 												}
 												return (
@@ -1797,6 +1689,13 @@ const CheckTable = React.memo((props) => {
 						onClose={onClose}
 						size={size}
 						refreshData={refreshData}
+					/>
+				)}
+
+				{isLeadCycle && (
+					<LeadCycle
+						isLeadCycle={isLeadCycle}
+						setIsLeadCycle={setIsLeadCycle}
 					/>
 				)}
 

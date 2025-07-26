@@ -1,15 +1,21 @@
 import { Select } from '@chakra-ui/react';
-import BoxLoading from 'components/shared/BoxLoading';
-import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
+import BoxLoading from 'components/shared/BoxLoading';
+
 import { putApi } from 'services/api';
-import { leadStatus } from 'utils/options';
+import { sendLeadFeedback } from 'api';
+
+import { extractLocationData } from 'utils/helpers';
+import { eventLeadStatus, leadStatus } from 'utils/options';
 
 const RenderStatus = ({
 	id,
+	lead,
 	cellValue,
 	rowOriginalStatus,
 	updateRowStatus,
+	countries,
 }) => {
 	const [value, setValue] = useState(cellValue || rowOriginalStatus || '');
 	const [loading, setLoading] = useState(false);
@@ -26,6 +32,26 @@ const RenderStatus = ({
 				setValue(data.leadStatus);
 				updateRowStatus(id, data.leadStatus);
 				toast.success('Lead Status Updated!');
+
+				// check if status is event lead status
+				if (eventLeadStatus.includes(data.leadStatus)) {
+					const leadEmail = lead?.leadEmail ?? '';
+					const leadPhone =
+						typeof lead?.leadPhoneNumber === 'object'
+							? lead?.leadPhoneNumber?.result
+							: lead?.leadPhoneNumber;
+
+					const { ip } = extractLocationData(lead?.ip, countries);
+
+					sendLeadFeedback({
+						email: leadEmail,
+						phone: leadPhone,
+						status: data.leadStatus,
+						action: 'Status',
+						ip,
+						fcblid: lead?.fcblid || null,
+					});
+				}
 			}
 		} catch (e) {
 			console.log(e);

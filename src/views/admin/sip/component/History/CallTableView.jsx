@@ -151,6 +151,7 @@ const CallTableView = ({
 	calls,
 	currentlyPlayingId,
 	handleSetCurrentlyPlaying,
+	setCurrentlyPlayingId,
 	handleCopy,
 	copied,
 }) => {
@@ -173,6 +174,7 @@ const CallTableView = ({
 	const handleOpenTranscribe = (data) => {
 		setCurrentCall(data);
 		setTranscribeModal(true);
+		setCurrentlyPlayingId(null);
 	};
 
 	const handleTranscribeClose = () => {

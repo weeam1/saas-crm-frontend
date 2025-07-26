@@ -62,9 +62,27 @@ export const formatCurrency = (amount, currency) => {
 	}).format(amount);
 };
 
-export const validatePhoneNumber = (phoneNumber) => {
-	const sanitized = phoneNumber.replace(/\s+/g, '').replace(/^(\+?)/, '');
+export const toCapitalCase = (str) =>
+	str
+		.toLowerCase()
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
 
+export const validatePhoneNumber = (phoneNumber) => {
+	if (!phoneNumber) return null;
+
+	// Remove all spaces
+	let sanitized = phoneNumber.replace(/\s+/g, '');
+
+	// Remove leading '+' or '00'
+	if (sanitized.startsWith('+')) {
+		sanitized = sanitized.slice(1);
+	} else if (sanitized.startsWith('00')) {
+		sanitized = sanitized.slice(2);
+	}
+
+	// Validate: starts with non-zero digit and 10-15 digits long
 	if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
 		console.log('invalid number', sanitized);
 		return null;
@@ -72,6 +90,17 @@ export const validatePhoneNumber = (phoneNumber) => {
 
 	return sanitized;
 };
+
+// export const validatePhoneNumber = (phoneNumber) => {
+// 	const sanitized = phoneNumber.replace(/\s+/g, '').replace(/^(\+?)/, '');
+
+// 	if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
+// 		console.log('invalid number', sanitized);
+// 		return null;
+// 	}
+
+// 	return sanitized;
+// };
 
 // export const formatPostDate = (date, timezone) => {
 // 	const now = new Date();

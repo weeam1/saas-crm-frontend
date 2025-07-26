@@ -109,13 +109,21 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	};
 
 	return (
-		<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(1,1fr)' }} gap={2}>
+		<Grid
+			templateColumns={{
+				base: 'repeat(1,1fr)',
+				sm: 'repeat(1, 1fr)',
+				md: 'repeat(1,1fr)',
+			}}
+			gap={2}
+		>
 			{/* Basic Information Section */}
-			<GridItem colSpan={{base:1, sm: 1,md:2}}>
+			<GridItem colSpan={{ base: 1, sm: 1, md: 2 }}>
 				<SectionCard title='Basic Information'>
 					<DetailGrid>
 						<DetailItem label='Lead Name' value={data?.leadName} />
-						{!hideContact && !isInLeadPool && (
+						{(user?.role === 'superAdmin' ||
+							(!hideContact && !isInLeadPool)) && (
 							<>
 								<DetailItem label='Email' value={data?.leadEmail} />
 								<DetailItem
@@ -263,7 +271,14 @@ const SectionCard = ({ title, children }) => (
 );
 
 const DetailGrid = ({ children }) => (
-	<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(2,1fr)' }} gap={4}>
+	<Grid
+		templateColumns={{
+			base: 'repeat(1,1fr)',
+			sm: 'repeat(1, 1fr)',
+			md: 'repeat(2,1fr)',
+		}}
+		gap={4}
+	>
 		{children}
 	</Grid>
 );
@@ -283,7 +298,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
 						fontWeight='500'
 						maxWidth='200px'
 						{...props}
-						fontSize={"xs"}
+						fontSize={'xs'}
 					>
 						<a href={value} target='_blank' rel='noreferrer'>
 							{value}

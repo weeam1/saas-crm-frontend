@@ -231,6 +231,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
 						calls={calls}
 						currentlyPlayingId={currentlyPlayingId}
 						handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+						setCurrentlyPlayingId={setCurrentlyPlayingId}
 						handleCopy={handleCopy}
 						copied={copied}
 					/>
@@ -239,6 +240,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
 						calls={calls}
 						currentlyPlayingId={currentlyPlayingId}
 						handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+						setCurrentlyPlayingId={setCurrentlyPlayingId}
 						handleCopy={handleCopy}
 					/>
 				)

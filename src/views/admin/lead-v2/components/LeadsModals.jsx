@@ -6,6 +6,7 @@ import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
 import Delete from '../Delete';
 import LeadPhoneHistory from './subComponents/LeadPhoneHistory';
 import LeadAdditionalInfoModal from './lead-note/LeadAdditionalInfoModal';
+import LeadCycle from 'views/admin/leadCycle';
 
 const LeadsModals = (props) => {
 	const {
@@ -27,6 +28,8 @@ const LeadsModals = (props) => {
 		setViewPhoneHistory,
 		setLeadAddtionalInfo,
 		leadAddtionalInfo,
+		isLeadCycle,
+		setIsLeadCycle,
 	} = props;
 
 	const handleViewClose = () => {
@@ -89,6 +92,10 @@ const LeadsModals = (props) => {
 					method='many'
 					// setSelectAllChecked={setSelectAllChecked}
 				/>
+			)}
+
+			{isLeadCycle && (
+				<LeadCycle isLeadCycle={isLeadCycle} setIsLeadCycle={setIsLeadCycle} />
 			)}
 
 			{/* 
