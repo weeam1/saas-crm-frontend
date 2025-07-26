@@ -17,6 +17,8 @@ import {
 	IconButton,
 	Icon,
 	Progress,
+	FormControl,
+	FormLabel,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useCreateItemMutation } from 'api/apiSlice';
@@ -214,16 +216,18 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 						</Text>
 
 						<Flex direction={{ base: 'column', md: 'row' }} gap={4}>
-							<Select
-								value={language}
-								onChange={(e) => setLanguage(e.target.value)}
-								maxW={{ base: 'full', md: '300px' }}
-								size='sm'
-							>
-								<option value='default'>Auto-detect (Native)</option>
-								<option value='en'>English</option>
-								<option value='ar'>Arabic</option>
-							</Select>
+							<FormControl maxW={{ base: 'full', md: '300px' }} size='sm'>
+								<Select
+									value={language}
+									onChange={(e) => setLanguage(e.target.value)}
+									variant='outline'
+									_focus={{ borderColor: 'brand.500' }}
+								>
+									<option value='default'>Auto-detect (Native)</option>
+									<option value='en'>English</option>
+									<option value='ar'>Arabic</option>
+								</Select>
+							</FormControl>
 
 							<Button
 								onClick={handleGenerateTranscribe}
@@ -231,7 +235,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 								// isLoading={isLoading}
 								// loadingText='Transcribing...'
 								isDisabled={isLoading}
-								size='sm'
+								size='md'
 								px={6}
 								flexShrink={0}
 							>

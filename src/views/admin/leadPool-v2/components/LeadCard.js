@@ -14,10 +14,10 @@ import CardHeader from './LeadCard/CardHeader';
 import InfoPair from './LeadCard/InfoPair';
 import InputPair from './LeadCard/InputPair';
 import LeadCycleModal from './LeadCard/LeadCycleModal';
-import LeadsModal from '../../lead/LeadsModal';
 import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
+import LeadsModal from 'views/admin/lead-v2/LeadsModal';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {

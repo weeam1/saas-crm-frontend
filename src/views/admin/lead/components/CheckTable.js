@@ -860,7 +860,7 @@ const CheckTable = React.memo((props) => {
 							},
 						}}
 					> */}
-						<Thead zIndex={1} height='10vh'>
+						<Thead height='10vh'>
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr
 									{...headerGroup.getHeaderGroupProps()}
