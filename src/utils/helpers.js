@@ -62,6 +62,13 @@ export const formatCurrency = (amount, currency) => {
 	}).format(amount);
 };
 
+export const toCapitalCase = (str) =>
+	str
+		.toLowerCase()
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+
 export const validatePhoneNumber = (phoneNumber) => {
 	if (!phoneNumber) return null;
 

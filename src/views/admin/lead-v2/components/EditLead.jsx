@@ -18,6 +18,7 @@ import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 import { useMemo } from 'react';
+import { toCapitalCase } from 'utils/helpers';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -71,7 +72,19 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'IP', type: 'text' },
 		{ name: 'city', label: 'City', type: 'text' },
-		{ name: 'country', label: 'Country', type: 'text' },
+		{
+			name: 'country',
+			label: 'Country',
+			type: 'select',
+			options: countries.map((name) => {
+				const countryName = toCapitalCase(name);
+
+				return {
+					label: countryName,
+					value: countryName,
+				};
+			}),
+		},
 		{ name: 'leadLang', label: 'Language', type: 'text' },
 		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
 		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },

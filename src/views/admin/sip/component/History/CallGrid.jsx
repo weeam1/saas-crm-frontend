@@ -23,7 +23,7 @@ const CallGrid = ({
 	const handleOpenTranscribe = (data) => {
 		setCurrentCall(data);
 		setTranscribeModal(true);
-		setCurrentlyPlayingId(null);
+		// setCurrentlyPlayingId(null);
 	};
 
 	const handleTranscribeClose = () => {

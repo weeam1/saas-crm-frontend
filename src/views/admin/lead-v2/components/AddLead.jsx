@@ -16,9 +16,10 @@ import { toast } from 'react-toastify';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import PhoneField from 'components/fields/PhoneField';
+import { toCapitalCase } from 'utils/helpers';
 
 const AddLead = ({ isOpen, onClose, size }) => {
 	const initialValues = {
@@ -47,6 +48,8 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		adset: '',
 	};
 
+	const countries = useSelector((state) => state.countries.countryNames);
+
 	// Only "name" is required; others are optional.
 	const validationSchema = Yup.object({
 		leadName: Yup.string().required('Name is required'),
@@ -63,7 +66,19 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		{ name: 'budget', label: 'Budget', type: 'text' },
 		{ name: 'ip', label: 'IP', type: 'text' },
 		{ name: 'city', label: 'City', type: 'text' },
-		{ name: 'country', label: 'Country', type: 'text' },
+		{
+			name: 'country',
+			label: 'Country',
+			type: 'select',
+			options: countries.map((name) => {
+				const countryName = toCapitalCase(name);
+
+				return {
+					label: countryName,
+					value: countryName,
+				};
+			}),
+		},
 		{ name: 'leadLang', label: 'Language', type: 'text' },
 		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
 		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
