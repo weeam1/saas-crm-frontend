@@ -54,9 +54,8 @@ const ManageSurveys = () => {
     <Box
       bg="white"
       p={{ base: 3, md: 4 }}
-      borderRadius="md"
       boxShadow="sm"
-      mt={4}
+      mt={"-16px"}
       width="100%"
     >
       <FilterSearch
@@ -95,7 +94,7 @@ const ManageSurveys = () => {
               "@media (min-width: 3840px)": { gridTemplateColumns: "repeat(7, 1fr)" },
               "@media (min-width: 7680px)": { gridTemplateColumns: "repeat(8, 1fr)" },
             }}
-            gap={3}
+            gap={2}
             marginTop={{ base: 4, md: 6 }}
             width="100%"
             justifyItems="center"

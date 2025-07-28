@@ -19,9 +19,9 @@ const Survey = () => {
       description: "View survey statistics and analytics at a glance.",
     },
     {
-      label: "Manage Surveys",
-      param: "manage",
-      title: "Manage Surveys",
+      label: "Surveys",
+      param: "surveys",
+      title: "Surveys",
       description: "Create, view and manage all your surveys in one place.",
     },
   ];

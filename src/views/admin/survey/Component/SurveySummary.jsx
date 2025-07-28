@@ -102,7 +102,7 @@ const SurveySummary = ({
   );
 
   return (
-    <Box p={6} mx="auto" bg={bgColor} borderRadius="xl" boxShadow="sm">
+    <Box p={6} mx="auto" bg={bgColor} mt={"-16px"} boxShadow="sm">
       {/* Header */}
       <Flex
         justifyContent="space-between"

@@ -138,7 +138,7 @@ const FilterSearch = ({
             </Box> */}
       </Flex>
 
-      <Flex justifyContent="space-between" my={3}>
+      <Flex justifyContent="space-between" my={2}>
         {searchTags && <SearchTags searchTags={searchTags} />}
         {/* Clear Button */}
         {(endDate || startDate) && (
