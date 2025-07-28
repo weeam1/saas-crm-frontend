@@ -65,6 +65,8 @@ const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 
 const Attendance = React.lazy(() => import('views/admin/attendance'));
+const AttendenceV2 = React.lazy(() => import('views/admin/attendance/AttendenceV2'));
+
 const Employees = React.lazy(
 	() => import('views/admin/attendance/components/employees')
 );
@@ -203,7 +205,7 @@ export default function User(props) {
 					color='inherit'
 				/>
 			),
-			component: Attendance,
+			component: AttendenceV2,
 		},
 		{
 			name: 'My Attendance',

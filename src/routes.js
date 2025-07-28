@@ -50,6 +50,7 @@ import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Tea
 import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
 import AdminWhatsapp from 'views/admin/whatsapp/AdminWhatsapp';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import AttendanceV2 from 'views/admin/attendance/AttendenceV2';
 // Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const Survey = React.lazy(() => import('views/admin/survey'));
@@ -205,7 +206,7 @@ const routes = [
 				color='inherit'
 			/>
 		),
-		component: Attendance,
+		component: AttendanceV2,
 	},
 	{
 		name: 'Attendance Dashboard',
