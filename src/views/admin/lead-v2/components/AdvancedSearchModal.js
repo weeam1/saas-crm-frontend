@@ -71,6 +71,7 @@ const AdvancedSearchModal = ({
 		leadLang: '',
 		lastNote: '',
 		budget: '',
+		isReleased: '',
 	};
 
 	const formik = useFormik({
