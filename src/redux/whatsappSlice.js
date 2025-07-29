@@ -9,10 +9,15 @@ const whatsappSlice = createSlice({
 		mediaUrls: {},
 		activeChat: null,
 		currentAudioId: null,
+		templates: [],
 	},
 	reducers: {
 		setContacts: (state, action) => {
 			state.contacts = action.payload;
+		},
+
+		setTemplates: (state, action) => {
+			state.templates = action.payload;
 		},
 
 		setActiveChat: (state, action) => {
@@ -96,14 +101,7 @@ const whatsappSlice = createSlice({
 				}
 			}
 		},
-		// prependMessages(state, action) {
-		// 	const { chatId, messages } = action.payload;
-		// 	if (!state.chats[chatId]) {
-		// 		state.chats[chatId] = messages;
-		// 	} else {
-		// 		state.chats[chatId] = [...messages, ...state.chats[chatId]];
-		// 	}
-		// },
+
 		appendMessage(state, action) {
 			const { chatId, message } = action.payload;
 
@@ -175,6 +173,7 @@ export const {
 	setActiveChat,
 	setCurrentAudio,
 	deleteContact,
+	setTemplates,
 } = whatsappSlice.actions;
 
 export default whatsappSlice.reducer;

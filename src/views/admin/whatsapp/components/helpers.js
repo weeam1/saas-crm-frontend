@@ -4,6 +4,17 @@ export const getTimeFormat = (isoString) => {
 	return format(new Date(isoString), 'h:mm a').toUpperCase();
 };
 
+export const templatesLanguages = [
+	{
+		label: 'English',
+		value: 'en',
+	},
+	{
+		label: 'Arabic',
+		value: 'ar',
+	},
+];
+
 export const resolveMessageType = (file) => {
 	if (!file) return 'text';
 

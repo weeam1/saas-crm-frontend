@@ -2,15 +2,17 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEffect, useState } from 'react';
 import WhatsappCards from './WhatsappCards';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Stack, Text } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { Link } from 'react-router-dom';
+import { FiSettings } from 'react-icons/fi';
 
 const LIMIT = 10;
 
 const AdminWhatsapp = () => {
 	const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(1);
-  
+	const [page, setPage] = useState(1);
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
@@ -49,10 +51,21 @@ const AdminWhatsapp = () => {
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
-				<Text fontSize='lg' fontWeight='bold'>
-					Whatsapp Users (
-					<CountUpComponent key={users?.length} targetNumber={users?.length} />)
-				</Text>
+				<Flex fontSize='lg' fontWeight='bold' gap='2'>
+					<Text>Whatsapp Users</Text>
+					<CountUpComponent key={users?.length} targetNumber={users?.length} />
+				</Flex>
+
+				<CustomTooltip label='Settings'>
+					<Link to='/settings/whatsapp_manager'>
+						<IconButton
+							icon={<FiSettings />}
+							aria-label='Settings'
+							colorScheme='brand'
+							rounded='full'
+						/>
+					</Link>
+				</CustomTooltip>
 			</Flex>
 
 			<WhatsappCards

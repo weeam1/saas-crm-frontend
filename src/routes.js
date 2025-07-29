@@ -114,6 +114,15 @@ const Listing = React.lazy(() => import('views/admin/Listing'));
 const WhatsappSettings = React.lazy(
 	() => import('views/admin/whatsapp/WhatsappSettings')
 );
+const WhatsappTemplates = React.lazy(
+	() => import('views/admin/whatsapp/WhatsappSettings/Templates')
+);
+const CreateWhatsappTemplate = React.lazy(
+	() =>
+		import(
+			'views/admin/whatsapp/WhatsappSettings/Templates/CreateWhatsappTemplate'
+		)
+);
 
 const routes = [
 	// ========================== Dashboard ==========================
@@ -629,6 +638,22 @@ const routes = [
 		parent: 'whatsapp',
 		component: UserWhatsapp,
 	},
+	{
+		name: 'Whatsapp Templates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/settings/whatsapp_manager/message_templates/:businessId',
+		under: 'whatsapp_manager',
+		parent: 'whatsapp_manager',
+		component: WhatsappTemplates,
+	},
+	{
+		name: 'Whatsapp Templates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/settings/whatsapp_manager/message_templates/:businessId/create_template',
+		under: 'whatsapp_manager',
+		parent: 'whatsapp_manager',
+		component: CreateWhatsappTemplate,
+	},
 
 	// {
 	// 	name: 'Call',
@@ -839,10 +864,10 @@ const routes = [
 		component: LeadSetting,
 	},
 	{
-		name: 'Whatsapp Settings',
+		name: 'Whatsapp Manager',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/settings-whatsapp',
-		under: 'settings-whatsapp',
+		path: '/settings/whatsapp_manager',
+		under: '/settings/dwhatsapp_manager',
 		component: WhatsappSettings,
 	},
 	{

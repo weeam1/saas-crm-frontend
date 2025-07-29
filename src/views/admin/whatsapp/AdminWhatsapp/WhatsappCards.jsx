@@ -8,7 +8,7 @@ const WhatsappCards = ({ data, isLoading, isFetching }) => {
 		<>
 			{isLoading || isFetching ? (
 				<CardShimmer
-					count={12}
+					count={8}
 					height='300px'
 					columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4, '2xl': 4 }}
 				/>
