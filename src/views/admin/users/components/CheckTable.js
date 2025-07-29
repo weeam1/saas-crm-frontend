@@ -319,7 +319,7 @@ export default function CheckTable(props) {
 						display={'flex'}
 						alignItems={'center'}
 					>
-						<Flex alignItems={'center'} flexWrap={'wrap'}>
+						<Flex alignItems={'center'} flexWrap={'wrap'} gap ={2}>
 							<Text
 								color={useColorModeValue('secondaryGray.900', 'white')}
 								fontSize='22px'
