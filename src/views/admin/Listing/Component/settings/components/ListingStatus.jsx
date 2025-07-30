@@ -156,18 +156,18 @@ const ListingStatus = () => {
         path: `/listing/secondary/statuses/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-  
+
       toast.success(`Listing type status updated successfully`);
-      refetch(); 
+      refetch();
     } catch (error) {
       console.error(error);
-      toast.error(error.data?.message || "Failed to update listing type status");
+      toast.error(
+        error.data?.message || "Failed to update listing type status"
+      );
     }
   };
   return (
     <Box
-      overflowY="auto"
-      scrollBehavior="smooth"
       boxShadow="sm"
       bg="white"
       px={2}
@@ -208,117 +208,117 @@ const ListingStatus = () => {
       </Box>
 
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        maxH={"calc(60vh - 100px)"}
-        overflowY="auto"
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading && isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {data?.doc?.map((status) => (
-                <Tr key={status._id}>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {status.name || "N/A"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    <Switch
-                      colorScheme="green"
-                      isChecked={status.status}
-                      onChange={() => handleStatusChange(status)} 
-                    />
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {new Date(status.createdAt).toLocaleDateString()}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    display={"flex"}
-                    gap={2}
-                    justifyContent={"center"}
-                  >
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<EditIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => handleEdit(status)}
-                    />
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => handleDelete(status._id)}
-                    />
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
+                      <Text
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="600"
+                        color="gray.700"
+                      >
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading && isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {data?.doc?.map((status) => (
+                  <Tr key={status._id}>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {status.name || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      <Switch
+                        colorScheme="green"
+                        isChecked={status.status}
+                        onChange={() => handleStatusChange(status)}
+                      />
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {new Date(status.createdAt).toLocaleDateString()}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      display={"flex"}
+                      gap={2}
+                      justifyContent={"center"}
+                    >
+                      <IconButton
+                        aria-label="Edit"
+                        icon={<EditIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => handleEdit(status)}
+                      />
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => handleDelete(status._id)}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            )}
+          </Table>
+          {!isLoading && !isFetching && data?.doc?.length === 0 && (
+            <Text textAlign="center" color="gray.500" py={6}>
+              No listing statuses found.
+            </Text>
           )}
-        </Table>
-        {!isLoading && !isFetching && data?.doc?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No listing statuses found.
-          </Text>
-        )}
+        </Box>
       </Box>
-
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
