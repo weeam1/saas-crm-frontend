@@ -62,7 +62,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     "Sub Unit Type",
     "Type",
     "Location",
-    'country',
+    "country",
     "Area (sqft)",
     "Building Age",
     "Developer",
@@ -115,9 +115,9 @@ const PendingListings = ({ listingType, listingUnitType }) => {
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
-   const { data: countries } = useFetchItemsQuery({
-    path: '/countries',
-    });
+  const { data: countries } = useFetchItemsQuery({
+    path: "/countries",
+  });
   // Update tableData when data changes
   useEffect(() => {
     if (data) {
@@ -274,248 +274,249 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         />
       </Box>
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        overflowY="auto"
-        maxH={"85vh"}
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
-                      textTransform="capitalize"
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {tableData.length > 0 ? (
-                tableData.map((listing, index) => (
-                  <Tr key={index}>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {index + 1}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing?.projectName || "N/A"}
-                    </Td>
-
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing?.unitType?.name || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing.subUnitType?.name || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing.listingType?.name || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing.location || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.country?.name || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing.area ? listing.area.toLocaleString() : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.buildingAge
-                        ? `${listing.buildingAge} Years`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing?.developer ? listing?.developer : "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {listing.price
-                        ? `AED ${listing.price.toLocaleString()}`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdAt
-                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdBy?.fullName}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Badge
-                        colorScheme={getStatusColor(listing.status)}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
+                      <Text
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="600"
+                        color="gray.700"
                         textTransform="capitalize"
                       >
-                        {listing.status}
-                      </Badge>
-                    </Td>
-                    <Td textAlign="center">
-                      <IconButton
-                        aria-label="View"
-                        icon={<ViewIcon />}
-                        size="sm"
-                        color={"#c09f5f"}
-                        _hover={{
-                          backgroundColor: "#c09f5f",
-                          color: "white",
-                        }}
-                        onClick={() =>
-                          Navigate(`/listing/view-listing/${listing._id}`)
-                        }
-                      />
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Select
-                        value={listing.status}
-                        onChange={(e) => {
-                          handleStatusChange(listing._id, e.target.value);
-                        }}
-                        size="sm"
-                        width="150px"
-                        focusBorderColor="brand.500"
-                        bg={getStatusColor(listing.status) + ".100"}
-                        color={getStatusColor(listing.status) + ".800"}
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {tableData.length > 0 ? (
+                  tableData.map((listing, index) => (
+                    <Tr key={index}>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
                       >
-                        <option value="pending">Pending</option>
-                        <option value="active">Approved</option>
-                        <option value="rejected">Rejected</option>
-                      </Select>
+                        {index + 1}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing?.projectName || "N/A"}
+                      </Td>
+
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing?.unitType?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing.subUnitType?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing.listingType?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing.location || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.country?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing.area ? listing.area.toLocaleString() : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.buildingAge
+                          ? `${listing.buildingAge} Years`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing?.developer ? listing?.developer : "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {listing.price
+                          ? `AED ${listing.price.toLocaleString()}`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.createdAt
+                          ? format(listing.createdAt, "MMM d, yyyy h:mm a")
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.createdBy?.fullName}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        <Badge
+                          colorScheme={getStatusColor(listing.status)}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                          textTransform="capitalize"
+                        >
+                          {listing.status}
+                        </Badge>
+                      </Td>
+                      <Td textAlign="center">
+                        <IconButton
+                          aria-label="View"
+                          icon={<ViewIcon />}
+                          size="sm"
+                          color={"#c09f5f"}
+                          _hover={{
+                            backgroundColor: "#c09f5f",
+                            color: "white",
+                          }}
+                          onClick={() =>
+                            Navigate(`/listing/view-listing/${listing._id}`)
+                          }
+                        />
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        <Select
+                          value={listing.status}
+                          onChange={(e) => {
+                            handleStatusChange(listing._id, e.target.value);
+                          }}
+                          size="sm"
+                          width="150px"
+                          focusBorderColor="brand.500"
+                          bg={getStatusColor(listing.status) + ".100"}
+                          color={getStatusColor(listing.status) + ".800"}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="active">Approved</option>
+                          <option value="rejected">Rejected</option>
+                        </Select>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan="13"
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
+                    >
+                      <NoData label="listing" />
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="listing" />
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          )}
-        </Table>
+                )}
+              </Tbody>
+            )}
+          </Table>
+        </Box>
       </Box>
 
       {/* Rejection Reason Modal */}

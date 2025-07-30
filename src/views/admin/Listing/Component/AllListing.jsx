@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
 	Box,
 	Table,
@@ -380,163 +380,159 @@ const AllListing = ({ listingType, listingUnitType }) => {
       </Box>
 
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        overflowY="auto"
-        maxH={"85vh"}
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg">
-          <Thead position="sticky" top={0} bg="white" zIndex={2}>
-            <Tr>
-              {columns.map((header, index) => (
-                <Th
-                  key={index}
-                  bg="brand.200"
-                  whiteSpace="nowrap"
-                  py={4}
-                  textAlign="center"
-                >
-                  <Text
-                    fontSize="14px"
-                    fontWeight="600"
-                    color="gray.700"
-                    textTransform="capitalize"
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th
+                    key={index}
+                    bg="brand.200"
+                    whiteSpace="nowrap"
+                    py={4}
+                    textAlign="center"
                   >
-                    {header}
-                  </Text>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
+                    <Text
+                      fontSize="14px"
+                      fontWeight="600"
+                      color="gray.700"
+                      textTransform="capitalize"
+                    >
+                      {header}
+                    </Text>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
 
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {tableData && tableData.length > 0 ? (
-                tableData.map((listing, index) => (
-                  <Tr key={index}>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {index + 1}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.projectName}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.unitType?.name || "N/A"}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.subUnitType?.name || "N/A"}
-                    </Td>
-                    <Td textAlign="center" minWidth="100px">
-                      {listing.listingType?.name || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.location || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.country?.name || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.buildingAge
-                        ? `${listing.buildingAge} Years`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing?.developer ? listing?.developer : "N/A"}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.price
-                        ? `AED ${listing.price.toLocaleString()}`
-                        : "N/A"}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.brokerCommissionType === "AED"
-                        ? "AED"
-                        : listing.brokerCommissionType === "PERCENT"
-                          ? "Percent"
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {tableData && tableData.length > 0 ? (
+                  tableData.map((listing, index) => (
+                    <Tr key={index}>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {index + 1}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.projectName}
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.unitType?.name || "N/A"}
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.subUnitType?.name || "N/A"}
+                      </Td>
+                      <Td textAlign="center" minWidth="100px">
+                        {listing.listingType?.name || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.location || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.country?.name || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing.buildingAge
+                          ? `${listing.buildingAge} Years`
                           : "N/A"}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.brokerCommissionValue
-                        ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
-                        : "0"}
-                    </Td>
-                    <Td textAlign="center">
-                      {listing.totalPrice
-                        ? `AED ${listing.totalPrice.toLocaleString()}`
-                        : listing.price
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {listing?.developer ? listing?.developer : "N/A"}
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.price
                           ? `AED ${listing.price.toLocaleString()}`
                           : "N/A"}
-                    </Td>
-                    <Td textAlign="center" size={"sm"}>
-                      {listing.area ? listing.area.toLocaleString() : "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Badge
-                        colorScheme={getStatusColor(listing.status)}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.brokerCommissionType === "AED"
+                          ? "AED"
+                          : listing.brokerCommissionType === "PERCENT"
+                            ? "Percent"
+                            : "N/A"}
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.brokerCommissionValue
+                          ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
+                          : "0"}
+                      </Td>
+                      <Td textAlign="center">
+                        {listing.totalPrice
+                          ? `AED ${listing.totalPrice.toLocaleString()}`
+                          : listing.price
+                            ? `AED ${listing.price.toLocaleString()}`
+                            : "N/A"}
+                      </Td>
+                      <Td textAlign="center" size={"sm"}>
+                        {listing.area ? listing.area.toLocaleString() : "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
                       >
-                        {listing.status}
-                      </Badge>
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {listing.createdAt
-                        ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                        : "N/A"}
-                    </Td>
-                    {isAdmin && (
+                        <Badge
+                          colorScheme={getStatusColor(listing.status)}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          {listing.status}
+                        </Badge>
+                      </Td>
                       <Td
                         textAlign="center"
                         whiteSpace="nowrap"
@@ -544,115 +540,137 @@ const AllListing = ({ listingType, listingUnitType }) => {
                         overflow="hidden"
                         textOverflow="ellipsis"
                       >
-                        {listing.createdBy?.fullName}
+                        {listing.createdAt
+                          ? format(listing.createdAt, "MMM d, yyyy h:mm a")
+                          : "N/A"}
                       </Td>
-                    )}
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Box display={"flex"} gap={2} justifyContent="center">
-                        {isAdmin && (
-                          <Box display={"flex"} gap={2} justifyContent="center">
-                            <IconButton
-                              aria-label="Edit"
-                              icon={<EditIcon />}
-                              size="sm"
-                              onClick={() =>
-                                Navigate(`/listing/update/${listing._id}`)
-                              }
-                              color={"#c09f5f"}
-                              _hover={{
-                                backgroundColor: "#c09f5f",
-                                color: "white",
-                              }}
-                            />
-                            <IconButton
-                              aria-label="Delete"
-                              icon={<DeleteIcon />}
-                              size="sm"
-                              color={"#c09f5f"}
-                              _hover={{
-                                backgroundColor: "#c09f5f",
-                                color: "white",
-                              }}
-                              onClick={() => handleDeleteListing(listing._id)}
-                            />
-                          </Box>
-                        )}
-                        <Box
-                          display="flex"
-                          gap={2}
-                          justifyContent="center"
-                          alignItems={"center"}
+                      {isAdmin && (
+                        <Td
+                          textAlign="center"
+                          whiteSpace="nowrap"
+                          minWidth="100px"
+                          overflow="hidden"
+                          textOverflow="ellipsis"
                         >
-                          {hasAccess(listing) ? (
-                            <IconButton
-                              aria-label="View"
-                              icon={<ViewIcon />}
-                              size="sm"
-                              color={"#c09f5f"}
-                              _hover={{
-                                backgroundColor: "#c09f5f",
-                                color: "white",
-                              }}
-                              onClick={() =>
-                                Navigate(`/listing/view-listing/${listing._id}`)
-                              }
-                            />
-                          ) : hasPendingRequest(listing) ? (
-                            <Tooltip label="View request pending approval">
-                              <Button size="sm" colorScheme="yellow" isDisabled>
-                                Request Pending
-                              </Button>
-                            </Tooltip>
-                          ) : isAgent || isManager ? (
-                            <Button
-                              size="sm"
-                              colorScheme="brand"
-                              onClick={() =>
-                                handleRequestViewAccess(listing._id)
-                              }
+                          {listing.createdBy?.fullName}
+                        </Td>
+                      )}
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        <Box display={"flex"} gap={2} justifyContent="center">
+                          {isAdmin && (
+                            <Box
+                              display={"flex"}
+                              gap={2}
+                              justifyContent="center"
                             >
-                              Request View
-                            </Button>
-                          ) : (
-                            <Tooltip label="You don't have access to view this listing">
                               <IconButton
-                                icon={<ViewIcon />}
-                                isDisabled
-                                colorScheme="gray"
+                                aria-label="Edit"
+                                icon={<EditIcon />}
                                 size="sm"
+                                onClick={() =>
+                                  Navigate(`/listing/update/${listing._id}`)
+                                }
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
                               />
-                            </Tooltip>
+                              <IconButton
+                                aria-label="Delete"
+                                icon={<DeleteIcon />}
+                                size="sm"
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
+                                onClick={() => handleDeleteListing(listing._id)}
+                              />
+                            </Box>
                           )}
+                          <Box
+                            display="flex"
+                            gap={2}
+                            justifyContent="center"
+                            alignItems={"center"}
+                          >
+                            {hasAccess(listing) ? (
+                              <IconButton
+                                aria-label="View"
+                                icon={<ViewIcon />}
+                                size="sm"
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
+                                onClick={() =>
+                                  Navigate(
+                                    `/listing/view-listing/${listing._id}`
+                                  )
+                                }
+                              />
+                            ) : hasPendingRequest(listing) ? (
+                              <Tooltip label="View request pending approval">
+                                <Button
+                                  size="sm"
+                                  colorScheme="yellow"
+                                  isDisabled
+                                >
+                                  Request Pending
+                                </Button>
+                              </Tooltip>
+                            ) : isAgent || isManager ? (
+                              <Button
+                                size="sm"
+                                colorScheme="brand"
+                                onClick={() =>
+                                  handleRequestViewAccess(listing._id)
+                                }
+                              >
+                                Request View
+                              </Button>
+                            ) : (
+                              <Tooltip label="You don't have access to view this listing">
+                                <IconButton
+                                  icon={<ViewIcon />}
+                                  isDisabled
+                                  colorScheme="gray"
+                                  size="sm"
+                                />
+                              </Tooltip>
+                            )}
+                          </Box>
                         </Box>
-                      </Box>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan="13"
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
+                    >
+                      <NoData label="listing" />
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="listing" />
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          )}
-        </Table>
+                )}
+              </Tbody>
+            )}
+          </Table>
+        </Box>
       </Box>
-
       <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
