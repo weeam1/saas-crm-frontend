@@ -99,7 +99,7 @@ export default function CheckTable(props) {
     {
       columns,
       data,
-      initialState: { pageIndex: 0 },
+      initialState: { pageIndex: 0, pageSize: 10 }, 
     },
     useGlobalFilter,
     useSortBy,
@@ -138,10 +138,11 @@ export default function CheckTable(props) {
         w="100%"
         overflowX={{ sm: "scroll", lg: "hidden" }}
       >
-        <Grid
-          templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }}
+        <Flex
+         justifyContent={{base:"center", sm: "center" , md: "space-between"}}
           mb={3}
-          gap={4}
+          flexWrap="wrap"
+          alignItems={"center"}
           mx={{ base: 2, md: 4 }}
         >
           <GridItem colSpan={{ base: 1, md: 2 }}>
@@ -161,182 +162,208 @@ export default function CheckTable(props) {
               </Text>
             </Flex>
           </GridItem>
-
-          <GridItem
-            colSpan={{ base: 1, md: 1 }}
-            display="flex"
-            justifyContent={"center"}
-            alignItems="center"
-            flexDirection={{ base: "column", sm: "row" }}
-            gap={2}
-            textAlign={{ base: "left", md: "right" }}
-          >
             <Button
               onClick={() => setAddRoleModal(true)}
               variant="brand"
               size="sm"
               leftIcon={<AddIcon />}
               mb={{ base: 2, md: 0 }}
+              borderRadius={"md"}
             >
               Add New
             </Button>
-            <Button
+            {/* <Button
               onClick={() => navigate("/admin-setting")}
               variant="brand"
               size="sm"
               leftIcon={<IoIosArrowBack />}
             >
               Back
-            </Button>
-          </GridItem>
-        </Grid>
+            </Button> */}
+  
+        </Flex>
+     
 
-        <Box overflowY={"auto"} className="table-fix-container">
-          <Table>
-            <Thead>
-              {headerGroups?.map((headerGroup, index) => (
-                <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                  {headerGroup.headers?.map((column, index) => (
-                    <Th
-                      {...column.getHeaderProps(
-                        column.isSortable !== false &&
-                          column.getSortByToggleProps()
-                      )}
-                      pe="10px"
-                      key={index}
-                      borderColor={borderColor}
-                    >
-                      <Flex
-                        align="center"
-                        justifyContent={column.center ? "center" : "start"}
-                        fontSize={{ sm: "14px", lg: "16px" }}
-                        color="secondaryGray.900"
+        <Box
+          borderRadius="4px"
+          boxShadow="sm"
+          borderWidth="1px"
+          overflow="hidden"
+        >
+          <Box
+            position="relative"
+            maxH="120vh"
+            overflowY="auto"
+            className="table-fix-container"
+          >
+            <Table variant="striped" size="lg" {...getTableProps()}>
+              <Thead
+                position="sticky"
+                top={0}
+                bg="white"
+                zIndex={2}
+                boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+                fontSize={"16px"}
+                borderRadius="lg"
+              >
+                {headerGroups?.map((headerGroup, index) => (
+                  <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                    {headerGroup.headers?.map((column, index) => (
+                      <Th
+                        {...column.getHeaderProps(
+                          column.isSortable !== false &&
+                            column.getSortByToggleProps()
+                        )}
+                        key={index}
+                        bg="brand.200"
+                        whiteSpace="nowrap"
+                        py={4}
+                        borderColor="transparent"
                       >
-                        <span
-                          style={{
-                            textTransform: "capitalize",
-                            marginRight: "8px",
-                          }}
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent={"center"}
                         >
-                          {column.render("Header")}
-                        </span>
-                        {/* {column.isSortable !== false && (
-                          <span>
-                            {column.isSorted ? (column.isSortedDesc ? <FaSortDown /> : <FaSortUp />) : <FaSort />}
-                          </span>
-                        )} */}
+                          <Text
+                            fontSize={{ base: "12px", md: "14px" }}
+                            fontWeight="600"
+                            color="gray.700"
+                            textTransform="capitalize"
+                          >
+                            {column.render("Header")}
+                          </Text>
+                        </Box>
+                      </Th>
+                    ))}
+                  </Tr>
+                ))}
+              </Thead>
+              <Tbody {...getTableBodyProps()}>
+                {isLoding ? (
+                  <Tr>
+                    <Td colSpan={columns?.length}>
+                      <Flex
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                        width="100%"
+                        color={textColor}
+                        fontSize="sm"
+                        fontWeight="700"
+                      >
+                        <Spinner />
                       </Flex>
-                    </Th>
-                  ))}
-                </Tr>
-              ))}
-            </Thead>
-            <Tbody {...getTableBodyProps()}>
-              {isLoding ? (
-                <Tr>
-                  <Td colSpan={columns?.length}>
-                    <Flex
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      width="100%"
-                      color={textColor}
-                      fontSize="sm"
-                      fontWeight="700"
-                    >
-                      <Spinner />
-                    </Flex>
-                  </Td>
-                </Tr>
-              ) : data?.length === 0 ? (
-                <Tr>
-                  <Td colSpan={columns.length}>
-                    <Text
-                      textAlign={"center"}
-                      width="100%"
-                      color={textColor}
-                      fontSize="sm"
-                      fontWeight="700"
+                    </Td>
+                  </Tr>
+                ) : data?.length === 0 ? (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan={columns.length}
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
                     >
                       <DataNotFound />
-                    </Text>
-                  </Td>
-                </Tr>
-              ) : (
-                page?.map((row, i) => {
-                  prepareRow(row);
-                  return (
-                    <Tr {...row?.getRowProps()} key={i}>
-                      {row?.cells?.map((cell, index) => {
-                        let data = "";
-                        if (cell?.column.Header === "#") {
-                          data = (
-                            <Flex align="center">
+                    </Td>
+                  </Tr>
+                ) : (
+                  page?.map((row, i) => {
+                    prepareRow(row);
+                    return (
+                      <Tr {...row?.getRowProps()} key={i}>
+                        {row?.cells?.map((cell, index) => {
+                          let data = "";
+                          if (cell?.column.Header === "#") {
+                            data = (
                               <Text
-                                color={textColor}
-                                fontSize="sm"
-                                fontWeight="700"
+                                fontSize={{ base: "12px", md: "14px" }}
+                                fontWeight="400"
+                                minWidth="100px"
+                                textAlign={"center"}
                               >
-                                {cell?.row?.index + 1}
+                                {cell?.row?.index + 1 + pageIndex * pageSize}
                               </Text>
-                            </Flex>
-                          );
-                        } else if (cell?.column.Header === "Role Name") {
-                          data = (
-                            <Text
-                              me="10px"
-                              onClick={() => {
-                                setRoleModal(true);
-                                setRoleName(cell?.value);
-                                setRoleId(cell?.row?.original?._id);
-                                setAccess(cell?.row?.original?.access);
-                                setAccessRole(cell?.row?.original?.access);
-                              }}
-                              color="brand.600"
-                              sx={{
-                                "&:hover": {
-                                  color: "blue.500",
-                                  textDecoration: "underline",
-                                  cursor: "pointer",
-                                },
-                              }}
-                              fontSize="sm"
-                              fontWeight="700"
+                            );
+                          } else if (cell?.column.Header === "Role Name") {
+                            data = (
+                              <Text
+                                me="10px"
+                                onClick={() => {
+                                  setRoleModal(true);
+                                  setRoleName(cell?.value);
+                                  setRoleId(cell?.row?.original?._id);
+                                  setAccess(cell?.row?.original?.access);
+                                  setAccessRole(cell?.row?.original?.access);
+                                }}
+                                color="brand.600"
+                                sx={{
+                                  "&:hover": {
+                                    color: "blue.500",
+                                    textDecoration: "underline",
+                                    cursor: "pointer",
+                                  },
+                                }}
+                                fontSize={{ base: "12px", md: "14px" }}
+                                fontWeight="400"
+                                textAlign="center"
+                                whiteSpace="nowrap"
+                              >
+                                {cell?.value}
+                              </Text>
+                            );
+                          } else if (cell?.column.Header === "Description") {
+                            data = (
+                              <Text
+                                fontSize={{ base: "12px", md: "14px" }}
+                                fontWeight="400"
+                                textAlign="center"
+                              >
+                                {cell?.value}
+                              </Text>
+                            );
+                          }
+                          return (
+                            <Td
+                              {...cell?.getCellProps()}
+                              key={index}
+                              py={4}
+                              fontSize={{ base: "12px", md: "14px" }}
+                              fontWeight="400"
+                              borderColor="transparent"
+                              textAlign="center"
                             >
-                              {cell?.value}
-                            </Text>
+                              {data}
+                            </Td>
                           );
-                        } else if (cell?.column.Header === "Description") {
-                          data = (
-                            <Text
-                              color={textColor}
-                              fontSize="sm"
-                              fontWeight="700"
-                            >
-                              {cell?.value}
-                            </Text>
-                          );
-                        }
-                        return (
-                          <Td
-                            {...cell?.getCellProps()}
-                            key={index}
-                            fontSize={{ sm: "14px" }}
-                            // minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                            borderColor="transparent"
-                          >
-                            {data}
-                          </Td>
-                        );
-                      })}
-                    </Tr>
-                  );
-                })
-              )}
-            </Tbody>
-          </Table>
+                        })}
+                      </Tr>
+                    );
+                  })
+                )}
+              </Tbody>
+            </Table>
+          </Box>
         </Box>
 
-        {/* {data.map(item => ( */}
+        {/* Add pagination component */}
+        {data?.length > 10 && (
+          <Pagination
+            gotoPage={gotoPage}
+            gopageValue={gopageValue}
+            setGopageValue={setGopageValue}
+            pageCount={pageCount}
+            canPreviousPage={canPreviousPage}
+            previousPage={previousPage}
+            canNextPage={canNextPage}
+            pageOptions={pageOptions}
+            setPageSize={setPageSize}
+            nextPage={nextPage}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+          />
+        )}
 
         {access && (
           <RoleModal
