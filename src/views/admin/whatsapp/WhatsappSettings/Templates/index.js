@@ -53,7 +53,7 @@ const Templates = () => {
 		<>
 			<AppButton
 				leftIcon={<FaChevronLeft />}
-				onClick={() => navigate('/whatsapp_manager')}
+				onClick={() => navigate('/settings/whatsapp_manager')}
 				mb='4'
 			>
 				Back

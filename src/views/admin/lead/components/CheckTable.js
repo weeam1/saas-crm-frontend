@@ -698,21 +698,20 @@ const CheckTable = React.memo((props) => {
 						>
 							Advance Search
 						</Button>
-						{displaySearchData ||
-							(displayAdvSearchData && (
-								<Button
-									variant='outline'
-									size='sm'
-									colorScheme='red'
-									ms={2}
-									onClick={() => {
-										handleClear();
-										setGetTagValues([]);
-									}}
-								>
-									Clear
-								</Button>
-							))}
+						{(displaySearchData || displayAdvSearchData) && (
+							<Button
+								variant='outline'
+								size='sm'
+								colorScheme='red'
+								ms={2}
+								onClick={() => {
+									handleClear();
+									setGetTagValues([]);
+								}}
+							>
+								Clear
+							</Button>
+						)}
 
 						{selectedValues.length > 0 && access?.delete && (
 							<DeleteIcon
