@@ -24,7 +24,7 @@ const Templates = () => {
 	} = useFetchItemsQuery(
 		{
 			path: `/whatsapp/templates`,
-			params: { accountId: businessId },
+			params: { businessId },
 		},
 		{
 			skip: !businessId,
