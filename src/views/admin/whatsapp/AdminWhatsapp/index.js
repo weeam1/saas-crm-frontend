@@ -63,6 +63,7 @@ const AdminWhatsapp = () => {
 							aria-label='Settings'
 							colorScheme='brand'
 							rounded='full'
+							size='md'
 						/>
 					</Link>
 				</CustomTooltip>

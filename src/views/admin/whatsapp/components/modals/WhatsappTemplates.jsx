@@ -26,11 +26,13 @@ const WhatsappTemplates = ({
 	isOpen,
 	onClose,
 	onSend,
-	accountId,
+	businessId,
 	isLoading,
 }) => {
 	const [selectedTemplate, setSelectedTemplate] = useState(null);
 	const [placeholderValues, setPlaceholderValues] = useState({});
+	const [errors, setErrors] = useState({});
+	const [touched, setTouched] = useState({});
 
 	const {
 		data: templates = [],
@@ -39,19 +41,13 @@ const WhatsappTemplates = ({
 	} = useFetchItemsQuery(
 		{
 			path: `/whatsapp/templates`,
-			params: { accountId },
+			params: { businessId },
 		},
 		{
-			skip: !accountId,
+			skip: !businessId,
 			refetchOnMountOrArgChange: true,
 		}
 	);
-
-	// useEffect(() => {
-	// 	if (templates?.doc?.length > 0) {
-	// 		setSelectedTemplate(templates.doc[0]);
-	// 	}
-	// }, [templates?.doc]);
 
 	useEffect(() => {
 		if (Array.isArray(templates?.doc)) {
@@ -78,6 +74,8 @@ const WhatsappTemplates = ({
 		: [];
 
 	//  Extract template body + footer
+	const templateHeader =
+		selectedTemplate?.components?.find((c) => c.type === 'HEADER')?.text || '';
 	const templateBody =
 		selectedTemplate?.components?.find((c) => c.type === 'BODY')?.text || '';
 	const templateFooter =
@@ -94,25 +92,59 @@ const WhatsappTemplates = ({
 			);
 		});
 
-		return result + (templateFooter ? `\n\n${templateFooter}` : '');
-	}, [templateBody, templateFooter, placeholderValues]);
+		const finalBody =
+			(templateHeader ? `${templateHeader}\n\n` : '') +
+			result +
+			(templateFooter ? `\n\n${templateFooter}` : '');
 
-	const hasPlaceholders = useMemo(() => {
+		return finalBody;
+	}, [templateBody, templateHeader, templateFooter, placeholderValues]);
+
+	// const hasPlaceholders = useMemo(() => {
+	// 	const body = selectedTemplate?.components?.find(
+	// 		(c) => c.type === 'BODY'
+	// 	)?.text;
+
+	// 	console.log({ body });
+	// 	return body ? /\{\{\d+\}\}/.test(body) : false;
+	// }, [selectedTemplate]);
+
+	const extractPlaceholders = useMemo(() => {
 		const body = selectedTemplate?.components?.find(
 			(c) => c.type === 'BODY'
 		)?.text;
-		return body ? /\{\{\d+\}\}/.test(body) : false;
+
+		const matches = body?.match(/{{(\d+)}}/g);
+		const unique = [...new Set(matches?.map((m) => m.match(/\d+/)?.[0]))];
+		return unique || [];
 	}, [selectedTemplate]);
 
+	const validatePlaceholders = () => {
+		const newErrors = {};
+		extractPlaceholders?.forEach((key) => {
+			if (!placeholderValues[key]?.trim()) {
+				newErrors[key] = 'This field is required';
+			}
+		});
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
 	const handleSendTemplate = () => {
-		// if (!placeholderValues[1]) {
-		// 	return toast.error('Please enter the name placeholder value.');
-		// }
+		let placeholderArray = [];
+		if (extractPlaceholders?.length > 0) {
+			const isValid = validatePlaceholders();
+			if (!isValid) return;
+
+			placeholderArray = Object.keys(placeholderValues)
+				.sort((a, b) => Number(a) - Number(b))
+				.map((key) => placeholderValues[key]?.trim() || '');
+		}
 
 		onSend({
 			message: previewText,
 			templateName: selectedTemplate.name,
-			palceholder: placeholderValues[1] || '',
+			placeholders: placeholderArray,
 			languageCode: selectedTemplate.language,
 			type: 'template',
 		});
@@ -123,7 +155,7 @@ const WhatsappTemplates = ({
 			<Modal
 				isOpen={isOpen}
 				onClose={onClose}
-				size='5xl'
+				size='6xl'
 				isCentered
 				motionPreset='slideInBottom'
 				closeOnOverlayClick={false}
@@ -158,9 +190,9 @@ const WhatsappTemplates = ({
 								Failed to load templates. Please try again.
 							</Text>
 						) : (
-							<Flex direction={{ base: 'column', lg: 'row' }} gap={6}>
+							<Flex direction={{ base: 'column', lg: 'row' }} gap={4}>
 								{/* Template Selection Panel */}
-								<Box flex='1' minW='400px'>
+								<Box width='500px'>
 									<Text fontSize='sm' color='gray.500' mb={2}>
 										Available Templates ({filteredTemplates.length})
 									</Text>
@@ -297,10 +329,11 @@ const WhatsappTemplates = ({
 									maxHeight='50vh'
 									p='1'
 									overflowY='auto'
+									flex='1'
 									scrollBehavior='smooth'
 								>
 									{/* Name Input Field */}
-									{selectedTemplate && hasPlaceholders && (
+									{/* {selectedTemplate && hasPlaceholders && (
 										<Box mb={3}>
 											<Text fontSize='sm' fontWeight='medium' mb={1}>
 												Name
@@ -318,7 +351,46 @@ const WhatsappTemplates = ({
 												}
 											/>
 										</Box>
-									)}
+									)} */}
+
+									{selectedTemplate &&
+										extractPlaceholders?.length > 0 &&
+										extractPlaceholders?.map((key) => (
+											<Box key={key} mb={3}>
+												<Text fontSize='sm' fontWeight='medium' mb={1}>
+													Placeholder {key}
+												</Text>
+												<Input
+													placeholder={`Enter value for {{${key}}}`}
+													size='sm'
+													bg='white'
+													required
+													borderColor={errors[key] ? 'red.500' : 'gray.300'}
+													_hover={{
+														borderColor: errors[key] ? 'red.600' : 'gray.400',
+													}}
+													focusBorderColor={
+														errors[key] ? 'red.500' : 'brand.500'
+													}
+													value={placeholderValues[key] || ''}
+													onChange={(e) => {
+														setPlaceholderValues({
+															...placeholderValues,
+															[key]: e.target.value,
+														});
+														if (touched[key]) {
+															setErrors((prev) => ({ ...prev, [key]: '' }));
+														}
+													}}
+													onBlur={() => setTouched({ ...touched, [key]: true })}
+												/>
+												{errors[key] && (
+													<Text color='red.500' fontSize='xs' mt={1}>
+														{errors[key]}
+													</Text>
+												)}
+											</Box>
+										))}
 
 									{/* Preview Panel */}
 									<Box flex='1' minW='300px'>

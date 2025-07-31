@@ -241,7 +241,6 @@ const CreateWhatsappTemplate = () => {
 				onClick={() =>
 					navigate(`/settings/whatsapp_manager/message_templates/${businessId}`)
 				}
-				mb='4'
 			>
 				Back
 			</AppButton>
