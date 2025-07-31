@@ -21,7 +21,9 @@ const Header = () => {
 
   const { data: surveysCheck } = useFetchItemsQuery(
     { path: "/surveys/user_pending" },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },{
+      skip: isAdmin
+    }
   );
   return (
     // <>
