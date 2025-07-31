@@ -313,7 +313,7 @@ export default function CheckTable(props) {
 				px={2}
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				<Grid templateColumns='repeat(12, 1fr)' mb={3} gap={4} mx={4}>
+				<Grid templateColumns='repeat(12, 1fr)'  gap={4} mx={4}>
 					<GridItem
 						colSpan={{ base: 12, md: 8 }}
 						display={'flex'}
@@ -413,12 +413,13 @@ export default function CheckTable(props) {
 								variant='brand'
 								size='sm'
 								leftIcon={<AddIcon />}
+								borderRadius={"md"}
 							>
 								Add New
 							</Button>
 						)}
 
-						<Button
+						{/* <Button
 							onClick={() => navigate('/admin-setting')}
 							variant='brand'
 							size='sm'
@@ -426,7 +427,7 @@ export default function CheckTable(props) {
 							ml={2}
 						>
 							Back
-						</Button>
+						</Button> */}
 					</GridItem>
 					<HStack spacing={4}>
 						{getTagValues &&

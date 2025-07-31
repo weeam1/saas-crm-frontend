@@ -3,8 +3,13 @@ import { Button, Grid, GridItem, useDisclosure } from "@chakra-ui/react";
 import CheckTable from "./components/CheckTable";
 import { useEffect, useState } from "react";
 import { getApi } from "services/api";
+import AppButton from "components/shared/AppButton";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+   const navigate = useNavigate();
+   
   const columns = [
     {
       Header: "#",
@@ -42,6 +47,14 @@ const Index = () => {
                     <Button onClick={() => handleClick()} leftIcon={<AddIcon />} variant="brand">Add</Button>
                 </GridItem>
             </Grid> */}
+  <AppButton
+        ml="2"
+        leftIcon={<IoArrowBack />}
+        onClick={() => navigate(-1)}
+        mb={4}
+      >
+        Back
+      </AppButton>
       <CheckTable
         // isOpen={isOpen}
         // onClose={onClose}
