@@ -137,7 +137,7 @@ const CustomField = () => {
     return (
         <>
             <Card minHeight='250px'>
-                <Flex justifyContent={'space-between'} alignItems={'center'}>
+                <Flex justifyContent={'space-between'} alignItems={'center'} flexDirection={{ base: 'column', md: 'row' }}>
                     <Flex alignItems='center'>
                         <Text color={"secondaryGray.900"}
                             fontSize="22px"
@@ -146,7 +146,7 @@ const CustomField = () => {
                         {selectedHeadings.length > 0 && <Button color="red" ml='2' onClick={() => setDeleteManyHeadings(true)} size='sm' ><DeleteIcon /></Button>}
                     </Flex>
                     <Box>
-                        <Flex>
+                        <Flex flexWrap={'wrap'} gap ={2} flexDirection={{ base: 'column', md: 'row' }}>
                             {!isLoading && (
                                 <Menu>
                                     <MenuButton as={Button} mr={2} size='sm' rightIcon={<ChevronDownIcon />} variant="outline">

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Flex, Box, Text, Stack, useDisclosure } from "@chakra-ui/react";
+import { Flex, Box, Text, Stack, useDisclosure,Tooltip } from "@chakra-ui/react";
 import TopPagination from "components/pagination/TopPagination";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import DateFilterButton from "views/admin/lead-v2/components/DateFilterButton";
 import DateFilter from "./FilterComponent/DateFilter";
 import { formatDNS } from "utils/helpers";
+import SearchTags from "components/search/SearchTags";
+import ViewToggle from "./ViewToggle";
 
 const FilterSearch = ({
   currentPage,
@@ -20,6 +22,9 @@ const FilterSearch = ({
   setStartDate,
   setEndDate,
   setSearchTags,
+  searchTags,
+  view,
+  handleViewChange,
 }) => {
   const [openCalendar, setOpenCalendar] = useState(null);
   const [forceTooltip, setForceTooltip] = useState(false);
@@ -62,42 +67,17 @@ const FilterSearch = ({
   };
 
   return (
-    <Box
-      bg="white"
-      p={{ base: 3, md: 4 }}
-      borderRadius="md"
-      boxShadow="sm"
-      mb={4}
-      width="100%"
-    >
+    <Box>
       <Flex
         direction={{ base: "column", lg: "row" }}
-        justify={{ base: "center", lg: "space-between" }}
+        justify={{ base: "center", lg: "flex-end" }}
         align={{ base: "flex-end", lg: "center" }}
         // align='center'
-        gap={{ base: 3, lg: 1 }}
+        gap={{ base: 3, lg: 3 }}
         width="100%"
       >
-        <Box
-          width={{ base: "100%", md: "auto" }}
-          display="flex"
-          justifyContent={{ base: "center", md: "flex-start" }}
-        >
-          <TopPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-            totalItems={totalItems}
-            itemsPerPage={pageSize}
-            setPageSize={setPageSize}
-            handlePageSize={handlePageSizeChange}
-            refetching={isLoading}
-            loading={isLoading}
-          />
-        </Box>
-
         <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
-
+        <ViewToggle view={view} handleView={handleViewChange} />
         {isModalOpen && (
           <DateFilter
             isOpen={isModalOpen}
@@ -115,50 +95,51 @@ const FilterSearch = ({
 					flexWrap='wrap'
 					justifyContent={{ base: 'center', md: 'flex-end' }}
 					marginTop={{ base: 3, md: 0 }}
-				>
+          >
 					<Flex align='center' gap={1} mb={{ base: 2, md: 0 }}>
-						<Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
-							Date
-						</Text>
-						<CustomDatePicker
-							selectedDate={startDate}
-							handleDateChange={setStartDate}
-							placeholder='Select start date'
-							maxDate={endDate || new Date()}
-							isCalendarOpen={openCalendar === 'startFrom'}
-							toggleCalendar={() => toggleCalendar('startFrom')}
-							popperPlacement='bottom-start'
+          <Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
+          Date
+          </Text>
+          <CustomDatePicker
+          selectedDate={startDate}
+          handleDateChange={setStartDate}
+          placeholder='Select start date'
+          maxDate={endDate || new Date()}
+          isCalendarOpen={openCalendar === 'startFrom'}
+          toggleCalendar={() => toggleCalendar('startFrom')}
+          popperPlacement='bottom-start'
 							popperModifiers={[
 								{
 									name: 'preventOverflow',
 									options: {
 										boundary: 'viewport',
 										padding: 8,
-									},
-								},
-							]}
-						/>
-					</Flex>
-					<Flex align='center' gap={1}>
-						<Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
-							To
-						</Text>
+                    },
+                    },
+                    ]}
+                    />
+                    </Flex>
+                    <Flex align='center' gap={1}>
+                    <Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
+                    To
+                    </Text>
 						<Box minW='160px' maxW='200px'>
-							<CustomDatePicker
-								selectedDate={endDate}
-								handleDateChange={setEndDate}
-								placeholder='Select end date'
-								minDate={startDate}
-								maxDate={new Date()}
-								isCalendarOpen={openCalendar === 'endDate'}
-								toggleCalendar={() => toggleCalendar('endDate')}
-							/>
+            <CustomDatePicker
+            selectedDate={endDate}
+            handleDateChange={setEndDate}
+            placeholder='Select end date'
+            minDate={startDate}
+            maxDate={new Date()}
+            isCalendarOpen={openCalendar === 'endDate'}
+            toggleCalendar={() => toggleCalendar('endDate')}
+            />
 						</Box>
-					</Flex>
-				</Box> */}
+            </Flex>
+            </Box> */}
       </Flex>
 
-      <Flex justifyContent={"flex-end"} mt={3}>
+      <Flex justifyContent="space-between" my={2}>
+        {searchTags && <SearchTags searchTags={searchTags} />}
         {/* Clear Button */}
         {(endDate || startDate) && (
           <Box>
@@ -178,6 +159,23 @@ const FilterSearch = ({
           </Box>
         )}
       </Flex>
+      <Box
+        width={{ base: "100%", md: "auto" }}
+        display="flex"
+        justifyContent={{ base: "center", md: "flex-start" }}
+      >
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
     </Box>
   );
 };

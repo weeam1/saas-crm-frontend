@@ -255,22 +255,22 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         />
       </Box>
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        maxH={"85vh"}
-        overflowY="auto"
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
             <Tr>
               {columns.map((header, index) => (
                 <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
@@ -513,6 +513,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           )}
         </Table>
       </Box>
+        </Box>
 
       {/* Status Update Modal */}
       <Modal

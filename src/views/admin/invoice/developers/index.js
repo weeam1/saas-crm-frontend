@@ -39,6 +39,7 @@ const Developers = () => {
 			{ Header: 'Trn', accessor: 'trn' },
 			{ Header: 'Address', accessor: 'address' },
 			{ Header: 'Country', accessor: 'country' },
+			{Header: 'Contact', accessor : 'contact'},
 			{ Header: 'Action', isSortable: false, center: true },
 			// { Header: "Status", accessor: "status" },
 		],

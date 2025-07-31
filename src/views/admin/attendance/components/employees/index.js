@@ -1,263 +1,255 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Box, useDisclosure } from '@chakra-ui/react';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import EmployeesList from './EmployeesList';
-import { IoArrowBack } from 'react-icons/io5';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import RoleTabs from './RoleTabs';
-import FilterModal from './FilterModal';
-import AttendanceHeader from '../AttendanceHeader';
-import EmployeesTable from './EmployeesTable';
-import AppButton from 'components/shared/AppButton';
-import TopPagination from 'components/pagination/TopPagination';
-import { getLocalAttendanceFilter } from '../../constants';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Box, useDisclosure } from "@chakra-ui/react";
+import { useFetchItemsQuery } from "api/apiSlice";
+import EmployeesList from "./EmployeesList";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import RoleTabs from "./RoleTabs";
+import FilterModal from "./FilterModal";
+import AttendanceHeader from "../AttendanceHeader";
+import EmployeesTable from "./EmployeesTable";
+import AppButton from "components/shared/AppButton";
+import TopPagination from "components/pagination/TopPagination";
+import { getLocalAttendanceFilter } from "../../constants";
 
 const Employees = () => {
-	const PAGE_SIZE = 20;
-	const [searchParams, setSearchParams] = useSearchParams();
-	const [searchClear, setSearchClear] = useState(false);
-	const [view, setView] = useState(() => {
-		return localStorage.getItem('employeesView') || 'grid';
-	});
+  const PAGE_SIZE = 20;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchClear, setSearchClear] = useState(false);
+  const [view, setView] = useState(() => {
+    return localStorage.getItem("employeesView") || "grid";
+  });
+  const [initialLoad, setInitialLoad] = useState(true);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
 
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+  const role =
+    user?.role === "superAdmin" ? "superAdmin" : user?.roles[0]?.roleName;
 
-	const [viewLoading, setViewLoading] = useState(false);
+  const [viewLoading, setViewLoading] = useState(false);
 
-	const navigate = useNavigate();
-	const searchTermRef = useRef('');
+  const navigate = useNavigate();
+  const searchTermRef = useRef("");
+  const hasTabParam = searchParams.has("tab");
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-	const { isOpen, onOpen, onClose } = useDisclosure();
+  // Only set initial params if they don't exist
+  useEffect(() => {
+    if (initialLoad) {
+      const currentParams = Object.fromEntries(searchParams.entries());
 
-	useEffect(() => {
-		const page = Number(searchParams.get('page')) || 1;
-		const pageSize = Number(searchParams.get('pageSize')) || PAGE_SIZE;
-		const role = searchParams.get('role') || 'All';
-		const search = searchParams.get('search') || '';
-		const agency =
-			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
-		const layout = searchParams.get('layout') || view;
+      // Only set default params if no params exist
+      if (Object.keys(currentParams).length === 0) {
+        setSearchParams(
+          {
+            page: "1",
+            pageSize: PAGE_SIZE.toString(),
+            role: "All",
+            layout: view,
+            agency: getLocalAttendanceFilter() || "All",
+          },
+          { replace: true }
+        );
+      }
 
-		if (agency || search) {
-			setSearchClear(true);
-		}
+      setInitialLoad(false);
+    }
+  }, [initialLoad, searchParams, setSearchParams, view]);
 
-		setSearchParams(
-			(prev) => {
-				const newParams = {
-					page,
-					pageSize,
-					role,
-					layout,
-					...(search && { search }),
-					...(agency && { agency }),
-				};
+  const queryParams = useMemo(() => {
+    const currentParams = Object.fromEntries(searchParams.entries());
 
-				return newParams;
-			},
-			{ replace: true }
-		);
-	}, [searchParams, setSearchParams]);
+    return {
+      page: Number(currentParams.page) || 1,
+      pageSize: Number(currentParams.pageSize) || PAGE_SIZE,
+      role: currentParams.role || "All",
+      layout: currentParams.layout || view,
+      ...(currentParams.search && { search: currentParams.search }),
+      ...(currentParams.agency && { agency: currentParams.agency }),
+    };
+  }, [searchParams, view]);
 
-	const queryParams = useMemo(() => {
-		const search = searchParams.get('search') || '';
-		const role = searchParams.get('role') || 'All';
-		const agency =
-			searchParams.get('agency') || getLocalAttendanceFilter() || 'All';
-		const layout = searchParams.get('layout') || view;
+  const {
+    data,
+    isLoading,
+    isFetching,
+    refetch: usersRefetch,
+  } = useFetchItemsQuery(
+    { path: "/v2/user/employees", params: queryParams },
+    { refetchOnMountOrArgChange: true }
+  );
 
-		return {
-			page: Number(searchParams.get('page')) || 1,
-			pageSize: Number(searchParams.get('pageSize')) || PAGE_SIZE,
-			role,
-			layout,
-			...(search && { search }),
-			...(agency && { agency }),
-		};
-	}, [searchParams]);
+  const updateFilters = useCallback(
+    (newFilters) => {
+      setSearchParams(
+        (prev) => {
+          const prevParams = Object.fromEntries(prev.entries());
+          const updatedParams = { ...prevParams, ...newFilters };
 
-	const {
-		data,
-		isLoading,
-		isFetching,
-		refetch: usersRefetch,
-	} = useFetchItemsQuery(
-		{ path: '/v2/user/employees', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
-	);
+          if (updatedParams.page)
+            updatedParams.page = Number(updatedParams.page);
+          // if (updatedParams.role) updatedParams.role = Number(updatedParams.role);
+          if (updatedParams.pageSize)
+            updatedParams.pageSize = Number(updatedParams.pageSize);
 
-	const updateFilters = (newFilters) => {
-		setSearchParams(
-			(prev) => {
-				const prevParams = Object.fromEntries(prev.entries());
-				const updatedParams = { ...prevParams, ...newFilters };
+          return updatedParams;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
-				if (updatedParams.page) updatedParams.page = Number(updatedParams.page);
-				// if (updatedParams.role) updatedParams.role = Number(updatedParams.role);
-				if (updatedParams.pageSize)
-					updatedParams.pageSize = Number(updatedParams.pageSize);
+  useEffect(() => {
+    if (!initialLoad) {
+      usersRefetch();
+    }
 
-				// Prevent updating if nothing has changed
-				if (JSON.stringify(prevParams) === JSON.stringify(updatedParams)) {
-					return prevParams; // No change, avoid state update
-				}
+    if (queryParams.agency === "All" && !queryParams.search) {
+      setSearchClear(false);
+    }
+  }, [queryParams, usersRefetch, initialLoad]);
 
-				return updatedParams;
-			},
-			{ replace: true }
-		);
-	};
+  const handlePageChange = (page) => {
+    updateFilters({ page: Number(page) });
+  };
 
-	useEffect(() => {
-		usersRefetch();
+  const handlePageSize = (pageSize) => {
+    updateFilters({ pageSize: Number(pageSize), page: 1 });
+  };
 
-		if (queryParams.agency === 'All' && !queryParams.search) {
-			setSearchClear(false);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams, usersRefetch]);
+  const handleSearch = () => {
+    const term = searchTermRef.current.trim();
+    if (!term) return;
 
-	const handlePageChange = (page) => {
-		updateFilters({ page: Number(page) });
-	};
+    updateFilters({ search: term, page: 1, role: "All" });
+    setSearchClear(true);
+  };
 
-	const handlePageSize = (pageSize) => {
-		updateFilters({ pageSize: Number(pageSize), page: 1 });
-	};
+  const handleClear = () => {
+    searchTermRef.current = "";
+    document.getElementById("searchInput").value = "";
+    updateFilters({
+      page: 1,
+      role: "All",
+    });
+    localStorage.removeItem("attendanceAgencyFilter");
 
-	const handleSearch = () => {
-		const term = searchTermRef.current.trim();
-		if (!term) return;
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.delete("search");
+      newParams.delete("agency");
+      return newParams;
+    });
+    setSearchClear(false);
+  };
 
-		updateFilters({ search: term, page: 1, role: 'All' });
-		setSearchClear(true);
-	};
+  const handleViewChange = (newView) => {
+    updateFilters({ layout: newView });
+    setView(newView);
+    setViewLoading(true);
+    localStorage.setItem("employeesView", newView);
 
-	const handleClear = () => {
-		searchTermRef.current = '';
-		document.getElementById('searchInput').value = '';
-		updateFilters({ page: 1, role: 'All' });
+    setTimeout(() => {
+      setViewLoading(false);
+    }, 1000);
+  };
 
-		localStorage.removeItem('attendanceAgencyFilter');
+  const layoutView =
+    view === "grid" ? (
+      <EmployeesList
+        data={data}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        viewLoading={viewLoading}
+        queryParams={queryParams}
+        loginRole={role}
+      />
+    ) : (
+      <EmployeesTable
+        data={data}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        viewLoading={viewLoading}
+        queryParams={queryParams}
+        loginRole={role}
+      />
+    );
 
-		setSearchParams((prev) => {
-			const newParams = new URLSearchParams(prev);
-			newParams.delete('search');
-			newParams.delete('agency');
-			return newParams;
-		});
-		setSearchClear(false);
-	};
+  return (
+    <>
+      {!hasTabParam && (
+        <AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+          Back
+        </AppButton>
+      )}
 
-	const handleViewChange = (newView) => {
-		updateFilters({ layout: view });
-		setView(newView);
-		setViewLoading(true);
+      <Box minH="100vh" py="2" fontFamily="'DM Sans', sans-serif">
+        {/* Header */}
+        <AttendanceHeader
+          title="Employees"
+          totalDocs={data?.totalResults}
+          searchTermRef={searchTermRef}
+          queryParams={queryParams}
+          handleSearch={handleSearch}
+          handleClear={handleClear}
+          searchClear={searchClear}
+          filterOpen={onOpen}
+          content={["agencyFilter", "view"]}
+          view={view}
+          handleView={handleViewChange}
+        />
 
-		setTimeout(() => {
-			setViewLoading(false);
-		}, 1000);
-	};
+        {/* Role Tab Navigation */}
+        <RoleTabs updateFilters={updateFilters} key="employees" />
 
-	const layoutView =
-		view === 'grid' ? (
-			<EmployeesList
-				data={data}
-				isLoading={isLoading}
-				isFetching={isFetching}
-				viewLoading={viewLoading}
-				queryParams={queryParams}
-				loginRole={role}
-			/>
-		) : (
-			<EmployeesTable
-				data={data}
-				isLoading={isLoading}
-				isFetching={isFetching}
-				viewLoading={viewLoading}
-				queryParams={queryParams}
-				loginRole={role}
-			/>
-		);
+        <Box
+          my="4"
+          p="4"
+          bg="white"
+          shadow="sm"
+          rounded="md"
+          minH="100px"
+          transition="opacity 0.3s ease, transform 0.3s ease"
+          opacity={1}
+          transform="translateY(0px)"
+        >
+          {!isLoading && (
+            <TopPagination
+              currentPage={queryParams.page}
+              totalPages={data?.totalPages}
+              onPageChange={handlePageChange}
+              totalItems={data?.totalResults}
+              itemsPerPage={queryParams.pageSize}
+              refetching={isFetching}
+              loading={isLoading}
+              handlePageSize={handlePageSize}
+            />
+          )}
 
-	return (
-		<>
-			<AppButton
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/attendance')}
-			>
-				Back
-			</AppButton>
+          {/* Employees View layout */}
+          <Box mt="2">{layoutView}</Box>
 
-			<Box minH='100vh' py='2' fontFamily="'DM Sans', sans-serif">
-				{/* Header */}
-				<AttendanceHeader
-					title='Employees'
-					totalDocs={data?.totalResults}
-					searchTermRef={searchTermRef}
-					queryParams={queryParams}
-					handleSearch={handleSearch}
-					handleClear={handleClear}
-					searchClear={searchClear}
-					filterOpen={onOpen}
-					content={['agencyFilter', 'view']}
-					view={view}
-					handleView={handleViewChange}
-				/>
-
-				{/* Role Tab Navigation */}
-				<RoleTabs updateFilters={updateFilters} key='employees' />
-
-				<Box
-					my='4'
-					p='4'
-					bg='white'
-					shadow='sm'
-					rounded='md'
-					minH='100px'
-					transition='opacity 0.3s ease, transform 0.3s ease'
-					opacity={1}
-					transform='translateY(0px)'
-				>
-					{!isLoading && (
-						<TopPagination
-							currentPage={queryParams.page}
-							totalPages={data?.totalPages}
-							onPageChange={handlePageChange}
-							totalItems={data?.totalResults}
-							itemsPerPage={queryParams.pageSize}
-							refetching={isFetching}
-							loading={isLoading}
-							handlePageSize={handlePageSize}
-						/>
-					)}
-
-					{/* Employees View layout */}
-					<Box mt='2'>{layoutView}</Box>
-
-					{/* {data?.totalResults > queryParams.pageSize && (
+          {/* {data?.totalResults > queryParams.pageSize && (
 						<Pagination
 							currentPage={queryParams.page}
 							totalPages={data.totalPages}
 							onPageChange={handlePageChange}
 						/>
 					)} */}
-				</Box>
-			</Box>
+        </Box>
+      </Box>
 
-			{isOpen && (
-				<FilterModal
-					updateFilters={updateFilters}
-					isOpen={isOpen}
-					onClose={onClose}
-					setSearchClear={setSearchClear}
-				/>
-			)}
-		</>
-	);
+      {isOpen && (
+        <FilterModal
+          updateFilters={updateFilters}
+          isOpen={isOpen}
+          onClose={onClose}
+          setSearchClear={setSearchClear}
+        />
+      )}
+    </>
+  );
 };
 
 export default Employees;

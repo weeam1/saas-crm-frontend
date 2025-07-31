@@ -243,116 +243,118 @@ const UnitType = () => {
           loading={isLoading}
         />
       </Box>
-
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        overflowY="auto"
+        borderWidth="1px"
+        overflow="hidden"
+        mx={1}
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading && isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {data?.doc?.map((unitType) => (
-                <Tr key={unitType._id}>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {unitType.name || "N/A"}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    <Switch
-                      colorScheme="green"
-                      isChecked={unitType.status}
-                      onChange={() => handleStatusChange(unitType)}
-                    />
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    textAlign={"center"}
-                  >
-                    {new Date(unitType.createdAt).toLocaleDateString()}
-                  </Td>
-                  <Td
-                    py={4}
-                    fontSize={{ base: "12px", md: "14px" }}
-                    fontWeight="400"
-                    minWidth="100px"
-                    display={"flex"}
-                    gap={2}
-                    justifyContent={"center"}
-                  >
-                    <IconButton
-                      aria-label="Edit"
-                      icon={<EditIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => handleEdit(unitType)}
-                    />
-                    <IconButton
-                      aria-label="Delete"
-                      icon={<DeleteIcon />}
-                      size="sm"
-                      color={"#c09f5f"}
-                      _hover={{ backgroundColor: "#c09f5f", color: "white" }}
-                      onClick={() => handleDelete(unitType._id)}
-                    />
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
+                      <Text
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="600"
+                        color="gray.700"
+                      >
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading && isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {data?.doc?.map((unitType) => (
+                  <Tr key={unitType._id}>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {unitType.name || "N/A"}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      <Switch
+                        colorScheme="green"
+                        isChecked={unitType.status}
+                        onChange={() => handleStatusChange(unitType)}
+                      />
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      textAlign={"center"}
+                    >
+                      {new Date(unitType.createdAt).toLocaleDateString()}
+                    </Td>
+                    <Td
+                      py={4}
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="400"
+                      minWidth="100px"
+                      display={"flex"}
+                      gap={2}
+                      justifyContent={"center"}
+                    >
+                      <IconButton
+                        aria-label="Edit"
+                        icon={<EditIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => handleEdit(unitType)}
+                      />
+                      <IconButton
+                        aria-label="Delete"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        color={"#c09f5f"}
+                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        onClick={() => handleDelete(unitType._id)}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            )}
+          </Table>
+          {!isLoading && !isFetching && data?.doc?.length === 0 && (
+            <Text textAlign="center" color="gray.500" py={6}>
+              No main unit types found.
+            </Text>
           )}
-        </Table>
-        {!isLoading && !isFetching && data?.doc?.length === 0 && (
-          <Text textAlign="center" color="gray.500" py={6}>
-            No main unit types found.
-          </Text>
-        )}
+        </Box>
       </Box>
 
       {/* Add/Edit Modal */}

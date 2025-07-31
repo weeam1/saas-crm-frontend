@@ -342,14 +342,18 @@ const MyListing = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        maxH={"85vh"}
-        overflowY="auto"
-      >
-        <Table variant="striped" size="lg" bg="white">
+<Box
+  borderRadius="4px" 
+  boxShadow="sm"
+  borderWidth="1px"
+  overflow="hidden" 
+>
+  <Box 
+    position="relative" 
+    maxH="120vh" 
+    overflowY="auto"
+  >
+    <Table variant="striped" size="lg">
           <Thead
             position="sticky"
             top={0}
@@ -688,6 +692,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
             </Tbody>
           )}
         </Table>
+         </Box>
       </Box>
       {/* Rejection Reason Modal */}
       <Modal

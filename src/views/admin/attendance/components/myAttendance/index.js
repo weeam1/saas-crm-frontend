@@ -16,10 +16,10 @@ import CreateAttendance from './CreateAttendance';
 import { FaPlus } from 'react-icons/fa';
 import ExportEmployeeAttendanceReport from './ExportEmployeeAttendanceReport';
 
-const Attendance = () => {
-	const { id: employeeId } = useParams();
+const Attendance = ({userId}) => {
+	let { id: employeeId } = useParams();
 	const user = JSON.parse(localStorage.getItem('user'));
-
+	employeeId = userId || employeeId;
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
@@ -74,18 +74,14 @@ const Attendance = () => {
 				minH='100vh'
 				fontFamily="'DM Sans', sans-serif"
 			>
-				<AppButton
+				{/* <AppButton
 					leftIcon={<IoArrowBack />}
 					onClick={() =>
-						navigate(
-							['superAdmin', 'HR'].includes(role)
-								? '/attendance/employees'
-								: '/attendance'
-						)
+						navigate(-1)
 					}
 				>
 					Back
-				</AppButton>
+				</AppButton> */}
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
