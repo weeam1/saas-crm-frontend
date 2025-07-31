@@ -45,6 +45,7 @@ const EditTaskModal = ({
 }) => {
   const [updateTask] = useUpdateItemMutation();
   const [openCalendar, setOpenCalendar] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -139,7 +140,7 @@ const EditTaskModal = ({
                 <FormLabel>Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.assigned_to || null}
-                  users={usersData?.doc || []}
+                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
                   onSelectUser={handleSelectUser}
                 />
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>

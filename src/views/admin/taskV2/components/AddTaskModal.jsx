@@ -105,7 +105,7 @@ const AddTaskModal = ({
                 <FormLabel>Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.assigned_to || null}
-                  users={usersData?.doc || []}
+                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
                   onSelectUser={handleSelectUser}
                 />
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>

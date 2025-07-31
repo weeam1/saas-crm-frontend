@@ -50,7 +50,8 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 			? users.filter(
 					(user) =>
 						user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-						user.username?.toLowerCase().includes(search.toLowerCase())
+						user.username?.toLowerCase().includes(search.toLowerCase()) || 
+						user.name?.toLowerCase().includes(search.toLowerCase()) 
 				)
 			: [];
 
@@ -70,7 +71,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 						boxShadow: '0 0 0 1px #D99A36',
 						outline: 'none',
 					}}
-					value={selectedUser ? selectedUser.fullName : search}
+					value={selectedUser ? (selectedUser.fullName || selectedUser.name): search}
 					onChange={(e) => {
 						setSearch(e.target.value);
 						setShowDropdown(true);
@@ -118,7 +119,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 							justify='space-between'
 						>
 							<Box>
-								<Text fontSize='md'>{user.fullName}</Text>
+								<Text fontSize='md'>{user.fullName || user.name}</Text>
 								<Text fontSize='sm' color='gray.500'>
 									{user.username}
 								</Text>

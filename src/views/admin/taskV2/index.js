@@ -119,9 +119,12 @@ const TaskV2 = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: usersData } = useFetchItemsQuery({
-    path: "/v2/user/search_users",
-  });
+ const agencyName = user?.roles[0]?.roleName === "HR" && user?.agency?.name;
+
+ const { data: usersData } = useFetchItemsQuery({
+  path: "/v2/user/search_users",
+  params: { agencyFilter: agencyName || "" },
+});
 
   const handleDeleteTask = async (taskId) => {
     try {
@@ -215,7 +218,6 @@ const TaskV2 = () => {
       if (user?.roles[0]?.roleName === "Manager") {
         const apiUrl = `api/v2/user/hierarchy?managerId=${user._id}`;
         const { data } = await getApi(apiUrl);
-        console.log("Agents data:", data);
         setAgents(data.doc || []);
       }
     }
@@ -265,7 +267,7 @@ const TaskV2 = () => {
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
           {(user?.role === "superAdmin" ||
-            user?.roles[0]?.roleName === "Manager") && (
+            user?.roles[0]?.roleName === "Manager" ||  user?.roles[0]?.roleName === "HR") && (
             <Button
               size="md"
               colorScheme="brand"
