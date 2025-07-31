@@ -141,7 +141,6 @@ const BulkWhatsappModal = ({
 			}
 		});
 
-		console.log({ updatedValues });
 		setErrors(newErrors);
 		setPlaceholderValues(updatedValues);
 
@@ -174,7 +173,13 @@ const BulkWhatsappModal = ({
 			let placeholderArray = [];
 			if (extractPlaceholders?.length > 0) {
 				const validPlaceholders = validatePlaceholders();
-				if (validPlaceholders?.length === 0) return;
+
+				const isEmptyObject = (obj) =>
+					!obj || (typeof obj === 'object' && Object.keys(obj).length === 0);
+
+				if (isEmptyObject(validPlaceholders)) {
+					return toast.error('Please fill the required fields!');
+				}
 
 				placeholderArray = Object.keys(validPlaceholders)
 					.sort((a, b) => Number(a) - Number(b))
