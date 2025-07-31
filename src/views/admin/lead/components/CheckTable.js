@@ -740,7 +740,7 @@ const CheckTable = React.memo((props) => {
 							<MenuList
 								minW={'fit-content'}
 								transform={'translate(1670px, 60px)'}
-								zIndex={2}
+								zIndex={100}
 							>
 								<MenuItem
 									onClick={() => setManageColumns(true)}

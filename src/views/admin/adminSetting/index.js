@@ -189,7 +189,7 @@ const Index = () => {
 				/>
 				<MiniStatistics
 					fontsize='md'
-					onClick={() => navigate('/settings-whatsapp')}
+					onClick={() => navigate('/settings/whatsapp_manager')}
 					startContent={
 						<IconBox
 							w='56px'
@@ -198,7 +198,7 @@ const Index = () => {
 							icon={<Icon w='28px' h='28px' as={FaWhatsapp} color='white' />}
 						/>
 					}
-					name='Whatsapp Setting'
+					name='Whatsapp Manager'
 				/>
 			</SimpleGrid>
 		</div>

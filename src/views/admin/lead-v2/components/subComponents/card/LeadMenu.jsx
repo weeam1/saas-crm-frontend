@@ -97,13 +97,12 @@ const LeadMenu = ({
 	};
 
 	return (
-		<Menu isLazy closeOnSelect={false}>
+		<Menu isLazy closeOnSelect={false} size='sm'>
 			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
-			<MenuList minW='fit-content'>
+			<MenuList minW='fit-content' fontSize='sm'>
 				{(user?.role === 'superAdmin' && access?.update) ||
 				(user?.role !== 'superAdmin' && allowedUserEdit) ? (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setEditLead(true);
 							setLeadDetails(lead);
@@ -126,7 +125,7 @@ const LeadMenu = ({
 
 				{/* {callAccess?.create && (
 					<MenuItem
-						py={2.5}
+					
 						// onClick={() => {
 						// 	setAddPhoneCall(true);
 						// 	setCallSelectedId(leadId);
@@ -138,7 +137,6 @@ const LeadMenu = ({
 				)} */}
 				{emailAccess?.create && (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setSendEmail(true);
 							setLeadDetails(lead);
@@ -149,7 +147,6 @@ const LeadMenu = ({
 					</MenuItem>
 				)}
 				<MenuItem
-					py={2.5}
 					onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
 					icon={<FaHistory fontSize={15} />}
 				>
@@ -157,7 +154,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{user?.role === 'superAdmin' && (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setViewPhoneHistory({
 								modal: true,
@@ -171,14 +167,13 @@ const LeadMenu = ({
 				)}
 
 				{/* <MenuItem
-					py={2.5}
+				
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
 					icon={<FaHistory fontSize={15} />}
 				>
 					View Call History
 				</MenuItem> */}
 				<MenuItem
-					py={2.5}
 					display={{ sm: 'block', xl: 'none' }}
 					onClick={() => {
 						if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
@@ -188,7 +183,6 @@ const LeadMenu = ({
 					Open in Dialpad
 				</MenuItem>
 				<MenuItem
-					py={2.5}
 					onClick={handleOpenWhatsapp}
 					icon={<BsWhatsapp fontSize={15} />}
 				>
@@ -196,7 +190,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
-						py={2.5}
 						// onClick={() => {
 						// 	setTaskInits(lead);
 						// 	onTaskOpen();
@@ -208,7 +201,6 @@ const LeadMenu = ({
 				)}
 
 				<MenuItem
-					py={2.5}
 					onClick={() => {
 						setLeadAddtionalInfo(true);
 						setLeadDetails(lead);
@@ -219,7 +211,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{access?.delete && user?.role === 'superAdmin' && (
 					<MenuItem
-						py={2.5}
 						color='red'
 						onClick={() => {
 							setSelectedValues([leadId]);

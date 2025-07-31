@@ -101,11 +101,10 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		</Box>;
 	}
 
-	const formatValue = (value, isObject = false) => {
+	const formatValue = (value) => {
 		if (!value) return 'N/A';
-		return isObject && typeof value === 'object'
-			? value.result || value.text
-			: value;
+
+		return typeof value === 'object' ? value.result || value.text : value;
 	};
 
 	return (
@@ -128,17 +127,11 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 								<DetailItem label='Email' value={data?.leadEmail} />
 								<DetailItem
 									label='Phone'
-									value={formatValue(
-										data?.leadPhoneNumber,
-										typeof data?.leadPhoneNumber === 'object'
-									)}
+									value={formatValue(data?.leadPhoneNumber)}
 								/>
 								<DetailItem
 									label='WhatsApp'
-									value={formatValue(
-										data?.leadWhatsapp,
-										typeof data?.leadWhatsapp === 'object'
-									)}
+									value={formatValue(data?.leadWhatsappNumber)}
 								/>
 							</>
 						)}
@@ -215,13 +208,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 					<DetailGrid>
 						<DetailItem label='Nationality' value={data?.nationality} />
 						<DetailItem label='Preferred Time' value={data?.timetocall} />
-						<DetailItem
-							label='In UAE?'
-							value={formatValue(
-								data?.r_u_in_uae,
-								typeof data?.r_u_in_uae === 'object'
-							)}
-						/>
+						<DetailItem label='In UAE?' value={formatValue(data?.r_u_in_uae)} />
 						<DetailItem label='Interest' value={data?.interest} />
 						<DetailItem label='Language' value={data?.leadLang} />
 					</DetailGrid>

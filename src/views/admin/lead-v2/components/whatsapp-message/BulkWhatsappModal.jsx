@@ -12,6 +12,8 @@ import {
 	Flex,
 	Badge,
 	SimpleGrid,
+	Input,
+	Select,
 } from '@chakra-ui/react';
 import { toast } from 'react-toastify';
 
@@ -21,6 +23,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { useCreateItemMutation } from 'api/apiSlice';
 import BulkMessageSummary from './BulkMessageSummary';
+import { useSelector } from 'react-redux';
 
 const BulkWhatsappModal = ({
 	isOpen,
@@ -31,12 +34,17 @@ const BulkWhatsappModal = ({
 }) => {
 	const [selectedTemplate, setSelectedTemplate] = useState(null);
 	const [messageSummary, setMessageSummary] = useState(null);
+	const [placeholderValues, setPlaceholderValues] = useState({});
+	const [placeholderModes, setPlaceholderModes] = useState({});
+
+	const [errors, setErrors] = useState({});
+	const [touched, setTouched] = useState({});
+
+	const user = useSelector((state) => state.user.user);
 
 	const [summaryModal, setSummaryModal] = useState(false);
 
 	const [sendBulkMessage, { isLoading: isSending }] = useCreateItemMutation();
-
-	const user = JSON.parse(localStorage.getItem('user'));
 
 	const {
 		data: templates = [],
@@ -45,10 +53,10 @@ const BulkWhatsappModal = ({
 	} = useFetchItemsQuery(
 		{
 			path: `/whatsapp/templates`,
-			params: { accountId: whatsappAccountId },
+			params: { userId: user._id },
 		},
 		{
-			skip: !whatsappAccountId || selectedLeads.length > 50,
+			skip: !user?._id,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -78,6 +86,8 @@ const BulkWhatsappModal = ({
 		: [];
 
 	//  Extract template body + footer
+	const templateHeader =
+		selectedTemplate?.components?.find((c) => c.type === 'HEADER')?.text || '';
 	const templateBody =
 		selectedTemplate?.components?.find((c) => c.type === 'BODY')?.text || '';
 	const templateFooter =
@@ -87,16 +97,56 @@ const BulkWhatsappModal = ({
 	const previewText = useMemo(() => {
 		let result = templateBody;
 
-		// Replace {{1}} with example value
-		result = result.replace(/\{\{1\}\}/g, '[Client Name]');
+		Object.entries(placeholderValues).forEach(([key, value]) => {
+			result = result.replace(
+				new RegExp(`\\{\\{${key}\\}\\}`, 'g'),
+				value || `{{${key}}}`
+			);
+		});
 
-		// Append footer if exists
-		if (templateFooter) {
-			result += `\n\n${templateFooter}`;
-		}
+		const finalBody =
+			(templateHeader ? `${templateHeader}\n\n` : '') +
+			result +
+			(templateFooter ? `\n\n${templateFooter}` : '');
 
-		return result;
-	}, [templateBody, templateFooter]);
+		return finalBody;
+	}, [templateBody, placeholderValues, templateHeader, templateFooter]);
+
+	const extractPlaceholders = useMemo(() => {
+		const body = selectedTemplate?.components?.find(
+			(c) => c.type === 'BODY'
+		)?.text;
+
+		const matches = body?.match(/{{(\d+)}}/g);
+		const unique = [...new Set(matches?.map((m) => m.match(/\d+/)?.[0]))];
+
+		setPlaceholderValues({});
+		setPlaceholderModes({});
+		return unique || [];
+	}, [selectedTemplate]);
+
+	const validatePlaceholders = () => {
+		const newErrors = {};
+		const updatedValues = { ...placeholderValues };
+
+		extractPlaceholders?.forEach((key) => {
+			const mode = placeholderModes[key] || 'custom';
+
+			if (mode === 'client') {
+				updatedValues[key] = 'client_name'; // auto-fill client name placeholder
+			}
+
+			if (!updatedValues[key]?.trim()) {
+				newErrors[key] = 'This field is required';
+			}
+		});
+
+		console.log({ updatedValues });
+		setErrors(newErrors);
+		setPlaceholderValues(updatedValues);
+
+		return updatedValues;
+	};
 
 	const validLeadsList = useMemo(() => {
 		return selectedLeads
@@ -117,17 +167,28 @@ const BulkWhatsappModal = ({
 
 	const handleSend = async () => {
 		try {
-			if (!user?.whatsappDetails?.phoneNumber) {
+			if (!templates?.whatsappDetails?.phoneNumber) {
 				return toast.error('User Whatsapp number is required!');
+			}
+
+			let placeholderArray = [];
+			if (extractPlaceholders?.length > 0) {
+				const validPlaceholders = validatePlaceholders();
+				if (validPlaceholders?.length === 0) return;
+
+				placeholderArray = Object.keys(validPlaceholders)
+					.sort((a, b) => Number(a) - Number(b))
+					.map((key) => validPlaceholders[key]?.trim() || '');
 			}
 
 			const body = {
 				type: 'template',
-				from: user?.whatsappDetails?.phoneNumber,
+				from: templates?.whatsappDetails?.phoneNumber,
 				phoneList: validLeadsList,
 				body: previewText,
 				templateName: selectedTemplate.name,
 				languageCode: selectedTemplate.language,
+				placeholders: placeholderArray,
 			};
 
 			const res = await sendBulkMessage({
@@ -166,7 +227,12 @@ const BulkWhatsappModal = ({
 					</ModalHeader>
 					<ModalCloseButton isDisabled={isSending} />
 
-					<ModalBody py={4}>
+					<ModalBody
+						py={4}
+						maxHeight='50vh'
+						overflowY='auto'
+						scrollBehavior='smooth'
+					>
 						{isTemplatesLoading ? (
 							<Loader />
 						) : isError ? (
@@ -176,7 +242,7 @@ const BulkWhatsappModal = ({
 						) : (
 							<>
 								{/* Status Summary */}
-								<Box mb={4}>
+								<Box mb={6}>
 									<Text fontWeight='semibold' color='gray.700' mb={2}>
 										Number Validation Summary:
 									</Text>
@@ -202,75 +268,211 @@ const BulkWhatsappModal = ({
 									</Flex>
 								</Box>
 
-								<SimpleGrid
-									columns={1}
-									spacing={1}
-									maxHeight='50vh'
-									overflowY='auto'
-									scrollBehavior='smooth'
-									p='2'
-								>
-									{filteredTemplates?.map((template) => (
-										<Box
-											key={template.id}
-											cursor='pointer'
-											p={3}
-											mb={3}
-											borderRadius='lg'
-											borderWidth='1px'
-											borderColor={
-												selectedTemplate?.id === template.id
-													? 'green.300'
-													: 'gray.100'
-											}
-											bg={
-												selectedTemplate?.id === template.id
-													? 'green.50'
-													: 'gray.100'
-											}
-											_hover={{ borderColor: 'green.200' }}
-											transition='all 0.2s ease'
-											onClick={() => setSelectedTemplate(template)}
-											position='relative'
-											pl={10}
-										>
-											<Flex
-												position='absolute'
-												left={3}
-												top='50%'
-												transform='translateY(-50%)'
-												w={5}
-												h={5}
-												borderWidth='2px'
+								<Box>
+									<Text fontSize='md' fontWeight='bold'>
+										Select a template
+									</Text>
+
+									<SimpleGrid
+										columns={1}
+										spacing={1}
+										maxHeight='50vh'
+										overflowY='auto'
+										scrollBehavior='smooth'
+										p='2'
+									>
+										{filteredTemplates?.map((template) => (
+											<Box
+												key={template.id}
+												cursor='pointer'
+												p={3}
+												mb={3}
+												borderRadius='lg'
+												borderWidth='1px'
 												borderColor={
 													selectedTemplate?.id === template.id
-														? 'green.400'
-														: 'gray.300'
+														? 'green.300'
+														: 'gray.100'
 												}
-												borderRadius='full'
-												align='center'
-												justify='center'
+												bg={
+													selectedTemplate?.id === template.id
+														? 'green.50'
+														: 'gray.100'
+												}
+												_hover={{ borderColor: 'green.200' }}
+												transition='all 0.2s ease'
+												onClick={() => setSelectedTemplate(template)}
+												position='relative'
+												pl={10}
 											>
-												{selectedTemplate?.id === template.id && (
-													<Box w={3} h={3} bg='green.400' borderRadius='full' />
-												)}
-											</Flex>
-
-											<Flex justify='space-between' align='center'>
-												<Text
-													fontWeight='medium'
-													fontSize={{ base: 'sm', md: 'md' }}
-													color='gray.700'
+												<Flex
+													position='absolute'
+													left={3}
+													top='50%'
+													transform='translateY(-50%)'
+													w={5}
+													h={5}
+													borderWidth='2px'
+													borderColor={
+														selectedTemplate?.id === template.id
+															? 'green.400'
+															: 'gray.300'
+													}
+													borderRadius='full'
+													align='center'
+													justify='center'
 												>
-													{template.name}
-												</Text>
-											</Flex>
-										</Box>
-									))}
-								</SimpleGrid>
+													{selectedTemplate?.id === template.id && (
+														<Box
+															w={3}
+															h={3}
+															bg='green.400'
+															borderRadius='full'
+														/>
+													)}
+												</Flex>
+
+												<Flex justify='space-between' align='center'>
+													<Text
+														fontWeight='medium'
+														fontSize={{ base: 'sm', md: 'md' }}
+														color='gray.700'
+													>
+														{template.name}
+													</Text>
+												</Flex>
+											</Box>
+										))}
+									</SimpleGrid>
+								</Box>
 
 								{/* Preview Panel */}
-								<Box flex='1' minW='300px'>
+								<Box flex='1'>
+									{/* {selectedTemplate &&
+										extractPlaceholders?.length > 0 &&
+										extractPlaceholders?.map((key) => (
+											<Box key={key} mb={3}>
+												<Text fontSize='sm' fontWeight='medium' mb={1}>
+													Placeholder {key}
+												</Text>
+												<Input
+													placeholder={`Enter value for {{${key}}}`}
+													size='sm'
+													bg='white'
+													required
+													borderColor={errors[key] ? 'red.500' : 'gray.300'}
+													_hover={{
+														borderColor: errors[key] ? 'red.600' : 'gray.400',
+													}}
+													focusBorderColor={
+														errors[key] ? 'red.500' : 'brand.500'
+													}
+													value={placeholderValues[key] || ''}
+													onChange={(e) => {
+														setPlaceholderValues({
+															...placeholderValues,
+															[key]: e.target.value,
+														});
+														if (touched[key]) {
+															setErrors((prev) => ({ ...prev, [key]: '' }));
+														}
+													}}
+													onBlur={() => setTouched({ ...touched, [key]: true })}
+												/>
+												{errors[key] && (
+													<Text color='red.500' fontSize='xs' mt={1}>
+														{errors[key]}
+													</Text>
+												)}
+											</Box>
+										))} */}
+
+									{selectedTemplate &&
+										extractPlaceholders?.length > 0 &&
+										extractPlaceholders.map((key) => {
+											const isClientSelected = Object.entries(
+												placeholderModes
+											).some(([k, v]) => v === 'client' && k !== key);
+											const mode = placeholderModes[key] || 'custom';
+
+											return (
+												<Box key={key} mb={4}>
+													<Text fontSize='sm' fontWeight='medium' mb={1}>
+														Field for <b>{key}</b>
+													</Text>
+
+													<Flex gap={2}>
+														<Select
+															size='sm'
+															bg='white'
+															width='40%'
+															value={mode}
+															borderColor={'gray.300'}
+															_hover={{
+																borderColor: 'gray.400',
+															}}
+															focusBorderColor={'brand.500'}
+															onChange={(e) => {
+																const value = e.target.value;
+																setPlaceholderModes((prev) => ({
+																	...prev,
+																	[key]: value,
+																}));
+
+																// Clear value if switching back to custom
+																if (value === 'custom') {
+																	setPlaceholderValues((prev) => ({
+																		...prev,
+																		[key]: '',
+																	}));
+																}
+															}}
+															isDisabled={mode !== 'client' && isClientSelected}
+														>
+															<option value='custom'>Custom</option>
+															<option value='client'>Client Name</option>
+														</Select>
+
+														<Input
+															placeholder={
+																mode === 'client'
+																	? 'Client Name (auto-filled)'
+																	: `Enter value for {{${key}}}`
+															}
+															size='sm'
+															bg='white'
+															isDisabled={mode === 'client'}
+															borderColor={errors[key] ? 'red.500' : 'gray.300'}
+															_hover={{
+																borderColor: errors[key]
+																	? 'red.600'
+																	: 'gray.400',
+															}}
+															focusBorderColor={
+																errors[key] ? 'red.500' : 'brand.500'
+															}
+															value={placeholderValues[key] || ''}
+															onChange={(e) =>
+																setPlaceholderValues((prev) => ({
+																	...prev,
+																	[key]: e.target.value,
+																}))
+															}
+															onBlur={() =>
+																setTouched({ ...touched, [key]: true })
+															}
+														/>
+													</Flex>
+
+													{errors[key] && (
+														<Text color='red.500' fontSize='xs' mt={1}>
+															{errors[key]}
+														</Text>
+													)}
+												</Box>
+											);
+										})}
+
 									<Text fontSize='sm' color='gray.500' mb={2}>
 										Template Preview
 									</Text>
