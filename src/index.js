@@ -36,6 +36,7 @@ import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
+import { useSocketEvents } from 'hooks/useSocketEvents';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -54,6 +55,8 @@ function App() {
 	const user = JSON.parse(localStorage.getItem('user'));
 	useNavigate();
 
+	const { registerUser, isConnected } = useSocketEvents();
+
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
 			theme: 'darkblue',
@@ -70,6 +73,17 @@ function App() {
 	const user2 = useSelector((state) => state.user.user);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	useEffect(() => {
+		if (isConnected) {
+			const registerPayload = {
+				userId: user?._id || '',
+			};
+
+			registerUser(registerPayload);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [registerUser, isConnected, user?._id]);
 
 	useEffect(() => {
 		if (!user?._id) return;

@@ -77,8 +77,6 @@ const Whatsapp = () => {
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 	const contacts = useSelector((state) => state.whatsapp.contacts || []);
 
-	console.log({ currentUser });
-
 	const { registerUser, isConnected } = useSocketEvents();
 
 	const {
