@@ -125,26 +125,37 @@ const BulkWhatsappModal = ({
 		return unique || [];
 	}, [selectedTemplate]);
 
+	// const validatePlaceholders = () => {
+	// 	const newErrors = {};
+	// 	const updatedValues = { ...placeholderValues };
+
+	// 	extractPlaceholders?.forEach((key) => {
+	// 		const mode = placeholderModes[key] || 'custom';
+
+	// 		if (mode === 'client') {
+	// 			updatedValues[key] = 'client_name'; // auto-fill client name placeholder
+	// 		}
+
+	// 		if (!updatedValues[key]?.trim()) {
+	// 			newErrors[key] = 'This field is required';
+	// 		}
+	// 	});
+
+	// 	setErrors(newErrors);
+	// 	setPlaceholderValues(updatedValues);
+
+	// 	return updatedValues;
+	// };
+
 	const validatePlaceholders = () => {
 		const newErrors = {};
-		const updatedValues = { ...placeholderValues };
-
 		extractPlaceholders?.forEach((key) => {
-			const mode = placeholderModes[key] || 'custom';
-
-			if (mode === 'client') {
-				updatedValues[key] = 'client_name'; // auto-fill client name placeholder
-			}
-
-			if (!updatedValues[key]?.trim()) {
+			if (!placeholderValues[key]?.trim()) {
 				newErrors[key] = 'This field is required';
 			}
 		});
-
 		setErrors(newErrors);
-		setPlaceholderValues(updatedValues);
-
-		return updatedValues;
+		return Object.keys(newErrors).length === 0;
 	};
 
 	const validLeadsList = useMemo(() => {
@@ -171,20 +182,29 @@ const BulkWhatsappModal = ({
 			}
 
 			let placeholderArray = [];
+
 			if (extractPlaceholders?.length > 0) {
-				const validPlaceholders = validatePlaceholders();
+				const isValid = validatePlaceholders();
+				if (!isValid) return;
 
-				const isEmptyObject = (obj) =>
-					!obj || (typeof obj === 'object' && Object.keys(obj).length === 0);
-
-				if (isEmptyObject(validPlaceholders)) {
-					return toast.error('Please fill the required fields!');
-				}
-
-				placeholderArray = Object.keys(validPlaceholders)
+				placeholderArray = Object.keys(placeholderValues)
 					.sort((a, b) => Number(a) - Number(b))
-					.map((key) => validPlaceholders[key]?.trim() || '');
+					.map((key) => placeholderValues[key]?.trim() || '');
 			}
+			// if (extractPlaceholders?.length > 0) {
+			// 	const validPlaceholders = validatePlaceholders();
+
+			// 	const isEmptyObject = (obj) =>
+			// 		!obj || (typeof obj === 'object' && Object.keys(obj).length === 0);
+
+			// 	if (isEmptyObject(validPlaceholders)) {
+			// 		return toast.error('Please fill the required fields!');
+			// 	}
+
+			// 	placeholderArray = Object.keys(validPlaceholders)
+			// 		.sort((a, b) => Number(a) - Number(b))
+			// 		.map((key) => validPlaceholders[key]?.trim() || '');
+			// }
 
 			const body = {
 				type: 'template',
@@ -206,7 +226,6 @@ const BulkWhatsappModal = ({
 		} catch (err) {
 			console.error('Error sending bulk message:', err);
 			toast.error(err?.data?.message || 'Failed to sending Message.');
-			// optionally show a toast or error UI here
 		}
 	};
 
@@ -430,7 +449,11 @@ const BulkWhatsappModal = ({
 																		...prev,
 																		[key]: '',
 																	}));
-																}
+																} else
+																	setPlaceholderValues((prev) => ({
+																		...prev,
+																		[key]: 'client_name',
+																	}));
 															}}
 															isDisabled={mode !== 'client' && isClientSelected}
 														>
