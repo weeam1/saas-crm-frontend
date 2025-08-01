@@ -152,7 +152,7 @@ const AdvancedSearchModal = ({
                 <FormLabel>Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={filters.assignedTo || null}
-                  users={usersData?.doc || []}
+                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
                   onSelectUser={handleSelectUser}
                 />
               </FormControl>
