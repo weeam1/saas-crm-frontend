@@ -27,10 +27,13 @@ import { InfoIcon } from '@chakra-ui/icons';
 
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { leadIconSize } from './components/constants';
+import { useLogger } from "hooks/useLogger";
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const countries = useSelector((state) => state.countries.countryNames);
+
+	const { logAction } = useLogger();
 
 	const [data, setData] = useState();
 	const [leadIp, setLeadIp] = useState({
@@ -41,20 +44,37 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	const fetchData = async () => {
-		setIsLoading(true);
-		let response = await getApi('api/lead/view/', leadId);
-		setData(response.data?.lead);
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      let response = await getApi("api/lead/view/", leadId);
+      setData(response.data?.lead);
 
-		const { ip, city, country } = extractLocationData(
-			response?.data?.lead?.ip,
-			countries
-		);
+      const { ip, city, country } = extractLocationData(
+        response?.data?.lead?.ip,
+        countries
+      );
 
-		setLeadIp({ ip, city, country });
+      setLeadIp({ ip, city, country });
 
-		setIsLoading(false);
-	};
+      setIsLoading(false);
+      await logAction({
+        action: "VIEW",
+        entity: "Lead",
+        entityId: leadId,
+        status: "success",
+        message: "Viewed successfully",
+      });
+    } catch (error) {
+      await logAction({
+        action: "VIEW",
+        entity: "Lead",
+        entityId: leadId,
+        status: "error",
+        message: error.message || "Failed to view lead",
+      });
+    }
+  };
 
 	useEffect(() => {
 		fetchData();

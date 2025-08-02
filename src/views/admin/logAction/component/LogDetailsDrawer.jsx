@@ -1,0 +1,191 @@
+import React from "react";
+import {
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  Flex,
+  Text,
+  IconButton,
+  Stack,
+  Divider,
+  SimpleGrid,
+  Box,
+  Badge,
+  Icon,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { FiX, FiUser } from "react-icons/fi";
+import { format } from "date-fns";
+
+const LogDetailsDrawer = ({ 
+  isOpen, 
+  onClose, 
+  selectedLog, 
+  grayColors,
+  renderSecurityLevel,
+  getStatusColor
+}) => {
+  const textColor = useColorModeValue(grayColors.text, "white");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
+
+  const formatTimestamp = (timestamp) =>
+    format(new Date(timestamp), "MMM d, yyyy HH:mm:ss");
+
+  if (!selectedLog) return null;
+
+  return (
+    <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="md">
+      <DrawerOverlay />
+      <DrawerContent>
+        <DrawerHeader bg={headerBg} color="white" py={3}>
+          <Flex justify="space-between" align="center">
+            <Text fontSize="sm">Log Details</Text>
+            <IconButton
+              icon={<FiX />}
+              variant="ghost"
+              color="white"
+              _hover={{ bg: grayColors.dark }}
+              onClick={onClose}
+              aria-label="Close"
+              size="sm"
+            />
+          </Flex>
+        </DrawerHeader>
+        <DrawerBody p={4}>
+          <Stack spacing={4}>
+            <SimpleGrid columns={2} spacing={4}>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">
+                  User
+                </Text>
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                  <Flex align="center">
+                    <Icon as={FiUser} mr={2} color={grayColors.primary} />
+                    {selectedLog.userName}
+                  </Flex>
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">
+                  Action
+                </Text>
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                  {selectedLog.action.replace(/_/g, " ")}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">
+                  Status
+                </Text>
+                <Badge
+                  colorScheme={getStatusColor(selectedLog.status)}
+                  px={2}
+                  py={0.5}
+                  borderRadius="full"
+                  fontSize="2xs"
+                  fontWeight="bold"
+                >
+                  {selectedLog.status}
+                </Badge>
+              </Box>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">
+                  Security Level
+                </Text>
+                {renderSecurityLevel(selectedLog.securityLevel)}
+              </Box>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">
+                  Timestamp
+                </Text>
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                  {formatTimestamp(selectedLog.metadata.timestamp)}
+                </Text>
+              </Box>
+            </SimpleGrid>
+
+            <Divider borderColor={borderColor} />
+
+            <Box>
+              <Text fontSize="2xs" color="gray.500">
+                Message
+              </Text>
+              <Text
+                fontWeight="medium"
+                color={textColor}
+                p={2}
+                bg={"gray.50"}
+                borderRadius="md"
+                fontSize="xs"
+              >
+                {selectedLog.message}
+              </Text>
+            </Box>
+
+            <Divider borderColor={borderColor} />
+
+            <Box>
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                mb={2}
+                color={grayColors.primary}
+              >
+                Metadata
+              </Text>
+              <SimpleGrid columns={2} spacing={4}>
+                <Box>
+                  <Text fontSize="2xs" color="gray.500">
+                    IP Address
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.ip}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="2xs" color="gray.500">
+                    Device
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.device}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="2xs" color="gray.500">
+                    Browser
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.browser}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="2xs" color="gray.500">
+                    Location
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.city},{" "}
+                    {selectedLog.metadata.region},{" "}
+                    {selectedLog.metadata.country}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="2xs" color="gray.500">
+                    Timezone
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.timezone}
+                  </Text>
+                </Box>
+              </SimpleGrid>
+            </Box>
+          </Stack>
+        </DrawerBody>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+export default LogDetailsDrawer;
