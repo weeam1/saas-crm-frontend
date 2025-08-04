@@ -167,6 +167,8 @@ const TopPagination = ({
 					color='black'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
+					py={ sizeMedium?'2': 0}
+					px={ sizeMedium?'5': 0}
 				>
 					Previous
 				</Button>
@@ -277,6 +279,8 @@ const TopPagination = ({
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
+						py={ sizeMedium?'2': 0}
+					px={ sizeMedium?'5': 0}
 				>
 					Next
 				</Button>
