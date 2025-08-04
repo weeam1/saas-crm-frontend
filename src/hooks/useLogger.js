@@ -1,4 +1,3 @@
-// src/hooks/useLogger.js
 import { browserName, osName, deviceType } from "react-device-detect";
 import axios from "axios";
 import { useSocketEvents } from "./useSocketEvents";

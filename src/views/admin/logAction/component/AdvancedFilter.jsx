@@ -4,13 +4,11 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   ModalFooter,
   Button,
   FormControl,
   FormLabel,
-  Input,
   Select,
   SimpleGrid,
   VStack,
@@ -24,6 +22,7 @@ import {
 import { useFormik } from "formik";
 import { FiX } from "react-icons/fi";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
+import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 
 const AdvancedFilter = ({
   isOpen,
@@ -32,10 +31,11 @@ const AdvancedFilter = ({
   applyFilters,
   resetFilters,
   grayColors,
-  timeRangeOptions,
   statusOptions,
   actionOptions,
   levelOptions,
+  entityOptions,
+  usersData
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
   const [openCalendar, setOpenCalendar] = React.useState(null);
@@ -47,13 +47,13 @@ const AdvancedFilter = ({
 
   const formik = useFormik({
     initialValues: {
-      timeRange: filters.timeRange || "",
+      userId: filters.userId || "",
       status: filters.status || "",
+      from: filters.from || null,
+      to: filters.to || null,
+      entity: filters.entity || "",
       action: filters.action || "",
-      securityLevel: filters.securityLevel || "",
-      search: filters.search || "",
-      startDate: filters.startDate || null,
-      endDate: filters.endDate || null,
+      securityLevel: filters.securityLevel || ""
     },
     onSubmit: (values) => {
       applyFilters(values);
@@ -66,15 +66,19 @@ const AdvancedFilter = ({
     resetFilters();
   };
 
+  const handleSelectUser = (user) => {
+    formik.setFieldValue("userId", user?._id || null);
+  };
+
   const isFilterUnchanged = useMemo(() => {
     return (
-      formik.values.timeRange === filters.timeRange &&
+      formik.values.userId === filters.userId &&
       formik.values.status === filters.status &&
+      formik.values.from === filters.from &&
+      formik.values.to === filters.to &&
+      formik.values.entity === filters.entity &&
       formik.values.action === filters.action &&
-      formik.values.securityLevel === filters.securityLevel &&
-      formik.values.search === filters.search &&
-      formik.values.startDate === filters.startDate &&
-      formik.values.endDate === filters.endDate
+      formik.values.securityLevel === filters.securityLevel
     );
   }, [formik.values, filters]);
 
@@ -111,14 +115,13 @@ const AdvancedFilter = ({
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
             <VStack spacing={4} overflow="scroll" height="65vh">
+              {/* User Selection */}
               <FormControl>
-                <FormLabel>Search</FormLabel>
-                <Input
-                  name="search"
-                  placeholder="Search logs..."
-                  value={formik.values.search}
-                  onChange={formik.handleChange}
-                  focusBorderColor="brand.500"
+                <FormLabel>User</FormLabel>
+                <SearchUsers
+                  selectedUserId={formik.values.userId}
+                  users={usersData?.doc || []}
+                  onSelectUser={handleSelectUser}
                 />
               </FormControl>
 
@@ -129,54 +132,37 @@ const AdvancedFilter = ({
                 </Text>
                 <VStack width="100%" alignItems="flex-end">
                   <FormControl>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>From Date</FormLabel>
                     <CustomDatePicker
-                      selectedDate={formik.values.startDate}
+                      selectedDate={formik.values.from}
                       handleDateChange={(date) =>
-                        formik.setFieldValue("startDate", date)
+                        formik.setFieldValue("from", date)
                       }
-                      placeholder="Select start date"
-                      maxDate={formik.values.endDate || new Date()}
-                      isCalendarOpen={openCalendar === "startDate"}
-                      toggleCalendar={() => toggleCalendar("startDate")}
+                      placeholder="Select from date"
+                      maxDate={formik.values.to || new Date()}
+                      isCalendarOpen={openCalendar === "from"}
+                      toggleCalendar={() => toggleCalendar("from")}
                     />
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel>To Date</FormLabel>
                     <CustomDatePicker
-                      selectedDate={formik.values.endDate}
+                      selectedDate={formik.values.to}
                       handleDateChange={(date) =>
-                        formik.setFieldValue("endDate", date)
+                        formik.setFieldValue("to", date)
                       }
-                      placeholder="Select end date"
-                      minDate={formik.values.startDate}
+                      placeholder="Select to date"
+                      minDate={formik.values.from}
                       maxDate={new Date()}
-                      isCalendarOpen={openCalendar === "endDate"}
-                      toggleCalendar={() => toggleCalendar("endDate")}
+                      isCalendarOpen={openCalendar === "to"}
+                      toggleCalendar={() => toggleCalendar("to")}
                     />
                   </FormControl>
                 </VStack>
               </Box>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
-                <FormControl>
-                  <FormLabel>Time Range</FormLabel>
-                  <Select
-                    name="timeRange"
-                    placeholder="Select time range"
-                    value={formik.values.timeRange}
-                    onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
-                  >
-                    {timeRangeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-
                 <FormControl>
                   <FormLabel>Status</FormLabel>
                   <Select
@@ -193,11 +179,28 @@ const AdvancedFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+
+                {/* <FormControl>
+                  <FormLabel>Entity</FormLabel>
+                  <Select
+                    name="entity"
+                    placeholder="Select entity"
+                    value={formik.values.entity}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                  >
+                    {entityOptions?.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl> */}
               </SimpleGrid>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
-                  <FormLabel>Action Type</FormLabel>
+                  <FormLabel>Action</FormLabel>
                   <Select
                     name="action"
                     placeholder="Select action"
@@ -233,7 +236,7 @@ const AdvancedFilter = ({
             </VStack>
           </ModalBody>
 
-          <ModalFooter >
+          <ModalFooter>
             <Button
               variant="outline"
               mr={3}

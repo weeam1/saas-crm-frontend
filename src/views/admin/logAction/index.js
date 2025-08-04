@@ -53,15 +53,15 @@ const levels = {
 
 const statusOptions = [
   { label: "Success", value: "success" },
-  { label: "Failure", value: "failure" },
+  { label: "Fail", value: "fail" },
   { label: "Pending", value: "pending" },
 ];
 
-const timeRangeOptions = [
-  { label: "Last hour", value: "1h" },
-  { label: "Last 24 hours", value: "24h" },
-  { label: "Last 7 days", value: "7d" },
-  { label: "Last 30 days", value: "30d" },
+const entityOptions = [
+  { label: "Lead", value: "Lead" },
+  { label: "Contact", value: "Contact" },
+  { label: "Account", value: "Account" },
+  // Add more entities as needed
 ];
 
 const actionOptions = Object.keys(levels).map((action) => ({
@@ -76,17 +76,6 @@ const levelOptions = Object.entries(levels).map(([name, value]) => ({
 
 const MotionTr = motion(Tr);
 
-// Column width configuration
-const columnWidths = {
-  user: "100px",
-  action: "100px",
-  status: "100px",
-  ip: "200px",
-  security: "200px",
-  message: "200px",
-  timestamp: "100px",
-};
-
 const LogTable = () => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -96,26 +85,47 @@ const LogTable = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [filters, setFilters] = useState({
-    timeRange: "",
+    userId: "",
     status: "",
+    from: "",
+    to: "",
+    entity: "",
     action: "",
     securityLevel: "",
-    search: "",
   });
 
   const { colorMode } = useColorMode();
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
-  const headerBorderColor = "white";
+  const headerBorderColor = "gray.800";
   const bodyBorderColor = useColorModeValue("gray.200", "gray.600");
+
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (filters.userId) params.userId = filters.userId;
+    if (filters.status) params.status = filters.status;
+    if (filters.from)
+      params.from = new Date(filters.from).toISOString().split("T")[0];
+    if (filters.to)
+      params.to = new Date(filters.to).toISOString().split("T")[0];
+    if (filters.entity) params.entity = filters.entity;
+    if (filters.action) params.action = filters.action;
+    if (filters.securityLevel) params.securityLevel = filters.securityLevel;
+
+    return params;
+  };
 
   const { data, isLoading, isFetching, error, refetch } = useFetchItemsQuery({
     path: "/logs/user_activities",
-    params: {
-      page: currentPage,
-      limit: pageSize,
-      ...filters,
-    },
+    params: buildQueryParams(),
+  });
+
+  const { data: usersData } = useFetchItemsQuery({
+    path: "/v2/user/search_users",
   });
 
   useEffect(() => {
@@ -158,7 +168,7 @@ const LogTable = () => {
     switch (status?.toLowerCase()) {
       case "success":
         return "green";
-      case "failure":
+      case "fail":
         return "red";
       case "pending":
         return "yellow";
@@ -169,14 +179,13 @@ const LogTable = () => {
 
   const renderSecurityLevel = (levelValue) => {
     const maxLevel = 7;
-    const boxSize = "10px";
-    const gap = "2px";
+    const boxHeight = "8px";
 
     const getLevelColor = (level) => {
       if (level >= 6) return "red.500";
       if (level >= 4) return "orange.500";
       if (level >= 2) return "blue.500";
-      return "gray.500";
+      return "green.500";
     };
 
     const levelColor = getLevelColor(levelValue);
@@ -186,19 +195,21 @@ const LogTable = () => {
         borderWidth="1px"
         borderColor="gray.300"
         borderRadius="sm"
-        p="3px"
-        w={`calc(${maxLevel} * (${boxSize} + ${gap}) + 6px)`}
-        h={`calc(${boxSize} + 6px)`}
+        p="2px"
+        w="80%"
+        h={`calc(${boxHeight} + 4px)`}
         alignItems="center"
         justifyContent="center"
         bg="white"
+        textAlign={"center"}
       >
-        <Flex gap={gap}>
+        <Flex width="100%" justify="space-between" gap="2px">
           {Array.from({ length: maxLevel }).map((_, index) => (
             <Box
               key={index}
-              w={boxSize}
-              h={boxSize}
+              flex="1"
+              minWidth="0"
+              h={boxHeight}
               borderRadius="sm"
               bg={index < levelValue ? levelColor : "gray.100"}
               borderWidth="1px"
@@ -210,26 +221,23 @@ const LogTable = () => {
     );
   };
 
-  const handleFilterChange = (name, value) => {
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const applyFilters = () => {
+  const applyFilters = (newFilters) => {
+    setFilters(newFilters);
     setIsFilterOpen(false);
     setCurrentPage(1);
-    refetch();
   };
 
   const resetFilters = () => {
     setFilters({
-      timeRange: "",
+      userId: "",
       status: "",
+      from: "",
+      to: "",
+      entity: "",
       action: "",
       securityLevel: "",
-      search: "",
     });
     setCurrentPage(1);
-    refetch();
   };
 
   const closeDrawer = () => setIsDrawerOpen(false);
@@ -256,7 +264,7 @@ const LogTable = () => {
   });
 
   return (
-    <Box borderRadius="md" mt={"-18px"} mx={"-14px"} mr={"-5px"}>
+    <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -268,6 +276,7 @@ const LogTable = () => {
           handlePageSize={handlePageSizeChange}
           refetching={isFetching}
           loading={isLoading}
+          sizeMedium={true}
         />
       </Box>
       <Box
@@ -284,21 +293,90 @@ const LogTable = () => {
             bg={headerBg}
             zIndex={2}
             boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+            height="24px"
           >
             <Tr>
               <Th
                 color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
+                fontSize="xx-small"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
                 borderBottomColor={headerBorderColor}
-                width={columnWidths.user}
+                whiteSpace="nowrap"
               >
-                <Flex align="center">
-                  <Text fontSize="2xs">User</Text>
+                <Text fontSize="xx-small">User</Text>
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderRightWidth="1px"
+                borderRightColor={headerBorderColor}
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                Action
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderRightWidth="1px"
+                borderRightColor={headerBorderColor}
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                Status
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderRightWidth="1px"
+                borderRightColor={headerBorderColor}
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                Ip Address
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderRightWidth="1px"
+                borderRightColor={headerBorderColor}
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                Security Level
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderRightWidth="1px"
+                borderRightColor={headerBorderColor}
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                Message
+              </Th>
+              <Th
+                color="white"
+                fontSize="xx-small"
+                borderBottomWidth="1px"
+                borderBottomColor={headerBorderColor}
+                textAlign={"center"}
+                whiteSpace="nowrap"
+              >
+                <Flex align="center" justifyContent={"space-between"}>
+                  <Text fontSize="xx-small"> Timestamp</Text>
                   <IconButton
                     icon={<FiFilter />}
                     variant="ghost"
@@ -310,88 +388,6 @@ const LogTable = () => {
                     ml={2}
                   />
                 </Flex>
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.action}
-                textAlign={"center"}
-              >
-                Action
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.status}
-                textAlign={"center"}
-              >
-                Status
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.ip}
-                textAlign={"center"}
-              >
-                Ip Address
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.security}
-                textAlign={"center"}
-              >
-                Security Level
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.message}
-                textAlign={"center"}
-              >
-                Message
-              </Th>
-              <Th
-                color="white"
-                py={3}
-                px={4}
-                fontSize="xs"
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                width={columnWidths.timestamp}
-                textAlign={"center"}
-              >
-                Timestamp
               </Th>
             </Tr>
           </Thead>
@@ -431,12 +427,11 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.user}
                       overflow="hidden"
                       textOverflow="ellipsis"
                       whiteSpace="nowrap"
@@ -444,18 +439,19 @@ const LogTable = () => {
                     >
                       <Flex align="center">
                         <Icon as={FiUser} mr={2} color={grayColors.primary} />
-                        <Text fontSize="xs">{transformedLog.userName}</Text>
+                        <Text fontSize="xx-small">
+                          {transformedLog.userName}
+                        </Text>
                       </Flex>
                     </Td>
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.action}
                       overflow="hidden"
                       textOverflow="ellipsis"
                       whiteSpace="nowrap"
@@ -466,20 +462,18 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.status}
-                      textAlign={"center"}
                     >
                       <Badge
                         colorScheme={getStatusColor(transformedLog.status)}
                         px={2}
                         py={0.5}
                         borderRadius="full"
-                        fontSize="2xs"
+                        fontSize="xx-small"
                       >
                         {transformedLog.status}
                       </Badge>
@@ -487,12 +481,11 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.ip}
                       overflow="hidden"
                       textOverflow="ellipsis"
                       whiteSpace="nowrap"
@@ -503,12 +496,11 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.security}
                       textAlign={"center"}
                     >
                       {renderSecurityLevel(transformedLog.securityLevel)}
@@ -516,26 +508,23 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.message}
                       overflow="hidden"
                       textOverflow="ellipsis"
                       whiteSpace="nowrap"
-                      textAlign={"center"}
                     >
                       {transformedLog.message}
                     </Td>
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xs"
+                      fontSize="xx-small"
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      width={columnWidths.timestamp}
                       overflow="hidden"
                       textOverflow="ellipsis"
                       whiteSpace="nowrap"
@@ -570,14 +559,14 @@ const LogTable = () => {
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         filters={filters}
-        handleFilterChange={handleFilterChange}
         applyFilters={applyFilters}
         resetFilters={resetFilters}
         grayColors={grayColors}
-        timeRangeOptions={timeRangeOptions}
         statusOptions={statusOptions}
         actionOptions={actionOptions}
         levelOptions={levelOptions}
+        entityOptions={entityOptions}
+        usersData={usersData}
       />
 
       <LogDetailsDrawer

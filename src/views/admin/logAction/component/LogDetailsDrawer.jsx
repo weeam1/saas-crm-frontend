@@ -42,7 +42,7 @@ const LogDetailsDrawer = ({
       <DrawerContent>
         <DrawerHeader bg={headerBg} color="white" py={3}>
           <Flex justify="space-between" align="center">
-            <Text fontSize="sm">Log Details</Text>
+            <Text fontSize="xs">Log Details</Text>
             <IconButton
               icon={<FiX />}
               variant="ghost"
@@ -58,10 +58,10 @@ const LogDetailsDrawer = ({
           <Stack spacing={4}>
             <SimpleGrid columns={2} spacing={4}>
               <Box>
-                <Text fontSize="2xs" color="gray.500">
+                <Text  fontSize="xs" color="gray.500">
                   User
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
                   <Flex align="center">
                     <Icon as={FiUser} mr={2} color={grayColors.primary} />
                     {selectedLog.userName}
@@ -69,15 +69,15 @@ const LogDetailsDrawer = ({
                 </Text>
               </Box>
               <Box>
-                <Text fontSize="2xs" color="gray.500">
+                <Text fontSize="xs" color="gray.500">
                   Action
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
                   {selectedLog.action.replace(/_/g, " ")}
                 </Text>
               </Box>
               <Box>
-                <Text fontSize="2xs" color="gray.500">
+                <Text  fontSize="xs" color="gray.500">
                   Status
                 </Text>
                 <Badge
@@ -85,23 +85,23 @@ const LogDetailsDrawer = ({
                   px={2}
                   py={0.5}
                   borderRadius="full"
-                  fontSize="2xs"
+                  fontSize="xx-small"
                   fontWeight="bold"
                 >
                   {selectedLog.status}
                 </Badge>
               </Box>
               <Box>
-                <Text fontSize="2xs" color="gray.500">
+                <Text fontSize="xs" color="gray.500">
                   Security Level
                 </Text>
                 {renderSecurityLevel(selectedLog.securityLevel)}
               </Box>
               <Box>
-                <Text fontSize="2xs" color="gray.500">
+                <Text fontSize="xs" color="gray.500">
                   Timestamp
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
                   {formatTimestamp(selectedLog.metadata.timestamp)}
                 </Text>
               </Box>
