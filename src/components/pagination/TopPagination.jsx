@@ -19,6 +19,7 @@ const TopPagination = ({
 	refetching,
 	loading,
 	handlePageSize,
+	sizeMedium =false
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
@@ -74,7 +75,7 @@ const TopPagination = ({
 	};
 
 	const buttonStyle = {
-		size: 'xs',
+		size: sizeMedium ? 'xx-small':'xs',
 		borderRadius: 'lg',
 		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
 		_active: { bg: 'softGray.500' },
@@ -120,7 +121,7 @@ const TopPagination = ({
 	return (
 		<HStack
 			spacing={3}
-			p={2}
+			p={sizeMedium? 0 : 2}
 			gap='2'
 			flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
 			flexWrap='wrap'
@@ -136,7 +137,7 @@ const TopPagination = ({
 			}}
 			width='100%'
 			maxWidth='100%'
-			fontSize={'sm'}
+			fontSize={sizeMedium ? 'xx-small':'sm'}	
 		>
 			{/* First & Previous Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
@@ -166,6 +167,8 @@ const TopPagination = ({
 					color='black'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
+					py={ sizeMedium?'2': 0}
+					px={ sizeMedium?'5': 0}
 				>
 					Previous
 				</Button>
@@ -186,7 +189,7 @@ const TopPagination = ({
 					onBlur={handleGoToBlur}
 					min={1}
 					max={totalPages ?? 999999999}
-					size='sm'
+					size={sizeMedium ? 'xx-small':'sm'}
 					borderRadius='md'
 					width='5rem'
 					bg='softGray.50'
@@ -217,14 +220,14 @@ const TopPagination = ({
 			</HStack>
 
 			{/* Showing start-end of totalItems */}
-			<Text color='gray.800' fontSize={'sm'} fontWeight='medium'>
+			<Text color='gray.800' fontSize={sizeMedium ? 'xx-small':'sm'}fontWeight='medium'>
 				Showing {startIndex} - {endIndex} of {totalItems}
 			</Text>
 
 			{/* Next & Last Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
 				<Select
-					size='sm'
+					size={sizeMedium ? 'xs': "sm"}
 					w={{ base: '32' }}
 					value={itemsPerPage}
 					// value={
@@ -276,6 +279,8 @@ const TopPagination = ({
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
+					py={ sizeMedium?'2': 0}
+					px={ sizeMedium?'5': 0}
 				>
 					Next
 				</Button>
