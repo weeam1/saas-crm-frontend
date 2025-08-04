@@ -43,20 +43,20 @@ export const validationLeadSearchSchema = yup.object({
 	leadStatus: yup.string(),
 	eLeadStatus: yup.string(),
 	leadEmail: yup.string().email('Lead Email is invalid').notRequired(),
-	leadPhoneNumber: yup
-		.number()
-		.typeError('Enter a valid number')
-		.min(0, 'Lead Phone Number is invalid')
-		.max(999999999999, 'Lead Phone Number is invalid')
-		.notRequired(),
+	// leadPhoneNumber: yup
+	// 	.number()
+	// 	.typeError('Enter a valid number')
+	// 	.min(0, 'Lead Phone Number is invalid')
+	// 	.max(999999999999, 'Lead Phone Number is invalid')
+	// 	.notRequired(),
 	managerAssigned: yup.string(),
 	agentAssigned: yup.string(),
-	leadWhatsappNumber: yup
-		.number()
-		.typeError('Enter a valid number')
-		.min(0, 'Lead Whatsapp Number is invalid')
-		.max(999999999999, 'Lead Whatsapp Number is invalid')
-		.notRequired(),
+	// leadWhatsappNumber: yup
+	// 	.number()
+	// 	.typeError('Enter a valid number')
+	// 	.min(0, 'Lead Whatsapp Number is invalid')
+	// 	.max(999999999999, 'Lead Whatsapp Number is invalid')
+	// 	.notRequired(),
 	nationality: yup.string(),
 	ip: yup.string(),
 	leadAddress: yup.string(),
