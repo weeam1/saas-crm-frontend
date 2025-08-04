@@ -191,36 +191,35 @@ const LogTable = () => {
     const levelColor = getLevelColor(levelValue);
 
     return (
-      <Flex
-        borderWidth="1px"
-        borderColor="gray.300"
-        borderRadius="sm"
-        p="2px"
-        w="80%"
-        h={`calc(${boxHeight} + 4px)`}
-        alignItems="center"
-        justifyContent="center"
-        bg="white"
-        textAlign={"center"}
-      >
-        <Flex width="100%" justify="space-between" gap="2px">
-          {Array.from({ length: maxLevel }).map((_, index) => (
-            <Box
-              key={index}
-              flex="1"
-              minWidth="0"
-              h={boxHeight}
-              borderRadius="sm"
-              bg={index < levelValue ? levelColor : "gray.100"}
-              borderWidth="1px"
-              borderColor={index < levelValue ? levelColor : "gray.300"}
-            />
-          ))}
+      <Flex justifyContent="center" width="100%">
+        <Flex
+          borderWidth="1px"
+          borderColor="gray.300"
+          borderRadius="sm"
+          p="2px"
+          w="80px"
+          h={`calc(${boxHeight} + 4px)`}
+          alignItems="center"
+          bg="white"
+        >
+          <Flex width="100%" justify="space-between" gap="2px">
+            {Array.from({ length: maxLevel }).map((_, index) => (
+              <Box
+                key={index}
+                flex="1"
+                minWidth="0"
+                h={boxHeight}
+                borderRadius="sm"
+                bg={index < levelValue ? levelColor : "gray.100"}
+                borderWidth="1px"
+                borderColor={index < levelValue ? levelColor : "gray.300"}
+              />
+            ))}
+          </Flex>
         </Flex>
       </Flex>
     );
   };
-
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
     setIsFilterOpen(false);
@@ -494,14 +493,13 @@ const LogTable = () => {
                       {transformedLog.metadata.ip}
                     </Td>
                     <Td
-                      py={2}
-                      px={4}
+                      p={0}
                       fontSize="xx-small"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
-                      textAlign={"center"}
+                      textAlign="center"
                     >
                       {renderSecurityLevel(transformedLog.securityLevel)}
                     </Td>
