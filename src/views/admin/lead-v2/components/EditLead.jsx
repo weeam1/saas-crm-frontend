@@ -156,7 +156,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			dispatch(addOrUpdateLead(res));
 			createUserLog({
 				userId: user?._id,
-				action: 'Update',
+				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: leadData._id,
 				status: 'success',
@@ -164,7 +164,19 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data.message ||
+				`Lead ${leadData?.leadName || ''} failed to update.`;
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE_FAIL',
+				entity: 'Lead',
+				entityId: leadData._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

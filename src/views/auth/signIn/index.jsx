@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  Heading,
-  Icon,
-  Image,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  InputRightElement,
-  Text,
-  useColorModeValue,
+	Box,
+	Button,
+	Flex,
+	FormControl,
+	FormErrorMessage,
+	Heading,
+	Icon,
+	Image,
+	Input,
+	InputGroup,
+	InputLeftElement,
+	InputRightElement,
+	Text,
+	useColorModeValue,
 } from '@chakra-ui/react';
 import { EmailIcon, LockIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { toast } from 'react-toastify';
@@ -30,38 +30,41 @@ import webSocketService from 'services/WebSocketService';
 import { getSmartTimezone } from 'hooks/useTimezone';
 import Logo_CRM from 'assets/logo-crm.png';
 import DefaultAuth from 'layouts/auth/Default';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 function SignIn() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [addAgentModal, setAddAgentModal] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+	const [addAgentModal, setAddAgentModal] = useState(false);
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
-  const {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    resetForm,
-  } = useFormik({
-    initialValues: { username: '', password: '' },
-    validationSchema: loginSchema,
-    onSubmit: () => login(),
-  });
+	const { createUserLog } = useUserActivityLog();
 
-  useEffect(() => {
-    dispatch(fetchImage('?isActive=true'));
-  }, [dispatch]);
+	const {
+		values,
+		errors,
+		touched,
+		handleChange,
+		handleBlur,
+		handleSubmit,
+		resetForm,
+	} = useFormik({
+		initialValues: { username: '', password: '' },
+		validationSchema: loginSchema,
+		onSubmit: () => login(),
+	});
 
-  useEffect(() => {
-    getSmartTimezone();
-  }, []);
+	useEffect(() => {
+		dispatch(fetchImage('?isActive=true'));
+	}, [dispatch]);
 
-  // const login = async () => {
+	useEffect(() => {
+		getSmartTimezone();
+	}, []);
+
+	// const login = async () => {
 	// 	try {
 	// 		setIsLoding(true);
 	// 		let response = await postApi("api/user/login", values, true);
@@ -82,123 +85,162 @@ function SignIn() {
 	// 	}
 	// };
 
-  const login = async () => {
-    try {
-      setIsLoading(true);
-      const response = await postApi('api/user/login', {
-        username: values?.username?.trim().toLowerCase(),
-        password: values.password,
-      }, true);
+	const login = async () => {
+		try {
+			setIsLoading(true);
+			const response = await postApi(
+				'api/user/login',
+				{
+					username: values?.username?.trim().toLowerCase(),
+					password: values.password,
+				},
+				true
+			);
 
-      if (response?.status === 200) {
-        if (!response.data.user?.isActive) {
-          toast.error('Your account is not active. Please contact support.');
-          return;
-        }
-        toast.success('Login Successfully!');
-        resetForm();
-        dispatch(setUser(response.data.user));
-        webSocketService.connect(response.data.user._id);
-        navigate('/superAdmin');
-      } else {
-        toast.error(response.response.data?.error);
-      }
-    } catch (e) {
-      console.log(e);
-      toast.error('An error occurred during login.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+			if (response?.status === 200) {
+				if (!response.data.user?.isActive) {
+					toast.error('Your account is not active. Please contact support.');
+					return;
+				}
+				toast.success('Login Successfully!');
+				resetForm();
+				dispatch(setUser(response.data.user));
+				webSocketService.connect(response.data.user._id);
+				navigate('/superAdmin');
 
-  return (
-    <DefaultAuth>
-      <Flex w='100%' maxW='md' p={10} direction='column' align='center'>
-        <Heading fontSize='3xl' color='#b79045' mb={4} display='flex' gap={2}>
-          <Image src={Logo_CRM} alt='Weeam Logo' w='40px' h='40px' />
-          Weeam
-        </Heading>
+				// create a user login log
+				createUserLog({
+					userId: response?.data?.user?._id,
+					action: 'LOGIN_SUCCESS',
+					entity: 'Auth',
+					status: 'success',
+					message: `${values.username || ''} login successfully`,
+				});
+			} else {
+				toast.error(response?.response?.data?.error);
 
-        <Text fontSize='2xl' fontWeight='semibold' color='gray.800' mb={2}>
-          Sign In Access
-        </Text>
-        <Text fontSize='sm' color='gray.500' maxW='md' mb={6}>
-          You must become a member to login and access the entire site.
-        </Text>
+				createUserLog({
+					action: 'LOGIN_FAIL',
+					entity: 'Auth',
+					status: 'fail',
+					message:
+						response?.response?.data?.error ||
+						`Login failed for ${values.username}`,
+				});
+			}
+		} catch (e) {
+			console.log(e);
 
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <FormControl isInvalid={errors.username && touched.username} mb={4}>
-            <InputGroup>
-              <InputLeftElement><EmailIcon color='gray.400' /></InputLeftElement>
-              <Input
-                name='username'
-                placeholder='Enter email address'
-                value={values.username}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                _focus={{ borderColor: 'brand.500' }}
-              />
-            </InputGroup>
-            <FormErrorMessage>{errors.username}</FormErrorMessage>
-          </FormControl>
+			const errorMsg =
+				e?.response?.data?.message || `Login failed for ${values.username}`;
+			toast.error(errorMsg);
 
-          <FormControl isInvalid={errors.password && touched.password} mb={4}>
-            <InputGroup>
-              <InputLeftElement><LockIcon color='gray.400' /></InputLeftElement>
-              <Input
-                name='password'
-                type={showPassword ? 'text' : 'password'}
-                placeholder='Enter password'
-                value={values.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                 _focus={{ borderColor: 'brand.500' }}
-              />
-              <InputRightElement>
-                <Icon
-                  as={showPassword ? ViewOffIcon : ViewIcon}
-                  onClick={() => setShowPassword(!showPassword)}
-                  _hover={{ cursor: 'pointer' }}
-                  color='gray.500'
-                />
-              </InputRightElement>
-            </InputGroup>
-            <FormErrorMessage>{errors.password}</FormErrorMessage>
-          </FormControl>
+			createUserLog({
+				action: 'LOGIN_FAIL',
+				entity: 'Auth',
+				status: 'fail',
+				message: errorMsg,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-          <Button
-            type='submit'
-            w='full'
-            colorScheme='brand'
-            isDisabled={isLoading}
-            color='white'
-            borderRadius='md'
-            mb={2}
-          >
-            {isLoading ? <Spinner /> : 'SIGN IN'}
-          </Button>
-        </form>
+	return (
+		<DefaultAuth>
+			<Flex w='100%' maxW='md' p={10} direction='column' align='center'>
+				<Heading fontSize='3xl' color='#b79045' mb={4} display='flex' gap={2}>
+					<Image src={Logo_CRM} alt='Weeam Logo' w='40px' h='40px' />
+					Weeam
+				</Heading>
 
-        <Text mt={2} fontSize='sm' color='gray.500'>
-          OR
-        </Text>
+				<Text fontSize='2xl' fontWeight='semibold' color='gray.800' mb={2}>
+					Sign In Access
+				</Text>
+				<Text fontSize='sm' color='gray.500' maxW='md' mb={6}>
+					You must become a member to login and access the entire site.
+				</Text>
 
-        <Button
-          onClick={() => setAddAgentModal(true)}
-          variant='ghost'
-          fontSize='sm'
-          fontWeight='500'
-          mt={2}
-        >
-          Signup as an agent
-        </Button>
+				<form onSubmit={handleSubmit} style={{ width: '100%' }}>
+					<FormControl isInvalid={errors.username && touched.username} mb={4}>
+						<InputGroup>
+							<InputLeftElement>
+								<EmailIcon color='gray.400' />
+							</InputLeftElement>
+							<Input
+								name='username'
+								placeholder='Enter email address'
+								value={values.username}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								_focus={{ borderColor: 'brand.500' }}
+							/>
+						</InputGroup>
+						<FormErrorMessage>{errors.username}</FormErrorMessage>
+					</FormControl>
 
-        {addAgentModal && (
-          <AddAgent onClose={() => setAddAgentModal(false)} isOpen={addAgentModal} />
-        )}
-      </Flex>
-    </DefaultAuth>
-  );
+					<FormControl isInvalid={errors.password && touched.password} mb={4}>
+						<InputGroup>
+							<InputLeftElement>
+								<LockIcon color='gray.400' />
+							</InputLeftElement>
+							<Input
+								name='password'
+								type={showPassword ? 'text' : 'password'}
+								placeholder='Enter password'
+								value={values.password}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								_focus={{ borderColor: 'brand.500' }}
+							/>
+							<InputRightElement>
+								<Icon
+									as={showPassword ? ViewOffIcon : ViewIcon}
+									onClick={() => setShowPassword(!showPassword)}
+									_hover={{ cursor: 'pointer' }}
+									color='gray.500'
+								/>
+							</InputRightElement>
+						</InputGroup>
+						<FormErrorMessage>{errors.password}</FormErrorMessage>
+					</FormControl>
+
+					<Button
+						type='submit'
+						w='full'
+						colorScheme='brand'
+						isDisabled={isLoading}
+						color='white'
+						borderRadius='md'
+						mb={2}
+					>
+						{isLoading ? <Spinner /> : 'SIGN IN'}
+					</Button>
+				</form>
+
+				<Text mt={2} fontSize='sm' color='gray.500'>
+					OR
+				</Text>
+
+				<Button
+					onClick={() => setAddAgentModal(true)}
+					variant='ghost'
+					fontSize='sm'
+					fontWeight='500'
+					mt={2}
+				>
+					Signup as an agent
+				</Button>
+
+				{addAgentModal && (
+					<AddAgent
+						onClose={() => setAddAgentModal(false)}
+						isOpen={addAgentModal}
+					/>
+				)}
+			</Flex>
+		</DefaultAuth>
+	);
 }
 
 export default SignIn;
