@@ -107,6 +107,22 @@ class SocketService {
 	}
 
 	/**
+	 * Register user with the server
+	 *  Registration payload
+	 */
+	createUserActivityLog(payload) {
+		if (this.socket?.connected) {
+			this.socket.emit('user_activity', payload);
+		} else {
+			if (!this.connectionPromise) {
+				console.warn(
+					'Socket not connected, user activity log will be attempted when connection is established'
+				);
+			}
+		}
+	}
+
+	/**
 	 * Disconnect socket
 	 */
 	disconnect() {
