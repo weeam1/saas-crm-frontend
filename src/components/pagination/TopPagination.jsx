@@ -279,7 +279,7 @@ const TopPagination = ({
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
-						py={ sizeMedium?'2': 0}
+					py={ sizeMedium?'2': 0}
 					px={ sizeMedium?'5': 0}
 				>
 					Next

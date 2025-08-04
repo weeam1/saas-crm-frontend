@@ -59,7 +59,7 @@ const statusOptions = [
 
 const entityOptions = [
   { label: "Lead", value: "Lead" },
-  { label: "Contact", value: "Contact" },
+  { label: "Task", value: "Contact" },
   { label: "Account", value: "Account" },
   // Add more entities as needed
 ];
@@ -436,7 +436,7 @@ const LogTable = () => {
                     }}
                     cursor="pointer"
                   >
-                          <Td
+                    <Td
                       py={2}
                       px={4}
                       fontSize="xx-small"

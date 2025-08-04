@@ -147,36 +147,18 @@ const LogDetailsDrawer = ({
                 </Box>
                 <Box>
                   <Text fontSize="2xs" color="gray.500">
-                    Device
+                    City
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.device}
+                    {selectedLog.metadata.city}
                   </Text>
                 </Box>
                 <Box>
                   <Text fontSize="2xs" color="gray.500">
-                    Browser
+                    country
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.browser}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="2xs" color="gray.500">
-                    Location
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.city},{" "}
-                    {selectedLog.metadata.region},{" "}
                     {selectedLog.metadata.country}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="2xs" color="gray.500">
-                    Timezone
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.timezone}
                   </Text>
                 </Box>
               </SimpleGrid>

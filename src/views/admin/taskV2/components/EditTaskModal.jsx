@@ -24,6 +24,7 @@ import CustomDatePicker from "components/datetime/CustomDatePicker";
 import { toast } from "react-toastify";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 import moment from "moment";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -46,6 +47,8 @@ const EditTaskModal = ({
   const [updateTask] = useUpdateItemMutation();
   const [openCalendar, setOpenCalendar] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const { createUserLog } = useUserActivityLog();
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -73,16 +76,33 @@ const EditTaskModal = ({
           due_date: toUTCString(values.due_date),
         };
 
-        await updateTask({
+        const response = await updateTask({
           path: `/taskV2/${task._id}`,
           body: payload,
         }).unwrap();
+
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "Task",
+          entityId: response._id,
+          status: "success",
+          message: `User "${user?.fullName}" successfully updated the task titled "${response?.title || "Untitled"}".`,
+        });
 
         toast.success("Task updated successfully");
         onSuccess();
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error updating task");
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "Task",
+          entityId: task?._id || null,
+          status: "fail",
+          message: `User "${user?.fullName}" attempted to update the task titled "${task?.title || "Untitled"}" but the operation failed.`,
+        });
       } finally {
         setSubmitting(false);
       }
@@ -140,7 +160,11 @@ const EditTaskModal = ({
                 <FormLabel>Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.assigned_to || null}
-                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
+                  users={
+                    user?.roles[0]?.roleName === "Manager"
+                      ? users
+                      : usersData?.doc || []
+                  }
                   onSelectUser={handleSelectUser}
                 />
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>
@@ -156,7 +180,9 @@ const EditTaskModal = ({
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="Task title"
-                  focusBorderColor={formik.errors.title ? "red.500" : "brand.400"}
+                  focusBorderColor={
+                    formik.errors.title ? "red.500" : "brand.400"
+                  }
                 />
                 <FormErrorMessage>{formik.errors.title}</FormErrorMessage>
               </FormControl>
@@ -180,11 +206,7 @@ const EditTaskModal = ({
                 <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
               </FormControl>
 
-              <Flex
-                gap={4}
-                w="100%"
-                direction={{ base: "column", md: "row" }}
-              >
+              <Flex gap={4} w="100%" direction={{ base: "column", md: "row" }}>
                 <FormControl
                   isInvalid={formik.errors.due_date && formik.touched.due_date}
                   flex={1}
@@ -201,9 +223,7 @@ const EditTaskModal = ({
                     placeholder="Select due date"
                     errors={formik.touched.due_date && formik.errors.due_date}
                   />
-                  <FormErrorMessage>
-                    {formik.errors.due_date}
-                  </FormErrorMessage>
+                  <FormErrorMessage>{formik.errors.due_date}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl
