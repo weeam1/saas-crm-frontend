@@ -180,11 +180,11 @@ const AdvancedFilter = ({
                   </Select>
                 </FormControl>
 
-                {/* <FormControl>
-                  <FormLabel>Entity</FormLabel>
+                <FormControl>
+                  <FormLabel>Module</FormLabel>
                   <Select
                     name="entity"
-                    placeholder="Select entity"
+                    placeholder="Select module"
                     value={formik.values.entity}
                     onChange={formik.handleChange}
                     focusBorderColor="brand.500"
@@ -195,7 +195,7 @@ const AdvancedFilter = ({
                       </option>
                     ))}
                   </Select>
-                </FormControl> */}
+                </FormControl>
               </SimpleGrid>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">

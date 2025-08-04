@@ -5,7 +5,7 @@ import {
 	MdInsertChartOutlined,
 	MdLeaderboard,
 	MdLock,
-	MdAssessment
+	MdOutlineLaptopMac 
 } from 'react-icons/md';
 
 import React from 'react';
@@ -846,7 +846,7 @@ const routes = [
 		path: '/system-log',
 		icon: (
 			<Icon
-				as={MdAssessment}
+				as={MdOutlineLaptopMac }
 				width='20px'
 				height='20px'
 				color='inherit'

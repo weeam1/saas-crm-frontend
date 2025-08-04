@@ -97,10 +97,10 @@ const EditTaskModal = ({
         toast.error(error.data?.message || "Error updating task");
         createUserLog({
           userId: user?._id,
-          action: "UPDATE",
+          action: "UPDATE_FAIL",
           entity: "Task",
           entityId: task?._id || null,
-          status: "fail",
+          status: error?.status === '500' ? 'error' : 'fail',
           message: `User "${user?.fullName}" attempted to update the task titled "${task?.title || "Untitled"}" but the operation failed.`,
         });
       } finally {

@@ -58,9 +58,21 @@ const statusOptions = [
 ];
 
 const entityOptions = [
+  { label: "Auth", value: "Auth" },
   { label: "Lead", value: "Lead" },
-  { label: "Task", value: "Contact" },
-  { label: "Account", value: "Account" },
+  { label: "Leads Pool", value: "Lead-pool" },
+  { label: "Annoucement", value: "Annoucement" },
+  { label: "Hiring", value: "Hiring" },
+  { label: "Attendence", value: "Attendence" },
+  { label: "Invoice", value: "Invoice" },
+  { label: "Expense", value: "Expense" },
+  { label: "Task", value: "Task" },
+  { label: "Call Log", value: "Call-log" },
+  { label: "Listing", value: "Listing" },
+  { label: "Survey", value: "Survey" },
+  { label: "Whatsapp", value: "Whatsapp" },
+  { label: "Reports", value: "Reports" },
+
   // Add more entities as needed
 ];
 
@@ -307,7 +319,7 @@ const LogTable = () => {
               >
                 <Text fontSize="xx-small">SR.No</Text>
               </Th>
-               <Th
+              <Th
                 color="white"
                 fontSize="xx-small"
                 borderRightWidth="1px"
@@ -449,7 +461,7 @@ const LogTable = () => {
                       whiteSpace="nowrap"
                       textAlign={"center"}
                     >
-                      {index+1}
+                      {index + 1}
                     </Td>
                     <Td
                       py={2}
