@@ -171,7 +171,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE_FAIL',
+				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: leadData._id,
 				status: error?.status === '500' ? 'error' : 'fail',

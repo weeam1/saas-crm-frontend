@@ -155,7 +155,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			toast.error(errorMsg);
 			createUserLog({
 				userId: user?._id,
-				action: 'CREATE_FAIL',
+				action: 'CREATE',
 				entity: 'Lead',
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,

@@ -111,21 +111,21 @@ function SignIn() {
 				// create a user login log
 				createUserLog({
 					userId: response?.data?.user?._id,
-					action: 'LOGIN_SUCCESS',
+					action: 'LOGIN',
 					entity: 'Auth',
 					status: 'success',
-					message: `${values.username || ''} login successfully`,
+					message: `User logged in ${values.username || ''}`,
 				});
 			} else {
 				toast.error(response?.response?.data?.error);
 
 				createUserLog({
-					action: 'LOGIN_FAIL',
+					action: 'LOGIN',
 					entity: 'Auth',
 					status: 'fail',
 					message:
 						response?.response?.data?.error ||
-						`Login failed for ${values.username}`,
+						`User Login failed for ${values.username}`,
 				});
 			}
 		} catch (e) {

@@ -71,7 +71,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 			createUserLog({
 				userId: user?._id,
-				action: 'VIEW_FAIL',
+				action: 'VIEW',
 				entity: 'Lead',
 				entityId: leadId,
 				status: err?.status === '500' ? 'error' : 'fail',
