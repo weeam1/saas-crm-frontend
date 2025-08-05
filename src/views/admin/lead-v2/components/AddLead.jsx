@@ -21,9 +21,11 @@ import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import PhoneField from 'components/fields/PhoneField';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const AddLead = ({ isOpen, onClose, size }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
+
 	const initialValues = {
 		leadName: '',
 		leadWhatsappNumber: '',
