@@ -35,16 +35,21 @@ import OfferLetterEditor from './OfferLetterEditor';
 import { jobTypes } from 'utils/options';
 import { toUTCString } from 'utils/helpers';
 import { buttonStyle } from 'utils/btn';
+import EditableSelect from 'components/shared/EditableSelect';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
 	jobType: Yup.string().required('Job type is required'),
-	location: Yup.string().required('Location is required'),
+	location: Yup.string()
+		.nullable()
+		.min(1, 'Location is required')
+		.required('Location is required'),
 	position: Yup.string().required('Position is required'),
 	amount: Yup.number().when('jobType', {
-		is: (jobType) => jobType === 'Salary',
+		is: (jobType) => ['Commission', 'SalaryPlusCommission'].includes(jobType),
 		then: (schema) =>
 			schema
+				.nullable()
 				.typeError('Amount must be a number')
 				.required('Amount is required')
 				.min(1, 'Amount must be at least 1'),
@@ -103,6 +108,13 @@ const OfferLetter = () => {
 			{ refetchOnMountOrArgChange: true }
 		);
 
+	const { data: agencies, isLoading: agencyLoading } = useFetchItemsQuery(
+		{
+			path: `/agencies`,
+		},
+		{ refetchOnMountOrArgChange: true }
+	);
+
 	useEffect(() => {
 		if (interview?.doc) {
 			const data = interview?.doc;
@@ -112,7 +124,7 @@ const OfferLetter = () => {
 				leadInterviewerName: data.leadInterviewer.fullName || '',
 				candidateName: data.candidate.name || '',
 				jobType: data.jobType || '',
-				location: data.location || '',
+				location: agencies?.doc[0]?.location || '',
 				position: data.position || '',
 				amount: data?.amount || '',
 				incentive: data?.incentive || '',
@@ -129,6 +141,8 @@ const OfferLetter = () => {
 			}
 		}
 	}, [interview, offerType]);
+
+	console.log({ offerDetails });
 
 	const [createItemMutation, { isLoading: sendingOffer }] =
 		useCreateItemMutation();
@@ -184,7 +198,7 @@ const OfferLetter = () => {
 
 	const navigate = useNavigate();
 
-	return isLoading || positionsLoading ? (
+	return isLoading || positionsLoading || agencyLoading ? (
 		<Loader />
 	) : offerDetails && interview?.doc ? (
 		<Box>
@@ -384,7 +398,7 @@ const OfferLetter = () => {
 									</FormControl>
 
 									<GridItem colSpan={{ base: 1, md: 2 }}>
-										<CustomInput
+										{/* <CustomInput
 											label='Location'
 											name='location'
 											placeholder={offerDetails.location}
@@ -394,6 +408,31 @@ const OfferLetter = () => {
 												setFieldValue('location', e.target.value);
 												handleFieldChange('location', e.target.value);
 											}}
+										/> */}
+										<EditableSelect
+											label='Location'
+											name='location'
+											placeholder={
+												agencies?.doc?.[0]?.location ||
+												'Select or enter location'
+											}
+											defaultValue={
+												agencies?.doc?.[0]?.location || offerDetails?.location
+											}
+											isInvalid={errors.location && touched.location}
+											onChange={(e) => {
+												setFieldValue('location', e.target.value);
+												handleFieldChange('location', e.target.value);
+											}}
+											options={
+												Array.isArray(agencies?.doc)
+													? agencies.doc
+															.map((a) => a?.location)
+															.filter(Boolean)
+															.filter((loc, i, arr) => arr.indexOf(loc) === i) // Remove duplicates
+															.map((loc) => ({ label: loc, value: loc }))
+													: []
+											}
 										/>
 									</GridItem>
 
