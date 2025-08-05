@@ -90,9 +90,16 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				// send lead notification
 				sendLeadNotification(user?._id, agentAssignedValue, lead);
 
-				const assigendAgent = agents?.find(
-					(agent) => agent._id === agentAssignedValue
-				);
+				let message;
+
+				if (agentAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
+				} else {
+					const agent = agents?.find(
+						(agent) => agent._id === agentAssignedValue
+					);
+					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
+				}
 
 				// update user activity log
 				createUserLog({
@@ -101,7 +108,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 					entity: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
-					message: `Lead '${lead?.leadName || ''}' assigned to Agent ${assigendAgent?.fullName || 'N/A'} by ${user?.fullName}.`,
+					message,
 				});
 			}
 		} catch (error) {

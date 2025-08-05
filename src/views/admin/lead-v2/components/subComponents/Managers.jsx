@@ -78,9 +78,17 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				// send lead notification
 				sendLeadNotification(user?._id, managerAssignedValue, lead);
 
-				const manager = tree?.managers?.find(
-					(user) => user._id === managerAssignedValue
-				);
+				let message;
+
+				if (managerAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
+				} else {
+					const manager = tree?.managers?.find(
+						(user) => user._id === managerAssignedValue
+					);
+
+					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
+				}
 
 				// update user activity log
 				createUserLog({
@@ -89,7 +97,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 					entity: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
-					message: `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName || 'N/A'} by ${user?.fullName}.`,
+					message,
 				});
 			}
 		} catch (error) {
