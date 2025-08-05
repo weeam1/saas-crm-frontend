@@ -17,7 +17,7 @@ import {
   useBreakpointValue,
   useColorModeValue,
   Flex,
-  IconButton
+  IconButton,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { FiX } from "react-icons/fi";
@@ -35,7 +35,7 @@ const AdvancedFilter = ({
   actionOptions,
   levelOptions,
   entityOptions,
-  usersData
+  usersData,
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
   const [openCalendar, setOpenCalendar] = React.useState(null);
@@ -53,7 +53,7 @@ const AdvancedFilter = ({
       to: filters.to || null,
       entity: filters.entity || "",
       action: filters.action || "",
-      securityLevel: filters.securityLevel || ""
+      securityLevel: filters.securityLevel || "",
     },
     onSubmit: (values) => {
       applyFilters(values);
@@ -97,14 +97,16 @@ const AdvancedFilter = ({
         pb={4}
         borderRadius={["none", "lg"]}
       >
-        <ModalHeader 
-          bg={headerBg} 
-          color="white" 
+        <ModalHeader
+          bg={headerBg}
+          color="white"
           borderTopRadius={["none", "lg"]}
           py={3}
         >
           <Flex justify="space-between" align="center">
-            <Text fontSize="md" fontWeight="semibold">Advanced Filters</Text>
+            <Text fontSize="md" fontWeight="semibold">
+              Advanced Filters
+            </Text>
             <IconButton
               icon={<FiX />}
               variant="ghost"
@@ -121,7 +123,9 @@ const AdvancedFilter = ({
             <VStack spacing={5} maxH="65vh" overflowY="auto" pr={2}>
               {/* User Selection */}
               <FormControl width="100%">
-                <FormLabel mb={1} fontSize="sm" fontWeight="medium">User</FormLabel>
+                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                  User
+                </FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.userId}
                   users={usersData?.doc || []}
@@ -135,40 +139,49 @@ const AdvancedFilter = ({
                   Date Range
                 </Text>
                 <SimpleGrid columns={colSpan} gap={4}>
-                  <FormControl>
-                    <FormLabel mb={1} fontSize="sm" fontWeight="medium">From Date</FormLabel>
-                    <CustomDatePicker
-                      selectedDate={formik.values.from}
-                      handleDateChange={(date) =>
-                        formik.setFieldValue("from", date)
-                      }
-                      placeholder="Select from date"
-                      maxDate={formik.values.to || new Date()}
-                      isCalendarOpen={openCalendar === "from"}
-                      toggleCalendar={() => toggleCalendar("from")}
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel mb={1} fontSize="sm" fontWeight="medium">To Date</FormLabel>
-                    <CustomDatePicker
-                      selectedDate={formik.values.to}
-                      handleDateChange={(date) =>
-                        formik.setFieldValue("to", date)
-                      }
-                      placeholder="Select to date"
-                      minDate={formik.values.from}
-                      maxDate={new Date()}
-                      isCalendarOpen={openCalendar === "to"}
-                      toggleCalendar={() => toggleCalendar("to")}
-                    />
-                  </FormControl>
+                  <VStack width="100%" alignItems="flex-end" height={"100%"}>
+                    <FormControl>
+                      <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                        From Date
+                      </FormLabel>
+                      <CustomDatePicker
+                        selectedDate={formik.values.from}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("from", date)
+                        }
+                        placeholder="Select from date"
+                        maxDate={formik.values.to || new Date()}
+                        isCalendarOpen={openCalendar === "from"}
+                        toggleCalendar={() => toggleCalendar("from")}
+                      />
+                    </FormControl>
+                  </VStack>
+                  <VStack width="100%" alignItems="flex-end" height={"100%"}>
+                    <FormControl>
+                      <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                        To Date
+                      </FormLabel>
+                      <CustomDatePicker
+                        selectedDate={formik.values.to}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("to", date)
+                        }
+                        placeholder="Select to date"
+                        minDate={formik.values.from}
+                        maxDate={new Date()}
+                        isCalendarOpen={openCalendar === "to"}
+                        toggleCalendar={() => toggleCalendar("to")}
+                      />
+                    </FormControl>
+                  </VStack>
                 </SimpleGrid>
               </Box>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Status</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Status
+                  </FormLabel>
                   <Select
                     name="status"
                     placeholder="Select status"
@@ -186,7 +199,9 @@ const AdvancedFilter = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Module</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Module
+                  </FormLabel>
                   <Select
                     name="entity"
                     placeholder="Select module"
@@ -206,7 +221,9 @@ const AdvancedFilter = ({
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Action</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Action
+                  </FormLabel>
                   <Select
                     name="action"
                     placeholder="Select action"
@@ -224,7 +241,9 @@ const AdvancedFilter = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Security Level</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Security Level
+                  </FormLabel>
                   <Select
                     name="securityLevel"
                     placeholder="Select level"

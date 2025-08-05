@@ -25,7 +25,7 @@ import LogDetailsDrawer from "./component/LogDetailsDrawer";
 import AdvancedFilter from "./component/AdvancedFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import TableLoading from "components/loading/TableLoading";
-import { formatPostDate } from 'utils/helpers';
+import { formatPostDate } from "utils/helpers";
 
 const grayColors = {
   primary: "#49505cff",
@@ -56,7 +56,7 @@ const levels = {
 const statusOptions = [
   { label: "Success", value: "success" },
   { label: "Fail", value: "fail" },
-  { label: "Pending", value: "pending" },
+  { label: "Error", value: "error" },
 ];
 
 const entityOptions = [
@@ -86,7 +86,6 @@ const levelOptions = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 const MotionTr = motion(Tr);
-const MotionText = motion(Text);
 
 const LogTable = () => {
   const [selectedLog, setSelectedLog] = useState(null);
@@ -132,39 +131,45 @@ const LogTable = () => {
     return params;
   };
 
-  const { data, isLoading, isFetching, error, refetch } = useFetchItemsQuery({
-    path: "/logs/user_activities",
-    params: buildQueryParams(),
-  });
+  const { data, isLoading, isFetching, error } = useFetchItemsQuery(
+    {
+      path: "/logs/user_activities",
+      params: buildQueryParams(),
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
-  const { data: usersData } = useFetchItemsQuery({
-    path: "/v2/user/search_users",
-  });
+  const { data: usersData } = useFetchItemsQuery(
+    {
+      path: "/v2/user/search_users",
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   useEffect(() => {
     if (data) {
       setTotalPages(data.totalPages || 1);
-      setTotalItems(data.results || 0);
+      setTotalItems(data.total || 0);
       if (data.total !== displayCount) {
-        const duration = 1000; 
+        const duration = 1000;
         const start = displayCount;
         const end = data.total;
         const startTime = performance.now();
-        
+
         const animateCount = (currentTime) => {
           const elapsedTime = currentTime - startTime;
           const progress = Math.min(elapsedTime / duration, 1);
           const currentCount = Math.floor(start + (end - start) * progress);
-          
+
           setDisplayCount(currentCount);
-          
+
           if (progress < 1) {
             requestAnimationFrame(animateCount);
           } else {
             setDisplayCount(end);
           }
         };
-        
+
         requestAnimationFrame(animateCount);
       }
     }
@@ -301,10 +306,10 @@ const LogTable = () => {
     <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
         <Heading as="h3" size="md" fontWeight="bold" color={grayColors.primary}>
-          Log ({displayCount})
+          System Log ({displayCount})
         </Heading>
       </Flex>
-      
+
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -351,7 +356,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-               fontSize="xs"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -362,7 +367,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-               fontSize="xs"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -374,7 +379,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-               fontSize="xs"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -386,7 +391,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-               fontSize="xs"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -496,7 +501,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                  fontSize="xs"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -508,15 +513,13 @@ const LogTable = () => {
                     >
                       <Flex align="center">
                         <Icon as={FiUser} mr={2} color={grayColors.primary} />
-                        <Text fontSize="xs">
-                          {transformedLog.userName}
-                        </Text>
+                        <Text fontSize="xs">{transformedLog.userName}</Text>
                       </Flex>
                     </Td>
                     <Td
                       py={2}
                       px={4}
-                     fontSize="xs"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -531,7 +534,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                    fontSize="xs"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -565,7 +568,7 @@ const LogTable = () => {
                     </Td>
                     <Td
                       p={0}
-                     fontSize="xs"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -599,7 +602,7 @@ const LogTable = () => {
                       whiteSpace="nowrap"
                       textAlign={"center"}
                     >
-                        {formatPostDate( transformedLog.metadata.timestamp)}
+                      {formatPostDate(transformedLog.metadata.timestamp)}
                     </Td>
                   </MotionTr>
                 );
