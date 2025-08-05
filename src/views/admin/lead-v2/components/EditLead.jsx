@@ -160,7 +160,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 				entity: 'Lead',
 				entityId: leadData._id,
 				status: 'success',
-				message: `Lead ${res?.leadName || ''} updated successfully`,
+				message: `${res?.leadName || ''} Lead is updated successfully`,
 			});
 		} catch (error) {
 			console.error(error);

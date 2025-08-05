@@ -148,7 +148,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				entity: 'Lead',
 				entityId: res?._id || null,
 				status: 'success',
-				message: `Lead ${res?.leadName || ''} created successfully`,
+				message: `${res?.leadName || ''} Lead is created successfully`,
 			});
 		} catch (error) {
 			console.error(error);
