@@ -37,9 +37,9 @@ const AdvancedFilter = ({
   entityOptions,
   usersData,
 }) => {
-  const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
   const [openCalendar, setOpenCalendar] = React.useState(null);
   const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -92,7 +92,7 @@ const AdvancedFilter = ({
     <Modal isOpen={isOpen} onClose={onClose} size={["full", "xl", "2xl"]} isCentered>
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 0, md: 4 }}
+        mx={{ base: 1, md: 4 }}
         maxW={["100%", "600px", "800px"]}
         pb={4}
         borderRadius={["none", "lg"]}
@@ -119,18 +119,21 @@ const AdvancedFilter = ({
           </Flex>
         </ModalHeader>
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody px={4} py={4}>
+          <ModalBody px={{base:2, lg: 4}} py={4}>
             <VStack spacing={5} maxH="65vh" overflowY="auto" pr={2}>
               {/* User Selection */}
               <FormControl width="100%">
                 <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                   User
                 </FormLabel>
-                <SearchUsers
-                  selectedUserId={formik.values.userId}
-                  users={usersData?.doc || []}
-                  onSelectUser={handleSelectUser}
-                />
+                <Box position="relative" zIndex="dropdown">
+                  <SearchUsers
+                    selectedUserId={formik.values.userId}
+                    users={usersData?.doc || []}
+                    onSelectUser={handleSelectUser}
+                    isMobile={isMobile}
+                  />
+                </Box>
               </FormControl>
 
               {/* Date Range Section */}
@@ -138,138 +141,156 @@ const AdvancedFilter = ({
                 <Text fontSize="sm" fontWeight="semibold" mb={3}>
                   Date Range
                 </Text>
-                <SimpleGrid columns={colSpan} gap={4}>
-                  <VStack width="100%" alignItems="flex-end" height={"100%"}>
+                <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4}>
+                  <VStack width="100%" alignItems="flex-start">
                     <FormControl>
                       <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                         From Date
                       </FormLabel>
-                      <CustomDatePicker
-                        selectedDate={formik.values.from}
-                        handleDateChange={(date) =>
-                          formik.setFieldValue("from", date)
-                        }
-                        placeholder="Select from date"
-                        maxDate={formik.values.to || new Date()}
-                        isCalendarOpen={openCalendar === "from"}
-                        toggleCalendar={() => toggleCalendar("from")}
-                      />
+                        <CustomDatePicker
+                          selectedDate={formik.values.from}
+                          handleDateChange={(date) =>
+                            formik.setFieldValue("from", date)
+                          }
+                          placeholder="Select from date"
+                          maxDate={formik.values.to || new Date()}
+                          isCalendarOpen={openCalendar === "from"}
+                          toggleCalendar={() => toggleCalendar("from")}
+                          isMobile={isMobile}
+                        />
                     </FormControl>
                   </VStack>
-                  <VStack width="100%" alignItems="flex-end" height={"100%"}>
+                  <VStack width="100%" alignItems="flex-start">
                     <FormControl>
                       <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                         To Date
                       </FormLabel>
-                      <CustomDatePicker
-                        selectedDate={formik.values.to}
-                        handleDateChange={(date) =>
-                          formik.setFieldValue("to", date)
-                        }
-                        placeholder="Select to date"
-                        minDate={formik.values.from}
-                        maxDate={new Date()}
-                        isCalendarOpen={openCalendar === "to"}
-                        toggleCalendar={() => toggleCalendar("to")}
-                      />
+                        <CustomDatePicker
+                          selectedDate={formik.values.to}
+                          handleDateChange={(date) =>
+                            formik.setFieldValue("to", date)
+                          }
+                          placeholder="Select to date"
+                          minDate={formik.values.from}
+                          maxDate={new Date()}
+                          isCalendarOpen={openCalendar === "to"}
+                          toggleCalendar={() => toggleCalendar("to")}
+                          isMobile={isMobile}
+                        />
                     </FormControl>
                   </VStack>
                 </SimpleGrid>
               </Box>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Status
                   </FormLabel>
-                  <Select
-                    name="status"
-                    placeholder="Select status"
-                    value={formik.values.status}
-                    onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
-                    size="md"
-                  >
-                    {statusOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
+                  <Box position="relative" zIndex="dropdown">
+                    <Select
+                      name="status"
+                      placeholder="Select status"
+                      value={formik.values.status}
+                      onChange={formik.handleChange}
+                      focusBorderColor="brand.500"
+                      size="md"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
                 </FormControl>
 
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Module
                   </FormLabel>
-                  <Select
-                    name="entity"
-                    placeholder="Select module"
-                    value={formik.values.entity}
-                    onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
-                    size="md"
-                  >
-                    {entityOptions?.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
+                  <Box position="relative" zIndex="dropdown">
+                    <Select
+                      name="entity"
+                      placeholder="Select module"
+                      value={formik.values.entity}
+                      onChange={formik.handleChange}
+                      focusBorderColor="brand.500"
+                      size="md"
+                    >
+                      {entityOptions?.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Action
                   </FormLabel>
-                  <Select
-                    name="action"
-                    placeholder="Select action"
-                    value={formik.values.action}
-                    onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
-                    size="md"
-                  >
-                    {actionOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
+                  <Box position="relative" zIndex="dropdown">
+                    <Select
+                      name="action"
+                      placeholder="Select action"
+                      value={formik.values.action}
+                      onChange={formik.handleChange}
+                      focusBorderColor="brand.500"
+                      size="md"
+                    >
+                      {actionOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
                 </FormControl>
 
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Security Level
                   </FormLabel>
-                  <Select
-                    name="securityLevel"
-                    placeholder="Select level"
-                    value={formik.values.securityLevel}
-                    onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
-                    size="md"
-                  >
-                    {levelOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.value}
-                      </option>
-                    ))}
-                  </Select>
+                  <Box position="relative" zIndex="dropdown">
+                    <Select
+                      name="securityLevel"
+                      placeholder="Select level"
+                      value={formik.values.securityLevel}
+                      onChange={formik.handleChange}
+                      focusBorderColor="brand.500"
+                      size="md"
+                    >
+                      {levelOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.value}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
                 </FormControl>
               </SimpleGrid>
             </VStack>
           </ModalBody>
 
-          <ModalFooter px={4} pt={0}>
+          <ModalFooter 
+            px={4} 
+            pt={0}
+            position={["sticky", "static"]}
+            bottom={0}
+            bg="white"
+            zIndex="sticky"
+          >
             <Button
               variant="outline"
               mr={3}
               onClick={handleClear}
               isDisabled={isFilterEmpty}
               size="md"
+              width={["50%", "auto"]}
             >
               Clear Filters
             </Button>
@@ -278,6 +299,7 @@ const AdvancedFilter = ({
               type="submit"
               isDisabled={isFilterUnchanged}
               size="md"
+              width={["50%", "auto"]}
             >
               Apply Filters
             </Button>
