@@ -22,16 +22,16 @@ import { leadStatusLabels } from 'utils/searchLabels';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
 import { format } from 'date-fns';
-import { CopyIcon } from '@chakra-ui/icons';
 import { InfoIcon } from '@chakra-ui/icons';
 
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { leadIconSize } from './components/constants';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { toast } from 'react-toastify';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const countries = useSelector((state) => state.countries.countryNames);
-
 
 	const [data, setData] = useState();
 	const [leadIp, setLeadIp] = useState({
@@ -41,20 +41,46 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	});
 
 	const [isLoading, setIsLoading] = useState(false);
+	const { createUserLog } = useUserActivityLog();
 
-  const fetchData = async () => {
-      setIsLoading(true);
-      let response = await getApi("api/lead/view/", leadId);
-      setData(response.data?.lead);
+	const fetchData = async () => {
+		try {
+			setIsLoading(true);
+			let response = await getApi('api/lead/view/', leadId);
+			setData(response.data?.lead);
 
-      const { ip, city, country } = extractLocationData(
-        response?.data?.lead?.ip,
-        countries
-      );
-      setLeadIp({ ip, city, country });
-      setIsLoading(false);
+			const { ip, city, country } = extractLocationData(
+				response?.data?.lead?.ip,
+				countries
+			);
 
-  };
+			setLeadIp({ ip, city, country });
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Lead',
+				entityId: leadId,
+				status: 'success',
+				message: `${user?.fullName || ''} viewed ${response?.data?.lead?.leadName || ''} lead.`,
+			});
+		} catch (err) {
+			console.error(err);
+			const errorMsg = err?.data?.message || 'Lead details not found!';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW_FAIL',
+				entity: 'Lead',
+				entityId: leadId,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	useEffect(() => {
 		fetchData();
