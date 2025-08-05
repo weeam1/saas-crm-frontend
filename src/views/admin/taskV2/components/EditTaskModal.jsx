@@ -87,7 +87,7 @@ const EditTaskModal = ({
           entity: "Task",
           entityId: response._id,
           status: "success",
-          message: `User "${user?.fullName}" successfully updated the task titled "${response?.title || "Untitled"}".`,
+          message: `User "${user?.fullName}" updated task "${response?.title || "Untitled"}".`,
         });
 
         toast.success("Task updated successfully");
@@ -100,8 +100,8 @@ const EditTaskModal = ({
           action: "UPDATE_FAIL",
           entity: "Task",
           entityId: task?._id || null,
-          status: error?.status === '500' ? 'error' : 'fail',
-          message: `User "${user?.fullName}" attempted to update the task titled "${task?.title || "Untitled"}" but the operation failed.`,
+          status: error?.status === "500" ? "error" : "fail",
+          message: `User "${user?.fullName}" failed to update task "${task?.title || "Untitled"}".`,
         });
       } finally {
         setSubmitting(false);

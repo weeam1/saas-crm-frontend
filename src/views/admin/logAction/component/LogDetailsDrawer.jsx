@@ -17,22 +17,19 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { FiX, FiUser } from "react-icons/fi";
-import { format } from "date-fns";
+import { formatPostDate } from "utils/helpers";
 
-const LogDetailsDrawer = ({ 
-  isOpen, 
-  onClose, 
-  selectedLog, 
+const LogDetailsDrawer = ({
+  isOpen,
+  onClose,
+  selectedLog,
   grayColors,
   renderSecurityLevel,
-  getStatusColor
+  getStatusColor,
 }) => {
   const textColor = useColorModeValue(grayColors.text, "white");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
-
-  const formatTimestamp = (timestamp) =>
-    format(new Date(timestamp), "MMM d, yyyy HH:mm:ss");
 
   if (!selectedLog) return null;
 
@@ -58,13 +55,14 @@ const LogDetailsDrawer = ({
           <Stack spacing={4}>
             <SimpleGrid columns={2} spacing={4}>
               <Box>
-                <Text  fontSize="sm" color="gray.500">
+                <Text fontSize="sm" color="gray.500">
                   User
                 </Text>
                 <Text fontWeight="medium" color={textColor} fontSize="xs">
                   <Flex align="center">
                     <Icon as={FiUser} mr={2} color={grayColors.primary} />
-                    {selectedLog.userName}
+                    {selectedLog.userName?.charAt(0).toUpperCase() +
+                      selectedLog.userName?.slice(1).toLowerCase()}
                   </Flex>
                 </Text>
               </Box>
@@ -77,7 +75,7 @@ const LogDetailsDrawer = ({
                 </Text>
               </Box>
               <Box>
-                <Text  fontSize="sm" color="gray.500">
+                <Text fontSize="sm" color="gray.500">
                   Status
                 </Text>
                 <Badge
@@ -93,6 +91,14 @@ const LogDetailsDrawer = ({
               </Box>
               <Box>
                 <Text fontSize="sm" color="gray.500">
+                  Module
+                </Text>
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                  {selectedLog.entity}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="sm" color="gray.500">
                   Security Level
                 </Text>
                 {renderSecurityLevel(selectedLog.securityLevel)}
@@ -102,7 +108,7 @@ const LogDetailsDrawer = ({
                   Timestamp
                 </Text>
                 <Text fontWeight="medium" color={textColor} fontSize="xs">
-                  {formatTimestamp(selectedLog.metadata.timestamp)}
+                  {formatPostDate(selectedLog.metadata.timestamp)}
                 </Text>
               </Box>
             </SimpleGrid>
@@ -110,7 +116,7 @@ const LogDetailsDrawer = ({
             <Divider borderColor={borderColor} />
 
             <Box>
-              <Text fontSize="" color="gray.500">
+              <Text fontSize="sm" color="gray.500">
                 Message
               </Text>
               <Text
@@ -129,7 +135,7 @@ const LogDetailsDrawer = ({
 
             <Box>
               <Text
-                fontSize="xs"
+                fontSize="md"
                 fontWeight="bold"
                 mb={2}
                 color={grayColors.primary}
@@ -138,7 +144,7 @@ const LogDetailsDrawer = ({
               </Text>
               <SimpleGrid columns={2} spacing={4}>
                 <Box>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontSize="sm" color="gray.500">
                     IP Address
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
@@ -146,19 +152,21 @@ const LogDetailsDrawer = ({
                   </Text>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontSize="sm" color="gray.500">
                     City
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.city}
+                    {selectedLog.metadata.city?.charAt(0).toUpperCase() +
+                      selectedLog.metadata.city?.slice(1).toLowerCase()}
                   </Text>
                 </Box>
                 <Box>
-                  <Text fontSize="xs" color="gray.500">
+                  <Text fontSize="sm" color="gray.500">
                     country
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.country}
+                    {selectedLog.metadata.country?.charAt(0).toUpperCase() +
+                      selectedLog.metadata.country?.slice(1).toLowerCase()}
                   </Text>
                 </Box>
               </SimpleGrid>

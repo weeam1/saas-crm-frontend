@@ -68,15 +68,16 @@ const AddTaskModal = ({
           path: "/taskV2",
           body: payload,
         }).unwrap();
-        
+
         createUserLog({
           userId: user?._id,
           action: "CREATE",
           entity: "Task",
           entityId: response._id,
           status: "success",
-          message: `User "${user?.fullName}" successfully created a task titled "${response?.title || "Untitled"}".`,
+          message: `${user?.fullName} created task "${response?.title || "Untitled"}".`,
         });
+
         toast.success("Task created successfully");
         onSuccess();
         resetForm();
