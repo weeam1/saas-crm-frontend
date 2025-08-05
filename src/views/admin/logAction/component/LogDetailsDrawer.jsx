@@ -162,7 +162,7 @@ const LogDetailsDrawer = ({
                 </Box>
                 <Box>
                   <Text fontSize="sm" color="gray.500">
-                    country
+                    Country
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
                     {selectedLog.metadata.country?.charAt(0).toUpperCase() +
