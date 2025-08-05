@@ -28,6 +28,8 @@ import { updateLeadField } from '../../../../../redux/leadsSlice';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
@@ -40,6 +42,9 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	const [latestNote, setLatestNote] = useState(null);
 
 	const [deleteItemMutation] = useDeleteItemMutation();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const fetchLeadNotes = useCallback(async () => {
 		if (!leadId) return;
@@ -61,7 +66,6 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 
 	const handleEditNote = (note) => {
 		// Implement logic to open edit modal or form with `note` data
-		console.log('Edit note:', note);
 
 		const latestNote = allNotes[0]?._id === note._id;
 
@@ -94,9 +98,26 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 				})
 			);
 			toast.success('Note Deleted successfuly');
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Lead',
+				entityId: note._id || null,
+				status: 'success',
+				message: `${user?.fullName} delete the note.`,
+			});
 		} catch (error) {
 			console.log(error);
 			toast.error('Something went wrong!');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Lead',
+				entityId: note._id || null,
+				status: error?.status === 500 ? 'error' : 'failed',
+				message: `Failed to delete the note.`,
+			});
 		}
 	};
 

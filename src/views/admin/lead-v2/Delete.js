@@ -55,6 +55,9 @@ const Delete = (props) => {
 			} finally {
 				setIsLoding(false);
 				props.refetchData();
+				props.onClose(false);
+				// props.setAction((pre) => !pre);
+				props.setSelectedValues([]);
 			}
 		} else if (props.method === 'many') {
 			try {

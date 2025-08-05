@@ -15,6 +15,8 @@ import { Textarea } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
 import { updateMultipleLeadFields } from '../../../../../redux/leadsSlice';
 import { buttonStyle } from 'utils/btn';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const AddNewNote = ({
 	setNoteAdded,
@@ -25,6 +27,9 @@ const AddNewNote = ({
 }) => {
 	const [noteValue, setNoteValue] = useState('');
 	const [isLoding, setIsLoding] = useState(false);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const dispatch = useDispatch();
 
@@ -52,9 +57,27 @@ const AddNewNote = ({
 
 				dispatch(updateMultipleLeadFields({ updates }));
 				onClose();
+
+				createUserLog({
+					userId: user?._id,
+					action: 'CREATE',
+					entity: 'Lead',
+					entityId: paramId || null,
+					status: 'success',
+					message: `${user?.fullName} added a new note to lead.`,
+				});
 			} catch (error) {
 				console.log(error);
 				toast.error(error?.data?.message || 'Something went wrong!');
+
+				createUserLog({
+					userId: user?._id,
+					action: 'CREATE',
+					entity: 'Lead',
+					entityId: paramId || null,
+					status: error?.status === 500 ? 'error' : 'failed',
+					message: `${user?.fullName} failed to add a new note.`,
+				});
 			} finally {
 				setIsLoding(false);
 				refreshNotes();

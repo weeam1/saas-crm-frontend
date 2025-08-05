@@ -16,6 +16,8 @@ import { useDispatch } from 'react-redux';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const EditNote = ({
 	onClose,
@@ -30,6 +32,9 @@ const EditNote = ({
 	const [noteValue, setNoteValue] = useState(leadNote.note ?? '');
 
 	const dispatch = useDispatch();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const updateLeadLastNote = () => {
 		// Step 1: Clone and update the specific note
@@ -68,9 +73,27 @@ const EditNote = ({
 			toast.success('Note Edited successfuly');
 			setNoteValue('');
 			onClose();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: leadNote._id || null,
+				status: 'success',
+				message: `${user?.fullName} update the note.`,
+			});
 		} catch (error) {
 			console.log(error);
 			toast.error('Something went wrong!');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: leadNote._id || null,
+				status: error?.status === 500 ? 'error' : 'failed',
+				message: `Failed to update the note.`,
+			});
 		}
 	};
 

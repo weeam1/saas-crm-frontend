@@ -17,6 +17,8 @@ import { eventLeadStatus } from 'utils/options';
 import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
@@ -28,6 +30,9 @@ const Status = ({ lead }) => {
 
 	const [loading, setLoading] = useState(false);
 	const [inviteModal, setInviteModal] = useState(false);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const dispatch = useDispatch();
 
@@ -75,10 +80,30 @@ const Status = ({ lead }) => {
 						fcblid: lead?.fcblid || null,
 					});
 				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message: `${user?.fullName} update the lead status from '${selected || 'No Status'} to '${data.leadStatus}'.`,
+				});
 			}
 		} catch (e) {
 			console.log(e);
 			toast.error('Something went wrong!');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: lead._id || null,
+				status: e?.status === 500 ? 'error' : 'failed',
+				message: `failed to update the lead status'.`,
+			});
 		} finally {
 			setLoading(false);
 		}
