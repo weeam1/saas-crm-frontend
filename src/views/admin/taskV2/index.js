@@ -145,7 +145,7 @@ const TaskV2 = () => {
         entity: "Task",
         entityId: task._id,
         status: "success",
-        message: `User "${user?.fullName}" deleted task "${task?.title || "Untitled"}".`,
+        message: `"${user?.fullName}" deleted task "${task?.title || "Untitled"}".`,
       });
     } catch (error) {
       const errorMsg =
@@ -194,7 +194,7 @@ const TaskV2 = () => {
         entity: "Task",
         entityId: response._id,
         status: "success",
-        message: `User "${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
+        message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
       });
       setTableData((prevData) =>
         prevData.map((oldTask) =>
@@ -202,6 +202,8 @@ const TaskV2 = () => {
         )
       );
     } catch (error) {
+      const errorMsg =
+        error?.data?.message || "Failed to update the task status. Please try again.";
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
@@ -209,7 +211,7 @@ const TaskV2 = () => {
         entity: "Task",
         entityId: task?._id || null,
         status: error?.status === "500" ? "error" : "fail",
-        message: `User "${user?.fullName}" failed to update task "${task?.title || "Untitled"}" status.`,
+        message: errorMsg,
       });
     }
   };
@@ -264,7 +266,7 @@ const TaskV2 = () => {
 
   const updateTaskPriority = async (taskId, priority) => {
     try {
-      await updateStatus({
+      const response = await updateStatus({
         path: `/taskV2/${taskId}`,
         body: { priority },
       }).unwrap();
@@ -275,14 +277,39 @@ const TaskV2 = () => {
           task._id === taskId ? { ...task, priority } : task
         )
       );
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Task",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" update priority of task "${response?.title || "Untitled"}".`,
+      });
     } catch (error) {
       toast.error("Error updating priority");
+      const errorMsg =
+        error?.data?.message || "Failed to update the priority of task. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Task",
+        entityId: taskId,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
   const ViewHandler = (task) => {
-    setSelectedTask(task)
-
+    setSelectedTask(task);
+     createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Task",
+        entityId: task._id,
+        status: "success",
+        message: `"${user?.fullName}" View the task "${task?.title || "Untitled"}".`,
+      });
   };
   return (
     <Box
