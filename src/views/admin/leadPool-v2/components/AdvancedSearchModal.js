@@ -130,8 +130,6 @@ const AdvancedSearchModal = ({
 		},
 	});
 
-	console.log({ setQueryData });
-
 	const {
 		errors,
 		touched,

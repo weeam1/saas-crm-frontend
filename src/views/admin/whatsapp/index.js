@@ -77,6 +77,8 @@ const Whatsapp = () => {
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 	const contacts = useSelector((state) => state.whatsapp.contacts || []);
 
+	console.log({ currentUser });
+
 	const { registerUser, isConnected } = useSocketEvents();
 
 	const {
@@ -163,7 +165,8 @@ const Whatsapp = () => {
 				formData.append('languageCode', values.languageCode);
 				formData.append('message', values.message);
 				formData.append('type', values.type);
-				formData.append('palceholder', values.palceholder);
+				values.placeholders?.length > 0 &&
+					formData.append('placeholders', JSON.stringify(values.placeholders));
 			} else {
 				let voiceFile = null;
 				if (voiceFileRef.current && voiceFileRef.current.size) {
@@ -548,7 +551,7 @@ const Whatsapp = () => {
 				<WhatsappTemplates
 					onClose={onWATemplateClose}
 					isOpen={isWATemplateOpen}
-					accountId={currentUser?.businessId}
+					businessId={currentUser?.businessId}
 					onSend={handleSendMessage}
 					isLoading={isSending}
 				/>

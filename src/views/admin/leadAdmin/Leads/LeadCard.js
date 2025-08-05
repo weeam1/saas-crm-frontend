@@ -25,10 +25,10 @@ import { handleCopy } from '../utils/utils';
 import { getUserNameById } from 'utils';
 import { formattedDate } from 'utils/helpers';
 import LeadCycleModal from '../components/LeadCard/LeadCycleModal';
-import LeadsModal from '../../lead/LeadsModal';
 import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
+import LeadsModal from 'views/admin/lead-v2/LeadsModal';
 
 const getLabelByValue = (value) => {
 	const status = leadStatus.find((status) => status.value === value);

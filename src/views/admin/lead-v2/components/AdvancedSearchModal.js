@@ -71,6 +71,7 @@ const AdvancedSearchModal = ({
 		leadLang: '',
 		lastNote: '',
 		budget: '',
+		isReleased: '',
 	};
 
 	const formik = useFormik({
@@ -220,7 +221,12 @@ const AdvancedSearchModal = ({
 						>
 							Clear
 						</Button>
-						<Button colorScheme='brand' size='sm' onClick={handleSubmit}>
+						<Button
+							colorScheme='brand'
+							size='sm'
+							onClick={handleSubmit}
+							disabled={!dirty}
+						>
 							Search
 						</Button>
 					</ModalFooter>

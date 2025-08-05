@@ -61,6 +61,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     "Phone",
     "Project",
     "Location",
+    "country",
     "Area (sqft)",
     "Building Age",
     "Developer",
@@ -102,6 +103,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       if (filters.year) params.year = filters.year;
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.country) params.country = filters.country;
     }
 
     return params;
@@ -112,6 +114,9 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     { refetchOnMountOrArgChange: true }
   );
 
+  const { data: countries } = useFetchItemsQuery({
+    path: "/countries",
+  });
   const handleStatusChange = (listingId, status, approvedId) => {
     setSelectedStatus(status);
     setCurrentListingId(listingId);
@@ -250,22 +255,22 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         />
       </Box>
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        maxH={"85vh"}
-        overflowY="auto"
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
             <Tr>
               {columns.map((header, index) => (
                 <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
@@ -338,6 +343,15 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {approval.listing?.location || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {approval.listing?.country?.name || "N/A"}
                     </Td>
                     <Td
                       py={4}
@@ -499,6 +513,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           )}
         </Table>
       </Box>
+        </Box>
 
       {/* Status Update Modal */}
       <Modal
@@ -548,6 +563,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
         clearFilter={filterChanged}
+        countries={countries?.doc || []}
       />
     </Box>
   );

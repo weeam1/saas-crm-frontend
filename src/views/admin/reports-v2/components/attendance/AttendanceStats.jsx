@@ -19,13 +19,8 @@ import AttendanceAreaChart from './AttendanceAreaChart';
 
 const AttendanceStats = ({
 	data,
-	attendanceStats,
 	stats,
-	barChartOptions,
-	barChartData,
-	lineChartData,
 	lineChartOptions,
-	selectedView,
 	setSelectedView,
 	setQueryParams,
 }) => {
@@ -178,58 +173,6 @@ const AttendanceStats = ({
 					))}
 				</SimpleGrid>
 				<Box py={6}>
-					{/* <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap={6}>
-						<Box bg='white' p={6} borderRadius='lg' shadow='md'>
-							<Flex justify='space-between' align='center' mb={4}>
-								<Text fontSize='lg' fontWeight='bold'>
-									Attendance Comparison Chart
-								</Text>
-								<ButtonGroup size='sm' isAttached>
-									{['Weekly', 'Monthly', 'Yearly'].map((view) => (
-										<Button
-											key={view}
-											bg={
-												selectedView === view.toLowerCase()
-													? '#DAA520'
-													: '#FDD68F'
-											}
-											color={
-												selectedView === view.toLowerCase()
-													? 'white'
-													: 'gray.800'
-											}
-											_hover={{
-												bg:
-													selectedView === view.toLowerCase()
-														? '#C6951B'
-														: '#EEC577',
-											}}
-											onClick={() => handleCharView(view)}
-										>
-											{view}
-										</Button>
-									))}
-								</ButtonGroup>
-							</Flex>
-							<Chart
-								options={adjustedLineChartOptions}
-								series={lineChartData}
-								type='line'
-								height={300}
-							/>
-						</Box>
-						<Box bg='white' p={6} borderRadius='lg' shadow='md'>
-							<Text fontSize='lg' fontWeight='bold' mb={4}>
-								Weekly Attendance
-							</Text>
-							<Chart
-								options={barChartOptions}
-								series={barChartData}
-								type='bar'
-								height={300}
-							/>
-						</Box>
-					</Grid> */}
 					<AttendanceRoleChart data={data} />
 					<Divider color='gray.800' my='2' size='md' />
 					<AttendanceAreaChart />

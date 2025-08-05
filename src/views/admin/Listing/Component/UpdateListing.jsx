@@ -85,6 +85,10 @@ const UpdateListing = () => {
     { skip: !id || !selectedUnitType }
   );
 
+  const { data: countries } = useFetchItemsQuery({
+    path: '/countries',
+  });
+
   useEffect(() => {
     if (listing?.data?.documents) {
       setFiles([...listing.data.documents]);
@@ -123,6 +127,7 @@ const UpdateListing = () => {
       subUnitType: listing?.data?.subUnitType?._id || null,
       brokerCommissionType: listing?.data?.brokerCommissionType || "",
       brokerCommissionValue: listing?.data?.brokerCommissionValue || "",
+      country: listing?.data?.country || null,
     },
     validationSchema: Yup.object().shape({
       projectName: Yup.string().required("Project Name is required"),
@@ -165,6 +170,14 @@ const UpdateListing = () => {
       developer: Yup.string().required("Developer is required"),
       ownerName: Yup.string().required("Owner name is required"),
       ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
+      country: Yup.object().shape({
+        code: Yup.string().required("Country code is required"),
+        name: Yup.string().required("Country name is required"),
+        flags: Yup.object().shape({
+          png: Yup.string(),
+          svg: Yup.string(),
+        }),
+      }).required("Country is required"),
       brokerCommissionType: Yup.string(),
       brokerCommissionValue: Yup.number()
         .typeError("Commission Value must be a number")
@@ -563,6 +576,37 @@ const UpdateListing = () => {
               focusBorderColor="brand.500"
             />
             <FormErrorMessage>{formik.errors.location}</FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
+        {/* Country */}
+        <GridItem colSpan={colSpan}>
+          <FormControl
+            isInvalid={formik.touched.country && formik.errors.country}
+          >
+            <FormLabel>Country</FormLabel>
+            <Select
+              name="country"
+              value={formik.values.country?.name || ''}
+              onChange={(e) => {
+                const selectedCountry = countries?.doc?.find(
+                  country => country.name === e.target.value
+                );
+                formik.setFieldValue('country', selectedCountry);
+              }}
+              onBlur={formik.handleBlur}
+              placeholder="Select country"
+              focusBorderColor="brand.500"
+            >
+              {countries?.doc?.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </Select>
+            <FormErrorMessage>
+              {formik.errors.country?.message || formik.errors.country}
+            </FormErrorMessage>
           </FormControl>
         </GridItem>
 

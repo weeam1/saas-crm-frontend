@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { IconButton, HStack, Tooltip } from '@chakra-ui/react';
 import { FaThLarge, FaTable } from 'react-icons/fa';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const icons = [
 	{ label: 'Grid View', icon: FaThLarge, value: 'grid' },
@@ -16,7 +17,7 @@ const ViewToggle = ({ view, handleView }) => {
 		const isActive = view === value;
 
 		return (
-			<Tooltip key={value} label={label} hasArrow>
+			<CustomTooltip key={value} label={label} hasArrow>
 				<IconButton
 					aria-label={label}
 					icon={<Icon />}
@@ -26,7 +27,7 @@ const ViewToggle = ({ view, handleView }) => {
 					colorScheme='brand'
 					onClick={() => handleView(value)}
 				/>
-			</Tooltip>
+			</CustomTooltip>
 		);
 	};
 

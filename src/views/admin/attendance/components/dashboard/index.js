@@ -249,15 +249,15 @@ const Dashboard = () => {
 		</Box>
 	) : (
 		<>
-			{role !== 'Attendance' && (
+			{/* {role !== 'Attendance' && (
 				<AppButton
 					ml='2'
 					leftIcon={<IoArrowBack />}
-					onClick={() => navigate('/attendance')}
+					onClick={() => navigate(-1)}
 				>
 					Back
 				</AppButton>
-			)}
+			)} */}
 
 			<Flex
 				bg='white'

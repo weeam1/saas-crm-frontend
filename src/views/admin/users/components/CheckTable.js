@@ -68,6 +68,7 @@ import AddCoinsModal from '../AddCoinsModal';
 import RemoveCoinsModal from '../RemoveCoinsModal';
 import StatusToggle from './StatusToogle';
 import TableLoading from 'components/loading/TableLoading';
+import { formatCurrency } from 'utils/helpers';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -312,13 +313,13 @@ export default function CheckTable(props) {
 				px={2}
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				<Grid templateColumns='repeat(12, 1fr)' mb={3} gap={4} mx={4}>
+				<Grid templateColumns='repeat(12, 1fr)'  gap={4} mx={4}>
 					<GridItem
 						colSpan={{ base: 12, md: 8 }}
 						display={'flex'}
 						alignItems={'center'}
 					>
-						<Flex alignItems={'center'} flexWrap={'wrap'}>
+						<Flex alignItems={'center'} flexWrap={'wrap'} gap ={2}>
 							<Text
 								color={useColorModeValue('secondaryGray.900', 'white')}
 								fontSize='22px'
@@ -412,12 +413,13 @@ export default function CheckTable(props) {
 								variant='brand'
 								size='sm'
 								leftIcon={<AddIcon />}
+								borderRadius={"md"}
 							>
 								Add New
 							</Button>
 						)}
 
-						<Button
+						{/* <Button
 							onClick={() => navigate('/admin-setting')}
 							variant='brand'
 							size='sm'
@@ -425,7 +427,7 @@ export default function CheckTable(props) {
 							ml={2}
 						>
 							Back
-						</Button>
+						</Button> */}
 					</GridItem>
 					<HStack spacing={4}>
 						{getTagValues &&
@@ -530,6 +532,7 @@ export default function CheckTable(props) {
 							) : data?.length > 0 ? (
 								page?.map((row, i) => {
 									prepareRow(row);
+
 									return (
 										<Tr {...row?.getRowProps()} key={i}>
 											{row?.cells?.map((cell, index) => {
@@ -622,8 +625,24 @@ export default function CheckTable(props) {
 															fontSize='sm'
 															fontWeight='700'
 														>
-															{cell?.value}
+															{cell?.value || 'N/A'}
 														</Text>
+													);
+												} else if (cell?.column.Header === 'Target') {
+													data = (
+														<Box textAlign='center'>
+															<Text
+																fontSize='sm'
+																color={textColor}
+																fontWeight='700'
+																textAlign='center'
+															>
+																{formatCurrency(
+																	cell?.value,
+																	row.original.currency
+																)}
+															</Text>
+														</Box>
 													);
 												} else if (cell?.column.Header === 'Status') {
 													data = (
@@ -654,10 +673,12 @@ export default function CheckTable(props) {
 																<Portal>
 																	<MenuList
 																		minW={'fit-content'}
-																		placement='bottom-end'
+																		placement='top'
 																		// transform={'translate(1520px, 173px);'}
 																	>
-																		{isAdmin && (
+																		{(isAdmin ||
+																			user?.roles[0]?.roleName ===
+																				'Manager') && (
 																			<MenuItem
 																				py={2.5}
 																				onClick={() => {

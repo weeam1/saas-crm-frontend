@@ -77,6 +77,14 @@ const validationSchema = Yup.object().shape({
   developer: Yup.string().required("Developer is required"),
   ownerName: Yup.string().required("Owner name is required"),
   ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
+  country: Yup.object().shape({
+    code: Yup.string().required("Country code is required"),
+    name: Yup.string().required("Country name is required"),
+    flags: Yup.object().shape({
+      png: Yup.string(),
+      svg: Yup.string(),
+    }),
+  }).required("Country is required"),
   subUnitType: Yup.string().when("$isSubUnitTypeRequired", {
     is: true,
     then: (schema) => schema.required("Sub Unit Type is required"),
@@ -128,6 +136,10 @@ const AddListing = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id || !selectedUnitType }
   );
 
+  const { data: countries } = useFetchItemsQuery({
+    path: '/countries',
+  });
+
   const { data: developers } = useFetchItemsQuery(
     { path: `/developer/get` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
@@ -157,6 +169,7 @@ const AddListing = () => {
       documents: [],
       ownerName: "",
       ownerPhoneNumber: "",
+      country: null,
       subUnitType: "",
       status: "",
       brokerCommissionType: "",
@@ -174,13 +187,12 @@ const AddListing = () => {
           ...values,
           area: getPositiveNumber(values.area),
           price: getPositiveNumber(values.price),
-          brokerCommissionValue: getPositiveNumber(
-            values.brokerCommissionValue
-          ),
+          brokerCommissionValue: getPositiveNumber(values.brokerCommissionValue),
           documents: [...files],
           agent: user._id,
           createdBy: user._id,
           agency: user.agency,
+          // Country is already in the correct format
         };
 
         await createItemMutation({
@@ -514,6 +526,37 @@ const AddListing = () => {
           </FormControl>
         </GridItem>
 
+        {/* Country */}
+        <GridItem colSpan={colSpan}>
+          <FormControl
+            isInvalid={formik.touched.country && formik.errors.country}
+          >
+            <FormLabel>Country</FormLabel>
+            <Select
+              name="country"
+              value={formik.values.country?.name || ''}
+              onChange={(e) => {
+                const selectedCountry = countries?.doc?.find(
+                  country => country.name === e.target.value
+                );
+                formik.setFieldValue('country', selectedCountry);
+              }}
+              onBlur={formik.handleBlur}
+              placeholder="Select country"
+              focusBorderColor="brand.500"
+            >
+              {countries?.doc?.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </Select>
+            <FormErrorMessage>
+              {formik.errors.country?.message || formik.errors.country}
+            </FormErrorMessage>
+          </FormControl>
+        </GridItem>
+
         {/* Building Age */}
         <GridItem colSpan={colSpan}>
           <FormControl
@@ -552,6 +595,7 @@ const AddListing = () => {
             <FormErrorMessage>{formik.errors.ownerName}</FormErrorMessage>
           </FormControl>
         </GridItem>
+
         {/* Owner Phone Number */}
         <GridItem colSpan={colSpan}>
           <FormControl

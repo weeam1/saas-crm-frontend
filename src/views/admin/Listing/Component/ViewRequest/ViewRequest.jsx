@@ -54,6 +54,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     "Phone",
     "Project",
     "Location",
+    "country",
     "Area (sqft)",
     "Building Age",
     "Developer",
@@ -94,6 +95,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       if (filters.year) params.year = filters.year;
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.country) params.country = filters.country;
     }
 
     return params;
@@ -106,6 +108,10 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const { data: countries } = useFetchItemsQuery({
+    path: "/countries",
+  });
 
   const openStatusModal = (listingId, requestId) => {
     setCurrentRequestId(requestId);
@@ -260,221 +266,231 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         />
       </Box>
       <Box
-        borderRadius="lg"
+        borderRadius="4px"
         boxShadow="sm"
-        bg="white"
-        maxH={"85vh"}
-        overflowY="auto"
+        borderWidth="1px"
+        overflow="hidden"
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize={"16px"}
-            borderRadius="lg"
-          >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
-                      textTransform="capitalize"
+        <Box position="relative" maxH="120vh" overflowY="auto">
+          <Table variant="striped" size="lg">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize={"16px"}
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {data && data.data.length > 0 ? (
-                data.data.map((request, index) => (
-                  <Tr key={index}>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {index + 1}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request?.requester?.fullName || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {request.requester?.phoneNumber || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.listing?.projectName || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.listing?.location || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {request.listing?.area
-                        ? request.listing.area.toLocaleString()
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.listing.buildingAge
-                        ? `${request.listing.buildingAge} Years`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.listing?.developer_name
-                        ? request.listing?.developer_name
-                        : "N/A"}
-                    </Td>
+                      <Text
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="600"
+                        color="gray.700"
+                        textTransform="capitalize"
+                      >
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {data && data.data.length > 0 ? (
+                  data.data.map((request, index) => (
+                    <Tr key={index}>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {index + 1}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request?.requester?.fullName || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {request.requester?.phoneNumber || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.listing?.projectName || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.listing?.location || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.listing?.country?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {request.listing?.area
+                          ? request.listing.area.toLocaleString()
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.listing.buildingAge
+                          ? `${request.listing.buildingAge} Years`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.listing?.developer_name
+                          ? request.listing?.developer_name
+                          : "N/A"}
+                      </Td>
 
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.listing?.price
-                        ? `AED ${request.listing.price.toLocaleString()}`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request?.listing?.createdAt
-                        ? format(
-                            request?.listing?.createdAt,
-                            "MMM d, yyyy h:mm a"
-                          )
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {request.createdBy?.fullName}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Badge
-                        colorScheme={getStatusColor(request.status)}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
                       >
-                        {request.status}
-                      </Badge>
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      display={"flex"}
-                      gap={2}
-                      justifyContent={"center"}
-                    >
-                      <Button
-                        colorScheme="brand"
-                        size="sm"
-                        onClick={() =>
-                          openStatusModal(
-                            request?.listing?.id,
-                            request?.requester?.id
-                          )
-                        }
-                        isDisabled={request.status !== "pending"}
+                        {request.listing?.price
+                          ? `AED ${request.listing.price.toLocaleString()}`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
                       >
-                        Change Status
-                      </Button>
+                        {request?.listing?.createdAt
+                          ? format(
+                              request?.listing?.createdAt,
+                              "MMM d, yyyy h:mm a"
+                            )
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {request.createdBy?.fullName}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        <Badge
+                          colorScheme={getStatusColor(request.status)}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
+                        >
+                          {request.status}
+                        </Badge>
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        display={"flex"}
+                        gap={2}
+                        justifyContent={"center"}
+                      >
+                        <Button
+                          colorScheme="brand"
+                          size="sm"
+                          onClick={() =>
+                            openStatusModal(
+                              request?.listing?.id,
+                              request?.requester?.id
+                            )
+                          }
+                          isDisabled={request.status !== "pending"}
+                        >
+                          Change Status
+                        </Button>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan="13"
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
+                    >
+                      <NoData label="requested requests" />
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="requested requests" />
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          )}
-        </Table>
+                )}
+              </Tbody>
+            )}
+          </Table>
+        </Box>
       </Box>
 
       {/* Status Update Modal */}
@@ -531,6 +547,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
         clearFilter={filterChanged}
+        countries={countries?.doc || []}
       />
     </Box>
   );

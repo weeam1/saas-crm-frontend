@@ -22,7 +22,8 @@ import {
 	FaRegCopy,
 	FaList,
 	FaWhatsapp,
-	FaTasks
+	FaTasks,
+	FaHandshake,
 } from 'react-icons/fa';
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -50,7 +51,7 @@ import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import { useFetchItemsQuery } from 'api/apiSlice';
 
-const TaskV2 = React.lazy(() => import("views/admin/taskV2"));
+const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const UserPage = React.lazy(() => import('views/admin/users'));
@@ -64,6 +65,10 @@ const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
 const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
 
 const Attendance = React.lazy(() => import('views/admin/attendance'));
+const AttendenceV2 = React.lazy(
+	() => import('views/admin/attendance/AttendenceV2')
+);
+
 const Employees = React.lazy(
 	() => import('views/admin/attendance/components/employees')
 );
@@ -92,6 +97,7 @@ const DeveloperInvoices = React.lazy(
 );
 const Listing = React.lazy(() => import('views/admin/Listing'));
 const Survey = React.lazy(() => import('views/admin/survey'));
+const DealsScreen = React.lazy(() => import('views/admin/deals'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -180,6 +186,16 @@ export default function User(props) {
 		},
 
 		{
+			name: 'Deals',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/deals',
+			icon: (
+				<Icon as={FaHandshake} width='20px' height='20px' color='inherit' />
+			),
+			component: DealsScreen,
+		},
+
+		{
 			name: 'Attendance',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/attendance',
@@ -191,7 +207,7 @@ export default function User(props) {
 					color='inherit'
 				/>
 			),
-			component: Attendance,
+			component: AttendenceV2,
 		},
 		{
 			name: 'My Attendance',
@@ -457,74 +473,48 @@ export default function User(props) {
 				parentName: 'Survey',
 				component: TakeSurvey,
 			},
-			  {
-				name: "Task",
+			// Task management Task V2
+			{
+				name: 'Task',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: "/task",
-				icon: <Icon as={FaTasks} width="20px" height="20px" color="inherit" />,
+				path: '/task',
+				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 				component: TaskV2,
-			  },
-
-			// ------------- Invoice Module Routes ------------------------ //
-			// {
-			// 	name: 'Invoice',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	icon: (
-			// 		<Icon
-			// 			as={HiOutlineDocumentReport}
-			// 			width='20px'
-			// 			height='20px'
-			// 			color='inherit'
-			// 		/>
-			// 	),
-			// 	path: '/invoice',
-			// 	component: InvoiceModule,
-			// },
-			// {
-			// 	name: 'Bank Accounts',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	path: '/invoice/bank-accounts',
-			// 	parentName: 'Invoice',
-			// 	under: 'bank-accounts',
-			// 	component: BankAccounts,
-			// },
-			// {
-			// 	name: 'Invoice Developers',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'developer-invoices',
-			// 	path: '/invoice/developers',
-			// 	parentName: 'Invoice',
-			// 	component: InvoiceDevelopers,
-			// },
-			// {
-			// 	name: 'Developer Invoices',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'developer-invoices',
-			// 	path: '/invoice/developers/invoices/:id',
-			// 	parentName: 'Invoice',
-			// 	component: DeveloperInvoices,
-			// },
-			// {
-			// 	name: 'Single Invoice',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'single-invoice',
-			// 	parentName: 'Invoice',
-			// 	path: '/invoice/developers/invoices/view/:id',
-			// 	component: SingleInvoice,
-			// },
-			// {
-			// 	name: 'Invoice Entries',
-			// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 	under: 'invoice-entries',
-			// 	parentName: 'Invoice',
-			// 	path: '/invoice/developers/invoices/entries/:id',
-			// 	component: AddEntry,
-			// },
+			},
 		];
 
 		// 	// Only show the "Hiring" route for HR role
 		routes = hiringRoutes;
 	}
+	if (user?.roles[0]?.roleName === 'Developer') {
+		const developerRoutes = [
+			{
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: MyAttendance,
+			},
+			{
+				name: 'User View',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				parentName: 'Users',
+				under: 'users',
+				path: '/userView/:id',
+				component: UserView,
+			},
+		];
+
+		routes = developerRoutes;
+	}
+
 	if (user?.roles[0]?.roleName === 'Attendance') {
 		// Define the "Candidates" route
 		const attendanceRoutes = [
@@ -695,81 +685,6 @@ export default function User(props) {
 
 	routes.push(...accessRoute);
 
-	// if (user?.roles[0]?.roleName === 'Manager') {
-	// 	routes.push(
-	// 		...[
-	// 			{
-	// 				name: 'Hiring',
-	// 				path: '/hiring',
-	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 				icon: (
-	// 					<Icon
-	// 						as={FaClipboardUser}
-	// 						width='20px'
-	// 						height='20px'
-	// 						color='inherit'
-	// 					/>
-	// 				),
-	// 				component: Hiring,
-	// 			},
-	// 			{
-	// 				name: 'Short Listed',
-	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 				path: '/hiring/short-listed',
-	// 				under: 'shortListed',
-	// 				parentName: 'Hiring',
-	// 				component: ShortListedCandidates,
-	// 			},
-	// 			{
-	// 				name: 'Interview',
-	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-	// 				path: '/hiring/interview/:interviewId',
-	// 				under: 'interview',
-	// 				parentName: 'Hiring',
-	// 				component: InterviewScreen,
-	// 			},
-	// 			{
-	// 				name: 'Announcement',
-	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-	// 				path: '/announcements',
-	// 				icon: (
-	// 					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-	// 				),
-	// 				component: Announcements,
-	// 			},
-
-	// 			{
-	// 				name: 'Daily Report',
-	// 				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-	// 				path: '/daily-report',
-	// 				icon: (
-	// 					<Icon
-	// 						as={MdInsertChartOutlined}
-	// 						width='20px'
-	// 						height='20px'
-	// 						color='inherit'
-	// 					/>
-	// 				),
-	// 				component: DailyReport,
-	// 			},
-	// 			{
-	// 				name: 'Reporting and Analytics',
-	// 				layout: [ROLE_PATH.user],
-	// 				path: '/reporting-analytics',
-	// 				icon: (
-	// 					<Icon
-	// 						as={MdInsertChartOutlined}
-	// 						width='20px'
-	// 						height='20px'
-	// 						color='inherit'
-	// 					/>
-	// 				),
-	// 				component: Report,
-	// 			},
-	// 		]
-	// 	);
-	// }
-
 	if (user?.roles[0]?.roleName === 'Manager') {
 		// Define the new routes to be inserted
 		const newRoutes = [
@@ -816,38 +731,6 @@ export default function User(props) {
 
 		// Insert the new routes at index 3 and 4
 		routes.splice(3, 0, ...newRoutes);
-
-		// Add other routes (e.g., Daily Report, Reporting and Analytics)
-		// routes.push(
-		// 	{
-		// 		name: 'Daily Report',
-		// 		layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-		// 		path: '/daily-report',
-		// 		icon: (
-		// 			<Icon
-		// 				as={MdInsertChartOutlined}
-		// 				width='20px'
-		// 				height='20px'
-		// 				color='inherit'
-		// 			/>
-		// 		),
-		// 		component: DailyReport,
-		// 	},
-		// 	{
-		// 		name: 'Reporting and Analytics',
-		// 		layout: [ROLE_PATH.user],
-		// 		path: '/reporting-analytics',
-		// 		icon: (
-		// 			<Icon
-		// 				as={MdInsertChartOutlined}
-		// 				width='20px'
-		// 				height='20px'
-		// 				color='inherit'
-		// 			/>
-		// 		),
-		// 		component: Report,
-		// 	}
-		// );
 	}
 
 	const getActiveRoute = (routes) => {
@@ -1173,6 +1056,13 @@ export default function User(props) {
 													<Route
 														path='/*'
 														element={<Navigate to='/attendance/dashboard' />}
+													/>
+												</>
+											) : user?.roles[0]?.roleName === 'Developer' ? (
+												<>
+													<Route
+														path='/*'
+														element={<Navigate to='/attendance' />}
 													/>
 												</>
 											) : (

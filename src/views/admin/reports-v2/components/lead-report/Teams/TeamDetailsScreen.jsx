@@ -1,10 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-	Box,
-	Grid,
-	Heading,
-	useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Grid, Heading, useColorModeValue } from '@chakra-ui/react';
 
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { TeamStatsOverview } from './TeamStatsOverview';
@@ -19,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { calculatePerformance } from 'views/admin/reports-v2/helpers';
 import TeamOverviewShimmer from './TeamOverviewShimmer';
 import TeamProfileCard from './TeamProfileCard';
+import SalesBarChart from '../SalesBarChart';
 
 const TeamDetailsScreen = () => {
 	const { id } = useParams();
@@ -31,6 +27,17 @@ const TeamDetailsScreen = () => {
 			skip: !id,
 		},
 		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
+
+	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
+		{
+			path: '/deals/sales_report',
+			params: { userId: id },
+		},
+		{
+			skip: !id,
 			refetchOnMountOrArgChange: true,
 		}
 	);
@@ -81,12 +88,23 @@ const TeamDetailsScreen = () => {
 
 						{/* Overview Cards */}
 						<Grid
-							templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
+							templateColumns={{
+								base: 'repeat(1, 1fr)',
+								md: 'repeat(2, 1fr)',
+								lg: 'repeat(3, 1fr)',
+							}}
+							// templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
 							gap={6}
 							mb={8}
 						>
 							<TeamStatsOverview data={data?.doc} />
 						</Grid>
+
+						{/* Manager Sales perfomance graph */}
+						<SalesBarChart
+							data={sales?.sales_report}
+							title='Manager Sales Perfomance'
+						/>
 
 						{/* Main Content Area */}
 						{data?.doc?.agents && data?.doc?.agents?.length ? (

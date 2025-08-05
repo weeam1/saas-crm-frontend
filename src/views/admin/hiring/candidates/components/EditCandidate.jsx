@@ -7,32 +7,21 @@ import {
 	ModalCloseButton,
 	Button,
 	Grid,
-	Spinner,
 	FormControl,
 	FormLabel,
-	Input,
 	Select,
 	VStack,
-	Switch,
-	NumberInput,
-	NumberInputField,
-	NumberInputStepper,
-	NumberIncrementStepper,
-	NumberDecrementStepper,
-	Box,
 	HStack,
 	FormErrorMessage,
 } from '@chakra-ui/react';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { FiSave } from 'react-icons/fi';
-import { format, parseISO } from 'date-fns';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { visaOptions } from 'utils/options';
 import { engLangLevelOptions } from 'utils/options';
 import { experienceYearsOptions } from 'utils/options';
 import { yesOrNoOptions } from 'utils/options';
-import CustomDatePicker from 'components/datetime/CustomDatePicker';
 import CustomSelect from 'components/shared/CustomSelect';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';

@@ -101,36 +101,37 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		</Box>;
 	}
 
-	const formatValue = (value, isObject = false) => {
+	const formatValue = (value) => {
 		if (!value) return 'N/A';
-		return isObject && typeof value === 'object'
-			? value.result || value.text
-			: value;
+
+		return typeof value === 'object' ? value.result || value.text : value;
 	};
 
 	return (
-		<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(1,1fr)' }} gap={2}>
+		<Grid
+			templateColumns={{
+				base: 'repeat(1,1fr)',
+				sm: 'repeat(1, 1fr)',
+				md: 'repeat(1,1fr)',
+			}}
+			gap={2}
+		>
 			{/* Basic Information Section */}
-			<GridItem colSpan={{base:1, sm: 1,md:2}}>
+			<GridItem colSpan={{ base: 1, sm: 1, md: 2 }}>
 				<SectionCard title='Basic Information'>
 					<DetailGrid>
 						<DetailItem label='Lead Name' value={data?.leadName} />
-						{!hideContact && !isInLeadPool && (
+						{(user?.role === 'superAdmin' ||
+							(!hideContact && !isInLeadPool)) && (
 							<>
 								<DetailItem label='Email' value={data?.leadEmail} />
 								<DetailItem
 									label='Phone'
-									value={formatValue(
-										data?.leadPhoneNumber,
-										typeof data?.leadPhoneNumber === 'object'
-									)}
+									value={formatValue(data?.leadPhoneNumber)}
 								/>
 								<DetailItem
 									label='WhatsApp'
-									value={formatValue(
-										data?.leadWhatsapp,
-										typeof data?.leadWhatsapp === 'object'
-									)}
+									value={formatValue(data?.leadWhatsappNumber)}
 								/>
 							</>
 						)}
@@ -207,13 +208,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 					<DetailGrid>
 						<DetailItem label='Nationality' value={data?.nationality} />
 						<DetailItem label='Preferred Time' value={data?.timetocall} />
-						<DetailItem
-							label='In UAE?'
-							value={formatValue(
-								data?.r_u_in_uae,
-								typeof data?.r_u_in_uae === 'object'
-							)}
-						/>
+						<DetailItem label='In UAE?' value={formatValue(data?.r_u_in_uae)} />
 						<DetailItem label='Interest' value={data?.interest} />
 						<DetailItem label='Language' value={data?.leadLang} />
 					</DetailGrid>
@@ -263,7 +258,14 @@ const SectionCard = ({ title, children }) => (
 );
 
 const DetailGrid = ({ children }) => (
-	<Grid templateColumns={{base: 'repeat(1,1fr)',sm :'repeat(1, 1fr)' ,md: 'repeat(2,1fr)' }} gap={4}>
+	<Grid
+		templateColumns={{
+			base: 'repeat(1,1fr)',
+			sm: 'repeat(1, 1fr)',
+			md: 'repeat(2,1fr)',
+		}}
+		gap={4}
+	>
 		{children}
 	</Grid>
 );
@@ -283,7 +285,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
 						fontWeight='500'
 						maxWidth='200px'
 						{...props}
-						fontSize={"xs"}
+						fontSize={'xs'}
 					>
 						<a href={value} target='_blank' rel='noreferrer'>
 							{value}

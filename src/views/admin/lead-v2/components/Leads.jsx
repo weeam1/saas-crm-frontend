@@ -16,9 +16,11 @@ import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
 import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
 import SearchTags from 'components/search/SearchTags';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const Leads = ({
 	data,
+	leadsError,
 	leadsLoading,
 	leadsRefetching,
 	refreshLeads,
@@ -100,6 +102,7 @@ const Leads = ({
 	});
 	const [leadDetails, setLeadDetails] = useState(null);
 	const [sendEmail, setSendEmail] = useState(false);
+	const [isLeadCycle, setIsLeadCycle] = useState(null);
 	const [deleteLead, setDeleteLead] = useState(false);
 	const [leadAddtionalInfo, setLeadAddtionalInfo] = useState(false);
 
@@ -114,25 +117,23 @@ const Leads = ({
 	const searchTermRef = useRef('');
 
 	const handleClear = () => {
+		// for selected leads
+		if (searchTags?.length === 0) {
+			setSelectedLeads([]);
+			setSelectedValues([]);
+			setSearchClear(false);
+			return;
+		}
+
 		setSearchTags([]);
 		searchTermRef.current = '';
 		document.getElementById('searchInput').value = '';
 		setIsFormReset(true);
 		setSearchClear(false);
 		setRefetchLoading(true);
-
 		setSelectedLeads([]);
 		setSelectedValues([]);
-
 		clearSearchParams();
-		// setQueryParams((prev) => {
-		// 	const { data, dateTime, name, ...rest } = prev;
-
-		// 	// Only remove keys if they exist
-		// 	const updatedParams = { ...rest, page: 1 };
-
-		// 	return updatedParams;
-		// });
 	};
 
 	const handleSearchByName = useCallback(() => {
@@ -214,54 +215,69 @@ const Leads = ({
 					py='2'
 				>
 					<SearchTags searchTags={searchTags} />
-
-					{searchClear && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='red.400'
-							w='fit-content'
-							color='white'
-							sx={{
-								svg: {
-									fill: 'white',
-								},
-							}}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)}
 				</Flex>
 			)}
 
-			{selectedValues.length > 0 && permission?.delete && (
-				<Button
-					{...buttonStyle}
-					variant='solid'
-					bg='red.400'
-					w='fit-content'
-					color='white'
-					my='2'
-					sx={{
-						svg: {
-							fill: 'white',
-						},
-					}}
-					leftIcon={<DeleteIcon />}
-					aria-label='Delete'
-					onClick={() => setDeleteLead(true)}
+			{/* Clear and Delete button  */}
+			{(selectedValues.length > 0 || searchClear) && (
+				<Flex
+					flexDirection={{ base: 'row', lg: 'row' }}
+					justifyContent='space-between'
+					alignItems='center'
+					py='2'
 				>
-					Delete
-				</Button>
+					{searchTags?.length === 0 &&
+						selectedValues.length > 0 &&
+						permission?.delete && (
+							<Button
+								{...buttonStyle}
+								variant='solid'
+								bg='red.400'
+								w='fit-content'
+								color='white'
+								my='2'
+								sx={{
+									svg: {
+										fill: 'white',
+									},
+								}}
+								leftIcon={<DeleteIcon />}
+								aria-label='Delete'
+								onClick={() => setDeleteLead(true)}
+							>
+								Delete
+							</Button>
+						)}
+
+					<Button
+						{...buttonStyle}
+						variant='solid'
+						bg='softGray.100'
+						w='fit-content'
+						color='gray.800'
+						sx={{
+							svg: {
+								fill: 'gray.800',
+							},
+						}}
+						_active={{ bg: 'gray.100' }}
+						leftIcon={<BiX />}
+						aria-label='Clear'
+						onClick={handleClear}
+					>
+						Clear
+					</Button>
+				</Flex>
 			)}
 
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
 
-			{!isLoaded || leadsLoading || refetchLoading ? (
+			{leadsError ? (
+				<ErrorMessage
+					message={leadsError?.data?.message || 'Something went wrong!'}
+				/>
+			) : !isLoaded || leadsLoading || refetchLoading ? (
 				<CardLoader count={pageSize} />
 			) : leads && leads?.totalLeads ? (
 				<Grid
@@ -328,6 +344,7 @@ const Leads = ({
 							setViewPhoneHistory={setViewPhoneHistory}
 							setLeadAddtionalInfo={setLeadAddtionalInfo}
 							leadAddtionalInfo={leadAddtionalInfo}
+							setIsLeadCycle={setIsLeadCycle}
 						/>
 					))}
 				</Grid>
@@ -357,6 +374,8 @@ const Leads = ({
 				setViewPhoneHistory={setViewPhoneHistory}
 				setLeadAddtionalInfo={setLeadAddtionalInfo}
 				leadAddtionalInfo={leadAddtionalInfo}
+				isLeadCycle={isLeadCycle}
+				setIsLeadCycle={setIsLeadCycle}
 			/>
 
 			{/* Date time filter */}

@@ -13,11 +13,10 @@ import { BsWhatsapp } from 'react-icons/bs';
 import { MdTask } from 'react-icons/md';
 import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
-import { useStateContext } from 'contexts/store';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
@@ -25,27 +24,25 @@ import { validatePhoneNumber } from 'utils/helpers';
 
 const LeadMenu = ({
 	lead,
-	user,
+	// user,
 	access,
 	callAccess,
 	emailAccess,
+	refreshData,
 
 	setLeadDetails,
-	setAddPhoneCall,
-	setCallSelectedId,
-	setTaskInits,
-	onTaskOpen,
-
+	setIsLeadCycle,
 	setEditLead,
 	setSendEmail,
 	setSelectedValues,
 	setDeleteLead,
-	refreshData,
 	setViewPhoneHistory,
 	setLeadAddtionalInfo,
 }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
+	const user = useSelector((state) => state.user.user);
 
 	// const loginUser = useSelector((state) => state.user.user);
 
@@ -63,7 +60,7 @@ const LeadMenu = ({
 	const allowedUserEdit =
 		user?.roles[0]?.roleName === 'Agent' ? true : lead?.eLeadStatus === 'show';
 
-	const { setIsLeadCycle } = useStateContext();
+	// const { setIsLeadCycle } = useStateContext();
 
 	const handleOpenWhatsapp = async () => {
 		const businessPhone = user?.whatsappDetails?.phoneNumber;
@@ -72,7 +69,7 @@ const LeadMenu = ({
 			toast.error(
 				user?.role === 'superAdmin'
 					? 'Please first setup our whatsapp!'
-					: 'Can not open the whatsapp, please contact with Admin.'
+					: 'Your WhatsApp is not setup, please contact with Admin.'
 			);
 			return;
 		}
@@ -100,13 +97,12 @@ const LeadMenu = ({
 	};
 
 	return (
-		<Menu isLazy closeOnSelect={false}>
+		<Menu isLazy closeOnSelect={false} size='sm'>
 			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
-			<MenuList minW='fit-content'>
+			<MenuList minW='fit-content' fontSize='sm'>
 				{(user?.role === 'superAdmin' && access?.update) ||
 				(user?.role !== 'superAdmin' && allowedUserEdit) ? (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setEditLead(true);
 							setLeadDetails(lead);
@@ -127,9 +123,9 @@ const LeadMenu = ({
 					/>
 				)}
 
-				{callAccess?.create && (
+				{/* {callAccess?.create && (
 					<MenuItem
-						py={2.5}
+					
 						// onClick={() => {
 						// 	setAddPhoneCall(true);
 						// 	setCallSelectedId(leadId);
@@ -138,10 +134,9 @@ const LeadMenu = ({
 					>
 						Create Call
 					</MenuItem>
-				)}
+				)} */}
 				{emailAccess?.create && (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setSendEmail(true);
 							setLeadDetails(lead);
@@ -152,7 +147,6 @@ const LeadMenu = ({
 					</MenuItem>
 				)}
 				<MenuItem
-					py={2.5}
 					onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
 					icon={<FaHistory fontSize={15} />}
 				>
@@ -160,7 +154,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{user?.role === 'superAdmin' && (
 					<MenuItem
-						py={2.5}
 						onClick={() => {
 							setViewPhoneHistory({
 								modal: true,
@@ -173,15 +166,14 @@ const LeadMenu = ({
 					</MenuItem>
 				)}
 
-				<MenuItem
-					py={2.5}
+				{/* <MenuItem
+				
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
 					icon={<FaHistory fontSize={15} />}
 				>
 					View Call History
-				</MenuItem>
+				</MenuItem> */}
 				<MenuItem
-					py={2.5}
 					display={{ sm: 'block', xl: 'none' }}
 					onClick={() => {
 						if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
@@ -191,7 +183,6 @@ const LeadMenu = ({
 					Open in Dialpad
 				</MenuItem>
 				<MenuItem
-					py={2.5}
 					onClick={handleOpenWhatsapp}
 					icon={<BsWhatsapp fontSize={15} />}
 				>
@@ -199,7 +190,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
-						py={2.5}
 						// onClick={() => {
 						// 	setTaskInits(lead);
 						// 	onTaskOpen();
@@ -211,7 +201,6 @@ const LeadMenu = ({
 				)}
 
 				<MenuItem
-					py={2.5}
 					onClick={() => {
 						setLeadAddtionalInfo(true);
 						setLeadDetails(lead);
@@ -222,7 +211,6 @@ const LeadMenu = ({
 				</MenuItem>
 				{access?.delete && user?.role === 'superAdmin' && (
 					<MenuItem
-						py={2.5}
 						color='red'
 						onClick={() => {
 							setSelectedValues([leadId]);

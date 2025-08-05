@@ -108,7 +108,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
         overflowY="auto"
         maxH={"85vh"}
       >
-        <Table variant="striped" size="lg">
+        <Table variant="striped" size="lg" >
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
               {columns.map((header, index) => (

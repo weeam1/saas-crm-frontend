@@ -17,7 +17,6 @@ import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
-import { format } from 'date-fns';
 
 const LeftCard = ({
 	lead,
@@ -26,15 +25,12 @@ const LeftCard = ({
 	role,
 	queryParams,
 	user,
+	hiddenFields,
 	// countryList,
 }) => {
 	const leadType = useMemo(() => {
 		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
 	}, [lead?.leadType, lead?.leadStatus]);
-
-	const hiddenFields = JSON.parse(
-		localStorage.getItem('userCustomColumns') || '[]'
-	);
 
 	// const hideContact =
 	// 	role === 'Manager'

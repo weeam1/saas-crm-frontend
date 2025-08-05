@@ -74,6 +74,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
     "Sub Unit Type",
     "Type",
     "Location",
+    "country",
     "Building Age",
     "Developer",
     "Price",
@@ -117,6 +118,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
       if (filters.year) params.year = filters.year;
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.country) params.country = filters.country;
     }
 
     return params;
@@ -126,6 +128,10 @@ const MyListing = ({ listingType, listingUnitType }) => {
     { path: `listing/secondary/my-listings`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
+
+  const { data: countries } = useFetchItemsQuery({
+    path: "/countries",
+  });
 
   const handleDeleteListing = async (listingId) => {
     try {
@@ -336,14 +342,18 @@ const MyListing = ({ listingType, listingUnitType }) => {
           loading={isLoading}
         />
       </Box>
-      <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
-        maxH={"85vh"}
-        overflowY="auto"
-      >
-        <Table variant="striped" size="lg" bg="white">
+<Box
+  borderRadius="4px" 
+  boxShadow="sm"
+  borderWidth="1px"
+  overflow="hidden" 
+>
+  <Box 
+    position="relative" 
+    maxH="120vh" 
+    overflowY="auto"
+  >
+    <Table variant="striped" size="lg">
           <Thead
             position="sticky"
             top={0}
@@ -416,6 +426,16 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       textOverflow="ellipsis"
                     >
                       {listing.location || "N/A"}
+                    </Td>
+
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="250px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {listing.country?.name || "N/A"}
                     </Td>
                     <Td
                       textAlign="center"
@@ -672,6 +692,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
             </Tbody>
           )}
         </Table>
+         </Box>
       </Box>
       {/* Rejection Reason Modal */}
       <Modal
@@ -738,6 +759,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
         clearFilter={filterChanged}
+        countries={countries?.doc || []}
       />
     </Box>
   );

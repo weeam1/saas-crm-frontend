@@ -19,19 +19,20 @@ import {
 	Spinner,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FiMessageSquare } from 'react-icons/fi';
-import { toast } from 'react-toastify';
 
 const WhatsappTemplates = ({
 	isOpen,
 	onClose,
 	onSend,
-	accountId,
+	businessId,
 	isLoading,
 }) => {
 	const [selectedTemplate, setSelectedTemplate] = useState(null);
 	const [placeholderValues, setPlaceholderValues] = useState({});
+	const [errors, setErrors] = useState({});
+	const [touched, setTouched] = useState({});
 
 	const {
 		data: templates = [],
@@ -40,21 +41,41 @@ const WhatsappTemplates = ({
 	} = useFetchItemsQuery(
 		{
 			path: `/whatsapp/templates`,
-			params: { accountId },
+			params: { businessId },
 		},
 		{
-			skip: !accountId,
+			skip: !businessId,
 			refetchOnMountOrArgChange: true,
 		}
 	);
 
 	useEffect(() => {
-		if (templates?.doc?.length > 0) {
-			setSelectedTemplate(templates.doc[0]);
+		if (Array.isArray(templates?.doc)) {
+			const filtered = templates.doc.filter(
+				(template) =>
+					typeof template.name === 'string' &&
+					!template.name.toLowerCase().includes('hello_world')
+			);
+
+			if (filtered.length > 0) {
+				setSelectedTemplate(filtered[0]);
+			} else {
+				setSelectedTemplate(null);
+			}
 		}
 	}, [templates?.doc]);
 
+	const filteredTemplates = Array.isArray(templates?.doc)
+		? templates.doc.filter(
+				(template) =>
+					typeof template.name === 'string' &&
+					!template.name.toLowerCase().includes('hello_world')
+			)
+		: [];
+
 	//  Extract template body + footer
+	const templateHeader =
+		selectedTemplate?.components?.find((c) => c.type === 'HEADER')?.text || '';
 	const templateBody =
 		selectedTemplate?.components?.find((c) => c.type === 'BODY')?.text || '';
 	const templateFooter =
@@ -71,25 +92,59 @@ const WhatsappTemplates = ({
 			);
 		});
 
-		return result + (templateFooter ? `\n\n${templateFooter}` : '');
-	}, [templateBody, templateFooter, placeholderValues]);
+		const finalBody =
+			(templateHeader ? `${templateHeader}\n\n` : '') +
+			result +
+			(templateFooter ? `\n\n${templateFooter}` : '');
 
-	const hasPlaceholders = useMemo(() => {
+		return finalBody;
+	}, [templateBody, templateHeader, templateFooter, placeholderValues]);
+
+	// const hasPlaceholders = useMemo(() => {
+	// 	const body = selectedTemplate?.components?.find(
+	// 		(c) => c.type === 'BODY'
+	// 	)?.text;
+
+	// 	console.log({ body });
+	// 	return body ? /\{\{\d+\}\}/.test(body) : false;
+	// }, [selectedTemplate]);
+
+	const extractPlaceholders = useMemo(() => {
 		const body = selectedTemplate?.components?.find(
 			(c) => c.type === 'BODY'
 		)?.text;
-		return body ? /\{\{\d+\}\}/.test(body) : false;
+
+		const matches = body?.match(/{{(\d+)}}/g);
+		const unique = [...new Set(matches?.map((m) => m.match(/\d+/)?.[0]))];
+		return unique || [];
 	}, [selectedTemplate]);
 
+	const validatePlaceholders = () => {
+		const newErrors = {};
+		extractPlaceholders?.forEach((key) => {
+			if (!placeholderValues[key]?.trim()) {
+				newErrors[key] = 'This field is required';
+			}
+		});
+		setErrors(newErrors);
+		return Object.keys(newErrors).length === 0;
+	};
+
 	const handleSendTemplate = () => {
-		// if (!placeholderValues[1]) {
-		// 	return toast.error('Please enter the name placeholder value.');
-		// }
+		let placeholderArray = [];
+		if (extractPlaceholders?.length > 0) {
+			const isValid = validatePlaceholders();
+			if (!isValid) return;
+
+			placeholderArray = Object.keys(placeholderValues)
+				.sort((a, b) => Number(a) - Number(b))
+				.map((key) => placeholderValues[key]?.trim() || '');
+		}
 
 		onSend({
 			message: previewText,
 			templateName: selectedTemplate.name,
-			palceholder: placeholderValues[1] || '',
+			placeholders: placeholderArray,
 			languageCode: selectedTemplate.language,
 			type: 'template',
 		});
@@ -100,7 +155,7 @@ const WhatsappTemplates = ({
 			<Modal
 				isOpen={isOpen}
 				onClose={onClose}
-				size='5xl'
+				size='6xl'
 				isCentered
 				motionPreset='slideInBottom'
 				closeOnOverlayClick={false}
@@ -135,11 +190,11 @@ const WhatsappTemplates = ({
 								Failed to load templates. Please try again.
 							</Text>
 						) : (
-							<Flex direction={{ base: 'column', lg: 'row' }} gap={6}>
+							<Flex direction={{ base: 'column', lg: 'row' }} gap={4}>
 								{/* Template Selection Panel */}
-								<Box flex='1' minW='400px'>
+								<Box width='500px'>
 									<Text fontSize='sm' color='gray.500' mb={2}>
-										Available Templates ({templates.results})
+										Available Templates ({filteredTemplates.length})
 									</Text>
 
 									<SimpleGrid
@@ -150,109 +205,107 @@ const WhatsappTemplates = ({
 										scrollBehavior='smooth'
 										p='2'
 									>
-										{templates?.doc
-											?.filter((temp) => !temp.name.includes('hello_world'))
-											.map((template) => (
-												// <Box
-												// 	key={template.id}
-												// 	cursor='pointer'
-												// 	p={2}
-												// 	mb={3}
-												// 	borderRadius='lg'
-												// 	borderWidth='1px'
-												// 	borderColor={
-												// 		selectedTemplate?.id === template.id
-												// 			? 'green.300'
-												// 			: 'gray.200'
-												// 	}
-												// 	bg={
-												// 		selectedTemplate?.id === template.id
-												// 			? 'green.50'
-												// 			: 'white'
-												// 	}
-												// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
-												// 	transition='all 0.2s'
-												// 	onClick={() => setSelectedTemplate(template)}
-												// >
-												// 	<Flex justify='space-between' align='center' mb={2}>
-												// 		<Text
-												// 			fontWeight='bold'
-												// 			fontSize={{ base: 'xs', md: 'sm' }}
-												// 		>
-												// 			{template.name}
-												// 		</Text>
-												// 		<Badge
-												// 			colorScheme={
-												// 				template.status === 'APPROVED'
-												// 					? 'green'
-												// 					: 'orange'
-												// 			}
-												// 			fontSize='xs'
-												// 		>
-												// 			{template.status}
-												// 		</Badge>
-												// 	</Flex>
-												// </Box>
-												<Box
-													key={template.id}
-													cursor='pointer'
-													p={3}
-													mb={3}
-													borderRadius='lg'
-													borderWidth='1px'
+										{filteredTemplates?.map((template) => (
+											// <Box
+											// 	key={template.id}
+											// 	cursor='pointer'
+											// 	p={2}
+											// 	mb={3}
+											// 	borderRadius='lg'
+											// 	borderWidth='1px'
+											// 	borderColor={
+											// 		selectedTemplate?.id === template.id
+											// 			? 'green.300'
+											// 			: 'gray.200'
+											// 	}
+											// 	bg={
+											// 		selectedTemplate?.id === template.id
+											// 			? 'green.50'
+											// 			: 'white'
+											// 	}
+											// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
+											// 	transition='all 0.2s'
+											// 	onClick={() => setSelectedTemplate(template)}
+											// >
+											// 	<Flex justify='space-between' align='center' mb={2}>
+											// 		<Text
+											// 			fontWeight='bold'
+											// 			fontSize={{ base: 'xs', md: 'sm' }}
+											// 		>
+											// 			{template.name}
+											// 		</Text>
+											// 		<Badge
+											// 			colorScheme={
+											// 				template.status === 'APPROVED'
+											// 					? 'green'
+											// 					: 'orange'
+											// 			}
+											// 			fontSize='xs'
+											// 		>
+											// 			{template.status}
+											// 		</Badge>
+											// 	</Flex>
+											// </Box>
+											<Box
+												key={template.id}
+												cursor='pointer'
+												p={3}
+												mb={3}
+												borderRadius='lg'
+												borderWidth='1px'
+												borderColor={
+													selectedTemplate?.id === template.id
+														? 'green.300'
+														: 'gray.100'
+												}
+												bg={
+													selectedTemplate?.id === template.id
+														? 'green.50'
+														: 'gray.100'
+												}
+												_hover={{ borderColor: 'green.200' }}
+												transition='all 0.2s ease'
+												onClick={() => setSelectedTemplate(template)}
+												position='relative'
+												pl={10} // Add padding for the radio circle
+											>
+												{/* Custom radio circle */}
+												<Flex
+													position='absolute'
+													left={3}
+													top='50%'
+													transform='translateY(-50%)'
+													w={5}
+													h={5}
+													borderWidth='2px'
 													borderColor={
 														selectedTemplate?.id === template.id
-															? 'green.300'
-															: 'gray.100'
+															? 'green.400'
+															: 'gray.300'
 													}
-													bg={
-														selectedTemplate?.id === template.id
-															? 'green.50'
-															: 'gray.100'
-													}
-													_hover={{ borderColor: 'green.200' }}
-													transition='all 0.2s ease'
-													onClick={() => setSelectedTemplate(template)}
-													position='relative'
-													pl={10} // Add padding for the radio circle
+													borderRadius='full'
+													align='center'
+													justify='center'
 												>
-													{/* Custom radio circle */}
-													<Flex
-														position='absolute'
-														left={3}
-														top='50%'
-														transform='translateY(-50%)'
-														w={5}
-														h={5}
-														borderWidth='2px'
-														borderColor={
-															selectedTemplate?.id === template.id
-																? 'green.400'
-																: 'gray.300'
-														}
-														borderRadius='full'
-														align='center'
-														justify='center'
-													>
-														{selectedTemplate?.id === template.id && (
-															<Box
-																w={3}
-																h={3}
-																bg='green.400'
-																borderRadius='full'
-															/>
-														)}
-													</Flex>
+													{selectedTemplate?.id === template.id && (
+														<Box
+															w={3}
+															h={3}
+															bg='green.400'
+															borderRadius='full'
+														/>
+													)}
+												</Flex>
 
-													<Flex justify='space-between' align='center'>
-														<Text
-															fontWeight='medium'
-															fontSize={{ base: 'sm', md: 'md' }}
-															color='gray.700'
-														>
-															{template.name}
-														</Text>
-														{/* <Badge
+												<Flex justify='space-between' align='center'>
+													<Text
+														fontWeight='medium'
+														fontSize={{ base: 'sm', md: 'md' }}
+														color='gray.700'
+													>
+														{template.name}
+													</Text>
+													{/* <Badge
 															colorScheme={
 																template.status === 'APPROVED'
 																	? 'green'
@@ -266,9 +319,9 @@ const WhatsappTemplates = ({
 														>
 															{template.status}
 														</Badge> */}
-													</Flex>
-												</Box>
-											))}
+												</Flex>
+											</Box>
+										))}
 									</SimpleGrid>
 								</Box>
 
@@ -276,10 +329,11 @@ const WhatsappTemplates = ({
 									maxHeight='50vh'
 									p='1'
 									overflowY='auto'
+									flex='1'
 									scrollBehavior='smooth'
 								>
 									{/* Name Input Field */}
-									{selectedTemplate && hasPlaceholders && (
+									{/* {selectedTemplate && hasPlaceholders && (
 										<Box mb={3}>
 											<Text fontSize='sm' fontWeight='medium' mb={1}>
 												Name
@@ -297,7 +351,46 @@ const WhatsappTemplates = ({
 												}
 											/>
 										</Box>
-									)}
+									)} */}
+
+									{selectedTemplate &&
+										extractPlaceholders?.length > 0 &&
+										extractPlaceholders?.map((key) => (
+											<Box key={key} mb={3}>
+												<Text fontSize='sm' fontWeight='medium' mb={1}>
+													Placeholder {key}
+												</Text>
+												<Input
+													placeholder={`Enter value for {{${key}}}`}
+													size='sm'
+													bg='white'
+													required
+													borderColor={errors[key] ? 'red.500' : 'gray.300'}
+													_hover={{
+														borderColor: errors[key] ? 'red.600' : 'gray.400',
+													}}
+													focusBorderColor={
+														errors[key] ? 'red.500' : 'brand.500'
+													}
+													value={placeholderValues[key] || ''}
+													onChange={(e) => {
+														setPlaceholderValues({
+															...placeholderValues,
+															[key]: e.target.value,
+														});
+														if (touched[key]) {
+															setErrors((prev) => ({ ...prev, [key]: '' }));
+														}
+													}}
+													onBlur={() => setTouched({ ...touched, [key]: true })}
+												/>
+												{errors[key] && (
+													<Text color='red.500' fontSize='xs' mt={1}>
+														{errors[key]}
+													</Text>
+												)}
+											</Box>
+										))}
 
 									{/* Preview Panel */}
 									<Box flex='1' minW='300px'>

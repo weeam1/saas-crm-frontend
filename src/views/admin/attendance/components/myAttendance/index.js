@@ -8,20 +8,19 @@ import Header from './Header';
 import AttendanceTable from './AttendanceTable';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { buttonStyle } from '../../constants';
-import { IoArrowBack } from 'react-icons/io5';
-import AppButton from 'components/shared/AppButton';
 import AttendanceShimmer from './AttendanceShimmer';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import CreateAttendance from './CreateAttendance';
 import { FaPlus } from 'react-icons/fa';
 import ExportEmployeeAttendanceReport from './ExportEmployeeAttendanceReport';
 
-const Attendance = () => {
-	const { id: employeeId } = useParams();
+const Attendance = ({ userId }) => {
+	let { id: paramId } = useParams();
 	const user = JSON.parse(localStorage.getItem('user'));
 
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const employeeId = role === 'Developer' ? user?._id : userId || paramId;
 
 	const { data: employee, isLoading: employeeLoading } = useFetchItemsQuery(
 		{
@@ -74,18 +73,14 @@ const Attendance = () => {
 				minH='100vh'
 				fontFamily="'DM Sans', sans-serif"
 			>
-				<AppButton
+				{/* <AppButton
 					leftIcon={<IoArrowBack />}
 					onClick={() =>
-						navigate(
-							['superAdmin', 'HR'].includes(role)
-								? '/attendance/employees'
-								: '/attendance'
-						)
+						navigate(-1)
 					}
 				>
 					Back
-				</AppButton>
+				</AppButton> */}
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
@@ -134,7 +129,7 @@ const Attendance = () => {
 								employee={data?.employee}
 								refetch={refetch}
 							/>
-							{['HR', 'superAdmin'].includes(role) && (
+							{['HR', 'superAdmin', 'Developer'].includes(role) && (
 								<AttendanceMark
 									data={data}
 									timezone={timezone}

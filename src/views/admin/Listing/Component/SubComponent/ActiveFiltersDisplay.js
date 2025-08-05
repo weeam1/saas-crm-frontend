@@ -77,6 +77,9 @@ const ActiveFiltersDisplay = ({
             } else if (key === "startFrom" || key === "startTo") {
               displayValue = `${key === "startFrom" ? "From" : "To"}: ${formatDate(value)}`;
             }
+            else if (key === "country") {
+              displayValue = `Country: ${value}`;
+            }
 
             return (
               <Tag key={key} size="md" variant="subtle" bg="softGray.600">

@@ -12,15 +12,17 @@ import {
 	IconButton,
 	Tooltip,
 	useClipboard,
+	Button,
+	HStack,
 } from '@chakra-ui/react';
 import TableLoading from 'components/loading/TableLoading';
-
 import NoData from 'components/Message/NoData';
 import { FiEdit, FiTrash } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { CopyIcon } from '@chakra-ui/icons';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import UserAvatar from 'components/shared/UserAvatar';
+import { useNavigate } from 'react-router-dom';
+import { buttonStyle } from './../../leadPool-v2/components/constants';
 
 const UsersTable = ({
 	data,
@@ -38,6 +40,8 @@ const UsersTable = ({
 		'Status',
 		'Action',
 	];
+
+	console.log({ data });
 
 	const navigate = useNavigate();
 
@@ -95,20 +99,6 @@ const UsersTable = ({
 									<CopyPhoneCell value={item?.businessId} />
 								</Td>
 
-								{/* <Td textAlign='center'>
-									<Button
-										leftIcon={<FaWhatsapp />}
-										aria-label='Go to WhatsApp'
-										variant='solid'
-										size='sm'
-										colorScheme='whatsapp'
-										onClick={() =>
-											navigate(`/whatsapp?phoneNumber=${item.phoneNumber}`)
-										}
-									>
-										WhatsApp
-									</Button>
-								</Td> */}
 								<Td textAlign='center'>{item?.user?.agency?.name || 'N/A'}</Td>
 								<Td textAlign='center'>
 									<Badge
@@ -122,28 +112,43 @@ const UsersTable = ({
 										{item?.isActive ? 'Enable' : 'Disable'}
 									</Badge>
 								</Td>
-								<Td textAlign='center' minWidth='150px'>
-									<Tooltip label='Edit' hasArrow placement='top'>
-										<IconButton
-											icon={<FiEdit />}
-											aria-label='Edit'
-											variant='ghost'
-											size='sm'
-											colorScheme='green'
-											onClick={() => handleEdit(item)}
-										/>
-									</Tooltip>
+								<Td textAlign='center' minWidth='200px'>
+									<HStack gap='2' alig='center'>
+										{item?.businessId && (
+											<Button
+												{...buttonStyle}
+												colorScheme='brand'
+												onClick={() =>
+													navigate(
+														`/settings/whatsapp_manager/message_templates/${item?.businessId}`
+													)
+												}
+											>
+												Templates
+											</Button>
+										)}
+										<Tooltip label='Edit' hasArrow placement='top'>
+											<IconButton
+												icon={<FiEdit />}
+												aria-label='Edit'
+												variant='ghost'
+												size='sm'
+												colorScheme='green'
+												onClick={() => handleEdit(item)}
+											/>
+										</Tooltip>
 
-									<Tooltip label='Delete' hasArrow placement='top'>
-										<IconButton
-											icon={<FiTrash />}
-											aria-label='Delete'
-											variant='ghost'
-											size='sm'
-											colorScheme='red'
-											onClick={() => handleDelete(item._id)}
-										/>
-									</Tooltip>
+										<Tooltip label='Delete' hasArrow placement='top'>
+											<IconButton
+												icon={<FiTrash />}
+												aria-label='Delete'
+												variant='ghost'
+												size='sm'
+												colorScheme='red'
+												onClick={() => handleDelete(item._id)}
+											/>
+										</Tooltip>
+									</HStack>
 								</Td>
 							</Tr>
 						))

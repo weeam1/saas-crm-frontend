@@ -16,18 +16,13 @@ import {
 } from '@chakra-ui/react';
 import Card from 'components/card/Card';
 import { HSeparator } from 'components/separator/Separator';
-import Spinner from 'components/spinner/Spinner';
 import { useEffect, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
 import { Link, useParams } from 'react-router-dom';
 import { getApi } from 'services/api';
-import Add from './Add';
 import Delete from './Delete';
 import Edit from './Edit';
-import RoleTable from './components/roleTable';
-import RoleModal from './components/roleModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../../../redux/localSlice';
 import { constant } from 'constant';
 
 // import DefaultUserImage from 'assets/img/avatars/user.jpg';
@@ -36,6 +31,7 @@ import DefaultUserImage from 'assets/logo/logo.png';
 import Loader from 'components/loading/Loader';
 import DisplayField from 'components/displays/DisplayField';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { formatCurrency } from 'utils/helpers';
 
 const View = () => {
 	const RoleColumn = [
@@ -140,7 +136,7 @@ const View = () => {
 								<Flex
 									justifyContent={{ base: 'start', sm: 'start', md: 'end' }}
 								>
-									{isAdmin ? (
+									{isAdmin || user?.roles[0]?.roleName === 'Manager' ? (
 										<Menu>
 											<MenuButton
 												variant='outline'
@@ -298,6 +294,10 @@ const View = () => {
 												value={data?.salaryType}
 											/>
 											<DisplayField label='Salary' value={data?.salary} />
+											<DisplayField
+												label='Target'
+												value={formatCurrency(data?.target, data?.currency)}
+											/>
 											<DisplayField label='Agency' value={data?.agency?.name} />
 										</Grid>
 									</Box>

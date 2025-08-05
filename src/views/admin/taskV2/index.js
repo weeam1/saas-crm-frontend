@@ -13,7 +13,6 @@ import {
   IconButton,
   Select,
   useBreakpointValue,
-  Badge,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiSearch } from "react-icons/fi";
@@ -33,6 +32,7 @@ import TableLoading from "components/loading/TableLoading";
 import AddTaskModal from "./components/AddTaskModal";
 import EditTaskModal from "./components/EditTaskModal";
 import TaskDetailsModal from "./components/TaskDetailsModal";
+import { getApi } from "services/api";
 
 const TaskV2 = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -45,6 +45,7 @@ const TaskV2 = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null);
+  const [agents, setAgents] = useState([]);
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [updateStatus] = useUpdateItemMutation();
@@ -53,7 +54,7 @@ const TaskV2 = () => {
   const [tableData, setTableData] = useState([]);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-  const { allUsers = [], agents = [] } = useFetchUserHierarchy(user);
+  const { allUsers = [] } = useFetchUserHierarchy(user);
 
   const columns = [
     "SR.No",
@@ -117,6 +118,13 @@ const TaskV2 = () => {
     { path: "taskV2", params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
+
+ const agencyName = user?.roles[0]?.roleName === "HR" && user?.agency?.name;
+
+ const { data: usersData } = useFetchItemsQuery({
+  path: "/v2/user/search_users",
+  params: { agencyFilter: agencyName || "" },
+});
 
   const handleDeleteTask = async (taskId) => {
     try {
@@ -205,6 +213,35 @@ const TaskV2 = () => {
     return moment(date).isValid() ? moment(date).format("MMM D, YYYY") : "N/A";
   };
 
+  useEffect(() => {
+    async function fetchAgents() {
+      if (user?.roles[0]?.roleName === "Manager") {
+        const apiUrl = `api/v2/user/hierarchy?managerId=${user._id}`;
+        const { data } = await getApi(apiUrl);
+        setAgents(data.doc || []);
+      }
+    }
+    fetchAgents();
+  }, []);
+
+  const updateTaskPriority = async (taskId, priority) => {
+    try {
+      await updateStatus({
+        path: `/taskV2/${taskId}`,
+        body: { priority },
+      }).unwrap();
+
+      toast.success("Priority updated successfully");
+      setTableData((prevData) =>
+        prevData.map((task) =>
+          task._id === taskId ? { ...task, priority } : task
+        )
+      );
+    } catch (error) {
+      toast.error("Error updating priority");
+    }
+  };
+
   return (
     <Box
       overflowY="auto"
@@ -230,8 +267,7 @@ const TaskV2 = () => {
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
           {(user?.role === "superAdmin" ||
-            user?.roles[0]?.roleName === "Manager" ||
-            user?.roles[0]?.roleName === "HR") && (
+            user?.roles[0]?.roleName === "Manager" ||  user?.roles[0]?.roleName === "HR") && (
             <Button
               size="md"
               colorScheme="brand"
@@ -365,9 +401,22 @@ const TaskV2 = () => {
                       {formatDate(task.due_date)}
                     </Td>
                     <Td textAlign="center">
-                      <Badge colorScheme={priorityColors[task.priority]}>
-                        {task.priority || "N/A"}
-                      </Badge>
+                      <Select
+                        value={task.priority}
+                        onChange={(e) =>
+                          updateTaskPriority(task._id, e.target.value)
+                        }
+                        size="sm"
+                        width="150px"
+                        focusBorderColor="brand.500"
+                        bg={priorityColors[task.priority] + ".100"}
+                        color={priorityColors[task.priority] + ".800"}
+                      >
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Urgent">Urgent</option>
+                      </Select>
                     </Td>
                     <Td
                       textAlign="center"
@@ -494,12 +543,12 @@ const TaskV2 = () => {
         users={
           user?.role === "superAdmin"
             ? allUsers
-            : user?.roles[0]?.roleName === "Manager" ||
-              user?.roles[0]?.roleName === "HR"
-            ? agents
-            : []
+            : user?.roles[0]?.roleName === "Manager"
+              ? agents
+              : []
         }
         user={user}
+        usersData={usersData}
       />
 
       <AddTaskModal
@@ -511,12 +560,12 @@ const TaskV2 = () => {
         users={
           user?.role === "superAdmin"
             ? allUsers
-            : user?.roles[0]?.roleName === "Manager" ||
-              user?.roles[0]?.roleName === "HR"
-            ? agents
-            : []
+            : user?.roles[0]?.roleName === "Manager"
+              ? agents
+              : []
         }
         user={user}
+        usersData={usersData}
       />
 
       {selectedTaskForEdit && (
@@ -534,11 +583,12 @@ const TaskV2 = () => {
             user?.role === "superAdmin"
               ? allUsers
               : user?.roles[0]?.roleName === "Manager" ||
-                user?.roles[0]?.roleName === "HR"
-              ? agents
-              : []
+                  user?.roles[0]?.roleName === "HR"
+                ? agents
+                : []
           }
           user={user}
+          usersData={usersData}
         />
       )}
     </Box>

@@ -5,7 +5,7 @@ import InfoSection from './InfoSection';
 import { useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 
-const RightCard = ({ lead }) => {
+const RightCard = ({ lead, hiddenFields }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { city, country } = extractLocationData(lead?.ip, countries);
 
@@ -35,16 +35,21 @@ const RightCard = ({ lead }) => {
 				gap={2}
 				mt={6}
 			>
-				<EntityField
-					label='City'
-					value={city}
-					valueProps={{ color: '#FF0004' }}
-				/>
-				<EntityField
-					label='Country'
-					value={country}
-					valueProps={{ color: '#FF0004' }}
-				/>
+				{!hiddenFields.includes('city') && (
+					<EntityField
+						label='City'
+						value={city}
+						valueProps={{ color: '#FF0004' }}
+					/>
+				)}
+
+				{!hiddenFields.includes('country') && (
+					<EntityField
+						label='Country'
+						value={country}
+						valueProps={{ color: '#FF0004' }}
+					/>
+				)}
 			</Flex>
 
 			{/* Info Section with Responsive Width */}

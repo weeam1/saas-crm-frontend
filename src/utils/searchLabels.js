@@ -31,6 +31,26 @@ export const hiringLabels = {
 	experienceYears: 'Experience in Years', // Uncomment if needed
 };
 
+export const dealsLabels = {
+	manager: 'Manager',
+	agent: 'Agent',
+	spaDone: 'SPA Signed',
+	dealStatus: 'Deal Status',
+	closedBy: 'Closed By',
+	commissionStatus: 'Commission Status',
+	clientName: 'Client Name',
+	clientNumber: 'Client Number',
+	developer: 'Developer',
+	salesPerson: 'Sales Person',
+	projectName: 'Project Name',
+	unitNumber: 'Unit Number',
+	unitType: 'Unit Type',
+	unitPrice: 'Unit Price',
+	invoiceSent: 'Invoice Sent',
+	downpaymentPaid: 'Downpayment Paid',
+	bookingAmountPaid: 'Booking Amount Paid',
+};
+
 export const mainLeadStatusLabels = {
 	interested: 'Interested',
 	'not-interested': 'Not interested',

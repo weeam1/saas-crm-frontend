@@ -69,6 +69,8 @@ const BulkAssignModal = (props) => {
 		setSelectAllChecked,
 	} = props;
 
+	console.log({ selectedLeads });
+
 	const [isMounted, setIsMounted] = useState(true);
 
 	useEffect(() => {
@@ -122,8 +124,6 @@ const BulkAssignModal = (props) => {
 			if (res.status === 200) {
 				// refreshData();
 				const updates = createUpdates(selectedValues, values);
-
-				console.log({ updates });
 
 				dispatch(
 					updateMultipleLeadFields({

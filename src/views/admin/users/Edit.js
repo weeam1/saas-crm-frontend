@@ -36,6 +36,7 @@ import ReplaceManager from './components/ReplaceManager';
 import { buttonStyle } from 'utils/btn';
 import PasswordPermission from './components/PasswordPermission';
 import { fetchActiveTree, fetchTree } from './userApis';
+import { currencyOptions } from 'utils/options';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -78,6 +79,7 @@ const Edit = (props) => {
 		target: data?.target ?? '',
 		roles: data?.roles ?? [],
 		role: data?.roles[0]?._id ?? '',
+		currency: data?.currency ?? 'AED',
 	};
 
 	const user = JSON.parse(window.localStorage.getItem('user'));
@@ -558,7 +560,13 @@ const Edit = (props) => {
 											{errors.agency && touched.agency && errors.agency}
 										</Text>
 									</GridItem>
+								</>
+							)}
 
+							{(isAdmin ||
+								(user?.roles[0]?.roleName === 'Manager' &&
+									user._id !== data._id)) && (
+								<>
 									<GridItem colSpan={{ base: 6 }}>
 										<FormLabel
 											display='flex'
@@ -567,7 +575,39 @@ const Edit = (props) => {
 											fontWeight='500'
 											mb='8px'
 										>
-											Revenue Target
+											Currency
+										</FormLabel>
+										<Select
+											name='currency'
+											value={values.currency}
+											onChange={handleChange}
+											onBlur={handleBlur}
+											isDisabled
+											placeholder='Select currency'
+											borderColor={
+												errors.currency && touched.currency ? 'red.300' : null
+											}
+										>
+											{currencyOptions?.map((item) => (
+												<option key={item.value} value={item.value}>
+													{item.label}
+												</option>
+											))}
+										</Select>
+
+										<Text mb='10px' color={'red'}>
+											{errors.currency && touched.currency && errors.currency}
+										</Text>
+									</GridItem>
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											Target
 										</FormLabel>
 										<InputGroup>
 											<Input
@@ -578,8 +618,7 @@ const Edit = (props) => {
 												value={values.target}
 												name='target'
 												fontWeight='500'
-												placeholder='Revenue Target'
-												borderRadius='16px'
+												placeholder='Target'
 											/>
 										</InputGroup>
 									</GridItem>

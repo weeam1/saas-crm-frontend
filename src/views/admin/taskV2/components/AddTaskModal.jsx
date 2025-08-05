@@ -22,6 +22,7 @@ import * as Yup from "yup";
 import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import { toast } from "react-toastify";
+import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -32,7 +33,14 @@ const validationSchema = Yup.object().shape({
   type: Yup.string().required("Type is required"),
 });
 
-const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
+const AddTaskModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  users,
+  user,
+  usersData,
+}) => {
   const [createTask] = useCreateItemMutation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
@@ -77,6 +85,9 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
     onClose();
   };
 
+  const handleSelectUser = (user) => {
+    formik.setFieldValue("assigned_to", user?._id || null);
+  };
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl" isCentered>
       <ModalOverlay />
@@ -86,26 +97,23 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
         <form onSubmit={formik.handleSubmit}>
           <ModalBody overflowY="auto" maxH={{ base: "70vh", md: "75vh" }}>
             <VStack spacing={4} align="stretch">
-              <FormControl isInvalid={formik.errors.assigned_to && formik.touched.assigned_to}>
+              <FormControl
+                isInvalid={
+                  formik.errors.assigned_to && formik.touched.assigned_to
+                }
+              >
                 <FormLabel>Assigned To</FormLabel>
-                <Select
-                  name="assigned_to"
-                  value={formik.values.assigned_to}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  placeholder="Select user"
-                  focusBorderColor={formik.errors.assigned_to ? "red.500" : "#E0B960"}
-                >
-                  {users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.name}
-                    </option>
-                  ))}
-                </Select>
+                <SearchUsers
+                  selectedUserId={formik.values.assigned_to || null}
+                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
+                  onSelectUser={handleSelectUser}
+                />
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>
               </FormControl>
 
-              <FormControl isInvalid={formik.errors.title && formik.touched.title}>
+              <FormControl
+                isInvalid={formik.errors.title && formik.touched.title}
+              >
                 <FormLabel>Title</FormLabel>
                 <Input
                   name="title"
@@ -118,7 +126,11 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
                 <FormErrorMessage>{formik.errors.title}</FormErrorMessage>
               </FormControl>
 
-              <FormControl isInvalid={formik.errors.description && formik.touched.description}>
+              <FormControl
+                isInvalid={
+                  formik.errors.description && formik.touched.description
+                }
+              >
                 <FormLabel>Description</FormLabel>
                 <Textarea
                   name="description"
@@ -126,17 +138,23 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   placeholder="Task description"
-                  focusBorderColor={formik.errors.description ? "red.500" : "#E0B960"}
+                  focusBorderColor={
+                    formik.errors.description ? "red.500" : "#E0B960"
+                  }
                 />
                 <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
               </FormControl>
 
               <Flex gap={4} w="100%" direction={{ base: "column", md: "row" }}>
-                <FormControl isInvalid={formik.errors.due_date && formik.touched.due_date}>
+                <FormControl
+                  isInvalid={formik.errors.due_date && formik.touched.due_date}
+                >
                   <FormLabel>Due Date</FormLabel>
                   <CustomDatePicker
                     selectedDate={formik.values.due_date}
-                    handleDateChange={(date) => formik.setFieldValue("due_date", date)}
+                    handleDateChange={(date) =>
+                      formik.setFieldValue("due_date", date)
+                    }
                     minDate={new Date()}
                     isCalendarOpen={isCalendarOpen}
                     toggleCalendar={() => setIsCalendarOpen(!isCalendarOpen)}
@@ -145,14 +163,18 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
                   <FormErrorMessage>{formik.errors.due_date}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl isInvalid={formik.errors.priority && formik.touched.priority}>
+                <FormControl
+                  isInvalid={formik.errors.priority && formik.touched.priority}
+                >
                   <FormLabel>Priority</FormLabel>
                   <Select
                     name="priority"
                     value={formik.values.priority}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    focusBorderColor={formik.errors.priority ? "red.500" : "#E0B960"}
+                    focusBorderColor={
+                      formik.errors.priority ? "red.500" : "#E0B960"
+                    }
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -163,7 +185,9 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
                 </FormControl>
               </Flex>
 
-              <FormControl isInvalid={formik.errors.type && formik.touched.type}>
+              <FormControl
+                isInvalid={formik.errors.type && formik.touched.type}
+              >
                 <FormLabel>Type</FormLabel>
                 <Select
                   name="type"
@@ -177,7 +201,9 @@ const AddTaskModal = ({ isOpen, onClose, onSuccess, users, user }) => {
                   <option value="Site Visit">Site Visit</option>
                   <option value="Call">Call</option>
                   <option value="Email">Email</option>
-                  <option value="Document Collection">Document Collection</option>
+                  <option value="Document Collection">
+                    Document Collection
+                  </option>
                   <option value="Custom">Custom</option>
                 </Select>
                 <FormErrorMessage>{formik.errors.type}</FormErrorMessage>

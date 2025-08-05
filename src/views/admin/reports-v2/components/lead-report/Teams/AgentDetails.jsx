@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Flex, Text, Grid, Stack } from '@chakra-ui/react';
 import {
 	FiTrendingUp,
@@ -12,11 +12,35 @@ import LeadStatusChart from '../LeadStatusChart';
 import LeadMainStatusChart from '../LeadMainStatusChart';
 import { viewOptions } from 'views/admin/reports-v2/helpers';
 import TopFilter from '../../TopFilter';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import SalesBarChart from '../SalesBarChart';
 
 const AgentDetails = ({ agents }) => {
-	const [selectedAgent, setSelectedAgent] = useState(agents[0]);
+	const sortedAgents = useMemo(
+		() =>
+			[...agents].sort(
+				(a, b) =>
+					(b.leadData?.closedDeals || 0) - (a.leadData?.closedDeals || 0)
+			),
+		[agents]
+	);
+
+	const [selectedAgent, setSelectedAgent] = useState(
+		sortedAgents.length > 0 ? sortedAgents[0] : null
+	);
 
 	const [view, setView] = useState('top5');
+
+	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
+		{
+			path: '/deals/sales_report',
+			params: { userId: selectedAgent._id },
+		},
+		{
+			skip: !selectedAgent._id,
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	return (
 		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4'>
@@ -115,6 +139,11 @@ const AgentDetails = ({ agents }) => {
 					)}
 				</Stack>
 			</Box>
+
+			{/* Sales Report */}
+			{sales?.sales_report && (
+				<SalesBarChart data={sales?.sales_report} title='Agent Monthly Sales' />
+			)}
 		</Box>
 	);
 };

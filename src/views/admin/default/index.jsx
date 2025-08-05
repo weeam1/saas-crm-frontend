@@ -38,6 +38,7 @@ import TodaySummary from './components/TodaySummary';
 import LeadStatusTable from './components/LeadStatusStats';
 import LeadStatusStats from './components/LeadStatusStats';
 import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
+import SalesDashboard from './components/sales/SalesDashboard';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -135,6 +136,21 @@ export default function UserReports() {
 				skip: !userRole === 'superAdmin',
 			}
 		);
+
+	const salesQueryParmas =
+		['Agent', 'Manager'].includes(userRole) && user?._id
+			? { userId: user._id }
+			: {};
+
+	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
+		{
+			path: '/deals/monthly',
+			params: salesQueryParmas,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	// const fetchTasks = async () => {
 	// 	let taskData;
@@ -286,11 +302,17 @@ export default function UserReports() {
 		},
 	];
 
-	return isLoading || todaySummaryLoading || leadStatusLoading ? (
+	return isLoading ||
+		todaySummaryLoading ||
+		leadStatusLoading ||
+		salesLoading ? (
 		<Loader />
 	) : (
 		<Box fontFamily="'DM Sans', sans-serif">
 			<Header />
+
+			<SalesDashboard data={sales} />
+
 			{userRole === 'superAdmin' && (
 				<>
 					<TodaySummary summary={todaySummary?.summary} />

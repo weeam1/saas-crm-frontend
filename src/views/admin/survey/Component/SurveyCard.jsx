@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
   Text,
   Button,
   Tooltip,
-  useBreakpointValue,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -17,6 +16,7 @@ import {
   useDisclosure,
   Alert,
   AlertIcon,
+  keyframes,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { DeleteIcon } from "@chakra-ui/icons";
@@ -24,12 +24,65 @@ import { toast } from "react-toastify";
 import { useDeleteItemMutation } from "api/apiSlice";
 import CustomTooltip from "../../../../components/shared/CustomTooltip";
 
-const SurveyCard = ({ data, isActive, refetch }) => {
+const colorTheme = {
+  primary: "#B79045", 
+  active: {
+    bg: "#FFF9E6",
+    accent: "#D4A017",
+    border: "#E8D9A8", 
+    status: "#38A169", 
+    text: "#5F370E", 
+  },
+  inactive: {
+    bg: "#FEF2F2", 
+    accent: "#EF4444", 
+    border: "#FECACA", 
+    status: "#F59E0B", 
+  },
+  buttons: {
+    primary: "#B79045", 
+    hover: "#C9A158", 
+    active: "#A57D3C", 
+    disabled: "#EDF2F7", 
+    text: "#FFFFFF",
+  },
+  modal: {
+    header: "#B79045", 
+    accent: "#D4A017", 
+  }
+};
+
+const floatAnimation = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+`;
+
+const pulseAnimation = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(183, 144, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0); }
+`;
+
+const SurveyCard = ({ data, isActive, refetch, index }) => {
+  const [hasAnimated, setHasAnimated] = useState(false);
   const navigate = useNavigate();
   const user = localStorage.getItem("user");
   const parsedUser = user ? JSON.parse(user) : null;
   const isAdmin = parsedUser?.role === "superAdmin";
   const currentUserId = parsedUser?._id;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [securityPassword, setSecurityPassword] = useState("");
+  const [surveyIdToDelete, setSurveyIdToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteItemMutation] = useDeleteItemMutation();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasAnimated(true);
+    }, index * 100);
+    return () => clearTimeout(timer);
+  }, [index]);
 
   let isSurveyCompleted = false;
   if (Array.isArray(data.invitedUsers) && currentUserId) {
@@ -45,27 +98,9 @@ const SurveyCard = ({ data, isActive, refetch }) => {
     }
   }
 
-  const cardWidth = useBreakpointValue({
-    base: "95%",
-    sm: "220px",
-    md: "240px",
-    lg: "260px",
-  });
+  const colors = isActive ? colorTheme.active : colorTheme.inactive;
 
-  const cardPadding = useBreakpointValue({
-    base: 2,
-    md: 3,
-    lg: 3,
-  });
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [securityPassword, setSecurityPassword] = useState("");
-  const [surveyIdToDelete, setSurveyIdToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const [deleteItemMutation] = useDeleteItemMutation();
-
-  const handleDeleteClick = (id) => {
+  const handleDeleteClick = (e,id) => {
     setSurveyIdToDelete(id);
     setSecurityPassword("");
     onOpen();
@@ -101,183 +136,158 @@ const SurveyCard = ({ data, isActive, refetch }) => {
       <Box
         width="100%"
         height="100%"
-        borderWidth="1px"
-        borderRadius="lg"
-        p={cardPadding}
-        bg="#FFFFFF"
+        border="2px solid"
+        borderColor={colors.border}
+        borderRadius="12px"
+        p={6}
+        bg={"white"}
         position="relative"
-        boxShadow="sm"
+        boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.05)"
         display="flex"
         flexDirection="column"
         justifyContent="space-between"
+        transition="all 0.3s ease"
+        cursor="pointer"
+        overflow="hidden"
+        animation={`${hasAnimated ? floatAnimation : "none"} 0.5s ease-in-out`}
+        _hover={{
+          transform: "translateY(-5px)",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+          bg: "gray.100"
+        }}
+        _before={{
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "6px",
+          height: "100%",
+          bg: colors.accent,
+          borderRadius: "12px 0 0 12px",
+        }}
       >
-        <Box
-          display="flex"
-          justifyContent={isAdmin ? "space-between" : "flex-end"}
-          alignItems="center"
-          mb={2}
-        >
-          <CustomTooltip label={isActive ? "Active" : "Complete"}>
+        <Flex justify="space-between" mb={4} zIndex={1}>
+          <CustomTooltip label={isActive ? "Active" : "Inactive"}>
             <Box
               width="18px"
               height="18px"
-              minWidth="18px"
-              minHeight="18px"
-              bg={isActive ? "green.600" : "red.600"}
+              bg={colors.status}
               borderRadius="full"
-              cursor="pointer"
-              tabIndex={0}
-              aria-label={isActive ? "Active" : "Complete"}
+              boxShadow="sm"
+              transition="all 0.2s"
+              _hover={{ 
+                transform: "scale(1.1)",
+                animation: `${pulseAnimation} 1.5s infinite`
+              }}
             />
           </CustomTooltip>
 
           {isAdmin && (
-            <Tooltip
-              label="Delete Survey"
-              fontSize="sm"
-              placement="top"
-              hasArrow
-            >
+            <Tooltip label="Delete Survey" placement="top">
               <DeleteIcon
                 color="red.500"
                 boxSize={4}
-                cursor="pointer"
-                transition="color 0.2s, opacity 0.2s"
-                _hover={{ color: "red.400", opacity: 0.8 }}
-                onClick={() => handleDeleteClick(data.id || data._id)}
+                _hover={{ 
+                  color: "red.400", 
+                  transform: "scale(1.1)",
+                  animation: `${pulseAnimation} 1.5s infinite`
+                }}
+                transition="all 0.2s"
+                onClick={(e) => handleDeleteClick(e, data.id || data._id)}
               />
             </Tooltip>
           )}
-        </Box>
+        </Flex>
 
-        <Box flex="1">
-          <Box mb={1}>
-            <Text
-              fontSize="sm"
-              fontWeight={"700"}
-              noOfLines={2}
-              lineHeight="1.3em"
-              wordBreak="break-word"
-              textOverflow="ellipsis"
-              display="-webkit-box"
-              sx={{
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {data.name
-                ? data.name.charAt(0).toUpperCase() +
-                  data.name.slice(1).toLowerCase()
-                : "" || data.title
-                  ? data.title.charAt(0).toUpperCase() +
-                    data.title.slice(1).toLowerCase()
-                  : ""}
-            </Text>
-          </Box>
+        <Box flex="1" zIndex={1}>
+          <Text
+            fontSize="lg"
+            fontWeight="800"
+            color={colorTheme.primary}
+            mb={2}
+            noOfLines={2}
+          >
+            {data.name || data.title || "Untitled Survey"}
+          </Text>
+          
           {data.description && (
-            <Box mb={2}>
-              <Text fontSize="xs" color="gray.600" fontWeight={"700"}>
-                {data.description}
-              </Text>
-            </Box>
+            <Text fontSize="sm" color={colors.text} mb={4} noOfLines={3}>
+              {data.description}
+            </Text>
           )}
 
-          {/* Survey Details */}
-          <Flex direction="column" gap={2} mb={3} width="80%" mt="20px">
+          <Flex direction="column" gap={3} mb={4}>
             <Flex justify="space-between">
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                Survey taken
-              </Text>
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                {data.taken ?? data.submittedUsers}
+              <Text fontSize="sm" color={colors.text}>Survey taken</Text>
+              <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
+                {data.taken ?? data.submittedUsers ?? 0}
               </Text>
             </Flex>
             <Flex justify="space-between">
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                Total questions
-              </Text>
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                {data.totalQuestions ?? data.questionsCount}
+              <Text fontSize="sm" color={colors.text}>Total questions</Text>
+              <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
+                {data.totalQuestions ?? data.questionsCount ?? 0}
               </Text>
             </Flex>
             <Flex justify="space-between">
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                Closing date
-              </Text>
-              <Text color="#666666" fontSize="xs" fontWeight="700">
-                {data.closingDate ?? data.closesAt?.slice(0, 10)}
+              <Text fontSize="sm" color={colors.text}>Closing date</Text>
+              <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
+                {data.closingDate || data.closesAt?.slice(0, 10) || "N/A"}
               </Text>
             </Flex>
-            <Button
-              bg={
-                isAdmin ? "#D8A541" : isSurveyCompleted ? "gray.300" : "#D8A541"
-              }
-              borderRadius="4px"
-              color={
-                isAdmin ? "white" : isSurveyCompleted ? "gray.600" : "white"
-              }
-              mt="10px"
-              fontSize="xs"
-              size="sm"
-              width="100%"
-              isDisabled={isSurveyCompleted && !isAdmin}
-              _disabled={{ opacity: 1, cursor: "not-allowed" }}
-              _hover={
-                isSurveyCompleted && !isAdmin
-                  ? {}
-                  : { bg: "brand.400", color: "white" }
-              }
-              _active={{
-                bg: "brand.300",
-              }}
-              onClick={() => {
-                if (isAdmin) {
-                  navigate(`/survey/view-survey/${data.id || data._id}`);
-                } else if (!isSurveyCompleted) {
-                  navigate(`/survey/take-survey/${data.id || data._id}`);
-                }
-              }}
-            >
-              {isAdmin
-                ? "View"
-                : isSurveyCompleted
-                  ? "Survey Completed"
-                  : "Take Survey"}
-            </Button>
           </Flex>
         </Box>
-        <Flex justify="flex-end">
-          <Text
-            fontSize="xs"
-            color="black"
-            alignSelf="flex-end"
-            fontWeight={"700"}
-          >
-            {data.surveyDate || data.createdAt?.slice(0, 10)}
-          </Text>
-        </Flex>
+
+        <Button
+          bg={colorTheme.buttons.primary}
+          color={colorTheme.buttons.text}
+          size="sm"
+          _hover={{
+            bg: colorTheme.buttons.hover,
+            transform: "translateY(-2px)",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          }}
+          _active={{
+            bg: colorTheme.buttons.active,
+            transform: "translateY(0)",
+          }}
+          _disabled={{
+            bg: colorTheme.buttons.disabled,
+            color: "gray.500",
+            cursor: "not-allowed",
+            _hover: {
+              bg: colorTheme.buttons.disabled,
+              transform: "none",
+              boxShadow: "none"
+            }
+          }}
+          isDisabled={isSurveyCompleted && !isAdmin}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (isAdmin) {
+              navigate(`/survey/view-survey/${data.id || data._id}`);
+            } else if (!isSurveyCompleted) {
+              navigate(`/survey/take-survey/${data.id || data._id}`);
+            }
+          }}
+        >
+          {isAdmin ? "View" : isSurveyCompleted ? "Completed" : "Take Survey"}
+        </Button>
       </Box>
 
-      {/* Delete Confirmation Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent
-          mx={{ base: 2, sm: 4, md: 8 }}
-          w={{ base: "95vw", sm: "90vw", md: "500px" }}
-          maxW="100vw"
-        >
-          {" "}
-          {/* Increased width */}
-          <ModalHeader>Delete Survey</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Alert status="warning" mb={4}>
+        <ModalOverlay bg="blackAlpha.600" />
+        <ModalContent borderRadius="xl" overflow="hidden">
+          <ModalHeader bg={colorTheme.modal.header} color="brand.100">
+            Delete Survey
+          </ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody py={4}>
+            <Alert status="warning" mb={4} borderRadius="md">
               <AlertIcon />
-              <Text fontWeight="bold">
-                This action is irreversible. Deleting this survey will
-                permanently remove all associated data. Please confirm your
-                security password to proceed.
+              <Text fontWeight="medium">
+                This will permanently delete the survey and all its data.
+                Please confirm your security password to proceed.
               </Text>
             </Alert>
             <Input
@@ -285,20 +295,30 @@ const SurveyCard = ({ data, isActive, refetch }) => {
               placeholder="Enter security password"
               value={securityPassword}
               onChange={(e) => setSecurityPassword(e.target.value)}
-              mb={2}
+              focusBorderColor={colorTheme.modal.accent}
+              borderRadius="md"
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose} borderRadius="4px">
+            <Button 
+              mr={3} 
+              onClick={onClose}
+              variant="outline"
+              borderColor={colorTheme.modal.accent}
+            >
               Cancel
             </Button>
             <Button
-              colorScheme="red"
-              bg="red.500"
+              bg={colorTheme.buttons.primary}
               color="white"
-              onClick={handleDeleteSurvey}
+              _hover={{
+                bg: colorTheme.buttons.hover,
+              }}
+              _active={{
+                bg: colorTheme.buttons.active,
+              }}
               isLoading={isDeleting}
-              borderRadius="4px"
+              onClick={handleDeleteSurvey}
             >
               Delete
             </Button>
