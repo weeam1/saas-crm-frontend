@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 import { useMemo } from 'react';
 import { toCapitalCase } from 'utils/helpers';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -122,6 +123,8 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
 
+	const { createUserLog } = useUserActivityLog();
+
 	const dispatch = useDispatch();
 
 	const handleSubmit = async (values, actions) => {
@@ -147,14 +150,36 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			}).unwrap();
 
 			toast.success('Lead updated successfully.');
+
 			onClose();
 			actions.resetForm();
 			dispatch(addOrUpdateLead(res));
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: leadData._id,
+				status: 'success',
+				message: `${res?.leadName || ''} Lead is updated successfully`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data.message ||
+				`Lead ${leadData?.leadName || ''} failed to update.`;
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: leadData._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
+
 	return (
 		<Drawer
 			isOpen={isOpen}

@@ -33,6 +33,7 @@ import AddTaskModal from "./components/AddTaskModal";
 import EditTaskModal from "./components/EditTaskModal";
 import TaskDetailsModal from "./components/TaskDetailsModal";
 import { getApi } from "services/api";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const TaskV2 = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -55,6 +56,8 @@ const TaskV2 = () => {
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const { allUsers = [] } = useFetchUserHierarchy(user);
+
+  const { createUserLog } = useUserActivityLog();
 
   const columns = [
     "SR.No",
@@ -119,29 +122,48 @@ const TaskV2 = () => {
     { refetchOnMountOrArgChange: true }
   );
 
- const agencyName = user?.roles[0]?.roleName === "HR" && user?.agency?.name;
+  const agencyName = user?.roles[0]?.roleName === "HR" && user?.agency?.name;
 
- const { data: usersData } = useFetchItemsQuery({
-  path: "/v2/user/search_users",
-  params: { agencyFilter: agencyName || "" },
-});
+  const { data: usersData } = useFetchItemsQuery({
+    path: "/v2/user/search_users",
+    params: { agencyFilter: agencyName || "" },
+  });
 
-  const handleDeleteTask = async (taskId) => {
+  const handleDeleteTask = async (task) => {
     try {
       await deleteTaskMutation({
-        path: `/taskV2/${taskId}`,
+        path: `/taskV2/${task._id}`,
         body: {},
       }).unwrap();
       toast.success("The task has been deleted successfully.", {
         autoClose: 3000,
       });
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Task",
+        entityId: task._id,
+        status: "success",
+        message: `"${user?.fullName}" deleted task "${task?.title || "Untitled"}".`,
+      });
     } catch (error) {
+      const errorMsg =
+        error?.data?.message || "Failed to delete the task. Please try again.";
+
       console.error("Failed to delete task:", error);
       toast.error(
         error.data?.message || "Failed to delete the task. Please try again.",
         { autoClose: 3000 }
       );
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE_FAIL",
+        entity: "Task",
+        entityId: task._id,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -153,26 +175,44 @@ const TaskV2 = () => {
     }
   }, [data]);
 
-  const handleStatusChange = async (taskId, status, previousStatus) => {
+  const handleStatusChange = async (task, status, previousStatus) => {
     if (status === previousStatus) return;
-    await updateTaskStatus(taskId, status);
+    await updateTaskStatus(task, status);
   };
 
-  const updateTaskStatus = async (taskId, status) => {
+  const updateTaskStatus = async (task, status) => {
     try {
-      await updateStatus({
-        path: `/taskV2/${taskId}/status`,
+      const response = await updateStatus({
+        path: `/taskV2/${task._id}/status`,
         body: { status },
       }).unwrap();
 
       toast.success("Status updated successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Task",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
+      });
       setTableData((prevData) =>
-        prevData.map((task) =>
-          task._id === taskId ? { ...task, status } : task
+        prevData.map((oldTask) =>
+          oldTask._id === task._id ? { ...task, status } : task
         )
       );
     } catch (error) {
+      const errorMsg =
+        error?.data?.message || "Failed to update the task status. Please try again.";
       toast.error("Error updating status");
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Task",
+        entityId: task?._id || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -226,7 +266,7 @@ const TaskV2 = () => {
 
   const updateTaskPriority = async (taskId, priority) => {
     try {
-      await updateStatus({
+      const response = await updateStatus({
         path: `/taskV2/${taskId}`,
         body: { priority },
       }).unwrap();
@@ -237,11 +277,40 @@ const TaskV2 = () => {
           task._id === taskId ? { ...task, priority } : task
         )
       );
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Task",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" update priority of task "${response?.title || "Untitled"}".`,
+      });
     } catch (error) {
       toast.error("Error updating priority");
+      const errorMsg =
+        error?.data?.message || "Failed to update the priority of task. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Task",
+        entityId: taskId,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
+  const ViewHandler = (task) => {
+    setSelectedTask(task);
+     createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Task",
+        entityId: task._id,
+        status: "success",
+        message: `"${user?.fullName}" View the task "${task?.title || "Untitled"}".`,
+      });
+  };
   return (
     <Box
       overflowY="auto"
@@ -267,7 +336,8 @@ const TaskV2 = () => {
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
           {(user?.role === "superAdmin" ||
-            user?.roles[0]?.roleName === "Manager" ||  user?.roles[0]?.roleName === "HR") && (
+            user?.roles[0]?.roleName === "Manager" ||
+            user?.roles[0]?.roleName === "HR") && (
             <Button
               size="md"
               colorScheme="brand"
@@ -431,11 +501,7 @@ const TaskV2 = () => {
                       <Select
                         value={task.status}
                         onChange={(e) =>
-                          handleStatusChange(
-                            task._id,
-                            e.target.value,
-                            task.status
-                          )
+                          handleStatusChange(task, e.target.value, task.status)
                         }
                         size="sm"
                         width="150px"
@@ -490,7 +556,7 @@ const TaskV2 = () => {
                                 backgroundColor: "#c09f5f",
                                 color: "white",
                               }}
-                              onClick={() => handleDeleteTask(task._id)}
+                              onClick={() => handleDeleteTask(task)}
                             />
                           </>
                         )}
@@ -503,7 +569,7 @@ const TaskV2 = () => {
                             backgroundColor: "#c09f5f",
                             color: "white",
                           }}
-                          onClick={() => setSelectedTask(task)}
+                          onClick={() => ViewHandler(task)}
                         />
                       </Box>
                     </Td>

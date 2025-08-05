@@ -7,8 +7,8 @@ export function useSocketEvents() {
 
 	const connect = useCallback(async () => {
 		try {
-			// await socketService.connect('http://localhost:5000');
-			await socketService.connect(keys.socketIoUrl);
+			await socketService.connect('http://localhost:5000');
+			// await socketService.connect(keys.socketIoUrl);
 
 			if (socketService.socket) {
 				setIsConnected(socketService.socket.connected);
@@ -37,10 +37,16 @@ export function useSocketEvents() {
 		socketService.registerUser(payload);
 	}, []);
 
+	// Create User activity log payload
+	const createUserActivityLog = useCallback((payload) => {
+		console.log('Registerin user activity log with payload:', payload);
+		socketService.userActivity(payload);
+	}, []);
+
 	// General-purpose emit
 	const emit = useCallback((event, data) => {
 		return socketService.emit(event, data);
 	}, []);
 
-	return { registerUser, isConnected, emit };
+	return { registerUser, createUserActivityLog, isConnected, emit };
 }

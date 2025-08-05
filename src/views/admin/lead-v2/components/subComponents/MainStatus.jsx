@@ -17,6 +17,8 @@ import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
 import CloseDealModal from '../deals/CloseDealModal';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -28,6 +30,9 @@ const MainStatus = ({ lead, role }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const hanldeMainStatus = async (statusOrEvent, options = {}) => {
 		try {
@@ -87,12 +92,41 @@ const MainStatus = ({ lead, role }) => {
 						fcblid: lead?.fcblid || null,
 					});
 				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message: `${user?.fullName} update the lead main status from '${selected || 'No Status'} to '${newStatus}'.`,
+				});
 			} else if (response.status === 400) {
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'fail',
+					message: `failed to update the lead main status'.`,
+				});
 			} else {
 				toast.error('Something went wrong!');
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} catch (error) {
 			// Check if the error contains response data
@@ -100,9 +134,29 @@ const MainStatus = ({ lead, role }) => {
 				const errorDetails =
 					error.response.data?.message || 'Invalid input provided.';
 				toast.error(`Bad Request: ${errorDetails}`);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'fail',
+					message: `failed to update the lead main status'.`,
+				});
 			} else {
 				console.error('Unexpected error:', error);
 				toast.error('Something went wrong!');
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} finally {
 			setLoading(false);

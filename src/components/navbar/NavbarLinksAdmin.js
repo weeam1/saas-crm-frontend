@@ -74,6 +74,9 @@ export default function HeaderLinks(props) {
 				}
 
 				setLoginUser(response.data);
+
+				// store user data in sessionStorage
+				sessionStorage.setItem('user', JSON.stringify(response.data));
 			}
 		} catch (error) {
 			console.error('Error fetching user:', error);
