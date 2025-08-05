@@ -115,7 +115,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 				action: 'DELETE',
 				entity: 'Lead',
 				entityId: note._id || null,
-				status: error?.status === 500 ? 'error' : 'failed',
+				status: error?.status === 500 ? 'error' : 'fail',
 				message: `Failed to delete the note.`,
 			});
 		}

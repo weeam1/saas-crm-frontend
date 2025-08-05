@@ -101,7 +101,7 @@ const Status = ({ lead }) => {
 				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: lead._id || null,
-				status: e?.status === 500 ? 'error' : 'failed',
+				status: e?.status === 500 ? 'error' : 'fail',
 				message: `failed to update the lead status'.`,
 			});
 		} finally {

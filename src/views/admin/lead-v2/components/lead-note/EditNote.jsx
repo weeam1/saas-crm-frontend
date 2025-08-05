@@ -91,7 +91,7 @@ const EditNote = ({
 				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: leadNote._id || null,
-				status: error?.status === 500 ? 'error' : 'failed',
+				status: error?.status === 500 ? 'error' : 'fail',
 				message: `Failed to update the note.`,
 			});
 		}

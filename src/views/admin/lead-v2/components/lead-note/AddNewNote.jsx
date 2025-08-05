@@ -75,7 +75,7 @@ const AddNewNote = ({
 					action: 'CREATE',
 					entity: 'Lead',
 					entityId: paramId || null,
-					status: error?.status === 500 ? 'error' : 'failed',
+					status: error?.status === 500 ? 'error' : 'fail',
 					message: `${user?.fullName} failed to add a new note.`,
 				});
 			} finally {
