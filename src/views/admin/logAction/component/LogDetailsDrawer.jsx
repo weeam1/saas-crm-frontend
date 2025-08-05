@@ -101,7 +101,9 @@ const LogDetailsDrawer = ({
                 <Text fontSize="sm" color="gray.500">
                   Security Level
                 </Text>
-                {renderSecurityLevel(selectedLog.securityLevel)}
+                <Flex justifyContent={"flex-start"} mt={1}>
+                  {renderSecurityLevel(selectedLog.securityLevel)}
+                </Flex>
               </Box>
               <Box>
                 <Text fontSize="sm" color="gray.500">
