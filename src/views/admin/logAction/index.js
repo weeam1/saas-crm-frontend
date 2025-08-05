@@ -231,7 +231,6 @@ const LogTable = () => {
     const levelColor = getLevelColor(levelValue);
 
     return (
-      <Flex justifyContent="center" width="100%">
         <Flex
           borderWidth="1px"
           borderColor="gray.300"
@@ -257,7 +256,6 @@ const LogTable = () => {
             ))}
           </Flex>
         </Flex>
-      </Flex>
     );
   };
   const applyFilters = (newFilters) => {
@@ -575,7 +573,9 @@ const LogTable = () => {
                       borderBottomColor={bodyBorderColor}
                       textAlign="center"
                     >
-                      {renderSecurityLevel(transformedLog.securityLevel)}
+                      <Flex justifyContent="center" width="100%">
+                        {renderSecurityLevel(transformedLog.securityLevel)}
+                      </Flex>
                     </Td>
                     <Td
                       py={2}
