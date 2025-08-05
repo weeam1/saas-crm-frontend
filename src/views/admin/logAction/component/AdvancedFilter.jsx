@@ -89,18 +89,22 @@ const AdvancedFilter = ({
   }, [formik.values]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size={["full", "xl", "2xl"]}>
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
-        maxW="100vw"
-        pb={2}
-        borderRadius="lg"
+        mx={{ base: 0, md: 4 }}
+        maxW={["100%", "600px", "800px"]}
+        pb={4}
+        borderRadius={["none", "lg"]}
       >
-        <ModalHeader bg={headerBg} color="white" borderTopRadius="lg">
-          <Flex justify="space-between" align="center" borderTopRadius="lg">
-            <Text fontSize="sm">Advanced Filters</Text>
+        <ModalHeader 
+          bg={headerBg} 
+          color="white" 
+          borderTopRadius={["none", "lg"]}
+          py={3}
+        >
+          <Flex justify="space-between" align="center">
+            <Text fontSize="md" fontWeight="semibold">Advanced Filters</Text>
             <IconButton
               icon={<FiX />}
               variant="ghost"
@@ -113,11 +117,11 @@ const AdvancedFilter = ({
           </Flex>
         </ModalHeader>
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody>
-            <VStack spacing={4} overflow="scroll" height="65vh">
+          <ModalBody px={4} py={4}>
+            <VStack spacing={5} maxH="65vh" overflowY="auto" pr={2}>
               {/* User Selection */}
-              <FormControl>
-                <FormLabel>User</FormLabel>
+              <FormControl width="100%">
+                <FormLabel mb={1} fontSize="sm" fontWeight="medium">User</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.userId}
                   users={usersData?.doc || []}
@@ -127,12 +131,12 @@ const AdvancedFilter = ({
 
               {/* Date Range Section */}
               <Box width="100%">
-                <Text fontSize="md" fontWeight="semibold" mb={3}>
+                <Text fontSize="sm" fontWeight="semibold" mb={3}>
                   Date Range
                 </Text>
-                <VStack width="100%" alignItems="flex-end">
+                <SimpleGrid columns={colSpan} gap={4}>
                   <FormControl>
-                    <FormLabel>From Date</FormLabel>
+                    <FormLabel mb={1} fontSize="sm" fontWeight="medium">From Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.from}
                       handleDateChange={(date) =>
@@ -146,7 +150,7 @@ const AdvancedFilter = ({
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>To Date</FormLabel>
+                    <FormLabel mb={1} fontSize="sm" fontWeight="medium">To Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.to}
                       handleDateChange={(date) =>
@@ -159,18 +163,19 @@ const AdvancedFilter = ({
                       toggleCalendar={() => toggleCalendar("to")}
                     />
                   </FormControl>
-                </VStack>
+                </SimpleGrid>
               </Box>
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Status</FormLabel>
                   <Select
                     name="status"
                     placeholder="Select status"
                     value={formik.values.status}
                     onChange={formik.handleChange}
                     focusBorderColor="brand.500"
+                    size="md"
                   >
                     {statusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -181,13 +186,14 @@ const AdvancedFilter = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Module</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Module</FormLabel>
                   <Select
                     name="entity"
                     placeholder="Select module"
                     value={formik.values.entity}
                     onChange={formik.handleChange}
                     focusBorderColor="brand.500"
+                    size="md"
                   >
                     {entityOptions?.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -200,13 +206,14 @@ const AdvancedFilter = ({
 
               <SimpleGrid columns={colSpan} gap={4} w="full">
                 <FormControl>
-                  <FormLabel>Action</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Action</FormLabel>
                   <Select
                     name="action"
                     placeholder="Select action"
                     value={formik.values.action}
                     onChange={formik.handleChange}
                     focusBorderColor="brand.500"
+                    size="md"
                   >
                     {actionOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -217,17 +224,18 @@ const AdvancedFilter = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Security Level</FormLabel>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">Security Level</FormLabel>
                   <Select
                     name="securityLevel"
                     placeholder="Select level"
                     value={formik.values.securityLevel}
                     onChange={formik.handleChange}
                     focusBorderColor="brand.500"
+                    size="md"
                   >
                     {levelOptions.map((option) => (
                       <option key={option.value} value={option.value}>
-                        {option.label}
+                        {option.value}
                       </option>
                     ))}
                   </Select>
@@ -236,12 +244,13 @@ const AdvancedFilter = ({
             </VStack>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter px={4} pt={0}>
             <Button
               variant="outline"
               mr={3}
               onClick={handleClear}
               isDisabled={isFilterEmpty}
+              size="md"
             >
               Clear Filters
             </Button>
@@ -249,6 +258,7 @@ const AdvancedFilter = ({
               colorScheme="blue"
               type="submit"
               isDisabled={isFilterUnchanged}
+              size="md"
             >
               Apply Filters
             </Button>

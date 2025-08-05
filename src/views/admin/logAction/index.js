@@ -14,6 +14,7 @@ import {
   Icon,
   IconButton,
   useColorMode,
+  Heading,
 } from "@chakra-ui/react";
 import { FiFilter, FiUser } from "react-icons/fi";
 import { motion } from "framer-motion";
@@ -24,6 +25,7 @@ import LogDetailsDrawer from "./component/LogDetailsDrawer";
 import AdvancedFilter from "./component/AdvancedFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import TableLoading from "components/loading/TableLoading";
+import { formatPostDate } from 'utils/helpers';
 
 const grayColors = {
   primary: "#49505cff",
@@ -40,15 +42,15 @@ const grayColors = {
 
 const levels = {
   VIEW: 1,
-  LOGIN_SUCCESS: 2,
   LIST: 2,
   CREATE: 3,
-  UPDATE: 4,
-  UPDATE_FAIL: 5,
-  LOGIN_FAIL: 5,
-  DELETE: 6,
-  DELETE_FAIL: 6,
-  BULK_DELETE: 7,
+  LOGIN: 4,
+  UPDATE: 5,
+  APPROVE: 6,
+  DELETE: 7,
+  BULK_DELETE: 8,
+  ASSIGN: 9,
+  BULK_ASSIGN: 10,
 };
 
 const statusOptions = [
@@ -72,8 +74,6 @@ const entityOptions = [
   { label: "Survey", value: "Survey" },
   { label: "Whatsapp", value: "Whatsapp" },
   { label: "Reports", value: "Reports" },
-
-  // Add more entities as needed
 ];
 
 const actionOptions = Object.keys(levels).map((action) => ({
@@ -81,21 +81,22 @@ const actionOptions = Object.keys(levels).map((action) => ({
   value: action,
 }));
 
-const levelOptions = Object.entries(levels).map(([name, value]) => ({
-  label: `${name.replace(/_/g, " ")} (${value})`,
-  value: value.toString(),
+const levelOptions = Array.from({ length: 8 }, (_, i) => ({
+  value: i + 1,
 }));
 
 const MotionTr = motion(Tr);
+const MotionText = motion(Text);
 
 const LogTable = () => {
   const [selectedLog, setSelectedLog] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+  const [displayCount, setDisplayCount] = useState(0);
   const [filters, setFilters] = useState({
     userId: "",
     status: "",
@@ -143,7 +144,29 @@ const LogTable = () => {
   useEffect(() => {
     if (data) {
       setTotalPages(data.totalPages || 1);
-      setTotalItems(data.total || 0);
+      setTotalItems(data.results || 0);
+      if (data.total !== displayCount) {
+        const duration = 1000; 
+        const start = displayCount;
+        const end = data.total;
+        const startTime = performance.now();
+        
+        const animateCount = (currentTime) => {
+          const elapsedTime = currentTime - startTime;
+          const progress = Math.min(elapsedTime / duration, 1);
+          const currentCount = Math.floor(start + (end - start) * progress);
+          
+          setDisplayCount(currentCount);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animateCount);
+          } else {
+            setDisplayCount(end);
+          }
+        };
+        
+        requestAnimationFrame(animateCount);
+      }
     }
   }, [data]);
 
@@ -190,7 +213,7 @@ const LogTable = () => {
   };
 
   const renderSecurityLevel = (levelValue) => {
-    const maxLevel = 7;
+    const maxLevel = 8;
     const boxHeight = "8px";
 
     const getLevelColor = (level) => {
@@ -276,6 +299,12 @@ const LogTable = () => {
 
   return (
     <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
+      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+        <Heading as="h3" size="md" fontWeight="bold" color={grayColors.primary}>
+          Log ({displayCount})
+        </Heading>
+      </Flex>
+      
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -296,6 +325,7 @@ const LogTable = () => {
         borderColor={borderColor}
         overflowX="auto"
         sx={scrollbarStyles}
+        bg="white"
       >
         <Table variant="simple" size="sm" layout="fixed">
           <Thead
@@ -309,7 +339,7 @@ const LogTable = () => {
             <Tr>
               <Th
                 color="white"
-                fontSize="xx-small"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -317,22 +347,22 @@ const LogTable = () => {
                 whiteSpace="nowrap"
                 textAlign={"center"}
               >
-                <Text fontSize="xx-small">SR.No</Text>
+                <Text fontSize="xs">SR.No</Text>
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+               fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
                 borderBottomColor={headerBorderColor}
                 whiteSpace="nowrap"
               >
-                <Text fontSize="xx-small">User</Text>
+                <Text fontSize="xs">User</Text>
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+               fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -344,7 +374,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+               fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -356,7 +386,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+               fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -368,7 +398,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -380,7 +410,7 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+                fontSize="xs"
                 borderRightWidth="1px"
                 borderRightColor={headerBorderColor}
                 borderBottomWidth="1px"
@@ -392,14 +422,14 @@ const LogTable = () => {
               </Th>
               <Th
                 color="white"
-                fontSize="xx-small"
+                fontSize="xs"
                 borderBottomWidth="1px"
                 borderBottomColor={headerBorderColor}
                 textAlign={"center"}
                 whiteSpace="nowrap"
               >
                 <Flex align="center" justifyContent={"space-between"}>
-                  <Text fontSize="xx-small"> Timestamp</Text>
+                  <Text fontSize="xs"> Timestamp</Text>
                   <IconButton
                     icon={<FiFilter />}
                     variant="ghost"
@@ -451,7 +481,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -466,7 +496,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                  fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -478,7 +508,7 @@ const LogTable = () => {
                     >
                       <Flex align="center">
                         <Icon as={FiUser} mr={2} color={grayColors.primary} />
-                        <Text fontSize="xx-small">
+                        <Text fontSize="xs">
                           {transformedLog.userName}
                         </Text>
                       </Flex>
@@ -486,7 +516,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                     fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -501,7 +531,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                    fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -513,7 +543,7 @@ const LogTable = () => {
                         px={2}
                         py={0.5}
                         borderRadius="full"
-                        fontSize="xx-small"
+                        fontSize="xs"
                       >
                         {transformedLog.status}
                       </Badge>
@@ -521,7 +551,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -535,7 +565,7 @@ const LogTable = () => {
                     </Td>
                     <Td
                       p={0}
-                      fontSize="xx-small"
+                     fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -547,7 +577,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                      fontSize="xs"
                       borderRightWidth="1px"
                       borderRightColor={bodyBorderColor}
                       borderBottomWidth="1px"
@@ -561,7 +591,7 @@ const LogTable = () => {
                     <Td
                       py={2}
                       px={4}
-                      fontSize="xx-small"
+                      fontSize="xs"
                       borderBottomWidth="1px"
                       borderBottomColor={bodyBorderColor}
                       overflow="hidden"
@@ -569,9 +599,7 @@ const LogTable = () => {
                       whiteSpace="nowrap"
                       textAlign={"center"}
                     >
-                      {new Date(
-                        transformedLog.metadata.timestamp
-                      ).toLocaleString()}
+                        {formatPostDate( transformedLog.metadata.timestamp)}
                     </Td>
                   </MotionTr>
                 );
