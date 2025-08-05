@@ -89,7 +89,7 @@ const AdvancedFilter = ({
   }, [formik.values]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size={["full", "xl", "2xl"]}>
+    <Modal isOpen={isOpen} onClose={onClose} size={["full", "xl", "2xl"]} isCentered>
       <ModalOverlay />
       <ModalContent
         mx={{ base: 0, md: 4 }}
@@ -274,7 +274,7 @@ const AdvancedFilter = ({
               Clear Filters
             </Button>
             <Button
-              colorScheme="blue"
+              colorScheme="brand"
               type="submit"
               isDisabled={isFilterUnchanged}
               size="md"
