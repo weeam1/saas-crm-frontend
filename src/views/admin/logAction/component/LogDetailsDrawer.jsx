@@ -42,7 +42,7 @@ const LogDetailsDrawer = ({
       <DrawerContent>
         <DrawerHeader bg={headerBg} color="white" py={3}>
           <Flex justify="space-between" align="center">
-            <Text fontSize="xs">Log Details</Text>
+            <Text fontSize="md">Log Details</Text>
             <IconButton
               icon={<FiX />}
               variant="ghost"
@@ -50,7 +50,7 @@ const LogDetailsDrawer = ({
               _hover={{ bg: grayColors.dark }}
               onClick={onClose}
               aria-label="Close"
-              size="sm"
+              size="md"
             />
           </Flex>
         </DrawerHeader>
@@ -58,10 +58,10 @@ const LogDetailsDrawer = ({
           <Stack spacing={4}>
             <SimpleGrid columns={2} spacing={4}>
               <Box>
-                <Text  fontSize="xs" color="gray.500">
+                <Text  fontSize="sm" color="gray.500">
                   User
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
                   <Flex align="center">
                     <Icon as={FiUser} mr={2} color={grayColors.primary} />
                     {selectedLog.userName}
@@ -69,15 +69,15 @@ const LogDetailsDrawer = ({
                 </Text>
               </Box>
               <Box>
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="sm" color="gray.500">
                   Action
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
                   {selectedLog.action.replace(/_/g, " ")}
                 </Text>
               </Box>
               <Box>
-                <Text  fontSize="xs" color="gray.500">
+                <Text  fontSize="sm" color="gray.500">
                   Status
                 </Text>
                 <Badge
@@ -85,23 +85,23 @@ const LogDetailsDrawer = ({
                   px={2}
                   py={0.5}
                   borderRadius="full"
-                  fontSize="xx-small"
+                  fontSize="xs"
                   fontWeight="bold"
                 >
                   {selectedLog.status}
                 </Badge>
               </Box>
               <Box>
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="sm" color="gray.500">
                   Security Level
                 </Text>
                 {renderSecurityLevel(selectedLog.securityLevel)}
               </Box>
               <Box>
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="sm" color="gray.500">
                   Timestamp
                 </Text>
-                <Text fontWeight="medium" color={textColor} fontSize="xx-small">
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
                   {formatTimestamp(selectedLog.metadata.timestamp)}
                 </Text>
               </Box>
@@ -110,7 +110,7 @@ const LogDetailsDrawer = ({
             <Divider borderColor={borderColor} />
 
             <Box>
-              <Text fontSize="2xs" color="gray.500">
+              <Text fontSize="" color="gray.500">
                 Message
               </Text>
               <Text
@@ -138,7 +138,7 @@ const LogDetailsDrawer = ({
               </Text>
               <SimpleGrid columns={2} spacing={4}>
                 <Box>
-                  <Text fontSize="2xs" color="gray.500">
+                  <Text fontSize="xs" color="gray.500">
                     IP Address
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
@@ -146,7 +146,7 @@ const LogDetailsDrawer = ({
                   </Text>
                 </Box>
                 <Box>
-                  <Text fontSize="2xs" color="gray.500">
+                  <Text fontSize="xs" color="gray.500">
                     City
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
@@ -154,7 +154,7 @@ const LogDetailsDrawer = ({
                   </Text>
                 </Box>
                 <Box>
-                  <Text fontSize="2xs" color="gray.500">
+                  <Text fontSize="xs" color="gray.500">
                     country
                   </Text>
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
