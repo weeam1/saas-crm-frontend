@@ -21,9 +21,11 @@ import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import PhoneField from 'components/fields/PhoneField';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const AddLead = ({ isOpen, onClose, size }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
+
 	const initialValues = {
 		leadName: '',
 		leadWhatsappNumber: '',
@@ -146,7 +148,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				entity: 'Lead',
 				entityId: res?._id || null,
 				status: 'success',
-				message: `Lead ${res?.leadName || ''} created successfully`,
+				message: `${res?.leadName || ''} Lead is created successfully`,
 			});
 		} catch (error) {
 			console.error(error);
@@ -155,7 +157,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			toast.error(errorMsg);
 			createUserLog({
 				userId: user?._id,
-				action: 'CREATE_FAIL',
+				action: 'CREATE',
 				entity: 'Lead',
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,

@@ -46,7 +46,7 @@ const Delete = (props) => {
 
 				createUserLog({
 					userId: user?._id,
-					action: 'DELETE_FAIL',
+					action: 'DELETE',
 					entity: 'Lead',
 					entityId: props.id || null,
 					status: error?.status === 500 ? 'error' : 'fail',
@@ -55,6 +55,9 @@ const Delete = (props) => {
 			} finally {
 				setIsLoding(false);
 				props.refetchData();
+				props.onClose(false);
+				// props.setAction((pre) => !pre);
+				props.setSelectedValues([]);
 			}
 		} else if (props.method === 'many') {
 			try {
@@ -81,7 +84,7 @@ const Delete = (props) => {
 				);
 				createUserLog({
 					userId: user?._id,
-					action: 'BULK_DELETE_FAIL',
+					action: 'BULK_DELETE',
 					entity: 'Lead',
 					status: error?.status === 500 ? 'error' : 'fail',
 					message:

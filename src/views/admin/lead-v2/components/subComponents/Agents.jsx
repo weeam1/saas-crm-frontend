@@ -14,6 +14,8 @@ import { sendLeadNotification } from 'api';
 import { format } from 'date-fns';
 import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -24,7 +26,10 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 	const tree = useSelector((state) => state.user.tree);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	useEffect(() => {
 		setSelected(agentAssigned);
@@ -84,10 +89,41 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 				// send lead notification
 				sendLeadNotification(user?._id, agentAssignedValue, lead);
+
+				let message;
+
+				if (agentAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
+				} else {
+					const agent = agents?.find(
+						(agent) => agent._id === agentAssignedValue
+					);
+					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message,
+				});
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);
 			toast.error('Agent not updated. Please try again.');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: lead._id || null,
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: `failed to assigned the lead'.`,
+			});
 		} finally {
 			setLoading(false);
 		}

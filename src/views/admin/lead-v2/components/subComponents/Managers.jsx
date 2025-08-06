@@ -15,13 +15,18 @@ import { format } from 'date-fns';
 import { sendLeadNotification } from 'api';
 import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	useEffect(() => {
 		setSelected(managerAssigned);
@@ -72,6 +77,28 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 
 				// send lead notification
 				sendLeadNotification(user?._id, managerAssignedValue, lead);
+
+				let message;
+
+				if (managerAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
+				} else {
+					const manager = tree?.managers?.find(
+						(user) => user._id === managerAssignedValue
+					);
+
+					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message,
+				});
 			}
 		} catch (error) {
 			console.error('Failed to update the manager:', error);

@@ -188,7 +188,7 @@ const LeadMenu = ({
 				>
 					Open in WhatsApp
 				</MenuItem>
-				{user?.roles[0]?.roleName === 'Agent' && (
+				{/* {user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
 						// onClick={() => {
 						// 	setTaskInits(lead);
@@ -198,7 +198,7 @@ const LeadMenu = ({
 					>
 						Create Follow Up
 					</MenuItem>
-				)}
+				)} */}
 
 				<MenuItem
 					onClick={() => {

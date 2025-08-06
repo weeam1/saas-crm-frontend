@@ -160,7 +160,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 				entity: 'Lead',
 				entityId: leadData._id,
 				status: 'success',
-				message: `Lead ${res?.leadName || ''} updated successfully`,
+				message: `${res?.leadName || ''} Lead is updated successfully`,
 			});
 		} catch (error) {
 			console.error(error);
@@ -171,7 +171,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE_FAIL',
+				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: leadData._id,
 				status: error?.status === '500' ? 'error' : 'fail',
