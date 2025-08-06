@@ -1,47 +1,48 @@
 import React, { useState, useEffect } from "react";
 import {
-	Box,
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	Button,
-	Flex,
-	Text,
-	IconButton,
-	Tooltip,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
-	FormLabel,
-	Switch,
-	Input,
-	Badge,
-	Textarea,
-	useBreakpointValue,
-} from '@chakra-ui/react';
-import { DeleteIcon, EditIcon, ViewIcon } from '@chakra-ui/icons';
+  Box,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Flex,
+  Text,
+  IconButton,
+  Tooltip,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  FormLabel,
+  Switch,
+  Input,
+  Badge,
+  Textarea,
+  useBreakpointValue,
+} from "@chakra-ui/react";
+import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import {
-	useFetchItemsQuery,
-	useCreateItemMutation,
-	useDeleteItemMutation,
-	useUpdateItemMutation,
-} from 'api/apiSlice';
-import TableLoading from 'components/loading/TableLoading';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import TopPagination from 'components/pagination/TopPagination';
-import { FiSearch } from 'react-icons/fi';
-import AdvancedSearchModal from './AdvancedSearchModal';
-import ActiveFiltersDisplay from './SubComponent/ActiveFiltersDisplay';
-import { format } from 'date-fns';
-import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+  useFetchItemsQuery,
+  useCreateItemMutation,
+  useDeleteItemMutation,
+  useUpdateItemMutation,
+} from "api/apiSlice";
+import TableLoading from "components/loading/TableLoading";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import TopPagination from "components/pagination/TopPagination";
+import { FiSearch } from "react-icons/fi";
+import AdvancedSearchModal from "./AdvancedSearchModal";
+import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import { format } from "date-fns";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const AllListing = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -62,6 +63,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const [createItemMutation] = useCreateItemMutation();
   const [updateStatus] = useUpdateItemMutation();
   const [deleteItemMutation] = useDeleteItemMutation();
+  const { createUserLog } = useUserActivityLog();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
@@ -134,6 +136,15 @@ const AllListing = ({ listingType, listingUnitType }) => {
         body: {},
       }).unwrap();
 
+       createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
+      });
+
       toast({
         title: "Request sent successfully",
         status: "success",
@@ -153,11 +164,21 @@ const AllListing = ({ listingType, listingUnitType }) => {
         })
       );
     } catch (error) {
+       const errorMsg =
+        error?.data?.message || "Failed to update the listing view request. Please try again.";
       toast({
         title: error.data?.message || "Failed to send request",
         status: "error",
         duration: 3000,
         isClosable: true,
+      });
+        createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Task",
+        entityId: listingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
       });
     }
   };
@@ -188,23 +209,41 @@ const AllListing = ({ listingType, listingUnitType }) => {
     }
   }, [data]);
 
-  const handleDeleteListing = async (listingId) => {
+  const handleDeleteListing = async (listing) => {
     try {
       await deleteItemMutation({
-        path: `/listing/secondary/${listingId}`,
+        path: `/listing/secondary/${listing._id}`,
         body: {},
       }).unwrap();
       toast.success("The listing has been deleted successfully.", {
         autoClose: 3000,
       });
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Listing",
+        entityId: listing._id,
+        status: "success",
+        message: `"${user?.fullName}" deleted listing "${listing?.projectName || "Untitled"}".`,
+      });
       refetch();
     } catch (error) {
+      const errorMsg =
+        error?.data?.message || "Failed to delete the listing. Please try again.";
       console.error("Failed to delete listing:", error);
       toast.error(
         error.data?.message ||
           "Failed to delete the listing. Please try again.",
         { autoClose: 3000 }
       );
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE_FAIL",
+        entity: "Listing",
+        entityId: listing._id,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -591,7 +630,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                                   backgroundColor: "#c09f5f",
                                   color: "white",
                                 }}
-                                onClick={() => handleDeleteListing(listing._id)}
+                                onClick={() => handleDeleteListing(listing)}
                               />
                             </Box>
                           )}

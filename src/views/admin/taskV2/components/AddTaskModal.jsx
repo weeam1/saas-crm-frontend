@@ -45,6 +45,7 @@ const AddTaskModal = ({
   const [createTask] = useCreateItemMutation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const { createUserLog } = useUserActivityLog();
+  
   const formik = useFormik({
     initialValues: {
       title: "",

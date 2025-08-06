@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -23,6 +23,7 @@ import { useFormik } from "formik";
 import { FiX } from "react-icons/fi";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
+import moment from "moment";
 
 const AdvancedFilter = ({
   isOpen,
@@ -45,24 +46,61 @@ const AdvancedFilter = ({
     setOpenCalendar(openCalendar === calendar ? null : calendar);
   };
 
+  const toUTCString = (date) => {
+    return date
+      ? moment(date).utcOffset(0, true).startOf("day").toISOString()
+      : null;
+  };
+
   const formik = useFormik({
     initialValues: {
-      userId: filters.userId || "",
-      status: filters.status || "",
-      from: filters.from || null,
-      to: filters.to || null,
-      entity: filters.entity || "",
-      action: filters.action || "",
-      securityLevel: filters.securityLevel || "",
+      userId: "",
+      status: "",
+      from: null,
+      to: null,
+      entity: "",
+      action: "",
+      securityLevel: "",
     },
     onSubmit: (values) => {
-      applyFilters(values);
+      const cleanedValues = {
+        ...values,
+        from: values.from ? toUTCString(values.from) : undefined,
+        to: values.to ? toUTCString(values.to) : undefined,
+      };
+      applyFilters(cleanedValues);
       onClose();
     },
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          userId: filters.userId || "",
+          status: filters.status || "",
+          from: filters.from ? new Date(filters.from) : null,
+          to: filters.to ? new Date(filters.to) : null,
+          entity: filters.entity || "",
+          action: filters.action || "",
+          securityLevel: filters.securityLevel || "",
+        },
+      });
+    }
+  }, [isOpen, filters]);
+
   const handleClear = () => {
-    formik.resetForm();
+    formik.resetForm({
+      values: {
+        userId: "",
+        status: "",
+        from: null,
+        to: null,
+        entity: "",
+        action: "",
+        securityLevel: "",
+      },
+    });
     resetFilters();
   };
 
@@ -70,17 +108,23 @@ const AdvancedFilter = ({
     formik.setFieldValue("userId", user?._id || null);
   };
 
+  const cleanedInitialFilters = useMemo(() => {
+    return {
+      userId: filters.userId || "",
+      status: filters.status || "",
+      from: filters.from || null,
+      to: filters.to || null,
+      entity: filters.entity || "",
+      action: filters.action || "",
+      securityLevel: filters.securityLevel || "",
+    };
+  }, [filters]);
+
   const isFilterUnchanged = useMemo(() => {
-    return (
-      formik.values.userId === filters.userId &&
-      formik.values.status === filters.status &&
-      formik.values.from === filters.from &&
-      formik.values.to === filters.to &&
-      formik.values.entity === filters.entity &&
-      formik.values.action === filters.action &&
-      formik.values.securityLevel === filters.securityLevel
+    return Object.entries(cleanedInitialFilters).every(
+      ([key, val]) => formik.values[key] === val
     );
-  }, [formik.values, filters]);
+  }, [formik.values, cleanedInitialFilters]);
 
   const isFilterEmpty = useMemo(() => {
     return Object.values(formik.values).every(

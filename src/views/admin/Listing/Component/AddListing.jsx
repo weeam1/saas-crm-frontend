@@ -22,6 +22,7 @@ import FileUpload from "./SubComponent/FileUpload";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const formatNumberWithCommas = (value) => {
   if (!value) return "";
@@ -115,6 +116,8 @@ const AddListing = () => {
   const navigate = useNavigate();
   const inputRef = useRef();
 
+  const { createUserLog } = useUserActivityLog();
+
   const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
   const { data: listingType } = useFetchItemsQuery(
@@ -195,10 +198,20 @@ const AddListing = () => {
           // Country is already in the correct format
         };
 
-        await createItemMutation({
+      const response = await createItemMutation({
           path: "/listing/secondary",
           body: payload,
         }).unwrap();
+
+        console.log("Listing created successfully:", response);
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Listing",
+          entityId: response?.data._id,
+          status: "success",
+          message: `${user?.fullName} created secondary listing "${response?.data?.projectName || "Untitled"}".`,
+        });
 
         toast.success("Listing added successfully");
         navigate(-1);
