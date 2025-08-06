@@ -54,9 +54,10 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [filterChanged, setFilterChanged] = useState(false);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const { createUserLog } = useUserActivityLog();
-  
+
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
     "SR.No",
@@ -129,11 +130,18 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
 
   const handleStatusUpdate = async () => {
     try {
-      await updateStatus({
+      const response = await updateStatus({
         path: `listing/secondary/${currentListingId}/requests/${currentApprovedId}`,
         body: { status: selectedStatus },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: currentListingId,
+        status: "success",
+        message: `"${user?.fullName}" update the status secondary listing "${response?.data?.projectName || "Untitled"}".`,
+      });
       toast.success("Status updated successfully");
       refetch();
       setIsStatusModalOpen(false);
@@ -274,249 +282,254 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
               fontSize={"16px"}
               borderRadius="lg"
             >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
-                      textTransform="capitalize"
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {data && data.data.length > 0 ? (
-                data.data.map((approval, index) => (
-                  <Tr key={index}>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {index + 1}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.requester?.fullName || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {approval.requester?.phoneNumber || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing?.projectName || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing?.location || "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="250px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing?.country?.name || "N/A"}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      {approval.listing?.area
-                        ? approval.listing.area.toLocaleString()
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing.buildingAge
-                        ? `${approval.listing.buildingAge} Years`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="200px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing?.developer_name
-                        ? approval.listing?.developer_name
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.listing?.price
-                        ? `AED ${approval.listing.price.toLocaleString()}`
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval?.listing?.createdAt
-                        ? format(
-                            approval?.listing?.createdAt,
-                            "MMM d, yyyy h:mm a"
-                          )
-                        : "N/A"}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      whiteSpace="nowrap"
-                      minWidth="100px"
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                    >
-                      {approval.createdBy?.fullName}
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      textAlign={"center"}
-                    >
-                      <Badge
-                        colorScheme={getStatusColor(approval.status)}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
+                      <Text
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="600"
+                        color="gray.700"
+                        textTransform="capitalize"
                       >
-                        {approval.status}
-                      </Badge>
-                    </Td>
-                    <Td
-                      py={4}
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="400"
-                      minWidth="100px"
-                      display={"flex"}
-                      gap={2}
-                      justifyContent={"center"}
-                    >
-                      <Menu placement="bottom-start">
-                        <MenuButton
-                          as={Button}
-                          rightIcon={<FiChevronDown />}
-                          colorScheme="brand"
-                          size="sm"
-                          zIndex={1}
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {data && data.data.length > 0 ? (
+                  data.data.map((approval, index) => (
+                    <Tr key={index}>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {index + 1}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.requester?.fullName || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {approval.requester?.phoneNumber || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing?.projectName || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing?.location || "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="250px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing?.country?.name || "N/A"}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        {approval.listing?.area
+                          ? approval.listing.area.toLocaleString()
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing.buildingAge
+                          ? `${approval.listing.buildingAge} Years`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing?.developer_name
+                          ? approval.listing?.developer_name
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.listing?.price
+                          ? `AED ${approval.listing.price.toLocaleString()}`
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval?.listing?.createdAt
+                          ? format(
+                              approval?.listing?.createdAt,
+                              "MMM d, yyyy h:mm a"
+                            )
+                          : "N/A"}
+                      </Td>
+                      <Td
+                        textAlign="center"
+                        whiteSpace="nowrap"
+                        minWidth="100px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
+                        {approval.createdBy?.fullName}
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        textAlign={"center"}
+                      >
+                        <Badge
+                          colorScheme={getStatusColor(approval.status)}
+                          px={2}
+                          py={1}
+                          borderRadius="md"
                         >
-                          Actions
-                        </MenuButton>
-                        <MenuList zIndex={999}>
-                          <MenuItem
-                            icon={<ViewIcon />}
-                            onClick={() =>
-                              Navigate(
-                                `/listing/view-listing/${approval.listing?.id}`
-                              )
-                            }
+                          {approval.status}
+                        </Badge>
+                      </Td>
+                      <Td
+                        py={4}
+                        fontSize={{ base: "12px", md: "14px" }}
+                        fontWeight="400"
+                        minWidth="100px"
+                        display={"flex"}
+                        gap={2}
+                        justifyContent={"center"}
+                      >
+                        <Menu
+                          placement="auto"
+                          strategy="fixed"
+                          flip={true}
+                          preventOverflow={true}
+                          gutter={8}
+                        >
+                          <MenuButton
+                            as={Button}
+                            rightIcon={<FiChevronDown />}
+                            colorScheme="brand"
+                            size="sm"
                           >
-                            View Listing
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() =>
-                              handleStatusChange(
-                                approval.listing.id,
-                                "pending",
-                                approval.requester.id
-                              )
-                            }
-                            isDisabled={approval.status === "pending"}
-                          >
-                            Mark as Pending
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() =>
-                              handleStatusChange(
-                                approval.listing.id,
-                                "rejected",
-                                approval.requester.id
-                              )
-                            }
-                            isDisabled={approval.status === "rejected"}
-                          >
-                            Reject
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
+                            Actions
+                          </MenuButton>
+                          <MenuList zIndex="popover" minWidth="200px">
+                            <MenuItem
+                              icon={<ViewIcon />}
+                              onClick={() =>
+                                Navigate(
+                                  `/listing/view-listing/${approval.listing?.id}`
+                                )
+                              }
+                            >
+                              View Listing
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() =>
+                                handleStatusChange(
+                                  approval.listing.id,
+                                  "pending",
+                                  approval.requester.id
+                                )
+                              }
+                              isDisabled={approval.status === "pending"}
+                            >
+                              Mark as Pending
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() =>
+                                handleStatusChange(
+                                  approval.listing.id,
+                                  "rejected",
+                                  approval.requester.id
+                                )
+                              }
+                              isDisabled={approval.status === "rejected"}
+                            >
+                              Reject
+                            </MenuItem>
+                          </MenuList>
+                        </Menu>
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan="13"
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
+                    >
+                      <NoData label="approved requests" />
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="approved requests" />
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          )}
-        </Table>
-      </Box>
+                )}
+              </Tbody>
+            )}
+          </Table>
         </Box>
+      </Box>
 
       {/* Status Update Modal */}
       <Modal

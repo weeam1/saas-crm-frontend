@@ -55,6 +55,9 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const [filterChanged, setFilterChanged] = useState(false);
   const Navigate = useNavigate();
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+
+  const { createUserLog } = useUserActivityLog();
+
   const columns = [
     "SR.No",
     "Requester",
@@ -465,40 +468,55 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                         gap={2}
                         justifyContent={"center"}
                       >
-                        <Menu placement="bottom-start">
-                          <MenuButton
-                            as={Button}
-                            rightIcon={<FiChevronDown />}
-                            colorScheme="brand"
-                            size="sm"
+                        <Td
+                          py={4}
+                          fontSize={{ base: "12px", md: "14px" }}
+                          fontWeight="400"
+                          minWidth="100px"
+                          display={"flex"}
+                          gap={2}
+                          justifyContent={"center"}
+                        >
+                          <Menu
+                            placement="auto-end"
+                            strategy="fixed"
+                            flip={true}
+                            gutter={6}
                           >
-                            Actions
-                          </MenuButton>
-                          <MenuList zIndex={10}>
-                            <MenuItem
-                              icon={<ViewIcon />}
-                              onClick={() =>
-                                Navigate(
-                                  `/listing/view-listing/${request.listing?.id}`
-                                )
-                              }
+                            <MenuButton
+                              as={Button}
+                              rightIcon={<FiChevronDown />}
+                              colorScheme="brand"
+                              size="sm"
                             >
-                              View Listing
-                            </MenuItem>
-                            <MenuItem
-                              icon={<RepeatIcon />}
-                              onClick={() =>
-                                handleStatusChange(
-                                  request.requester.id,
-                                  "pending",
-                                  request?.listing?.id
-                                )
-                              }
-                            >
-                              Reconsider Request
-                            </MenuItem>
-                          </MenuList>
-                        </Menu>
+                              Actions
+                            </MenuButton>
+                            <MenuList zIndex="popover" minWidth="200px">
+                              <MenuItem
+                                icon={<ViewIcon />}
+                                onClick={() =>
+                                  Navigate(
+                                    `/listing/view-listing/${request.listing?.id}`
+                                  )
+                                }
+                              >
+                                View Listing
+                              </MenuItem>
+                              <MenuItem
+                                icon={<RepeatIcon />}
+                                onClick={() =>
+                                  handleStatusChange(
+                                    request.requester.id,
+                                    "pending",
+                                    request?.listing?.id
+                                  )
+                                }
+                              >
+                                Reconsider Request
+                              </MenuItem>
+                            </MenuList>
+                          </Menu>
+                        </Td>
                       </Td>
                     </Tr>
                   ))

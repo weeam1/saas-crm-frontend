@@ -67,7 +67,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   ];
 
   const [updateStatus] = useUpdateItemMutation();
-
+  const { createUserLog } = useUserActivityLog();
+  
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
     setCurrentPage(1);

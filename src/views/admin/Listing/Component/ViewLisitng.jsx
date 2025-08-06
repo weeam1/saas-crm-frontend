@@ -44,7 +44,7 @@ const ViewListing = () => {
 
 
   useEffect (() => {
-    if (listing?.data&& !isLoading && !isFetching && !isError) {
+    if (listing?.data ) {
       createUserLog({
         userId: user?._id,
         action: "VIEW",
