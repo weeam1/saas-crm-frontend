@@ -33,6 +33,7 @@ import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const ViewRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);

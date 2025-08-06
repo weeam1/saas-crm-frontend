@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 import FileUpload from "./SubComponent/FileUpload";
 import * as Yup from "yup";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const formatNumberWithCommas = (value) => {
   if (!value) return "";
@@ -49,6 +50,7 @@ const UpdateListing = () => {
   const inputRef = useRef();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+   const { createUserLog } = useUserActivityLog();
 
     const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
@@ -208,16 +210,34 @@ const UpdateListing = () => {
           lastUpdatedBy: user._id,
         };
 
-        await updateListing({
+       const response = await updateListing({
           path: `listing/secondary/${id}`,
           body: payload,
         }).unwrap();
 
+         createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" update the secondary listing "${response?.data?.projectName || "Untitled"}".`,
+      });
         toast.success("Listing updated successfully");
         navigate(-1);
       } catch (error) {
+        const errorMsg =
+        error?.data?.message || "Failed to update listing. Please try again.";
         console.error("Update error:", error);
         toast.error(error.data?.message || "Failed to update listing");
+        createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: id || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
       }
     },
   });

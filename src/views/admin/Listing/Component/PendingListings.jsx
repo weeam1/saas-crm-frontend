@@ -36,6 +36,7 @@ import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { ViewIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const PendingListings = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -53,6 +54,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const [tableData, setTableData] = useState([]);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
+
+  const { createUserLog } = useUserActivityLog();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
@@ -148,10 +151,19 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         body.adminNotes = adminNotes;
       }
 
-      await updateStatus({
+      const response = await updateStatus({
         path: `listing/secondary/${listingId}/status`,
         body,
       }).unwrap();
+      
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" respond on secondary listing "${response?.data?.projectName || "Untitled"}" status.`,
+      });
 
       toast.success("Status updated successfully");
 
@@ -164,7 +176,19 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       setRejectionReason("");
       setAdminNotes("");
     } catch (error) {
+      const errorMsg =
+        error?.data?.message || "Failed to respond on the listing status. Please try again.";
+
       toast.error("Error updating status");
+
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: listingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

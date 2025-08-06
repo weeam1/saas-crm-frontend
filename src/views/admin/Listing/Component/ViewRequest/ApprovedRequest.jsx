@@ -39,6 +39,7 @@ import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -54,6 +55,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
 
+  const { createUserLog } = useUserActivityLog();
+  
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
     "SR.No",

@@ -258,6 +258,7 @@ const LogTable = () => {
         </Flex>
     );
   };
+
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
     setIsFilterOpen(false);
@@ -287,7 +288,7 @@ const LogTable = () => {
   const transformLogData = (log) => ({
     ...log,
     userName: log.user?.fullName || log.user?.username || "Unknown User",
-    securityLevel: levels[log.action] || 1,
+    securityLevel: log?.securityLevel || 1,
     metadata: {
       ip: log.metadata?.ip || "N/A",
       device: log.metadata?.device || "Unknown Device",

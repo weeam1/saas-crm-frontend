@@ -142,7 +142,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         entity: "listing",
         entityId: response._id,
         status: "success",
-        message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
+        message: `"${user?.fullName}" request to view secondary listing "${response?.data?.projectName || "Untitled"}".`,
       });
 
       toast({
@@ -165,7 +165,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
       );
     } catch (error) {
        const errorMsg =
-        error?.data?.message || "Failed to update the listing view request. Please try again.";
+        error?.data?.message || "Failed  the listing view request. Please try again.";
       toast({
         title: error.data?.message || "Failed to send request",
         status: "error",
@@ -175,7 +175,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
-        entity: "Task",
+        entity: "Listing",
         entityId: listingId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,

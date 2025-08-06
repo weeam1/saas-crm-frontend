@@ -217,11 +217,19 @@ const MyListing = ({ listingType, listingUnitType }) => {
         body.adminNotes = adminNotes;
       }
 
-      await updateStatus({
+    const response =   await updateStatus({
         path: `listing/secondary/${listingId}/status`,
         body,
       }).unwrap();
 
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" update the status secondary listing "${response?.data?.projectName || "Untitled"}".`,
+      });
       toast.success("Status updated successfully");
       setTableData((prevData) =>
         prevData.map((listing) =>
@@ -230,7 +238,17 @@ const MyListing = ({ listingType, listingUnitType }) => {
       );
       setIsRejectionModalOpen(false);
     } catch (error) {
+       const errorMsg =
+        error?.data?.message || "Failed to update the listing status. Please try again.";
       toast.error("Error updating status");
+       createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: listingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
