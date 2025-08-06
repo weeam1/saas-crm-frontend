@@ -6,9 +6,16 @@ import { constant } from 'constant';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 // lead pool for agent
+
 const Index = () => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [data, setData] = useState([]);
@@ -375,6 +382,16 @@ const Index = () => {
 					position: toast.POSITION.TOP_RIGHT,
 					autoClose: 3000,
 				});
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'PURCHASE',
+					entity: 'Lead',
+					entityId: leadId || null,
+					status: 'success',
+					message: `${user?.fullName} request to purchase the lead.`,
+				});
 			} else {
 				throw new Error('Failed to update user coins');
 			}
@@ -394,9 +411,29 @@ const Index = () => {
 					setForceRefresh(true);
 					debouncedFetchTabData(activeTab, currentPage, pageSize);
 				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'PURCHASE',
+					entity: 'Lead',
+					entityId: leadId || null,
+					status: 'fail',
+					message: `Failed to purchase the lead.`,
+				});
 			} else {
 				console.error('Unexpected error:', error);
 				toast.error('Something went wrong!');
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'PURCHASE',
+					entity: 'Lead',
+					entityId: leadId || null,
+					status: 'error',
+					message: `Error: Failed to purchase the lead.`,
+				});
 			}
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [leadId]: false }));
@@ -443,12 +480,30 @@ const Index = () => {
 					position: toast.POSITION.TOP_RIGHT,
 					autoClose: 3000,
 				});
+
+				createUserLog({
+					userId: user?._id,
+					action: 'DELETE',
+					entity: 'Lead',
+					entityId: leadId || null,
+					status: 'success',
+					message: `${user?.fullName} canceled the request to purchase the lead.`,
+				});
 			}
 		} catch (error) {
 			console.error('Cancel Request Error:', error);
-			toast.error(error.message || 'Unable to cancel request', {
+			toast.error(error?.message || 'Unable to cancel request', {
 				position: toast.POSITION.TOP_RIGHT,
 				autoClose: 3000,
+			});
+
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Lead',
+				entityId: leadId || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: `Failed to cancel the request to purchase the lead from ${user?.fullName}.`,
 			});
 		} finally {
 			setBuyLoading((prev) => ({ ...prev, [id]: false }));
