@@ -132,14 +132,14 @@ const TakeSurvey = () => {
         path: `/surveys/responses/submit/${id}`,
         body: payload,
       }).unwrap();
-  console.log("Survey submitted successfully");
+
       createUserLog({
         userId: user?._id,
         action: "UPDATE",
         entity: "Survey",
         entityId: id,
         status: "success",
-        message: `"${user?.fullName}" take a survey "${response?.doc?.survey?.title || "Untitled"}".`,
+        message: `"${user?.fullName}" take a survey "${response?.doc?.title || "Untitled"}".`,
       });
       toast.success("Survey submitted");
 
