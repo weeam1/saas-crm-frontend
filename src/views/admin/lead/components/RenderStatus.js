@@ -8,6 +8,8 @@ import { sendLeadFeedback } from 'api';
 
 import { extractLocationData } from 'utils/helpers';
 import { eventLeadStatus, leadStatus } from 'utils/options';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const RenderStatus = ({
 	id,
@@ -19,6 +21,9 @@ const RenderStatus = ({
 }) => {
 	const [value, setValue] = useState(cellValue || rowOriginalStatus || '');
 	const [loading, setLoading] = useState(false);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const setStatusData = async (e) => {
 		try {
@@ -52,10 +57,30 @@ const RenderStatus = ({
 						fcblid: lead?.fcblid || null,
 					});
 				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message: `${user?.fullName} update the lead status from '${value || 'No Status'} to '${data.leadStatus}'.`,
+				});
 			}
 		} catch (e) {
 			console.log(e);
 			toast.error('Something went wrong!');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: lead._id || null,
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: `failed to update the lead status'.`,
+			});
 		} finally {
 			setLoading(false);
 		}

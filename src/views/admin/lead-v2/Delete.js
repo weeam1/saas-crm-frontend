@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -17,7 +18,8 @@ import { deleteApi, deleteManyApi } from 'services/api';
 
 const Delete = (props) => {
 	const [isLoding, setIsLoding] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
 	const navigate = useNavigate();

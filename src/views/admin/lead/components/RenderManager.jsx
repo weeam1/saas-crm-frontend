@@ -1,5 +1,7 @@
 import { Select, Text, useColorModeValue } from '@chakra-ui/react';
 import BoxLoading from 'components/shared/BoxLoading';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -7,6 +9,7 @@ import { putApi } from 'services/api';
 
 const RenderManager = ({
 	id,
+	lead,
 	isAdmin,
 	value,
 	leadID,
@@ -20,6 +23,9 @@ const RenderManager = ({
 	const [selectedManager, setSelectedManager] = useState(value || '');
 	const [loading, setLoading] = useState(false);
 	const tree = useSelector((state) => state.user.activeTree);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const handleChangeManager = async (e) => {
 		const managerAssigned = e.target.value;
@@ -36,6 +42,28 @@ const RenderManager = ({
 			if (res.status === 200) {
 				updateRowStatus(leadID, res.data.leadStatus);
 				toast.success('Manager updated successfully');
+
+				let message;
+
+				if (managerAssigned === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
+				} else {
+					const manager = tree?.managers?.find(
+						(user) => user._id === managerAssigned
+					);
+
+					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message,
+				});
 			}
 
 			// Update data in the corresponding list (searched or default)
@@ -59,6 +87,16 @@ const RenderManager = ({
 		} catch (error) {
 			console.error('Failed to update the manager:', error);
 			toast.error('Failed to update the manager');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: lead._id || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: 'Failed to update the manager',
+			});
 		} finally {
 			setLoading(false);
 		}

@@ -2,6 +2,8 @@ import { Select, Text, useColorModeValue } from '@chakra-ui/react';
 import { fetchAgentLeadsSats } from 'api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import BoxLoading from 'components/shared/BoxLoading';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -108,6 +110,7 @@ import { putApi } from 'services/api';
 // };
 
 const RenderAgent = ({
+	lead,
 	value,
 	managerAssigned,
 	leadID,
@@ -180,6 +183,9 @@ const RenderAgent = ({
 
 	// setAgentSelected(data.agentAssigned);
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const handleChangeAgent = async (e) => {
 		try {
 			setLoading(true);
@@ -227,10 +233,41 @@ const RenderAgent = ({
 				} else {
 					setData(updateListData);
 				}
+
+				let message;
+
+				if (data.agentAssigned === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
+				} else {
+					const agent = agents?.find(
+						(agent) => agent._id === data.agentAssigned
+					);
+					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message,
+				});
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);
 			toast.error('Agent not updated. Please try again.');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				entityId: lead._id || null,
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: `failed to assigned the lead'.`,
+			});
 		} finally {
 			setLoading(false);
 		}
