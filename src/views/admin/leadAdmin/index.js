@@ -9,9 +9,14 @@ import { getUserNameById } from 'utils';
 import { useSelector } from 'react-redux';
 import { sendLeadNotification } from 'api';
 import { formattedDate } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 // lead for admin
 const LeadScreen = () => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.some((role) => role.roleName === 'agent');
 	const users = useSelector((state) => state.user?.users) || [];
@@ -413,9 +418,29 @@ const LeadScreen = () => {
 					toast.success('Lead request approved successfully!');
 
 					sendLeadNotification(user?._id, agentId, updatedRes?.data);
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'APPROVE',
+						entity: 'Lead',
+						entityId: leadId || null,
+						status: 'success',
+						message: `${user?.fullName} has approved the lead successfully.`,
+					});
 				} catch (error) {
 					console.log(error);
 					toast.error('Failed to update the lead');
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'APPROVE',
+						entity: 'Lead',
+						entityId: leadId || null,
+						status: error?.response?.status === 500 ? 'error' : 'fail',
+						message: `Failed to approved the lead.`,
+					});
 				}
 			} else {
 				try {
@@ -473,16 +498,50 @@ const LeadScreen = () => {
 					}
 
 					toast.success('Lead request rejected successfully!');
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'REJECT',
+						entity: 'Lead',
+						entityId: leadId || null,
+						status: 'success',
+						message: `${user?.fullName} has rejected the lead successfully.`,
+					});
 				} catch (error) {
 					console.log(error);
-					toast.error('Failed to update user coins');
+
+					const errorMsg =
+						error?.response?.data?.message || 'Failed to update the lead';
+					toast.error(errorMsg);
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'UPDATE',
+						entity: 'Lead',
+						entityId: leadId || null,
+						status: error?.response?.status === 500 ? 'error' : 'fail',
+						message: errorMsg,
+					});
 				}
 			}
 		} catch (error) {
 			console.log('error', error);
-			toast.error(
-				error.response?.data?.message || 'Failed to process lead request'
-			);
+
+			const errorMsg =
+				error?.response?.data?.message || 'Failed to process lead request';
+			toast.error(errorMsg);
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'REJECT',
+				entity: 'Lead',
+				entityId: leadId || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

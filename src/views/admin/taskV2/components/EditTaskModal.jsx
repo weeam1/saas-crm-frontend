@@ -87,7 +87,7 @@ const EditTaskModal = ({
           entity: "Task",
           entityId: response._id,
           status: "success",
-          message: `User "${user?.fullName}" updated task "${response?.title || "Untitled"}".`,
+          message: `"${user?.fullName}" updated task "${response?.title || "Untitled"}".`,
         });
 
         toast.success("Task updated successfully");
