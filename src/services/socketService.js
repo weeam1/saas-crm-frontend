@@ -7,7 +7,7 @@ class SocketService {
 		this.socket = null;
 		this.events = new Map();
 		this.connectionStatus = 'disconnected';
-		this.reconnectionAttempts = 0;
+		this.maxReconnectionAttempts = 10;
 		this.connectionPromise = null;
 	}
 
@@ -27,7 +27,7 @@ class SocketService {
 			path: '/socket.io',
 			// transports: ['socket.io'],
 			reconnection: true,
-			// reconnectionAttempts: this.maxReconnectionAttempts,
+			reconnectionAttempts: this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
@@ -65,6 +65,14 @@ class SocketService {
 				}
 			});
 
+			this.socket.on('user_online', (data) => {
+				console.log('User online:', data);
+			});
+
+			this.socket.on('user_offline', (data) => {
+				console.log('User offline:', data);
+			});
+
 			// Connection error
 			this.socket.on('connect_error', (error) => {
 				this.connectionStatus = 'error';
@@ -75,7 +83,6 @@ class SocketService {
 			// Disconnection
 			this.socket.on('disconnect', (reason) => {
 				this.connectionStatus = 'disconnected';
-				console.log('Socket disconnected:', reason);
 				console.log('Socket disconnected:', reason);
 				if (
 					reason === 'io server disconnect' ||
@@ -131,6 +138,7 @@ class SocketService {
 			this.socket = null;
 			this.connectionPromise = null;
 			this.connectionStatus = 'disconnected';
+			this.reconnectionAttempts = 0;
 		}
 	}
 
