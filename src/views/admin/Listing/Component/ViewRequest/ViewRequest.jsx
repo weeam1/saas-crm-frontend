@@ -150,7 +150,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         entity: "listing",
         entityId: currentListingId,
         status: "success",
-        message: `"${user?.fullName}"set ${selectedStatus} view request for secondary listing.`,
+        message: `"${user?.fullName}" ${selectedStatus} the view request for the secondary listing.`,
       });
       toast.success("Status updated successfully");
 

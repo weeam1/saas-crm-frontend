@@ -23,12 +23,16 @@ import { IoArrowBack } from "react-icons/io5";
 import { toast } from "react-toastify";
 import TakeSurveyLoading from "./Loader/TakeSurveyLoading";
 import Breadcrumb from "../../../components/shared/BreadCrumb";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const TakeSurvey = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [answers, setAnswers] = useState({});
   const [checkboxAnswers, setCheckboxAnswers] = useState({});
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { createUserLog } = useUserActivityLog();
 
   const {
     data: response,
@@ -128,12 +132,30 @@ const TakeSurvey = () => {
         path: `/surveys/responses/submit/${id}`,
         body: payload,
       }).unwrap();
-
+  console.log("Survey submitted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Survey",
+        entityId: id,
+        status: "success",
+        message: `"${user?.fullName}" take a survey "${response?.doc?.survey?.title || "Untitled"}".`,
+      });
       toast.success("Survey submitted");
 
       navigate("/survey");
     } catch (error) {
       toast.error("Error submitting survey");
+      const errorMsg =
+        error?.data?.message || "Failed to take the survey. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Survey",
+        entityId: id || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
