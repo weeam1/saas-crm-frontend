@@ -68,7 +68,9 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
 
   const [updateStatus] = useUpdateItemMutation();
   const { createUserLog } = useUserActivityLog();
-  
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
     setCurrentPage(1);
@@ -142,13 +144,31 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           responseNotes: responseNotes || "",
         },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: currentListingId,
+        status: "success",
+        message: `"${user?.fullName}"set ${selectedStatus} view request for secondary listing.`,
+      });
       toast.success("Status updated successfully");
 
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the view request. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: currentListingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

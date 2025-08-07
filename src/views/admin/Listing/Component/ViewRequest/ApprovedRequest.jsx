@@ -130,7 +130,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
 
   const handleStatusUpdate = async () => {
     try {
-      const response = await updateStatus({
+      await updateStatus({
         path: `listing/secondary/${currentListingId}/requests/${currentApprovedId}`,
         body: { status: selectedStatus },
       }).unwrap();
@@ -140,13 +140,24 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         entity: "listing",
         entityId: currentListingId,
         status: "success",
-        message: `"${user?.fullName}" update the status secondary listing "${response?.data?.projectName || "Untitled"}".`,
+        message: `"${user?.fullName}"set ${selectedStatus} view request for secondary listing.`,
       });
       toast.success("Status updated successfully");
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the view request. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: currentListingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

@@ -37,6 +37,7 @@ const AdvancedFilter = ({
   levelOptions,
   entityOptions,
   usersData,
+  roleData
 }) => {
   const [openCalendar, setOpenCalendar] = React.useState(null);
   const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
@@ -61,6 +62,7 @@ const AdvancedFilter = ({
       entity: "",
       action: "",
       securityLevel: "",
+      roleId: "",
     },
     onSubmit: (values) => {
       const cleanedValues = {
@@ -84,6 +86,7 @@ const AdvancedFilter = ({
           entity: filters.entity || "",
           action: filters.action || "",
           securityLevel: filters.securityLevel || "",
+          roleId: filters.roleId || "",
         },
       });
     }
@@ -99,6 +102,7 @@ const AdvancedFilter = ({
         entity: "",
         action: "",
         securityLevel: "",
+        roleId: "",
       },
     });
     resetFilters();
@@ -117,6 +121,7 @@ const AdvancedFilter = ({
       entity: filters.entity || "",
       action: filters.action || "",
       securityLevel: filters.securityLevel || "",
+      roleId: filters.roleId || "",
     };
   }, [filters]);
 
@@ -133,7 +138,12 @@ const AdvancedFilter = ({
   }, [formik.values]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size={["full", "xl", "2xl"]} isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={["full", "xl", "2xl"]}
+      isCentered
+    >
       <ModalOverlay />
       <ModalContent
         mx={{ base: 1, md: 4 }}
@@ -163,7 +173,7 @@ const AdvancedFilter = ({
           </Flex>
         </ModalHeader>
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody px={{base:2, lg: 4}} py={4}>
+          <ModalBody px={{ base: 2, lg: 4 }} py={4}>
             <VStack spacing={5} maxH="65vh" overflowY="auto" pr={2}>
               {/* User Selection */}
               <FormControl width="100%">
@@ -191,17 +201,17 @@ const AdvancedFilter = ({
                       <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                         From Date
                       </FormLabel>
-                        <CustomDatePicker
-                          selectedDate={formik.values.from}
-                          handleDateChange={(date) =>
-                            formik.setFieldValue("from", date)
-                          }
-                          placeholder="Select from date"
-                          maxDate={formik.values.to || new Date()}
-                          isCalendarOpen={openCalendar === "from"}
-                          toggleCalendar={() => toggleCalendar("from")}
-                          isMobile={isMobile}
-                        />
+                      <CustomDatePicker
+                        selectedDate={formik.values.from}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("from", date)
+                        }
+                        placeholder="Select from date"
+                        maxDate={formik.values.to || new Date()}
+                        isCalendarOpen={openCalendar === "from"}
+                        toggleCalendar={() => toggleCalendar("from")}
+                        isMobile={isMobile}
+                      />
                     </FormControl>
                   </VStack>
                   <VStack width="100%" alignItems="flex-start">
@@ -209,18 +219,18 @@ const AdvancedFilter = ({
                       <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                         To Date
                       </FormLabel>
-                        <CustomDatePicker
-                          selectedDate={formik.values.to}
-                          handleDateChange={(date) =>
-                            formik.setFieldValue("to", date)
-                          }
-                          placeholder="Select to date"
-                          minDate={formik.values.from}
-                          maxDate={new Date()}
-                          isCalendarOpen={openCalendar === "to"}
-                          toggleCalendar={() => toggleCalendar("to")}
-                          isMobile={isMobile}
-                        />
+                      <CustomDatePicker
+                        selectedDate={formik.values.to}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("to", date)
+                        }
+                        placeholder="Select to date"
+                        minDate={formik.values.from}
+                        maxDate={new Date()}
+                        isCalendarOpen={openCalendar === "to"}
+                        toggleCalendar={() => toggleCalendar("to")}
+                        isMobile={isMobile}
+                      />
                     </FormControl>
                   </VStack>
                 </SimpleGrid>
@@ -317,11 +327,32 @@ const AdvancedFilter = ({
                   </Box>
                 </FormControl>
               </SimpleGrid>
+              <FormControl>
+                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                  Role
+                </FormLabel>
+                <Box position="relative" zIndex="dropdown">
+                  <Select
+                    name="roleId"
+                    placeholder="Select role"
+                    value={formik.values.roleId}
+                    onChange={formik.handleChange}
+                    focusBorderColor="brand.500"
+                    size="md"
+                  >
+                    {roleData?.map((option) => (
+                      <option key={option._id} value={option._id}>
+                        {option.roleName}
+                      </option>
+                    ))}
+                  </Select>
+                </Box>
+              </FormControl>
             </VStack>
           </ModalBody>
 
-          <ModalFooter 
-            px={4} 
+          <ModalFooter
+            px={4}
             pt={0}
             position={["sticky", "static"]}
             bottom={0}

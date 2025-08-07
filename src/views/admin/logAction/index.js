@@ -127,6 +127,7 @@ const LogTable = () => {
     if (filters.entity) params.entity = filters.entity;
     if (filters.action) params.action = filters.action;
     if (filters.securityLevel) params.securityLevel = filters.securityLevel;
+    if (filters.roleId) params.roleId = filters.roleId;
 
     return params;
   };
@@ -142,6 +143,13 @@ const LogTable = () => {
   const { data: usersData } = useFetchItemsQuery(
     {
       path: "/v2/user/search_users",
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const { data: roleData } = useFetchItemsQuery(
+    {
+      path: "/role-access/v2",
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -638,6 +646,7 @@ const LogTable = () => {
         levelOptions={levelOptions}
         entityOptions={entityOptions}
         usersData={usersData}
+        roleData={roleData}
       />
 
       <LogDetailsDrawer

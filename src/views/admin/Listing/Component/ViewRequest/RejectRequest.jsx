@@ -56,6 +56,8 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const Navigate = useNavigate();
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   const { createUserLog } = useUserActivityLog();
 
   const columns = [
@@ -151,11 +153,30 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
 
       toast.success("Status updated successfully");
 
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityId: currentListingId,
+        status: "success",
+       message: `"${user?.fullName}"set ${selectedStatus} view request for secondary listing.`,
+      });
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
       console.log(error);
       toast.error("Error updating status");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the view request. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Listing",
+        entityId: currentListingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
