@@ -121,7 +121,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				action: 'UPDATE',
 				entity: 'Lead',
 				entityId: lead._id || null,
-				status: error?.status === 500 ? 'error' : 'fail',
+				status: error?.response?.status === 500 ? 'error' : 'fail',
 				message: `failed to assigned the lead'.`,
 			});
 		} finally {

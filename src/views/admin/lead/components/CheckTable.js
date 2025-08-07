@@ -1149,6 +1149,7 @@ const CheckTable = React.memo((props) => {
 												} else if (cell?.column.Header === 'Manager') {
 													data = (
 														<RenderManager
+															lead={row?.original}
 															id={row?.original?._id}
 															updateRowStatus={updateRowStatus}
 															displaySearchData={
@@ -1166,6 +1167,7 @@ const CheckTable = React.memo((props) => {
 													data = (
 														<>
 															<RenderAgent
+																lead={row?.original}
 																updateRowStatus={updateRowStatus}
 																tableDataUpdate={tableDataUpdate}
 																setData={setData}
