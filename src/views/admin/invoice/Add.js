@@ -165,6 +165,7 @@ const AddEntryModal = (props) => {
 				throw new Error('Failed to create invoice and entry');
 			}
 
+			/// enitries
 			const invoiceId = response.data.invoice._id;
 
 			toast.success('Invoice and entry added successfully!');
