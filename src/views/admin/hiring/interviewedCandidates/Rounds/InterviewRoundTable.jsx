@@ -24,6 +24,8 @@ import { useState } from 'react';
 import { toUTCString } from 'utils/helpers';
 import ArrangeInterview from '../../shortListedCandidates/components/ArrangeInterview';
 import MailIcon from '../../shortListedCandidates/components/MailIcon';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const InterviewedRoundTable = ({
 	headers,
@@ -41,21 +43,20 @@ const InterviewedRoundTable = ({
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedTime, setSelectedTime] = useState('');
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
 	const navigate = useNavigate();
 
 	const [createItemMutation, { isLoading: startingInterview }] =
 		useCreateItemMutation();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [updateItemMutation, { isLoading: isInviting }] =
 		useUpdateItemMutation();
 
 	const handleStartInterview = async (interview) => {
 		try {
-			console.log({
-				candidate: interview?.candidate?._id,
-				interview: interview?._id,
-			});
 			const data = await createItemMutation({
 				path: `/interviews/create-round`,
 				body: {
@@ -69,14 +70,33 @@ const InterviewedRoundTable = ({
 
 				window.location.href = `/hiring/interview/${data.doc._id}`;
 				toast.success('Interview started...');
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Hiring',
+					entityId: interview?.candidate?._id,
+					status: 'success',
+					message: `${user?.fullName} started the interview with ${interview?.candidate?.name}.`,
+				});
 			} else {
 				toast.error('Invalid response from server.');
 			}
 		} catch (error) {
 			console.log(error);
-			toast.error(
-				error?.data?.message || 'Interview not started, please try again.'
-			);
+
+			const errorMsg =
+				error?.data?.message || 'Interview not started, please try again.';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: interview?.candidate?._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 
@@ -92,8 +112,29 @@ const InterviewedRoundTable = ({
 
 			toast.success('Invite succesfully sended');
 			refetch();
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
+			});
 		} catch (err) {
 			console.log(err);
+			const errorMsg =
+				err?.data?.message || 'Interview is not arranged, please try again.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setArrangeInterviewOpen(false);
 		}
@@ -101,7 +142,6 @@ const InterviewedRoundTable = ({
 
 	const handleArrangeInterview = async (candidate) => {
 		setCandidate(candidate);
-		console.log({ candidate });
 		setArrangeInterviewOpen(true);
 	};
 

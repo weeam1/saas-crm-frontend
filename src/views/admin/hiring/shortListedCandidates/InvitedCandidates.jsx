@@ -81,6 +81,7 @@ const InvitedCandidates = ({
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
@@ -94,6 +95,7 @@ const InvitedCandidates = ({
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: err?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
@@ -132,6 +134,7 @@ const InvitedCandidates = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
@@ -172,6 +175,7 @@ const InvitedCandidates = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
@@ -186,6 +190,16 @@ const InvitedCandidates = ({
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: candidate._id,
+			status: 'success',
+			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	// Update filtered data on search change

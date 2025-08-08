@@ -111,6 +111,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: 'success',
 				message: `${user?.fullName} added employee check in.`,
 			});
@@ -123,6 +125,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
@@ -159,6 +163,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				entityId: res?.doc?._id,
 				status: 'success',
 				message: `${user?.fullName} added employee check out.`,
@@ -173,6 +179,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
@@ -197,6 +205,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: 'success',
 				message: `${user?.fullName} added employee absent.`,
 			});
@@ -210,6 +220,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
@@ -237,6 +249,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: 'success',
 				message: `${user?.fullName} added employee leave.`,
 			});
@@ -250,6 +264,8 @@ const AttendanceMark = ({
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

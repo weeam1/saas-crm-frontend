@@ -98,6 +98,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate information updated by ${user?.fullName}`,
@@ -110,6 +111,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Hiring',
+				entityType: 'Application',
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

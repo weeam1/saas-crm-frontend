@@ -90,6 +90,7 @@ const Interviewed = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: interview?.candidate._id,
 				status: 'success',
 				message: `Candidate ${interview?.candidate.name}’s CV viewed by ${user?.fullName}.`,
@@ -130,6 +131,7 @@ const Interviewed = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: interview?.candidate._id,
 				status: 'success',
 				message: `Candidate ${interview?.candidate.name}’s CV downloaded by ${user?.fullName}.`,
@@ -144,6 +146,16 @@ const Interviewed = ({
 		const interview = data.find((item) => item.candidate._id === id);
 		setInterview(interview);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: interview.candidate._id,
+			status: 'success',
+			message: `Candidate ${interview.candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	// Update filtered data on search change

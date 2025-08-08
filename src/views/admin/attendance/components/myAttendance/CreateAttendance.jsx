@@ -121,6 +121,8 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: 'success',
 				message: `${user?.fullName} added attendance record.`,
 			});
@@ -134,6 +136,8 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

@@ -113,6 +113,8 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					userId: user?._id,
 					action: 'UPDATE',
 					entity: 'Attendance',
+					entityType: 'Attendance',
+
 					entityId: res?.doc?._id,
 					status: 'success',
 					message: `${user?.fullName || ''} updated attendance record`,
@@ -127,6 +129,8 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Attendance',
+				entityType: 'Attendance',
+
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

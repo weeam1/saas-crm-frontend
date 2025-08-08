@@ -140,6 +140,7 @@ const ShortListed = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
@@ -180,6 +181,7 @@ const ShortListed = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
@@ -194,6 +196,16 @@ const ShortListed = ({
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: candidate._id,
+			status: 'success',
+			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	const handleArrangeInterview = async (id) => {

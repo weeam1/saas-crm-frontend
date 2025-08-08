@@ -145,6 +145,7 @@ const PendingInvitedCandidates = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
@@ -185,6 +186,7 @@ const PendingInvitedCandidates = ({
 				userId: user?._id,
 				action: 'VIEW',
 				entity: 'Hiring',
+				entityType: 'Application',
 				entityId: candidate._id,
 				status: 'success',
 				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
@@ -199,6 +201,16 @@ const PendingInvitedCandidates = ({
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: candidate._id,
+			status: 'success',
+			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	// Update filtered data on search change
