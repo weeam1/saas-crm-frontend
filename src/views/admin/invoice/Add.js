@@ -21,6 +21,8 @@ import { toast } from 'react-toastify';
 import { useCreateItemMutation } from 'api/apiSlice';
 import * as yup from 'yup';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -65,7 +67,12 @@ const AddEntryModal = (props) => {
 	const [createItemMutation, { isLoading: mutationLoading }] =
 		useCreateItemMutation();
 	const location = useLocation();
+
 	const navigate = useNavigate();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const queryParams = new URLSearchParams(location.search);
 	const incomingPayment = queryParams.get('incomingPayment');
 	const initialValues = {
@@ -173,10 +180,34 @@ const AddEntryModal = (props) => {
 			if (props.setAction) props.setAction((prev) => !prev);
 			resetForm();
 			props.onClose();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Invioce',
+				entityType: 'InvoiceEntry',
+				entityId: response?.data?._id || null,
+				status: 'success',
+				message: `${user?.fullName} is created an invoice entry.`,
+			});
+
 			if (props.onSuccess) props.onSuccess(invoiceId);
 		} catch (e) {
 			console.error('Error:', e);
-			toast.error(e?.data?.message || e.message || 'Operation failed');
+			const errorMsg =
+				e?.data?.message ||
+				e.message ||
+				'Operation failed to created invoice entry.';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Invioce',
+				entityType: 'InvoiceEntry',
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setIsLoading(false);
 		}

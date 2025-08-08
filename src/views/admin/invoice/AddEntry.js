@@ -144,8 +144,6 @@ const AddEntry = ({ props }) => {
 		});
 	};
 
-	console.log({ tableData, invoiceId, developerId });
-
 	const breadcrumbItems = useMemo(
 		() => [
 			{ label: 'Developers', path: '/invoice?tab=developers' },
@@ -161,7 +159,6 @@ const AddEntry = ({ props }) => {
 		[invoiceId, developerId]
 	);
 
-	console.log({ breadcrumbItems });
 	const handleEditClick = (entryId) => {
 		setSelectedId(entryId);
 		setIsEditModalOpen(true);

@@ -23,6 +23,8 @@ import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
 import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const invoiceSchema = yup.object().shape({
 	developer_id: yup.string().required('Developer is required'),
@@ -32,7 +34,10 @@ const invoiceSchema = yup.object().shape({
 
 const Edit = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user')) || {};
+	// const user = JSON.parse(localStorage.getItem('user')) || {};
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [filteredBankAccounts, setFilteredBankAccounts] = useState([]);
 
@@ -134,12 +139,33 @@ const Edit = (props) => {
 				}
 				if (props.setAction) props.setAction((prev) => !prev);
 				props.onClose();
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Invioce',
+					entityType: 'Invoice',
+					entityId: response?.data?._id || null,
+					status: 'success',
+					message: `${user?.fullName} is created an invoice.`,
+				});
 			} else {
 				throw new Error('Unexpected response format');
 			}
 		} catch (e) {
 			console.error('Error updating invoice:', e);
-			toast.error(e?.data?.message || e.message || 'Something went wrong!');
+			const errorMsg =
+				e?.data?.message || e.message || 'Operation failed to updated invoice';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Invioce',
+				entityType: 'Invoice',
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setIsLoading(false);
 		}
