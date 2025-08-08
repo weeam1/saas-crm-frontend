@@ -127,6 +127,7 @@ const LogTable = () => {
     if (filters.entity) params.entity = filters.entity;
     if (filters.action) params.action = filters.action;
     if (filters.securityLevel) params.securityLevel = filters.securityLevel;
+    if (filters.roleId) params.roleId = filters.roleId;
 
     return params;
   };
@@ -142,6 +143,13 @@ const LogTable = () => {
   const { data: usersData } = useFetchItemsQuery(
     {
       path: "/v2/user/search_users",
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const { data: roleData } = useFetchItemsQuery(
+    {
+      path: "/role-access/v2",
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -258,6 +266,7 @@ const LogTable = () => {
         </Flex>
     );
   };
+
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
     setIsFilterOpen(false);
@@ -287,11 +296,15 @@ const LogTable = () => {
   const transformLogData = (log) => ({
     ...log,
     userName: log.user?.fullName || log.user?.username || "Unknown User",
-    securityLevel: levels[log.action] || 1,
+    role: (log.user.role === "superAdmin"? log.user.role : log.user?.roles?.[0]?.roleName ) || "N/A",
+    securityLevel: log?.securityLevel || 1,
     metadata: {
       ip: log.metadata?.ip || "N/A",
       device: log.metadata?.device || "Unknown Device",
       browser: log.metadata?.browser || "Unknown Browser",
+      os: log.metadata?.os || "Unknown OS",
+      osVersion: log.metadata?.osVersion || "Unknown OS Version",
+      browserVersion: log.metadata?.browserVersion || "Unknown Browser Version",
       country: log.metadata?.country || "Unknown Country",
       region: log.metadata?.region || "Unknown Region",
       city: log.metadata?.city || "Unknown City",
@@ -460,7 +473,7 @@ const LogTable = () => {
                   "Message",
                   "TimeStamp",
                 ]}
-                length={6}
+                length={20}
                 py="4"
               />
             ) : data?.doc?.length > 0 ? (
@@ -637,6 +650,7 @@ const LogTable = () => {
         levelOptions={levelOptions}
         entityOptions={entityOptions}
         usersData={usersData}
+        roleData={roleData}
       />
 
       <LogDetailsDrawer

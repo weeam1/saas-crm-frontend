@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   FormControl,
@@ -20,12 +20,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFetchItemsQuery } from "api/apiSlice";
 import { constant } from "constant";
 import { toast } from "react-toastify";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const ViewListing = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+
+  const { createUserLog } = useUserActivityLog();
 
   const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
@@ -38,6 +41,31 @@ const ViewListing = () => {
     { path: `listing/secondary/${id}` },
     { refetchOnMountOrArgChange: true }
   );
+
+  useEffect(() => {
+    if (listing?.data) {
+      createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Listing",
+        entityType: "SecondaryListing",
+        entityId: listing.data._id,
+        status: "success",
+        message: `${user?.fullName} viewed listing "${listing.data.projectName || "Untitled"}".`,
+      });
+    }
+    if (!listing?.data && !isLoading && !isFetching && isError) {
+      createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Listing",
+        entityType: "SecondaryListing",
+        entityId: id,
+        status: "error",
+        message: `${user?.fullName} attempted to view listing with ID ${id}, but it was not found.`,
+      });
+    }
+  }, [listing]);
 
   if (isLoading || isFetching) {
     return (
