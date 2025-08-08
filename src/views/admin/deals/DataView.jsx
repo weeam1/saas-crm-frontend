@@ -78,7 +78,7 @@ const DataView = ({
 					enityType: 'CloseDeal',
 					entityId: dealId || null,
 					status: 'success',
-					message: `${res?.doc?.lead?.leadName || ''} Deal closed by ${user?.fullName}`,
+					message: `${res?.doc?.lead?.leadName || ''} Deal canncelled by ${user?.fullName}`,
 				});
 			}
 		} catch (error) {

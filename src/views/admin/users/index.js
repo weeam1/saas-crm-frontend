@@ -5,11 +5,15 @@ import { getApi } from 'services/api';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAllUsers } from '../../../redux/usersSlice';
 
 const Index = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
+	const allUsers = useSelector((state) => state.users.allUsers);
 
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	const tableColumns = [
 		{
@@ -48,9 +52,16 @@ const Index = () => {
 				? `api/user/?parent=${user?._id?.toString()}`
 				: 'api/user/'
 		);
-		setData(result.data?.user);
+		// setData(result.data?.user);
+		dispatch(setAllUsers(result.data?.user));
 		setIsLoding(false);
 	};
+
+	useEffect(() => {
+		if (allUsers?.length > 0) {
+			setData(allUsers);
+		}
+	}, [allUsers]);
 
 	useEffect(() => {
 		setColumns(tableColumns);

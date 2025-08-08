@@ -121,7 +121,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added employee absent.`,
 			});
@@ -136,7 +135,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
