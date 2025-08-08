@@ -1,6 +1,8 @@
+import { io } from 'socket.io-client';
+
 import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
-import { io } from 'socket.io-client';
+import { updateAllUsers } from '../redux/usersSlice';
 
 class SocketService {
 	constructor() {
@@ -66,11 +68,17 @@ class SocketService {
 			});
 
 			this.socket.on('user_online', (data) => {
-				console.log('User online:', data);
+				// console.log('User online:', data);
+				store.dispatch(
+					updateAllUsers({ id: data.userId, updates: { isOnline: true } })
+				);
 			});
 
 			this.socket.on('user_offline', (data) => {
-				console.log('User offline:', data);
+				// console.log('User offline:', data);
+				store.dispatch(
+					updateAllUsers({ id: data.userId, updates: { isOnline: false } })
+				);
 			});
 
 			// Connection error
