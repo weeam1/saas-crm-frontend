@@ -86,6 +86,16 @@ const AddTaskModal = ({
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error creating task");
+        const errorMsg =
+          error?.data?.message || "Failed to creating task. Please try again.";
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Task",
+          entityType: "TaskV2",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       } finally {
         setSubmitting(false);
       }

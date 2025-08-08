@@ -141,17 +141,17 @@ const UnitType = () => {
       toast.error(error.data?.message || "An error occurred");
       const errorMsg =
         error?.data?.message ||
-        "Failed to update the listing unit type. Please try again.";
-      isEditMode &&
-        createUserLog({
-          userId: user?._id,
-          action: "UPDATE",
-          entity: "listing_Unit_Type",
-          entityType: "SecondaryListingUnitType",
-          entityId: currentUnitType._id,
-          status: error?.status === "500" ? "error" : "fail",
-          message: errorMsg,
-        });
+        `Failed to ${isEditMode ? "updated" : "create"} the listing  unit type. Please try again.`;
+      toast.error(error.data?.message || "An error occurred");
+      createUserLog({
+        userId: user?._id,
+        action: isEditMode ? "UPDATE" : "CREATE",
+        entity: "listing_Unit_Type",
+        entityType: "SecondaryListingUnitType",
+        entityId: currentUnitType._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

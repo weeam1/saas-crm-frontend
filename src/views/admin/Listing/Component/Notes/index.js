@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -30,6 +30,7 @@ import {
   useUpdateItemMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const NotesModal = ({ isOpen, onClose, listingId }) => {
   const textColor = useColorModeValue("gray.700", "white");
@@ -42,7 +43,9 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
   const [noteId, setNoteId] = useState(null);
   const [newNote, setNewNote] = useState("");
   const [editingNote, setEditingNote] = useState({ id: "", text: "" });
+  const user = JSON.parse(localStorage.getItem("user"));
 
+  const { createUserLog } = useUserActivityLog();
   const [deleteItemMutation] = useDeleteItemMutation();
   const [createItemMutation] = useCreateItemMutation();
   const [updateItemMutation] = useUpdateItemMutation();
@@ -57,9 +60,34 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
     { refetchOnMountOrArgChange: true }
   );
 
+  useEffect(() => {
+    if (notes?.data) {
+      createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: notes.data._id,
+        status: "success",
+        message: `${user?.fullName} viewed listing notes.`,
+      });
+    }
+    if (!notes?.data && !isLoading && !isFetching) {
+      createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+       entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: listingId,
+        status: "error",
+        message: `${user?.fullName} attempted to view listing notes, but it was not found.`,
+      });
+    }
+  }, []);
+
   const handleAddNote = async () => {
     try {
-      await createItemMutation({
+      const response = await createItemMutation({
         path: `/listing/secondary/listing-notes/${listingId}`,
         body: { note: newNote },
       }).unwrap();
@@ -70,17 +98,36 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
       setNewNote("");
       addNoteDisclosure.onClose();
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: response?.data._id,
+        status: "success",
+        message: `${user?.fullName} created secondary listing notes.`,
+      });
     } catch (error) {
       console.error(error);
       toast.error("Failed to add note", {
         autoClose: 3000,
+      });
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to add listing notes. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
       });
     }
   };
 
   const handleUpdateNote = async () => {
     try {
-      await updateItemMutation({
+      const response = await updateItemMutation({
         path: `/listing/secondary/listing-notes/${editingNote.id}`,
         body: { note: editingNote.text },
       }).unwrap();
@@ -91,10 +138,31 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
       setEditingNote({ id: "", text: "" });
       editNoteDisclosure.onClose();
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: editingNote.id,
+        status: "success",
+        message: `"${user?.fullName}" update the secondary listing notes.`,
+      });
     } catch (error) {
       console.error(error);
       toast.error("Failed to update note", {
         autoClose: 3000,
+      });
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update listing notes. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: editingNote.id || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
       });
     }
   };
@@ -109,12 +177,33 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
         autoClose: 3000,
       });
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: noteId,
+        status: "success",
+        message: `"${user?.fullName}" deleted listing notes.`,
+      });
     } catch (error) {
       console.error("Failed to delete note:", error);
       toast.error(
         error.data?.message || "Failed to delete the note. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the listing notes. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Listing_Note",
+        entityType: "listingNotes",
+        entityId: noteId,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
     setDeleteModalOpen(false);
   };

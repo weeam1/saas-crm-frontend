@@ -134,12 +134,11 @@ const ListingTypes = () => {
       console.error(error);
       const errorMsg =
         error?.data?.message ||
-        "Failed to update the listing type. Please try again.";
+        `Failed to ${isEditMode? "updated" : "create"} the listing type. Please try again.`;
       toast.error(error.data?.message || "An error occurred");
-      isEditMode &&
         createUserLog({
           userId: user?._id,
-          action: "UPDATE",
+          action: isEditMode? "UPDATE" : "CREATE",
           entity: "listing_Type",
           entityType: "SecondaryListingType",
           entityId: currentType._id,

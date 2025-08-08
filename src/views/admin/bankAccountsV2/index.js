@@ -121,6 +121,14 @@ export default function Index() {
       console.error("Failed to add account:", error);
       const errorMessage =
         error?.data?.message || "Failed to add the account. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Bank_Account",
+        entityType: "BankAccount",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMessage,
+      });
       return { general: errorMessage };
     }
   };

@@ -62,7 +62,7 @@ const ViewListing = () => {
         entityType: "SecondaryListing",
         entityId: id,
         status: "error",
-        message: `${user?.fullName} attempted to view listing with ID ${id}, but it was not found.`,
+        message: `${user?.fullName} attempted to view listing, but it was not found.`,
       });
     }
   }, [listing]);

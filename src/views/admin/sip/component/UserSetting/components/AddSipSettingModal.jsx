@@ -153,6 +153,17 @@ const AddSipSettingModal = ({
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error creating SIP Setting");
+        const errorMsg =
+          error?.data?.message ||
+          "Failed to creating SIP Setting. Please try again.";
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Sip_Setting",
+          entityType: "SipSetting",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       } finally {
         setSubmitting(false);
       }

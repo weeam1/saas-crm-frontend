@@ -202,6 +202,16 @@ const AddEntryModal = (props) => {
     } catch (e) {
       console.error("Error:", e);
       toast.error(e?.data?.message || e.message || "Operation failed");
+      const errorMsg =
+        e?.data?.message || "Failed to created the invoice. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Invoice",
+        entityType: "Invoice",
+        status: e?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     } finally {
       setIsLoading(false);
     }
