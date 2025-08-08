@@ -23,6 +23,8 @@ import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
 import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 // Validation schema aligned with Add component
 const invoiceSchema = yup.object().shape({
@@ -80,6 +82,9 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 			skip: !isOpen || !selectedId, // Only fetch when modal is open and ID is provided
 		}
 	);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const initialValues = {
 		invoice: '',
@@ -215,12 +220,36 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
 				if (setAction) setAction((prev) => !prev);
 				resetForm({ values: initialValues }); // Reset form after success
 				onClose();
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Invioce',
+					entityType: 'InvoiceEntry',
+					entityId: response?.data?._id || null,
+					status: 'success',
+					message: `${user?.fullName} updated invoice entry.`,
+				});
 			} else {
 				throw new Error('Unexpected response format');
 			}
 		} catch (e) {
 			console.error('Error updating entry:', e);
-			toast.error(e?.data?.message || e.message || 'Something went wrong!');
+
+			const errorMsg =
+				e?.data?.message ||
+				e.message ||
+				'Operation failed to update invoice entry.';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Invioce',
+				entityType: 'InvoiceEntry',
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setIsLoading(false);
 		}
