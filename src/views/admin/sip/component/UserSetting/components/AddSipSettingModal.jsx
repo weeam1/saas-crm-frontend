@@ -139,7 +139,7 @@ const AddSipSettingModal = ({
           entity: "Sip_Setting",
           entityId: response._id,
           status: "success",
-          message: `${user?.fullName} sip setting with sip id "${response?.sipId || "Untitled"}".`,
+          message: `${user?.fullName} created sip setting with sip id "${response?.data?.sipId || "Untitled"}".`,
         });
         toast.success("SIP Setting created successfully");
         onSuccess();

@@ -25,6 +25,7 @@ import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import TableLoading from "components/loading/TableLoading";
 import AdvancedSearchModal from "./components/AdvancedSearchModal";
 import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const UserSetting = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,6 +34,8 @@ const UserSetting = () => {
   const [selectedSip, setSelectedSip] = useState(null);
   const [filterChanged, setFilterChanged] = useState(false);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { createUserLog } = useUserActivityLog();
   const {
     isOpen: isAddOpen,
     onOpen: onAddOpen,
@@ -112,8 +115,27 @@ const UserSetting = () => {
         body: {},
       }).unwrap();
       toast.success("SIP Setting deleted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Sip_Setting",
+        entityId: id,
+        status: "success",
+        message: `${user?.fullName} deleted the sip setting.`,
+      });
       refetch();
     } catch (error) {
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete SIP Setting. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE_FAIL",
+        entity: "Sip_Setting",
+        entityId: id,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
       toast.error(error.data?.message || "Failed to delete SIP Setting");
     }
   };

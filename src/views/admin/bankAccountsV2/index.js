@@ -5,6 +5,7 @@ import Pagination from "./components/Pagination";
 import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { Box, useBreakpointValue } from "@chakra-ui/react";
 import CustomSearchInput from "./components/Search";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,6 +17,9 @@ export default function Index() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [createItemMutation, { isLoading: isAdding }] = useCreateItemMutation();
+
+    const user = JSON.parse(localStorage.getItem("user")) || {};  
+    const { createUserLog } = useUserActivityLog();
 
   const {
     data: searchData,
@@ -97,10 +101,18 @@ export default function Index() {
 
   const handleAdd = async (newAccount) => {
     try {
-      await createItemMutation({
+    const response =  await createItemMutation({
         path: "/bankAccount/add",
         body: newAccount,
       }).unwrap();
+       createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Bank_Account",
+        entityId: response.data.account._id,
+        status: "success",
+        message: `"${user?.fullName}" created bank account "${response?.data?.account.account_holder_name || "Untitled"}".`,
+      });
       setCurrentPage(1);
       searchTerm ? refetchSearch() : refetchAll();
       return null;

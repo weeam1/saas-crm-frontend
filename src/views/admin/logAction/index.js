@@ -296,11 +296,15 @@ const LogTable = () => {
   const transformLogData = (log) => ({
     ...log,
     userName: log.user?.fullName || log.user?.username || "Unknown User",
+    role: (log.user.role === "superAdmin"? log.user.role : log.user?.roles?.[0]?.roleName ) || "N/A",
     securityLevel: log?.securityLevel || 1,
     metadata: {
       ip: log.metadata?.ip || "N/A",
       device: log.metadata?.device || "Unknown Device",
       browser: log.metadata?.browser || "Unknown Browser",
+      os: log.metadata?.os || "Unknown OS",
+      osVersion: log.metadata?.osVersion || "Unknown OS Version",
+      browserVersion: log.metadata?.browserVersion || "Unknown Browser Version",
       country: log.metadata?.country || "Unknown Country",
       region: log.metadata?.region || "Unknown Region",
       city: log.metadata?.city || "Unknown City",
@@ -469,7 +473,7 @@ const LogTable = () => {
                   "Message",
                   "TimeStamp",
                 ]}
-                length={6}
+                length={20}
                 py="4"
               />
             ) : data?.doc?.length > 0 ? (

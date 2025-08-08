@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import * as XLSX from "xlsx";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const IncomingTable = ({ month, year, refetchSummary }) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -42,7 +43,10 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
   const [deleteItemMutation] = useDeleteItemMutation();
+  const { createUserLog } = useUserActivityLog();
+
   const columns = [
     "Date",
     "developer",
@@ -127,6 +131,14 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
         autoClose: 3000,
       });
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Invoice",
+        entityId: invoiceId,
+        status: "success",
+        message: `${user?.fullName} deleted incoming expense.`,
+      });
     } catch (error) {
       console.error("Failed to delete expenses:", error);
       toast.error(
@@ -134,6 +146,17 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           "Failed to delete the expenses. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the incoming expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE_FAIL",
+        entity: "Invoice",
+        entityId: invoiceId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

@@ -34,6 +34,7 @@ import { useUpdateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { useDispatch } from "react-redux";
 import { apiSlice } from "api/apiSlice";
 import * as Yup from "yup";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const contactSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -81,6 +82,8 @@ const Edit = (props) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const role =
     user?.role === "superAdmin" ? "superAdmin" : user?.roles?.[0]?.roleName;
+
+  const { createUserLog } = useUserActivityLog();
 
   const {
     data: agenciesResponse,
@@ -197,7 +200,7 @@ const Edit = (props) => {
     );
 
     if (hasInvalidContacts) {
-      toast.error( "Validation Error");
+      toast.error("Validation Error");
       return;
     }
 
@@ -224,7 +227,14 @@ const Edit = (props) => {
         path: `/developer/edit/${selectedId}`,
         body: formData,
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Developer",
+        entityId: response.data._id,
+        status: "success",
+        message: `"${user?.fullName}" updated developer "${response?.data?.developer_name || "Untitled"}".`,
+      });
       if (response.status === "success") {
         toast.success("Developer updated successfully");
         fetchData({ pageIndex, pageSize });
@@ -247,8 +257,18 @@ const Edit = (props) => {
         }
       }
     } catch (e) {
+      const errorMsg =
+        e?.data?.message || "Failed to update the developer. Please try again.";
       console.error("Update Error:", e);
       toast.error("Error updating developer");
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE_FAIL",
+        entity: "Developer",
+        entityId: selectedId || null,
+        status: e?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -537,7 +557,9 @@ const Edit = (props) => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       borderColor={
-                        errors.agency && touched.agency ? "red.300" : borderColor
+                        errors.agency && touched.agency
+                          ? "red.300"
+                          : borderColor
                       }
                       focusBorderColor={brandColors[500]}
                       isDisabled={isAgenciesLoading || isAgenciesError}
@@ -580,7 +602,9 @@ const Edit = (props) => {
                     placeholder="Address"
                     fontWeight="500"
                     borderColor={
-                      errors.address && touched.address ? "red.300" : borderColor
+                      errors.address && touched.address
+                        ? "red.300"
+                        : borderColor
                     }
                     focusBorderColor={brandColors[500]}
                   />
