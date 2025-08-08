@@ -65,7 +65,7 @@ const AccountsView = ({
         "Failed to update the bank account. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Bank_Account",
         entityType: "BankAccount",
         entityId: accountId || null,
@@ -110,7 +110,7 @@ const AccountsView = ({
 
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Bank_Account",
         entityType: "BankAccount",
         entityId: accountId,

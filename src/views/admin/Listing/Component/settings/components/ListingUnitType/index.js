@@ -36,6 +36,7 @@ import {
 } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import { useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const UnitType = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -46,6 +47,8 @@ const UnitType = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUnitType, setCurrentUnitType] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const { createUserLog } = useUserActivityLog();
 
   const navigate = useNavigate();
 
@@ -105,19 +108,50 @@ const UnitType = () => {
           path: `/listing/secondary/unit-types/${currentUnitType._id}`,
           body: formData,
         }).unwrap();
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Unit_Type",
+          entityType: "SecondaryListingUnitType",
+          entityId: currentUnitType._id,
+          status: "success",
+          message: `"${user?.fullName}" update the listing Unit Type "${currentUnitType?.name || "Untitled"}".`,
+        });
         toast.success("Unit Type updated successfully");
       } else {
-        await createItemMutation({
+        const response = await createItemMutation({
           path: "/listing/secondary/unit-types",
           body: formData,
         }).unwrap();
         toast.success("Unit Type created successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "listing_Unit_Type",
+          entityType: "SecondaryListingUnitType",
+          entityId: response?.doc?._id,
+          status: "success",
+          message: `"${user?.fullName}" created the listing unit type "${response?.doc?.name || "Untitled"}".`,
+        });
       }
       resetForm();
       onClose();
       refetch();
     } catch (error) {
       toast.error(error.data?.message || "An error occurred");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the listing unit type. Please try again.";
+      isEditMode &&
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Unit_Type",
+          entityType: "SecondaryListingUnitType",
+          entityId: currentUnitType._id,
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
     }
   };
 
@@ -137,9 +171,30 @@ const UnitType = () => {
         path: `/listing/secondary/unit-types/${id}`,
       }).unwrap();
       toast.success("Unit Type deleted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Unit_Type",
+        entityType: "SecondaryListingUnitType",
+        entityId: id,
+        status: "success",
+        message: `"${user?.fullName}" deleted the unit listing type.`,
+      });
       refetch();
     } catch (error) {
       toast.error(error.data?.message || "Failed to delete unit type");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Unit_Type",
+        entityType: "SecondaryListingUnitType",
+        entityId: id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -155,16 +210,37 @@ const UnitType = () => {
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type?.status;
-      await updateItemMutation({
+      const response = await updateItemMutation({
         path: `/listing/secondary/unit-types/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
       toast.success(`Listing type status updated successfully`);
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing_Unit_Type",
+        entityType: "SecondaryListingUnitType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" update the status of listing Unit Type "${response?.doc?.name || "Untitled"}".`,
+      });
       refetch();
     } catch (error) {
       toast.error(
         error.data?.message || "Failed to update listing type status"
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the status of unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Unit_Type",
+        entityType: "SecondaryListingUnitType",
+        entityId: type._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

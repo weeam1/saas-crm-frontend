@@ -166,7 +166,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
       );
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Listing",
         entityType: "SecondaryListing",
         entityId: listing._id,
@@ -247,7 +247,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Listing",
         entityType: "SecondaryListing",
         entityId: listingId || null,

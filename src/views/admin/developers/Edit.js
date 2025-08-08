@@ -264,7 +264,7 @@ const Edit = (props) => {
       toast.error("Error updating developer");
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Developer",
         entityType: "Developer",
         entityId: selectedId || null,

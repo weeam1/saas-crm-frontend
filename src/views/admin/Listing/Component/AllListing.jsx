@@ -176,7 +176,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
       });
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Listing",
         entityType: "SecondaryListing",
         entityId: listingId || null,
@@ -243,7 +243,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
       );
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Listing",
         entityType: "SecondaryListing",
         entityId: listing._id,

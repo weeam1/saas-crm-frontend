@@ -159,7 +159,7 @@ const TaskV2 = () => {
       );
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Task",
         entityType: "TaskV2",
         entityId: task._id,
@@ -211,7 +211,7 @@ const TaskV2 = () => {
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Task",
         entityType: "TaskV2",
         entityId: task?._id || null,
@@ -298,7 +298,7 @@ const TaskV2 = () => {
         "Failed to update the priority of task. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Task",
         entityType: "TaskV2",
         entityId: taskId,

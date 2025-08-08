@@ -152,7 +152,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
         "Failed to delete the incoming expense. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Invoice",
         entityType: "Invoice",
         entityId: invoiceId || null,

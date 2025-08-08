@@ -235,7 +235,7 @@ const UpdateListing = () => {
         toast.error(error.data?.message || "Failed to update listing");
         createUserLog({
           userId: user?._id,
-          action: "UPDATE_FAIL",
+          action: "UPDATE",
           entity: "Listing",
           entityType: "SecondaryListing",
           entityId: id || null,

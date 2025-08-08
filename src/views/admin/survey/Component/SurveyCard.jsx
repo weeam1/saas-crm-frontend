@@ -140,7 +140,7 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
       console.log("error", error);
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Survey",
         entityType: "Survey",
         entityId: surveyIdToDelete,

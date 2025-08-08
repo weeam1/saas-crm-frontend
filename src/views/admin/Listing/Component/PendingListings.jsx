@@ -185,7 +185,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
 
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Listing",
         entityType: "SecondaryListing",
         entityId: listingId || null,

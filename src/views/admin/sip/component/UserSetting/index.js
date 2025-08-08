@@ -131,7 +131,7 @@ const UserSetting = () => {
         "Failed to delete SIP Setting. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Sip_Setting",
         entityType: "SipSetting",
         entityId: id,

@@ -197,7 +197,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         "Failed to delete the outgoing expense. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Outgoing_Expense",
         entityType: "Expense",
         entityId: invoiceId || null,
@@ -240,7 +240,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         "Failed to update the expense. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Outgoing_Expense",
         entityId: OpenExpenseInputModalData._id || null,
         entityType: "Expense",
@@ -327,7 +327,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         "Failed to update the expense. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Outgoing_Expense",
         entityId: OpenExpenseInputModalData._id || null,
         entityType: "Expense",

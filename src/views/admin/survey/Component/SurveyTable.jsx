@@ -97,7 +97,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
       toast.error(error?.data?.message);
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Survey",
         entityType: "Survey",
         entityId: surveyIdToDelete,

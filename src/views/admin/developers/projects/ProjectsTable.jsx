@@ -75,7 +75,7 @@ const ProjectsTable = ({ data, isLoading, isFetching, refetch }) => {
         "Failed to delete the project. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Project",
         entityType: "Project",
         entityId: projectId,

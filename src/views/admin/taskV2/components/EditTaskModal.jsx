@@ -101,7 +101,7 @@ const EditTaskModal = ({
           "Failed to update the priority of task. Please try again.";
         createUserLog({
           userId: user?._id,
-          action: "UPDATE_FAIL",
+          action: "UPDATE",
           entity: "Task",
           entityType: "TaskV2",
           entityId: task?._id || null,

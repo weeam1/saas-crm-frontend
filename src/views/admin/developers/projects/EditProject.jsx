@@ -41,7 +41,7 @@ const EditProject = ({ isOpen, onClose, refetch, data }) => {
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Project",
         entityType: "Project",
         entityId: data?._id || null,

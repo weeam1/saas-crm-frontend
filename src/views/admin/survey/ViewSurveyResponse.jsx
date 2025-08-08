@@ -250,7 +250,7 @@ const ViewSurveyResponse = () => {
         "Failed to evaluate the survey. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Survey",
         entityType: "SurveyResponse",
         entityId: surveyResponse?.doc?._id || null,

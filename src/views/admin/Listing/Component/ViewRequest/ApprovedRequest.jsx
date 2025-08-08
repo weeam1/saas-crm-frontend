@@ -153,7 +153,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         "Failed to update the view request. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entityType: "SecondaryListing",
         entity: "Listing",
         entityId: currentListingId || null,

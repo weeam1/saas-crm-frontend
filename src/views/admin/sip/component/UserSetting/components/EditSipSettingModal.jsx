@@ -141,7 +141,7 @@ const EditSipSettingModal = ({
           "Failed to update SIP Setting. Please try again.";
         createUserLog({
           userId: user?._id,
-          action: "UPDATE_FAIL",
+          action: "UPDATE",
           entity: "Sip_Setting",
           entityType: "SipSetting",
           entityId: sipSetting._id || null,

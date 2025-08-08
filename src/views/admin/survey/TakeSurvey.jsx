@@ -151,7 +151,7 @@ const TakeSurvey = () => {
         error?.data?.message || "Failed to take the survey. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entityType: "SurveyResponse",
         entity: "Survey",
         entityId: id || null,

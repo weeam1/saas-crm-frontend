@@ -39,6 +39,7 @@ import TopPagination from "components/pagination/TopPagination";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const SubUnitType = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -49,6 +50,8 @@ const SubUnitType = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUnitType, setCurrentUnitType] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const { createUserLog } = useUserActivityLog();
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -128,12 +131,30 @@ const SubUnitType = () => {
           body: formData,
         }).unwrap();
         toast.success("Unit Type updated successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Sub_Unit_Type",
+          entityType: "ListingSubUnitType",
+          entityId: currentUnitType._id,
+          status: "success",
+          message: `"${user?.fullName}" update the listing sub Unit Type "${currentUnitType?.name || "Untitled"}".`,
+        });
       } else {
-        await createItemMuation({
+        const response = await createItemMuation({
           path: "/listing/secondary/unit-types/sub-category",
           body: formData,
         }).unwrap();
-        toast.success("Unit Type created successfully");
+        toast.success("Sub Unit Type created successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "listing_Sub_Unit_Type",
+          entityType: "ListingSubUnitType",
+          entityId: response?.doc?._id,
+          status: "success",
+          message: `"${user?.fullName}" created the listing sub unit type "${response?.doc.name || "Untitled"}".`,
+        });
       }
       resetForm();
       onClose();
@@ -141,15 +162,37 @@ const SubUnitType = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.data?.message || "An error occurred");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the listing unit type. Please try again.";
+      isEditMode &&
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Sub_Unit_Type",
+          entityType: "ListingSubUnitType",
+          entityId: currentUnitType._id,
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
     }
   };
 
   const handleUnitTypeSave = async () => {
     try {
-      await createItemMuation({
+      const response = await createItemMuation({
         path: "/listing/secondary/unit-types",
         body: unitTypeForm,
       }).unwrap();
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" created the listing sub unit type "${response?.doc?.name || "Untitled"}".`,
+      });
       toast.success("Unit Type created successfully");
       setIsUnitTypeModalOpen(false);
       setUnitTypeForm({ name: "", status: true });
@@ -177,10 +220,31 @@ const SubUnitType = () => {
         path: `/listing/secondary/unit-types/sub-category/${id}`,
       }).unwrap();
       toast.success("Unit Type deleted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: id,
+        status: "success",
+        message: `"${user?.fullName}" deleted the listing sub unit type.`,
+      });
       refetch();
     } catch (error) {
       console.error(error);
       toast.error(error.data?.message || "Failed to delete unit type");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -197,11 +261,19 @@ const SubUnitType = () => {
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
-      await updateItemMuation({
+      const response = await updateItemMuation({
         path: `/listing/secondary/unit-types/sub-category/status/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" update the status of listing sub Unit Type "${response?.doc?.name || "Untitled"}".`,
+      });
       toast.success(`Listing type status updated successfully`);
       refetch();
     } catch (error) {
@@ -209,6 +281,18 @@ const SubUnitType = () => {
       toast.error(
         error.data?.message || "Failed to update listing type status"
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the status of unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: type._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
