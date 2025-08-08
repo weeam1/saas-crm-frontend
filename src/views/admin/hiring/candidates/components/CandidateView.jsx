@@ -10,8 +10,6 @@ import {
 	Spinner,
 	HStack,
 	Box,
-	IconButton,
-	Tooltip,
 	Stack,
 	Text,
 } from '@chakra-ui/react';
@@ -26,6 +24,8 @@ import StatusBadge from 'components/shared/StatusBadge';
 import EditCandidate from './EditCandidate';
 import { FiEdit } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const CandidateView = ({
 	isOpen,
@@ -41,6 +41,9 @@ const CandidateView = ({
 
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const handleApplicationStatus = async () => {
 		try {
 			await updateItemMutation({
@@ -51,8 +54,27 @@ const CandidateView = ({
 			refetch();
 			onClose();
 			toast.success('Application status successfully updated');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `${user?.fullName} changed the candidate’s application status to "${newStatus}".`,
+			});
 		} catch (error) {
-			toast.error(error?.data?.message || 'Applicaiton status not updated!');
+			const errorMsg = error?.data?.message || 'Application status not updated';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

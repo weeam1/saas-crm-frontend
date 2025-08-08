@@ -14,6 +14,8 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const ShortListed = ({
 	data,
@@ -38,6 +40,9 @@ const ShortListed = ({
 	const [candidate, setCandidate] = useState(null);
 	const [searchData, setSearchData] = useState([]);
 	const [isSearch, setIsSearch] = useState(false);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [updateItemMuation, { isLoading: isInviting }] =
 		useUpdateItemMutation();
@@ -77,8 +82,27 @@ const ShortListed = ({
 			toast.success('Invite succesfully sended');
 			// short listed candidates refetch
 			refetch();
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
+			});
 		} catch (err) {
 			console.log(err);
+			const errorMsg =
+				err?.data?.message || 'Interview is not arranged, please try again.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setArrangeInterviewOpen(false);
 			// invited candidates refetch
@@ -111,6 +135,15 @@ const ShortListed = ({
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -142,6 +175,15 @@ const ShortListed = ({
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');

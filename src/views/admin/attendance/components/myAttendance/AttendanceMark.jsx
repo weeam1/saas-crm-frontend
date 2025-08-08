@@ -10,6 +10,8 @@ import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicke
 import { FaBan } from 'react-icons/fa';
 import LeaveNoteModal from './LeaveNoteModal';
 import NoteModal from './NoteModal';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const AttendanceMark = ({
 	timezone,
@@ -60,6 +62,9 @@ const AttendanceMark = ({
 	const currentMonth = currentDate.format('MM');
 	const currentYear = currentDate.format('YYYY');
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	useEffect(() => {
 		if (data?.total > 0) {
 			const todayRecord = data?.doc?.find((item) => item.date == today);
@@ -101,9 +106,26 @@ const AttendanceMark = ({
 			toast.success('Employee Check in successfully');
 			setStatus(1);
 			refetch({ force: true });
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: 'success',
+				message: `${user?.fullName} added employee check in.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee check in');
+			const errorMsg = e?.data?.message || 'Error in employee check in';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setCheckinLoading(false);
 		}
@@ -124,7 +146,7 @@ const AttendanceMark = ({
 			const bodyData = { employeeId, selectedTime };
 
 			setCheckoutLoading(true);
-			await updateItemMutation({
+			const res = await updateItemMutation({
 				path: '/attendance/checkout',
 				body: bodyData,
 			}).unwrap();
@@ -132,9 +154,28 @@ const AttendanceMark = ({
 			toast.success('Employee checkout successfully');
 			setStatus(-1);
 			refetch({ force: true });
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Attendance',
+				entityId: res?.doc?._id,
+				status: 'success',
+				message: `${user?.fullName} added employee check out.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee checkout');
+
+			const errorMsg = e?.data?.message || 'Error in employee checkout';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setCheckoutLoading(false);
 		}
@@ -151,9 +192,27 @@ const AttendanceMark = ({
 			toast.success('Employee Absent successfully');
 			setStatus(-1);
 			refetch({ force: true });
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: 'success',
+				message: `${user?.fullName} added employee absent.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee absent');
+
+			const errorMsg = e?.data?.message || 'Error in employee absent';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setAbsentLoading(false);
 		}
@@ -173,156 +232,174 @@ const AttendanceMark = ({
 			noteOnClose();
 			setStatus(-1);
 			refetch({ force: true });
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: 'success',
+				message: `${user?.fullName} added employee leave.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee leave');
+
+			const errorMsg = e?.data?.message || 'Error in employee leave';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setLeaveLoading(false);
 		}
 	};
 
-  const buttonVariants = {
-    checkIn: {
-      bgGradient: "linear(to-r, green.400, green.300)",
-      _hover: {
-        bgGradient: "linear(to-r, green.500, green.400)",
-        transform: "scale(1.03)",
-        boxShadow: "md",
-      },
-      _active: {
-        bg: "green.500",
-        transform: "scale(0.98)",
-      },
-      onClick: checkinNoteOnOpen,
-      text: "In",
-      border: "2px",
-      borderImage: "linear-gradient(to right, #38A169, #68D391) 1",
-      position: "relative",
-      overflow: "hidden",
-      _before: {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background:
-          "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)",
-        backgroundSize: "300% 300%",
-        transition: "all 0.5s ease",
-        opacity: 0,
-      },
-      _hoverBefore: {
-        backgroundPosition: "100% 100%",
-        opacity: 1,
-      },
-    },
-    checkOut: {
-      bgGradient: "linear(to-r, #D8A541, #F6AD55)",
-      _hover: {
-        bgGradient: "linear(to-r, #DD6B20, #ED8936)",
-        transform: "scale(1.03)",
-        boxShadow: "md",
-      },
-      _active: {
-        bg: "brand.400",
-        transform: "scale(0.98)",
-      },
-      onClick: handleCheckOut,
-      text: "Out",
-      border: "2px",
-      borderImage: "linear-gradient(to right, #D69E2E, #ED8936) 1",
-      position: "relative",
-      overflow: "hidden",
-      _before: {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background:
-          "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)",
-        backgroundSize: "300% 300%",
-        transition: "all 0.5s ease",
-        opacity: 0,
-      },
-      _hoverBefore: {
-        backgroundPosition: "100% 100%",
-        opacity: 1,
-      },
-    },
-    absent: {
-      bgGradient: "linear(to-r, red.400, red.300)",
-      _hover: {
-        bgGradient: "linear(to-r, red.500, red.400)",
-        transform: "scale(1.03)",
-        boxShadow: "md",
-      },
-      _active: {
-        bg: "red.400",
-        transform: "scale(0.98)",
-      },
-      onClick: absentNoteOnOpen,
-      text: "Absent",
-      border: "2px",
-      borderImage: "linear-gradient(to right, #E53E3E, #FC8181) 1",
-      position: "relative",
-      overflow: "hidden",
-      _before: {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background:
-          "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)",
-        backgroundSize: "300% 300%",
-        transition: "all 0.5s ease",
-        opacity: 0,
-      },
-      _hoverBefore: {
-        backgroundPosition: "100% 100%",
-        opacity: 1,
-      },
-    },
-    leave: {
-      bgGradient: "linear(to-r, teal.400, teal.300)",
-      _hover: {
-        bgGradient: "linear(to-r, teal.500, teal.400)",
-        transform: "scale(1.03)",
-        boxShadow: "md",
-      },
-      _active: {
-        bg: "teal.500",
-        transform: "scale(0.98)",
-      },
-      onClick: noteOnOpen,
-      text: "On Leave",
-      border: "2px",
-      borderImage: "linear-gradient(to right, #319795, #4FD1C5) 1",
-      position: "relative",
-      overflow: "hidden",
-      _before: {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background:
-          "linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)",
-        backgroundSize: "300% 300%",
-        transition: "all 0.5s ease",
-        opacity: 0,
-      },
-      _hoverBefore: {
-        backgroundPosition: "100% 100%",
-        opacity: 1,
-      },
-    },
-  };
+	const buttonVariants = {
+		checkIn: {
+			bgGradient: 'linear(to-r, green.400, green.300)',
+			_hover: {
+				bgGradient: 'linear(to-r, green.500, green.400)',
+				transform: 'scale(1.03)',
+				boxShadow: 'md',
+			},
+			_active: {
+				bg: 'green.500',
+				transform: 'scale(0.98)',
+			},
+			onClick: checkinNoteOnOpen,
+			text: 'In',
+			border: '2px',
+			borderImage: 'linear-gradient(to right, #38A169, #68D391) 1',
+			position: 'relative',
+			overflow: 'hidden',
+			_before: {
+				content: '""',
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				background:
+					'linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)',
+				backgroundSize: '300% 300%',
+				transition: 'all 0.5s ease',
+				opacity: 0,
+			},
+			_hoverBefore: {
+				backgroundPosition: '100% 100%',
+				opacity: 1,
+			},
+		},
+		checkOut: {
+			bgGradient: 'linear(to-r, #D8A541, #F6AD55)',
+			_hover: {
+				bgGradient: 'linear(to-r, #DD6B20, #ED8936)',
+				transform: 'scale(1.03)',
+				boxShadow: 'md',
+			},
+			_active: {
+				bg: 'brand.400',
+				transform: 'scale(0.98)',
+			},
+			onClick: handleCheckOut,
+			text: 'Out',
+			border: '2px',
+			borderImage: 'linear-gradient(to right, #D69E2E, #ED8936) 1',
+			position: 'relative',
+			overflow: 'hidden',
+			_before: {
+				content: '""',
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				background:
+					'linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)',
+				backgroundSize: '300% 300%',
+				transition: 'all 0.5s ease',
+				opacity: 0,
+			},
+			_hoverBefore: {
+				backgroundPosition: '100% 100%',
+				opacity: 1,
+			},
+		},
+		absent: {
+			bgGradient: 'linear(to-r, red.400, red.300)',
+			_hover: {
+				bgGradient: 'linear(to-r, red.500, red.400)',
+				transform: 'scale(1.03)',
+				boxShadow: 'md',
+			},
+			_active: {
+				bg: 'red.400',
+				transform: 'scale(0.98)',
+			},
+			onClick: absentNoteOnOpen,
+			text: 'Absent',
+			border: '2px',
+			borderImage: 'linear-gradient(to right, #E53E3E, #FC8181) 1',
+			position: 'relative',
+			overflow: 'hidden',
+			_before: {
+				content: '""',
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				background:
+					'linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)',
+				backgroundSize: '300% 300%',
+				transition: 'all 0.5s ease',
+				opacity: 0,
+			},
+			_hoverBefore: {
+				backgroundPosition: '100% 100%',
+				opacity: 1,
+			},
+		},
+		leave: {
+			bgGradient: 'linear(to-r, teal.400, teal.300)',
+			_hover: {
+				bgGradient: 'linear(to-r, teal.500, teal.400)',
+				transform: 'scale(1.03)',
+				boxShadow: 'md',
+			},
+			_active: {
+				bg: 'teal.500',
+				transform: 'scale(0.98)',
+			},
+			onClick: noteOnOpen,
+			text: 'On Leave',
+			border: '2px',
+			borderImage: 'linear-gradient(to right, #319795, #4FD1C5) 1',
+			position: 'relative',
+			overflow: 'hidden',
+			_before: {
+				content: '""',
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				background:
+					'linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 50%, transparent 55%)',
+				backgroundSize: '300% 300%',
+				transition: 'all 0.5s ease',
+				opacity: 0,
+			},
+			_hoverBefore: {
+				backgroundPosition: '100% 100%',
+				opacity: 1,
+			},
+		},
+	};
 
 	const shouldRender = useMemo(() => {
 		return (
@@ -369,69 +446,67 @@ const AttendanceMark = ({
 					>
 						{timeString}
 					</Text> */}
-            {status === 1 || status === 2 ? (
-              <Button
-                {...buttonStyle}
-                {...buttonVariants.checkOut}
-                w={{ base: "100%", md: "208px" }}
-                h="43px"
-                isDisabled={checkoutLoading}
-                leftIcon={<IoMdExit size={20} />}
-                className="glass-card"
-                sx={{
-                  "&::before": buttonVariants.checkOut._before,
-                  "&:hover::before": buttonVariants.checkOut._hoverBefore,
-                }}
-              >
-                {checkoutLoading ? "Loading..." : buttonVariants.checkOut.text}
-              </Button>
-            ) : (
-              ![-1, 1, 2].includes(status) && (
-                <>
-                  <Button
-                    {...buttonStyle}
-                    {...buttonVariants.checkIn}
-                    w={{ base: "100%", md: "208px" }}
-                    h='43px'
-                    size="sm"
-                    isDisabled={leaveLoading || absentLoading || checkinLoading}
-                    leftIcon={<IoMdExit size={12} />}
-                    sx={{
-                      "&::before": buttonVariants.checkIn._before,
-                      "&:hover::before": buttonVariants.checkIn._hoverBefore,
-                    }}
-                  >
-                    {checkinLoading
-                      ? "Loading..."
-                      : buttonVariants.checkIn.text}
-                  </Button>
+					{status === 1 || status === 2 ? (
+						<Button
+							{...buttonStyle}
+							{...buttonVariants.checkOut}
+							w={{ base: '100%', md: '208px' }}
+							h='43px'
+							isDisabled={checkoutLoading}
+							leftIcon={<IoMdExit size={20} />}
+							className='glass-card'
+							sx={{
+								'&::before': buttonVariants.checkOut._before,
+								'&:hover::before': buttonVariants.checkOut._hoverBefore,
+							}}
+						>
+							{checkoutLoading ? 'Loading...' : buttonVariants.checkOut.text}
+						</Button>
+					) : (
+						![-1, 1, 2].includes(status) && (
+							<>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.checkIn}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									size='sm'
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+									leftIcon={<IoMdExit size={12} />}
+									sx={{
+										'&::before': buttonVariants.checkIn._before,
+										'&:hover::before': buttonVariants.checkIn._hoverBefore,
+									}}
+								>
+									{checkinLoading ? 'Loading...' : buttonVariants.checkIn.text}
+								</Button>
 
-                  <Button
-                    {...buttonStyle}
-                    {...buttonVariants.absent}
-                    w={{ base: "100%", md: "208px" }}
-                    h="43px"
-                    isDisabled={leaveLoading || absentLoading || checkinLoading}
-                    sx={{
-                      "&::before": buttonVariants.absent._before,
-                      "&:hover::before": buttonVariants.absent._hoverBefore,
-                    }}
-                  >
-                    {absentLoading ? "Loading..." : buttonVariants.absent.text}
-                  </Button>
-                  <Button
-                    {...buttonStyle}
-                    {...buttonVariants.leave}
-                    w={{ base: "100%", md: "208px" }}
-                    h="43px"
-                    isDisabled={leaveLoading || absentLoading || checkinLoading}
-                    sx={{
-                      "&::before": buttonVariants.leave._before,
-                      "&:hover::before": buttonVariants.leave._hoverBefore,
-                    }}
-                  >
-                    {leaveLoading ? "Loading..." : buttonVariants.leave.text}
-                  </Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.absent}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+									sx={{
+										'&::before': buttonVariants.absent._before,
+										'&:hover::before': buttonVariants.absent._hoverBefore,
+									}}
+								>
+									{absentLoading ? 'Loading...' : buttonVariants.absent.text}
+								</Button>
+								<Button
+									{...buttonStyle}
+									{...buttonVariants.leave}
+									w={{ base: '100%', md: '208px' }}
+									h='43px'
+									isDisabled={leaveLoading || absentLoading || checkinLoading}
+									sx={{
+										'&::before': buttonVariants.leave._before,
+										'&:hover::before': buttonVariants.leave._hoverBefore,
+									}}
+								>
+									{leaveLoading ? 'Loading...' : buttonVariants.leave.text}
+								</Button>
 
 								{noteIsOpen && (
 									<LeaveNoteModal

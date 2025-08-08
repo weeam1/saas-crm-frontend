@@ -16,11 +16,16 @@ import moment from 'moment';
 import AttendanceSelector from './myAttendance/AttendanceSelectors';
 import LeaveNoteModal from './myAttendance/LeaveNoteModal';
 import NoteModal from './myAttendance/NoteModal';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
 	const [attendanceStatus, setAttendanceStatus] = useState('present');
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const {
 		isOpen: noteIsOpen,
@@ -103,10 +108,28 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 					refetch(data?._id, updatedFields);
 				} else refetch({ force: true });
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Attendance',
+					entityId: res?.doc?._id,
+					status: 'success',
+					message: `${user?.fullName || ''} updated attendance record`,
+				});
 			}
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee update');
+			const errorMsg = e?.data?.message || 'Error in attendance update';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 		onClose();
 	};

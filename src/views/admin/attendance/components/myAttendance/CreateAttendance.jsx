@@ -21,6 +21,9 @@ import LeaveNoteModal from './LeaveNoteModal';
 import AttendanceSelector from './AttendanceSelectors';
 import NoteModal from './NoteModal';
 
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+
 const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 	const [checkInTime, setCheckInTime] = useState('09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState('06:00 PM');
@@ -29,6 +32,9 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 	const [leaveLoading, setLeaveLoading] = useState(false);
 
 	const [attendanceStatus, setAttendanceStatus] = useState('present');
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [initialPayload, setInitialPayload] = useState({
 		employeeId: '',
@@ -110,9 +116,27 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 			toast.success('Attendance record added successfully');
 			refetch({ force: true });
 			onClose();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: 'success',
+				message: `${user?.fullName} added attendance record.`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error?.data?.message || `Error in employee ${type}`);
+			const errorMsg = error?.data?.message || `Error in employee ${type}`;
+
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

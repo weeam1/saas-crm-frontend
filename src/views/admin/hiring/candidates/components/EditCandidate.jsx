@@ -30,6 +30,8 @@ import { useSelector } from 'react-redux';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { toast } from 'react-toastify';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 // Validation Schema
 const candidateSchema = Yup.object().shape({
@@ -61,6 +63,9 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 			path: `/positions/options`,
 		});
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const initialValues = {
 		name: candidate?.name || '',
 		email: candidate?.email || '',
@@ -89,8 +94,25 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 			refetch();
 			onClose();
 			toast.success('Candidate information has been updated successfully');
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate information updated by ${user?.fullName}`,
+			});
 		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to update candidate');
+			const errorMsg = error?.data?.message || 'Failed to update candidate';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

@@ -114,7 +114,7 @@ function SignIn() {
 					action: 'LOGIN',
 					entity: 'Auth',
 					status: 'success',
-					message: `User logged in ${values.username || ''}`,
+					message: `User logged in as ${values.username || ''}`,
 				});
 			} else {
 				toast.error(response?.response?.data?.error);
@@ -132,7 +132,7 @@ function SignIn() {
 			console.log(e);
 
 			const errorMsg =
-				e?.response?.data?.message || `Login failed for ${values.username}`;
+				e?.response?.data?.message || `Login failed as ${values.username}`;
 			toast.error(errorMsg);
 
 			createUserLog({
