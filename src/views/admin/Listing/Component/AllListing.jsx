@@ -136,10 +136,11 @@ const AllListing = ({ listingType, listingUnitType }) => {
         body: {},
       }).unwrap();
 
-       createUserLog({
+      createUserLog({
         userId: user?._id,
         action: "UPDATE",
         entity: "listing",
+        entityType: "SecondaryListing",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" request to view secondary listing "${response?.data?.projectName || "Untitled"}".`,
@@ -164,18 +165,20 @@ const AllListing = ({ listingType, listingUnitType }) => {
         })
       );
     } catch (error) {
-       const errorMsg =
-        error?.data?.message || "Failed  the listing view request. Please try again.";
+      const errorMsg =
+        error?.data?.message ||
+        "Failed  the listing view request. Please try again.";
       toast({
         title: error.data?.message || "Failed to send request",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
-        createUserLog({
+      createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listingId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
@@ -222,6 +225,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "DELETE",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listing._id,
         status: "success",
         message: `"${user?.fullName}" deleted listing "${listing?.projectName || "Untitled"}".`,
@@ -229,7 +233,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
       refetch();
     } catch (error) {
       const errorMsg =
-        error?.data?.message || "Failed to delete the listing. Please try again.";
+        error?.data?.message ||
+        "Failed to delete the listing. Please try again.";
       console.error("Failed to delete listing:", error);
       toast.error(
         error.data?.message ||
@@ -240,6 +245,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "DELETE_FAIL",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listing._id,
         status: error?.status === 500 ? "error" : "fail",
         message: errorMsg,

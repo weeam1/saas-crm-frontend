@@ -138,6 +138,7 @@ const TakeSurvey = () => {
         action: "UPDATE",
         entity: "Survey",
         entityId: id,
+        entityType: "SurveyResponse",
         status: "success",
         message: `"${user?.fullName}" take a survey "${response?.doc?.title || "Untitled"}".`,
       });
@@ -151,6 +152,7 @@ const TakeSurvey = () => {
       createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
+        entityType: "SurveyResponse",
         entity: "Survey",
         entityId: id || null,
         status: error?.status === "500" ? "error" : "fail",

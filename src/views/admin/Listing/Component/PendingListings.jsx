@@ -155,11 +155,12 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         path: `listing/secondary/${listingId}/status`,
         body,
       }).unwrap();
-      
+
       createUserLog({
         userId: user?._id,
         action: "UPDATE",
         entity: "listing",
+        entityType: "SecondaryListing",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" respond on secondary listing "${response?.data?.projectName || "Untitled"}" status.`,
@@ -177,7 +178,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       setAdminNotes("");
     } catch (error) {
       const errorMsg =
-        error?.data?.message || "Failed to respond on the listing status. Please try again.";
+        error?.data?.message ||
+        "Failed to respond on the listing status. Please try again.";
 
       toast.error("Error updating status");
 
@@ -185,6 +187,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "UPDATE_FAIL",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listingId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,

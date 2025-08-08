@@ -25,6 +25,7 @@ const EditProject = ({ isOpen, onClose, refetch, data }) => {
         userId: user?._id,
         action: "UPDATE",
         entity: "Project",
+        entityType: "Project",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" updated project "${response?.doc?.name || "Untitled"}".`,
@@ -36,13 +37,13 @@ const EditProject = ({ isOpen, onClose, refetch, data }) => {
     } catch (err) {
       toast.error(err?.data?.message || "Project Update fail!");
       const errorMsg =
-        err?.data?.message ||
-        "Failed to update the project. Please try again.";
+        err?.data?.message || "Failed to update the project. Please try again.";
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
         entity: "Project",
+        entityType: "Project",
         entityId: data?._id || null,
         status: err?.status === "500" ? "error" : "fail",
         message: errorMsg,

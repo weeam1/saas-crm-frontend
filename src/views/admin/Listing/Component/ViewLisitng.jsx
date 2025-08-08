@@ -42,29 +42,30 @@ const ViewListing = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-
-  useEffect (() => {
-    if (listing?.data ) {
+  useEffect(() => {
+    if (listing?.data) {
       createUserLog({
         userId: user?._id,
         action: "VIEW",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listing.data._id,
         status: "success",
         message: `${user?.fullName} viewed listing "${listing.data.projectName || "Untitled"}".`,
       });
     }
-    if(!listing?.data && !isLoading && !isFetching && isError) {
+    if (!listing?.data && !isLoading && !isFetching && isError) {
       createUserLog({
         userId: user?._id,
         action: "VIEW",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: id,
         status: "error",
         message: `${user?.fullName} attempted to view listing with ID ${id}, but it was not found.`,
       });
     }
-  },[listing])
+  }, [listing]);
 
   if (isLoading || isFetching) {
     return (

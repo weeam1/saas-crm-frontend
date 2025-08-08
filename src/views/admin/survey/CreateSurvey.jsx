@@ -115,6 +115,7 @@ const CreateSurvey = () => {
           userId: user?._id,
           action: "CREATE",
           entity: "Survey",
+          entityType: "Survey",
           entityId: response._id,
           status: "success",
           message: `"${user?.fullName}" created survey "${response?.doc?.title || "Untitled"}".`,

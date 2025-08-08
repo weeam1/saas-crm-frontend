@@ -138,6 +138,7 @@ const AddSipSettingModal = ({
           action: "CREATE",
           entity: "Sip_Setting",
           entityId: response._id,
+          entityType: "SipSetting",
           status: "success",
           message: `${user?.fullName} created sip setting with sip id "${response?.data?.sipId || "Untitled"}".`,
         });

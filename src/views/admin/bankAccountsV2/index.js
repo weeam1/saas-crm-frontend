@@ -18,8 +18,8 @@ export default function Index() {
 
   const [createItemMutation, { isLoading: isAdding }] = useCreateItemMutation();
 
-    const user = JSON.parse(localStorage.getItem("user")) || {};  
-    const { createUserLog } = useUserActivityLog();
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const { createUserLog } = useUserActivityLog();
 
   const {
     data: searchData,
@@ -101,14 +101,15 @@ export default function Index() {
 
   const handleAdd = async (newAccount) => {
     try {
-    const response =  await createItemMutation({
+      const response = await createItemMutation({
         path: "/bankAccount/add",
         body: newAccount,
       }).unwrap();
-       createUserLog({
+      createUserLog({
         userId: user?._id,
         action: "CREATE",
         entity: "Bank_Account",
+        entityType: "BankAccount",
         entityId: response.data.account._id,
         status: "success",
         message: `"${user?.fullName}" created bank account "${response?.data?.account.account_holder_name || "Untitled"}".`,

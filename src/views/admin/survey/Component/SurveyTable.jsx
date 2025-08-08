@@ -31,6 +31,7 @@ import { useDeleteItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "components/Message/NoData";
 import { buttonStyle } from "utils/btn";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
   const columns = [
@@ -48,6 +49,8 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const currentUserId = user?._id;
+
+  const { createUserLog } = useUserActivityLog();
 
   // Delete modal state
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -74,13 +77,33 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
         path: `/surveys/${surveyIdToDelete}`,
         body: { securityPassword: securityPassword.trim() },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Survey",
+        entityType: "Survey",
+        entityId: surveyIdToDelete,
+        status: "success",
+        message: `"${user?.fullName}" deleted survey.`,
+      });
       toast.success("The survey has been permanently deleted.");
       onClose();
       refetch();
     } catch (error) {
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the survey. Please try again.";
       console.log("error", error);
       toast.error(error?.data?.message);
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE_FAIL",
+        entity: "Survey",
+        entityType: "Survey",
+        entityId: surveyIdToDelete,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -108,7 +131,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
         overflowY="auto"
         maxH={"85vh"}
       >
-        <Table variant="striped" size="lg" >
+        <Table variant="striped" size="lg">
           <Thead position="sticky" top={0} bg="white" zIndex={2}>
             <Tr>
               {columns.map((header, index) => (

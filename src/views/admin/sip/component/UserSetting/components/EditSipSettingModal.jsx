@@ -126,6 +126,7 @@ const EditSipSettingModal = ({
           userId: user?._id,
           action: "UPDATE",
           entity: "Sip_Setting",
+          entityType: "SipSetting",
           entityId: response._id,
           status: "success",
           message: `${user?.fullName} updated sip setting with sip id "${response?.sipId || "Untitled"}".`,
@@ -141,7 +142,8 @@ const EditSipSettingModal = ({
         createUserLog({
           userId: user?._id,
           action: "UPDATE_FAIL",
-          entity: "Task",
+          entity: "Sip_Setting",
+          entityType: "SipSetting",
           entityId: sipSetting._id || null,
           status: error?.status === "500" ? "error" : "fail",
           message: errorMsg,

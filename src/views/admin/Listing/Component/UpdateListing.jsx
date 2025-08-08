@@ -14,7 +14,7 @@ import {
   Flex,
   Textarea,
   FormErrorMessage,
-  useBreakpointValue
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
@@ -50,9 +50,9 @@ const UpdateListing = () => {
   const inputRef = useRef();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
-   const { createUserLog } = useUserActivityLog();
+  const { createUserLog } = useUserActivityLog();
 
-    const colSpan = useBreakpointValue({ base: 2, sm: 1 });
+  const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
   const {
     data: listing,
@@ -88,7 +88,7 @@ const UpdateListing = () => {
   );
 
   const { data: countries } = useFetchItemsQuery({
-    path: '/countries',
+    path: "/countries",
   });
 
   useEffect(() => {
@@ -172,14 +172,16 @@ const UpdateListing = () => {
       developer: Yup.string().required("Developer is required"),
       ownerName: Yup.string().required("Owner name is required"),
       ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
-      country: Yup.object().shape({
-        code: Yup.string().required("Country code is required"),
-        name: Yup.string().required("Country name is required"),
-        flags: Yup.object().shape({
-          png: Yup.string(),
-          svg: Yup.string(),
-        }),
-      }).required("Country is required"),
+      country: Yup.object()
+        .shape({
+          code: Yup.string().required("Country code is required"),
+          name: Yup.string().required("Country name is required"),
+          flags: Yup.object().shape({
+            png: Yup.string(),
+            svg: Yup.string(),
+          }),
+        })
+        .required("Country is required"),
       brokerCommissionType: Yup.string(),
       brokerCommissionValue: Yup.number()
         .typeError("Commission Value must be a number")
@@ -210,34 +212,36 @@ const UpdateListing = () => {
           lastUpdatedBy: user._id,
         };
 
-       const response = await updateListing({
+        const response = await updateListing({
           path: `listing/secondary/${id}`,
           body: payload,
         }).unwrap();
 
-         createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "listing",
-        entityId: response._id,
-        status: "success",
-        message: `"${user?.fullName}" update the secondary listing "${response?.data?.projectName || "Untitled"}".`,
-      });
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing",
+          entityType: "SecondaryListing",
+          entityId: response._id,
+          status: "success",
+          message: `"${user?.fullName}" update the secondary listing "${response?.data?.projectName || "Untitled"}".`,
+        });
         toast.success("Listing updated successfully");
         navigate(-1);
       } catch (error) {
         const errorMsg =
-        error?.data?.message || "Failed to update listing. Please try again.";
+          error?.data?.message || "Failed to update listing. Please try again.";
         console.error("Update error:", error);
         toast.error(error.data?.message || "Failed to update listing");
         createUserLog({
-        userId: user?._id,
-        action: "UPDATE_FAIL",
-        entity: "Listing",
-        entityId: id || null,
-        status: error?.status === "500" ? "error" : "fail",
-        message: errorMsg,
-      });
+          userId: user?._id,
+          action: "UPDATE_FAIL",
+          entity: "Listing",
+          entityType: "SecondaryListing",
+          entityId: id || null,
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       }
     },
   });
@@ -359,14 +363,14 @@ const UpdateListing = () => {
       </AppButton>
 
       <Grid
-         templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
-         gap={6}
-         p={{ base: 2, sm: 5 }}
-         bg="white"
-         borderRadius="md"
-         my={5}
-         mx={{ base: 0, sm: 2 }}
-       >
+        templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
+        gap={6}
+        p={{ base: 2, sm: 5 }}
+        bg="white"
+        borderRadius="md"
+        my={5}
+        mx={{ base: 0, sm: 2 }}
+      >
         {/* Project Name */}
         <GridItem colSpan={2}>
           <FormControl
@@ -411,7 +415,7 @@ const UpdateListing = () => {
 
         {/* Sub Unit Type */}
         {subUnitTypes?.doc?.length > 0 && (
-           <GridItem colSpan={colSpan}>
+          <GridItem colSpan={colSpan}>
             <FormControl
               isInvalid={
                 formik.touched.subUnitType && formik.errors.subUnitType
@@ -461,7 +465,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Developer */}
-      <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.developer && formik.errors.developer}
           >
@@ -527,7 +531,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Area */}
-         <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.area && formik.errors.area}>
             <FormLabel>Area (sqft)</FormLabel>
             <Input
@@ -545,7 +549,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Price */}
-     <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl isInvalid={formik.touched.price && formik.errors.price}>
             <FormLabel>Price</FormLabel>
             <Input
@@ -563,7 +567,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Currency */}
-      <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.currency && formik.errors.currency}
           >
@@ -607,12 +611,12 @@ const UpdateListing = () => {
             <FormLabel>Country</FormLabel>
             <Select
               name="country"
-              value={formik.values.country?.name || ''}
+              value={formik.values.country?.name || ""}
               onChange={(e) => {
                 const selectedCountry = countries?.doc?.find(
-                  country => country.name === e.target.value
+                  (country) => country.name === e.target.value
                 );
-                formik.setFieldValue('country', selectedCountry);
+                formik.setFieldValue("country", selectedCountry);
               }}
               onBlur={formik.handleBlur}
               placeholder="Select country"
@@ -651,7 +655,7 @@ const UpdateListing = () => {
           </FormControl>
         </GridItem>
         {/* Owner Name */}
-         <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={formik.touched.ownerName && formik.errors.ownerName}
           >
@@ -691,7 +695,7 @@ const UpdateListing = () => {
         {isAdmin && (
           <>
             {/* Landlord */}
-             <GridItem colSpan={colSpan}>
+            <GridItem colSpan={colSpan}>
               <FormControl
                 isInvalid={formik.touched.landlord && formik.errors.landlord}
               >
@@ -710,7 +714,7 @@ const UpdateListing = () => {
             </GridItem>
 
             {/* Phone Number */}
-             <GridItem colSpan={colSpan}>
+            <GridItem colSpan={colSpan}>
               <FormControl
                 isInvalid={
                   formik.touched.phoneNumber && formik.errors.phoneNumber
@@ -753,7 +757,7 @@ const UpdateListing = () => {
         )}
 
         {/* Broker Commission Type */}
-         <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionType &&
@@ -779,7 +783,7 @@ const UpdateListing = () => {
         </GridItem>
 
         {/* Commission Value */}
-         <GridItem colSpan={colSpan}>
+        <GridItem colSpan={colSpan}>
           <FormControl
             isInvalid={
               formik.touched.brokerCommissionValue &&
@@ -849,7 +853,7 @@ const UpdateListing = () => {
               isLoading={isUpdating}
               loadingText="Updating..."
               isDisabled={!formik.isValid || isUpdating}
-               width={{ base: "100%", sm: "auto" }}
+              width={{ base: "100%", sm: "auto" }}
             >
               Update Listing
             </Button>

@@ -78,14 +78,16 @@ const validationSchema = Yup.object().shape({
   developer: Yup.string().required("Developer is required"),
   ownerName: Yup.string().required("Owner name is required"),
   ownerPhoneNumber: Yup.string().required("Owner Phone number is required"),
-  country: Yup.object().shape({
-    code: Yup.string().required("Country code is required"),
-    name: Yup.string().required("Country name is required"),
-    flags: Yup.object().shape({
-      png: Yup.string(),
-      svg: Yup.string(),
-    }),
-  }).required("Country is required"),
+  country: Yup.object()
+    .shape({
+      code: Yup.string().required("Country code is required"),
+      name: Yup.string().required("Country name is required"),
+      flags: Yup.object().shape({
+        png: Yup.string(),
+        svg: Yup.string(),
+      }),
+    })
+    .required("Country is required"),
   subUnitType: Yup.string().when("$isSubUnitTypeRequired", {
     is: true,
     then: (schema) => schema.required("Sub Unit Type is required"),
@@ -140,7 +142,7 @@ const AddListing = () => {
   );
 
   const { data: countries } = useFetchItemsQuery({
-    path: '/countries',
+    path: "/countries",
   });
 
   const { data: developers } = useFetchItemsQuery(
@@ -190,7 +192,9 @@ const AddListing = () => {
           ...values,
           area: getPositiveNumber(values.area),
           price: getPositiveNumber(values.price),
-          brokerCommissionValue: getPositiveNumber(values.brokerCommissionValue),
+          brokerCommissionValue: getPositiveNumber(
+            values.brokerCommissionValue
+          ),
           documents: [...files],
           agent: user._id,
           createdBy: user._id,
@@ -198,7 +202,7 @@ const AddListing = () => {
           // Country is already in the correct format
         };
 
-      const response = await createItemMutation({
+        const response = await createItemMutation({
           path: "/listing/secondary",
           body: payload,
         }).unwrap();
@@ -208,6 +212,7 @@ const AddListing = () => {
           userId: user?._id,
           action: "CREATE",
           entity: "Listing",
+          entityType: "SecondaryListing",
           entityId: response?.data._id,
           status: "success",
           message: `${user?.fullName} created secondary listing "${response?.data?.projectName || "Untitled"}".`,
@@ -547,12 +552,12 @@ const AddListing = () => {
             <FormLabel>Country</FormLabel>
             <Select
               name="country"
-              value={formik.values.country?.name || ''}
+              value={formik.values.country?.name || ""}
               onChange={(e) => {
                 const selectedCountry = countries?.doc?.find(
-                  country => country.name === e.target.value
+                  (country) => country.name === e.target.value
                 );
-                formik.setFieldValue('country', selectedCountry);
+                formik.setFieldValue("country", selectedCountry);
               }}
               onBlur={formik.handleBlur}
               placeholder="Select country"

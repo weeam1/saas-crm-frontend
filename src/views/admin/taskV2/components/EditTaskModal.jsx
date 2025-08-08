@@ -85,6 +85,7 @@ const EditTaskModal = ({
           userId: user?._id,
           action: "UPDATE",
           entity: "Task",
+          entityType: "TaskV2",
           entityId: response._id,
           status: "success",
           message: `"${user?.fullName}" updated task "${response?.title || "Untitled"}".`,
@@ -95,12 +96,14 @@ const EditTaskModal = ({
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error updating task");
-          const errorMsg =
-        error?.data?.message || "Failed to update the priority of task. Please try again.";
+        const errorMsg =
+          error?.data?.message ||
+          "Failed to update the priority of task. Please try again.";
         createUserLog({
           userId: user?._id,
           action: "UPDATE_FAIL",
           entity: "Task",
+          entityType: "TaskV2",
           entityId: task?._id || null,
           status: error?.status === "500" ? "error" : "fail",
           message: errorMsg,

@@ -45,7 +45,7 @@ const AddTaskModal = ({
   const [createTask] = useCreateItemMutation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const { createUserLog } = useUserActivityLog();
-  
+
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -74,6 +74,7 @@ const AddTaskModal = ({
           userId: user?._id,
           action: "CREATE",
           entity: "Task",
+          entityType: "TaskV2",
           entityId: response._id,
           status: "success",
           message: `${user?.fullName} created task "${response?.title || "Untitled"}".`,

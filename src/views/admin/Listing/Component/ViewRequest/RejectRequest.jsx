@@ -157,6 +157,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "UPDATE",
         entity: "listing",
+        entityType: "SecondaryListing",
         entityId: currentListingId,
         status: "success",
         message: `"${user?.fullName}" ${selectedStatus} the view request for the secondary listing.`,
@@ -172,6 +173,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
       createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
+        entityType: "SecondaryListing",
         entity: "Listing",
         entityId: currentListingId || null,
         status: error?.status === "500" ? "error" : "fail",

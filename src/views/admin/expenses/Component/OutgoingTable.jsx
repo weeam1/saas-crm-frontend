@@ -119,9 +119,10 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         userId: user?._id,
         action: "CREATE",
         entity: "Outgoing_Expense",
+        entityType: "Expense",
         entityId: response._id,
         status: "success",
-        message: `${user?.fullName} created outgoing expense "${response?.doc?.expenseNo ||  "Untitled"} ".`,
+        message: `${user?.fullName} created outgoing expense "${response?.doc?.expenseNo || "Untitled"} ".`,
       });
       toast.success("Expense added successfully.");
       refetch();
@@ -178,6 +179,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         action: "DELETE",
         entity: "Outgoing_Expense",
         entityId: invoiceId,
+        entityType: "Expense",
         status: "success",
         message: `${user?.fullName} deleted outgoing expense.`,
       });
@@ -197,6 +199,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         userId: user?._id,
         action: "DELETE_FAIL",
         entity: "Outgoing_Expense",
+        entityType: "Expense",
         entityId: invoiceId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
@@ -220,8 +223,9 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         action: "UPDATE",
         entity: "Outgoing_Expense",
         entityId: OpenExpenseInputModalData._id,
+        entityType: "Expense",
         status: "success",
-        message: `${user?.fullName} update outgoing expense with expense no ${response?.doc?.expenseNo ||  "Untitled"} ".`,
+        message: `${user?.fullName} update outgoing expense with expense no ${response?.doc?.expenseNo || "Untitled"} ".`,
       });
       toast.success("Expenses updated successfully.");
     } catch (error) {
@@ -239,6 +243,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         action: "UPDATE_FAIL",
         entity: "Outgoing_Expense",
         entityId: OpenExpenseInputModalData._id || null,
+        entityType: "Expense",
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
       });
@@ -303,6 +308,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         userId: user?._id,
         action: "UPDATE",
         entity: "Outgoing_Expense",
+        entityType: "Expense",
         entityId: OpenExpenseInputModalData._id,
         status: "success",
         message: `${user?.fullName} update date of outgoing expense with expense no ${response?.doc?.expenseNo || "Untitled"} ".`,
@@ -324,6 +330,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         action: "UPDATE_FAIL",
         entity: "Outgoing_Expense",
         entityId: OpenExpenseInputModalData._id || null,
+        entityType: "Expense",
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
       });
@@ -579,6 +586,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                             action: "VIEW",
                             entity: "Outgoing_Expense",
                             entityId: row._id,
+                            entityType: "Expense",
                             status: "success",
                             message: `${user?.fullName} Viewed outgoing expense "${row.expenseNo || "Untitled"} ".`,
                           });

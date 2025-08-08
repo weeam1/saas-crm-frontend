@@ -136,6 +136,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
         action: "DELETE",
         entity: "Invoice",
         entityId: invoiceId,
+        entityType: "Invoice",
         status: "success",
         message: `${user?.fullName} deleted incoming expense.`,
       });
@@ -153,6 +154,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
         userId: user?._id,
         action: "DELETE_FAIL",
         entity: "Invoice",
+        entityType: "Invoice",
         entityId: invoiceId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,

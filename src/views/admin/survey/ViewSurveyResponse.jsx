@@ -208,7 +208,8 @@ const ViewSurveyResponse = () => {
       createUserLog({
         userId: user?._id,
         action: "UPDATE",
-        entity: "Task",
+        entity: "Survey",
+        entityType: "SurveyResponse",
         entityId: surveyResponse?.doc?._id,
         status: "success",
         message: `"${user?.fullName}" evaluate the survey "${surveyData.title || "Untitled"}".`,
@@ -250,7 +251,8 @@ const ViewSurveyResponse = () => {
       createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
-        entity: "Task",
+        entity: "Survey",
+        entityType: "SurveyResponse",
         entityId: surveyResponse?.doc?._id || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,

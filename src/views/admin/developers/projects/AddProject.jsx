@@ -41,6 +41,7 @@ const AddProject = ({ isOpen, onClose, refetch }) => {
         userId: user?._id,
         action: "CREATE",
         entity: "Project",
+        entityType: "Project",
         entityId: response._id,
         status: "success",
         message: `${user?.fullName} created project "${response?.doc?.name || "Untitled"}".`,

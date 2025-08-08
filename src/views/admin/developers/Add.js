@@ -253,6 +253,7 @@ const AddUser = (props) => {
         userId: user?._id,
         action: "CREATE",
         entity: "Developer",
+        entityType: "Developer",
         entityId: response.data._id,
         status: "success",
         message: `${user?.fullName} created developer "${response?.data?.developer_name || "Untitled"}".`,

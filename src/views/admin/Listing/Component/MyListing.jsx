@@ -57,7 +57,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
 
-   const { createUserLog } = useUserActivityLog();
+  const { createUserLog } = useUserActivityLog();
 
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
@@ -149,6 +149,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "DELETE",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listing._id,
         status: "success",
         message: `"${user?.fullName}" deleted own listing "${listing?.projectName || "Untitled"}".`,
@@ -167,6 +168,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "DELETE_FAIL",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listing._id,
         status: error?.status === 500 ? "error" : "fail",
         message: errorMsg,
@@ -217,7 +219,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         body.adminNotes = adminNotes;
       }
 
-    const response =   await updateStatus({
+      const response = await updateStatus({
         path: `listing/secondary/${listingId}/status`,
         body,
       }).unwrap();
@@ -226,6 +228,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         userId: user?._id,
         action: "UPDATE",
         entity: "listing",
+        entityType: "SecondaryListing",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" update the status secondary listing "${response?.data?.projectName || "Untitled"}".`,
@@ -238,13 +241,15 @@ const MyListing = ({ listingType, listingUnitType }) => {
       );
       setIsRejectionModalOpen(false);
     } catch (error) {
-       const errorMsg =
-        error?.data?.message || "Failed to update the listing status. Please try again.";
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the listing status. Please try again.";
       toast.error("Error updating status");
-       createUserLog({
+      createUserLog({
         userId: user?._id,
         action: "UPDATE_FAIL",
         entity: "Listing",
+        entityType: "SecondaryListing",
         entityId: listingId || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
