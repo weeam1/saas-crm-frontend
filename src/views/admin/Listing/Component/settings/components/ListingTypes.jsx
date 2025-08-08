@@ -34,6 +34,7 @@ import {
   useDeleteItemMutation,
   useUpdateItemMutation,
 } from "api/apiSlice";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const ListingTypes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,6 +45,8 @@ const ListingTypes = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentType, setCurrentType] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const { createUserLog } = useUserActivityLog();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -99,11 +102,29 @@ const ListingTypes = () => {
           body: formData,
         }).unwrap();
         toast.success("Listing type updated successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Type",
+          entityType: "SecondaryListingType",
+          entityId: currentType._id,
+          status: "success",
+          message: `"${user?.fullName}" update the listing type "${currentType?.name || "Untitled"}".`,
+        });
       } else {
-        await createItemMutation({
+        const response = await createItemMutation({
           path: "/listing/secondary/types",
           body: formData,
         }).unwrap();
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "listing_Type",
+          entityType: "SecondaryListingType",
+          entityId: response?.doc._id,
+          status: "success",
+          message: `"${user?.fullName}" created the listing type "${response?.doc.name || "Untitled"}".`,
+        });
         toast.success("Listing type created successfully");
       }
       resetForm();
@@ -111,7 +132,20 @@ const ListingTypes = () => {
       refetch();
     } catch (error) {
       console.error(error);
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the listing type. Please try again.";
       toast.error(error.data?.message || "An error occurred");
+      isEditMode &&
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Type",
+          entityType: "SecondaryListingType",
+          entityId: currentType._id,
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
     }
   };
 
@@ -131,10 +165,31 @@ const ListingTypes = () => {
         path: `/listing/secondary/types/${id}`,
       }).unwrap();
       toast.success("Listing type deleted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Type",
+        entityType: "SecondaryListingType",
+        entityId: id,
+        status: "success",
+        message: `"${user?.fullName}" deleted the listing type.`,
+      });
       refetch();
     } catch (error) {
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the listing type. Please try again.";
       console.error(error);
       toast.error(error.data?.message || "Failed to delete listing type");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Type",
+        entityType: "SecondaryListingType",
+        entityId: id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -150,11 +205,19 @@ const ListingTypes = () => {
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
-      await updateItemMutation({
+      const response = await updateItemMutation({
         path: `/listing/secondary/types/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing_Type",
+        entityType: "SecondaryListingType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" update the status of listing  Type "${response?.doc?.name || "Untitled"}".`,
+      });
       toast.success(`Listing type status updated successfully`);
       refetch();
     } catch (error) {
@@ -162,6 +225,18 @@ const ListingTypes = () => {
       toast.error(
         error.data?.message || "Failed to update listing type status"
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the status of  listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Type",
+        entityType: "SecondaryListingType",
+        entityId: type._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
   return (

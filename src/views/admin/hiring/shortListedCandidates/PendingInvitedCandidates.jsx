@@ -14,6 +14,8 @@ import { addMissingFile } from '../../../../redux/missingFilesSlice';
 
 import { useDispatch, useSelector } from 'react-redux';
 import PendingInvitedTable from './components/PendingInvitedTable';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const PendingInvitedCandidates = ({
 	data,
@@ -62,6 +64,9 @@ const PendingInvitedCandidates = ({
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedTime, setSelectedTime] = useState('');
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const handleScheduleInterview = async () => {
 		try {
 			await updateItemMuation({
@@ -77,8 +82,28 @@ const PendingInvitedCandidates = ({
 			refetch();
 			// invited candidates refetch
 			invitedRefetch();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
+			});
 		} catch (err) {
 			console.log(err);
+			const errorMsg =
+				err?.data?.message || 'Interview is not arranged, please try again.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setArrangeInterviewOpen(false);
 		}
@@ -115,6 +140,16 @@ const PendingInvitedCandidates = ({
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -146,6 +181,16 @@ const PendingInvitedCandidates = ({
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -156,6 +201,16 @@ const PendingInvitedCandidates = ({
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: candidate._id,
+			status: 'success',
+			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	// Update filtered data on search change

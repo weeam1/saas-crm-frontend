@@ -143,6 +143,7 @@ const TaskV2 = () => {
         userId: user?._id,
         action: "DELETE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: task._id,
         status: "success",
         message: `"${user?.fullName}" deleted task "${task?.title || "Untitled"}".`,
@@ -158,8 +159,9 @@ const TaskV2 = () => {
       );
       createUserLog({
         userId: user?._id,
-        action: "DELETE_FAIL",
+        action: "DELETE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: task._id,
         status: error?.status === 500 ? "error" : "fail",
         message: errorMsg,
@@ -192,6 +194,7 @@ const TaskV2 = () => {
         userId: user?._id,
         action: "UPDATE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
@@ -203,12 +206,14 @@ const TaskV2 = () => {
       );
     } catch (error) {
       const errorMsg =
-        error?.data?.message || "Failed to update the task status. Please try again.";
+        error?.data?.message ||
+        "Failed to update the task status. Please try again.";
       toast.error("Error updating status");
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: task?._id || null,
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
@@ -281,6 +286,7 @@ const TaskV2 = () => {
         userId: user?._id,
         action: "UPDATE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: response._id,
         status: "success",
         message: `"${user?.fullName}" update priority of task "${response?.title || "Untitled"}".`,
@@ -288,11 +294,13 @@ const TaskV2 = () => {
     } catch (error) {
       toast.error("Error updating priority");
       const errorMsg =
-        error?.data?.message || "Failed to update the priority of task. Please try again.";
+        error?.data?.message ||
+        "Failed to update the priority of task. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "UPDATE_FAIL",
+        action: "UPDATE",
         entity: "Task",
+        entityType: "TaskV2",
         entityId: taskId,
         status: error?.status === 500 ? "error" : "fail",
         message: errorMsg,
@@ -302,14 +310,15 @@ const TaskV2 = () => {
 
   const ViewHandler = (task) => {
     setSelectedTask(task);
-     createUserLog({
-        userId: user?._id,
-        action: "VIEW",
-        entity: "Task",
-        entityId: task._id,
-        status: "success",
-        message: `"${user?.fullName}" View the task "${task?.title || "Untitled"}".`,
-      });
+    createUserLog({
+      userId: user?._id,
+      action: "VIEW",
+      entity: "Task",
+      entityType: "TaskV2",
+      entityId: task._id,
+      status: "success",
+      message: `"${user?.fullName}" View the task "${task?.title || "Untitled"}".`,
+    });
   };
   return (
     <Box

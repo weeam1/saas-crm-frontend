@@ -21,10 +21,15 @@ import SelectManager from './SelectManager';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { buttonStyle } from 'utils/btn';
 import { HiSpeakerphone } from 'react-icons/hi';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+// import useUserSession from 'hooks/useUserSession';
 
 const CreateAnnouncement = ({ user }) => {
 	// Fetch the all users data from hook
 	const { allUsers, managers, agents } = useFetchUserHierarchy(user);
+
+	// const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	// Set roles
 	const isManager = user?.roles[0]?.roleName === 'Manager';
@@ -165,6 +170,14 @@ const CreateAnnouncement = ({ user }) => {
 						setSelectedManager(null); // Clear specific manager selection
 						setSelectedRole(''); // Reset checkboxes
 						setMessage(''); // Clear the input field after sending
+
+						createUserLog({
+							userId: user?._id,
+							action: 'CREATE',
+							entity: 'Announcement',
+							status: 'success',
+							message: `${user?.fullName || ''} created an announcement`,
+						});
 					}
 				} else {
 					toast.error('Please select the recivers again.');
@@ -172,6 +185,14 @@ const CreateAnnouncement = ({ user }) => {
 			} catch (err) {
 				console.log(err);
 				toast.error('Failed to send announcement.');
+
+				createUserLog({
+					userId: user?._id,
+					action: 'CREATE',
+					entity: 'Announcement',
+					status: 'fail',
+					message: `Failed to send announcement.`,
+				});
 			} finally {
 				setLoading(false);
 			}

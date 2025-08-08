@@ -33,6 +33,7 @@ import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const ViewRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -66,6 +67,9 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   ];
 
   const [updateStatus] = useUpdateItemMutation();
+  const { createUserLog } = useUserActivityLog();
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
@@ -140,13 +144,33 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           responseNotes: responseNotes || "",
         },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityType: "SecondaryListing",
+        entityId: currentListingId,
+        status: "success",
+        message: `"${user?.fullName}" ${selectedStatus} the view request for the secondary listing.`,
+      });
       toast.success("Status updated successfully");
 
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the view request. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Listing",
+        entityType: "SecondaryListing",
+        entityId: currentListingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

@@ -39,6 +39,7 @@ import Pagination from "../../developers/components/Pagination";
 import ExpenseInputModal from "./Sub_Component/ExpenseInputModal";
 import TableLoading from "components/loading/TableLoading";
 import * as XLSX from "xlsx";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,6 +79,8 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     "Action",
   ];
   const [updateItemMuation] = useUpdateItemMutation();
+  const { createUserLog } = useUserActivityLog();
+
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize.target.value);
     setCurrentPage(1);
@@ -108,11 +111,19 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
   const [createItemMuation] = useCreateItemMutation();
   const handleAddPayment = async (newPayment) => {
     try {
-      await createItemMuation({
+      const response = await createItemMuation({
         path: "/expenses",
         body: newPayment,
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Outgoing_Expense",
+        entityType: "Expense",
+        entityId: response._id,
+        status: "success",
+        message: `${user?.fullName} created outgoing expense "${response?.doc?.expenseNo || "Untitled"} ".`,
+      });
       toast.success("Expense added successfully.");
       refetch();
       refetchSummary();
@@ -163,21 +174,42 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       toast.success("The expense has been deleted successfully.", {
         autoClose: 3000,
       });
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Outgoing_Expense",
+        entityId: invoiceId,
+        entityType: "Expense",
+        status: "success",
+        message: `${user?.fullName} deleted outgoing expense.`,
+      });
       refetch();
       refetchSummary();
     } catch (error) {
-      console.error("Failed to delete expense:", error);
+      console.error("Failed to delete outgoing expense:", error);
       toast.error(
         error.data?.message ||
-          "Failed to delete the expense. Please try again.",
+          "Failed to delete the outgoing expense. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the outgoing expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Outgoing_Expense",
+        entityType: "Expense",
+        entityId: invoiceId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
   const handleUpdatedPayment = async (updatedPayment) => {
     try {
-      await updateItemMuation({
+      const response = await updateItemMuation({
         path: `/expenses/${OpenExpenseInputModalData._id}`,
         body: updatedPayment,
       }).unwrap();
@@ -186,14 +218,35 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       setOpenExpenseInputModalData(null);
       refetch();
       refetchSummary();
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Outgoing_Expense",
+        entityId: OpenExpenseInputModalData._id,
+        entityType: "Expense",
+        status: "success",
+        message: `${user?.fullName} update outgoing expense with expense no ${response?.doc?.expenseNo || "Untitled"} ".`,
+      });
       toast.success("Expenses updated successfully.");
     } catch (error) {
-      console.error("Failed to delete expense:", error);
+      console.error("Failed to update expense:", error);
       toast.error(
         error.data?.message ||
-          "Failed to delete the expense. Please try again.",
+          "Failed to update the expense. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Outgoing_Expense",
+        entityId: OpenExpenseInputModalData._id || null,
+        entityType: "Expense",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -239,7 +292,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
     onDateModalOpen();
   };
 
-  const updateData = async (id, updatedFields) => {
+  const updateDate = async (id, updatedFields) => {
     try {
       const currentItem = data.doc.find((item) => item._id === id);
       if (!currentItem) {
@@ -247,11 +300,19 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       }
 
       const updatedItem = { ...currentItem, ...updatedFields };
-      await updateItemMuation({
+      const response = await updateItemMuation({
         path: `/expenses/${id}`,
         body: updatedItem,
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Outgoing_Expense",
+        entityType: "Expense",
+        entityId: OpenExpenseInputModalData._id,
+        status: "success",
+        message: `${user?.fullName} update date of outgoing expense with expense no ${response?.doc?.expenseNo || "Untitled"} ".`,
+      });
       refetch();
       refetchSummary();
       return true;
@@ -261,6 +322,18 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         error.data?.message || "Failed to update the item. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Outgoing_Expense",
+        entityId: OpenExpenseInputModalData._id || null,
+        entityType: "Expense",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
       return false;
     }
   };
@@ -273,7 +346,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
         `${editingDate.date} ${editingDate.time}`
       ).toISOString();
 
-      const success = await updateData(editingDate.id, {
+      const success = await updateDate(editingDate.id, {
         createdAt: newDateTime,
       });
 
@@ -508,6 +581,15 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                           setIsEditable(false);
                           setOpenExpenseInputModalData(row);
                           setIsOpenExpenseInputModal(true);
+                          createUserLog({
+                            userId: user?._id,
+                            action: "VIEW",
+                            entity: "Outgoing_Expense",
+                            entityId: row._id,
+                            entityType: "Expense",
+                            status: "success",
+                            message: `${user?.fullName} Viewed outgoing expense "${row.expenseNo || "Untitled"} ".`,
+                          });
                         }}
                       />
                     </Td>

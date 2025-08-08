@@ -68,6 +68,14 @@ const LogDetailsDrawer = ({
               </Box>
               <Box>
                 <Text fontSize="sm" color="gray.500">
+                  Role
+                </Text>
+                <Text fontWeight="medium" color={textColor} fontSize="xs">
+                  {selectedLog.action.replace(/_/g, " ")}
+                </Text>
+              </Box>
+              <Box>
+                <Text fontSize="sm" color="gray.500">
                   Action
                 </Text>
                 <Text fontWeight="medium" color={textColor} fontSize="xs">
@@ -169,6 +177,59 @@ const LogDetailsDrawer = ({
                   <Text fontWeight="medium" color={textColor} fontSize="xs">
                     {selectedLog.metadata.country?.charAt(0).toUpperCase() +
                       selectedLog.metadata.country?.slice(1).toLowerCase()}
+                  </Text>
+                </Box>
+              </SimpleGrid>
+            </Box>
+            <Divider borderColor={borderColor} />
+            <Box>
+              <Text
+                fontSize="md"
+                fontWeight="bold"
+                mb={2}
+                color={grayColors.primary}
+              >
+                Device Information
+              </Text>
+              <SimpleGrid columns={2} spacing={4}>
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Browser
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.browser}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Browser Version
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.browserVersion}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Os
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.os}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Os Version
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.osVersion}
+                  </Text>
+                </Box>
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Device
+                  </Text>
+                  <Text fontWeight="medium" color={textColor} fontSize="xs">
+                    {selectedLog.metadata.device}
                   </Text>
                 </Box>
               </SimpleGrid>

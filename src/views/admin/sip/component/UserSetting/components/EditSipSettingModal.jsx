@@ -23,6 +23,7 @@ import * as Yup from "yup";
 import { useUpdateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const validationSchema = Yup.object().shape({
   userId: Yup.string().required("User is required"),
@@ -68,6 +69,9 @@ const EditSipSettingModal = ({
     sipPort: [],
   });
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { createUserLog } = useUserActivityLog();
+
   useEffect(() => {
     if (existingSettings?.sipSettings?.length > 0) {
       const settings = existingSettings.sipSettings;
@@ -110,7 +114,7 @@ const EditSipSettingModal = ({
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        await updateSipSetting({
+        const response = await updateSipSetting({
           path: `/sipSetting/${sipSetting._id}`,
           body: {
             ...values,
@@ -118,11 +122,32 @@ const EditSipSettingModal = ({
           },
         }).unwrap();
 
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "Sip_Setting",
+          entityType: "SipSetting",
+          entityId: response._id,
+          status: "success",
+          message: `${user?.fullName} updated sip setting with sip id "${response?.sipId || "Untitled"}".`,
+        });
         toast.success("SIP Setting updated successfully");
         onSuccess();
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error updating SIP Setting");
+        const errorMsg =
+          error?.data?.message ||
+          "Failed to update SIP Setting. Please try again.";
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "Sip_Setting",
+          entityType: "SipSetting",
+          entityId: sipSetting._id || null,
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       } finally {
         setSubmitting(false);
       }

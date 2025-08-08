@@ -23,33 +23,34 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { toast } from "react-toastify";
 import { useDeleteItemMutation } from "api/apiSlice";
 import CustomTooltip from "../../../../components/shared/CustomTooltip";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const colorTheme = {
-  primary: "#B79045", 
+  primary: "#B79045",
   active: {
     bg: "#FFF9E6",
     accent: "#D4A017",
-    border: "#E8D9A8", 
-    status: "#38A169", 
-    text: "#5F370E", 
+    border: "#E8D9A8",
+    status: "#38A169",
+    text: "#5F370E",
   },
   inactive: {
-    bg: "#FEF2F2", 
-    accent: "#EF4444", 
-    border: "#FECACA", 
-    status: "#F59E0B", 
+    bg: "#FEF2F2",
+    accent: "#EF4444",
+    border: "#FECACA",
+    status: "#F59E0B",
   },
   buttons: {
-    primary: "#B79045", 
-    hover: "#C9A158", 
-    active: "#A57D3C", 
-    disabled: "#EDF2F7", 
+    primary: "#B79045",
+    hover: "#C9A158",
+    active: "#A57D3C",
+    disabled: "#EDF2F7",
     text: "#FFFFFF",
   },
   modal: {
-    header: "#B79045", 
-    accent: "#D4A017", 
-  }
+    header: "#B79045",
+    accent: "#D4A017",
+  },
 };
 
 const floatAnimation = keyframes`
@@ -77,6 +78,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteItemMutation] = useDeleteItemMutation();
 
+  const { createUserLog } = useUserActivityLog();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setHasAnimated(true);
@@ -100,7 +103,7 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 
   const colors = isActive ? colorTheme.active : colorTheme.inactive;
 
-  const handleDeleteClick = (e,id) => {
+  const handleDeleteClick = (e, id) => {
     setSurveyIdToDelete(id);
     setSecurityPassword("");
     onOpen();
@@ -118,13 +121,32 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
         path: `/surveys/${surveyIdToDelete}`,
         body: { securityPassword: securityPassword.trim() },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Survey",
+        entityType: "Survey",
+        entityId: surveyIdToDelete,
+        status: "success",
+        message: `"${user?.fullName}" deleted survey.`,
+      });
       toast.success("The survey has been permanently deleted.");
       onClose();
       refetch();
     } catch (error) {
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the survey. Please try again.";
       console.log("error", error);
-
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Survey",
+        entityType: "Survey",
+        entityId: surveyIdToDelete,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
       toast.error(error?.data?.message);
     } finally {
       setIsDeleting(false);
@@ -153,7 +175,7 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
         _hover={{
           transform: "translateY(-5px)",
           boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-          bg: "gray.100"
+          bg: "gray.100",
         }}
         _before={{
           content: '""',
@@ -175,9 +197,9 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
               borderRadius="full"
               boxShadow="sm"
               transition="all 0.2s"
-              _hover={{ 
+              _hover={{
                 transform: "scale(1.1)",
-                animation: `${pulseAnimation} 1.5s infinite`
+                animation: `${pulseAnimation} 1.5s infinite`,
               }}
             />
           </CustomTooltip>
@@ -187,10 +209,10 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
               <DeleteIcon
                 color="red.500"
                 boxSize={4}
-                _hover={{ 
-                  color: "red.400", 
+                _hover={{
+                  color: "red.400",
                   transform: "scale(1.1)",
-                  animation: `${pulseAnimation} 1.5s infinite`
+                  animation: `${pulseAnimation} 1.5s infinite`,
                 }}
                 transition="all 0.2s"
                 onClick={(e) => handleDeleteClick(e, data.id || data._id)}
@@ -209,7 +231,7 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
           >
             {data.name || data.title || "Untitled Survey"}
           </Text>
-          
+
           {data.description && (
             <Text fontSize="sm" color={colors.text} mb={4} noOfLines={3}>
               {data.description}
@@ -218,19 +240,25 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 
           <Flex direction="column" gap={3} mb={4}>
             <Flex justify="space-between">
-              <Text fontSize="sm" color={colors.text}>Survey taken</Text>
+              <Text fontSize="sm" color={colors.text}>
+                Survey taken
+              </Text>
               <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
                 {data.taken ?? data.submittedUsers ?? 0}
               </Text>
             </Flex>
             <Flex justify="space-between">
-              <Text fontSize="sm" color={colors.text}>Total questions</Text>
+              <Text fontSize="sm" color={colors.text}>
+                Total questions
+              </Text>
               <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
                 {data.totalQuestions ?? data.questionsCount ?? 0}
               </Text>
             </Flex>
             <Flex justify="space-between">
-              <Text fontSize="sm" color={colors.text}>Closing date</Text>
+              <Text fontSize="sm" color={colors.text}>
+                Closing date
+              </Text>
               <Text fontSize="sm" fontWeight="600" color={colorTheme.primary}>
                 {data.closingDate || data.closesAt?.slice(0, 10) || "N/A"}
               </Text>
@@ -258,8 +286,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
             _hover: {
               bg: colorTheme.buttons.disabled,
               transform: "none",
-              boxShadow: "none"
-            }
+              boxShadow: "none",
+            },
           }}
           isDisabled={isSurveyCompleted && !isAdmin}
           onClick={(e) => {
@@ -286,8 +314,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
             <Alert status="warning" mb={4} borderRadius="md">
               <AlertIcon />
               <Text fontWeight="medium">
-                This will permanently delete the survey and all its data.
-                Please confirm your security password to proceed.
+                This will permanently delete the survey and all its data. Please
+                confirm your security password to proceed.
               </Text>
             </Alert>
             <Input
@@ -300,8 +328,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
             />
           </ModalBody>
           <ModalFooter>
-            <Button 
-              mr={3} 
+            <Button
+              mr={3}
               onClick={onClose}
               variant="outline"
               borderColor={colorTheme.modal.accent}

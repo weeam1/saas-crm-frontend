@@ -39,6 +39,7 @@ import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const RejectRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -54,6 +55,11 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const [filterChanged, setFilterChanged] = useState(false);
   const Navigate = useNavigate();
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const { createUserLog } = useUserActivityLog();
+
   const columns = [
     "SR.No",
     "Requester",
@@ -147,11 +153,32 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
 
       toast.success("Status updated successfully");
 
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityType: "SecondaryListing",
+        entityId: currentListingId,
+        status: "success",
+        message: `"${user?.fullName}" ${selectedStatus} the view request for the secondary listing.`,
+      });
       refetch();
       setIsStatusModalOpen(false);
     } catch (error) {
       console.log(error);
       toast.error("Error updating status");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the view request. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entityType: "SecondaryListing",
+        entity: "Listing",
+        entityId: currentListingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -464,40 +491,55 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
                         gap={2}
                         justifyContent={"center"}
                       >
-                        <Menu placement="bottom-start">
-                          <MenuButton
-                            as={Button}
-                            rightIcon={<FiChevronDown />}
-                            colorScheme="brand"
-                            size="sm"
+                        <Td
+                          py={4}
+                          fontSize={{ base: "12px", md: "14px" }}
+                          fontWeight="400"
+                          minWidth="100px"
+                          display={"flex"}
+                          gap={2}
+                          justifyContent={"center"}
+                        >
+                          <Menu
+                            placement="auto-end"
+                            strategy="fixed"
+                            flip={true}
+                            gutter={6}
                           >
-                            Actions
-                          </MenuButton>
-                          <MenuList zIndex={10}>
-                            <MenuItem
-                              icon={<ViewIcon />}
-                              onClick={() =>
-                                Navigate(
-                                  `/listing/view-listing/${request.listing?.id}`
-                                )
-                              }
+                            <MenuButton
+                              as={Button}
+                              rightIcon={<FiChevronDown />}
+                              colorScheme="brand"
+                              size="sm"
                             >
-                              View Listing
-                            </MenuItem>
-                            <MenuItem
-                              icon={<RepeatIcon />}
-                              onClick={() =>
-                                handleStatusChange(
-                                  request.requester.id,
-                                  "pending",
-                                  request?.listing?.id
-                                )
-                              }
-                            >
-                              Reconsider Request
-                            </MenuItem>
-                          </MenuList>
-                        </Menu>
+                              Actions
+                            </MenuButton>
+                            <MenuList zIndex="popover" minWidth="200px">
+                              <MenuItem
+                                icon={<ViewIcon />}
+                                onClick={() =>
+                                  Navigate(
+                                    `/listing/view-listing/${request.listing?.id}`
+                                  )
+                                }
+                              >
+                                View Listing
+                              </MenuItem>
+                              <MenuItem
+                                icon={<RepeatIcon />}
+                                onClick={() =>
+                                  handleStatusChange(
+                                    request.requester.id,
+                                    "pending",
+                                    request?.listing?.id
+                                  )
+                                }
+                              >
+                                Reconsider Request
+                              </MenuItem>
+                            </MenuList>
+                          </Menu>
+                        </Td>
                       </Td>
                     </Tr>
                   ))

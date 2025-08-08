@@ -26,6 +26,7 @@ import CustomDatePicker from "components/datetime/CustomDatePicker";
 import Breadcrumb from "../../../components/shared/BreadCrumb";
 import { toast } from "react-toastify";
 import { getApi } from "services/api";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const inputStyles = {
   fontSize: "sm",
@@ -52,6 +53,8 @@ const CreateSurvey = () => {
   const toggleCalendar = (calendar) => {
     setOpenCalendar((prev) => (prev === calendar ? null : calendar));
   };
+
+  const { createUserLog } = useUserActivityLog();
 
   const formik = useFormik({
     initialValues: {
@@ -101,13 +104,22 @@ const CreateSurvey = () => {
           invitedUsers,
         };
 
-        await createItemMutation({
+        const response = await createItemMutation({
           path: "/surveys",
           body: payload,
         }).unwrap();
         toast.success("Survey created successfully!");
         resetForm();
         navigate("/survey");
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Survey",
+          entityType: "Survey",
+          entityId: response._id,
+          status: "success",
+          message: `"${user?.fullName}" created survey "${response?.doc?.title || "Untitled"}".`,
+        });
       } catch (error) {
         const errorMsg =
           error?.data?.message ||

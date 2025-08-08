@@ -37,6 +37,8 @@ import { FormSelect } from 'components/fields/FormFields';
 import { FiUploadCloud } from 'react-icons/fi';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { CloseIcon } from '@chakra-ui/icons';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const EditDealModal = React.memo(
 	({ isOpen, onClose, initialData, onSuccess }) => {
@@ -87,6 +89,9 @@ const EditDealModal = React.memo(
 				});
 			}
 		}, [initialData, reset]);
+
+		const { user } = useUserSession();
+		const { createUserLog } = useUserActivityLog();
 
 		const dealId = initialData._id;
 		const fileInputRef = useRef(null);
@@ -140,10 +145,31 @@ const EditDealModal = React.memo(
 
 				if (res?.doc) {
 					onSuccess(res.doc);
+
+					createUserLog({
+						userId: user?._id,
+						action: 'UPDATE',
+						entity: 'Deals',
+						enityType: 'CloseDeal',
+						entityId: dealId || null,
+						status: 'success',
+						message: `${res?.doc?.lead?.leadName || ''} Deal updated by ${user?.fullName}`,
+					});
 				}
 			} catch (error) {
 				console.log(error);
-				toast.error(error?.data?.message || 'Error: Deal is not updated!');
+				const errorMsg = error?.data?.message || 'Error: Deal is not updated!';
+				toast.error(errorMsg);
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Deals',
+					enityType: 'CloseDeal',
+					entityId: dealId || null,
+					status: error?.status === 500 ? 'error' : 'fail',
+					message: errorMsg,
+				});
 			}
 		};
 

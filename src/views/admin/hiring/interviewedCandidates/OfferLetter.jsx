@@ -35,6 +35,8 @@ import OfferLetterEditor from './OfferLetterEditor';
 import { jobTypes } from 'utils/options';
 import { toUTCString } from 'utils/helpers';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -133,6 +135,9 @@ const OfferLetter = () => {
 	const [createItemMutation, { isLoading: sendingOffer }] =
 		useCreateItemMutation();
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const toggleCalendar = () => setShowCalendar(!showCalendar);
 
 	const handleDateChange = (date) => {
@@ -153,8 +158,6 @@ const OfferLetter = () => {
 			interviewId,
 		};
 
-		console.log({ offerData });
-
 		if (!selectedDate) {
 			toast.error('Joining date is required');
 			return;
@@ -169,9 +172,28 @@ const OfferLetter = () => {
 			toast.success('Offer sent successfully');
 			setOfferDetails(offerData);
 			setIsEditing(false);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Interview',
+				entityId: interviewId,
+				status: 'success',
+				message: `Offer sent to ${interview?.doc?.candidate?.name} by ${user?.fullName}.`,
+			});
 			navigate('/hiring?tab=interviewed-candidates');
 		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to send offer');
+			const errorMsg = error?.data?.message || 'Failed to send offer';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Interview',
+				entityId: interviewId,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

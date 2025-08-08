@@ -3,6 +3,7 @@ import { Box, SimpleGrid, Skeleton, Text } from "@chakra-ui/react";
 import AccountCard from "./components/AccountCard";
 import { useUpdateItemMutation, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const AccountsView = ({
   accounts = [],
@@ -13,6 +14,8 @@ const AccountsView = ({
   onDelete,
   skeletonCount,
 }) => {
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const { createUserLog } = useUserActivityLog();
   const [updateItemMutation, { isLoading: isUpdating }] =
     useUpdateItemMutation();
   const [deleteItemMutation, { isLoading: isDeleting }] =
@@ -32,10 +35,19 @@ const AccountsView = ({
 
   const handleUpdate = async (updatedAccount, accountId) => {
     try {
-      await updateItemMutation({
+      const response = await updateItemMutation({
         path: `/bankAccount/edit/${accountId}`,
         body: updatedAccount,
       }).unwrap();
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Bank_Account",
+        entityType: "BankAccount",
+        entityId: accountId,
+        status: "success",
+        message: `"${user?.fullName}" update bank account "${response?.data?.account_holder_name || "Untitled"}".`,
+      });
       toast.success("The account has been updated successfully.", {
         autoClose: 3000,
       });
@@ -48,16 +60,38 @@ const AccountsView = ({
           "Failed to update the account. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to update the bank account. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Bank_Account",
+        entityType: "BankAccount",
+        entityId: accountId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
+    } finally {
     }
   };
 
   const handleDelete = async (accountId) => {
-    console.log(accountId,"accountId")
+    console.log(accountId, "accountId");
     try {
       await deleteItemMutation({
         path: `/bankAccount/delete/${accountId}`,
         body: {},
       }).unwrap();
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Bank_Account",
+        entityType: "BankAccount",
+        entityId: accountId,
+        status: "success",
+        message: `"${user?.fullName}" deleted bank account.`,
+      });
       toast.success("The account has been deleted successfully.", {
         autoClose: 3000,
       });
@@ -70,6 +104,19 @@ const AccountsView = ({
           "Failed to delete the account. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the account. Please try again.";
+
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Bank_Account",
+        entityType: "BankAccount",
+        entityId: accountId,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

@@ -23,6 +23,7 @@ import * as Yup from "yup";
 import { useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const validationSchema = Yup.object().shape({
   userId: Yup.string().required("User is required"),
@@ -54,7 +55,13 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
-const AddSipSettingModal = ({ isOpen, onClose, onSuccess, existingSettings,usersData }) => {
+const AddSipSettingModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  existingSettings,
+  usersData,
+}) => {
   const [createSipSetting] = useCreateItemMutation();
   const [suggestions, setSuggestions] = useState({
     sipIp: [],
@@ -66,7 +73,8 @@ const AddSipSettingModal = ({ isOpen, onClose, onSuccess, existingSettings,users
     sipPassword: null,
   });
 
-
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { createUserLog } = useUserActivityLog();
 
   useEffect(() => {
     if (existingSettings) {
@@ -118,14 +126,22 @@ const AddSipSettingModal = ({ isOpen, onClose, onSuccess, existingSettings,users
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
-        await createSipSetting({
+        const response = await createSipSetting({
           path: "/sipSetting",
           body: {
             ...values,
             sipId: values.sipId.toString(),
           },
         }).unwrap();
-
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Sip_Setting",
+          entityId: response._id,
+          entityType: "SipSetting",
+          status: "success",
+          message: `${user?.fullName} created sip setting with sip id "${response?.data?.sipId || "Untitled"}".`,
+        });
         toast.success("SIP Setting created successfully");
         onSuccess();
         resetForm();
@@ -162,7 +178,7 @@ const AddSipSettingModal = ({ isOpen, onClose, onSuccess, existingSettings,users
   };
 
   const handleSelectUser = (user) => {
-    formik.setFieldValue("userId",  user?._id || null);
+    formik.setFieldValue("userId", user?._id || null);
   };
 
   return (

@@ -25,9 +25,30 @@ import { CheckCircleIcon, TimeIcon } from '@chakra-ui/icons';
 import { formatPostDate, formatCurrency } from 'utils/helpers';
 import { FiX, FiXCircle } from 'react-icons/fi';
 import ViewDealInvoice from './_shared/ViewDealInvoice';
+import { useEffect } from 'react';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 // Modal component for detailed view
 const DealDetailsModal = ({ isOpen, onClose, deal }) => {
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
+	useEffect(() => {
+		if (deal) {
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Deals',
+				enityType: 'CloseDeal',
+				entityId: deal._id || null,
+				status: 'success',
+				message: `Lead deal "${deal?.lead?.leadName || ''}" viewed by ${user?.fullName}.`,
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	if (!deal) return <Text>No Deal found!</Text>;
 
 	const {
