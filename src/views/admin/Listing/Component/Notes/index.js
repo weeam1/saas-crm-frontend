@@ -83,7 +83,7 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
         message: `${user?.fullName} attempted to view listing notes, but it was not found.`,
       });
     }
-  }, []);
+  }, [listingId]);
 
   const handleAddNote = async () => {
     try {
