@@ -33,6 +33,7 @@ const Delete = (props) => {
 						userId: user?._id,
 						action: 'DELETE',
 						entity: 'Lead',
+						enityType: 'Lead',
 						entityId: props?.id || null,
 						status: 'success',
 						message: `Lead deleted successfully`,
@@ -50,6 +51,7 @@ const Delete = (props) => {
 					userId: user?._id,
 					action: 'DELETE',
 					entity: 'Lead',
+					enityType: 'Lead',
 					entityId: props.id || null,
 					status: error?.status === 500 ? 'error' : 'fail',
 					message: errorMsg,
@@ -71,6 +73,7 @@ const Delete = (props) => {
 						userId: user?._id,
 						action: 'BULK_DELETE',
 						entity: 'Lead',
+						enityType: 'Lead',
 						status: 'success',
 						message: 'Bulk lead deletion operation successfully`.',
 					});
@@ -84,6 +87,7 @@ const Delete = (props) => {
 					userId: user?._id,
 					action: 'BULK_DELETE',
 					entity: 'Lead',
+					enityType: 'Lead',
 					status: error?.status === 500 ? 'error' : 'fail',
 					message:
 						error?.data?.message || 'Bulk lead deletion operation failed.',

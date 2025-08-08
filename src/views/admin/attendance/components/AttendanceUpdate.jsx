@@ -114,7 +114,6 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					action: 'UPDATE',
 					entity: 'Attendance',
 					entityType: 'Attendance',
-
 					entityId: res?.doc?._id,
 					status: 'success',
 					message: `${user?.fullName || ''} updated attendance record`,
