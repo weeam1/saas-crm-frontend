@@ -23,7 +23,8 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { useCreateItemMutation } from 'api/apiSlice';
 import BulkMessageSummary from './BulkMessageSummary';
-import { useSelector } from 'react-redux';
+import useUserSession from 'hooks/useUserSession';
+// import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const BulkWhatsappModal = ({
 	isOpen,
@@ -40,7 +41,8 @@ const BulkWhatsappModal = ({
 	const [errors, setErrors] = useState({});
 	const [touched, setTouched] = useState({});
 
-	const user = useSelector((state) => state.user.user);
+	const { user } = useUserSession();
+	// const { createUserLog } = useUserActivityLog();
 
 	const [summaryModal, setSummaryModal] = useState(false);
 
@@ -191,20 +193,6 @@ const BulkWhatsappModal = ({
 					.sort((a, b) => Number(a) - Number(b))
 					.map((key) => placeholderValues[key]?.trim() || '');
 			}
-			// if (extractPlaceholders?.length > 0) {
-			// 	const validPlaceholders = validatePlaceholders();
-
-			// 	const isEmptyObject = (obj) =>
-			// 		!obj || (typeof obj === 'object' && Object.keys(obj).length === 0);
-
-			// 	if (isEmptyObject(validPlaceholders)) {
-			// 		return toast.error('Please fill the required fields!');
-			// 	}
-
-			// 	placeholderArray = Object.keys(validPlaceholders)
-			// 		.sort((a, b) => Number(a) - Number(b))
-			// 		.map((key) => validPlaceholders[key]?.trim() || '');
-			// }
 
 			const body = {
 				type: 'template',

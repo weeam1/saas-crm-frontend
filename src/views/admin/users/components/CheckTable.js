@@ -7,6 +7,8 @@ import {
 	Grid,
 	GridItem,
 	HStack,
+	Icon,
+	IconButton,
 	Input,
 	Menu,
 	MenuButton,
@@ -28,7 +30,9 @@ import {
 	Text,
 	Th,
 	Thead,
+	Tooltip,
 	Tr,
+	useClipboard,
 	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
@@ -43,6 +47,7 @@ import {
 // Custom components
 import {
 	AddIcon,
+	CopyIcon,
 	DeleteIcon,
 	EditIcon,
 	SearchIcon,
@@ -69,6 +74,8 @@ import RemoveCoinsModal from '../RemoveCoinsModal';
 import StatusToggle from './StatusToogle';
 import TableLoading from 'components/loading/TableLoading';
 import { formatCurrency } from 'utils/helpers';
+import { BsCircleFill } from 'react-icons/bs';
+import { toast } from 'react-toastify';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -313,13 +320,13 @@ export default function CheckTable(props) {
 				px={2}
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
 			>
-				<Grid templateColumns='repeat(12, 1fr)'  gap={4} mx={4}>
+				<Grid templateColumns='repeat(12, 1fr)' gap={4} mx={4}>
 					<GridItem
 						colSpan={{ base: 12, md: 8 }}
 						display={'flex'}
 						alignItems={'center'}
 					>
-						<Flex alignItems={'center'} flexWrap={'wrap'} gap ={2}>
+						<Flex alignItems={'center'} flexWrap={'wrap'} gap={2}>
 							<Text
 								color={useColorModeValue('secondaryGray.900', 'white')}
 								fontSize='22px'
@@ -413,7 +420,7 @@ export default function CheckTable(props) {
 								variant='brand'
 								size='sm'
 								leftIcon={<AddIcon />}
-								borderRadius={"md"}
+								borderRadius={'md'}
 							>
 								Add New
 							</Button>
@@ -565,11 +572,16 @@ export default function CheckTable(props) {
 															</Text>
 														</Flex>
 													);
-												} else if (cell?.column.Header === 'ID') {
-													data = <CopyID value={row?.original?._id || ''} />;
-												} else if (cell?.column.Header === 'email') {
+												}
+												// else if (cell?.column.Header === 'ID') {
+												// 	data = <CopyID value={row?.original?._id || ''} />;
+												// }
+												else if (cell?.column.Header === 'email') {
+													const email = cell?.value;
+													const userId = cell?.row?.values._id;
+
 													data = (
-														<Link to={`/userView/${cell?.row?.values._id}`}>
+														<Link to={`/userView/${userId}`}>
 															<Text
 																me='10px'
 																sx={{
@@ -582,7 +594,7 @@ export default function CheckTable(props) {
 																fontSize='sm'
 																fontWeight='700'
 															>
-																{cell?.value}
+																{email}
 															</Text>
 														</Link>
 													);
@@ -608,6 +620,43 @@ export default function CheckTable(props) {
 															{cell?.value ? cell?.value : ' - '}
 														</Text>
 													);
+												} else if (cell?.column.Header === 'Status') {
+													data = (
+														<HStack
+															spacing={1.5}
+															px={2}
+															py={0.5}
+															borderRadius='md'
+															borderWidth='1px'
+															width='fit-content'
+															align='center'
+															bg={
+																row?.original?.isOnline ? 'green.50' : 'red.50'
+															}
+															borderColor={
+																row?.original?.isOnline
+																	? 'green.400'
+																	: 'red.400'
+															}
+														>
+															<Icon
+																as={BsCircleFill}
+																color={
+																	row?.original?.isOnline
+																		? 'green.400'
+																		: 'red.400'
+																}
+																boxSize={2.5}
+															/>
+															<Text
+																fontSize='sm'
+																fontWeight='medium'
+																color='gray.800'
+															>
+																{row?.original?.isOnline ? 'Online' : 'Offline'}
+															</Text>
+														</HStack>
+													);
 												} else if (cell?.column.Header === 'role') {
 													data = (
 														<Text
@@ -615,7 +664,9 @@ export default function CheckTable(props) {
 															fontSize='sm'
 															fontWeight='700'
 														>
-															{cell?.value}
+															{cell?.value ||
+																cell?.row?.original?.role ||
+																'N/A'}
 														</Text>
 													);
 												} else if (cell?.column.Header === 'Coins') {
@@ -644,7 +695,7 @@ export default function CheckTable(props) {
 															</Text>
 														</Box>
 													);
-												} else if (cell?.column.Header === 'Status') {
+												} else if (cell?.column.Header === 'Account Status') {
 													data = (
 														<StatusToggle
 															user={row?.original}

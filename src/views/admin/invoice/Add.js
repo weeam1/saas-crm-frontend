@@ -1,27 +1,28 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  FormLabel,
-  Grid,
-  GridItem,
-  IconButton,
-  Input,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import Spinner from "components/spinner/Spinner";
-import { useFormik } from "formik";
-import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { useCreateItemMutation } from "api/apiSlice";
-import * as yup from "yup";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useUserActivityLog } from "hooks/useUserActivityLog";
+	Button,
+	FormLabel,
+	Grid,
+	GridItem,
+	IconButton,
+	Input,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalFooter,
+	ModalBody,
+	useBreakpointValue,
+} from '@chakra-ui/react';
+import Spinner from 'components/spinner/Spinner';
+import { useFormik } from 'formik';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { useCreateItemMutation } from 'api/apiSlice';
+import * as yup from 'yup';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -62,13 +63,14 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 }
 
 const AddEntryModal = (props) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [createItemMutation, { isLoading: mutationLoading }] =
-    useCreateItemMutation();
-  const location = useLocation();
-  const navigate = useNavigate();
-   const user = JSON.parse(localStorage.getItem("user")) || {};
-  
+	const [isLoading, setIsLoading] = useState(false);
+	const [createItemMutation, { isLoading: mutationLoading }] =
+		useCreateItemMutation();
+	const location = useLocation();
+
+	const navigate = useNavigate();
+
+	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
   const queryParams = new URLSearchParams(location.search);
@@ -169,7 +171,6 @@ const AddEntryModal = (props) => {
       if (!response?.data) {
         throw new Error("Failed to create invoice and entry");
       }
-
       /// enitries
       const invoiceId = response.data.invoice._id;
 
@@ -182,7 +183,7 @@ const AddEntryModal = (props) => {
       createUserLog({
         userId: user?._id,
         action: "CREATE",
-        entity: "Invoice_Entry",
+        entity: "Invoice",
         entityType: "InvoiceEntry",
         entityId: response?.data?.invoice._id,
         status: "success",
@@ -196,7 +197,7 @@ const AddEntryModal = (props) => {
       createUserLog({
         userId: user?._id,
         action: "CREATE",
-        entity: "Invoice_Entry",
+        entity: "Invoice",
         entityType: "InvoiceEntry",
         status: e?.status === "500" ? "error" : "fail",
         message: errorMsg,

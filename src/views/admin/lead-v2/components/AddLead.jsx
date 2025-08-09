@@ -146,6 +146,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Lead',
+				enityType: 'Lead',
 				entityId: res?._id || null,
 				status: 'success',
 				message: `${res?.leadName || ''} Lead is created successfully`,
@@ -159,6 +160,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				userId: user?._id,
 				action: 'CREATE',
 				entity: 'Lead',
+				enityType: 'Lead',
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

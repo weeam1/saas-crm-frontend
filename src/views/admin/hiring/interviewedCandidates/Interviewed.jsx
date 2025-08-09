@@ -14,6 +14,8 @@ import InterviewedTable from './InterviewedTable';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import InterviewResult from './InterviewResult';
 import { useNavigate } from 'react-router-dom';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Interviewed = ({
 	data,
@@ -58,6 +60,9 @@ const Interviewed = ({
 	const dispatch = useDispatch();
 	const missingFiles = useSelector((state) => state.missingFiles.missingFiles);
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const handleViewCV = async (resume) => {
 		try {
 			const pdfURL = `${constant['baseUrl']}${resume}`;
@@ -80,6 +85,16 @@ const Interviewed = ({
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: interview?.candidate._id,
+				status: 'success',
+				message: `Candidate ${interview?.candidate.name}’s CV viewed by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -111,6 +126,16 @@ const Interviewed = ({
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: interview?.candidate._id,
+				status: 'success',
+				message: `Candidate ${interview?.candidate.name}’s CV downloaded by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -121,6 +146,16 @@ const Interviewed = ({
 		const interview = data.find((item) => item.candidate._id === id);
 		setInterview(interview);
 		setApplicationOpen(true);
+
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: interview.candidate._id,
+			status: 'success',
+			message: `Candidate ${interview.candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	// Update filtered data on search change

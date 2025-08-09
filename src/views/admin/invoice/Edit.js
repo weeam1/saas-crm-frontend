@@ -1,29 +1,30 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  FormLabel,
-  Grid,
-  GridItem,
-  IconButton,
-  Input,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  useBreakpointValue,
-  Icon,
-} from "@chakra-ui/react";
-import Spinner from "components/spinner/Spinner";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import * as yup from "yup";
-import { toast } from "react-toastify";
-import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
-import Loader from "components/loading/Loader";
-import { useUserActivityLog } from "hooks/useUserActivityLog";
+	Button,
+	FormLabel,
+	Grid,
+	GridItem,
+	IconButton,
+	Input,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalFooter,
+	ModalBody,
+	useBreakpointValue,
+	Icon,
+} from '@chakra-ui/react';
+import Spinner from 'components/spinner/Spinner';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { useFetchItemsQuery, useUpdateItemMutation } from 'api/apiSlice';
+import * as yup from 'yup';
+import { toast } from 'react-toastify';
+import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
+import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 // Validation schema aligned with Add component
 const invoiceSchema = yup.object().shape({
@@ -66,10 +67,8 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [updateItem, { isLoading: mutationLoading }] = useUpdateItemMutation();
-
-  const user = JSON.parse(localStorage.getItem("user")) || {};
-
-  const { createUserLog } = useUserActivityLog();
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
   // Fetch existing entry data
   const {
@@ -213,15 +212,15 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         method: "PUT",
         body: payload,
       }).unwrap();
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-         entity: "Invoice_Entry",
-        entityType: "InvoiceEntry",
-        entityId: selectedId,
-        status: "success",
-        message: `"${user?.fullName}" updated the invoice entry.`,
-      });
+     createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Invoice',
+					entityType: 'InvoiceEntry',
+					entityId: response?.data?._id || null,
+					status: 'success',
+					message: `${user?.fullName} updated invoice entry.`,
+				});
       if (response) {
         toast.success("Entry updated successfully!");
         if (fetchData) fetchData(); // Trigger parent data refresh
@@ -236,15 +235,14 @@ const Edit = ({ isOpen, onClose, selectedId, fetchData, setAction }) => {
         e?.data?.message || "Failed to update invoice entry. Please try again.";
       console.error("Error updating entry:", e);
       toast.error(e?.data?.message || e.message || "Something went wrong!");
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "Invoice_Entry",
-        entityType: "InvoiceEntry",
-        entityId: selectedId || null,
-        status: e?.status === "500" ? "error" : "fail",
-        message: errorMsg,
-      });
+     createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Invoice',
+				entityType: 'InvoiceEntry',
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
     } finally {
       setIsLoading(false);
     }

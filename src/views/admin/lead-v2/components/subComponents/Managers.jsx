@@ -95,6 +95,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 					userId: user?._id,
 					action: 'UPDATE',
 					entity: 'Lead',
+					enityType: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
 					message,
@@ -103,6 +104,17 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 		} catch (error) {
 			console.error('Failed to update the manager:', error);
 			toast.error('Failed to update the manager');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: lead._id || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: 'Failed to update the manager',
+			});
 		} finally {
 			setLoading(false);
 		}

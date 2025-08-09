@@ -20,6 +20,8 @@ import RenderFields from 'components/shared/RenderFields';
 import PhoneField from 'components/fields/PhoneField';
 import { toCapitalCase } from 'utils/helpers';
 import { useSelector } from 'react-redux';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 	// Initial values for Formik
@@ -47,6 +49,9 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 		leadSourceChannel: '',
 		adset: '',
 	};
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const countries = useSelector((state) => state.countries.countryNames);
 
@@ -126,7 +131,7 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 			delete updatedValues.city;
 			delete updatedValues.country;
 
-			await createItemMuation({
+			const res = await createItemMuation({
 				path: '/lead/add-lead',
 				body: updatedValues,
 			}).unwrap();
@@ -135,9 +140,29 @@ const AddLead = ({ isOpen, onClose, refreshData, size }) => {
 			onClose();
 			actions.resetForm();
 			refreshData();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: res?._id || null,
+				status: 'success',
+				message: `${res?.leadName || ''} Lead is created successfully`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data?.message || 'An error occurred while creating the lead.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

@@ -145,6 +145,7 @@ const BulkAssignModal = (props) => {
 					userId: user?._id,
 					action: 'BULK_ASSIGN',
 					entity: 'Lead',
+					enityType: 'Lead',
 					status: 'success',
 					message: `Bulk Leads assigned by ${user?.fullName} successfully.`,
 				});
@@ -162,6 +163,7 @@ const BulkAssignModal = (props) => {
 					userId: user?._id,
 					action: 'BULK_ASSIGN',
 					entity: 'Lead',
+					enityType: 'Lead',
 					status: 'fail',
 					message: `Bulk Leads assigned failed: ${errorHint}`,
 				});
@@ -177,6 +179,7 @@ const BulkAssignModal = (props) => {
 				userId: user?._id,
 				action: 'BULK_ASSIGN',
 				entity: 'Lead',
+				enityType: 'Lead',
 				status: error?.status === 500 ? 'error' : 'fail',
 				message: `Bulk Leads assigned failed: ${errorMsg}`,
 			});

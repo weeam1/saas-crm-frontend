@@ -1,29 +1,30 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
-  Button,
-  FormLabel,
-  Grid,
-  GridItem,
-  IconButton,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  Select,
-  useBreakpointValue,
-  Icon,
-} from "@chakra-ui/react";
-import Spinner from "components/spinner/Spinner";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
-import * as yup from "yup";
-import { toast } from "react-toastify";
-import DropdownImg from "../../../assets/img/Invoice/mdi_menu-down.svg";
-import Loader from "components/loading/Loader";
-import { useUserActivityLog } from "hooks/useUserActivityLog";
+	Button,
+	FormLabel,
+	Grid,
+	GridItem,
+	IconButton,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalFooter,
+	ModalBody,
+	Select,
+	useBreakpointValue,
+	Icon,
+} from '@chakra-ui/react';
+import Spinner from 'components/spinner/Spinner';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { useFetchItemsQuery, useUpdateItemMutation } from 'api/apiSlice';
+import * as yup from 'yup';
+import { toast } from 'react-toastify';
+import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
+import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const invoiceSchema = yup.object().shape({
   developer_id: yup.string().required("Developer is required"),
@@ -32,9 +33,10 @@ const invoiceSchema = yup.object().shape({
 });
 
 const Edit = (props) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+	const [isLoading, setIsLoading] = useState(false);
+	// const user = JSON.parse(localStorage.getItem('user')) || {};
 
+	const { user } = useUserSession();
   const { createUserLog } = useUserActivityLog();
 
   const [filteredBankAccounts, setFilteredBankAccounts] = useState([]);

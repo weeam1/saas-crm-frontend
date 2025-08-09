@@ -9,11 +9,16 @@ import CloseDealModal from 'views/admin/lead-v2/components/deals/CloseDealModal'
 
 import { mainLeadStatus, eventMainLeadStatus } from 'utils/options';
 import { extractLocationData } from 'utils/helpers';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
-const RenderEStatus = ({ id, cellValue, user, lead, countries }) => {
+const RenderEStatus = ({ id, cellValue, lead, countries }) => {
 	const [value, setValue] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [closeDeal, setCloseDeal] = useState(false);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const setStatusData = async (statusOrEvent, options = {}) => {
 		try {
@@ -58,6 +63,17 @@ const RenderEStatus = ({ id, cellValue, user, lead, countries }) => {
 						ip,
 						fcblid: lead?.fcblid || null,
 					});
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'UPDATE',
+						entity: 'Lead',
+						enityType: 'Lead',
+						entityId: lead._id || null,
+						status: 'success',
+						message: `${user?.fullName} update the lead main status from '${value || 'No Status'} to '${newStatus}'.`,
+					});
 				}
 			} else if (response.status === 400) {
 				// Handle 400 Bad Request specifically
@@ -67,6 +83,16 @@ const RenderEStatus = ({ id, cellValue, user, lead, countries }) => {
 				toast.error(`${errorDetails}`);
 			} else {
 				toast.error('Something went wrong!');
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} catch (error) {
 			// Check if the error contains response data
@@ -74,9 +100,31 @@ const RenderEStatus = ({ id, cellValue, user, lead, countries }) => {
 				const errorDetails =
 					error.response.data?.message || 'Invalid input provided.';
 				toast.error(`Bad Request: ${errorDetails}`);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: errorDetails,
+				});
 			} else {
 				console.error('Unexpected error:', error);
 				toast.error('Something went wrong!');
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} finally {
 			setLoading(false);

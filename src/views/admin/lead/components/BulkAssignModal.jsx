@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
 import { fetchAgentLeadsSats } from 'api';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const {
 	Modal,
@@ -32,7 +34,7 @@ const BulkAssignModal = (props) => {
 
 	const [isLoading, setIsLoading] = useState(false);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
 
 	const closeHandler = () => {
@@ -43,6 +45,9 @@ const BulkAssignModal = (props) => {
 		managerAssigned: '',
 		agentAssigned: '',
 	};
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const handleFormSubmit = async (values) => {
 		try {
@@ -84,6 +89,16 @@ const BulkAssignModal = (props) => {
 				formikResetForm();
 				setSelectedValues([]);
 				setSelectAllChecked(false);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'BULK_ASSIGN',
+					entity: 'Lead',
+					enityType: 'Lead',
+					status: 'success',
+					message: `Bulk Leads assigned by ${user?.fullName} successfully.`,
+				});
 			} else if (res.status === 400) {
 				// const errorDetails =
 				// 	res?.response?.data?.message || "Invalid input provided.";
@@ -92,10 +107,32 @@ const BulkAssignModal = (props) => {
 					'Please review the input and adjust as necessary.';
 
 				toast.error(errorHint);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'BULK_ASSIGN',
+					entity: 'Lead',
+					enityType: 'Lead',
+					status: 'fail',
+					message: `Bulk Leads assigned failed: ${errorHint}`,
+				});
 			}
 		} catch (error) {
 			console.error('Error submitting bulk assign:', error);
-			toast.error(error);
+			const errorMsg = error?.data?.message || 'Error submitting bulk assign';
+
+			toast.error(errorMsg);
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'BULK_ASSIGN',
+				entity: 'Lead',
+				enityType: 'Lead',
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: `Bulk Leads assigned failed: ${errorMsg}`,
+			});
 		} finally {
 			setIsLoading(false);
 			closeHandler();
