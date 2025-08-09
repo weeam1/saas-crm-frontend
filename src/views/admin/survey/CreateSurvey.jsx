@@ -127,6 +127,14 @@ const CreateSurvey = () => {
           "Failed to create survey. Please try again.";
         console.error("Failed to create survey:", errorMsg);
         toast.error(errorMsg);
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Survey",
+          entityType: "Survey",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       }
     },
   });

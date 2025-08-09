@@ -127,10 +127,19 @@ const Edit = (props) => {
 				method: 'PUT',
 				body: payload,
 			}).unwrap();
+
 			if (response) {
 				toast.success('Invoice updated successfully!');
 				// refetchInvoices();
-
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Invoice',
+					entityType: 'Invoice',
+					entityId: props.data?._id || null,
+					status: 'success',
+					message: `"${user?.fullName}" updated the invoice.`,
+				});
 				if (props.fetchData) {
 					props.fetchData({
 						pageIndex: props.pageIndex || 0,
@@ -139,31 +148,21 @@ const Edit = (props) => {
 				}
 				if (props.setAction) props.setAction((prev) => !prev);
 				props.onClose();
-
-				createUserLog({
-					userId: user?._id,
-					action: 'UPDATE',
-					entity: 'Invioce',
-					entityType: 'Invoice',
-					entityId: response?.data?._id || null,
-					status: 'success',
-					message: `${user?.fullName} is created an invoice.`,
-				});
 			} else {
 				throw new Error('Unexpected response format');
 			}
 		} catch (e) {
 			console.error('Error updating invoice:', e);
+			toast.error(e?.data?.message || e.message || 'Something went wrong!');
 			const errorMsg =
-				e?.data?.message || e.message || 'Operation failed to updated invoice';
-			toast.error(errorMsg);
-
+				e?.data?.message || 'Failed to update invoice . Please try again.';
 			createUserLog({
 				userId: user?._id,
 				action: 'UPDATE',
-				entity: 'Invioce',
+				entity: 'Invoice',
 				entityType: 'Invoice',
-				status: e?.status === 500 ? 'error' : 'fail',
+				entityId: props.data?._id || null,
+				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
 		} finally {

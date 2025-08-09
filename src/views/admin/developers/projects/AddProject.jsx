@@ -50,6 +50,16 @@ const AddProject = ({ isOpen, onClose, refetch }) => {
       refetch();
     } catch (err) {
       toast.error(err?.data?.message || "Project creating fail!");
+      const errorMsg =
+        err?.data?.message || "Failed to creating task. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Task",
+        entityType: "TaskV2",
+        status: err?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

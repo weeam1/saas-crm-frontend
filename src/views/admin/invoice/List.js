@@ -30,6 +30,7 @@ import Weam from "../../../assets/img/Invoice/weam.png";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "react-toastify";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const SingleInvoice = () => {
   const navigate = useNavigate();
@@ -47,6 +48,8 @@ const SingleInvoice = () => {
   } = useFetchItemsQuery({
     path: `/invoices/${id}`,
   });
+
+    const { createUserLog } = useUserActivityLog();
 
   const invoices = invoiceData?.data?.entries || [];
   const totals = {
@@ -66,6 +69,31 @@ const SingleInvoice = () => {
   const developerData = invoiceData?.data?.developer || {};
   const bankAccountData = invoiceData?.data?.bank_account || {};
 
+
+     useEffect(() => {
+      if (invoiceData?.data) {
+        createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Invoice",
+        entityType: "Invoice",
+        entityId: id,
+        status: "success",
+        message: `${user?.fullName} viewed invoice .`,
+        });
+      }
+      if (!invoiceData?.data && !invoiceLoading && invoiceError) {
+        createUserLog({
+        userId: user?._id,
+        action: "VIEW",
+        entity: "Invoice",
+        entityType: "Invoice",
+        entityId: id,
+        status: "error",
+        message: `${user?.fullName} attempted to view Invoice, but it was not found.`,
+        });
+      }
+      }, [invoiceData]);
   const downloadInvoice = async () => {
     try {
       const response = await downloadInvoiceMutation({

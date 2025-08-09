@@ -226,6 +226,16 @@ const AddListing = () => {
       } catch (error) {
         console.error(error);
         toast.error(error.data?.message || "Failed to add listing");
+        const errorMsg =
+          error?.data?.message || "Failed to add listing. Please try again.";
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Listing",
+          entityType: "SecondaryListing",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       } finally {
         setSubmitting(false);
       }

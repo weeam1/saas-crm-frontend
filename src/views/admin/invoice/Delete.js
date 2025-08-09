@@ -48,7 +48,7 @@ const Delete = (props) => {
           entityType: "Invoice",
           entityId: response?.data?.invoice._id,
           status: "success",
-          message: `"${user?.fullName}" deleted the many invoice entry.`,
+          message: `"${user?.fullName}" deleted the many invoice.`,
         });
         toast.success(`${props.data.length} invoice(s) deleted successfully!`);
       } else if (props.method === "one" && props.id) {
@@ -65,7 +65,7 @@ const Delete = (props) => {
           entityType: "Invoice",
           entityId: response?.data?.invoice._id,
           status: "success",
-          message: `"${user?.fullName}" deleted the invoice entry.`,
+          message: `"${user?.fullName}" deleted the invoice.`,
         });
       } else {
         console.error("Invalid delete props:", props);

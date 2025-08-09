@@ -33,6 +33,7 @@ import { jsPDF } from 'jspdf';
 import { toast } from 'react-toastify';
 import { IoArrowBack } from 'react-icons/io5';
 import AppButton from 'components/shared/AppButton';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const SingleInvoice = () => {
 	const navigate = useNavigate();
@@ -51,6 +52,8 @@ const SingleInvoice = () => {
 		path: `/invoices/${id}`,
 	});
 
+	const { createUserLog } = useUserActivityLog();
+
 	const invoices = invoiceData?.data?.entries || [];
 	const invoiceSetting = invoiceData?.invoiceSetting || {};
 
@@ -67,6 +70,31 @@ const SingleInvoice = () => {
 	const invoiceNumber = invoiceData?.data?.invoiceNo || '-';
 	const developerData = invoiceData?.data?.developer || {};
 	const bankAccountData = invoiceData?.data?.bank_account || {};
+
+	useEffect(() => {
+		if (invoiceData?.data) {
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Invoice',
+				entityType: 'Invoice',
+				entityId: invoiceData?.data?._id || null,
+				status: 'success',
+				message: `${user?.fullName} viewed invoice.`,
+			});
+		}
+		if (!invoiceData?.data && !invoiceLoading && invoiceError) {
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Invoice',
+				entityType: 'Invoice',
+				entityId: invoiceData?.data?._id || null,
+				status: 'error',
+				message: `${user?.fullName} attempted to view Invoice, but it was not found.`,
+			});
+		}
+	}, [invoiceData]);
 
 	const downloadInvoice = async () => {
 		try {
@@ -155,7 +183,6 @@ const SingleInvoice = () => {
 		setSelectedId(id);
 		setAction('edit');
 	};
-
 	return (
 		<Box fontFamily="'DM Sans', sans-serif">
 			<AppButton leftIcon={<IoArrowBack />} onClick={goBack} mb='4'>

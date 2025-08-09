@@ -129,7 +129,18 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       refetchSummary();
     } catch (error) {
       console.error(error);
-      toast.error(error.data.message || "Lead not added");
+      toast.error(error.data.message || "outgoing expense not added");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to add outgoing expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Outgoing_Expense",
+        entityType: "Expense",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 

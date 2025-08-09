@@ -270,6 +270,16 @@ const AddUser = (props) => {
         onClose();
       }
     } catch (e) {
+      const errorMsg =
+        e?.data?.message || "Failed to created developer. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Developer",
+        entityType: "Developer",
+        status: e?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
       if (e?.data?.message) {
         toast.error(e?.data?.message);
       } else if (e?.data?.error) {

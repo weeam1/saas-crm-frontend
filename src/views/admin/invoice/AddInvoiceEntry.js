@@ -190,7 +190,6 @@ const AddEntryModal = (props) => {
 			if (props.onSuccess) props.onSuccess(invoiceId);
 
 			setShowConfirmation(true);
-
 			createUserLog({
 				userId: user?._id,
 				action: 'CREATE',
