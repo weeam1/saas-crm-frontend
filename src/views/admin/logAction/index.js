@@ -362,18 +362,6 @@ const LogTable = () => {
                 borderBottomWidth="1px"
                 borderBottomColor={headerBorderColor}
                 whiteSpace="nowrap"
-                textAlign={"center"}
-              >
-                <Text fontSize="xs">SR.No</Text>
-              </Th>
-              <Th
-                color="white"
-                fontSize="xs"
-                borderRightWidth="1px"
-                borderRightColor={headerBorderColor}
-                borderBottomWidth="1px"
-                borderBottomColor={headerBorderColor}
-                whiteSpace="nowrap"
               >
                 <Text fontSize="xs">User</Text>
               </Th>
@@ -465,7 +453,6 @@ const LogTable = () => {
             {isLoading || isFetching ? (
               <TableLoading
                 columns={[
-                  "Sr.No",
                   "User",
                   "Action",
                   "Status",
@@ -495,21 +482,6 @@ const LogTable = () => {
                     }}
                     cursor="pointer"
                   >
-                    <Td
-                      py={2}
-                      px={4}
-                      fontSize="xs"
-                      borderRightWidth="1px"
-                      borderRightColor={bodyBorderColor}
-                      borderBottomWidth="1px"
-                      borderBottomColor={bodyBorderColor}
-                      overflow="hidden"
-                      textOverflow="ellipsis"
-                      whiteSpace="nowrap"
-                      textAlign={"center"}
-                    >
-                      {index + 1}
-                    </Td>
                     <Td
                       py={2}
                       px={4}
