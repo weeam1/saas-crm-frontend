@@ -18,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { FiX, FiUser } from "react-icons/fi";
 import { formatPostDate } from "utils/helpers";
-
+import DeviceInfoRow from "./DeviceInfoRow";
 const LogDetailsDrawer = ({
   isOpen,
   onClose,
@@ -192,46 +192,29 @@ const LogDetailsDrawer = ({
                 Device Information
               </Text>
               <SimpleGrid columns={2} spacing={4}>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Browser
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.browser}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Browser Version
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.browserVersion}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Os
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.os}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Os Version
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.osVersion}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Device
-                  </Text>
-                  <Text fontWeight="medium" color={textColor} fontSize="xs">
-                    {selectedLog.metadata.device}
-                  </Text>
-                </Box>
+                <DeviceInfoRow
+                  value={selectedLog.metadata.browser}
+                  label="Browser"
+                  iconColor={grayColors.primary}
+                />
+                <DeviceInfoRow
+                  value={selectedLog.metadata.browserVersion}
+                  label="Browser Version"
+                />
+                <DeviceInfoRow
+                  value={selectedLog.metadata.os}
+                  label="OS"
+                  iconColor={grayColors.primary}
+                />
+                <DeviceInfoRow
+                  value={selectedLog.metadata.osVersion}
+                  label="OS Version"
+                />
+                <DeviceInfoRow
+                  value={selectedLog.metadata.device}
+                  label="Device"
+                  iconColor={grayColors.primary}
+                />
               </SimpleGrid>
             </Box>
           </Stack>
