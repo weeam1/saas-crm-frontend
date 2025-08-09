@@ -81,6 +81,10 @@ class SocketService {
 				);
 			});
 
+			this.socket.on('activity_log_created', (data) => {
+				console.log('Activity: ', data);
+			});
+
 			// Connection error
 			this.socket.on('connect_error', (error) => {
 				this.connectionStatus = 'error';
