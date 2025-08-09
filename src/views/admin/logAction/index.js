@@ -15,8 +15,9 @@ import {
   IconButton,
   useColorMode,
   Heading,
+  Stack,
 } from "@chakra-ui/react";
-import { FiFilter, FiUser } from "react-icons/fi";
+import { FiFilter, FiUser, FiRefreshCw } from "react-icons/fi";
 import { motion } from "framer-motion";
 import TopPagination from "components/pagination/TopPagination";
 import { useFetchItemsQuery } from "api/apiSlice";
@@ -132,7 +133,7 @@ const LogTable = () => {
     return params;
   };
 
-  const { data, isLoading, isFetching, error } = useFetchItemsQuery(
+  const { data, isLoading, isFetching, error, refetch } = useFetchItemsQuery(
     {
       path: "/logs/user_activities",
       params: buildQueryParams(),
@@ -239,31 +240,31 @@ const LogTable = () => {
     const levelColor = getLevelColor(levelValue);
 
     return (
-        <Flex
-          borderWidth="1px"
-          borderColor="gray.300"
-          borderRadius="sm"
-          p="2px"
-          w="80px"
-          h={`calc(${boxHeight} + 4px)`}
-          alignItems="center"
-          bg="white"
-        >
-          <Flex width="100%" justify="space-between" gap="2px">
-            {Array.from({ length: maxLevel }).map((_, index) => (
-              <Box
-                key={index}
-                flex="1"
-                minWidth="0"
-                h={boxHeight}
-                borderRadius="sm"
-                bg={index < levelValue ? levelColor : "gray.100"}
-                borderWidth="1px"
-                borderColor={index < levelValue ? levelColor : "gray.300"}
-              />
-            ))}
-          </Flex>
+      <Flex
+        borderWidth="1px"
+        borderColor="gray.300"
+        borderRadius="sm"
+        p="2px"
+        w="80px"
+        h={`calc(${boxHeight} + 4px)`}
+        alignItems="center"
+        bg="white"
+      >
+        <Flex width="100%" justify="space-between" gap="2px">
+          {Array.from({ length: maxLevel }).map((_, index) => (
+            <Box
+              key={index}
+              flex="1"
+              minWidth="0"
+              h={boxHeight}
+              borderRadius="sm"
+              bg={index < levelValue ? levelColor : "gray.100"}
+              borderWidth="1px"
+              borderColor={index < levelValue ? levelColor : "gray.300"}
+            />
+          ))}
         </Flex>
+      </Flex>
     );
   };
 
@@ -296,7 +297,10 @@ const LogTable = () => {
   const transformLogData = (log) => ({
     ...log,
     userName: log.user?.fullName || log.user?.username || "Unknown User",
-    role: (log.user.role === "superAdmin"? log.user.role : log.user?.roles?.[0]?.roleName ) || "N/A",
+    role:
+      (log.user.role === "superAdmin"
+        ? log.user.role
+        : log.user?.roles?.[0]?.roleName) || "N/A",
     securityLevel: log?.securityLevel || 1,
     metadata: {
       ip: log.metadata?.ip || "N/A",
@@ -315,11 +319,25 @@ const LogTable = () => {
 
   return (
     <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
-      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+      <Stack
+        direction={{ base: "column", sm: "row" }}
+        justifyContent="space-between"
+        alignItems={{ base: "flex-start", sm: "center" }}
+        mb={4}
+        spacing={2}
+      >
         <Heading as="h3" size="md" fontWeight="bold" color={grayColors.primary}>
           System Log ({displayCount})
         </Heading>
-      </Flex>
+        <IconButton
+          icon={<FiRefreshCw />}
+          aria-label="Refresh logs"
+          onClick={() => refetch()}
+          isLoading={isFetching}
+          variant="outline"
+          size="sm"
+        />
+      </Stack>
 
       <Box mb={1}>
         <TopPagination
