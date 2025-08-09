@@ -342,6 +342,7 @@ const LogTable = () => {
         overflowX="auto"
         sx={scrollbarStyles}
         bg="white"
+        h={"75vh"}
       >
         <Table variant="simple" size="sm" layout="fixed">
           <Thead
@@ -624,7 +625,7 @@ const LogTable = () => {
               <Tr borderColor="gray.200" textAlign="center">
                 <Td
                   borderBottom="none"
-                  colSpan="7"
+                  colSpan="20"
                   fontSize={{ base: "12px", md: "15px" }}
                   fontWeight="500"
                   color="gray.500"
