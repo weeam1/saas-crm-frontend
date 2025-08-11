@@ -197,15 +197,17 @@ const ShortListed = ({
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
 
-		createUserLog({
-			userId: user?._id,
-			action: 'VIEW',
-			entity: 'Hiring',
-			entityType: 'Application',
-			entityId: candidate._id,
-			status: 'success',
-			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
-		});
+		if (selectedCandidate) {
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: selectedCandidate?._id,
+				status: 'success',
+				message: `Candidate ${selectedCandidate?.name}’s details viewed by ${user?.fullName}.`,
+			});
+		}
 	};
 
 	const handleArrangeInterview = async (id) => {
