@@ -1,32 +1,29 @@
-import { useState, lazy, Suspense } from 'react';
-import Loader from 'components/loading/Loader';
-import ToggleSwitch from './TogleSwitch';
-import { VStack } from '@chakra-ui/react';
-import PageSizeAlert from './components/subComponents/PageSizeAlert';
+import { useState, lazy, Suspense } from "react";
+import Loader from "components/loading/Loader";
+import ToggleSwitch from "./TogleSwitch";
+import { VStack } from "@chakra-ui/react";
+import PageSizeAlert from "./components/subComponents/PageSizeAlert";
 
-const LeadsCards = lazy(() => import('./LeadsCards'));
-const LeadsTable = lazy(() => import('./../lead'));
+const LeadsCards = lazy(() => import("./LeadsCards"));
+const LeadsTable = lazy(() => import("./../lead"));
 
 const Index = () => {
-	const [isTableView, setIsTableView] = useState(() => {
-		return localStorage.getItem('leadViewMode') === 'table';
-	});
+  const [view, setView] = useState(() => {
+    return localStorage.getItem("leadViewMode") || "grid";
+  });
+  const handleViewChange = (newView) => {
+    setView(newView);
+    localStorage.setItem("leadViewMode", newView);
+  };
 
-	const handleToggle = () => {
-		const newView = !isTableView;
-		setIsTableView(newView);
-		localStorage.setItem('leadViewMode', newView ? 'table' : 'cards');
-	};
-
-	return (
-		<VStack justifyContent='flex-start' gap='2'>
-			{!isTableView && <PageSizeAlert />}
-			<ToggleSwitch handleToggle={handleToggle} isTableView={isTableView} />
-			<Suspense fallback={<Loader />}>
-				{isTableView ? <LeadsTable /> : <LeadsCards />}
-			</Suspense>
-		</VStack>
-	);
+  return (
+    <VStack justifyContent="flex-start" gap="2">
+      {view !== "table" && <PageSizeAlert />}
+      <Suspense fallback={<Loader />}>
+        {view === "table" ? <LeadsTable handleView={handleViewChange} view={view}/> : <LeadsCards handleView={handleViewChange} view={view}/>}
+      </Suspense>
+    </VStack>
+  );
 };
 
 export default Index;

@@ -6,7 +6,7 @@ import DateFilterButton from "views/admin/lead-v2/components/DateFilterButton";
 import DateFilter from "./FilterComponent/DateFilter";
 import { formatDNS } from "utils/helpers";
 import SearchTags from "components/search/SearchTags";
-import ViewToggle from "./ViewToggle";
+import ViewToggle from "components/toggle/ViewToggle";
 
 const FilterSearch = ({
   currentPage,
@@ -77,7 +77,7 @@ const FilterSearch = ({
         width="100%"
       >
         <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
-        <ViewToggle view={view} handleView={handleViewChange} />
+        <ViewToggle view={view} handleView={handleViewChange} moduleView= "surveysView"/>
         {isModalOpen && (
           <DateFilter
             isOpen={isModalOpen}

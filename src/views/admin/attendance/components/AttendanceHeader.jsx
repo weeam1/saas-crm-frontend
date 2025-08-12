@@ -14,7 +14,7 @@ import { buttonStyle } from '../constants';
 import { BiX } from 'react-icons/bi';
 import { FiFilter } from 'react-icons/fi';
 import DateFilter from './DateFilter';
-import ViewToggle from './ViewToggle';
+import ViewToggle from "components/toggle/ViewToggle";
 
 const AttendanceHeader = ({
 	title,
@@ -124,7 +124,7 @@ const AttendanceHeader = ({
 					)}
 
 					{content.includes('view') && (
-						<ViewToggle view={view} handleView={handleView} />
+						<ViewToggle view={view} handleView={handleView} moduleView ="employeesView"/>
 					)}
 
 					{searchClear && (

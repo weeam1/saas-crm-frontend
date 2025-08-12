@@ -1,69 +1,62 @@
-import { Switch, Text, Flex, Icon } from '@chakra-ui/react';
-import { FaTable, FaThLarge } from 'react-icons/fa';
+import { useEffect } from 'react';
+import { IconButton, HStack, Tooltip } from '@chakra-ui/react';
+import { FaThLarge, FaTable } from 'react-icons/fa';
 
-const ToggleSwitch = ({ isTableView, handleToggle }) => {
-	return (
-		<Flex
-			align='center'
-			bg='white'
-			p={3}
-			borderRadius='md'
-			alignSelf='end'
-			boxShadow='sm'
-			w='fit-content'
-			fontFamily="'DM Sans', sans-serif"
-		>
-			{/* Cards View */}
-			<Flex
-				align='center'
-				gap={2}
-				cursor='pointer'
-				onClick={() => !isTableView && handleToggle()}
-			>
-				<Icon
-					as={FaThLarge}
-					boxSize={4}
-					color={!isTableView ? 'brand.500' : 'gray.500'}
-				/>
-				<Text
-					fontSize='md'
-					fontWeight='medium'
-					color={!isTableView ? 'brand.600' : 'gray.500'}
-				>
-					Cards
-				</Text>
-			</Flex>
+const icons = [
+  { label: 'Grid View', icon: FaThLarge, value: 'grid' },
+  { label: 'Table View', icon: FaTable, value: 'table' },
+];
 
-			{/* Toggle Switch */}
-			<Switch
-				colorScheme='brand'
-				isChecked={isTableView}
-				onChange={handleToggle}
-				mx={4}
-			/>
+const ViewToggle = ({ view, handleView }) => {
+  useEffect(() => {
+    localStorage.setItem('employeesView', view);
+  }, [view]);
 
-			{/* Table View */}
-			<Flex
-				align='center'
-				gap={2}
-				cursor='pointer'
-				onClick={() => isTableView && handleToggle()}
-			>
-				<Icon
-					as={FaTable}
-					boxSize={4}
-					color={isTableView ? 'brand.500' : 'gray.500'}
-				/>
-				<Text
-					fontSize='md'
-					fontWeight='medium'
-					color={isTableView ? 'brand.600' : 'gray.500'}
-				>
-					Table
-				</Text>
-			</Flex>
-		</Flex>
-	);
+  const renderButton = ({ label, icon: Icon, value }) => {
+    const isActive = view === value;
+
+    return (
+      <Tooltip key={value} label={label} hasArrow>
+        <IconButton
+          aria-label={label}
+          icon={<Icon size={12} />} // Smaller icon size
+          size='xs' // Extra small size
+          variant='ghost' // Always use ghost variant
+          rounded='md'
+          colorScheme='gray'
+          onClick={() => handleView(value)}
+          width={isActive ? '36px' : '30px'} // Wider when active
+          height='24px' // Fixed height
+          minW={isActive ? '36px' : '30px'} // Prevent content-based sizing
+          bg={isActive ? 'gray.700' : 'transparent'}
+          color={isActive ? 'white' : 'gray.600'}
+          _active={{
+            bg: 'gray.700',
+            color: 'white',
+            width: '36px'
+          }}
+          _hover={{
+            bg: isActive ? 'gray.700' : 'gray.200',
+            color: isActive ? 'white' : 'gray.700',
+          }}
+          transition='all 0.2s ease' // Smooth transitions
+        />
+      </Tooltip>
+    );
+  };
+
+  return (
+    <HStack 
+      spacing={1} 
+      bg='gray.50'
+      px='1'
+      py='1'
+      rounded='md'
+      height='32px' // More compact container
+    >
+      {icons.map(renderButton)}
+    </HStack>
+  );
 };
 
-export default ToggleSwitch;
+export default ViewToggle;
