@@ -175,7 +175,12 @@ const DevelopersTableView = ({
                     );
                   } else if (column.Header === "Address") {
                     cellData = (
-                      <Text fontSize="sm" fontWeight="700">
+                      <Text
+                        whiteSpace="wrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
                         {row.address || "N/A"}
                       </Text>
                     );
