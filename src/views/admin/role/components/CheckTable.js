@@ -99,7 +99,7 @@ export default function CheckTable(props) {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 10 }, 
+      initialState: { pageIndex: 0, pageSize: 10 },
     },
     useGlobalFilter,
     useSortBy,
@@ -139,7 +139,7 @@ export default function CheckTable(props) {
         overflowX={{ sm: "scroll", lg: "hidden" }}
       >
         <Flex
-         justifyContent={{base:"center", sm: "center" , md: "space-between"}}
+          justifyContent={{ base: "center", sm: "center", md: "space-between" }}
           mb={3}
           flexWrap="wrap"
           alignItems={"center"}
@@ -162,17 +162,17 @@ export default function CheckTable(props) {
               </Text>
             </Flex>
           </GridItem>
-            <Button
-              onClick={() => setAddRoleModal(true)}
-              variant="brand"
-              size="sm"
-              leftIcon={<AddIcon />}
-              mb={{ base: 2, md: 0 }}
-              borderRadius={"md"}
-            >
-              Add New
-            </Button>
-            {/* <Button
+          <Button
+            onClick={() => setAddRoleModal(true)}
+            variant="brand"
+            size="sm"
+            leftIcon={<AddIcon />}
+            mb={{ base: 2, md: 0 }}
+            borderRadius={"md"}
+          >
+            Add New
+          </Button>
+          {/* <Button
               onClick={() => navigate("/admin-setting")}
               variant="brand"
               size="sm"
@@ -180,9 +180,7 @@ export default function CheckTable(props) {
             >
               Back
             </Button> */}
-  
         </Flex>
-     
 
         <Box
           borderRadius="4px"
@@ -322,6 +320,21 @@ export default function CheckTable(props) {
                               >
                                 {cell?.value}
                               </Text>
+                            );
+                          } else if (cell?.column.Header === "Action") {
+                            data = (
+                              <Button
+                                size="sm"
+                                borderRadius={"md"}
+                                colorScheme="brand"
+                                onClick={() =>
+                                  navigate(
+                                    `/user-permission/${cell?.row?.original?._id}`
+                                  )
+                                }
+                              >
+                                View Permission
+                              </Button>
                             );
                           }
                           return (

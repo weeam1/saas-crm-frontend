@@ -20,7 +20,8 @@ const Index = () => {
     },
 
     { Header: "Role Name", accessor: "roleName" },
-    { Header: "Description", accessor: "description" }
+    { Header: "Description", accessor: "description" },
+    { Header: "Action", accessor: "action"}
   ];
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const [action, setAction] = useState(false);
