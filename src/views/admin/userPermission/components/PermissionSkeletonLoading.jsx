@@ -11,10 +11,6 @@ const PermissionSkeletonLoading = ({ count = 2 }) => {
       {Array.from({ length: count }).map((_, i) => (
         <Box
           key={i}
-          borderWidth="1px"
-          borderColor="gray.200"
-          borderRadius="md"
-          bg="blue.50"
           p={4}
           w="100%"
         >

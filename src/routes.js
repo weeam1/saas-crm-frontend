@@ -734,7 +734,7 @@ const routes = [
   {
     name: "User Permission",
     layout: [ROLE_PATH.superAdmin],
-    path: "/user-permission/:id",
+    path: "/user-permission/:id/:roleName",
     under: "role",
     component: UserPermission,
   },

@@ -329,7 +329,7 @@ export default function CheckTable(props) {
                                 colorScheme="brand"
                                 onClick={() =>
                                   navigate(
-                                    `/user-permission/${cell?.row?.original?._id}`
+                                    `/user-permission/${cell?.row?.original?._id}/${cell?.row?.original?.roleName}`
                                   )
                                 }
                               >
