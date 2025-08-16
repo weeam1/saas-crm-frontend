@@ -11,6 +11,8 @@ import {
   Divider,
   Flex,
   SimpleGrid,
+  Switch,
+  useTheme,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -21,7 +23,8 @@ import PermissionSkeletonLoading from "./components/PermissionSkeletonLoading";
 const Permission = () => {
   const { id } = useParams();
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  const cardBg = useColorModeValue("blue.50", "gray.700");
+  const disabledBorderColor = useColorModeValue("gray.300", "gray.500");
+  const disabledTextColor = useColorModeValue("gray.400", "gray.500");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [modules, setModules] = useState([]);
@@ -56,13 +59,15 @@ const Permission = () => {
 
         return {
           ...roleModule,
+          isModuleEnabled: userModule?.isModuleEnabled ?? false,
           actions: roleModule.actions.map((action) => ({
             ...action,
             isAllowed:
+              userModule?.isModuleEnabled &&
               userModule?.actions?.some(
                 (ua) =>
                   ua.actionKey === action.actionKey && ua.isAllowed === true
-              ) || false,
+              ),
           })),
         };
       });
@@ -70,6 +75,16 @@ const Permission = () => {
       setModules(mergedModules);
     }
   }, [RolePermission, UserRolePermission]);
+
+  const handleModuleToggle = (index, checked) => {
+    const updatedModules = [...modules];
+    updatedModules[index].isModuleEnabled = checked;
+    updatedModules[index].actions = updatedModules[index].actions.map((a) => ({
+      ...a,
+      isAllowed: checked ? a.isAllowed : false,
+    }));
+    setModules(updatedModules);
+  };
 
   const handleSelectAll = (index, checked) => {
     const updatedModules = [...modules];
@@ -89,7 +104,7 @@ const Permission = () => {
 
   const handleUpdateRole = async () => {
     try {
-      const response = await updateItem({
+      await updateItem({
         path: `role-access/update/${id}`,
         body: { permissions: modules },
       }).unwrap();
@@ -107,12 +122,11 @@ const Permission = () => {
     <Box borderRadius="xl" boxShadow="lg" bg={"white"} p={6}>
       {/* Header */}
       <Heading mb={6} size="md">
-        Role Permission
+        Role Permissions
       </Heading>
 
       {/* Search Section */}
       <Box mb={4}>
-        <Divider mb={2} />
         <HStack
           mb={2}
           display="flex"
@@ -152,7 +166,9 @@ const Permission = () => {
             base: "1fr",
             md: "repeat(2, 1fr)",
           }}
+          templateRows={"1fr"}
           gap={6}
+          alignItems="stretch"
         >
           {filteredModules.map((module, moduleIndex) => (
             <Box
@@ -160,54 +176,107 @@ const Permission = () => {
               borderWidth="1px"
               borderColor={borderColor}
               borderRadius="md"
-              bg={cardBg}
+              bg="gray.100"
               p={4}
-              w="100%"
             >
-              {/* Card Header */}
-              <Flex justify="space-between" align="center" mb={2}>
+              {/* Toggle for Module Enable at bottom */}
+              <Flex justify="flex-start" mb={2} mt={"-2px"}>
+                <Text fontSize="sm" mr={2} color="gray.700">
+                  Disable
+                </Text>
+                <Switch
+                  colorScheme="green"
+                  size="md"
+                  isChecked={module.isModuleEnabled}
+                  onChange={(e) =>
+                    handleModuleToggle(moduleIndex, e.target.checked)
+                  }
+                  _focus={{ boxShadow: "none" }}
+                  _active={{ boxShadow: "none" }}
+                />
+                <Text fontSize="sm" ml={2} color="gray.700">
+                  Enable
+                </Text>
+              </Flex>
+              {/* Module title and Check All in one row */}
+              <Flex
+                justify="space-between"
+                align="center"
+                mb={2}
+                flexWrap="wrap"
+                gap={2}
+              >
                 <Text
                   fontWeight="bold"
                   fontSize={{ base: "sm", md: "md" }}
                   display="flex"
-                  gap={{ base: 0, md: 2 }}
-                  flexDir={{ base: "column", md: "row" }}
+                  gap={2}
+                  flexDir="row"
+                  align="center"
                 >
                   {module.moduleName}
                   <Text fontSize="sm" color="gray" fontWeight="medium">
                     Permission
                   </Text>
                 </Text>
+
                 <Checkbox
-                  size="sm"
-                  borderColor="blue.300"
-                  _checked={{ borderColor: "blue.300" }}
+                  size="md"
+                  colorScheme="green"
+                  borderColor={module.isModuleEnabled ? "green.300" : disabledBorderColor}
+                  _focus={{ boxShadow: "none" }}
+                  _active={{ boxShadow: "none" }}
+                  _hover={{ borderColor: module.isModuleEnabled ? "green.300" : disabledBorderColor }}
                   isChecked={module.actions.every((a) => a.isAllowed)}
                   onChange={(e) =>
                     handleSelectAll(moduleIndex, e.target.checked)
                   }
+                  isDisabled={!module.isModuleEnabled}
+                  sx={{
+                    '& .chakra-checkbox__control': {
+                      borderColor: !module.isModuleEnabled ? disabledBorderColor : undefined,
+                    },
+                    '&[data-disabled]': {
+                      opacity: 1,
+                    }
+                  }}
                 >
-                  Check All
+                  <Text color={!module.isModuleEnabled ? disabledTextColor : "inherit"}>
+                    Check All
+                  </Text>
                 </Checkbox>
               </Flex>
 
-              <Divider mb={3} />
+              <Divider my={3} />
 
               {/* Actions Grid */}
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2} flex="1">
                 {module.actions.map((action, actionIndex) => (
                   <Checkbox
                     key={action.actionKey}
-                    borderColor="blue.300"
-                    _checked={{ borderColor: "blue.300" }}
+                    size="md"
+                    colorScheme="green"
+                    borderColor={module.isModuleEnabled ? "green.300" : disabledBorderColor}
+                    _focus={{ boxShadow: "none" }}
+                    _active={{ boxShadow: "none" }}
+                    _hover={{ borderColor: module.isModuleEnabled ? "green.300" : disabledBorderColor }}
                     isChecked={action.isAllowed}
                     onChange={() =>
                       handleActionToggle(moduleIndex, actionIndex)
                     }
-                    colorScheme="blue"
-                    fontSize={{ base: "sm", md: "md" }}
+                    isDisabled={!module.isModuleEnabled}
+                    sx={{
+                      '& .chakra-checkbox__control': {
+                        borderColor: !module.isModuleEnabled ? disabledBorderColor : undefined,
+                      },
+                      '&[data-disabled]': {
+                        opacity: 1,
+                      }
+                    }}
                   >
-                    {action.name}
+                    <Text color={!module.isModuleEnabled ? disabledTextColor : "inherit"}>
+                      {action.name}
+                    </Text>
                   </Checkbox>
                 ))}
               </SimpleGrid>
@@ -221,6 +290,8 @@ const Permission = () => {
           colorScheme="brand"
           onClick={handleUpdateRole}
           borderRadius="md"
+          _focus={{ boxShadow: "none" }}
+          _active={{ boxShadow: "none" }}
         >
           Update Role
         </Button>
