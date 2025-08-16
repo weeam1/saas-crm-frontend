@@ -227,7 +227,6 @@ const Permission = () => {
             templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
             gap={6}
             mx="auto"
-            p={4}
             alignItems="start"
           >
             {/* Column 1 - Even indexed modules */}
