@@ -17,6 +17,7 @@ import useFilteredQueryParams from '../useFilteredQueryParams';
 import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
 import SearchTags from 'components/search/SearchTags';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Leads = ({
 	data,
@@ -45,6 +46,8 @@ const Leads = ({
 		'Email',
 		'Call',
 	]);
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		currentPage,
@@ -228,7 +231,7 @@ const Leads = ({
 				>
 					{searchTags?.length === 0 &&
 						selectedValues.length > 0 &&
-						permission?.delete && (
+						(hasPermission('leads', 'bulkDelete') || permission?.delete) && (
 							<Button
 								{...buttonStyle}
 								variant='solid'

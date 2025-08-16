@@ -22,13 +22,15 @@ import { useColorMode } from '@chakra-ui/react';
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import jwtDecode from 'jwt-decode';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import webSocketService from 'services/WebSocketService';
 
 import NotificationIcon from './notifications/NotificationIcon';
 import { constant } from 'constant';
 import DigitalClockDropdown from './clock/DigitalClockDropdown;';
+import { buildPermissionMap } from 'utils/permissionUtils';
+import { setPermissions } from '../../redux/permissionSlice';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -60,6 +62,8 @@ export default function HeaderLinks(props) {
 
 	const userId = localUser?._id;
 
+	const dispatch = useDispatch();
+
 	const fetchData = async () => {
 		try {
 			let response = await getApi('api/user/view/', userId);
@@ -73,10 +77,21 @@ export default function HeaderLinks(props) {
 					logOut();
 				}
 
-				setLoginUser(response.data);
+				const userData = {
+					...response.data,
+					roleName:
+						response.data?.roles?.[0]?.roleName ||
+						response.data?.role ||
+						'user',
+				};
 
-				// store user data in sessionStorage
-				sessionStorage.setItem('user', JSON.stringify(response.data));
+				console.log({ userData });
+
+				setLoginUser(userData);
+
+				// build the permission map and store in redux store
+				const permissionMap = buildPermissionMap(userData);
+				dispatch(setPermissions(permissionMap));
 			}
 		} catch (error) {
 			console.error('Error fetching user:', error);

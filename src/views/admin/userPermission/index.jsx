@@ -306,27 +306,12 @@ const Permission = () => {
                           ? disabledBorderColor
                           : undefined,
                       },
-                      _focus: {
-                        boxShadow: "none",
-                      },
-                      _active: {
-                        boxShadow: "none",
-                      },
-                      _checked: {
-                        boxShadow: "none",
-                      },
-                      "&[data-disabled]": {
-                        opacity: 1,
-                      },
-                      "&[data-focus]": {
-                        boxShadow: "none",
-                      },
-                      "&[data-checked]": {
-                        boxShadow: "none",
-                      },
-                      "&[data-active]": {
-                        boxShadow: "none",
-                      },
+                     ".chakra-checkbox__control": {
+                          _focus: {
+                            boxShadow: "0 0 0 2px",
+                            borderColor: "brand.500",
+                          },
+                        },
                     }}
                   >
                     <Text
@@ -371,27 +356,11 @@ const Permission = () => {
                             ? disabledBorderColor
                             : undefined,
                         },
-                        "&[data-disabled]": {
-                          opacity: 1,
-                        },
-                        "&[data-focus]": {
-                          boxShadow: "none",
-                        },
-                        "&[data-checked]": {
-                          boxShadow: "none",
-                        },
-                        "&[data-active]": {
-                          boxShadow: "none",
-                        },
-                        _focus: {
-                          boxShadow: "none",
-                          outline:"none"
-                        },
-                        _active: {
-                          boxShadow: "none",
-                        },
-                        _checked: {
-                          boxShadow: "none",
+                        ".chakra-checkbox__control": {
+                          _focus: {
+                            boxShadow: "0 0 0 2px",
+                            borderColor: "brand.500",
+                          },
                         },
                       }}
                     >
