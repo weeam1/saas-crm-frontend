@@ -1,7 +1,6 @@
 import {
   Box,
   Heading,
-  Checkbox,
   Button,
   Text,
   Grid,
@@ -9,9 +8,6 @@ import {
   HStack,
   Input,
   Divider,
-  Flex,
-  SimpleGrid,
-  Switch,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -47,7 +43,6 @@ const Permission = () => {
       { refetchOnMountOrArgChange: true }
     );
 
-  // Merge role modules with user permissions
   useEffect(() => {
     if (RolePermission?.doc && UserRolePermission?.doc) {
       const roleModules = Array.isArray(RolePermission.doc)
@@ -68,12 +63,9 @@ const Permission = () => {
           isModuleEnabled: userModule?.isModuleEnabled ?? false,
           actions: roleModule.actions.map((action) => ({
             ...action,
-            isAllowed:
-              userModule?.isModuleEnabled &&
-              userModule?.actions?.some(
-                (ua) =>
-                  ua.actionKey === action.actionKey && ua.isAllowed === true
-              ),
+            isAllowed: userModule?.actions?.some(
+              (ua) => ua.actionKey === action.actionKey && ua.isAllowed === true
+            ),
           })),
         };
       });
@@ -83,18 +75,12 @@ const Permission = () => {
     }
   }, [RolePermission, UserRolePermission]);
 
-  // Toggle whole module
   const handleModuleToggle = (index, checked) => {
     const updatedModules = [...modules];
     updatedModules[index].isModuleEnabled = checked;
-    // updatedModules[index].actions = updatedModules[index].actions.map((a) => ({
-    //   ...a,
-    //   isAllowed: checked ? a.isAllowed : false,
-    // }));
     setModules(updatedModules);
   };
 
-  // Select all actions
   const handleSelectAll = (index, checked) => {
     const updatedModules = [...modules];
     updatedModules[index].actions = updatedModules[index].actions.map((a) => ({
@@ -104,7 +90,6 @@ const Permission = () => {
     setModules(updatedModules);
   };
 
-  // Toggle single action
   const handleActionToggle = (moduleIndex, actionIndex) => {
     const updatedModules = [...modules];
     updatedModules[moduleIndex].actions[actionIndex].isAllowed =
@@ -112,50 +97,31 @@ const Permission = () => {
     setModules(updatedModules);
   };
 
-  // Compare original and updated modules -> return only changed ones
-  const getChangedModules = () => {
-    return modules
-      .map((module, i) => {
-        const original = originalModules[i];
-        if (!original) return module;
+  const getPayloadModules = () => {
+    return modules.map((module) => {
+      const allowedActions = module.actions
+        .filter((a) => a.isAllowed)
+        .map((a) => ({
+          actionKey: a.actionKey,
+          isAllowed: true,
+        }));
 
-        // Check if module enabled changed
-        const moduleChanged =
-          module.isModuleEnabled !== original.isModuleEnabled;
-
-        // Find changed actions
-        const changedActions = module.actions.filter((a, idx) => {
-          return a.isAllowed !== original.actions[idx]?.isAllowed;
-        });
-
-        if (moduleChanged || changedActions.length > 0) {
-          return {
-            moduleId: module.moduleId,
-            moduleName: module.moduleName,
-            isModuleEnabled: module.isModuleEnabled,
-            actions:
-              changedActions.length > 0 ? changedActions : module.actions,
-          };
-        }
-
-        return null;
-      })
-      .filter(Boolean);
+      return {
+        moduleId: module.moduleId,
+        moduleName: module.moduleName,
+        isModuleEnabled: module.isModuleEnabled,
+        actions: allowedActions,
+      };
+    });
   };
 
-  // Update role with only changed modules
   const handleUpdateRole = async () => {
-    const changedModules = getChangedModules();
-
-    if (changedModules.length === 0) {
-      toast.info("No changes detected.");
-      return;
-    }
+    const payloadModules = getPayloadModules();
 
     try {
       await updateItem({
         path: `role-access/update/${id}`,
-        body: { permissions: changedModules },
+        body: { permissions: payloadModules },
       }).unwrap();
 
       toast.success("Permissions updated successfully");
@@ -229,12 +195,13 @@ const Permission = () => {
             mx="auto"
             alignItems="start"
           >
-            {/* Column 1 - Even indexed modules */}
             <Grid gap={6}>
               {filteredModules
                 .filter((_, index) => index % 2 === 0)
                 .map((module, index) => {
-                  const originalIndex = modules.findIndex(m => m.moduleId === module.moduleId);
+                  const originalIndex = modules.findIndex(
+                    (m) => m.moduleId === module.moduleId
+                  );
                   return (
                     <PermissionCard
                       key={module.moduleId}
@@ -251,12 +218,13 @@ const Permission = () => {
                 })}
             </Grid>
 
-            {/* Column 2 - Odd indexed modules */}
             <Grid gap={6}>
               {filteredModules
                 .filter((_, index) => index % 2 !== 0)
                 .map((module, index) => {
-                  const originalIndex = modules.findIndex(m => m.moduleId === module.moduleId);
+                  const originalIndex = modules.findIndex(
+                    (m) => m.moduleId === module.moduleId
+                  );
                   return (
                     <PermissionCard
                       key={module.moduleId}
@@ -283,6 +251,7 @@ const Permission = () => {
             borderRadius="md"
             _focus={{ boxShadow: "none" }}
             _active={{ boxShadow: "none" }}
+            isLoading={isUpdating}
           >
             Update Role
           </Button>
