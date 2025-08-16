@@ -10,6 +10,7 @@ import { leadlabelFontSize } from './constants';
 import './checkbox.css';
 import LeadNotesModal from './lead-note/LeadNotesModal';
 import { useSelector } from 'react-redux';
+import useUserSession from 'hooks/useUserSession';
 
 const LeadCard = ({
 	lead,
@@ -38,7 +39,9 @@ const LeadCard = ({
 		lg: '25%', // Three cards per row on larger screens
 	});
 
-	const user = useSelector((state) => state.user.user);
+	// const user = useSelector((state) => state.user.user);
+
+	const { user, userRoleName } = useUserSession();
 
 	const [leadNotes, setLeadNotes] = useState(false);
 
@@ -75,10 +78,10 @@ const LeadCard = ({
 		setLocalChecked(selectedValues.includes(lead?._id));
 	}, [selectedValues, lead?._id]);
 
-	const role =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
+	// const role =
+	// 	user?.role === 'superAdmin'
+	// 		? 'superAdmin'
+	// 		: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	const hiddenFields = JSON.parse(
 		localStorage.getItem('userCustomColumns') || '[]'
@@ -153,7 +156,7 @@ const LeadCard = ({
 						hiddenFields={hiddenFields}
 						setViewLead={setViewLead}
 						refreshLeads={refreshLeads}
-						role={role}
+						role={userRoleName}
 						user={user}
 						queryParams={queryParams}
 					/>

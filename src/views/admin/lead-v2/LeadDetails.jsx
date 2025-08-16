@@ -28,9 +28,11 @@ import CustomTooltip from 'components/shared/CustomTooltip';
 import { leadIconSize } from './components/constants';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName } = useUserSession();
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const [data, setData] = useState();
@@ -93,12 +95,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 	let hideContact = false;
 
-	if (user?.roles[0]?.roleName === 'Manager') {
+	if (userRoleName === 'Manager') {
 		hideContact = true;
-	} else if (
-		searchParams.get('invite') &&
-		user?.roles[0]?.roleName !== 'superAdmin'
-	) {
+	} else if (searchParams.get('invite') && userRoleName !== 'superAdmin') {
 		hideContact = user?._id !== data?.agentAssigned;
 	}
 

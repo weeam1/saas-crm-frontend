@@ -6,6 +6,8 @@ import CheckTable from './components/CheckTable';
 import { postApi } from 'services/api';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Index = () => {
 	const [isLoding, setIsLoding] = useState(false);
@@ -13,7 +15,11 @@ const Index = () => {
 	const [displaySearchData, setDisplaySearchData] = useState(false);
 	const [displayAdvSearchData, setDisplayAdvSearchData] = useState(false);
 	const [searchedData, setSearchedData] = useState([]);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
+	const { hasPermission } = usePermissions();
+
 	const [totalLeads, setTotalLeads] = useState(0);
 	const [pages, setPages] = useState(0);
 	const [hideColumns, setHideColumns] = useState([]);
@@ -112,7 +118,7 @@ const Index = () => {
 		Agent: tableColumnsAgent,
 	};
 
-	const role = user?.roles[0]?.roleName;
+	const role = userRoleName;
 
 	const [dynamicColumns, setDynamicColumns] = useState(
 		roleColumns[role] || tableColumns
@@ -145,7 +151,7 @@ const Index = () => {
 		setIsLoding(true);
 
 		let result = await getApi(
-			user.role === 'superAdmin'
+			isSuperAdmin
 				? 'api/lead/' +
 						'?dateTime=' +
 						dateTime?.from +
@@ -156,7 +162,7 @@ const Index = () => {
 						'&pageSize=' +
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
-						user.roles[0]?.roleName
+						userRoleName
 					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
 					}`
@@ -224,7 +230,7 @@ const Index = () => {
 
 	const refetchData = async (pageNo = 1, pageSize = 30) => {
 		let result = await getApi(
-			user.role === 'superAdmin'
+			isSuperAdmin
 				? 'api/lead/' +
 						'?dateTime=' +
 						dateTime?.from +
@@ -235,7 +241,7 @@ const Index = () => {
 						'&pageSize=' +
 						pageSize
 				: `api/lead/?user=${user._id}&role=${
-						user.roles[0]?.roleName
+						userRoleName
 					}&page=${pageNo}&pageSize=${pageSize}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
 					}`
@@ -260,7 +266,7 @@ const Index = () => {
 		setIsLoding(true);
 
 		let result = await getApi(
-			user.role === 'superAdmin'
+			isSuperAdmin
 				? 'api/lead/search' +
 						'?term=' +
 						term +
@@ -273,7 +279,7 @@ const Index = () => {
 						'&pageSize=' +
 						pageSize
 				: `api/lead/search?term=${term}&user=${user._id}&role=${
-						user.roles[0]?.roleName
+						userRoleName
 					}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
 					}&page=${pageNo}&pageSize=${pageSize}`
@@ -298,7 +304,7 @@ const Index = () => {
 		setIsLoding(true);
 		// change the new v2 search api
 		let result = await getApi(
-			user.role === 'superAdmin'
+			isSuperAdmin
 				? 'api/lead/v2/advanced-search' +
 						'?data=' +
 						JSON.stringify(data) +
@@ -312,7 +318,7 @@ const Index = () => {
 						pageSize
 				: `api/lead/v2/advanced-search?data=${JSON.stringify(data)}&user=${
 						user._id
-					}&role=${user.roles[0]?.roleName}&dateTime=${
+					}&role=${userRoleName}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
 					}&page=${pageNo}&pageSize=${pageSize}`
 		);
@@ -359,7 +365,7 @@ const Index = () => {
 		<div>
 			<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
 				<GridItem colSpan={6}>
-					{role === 'Manager' && (
+					{userRoleName === 'Manager' && (
 						<Flex justifyContent={'flex-end'} mb={4}>
 							<Button
 								onClick={autoAssign}
@@ -373,6 +379,7 @@ const Index = () => {
 						</Flex>
 					)}
 					<CheckTable
+						hasPermission={hasPermission}
 						hideColumns={hideColumns}
 						setHideColumns={setHideColumns}
 						dateTime={dateTime}

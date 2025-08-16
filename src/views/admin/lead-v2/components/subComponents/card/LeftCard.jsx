@@ -17,6 +17,7 @@ import { IoMdEye } from 'react-icons/io';
 import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
+import { usePermissions } from 'hooks/usePermissions';
 
 const LeftCard = ({
 	lead,
@@ -31,6 +32,8 @@ const LeftCard = ({
 	const leadType = useMemo(() => {
 		return lead?.leadType ?? (lead?.leadStatus === 'new' ? 'new' : undefined);
 	}, [lead?.leadType, lead?.leadStatus]);
+
+	const { hasPermission } = usePermissions();
 
 	// const hideContact =
 	// 	role === 'Manager'
@@ -56,13 +59,15 @@ const LeftCard = ({
 	return (
 		<Box flex='1' overflow='hidden'>
 			<Flex alignItems='center' gap='2'>
-				<Icon
-					as={IoMdEye}
-					boxSize='12px'
-					onClick={() => setViewLead({ isOpen: true, lid: lead?._id })}
-					color='gray.400'
-					cursor='pointer'
-				/>
+				{hasPermission('leads', 'read') && (
+					<Icon
+						as={IoMdEye}
+						boxSize='12px'
+						onClick={() => setViewLead({ isOpen: true, lid: lead?._id })}
+						color='gray.400'
+						cursor='pointer'
+					/>
+				)}
 
 				{!hiddenFields.includes('intID') && (
 					<Text fontSize={leadlabelFontSize} color='softGray.200'>

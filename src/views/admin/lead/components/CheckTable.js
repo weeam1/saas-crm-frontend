@@ -87,9 +87,11 @@ import { formattedDate } from 'utils/helpers';
 import SearchTags from 'components/search/SearchTags';
 import LeadMenu from './subComponents/LeadMenu';
 import LeadCycle from 'views/admin/leadCycle';
+import useUserSession from 'hooks/useUserSession';
 
 const CheckTable = React.memo((props) => {
 	const {
+		hasPermission,
 		tableData,
 		dataColumn,
 		fetchData,
@@ -132,7 +134,8 @@ const CheckTable = React.memo((props) => {
 	const [getTagValues, setGetTagValues] = useState([]);
 	const [gopageValue, setGopageValue] = useState(1);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
 
 	const countries = useSelector((state) => state.countries.countryNames);
 
@@ -169,14 +172,10 @@ const CheckTable = React.memo((props) => {
 	}, [isLoding]);
 
 	useEffect(() => {
-		console.log('REFETCH DATA');
-
 		setData(tableData);
 	}, [refetchData, setData, tableData]);
 
 	useEffect(() => {
-		console.log('COLUMNS UPDATED');
-
 		const savedColumns =
 			JSON.parse(localStorage.getItem('userCustomColumns')) || [];
 		const updatedColumns = dynamicColumns.filter(
@@ -656,8 +655,7 @@ const CheckTable = React.memo((props) => {
 							Leads (
 							<CountUpComponent key={data?.length} targetNumber={totalLeads} />)
 						</Text>
-						{(user?.role === 'superAdmin' ||
-							user?.roles[0]?.roleName === 'Manager') && (
+						{hasPermission('leads', 'bulkAssign') && (
 							<Button
 								size='sm'
 								variant='outline'
@@ -713,14 +711,15 @@ const CheckTable = React.memo((props) => {
 							</Button>
 						)}
 
-						{selectedValues.length > 0 && access?.delete && (
-							<DeleteIcon
-								cursor={'pointer'}
-								onClick={() => setDelete(true)}
-								color={'red'}
-								ms={2}
-							/>
-						)}
+						{selectedValues.length > 0 &&
+							hasPermission('leads', 'bulkDelete') && (
+								<DeleteIcon
+									cursor={'pointer'}
+									onClick={() => setDelete(true)}
+									color={'red'}
+									ms={2}
+								/>
+							)}
 
 						{/* Manage settings */}
 					</GridItem>
@@ -747,7 +746,7 @@ const CheckTable = React.memo((props) => {
 								>
 									Manage Columns
 								</MenuItem>
-								{user?.role === 'superAdmin' && (
+								{isSuperAdmin && (
 									<>
 										<MenuItem
 											width={'165px'}
@@ -777,7 +776,7 @@ const CheckTable = React.memo((props) => {
 							</MenuList>
 						</Menu>
 
-						{access?.create && (
+						{hasPermission('leads', 'create') && (
 							<Button
 								onClick={() => handleAddNewClick()}
 								size='sm'
@@ -999,10 +998,10 @@ const CheckTable = React.memo((props) => {
 															? 'new'
 															: undefined);
 
-													const roleName =
-														user?.role === 'superAdmin'
-															? 'superAdmin'
-															: (user?.roles?.[0]?.roleName ?? 'unknown');
+													// const roleName =
+													// 	user?.role === 'superAdmin'
+													// 		? 'superAdmin'
+													// 		: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 													data = access?.view ? (
 														<Flex
@@ -1031,7 +1030,7 @@ const CheckTable = React.memo((props) => {
 															</Text>
 															<LeadTypeBadge
 																leadType={leadType}
-																roleName={roleName}
+																roleName={userRoleName}
 															/>
 														</Flex>
 													) : (
@@ -1160,7 +1159,7 @@ const CheckTable = React.memo((props) => {
 															setData={setData}
 															leadID={row?.original?._id?.toString()}
 															value={cell?.value}
-															isAdmin={user?.role === 'superAdmin'}
+															isAdmin={isSuperAdmin}
 														/>
 													);
 												} else if (cell?.column.Header === 'Agent') {
@@ -1384,7 +1383,7 @@ const CheckTable = React.memo((props) => {
 													data = (
 														<ReleaseLead
 															isReleased={row.original?.isReleased}
-															role={user?.roles[0]?.roleName}
+															role={userRoleName}
 															leadId={row.original?._id}
 															setTotalLeads={setTotalLeads}
 															setData={

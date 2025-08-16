@@ -20,17 +20,14 @@ import { extractLocationData } from 'utils/helpers';
 import { useMemo } from 'react';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const role =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
@@ -100,13 +97,13 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	];
 
 	const allowedFields = useMemo(() => {
-		if (role === 'superAdmin') {
+		if (isSuperAdmin) {
 			return fields;
 		}
 
 		// Agent role edit phone number only
 		const phoneField =
-			role === 'Agent'
+			userRoleName === 'Agent'
 				? fields.filter((field) =>
 						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
 					)

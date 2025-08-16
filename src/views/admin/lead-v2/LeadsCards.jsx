@@ -28,13 +28,14 @@ import AllCheckBox from './AllCheckBox';
 import useFilteredQueryParams from './useFilteredQueryParams';
 import { HasAccess } from './../../../redux/accessUtils';
 import BulkWhatsappModal from './components/whatsapp-message/BulkWhatsappModal';
+import { usePermissions } from 'hooks/usePermissions';
 
 const LeadsCards = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
-
 	const user = useSelector((state) => state.user.user);
-
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
+
+	console.log({ user });
 
 	const role =
 		user?.role === 'superAdmin'
@@ -42,6 +43,8 @@ const LeadsCards = () => {
 			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	const [permission] = HasAccess(['Lead']);
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		currentPage,
@@ -186,7 +189,8 @@ const LeadsCards = () => {
 							setSelectedLeads={setSelectedLeads}
 						/>
 
-						{whatsappAccountId && ['superAdmin'].includes(role) && (
+						{/* {whatsappAccountId && ['superAdmin'].includes(role) && ( */}
+						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
 							<Button
 								{...buttonStyle}
 								onClick={openWhatsappModal}
@@ -202,7 +206,7 @@ const LeadsCards = () => {
 							</Button>
 						)}
 
-						{['superAdmin', 'Manager'].includes(role) && (
+						{hasPermission('leads', 'bulkAssign') && (
 							<Button
 								{...buttonStyle}
 								onClick={() => setBulkAssign(true)}
@@ -220,7 +224,8 @@ const LeadsCards = () => {
 							</Button>
 						)}
 
-						{(permission?.create || role === 'superAdmin') && (
+						{/* {(permission?.create || role === 'superAdmin') && ( */}
+						{hasPermission('leads', 'create') && (
 							<Button
 								{...buttonStyle}
 								variant='solid'
