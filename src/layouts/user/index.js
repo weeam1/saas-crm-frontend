@@ -50,6 +50,7 @@ import TakeSurvey from 'views/admin/survey/TakeSurvey';
 import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
 
 const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -105,14 +106,17 @@ export default function User(props) {
 	const [fixed] = useState(false);
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(true);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	// console.log({ user });
+
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
 
 	const { data: whatsappUser } = useFetchItemsQuery(
 		{
 			path: `whatsapp/users/${user?._id}`,
 		},
 		{
-			skip: !user?._id || user?.role === 'superAdmin',
+			skip: !user?._id || isSuperAdmin,
 		}
 	);
 
@@ -122,26 +126,35 @@ export default function User(props) {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
 
-	const filterAccess = (rolesData) => {
-		return rolesData?.map((role) => {
-			role.access = role?.access?.filter(
-				(access) =>
-					access.create || access.update || access.delete || access.view
-			);
-			return role;
-		});
+	// const filterAccess = (rolesData) => {
+	// 	return rolesData?.map((role) => {
+	// 		role.access = role?.access?.filter(
+	// 			(access) =>
+	// 				access.create || access.update || access.delete || access.view
+	// 		);
+	// 		return role;
+	// 	});
+	// };
+	const filterAccess = (rolesData = []) => {
+		return rolesData.map((role) => ({
+			...role,
+			access:
+				role?.access?.filter(
+					(a) => a.create || a.update || a.delete || a.view
+				) || [],
+		}));
 	};
 
 	// Example usage:
 	const updatedRolesData = filterAccess(user?.roles);
 	let access = [];
-	updatedRolesData?.map((item) => {
-		item?.access?.map((data) => access.push(data));
-	});
+	updatedRolesData?.map((item) =>
+		item?.access?.map((data) => access.push(data))
+	);
 
 	let mergedPermissions = {};
 
-	access.forEach((permission) => {
+	access?.forEach((permission) => {
 		const { title, ...rest } = permission;
 
 		if (!mergedPermissions[title]) {
@@ -684,6 +697,8 @@ export default function User(props) {
 	);
 
 	routes.push(...accessRoute);
+
+	console.log({ accessRoute, mergedPermissions });
 
 	if (user?.roles[0]?.roleName === 'Manager') {
 		// Define the new routes to be inserted
