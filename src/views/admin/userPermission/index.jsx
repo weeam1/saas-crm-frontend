@@ -21,6 +21,7 @@ import PermissionSkeletonLoading from "./components/PermissionSkeletonLoading";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import PermissionCard from "./components/PermissionCard";
 
 const Permission = () => {
   const { id, roleName } = useParams();
@@ -78,7 +79,7 @@ const Permission = () => {
       });
 
       setModules(mergedModules);
-      setOriginalModules(JSON.parse(JSON.stringify(mergedModules))); // deep copy
+      setOriginalModules(JSON.parse(JSON.stringify(mergedModules)));
     }
   }, [RolePermission, UserRolePermission]);
 
@@ -158,7 +159,7 @@ const Permission = () => {
       }).unwrap();
 
       toast.success("Permissions updated successfully");
-      setOriginalModules(JSON.parse(JSON.stringify(modules))); // reset baseline
+      setOriginalModules(JSON.parse(JSON.stringify(modules)));
     } catch (error) {
       toast.error("Failed to update the permission");
     }
@@ -209,7 +210,7 @@ const Permission = () => {
         </Box>
 
         {/* Permission Cards */}
-        {loadingRole || loadingUserRole || isUpdating ? (
+        {loadingRole || loadingUserRole ? (
           <Box borderRadius="xl" boxShadow="lg" bg="white" p={6}>
             <Grid
               templateColumns={{
@@ -223,163 +224,58 @@ const Permission = () => {
           </Box>
         ) : (
           <Grid
-            templateColumns={{
-              base: "1fr",
-              md: "repeat(2, 1fr)",
-            }}
-            templateRows={"1fr"}
+            templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
             gap={6}
-            alignItems="stretch"
+            mx="auto"
+            p={4}
+            alignItems="start"
           >
-            {filteredModules.map((module, moduleIndex) => (
-              <Box
-                key={module.moduleId}
-                borderWidth="1px"
-                borderColor={borderColor}
-                borderRadius="md"
-                bg="gray.100"
-                p={4}
-              >
-                {/* Toggle for Module Enable */}
-                <Flex justify="flex-start" mb={2} mt={"-2px"}>
-                  <Text fontSize="sm" mr={2} color="gray.700">
-                    Disable
-                  </Text>
-                  <Switch
-                    colorScheme="green"
-                    size="md"
-                    isChecked={module.isModuleEnabled}
-                    onChange={(e) =>
-                      handleModuleToggle(moduleIndex, e.target.checked)
-                    }
-                    _focus={{ boxShadow: "none" }}
-                    _active={{ boxShadow: "none" }}
-                  />
-                  <Text fontSize="sm" ml={2} color="gray.700">
-                    Enable
-                  </Text>
-                </Flex>
+            {/* Column 1 - Even indexed modules */}
+            <Grid gap={6}>
+              {filteredModules
+                .filter((_, index) => index % 2 === 0)
+                .map((module, index) => {
+                  const originalIndex = modules.findIndex(m => m.moduleId === module.moduleId);
+                  return (
+                    <PermissionCard
+                      key={module.moduleId}
+                      module={module}
+                      moduleIndex={originalIndex}
+                      borderColor={borderColor}
+                      disabledBorderColor={disabledBorderColor}
+                      disabledTextColor={disabledTextColor}
+                      handleModuleToggle={handleModuleToggle}
+                      handleSelectAll={handleSelectAll}
+                      handleActionToggle={handleActionToggle}
+                    />
+                  );
+                })}
+            </Grid>
 
-                {/* Module title and Check All */}
-                <Flex
-                  justify="space-between"
-                  align="center"
-                  mb={2}
-                  flexWrap="wrap"
-                  gap={2}
-                >
-                  <Text
-                    fontWeight="bold"
-                    fontSize={{ base: "sm", md: "md" }}
-                    display="flex"
-                    gap={2}
-                    flexDir="row"
-                    align="center"
-                  >
-                    {module.moduleName}
-                    <Text fontSize="sm" color="gray" fontWeight="medium">
-                      Permission
-                    </Text>
-                  </Text>
-
-                  <Checkbox
-                    size="md"
-                    colorScheme="green"
-                    borderColor={
-                      module.isModuleEnabled ? "green.300" : disabledBorderColor
-                    }
-                    _focus={{ boxShadow: "none" }}
-                    _active={{ boxShadow: "none" }}
-                    _hover={{
-                      borderColor: module.isModuleEnabled
-                        ? "green.300"
-                        : disabledBorderColor,
-                    }}
-                    isChecked={module.actions.every((a) => a.isAllowed)}
-                    onChange={(e) =>
-                      handleSelectAll(moduleIndex, e.target.checked)
-                    }
-                    isDisabled={!module.isModuleEnabled}
-                    sx={{
-                      "& .chakra-checkbox__control": {
-                        borderColor: !module.isModuleEnabled
-                          ? disabledBorderColor
-                          : undefined,
-                      },
-                     ".chakra-checkbox__control": {
-                          _focus: {
-                            boxShadow: "0 0 0 2px",
-                            borderColor: "brand.500",
-                          },
-                        },
-                    }}
-                  >
-                    <Text
-                      color={
-                        !module.isModuleEnabled ? disabledTextColor : "inherit"
-                      }
-                    >
-                      Check All
-                    </Text>
-                  </Checkbox>
-                </Flex>
-
-                <Divider my={3} />
-
-                {/* Actions Grid */}
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2} flex="1">
-                  {module.actions.map((action, actionIndex) => (
-                    <Checkbox
-                      key={action.actionKey}
-                      size="md"
-                      colorScheme="green"
-                      borderColor={
-                        module.isModuleEnabled
-                          ? "green.300"
-                          : disabledBorderColor
-                      }
-                      _focus={{ boxShadow: "none" }}
-                      _active={{ boxShadow: "none" }}
-                      _hover={{
-                        borderColor: module.isModuleEnabled
-                          ? "green.300"
-                          : disabledBorderColor,
-                      }}
-                      isChecked={action.isAllowed}
-                      onChange={() =>
-                        handleActionToggle(moduleIndex, actionIndex)
-                      }
-                      isDisabled={!module.isModuleEnabled}
-                      sx={{
-                        "& .chakra-checkbox__control": {
-                          borderColor: !module.isModuleEnabled
-                            ? disabledBorderColor
-                            : undefined,
-                        },
-                        ".chakra-checkbox__control": {
-                          _focus: {
-                            boxShadow: "0 0 0 2px",
-                            borderColor: "brand.500",
-                          },
-                        },
-                      }}
-                    >
-                      <Text
-                        color={
-                          !module.isModuleEnabled
-                            ? disabledTextColor
-                            : "inherit"
-                        }
-                      >
-                        {action.name}
-                      </Text>
-                    </Checkbox>
-                  ))}
-                </SimpleGrid>
-              </Box>
-            ))}
+            {/* Column 2 - Odd indexed modules */}
+            <Grid gap={6}>
+              {filteredModules
+                .filter((_, index) => index % 2 !== 0)
+                .map((module, index) => {
+                  const originalIndex = modules.findIndex(m => m.moduleId === module.moduleId);
+                  return (
+                    <PermissionCard
+                      key={module.moduleId}
+                      module={module}
+                      moduleIndex={originalIndex}
+                      borderColor={borderColor}
+                      disabledBorderColor={disabledBorderColor}
+                      disabledTextColor={disabledTextColor}
+                      handleModuleToggle={handleModuleToggle}
+                      handleSelectAll={handleSelectAll}
+                      handleActionToggle={handleActionToggle}
+                    />
+                  );
+                })}
+            </Grid>
           </Grid>
         )}
+
         {/* Save Button */}
         <HStack justify="flex-end" mt={6}>
           <Button
