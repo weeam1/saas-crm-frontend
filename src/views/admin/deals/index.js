@@ -23,7 +23,7 @@ import DateFilterButton from '../lead-v2/components/DateFilterButton';
 import DateRangeFilter from './components/DateRangeFilter';
 import { formattedDate } from 'utils/helpers';
 import { format } from 'date-fns';
-import ViewToggle from 'components/toggle/ViewToogle';
+import ViewToggle from 'components/toggle/ViewToggle';
 
 const LIMIT = 12;
 
@@ -235,7 +235,7 @@ const DealsScreen = () => {
 
 					<DateFilterButton onClick={dateTimeOnOpen} />
 					<ViewToggle
-						cacheKey='dealsView'
+						moduleVie= "dealsView"
 						view={view}
 						handleView={handleViewChange}
 					/>

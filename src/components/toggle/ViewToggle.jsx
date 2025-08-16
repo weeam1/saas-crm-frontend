@@ -7,7 +7,7 @@ const icons = [
   { label: 'Table View', icon: FaTable, value: 'table' },
 ];
 
-const ViewToggle = ({ view, handleView, moduleView }) => {
+const ViewToggle = ({ view, handleView,moduleView }) => {
   const containerRef = useRef(null);
   const [startX, setStartX] = useState(null);
   const [sliderPosition, setSliderPosition] = useState(view === 'grid' ? 0 : 1);
