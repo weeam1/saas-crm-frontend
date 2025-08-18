@@ -113,7 +113,7 @@ const Permission = () => {
         isModuleEnabled: module.isModuleEnabled,
         actions: allowedActions,
       };
-    });
+    }).filter((module) => module.isModuleEnabled === true);
   };
 
   const handleUpdateRole = async () => {
