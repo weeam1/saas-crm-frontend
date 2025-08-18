@@ -74,8 +74,6 @@ export const useUserSession = () => {
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user.user);
 
-	console.log({ user, local: JSON.parse(localStorage.getItem('user')) });
-
 	useEffect(() => {
 		const handleStorageChange = (e) => {
 			if (e.key === 'user') {

@@ -51,6 +51,7 @@ import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const MainDashboard = React.lazy(() => import('views/admin/default'));
@@ -110,6 +111,7 @@ export default function User(props) {
 	// console.log({ user });
 
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
 
 	const { data: whatsappUser } = useFetchItemsQuery(
 		{
@@ -176,6 +178,7 @@ export default function User(props) {
 			path: '/default',
 			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
 			component: MainDashboard,
+			moduleId: 'dashboard',
 		},
 
 		{
@@ -186,6 +189,7 @@ export default function User(props) {
 				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 			),
 			component: LeadScreen,
+			moduleId: 'leads',
 		},
 
 		{
@@ -196,6 +200,7 @@ export default function User(props) {
 				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 			),
 			component: LeadPoolAgent,
+			moduleId: 'leadpool_agents',
 		},
 
 		{
@@ -206,6 +211,7 @@ export default function User(props) {
 				<Icon as={FaHandshake} width='20px' height='20px' color='inherit' />
 			),
 			component: DealsScreen,
+			moduleId: 'deals',
 		},
 
 		{
@@ -221,6 +227,7 @@ export default function User(props) {
 				/>
 			),
 			component: AttendenceV2,
+			moduleId: 'attendance',
 		},
 		{
 			name: 'My Attendance',
@@ -236,6 +243,7 @@ export default function User(props) {
 			path: '/listing',
 			icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
 			component: Listing,
+			moduleId: 'listing',
 		},
 		{
 			name: 'Adding Listing',
@@ -295,6 +303,7 @@ export default function User(props) {
 			under: 'users',
 			path: '/userView/:id',
 			component: UserView,
+			moduleId: 'user_view',
 		},
 
 		{
@@ -305,6 +314,7 @@ export default function User(props) {
 				<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
 			),
 			component: Survey,
+			moduleId: 'survey',
 		},
 		{
 			name: 'Survey Board',
@@ -322,55 +332,106 @@ export default function User(props) {
 			parentName: 'Survey',
 			component: TakeSurvey,
 		},
+		{
+			name: 'Task',
+			layout: [ROLE_PATH.user],
+			path: '/task',
+			icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+			component: TaskV2,
+			moduleId: 'task',
+		},
 	];
 
-	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Users',
-			layout: [ROLE_PATH.user],
-			path: '/user',
-			icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-			component: UserPage,
-		});
-		// Remove the "Leads Pool" route
-		routes = routes.filter((route) => route.name !== 'Leads Pool');
-	}
-
-	// if user has whatsapp and also enable then show it
-	if (whatsappActive) {
-		routes.push({
-			name: 'Whatsapp',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chat',
-			icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-			component: UserWhatsapp,
-		});
-	}
+	// if (user?.roles[0]?.roleName === 'Manager') {
+	// 	routes.push();
+	// 	// Remove the "Leads Pool" route
+	// }
 
 	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Adding Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/add-listing',
-			under: 'listing',
-			parentName: 'Listing',
-			component: AddListing,
-		});
-		// Remove the "Adding Listing" route
-		routes = routes.filter((route) => route.name !== 'Adding Listing');
+		// Define the new routes to be inserted
+		const newRoutes = [
+			{
+				moduleId: 'users',
+				name: 'Users',
+				layout: [ROLE_PATH.user],
+				path: '/user',
+				icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+				component: UserPage,
+			},
+			{
+				moduleId: 'announcement',
+				name: 'Announcement',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/announcements',
+				icon: (
+					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
+				),
+				component: Announcements,
+			},
+
+			{
+				moduleId: 'hiring',
+				name: 'Hiring',
+				path: '/hiring',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				icon: (
+					<Icon
+						as={FaClipboardUser}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: Hiring,
+			},
+			{
+				name: 'Short Listed',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/hiring/short-listed',
+				under: 'shortListed',
+				parentName: 'Hiring',
+				component: ShortListedCandidates,
+			},
+			{
+				name: 'Interview',
+				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+				path: '/hiring/interview/:interviewId',
+				under: 'interview',
+				parentName: 'Hiring',
+				component: InterviewScreen,
+			},
+		];
+
+		// Insert the new routes at index 3 and 4
+		// routes = routes.filter((route) => route.name !== 'Leads Pool');
+
+		routes.splice(3, 0, ...newRoutes);
 	}
-	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Update Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/update/:id',
-			under: 'listing',
-			parentName: 'Listing',
-			component: UpdateListing,
-		});
-		// Remove the "Updating Listing" route
-		routes = routes.filter((route) => route.name !== 'Update Listing');
-	}
+
+	// if (user?.roles[0]?.roleName === 'Manager') {
+	// 	routes.push({
+	// 		name: 'Adding Listing',
+	// 		layout: [ROLE_PATH.user],
+	// 		path: '/listing/add-listing',
+	// 		under: 'listing',
+	// 		parentName: 'Listing',
+	// 		component: AddListing,
+	// 	});
+	// 	// Remove the "Adding Listing" route
+	// 	routes = routes.filter((route) => route.name !== 'Adding Listing');
+	// }
+	// if (user?.roles[0]?.roleName === 'Manager') {
+	// 	routes.push({
+	// 		name: 'Update Listing',
+	// 		layout: [ROLE_PATH.user],
+	// 		path: '/listing/update/:id',
+	// 		under: 'listing',
+	// 		parentName: 'Listing',
+	// 		component: UpdateListing,
+	// 	});
+	// 	// Remove the "Updating Listing" route
+	// 	routes = routes.filter((route) => route.name !== 'Update Listing');
+	// }
 
 	if (user?.roles[0]?.roleName === 'HR') {
 		// Define the "Candidates" route
@@ -493,6 +554,7 @@ export default function User(props) {
 				path: '/task',
 				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 				component: TaskV2,
+				moduleId: 'lead_pool',
 			},
 		];
 
@@ -688,6 +750,26 @@ export default function User(props) {
 		routes = accountantRoutes;
 	}
 
+	// if user has whatsapp and also enable then show it
+	if (whatsappActive) {
+		routes.push({
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+			component: UserWhatsapp,
+			moduleId: 'whatsapp',
+		});
+	}
+
+	// filter the only allowed routes (modules)
+	routes = routes.filter((route) => {
+		if (!route.moduleId) return true;
+		return hasPermission(route.moduleId);
+	});
+
+	console.log({ routes });
+
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
 			(data) =>
@@ -697,56 +779,6 @@ export default function User(props) {
 	);
 
 	routes.push(...accessRoute);
-
-	console.log({ accessRoute, mergedPermissions });
-
-	if (user?.roles[0]?.roleName === 'Manager') {
-		// Define the new routes to be inserted
-		const newRoutes = [
-			{
-				name: 'Announcement',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/announcements',
-				icon: (
-					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-				),
-				component: Announcements,
-			},
-			{
-				name: 'Hiring',
-				path: '/hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Short Listed',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/short-listed',
-				under: 'shortListed',
-				parentName: 'Hiring',
-				component: ShortListedCandidates,
-			},
-			{
-				name: 'Interview',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/hiring/interview/:interviewId',
-				under: 'interview',
-				parentName: 'Hiring',
-				component: InterviewScreen,
-			},
-		];
-
-		// Insert the new routes at index 3 and 4
-		routes.splice(3, 0, ...newRoutes);
-	}
 
 	const getActiveRoute = (routes) => {
 		if (!Array.isArray(routes)) {
