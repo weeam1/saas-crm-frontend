@@ -18,6 +18,7 @@ import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import PermissionCard from "./components/PermissionCard";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const Permission = () => {
   const { id, roleName } = useParams();
@@ -243,6 +244,10 @@ const Permission = () => {
           </Grid>
         )}
 
+        {filteredModules.length === 0 && !loadingRole && !loadingUserRole &&
+          <NoData label="Permission" />
+        
+        }
         {/* Save Button */}
         <HStack justify="flex-end" mt={6}>
           <Button
