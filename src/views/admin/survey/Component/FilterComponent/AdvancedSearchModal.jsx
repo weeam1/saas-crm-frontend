@@ -132,7 +132,7 @@ const AdvancedSearchModal = ({
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
+        mx={{ base: 1, sm: 1, md: 8 }}
         w={{ base: "95vw", sm: "90vw", md: "500px" }}
         maxW="100vw"
       >
@@ -140,7 +140,7 @@ const AdvancedSearchModal = ({
         <ModalCloseButton />
         <form onSubmit={formik.handleSubmit}>
           <ModalBody>
-            <VStack spacing={4}>
+            <VStack spacing={2}>
               <FormControl>
                 <FormLabel>Agency</FormLabel>
                 <Select
@@ -158,8 +158,8 @@ const AdvancedSearchModal = ({
                 </Select>
               </FormControl>
 
-              <Box w="full">
-                <SimpleGrid columns={2} gap={4}>
+              <Box w="full" >
+                <SimpleGrid columns={{base:1, sm:1, md: 2}} gap={4}>
                   <FormControl>
                     <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker

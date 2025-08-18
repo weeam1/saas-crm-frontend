@@ -408,7 +408,7 @@ export default function User(props) {
 						color='inherit'
 					/>
 				),
-				component: Attendance,
+				component: AttendenceV2,
 			},
 
 			{
