@@ -119,10 +119,10 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
       
       <Box
         position="absolute"
-        top="2px"
+        top="0.5px"
         left={`calc(${sliderPosition * 100}% - ${sliderPosition * 46}px)`}
         width='46px'
-        height='27px'
+        height='28px'
         bg='blue.600'
         rounded='md'
         zIndex="1"
