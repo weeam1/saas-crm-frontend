@@ -31,6 +31,13 @@ export default function Dashboard(props) {
 		return hasPermission(route.moduleId);
 	});
 
+	const defaultRoute =
+		finalRoutes.filter(
+			(route) => route.layout !== '/auth' || route.under !== 'users'
+		)[0]?.path ||
+		'/default' ||
+		'/';
+
 	// functions for changing the states from components
 	const getRoute = () => {
 		return window.location.pathname !== '/admin/full-screen-maps';
@@ -250,7 +257,10 @@ export default function Dashboard(props) {
 									>
 										<Routes>
 											{getRoutes(finalRoutes)}
-											<Route path='/*' element={<Navigate to='/default' />} />
+											<Route
+												path='/*'
+												element={<Navigate to={defaultRoute} />}
+											/>
 										</Routes>
 									</Suspense>
 								</Box>

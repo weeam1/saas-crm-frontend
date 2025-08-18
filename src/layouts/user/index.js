@@ -154,22 +154,22 @@ export default function User(props) {
 		item?.access?.map((data) => access.push(data))
 	);
 
-	let mergedPermissions = {};
+	// let mergedPermissions = {};
 
-	access?.forEach((permission) => {
-		const { title, ...rest } = permission;
+	// access?.forEach((permission) => {
+	// 	const { title, ...rest } = permission;
 
-		if (!mergedPermissions[title]) {
-			mergedPermissions[title] = { ...rest };
-		} else {
-			// Merge with priority to true values
-			Object.keys(rest).forEach((key) => {
-				if (mergedPermissions[title][key] !== true) {
-					mergedPermissions[title][key] = rest[key];
-				}
-			});
-		}
-	});
+	// 	if (!mergedPermissions[title]) {
+	// 		mergedPermissions[title] = { ...rest };
+	// 	} else {
+	// 		// Merge with priority to true values
+	// 		Object.keys(rest).forEach((key) => {
+	// 			if (mergedPermissions[title][key] !== true) {
+	// 				mergedPermissions[title][key] = rest[key];
+	// 			}
+	// 		});
+	// 	}
+	// });
 
 	let routes = [
 		{
@@ -654,15 +654,15 @@ export default function User(props) {
 		'/default' ||
 		'/';
 
-	const accessRoute = newRoute?.filter((item) =>
-		Object.keys(mergedPermissions)?.find(
-			(data) =>
-				data?.toLowerCase() === item?.name?.toLowerCase() ||
-				data?.toLowerCase() === item.parentName?.toLowerCase()
-		)
-	);
+	// const accessRoute = newRoute?.filter((item) =>
+	// 	Object.keys(mergedPermissions)?.find(
+	// 		(data) =>
+	// 			data?.toLowerCase() === item?.name?.toLowerCase() ||
+	// 			data?.toLowerCase() === item.parentName?.toLowerCase()
+	// 	)
+	// );
 
-	routes.push(...accessRoute);
+	// routes.push(...accessRoute);
 
 	const getActiveRoute = (routes) => {
 		if (!Array.isArray(routes)) {
