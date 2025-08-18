@@ -84,7 +84,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 				>
 					{() => (
 						<Form>
-							<DrawerBody>
+							<DrawerBody h={"80vh"} overflowY={"scroll"}>
 								<Grid
 									templateColumns={{
 										base: '1fr',
@@ -92,6 +92,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 									gap={2}
 									w='full'
 									overflow='scroll'
+									overflowY={"scroll"}
 									// height='50vh'
 									p='4'
 								>

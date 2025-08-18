@@ -144,8 +144,10 @@ export default function CheckTable(props) {
           flexWrap="wrap"
           alignItems={"center"}
           mx={{ base: 2, md: 4 }}
+          flexDir={{base: "column", sm:"column", md:"row"}}
+          gap={2}
         >
-          <GridItem colSpan={{ base: 1, md: 2 }}>
+          <GridItem colSpan={{ base: 1, sm: 1, md: 2 }}>
             <Flex alignItems="center" flexWrap="wrap" gap={2}>
               <Text
                 color={useColorModeValue("secondaryGray.900", "white")}

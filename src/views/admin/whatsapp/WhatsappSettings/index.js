@@ -199,7 +199,7 @@ const WhatsappSettings = () => {
 				Back
 			</AppButton>
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-				<Flex justify='space-between' align='center' mb={4}>
+				<Flex justify='space-between' align='center' mb={4} gap={2} flexDir={{base:"column", sm: "column" , md: "row"}}>
 					<Text fontSize='lg' fontWeight='bold'>
 						Whatsapp Users (
 						<CountUpComponent

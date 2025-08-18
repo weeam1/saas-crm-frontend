@@ -18,6 +18,26 @@ import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import PermissionCard from './components/PermissionCard';
+  Box,
+  Heading,
+  Button,
+  Text,
+  Grid,
+  useColorModeValue,
+  HStack,
+  Input,
+  Divider,
+} from "@chakra-ui/react";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
+import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
+import PermissionSkeletonLoading from "./components/PermissionSkeletonLoading";
+import AppButton from "components/shared/AppButton";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import PermissionCard from "./components/PermissionCard";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const Permission = () => {
 	const { id, roleName } = useParams();
@@ -114,6 +134,14 @@ const Permission = () => {
 			};
 		});
 	};
+      return {
+        moduleId: module.moduleId,
+        moduleName: module.moduleName,
+        isModuleEnabled: module.isModuleEnabled,
+        actions: allowedActions,
+      };
+    }).filter((module) => module.isModuleEnabled === true);
+  };
 
 	const handleUpdateRole = async () => {
 		const payloadModules = getPayloadModules();
@@ -259,6 +287,26 @@ const Permission = () => {
 			</Box>
 		</>
 	);
+        {filteredModules.length === 0 && !loadingRole && !loadingUserRole &&
+          <NoData label="Permission" />
+        
+        }
+        {/* Save Button */}
+        <HStack justify="flex-end" mt={6}>
+          <Button
+            colorScheme="brand"
+            onClick={handleUpdateRole}
+            borderRadius="md"
+            _focus={{ boxShadow: "none" }}
+            _active={{ boxShadow: "none" }}
+            isLoading={isUpdating}
+          >
+            Update Role
+          </Button>
+        </HStack>
+      </Box>
+    </>
+  );
 };
 
 export default Permission;

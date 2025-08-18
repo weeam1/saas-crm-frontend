@@ -14,7 +14,7 @@ import Employees from "./components/employees/index";
 import Records from "./components/records/index";
 import MyAttendance from "./components/myAttendance/index";
 
-// import OfficeSettings from "./OfficeSettings";
+import OfficeSettings from "../agencies/OfficeSetting";
 
 const AttendanceV2 = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,14 +60,14 @@ const AttendanceV2 = () => {
       description: "View and track your personal attendance history.",
       component: <MyAttendance key="my-attendance" userId={user?._id} />,
     },
-    // {
-    //   label: 'Office Settings',
-    //   icon: FiSettings,
-    //   param: 'office-settings',
-    //   title: 'Office Settings',
-    //   description: 'Configure office attendance rules and settings.',
-    //   component: <OfficeSettings key="office-settings" agencyId={user?.agency?._id} />,
-    // },
+    {
+      label: 'Office Settings',
+      icon: FiSettings,
+      param: 'office-settings',
+      title: 'Office Settings',
+      description: 'Configure office attendance rules and settings.',
+      component: <OfficeSettings key="office-settings" agencyId={user?.agency?._id} />,
+    },
   ];
 
   // Filter tabs based on user role

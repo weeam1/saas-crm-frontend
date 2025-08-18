@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Flex,
@@ -7,8 +7,7 @@ import {
   Checkbox,
   Divider,
   SimpleGrid,
-  useColorModeValue,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 const PermissionCard = ({
   module,
@@ -67,45 +66,48 @@ const PermissionCard = ({
             Permission
           </Text>
         </Text>
-
-        <Checkbox
-          size="md"
-          colorScheme="green"
-          borderColor={
-            module.isModuleEnabled ? "green.300" : disabledBorderColor
-          }
-          _focus={{ boxShadow: "none" }}
-          _active={{ boxShadow: "none" }}
-          _hover={{
-            borderColor: module.isModuleEnabled
-              ? "green.300"
-              : disabledBorderColor,
-          }}
-          isChecked={module.actions.every((a) => a.isAllowed)}
-          onChange={(e) => handleSelectAll(moduleIndex, e.target.checked)}
-          isDisabled={!module.isModuleEnabled}
-          sx={{
-            "& .chakra-checkbox__control": {
-              borderColor: !module.isModuleEnabled
-                ? disabledBorderColor
-                : "gray.400",
-            },
-            ".chakra-checkbox__control": {
-              _focus: {
-                boxShadow: "0 0 0 2px",
-                borderColor: "green.300",
-              },
-            },
-          }}
-        >
-          <Text
-            color={
-              !module.isModuleEnabled ? disabledTextColor : "inherit"
+        {module?.actions.length > 0 && (
+          <Checkbox
+            size="md"
+            colorScheme="green"
+            borderColor={
+              module.isModuleEnabled ? "green.300" : disabledBorderColor
             }
+            _focus={{ boxShadow: "none" }}
+            _active={{ boxShadow: "none" }}
+            _hover={{
+              borderColor: module.isModuleEnabled
+                ? "green.300"
+                : disabledBorderColor,
+            }}
+            isChecked={
+              module?.actions.length > 0
+                ? module.actions.every((a) => a.isAllowed)
+                : false
+            }
+            onChange={(e) => handleSelectAll(moduleIndex, e.target.checked)}
+            isDisabled={!module.isModuleEnabled}
+            sx={{
+              "& .chakra-checkbox__control": {
+                borderColor: !module.isModuleEnabled
+                  ? disabledBorderColor
+                  : "gray.400",
+              },
+              ".chakra-checkbox__control": {
+                _focus: {
+                  boxShadow: "0 0 0 2px",
+                  borderColor: "green.300",
+                },
+              },
+            }}
           >
-            Check All
-          </Text>
-        </Checkbox>
+            <Text
+              color={!module.isModuleEnabled ? disabledTextColor : "inherit"}
+            >
+              Check All
+            </Text>
+          </Checkbox>
+        )}
       </Flex>
 
       <Divider my={3} />
@@ -118,9 +120,7 @@ const PermissionCard = ({
             size="md"
             colorScheme="green"
             borderColor={
-              module.isModuleEnabled
-                ? "green.300"
-                : disabledBorderColor
+              module.isModuleEnabled ? "green.300" : disabledBorderColor
             }
             _focus={{ boxShadow: "none" }}
             _active={{ boxShadow: "none" }}
@@ -147,11 +147,7 @@ const PermissionCard = ({
             }}
           >
             <Text
-              color={
-                !module.isModuleEnabled
-                  ? disabledTextColor
-                  : "inherit"
-              }
+              color={!module.isModuleEnabled ? disabledTextColor : "inherit"}
             >
               {action.name}
             </Text>
