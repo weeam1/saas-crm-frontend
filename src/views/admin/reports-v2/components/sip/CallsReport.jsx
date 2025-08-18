@@ -61,8 +61,6 @@ const CallsReport = () => {
 
 	const location = useLocation();
 
-	console.log('Location:', location);
-
 	const bgColor = useColorModeValue('white', 'gray.800');
 
 	useEffect(() => {
