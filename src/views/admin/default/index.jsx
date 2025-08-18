@@ -329,7 +329,9 @@ export default function UserReports() {
 				setListTop={setListTop}
 			/> */}
 
-			<LeadStatusPieChart data={leadStatusData?.doc} />
+			{['Agent', 'Manager'].includes(userRole) && (
+				<LeadStatusPieChart data={leadStatusData?.doc} />
+			)}
 
 			{/* <Grid
 				Grid

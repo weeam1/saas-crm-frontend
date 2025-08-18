@@ -142,7 +142,7 @@ const LeftCard = ({
 						/>
 					</GridItem>
 				) : (
-					role === 'superAdmin' &&
+					hasPermission('leads', 'managerAssign') &&
 					!hiddenFields.includes('managerAssigned') && (
 						<GridItem
 							colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
@@ -178,14 +178,15 @@ const LeftCard = ({
 						/>
 					</GridItem>
 				) : (
-					['superAdmin', 'Manager'].includes(role) &&
+					hasPermission('leads', 'agentAssign') &&
 					!hiddenFields.includes('agentAssigned') && (
 						<GridItem
-							colSpan={
-								role === 'Manager' || hiddenFields.includes('agentAssigned')
-									? '2'
-									: '1'
-							}
+							colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+							// colSpan={
+							// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
+							// 		? '2'
+							// 		: '1'
+							// }
 						>
 							<Agents
 								agentAssigned={lead?.agentAssigned}
@@ -198,18 +199,22 @@ const LeftCard = ({
 				)}
 
 				{/* Main lead status */}
-				{!hiddenFields.includes('eLeadStatus') && (
-					<GridItem colSpan={hiddenFields.includes('leadStatus') ? '2' : '1'}>
-						<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
-					</GridItem>
-				)}
+				{hasPermission('leads', 'leadStatus') &&
+					!hiddenFields.includes('eLeadStatus') && (
+						<GridItem colSpan={hiddenFields.includes('leadStatus') ? '2' : '1'}>
+							<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
+						</GridItem>
+					)}
 
 				{/* Lead status */}
-				{!hiddenFields.includes('leadStatus') && (
-					<GridItem colSpan={hiddenFields.includes('eLeadStatus') ? '2' : '1'}>
-						<Status lead={lead} refreshLeads={refreshLeads} />
-					</GridItem>
-				)}
+				{hasPermission('leads', 'mainStatus') &&
+					!hiddenFields.includes('leadStatus') && (
+						<GridItem
+							colSpan={hiddenFields.includes('eLeadStatus') ? '2' : '1'}
+						>
+							<Status lead={lead} refreshLeads={refreshLeads} />
+						</GridItem>
+					)}
 
 				{!hideContact && (
 					<GridItem colSpan={2} display='flex' justifyContent='space-between'>

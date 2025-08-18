@@ -13,6 +13,7 @@ import { ROLE_PATH } from '../../roles';
 import routes from 'routes.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
+import { usePermissions } from 'hooks/usePermissions';
 // Custom Chakra theme
 export default function Dashboard(props) {
 	const { ...rest } = props;
@@ -21,6 +22,14 @@ export default function Dashboard(props) {
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(false);
 	const user = JSON.parse(localStorage.getItem('user'));
+
+	const { hasPermission } = usePermissions();
+
+	// filter the only allowed routes (modules)
+	const finalRoutes = routes?.filter((route) => {
+		if (!route.moduleId) return true;
+		return hasPermission(route.moduleId);
+	});
 
 	// functions for changing the states from components
 	const getRoute = () => {
@@ -165,7 +174,7 @@ export default function Dashboard(props) {
 					}}
 				>
 					<Sidebar
-						routes={routes}
+						routes={finalRoutes}
 						largeLogo={largeLogo}
 						display='none'
 						{...rest}
@@ -203,13 +212,13 @@ export default function Dashboard(props) {
 							<Box className='header'>
 								<Navbar
 									onOpen={onOpen}
-									routes={routes}
+									routes={finalRoutes}
 									logoText={'CRM Dashboard'}
-									brandText={getActiveRoute(routes)}
-									secondary={getActiveNavbar(routes)}
-									message={getActiveNavbarText(routes)}
+									brandText={getActiveRoute(finalRoutes)}
+									secondary={getActiveNavbar(finalRoutes)}
+									message={getActiveNavbarText(finalRoutes)}
 									fixed={fixed}
-									under={under(routes)}
+									under={under(finalRoutes)}
 									largeLogo={largeLogo}
 									openSidebar={openSidebar}
 									setOpenSidebar={setOpenSidebar}
@@ -240,7 +249,7 @@ export default function Dashboard(props) {
 										}
 									>
 										<Routes>
-											{getRoutes(routes)}
+											{getRoutes(finalRoutes)}
 											<Route path='/*' element={<Navigate to='/default' />} />
 										</Routes>
 									</Suspense>

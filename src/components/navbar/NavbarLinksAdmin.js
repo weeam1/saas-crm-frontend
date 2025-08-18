@@ -85,8 +85,6 @@ export default function HeaderLinks(props) {
 						'user',
 				};
 
-				console.log({ userData });
-
 				setLoginUser(userData);
 
 				// build the permission map and store in redux store

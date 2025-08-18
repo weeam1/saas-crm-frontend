@@ -204,6 +204,7 @@ export default function User(props) {
 		},
 
 		{
+			moduleId: 'deal',
 			name: 'Deals',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/deals',
@@ -211,32 +212,8 @@ export default function User(props) {
 				<Icon as={FaHandshake} width='20px' height='20px' color='inherit' />
 			),
 			component: DealsScreen,
-			moduleId: 'deals',
 		},
 
-		{
-			name: 'Attendance',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/attendance',
-			icon: (
-				<Icon
-					as={FaRegCalendarCheck}
-					width='20px'
-					height='20px'
-					color='inherit'
-				/>
-			),
-			component: AttendenceV2,
-			moduleId: 'attendance',
-		},
-		{
-			name: 'My Attendance',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/attendance/employees/:id',
-			under: 'my-attendance',
-			parentName: 'Attendance',
-			component: MyAttendance,
-		},
 		{
 			name: 'Listing',
 			layout: [ROLE_PATH.user],
@@ -246,6 +223,7 @@ export default function User(props) {
 			moduleId: 'listing',
 		},
 		{
+			moduleId: 'listing',
 			name: 'Adding Listing',
 			layout: [ROLE_PATH.user],
 			path: '/listing/add-listing',
@@ -254,6 +232,7 @@ export default function User(props) {
 			component: AddListing,
 		},
 		{
+			moduleId: 'listing',
 			name: 'View Listing',
 			layout: [ROLE_PATH.user],
 			path: '/listing/view-listing/:id',
@@ -262,6 +241,7 @@ export default function User(props) {
 			component: ViewListing,
 		},
 		{
+			moduleId: 'listing',
 			name: 'Update Listing',
 			layout: [ROLE_PATH.user],
 			path: '/listing/update/:id',
@@ -303,9 +283,184 @@ export default function User(props) {
 			under: 'users',
 			path: '/userView/:id',
 			component: UserView,
-			moduleId: 'user_view',
 		},
 
+		{
+			moduleId: 'announcement',
+			name: 'Announcement',
+			layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+			path: '/announcements',
+			icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
+			component: Announcements,
+		},
+		{
+			moduleId: 'hiring',
+			name: 'Hiring',
+			path: '/hiring',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			icon: (
+				<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+			),
+			component: Hiring,
+		},
+		{
+			moduleId: 'hiring',
+			name: 'Short Listed',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring/short-listed',
+			under: 'shortListed',
+			parentName: 'Hiring',
+			component: ShortListedCandidates,
+		},
+		{
+			moduleId: 'hiring',
+			name: 'Interview',
+			layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+			path: '/hiring/interview/:interviewId',
+			under: 'interview',
+			parentName: 'Hiring',
+			component: InterviewScreen,
+		},
+		{
+			moduleId: 'hiring',
+			name: 'Offer View',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/hiring/interviewed-candidates/offer-letter/view/:id',
+			under: 'offerView',
+			parentName: 'Hiring',
+			component: OfferView,
+		},
+
+		{
+			name: 'Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance',
+			icon: (
+				<Icon
+					as={FaRegCalendarCheck}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			component: AttendenceV2,
+			moduleId: 'attendance',
+		},
+
+		{
+			moduleId: 'attendance',
+			name: 'Office Settings',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/office-settings/:id',
+			under: 'office-settings',
+			component: OfficeSettings,
+		},
+
+		{
+			moduleId: 'attendance',
+			name: 'Attendance Dashboard',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/dashboard',
+			under: 'employees',
+			parentName: 'Attendance',
+			component: AttendanceDashboard,
+		},
+		{
+			moduleId: 'attendance',
+			name: 'Employees',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees',
+			under: 'employees',
+			parentName: 'Attendance',
+			component: Employees,
+		},
+		{
+			moduleId: 'attendance',
+			name: 'Attendance Record',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/record',
+			under: 'attendance-record',
+			parentName: 'Attendance',
+			component: Records,
+		},
+		{
+			moduleId: 'attendance',
+			name: 'My Attendance',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/attendance/employees/:id',
+			under: 'my-attendance',
+			parentName: 'Attendance',
+			component: MyAttendance,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Invoice',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			icon: (
+				<Icon
+					as={HiOutlineDocumentReport}
+					width='20px'
+					height='20px'
+					color='inherit'
+				/>
+			),
+			path: '/invoice',
+			component: InvoiceModule,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Bank Accounts',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/invoice/bank-accounts',
+			parentName: 'Invoice',
+			under: 'bank-accounts',
+			component: BankAccounts,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Invoice Developers',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			under: 'developer-invoices',
+			path: '/invoice/developers',
+			parentName: 'Invoice',
+			component: InvoiceDevelopers,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Developer Invoices',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			under: 'developer-invoices',
+			path: '/invoice/developers/invoices/:id',
+			parentName: 'Invoice',
+			component: DeveloperInvoices,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Single Invoice',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			under: 'single-invoice',
+			parentName: 'Invoice',
+			path: '/invoice/developers/invoices/view/:id',
+			component: SingleInvoice,
+		},
+		{
+			moduleId: 'invoice',
+			name: 'Invoice Entries',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			under: 'invoice-entries',
+			parentName: 'Invoice',
+			path: '/invoice/developers/invoices/entries/:id',
+			component: AddEntry,
+		},
+		{
+			moduleId: 'expense',
+			name: 'Expenses',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+
+			path: '/expenses',
+			icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
+			component: Expenses,
+		},
 		{
 			name: 'Survey',
 			layout: [ROLE_PATH.user],
@@ -317,6 +472,7 @@ export default function User(props) {
 			moduleId: 'survey',
 		},
 		{
+			moduleId: 'survey',
 			name: 'Survey Board',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/survey/survey-leader-board',
@@ -325,6 +481,7 @@ export default function User(props) {
 			component: LeaderBoard,
 		},
 		{
+			moduleId: 'survey',
 			name: 'Take Survey',
 			layout: [ROLE_PATH.user],
 			path: '/survey/take-survey/:id',
@@ -333,82 +490,38 @@ export default function User(props) {
 			component: TakeSurvey,
 		},
 		{
+			moduleId: 'task',
 			name: 'Task',
 			layout: [ROLE_PATH.user],
 			path: '/task',
 			icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 			component: TaskV2,
-			moduleId: 'task',
+		},
+
+		{
+			moduleId: 'users',
+			name: 'Users',
+			layout: [ROLE_PATH.user],
+			path: '/user',
+			icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+			component: UserPage,
 		},
 	];
 
-	// if (user?.roles[0]?.roleName === 'Manager') {
+	// if (userRoleName === 'Manager') {
 	// 	routes.push();
 	// 	// Remove the "Leads Pool" route
 	// }
 
-	if (user?.roles[0]?.roleName === 'Manager') {
-		// Define the new routes to be inserted
-		const newRoutes = [
-			{
-				moduleId: 'users',
-				name: 'Users',
-				layout: [ROLE_PATH.user],
-				path: '/user',
-				icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-				component: UserPage,
-			},
-			{
-				moduleId: 'announcement',
-				name: 'Announcement',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/announcements',
-				icon: (
-					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-				),
-				component: Announcements,
-			},
+	// if (userRoleName === 'Manager') {
+	// 	// Define the new routes to be inserted
+	// 	const newRoutes = [];
+	// 	// Insert the new routes at index 3 and 4
+	// 	// routes = routes.filter((route) => route.name !== 'Leads Pool');
+	// 	routes.splice(3, 0, ...newRoutes);
+	// }
 
-			{
-				moduleId: 'hiring',
-				name: 'Hiring',
-				path: '/hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Short Listed',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/short-listed',
-				under: 'shortListed',
-				parentName: 'Hiring',
-				component: ShortListedCandidates,
-			},
-			{
-				name: 'Interview',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/hiring/interview/:interviewId',
-				under: 'interview',
-				parentName: 'Hiring',
-				component: InterviewScreen,
-			},
-		];
-
-		// Insert the new routes at index 3 and 4
-		// routes = routes.filter((route) => route.name !== 'Leads Pool');
-
-		routes.splice(3, 0, ...newRoutes);
-	}
-
-	// if (user?.roles[0]?.roleName === 'Manager') {
+	// if (userRoleName === 'Manager') {
 	// 	routes.push({
 	// 		name: 'Adding Listing',
 	// 		layout: [ROLE_PATH.user],
@@ -420,7 +533,7 @@ export default function User(props) {
 	// 	// Remove the "Adding Listing" route
 	// 	routes = routes.filter((route) => route.name !== 'Adding Listing');
 	// }
-	// if (user?.roles[0]?.roleName === 'Manager') {
+	// if (userRoleName === 'Manager') {
 	// 	routes.push({
 	// 		name: 'Update Listing',
 	// 		layout: [ROLE_PATH.user],
@@ -433,167 +546,61 @@ export default function User(props) {
 	// 	routes = routes.filter((route) => route.name !== 'Update Listing');
 	// }
 
-	if (user?.roles[0]?.roleName === 'HR') {
+	// if (userRoleName === 'HR') {
+	// 	// Define the "Candidates" route
+	// 	const hiringRoutes = [
+	// 		{
+	// 			moduleId: 'attendance',
+	// 			name: 'Attendance',
+	// 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 			path: '/attendance',
+	// 			icon: (
+	// 				<Icon
+	// 					as={FaRegCalendarCheck}
+	// 					width='20px'
+	// 					height='20px'
+	// 					color='inherit'
+	// 				/>
+	// 			),
+	// 			component: Attendance,
+	// 		},
+	// 	];
+
+	// 	// 	// Only show the "Hiring" route for HR role
+	// 	routes = [...routes, ...hiringRoutes];
+	// }
+
+	// if (userRoleName === 'Developer') {
+	// 	const developerRoutes = [
+	// 		{
+	// 			moduleId: 'attendance',
+	// 			name: 'Attendance',
+	// 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 			path: '/attendance',
+	// 			icon: (
+	// 				<Icon
+	// 					as={FaRegCalendarCheck}
+	// 					width='20px'
+	// 					height='20px'
+	// 					color='inherit'
+	// 				/>
+	// 			),
+	// 			component: MyAttendance,
+	// 		},
+	// 	];
+
+	// 	routes = [...routes, ...developerRoutes];
+	// }
+
+	if (userRoleName === 'Attendance') {
 		// Define the "Candidates" route
-		const hiringRoutes = [
-			{
-				name: 'Hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring',
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Office Settings',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/office-settings/:id',
-				under: 'office-settings',
-				component: OfficeSettings,
-			},
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Attendance,
-			},
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
 
-			{
-				name: 'Attendance Dashboard',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: AttendanceDashboard,
-			},
-			{
-				name: 'Employees',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: Employees,
-			},
-			{
-				name: 'Attendance Record',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/record',
-				under: 'attendance-record',
-				parentName: 'Attendance',
-				component: Records,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-
-			{
-				name: 'Offer View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/interviewed-candidates/offer-letter/view/:id',
-				under: 'offerView',
-				parentName: 'Hiring',
-				component: OfferView,
-			},
-
-			{
-				name: 'Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey',
-				icon: (
-					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-				),
-				component: Survey,
-			},
-			{
-				name: 'Survey Board',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/survey/survey-leader-board',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: LeaderBoard,
-			},
-			{
-				name: 'Take Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey/take-survey/:id',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: TakeSurvey,
-			},
-			// Task management Task V2
-			{
-				name: 'Task',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/task',
-				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
-				component: TaskV2,
-				moduleId: 'lead_pool',
-			},
-		];
-
-		// 	// Only show the "Hiring" route for HR role
-		routes = hiringRoutes;
-	}
-	if (user?.roles[0]?.roleName === 'Developer') {
-		const developerRoutes = [
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: MyAttendance,
-			},
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-		];
-
-		routes = developerRoutes;
-	}
-
-	if (user?.roles[0]?.roleName === 'Attendance') {
-		// Define the "Candidates" route
 		const attendanceRoutes = [
 			{
+				moduleId: 'attendance',
 				name: 'Attendance',
 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 				path: '/attendance/dashboard',
@@ -607,168 +614,45 @@ export default function User(props) {
 				),
 				component: AttendanceDashboard,
 			},
-
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
 		];
 
-		routes = attendanceRoutes;
+		routes = [...filterRoutes, ...attendanceRoutes];
 	}
 
-	if (user?.roles[0]?.roleName === 'accountant') {
-		const accountantRoutes = [
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
+	// if (userRoleName === 'accountant') {
+	// 	const accountantRoutes = [
+	// 		// ------------- Invoice Module Routes ------------------------ //
+	// 	];
 
-			// ------------- Invoice Module Routes ------------------------ //
-			{
-				name: 'Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={HiOutlineDocumentReport}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				path: '/invoice',
-				component: InvoiceModule,
-			},
-			{
-				name: 'Bank Accounts',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/invoice/bank-accounts',
-				parentName: 'Invoice',
-				under: 'bank-accounts',
-				component: BankAccounts,
-			},
-			{
-				name: 'Invoice Developers',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers',
-				parentName: 'Invoice',
-				component: InvoiceDevelopers,
-			},
-			{
-				name: 'Developer Invoices',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers/invoices/:id',
-				parentName: 'Invoice',
-				component: DeveloperInvoices,
-			},
-			{
-				name: 'Single Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'single-invoice',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/view/:id',
-				component: SingleInvoice,
-			},
-			{
-				name: 'Invoice Entries',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'invoice-entries',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/entries/:id',
-				component: AddEntry,
-			},
-			{
-				name: 'Expenses',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-
-				path: '/expenses',
-				icon: (
-					<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
-				),
-				component: Expenses,
-			},
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Attendance,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
-
-			{
-				name: 'Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey',
-				icon: (
-					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-				),
-				component: Survey,
-			},
-			{
-				name: 'Survey Board',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/survey/survey-leader-board',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: LeaderBoard,
-			},
-			{
-				name: 'Take Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey/take-survey/:id',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: TakeSurvey,
-			},
-		];
-
-		routes = accountantRoutes;
-	}
+	// 	routes = accountantRoutes;
+	// }
 
 	// if user has whatsapp and also enable then show it
 	if (whatsappActive) {
 		routes.push({
+			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/whatsapp/chat',
 			icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
 			component: UserWhatsapp,
-			moduleId: 'whatsapp',
 		});
 	}
 
+	console.log({ initialRoutes: routes });
+
 	// filter the only allowed routes (modules)
-	routes = routes.filter((route) => {
+	routes = routes?.filter((route) => {
 		if (!route.moduleId) return true;
 		return hasPermission(route.moduleId);
 	});
 
-	console.log({ routes });
+	const defaultRoute =
+		routes.filter(
+			(route) => route.layout !== '/auth' || route.under !== 'users'
+		)[0]?.path ||
+		'/default' ||
+		'/';
 
 	const accessRoute = newRoute?.filter((item) =>
 		Object.keys(mergedPermissions)?.find(
@@ -1057,13 +941,13 @@ export default function User(props) {
 										<Routes>
 											{getRoutes(routes)}
 
-											{user?.roles[0]?.roleName === 'HR' ? (
+											{userRoleName === 'HR' ? (
 												<>
 													<Route
 														path='/*'
-														element={<Navigate to='/hiring' />}
+														element={<Navigate to={defaultRoute} />}
 													/>
-													<Route path='hiring'>
+													{/* <Route path='hiring'>
 														<Route path='candidates' element={<Candidates />} />
 														<Route
 															path='interview-candidates'
@@ -1089,23 +973,16 @@ export default function User(props) {
 															path='interviewed-candidates/offer-letter/veiw/:id'
 															element={<OfferView />}
 														/>
-													</Route>
+													</Route> */}
 												</>
-											) : user?.roles[0]?.roleName === 'accountant' ? (
-												<>
-													<Route
-														path='/*'
-														element={<Navigate to='/invoice' />}
-													/>
-												</>
-											) : user?.roles[0]?.roleName === 'Attendance' ? (
+											) : userRoleName === 'Attendance' ? (
 												<>
 													<Route
 														path='/*'
 														element={<Navigate to='/attendance/dashboard' />}
 													/>
 												</>
-											) : user?.roles[0]?.roleName === 'Developer' ? (
+											) : userRoleName === 'Developer' ? (
 												<>
 													<Route
 														path='/*'
@@ -1113,7 +990,10 @@ export default function User(props) {
 													/>
 												</>
 											) : (
-												<Route path='/*' element={<Navigate to='/default' />} />
+												<Route
+													path='/*'
+													element={<Navigate to={defaultRoute} />}
+												/>
 											)}
 										</Routes>
 									</Suspense>
