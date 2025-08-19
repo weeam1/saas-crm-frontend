@@ -6,6 +6,7 @@ import {
 	MdLeaderboard,
 	MdLock,
 	MdOutlineLaptopMac,
+	MdPeopleOutline,
 } from 'react-icons/md';
 
 import React from 'react';
@@ -126,6 +127,7 @@ const CreateWhatsappTemplate = React.lazy(
 			'views/admin/whatsapp/WhatsappSettings/Templates/CreateWhatsappTemplate'
 		)
 );
+const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 
 const routes = [
@@ -176,6 +178,16 @@ const routes = [
 		component: LeadPoolAdmin,
 	},
 
+	{
+		moduleId: 'leadpool_agents',
+		name: 'Leads Pool',
+		layout: [ROLE_PATH.user],
+		path: '/agent_pool',
+		icon: (
+			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+		),
+		component: LeadPoolAgent,
+	},
 	{
 		moduleId: 'deal',
 		name: 'Deals',

@@ -11,16 +11,17 @@ import configRoutes from 'routes.js';
 import { MdPeopleOutline } from 'react-icons/md';
 import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
+import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
+
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
 import TakeSurvey from 'views/admin/survey/TakeSurvey';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
-import LeadPoolAgent from 'views/admin/leadPool-v2';
 
-import { useFetchItemsQuery } from 'api/apiSlice';
-import useUserSession from 'hooks/useUserSession';
-import { usePermissions } from 'hooks/usePermissions';
+const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 
 const AttendanceDashboard = React.lazy(
 	() => import('views/admin/attendance/components/dashboard')
@@ -55,10 +56,20 @@ export default function User(props) {
 
 	let routes = [
 		...configRoutes,
+		// {
+		// 	moduleId: 'leadpool_agents',
+		// 	name: 'Leads Pool',
+		// 	layout: [ROLE_PATH.user],
+		// 	path: '/pool',
+		// 	icon: (
+		// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+		// 	),
+		// 	component: LeadPoolAgent,
+		// },
 		{
 			moduleId: 'survey',
 			name: 'Take Survey',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			layout: [ROLE_PATH.user],
 			path: '/survey/take-survey/:id',
 			under: 'Survey',
 			parentName: 'Survey',
@@ -67,16 +78,16 @@ export default function User(props) {
 	];
 
 	// insert "Lead Pool" at index 3 (after Leads)
-	routes.splice(3, 0, {
-		name: 'Leads Pool',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/pool',
-		icon: (
-			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-		),
-		component: LeadPoolAgent,
-		moduleId: 'leadpool_agents',
-	});
+	// routes.splice(3, 0, {
+	// 	name: 'Leads Pool',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/pool',
+	// 	icon: (
+	// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: LeadPoolAgent,
+	// 	moduleId: 'leadpool_agents',
+	// });
 
 	if (userRoleName === 'Attendance') {
 		// Define the "Candidates" route
