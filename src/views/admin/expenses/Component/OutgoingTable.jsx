@@ -24,9 +24,9 @@ import {
   Stack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon, DownloadIcon } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
-import { FiFilter, FiDownload } from "react-icons/fi";
+import { FiFilter } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
@@ -379,11 +379,22 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
       px={2}
       marginTop={"-16px"}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+        gap={1}
+      >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Payments
         </Text>
-        <Box gap={2} display="flex" alignItems="center">
+        <Box
+          gap={2}
+          display="flex"
+          alignItems="center"
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -407,8 +418,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
           </Button>
           <Button
             size="md"
-            variant="outline"
-            leftIcon={<FiDownload />}
+            leftIcon={<DownloadIcon />}
             py={3}
             px={6}
             onClick={exportToExcel}
