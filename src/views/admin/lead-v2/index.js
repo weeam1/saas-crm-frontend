@@ -1,8 +1,10 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import Loader from 'components/loading/Loader';
 import ToggleSwitch from './TogleSwitch';
 import { VStack } from '@chakra-ui/react';
 import PageSizeAlert from './components/subComponents/PageSizeAlert';
+import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
 
 const LeadsCards = lazy(() => import('./LeadsCards'));
 const LeadsTable = lazy(() => import('./../lead'));
@@ -16,6 +18,14 @@ const Index = () => {
 		setView(newView);
 		localStorage.setItem('leadViewMode', newView);
 	};
+
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('leads')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<VStack justifyContent='flex-start' gap='2'>

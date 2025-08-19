@@ -642,13 +642,13 @@ export default function User(props) {
 	console.log({ initialRoutes: routes });
 
 	// filter the only allowed routes (modules)
-	routes = routes?.filter((route) => {
+	const finalRoutes = routes?.filter((route) => {
 		if (!route.moduleId) return true;
 		return hasPermission(route.moduleId);
 	});
 
 	const defaultRoute =
-		routes.filter(
+		finalRoutes.filter(
 			(route) => route.layout !== '/auth' || route.under !== 'users'
 		)[0]?.path ||
 		'/default' ||
@@ -865,7 +865,7 @@ export default function User(props) {
 					}}
 				>
 					<Sidebar
-						routes={routes}
+						routes={finalRoutes}
 						display='none'
 						{...rest}
 						openSidebar={openSidebar}
@@ -902,13 +902,13 @@ export default function User(props) {
 							<Box className='header'>
 								<Navbar
 									onOpen={onOpen}
-									logoText={'Horizon UI Dashboard PRO'}
-									brandText={getActiveRoute(routes)}
-									secondary={getActiveNavbar(routes)}
-									message={getActiveNavbarText(routes)}
+									logoText={'Weeam CRM'}
+									brandText={getActiveRoute(finalRoutes)}
+									secondary={getActiveNavbar(finalRoutes)}
+									message={getActiveNavbarText(finalRoutes)}
 									fixed={fixed}
-									routes={routes}
-									under={under(routes)}
+									routes={finalRoutes}
+									under={under(finalRoutes)}
 									largeLogo={largeLogo}
 									openSidebar={openSidebar}
 									setOpenSidebar={setOpenSidebar}
@@ -992,7 +992,8 @@ export default function User(props) {
 											) : (
 												<Route
 													path='/*'
-													element={<Navigate to={defaultRoute} />}
+													element={<Navigate to={'/default'} />}
+													// element={<Navigate to={defaultRoute} />}
 												/>
 											)}
 										</Routes>

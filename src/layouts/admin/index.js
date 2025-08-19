@@ -171,6 +171,9 @@ export default function Dashboard(props) {
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';
 
+	console.log({ routes });
+	console.log({ finalRoutes });
+
 	return (
 		<Box>
 			<Box>
@@ -256,7 +259,7 @@ export default function Dashboard(props) {
 										}
 									>
 										<Routes>
-											{getRoutes(finalRoutes)}
+											{getRoutes(routes)}
 											<Route
 												path='/*'
 												element={<Navigate to={defaultRoute} />}

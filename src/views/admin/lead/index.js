@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
 
 const Index = ({ handleView, view }) => {
 	const [isLoding, setIsLoding] = useState(false);
@@ -19,6 +20,13 @@ const Index = ({ handleView, view }) => {
 
 	const { user, userRoleName, isSuperAdmin } = useUserSession();
 	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('leads')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 
 	const [totalLeads, setTotalLeads] = useState(0);
 	const [pages, setPages] = useState(0);

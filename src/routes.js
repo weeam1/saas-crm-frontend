@@ -280,15 +280,15 @@ const routes = [
 	// 	icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
 	// 	component: CurrencyPoints,
 	// },
-	{
-		name: 'Contact Import',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		both: true,
-		under: 'contacts',
-		parentName: 'Contacts',
-		path: '/contactImport',
-		component: ContactImport,
-	},
+	// {
+	// 	name: 'Contact Import',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	both: true,
+	// 	under: 'contacts',
+	// 	parentName: 'Contacts',
+	// 	path: '/contactImport',
+	// 	component: ContactImport,
+	// },
 	// ------------- Property Routes ------------------------
 	// {
 	// 	name: 'Property',
@@ -927,27 +927,12 @@ const routes = [
 	},
 
 	{
-		name: 'Lead Settings',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/lead-settings',
-		under: 'lead-settings',
-		component: LeadSetting,
-	},
-	{
 		name: 'Whatsapp Manager',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/settings/whatsapp_manager',
 		under: '/settings/dwhatsapp_manager',
 		component: WhatsappSettings,
 	},
-	{
-		name: 'Agencies',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/agencies',
-		under: 'agencies',
-		component: Agency,
-	},
-
 	{
 		name: 'Lead Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
