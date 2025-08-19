@@ -59,7 +59,7 @@ const Templates = () => {
 				Back
 			</AppButton>
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-				<Flex justify='space-between' align='center' mb={4}>
+				<Flex justify='space-between' align='center' mb={4} flexDir={{base:"column", sm: "column", md:"row"}}>
 					<Flex gap='2' fontSize='lg' fontWeight='bold'>
 						<Text>Whatsapp Templates</Text>
 						<CountUpComponent
