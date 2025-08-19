@@ -22,7 +22,7 @@ const ConfirmationModal = ({
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
-			<ModalContent fontFamily="'DM Sans', sans-serif">
+			<ModalContent fontFamily="'DM Sans', sans-serif" mx={{ base: 2, sm: 4, md: 8 }}>
 				<ModalHeader>{title || 'Are you sure?'}</ModalHeader>
 				<ModalBody>
 					<Text>{message || 'This action cannot be undone.'}</Text>

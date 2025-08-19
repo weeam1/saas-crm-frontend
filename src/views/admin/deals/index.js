@@ -214,7 +214,7 @@ const DealsScreen = () => {
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-			<Flex justify='space-between' align='center' mb={4}>
+			<Flex justify='space-between' align='center' mb={4} flexDir={{base:"column", sm:"column", md:"row"}} gap={2}>
 				<HStack gap='1' fontWeight='bold'>
 					<Text fontSize='lg'>Close Deals</Text>
 					<CountUpComponent
@@ -223,7 +223,7 @@ const DealsScreen = () => {
 					/>
 				</HStack>
 
-				<HStack gap='2'>
+				<HStack gap='2' display={"flex"} flexDir={{base:"column", sm:"column", md:"row"}} align='center'>
 					<Button
 						onClick={() => setIsFilterOpen(true)}
 						colorScheme='brand'
