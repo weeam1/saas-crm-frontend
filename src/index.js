@@ -237,7 +237,7 @@ function App() {
 						<Route path='/*' element={<AuthLayout />} />
 					)}
 				</Routes>
-				<LeadCycle />
+				{/* <LeadCycle /> */}
 			</>
 		);
 	else

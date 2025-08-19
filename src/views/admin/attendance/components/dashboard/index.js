@@ -5,6 +5,7 @@ import {
 	IconButton,
 	useDisclosure,
 	Heading,
+	Button,
 } from '@chakra-ui/react';
 import {
 	FaUsers,
@@ -15,7 +16,7 @@ import {
 	FaFileAlt,
 } from 'react-icons/fa';
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import RealTimeData from './RealTimeData';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -283,6 +284,19 @@ const Dashboard = () => {
 						borderRadius='full'
 						boxShadow='md'
 					/>
+				)}
+
+				{role === 'HR' && (
+					<Button
+						as={Link}
+						to={`/office-settings/${user?.agency?._id}`}
+						colorScheme='brand'
+						variant='outline'
+						size='sm'
+						borderRadius='lg'
+					>
+						Office Settings
+					</Button>
 				)}
 			</Flex>
 

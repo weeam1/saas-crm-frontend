@@ -142,7 +142,7 @@ const routes = [
 	// ------------- lead Routes ------------------------
 	// {
 	//   name: "Lead",
-	//   layout: [ROLE_PATH.superAdmin],
+	//   		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 	//   path: "/lead",
 	//   icon: (
 	//     <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
@@ -152,7 +152,7 @@ const routes = [
 	{
 		moduleId: 'leads',
 		name: 'Lead',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/lead',
 		icon: (
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
@@ -179,7 +179,7 @@ const routes = [
 	{
 		moduleId: 'deal',
 		name: 'Deals',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/deals',
 		icon: <Icon as={FaHandshake} width='20px' height='20px' color='inherit' />,
 		component: DealsScreen,
@@ -188,7 +188,7 @@ const routes = [
 	{
 		moduleId: 'announcement',
 		name: 'Announcement',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/announcements',
 		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
 		component: Announcement,
@@ -334,7 +334,7 @@ const routes = [
 	{
 		moduleId: 'expense',
 		name: 'Expenses',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/expenses',
 		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
 		component: Expenses,
@@ -386,7 +386,7 @@ const routes = [
 	{
 		moduleId: 'task',
 		name: 'Task',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/task',
 		icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 		component: TaskV2,
@@ -541,7 +541,7 @@ const routes = [
 	{
 		moduleId: 'sip',
 		name: 'Call Logs',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip',
 		icon: <Icon as={FaPhone} width='20px' height='20px' color='inherit' />,
 		component: Sip,
@@ -549,7 +549,7 @@ const routes = [
 	{
 		moduleId: 'sip',
 		name: 'Sip Dashboard',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/dashboard',
 		under: 'Sip',
 		parentName: 'Sip',
@@ -558,7 +558,7 @@ const routes = [
 	{
 		moduleId: 'sip',
 		name: 'Sip history',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/history',
 		under: 'Sip',
 		parentName: 'Sip',
@@ -569,7 +569,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'Listing',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing',
 		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
 		component: Listing,
@@ -577,7 +577,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'Adding Listing',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/add-listing',
 		under: 'listing',
 		parentName: 'Listing',
@@ -586,7 +586,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'View Listing',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/view-listing/:id',
 		under: 'listing',
 		parentName: 'Listing',
@@ -595,7 +595,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'Update Listing',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/update/:id',
 		under: 'listing',
 		parentName: 'Listing',
@@ -604,7 +604,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'Listing Setting',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/settings',
 		under: 'listing',
 		parentName: 'Listing',
@@ -613,7 +613,7 @@ const routes = [
 	{
 		moduleId: 'listing',
 		name: 'Sub Unit Types',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/settings/sub-unit-types',
 		under: 'listing',
 		parentName: 'Listing',
@@ -625,7 +625,7 @@ const routes = [
 	{
 		moduleId: 'survey',
 		name: 'Survey',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/survey',
 		icon: <Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />,
 		component: Survey,
@@ -642,7 +642,7 @@ const routes = [
 	{
 		moduleId: 'survey',
 		name: 'Create Survey',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/survey/create-survey',
 		under: 'Survey',
 		parentName: 'Survey',
@@ -651,7 +651,7 @@ const routes = [
 	{
 		moduleId: 'survey',
 		name: 'view Survey',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/survey/view-survey/:id',
 		under: 'Survey',
 		parentName: 'Survey',
@@ -758,6 +758,7 @@ const routes = [
 
 	// ------------- Roles Routes ------------------------
 	{
+		moduleId: 'admin_settings',
 		name: 'Roles',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/role',
@@ -773,13 +774,15 @@ const routes = [
 		component: Role,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'User Permission',
-		layout: [ROLE_PATH.superAdmin],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/user-permission/:id/:roleName',
 		under: 'role',
 		component: UserPermission,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Custom Fields',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/custom-Fields',
@@ -788,6 +791,7 @@ const routes = [
 		component: CustomField,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Change Images',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/change-images',
@@ -803,6 +807,7 @@ const routes = [
 		component: ChangeImage,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Validation',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/validations',
@@ -818,6 +823,7 @@ const routes = [
 		component: Validation,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Table Fields',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/table-field',
@@ -927,6 +933,7 @@ const routes = [
 	},
 
 	{
+		moduleId: 'admin_settings',
 		name: 'Whatsapp Manager',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/settings/whatsapp_manager',
@@ -934,6 +941,7 @@ const routes = [
 		component: WhatsappSettings,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Lead Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/lead-settings',
@@ -941,6 +949,7 @@ const routes = [
 		component: LeadSetting,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Agencies',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/agencies',
@@ -948,6 +957,7 @@ const routes = [
 		component: Agency,
 	},
 	{
+		moduleId: 'admin_settings',
 		name: 'Office Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/office-settings/:id',

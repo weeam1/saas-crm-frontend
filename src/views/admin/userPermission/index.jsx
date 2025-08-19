@@ -8,6 +8,12 @@ import {
 	HStack,
 	Input,
 	Divider,
+	Flex,
+	Checkbox,
+	Stack,
+	RadioGroup,
+	Radio,
+	useRadio,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
@@ -19,6 +25,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import PermissionCard from './components/PermissionCard';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import LeadpoolSelector from './components/LeadpoolSelector';
 
 const Permission = () => {
 	const { id, roleName } = useParams();
@@ -98,6 +105,25 @@ const Permission = () => {
 		setModules(updatedModules);
 	};
 
+	// Radio selection for leadpool modules only
+	const handleRadioSelect = (selectedModuleId) => {
+		setModules((prevModules) =>
+			prevModules.map((module) => {
+				if (module.moduleId.toLowerCase().includes('leadpool')) {
+					// enforce radio: only the selected leadpool is true
+					return {
+						...module,
+						isModuleEnabled: module.moduleId === selectedModuleId,
+					};
+				}
+				// non-leadpool modules stay unchanged
+				return module;
+			})
+		);
+	};
+
+	console.log({ modules });
+
 	const getPayloadModules = () => {
 		return modules
 			.map((module) => {
@@ -134,9 +160,17 @@ const Permission = () => {
 		}
 	};
 
-	const filteredModules = modules.filter((m) =>
-		m.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
+	const filteredModules = modules.filter(
+		(m) => !m.moduleId.toLowerCase().includes('leadpool')
 	);
+	const leadPoolModules = modules.filter((m) =>
+		m.moduleId.toLowerCase().includes('leadpool')
+	);
+
+	console.log({ leadPoolModules });
+	// const filteredModules = modules.filter((m) =>
+	// 	m.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
+	// );
 
 	return (
 		<>
@@ -157,7 +191,7 @@ const Permission = () => {
 				</Heading>
 
 				{/* Search Section */}
-				<Box mb={4}>
+				{/* <Box mb={4}>
 					<HStack
 						mb={2}
 						display='flex'
@@ -176,7 +210,7 @@ const Permission = () => {
 						/>
 					</HStack>
 					<Divider />
-				</Box>
+				</Box> */}
 
 				{/* Permission Cards */}
 				{loadingRole || loadingUserRole ? (
@@ -192,58 +226,62 @@ const Permission = () => {
 						</Grid>
 					</Box>
 				) : (
-					<Grid
-						templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
-						gap={6}
-						mx='auto'
-						alignItems='start'
-					>
-						<Grid gap={6}>
-							{filteredModules
-								.filter((_, index) => index % 2 === 0)
-								.map((module, index) => {
-									const originalIndex = modules.findIndex(
-										(m) => m.moduleId === module.moduleId
-									);
-									return (
-										<PermissionCard
-											key={module.moduleId}
-											module={module}
-											moduleIndex={originalIndex}
-											borderColor={borderColor}
-											disabledBorderColor={disabledBorderColor}
-											disabledTextColor={disabledTextColor}
-											handleModuleToggle={handleModuleToggle}
-											handleSelectAll={handleSelectAll}
-											handleActionToggle={handleActionToggle}
-										/>
-									);
-								})}
-						</Grid>
+					<>
+						<LeadpoolSelector modules={modules} setModules={setModules} />
 
-						<Grid gap={6}>
-							{filteredModules
-								.filter((_, index) => index % 2 !== 0)
-								.map((module, index) => {
-									const originalIndex = modules.findIndex(
-										(m) => m.moduleId === module.moduleId
-									);
-									return (
-										<PermissionCard
-											key={module.moduleId}
-											module={module}
-											moduleIndex={originalIndex}
-											borderColor={borderColor}
-											disabledBorderColor={disabledBorderColor}
-											disabledTextColor={disabledTextColor}
-											handleModuleToggle={handleModuleToggle}
-											handleSelectAll={handleSelectAll}
-											handleActionToggle={handleActionToggle}
-										/>
-									);
-								})}
+						<Grid
+							templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+							gap={6}
+							mx='auto'
+							alignItems='start'
+						>
+							<Grid gap={6}>
+								{filteredModules
+									.filter((_, index) => index % 2 === 0)
+									.map((module, index) => {
+										const originalIndex = modules.findIndex(
+											(m) => m.moduleId === module.moduleId
+										);
+										return (
+											<PermissionCard
+												key={module.moduleId}
+												module={module}
+												moduleIndex={originalIndex}
+												borderColor={borderColor}
+												disabledBorderColor={disabledBorderColor}
+												disabledTextColor={disabledTextColor}
+												handleModuleToggle={handleModuleToggle}
+												handleSelectAll={handleSelectAll}
+												handleActionToggle={handleActionToggle}
+											/>
+										);
+									})}
+							</Grid>
+
+							<Grid gap={6}>
+								{filteredModules
+									.filter((_, index) => index % 2 !== 0)
+									.map((module, index) => {
+										const originalIndex = modules.findIndex(
+											(m) => m.moduleId === module.moduleId
+										);
+										return (
+											<PermissionCard
+												key={module.moduleId}
+												module={module}
+												moduleIndex={originalIndex}
+												borderColor={borderColor}
+												disabledBorderColor={disabledBorderColor}
+												disabledTextColor={disabledTextColor}
+												handleModuleToggle={handleModuleToggle}
+												handleSelectAll={handleSelectAll}
+												handleActionToggle={handleActionToggle}
+											/>
+										);
+									})}
+							</Grid>
 						</Grid>
-					</Grid>
+					</>
 				)}
 
 				{filteredModules.length === 0 && !loadingRole && !loadingUserRole && (

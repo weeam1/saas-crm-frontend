@@ -34,9 +34,11 @@ export default function Dashboard(props) {
 	const defaultRoute =
 		finalRoutes.filter(
 			(route) => route.layout !== '/auth' || route.under !== 'users'
-		)[0]?.path ||
-		'/default' ||
-		'/';
+		)[0]?.path || '/default';
+
+	console.log({
+		finaL: defaultRoute,
+	});
 
 	// functions for changing the states from components
 	const getRoute = () => {
