@@ -1,13 +1,13 @@
-import React from 'react';
-import { Icon } from '@chakra-ui/react';
+import React from "react";
+import { Icon } from "@chakra-ui/react";
 import {
   MdHome,
   MdLeaderboard,
-  MdLock,
   MdOutlineLaptopMac,
   MdAdminPanelSettings,
-  MdCampaign
-} from 'react-icons/md';
+  MdCampaign,
+  MdAddBox,
+} from "react-icons/md";
 import {
   FaTasks,
   FaWpforms,
@@ -17,36 +17,36 @@ import {
   FaPhone,
   FaWhatsapp,
   FaHandshake,
-} from 'react-icons/fa';
-import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
-import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
+} from "react-icons/fa";
+import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
+import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
 
 const PermissionIcon = ({ moduleName }) => {
-  const cleanModuleName = moduleName.replace(/^[\s,]+/, '').trim();
-  
+  const cleanModuleName = moduleName.replace(/^[\s,]+/, "").trim();
+
   const iconMap = {
-    'Admin Settings': MdAdminPanelSettings,
-    'Lead Module': MdLeaderboard,
-    'Announcement Module': MdCampaign,
-    'Invoice Module': FaWpforms,
-    'Expense Module': FaRegCopy,
-    'Call Logs Module': FaPhone,
-    'WhatsApp Module': FaWhatsapp,
-    'Task Module': FaTasks,
-    'System Log Module': MdOutlineLaptopMac,
-    'Dashboard': MdHome,
-    'Deals Module': FaHandshake,
-    'Attendance Module': FaRegCalendarCheck,
-    'Hiring Module': FaClipboardUser,
-    'Survey Module': FaSquarePlus,
-    'Listing Module': FaList,
-    'Users Module': HiUsers,
-    'Reports Module': HiOutlineDocumentReport,
+    "Admin Settings": MdAdminPanelSettings,
+    "Lead Module": MdLeaderboard,
+    "Announcement Module": MdCampaign,
+    "Invoice Module": FaWpforms,
+    "Expense Module": FaRegCopy,
+    "Call Logs Module": FaPhone,
+    "WhatsApp Module": FaWhatsapp,
+    "Task Module": FaTasks,
+    "System Log Module": MdOutlineLaptopMac,
+    Dashboard: MdHome,
+    "Deals Module": FaHandshake,
+    "Attendance Module": FaRegCalendarCheck,
+    "Hiring Module": FaClipboardUser,
+    "Survey Module": FaSquarePlus,
+    "Listing Module": FaList,
+    "Users Module": HiUsers,
+    "Reports Module": HiOutlineDocumentReport,
   };
 
-  const IconComponent = iconMap[cleanModuleName] || MdLock;
+  const IconComponent = iconMap[cleanModuleName] || MdAddBox;
 
-  return <Icon as={IconComponent} width='20px' height='20px' color='inherit' />;
+  return <Icon as={IconComponent} width="20px" height="20px" color="inherit" />;
 };
 
 export default PermissionIcon;
