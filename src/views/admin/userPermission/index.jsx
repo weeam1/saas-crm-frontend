@@ -30,7 +30,7 @@ import LeadpoolSelector from './components/LeadpoolSelector';
 const Permission = () => {
 	const { id, roleName } = useParams();
 	const borderColor = useColorModeValue('gray.200', 'gray.600');
-	const disabledBorderColor = useColorModeValue('gray.400', 'gray.500');
+	const disabledBorderColor = "gray.400"
 	const disabledTextColor = useColorModeValue('gray.500', 'gray.600');
 
 	const navigate = useNavigate();
@@ -63,7 +63,7 @@ const Permission = () => {
 			const mergedModules = roleModules.map((roleModule) => {
 				const userModule = userModules.find(
 					(u) =>
-						u.moduleName?.toLowerCase() === roleModule.moduleName?.toLowerCase()
+						u.moduleId === roleModule.moduleId
 				);
 
 				return {
