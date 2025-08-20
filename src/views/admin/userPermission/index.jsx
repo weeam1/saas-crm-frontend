@@ -144,7 +144,7 @@ const Permission = () => {
 			.filter((module) => module.isModuleEnabled === true);
 	};
 
-	const handleUpdateRole = async () => {
+	const handleUpdatePermission = async () => {
 		const payloadModules = getPayloadModules();
 
 		try {
@@ -291,13 +291,13 @@ const Permission = () => {
 				<HStack justify='flex-end' mt={6}>
 					<Button
 						colorScheme='brand'
-						onClick={handleUpdateRole}
+						onClick={handleUpdatePermission}
 						borderRadius='md'
 						_focus={{ boxShadow: 'none' }}
 						_active={{ boxShadow: 'none' }}
 						isLoading={isUpdating}
 					>
-						Update Role
+						Update Permission
 					</Button>
 				</HStack>
 			</Box>

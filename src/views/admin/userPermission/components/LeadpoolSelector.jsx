@@ -44,7 +44,6 @@ export default function LeadpoolSelector({ modules, setModules }) {
         <Text color="gray.600" mb={4}>
           Choose one Leadpool module (only one can be active at a time).
         </Text>
-
         <Flex direction={{ base: "column", md: "row" }} gap="4" w="full">
           {leadPoolModules.map((module) => (
             <Box
@@ -59,9 +58,9 @@ export default function LeadpoolSelector({ modules, setModules }) {
             >
               <Flex align="center" justify="space-between">
                 <Text
+                  color="brand.600"
                   fontSize="md"
                   fontWeight="semibold"
-                  color="gray.800"
                   display="flex"
                   gap={2}
                   flexDir="row"
