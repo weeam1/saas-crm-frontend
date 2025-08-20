@@ -8,24 +8,101 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ROLE_PATH } from '../../roles';
 import configRoutes from 'routes.js';
-import { MdPeopleOutline } from 'react-icons/md';
-import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
-
-import { useFetchItemsQuery } from 'api/apiSlice';
-import useUserSession from 'hooks/useUserSession';
-import { usePermissions } from 'hooks/usePermissions';
+import {
+	MdCampaign,
+	MdHome,
+	MdInsertChartOutlined,
+	MdLeaderboard,
+	MdLock,
+	MdPeopleOutline,
+} from 'react-icons/md';
+import {
+	FaUserCircle,
+	FaDollarSign,
+	FaRegCalendarCheck,
+	FaRegCopy,
+	FaList,
+	FaWhatsapp,
+	FaTasks,
+	FaHandshake,
+} from 'react-icons/fa';
 
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
+import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
+import Report from 'views/admin/reports';
+import DailyReport from 'views/admin/dailyReport';
+import Announcements from 'views/admin/announcement';
+import Hiring from 'views/admin/hiring';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
+import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
+import Candidates from 'views/admin/hiring/candidates';
+import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
+import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
+import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
+import OfficeSettings from 'views/admin/agencies/OfficeSetting';
+import Expenses from 'views/admin/expenses';
+import AddListing from 'views/admin/Listing/Component/AddListing';
+import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
+import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
+import SettingPage from 'views/admin/Listing/Component/settings/index';
+import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 import TakeSurvey from 'views/admin/survey/TakeSurvey';
+import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
 
+import { usePermissions } from 'hooks/usePermissions';
+
+const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
+const MainDashboard = React.lazy(() => import('views/admin/default'));
+const SignInCentered = React.lazy(() => import('views/auth/signIn'));
+const UserPage = React.lazy(() => import('views/admin/users'));
+// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
+const HRModule = React.lazy(() => import('views/admin/hrModule'));
+// const Lead = React.lazy(() => import('views/admin/lead'));
+const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 
+const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
+const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
+
+const Attendance = React.lazy(() => import('views/admin/attendance'));
+const AttendenceV2 = React.lazy(
+	() => import('views/admin/attendance/AttendenceV2')
+);
+
+const Employees = React.lazy(
+	() => import('views/admin/attendance/components/employees')
+);
+const Records = React.lazy(
+	() => import('views/admin/attendance/components/records')
+);
+const MyAttendance = React.lazy(
+	() => import('views/admin/attendance/components/myAttendance')
+);
 const AttendanceDashboard = React.lazy(
 	() => import('views/admin/attendance/components/dashboard')
 );
+
+const UserView = React.lazy(() => import('views/admin/users/View'));
+
+const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
+const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
+const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
+const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+const InvoiceDevelopers = React.lazy(
+	() => import('views/admin/invoice/developers')
+);
+
+const DeveloperInvoices = React.lazy(
+	() => import('views/admin/invoice/developers/DeveloperInvoices')
+);
+const Listing = React.lazy(() => import('views/admin/Listing'));
+const Survey = React.lazy(() => import('views/admin/survey'));
+const DealsScreen = React.lazy(() => import('views/admin/deals'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -54,22 +131,55 @@ export default function User(props) {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
 
+	// const filterAccess = (rolesData) => {
+	// 	return rolesData?.map((role) => {
+	// 		role.access = role?.access?.filter(
+	// 			(access) =>
+	// 				access.create || access.update || access.delete || access.view
+	// 		);
+	// 		return role;
+	// 	});
+	// };
+	// const filterAccess = (rolesData = []) => {
+	// 	return rolesData.map((role) => ({
+	// 		...role,
+	// 		access:
+	// 			role?.access?.filter(
+	// 				(a) => a.create || a.update || a.delete || a.view
+	// 			) || [],
+	// 	}));
+	// };
+
+	// Example usage:
+	// const updatedRolesData = filterAccess(user?.roles);
+	// let access = [];
+	// updatedRolesData?.map((item) =>
+	// 	item?.access?.map((data) => access.push(data))
+	// );
+
+	// let mergedPermissions = {};
+
+	// access?.forEach((permission) => {
+	// 	const { title, ...rest } = permission;
+
+	// 	if (!mergedPermissions[title]) {
+	// 		mergedPermissions[title] = { ...rest };
+	// 	} else {
+	// 		// Merge with priority to true values
+	// 		Object.keys(rest).forEach((key) => {
+	// 			if (mergedPermissions[title][key] !== true) {
+	// 				mergedPermissions[title][key] = rest[key];
+	// 			}
+	// 		});
+	// 	}
+	// });
+
 	let routes = [
 		...configRoutes,
-		// {
-		// 	moduleId: 'leadpool_agents',
-		// 	name: 'Leads Pool',
-		// 	layout: [ROLE_PATH.user],
-		// 	path: '/pool',
-		// 	icon: (
-		// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-		// 	),
-		// 	component: LeadPoolAgent,
-		// },
 		{
 			moduleId: 'survey',
 			name: 'Take Survey',
-			layout: [ROLE_PATH.user],
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/survey/take-survey/:id',
 			under: 'Survey',
 			parentName: 'Survey',
@@ -78,16 +188,100 @@ export default function User(props) {
 	];
 
 	// insert "Lead Pool" at index 3 (after Leads)
-	// routes.splice(3, 0, {
-	// 	name: 'Leads Pool',
-	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-	// 	path: '/pool',
-	// 	icon: (
-	// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-	// 	),
-	// 	component: LeadPoolAgent,
-	// 	moduleId: 'leadpool_agents',
-	// });
+	routes.splice(3, 0, {
+		name: 'Leads Pool',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/pool',
+		icon: (
+			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+		),
+		component: LeadPoolAgent,
+		moduleId: 'leadpool_agents',
+	});
+
+	// if (userRoleName === 'Manager') {
+	// 	routes.push();
+	// 	// Remove the "Leads Pool" route
+	// }
+
+	// if (userRoleName === 'Manager') {
+	// 	// Define the new routes to be inserted
+	// 	const newRoutes = [];
+	// 	// Insert the new routes at index 3 and 4
+	// 	// routes = routes.filter((route) => route.name !== 'Leads Pool');
+	// 	routes.splice(3, 0, ...newRoutes);
+	// }
+
+	// if (userRoleName === 'Manager') {
+	// 	routes.push({
+	// 		name: 'Adding Listing',
+	// 		layout: [ROLE_PATH.user],
+	// 		path: '/listing/add-listing',
+	// 		under: 'listing',
+	// 		parentName: 'Listing',
+	// 		component: AddListing,
+	// 	});
+	// 	// Remove the "Adding Listing" route
+	// 	routes = routes.filter((route) => route.name !== 'Adding Listing');
+	// }
+	// if (userRoleName === 'Manager') {
+	// 	routes.push({
+	// 		name: 'Update Listing',
+	// 		layout: [ROLE_PATH.user],
+	// 		path: '/listing/update/:id',
+	// 		under: 'listing',
+	// 		parentName: 'Listing',
+	// 		component: UpdateListing,
+	// 	});
+	// 	// Remove the "Updating Listing" route
+	// 	routes = routes.filter((route) => route.name !== 'Update Listing');
+	// }
+
+	// if (userRoleName === 'HR') {
+	// 	// Define the "Candidates" route
+	// 	const hiringRoutes = [
+	// 		{
+	// 			moduleId: 'attendance',
+	// 			name: 'Attendance',
+	// 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 			path: '/attendance',
+	// 			icon: (
+	// 				<Icon
+	// 					as={FaRegCalendarCheck}
+	// 					width='20px'
+	// 					height='20px'
+	// 					color='inherit'
+	// 				/>
+	// 			),
+	// 			component: Attendance,
+	// 		},
+	// 	];
+
+	// 	// 	// Only show the "Hiring" route for HR role
+	// 	routes = [...routes, ...hiringRoutes];
+	// }
+
+	// if (userRoleName === 'Developer') {
+	// 	const developerRoutes = [
+	// 		{
+	// 			moduleId: 'attendance',
+	// 			name: 'Attendance',
+	// 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 			path: '/attendance',
+	// 			icon: (
+	// 				<Icon
+	// 					as={FaRegCalendarCheck}
+	// 					width='20px'
+	// 					height='20px'
+	// 					color='inherit'
+	// 				/>
+	// 			),
+	// 			component: MyAttendance,
+	// 		},
+	// 	];
+
+	// 	routes = [...routes, ...developerRoutes];
+	// }
 
 	if (userRoleName === 'Attendance') {
 		// Define the "Candidates" route
@@ -115,6 +309,14 @@ export default function User(props) {
 
 		routes = [...filterRoutes, ...attendanceRoutes];
 	}
+
+	// if (userRoleName === 'accountant') {
+	// 	const accountantRoutes = [
+	// 		// ------------- Invoice Module Routes ------------------------ //
+	// 	];
+
+	// 	routes = accountantRoutes;
+	// }
 
 	// if user has whatsapp and also enable then show it
 	if (whatsappActive) {

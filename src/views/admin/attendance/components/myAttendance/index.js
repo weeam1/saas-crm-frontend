@@ -13,6 +13,7 @@ import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import CreateAttendance from './CreateAttendance';
 import { FaPlus } from 'react-icons/fa';
 import ExportEmployeeAttendanceReport from './ExportEmployeeAttendanceReport';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Attendance = ({ userId }) => {
 	let { id: paramId } = useParams();
@@ -21,6 +22,14 @@ const Attendance = ({ userId }) => {
 	const role =
 		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 	const employeeId = role === 'Developer' ? user?._id : userId || paramId;
+
+	const navigate = useNavigate();
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('attendance')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const { data: employee, isLoading: employeeLoading } = useFetchItemsQuery(
 		{
@@ -59,8 +68,6 @@ const Attendance = ({ userId }) => {
 		setYear(Number(value.year));
 		refetch();
 	};
-
-	const navigate = useNavigate();
 
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>

@@ -71,11 +71,21 @@ import UserAvatar from 'components/shared/UserAvatar';
 import WhatsappTemplates from './components/modals/WhatsappTemplates';
 import useIsMobile from './components/useIsMobile';
 import MenuOptions from './components/MenuOptions';
+import { useNavigate } from 'react-router-dom';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Whatsapp = () => {
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 	const contacts = useSelector((state) => state.whatsapp.contacts || []);
+
+	const navigate = useNavigate();
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('whatsapp')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const { registerUser, isConnected } = useSocketEvents();
 

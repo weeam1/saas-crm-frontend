@@ -1,9 +1,9 @@
+import { SimpleGrid } from '@chakra-ui/react';
+import useUserSession from 'hooks/useUserSession';
+
 import NoData from 'components/Message/NoData';
 import CardShimmer from 'components/loading/CardShimmer';
-import { SimpleGrid, useDisclosure } from '@chakra-ui/react';
-
 import { DealCard } from './components/DealCard';
-import { useSelector } from 'react-redux';
 
 const DealCards = ({
 	data,
@@ -12,9 +12,9 @@ const DealCards = ({
 	handleEdit,
 	handleView,
 	handleCancelled,
+	handleDelete,
 }) => {
-	const loginedUser = useSelector((state) => state.user.user);
-	const isAdmin = loginedUser?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	return (
 		<>
@@ -63,10 +63,12 @@ const DealCards = ({
 						<DealCard
 							key={item._id + idx}
 							deal={item}
-							loginedUser={loginedUser}
+							user={user}
+							isSuperAdmin={isSuperAdmin}
 							handleEdit={handleEdit}
 							handleView={handleView}
 							handleCancelled={handleCancelled}
+							handleDelete={handleDelete}
 						/>
 					))}
 				</SimpleGrid>

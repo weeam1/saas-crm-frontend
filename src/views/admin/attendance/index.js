@@ -7,9 +7,17 @@ import {
 	FaUserCheck,
 } from 'react-icons/fa';
 import { FiSettings } from 'react-icons/fi';
+import { usePermissions } from 'hooks/usePermissions';
+import { useEffect } from 'react';
 
 const NavigationBoxes = () => {
 	const navigate = useNavigate();
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('attendance')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const user = JSON.parse(localStorage.getItem('user'));
 	const role =

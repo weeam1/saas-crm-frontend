@@ -11,8 +11,6 @@ export const buildPermissionMap = (user) => {
 		});
 	});
 
-	console.log('permission map: ', map);
-
 	return map;
 };
 

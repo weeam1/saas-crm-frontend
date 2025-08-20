@@ -1,19 +1,31 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import TabNavigationDisplay from 'components/TabNavigationDisplay/TabNavigationDisplay';
 import HiringDashboard from './hiringDashboard';
 import Candidates from './candidates/index';
 import ShortListedCandidates from './shortListedCandidates/index';
 import InterviewedCandidates from './interviewedCandidates/index';
 import InterviewedRound from './interviewedCandidates/Rounds';
+import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const DEFAULT_TAB = 'dashboard';
 
 const Hiring = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isManager = user?.roles[0]?.roleName === 'Manager';
 	const [tabKey, setTabKey] = useState(0);
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName } = useUserSession();
+	const isManager = userRoleName === 'Manager';
+
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('hiring')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 
 	const allTabs = [
 		{

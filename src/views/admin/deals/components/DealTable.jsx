@@ -8,20 +8,17 @@ import {
 	Th,
 	Text,
 	Badge,
-	IconButton,
 	HStack,
-	Flex,
-	Icon,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { FiEdit, FiEye, FiXCircle } from 'react-icons/fi';
 
 import TableLoading from 'components/loading/TableLoading';
 import NoData from 'components/Message/NoData';
 import { StatusBadge } from './_shared/StatusBadge';
 import { formatCurrency } from './../../../../utils/helpers';
-import CustomTooltip from 'components/shared/CustomTooltip';
 import ViewDealInvoice from './_shared/ViewDealInvoice';
+import useUserSession from 'hooks/useUserSession';
+import MenuOptions from './_shared/MenuOptions';
 
 const DealTable = ({
 	data,
@@ -30,6 +27,7 @@ const DealTable = ({
 	handleEdit,
 	handleView,
 	handleCancelled,
+	handleDelete,
 }) => {
 	const columns = [
 		// 'Lead ID',
@@ -52,8 +50,10 @@ const DealTable = ({
 		'Action',
 	];
 
-	const loginedUser = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = loginedUser?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
+
+	// const loginedUser = JSON.parse(localStorage.getItem('user'));
+	// const isAdmin = loginedUser?.role === 'superAdmin';
 
 	return (
 		<Box
@@ -65,7 +65,7 @@ const DealTable = ({
 			bg='white'
 		>
 			<Table variant='striped' size='md'>
-				<Thead position='sticky' top={0} bg='white' zIndex={2}>
+				<Thead position='sticky' top={0} bg='white' zIndex={1}>
 					<Tr>
 						{columns.map((header, index) => (
 							<Th key={index} bg='brand.200' py={4}>
@@ -159,8 +159,8 @@ const DealTable = ({
 									<StatusBadge status={deal.commissionStatus} />
 								</Td>
 
-								<Td textAlign='left' minWidth='150px'>
-									{isAdmin && (
+								{/* <Td textAlign='left' minWidth='200px'>
+									{isSuperAdmin && (
 										<CustomTooltip label='Edit'>
 											<IconButton
 												icon={<FiEdit />}
@@ -185,7 +185,7 @@ const DealTable = ({
 									</CustomTooltip>
 
 									{deal.dealStatus !== 'Cancelled' &&
-										(isAdmin || deal.closedBy._id === loginedUser._id) && (
+										(isSuperAdmin || deal.closedBy._id === user._id) && (
 											<>
 												<CustomTooltip label='Deal Cancelled' variant='error'>
 													<IconButton
@@ -199,6 +199,26 @@ const DealTable = ({
 												</CustomTooltip>
 											</>
 										)}
+
+									<IconButton
+										icon={<MdDelete />}
+										aria-label='delete'
+										variant='ghost'
+										size='sm'
+										colorScheme='gray'
+										onClick={() => handleDelete(deal._id)}
+									/>
+								</Td> */}
+								<Td textAlign='left' minWidth='50px'>
+									<MenuOptions
+										user={user}
+										deal={deal}
+										isSuperAdmin={isSuperAdmin}
+										handleView={handleView}
+										handleDelete={handleDelete}
+										handleCancelled={handleCancelled}
+										handleEdit={handleEdit}
+									/>
 								</Td>
 							</Tr>
 						))

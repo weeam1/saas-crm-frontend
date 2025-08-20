@@ -54,8 +54,8 @@ const OfficeTiming = ({
 			height={boxHeight}
 			bg='white'
 			border='1px solid #cacaca'
-			opacity={isDisabled ? 0.5 : 1}
 			position='relative'
+			opacity={isDisabled ? 0.5 : 1}
 			pointerEvents={isDisabled ? 'none' : 'auto'}
 		>
 			<Flex justify='space-between' align='center' mb={4} flexWrap='wrap'>

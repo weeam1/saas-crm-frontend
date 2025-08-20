@@ -31,6 +31,7 @@ import { constant } from 'constant';
 import DigitalClockDropdown from './clock/DigitalClockDropdown;';
 import { buildPermissionMap } from 'utils/permissionUtils';
 import { setPermissions } from '../../redux/permissionSlice';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -50,6 +51,7 @@ export default function HeaderLinks(props) {
 	// const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
 
 	const [loginUser, setLoginUser] = useState();
+	const { hasPermission } = usePermissions();
 
 	const { colorMode, toggleColorMode } = useColorMode();
 
@@ -84,8 +86,6 @@ export default function HeaderLinks(props) {
 						response.data?.role ||
 						'user',
 				};
-
-				console.log({ userData });
 
 				setLoginUser(userData);
 
@@ -307,7 +307,7 @@ export default function HeaderLinks(props) {
 							</MenuItem>
 						)} */}
 
-							{loginUser?.role === 'superAdmin' && (
+							{localUser?.role === 'superAdmin' && (
 								<MenuItem
 									_hover={{ bg: 'none' }}
 									_focus={{ bg: 'none' }}

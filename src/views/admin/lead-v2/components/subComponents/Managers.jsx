@@ -17,6 +17,7 @@ import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);

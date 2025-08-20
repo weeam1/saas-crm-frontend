@@ -21,9 +21,10 @@ import ErrorMessage from 'components/Message/ErrorMessage';
 import { dealsLabels } from 'utils/searchLabels';
 import DateFilterButton from '../lead-v2/components/DateFilterButton';
 import DateRangeFilter from './components/DateRangeFilter';
-import { formattedDate } from 'utils/helpers';
 import { format } from 'date-fns';
 import ViewToggle from 'components/toggle/ViewToggle';
+import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
 
 const LIMIT = 12;
 
@@ -37,6 +38,13 @@ const DealsScreen = () => {
 	const [view, setView] = useState(() => {
 		return localStorage.getItem('dealsView') || 'table';
 	});
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('deal')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// const [viewLoading, setViewLoading] = useState(false);
 	const [isRefetching, setIsRefetching] = useState(false);
@@ -235,7 +243,7 @@ const DealsScreen = () => {
 
 					<DateFilterButton onClick={dateTimeOnOpen} />
 					<ViewToggle
-						moduleVie= "dealsView"
+						moduleVie='dealsView'
 						view={view}
 						handleView={handleViewChange}
 					/>

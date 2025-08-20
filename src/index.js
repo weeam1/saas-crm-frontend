@@ -51,7 +51,6 @@ function App() {
 
 	const token = localStorage.getItem('token') || null;
 
-	console.log({ token });
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
@@ -238,7 +237,7 @@ function App() {
 						<Route path='/*' element={<AuthLayout />} />
 					)}
 				</Routes>
-				<LeadCycle />
+				{/* <LeadCycle /> */}
 			</>
 		);
 	else
