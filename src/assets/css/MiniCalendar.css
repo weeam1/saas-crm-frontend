@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
 /* LIGHT MODE + GENERAL */
 
-.react-calendar {
+/* .react-calendar {
   border: unset;
   background-color: transparent;
   font-family: "DM Sans", sans-serif;
@@ -99,11 +99,11 @@ abbr[title] {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   color: white;
-}
+} */
 
 /* DARK MODE */
 
-body.chakra-ui-dark .react-calendar {
+/* body.chakra-ui-dark .react-calendar {
   border-radius: 30px;
 }
 body.chakra-ui-dark .react-calendar__navigation__prev-button {
@@ -157,4 +157,4 @@ body.chakra-ui-dark .react-calendar__tile--rangeEnd:enabled:focus {
 }
 .react-calendar {
   max-width: 280px;
-}
+} */

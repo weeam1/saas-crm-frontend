@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   Box,
   Input,
@@ -32,7 +32,12 @@ const CustomDatePicker = ({
   const errorMessage = errors?.[errorKey];
   const containerRef = useRef();
   const popupRef = useRef();
-  const [popupStyle, setPopupStyle] = useState({});
+  const [popupStyle, setPopupStyle] = useState({ 
+    opacity: 0, 
+    visibility: 'hidden',
+    position: 'fixed',
+    zIndex: 9999
+  });
   
   const isMobile = useBreakpointValue({ base: true, md: false });
   const theme = useTheme();
@@ -49,12 +54,87 @@ const CustomDatePicker = ({
     md: 320 
   });
 
+  const calculatePosition = useCallback(() => {
+    if (!containerRef.current) return {};
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    
+    const spaceBelow = viewportHeight - containerRect.bottom;
+    const spaceAbove = containerRect.top;
+    
+    let leftPos = containerRect.left;
+    const rightEdge = leftPos + calendarWidth;
+    
+    if (rightEdge > viewportWidth) {
+      leftPos = viewportWidth - calendarWidth - 10;
+    }
+    
+    if (leftPos < 0) {
+      leftPos = 10; 
+    }
+    
+    if (isMobile) {
+      return {
+        position: 'fixed',
+        zIndex: 9999,
+        width: `calc(100% - 40px)`,
+        maxWidth: '350px',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        backgroundColor: 'white',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '12px',
+        border: '1px solid #E2E8F0',
+      };
+    } else {
+      const hasSpaceBelow = spaceBelow >= calendarHeight + 20;
+      const hasSpaceAbove = spaceAbove >= calendarHeight + 20;
+      
+      let topPosition;
+      if (hasSpaceBelow) {
+        topPosition = `${containerRect.bottom + 8}px`;
+      } else if (hasSpaceAbove) {
+        topPosition = `${containerRect.top - calendarHeight - 8}px`;
+      } else {
+        return {
+          position: 'fixed',
+          zIndex: 9999,
+          width: `${calendarWidth}px`,
+          backgroundColor: 'white',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15)',
+          borderRadius: '12px',
+          border: '1px solid #E2E8F0',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        };
+      }
+      
+      return {
+        position: 'fixed',
+        zIndex: 9999,
+        width: `${calendarWidth}px`,
+        backgroundColor: 'white',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '12px',
+        border: '1px solid #E2E8F0',
+        top: topPosition,
+        left: `${leftPos}px`,
+        transform: 'none',
+      };
+    }
+  }, [isMobile, calendarWidth, calendarHeight]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target) &&
-        !e.target.closest('.react-calendar')
+        popupRef.current &&
+        !popupRef.current.contains(e.target)
       ) {
         if (isCalendarOpen) toggleCalendar(null);
       }
@@ -66,51 +146,45 @@ const CustomDatePicker = ({
 
   useEffect(() => {
     if (isCalendarOpen && containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
+      const position = calculatePosition();
       
-      const spaceRight = viewportWidth - containerRect.right;
-      const spaceLeft = containerRect.left;
-      const spaceBelow = viewportHeight - containerRect.bottom;
-      const spaceAbove = containerRect.top;
-
-      const shouldOpenLeft = spaceRight < calendarWidth && spaceLeft >= calendarWidth;
-      const shouldOpenAbove = spaceBelow < calendarHeight && spaceAbove >= calendarHeight;
+      setPopupStyle({
+        ...position,
+        opacity: 0,
+        visibility: 'visible',
+        transition: 'opacity 0.15s ease-in-out'
+      });
       
-      if (isMobile) {
-        setPopupStyle({
-          position: 'fixed',
-          zIndex: 9999,
-          width: '90%',
-          left: '5%',
-          right: '5%',
-          backgroundColor: 'white',
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15)',
-          borderRadius: '12px',
-          border: '1px solid #E2E8F0',
-          top: spaceBelow > calendarHeight ? `${containerRect.bottom + window.scrollY + 8}px` : 'auto',
-          bottom: spaceBelow > calendarHeight ? 'auto' : `${viewportHeight - containerRect.top + window.scrollY + 8}px`,
-          marginTop: '0',
-          marginBottom: '0',
-        });
-      } else {
-        setPopupStyle({
-          position: 'fixed',
-          zIndex: 9999,
-          width: `${calendarWidth}px`,
-          backgroundColor: 'white',
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.15)',
-          borderRadius: '12px',
-          border: '1px solid #E2E8F0',
-          top: shouldOpenAbove ? 'auto' : `${containerRect.bottom + window.scrollY + 8}px`,
-          bottom: shouldOpenAbove ? `${viewportHeight - containerRect.top + window.scrollY - 8}px` : 'auto',
-          left: shouldOpenLeft ? 'auto' : `${containerRect.left + window.scrollX}px`,
-          right: shouldOpenLeft ? `${viewportWidth - containerRect.right + window.scrollX}px` : 'auto',
-        });
-      }
+      requestAnimationFrame(() => {
+        setPopupStyle(prev => ({
+          ...prev,
+          opacity: 1
+        }));
+      });
+      
+      const handleScrollOrResize = () => {
+        const newPosition = calculatePosition();
+        setPopupStyle(prev => ({
+          ...prev,
+          ...newPosition
+        }));
+      };
+      
+      window.addEventListener('scroll', handleScrollOrResize, true);
+      window.addEventListener('resize', handleScrollOrResize);
+      
+      return () => {
+        window.removeEventListener('scroll', handleScrollOrResize, true);
+        window.removeEventListener('resize', handleScrollOrResize);
+      };
+    } else {
+      setPopupStyle({ 
+        opacity: 0, 
+        visibility: 'hidden',
+        transition: 'opacity 0.15s ease-in-out, visibility 0s linear 0.15s'
+      });
     }
-  }, [isCalendarOpen, isMobile, calendarWidth, calendarHeight]);
+  }, [isCalendarOpen, calculatePosition]);
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -123,13 +197,15 @@ const CustomDatePicker = ({
 
   const handleDateSelect = (date) => {
     handleDateChange(date);
-    setTimeout(() => {
-      toggleCalendar(null);
-    }, 100);
+    toggleCalendar(null);
   };
 
   const handleCalendarClick = (e) => {
     e.stopPropagation();
+  };
+
+  const handleToggleCalendar = () => {
+    toggleCalendar();
   };
 
   return (
@@ -152,14 +228,14 @@ const CustomDatePicker = ({
             focusBorderColor={errorMessage ? "red.500" : "blue.500"}
             _hover={{ borderColor: errorMessage ? "red.500" : "gray.300" }}
             cursor="pointer"
-            onClick={toggleCalendar}
+            onClick={handleToggleCalendar}
             {...inputStyles}
           />
           <InputRightElement>
             <FaRegCalendar
               size={16}
               cursor="pointer"
-              onClick={toggleCalendar}
+              onClick={handleToggleCalendar}
               color={errorMessage ? theme.colors.red[500] : theme.colors.gray[500]}
             />
           </InputRightElement>

@@ -11,10 +11,9 @@ import {
   FormControl,
   FormLabel,
   Select,
-  Box,
   VStack,
+  Box,
   Text,
-  SimpleGrid,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -132,9 +131,8 @@ const AdvancedSearchModal = ({
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 1, sm: 1, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
-        maxW="100vw"
+        maxW={{ base: "95vw", md: "600px" }}
+        mx={{ base: 2, md: "auto" }}
       >
         <ModalHeader>Advanced Search</ModalHeader>
         <ModalCloseButton />
@@ -158,8 +156,8 @@ const AdvancedSearchModal = ({
                 </Select>
               </FormControl>
 
-              <Box w="full" >
-                <SimpleGrid columns={{base:1, sm:1, md: 2}} gap={4}>
+              <Box width="100%" >
+                <VStack width="100%" alignItems="flex-end">
                   <FormControl>
                     <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker
@@ -202,7 +200,7 @@ const AdvancedSearchModal = ({
                       toggleCalendar={() => toggleCalendar("to")}
                     />
                   </FormControl>
-                </SimpleGrid>
+                </VStack>
               </Box>
             </VStack>
           </ModalBody>

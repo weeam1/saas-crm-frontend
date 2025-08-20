@@ -290,22 +290,24 @@ const CreateSurvey = () => {
                       formik.errors.closesAt && formik.touched.closesAt
                     }
                   >
-                    <CustomDatePicker
-                      selectedDate={formik.values.closesAt}
-                      handleDateChange={(date) =>
-                        formik.setFieldValue("closesAt", date)
-                      }
-                      placeholder="Select end date"
-                      minDate={(() => {
-                        const tomorrow = new Date();
-                        tomorrow.setDate(tomorrow.getDate() + 1);
-                        tomorrow.setHours(0, 0, 0, 0);
-                        return tomorrow;
-                      })()}
-                      isCalendarOpen={openCalendar === "endDate"}
-                      toggleCalendar={() => toggleCalendar("endDate")}
-                      inputStyles={inputStyles}
-                    />
+                    <VStack width="100%" alignItems="flex-start">
+                      <CustomDatePicker
+                        selectedDate={formik.values.closesAt}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("closesAt", date)
+                        }
+                        placeholder="Select end date"
+                        minDate={(() => {
+                          const tomorrow = new Date();
+                          tomorrow.setDate(tomorrow.getDate() + 1);
+                          tomorrow.setHours(0, 0, 0, 0);
+                          return tomorrow;
+                        })()}
+                        isCalendarOpen={openCalendar === "endDate"}
+                        toggleCalendar={() => toggleCalendar("endDate")}
+                        inputStyles={inputStyles}
+                      />
+                    </VStack>
                     <FormErrorMessage fontSize="xs">
                       {formik.errors.closesAt}
                     </FormErrorMessage>
