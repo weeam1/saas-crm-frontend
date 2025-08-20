@@ -56,7 +56,7 @@ export default function LeadpoolSelector({ modules, setModules }) {
 							transition='all 0.2s ease-in-out'
 						>
 							<Flex align='center' justify='space-between'>
-								<Text fontSize='md' fontWeight='semibold' color='gray.800'>
+								<Text color='brand.600' fontSize='md' fontWeight='semibold'>
 									{module.moduleName}
 								</Text>
 								<Switch
