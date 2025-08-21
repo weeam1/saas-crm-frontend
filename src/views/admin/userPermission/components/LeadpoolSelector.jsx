@@ -1,6 +1,5 @@
-import { Box, Text, Flex, Switch } from "@chakra-ui/react";
-import { Icon } from "@chakra-ui/react";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { Box, Text, Flex, Switch, Icon, Radio, RadioGroup, Stack } from "@chakra-ui/react";
+import { MdOutlineAdminPanelSettings, MdOutlinePerson, MdOutlineGroup } from "react-icons/md";
 
 export default function LeadpoolSelector({ modules, setModules }) {
   const leadPoolModules = modules.filter((m) =>
@@ -24,14 +23,15 @@ export default function LeadpoolSelector({ modules, setModules }) {
 
   return (
     <Box
-      mb="4"
-      bg="gray.100"
+      mb="6"
+      bg="white"
       rounded="md"
-      p="4"
+      p="6"
       borderWidth="1px"
-      borderRadius="md"
+      borderColor="brand.300"
+      boxShadow="base"
     >
-      {/* <Flex align='center' justify='space-between' mb={4}>
+        {/* <Flex align='center' justify='space-between' mb={4}>
 				<Text color='gray.600'>Enable Leadpool modules</Text>
 				<Switch
 					colorScheme='green'
@@ -39,12 +39,18 @@ export default function LeadpoolSelector({ modules, setModules }) {
 					onChange={(e) => toggleLeadpool(e.target.checked)}
 				/>
 			</Flex> */}
-
-      <>
-        <Text color="gray.600" mb={4}>
-          Choose one Leadpool module (only one can be active at a time).
+      <Flex align="center" mb={4}>
+        <Icon as={MdOutlineGroup} w={6} h={6} color="brand.500" mr={2} />
+        <Text fontWeight="semibold" color="brand.600">
+          Leadpool Access
         </Text>
-        <Flex direction={{ base: "column", md: "row" }} gap="4" w="full">
+      </Flex>
+      
+      <Text color="gray.600" mb={4} fontSize="sm">
+        Select one leadpool access type (only one can be active at a time)
+      </Text>
+      
+      <Flex direction={{ base: "column", md: "column" }} gap="4" w="full">
           {leadPoolModules.map((module) => (
             <Box
               key={module.moduleId}
@@ -83,7 +89,6 @@ export default function LeadpoolSelector({ modules, setModules }) {
             </Box>
           ))}
         </Flex>
-      </>
     </Box>
   );
 }
