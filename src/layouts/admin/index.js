@@ -1,151 +1,27 @@
-// Chakra imports
-import { Portal, Box, useDisclosure, Flex } from '@chakra-ui/react';
-import Footer from 'components/footer/FooterAdmin.js';
-// Layout components
-import Navbar from 'components/navbar/NavbarAdmin.js';
-import Sidebar from 'components/sidebar/Sidebar.js';
-import Spinner from 'components/spinner/Spinner';
-import { SidebarContext } from 'contexts/SidebarContext';
-import { Suspense, useEffect } from 'react';
-import { useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { ROLE_PATH } from '../../roles';
-import routes from 'routes.js';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchImage } from '../../redux/imageSlice';
-import { usePermissions } from 'hooks/usePermissions';
-// Custom Chakra theme
-export default function Dashboard(props) {
-	const { ...rest } = props;
-	// states and functions
-	const [fixed] = useState(false);
-	const [toggleSidebar, setToggleSidebar] = useState(false);
-	const [openSidebar, setOpenSidebar] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
+import { Box, Flex, useColorModeValue, useDisclosure } from '@chakra-ui/react';
+import React, { Suspense, useCallback } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ROLE_PATH } from 'roles';
+import Footer from 'components/footer/FooterAdmin';
+import AppNavbar, { NAVBAR_HEIGHT } from 'components/navbar/AppNavbar';
+import AppSidebar from 'components/sidebar/AppSidebar';
 
-	const { hasPermission } = usePermissions();
+import routes from 'routes';
+import sidebarRoutes from 'sidebarRoutes';
+import Loader from 'components/loading/Loader';
 
-	// filter the only allowed routes (modules)
-	const finalRoutes = routes?.filter((route) => {
-		if (!route.moduleId) return true;
-		return hasPermission(route.moduleId);
-	});
+const SIDEBAR_W = 260;
+const SIDEBAR_W_COLLAPSED = 88;
 
-	const defaultRoute =
-		finalRoutes.filter(
-			(route) => route.layout !== '/auth' || route.under !== 'users'
-		)[0]?.path || '/default';
+export default function DashboardLayout({ defaultRoute = '/default' }) {
+	const [openSidebar, setOpenSidebar] = React.useState(true);
+	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
+	const pageBg = useColorModeValue('gray.50', 'gray.800');
 
-	console.log({
-		finaL: defaultRoute,
-	});
-
-	// functions for changing the states from components
-	const getRoute = () => {
-		return window.location.pathname !== '/admin/full-screen-maps';
-	};
-	const getActiveRoute = (routes) => {
-		let activeRoute = 'Prolink';
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveRoute = getActiveRoute(routes[i].items);
-				if (collapseActiveRoute !== activeRoute) {
-					return collapseActiveRoute;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveRoute = getActiveRoute(routes[i].items);
-				if (categoryActiveRoute !== activeRoute) {
-					return categoryActiveRoute;
-				}
-			} else {
-				if (
-					window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
-					-1
-				) {
-					return routes[i].name;
-				}
-			}
-		}
-		return activeRoute;
-	};
-
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-		dispatch(fetchImage());
-	}, [dispatch]);
-
-	const largeLogo = useSelector((state) =>
-		state?.images?.image?.filter((item) => item.isActive === true)
-	);
-
-	const under = (routes) => {
-		let activeRoute = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveRoute = getActiveRoute(routes[i].items);
-				if (collapseActiveRoute !== activeRoute) {
-					return collapseActiveRoute;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveRoute = getActiveRoute(routes[i].items);
-				if (categoryActiveRoute !== activeRoute) {
-					return categoryActiveRoute;
-				}
-			} else {
-				if (
-					window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
-					-1
-				) {
-					return routes[i];
-				}
-			}
-		}
-		return activeRoute;
-	};
-
-	const getActiveNavbar = (routes) => {
-		let activeNavbar = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveNavbar = getActiveNavbar(routes[i].items);
-				if (collapseActiveNavbar !== activeNavbar) {
-					return collapseActiveNavbar;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveNavbar = getActiveNavbar(routes[i].items);
-				if (categoryActiveNavbar !== activeNavbar) {
-					return categoryActiveNavbar;
-				}
-			} else {
-				if (window.location.href.indexOf(routes[i].path) !== -1) {
-					return routes[i].secondary;
-				}
-			}
-		}
-		return activeNavbar;
-	};
-	const getActiveNavbarText = (routes) => {
-		let activeNavbar = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (collapseActiveNavbar !== activeNavbar) {
-					return collapseActiveNavbar;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (categoryActiveNavbar !== activeNavbar) {
-					return categoryActiveNavbar;
-				}
-			} else {
-				if (window.location.href.indexOf(routes[i].path) !== -1) {
-					return routes[i].messageNavbar;
-				}
-			}
-		}
-		return activeNavbar;
-	};
+	const filterRoute = useCallback((r) => {
+		if (r.moduleId === 'system_log') return true;
+		return true;
+	}, []);
 
 	const getRoutes = (routes) => {
 		return routes.map((prop, key) => {
@@ -169,114 +45,57 @@ export default function Dashboard(props) {
 			}
 		});
 	};
-	document.documentElement.dir = 'ltr';
-	const { onOpen } = useDisclosure();
-	document.documentElement.dir = 'ltr';
-
-	console.log({ routes });
-	console.log({ finalRoutes });
 
 	return (
-		<Box>
-			<Box>
-				<SidebarContext.Provider
-					value={{
-						toggleSidebar,
-						setToggleSidebar,
-					}}
-				>
-					<Sidebar
-						routes={finalRoutes}
-						largeLogo={largeLogo}
-						display='none'
-						{...rest}
-						openSidebar={openSidebar}
-						setOpenSidebar={setOpenSidebar}
-					/>
-					<Box
-						float='right'
-						minHeight='100vh'
-						height='100%'
-						overflow='auto'
-						position='relative'
-						maxHeight='100%'
-						// w={{ base: '100%', xl: 'calc( 100% - 290px )' }}
-						w={{
-							base: '100%',
-							xl:
-								openSidebar === true
-									? 'calc( 100% - 260px )'
-									: 'calc( 100% - 88px )',
-						}}
-						maxWidth={{
-							base: '100%',
-							xl:
-								openSidebar === true
-									? 'calc( 100% - 260px )'
-									: 'calc( 100% - 88px )',
-						}}
-						transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
-						transitionDuration='.2s, .2s, .35s'
-						transitionProperty='top, bottom, width'
-						transitionTimingFunction='linear, linear, ease'
+		<Flex>
+			{/* Navbar (full width) */}
+			<AppNavbar
+				openSidebar={openSidebar}
+				setOpenSidebar={setOpenSidebar}
+				onOpenMobile={onOpen}
+			/>
+
+			{/* Sidebar (desktop fixed, mobile Drawer) */}
+			<AppSidebar
+				routes={sidebarRoutes}
+				brandName='Weeam CRM'
+				filterRoute={filterRoute}
+				openSidebar={openSidebar}
+				setOpenSidebar={setOpenSidebar}
+				mobileOpen={mobileOpen}
+				setMobileOpen={(v) => (v ? onOpen() : onClose())}
+			/>
+
+			{/* Main content area */}
+			<Box
+				as='main'
+				flex='1'
+				bg={pageBg}
+				pt={`${NAVBAR_HEIGHT + 16}px`} // navbar height + spacing
+				pl={{
+					base: 0,
+					// xl: openSidebar ? `${SIDEBAR_W}px` : `${SIDEBAR_W_COLLAPSED}px`,
+				}}
+				transition='padding-left 220ms cubic-bezier(.4,0,.2,1)'
+				minH='100vh'
+			>
+				<Box px={{ base: 4, md: 6 }} py={{ base: 2, md: 4 }} mb='6'>
+					<Suspense
+						fallback={
+							<Flex align='center' justify='center' h='70vh'>
+								<Loader />
+							</Flex>
+						}
 					>
-						<Portal>
-							<Box className='header'>
-								<Navbar
-									onOpen={onOpen}
-									routes={finalRoutes}
-									logoText={'CRM Dashboard'}
-									brandText={getActiveRoute(finalRoutes)}
-									secondary={getActiveNavbar(finalRoutes)}
-									message={getActiveNavbarText(finalRoutes)}
-									fixed={fixed}
-									under={under(finalRoutes)}
-									largeLogo={largeLogo}
-									openSidebar={openSidebar}
-									setOpenSidebar={setOpenSidebar}
-									{...rest}
-								/>
-							</Box>
-						</Portal>
-						<Box pt={{ base: '120px', md: '95px', xl: '95px' }}>
-							{getRoute() ? (
-								<Box
-									mx='auto'
-									pe='20px'
-									minH='84vh'
-									pt='50px'
-									style={{
-										padding: openSidebar ? '8px 20px 8px 0px' : '8px 20px',
-									}}
-								>
-									<Suspense
-										fallback={
-											<Flex
-												justifyContent={'center'}
-												alignItems={'center'}
-												width='100%'
-											>
-												<Spinner />
-											</Flex>
-										}
-									>
-										<Routes>
-											{getRoutes(routes)}
-											<Route
-												path='/*'
-												element={<Navigate to={defaultRoute} />}
-											/>
-										</Routes>
-									</Suspense>
-								</Box>
-							) : null}
-						</Box>
-						<Box>
-							<Footer />
-						</Box>
-					</Box>
-				</SidebarContext.Provider>
+						<Routes>
+							{getRoutes(routes)}
+							<Route path='/*' element={<Navigate to={defaultRoute} />} />
+						</Routes>
+					</Suspense>
+				</Box>
+
+				<Footer />
 			</Box>
-		</Box>
+		</Flex>
 	);
 }

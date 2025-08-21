@@ -23,25 +23,72 @@ import {
 } from 'react-icons/fa';
 import { FaCreativeCommonsBy } from 'react-icons/fa';
 import { MdCampaign } from 'react-icons/md';
-import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
 import { ROLE_PATH } from './roles';
+import ChangeImage from 'views/admin/image';
+import Validation from 'views/admin/validation';
+import CustomField from 'views/admin/customField';
+import TableField from 'views/admin/tableField';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
+import DeveloperDetails from 'views/admin/developers/components/DeveloperView';
 
-// ========================== Lazy Imports ==========================
-// Dashboard
+import Employees from 'views/admin/attendance/components/employees';
+import Records from 'views/admin/attendance/components/records';
+import MyAttendance from 'views/admin/attendance/components/myAttendance';
+import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
+import SipDashboard from 'views/admin/sip/component/Dashboard';
+import SipHistory from 'views/admin/sip/component/History';
+import SettingPage from 'views/admin/Listing/Component/settings/index';
+import AddListing from 'views/admin/Listing/Component/AddListing';
+import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
+import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
+import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
+
+import LeaderBoard from 'views/admin/survey/LeaderBoard';
+import CreateSurvey from 'views/admin/survey/CreateSurvey';
+import ViewSurveyResponse from 'views/admin/survey/ViewSurveyResponse';
+import Report from 'views/admin/reports-v2';
+import TeamDetailsScreen from 'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen';
+import SubUnitType from 'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType';
+import AdminWhatsapp from 'views/admin/whatsapp/AdminWhatsapp';
+import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import AttendanceV2 from 'views/admin/attendance/AttendenceV2';
+import UserPermission from 'views/admin/userPermission';
+// Admin Imports
 const MainDashboard = React.lazy(() => import('views/admin/default'));
+const Survey = React.lazy(() => import('views/admin/survey'));
+// My component
+const ContactImport = React.lazy(
+	() => import('views/admin/contact/components/ContactImport')
+);
 
-// Leads & Deals
+const User = React.lazy(() => import('views/admin/users'));
+const UserView = React.lazy(() => import('views/admin/users/View'));
+
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
-const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
-const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
 
-// Hiring
+const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
+const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
+const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
+const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+
+const DeveloperInvoices = React.lazy(
+	() => import('views/admin/invoice/developers/DeveloperInvoices')
+);
+const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
+const Task = React.lazy(() => import('views/admin/task'));
+const DailyReport = React.lazy(() => import('views/admin/dailyReport'));
+const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
+const Agency = React.lazy(() => import('views/admin/agencies'));
+const OfficeSettings = React.lazy(
+	() => import('views/admin/agencies/OfficeSetting')
+);
+const Role = React.lazy(() => import('views/admin/role'));
 const Hiring = React.lazy(() => import('views/admin/hiring'));
-const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
-const ShortListedCandidates = React.lazy(
-	() => import('views/admin/hiring/shortListedCandidates')
+const Positions = React.lazy(() => import('views/admin/hiring/positions'));
+const OfferLetter = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
 );
 const InterviewScreen = React.lazy(
 	() => import('views/admin/hiring/interview/InterviewScreen')
@@ -49,81 +96,25 @@ const InterviewScreen = React.lazy(
 const InterviewedCandidates = React.lazy(
 	() => import('views/admin/hiring/interviewedCandidates')
 );
-const OfferLetter = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
-);
-const OfferView = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates/OfferView')
-);
-const Positions = React.lazy(() => import('views/admin/hiring/positions'));
-
-// Attendance
-const AttendanceV2 = React.lazy(
-	() => import('views/admin/attendance/AttendenceV2')
-);
-const AttendanceDashboard = React.lazy(
-	() => import('views/admin/attendance/components/dashboard')
-);
-const Employees = React.lazy(
-	() => import('views/admin/attendance/components/employees')
-);
-const Records = React.lazy(
-	() => import('views/admin/attendance/components/records')
-);
-const MyAttendance = React.lazy(
-	() => import('views/admin/attendance/components/myAttendance')
+const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
+const ShortListedCandidates = React.lazy(
+	() => import('views/admin/hiring/shortListedCandidates')
 );
 
-// Invoice & Expenses
-const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
-const DeveloperInvoices = React.lazy(
-	() => import('views/admin/invoice/developers/DeveloperInvoices')
-);
-const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
-const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+// Auth Imports
+const SignInCentered = React.lazy(() => import('views/auth/signIn'));
+// admin setting
+const AdminSetting = React.lazy(() => import('views/admin/adminSetting'));
+// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
+const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
+const Announcement = React.lazy(() => import('views/admin/announcement'));
+// Attendance module
+const Attendance = React.lazy(() => import('views/admin/attendance'));
+
+const Sip = React.lazy(() => import('views/admin/sip'));
 const Expenses = React.lazy(() => import('views/admin/expenses'));
-const DeveloperDetails = React.lazy(
-	() => import('views/admin/developers/components/DeveloperView')
-);
-
-// Listing
 const Listing = React.lazy(() => import('views/admin/Listing'));
-const AddListing = React.lazy(
-	() => import('views/admin/Listing/Component/AddListing')
-);
-const ViewListing = React.lazy(
-	() => import('views/admin/Listing/Component/ViewLisitng')
-);
-const UpdateListing = React.lazy(
-	() => import('views/admin/Listing/Component/UpdateListing')
-);
-const SettingPage = React.lazy(
-	() => import('views/admin/Listing/Component/settings')
-);
-const SubUnitType = React.lazy(
-	() =>
-		import(
-			'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType'
-		)
-);
 
-// Survey
-const Survey = React.lazy(() => import('views/admin/survey'));
-const LeaderBoard = React.lazy(() => import('views/admin/survey/LeaderBoard'));
-const CreateSurvey = React.lazy(
-	() => import('views/admin/survey/CreateSurvey')
-);
-const ViewSurveyResponse = React.lazy(
-	() => import('views/admin/survey/ViewSurveyResponse')
-);
-
-// Whatsapp
-const AdminWhatsapp = React.lazy(
-	() => import('views/admin/whatsapp/AdminWhatsapp')
-);
-const UserWhatsapp = React.lazy(
-	() => import('views/admin/whatsapp/UserWhatsapp')
-);
 const WhatsappSettings = React.lazy(
 	() => import('views/admin/whatsapp/WhatsappSettings')
 );
@@ -136,46 +127,8 @@ const CreateWhatsappTemplate = React.lazy(
 			'views/admin/whatsapp/WhatsappSettings/Templates/CreateWhatsappTemplate'
 		)
 );
-
-// Reports
-const Report = React.lazy(() => import('views/admin/reports-v2'));
-const TeamDetailsScreen = React.lazy(
-	() =>
-		import(
-			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
-		)
-);
-
-// Settings
-const AdminSetting = React.lazy(() => import('views/admin/adminSetting'));
-const Role = React.lazy(() => import('views/admin/role'));
-const UserPermission = React.lazy(() => import('views/admin/userPermission'));
-const CustomField = React.lazy(() => import('views/admin/customField'));
-const TableField = React.lazy(() => import('views/admin/tableField'));
-const ChangeImage = React.lazy(() => import('views/admin/image'));
-const Validation = React.lazy(() => import('views/admin/validation'));
-const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
-const Agency = React.lazy(() => import('views/admin/agencies'));
-const OfficeSettings = React.lazy(
-	() => import('views/admin/agencies/OfficeSetting')
-);
-
-// Others
-const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
-const Sip = React.lazy(() => import('views/admin/sip'));
-const SipDashboard = React.lazy(
-	() => import('views/admin/sip/component/Dashboard')
-);
-const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/History')
-);
-const Announcement = React.lazy(() => import('views/admin/announcement'));
+const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
-const User = React.lazy(() => import('views/admin/users'));
-const UserView = React.lazy(() => import('views/admin/users/View'));
-
-// Auth
-const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 
 const routes = [
 	// ========================== Dashboard ==========================
@@ -188,6 +141,16 @@ const routes = [
 		component: MainDashboard,
 	},
 	// ========================== Admin Layout ==========================
+	// ------------- lead Routes ------------------------
+	// {
+	//   name: "Lead",
+	//   		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	//   path: "/lead",
+	//   icon: (
+	//     <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
+	//   ),
+	//   component: Lead,
+	// },
 	{
 		moduleId: 'leads',
 		name: 'Lead',
@@ -252,6 +215,13 @@ const routes = [
 		),
 		component: Hiring,
 	},
+	// {
+	// 	name: 'HR Module',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/hrmodule',
+	// 	icon: <Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />,
+	// 	component: HRModule,
+	// },
 
 	// Attendance Routes
 	{
@@ -314,6 +284,49 @@ const routes = [
 		parentName: 'develoeper',
 		component: DeveloperDetails,
 	},
+
+	// {
+	// 	name: 'Points',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/points',
+	// 	icon: <Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />,
+	// 	component: CurrencyPoints,
+	// },
+	// {
+	// 	name: 'Contact Import',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	both: true,
+	// 	under: 'contacts',
+	// 	parentName: 'Contacts',
+	// 	path: '/contactImport',
+	// 	component: ContactImport,
+	// },
+	// ------------- Property Routes ------------------------
+	// {
+	// 	name: 'Property',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/properties',
+	// 	icon: <Icon as={LuBuilding2} width='20px' height='20px' color='inherit' />,
+	// 	component: Property,
+	// },
+	// {
+	// 	name: 'Property ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	parentName: 'Property',
+	// 	under: 'properties',
+	// 	path: '/propertyView/:id',
+	// 	component: PropertyView,
+	// },
+	// {
+	// 	name: 'Property Import',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	both: true,
+	// 	under: 'properties',
+	// 	parentName: 'Property',
+	// 	path: '/propertyImport',
+	// 	component: PropertyImport,
+	// },
+
 	// ------------- Invoice Module Routes ------------------------ //
 	{
 		moduleId: 'invoice',
@@ -376,7 +389,12 @@ const routes = [
 		component: AdminSetting,
 	},
 
+	//   path: "/communication-integration",
+	//   icon: <Icon as={GiSatelliteCommunication} width='20px' height='20px' color='inherit' />,
+	//   component: Communication,
+	// },
 	// ------------- Task Routes ------------------------
+	// Task V2 Route
 	{
 		moduleId: 'task',
 		name: 'Task',
@@ -385,6 +403,87 @@ const routes = [
 		icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
 		component: TaskV2,
 	},
+	// {
+	// 	name: 'Task',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/task',
+	// 	icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+	// 	component: Task,
+	// },
+	// {
+	// 	name: 'Task ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'task',
+	// 	parentName: 'Task',
+	// 	path: '/view/:id',
+	// 	component: TaskView,
+	// },
+	// // ------------- Meeting Routes ------------------------
+	// {
+	// 	name: 'Meeting',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/metting',
+	// 	icon: <Icon as={SiGooglemeet} width='20px' height='20px' color='inherit' />,
+	// 	component: Meeting,
+	// },
+	// {
+	// 	name: 'Meeting ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'metting',
+	// 	parentName: 'Meeting',
+	// 	path: '/metting/:id',
+	// 	component: MettingView,
+	// },
+
+	// {
+	// 	name: "Announcement",
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.manager],
+	// 	parentName: "admin",
+	// 	under: "admin",
+	// 	path: "/announcements",
+	// 	component: Announcement,
+	// },
+	// // ------------- Communication Integration Routes ------------------------
+	// {
+	//   name: "Communication Integration",
+	//   layout: [ROLE_PATH.admin, ROLE_PATH.user],
+
+	//   path: "/communication-integration",
+	//   icon: <Icon as={GiSatelliteCommunication} width='20px' height='20px' color='inherit' />,
+	//   component: Communication,
+	// },
+	// ------------- Task Routes ------------------------
+	// {
+	// 	name: 'Task',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/task',
+	// 	icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
+	// 	component: Task,
+	// },
+	// {
+	// 	name: 'Task ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'task',
+	// 	parentName: 'Task',
+	// 	path: '/view/:id',
+	// 	component: TaskView,
+	// },
+	// // ------------- Meeting Routes ------------------------
+	// {
+	// 	name: 'Meeting',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/metting',
+	// 	icon: <Icon as={SiGooglemeet} width='20px' height='20px' color='inherit' />,
+	// 	component: Meeting,
+	// },
+	// {
+	// 	name: 'Meeting ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'metting',
+	// 	parentName: 'Meeting',
+	// 	path: '/metting/:id',
+	// 	component: MettingView,
+	// },
 
 	// ------------- Hiring Routes -----------------------
 	{
@@ -613,6 +712,62 @@ const routes = [
 		component: CreateWhatsappTemplate,
 	},
 
+	// {
+	// 	name: 'Call',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/phone-call',
+	// 	icon: (
+	// 		<Icon as={PiPhoneCallBold} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: PhoneCall,
+	// },
+
+	// {
+	// 	name: 'Call ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'phone-call',
+	// 	parentName: 'Call',
+	// 	path: '/phone-call/:id',
+	// 	component: PhoneCallView,
+	// },
+	// ------------- Email Routes------------------------
+	// {
+	// 	// separator: 'History',
+	// 	name: 'Email',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/email',
+	// 	icon: (
+	// 		<Icon as={AiOutlineMail} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: EmailHistory,
+	// },
+	// {
+	// 	name: 'Email ',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	under: 'email',
+	// 	parentName: 'Email',
+	// 	path: '/Email/:id',
+	// 	component: EmailHistoryView,
+	// },
+	// // ------------- Calender Routes ------------------------
+	// {
+	// 	name: 'Calender',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/calender',
+	// 	icon: (
+	// 		<Icon as={FaCalendarAlt} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: Calender,
+	// },
+	// // ------------- Payments Routes ------------------------
+	// {
+	// 	name: 'Payments',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/payments',
+	// 	icon: <Icon as={FaRupeeSign} width='20px' height='20px' color='inherit' />,
+	// 	component: Payments,
+	// },
+
 	// ------------- Roles Routes ------------------------
 	{
 		moduleId: 'admin_settings',
@@ -689,6 +844,47 @@ const routes = [
 		component: TableField,
 	},
 	// // ------------- Text message Routes ------------------------
+	// {
+	//   name: "Text Msg",
+	//   layout: [ROLE_PATH.admin, ROLE_PATH.user],
+	//
+	//   path: "/text-msg",
+	//   icon: <Icon as={MdOutlineMessage} width='20px' height='20px' color='inherit' />,
+	//   component: TextMsg,
+	// },
+	// {
+	//   name: "Text Msg View",
+	//   layout: [ROLE_PATH.admin, ROLE_PATH.user],
+	//
+	//   under: "text-msg",
+	//   path:  text-msg/:id",
+	//   component: TextMsgView,
+	// },
+	// ------------- Document Routes ------------------------
+	// {
+	// 	name: 'Documents',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/documents',
+	// 	icon: (
+	// 		<Icon as={AiFillFolderOpen} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: Document,
+	// },
+	// ----------------- Reporting Layout -----------------
+	// {
+	// 	name: 'Daily Report',
+	// 	layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
+	// 	path: '/daily-report',
+	// 	icon: (
+	// 		<Icon
+	// 			as={MdInsertChartOutlined}
+	// 			width='20px'
+	// 			height='20px'
+	// 			color='inherit'
+	// 		/>
+	// 	),
+	// 	component: DailyReport,
+	// },
 	{
 		moduleId: 'reports',
 		name: 'Reports',
