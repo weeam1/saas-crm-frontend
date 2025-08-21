@@ -194,12 +194,12 @@ export default function HeaderLinks(props) {
 					</Text>
 				</Text>
 			</Flex> */}
-
+			{/* 
 			<SidebarResponsive
 				routes={routes}
 				setOpenSidebar={setOpenSidebar}
 				openSidebar={openSidebar}
-			/>
+			/> */}
 
 			<HStack gap='2'>
 				<NotificationIcon userId={userId} />
