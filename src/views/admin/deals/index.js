@@ -243,7 +243,7 @@ const DealsScreen = () => {
 
 					<DateFilterButton onClick={dateTimeOnOpen} />
 					<ViewToggle
-						moduleVie='dealsView'
+						moduleView='dealsView'
 						view={view}
 						handleView={handleViewChange}
 					/>
