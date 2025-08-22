@@ -794,7 +794,7 @@ const CheckTable = React.memo((props) => {
             <ViewToggle
               handleView={handleView}
               view={view}
-              moduleView="leadViewMode"
+              moduleView="leadView"
             />
           </GridItem>
         </Grid>
