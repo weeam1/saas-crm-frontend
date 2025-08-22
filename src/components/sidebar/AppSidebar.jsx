@@ -284,7 +284,7 @@ export default function AppSidebar({
 			</Flex> */}
 		</Flex>
 	);
-
+// Mobile view
 	const MobileOpenButton = (
 		<IconButton
 			aria-label='Open menu'
