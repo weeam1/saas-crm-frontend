@@ -59,7 +59,7 @@ export default function AppNavbar({
 					aria-label='Toggle sidebar'
 					icon={openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
 					display={{ base: 'flex', lg: 'none' }}
-					onClick={onOpenMobile}
+					onClick={() => setOpenSidebar(!openSidebar)}
 					variant='ghost'
 					fontSize='20px'
 				/>

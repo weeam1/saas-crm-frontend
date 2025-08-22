@@ -14,7 +14,7 @@ const SIDEBAR_W = 260;
 const SIDEBAR_W_COLLAPSED = 88;
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
-	const [openSidebar, setOpenSidebar] = React.useState(true);
+	const [openSidebar, setOpenSidebar] = React.useState(false);
 	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
 	const pageBg = useColorModeValue('gray.50', 'gray.800');
 
@@ -60,8 +60,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				routes={sidebarRoutes}
 				brandName='Weeam CRM'
 				filterRoute={filterRoute}
-				openSidebar={openSidebar}
-				setOpenSidebar={setOpenSidebar}
+				isMobileOpen={openSidebar}
+				onMobileOpenChange={setOpenSidebar}
 				mobileOpen={mobileOpen}
 				setMobileOpen={(v) => (v ? onOpen() : onClose())}
 			/>
