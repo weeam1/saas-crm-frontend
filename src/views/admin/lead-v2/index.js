@@ -15,7 +15,6 @@ const Index = () => {
 	});
 
 	const handleViewChange = (newView) => {
-		alert(newView)
 		setView(newView);
 		localStorage.setItem('leadView', newView);
 	};

@@ -29,6 +29,7 @@ import { StatCard } from '../StatCard';
 import RefButton from '../RefButton';
 import { useLocation } from 'react-router-dom';
 import CardShimmer from 'components/loading/CardShimmer';
+import { usePermissions } from 'hooks/usePermissions';
 
 const formatSeconds = (seconds) => {
 	const hrs = Math.floor(seconds / 3600);
@@ -58,6 +59,8 @@ const CallsReport = () => {
 	const [totalSeconds, setTotalSeconds] = useState(0);
 	const [chartData, setChartData] = useState([]);
 	const [loading, setLoading] = useState(false);
+
+	const { hasPermission } = usePermissions();
 
 	const location = useLocation();
 
@@ -129,9 +132,10 @@ const CallsReport = () => {
 					>
 						Call Stats
 					</Text>
-					{location?.pathname !== '/sip' && (
-						<RefButton to='/sip' label='Call Logs Module' />
-					)}
+					{hasPermission('reports', 'link') &&
+						location?.pathname !== '/sip' && (
+							<RefButton to='/sip' label='Call Logs Module' />
+						)}
 				</HStack>
 
 				<TopFilter view={days} setView={setDays} options={dayOptions} />

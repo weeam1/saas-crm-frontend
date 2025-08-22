@@ -13,9 +13,11 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import DashboardShimmer from 'views/admin/attendance/components/dashboard/DashboardShimmer';
 import AttendanceStats from './AttendanceStats';
 import RefButton from '../RefButton';
+import { usePermissions } from 'hooks/usePermissions';
 
 const AttendanceReport = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
+	const { hasPermission } = usePermissions();
 
 	const user = JSON.parse(localStorage.getItem('user'));
 	const role =
@@ -215,7 +217,9 @@ const AttendanceReport = () => {
 						Attendance Report
 					</Text>
 
-					<RefButton to='/attendance' label='Attendance Module' />
+					{hasPermission('reports', 'link') && (
+						<RefButton to='/attendance' label='Attendance Module' />
+					)}
 				</HStack>
 
 				<AttendanceStats
