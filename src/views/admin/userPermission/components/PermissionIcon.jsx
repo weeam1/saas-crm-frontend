@@ -1,25 +1,25 @@
-import React from 'react';
-import { Icon } from '@chakra-ui/react';
+import React from "react";
+import { Icon } from "@chakra-ui/react";
 import {
-	MdHome,
-	MdLeaderboard,
-	MdLock,
-	MdOutlineLaptopMac,
-	MdAdminPanelSettings,
-	MdCampaign,
-} from 'react-icons/md';
+  MdHome,
+  MdLeaderboard,
+  MdOutlineLaptopMac,
+  MdAdminPanelSettings,
+  MdCampaign,
+  MdAddBox,
+} from "react-icons/md";
 import {
-	FaTasks,
-	FaWpforms,
-	FaRegCalendarCheck,
-	FaRegCopy,
-	FaList,
-	FaPhone,
-	FaWhatsapp,
-	FaHandshake,
-} from 'react-icons/fa';
-import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
-import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
+  FaTasks,
+  FaWpforms,
+  FaRegCalendarCheck,
+  FaRegCopy,
+  FaList,
+  FaPhone,
+  FaWhatsapp,
+  FaHandshake,
+} from "react-icons/fa";
+import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
+import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
 
 const PermissionIcon = ({ moduleName }) => {
 	const cleanModuleName = moduleName.replace(/^[\s,]+/, '').trim();
@@ -44,7 +44,7 @@ const PermissionIcon = ({ moduleName }) => {
 		'Reports Module': HiOutlineDocumentReport,
 	};
 
-	const IconComponent = iconMap[cleanModuleName] || MdLock;
+	const IconComponent = iconMap[cleanModuleName] || MdAddBox;
 
 	return <Icon as={IconComponent} width='20px' height='20px' color='inherit' />;
 };
