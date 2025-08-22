@@ -307,7 +307,7 @@ export default function HeaderLinks(props) {
 							</MenuItem>
 						)} */}
 
-							{localUser?.role === 'superAdmin' && (
+							{hasPermission('admin_settings') && (
 								<MenuItem
 									_hover={{ bg: 'none' }}
 									_focus={{ bg: 'none' }}

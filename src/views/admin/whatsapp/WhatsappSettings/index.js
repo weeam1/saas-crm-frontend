@@ -15,11 +15,13 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import TopPagination from 'components/pagination/TopPagination';
+import { usePermissions } from 'hooks/usePermissions';
 
 const WhatsappSettings = () => {
 	const [actionMode, setActionMode] = useState('Add');
 	const [userId, setUserId] = useState(null);
 	const [users, setUsers] = useState([]);
+	const { hasPermission } = usePermissions();
 
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [pagination, setPagination] = useState({
@@ -191,15 +193,23 @@ const WhatsappSettings = () => {
 
 	return (
 		<>
-			<AppButton
-				leftIcon={<FaChevronLeft />}
-				onClick={() => navigate('/admin-setting')}
-				mb='4'
-			>
-				Back
-			</AppButton>
+			{hasPermission('admin_settings') && (
+				<AppButton
+					leftIcon={<FaChevronLeft />}
+					onClick={() => navigate('/admin-setting')}
+					mb='4'
+				>
+					Back
+				</AppButton>
+			)}
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-				<Flex justify='space-between' align='center' mb={4} gap={2} flexDir={{base:"column", sm: "column" , md: "row"}}>
+				<Flex
+					justify='space-between'
+					align='center'
+					mb={4}
+					gap={2}
+					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+				>
 					<Text fontSize='lg' fontWeight='bold'>
 						Whatsapp Users (
 						<CountUpComponent

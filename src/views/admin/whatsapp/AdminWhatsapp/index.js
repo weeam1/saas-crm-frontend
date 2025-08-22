@@ -7,12 +7,14 @@ import { buttonStyle } from 'utils/btn';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { Link } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
+import { usePermissions } from 'hooks/usePermissions';
 
 const LIMIT = 10;
 
 const AdminWhatsapp = () => {
 	const [users, setUsers] = useState([]);
 	const [page, setPage] = useState(1);
+	const { hasPermission } = usePermissions();
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
@@ -56,17 +58,19 @@ const AdminWhatsapp = () => {
 					<CountUpComponent key={users?.length} targetNumber={users?.length} />
 				</Flex>
 
-				<CustomTooltip label='Settings'>
-					<Link to='/settings/whatsapp_manager'>
-						<IconButton
-							icon={<FiSettings />}
-							aria-label='Settings'
-							colorScheme='brand'
-							rounded='full'
-							size='md'
-						/>
-					</Link>
-				</CustomTooltip>
+				{hasPermission('whatsapp', 'settings') && (
+					<CustomTooltip label='Settings'>
+						<Link to='/settings/whatsapp_manager'>
+							<IconButton
+								icon={<FiSettings />}
+								aria-label='Settings'
+								colorScheme='brand'
+								rounded='full'
+								size='md'
+							/>
+						</Link>
+					</CustomTooltip>
+				)}
 			</Flex>
 
 			<WhatsappCards

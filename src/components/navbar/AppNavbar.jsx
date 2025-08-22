@@ -18,6 +18,7 @@ import { getApi } from 'services/api';
 import useUserSession from 'hooks/useUserSession';
 import { useDispatch } from 'react-redux';
 import AdminNavbarLinks from './NavbarLinksAdmin';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 const NAVBAR_H = 64;
 const EXPANDED_W = 264;
@@ -29,6 +30,8 @@ export default function AppNavbar({
 	setOpenSidebar,
 	onOpenMobile,
 }) {
+	const isMobile = useIsMobile(1024);
+
 	const bg = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
 
@@ -53,16 +56,27 @@ export default function AppNavbar({
 			zIndex='10'
 			px='6'
 		>
-			<Flex align='center' justify='flex-end' h='100%'>
+			<Flex align='center' justify='space-between' h='100%'>
 				{/* Sidebar Toggle (desktop only) */}
-				<IconButton
-					aria-label='Toggle sidebar'
-					icon={openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
-					display={{ base: 'flex', lg: 'none' }}
+				<Box
+					as='button'
 					onClick={() => setOpenSidebar(!openSidebar)}
-					variant='ghost'
+					display={isMobile ? 'flex' : 'hidden'}
+					alignItems='center'
+					justifyContent='center'
 					fontSize='20px'
-				/>
+					bg='transparent'
+					p='0' // 🔑 remove padding
+					m='0' // 🔑 remove margin
+					border='none' // 🔑 remove native border
+					outline='none' // 🔑 remove focus outline
+					_hover={{ bg: 'transparent' }} // no hover bg
+					_active={{ bg: 'transparent', transform: 'none' }} // no click shrink
+					_focus={{ boxShadow: 'none' }} // no blue ring
+					cursor='pointer'
+				>
+					{openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}
+				</Box>
 
 				{/* Brand / Logo */}
 				{/* <Flex
@@ -86,7 +100,7 @@ export default function AppNavbar({
 				</Flex> */}
 
 				{/* Right Slot – user actions (extend as needed) */}
-				<Flex align='center' gap='4'>
+				<Flex align='center' gap='4' alignSelf='flex-end' bg='red.200'>
 					<AdminNavbarLinks />
 				</Flex>
 			</Flex>

@@ -353,9 +353,7 @@ const TaskV2 = () => {
 					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 					justifyContent={{ base: 'center', sm: 'center', md: 'normal' }}
 				>
-					{(user?.role === 'superAdmin' ||
-						user?.roles[0]?.roleName === 'Manager' ||
-						user?.roles[0]?.roleName === 'HR') && (
+					{hasPermission('task', 'create') && (
 						<Button
 							size='md'
 							colorScheme='brand'

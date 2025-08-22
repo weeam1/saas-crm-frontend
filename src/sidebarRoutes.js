@@ -16,6 +16,7 @@ import {
 	FaList,
 	FaWhatsapp,
 	FaHandshake,
+	FaPhone,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -103,6 +104,13 @@ const sidebarRoutes = [
 		name: 'Survey',
 		path: '/survey',
 		icon: <Icon as={FaSquarePlus} w='20px' h='20px' />,
+	},
+
+	{
+		moduleId: 'sip',
+		name: 'Call Logs',
+		path: '/sip',
+		icon: <Icon as={FaPhone} w='20px' h='20px' />,
 	},
 
 	// -------- Whatsapp --------
