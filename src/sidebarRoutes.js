@@ -37,15 +37,15 @@ const sidebarRoutes = [
 		icon: <Icon as={MdLeaderboard} w='20px' h='20px' />,
 	},
 	{
-		moduleId: 'lead_pool_admin',
+		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',
 		path: '/pool',
 		icon: <Icon as={MdOutlineAdminPanelSettings} w='20px' h='20px' />,
 	},
 	{
-		moduleId: 'lead_pool_agent',
+		moduleId: 'leadpool_agents',
 		name: 'Lead Pool',
-		path: '/pool/agent',
+		path: '/agent_pool',
 		icon: <Icon as={MdPeopleOutline} w='20px' h='20px' />,
 	},
 
