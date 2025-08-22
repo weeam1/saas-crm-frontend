@@ -117,7 +117,7 @@ export default function AppSidebar({
 	onMobileOpenChange,
 }) {
 	const location = useLocation();
-	const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
+	const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
 
 	console.log({ isMobile });
 
@@ -233,7 +233,7 @@ export default function AppSidebar({
 					onClick={() => setCollapsed((c) => !c)}
 				/>
 			)}
-			{isMobile && (
+			{/* {isMobile && (
 				<IconButton
 					aria-label='Close sidebar'
 					variant='ghost'
@@ -241,7 +241,7 @@ export default function AppSidebar({
 					icon={<FiChevronLeft />}
 					onClick={() => setMobileOpen(false)}
 				/>
-			)}
+			)} */}
 		</Flex>
 	);
 
@@ -307,7 +307,7 @@ export default function AppSidebar({
 					<DrawerOverlay />
 					<DrawerContent bg={surface}>
 						<DrawerCloseButton />
-						<DrawerHeader p={0}>{Brand}</DrawerHeader>
+						{/* <DrawerHeader p={0}>{Brand}</DrawerHeader> */}
 						<DrawerBody p={0}>{SidebarContent}</DrawerBody>
 					</DrawerContent>
 				</Drawer>
