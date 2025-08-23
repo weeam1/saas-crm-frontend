@@ -132,14 +132,6 @@ const sidebarRoutes = [
 		icon: <Icon as={FaPhone} w='20px' h='20px' />,
 	},
 
-	// -------- Whatsapp --------
-	{
-		moduleId: 'whatsapp',
-		name: 'Whatsapp',
-		path: '/whatsapp',
-		icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
-	},
-
 	// -------- Reports --------
 	{
 		moduleId: 'reports',
