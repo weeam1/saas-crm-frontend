@@ -1,5 +1,14 @@
-import { Box, Text, Flex, Switch, Icon, Radio, RadioGroup, Stack } from "@chakra-ui/react";
-import { MdOutlineAdminPanelSettings, MdOutlinePerson, MdOutlineGroup } from "react-icons/md";
+import {
+  Box,
+  Text,
+  Flex,
+  Switch,
+  Icon,
+} from "@chakra-ui/react";
+import {
+  MdOutlineAdminPanelSettings,
+  MdOutlineGroup,
+} from "react-icons/md";
 
 export default function LeadpoolSelector({ modules, setModules }) {
   const leadPoolModules = modules.filter((m) =>
@@ -28,10 +37,9 @@ export default function LeadpoolSelector({ modules, setModules }) {
       rounded="md"
       p="6"
       borderWidth="1px"
-      borderColor="brand.300"
       boxShadow="base"
     >
-        {/* <Flex align='center' justify='space-between' mb={4}>
+      {/* <Flex align='center' justify='space-between' mb={4}>
 				<Text color='gray.600'>Enable Leadpool modules</Text>
 				<Switch
 					colorScheme='green'
@@ -45,50 +53,50 @@ export default function LeadpoolSelector({ modules, setModules }) {
           Leadpool Access
         </Text>
       </Flex>
-      
+
       <Text color="gray.600" mb={4} fontSize="sm">
         Select one leadpool access type (only one can be active at a time)
       </Text>
-      
+
       <Flex direction={{ base: "column", md: "column" }} gap="4" w="full">
-          {leadPoolModules.map((module) => (
-            <Box
-              key={module.moduleId}
-              borderWidth="1px"
-              borderRadius="md"
-              w="full"
-              p={4}
-              // bg={module.isModuleEnabled ? 'green.50' : 'white'}
-              // borderColor={module.isModuleEnabled ? 'green.400' : 'gray.200'}
-              transition="all 0.2s ease-in-out"
-            >
-              <Flex align="center" justify="space-between">
-                <Text
-                  color="brand.600"
-                  fontSize="md"
-                  fontWeight="semibold"
-                  display="flex"
-                  gap={2}
-                  flexDir="row"
-                  align="center"
-                >
-                  <Icon
-                    as={MdOutlineAdminPanelSettings}
-                    width="20px"
-                    height="20px"
-                    color="inherit"
-                  />
-                  {module.moduleName}
-                </Text>
-                <Switch
-                  colorScheme="green"
-                  isChecked={module.isModuleEnabled}
-                  onChange={() => handleModuleToggle(module.moduleId)}
+        {leadPoolModules.map((module) => (
+          <Box
+            key={module.moduleId}
+            borderWidth="1px"
+            borderRadius="md"
+            w="full"
+            p={4}
+            // bg={module.isModuleEnabled ? 'green.50' : 'white'}
+            // borderColor={module.isModuleEnabled ? 'green.400' : 'gray.200'}
+            transition="all 0.2s ease-in-out"
+          >
+            <Flex align="center" justify="space-between">
+              <Text
+                color="brand.600"
+                fontSize="md"
+                fontWeight="semibold"
+                display="flex"
+                gap={2}
+                flexDir="row"
+                align="center"
+              >
+                <Icon
+                  as={MdOutlineAdminPanelSettings}
+                  width="20px"
+                  height="20px"
+                  color="inherit"
                 />
-              </Flex>
-            </Box>
-          ))}
-        </Flex>
+                {module.moduleName}
+              </Text>
+              <Switch
+                colorScheme="brand"
+                isChecked={module.isModuleEnabled}
+                onChange={() => handleModuleToggle(module.moduleId)}
+              />
+            </Flex>
+          </Box>
+        ))}
+      </Flex>
     </Box>
   );
 }

@@ -246,6 +246,7 @@ const Permission = () => {
                           handleModuleToggle={handleModuleToggle}
                           handleSelectAll={handleSelectAll}
                           handleActionToggle={handleActionToggle}
+						  roleName={roleName}
                         />
 
                         {/* Render LeadpoolSelector after the leads module */}
@@ -281,6 +282,7 @@ const Permission = () => {
                           handleModuleToggle={handleModuleToggle}
                           handleSelectAll={handleSelectAll}
                           handleActionToggle={handleActionToggle}
+						  roleName={roleName}
                         />
                         {isLeadsModule && (
                           <LeadpoolSelector
