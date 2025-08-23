@@ -64,16 +64,20 @@ const Sip = () => {
 					<SipHistory key={tabKey} setTotalCallRecord={setTotalCallRecord} />
 				),
 			},
-			{
-				label: 'User Setting',
-				param: 'user-setting',
-				title: 'User Settings',
-				description:
-					'Manage your SIP user settings including registration, authentication, and other preferences to optimize your call experience.',
-				component: <UserSetting key={tabKey} />,
-			},
+			...(hasPermission('sip', 'user_settings')
+				? [
+						{
+							label: 'User Setting',
+							param: 'user-setting',
+							title: 'User Settings',
+							description:
+								'Manage your SIP user settings including registration, authentication, and other preferences to optimize your call experience.',
+							component: <UserSetting key={tabKey} />,
+						},
+					]
+				: []),
 		],
-		[tabKey, totalCallRecord, animatedCount]
+		[tabKey, totalCallRecord, animatedCount, hasPermission]
 	);
 
 	const activeTabIndex = Math.max(

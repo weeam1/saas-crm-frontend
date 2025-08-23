@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
 import { ROLE_PATH } from 'roles';
 import Footer from 'components/footer/FooterAdmin';
@@ -53,6 +53,22 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		const filterRoutes = routes.filter(
 			(route) => route.moduleId !== 'attendance'
 		);
+
+		const filterSidebarRoutes = sidebarRoutes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		appSidebarRoutes = [
+			...filterSidebarRoutes,
+			{
+				moduleId: 'attendance',
+				name: 'Attendance',
+				path: '/attendance/dashboard',
+				icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+			},
+		];
+
+		console.log({ appSidebarRoutes });
 
 		const attendanceRoutes = [
 			{
