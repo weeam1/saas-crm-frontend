@@ -8,10 +8,8 @@ import {
 	DrawerOverlay,
 	DrawerContent,
 	DrawerCloseButton,
-	DrawerHeader,
 	DrawerBody,
 	useDisclosure,
-	useBreakpointValue,
 	Tooltip,
 	VStack,
 	HStack,
@@ -54,12 +52,12 @@ const SidebarItem = React.memo(function SidebarItem({
 	active,
 	collapsed,
 	onClick,
+	isMobile,
 }) {
 	const activeBg = useColorModeValue('brand.400', 'brand.300');
 	const activeColor = useColorModeValue('gray.100', 'gray.200');
 	const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
-	const isMobile =
-		typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
+
 	const content = (
 		<HStack
 			as={NavLink}
@@ -150,7 +148,7 @@ export default function AppSidebar({
 	const border = useColorModeValue('gray.200', 'whiteAlpha.200');
 
 	const EXPANDED_W = 300;
-	const COLLAPSED_W = 76;
+	const COLLAPSED_W = 80;
 
 	const { hasPermission } = usePermissions();
 
@@ -186,8 +184,6 @@ export default function AppSidebar({
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
 	}, [isMobile]);
-
-	console.log({ isMobile });
 
 	const Brand = (
 		<Flex
@@ -270,6 +266,7 @@ export default function AppSidebar({
 							collapsed={collapsed}
 							active={isActive(r.path)}
 							onClick={handleNavigate}
+							isMobile={isMobile}
 						/>
 					))}
 				</VStack>
@@ -332,7 +329,7 @@ export default function AppSidebar({
 			h='100vh'
 			// top='56px'
 			// h='calc(100dvh - 56px)'
-			minW={collapsed ? `${COLLAPSED_W}px` : `${EXPANDED_W}px`}
+			w={collapsed ? `${COLLAPSED_W}px` : `${EXPANDED_W}px`}
 			transition='width 220ms cubic-bezier(.4,0,.2,1)'
 			willChange='width'
 			zIndex={20}

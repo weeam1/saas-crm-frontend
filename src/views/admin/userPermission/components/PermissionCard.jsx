@@ -30,7 +30,7 @@ const PermissionCard = ({
       bg="white"
       w="full"
       p={4}
-	  boxShadow="base"
+      boxShadow="base"
     >
       {/* Module title and Check All */}
       <Flex
@@ -90,11 +90,13 @@ const PermissionCard = ({
                 borderColor: !module.isModuleEnabled
                   ? disabledBorderColor
                   : "gray.400",
+				   outline: "none",
               },
               ".chakra-checkbox__control": {
                 _focus: {
                   boxShadow: "0 0 0 2px",
                   borderColor: "brand.300",
+				   outline: "none",
                 },
               },
             }}
@@ -113,7 +115,7 @@ const PermissionCard = ({
         {module.actions.map((action, actionIndex) => (
           <Checkbox
             key={action.actionKey}
-            size="md"
+            size="lg"
             colorScheme="brand"
             borderColor={
               module.isModuleEnabled ? "brand.300" : disabledBorderColor
@@ -133,11 +135,13 @@ const PermissionCard = ({
                 borderColor: !module.isModuleEnabled
                   ? disabledBorderColor
                   : "gray.400",
+                outline: "none",
               },
               ".chakra-checkbox__control": {
                 _focus: {
                   boxShadow: "0 0 0 2px",
                   borderColor: "brand.300",
+                  outline: "none",
                 },
               },
             }}

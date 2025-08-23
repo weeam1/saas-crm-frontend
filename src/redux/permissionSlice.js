@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { buildPermissionMap } from 'utils/permissionUtils';
 
 const initialState = {
-	permissionMap: {},
+	permissionMap:
+		buildPermissionMap(JSON.parse(localStorage.getItem('user'))) || {},
 };
 
 const permissionSlice = createSlice({

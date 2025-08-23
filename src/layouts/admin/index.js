@@ -1,6 +1,14 @@
-import { Box, Flex, useColorModeValue, useDisclosure } from '@chakra-ui/react';
-import React, { Suspense, useCallback } from 'react';
+import {
+	Box,
+	Flex,
+	Icon,
+	useColorModeValue,
+	useDisclosure,
+} from '@chakra-ui/react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { FaWhatsapp } from 'react-icons/fa';
+
 import { ROLE_PATH } from 'roles';
 import Footer from 'components/footer/FooterAdmin';
 import AppNavbar, { NAVBAR_HEIGHT } from 'components/navbar/AppNavbar';
@@ -9,19 +17,114 @@ import AppSidebar from 'components/sidebar/AppSidebar';
 import routes from 'routes';
 import sidebarRoutes from 'sidebarRoutes';
 import Loader from 'components/loading/Loader';
-
-const SIDEBAR_W = 260;
-const SIDEBAR_W_COLLAPSED = 88;
+import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
+import { useDispatch } from 'react-redux';
+import { usePermissions } from 'hooks/usePermissions';
+import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
+import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
-	const [openSidebar, setOpenSidebar] = React.useState(false);
+	const [openSidebar, setOpenSidebar] = useState(false);
+
+	let appRoutes = [...routes];
+	let appSidebarRoutes = [...sidebarRoutes];
+
 	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
 	const pageBg = useColorModeValue('whiteAlpa.100', 'gray.800');
+
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
+
+	const { data: whatsappUser } = useFetchItemsQuery(
+		{
+			path: `whatsapp/users/${user?._id}`,
+		},
+		{
+			skip: !user?._id || isSuperAdmin,
+		}
+	);
+
+	const whatsappActive = whatsappUser?.doc?.isActive;
+	const dispatch = useDispatch();
+
+	if (userRoleName === 'Attendance') {
+		// Define the "Candidates" route
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		const attendanceRoutes = [
+			{
+				moduleId: 'attendance',
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				component: AttendanceDashboard,
+			},
+		];
+
+		appRoutes = [...filterRoutes, ...attendanceRoutes];
+	}
+
+	// if user has whatsapp and also enable then show it
+	if (whatsappActive) {
+		appRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			component: UserWhatsapp,
+		});
+
+		appSidebarRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			path: '/whatsapp/chat',
+			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+		});
+	}
+
+	// const {
+	// 	data: userData,
+	// 	isLoading,
+	// 	isSuccess,
+	// } = useFetchItemsQuery({
+	// 	path: `/v2/user/${user?._id}`,
+	// });
+
+	// useEffect(() => {
+	// 	// Check role mismatch
+	// 	if (
+	// 		isSuccess &&
+	// 		(user?.roles[0]?.roleName !== userData?.doc?.roleName ||
+	// 			!userData?.doc?.isActive)
+	// 	) {
+	// 		dispatch(logOutUser());
+	// 	} else if (userData?.doc) {
+	// 		// build the permission map and store in redux store
+	// 		const permissionMap = buildPermissionMap(userData?.doc);
+	// 		dispatch(setPermissions(permissionMap));
+	// 	}
+	// }, [userData?.doc, isSuccess, dispatch, user?.roles]);
+
+	// useEffect(() => {
+	// 	let timer;
+
+	// 	// keep loader visible for at least 2s
+	// 	timer = setTimeout(() => {
+	// 		setAppLoading(false);
+	// 	}, 2000);
+
+	// 	return () => clearTimeout(timer);
+	// }, []);
 
 	const filterRoute = useCallback((r) => {
 		if (r.moduleId === 'system_log') return true;
 		return true;
 	}, []);
+
+	console.log({ appRoutes });
 
 	const getRoutes = (routes) => {
 		return routes.map((prop, key) => {
@@ -58,7 +161,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			<Flex>
 				{/* Sidebar (desktop fixed, mobile Drawer) */}
 				<AppSidebar
-					routes={sidebarRoutes}
+					routes={appSidebarRoutes}
 					brandName='Weeam CRM'
 					filterRoute={filterRoute}
 					isMobileOpen={openSidebar}
@@ -91,7 +194,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 							}
 						>
 							<Routes>
-								{getRoutes(routes)}
+								{getRoutes(appRoutes)}
 								<Route path='/*' element={<Navigate to={defaultRoute} />} />
 							</Routes>
 						</Suspense>

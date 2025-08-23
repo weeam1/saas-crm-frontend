@@ -307,10 +307,10 @@ const LogTable = () => {
 	const transformLogData = (log) => ({
 		...log,
 		userName: log.user?.fullName || log.user?.username || 'Unknown User',
-		role:
-			(log.user.role === 'superAdmin'
-				? log.user.role
-				: log.user?.roles?.[0]?.roleName) || 'N/A',
+		// role:
+		// 	(log.user.role === 'superAdmin'
+		// 		? log.user.role
+		// 		: log.user?.roles?.[0]?.roleName) || 'N/A',
 		securityLevel: log?.securityLevel || 1,
 		metadata: {
 			ip: log.metadata?.ip || 'N/A',

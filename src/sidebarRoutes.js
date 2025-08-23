@@ -9,6 +9,7 @@ import {
 	MdInsertChartOutlined,
 	MdOutlineAdminPanelSettings,
 	MdPeopleOutline,
+	MdCampaign,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -56,6 +57,14 @@ const sidebarRoutes = [
 		name: 'Deals',
 		path: '/deals',
 		icon: <Icon as={FaHandshake} w='20px' h='20px' />,
+	},
+
+	// ------- Announcement ------
+	{
+		moduleId: 'announcement',
+		name: 'Announcement',
+		path: '/announcements',
+		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
 	},
 
 	// -------- Hiring --------

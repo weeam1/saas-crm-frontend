@@ -42,6 +42,11 @@ const localSlice = createSlice({
 			localStorage.removeItem('user');
 		},
 
+		logOutUser() {
+			sessionStorage.clear();
+			localStorage.clear();
+		},
+
 		// clearUser: (state) => {
 		// 	state.user = null;
 		// 	// You can also update localStorage here if needed
@@ -72,6 +77,7 @@ export const {
 	setTree,
 	setActiveTree,
 	setUsers,
+	logOutUser,
 	setLeadPoolState,
 } = localSlice.actions;
 
