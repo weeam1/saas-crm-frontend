@@ -298,7 +298,6 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 								boxShadow: 'none',
 							},
 						}}
-						isDisabled={isSurveyCompleted && !isSuperAdmin}
 						onClick={(e) => {
 							e.stopPropagation();
 							navigate(`/survey/view-survey/${data.id || data._id}`);
