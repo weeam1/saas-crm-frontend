@@ -143,6 +143,13 @@ export const generateValidationSchema = (fields) => {
 	}, {});
 };
 
+export const safeValue = (value, key = 'result') => {
+	if (value && typeof value === 'object') {
+		return value[key] ?? null;
+	}
+	return value ?? null;
+};
+
 export const getUserNameById = (id, tree) => {
 	// const tree = useSelector((state) => state.user.tree);
 
