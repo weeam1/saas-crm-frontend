@@ -17,6 +17,7 @@ import RenderFields from 'components/shared/RenderFields';
 import { extractLocationData } from 'utils/helpers';
 import { useSelector } from 'react-redux';
 import { toCapitalCase } from 'utils/helpers';
+import { safeValue } from 'utils';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -25,8 +26,8 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
-		leadWhatsappNumber: leadData.leadWhatsappNumber || '',
-		leadPhoneNumber: leadData.leadPhoneNumber || '',
+		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		nationality: leadData.nationality || '',
 		budget: leadData.budget || '',
 		ip: ip || '',
@@ -42,7 +43,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
 		leadSourceChannel: leadData.leadSourceChannel || '',
-		r_u_in_uae: leadData.r_u_in_uae || '',
+		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		lastNote: leadData.lastNote || '',
 		adset: leadData.adset || '',
 		attendanceDay: leadData.attendanceDay || '',
