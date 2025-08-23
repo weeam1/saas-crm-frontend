@@ -21,6 +21,7 @@ import { useMemo } from 'react';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { safeValue } from './../../../../utils/index';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
@@ -32,8 +33,8 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
-		leadWhatsappNumber: leadData.leadWhatsappNumber || '',
-		leadPhoneNumber: leadData.leadPhoneNumber || '',
+		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		nationality: leadData.nationality || '',
 		budget: leadData.budget || '',
 		ip: ip || '',
@@ -48,7 +49,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
-		r_u_in_uae: leadData.r_u_in_uae || '',
+		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
 		adset: leadData.adset || '',

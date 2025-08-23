@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import logo from "../../../../assets/img/logo-crm.png";
 import { useFetchItemsQuery } from "api/apiSlice";
+import { usePermissions } from 'hooks/usePermissions';
 
 const Header = () => {
   // Dynamically adjust text alignment based on screen size
@@ -18,6 +19,8 @@ const Header = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+
+  const { hasPermission } = usePermissions();
 
   const { data: surveysCheck } = useFetchItemsQuery(
     { path: "/surveys/user_pending" },
@@ -60,7 +63,7 @@ const Header = () => {
     // </>
     <>
       {/* Reminder Bar */}
-      {!isAdmin && surveysCheck?.data?.pending && (
+      {!isAdmin && surveysCheck?.data?.pending && hasPermission("survey") && (
         <Box
           w="100%"
           bg="#EDC270"
