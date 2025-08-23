@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { animateValue } from 'utils/animation';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const SurveySummary = ({
 	title = 'Survey Dashboard',
@@ -29,6 +30,7 @@ const SurveySummary = ({
 	const [animatedValues, setAnimatedValues] = useState(data.map(() => 0));
 	// const user = localStorage.getItem("user");
 	const { user, isSuperAdmin } = useUserSession();
+	const { hasPermission } = usePermissions();
 	// const isSuperAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
 
 	const vibrantColors = {
@@ -124,7 +126,7 @@ const SurveySummary = ({
 					{title}
 				</Heading>
 				<Flex gap={3} direction={{ base: 'column', md: 'row' }}>
-					{buttonText && isSuperAdmin && (
+					{buttonText && hasPermission('survey', 'create') && (
 						<Button
 							bg={vibrantColors.buttons[0]}
 							color='white'
