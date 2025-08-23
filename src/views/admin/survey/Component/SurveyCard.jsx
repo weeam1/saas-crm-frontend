@@ -25,6 +25,7 @@ import { useDeleteItemMutation } from 'api/apiSlice';
 import CustomTooltip from '../../../../components/shared/CustomTooltip';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const colorTheme = {
 	primary: '#B79045',
@@ -71,6 +72,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 	const navigate = useNavigate();
 	// const user = localStorage.getItem("user");
 	const { user, isSuperAdmin } = useUserSession();
+	const { hasPermission } = usePermissions();
+
 	// const parsedUser = user ? JSON.parse(user) : null;
 	// const isSuperAdmin = parsedUser?.role === "superAdmin";
 	const currentUserId = user?._id;
@@ -155,6 +158,8 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 		}
 	};
 
+	console.log({ owner: data, id: user?._id });
+
 	return (
 		<>
 			<Box
@@ -206,7 +211,7 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 						/>
 					</CustomTooltip>
 
-					{isSuperAdmin && (
+					{hasPermission('survey', 'delete') && (
 						<Tooltip label='Delete Survey' placement='top'>
 							<DeleteIcon
 								color='red.500'
@@ -268,41 +273,74 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 					</Flex>
 				</Box>
 
-				<Button
-					bg={colorTheme.buttons.primary}
-					color={colorTheme.buttons.text}
-					size='sm'
-					_hover={{
-						bg: colorTheme.buttons.hover,
-						transform: 'translateY(-2px)',
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-					}}
-					_active={{
-						bg: colorTheme.buttons.active,
-						transform: 'translateY(0)',
-					}}
-					_disabled={{
-						bg: colorTheme.buttons.disabled,
-						color: 'gray.500',
-						cursor: 'not-allowed',
-						_hover: {
+				{hasPermission('survey', 'read') && (
+					<Button
+						bg={colorTheme.buttons.primary}
+						color={colorTheme.buttons.text}
+						mb='2'
+						size='sm'
+						_hover={{
+							bg: colorTheme.buttons.hover,
+							transform: 'translateY(-2px)',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						}}
+						_active={{
+							bg: colorTheme.buttons.active,
+							transform: 'translateY(0)',
+						}}
+						_disabled={{
 							bg: colorTheme.buttons.disabled,
-							transform: 'none',
-							boxShadow: 'none',
-						},
-					}}
-					isDisabled={isSurveyCompleted && !isSuperAdmin}
-					onClick={(e) => {
-						e.stopPropagation();
-						if (isSuperAdmin) {
+							color: 'gray.500',
+							cursor: 'not-allowed',
+							_hover: {
+								bg: colorTheme.buttons.disabled,
+								transform: 'none',
+								boxShadow: 'none',
+							},
+						}}
+						isDisabled={isSurveyCompleted && !isSuperAdmin}
+						onClick={(e) => {
+							e.stopPropagation();
 							navigate(`/survey/view-survey/${data.id || data._id}`);
-						} else if (!isSurveyCompleted) {
+						}}
+					>
+						View
+					</Button>
+				)}
+
+				{data?.data?.owner?._id !== user?._id && (
+					<Button
+						bg={colorTheme.buttons.primary}
+						color={colorTheme.buttons.text}
+						size='sm'
+						_hover={{
+							bg: colorTheme.buttons.hover,
+							transform: 'translateY(-2px)',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						}}
+						_active={{
+							bg: colorTheme.buttons.active,
+							transform: 'translateY(0)',
+						}}
+						_disabled={{
+							bg: colorTheme.buttons.disabled,
+							color: 'gray.500',
+							cursor: 'not-allowed',
+							_hover: {
+								bg: colorTheme.buttons.disabled,
+								transform: 'none',
+								boxShadow: 'none',
+							},
+						}}
+						isDisabled={isSurveyCompleted}
+						onClick={(e) => {
+							e.stopPropagation();
 							navigate(`/survey/take-survey/${data.id || data._id}`);
-						}
-					}}
-				>
-					{isSuperAdmin ? 'View' : isSurveyCompleted ? 'Completed' : 'Take Survey'}
-				</Button>
+						}}
+					>
+						{isSurveyCompleted ? 'Completed' : 'Take Survey'}
+					</Button>
+				)}
 			</Box>
 
 			<Modal isOpen={isOpen} onClose={onClose} isCentered>
