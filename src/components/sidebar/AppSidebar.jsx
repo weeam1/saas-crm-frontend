@@ -54,8 +54,8 @@ const SidebarItem = React.memo(function SidebarItem({
 	onClick,
 	isMobile,
 }) {
-	const activeBg = useColorModeValue('brand.400', 'brand.300');
-	const activeColor = useColorModeValue('gray.100', 'gray.200');
+	const activeBg = useColorModeValue('brand.100', 'brand.300');
+	const activeColor = useColorModeValue('brand.500', 'gray.200');
 	const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
 
 	const content = (
@@ -74,9 +74,9 @@ const SidebarItem = React.memo(function SidebarItem({
 			role='link'
 			data-testid={`sidebar-link-${route.moduleId}`}
 			transition='background 200ms ease'
-			display={"flex"}
-			flexDir={collapsed? "column" :"row"}
-			alignItems={collapsed?  "center" : "none" }
+			display={'flex'}
+			flexDir={collapsed ? 'column' : 'row'}
+			alignItems={collapsed ? 'center' : 'none'}
 		>
 			<Box
 				as='span'

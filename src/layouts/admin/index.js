@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
 import { ROLE_PATH } from 'roles';
 import Footer from 'components/footer/FooterAdmin';
@@ -54,6 +54,22 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			(route) => route.moduleId !== 'attendance'
 		);
 
+		const filterSidebarRoutes = sidebarRoutes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		appSidebarRoutes = [
+			...filterSidebarRoutes,
+			{
+				moduleId: 'attendance',
+				name: 'Attendance',
+				path: '/attendance/dashboard',
+				icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+			},
+		];
+
+		console.log({ appSidebarRoutes });
+
 		const attendanceRoutes = [
 			{
 				moduleId: 'attendance',
@@ -82,6 +98,17 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			name: 'Whatsapp',
 			path: '/whatsapp/chat',
 			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+		});
+	}
+
+	// Super admin only show whatsapp users
+	if (userRoleName === 'superAdmin') {
+		// -------- Whatsapp --------
+		appRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp',
 		});
 	}
 
@@ -123,8 +150,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		if (r.moduleId === 'system_log') return true;
 		return true;
 	}, []);
-
-	console.log({ appRoutes });
 
 	const getRoutes = (routes) => {
 		return routes.map((prop, key) => {
@@ -185,7 +210,12 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 					transition='padding-left 220ms cubic-bezier(.4,0,.2,1)'
 					minH='100vh'
 				>
-					<Box px={{ base: 4, md: 6 }} py={{ base: 2, md: 4 }} mb='6'>
+					<Box
+						px={{ base: 4, md: 6 }}
+						py={{ base: 2, md: 4 }}
+						mb='6'
+						minH='85vh'
+					>
 						<Suspense
 							fallback={
 								<Flex align='center' justify='center' h='100vh'>
