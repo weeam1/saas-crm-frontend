@@ -1,4 +1,4 @@
-import { Spinner, Switch, Text, useDisclosure } from '@chakra-ui/react';
+import { Spinner, Switch, Text, useDisclosure,Flex } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
@@ -140,6 +140,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 					/>
 				) : (
 					<>
+					<Flex gap={1}>
 						{isActive ? 'Enable' : 'Disable'}
 						{isAdmin && (
 							<Switch
@@ -150,6 +151,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 								onChange={handleToggle}
 							/>
 						)}
+						</Flex>
 					</>
 				)}
 			</Text>
