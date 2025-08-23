@@ -74,6 +74,9 @@ const SidebarItem = React.memo(function SidebarItem({
 			role='link'
 			data-testid={`sidebar-link-${route.moduleId}`}
 			transition='background 200ms ease'
+			display={"flex"}
+			flexDir={collapsed? "column" :"row"}
+			alignItems={collapsed?  "center" : "none" }
 		>
 			<Box
 				as='span'

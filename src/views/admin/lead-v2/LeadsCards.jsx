@@ -258,7 +258,7 @@ const LeadsCards = ({ handleView, view }) => {
 						<ViewToggle
 							handleView={handleView}
 							view={view}
-							moduleView='leadViewMode'
+							moduleView='leadView'
 						/>
 					</HStack>
 				</HStack>

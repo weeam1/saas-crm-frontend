@@ -11,12 +11,12 @@ const LeadsTable = lazy(() => import('./../lead'));
 
 const Index = () => {
 	const [view, setView] = useState(() => {
-		return localStorage.getItem('leadViewMode') || 'grid';
+		return localStorage.getItem('leadView') || 'grid';
 	});
 
 	const handleViewChange = (newView) => {
 		setView(newView);
-		localStorage.setItem('leadViewMode', newView);
+		localStorage.setItem('leadView', newView);
 	};
 
 	const { hasPermission } = usePermissions();

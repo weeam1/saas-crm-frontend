@@ -19,18 +19,19 @@ const PermissionCard = ({
   handleModuleToggle,
   handleSelectAll,
   handleActionToggle,
+  roleName
 }) => {
+
   const cleanModuleName = module.moduleName.replace(/^[\s,]+/, "").trim();
 
   return (
     <Box
       borderWidth="1px"
-      borderColor={borderColor}
       borderRadius="md"
       bg="white"
       w="full"
       p={4}
-	  boxShadow="base"
+      boxShadow="sm"
     >
       {/* Module title and Check All */}
       <Flex
@@ -59,6 +60,7 @@ const PermissionCard = ({
           onChange={(e) => handleModuleToggle(moduleIndex, e.target.checked)}
           _focus={{ boxShadow: "none" }}
           _active={{ boxShadow: "none" }}
+		  isDisabled={(roleName==="superAdmin" &&  module.moduleId === "admin_settings" ) ? true : false }
         />
       </Flex>
       {module?.actions.length > 0 && <Divider my={3} color={"brand.500"} />}
@@ -90,11 +92,13 @@ const PermissionCard = ({
                 borderColor: !module.isModuleEnabled
                   ? disabledBorderColor
                   : "gray.400",
+				   outline: "none",
               },
               ".chakra-checkbox__control": {
                 _focus: {
                   boxShadow: "0 0 0 2px",
                   borderColor: "brand.300",
+				   outline: "none",
                 },
               },
             }}
@@ -113,7 +117,7 @@ const PermissionCard = ({
         {module.actions.map((action, actionIndex) => (
           <Checkbox
             key={action.actionKey}
-            size="md"
+            size="lg"
             colorScheme="brand"
             borderColor={
               module.isModuleEnabled ? "brand.300" : disabledBorderColor
@@ -133,11 +137,13 @@ const PermissionCard = ({
                 borderColor: !module.isModuleEnabled
                   ? disabledBorderColor
                   : "gray.400",
+                outline: "none",
               },
               ".chakra-checkbox__control": {
                 _focus: {
                   boxShadow: "0 0 0 2px",
                   borderColor: "brand.300",
+                  outline: "none",
                 },
               },
             }}
