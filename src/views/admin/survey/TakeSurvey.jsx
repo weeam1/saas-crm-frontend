@@ -146,7 +146,7 @@ const TakeSurvey = () => {
 
       navigate("/survey");
     } catch (error) {
-      toast.error("Error submitting survey");
+      toast.error(error?.data?.message);
       const errorMsg =
         error?.data?.message || "Failed to take the survey. Please try again.";
       createUserLog({
