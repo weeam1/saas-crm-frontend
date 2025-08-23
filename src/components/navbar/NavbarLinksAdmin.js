@@ -32,6 +32,8 @@ import DigitalClockDropdown from './clock/DigitalClockDropdown;';
 import { buildPermissionMap } from 'utils/permissionUtils';
 import { setPermissions } from '../../redux/permissionSlice';
 import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
+import { setUser } from '../../redux/localSlice';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -50,30 +52,29 @@ export default function HeaderLinks(props) {
 	);
 	// const borderButton = useColorModeValue('secondaryGray.500', 'whiteAlpha.200');
 
-	const [loginUser, setLoginUser] = useState();
 	const { hasPermission } = usePermissions();
 
 	const { colorMode, toggleColorMode } = useColorMode();
 
 	const navigate = useNavigate();
-	const userData = useSelector((state) => state.user.user);
+	const { user } = useUserSession();
 
-	const data = typeof userData === 'string' ? JSON.parse(userData) : userData;
-	const user = loginUser?.fullName;
-	const localUser = JSON.parse(localStorage.getItem('user'));
+	// const data = typeof userData === 'string' ? JSON.parse(userData) : userData;
+	// const user = user?.fullName;
+	// const localUser = JSON.parse(localStorage.getItem('user'));
 
-	const userId = localUser?._id;
+	// const userId = localUser?._id;
 
 	const dispatch = useDispatch();
 
 	const fetchData = async () => {
 		try {
-			let response = await getApi('api/user/view/', userId);
+			let response = await getApi('api/user/view/', user?._id);
 
 			if (response?.data) {
 				// Check role mismatch
 				if (
-					localUser?.roles[0]?.roleName !== response.data?.roles[0]?.roleName ||
+					user?.roles[0]?.roleName !== response.data?.roles[0]?.roleName ||
 					!response.data?.isActive
 				) {
 					logOut();
@@ -81,13 +82,14 @@ export default function HeaderLinks(props) {
 
 				const userData = {
 					...response.data,
-					roleName:
-						response.data?.roles?.[0]?.roleName ||
-						response.data?.role ||
-						'user',
+					// roleName:
+					// 	response.data?.roles?.[0]?.roleName ||
+					// 	response.data?.role ||
+					// 	'user',
 				};
 
-				setLoginUser(userData);
+				// dispatch(setUser(userData));
+				localStorage.setItem('user', JSON.stringify(userData));
 
 				// build the permission map and store in redux store
 				const permissionMap = buildPermissionMap(userData);
@@ -202,7 +204,7 @@ export default function HeaderLinks(props) {
 			/> */}
 
 			<HStack gap='2'>
-				<NotificationIcon userId={userId} />
+				<NotificationIcon userId={user?._id} />
 				{/* <Box
 					boxSize={10}
 					bg='brand.500'
@@ -227,18 +229,18 @@ export default function HeaderLinks(props) {
 								size='sm'
 								w='40px'
 								h='40px'
-								name={loginUser?.firstName || 'User'}
+								name={user?.firstName || 'User'}
 								src={
-									loginUser?.profileImage
-										? `${constant['baseUrl']}${loginUser.profileImage}`
+									user?.profileImage
+										? `${constant['baseUrl']}${user.profileImage}`
 										: ''
 								}
-								bg={loginUser?.profileImage ? 'gray.100' : 'brand.500'}
-								color={loginUser?.profileImage ? '#333' : 'white'}
+								bg={user?.profileImage ? 'gray.100' : 'brand.500'}
+								color={user?.profileImage ? '#333' : 'white'}
 								shadow='md'
 								_hover={{ cursor: 'pointer' }}
 							/>
-							{loginUser?.firstName && (
+							{user?.firstName && (
 								<>
 									<Text
 										fontWeight='medium'
@@ -247,7 +249,7 @@ export default function HeaderLinks(props) {
 										maxWidth='200px'
 										color='brand.500'
 									>
-										👋 Hey, {loginUser?.firstName || 'User'}
+										👋 Hey, {user?.firstName || 'User'}
 									</Text>
 									<Icon as={ChevronDownIcon} w={5} h={5} />
 								</>
@@ -293,8 +295,8 @@ export default function HeaderLinks(props) {
 							</MenuItem>
 
 							{/* Annouoncements allow for admin and managers */}
-							{/* {(loginUser?.role === "superAdmin" ||
-							loginUser?.roles?.[0]?.roleName === "Manager") && (
+							{/* {(user?.role === "superAdmin" ||
+							user?.roles?.[0]?.roleName === "Manager") && (
 							<MenuItem
 								_hover={{ bg: "none" }}
 								_focus={{ bg: "none" }}

@@ -26,6 +26,7 @@ import { MdCampaign } from 'react-icons/md';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
 import { ROLE_PATH } from './roles';
+import TakeSurvey from 'views/admin/survey/TakeSurvey';
 
 // ========================== Lazy Imports ==========================
 // Dashboard
@@ -218,7 +219,7 @@ const routes = [
 	{
 		moduleId: 'leadpool_agents',
 		name: 'Leads Pool',
-		layout: [ROLE_PATH.user],
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/agent_pool',
 		icon: (
 			<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
@@ -569,6 +570,15 @@ const routes = [
 		under: 'Survey',
 		parentName: 'Survey',
 		component: ViewSurveyResponse,
+	},
+	{
+		moduleId: 'survey',
+		name: 'Take Survey',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/survey/take-survey/:id',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: TakeSurvey,
 	},
 	// {
 	// 	name: 'whatsapp chat',

@@ -226,14 +226,15 @@ function App() {
 				<ToastContainer />
 				<Routes>
 					{token && user?.role ? (
-						user?.role === 'user' ? (
-							<Route path='/*' element={<UserLayout />} />
-						) : user?.role === 'superAdmin' ? (
-							<Route path='/*' element={<AdminLayout />} />
-						) : (
-							''
-						)
+						<Route path='/*' element={<AdminLayout />} />
 					) : (
+						// user?.role === 'user' ? (
+						// 	<Route path='/*' element={<UserLayout />} />
+						// ) : user?.role === 'superAdmin' ? (
+						// 	<Route path='/*' element={<AdminLayout />} />
+						// ) : (
+						// 	''
+						// )
 						<Route path='/*' element={<AuthLayout />} />
 					)}
 				</Routes>

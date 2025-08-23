@@ -115,8 +115,6 @@ function SignIn() {
 						'user',
 				};
 
-				console.log({ userData });
-
 				// build the permission map and store in redux store
 				const permissionMap = buildPermissionMap(userData);
 				dispatch(setPermissions(permissionMap));
