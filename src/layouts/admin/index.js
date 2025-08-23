@@ -140,8 +140,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		return true;
 	}, []);
 
-	console.log({ appRoutes });
-
 	const getRoutes = (routes) => {
 		return routes.map((prop, key) => {
 			// if (!prop.under && prop.layout === '/superAdmin') {
@@ -201,7 +199,12 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 					transition='padding-left 220ms cubic-bezier(.4,0,.2,1)'
 					minH='100vh'
 				>
-					<Box px={{ base: 4, md: 6 }} py={{ base: 2, md: 4 }} mb='6'>
+					<Box
+						px={{ base: 4, md: 6 }}
+						py={{ base: 2, md: 4 }}
+						mb='6'
+						minH='85vh'
+					>
 						<Suspense
 							fallback={
 								<Flex align='center' justify='center' h='100vh'>

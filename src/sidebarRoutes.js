@@ -18,6 +18,7 @@ import {
 	FaWhatsapp,
 	FaHandshake,
 	FaPhone,
+	FaRegCopy,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -89,6 +90,15 @@ const sidebarRoutes = [
 		name: 'Invoice',
 		path: '/invoice',
 		icon: <Icon as={HiOutlineDocumentReport} w='20px' h='20px' />,
+	},
+
+	// -------- Expenses --------
+
+	{
+		moduleId: 'expense',
+		name: 'Expenses',
+		path: '/expenses',
+		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
 	},
 
 	// -------- Tasks --------

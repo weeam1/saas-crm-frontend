@@ -313,7 +313,7 @@ export default function UserReports() {
 
 			<SalesDashboard data={sales} />
 
-			{userRole === 'superAdmin' && (
+			{['superAdmin', 'Admin'].includes(userRole) && (
 				<>
 					<TodaySummary summary={todaySummary?.summary} />
 
