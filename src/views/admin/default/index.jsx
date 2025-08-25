@@ -1,338 +1,341 @@
 // Chakra imports
 import {
-	Flex,
-	Heading,
-	Icon,
-	SimpleGrid,
-	useColorModeValue,
-	Grid,
-	GridItem,
-	Progress,
-	Box,
-	Text,
-	useColorMode,
-} from '@chakra-ui/react';
+  Flex,
+  Heading,
+  Icon,
+  SimpleGrid,
+  useColorModeValue,
+  Grid,
+  GridItem,
+  Progress,
+  Box,
+  Text,
+  useColorMode,
+} from "@chakra-ui/react";
 // Assets
 // Custom components
-import Card from 'components/card/Card';
-import MiniStatistics from 'components/card/MiniStatistics';
-import IconBox from 'components/icons/IconBox';
-import { HSeparator } from 'components/separator/Separator';
-import { useEffect, useState } from 'react';
-import { MdAddTask, MdContacts, MdLeaderboard } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
-import { getApi } from 'services/api';
-import Chart from 'components/charts/LineChart.js';
+import Card from "components/card/Card";
+import MiniStatistics from "components/card/MiniStatistics";
+import IconBox from "components/icons/IconBox";
+import { HSeparator } from "components/separator/Separator";
+import { useEffect, useState } from "react";
+import { MdAddTask, MdContacts, MdLeaderboard } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { getApi } from "services/api";
+import Chart from "components/charts/LineChart.js";
 // import Chart from "../reports/components/chart";
-import { HasAccess } from '../../../redux/accessUtils';
-import CountUpComponent from '../../../../src/components/countUpComponent/countUpComponent';
-import RevenueProgressBar from 'components/navbar/RevenueProgressBar';
-import MonthlyRevenueChart from './components/MonthlyRevenueChart';
-import { PiPhoneCallBold } from 'react-icons/pi';
-import Header from './components/Header';
-import DashboardStatCards from './components/DashboardStatCards';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import ReportChart from './components/ReportChart';
-import TodaySummary from './components/TodaySummary';
-import LeadStatusTable from './components/LeadStatusStats';
-import LeadStatusStats from './components/LeadStatusStats';
-import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
-import SalesDashboard from './components/sales/SalesDashboard';
-import useUserSession from 'hooks/useUserSession';
+import { HasAccess } from "../../../redux/accessUtils";
+import CountUpComponent from "../../../../src/components/countUpComponent/countUpComponent";
+import RevenueProgressBar from "components/navbar/RevenueProgressBar";
+import MonthlyRevenueChart from "./components/MonthlyRevenueChart";
+import { PiPhoneCallBold } from "react-icons/pi";
+import Header from "./components/Header";
+import DashboardStatCards from "./components/DashboardStatCards";
+import { useFetchItemsQuery } from "api/apiSlice";
+import Loader from "components/loading/Loader";
+import ReportChart from "./components/ReportChart";
+import TodaySummary from "./components/TodaySummary";
+import LeadStatusTable from "./components/LeadStatusStats";
+import LeadStatusStats from "./components/LeadStatusStats";
+import LeadStatusPieChart from "./components/lead-status/LeadStatusPieChart";
+import SalesDashboard from "./components/sales/SalesDashboard";
+import useUserSession from "hooks/useUserSession";
+import PermissionSection from "./components/PermissionSection";
 
 export default function UserReports() {
-	const { colorMode } = useColorMode();
-	// Chakra Color Mode
-	const viewsState = HasAccess([
-		'Contacts',
-		'Task',
-		'Lead',
-		'Property',
-		'Email',
-		'Call',
-		'Meeting',
-	]);
-	const [
-		contactsView,
-		taskView,
-		leadView,
-		proprtyView,
-		emailView,
-		callView,
-		meetingView,
-	] = viewsState;
-	const brandColor = useColorModeValue('brand.500', 'white');
-	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-	const { user, userRoleName } = useUserSession();
-	const [listTop, setListTop] = useState('all');
+  const { colorMode } = useColorMode();
+  // Chakra Color Mode
+  const viewsState = HasAccess([
+    "Contacts",
+    "Task",
+    "Lead",
+    "Property",
+    "Email",
+    "Call",
+    "Meeting",
+  ]);
+  const [
+    contactsView,
+    taskView,
+    leadView,
+    proprtyView,
+    emailView,
+    callView,
+    meetingView,
+  ] = viewsState;
+  const brandColor = useColorModeValue("brand.500", "white");
+  const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
+  const { user, userRoleName } = useUserSession();
+  const [listTop, setListTop] = useState("all");
 
-	const [revenue, setRevenue] = useState({
-		totalRevenue: 0,
-		target: 0,
-	});
+  const [revenue, setRevenue] = useState({
+    totalRevenue: 0,
+    target: 0,
+  });
 
-	const [task, setTask] = useState([]);
-	const [contactData, setContactData] = useState([]);
-	const [leadData, setLeadData] = useState([]);
-	const [data, setData] = useState([
-		{
-			name: 'Lead',
-			length: 0,
-		},
-		{
-			name: 'Contact',
-			length: 0,
-		},
-		{
-			name: 'Property',
-			length: 0,
-		},
-		{
-			name: 'Task',
-			length: 0,
-		},
-		{
-			name: 'Meeting',
-			length: 0,
-		},
-		{
-			name: 'Email',
-			length: 0,
-		},
-		{
-			name: 'Call',
-			length: 0,
-		},
-	]);
-	const [fetched, setFetched] = useState(false);
-	const [callData, setCallData] = useState([]);
+  const [task, setTask] = useState([]);
+  const [contactData, setContactData] = useState([]);
+  const [leadData, setLeadData] = useState([]);
+  const [data, setData] = useState([
+    {
+      name: "Lead",
+      length: 0,
+    },
+    {
+      name: "Contact",
+      length: 0,
+    },
+    {
+      name: "Property",
+      length: 0,
+    },
+    {
+      name: "Task",
+      length: 0,
+    },
+    {
+      name: "Meeting",
+      length: 0,
+    },
+    {
+      name: "Email",
+      length: 0,
+    },
+    {
+      name: "Call",
+      length: 0,
+    },
+  ]);
+  const [fetched, setFetched] = useState(false);
+  const [callData, setCallData] = useState([]);
 
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const { data: stats = {}, isLoading } = useFetchItemsQuery(
-		{ path: '/dashboard/stats' },
-		{
-			refetchOnMountOrArgChange: true,
-			skip: !userRoleName === 'superAdmin',
-		}
-	);
+  const { data: stats = {}, isLoading } = useFetchItemsQuery(
+    { path: "/dashboard/stats" },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !userRoleName === "superAdmin",
+    }
+  );
 
-	const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
-		useFetchItemsQuery(
-			{ path: '/dashboard/today_summary' },
-			{
-				refetchOnMountOrArgChange: true,
-				skip: !userRoleName === 'superAdmin',
-			}
-		);
+  const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
+    useFetchItemsQuery(
+      { path: "/dashboard/today_summary" },
+      {
+        refetchOnMountOrArgChange: true,
+        skip: !userRoleName === "superAdmin",
+      }
+    );
 
-	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
-		useFetchItemsQuery(
-			{ path: '/dashboard/leads/leadStatus_stats' },
-			{
-				refetchOnMountOrArgChange: true,
-				skip: !userRoleName === 'superAdmin',
-			}
-		);
+  const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
+    useFetchItemsQuery(
+      { path: "/dashboard/leads/leadStatus_stats" },
+      {
+        refetchOnMountOrArgChange: true,
+        skip: !userRoleName === "superAdmin",
+      }
+    );
 
-	const salesQueryParmas =
-		['Agent', 'Manager'].includes(userRoleName) && user?._id
-			? { userId: user._id }
-			: {};
+  const salesQueryParmas =
+    ["Agent", "Manager"].includes(userRoleName) && user?._id
+      ? { userId: user._id }
+      : {};
 
-	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
-		{
-			path: '/deals/monthly',
-			params: salesQueryParmas,
-		},
-		{
-			refetchOnMountOrArgChange: true,
-		}
-	);
+  const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
+    {
+      path: "/deals/monthly",
+      params: salesQueryParmas,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
-	// const fetchTasks = async () => {
-	// 	let taskData;
-	// 	// setTimeout(async () => {
-	// 	if (user.role === 'superAdmin') {
-	// 		taskData = await getApi('api/task/');
-	// 	} else if (
-	// 		taskView?.create ||
-	// 		taskView?.update ||
-	// 		taskView?.delete ||
-	// 		taskView?.view
-	// 	) {
-	// 		taskData = await getApi(`api/task/?createBy=${user._id}`);
-	// 	}
+  // const fetchTasks = async () => {
+  // 	let taskData;
+  // 	// setTimeout(async () => {
+  // 	if (user.role === 'superAdmin') {
+  // 		taskData = await getApi('api/task/');
+  // 	} else if (
+  // 		taskView?.create ||
+  // 		taskView?.update ||
+  // 		taskView?.delete ||
+  // 		taskView?.view
+  // 	) {
+  // 		taskData = await getApi(`api/task/?createBy=${user._id}`);
+  // 	}
 
-	// 	setTask(taskData?.data);
-	// };
+  // 	setTask(taskData?.data);
+  // };
 
-	// const fetchContacts = async () => {
-	// 	let contact;
-	// 	if (user.role === 'superAdmin') {
-	// 		contact = await getApi('api/contact/');
-	// 	} else if (
-	// 		contactsView?.create ||
-	// 		contactsView?.update ||
-	// 		contactsView?.delete ||
-	// 		contactsView?.view
-	// 	) {
-	// 		contact = await getApi(`api/contact/?createBy=${user._id}`);
-	// 	}
+  // const fetchContacts = async () => {
+  // 	let contact;
+  // 	if (user.role === 'superAdmin') {
+  // 		contact = await getApi('api/contact/');
+  // 	} else if (
+  // 		contactsView?.create ||
+  // 		contactsView?.update ||
+  // 		contactsView?.delete ||
+  // 		contactsView?.view
+  // 	) {
+  // 		contact = await getApi(`api/contact/?createBy=${user._id}`);
+  // 	}
 
-	// 	setContactData(contact?.data);
-	// };
+  // 	setContactData(contact?.data);
+  // };
 
-	// const fetchLeads = async () => {
-	// 	let lead;
-	// 	if (user.role === 'superAdmin') {
-	// 		lead = await getApi('api/lead');
-	// 	} else if (
-	// 		leadView?.create ||
-	// 		leadView?.update ||
-	// 		leadView?.delete ||
-	// 		leadView?.view
-	// 	) {
-	// 		lead = await getApi(
-	// 			`api/lead/?role=${user?.roles[0]?.roleName}&user=${user._id}`
-	// 		);
-	// 	}
-	// 	setLeadData(lead?.data?.totalLeads || 0);
-	// };
+  // const fetchLeads = async () => {
+  // 	let lead;
+  // 	if (user.role === 'superAdmin') {
+  // 		lead = await getApi('api/lead');
+  // 	} else if (
+  // 		leadView?.create ||
+  // 		leadView?.update ||
+  // 		leadView?.delete ||
+  // 		leadView?.view
+  // 	) {
+  // 		lead = await getApi(
+  // 			`api/lead/?role=${user?.roles[0]?.roleName}&user=${user._id}`
+  // 		);
+  // 	}
+  // 	setLeadData(lead?.data?.totalLeads || 0);
+  // };
 
-	// const fetchCalls = async () => {
-	// 	let call;
-	// 	if (user.role === 'superAdmin') {
-	// 		call = await getApi('api/phoneCall/');
-	// 	} else if (
-	// 		callView?.create ||
-	// 		callView?.update ||
-	// 		callView?.delete ||
-	// 		callView?.view
-	// 	) {
-	// 		call = await getApi(`api/phoneCall/?sender=${user._id}`);
-	// 	}
-	// 	setCallData(call?.data);
-	// };
+  // const fetchCalls = async () => {
+  // 	let call;
+  // 	if (user.role === 'superAdmin') {
+  // 		call = await getApi('api/phoneCall/');
+  // 	} else if (
+  // 		callView?.create ||
+  // 		callView?.update ||
+  // 		callView?.delete ||
+  // 		callView?.view
+  // 	) {
+  // 		call = await getApi(`api/phoneCall/?sender=${user._id}`);
+  // 	}
+  // 	setCallData(call?.data);
+  // };
 
-	const fetchProgressChart = async () => {
-		let result = await getApi(
-			user.role === 'superAdmin'
-				? 'api/reporting/line-chart'
-				: `api/reporting/line-chart?createBy=${user._id}`
-		);
-		if (result && result.status === 200) {
-			setData(result?.data);
-		}
-	};
+  const fetchProgressChart = async () => {
+    let result = await getApi(
+      user.role === "superAdmin"
+        ? "api/reporting/line-chart"
+        : `api/reporting/line-chart?createBy=${user._id}`
+    );
+    if (result && result.status === 200) {
+      setData(result?.data);
+    }
+  };
 
-	useEffect(() => {
-		if (!viewsState?.every((view) => view === undefined) && !fetched) {
-			// fetchLeads();
-			// fetchTasks();
-			// fetchCalls();
-			// fetchContacts();
-			fetchProgressChart();
-			setFetched(true);
-		}
-	}, [viewsState]);
+  useEffect(() => {
+    if (!viewsState?.every((view) => view === undefined) && !fetched) {
+      // fetchLeads();
+      // fetchTasks();
+      // fetchCalls();
+      // fetchContacts();
+      fetchProgressChart();
+      setFetched(true);
+    }
+  }, [viewsState]);
 
-	const taskStatus = [
-		{
-			name: 'Completed',
-			status: 'completed',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'completed')?.length) ||
-				0,
-			color: '#4d8f3a',
-		},
-		{
-			name: 'Pending',
-			status: 'pending',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'pending')?.length) ||
-				0,
-			color: '#a37f08',
-		},
-		{
-			name: 'Reassigned',
-			status: 'reassigned',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'reassigned')?.length) ||
-				0,
-			color: '#7038db',
-		},
-		{
-			name: 'In Progress',
-			status: 'inProgress',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'inProgress')?.length) ||
-				0,
-			color: '#7038db',
-		},
-		{
-			name: 'Todo',
-			status: 'todo',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'todo')?.length) ||
-				0,
-			color: '#1f7eeb',
-		},
-		{
-			name: 'On Hold',
-			status: 'onHold',
-			length:
-				(task &&
-					task?.length > 0 &&
-					task?.filter((item) => item?.status === 'onHold')?.length) ||
-				0,
-			color: '#DB5436',
-		},
-	];
+  const taskStatus = [
+    {
+      name: "Completed",
+      status: "completed",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "completed")?.length) ||
+        0,
+      color: "#4d8f3a",
+    },
+    {
+      name: "Pending",
+      status: "pending",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "pending")?.length) ||
+        0,
+      color: "#a37f08",
+    },
+    {
+      name: "Reassigned",
+      status: "reassigned",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "reassigned")?.length) ||
+        0,
+      color: "#7038db",
+    },
+    {
+      name: "In Progress",
+      status: "inProgress",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "inProgress")?.length) ||
+        0,
+      color: "#7038db",
+    },
+    {
+      name: "Todo",
+      status: "todo",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "todo")?.length) ||
+        0,
+      color: "#1f7eeb",
+    },
+    {
+      name: "On Hold",
+      status: "onHold",
+      length:
+        (task &&
+          task?.length > 0 &&
+          task?.filter((item) => item?.status === "onHold")?.length) ||
+        0,
+      color: "#DB5436",
+    },
+  ];
 
-	return isLoading ||
-		todaySummaryLoading ||
-		leadStatusLoading ||
-		salesLoading ? (
-		<Loader />
-	) : (
-		<Box>
-			<Header />
+  return isLoading ||
+    todaySummaryLoading ||
+    leadStatusLoading ||
+    salesLoading ? (
+    <Loader />
+  ) : (
+    <Box>
+      <Header />
+      {!["superAdmin", "Manager", "Agent", "Admin"].includes(userRoleName) && (
+        <PermissionSection />
+      )}
+      <SalesDashboard data={sales} />
 
-			<SalesDashboard data={sales} />
+      {["superAdmin", "Admin"].includes(userRoleName) && (
+        <>
+          <TodaySummary summary={todaySummary?.summary} />
 
-			{['superAdmin', 'Admin'].includes(userRoleName) && (
-				<>
-					<TodaySummary summary={todaySummary?.summary} />
+          <DashboardStatCards colorMode={colorMode} stats={stats} />
 
-					<DashboardStatCards colorMode={colorMode} stats={stats} />
+          <ReportChart stats={stats} />
+        </>
+      )}
 
-					<ReportChart stats={stats} />
-				</>
-			)}
-
-			{/* <LeadStatusStats
+      {/* <LeadStatusStats
 				doc={leadStatusData?.doc}
 				listTop={listTop}
 				setListTop={setListTop}
 			/> */}
 
-			{['Agent', 'Manager', 'Admin', 'superAdmin'].includes(userRoleName) && (
-				<LeadStatusPieChart data={leadStatusData?.doc} />
-			)}
+      {["Agent", "Manager", "Admin", "superAdmin"].includes(userRoleName) && (
+        <LeadStatusPieChart data={leadStatusData?.doc} />
+      )}
 
-			{/* <Grid
+      {/* <Grid
 				Grid
 				templateColumns={{ base: 1, xl: 'repeat(12, 1fr)' }}
 				mt={5}
@@ -984,7 +987,7 @@ export default function UserReports() {
 					{/* <Flex mt={5} justifyContent={'center'}>
 						<PieChart leadData={leadData} />
 					</Flex> */}
-			{/* </Card>
+      {/* </Card>
 
 				<Card>
 					<Grid templateColumns='repeat(12, 1fr)' gap={2} mb={2}>
@@ -1051,6 +1054,6 @@ export default function UserReports() {
 						))}
 				</Card>
 			</SimpleGrid> */}
-		</Box>
-	);
+    </Box>
+  );
 }
