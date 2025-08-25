@@ -63,6 +63,7 @@ const Index = () => {
 				fetchData={fetchData}
 				action={action}
 				columnsData={columns}
+				isLoding={isLoding}
 			/>
 		</div>
 	);
