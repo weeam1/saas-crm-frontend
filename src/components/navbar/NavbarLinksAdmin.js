@@ -219,7 +219,7 @@ export default function HeaderLinks(props) {
 
 				<DigitalClockDropdown />
 
-				<Menu style={{ zIndex: 99999 }}>
+				<Menu style={{ zIndex: 99999 }} boxShadow={"lg"}>
 					<MenuButton
 						p='1px'
 						_hover={{ backgroundColor: 'gray.100', rounded: 'full' }}
@@ -258,7 +258,7 @@ export default function HeaderLinks(props) {
 					</MenuButton>
 
 					<MenuList
-						boxShadow={shadow}
+						boxShadow={"lg"}
 						p='0px'
 						mt='10px'
 						borderRadius='20px'

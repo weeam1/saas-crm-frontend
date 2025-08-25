@@ -8,6 +8,7 @@ import {
 import {
   MdOutlineAdminPanelSettings,
   MdOutlineGroup,
+  MdPeopleOutline
 } from "react-icons/md";
 
 export default function LeadpoolSelector({ modules, setModules }) {
@@ -81,7 +82,7 @@ export default function LeadpoolSelector({ modules, setModules }) {
                 align="center"
               >
                 <Icon
-                  as={MdOutlineAdminPanelSettings}
+                  as={module.moduleId === "leadpool_agents" ? MdPeopleOutline : MdOutlineAdminPanelSettings}
                   width="20px"
                   height="20px"
                   color="inherit"
