@@ -101,30 +101,30 @@ const Attendance = ({ userId }) => {
 						Attendance Record
 					</Text>
 
-					{['HR', 'superAdmin'].includes(userRoleName) && (
-						<Stack direction={{ base: 'row' }} spacing={2}>
+					<Stack direction={{ base: 'row' }} spacing={2}>
+						{hasPermission('attendance', 'export') && (
 							<ExportEmployeeAttendanceReport
 								month={month}
 								year={year}
 								employee={employee}
 							/>
+						)}
 
-							{hasPermission('attendance', 'create') && (
-								<Button
-									{...buttonStyle}
-									variant='solid'
-									bg='brand.400'
-									py='2'
-									px='5'
-									leftIcon={<FaPlus />}
-									aria-label='Add attendance'
-									onClick={() => setAddAttendance(true)}
-								>
-									Add
-								</Button>
-							)}
-						</Stack>
-					)}
+						{hasPermission('attendance', 'create') && (
+							<Button
+								{...buttonStyle}
+								variant='solid'
+								bg='brand.400'
+								py='2'
+								px='5'
+								leftIcon={<FaPlus />}
+								aria-label='Add attendance'
+								onClick={() => setAddAttendance(true)}
+							>
+								Add
+							</Button>
+						)}
+					</Stack>
 				</Flex>
 
 				{error ? (
