@@ -22,13 +22,15 @@ import {
 } from 'react-icons/fa';
 import { formatCurrency } from 'utils/helpers';
 import SalesChart from './SalesChart';
+import useUserSession from 'hooks/useUserSession';
 
 const SalesDashboard = ({ data }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName } = useUserSession();
+	// const user = JSON.parse(localStorage.getItem('user'));
 
-	const userRole = user?.roles[0]?.roleName || user?.role;
+	// const userRole = user?.roles[0]?.roleName || user?.role;
 
-	const isAdmin = userRole === 'superAdmin';
+	const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
 
 	const statsData = useMemo(
 		() => ({
@@ -96,7 +98,8 @@ const SalesDashboard = ({ data }) => {
 	// 	},
 	// ];
 
-	if (!['superAdmin', 'Manager', 'Agent'].includes(userRole)) return null;
+	if (!['superAdmin', 'Manager', 'Agent', 'Admin'].includes(userRoleName))
+		return null;
 
 	const statsCards = [
 		{
