@@ -14,17 +14,23 @@ import CreateAttendance from './CreateAttendance';
 import { FaPlus } from 'react-icons/fa';
 import ExportEmployeeAttendanceReport from './ExportEmployeeAttendanceReport';
 import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
+import AppButton from 'components/shared/AppButton';
+import { IoArrowBack } from 'react-icons/io5';
 
 const Attendance = ({ userId }) => {
 	let { id: paramId } = useParams();
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
 
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
-	const employeeId = role === 'Developer' ? user?._id : userId || paramId;
+	const { user, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
+
+	// const userRoleName =
+	// 	user?.userRoleName === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const employeeId =
+		userRoleName === 'Developer' ? user?._id : userId || paramId;
 
 	const navigate = useNavigate();
-	const { hasPermission } = usePermissions();
 
 	useEffect(() => {
 		if (!hasPermission('attendance')) return navigate('/default');
@@ -75,19 +81,12 @@ const Attendance = ({ userId }) => {
 		</Box>
 	) : employee ? (
 		data?.officeSettings ? (
-			<Box
-				p={{ base: 4, md: 6 }}
-				minH='100vh'
-				fontFamily="'DM Sans', sans-serif"
-			>
-				{/* <AppButton
-					leftIcon={<IoArrowBack />}
-					onClick={() =>
-						navigate(-1)
-					}
-				>
-					Back
-				</AppButton> */}
+			<Box p={{ base: 4, md: 6 }} minH='100vh'>
+				{hasPermission('attendance', 'employees') && (
+					<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+						Back
+					</AppButton>
+				)}
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
@@ -102,7 +101,7 @@ const Attendance = ({ userId }) => {
 						Attendance Record
 					</Text>
 
-					{['HR', 'superAdmin'].includes(role) && (
+					{['HR', 'superAdmin'].includes(userRoleName) && (
 						<Stack direction={{ base: 'row' }} spacing={2}>
 							<ExportEmployeeAttendanceReport
 								month={month}
@@ -110,18 +109,20 @@ const Attendance = ({ userId }) => {
 								employee={employee}
 							/>
 
-							<Button
-								{...buttonStyle}
-								variant='solid'
-								bg='brand.400'
-								py='2'
-								px='5'
-								leftIcon={<FaPlus />}
-								aria-label='Add attendance'
-								onClick={() => setAddAttendance(true)}
-							>
-								Add
-							</Button>
+							{hasPermission('attendance', 'create') && (
+								<Button
+									{...buttonStyle}
+									variant='solid'
+									bg='brand.400'
+									py='2'
+									px='5'
+									leftIcon={<FaPlus />}
+									aria-label='Add attendance'
+									onClick={() => setAddAttendance(true)}
+								>
+									Add
+								</Button>
+							)}
 						</Stack>
 					)}
 				</Flex>
@@ -136,7 +137,7 @@ const Attendance = ({ userId }) => {
 								employee={data?.employee}
 								refetch={refetch}
 							/>
-							{['HR', 'superAdmin', 'Developer'].includes(role) && (
+							{hasPermission('attendance', 'operations') && (
 								<AttendanceMark
 									data={data}
 									timezone={timezone}
@@ -192,7 +193,7 @@ const Attendance = ({ userId }) => {
 				fontFamily="'DM Sans', sans-serif"
 				boxShadow='sm'
 			>
-				{role === 'superAdmin' ? (
+				{userRoleName === 'superAdmin' ? (
 					<>
 						<Text fontSize='lg' fontWeight='bold' color='gray.700'>
 							No office settings found!
