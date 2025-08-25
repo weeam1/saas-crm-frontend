@@ -60,6 +60,7 @@ const AttendanceV2 = () => {
 				component: <Records key='records' />,
 			},
 			{
+				id: 'my_attendance',
 				label: 'My Attendance',
 				icon: FaUserCheck,
 				param: 'my-attendance',
@@ -80,13 +81,10 @@ const AttendanceV2 = () => {
 	);
 
 	const tabsData = useMemo(() => {
-		if (userRoleName === 'superAdmin' || userRoleName === 'Attendance') {
+		if (userRoleName === 'superAdmin') {
 			return filteredTabs.filter((tab) => tab.param !== 'my-attendance');
 		}
-		if (userRoleName === 'HR') {
-			return filteredTabs;
-		}
-		return filteredTabs.filter((tab) => tab.param === 'my-attendance');
+		return filteredTabs;
 	}, [userRoleName, filteredTabs]);
 
 	const activeTabIndex = useMemo(() => {
