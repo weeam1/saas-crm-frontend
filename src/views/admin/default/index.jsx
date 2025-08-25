@@ -39,6 +39,7 @@ import LeadStatusTable from './components/LeadStatusStats';
 import LeadStatusStats from './components/LeadStatusStats';
 import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 import SalesDashboard from './components/sales/SalesDashboard';
+import useUserSession from 'hooks/useUserSession';
 
 export default function UserReports() {
 	const { colorMode } = useColorMode();
@@ -63,10 +64,8 @@ export default function UserReports() {
 	] = viewsState;
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName } = useUserSession();
 	const [listTop, setListTop] = useState('all');
-	const userRole =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 
 	const [revenue, setRevenue] = useState({
 		totalRevenue: 0,
@@ -115,7 +114,7 @@ export default function UserReports() {
 		{ path: '/dashboard/stats' },
 		{
 			refetchOnMountOrArgChange: true,
-			skip: !userRole === 'superAdmin',
+			skip: !userRoleName === 'superAdmin',
 		}
 	);
 
@@ -124,7 +123,7 @@ export default function UserReports() {
 			{ path: '/dashboard/today_summary' },
 			{
 				refetchOnMountOrArgChange: true,
-				skip: !userRole === 'superAdmin',
+				skip: !userRoleName === 'superAdmin',
 			}
 		);
 
@@ -133,12 +132,12 @@ export default function UserReports() {
 			{ path: '/dashboard/leads/leadStatus_stats' },
 			{
 				refetchOnMountOrArgChange: true,
-				skip: !userRole === 'superAdmin',
+				skip: !userRoleName === 'superAdmin',
 			}
 		);
 
 	const salesQueryParmas =
-		['Agent', 'Manager'].includes(userRole) && user?._id
+		['Agent', 'Manager'].includes(userRoleName) && user?._id
 			? { userId: user._id }
 			: {};
 
@@ -308,12 +307,12 @@ export default function UserReports() {
 		salesLoading ? (
 		<Loader />
 	) : (
-		<Box fontFamily="'DM Sans', sans-serif">
+		<Box>
 			<Header />
 
 			<SalesDashboard data={sales} />
 
-			{['superAdmin', 'Admin'].includes(userRole) && (
+			{['superAdmin', 'Admin'].includes(userRoleName) && (
 				<>
 					<TodaySummary summary={todaySummary?.summary} />
 
@@ -329,7 +328,7 @@ export default function UserReports() {
 				setListTop={setListTop}
 			/> */}
 
-			{['Agent', 'Manager'].includes(userRole) && (
+			{['Agent', 'Manager', 'Admin', 'superAdmin'].includes(userRoleName) && (
 				<LeadStatusPieChart data={leadStatusData?.doc} />
 			)}
 
