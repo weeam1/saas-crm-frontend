@@ -373,7 +373,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
       />
-      <Box mb={1}>
+      <Box my={2}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
