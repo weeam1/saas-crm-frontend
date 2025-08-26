@@ -92,18 +92,32 @@ const AttendanceV2 = () => {
 		return idx >= 0 ? idx : 0;
 	}, [tabsData, tabFromParams]);
 
+	// useEffect(() => {
+	// 	if (
+	// 		!tabFromParams ||
+	// 		!tabsData.some((tab) => tab.param === tabFromParams)
+	// 	) {
+	// 		const firstTab = tabsData[0]?.param; // safe check
+	// 		if (firstTab) {
+	// 			setSearchParams({ tab: firstTab }, { replace: true });
+	// 		}
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
+
 	useEffect(() => {
-		if (
-			!tabFromParams ||
-			!tabsData.some((tab) => tab.param === tabFromParams)
-		) {
-			const firstTab = tabsData[0]?.param; // safe check
-			if (firstTab) {
-				setSearchParams({ tab: firstTab }, { replace: true });
-			}
+		if (tabsData.length === 0) return;
+
+		const currentTab = tabFromParams;
+
+		const isValidTab = tabsData.some((tab) => tab.param === currentTab);
+
+		if (!currentTab || !isValidTab) {
+			// always default to first available tab (index 0)
+			const fallback = tabsData[0].param;
+			setSearchParams({ tab: fallback }, { replace: true });
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [tabsData, searchParams, setSearchParams, tabFromParams]);
 
 	const handleTabChange = useCallback(
 		(index) => {

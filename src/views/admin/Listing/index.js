@@ -10,6 +10,7 @@ import ViewRequests from './Component/ViewRequest/index';
 import PendingListings from './Component/PendingListings';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const DEFAULT_TAB = 'all listings';
 
@@ -18,9 +19,11 @@ const Listing = () => {
 	const tabFromParams = searchParams.get('tab') || DEFAULT_TAB;
 	const navigate = useNavigate();
 	const [tabKey, setTabKey] = useState(0);
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
-	const isAgent = user?.roles[0]?.roleName === 'Agent';
+
+	const { user, userRoleName } = useUserSession();
+
+	const isAdmin = userRoleName === 'superAdmin';
+	const isAgent = userRoleName === 'Agent';
 
 	const { hasPermission } = usePermissions();
 
@@ -28,7 +31,6 @@ const Listing = () => {
 		if (!hasPermission('listing')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
-
 
 	const { data: listingType } = useFetchItemsQuery(
 		{ path: `/listing/secondary/types` },
@@ -42,6 +44,7 @@ const Listing = () => {
 
 	const allTabs = [
 		{
+			id: 'all_listing',
 			label: 'All Listings',
 			param: 'all listings',
 			title: 'Property Listings Management',
@@ -54,9 +57,9 @@ const Listing = () => {
 					listingUnitType={listingUnitType}
 				/>
 			),
-			show: true,
 		},
 		{
+			id: 'my_listing',
 			label: 'My Listings',
 			param: 'my listings',
 			title: 'My Property Listings',
@@ -69,9 +72,9 @@ const Listing = () => {
 					listingUnitType={listingUnitType}
 				/>
 			),
-			show: isAdmin || isAgent,
 		},
 		{
+			id: 'view_requests',
 			label: 'View Requests',
 			param: 'view requests',
 			title: 'Property Viewing Requests',
@@ -84,9 +87,9 @@ const Listing = () => {
 					listingUnitType={listingUnitType}
 				/>
 			),
-			show: isAdmin,
 		},
 		{
+			id: 'pending_listing',
 			label: 'Pending Listings',
 			param: 'pending listings',
 			title: 'Pending Property Listings',
@@ -99,11 +102,12 @@ const Listing = () => {
 					listingUnitType={listingUnitType}
 				/>
 			),
-			show: isAdmin,
 		},
 	];
 
-	const tabsData = allTabs.filter((tab) => tab.show);
+	const tabsData = allTabs.filter(
+		(tab) => !tab.id || hasPermission('listing', tab.id)
+	);
 
 	const activeTabIndex = Math.max(
 		0,
@@ -113,17 +117,16 @@ const Listing = () => {
 	useEffect(() => {
 		if (tabsData.length === 0) return;
 
-		const currentTab = searchParams.get('tab');
-		const isValidTab = tabsData.some(
-			(tab) => tab.param === currentTab?.toLowerCase()
-		);
+		const currentTab = searchParams.get('tab')?.toLowerCase();
+
+		const isValidTab = tabsData.some((tab) => tab.param === currentTab);
 
 		if (!currentTab || !isValidTab) {
-			if (tabFromParams !== DEFAULT_TAB) {
-				setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
-			}
+			// always default to first available tab (index 0)
+			const fallback = tabsData[0].param;
+			setSearchParams({ tab: fallback }, { replace: true });
 		}
-	}, [searchParams, setSearchParams, tabsData, tabFromParams]);
+	}, [tabsData, searchParams, setSearchParams]);
 
 	const handleTabChange = (index) => {
 		const tabParam = tabsData[index].param;
@@ -138,7 +141,7 @@ const Listing = () => {
 	return (
 		<>
 			<Flex justifyContent='flex-end' alignItems='center'>
-				{isAdmin && (
+				{hasPermission('listing', 'settings') && (
 					<Button
 						colorScheme='gray'
 						borderRadius='5px'
