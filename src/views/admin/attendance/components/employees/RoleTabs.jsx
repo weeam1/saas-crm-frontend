@@ -171,7 +171,7 @@ const RoleTabs = ({ updateFilters, key }) => {
 						</TabButton>
 
 						{roleData
-							?.filter((role) => role.roleName !== 'sadmin')
+							?.filter((role) => role.roleName !== 'superAdmin')
 							?.map((role) => (
 								<TabButton
 									key={role._id}
