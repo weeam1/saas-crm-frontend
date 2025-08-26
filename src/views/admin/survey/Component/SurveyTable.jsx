@@ -32,6 +32,7 @@ import TableLoading from "components/loading/TableLoading";
 import NoData from "components/Message/NoData";
 import { buttonStyle } from "utils/btn";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
   const columns = [
@@ -49,6 +50,8 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const currentUserId = user?._id;
+
+  const { hasPermission } = usePermissions();
 
   const { createUserLog } = useUserActivityLog();
 
@@ -165,6 +168,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
                 const isSurveyCompleted = checkSurveyCompletion(survey);
                 const submittedCount = survey.submittedUsers || 0;
                 const invitedCount = survey.invitedUsersCount || 0;
+                const isOwner = survey.owner?._id === user?._id;
 
                 return (
                   <Tr
@@ -254,7 +258,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
                     {/* Actions */}
                     <Td py={4} textAlign="center">
                       <Flex gap={2} justify="center">
-                        {isAdmin && (
+                        {hasPermission("survey", "delete") && (
                           <Tooltip label="Delete Survey" hasArrow>
                             <Button
                               variant="ghost"
@@ -266,42 +270,42 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
                             </Button>
                           </Tooltip>
                         )}
-
-                        <Button
-                          {...buttonStyle}
-                          variant="solid"
-                          bg={
-                            isAdmin
-                              ? "#D8A541"
-                              : isSurveyCompleted
-                                ? "gray.300"
-                                : "#D8A541"
-                          }
-                          color={
-                            isAdmin
-                              ? "white"
-                              : isSurveyCompleted
-                                ? "gray.600"
-                                : "white"
-                          }
-                          fontSize="sm"
-                          size="sm"
-                          isDisabled={isSurveyCompleted && !isAdmin}
-                          _disabled={{ opacity: 1, cursor: "not-allowed" }}
-                          onClick={() => {
-                            if (isAdmin) {
+                        {hasPermission("survey", "read") && (
+                          <Button
+                            {...buttonStyle}
+                            variant="solid"
+                            bg={"#D8A541"}
+                            color={"white"}
+                            fontSize="sm"
+                            size="sm"
+                            isDisabled={!isAdmin}
+                            _disabled={{ opacity: 1, cursor: "not-allowed" }}
+                            onClick={() => {
                               navigate(`/survey/view-survey/${survey._id}`);
-                            } else if (!isSurveyCompleted) {
-                              navigate(`/survey/take-survey/${survey._id}`);
-                            }
-                          }}
-                        >
-                          {isAdmin
-                            ? "View"
-                            : isSurveyCompleted
-                              ? "Completed"
-                              : "Take Survey"}
-                        </Button>
+                            }}
+                          >
+                            View
+                          </Button>
+                        )}
+                        {!isOwner && (
+                          <Button
+                            {...buttonStyle}
+                            variant="solid"
+                            bg={isSurveyCompleted ? "gray.300" : "#D8A541"}
+                            color={isSurveyCompleted ? "gray.600" : "white"}
+                            fontSize="sm"
+                            size="sm"
+                            isDisabled={isSurveyCompleted}
+                            _disabled={{ opacity: 1, cursor: "not-allowed" }}
+                            onClick={() => {
+                              if (!isSurveyCompleted) {
+                                navigate(`/survey/take-survey/${survey._id}`);
+                              }
+                            }}
+                          >
+                            {isSurveyCompleted ? "Completed" : "Take Survey"}
+                          </Button>
+                        )}
                       </Flex>
                     </Td>
                   </Tr>
