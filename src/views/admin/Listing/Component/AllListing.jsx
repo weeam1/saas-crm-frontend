@@ -146,12 +146,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
         message: `"${user?.fullName}" request to view secondary listing "${response?.data?.projectName || "Untitled"}".`,
       });
 
-      toast({
-        title: "Request sent successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      toast.success("Request sent successfully");
 
       setTableData((prevData) =>
         prevData.map((listing) => {
@@ -168,12 +163,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
       const errorMsg =
         error?.data?.message ||
         "Failed  the listing view request. Please try again.";
-      toast({
-        title: error.data?.message || "Failed to send request",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      toast.error( error.data?.message || "Failed to send request");
       createUserLog({
         userId: user?._id,
         action: "UPDATE",

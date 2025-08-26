@@ -32,24 +32,18 @@ const moduleDescriptions = {
   system_log: "Track system activities and logs.",
 };
 
+// lighter gradients for a softer look
 const gradients = [
-  "linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)",  // indigo → purple
-  "linear-gradient(135deg, #d53f8c 0%, #e53e3e 100%)",  // pink → red
-  "linear-gradient(135deg, #3182ce 0%, #00b5d8 100%)",  // blue → cyan
-  "linear-gradient(135deg, #38a169 0%, #319795 100%)",  // green → teal
-  "linear-gradient(135deg, #dd6b20 0%, #d69e2e 100%)",  // orange → yellow
-
-  "linear-gradient(135deg, #7928ca 0%, #ff0080 100%)",  // violet → pink
-  "linear-gradient(135deg, #ff512f 0%, #dd2476 100%)",  // red-orange → pink
-  "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)", // dark teal
-  "linear-gradient(135deg, #06beb6 0%, #48b1bf 100%)",  // aqua → teal
-  "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)",  // golden → yellow
-
-  "linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%)",  // light blue → blue
-  "linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)",  // purple → deep violet
-  "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",  // orange → magenta
-  "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",  // emerald → green
-  "linear-gradient(135deg, #fc5c7d 0%, #6a82fb 100%)",  // pink → indigo
+  "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)", // light blue → sky
+  "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)", // pink → lavender
+  "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)", // peach → soft orange
+  "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)", // lime → mint
+  "linear-gradient(135deg, #f6d365 0%, #fda085 100%)", // light gold → coral
+  "linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)", // mint → sky blue
+  "linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)", // soft gray → light blue
+  "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)", // lavender → baby blue
+  "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)", // soft pink blend
+  "linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)", // warm cream → aqua
 ];
 
 const PermissionSection = () => {
@@ -82,28 +76,28 @@ const PermissionSection = () => {
               bg={bgColor}
               p={6}
               borderRadius="xl"
-              shadow="lg"
+              shadow="md"
               position="relative"
               overflow="hidden"
               transition="all 0.3s ease"
               _hover={{
                 transform: "translateY(-4px)",
-                shadow: "2xl",
+                shadow: "xl",
               }}
               cursor="pointer"
               onClick={() => navigate(route.path)}
-              backdropFilter="blur(10px) saturate(180%)"
+              backdropFilter="blur(6px) saturate(140%)"
             >
               {/* Icon */}
               <Flex justify="space-between" align="center" mb={4}>
                 <Box
-                  bg="whiteAlpha.300"
+                  bg="whiteAlpha.700"
                   p={3}
                   borderRadius="lg"
                   display="flex"
                   alignItems="center"
                   justifyContent="center"
-                  color={"white"}
+                  color="gray.700"
                 >
                   {route.icon}
                 </Box>
@@ -111,10 +105,10 @@ const PermissionSection = () => {
 
               {/* Texts */}
               <VStack align="flex-start" spacing={2}>
-                <Text fontWeight="bold" fontSize="md" color="white">
+                <Text fontWeight="bold" fontSize="md" color="gray.800">
                   {route.name}
                 </Text>
-                <Text fontSize="xs" color="whiteAlpha.800">
+                <Text fontSize="xs" color="gray.600">
                   {moduleDescriptions[route.moduleId] ||
                     "Module functionality."}
                 </Text>
@@ -123,11 +117,11 @@ const PermissionSection = () => {
                 <Button
                   size="sm"
                   variant="solid"
-                  bg="whiteAlpha.700"
+                  bg="white"
                   color="gray.800"
                   width="100%"
-                  boxShadow="md"
-                  _hover={{ boxShadow: "lg", transform: "scale(1.02)" }}
+                  boxShadow="sm"
+                  _hover={{ boxShadow: "md", transform: "scale(1.02)" }}
                   backdropFilter="blur(8px) saturate(150%)"
                   onClick={(e) => {
                     e.stopPropagation();

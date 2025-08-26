@@ -311,7 +311,7 @@ export default function UserReports() {
     <Box>
       <Header />
       {!["superAdmin", "Manager", "Agent", "Admin"].includes(userRoleName) && (
-        <PermissionSection />
+        <Box bg={"white"}  py={1} borderRadius={"md"}><PermissionSection /></Box>
       )}
       <SalesDashboard data={sales} />
 
