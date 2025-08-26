@@ -63,7 +63,7 @@ const PermissionSection = () => {
     <Box my={8} px={[2, 4, 6]}>
       {/* Heading */}
       <Heading size="lg" mb={8} color="gray.700" fontWeight="bold">
-        Modules
+        Menu
       </Heading>
 
       <SimpleGrid columns={[1, 2, 3, 4]} spacing={8}>
@@ -129,7 +129,7 @@ const PermissionSection = () => {
                   }}
                   rightIcon={<ExternalLinkIcon />}
                 >
-                  Open Module
+                  Go To
                 </Button>
               </VStack>
             </Box>
