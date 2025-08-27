@@ -37,6 +37,7 @@ import TableLoading from 'components/loading/TableLoading';
 import NoData from 'components/Message/NoData';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 	const columns = [
@@ -279,7 +280,6 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 															variant='ghost'
 															colorScheme='yellow'
 															size='sm'
-															isDisabled={!isAdmin}
 															_disabled={{
 																opacity: 0.6,
 																cursor: 'not-allowed',
