@@ -202,8 +202,8 @@ const Permission = () => {
 				</Box> */}
 
 				{/* Permission Cards */}
-				{loadingRole || loadingUserRole ? (
-					<Box borderRadius='xl' boxShadow='lg' bg='white' p={6}>
+				{loadingRole && loadingUserRole ? (
+					<Box >
 						<Grid
 							templateColumns={{
 								base: '1fr',
@@ -211,7 +211,7 @@ const Permission = () => {
 							}}
 							gap={6}
 						>
-							<PermissionSkeletonLoading count={4} />
+							<PermissionSkeletonLoading count={20} />
 						</Grid>
 					</Box>
 				) : (
