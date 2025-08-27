@@ -138,7 +138,7 @@ const Listing = () => {
 	};
 
 	if (tabsData.length === 0) {
-		return <NotPermission/> ;
+		return <NotPermission moduleName="secondary listing"/> ;
 	}
 
 	return (
