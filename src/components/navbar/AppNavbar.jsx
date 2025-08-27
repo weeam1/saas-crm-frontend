@@ -53,7 +53,7 @@ export default function AppNavbar({
 			borderBottom='1px solid'
 			borderColor={borderColor}
 			transition='all 0.3s ease'
-			zIndex='10'
+			zIndex='10000'
 			px='6'
 		>
 			<Flex align='center' justify='space-between' h='100%'>
