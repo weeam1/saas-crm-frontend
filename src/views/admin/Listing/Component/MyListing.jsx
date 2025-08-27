@@ -483,7 +483,6 @@ const MyListing = ({ listingType, listingUnitType }) => {
 											>
 												{listing.location || 'N/A'}
 											</Td>
-
 											<Td
 												textAlign='center'
 												whiteSpace='nowrap'
@@ -631,7 +630,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
 															].includes(listing.status)
 														}
 													>
-														<option value={isAdmin ? 'active' : 'pending'}>
+														<option value={isSuperAdmin ? 'active' : 'pending'}>
 															Publish
 														</option>
 														<option value='draft'>Draft</option>
