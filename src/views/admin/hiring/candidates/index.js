@@ -12,14 +12,14 @@ import { useNavigate } from 'react-router-dom';
 import Loader from 'components/loading/Loader';
 import SearchTags from 'components/shared/SearchTags';
 import { experienceYearsOptions } from '../helpers';
+import useUserSession from 'hooks/useUserSession';
 
 const Candidates = () => {
 	const [advanceSearch, setAdvanceSearch] = useState(false);
 	const [searchTags, setSearchTags] = useState([]);
 	const navigate = useNavigate();
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(12); // Items per page
@@ -37,7 +37,7 @@ const Candidates = () => {
 			path: '/agencies',
 		},
 		{
-			skip: !isAdmin,
+			skip: !isSuperAdmin,
 		}
 	);
 

@@ -20,11 +20,7 @@ const Listing = () => {
 	const navigate = useNavigate();
 	const [tabKey, setTabKey] = useState(0);
 
-	const { user, userRoleName } = useUserSession();
-
-	const isAdmin = userRoleName === 'superAdmin';
-	const isAgent = userRoleName === 'Agent';
-
+	const { user } = useUserSession();
 	const { hasPermission } = usePermissions();
 
 	useEffect(() => {

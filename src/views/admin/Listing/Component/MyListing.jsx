@@ -44,6 +44,7 @@ import { format } from 'date-fns';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const MyListing = ({ listingType, listingUnitType }) => {
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -55,9 +56,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
 	const Navigate = useNavigate();
 	const [selectedListing, setSelectedListing] = useState(null);
 	const notesModalDisclosure = useDisclosure();
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
 
+	const { user, isSuperAdmin } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
 	const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
@@ -625,7 +625,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
 															].includes(listing.status)
 														}
 													>
-														<option value={isAdmin ? 'active' : 'pending'}>
+														<option value={isSuperAdmin ? 'active' : 'pending'}>
 															Publish
 														</option>
 														<option value='draft'>Draft</option>

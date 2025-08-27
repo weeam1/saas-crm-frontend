@@ -52,9 +52,6 @@ const DealTable = ({
 
 	const { user, isSuperAdmin } = useUserSession();
 
-	// const loginedUser = JSON.parse(localStorage.getItem('user'));
-	// const isAdmin = loginedUser?.role === 'superAdmin';
-
 	return (
 		<Box
 			maxHeight='80vh'

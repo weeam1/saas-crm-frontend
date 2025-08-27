@@ -33,8 +33,6 @@ export default function User(props) {
 	const [fixed] = useState(false);
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(true);
-	// const user = JSON.parse(localStorage.getItem('user'));
-	// console.log({ user });
 
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();

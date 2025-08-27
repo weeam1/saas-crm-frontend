@@ -28,10 +28,8 @@ const SurveySummary = ({
 	isLoading,
 }) => {
 	const [animatedValues, setAnimatedValues] = useState(data.map(() => 0));
-	// const user = localStorage.getItem("user");
 	const { user, isSuperAdmin } = useUserSession();
 	const { hasPermission } = usePermissions();
-	// const isSuperAdmin = user ? JSON.parse(user).role === "superAdmin" : false;
 
 	const vibrantColors = {
 		cards: ['#F0F9FF', '#FEF6FF', '#FFF6F0', '#F0FFF4'],

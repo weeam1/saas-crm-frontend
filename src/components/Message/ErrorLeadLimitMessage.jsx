@@ -35,13 +35,9 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 		maxLeadLimit,
 	} = errorLeadData;
 
-	const { user, isSuperAdmin, role } = useUserSession();
+	const { isSuperAdmin, role } = useUserSession();
 
 	if (!isOpen) return null;
-
-	// const user = JSON.parse(localStorage.getItem('user'));
-	// const superAdmin = user?.role === 'superAdmin';
-	// const role = user?.roles[0]?.roleName;
 
 	const target = role === 'Agent' ? 'You' : 'Agent';
 

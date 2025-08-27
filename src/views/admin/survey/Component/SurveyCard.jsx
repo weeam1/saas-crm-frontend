@@ -70,12 +70,9 @@ const pulseAnimation = keyframes`
 const SurveyCard = ({ data, isActive, refetch, index }) => {
 	const [hasAnimated, setHasAnimated] = useState(false);
 	const navigate = useNavigate();
-	// const user = localStorage.getItem("user");
 	const { user, isSuperAdmin } = useUserSession();
 	const { hasPermission } = usePermissions();
 
-	// const parsedUser = user ? JSON.parse(user) : null;
-	// const isSuperAdmin = parsedUser?.role === "superAdmin";
 	const currentUserId = user?._id;
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [securityPassword, setSecurityPassword] = useState('');

@@ -25,10 +25,7 @@ import SalesChart from './SalesChart';
 import useUserSession from 'hooks/useUserSession';
 
 const SalesDashboard = ({ data }) => {
-	const { user, userRoleName } = useUserSession();
-	// const user = JSON.parse(localStorage.getItem('user'));
-
-	// const userRole = user?.roles[0]?.roleName || user?.role;
+	const { userRoleName } = useUserSession();
 
 	const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
 
