@@ -24,16 +24,19 @@ import {
 	Alert,
 	AlertIcon,
 } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import {
+	DeleteIcon,
+	ViewIcon,
+	EditIcon,
+	CheckCircleIcon,
+} from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import TableLoading from 'components/loading/TableLoading';
 import NoData from 'components/Message/NoData';
-import { buttonStyle } from 'utils/btn';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
-import useUserSession from 'hooks/useUserSession';
 
 const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 	const columns = [
@@ -257,7 +260,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 
 										{/* Actions */}
 										<Td py={4} textAlign='center'>
-											<Flex gap={2} justify='center'>
+											<Flex>
 												{hasPermission('survey', 'delete') && (
 													<Tooltip label='Delete Survey' hasArrow>
 														<Button
@@ -271,40 +274,58 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 													</Tooltip>
 												)}
 												{hasPermission('survey', 'read') && (
-													<Button
-														{...buttonStyle}
-														variant='solid'
-														bg={'#D8A541'}
-														color={'white'}
-														fontSize='sm'
-														size='sm'
-														// isDisabled={!isAdmin}
-														_disabled={{ opacity: 1, cursor: 'not-allowed' }}
-														onClick={() => {
-															navigate(`/survey/view-survey/${survey._id}`);
-														}}
-													>
-														View
-													</Button>
-												)}
-												{!isOwner && (
-													<Button
-														{...buttonStyle}
-														variant='solid'
-														bg={isSurveyCompleted ? 'gray.300' : '#D8A541'}
-														color={isSurveyCompleted ? 'gray.600' : 'white'}
-														fontSize='sm'
-														size='sm'
-														isDisabled={isSurveyCompleted}
-														_disabled={{ opacity: 1, cursor: 'not-allowed' }}
-														onClick={() => {
-															if (!isSurveyCompleted) {
-																navigate(`/survey/take-survey/${survey._id}`);
+													<Tooltip label='View Survey' hasArrow>
+														<Button
+															variant='ghost'
+															colorScheme='yellow'
+															size='sm'
+															isDisabled={!isAdmin}
+															_disabled={{
+																opacity: 0.6,
+																cursor: 'not-allowed',
+															}}
+															onClick={() =>
+																navigate(`/survey/view-survey/${survey._id}`)
 															}
-														}}
+														>
+															<ViewIcon />
+														</Button>
+													</Tooltip>
+												)}
+
+												{!isOwner && (
+													<Tooltip
+														label={
+															isSurveyCompleted
+																? 'Survey Completed'
+																: 'Take Survey'
+														}
+														hasArrow
 													>
-														{isSurveyCompleted ? 'Completed' : 'Take Survey'}
-													</Button>
+														<Button
+															variant='ghost'
+															colorScheme={
+																isSurveyCompleted ? 'gray' : 'yellow'
+															}
+															size='sm'
+															isDisabled={isSurveyCompleted}
+															_disabled={{
+																opacity: 0.6,
+																cursor: 'not-allowed',
+															}}
+															onClick={() => {
+																if (!isSurveyCompleted) {
+																	navigate(`/survey/take-survey/${survey._id}`);
+																}
+															}}
+														>
+															{isSurveyCompleted ? (
+																<CheckCircleIcon />
+															) : (
+																<EditIcon />
+															)}
+														</Button>
+													</Tooltip>
 												)}
 											</Flex>
 										</Td>

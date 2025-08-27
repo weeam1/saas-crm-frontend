@@ -11,6 +11,7 @@ import Dashboard from './components/dashboard/index';
 import Employees from './components/employees/index';
 import Records from './components/records/index';
 import MyAttendance from './components/myAttendance/index';
+import NotPermission from 'components/notPermission/NotPermission';
 
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
@@ -135,6 +136,10 @@ const AttendanceV2 = () => {
 		[tabsData, tabFromParams, setSearchParams]
 	);
 
+	
+		if (tabsData.length === 0) {
+			return <NotPermission moduleName="attendence"/> ;
+		}
 	return (
 		<>
 			<TabNavigationDisplay

@@ -25,6 +25,7 @@ import {
 	Badge,
 	Textarea,
 	useBreakpointValue,
+	Spinner
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon, ViewIcon } from '@chakra-ui/icons';
 import {
@@ -47,20 +48,22 @@ import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 
 const AllListing = ({ listingType, listingUnitType }) => {
-	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
-	const [totalPages, setTotalPages] = useState(0);
-	const [totalItems, setTotalItems] = useState(0);
-	const [rejectionReason, setRejectionReason] = useState('');
-	const [adminNotes, setAdminNotes] = useState('');
-	const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
-	const [currentListingId, setCurrentListingId] = useState(null);
-	const [selectedStatus, setSelectedStatus] = useState('');
-	const [filters, setFilters] = useState({});
-	const [filterChanged, setFilterChanged] = useState(false);
-	const [tableData, setTableData] = useState();
-	const Navigate = useNavigate();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [currentListingId, setCurrentListingId] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+  const [tableData, setTableData] = useState();
+  const [loadingButton, setLoadingButton] = useState(null); 
+
+  const Navigate = useNavigate();
 
 	const [createItemMutation] = useCreateItemMutation();
 	const [updateStatus] = useUpdateItemMutation();
@@ -132,6 +135,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 
 	const handleRequestViewAccess = async (listingId) => {
 		try {
+			    setLoadingButton(listingId);
 			const response = await createItemMutation({
 				path: `/listing/secondary/${listingId}/request-view`,
 				body: {},
@@ -148,6 +152,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 			});
 
 			toast.success('Request sent successfully');
+
 
 			setTableData((prevData) =>
 				prevData.map((listing) => {
@@ -174,7 +179,9 @@ const AllListing = ({ listingType, listingUnitType }) => {
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
-		}
+		}finally {
+      setLoadingButton(null); 
+    }
 	};
 
 	const hasAccess = (listing) => {
@@ -343,6 +350,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 		setFilterChanged(true);
 		refetch();
 	};
+
 
 	const handlePageSizeChange = (newPageSize) => {
 		setPageSize(newPageSize);
@@ -677,6 +685,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 																onClick={() =>
 																	handleRequestViewAccess(listing._id)
 																}
+																isLoading={loadingButton === listing._id}
 															>
 																Request View
 															</Button>

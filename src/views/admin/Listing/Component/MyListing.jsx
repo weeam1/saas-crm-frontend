@@ -25,6 +25,7 @@ import {
 	Textarea,
 	Switch,
 	useBreakpointValue,
+	Spinner,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from '@chakra-ui/icons';
 import { FiSearch } from 'react-icons/fi';
@@ -44,7 +45,6 @@ import { format } from 'date-fns';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
-import useUserSession from 'hooks/useUserSession';
 
 const MyListing = ({ listingType, listingUnitType }) => {
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -56,8 +56,10 @@ const MyListing = ({ listingType, listingUnitType }) => {
 	const Navigate = useNavigate();
 	const [selectedListing, setSelectedListing] = useState(null);
 	const notesModalDisclosure = useDisclosure();
+	const user = JSON.parse(localStorage.getItem('user'));
+	const isAdmin = user?.role === 'superAdmin';
+	const [statusLoadingId, setStatusLoadingId] = useState(null);
 
-	const { user, isSuperAdmin } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
 	const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
@@ -221,6 +223,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
 	};
 	const updateListingStatus = async (listingId, status) => {
 		try {
+			setStatusLoadingId(listingId);
 			const body = { status };
 			if (status === 'rejected') {
 				body.rejectionReason = rejectionReason;
@@ -264,6 +267,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
+		} finally {
+			setStatusLoadingId(null);
 		}
 	};
 
@@ -555,7 +560,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
 												minWidth='100px'
 												textAlign={'center'}
 											>
-												{listing.status === 'rejected' ? (
+												{statusLoadingId === listing._id ? (
+													<Spinner size='sm' color='brand.500' />
+												) : listing.status === 'rejected' ? (
 													<>
 														<Select
 															value={listing.status}
@@ -625,7 +632,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
 															].includes(listing.status)
 														}
 													>
-														<option value={isSuperAdmin ? 'active' : 'pending'}>
+														<option value={isAdmin ? 'active' : 'pending'}>
 															Publish
 														</option>
 														<option value='draft'>Draft</option>
