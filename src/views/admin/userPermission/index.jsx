@@ -5,6 +5,7 @@ import {
 	Grid,
 	useColorModeValue,
 	HStack,
+	Flex,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
@@ -29,6 +30,7 @@ const Permission = () => {
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState('');
 	const [modules, setModules] = useState([]);
+	const [loading, setLoading] = useState(true);
 	const [originalModules, setOriginalModules] = useState([]);
 
 	const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
@@ -46,6 +48,7 @@ const Permission = () => {
 
 	useEffect(() => {
 		if (RolePermission?.doc && UserRolePermission?.doc) {
+			setLoading(true);
 			const roleModules = Array.isArray(RolePermission.doc)
 				? RolePermission.doc
 				: [];
@@ -72,6 +75,11 @@ const Permission = () => {
 
 			setModules(mergedModules);
 			setOriginalModules(JSON.parse(JSON.stringify(mergedModules)));
+
+			// Delay before setting loading false
+			const timeout = setTimeout(() => setLoading(false), 2000);
+
+			return () => clearTimeout(timeout); // cleanup on re-run/unmount
 		}
 	}, [RolePermission, UserRolePermission]);
 
@@ -157,7 +165,6 @@ const Permission = () => {
 		m.moduleId.toLowerCase().includes('leadpool')
 	);
 
-	console.log({ leadPoolModules });
 	// const filteredModules = modules.filter((m) =>
 	// 	m.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
 	// );
@@ -202,8 +209,8 @@ const Permission = () => {
 				</Box> */}
 
 				{/* Permission Cards */}
-				{loadingRole && loadingUserRole ? (
-					<Box >
+				{loadingRole || loadingUserRole || loading ? (
+					<Box>
 						<Grid
 							templateColumns={{
 								base: '1fr',
@@ -214,7 +221,7 @@ const Permission = () => {
 							<PermissionSkeletonLoading count={20} />
 						</Grid>
 					</Box>
-				) : (
+				) : filteredModules?.length > 0 ? (
 					<>
 						{/* <LeadpoolSelector modules={modules} setModules={setModules} /> */}
 						<Grid
@@ -293,34 +300,36 @@ const Permission = () => {
 									})}
 							</Grid>
 						</Grid>
+
+						{/* Save Button */}
+						<HStack
+							justify='flex-end'
+							mt={8}
+							pt={4}
+							borderTopWidth='1px'
+							borderColor='gray.200'
+						>
+							<Button
+								colorScheme='brand'
+								onClick={handleUpdatePermission}
+								borderRadius='md'
+								_focus={{ boxShadow: 'none' }}
+								_active={{ boxShadow: 'none' }}
+								isLoading={isUpdating}
+								size='lg'
+								px={8}
+							>
+								Update Permission
+							</Button>
+						</HStack>
 					</>
+				) : (
+					!loading && (
+						<Flex justifyContent='center' align='center'>
+							<NoData label='Permission' />
+						</Flex>
+					)
 				)}
-
-				{filteredModules.length === 0 && !loadingRole && !loadingUserRole && (
-					<NoData label='Permission' />
-				)}
-
-				{/* Save Button */}
-				<HStack
-					justify='flex-end'
-					mt={8}
-					pt={4}
-					borderTopWidth='1px'
-					borderColor='gray.200'
-				>
-					<Button
-						colorScheme='brand'
-						onClick={handleUpdatePermission}
-						borderRadius='md'
-						_focus={{ boxShadow: 'none' }}
-						_active={{ boxShadow: 'none' }}
-						isLoading={isUpdating}
-						size='lg'
-						px={8}
-					>
-						Update Permission
-					</Button>
-				</HStack>
 			</Box>
 		</>
 	);
