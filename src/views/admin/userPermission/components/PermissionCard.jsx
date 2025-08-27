@@ -60,11 +60,11 @@ const PermissionCard = ({
           onChange={(e) => handleModuleToggle(moduleIndex, e.target.checked)}
           _focus={{ boxShadow: "none" }}
           _active={{ boxShadow: "none" }}
-          isDisabled={
-            roleName === "superAdmin" && module.moduleId === "admin_settings"
-              ? true
-              : false
-          }
+          // isDisabled={
+          //   roleName === "superAdmin" && module.moduleId === "admin_settings"
+          //     ? true
+          //     : false
+          // }
         />
       </Flex>
       {module?.actions.length > 0 && <Divider my={3} color={"brand.500"} />}
@@ -121,7 +121,7 @@ const PermissionCard = ({
         {module.actions.map((action, actionIndex) => (
           <Box key={action.actionKey} width="fit-content">
             <Checkbox
-			  key={action.actionKey}
+              key={action.actionKey}
               size="lg"
               colorScheme="brand"
               borderColor={
