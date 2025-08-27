@@ -137,8 +137,6 @@ const Permission = () => {
 	const handleUpdatePermission = async () => {
 		const payloadModules = getPayloadModules();
 
-		console.log({ payloadModules });
-
 		try {
 			await updateItem({
 				path: `role-access/update/${id}`,

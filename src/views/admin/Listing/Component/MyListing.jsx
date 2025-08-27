@@ -45,36 +45,21 @@ import { format } from 'date-fns';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
-  useFetchItemsQuery,
-  useDeleteItemMutation,
-  useUpdateItemMutation,
-} from "api/apiSlice";
-import { toast } from "react-toastify";
-import TableLoading from "components/loading/TableLoading";
-import { useNavigate } from "react-router-dom";
-import NotesModal from "./Notes/index";
-import TopPagination from "components/pagination/TopPagination";
-import AdvancedSearchModal from "./AdvancedSearchModal";
-import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
-import { format } from "date-fns";
-import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-import { useUserActivityLog } from "hooks/useUserActivityLog";
-import { usePermissions } from "hooks/usePermissions";
 import useUserSession from 'hooks/useUserSession';
 
 const MyListing = ({ listingType, listingUnitType }) => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
-  const [deleteItemMutation] = useDeleteItemMutation();
-  const Navigate = useNavigate();
-  const [selectedListing, setSelectedListing] = useState(null);
-  const notesModalDisclosure = useDisclosure();
-  const [statusLoadingId, setStatusLoadingId] = useState(null);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+	const [totalPages, setTotalPages] = useState(0);
+	const [totalItems, setTotalItems] = useState(0);
+	const [deleteItemMutation] = useDeleteItemMutation();
+	const Navigate = useNavigate();
+	const [selectedListing, setSelectedListing] = useState(null);
+	const notesModalDisclosure = useDisclosure();
+	const [statusLoadingId, setStatusLoadingId] = useState(null);
 	const { user, isSuperAdmin } = useUserSession();
-  const { createUserLog } = useUserActivityLog();
+	const { createUserLog } = useUserActivityLog();
 
 	const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
 	const [currentListingId, setCurrentListingId] = useState(null);
