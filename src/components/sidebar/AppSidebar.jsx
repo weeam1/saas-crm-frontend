@@ -153,9 +153,20 @@ export default function AppSidebar({
 	const { hasPermission } = usePermissions();
 
 	// filter the only allowed routes (modules)
+	// const visibleRoutes = useMemo(() => {
+	// 	return routes?.filter((route) => {
+	// 		if (!route.moduleId) return true; // routes without moduleId always visible
+	// 		return hasPermission(route.moduleId);
+	// 	});
+	// }, [routes, hasPermission]);
+
 	const visibleRoutes = useMemo(() => {
 		return routes?.filter((route) => {
-			if (!route.moduleId) return true; // routes without moduleId always visible
+			// always keep routes without moduleId
+			if (!route.moduleId) {
+				return true;
+			}
+			// keep only routes with permission
 			return hasPermission(route.moduleId);
 		});
 	}, [routes, hasPermission]);

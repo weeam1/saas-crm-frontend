@@ -1,17 +1,15 @@
-import React from 'react'
-import {
-    Box,
-} from '@chakra-ui/react';
+import React from 'react';
+import { Box } from '@chakra-ui/react';
 import Header from './components/Header';
 import PermissionSection from './components/PermissionSection';
 
 const DefaultDashboard = () => {
-  return (
-  <Box>
-	<Header />
-    <PermissionSection/>
-  </Box>
-  )
-}
+	return (
+		<Box>
+			<Header />
+			<PermissionSection />
+		</Box>
+	);
+};
 
-export default DefaultDashboard
+export default DefaultDashboard;

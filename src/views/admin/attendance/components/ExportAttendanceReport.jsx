@@ -26,6 +26,7 @@ import { buttonStyle } from 'utils/btn';
 import { AiOutlineExport } from 'react-icons/ai';
 import DateFilterTabs from '../DateFilterTabs';
 import { formatDNS } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
 
 const MotionProgress = motion(Box);
 
@@ -42,19 +43,17 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	// Fetch agencies
 	const { data: agencies = [], isLoading: isLoadingAgencies } =
 		useFetchItemsQuery({
 			path: '/agencies',
-			skip: !isAdmin,
+			skip: !isSuperAdmin,
 		});
 
 	useEffect(() => {
-		if (!isAdmin) setSelectedAgency(user?.agency?._id || '');
+		if (!isSuperAdmin) setSelectedAgency(user?.agency?._id || '');
 	}, []);
 
 	const monthFilterHandler = (value) => {
@@ -198,7 +197,7 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 							monthFilterHandler={monthFilterHandler}
 						/>
 
-						{isAdmin && (
+						{isSuperAdmin && (
 							<FormControl mb={2} mt='2'>
 								<FormLabel>Agency</FormLabel>
 								<Select

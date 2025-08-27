@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Flex, Text, Icon, Image } from '@chakra-ui/react';
 import { FiPlus } from 'react-icons/fi';
 import LeaderBoardIcon from '../../../../assets/img/survey/LeaderBoardIcon.png';
-import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const NavigationLinks = () => {
 	const navigate = useNavigate();
-	// const user = localStorage.getItem('user');
-	// const isAdmin = user ? JSON.parse(user).role === 'superAdmin' : false;
-	const { user, isAdmin } = useUserSession();
+
+	const { hasPermission } = usePermissions();
 
 	return (
 		<Flex direction='column' width='100%'>
@@ -21,7 +20,7 @@ const NavigationLinks = () => {
 				p='4'
 			>
 				{/* New Survey Card */}
-				{isAdmin && (
+				{hasPermission('survey', 'create') && (
 					<Box
 						bg='#FF5757'
 						width={{ base: '80%', sm: '80px', md: '130px' }}

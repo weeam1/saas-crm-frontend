@@ -71,12 +71,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
 	const { createUserLog } = useUserActivityLog();
 
 	const { hasPermission } = usePermissions();
-	const { user, userRoleName } = useUserSession();
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
 
-	// const user = JSON.parse(localStorage.getItem("user"));
-	const isAdmin = userRoleName === 'superAdmin';
-	const isAgent = userRoleName === 'Agent';
-	const isManager = userRoleName === 'Manager';
 	const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
 	const baseColumns = [
@@ -99,7 +95,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 		'Action',
 	];
 
-	const columns = isAdmin
+	const columns = isSuperAdmin
 		? [...baseColumns.slice(0, -1), 'Created By', ...baseColumns.slice(-1)]
 		: baseColumns;
 
@@ -189,19 +185,14 @@ const AllListing = ({ listingType, listingUnitType }) => {
 	};
 
 	const hasAccess = (listing) => {
-		// first check the user has view listing
-		if (!hasPermission('listing', 'read:own')) return false;
-
-		console.log('read listing');
-
-		// check top level permission if user has read any permission which means it access all listing
-		if (hasPermission('listing', 'read:any')) return true;
-		console.log('read any');
-
 		// check user has own listing
 		if (listing.createdBy._id.toString() === user._id.toString()) return true;
 
-		console.log('own user');
+		// // first check the user has view listing
+		// if (!hasPermission('listing', 'read:own')) return false;
+
+		// check top level permission if user has read any permission which means it access all listing
+		if (hasPermission('listing', 'read:any')) return true;
 
 		// last check if user as request to view the listing and approved request then show it
 		return listing.viewRequests.some(
@@ -605,7 +596,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
 													? format(listing.createdAt, 'MMM d, yyyy h:mm a')
 													: 'N/A'}
 											</Td>
-											{isAdmin && (
+											{isSuperAdmin && (
 												<Td
 													textAlign='center'
 													whiteSpace='nowrap'

@@ -54,9 +54,9 @@ function App() {
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
 
-	// const { user } = useUserSession();
+	const { user } = useUserSession();
 	useNavigate();
 
 	const { registerUser, isConnected } = useSocketEvents();

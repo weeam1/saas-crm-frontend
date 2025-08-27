@@ -21,6 +21,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import { experienceYearsOptions, genderOptions } from '../../helpers';
 import { visaOptions } from 'utils/options';
+import useUserSession from 'hooks/useUserSession';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -40,8 +41,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 
 	const [formValues, setFormValues] = useState(initialValues);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -60,7 +60,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			path: '/agencies',
 		},
 		{
-			skip: !isAdmin,
+			skip: !isSuperAdmin,
 		}
 	);
 
@@ -368,7 +368,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											</Select>
 										</GridItem>
 									)}
-									{isAdmin && (
+									{isSuperAdmin && (
 										<GridItem>
 											<FormLabel
 												display='flex'

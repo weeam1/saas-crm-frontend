@@ -59,7 +59,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
   const [statusLoadingId, setStatusLoadingId] = useState(null);
-
+	const { user, isSuperAdmin } = useUserSession();
   const { createUserLog } = useUserActivityLog();
 
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
@@ -484,231 +484,230 @@ const MyListing = ({ listingType, listingUnitType }) => {
                       >
                         {listing.location || "N/A"}
                       </Td>
-
-                      <Td
-                        textAlign="center"
-                        whiteSpace="nowrap"
-                        minWidth="250px"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                      >
-                        {listing.country?.name || "N/A"}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        whiteSpace="nowrap"
-                        minWidth="200px"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                      >
-                        {listing.buildingAge
-                          ? `${listing.buildingAge} Years`
-                          : "N/A"}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        whiteSpace="nowrap"
-                        minWidth="200px"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                      >
-                        {listing?.developer ? listing?.developer : "N/A"}
-                      </Td>
-                      <Td
-                        py={4}
-                        fontSize={{ base: "12px", md: "14px" }}
-                        fontWeight="400"
-                        minWidth="100px"
-                        textAlign={"center"}
-                      >
-                        {listing.price
-                          ? `AED ${listing.price.toLocaleString()}`
-                          : "N/A"}
-                      </Td>
-                      <Td textAlign="center">
-                        {listing.brokerCommissionType === "AED"
-                          ? "AED"
-                          : listing.brokerCommissionType === "PERCENT"
-                            ? "Percent"
-                            : "N/A"}
-                      </Td>
-                      <Td textAlign="center">
-                        {listing.brokerCommissionValue
-                          ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
-                          : "0"}
-                      </Td>
-                      <Td textAlign="center">
-                        {listing.totalPrice
-                          ? `AED ${listing.totalPrice.toLocaleString()}`
-                          : listing.price
-                            ? `AED ${listing.price.toLocaleString()}`
-                            : "N/A"}
-                      </Td>
-                      <Td
-                        py={4}
-                        fontSize={{ base: "12px", md: "14px" }}
-                        fontWeight="400"
-                        minWidth="100px"
-                        textAlign={"center"}
-                      >
-                        {listing.area ? listing.area.toLocaleString() : "N/A"}
-                      </Td>
-                      <Td
-                        py={4}
-                        fontSize={{ base: "12px", md: "14px" }}
-                        fontWeight="400"
-                        minWidth="100px"
-                        textAlign={"center"}
-                      >
-                        {statusLoadingId === listing._id ? (
+											<Td
+												textAlign='center'
+												whiteSpace='nowrap'
+												minWidth='250px'
+												overflow='hidden'
+												textOverflow='ellipsis'
+											>
+												{listing.country?.name || 'N/A'}
+											</Td>
+											<Td
+												textAlign='center'
+												whiteSpace='nowrap'
+												minWidth='200px'
+												overflow='hidden'
+												textOverflow='ellipsis'
+											>
+												{listing.buildingAge
+													? `${listing.buildingAge} Years`
+													: 'N/A'}
+											</Td>
+											<Td
+												textAlign='center'
+												whiteSpace='nowrap'
+												minWidth='200px'
+												overflow='hidden'
+												textOverflow='ellipsis'
+											>
+												{listing?.developer ? listing?.developer : 'N/A'}
+											</Td>
+											<Td
+												py={4}
+												fontSize={{ base: '12px', md: '14px' }}
+												fontWeight='400'
+												minWidth='100px'
+												textAlign={'center'}
+											>
+												{listing.price
+													? `AED ${listing.price.toLocaleString()}`
+													: 'N/A'}
+											</Td>
+											<Td textAlign='center'>
+												{listing.brokerCommissionType === 'AED'
+													? 'AED'
+													: listing.brokerCommissionType === 'PERCENT'
+														? 'Percent'
+														: 'N/A'}
+											</Td>
+											<Td textAlign='center'>
+												{listing.brokerCommissionValue
+													? `${listing.brokerCommissionValue}${listing.brokerCommissionType === 'PERCENT' ? ' %' : listing.brokerCommissionType === 'AED' ? ' AED' : ''}`
+													: '0'}
+											</Td>
+											<Td textAlign='center'>
+												{listing.totalPrice
+													? `AED ${listing.totalPrice.toLocaleString()}`
+													: listing.price
+														? `AED ${listing.price.toLocaleString()}`
+														: 'N/A'}
+											</Td>
+											<Td
+												py={4}
+												fontSize={{ base: '12px', md: '14px' }}
+												fontWeight='400'
+												minWidth='100px'
+												textAlign={'center'}
+											>
+												{listing.area ? listing.area.toLocaleString() : 'N/A'}
+											</Td>
+											<Td
+												py={4}
+												fontSize={{ base: '12px', md: '14px' }}
+												fontWeight='400'
+												minWidth='100px'
+												textAlign={'center'}
+											>
+												{statusLoadingId === listing._id ? (
                           <Spinner size="sm" color="brand.500" />
-                        ) : listing.status === "rejected" ? (
-                          <>
-                            <Select
-                              value={listing.status}
-                              colorScheme="green"
-                              onChange={(e) =>
-                                handleStatusChange(
-                                  listing._id,
-                                  e.target.value,
-                                  listing.status
-                                )
-                              }
-                              size="sm"
-                              width="150px"
-                              focusBorderColor="brand.500"
-                              bg={getStatusColor(listing.status) + ".100"}
-                              color={getStatusColor(listing.status) + ".800"}
-                            >
-                              <option value="rejected">Rejected</option>
-                              <option value="pending">Re-consider</option>
-                            </Select>
-                          </>
-                        ) : listing.status === "pending" ? (
-                          <Select
-                            value={listing.status}
-                            colorScheme="green"
-                            size="sm"
-                            width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
-                            isDisabled={
-                              ![
-                                "approved",
-                                "rejected",
-                                "active",
-                                "inactive",
-                                "draft",
-                              ].includes(listing.status)
-                            }
-                          >
-                            <option value="pending">Pending</option>
-                            <option value="draft">Draft</option>
-                          </Select>
-                        ) : listing.status === "draft" ? (
-                          <Select
-                            value={listing.status}
-                            colorScheme="green"
-                            size="sm"
-                            width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
-                            onChange={(e) =>
-                              handleStatusChange(
-                                listing._id,
-                                e.target.value,
-                                listing.status
-                              )
-                            }
-                            isDisabled={
-                              ![
-                                "approved",
-                                "rejected",
-                                "active",
-                                "inactive",
-                                "draft",
-                              ].includes(listing.status)
-                            }
-                          >
-                            <option value={isAdmin ? "active" : "pending"}>
-                              Publish
-                            </option>
-                            <option value="draft">Draft</option>
-                          </Select>
-                        ) : (
-                          <Switch
-                            colorScheme="green"
-                            isChecked={listing.status === "active"}
-                            onChange={(e) =>
-                              handleStatusToggle(listing._id, e.target.checked)
-                            }
-                            size="md"
-                          />
-                        )}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        whiteSpace="nowrap"
-                        minWidth="100px"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                      >
-                        {listing.createdAt
-                          ? format(listing.createdAt, "MMM d, yyyy h:mm a")
-                          : "N/A"}
-                      </Td>
-                      <Td
-                        textAlign="center"
-                        whiteSpace="nowrap"
-                        minWidth="100px"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                      >
-                        {listing.createdBy?.fullName}
-                      </Td>
-                      <Td py={4} textAlign={"center"}>
-                        <Button
-                          colorScheme="brand"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedListing(null);
-                            setSelectedListing(listing);
-                            notesModalDisclosure.onOpen();
-                          }}
-                        >
-                          View Notes
-                        </Button>
-                      </Td>
-                      {actionPermission && (
-                        <Td
-                          py={4}
-                          fontSize={{ base: "12px", md: "14px" }}
-                          fontWeight="400"
-                          minWidth="100px"
-                        >
-                          <Box
-                            display="flex"
-                            gap={2}
-                            justifyContent="center"
-                            alignItems={"center"}
-                          >
-                            {hasPermission("listing", "update:own") && (
-                              <IconButton
-                                aria-label="Edit"
-                                icon={<EditIcon />}
-                                size="sm"
-                                onClick={() =>
-                                  Navigate(`/listing/update/${listing._id}`)
-                                }
-                                color={"#c09f5f"}
-                                _hover={{
-                                  backgroundColor: "#c09f5f",
-                                  color: "white",
-                                }}
-                              />
-                            )}
+                        ) :listing.status === 'rejected' ? (
+													<>
+														<Select
+															value={listing.status}
+															colorScheme='green'
+															onChange={(e) =>
+																handleStatusChange(
+																	listing._id,
+																	e.target.value,
+																	listing.status
+																)
+															}
+															size='sm'
+															width='150px'
+															focusBorderColor='brand.500'
+															bg={getStatusColor(listing.status) + '.100'}
+															color={getStatusColor(listing.status) + '.800'}
+														>
+															<option value='rejected'>Rejected</option>
+															<option value='pending'>Re-consider</option>
+														</Select>
+													</>
+												) : listing.status === 'pending' ? (
+													<Select
+														value={listing.status}
+														colorScheme='green'
+														size='sm'
+														width='150px'
+														focusBorderColor='brand.500'
+														bg={getStatusColor(listing.status) + '.100'}
+														color={getStatusColor(listing.status) + '.800'}
+														isDisabled={
+															![
+																'approved',
+																'rejected',
+																'active',
+																'inactive',
+																'draft',
+															].includes(listing.status)
+														}
+													>
+														<option value='pending'>Pending</option>
+														<option value='draft'>Draft</option>
+													</Select>
+												) : listing.status === 'draft' ? (
+													<Select
+														value={listing.status}
+														colorScheme='green'
+														size='sm'
+														width='150px'
+														focusBorderColor='brand.500'
+														bg={getStatusColor(listing.status) + '.100'}
+														color={getStatusColor(listing.status) + '.800'}
+														onChange={(e) =>
+															handleStatusChange(
+																listing._id,
+																e.target.value,
+																listing.status
+															)
+														}
+														isDisabled={
+															![
+																'approved',
+																'rejected',
+																'active',
+																'inactive',
+																'draft',
+															].includes(listing.status)
+														}
+													>
+														<option value={isSuperAdmin ? 'active' : 'pending'}>
+															Publish
+														</option>
+														<option value='draft'>Draft</option>
+													</Select>
+												) : (
+													<Switch
+														colorScheme='green'
+														isChecked={listing.status === 'active'}
+														onChange={(e) =>
+															handleStatusToggle(listing._id, e.target.checked)
+														}
+														size='md'
+													/>
+												)}
+											</Td>
+											<Td
+												textAlign='center'
+												whiteSpace='nowrap'
+												minWidth='100px'
+												overflow='hidden'
+												textOverflow='ellipsis'
+											>
+												{listing.createdAt
+													? format(listing.createdAt, 'MMM d, yyyy h:mm a')
+													: 'N/A'}
+											</Td>
+											<Td
+												textAlign='center'
+												whiteSpace='nowrap'
+												minWidth='100px'
+												overflow='hidden'
+												textOverflow='ellipsis'
+											>
+												{listing.createdBy?.fullName}
+											</Td>
+											<Td py={4} textAlign={'center'}>
+												<Button
+													colorScheme='brand'
+													size='sm'
+													onClick={() => {
+														setSelectedListing(null);
+														setSelectedListing(listing);
+														notesModalDisclosure.onOpen();
+													}}
+												>
+													View Notes
+												</Button>
+											</Td>
+											{actionPermission && (
+												<Td
+													py={4}
+													fontSize={{ base: '12px', md: '14px' }}
+													fontWeight='400'
+													minWidth='100px'
+												>
+													<Box
+														display='flex'
+														gap={2}
+														justifyContent='center'
+														alignItems={'center'}
+													>
+														{hasPermission('listing', 'update:own') && (
+															<IconButton
+																aria-label='Edit'
+																icon={<EditIcon />}
+																size='sm'
+																onClick={() =>
+																	Navigate(`/listing/update/${listing._id}`)
+																}
+																color={'#c09f5f'}
+																_hover={{
+																	backgroundColor: '#c09f5f',
+																	color: 'white',
+																}}
+															/>
+														)}
 
                             {hasPermission("listing", "delete:own") && (
                               <IconButton

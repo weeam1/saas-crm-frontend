@@ -89,6 +89,7 @@ export const useUserSession = () => {
 		userRoleName: user?.roleName,
 		isSuperAdmin:
 			user?.roleName === 'superAdmin' || user?.role === 'superAdmin',
+		isAdmin: user?.roleName === 'Admin',
 		isAuthenticated: !!user,
 		updateUser: (newUser) => dispatch(setUser(newUser)),
 		clearUser: () => dispatch(clearUser()),

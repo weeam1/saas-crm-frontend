@@ -26,7 +26,7 @@ import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 const sidebarRoutes = [
 	// -------- Dashboard --------
 	{
-		moduleId: 'dashboard',
+		// moduleId: 'dashboard',
 		name: 'Dashboard',
 		path: '/default',
 		icon: <Icon as={MdHome} w='20px' h='20px' />,

@@ -121,7 +121,7 @@ function SignIn() {
 				dispatch(setUser(userData));
 
 				webSocketService.connect(userData._id);
-				navigate('/superAdmin');
+				navigate('/');
 
 				// create a user login log
 				createUserLog({
