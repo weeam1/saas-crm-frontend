@@ -11,6 +11,7 @@ import PendingListings from './Component/PendingListings';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import NotPermission from 'components/notPermission/NotPermission';
 
 const DEFAULT_TAB = 'all listings';
 
@@ -137,7 +138,7 @@ const Listing = () => {
 	};
 
 	if (tabsData.length === 0) {
-		return null;
+		return <NotPermission/> ;
 	}
 
 	return (
@@ -159,7 +160,6 @@ const Listing = () => {
 					</Button>
 				)}
 			</Flex>
-
 			<TabNavigationDisplay
 				tabsData={tabsData.map((tab) => ({
 					label: tab.label,
