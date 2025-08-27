@@ -58,6 +58,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState();
+  const [loadingButton, setLoadingButton] = useState(null); // track per-row button
+
   const Navigate = useNavigate();
 
   const [createItemMutation] = useCreateItemMutation();
@@ -130,6 +132,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
   });
 
   const handleRequestViewAccess = async (listingId) => {
+    setLoadingButton(listingId);
     try {
       const response = await createItemMutation({
         path: `/listing/secondary/${listingId}/request-view`,
@@ -162,8 +165,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
     } catch (error) {
       const errorMsg =
         error?.data?.message ||
-        "Failed  the listing view request. Please try again.";
-      toast.error( error.data?.message || "Failed to send request");
+        "Failed to send the listing view request. Please try again.";
+      toast.error(errorMsg);
       createUserLog({
         userId: user?._id,
         action: "UPDATE",
@@ -173,6 +176,8 @@ const AllListing = ({ listingType, listingUnitType }) => {
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
       });
+    } finally {
+      setLoadingButton(null); 
     }
   };
 
@@ -454,7 +459,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
             </Thead>
 
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={10} py="4" />
             ) : (
               <Tbody>
                 {tableData && tableData.length > 0 ? (
@@ -669,6 +674,7 @@ const AllListing = ({ listingType, listingUnitType }) => {
                                 onClick={() =>
                                   handleRequestViewAccess(listing._id)
                                 }
+                                 isLoading={loadingButton === listing._id}
                               >
                                 Request View
                               </Button>

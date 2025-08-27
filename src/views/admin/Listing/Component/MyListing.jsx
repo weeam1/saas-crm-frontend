@@ -25,6 +25,7 @@ import {
   Textarea,
   Switch,
   useBreakpointValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import { FiSearch } from "react-icons/fi";
@@ -56,6 +57,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const notesModalDisclosure = useDisclosure();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAdmin = user?.role === "superAdmin";
+  const [statusLoadingId, setStatusLoadingId] = useState(null);
 
   const { createUserLog } = useUserActivityLog();
 
@@ -211,6 +213,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
   };
   const updateListingStatus = async (listingId, status) => {
     try {
+      setStatusLoadingId(listingId);
       const body = { status };
       if (status === "rejected") {
         body.rejectionReason = rejectionReason;
@@ -254,6 +257,8 @@ const MyListing = ({ listingType, listingUnitType }) => {
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
       });
+    } finally {
+      setStatusLoadingId(null);
     }
   };
 
@@ -425,7 +430,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={10} py="4" />
             ) : (
               <Tbody>
                 {tableData && tableData.length > 0 ? (
@@ -543,7 +548,9 @@ const MyListing = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         textAlign={"center"}
                       >
-                        {listing.status === "rejected" ? (
+                        {statusLoadingId === listing._id ? (
+                          <Spinner size="sm" color="brand.500" />
+                        ) : listing.status === "rejected" ? (
                           <>
                             <Select
                               value={listing.status}

@@ -317,7 +317,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={10} py="4" />
             ) : (
               <Tbody>
                 {data && data.data.length > 0 ? (
