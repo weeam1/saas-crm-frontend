@@ -87,18 +87,18 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 						officeSetting={officeSetting}
 					/>
 				) : (
-					<Box
+					<Text
 						alignSelf='center'
 						p='2'
 						bg='gray.100'
 						color='red.400'
 						rounded='sm'
-						as={Link}
-						to={`/userView/${emp._id}`}
-						_hover={{ textDecoration: 'underline' }}
+						// as={Link}
+						// to={`/userView/${emp._id}`}
+						// _hover={{ textDecoration: 'underline' }}
 					>
-						Add Employee agency
-					</Box>
+						Agency or settings is missing
+					</Text>
 				)}
 			</>
 		</Box>

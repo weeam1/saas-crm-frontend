@@ -109,6 +109,8 @@ const Listing = () => {
 		(tab) => !tab.id || hasPermission('listing', tab.id)
 	);
 
+	console.log({ tabsData });
+
 	const activeTabIndex = Math.max(
 		0,
 		tabsData.findIndex((tab) => tab.param === tabFromParams.toLowerCase())

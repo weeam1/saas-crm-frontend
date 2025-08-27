@@ -18,6 +18,7 @@ import { buttonStyle } from 'utils/btn';
 import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import EmployeeAttendanceMark from './EmployeeAttendanceMark';
+import { usePermissions } from 'hooks/usePermissions';
 
 const EmployeesTable = ({
 	data,
@@ -37,9 +38,17 @@ const EmployeesTable = ({
 		'Action',
 	];
 
-	if (loginRole === 'Attendance') {
+	const { hasPermission } = usePermissions();
+	const hasAttendnaceOperationsAccess = hasPermission(
+		'attendance',
+		'operations'
+	);
+
+	if (!hasAttendnaceOperationsAccess) {
 		columns.splice(5, 1); // Remove 'Attendance Mark' column for Attendance role
 	}
+
+	console.log({ allowed: hasPermission('attendance', 'operations') });
 
 	const { data: officeSettings, isLoading: officeSettingsLoading } =
 		useFetchItemsQuery(
@@ -97,7 +106,10 @@ const EmployeesTable = ({
 							data?.doc?.map((emp) => {
 								const agencyId = emp?.agency?._id;
 
-								const agencyNotFound = !agencyId && `Agency not found`;
+								const agencyNotFound =
+									!agencyId &&
+									`Agency or settings is missing
+`;
 
 								const officeSetting = officeSettings?.doc?.find(
 									(office) => office?.agency?._id === agencyId
@@ -166,9 +178,9 @@ const EmployeesTable = ({
 											{emp.agencyName ?? 'N/A'}
 										</Td>
 
-										{['superAdmin', 'HR'].includes(loginRole) && (
+										{hasAttendnaceOperationsAccess && (
 											<Td py='4' textAlign='center'>
-												{agencyId ? (
+												{agencyId && officeSetting ? (
 													<EmployeeAttendanceMark
 														employeeId={emp._id}
 														todayRecord={emp.todayAttendanceRecord}

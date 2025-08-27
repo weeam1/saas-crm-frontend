@@ -44,6 +44,7 @@ import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const MyListing = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -72,6 +73,13 @@ const MyListing = ({ listingType, listingUnitType }) => {
   const [tableData, setTableData] = useState();
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
+  const { hasPermission } = usePermissions();
+
+  const actionPermission =
+    hasPermission("listing", "update:own") ||
+    hasPermission("listing", "delete:own") ||
+    hasPermission("listing", "read:own");
+
   const columns = [
     "SR.No",
     "projectName",
@@ -91,8 +99,10 @@ const MyListing = ({ listingType, listingUnitType }) => {
     "Date",
     "Created By",
     "Notes",
-    "Action",
   ];
+
+  // check action permission then added
+  if (actionPermission) columns.push("Action");
 
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
@@ -335,16 +345,18 @@ const MyListing = ({ listingType, listingUnitType }) => {
           flexDir={{ base: "column", sm: "column", md: "row" }}
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
-          <Button
-            size="md"
-            variant="brand"
-            leftIcon={<AddIcon />}
-            py={3}
-            px={6}
-            onClick={() => Navigate("/listing/add-listing")}
-          >
-            Add New
-          </Button>
+          {hasPermission("listing", "create") && (
+            <Button
+              size="md"
+              variant="brand"
+              leftIcon={<AddIcon />}
+              py={3}
+              px={6}
+              onClick={() => Navigate("/listing/add-listing")}
+            >
+              Add New
+            </Button>
+          )}
 
           {isMobile ? (
             <IconButton
@@ -378,7 +390,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
       />
-      <Box my={2}>
+      <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -430,7 +442,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={10} py="4" />
+              <TableLoading columns={columns} length={7} py="4" />
             ) : (
               <Tbody>
                 {tableData && tableData.length > 0 ? (
@@ -669,57 +681,69 @@ const MyListing = ({ listingType, listingUnitType }) => {
                           View Notes
                         </Button>
                       </Td>
-                      <Td
-                        py={4}
-                        fontSize={{ base: "12px", md: "14px" }}
-                        fontWeight="400"
-                        minWidth="100px"
-                      >
-                        <Box
-                          display="flex"
-                          gap={2}
-                          justifyContent="center"
-                          alignItems={"center"}
+                      {actionPermission && (
+                        <Td
+                          py={4}
+                          fontSize={{ base: "12px", md: "14px" }}
+                          fontWeight="400"
+                          minWidth="100px"
                         >
-                          <IconButton
-                            aria-label="Edit"
-                            icon={<EditIcon />}
-                            size="sm"
-                            onClick={() =>
-                              Navigate(`/listing/update/${listing._id}`)
-                            }
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                          />
-                          <IconButton
-                            aria-label="Delete"
-                            icon={<DeleteIcon />}
-                            size="sm"
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                            onClick={() => handleDeleteListing(listing)}
-                          />
-                          <IconButton
-                            aria-label="View"
-                            icon={<ViewIcon />}
-                            size="sm"
-                            color={"#c09f5f"}
-                            _hover={{
-                              backgroundColor: "#c09f5f",
-                              color: "white",
-                            }}
-                            onClick={() =>
-                              Navigate(`/listing/view-listing/${listing._id}`)
-                            }
-                          />
-                        </Box>
-                      </Td>
+                          <Box
+                            display="flex"
+                            gap={2}
+                            justifyContent="center"
+                            alignItems={"center"}
+                          >
+                            {hasPermission("listing", "update:own") && (
+                              <IconButton
+                                aria-label="Edit"
+                                icon={<EditIcon />}
+                                size="sm"
+                                onClick={() =>
+                                  Navigate(`/listing/update/${listing._id}`)
+                                }
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
+                              />
+                            )}
+
+                            {hasPermission("listing", "delete:own") && (
+                              <IconButton
+                                aria-label="Delete"
+                                icon={<DeleteIcon />}
+                                size="sm"
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
+                                onClick={() => handleDeleteListing(listing)}
+                              />
+                            )}
+
+                            {hasPermission("listing", "read:own") && (
+                              <IconButton
+                                aria-label="View"
+                                icon={<ViewIcon />}
+                                size="sm"
+                                color={"#c09f5f"}
+                                _hover={{
+                                  backgroundColor: "#c09f5f",
+                                  color: "white",
+                                }}
+                                onClick={() =>
+                                  Navigate(
+                                    `/listing/view-listing/${listing._id}`
+                                  )
+                                }
+                              />
+                            )}
+                          </Box>
+                        </Td>
+                      )}
                     </Tr>
                   ))
                 ) : (

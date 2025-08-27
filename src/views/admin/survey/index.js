@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import SurveyDashboard from './Component/SurveyDashboard';
 import ManageSurveys from './Component/ManageSurveys';
@@ -20,20 +20,23 @@ const Survey = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const tabsData = [
-		{
-			label: 'Dashboard',
-			param: 'dashboard',
-			title: 'Survey Dashboard',
-			description: 'View survey statistics and analytics at a glance.',
-		},
-		{
-			label: 'Surveys',
-			param: 'surveys',
-			title: 'Surveys',
-			description: 'Create, view and manage all your surveys in one place.',
-		},
-	];
+	const tabsData = useMemo(
+		() => [
+			{
+				label: 'Dashboard',
+				param: 'dashboard',
+				title: 'Survey Dashboard',
+				description: 'View survey statistics and analytics at a glance.',
+			},
+			{
+				label: 'Surveys',
+				param: 'surveys',
+				title: 'Surveys',
+				description: 'Create, view and manage all your surveys in one place.',
+			},
+		],
+		[]
+	);
 
 	const activeTabIndex = Math.max(
 		0,
