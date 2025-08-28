@@ -48,7 +48,7 @@ export const HasAccess = (actions) => {
 
 	// Return permissions for each action
 	return actions.map((action) =>
-		user?.role === 'superAdmin'
+		user?.roles[0]?.roleName === 'superAdmin'
 			? superAdminPermission
 			: mergedPermissions[action]
 	);

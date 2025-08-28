@@ -122,8 +122,8 @@ const Leads = ({
 	const handleClear = () => {
 		// for selected leads
 		if (searchTags?.length === 0) {
-			// setSelectedLeads([]);
-			// setSelectedValues([]);
+			setSelectedLeads([]);
+			setSelectedValues([]);
 			setSearchClear(false);
 			return;
 		}
@@ -134,8 +134,8 @@ const Leads = ({
 		setIsFormReset(true);
 		setSearchClear(false);
 		setRefetchLoading(true);
-		// setSelectedLeads([]);
-		// setSelectedValues([]);
+		setSelectedLeads([]);
+		setSelectedValues([]);
 		clearSearchParams();
 	};
 

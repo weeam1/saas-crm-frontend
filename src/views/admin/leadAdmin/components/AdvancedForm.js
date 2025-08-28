@@ -258,7 +258,7 @@ const AdvancedSearchForm = (props) => {
           {errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
         </Text>
       </GridItem>
-
+	  
       {isSuperAdmin && (
         <GridItem>
           <FormLabel
