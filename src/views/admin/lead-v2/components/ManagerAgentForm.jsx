@@ -63,7 +63,7 @@ const ManagerAgentForm = ({
 							value={values['managerAssigned']}
 						>
 							<option value=''>Select manager</option>
-							{tree?.managers?.map((manager) => (
+							{tree?.managers?.filter(manager => manager.isActive === true).map((manager) => (
 								<option key={manager._id} value={manager._id}>
 									{manager.firstName} {manager.lastName}
 								</option>
@@ -100,12 +100,12 @@ const ManagerAgentForm = ({
 						>
 							<option value=''>Select agent</option>
 							{filteredAgents?.length
-								? filteredAgents.map((agent) => (
+								? filteredAgents.filter(agent => agent.isActive === true).map((agent) => (
 										<option key={agent._id} value={agent._id}>
 											{agent.firstName} {agent.lastName}
 										</option>
 									))
-								: allAgents?.map((agent) => (
+								: allAgents?.filter(agent => agent.isActive === true).map((agent) => (
 										<option key={agent._id} value={agent._id}>
 											{agent.firstName} {agent.lastName}
 										</option>
@@ -141,7 +141,7 @@ const ManagerAgentForm = ({
 							value={values['agentAssigned']}
 						>
 							<option value=''>Select agent</option>
-							{tree?.agents[`manager-${user._id}`]?.map((agent) => (
+							{tree?.agents[`manager-${user._id}`]?.filter(agent => agent.isActive === true).map((agent) => (
 								<option key={agent._id} value={agent._id}>
 									{agent.firstName} {agent.lastName}
 								</option>
