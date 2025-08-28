@@ -26,18 +26,18 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import RoleTabs from '../attendance/components/employees/RoleTabs';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import AppButton from 'components/shared/AppButton';
-import { IoArrowBack } from 'react-icons/io5';
 import moment from 'moment';
 import OfficeShimmer from './OfficeShimmer';
+import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const OfficeSettings = ({ userId }) => {
 	const searchTermRef = useRef('');
 	const [searchClear, setSearchClear] = useState(false);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const { user, isSuperAdmin } = useUserSession();
+
+	const { hasPermission } = usePermissions();
 
 	const [specialUsers, setSpecialUsers] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
@@ -238,7 +238,9 @@ const OfficeSettings = ({ userId }) => {
 			}).unwrap();
 
 			toast.success('Office settings updated successfully');
-			const redirectUrl = role === 'superAdmin' ? '/agencies' : '/attendance';
+			const redirectUrl = hasPermission('admin_settings')
+				? '/agencies'
+				: '/attendance';
 			navigate(redirectUrl);
 		} catch (error) {
 			console.log(error);

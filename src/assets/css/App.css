@@ -29,7 +29,8 @@ option {
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #e5e7eb;
+	/* background: #e5e7eb; */
+	background: #d9d9d9;
 	border-radius: 20px;
 }
 

@@ -5,6 +5,7 @@ import {
 	IconButton,
 	useDisclosure,
 	Heading,
+	Button,
 } from '@chakra-ui/react';
 import {
 	FaUsers,
@@ -15,7 +16,7 @@ import {
 	FaFileAlt,
 } from 'react-icons/fa';
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import RealTimeData from './RealTimeData';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -24,6 +25,7 @@ import { FiFilter } from 'react-icons/fi';
 import AgencyFilter from './AgencyFilter';
 import AppButton from 'components/shared/AppButton';
 import DashboardShimmer from './DashboardShimmer';
+import useUserSession from 'hooks/useUserSession';
 
 const Dashboard = () => {
 	const [selectedView, setSelectedView] = useState('weekly');
@@ -33,12 +35,10 @@ const Dashboard = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const navigate = useNavigate();
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
 
 	useEffect(() => {
-		if (user?.agency && role !== 'superAdmin') {
+		if (user?.agency && !isSuperAdmin) {
 			setSelectedAgency(user.agency);
 			setAgency(user?.agency?.name);
 		}
@@ -272,7 +272,7 @@ const Dashboard = () => {
 				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 					{agency ? `${agency} Agency` : 'All Agencies'}
 				</Heading>
-				{role === 'superAdmin' && (
+				{isSuperAdmin && (
 					<IconButton
 						icon={<FiFilter />}
 						onClick={onOpen}
@@ -283,6 +283,19 @@ const Dashboard = () => {
 						borderRadius='full'
 						boxShadow='md'
 					/>
+				)}
+
+				{userRoleName === 'HR' && (
+					<Button
+						as={Link}
+						to={`/office-settings/${user?.agency?._id}`}
+						colorScheme='brand'
+						variant='outline'
+						size='sm'
+						borderRadius='lg'
+					>
+						Office Settings
+					</Button>
 				)}
 			</Flex>
 

@@ -24,6 +24,7 @@ import {
   Textarea,
   IconButton,
   useBreakpointValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
@@ -52,6 +53,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [statusLoadingId, setStatusLoadingId] = useState(null);
+
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
 
@@ -133,6 +136,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const handleStatusChange = async (listingId, status) => {
     setCurrentListingId(listingId);
     setSelectedStatus(status);
+    setStatusLoadingId(listingId);
 
     if (status === "rejected") {
       setIsRejectionModalOpen(true);
@@ -192,6 +196,8 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
       });
+    } finally {
+      setStatusLoadingId(null);
     }
   };
 
@@ -339,7 +345,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={10} py="4" />
             ) : (
               <Tbody>
                 {tableData.length > 0 ? (
@@ -508,21 +514,25 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         textAlign={"center"}
                       >
-                        <Select
-                          value={listing.status}
-                          onChange={(e) => {
-                            handleStatusChange(listing._id, e.target.value);
-                          }}
-                          size="sm"
-                          width="150px"
-                          focusBorderColor="brand.500"
-                          bg={getStatusColor(listing.status) + ".100"}
-                          color={getStatusColor(listing.status) + ".800"}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="active">Approved</option>
-                          <option value="rejected">Rejected</option>
-                        </Select>
+                        {statusLoadingId === listing._id ? (
+                          <Spinner size="sm" color="brand.500" />
+                        ) : (
+                          <Select
+                            value={listing.status}
+                            onChange={(e) => {
+                              handleStatusChange(listing._id, e.target.value);
+                            }}
+                            size="sm"
+                            width="150px"
+                            focusBorderColor="brand.500"
+                            bg={getStatusColor(listing.status) + ".100"}
+                            color={getStatusColor(listing.status) + ".800"}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="active">Approved</option>
+                            <option value="rejected">Rejected</option>
+                          </Select>
+                        )}
                       </Td>
                     </Tr>
                   ))
@@ -588,6 +598,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
               onClick={() =>
                 updateListingStatus(currentListingId, selectedStatus)
               }
+              isLoading={statusLoadingId ? true : false}
             >
               Confirm Rejection
             </Button>

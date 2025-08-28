@@ -1,133 +1,157 @@
-// Chakra imports
-import { Portal, Box, useDisclosure, Flex } from '@chakra-ui/react';
-import Footer from 'components/footer/FooterAdmin.js';
-// Layout components
-import Navbar from 'components/navbar/NavbarAdmin.js';
-import Sidebar from 'components/sidebar/Sidebar.js';
-import Spinner from 'components/spinner/Spinner';
-import { SidebarContext } from 'contexts/SidebarContext';
-import { Suspense, useEffect } from 'react';
-import { useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { ROLE_PATH } from '../../roles';
-import routes from 'routes.js';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchImage } from '../../redux/imageSlice';
-// Custom Chakra theme
-export default function Dashboard(props) {
-	const { ...rest } = props;
-	// states and functions
-	const [fixed] = useState(false);
-	const [toggleSidebar, setToggleSidebar] = useState(false);
+import {
+	Box,
+	Flex,
+	Icon,
+	useColorModeValue,
+	useDisclosure,
+} from '@chakra-ui/react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
+
+import { ROLE_PATH } from 'roles';
+import Footer from 'components/footer/FooterAdmin';
+import AppNavbar, { NAVBAR_HEIGHT } from 'components/navbar/AppNavbar';
+import AppSidebar from 'components/sidebar/AppSidebar';
+
+import routes from 'routes';
+import sidebarRoutes from 'sidebarRoutes';
+import Loader from 'components/loading/Loader';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
+import { useDispatch } from 'react-redux';
+import { usePermissions } from 'hooks/usePermissions';
+import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
+import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+
+export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
 
-	// functions for changing the states from components
-	const getRoute = () => {
-		return window.location.pathname !== '/admin/full-screen-maps';
-	};
-	const getActiveRoute = (routes) => {
-		let activeRoute = 'Prolink';
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveRoute = getActiveRoute(routes[i].items);
-				if (collapseActiveRoute !== activeRoute) {
-					return collapseActiveRoute;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveRoute = getActiveRoute(routes[i].items);
-				if (categoryActiveRoute !== activeRoute) {
-					return categoryActiveRoute;
-				}
-			} else {
-				if (
-					window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
-					-1
-				) {
-					return routes[i].name;
-				}
-			}
+	let appRoutes = [...routes];
+	let appSidebarRoutes = [...sidebarRoutes];
+
+	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
+	const pageBg = useColorModeValue('whiteAlpa.100', 'gray.800');
+
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
+
+	const { data: whatsappUser } = useFetchItemsQuery(
+		{
+			path: `whatsapp/users/${user?._id}`,
+		},
+		{
+			skip: !user?._id || isSuperAdmin,
 		}
-		return activeRoute;
-	};
-
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-		dispatch(fetchImage());
-	}, [dispatch]);
-
-	const largeLogo = useSelector((state) =>
-		state?.images?.image?.filter((item) => item.isActive === true)
 	);
 
-	const under = (routes) => {
-		let activeRoute = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveRoute = getActiveRoute(routes[i].items);
-				if (collapseActiveRoute !== activeRoute) {
-					return collapseActiveRoute;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveRoute = getActiveRoute(routes[i].items);
-				if (categoryActiveRoute !== activeRoute) {
-					return categoryActiveRoute;
-				}
-			} else {
-				if (
-					window.location.href.indexOf(routes[i].path.replace('/:id', '')) !==
-					-1
-				) {
-					return routes[i];
-				}
-			}
-		}
-		return activeRoute;
-	};
+	const whatsappActive = whatsappUser?.doc?.isActive;
+	const dispatch = useDispatch();
 
-	const getActiveNavbar = (routes) => {
-		let activeNavbar = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveNavbar = getActiveNavbar(routes[i].items);
-				if (collapseActiveNavbar !== activeNavbar) {
-					return collapseActiveNavbar;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveNavbar = getActiveNavbar(routes[i].items);
-				if (categoryActiveNavbar !== activeNavbar) {
-					return categoryActiveNavbar;
-				}
-			} else {
-				if (window.location.href.indexOf(routes[i].path) !== -1) {
-					return routes[i].secondary;
-				}
-			}
+	if (userRoleName === 'Attendance') {
+		// Define the "Candidates" route
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		const filterSidebarRoutes = sidebarRoutes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		console.log({ dashobard: hasPermission('attendance', 'dashboard') });
+
+		if (hasPermission('attendance', 'dashboard')) {
+			appSidebarRoutes = [
+				...filterSidebarRoutes,
+				{
+					moduleId: 'attendance',
+					name: 'Attendance',
+					path: '/attendance/dashboard',
+					icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+				},
+			];
+
+			const attendanceRoutes = [
+				{
+					moduleId: 'attendance',
+					name: 'Attendance',
+					layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+					path: '/attendance/dashboard',
+					component: AttendanceDashboard,
+				},
+			];
+
+			appRoutes = [...filterRoutes, ...attendanceRoutes];
 		}
-		return activeNavbar;
-	};
-	const getActiveNavbarText = (routes) => {
-		let activeNavbar = false;
-		for (let i = 0; i < routes.length; i++) {
-			if (routes[i].collapse) {
-				let collapseActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (collapseActiveNavbar !== activeNavbar) {
-					return collapseActiveNavbar;
-				}
-			} else if (routes[i].category) {
-				let categoryActiveNavbar = getActiveNavbarText(routes[i].items);
-				if (categoryActiveNavbar !== activeNavbar) {
-					return categoryActiveNavbar;
-				}
-			} else {
-				if (window.location.href.indexOf(routes[i].path) !== -1) {
-					return routes[i].messageNavbar;
-				}
-			}
-		}
-		return activeNavbar;
-	};
+	}
+
+	// if user has whatsapp and also enable then show it
+	if (whatsappActive) {
+		appRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			component: UserWhatsapp,
+		});
+
+		appSidebarRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			path: '/whatsapp/chat',
+			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+		});
+	}
+
+	// Super admin only show whatsapp users
+	if (userRoleName === 'superAdmin') {
+		// -------- Whatsapp --------
+		appRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp',
+		});
+	}
+
+	// const {
+	// 	data: userData,
+	// 	isLoading,
+	// 	isSuccess,
+	// } = useFetchItemsQuery({
+	// 	path: `/v2/user/${user?._id}`,
+	// });
+
+	// useEffect(() => {
+	// 	// Check role mismatch
+	// 	if (
+	// 		isSuccess &&
+	// 		(user?.roles[0]?.roleName !== userData?.doc?.roleName ||
+	// 			!userData?.doc?.isActive)
+	// 	) {
+	// 		dispatch(logOutUser());
+	// 	} else if (userData?.doc) {
+	// 		// build the permission map and store in redux store
+	// 		const permissionMap = buildPermissionMap(userData?.doc);
+	// 		dispatch(setPermissions(permissionMap));
+	// 	}
+	// }, [userData?.doc, isSuccess, dispatch, user?.roles]);
+
+	// useEffect(() => {
+	// 	let timer;
+
+	// 	// keep loader visible for at least 2s
+	// 	timer = setTimeout(() => {
+	// 		setAppLoading(false);
+	// 	}, 2000);
+
+	// 	return () => clearTimeout(timer);
+	// }, []);
+
+	const filterRoute = useCallback((r) => {
+		if (r.moduleId === 'system_log') return true;
+		return true;
+	}, []);
 
 	const getRoutes = (routes) => {
 		return routes.map((prop, key) => {
@@ -151,108 +175,66 @@ export default function Dashboard(props) {
 			}
 		});
 	};
-	document.documentElement.dir = 'ltr';
-	const { onOpen } = useDisclosure();
-	document.documentElement.dir = 'ltr';
 
 	return (
-		<Box>
-			<Box>
-				<SidebarContext.Provider
-					value={{
-						toggleSidebar,
-						setToggleSidebar,
+		<>
+			{/* Navbar (full width) */}
+			<AppNavbar
+				openSidebar={openSidebar}
+				setOpenSidebar={setOpenSidebar}
+				onOpenMobile={onOpen}
+			/>
+
+			<Flex>
+				{/* Sidebar (desktop fixed, mobile Drawer) */}
+				<AppSidebar
+					routes={appSidebarRoutes}
+					brandName='Weeam CRM'
+					filterRoute={filterRoute}
+					isMobileOpen={openSidebar}
+					onMobileOpenChange={setOpenSidebar}
+					mobileOpen={mobileOpen}
+					setMobileOpen={(v) => (v ? onOpen() : onClose())}
+				/>
+
+				{/* Main content area */}
+				<Box
+					as='main'
+					flex='1'
+					overflow={'hidden'}
+					scrollBehavior={'smooth'}
+					bg={pageBg}
+					pt={`${NAVBAR_HEIGHT + 16}px`} // navbar height + spacing
+					pl={{
+						base: 0,
+						// xl: openSidebar ? `${SIDEBAR_W}px` : `${SIDEBAR_W_COLLAPSED}px`,
 					}}
+					transition='padding-left 220ms cubic-bezier(.4,0,.2,1)'
+					minH='100vh'
 				>
-					<Sidebar
-						routes={routes}
-						largeLogo={largeLogo}
-						display='none'
-						{...rest}
-						openSidebar={openSidebar}
-						setOpenSidebar={setOpenSidebar}
-					/>
 					<Box
-						float='right'
-						minHeight='100vh'
-						height='100%'
-						overflow='auto'
-						position='relative'
-						maxHeight='100%'
-						// w={{ base: '100%', xl: 'calc( 100% - 290px )' }}
-						w={{
-							base: '100%',
-							xl:
-								openSidebar === true
-									? 'calc( 100% - 260px )'
-									: 'calc( 100% - 88px )',
-						}}
-						maxWidth={{
-							base: '100%',
-							xl:
-								openSidebar === true
-									? 'calc( 100% - 260px )'
-									: 'calc( 100% - 88px )',
-						}}
-						transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
-						transitionDuration='.2s, .2s, .35s'
-						transitionProperty='top, bottom, width'
-						transitionTimingFunction='linear, linear, ease'
+						px={{ base: 4, md: 6 }}
+						py={{ base: 2, md: 4 }}
+						mb='6'
+						minH='85vh'
 					>
-						<Portal>
-							<Box className='header'>
-								<Navbar
-									onOpen={onOpen}
-									routes={routes}
-									logoText={'CRM Dashboard'}
-									brandText={getActiveRoute(routes)}
-									secondary={getActiveNavbar(routes)}
-									message={getActiveNavbarText(routes)}
-									fixed={fixed}
-									under={under(routes)}
-									largeLogo={largeLogo}
-									openSidebar={openSidebar}
-									setOpenSidebar={setOpenSidebar}
-									{...rest}
-								/>
-							</Box>
-						</Portal>
-						<Box pt={{ base: '120px', md: '95px', xl: '95px' }}>
-							{getRoute() ? (
-								<Box
-									mx='auto'
-									pe='20px'
-									minH='84vh'
-									pt='50px'
-									style={{
-										padding: openSidebar ? '8px 20px 8px 0px' : '8px 20px',
-									}}
-								>
-									<Suspense
-										fallback={
-											<Flex
-												justifyContent={'center'}
-												alignItems={'center'}
-												width='100%'
-											>
-												<Spinner />
-											</Flex>
-										}
-									>
-										<Routes>
-											{getRoutes(routes)}
-											<Route path='/*' element={<Navigate to='/default' />} />
-										</Routes>
-									</Suspense>
-								</Box>
-							) : null}
-						</Box>
-						<Box>
-							<Footer />
-						</Box>
+						<Suspense
+							fallback={
+								<Flex align='center' justify='center' h='100vh'>
+									<Loader />
+								</Flex>
+							}
+						>
+							<Routes>
+								{getRoutes(appRoutes)}
+								<Route path='/*' element={<Navigate to={defaultRoute} />} />
+							</Routes>
+						</Suspense>
 					</Box>
-				</SidebarContext.Provider>
-			</Box>
-		</Box>
+
+					<Footer />
+				</Box>
+			</Flex>
+		</>
 	);
 }

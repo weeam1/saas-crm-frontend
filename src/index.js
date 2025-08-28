@@ -37,6 +37,7 @@ import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
 import { useSocketEvents } from 'hooks/useSocketEvents';
+import useUserSession from 'hooks/useUserSession';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -49,10 +50,13 @@ function App() {
 	}, []);
 
 	const token = localStorage.getItem('token') || null;
+
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
 	useNavigate();
 
 	const { registerUser, isConnected } = useSocketEvents();
@@ -222,18 +226,19 @@ function App() {
 				<ToastContainer />
 				<Routes>
 					{token && user?.role ? (
-						user?.role == 'user' ? (
-							<Route path='/*' element={<UserLayout />} />
-						) : user?.role === 'superAdmin' ? (
-							<Route path='/*' element={<AdminLayout />} />
-						) : (
-							''
-						)
+						<Route path='/*' element={<AdminLayout />} />
 					) : (
+						// user?.role === 'user' ? (
+						// 	<Route path='/*' element={<UserLayout />} />
+						// ) : user?.role === 'superAdmin' ? (
+						// 	<Route path='/*' element={<AdminLayout />} />
+						// ) : (
+						// 	''
+						// )
 						<Route path='/*' element={<AuthLayout />} />
 					)}
 				</Routes>
-				<LeadCycle />
+				{/* <LeadCycle /> */}
 			</>
 		);
 	else

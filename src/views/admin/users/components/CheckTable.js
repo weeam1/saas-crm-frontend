@@ -76,6 +76,7 @@ import TableLoading from 'components/loading/TableLoading';
 import { formatCurrency } from 'utils/helpers';
 import { BsCircleFill } from 'react-icons/bs';
 import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
 
 export default function CheckTable(props) {
 	// const { columnsData, action, setAction } = props;
@@ -98,8 +99,7 @@ export default function CheckTable(props) {
 		action,
 	} = props;
 
-	const user = JSON.parse(window.localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	const textColor = useColorModeValue('gray.500', 'white');
 	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
@@ -414,7 +414,7 @@ export default function CheckTable(props) {
 							</MenuList>
 						</Menu> */}
 
-						{isAdmin && (
+						{isSuperAdmin && (
 							<Button
 								onClick={() => handleClick()}
 								variant='brand'
@@ -490,44 +490,21 @@ export default function CheckTable(props) {
 							{headerGroups?.map((headerGroup, index) => (
 								<Tr {...headerGroup.getHeaderGroupProps()} key={index}>
 									{headerGroup.headers?.map((column, index) => (
-										<Th
-											{...column.getHeaderProps(
-												column.isSortable !== false &&
-													column.getSortByToggleProps()
-											)}
-											pe='10px'
-											key={index}
-											bg='brand.200'
-											borderColor={borderColor}
-										>
-											<Flex
-												align='center'
-												justifyContent={column.center ? 'center' : 'start'}
-												fontSize={{ sm: '14px', lg: '16px' }}
-												color=' secondaryGray.900'
+										<Th key={index} bg='brand.200' whiteSpace='nowrap' py={4}>
+											<Box
+												display='flex'
+												alignItems='center'
+												justifyContent='center'
 											>
-												<span
-													style={{
-														textTransform: 'capitalize',
-														marginRight: '8px',
-													}}
+												<Text
+													fontSize={{ base: '12px', md: '14px' }}
+													fontWeight='600'
+													color='gray.700'
+													textTransform='capitalize'
 												>
 													{column.render('Header')}
-												</span>
-												{column.isSortable !== false && (
-													<span>
-														{column.isSorted ? (
-															column.isSortedDesc ? (
-																<FaSortDown />
-															) : (
-																<FaSortUp />
-															)
-														) : (
-															<FaSort />
-														)}
-													</span>
-												)}
-											</Flex>
+												</Text>
+											</Box>
 										</Th>
 									))}
 								</Tr>
@@ -547,7 +524,7 @@ export default function CheckTable(props) {
 												if (cell?.column.Header === '#') {
 													data = (
 														<Flex align='center'>
-															{/* {isAdmin &&
+															{/* {isSuperAdmin &&
 															cell?.row?.original?.role !== 'superAdmin' ? (
 																<Checkbox
 																	colorScheme='brandScheme'
@@ -727,7 +704,7 @@ export default function CheckTable(props) {
 																		placement='top'
 																		// transform={'translate(1520px, 173px);'}
 																	>
-																		{(isAdmin ||
+																		{(isSuperAdmin ||
 																			user?.roles[0]?.roleName ===
 																				'Manager') && (
 																			<MenuItem
@@ -757,7 +734,7 @@ export default function CheckTable(props) {
 																		>
 																			View
 																		</MenuItem>
-																		{isAdmin && (
+																		{isSuperAdmin && (
 																			<>
 																				<MenuItem
 																					py={2.5}

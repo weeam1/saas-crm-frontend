@@ -15,11 +15,14 @@ import {
 	MdDeveloperMode,
 } from 'react-icons/md';
 import { FaWhatsapp } from 'react-icons/fa6';
+// import { usePermissions } from 'hooks/usePermissions';
 
 const Index = () => {
 	const navigate = useNavigate();
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
+
+	// const { hasPermission } = usePermissions();
 
 	return (
 		<div>

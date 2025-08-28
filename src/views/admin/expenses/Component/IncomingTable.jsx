@@ -21,8 +21,8 @@ import {
   FormLabel,
   Select,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiFilter, FiDownload } from "react-icons/fi";
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon, DownloadIcon } from "@chakra-ui/icons";
+import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -203,11 +203,22 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
       px={2}
       marginTop={"-16px"}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+        gap={1}
+      >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Payments
         </Text>
-        <Box gap={2} display="flex" alignItems="center">
+        <Box
+          gap={2}
+          display="flex"
+          alignItems="center"
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -232,8 +243,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
 
           <Button
             size="md"
-            variant="outline"
-            leftIcon={<FiDownload />}
+            leftIcon={<DownloadIcon />}
             py={3}
             px={6}
             onClick={exportToExcel}

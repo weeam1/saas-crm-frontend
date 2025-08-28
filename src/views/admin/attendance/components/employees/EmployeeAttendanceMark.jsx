@@ -11,9 +11,12 @@ import LeaveNoteModal from '../myAttendance/LeaveNoteModal';
 import NoteModal from '../myAttendance/NoteModal';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 
 const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const { timezone } = officeSetting;
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		isOpen: noteIsOpen,
@@ -237,6 +240,11 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const shouldRender = useMemo(() => {
 		return status !== -1;
 	}, [status]);
+
+	// Check logged in user has permission to perform this operations
+	if (!hasPermission('attendance', 'operations')) return null;
+
+	console.log('permissions allowed checking');
 
 	return shouldRender ? (
 		<Box

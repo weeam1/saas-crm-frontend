@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 // lead pool for agent
 
 const Index = () => {
@@ -15,6 +16,8 @@ const Index = () => {
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+
+	const { hasPermission } = usePermissions();
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -44,6 +47,11 @@ const Index = () => {
 	const cancelTokenRef = useRef(null);
 
 	const [forceRefresh, setForceRefresh] = useState(false);
+
+	useEffect(() => {
+		if (!hasPermission('leadpool_agents')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const debounce = (func, delay) => {
 		let timeoutId;

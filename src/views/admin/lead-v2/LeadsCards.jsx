@@ -28,13 +28,15 @@ import AllCheckBox from './AllCheckBox';
 import useFilteredQueryParams from './useFilteredQueryParams';
 import { HasAccess } from './../../../redux/accessUtils';
 import BulkWhatsappModal from './components/whatsapp-message/BulkWhatsappModal';
+import ViewToggle from 'components/toggle/ViewToggle';
+import { usePermissions } from 'hooks/usePermissions';
 
-const LeadsCards = () => {
+const LeadsCards = ({ handleView, view }) => {
 	// const user = JSON.parse(localStorage.getItem('user'));
-
 	const user = useSelector((state) => state.user.user);
-
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
+
+	console.log({ user });
 
 	const role =
 		user?.role === 'superAdmin'
@@ -42,6 +44,8 @@ const LeadsCards = () => {
 			: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	const [permission] = HasAccess(['Lead']);
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		currentPage,
@@ -186,7 +190,7 @@ const LeadsCards = () => {
 							setSelectedLeads={setSelectedLeads}
 						/>
 
-						{whatsappAccountId && ['superAdmin'].includes(role) && (
+						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
 							<Button
 								{...buttonStyle}
 								onClick={openWhatsappModal}
@@ -202,7 +206,7 @@ const LeadsCards = () => {
 							</Button>
 						)}
 
-						{['superAdmin', 'Manager'].includes(role) && (
+						{hasPermission('leads', 'bulkAssign') && (
 							<Button
 								{...buttonStyle}
 								onClick={() => setBulkAssign(true)}
@@ -220,7 +224,7 @@ const LeadsCards = () => {
 							</Button>
 						)}
 
-						{(permission?.create || role === 'superAdmin') && (
+						{hasPermission('leads', 'create') && (
 							<Button
 								{...buttonStyle}
 								variant='solid'
@@ -249,6 +253,13 @@ const LeadsCards = () => {
 						/>
 
 						<DateFilterButton onClick={dateTimeOnOpen} />
+					</HStack>
+					<HStack>
+						<ViewToggle
+							handleView={handleView}
+							view={view}
+							moduleView='leadView'
+						/>
 					</HStack>
 				</HStack>
 			</Flex>

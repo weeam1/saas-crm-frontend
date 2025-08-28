@@ -5,8 +5,11 @@ import CardShimmer from 'components/loading/CardShimmer';
 
 import HiringSummaryBarChart from './HiringSummaryBarChart';
 import RefButton from '../RefButton';
+import { usePermissions } from 'hooks/usePermissions';
 
 const HiringReport = () => {
+	const { hasPermission } = usePermissions();
+
 	const { data, isLoading } = useFetchItemsQuery(
 		{ path: '/hiring/stats' },
 		{ refetchOnMountOrArgChange: true }
@@ -35,7 +38,9 @@ const HiringReport = () => {
 				<Text fontSize={{ base: 'md', md: 'xl', lg: '2xl' }} fontWeight='bold'>
 					Hiring Report
 				</Text>
-				<RefButton to='/hiring?tab=dashboard' label='Hiring Module' />
+				{hasPermission('reports', 'link') && (
+					<RefButton to='/hiring?tab=dashboard' label='Hiring Module' />
+				)}
 			</HStack>
 
 			<HiringStatusCards stats={data?.doc} />

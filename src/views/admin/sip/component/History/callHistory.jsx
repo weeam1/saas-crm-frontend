@@ -17,7 +17,7 @@ import ActiveFiltersDisplay from './Component/ActiveFiltersDisplay';
 import AdvancedSearchModal from './Component/AdvancedSearchModal';
 import { toast } from 'react-toastify';
 import { formatCallDuration } from 'utils/helpers';
-import ViewToggle from './ViewToggle';
+import ViewToggle from "components/toggle/ViewToggle";
 import CallTableView from './CallTableView';
 import CallGrid from './CallGrid';
 import TopPagination from 'components/pagination/TopPagination';
@@ -157,10 +157,8 @@ const CallHistory = ({ setTotalCallRecord }) => {
 			bg='white'
 			p={3}
 			marginTop={'-16px'}
-			marginLeft={'-4px'}
 		>
-			<Flex justifyContent='space-between' alignItems='center' m={3}>
-				<ViewToggle view={view} handleView={handleViewChange} />
+			<Flex justifyContent='flex-end' alignItems='center' m={3} gap={2} flexWrap={"wrap"}>
 				{isMobile ? (
 					<IconButton
 						icon={<FiSearch />}
@@ -184,6 +182,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
 						Advanced Search
 					</Button>
 				)}
+				<ViewToggle view={view} handleView={handleViewChange}  moduleView="callHistoryView"/>
 			</Flex>
 
 			<Box m={3}>

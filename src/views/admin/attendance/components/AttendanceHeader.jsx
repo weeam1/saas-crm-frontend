@@ -14,7 +14,8 @@ import { buttonStyle } from '../constants';
 import { BiX } from 'react-icons/bi';
 import { FiFilter } from 'react-icons/fi';
 import DateFilter from './DateFilter';
-import ViewToggle from './ViewToggle';
+import ViewToggle from 'components/toggle/ViewToggle';
+import useUserSession from 'hooks/useUserSession';
 
 const AttendanceHeader = ({
 	title,
@@ -34,10 +35,7 @@ const AttendanceHeader = ({
 		searchTermRef.current = event.target.value;
 	};
 
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const { user, isSuperAdmin } = useUserSession();
 
 	return (
 		<Box
@@ -106,7 +104,7 @@ const AttendanceHeader = ({
 				</InputGroup>
 
 				<HStack>
-					{content.includes('agencyFilter') && role === 'superAdmin' && (
+					{content.includes('agencyFilter') && isSuperAdmin && (
 						<IconButton
 							icon={<FiFilter />}
 							onClick={filterOpen}
@@ -124,7 +122,11 @@ const AttendanceHeader = ({
 					)}
 
 					{content.includes('view') && (
-						<ViewToggle view={view} handleView={handleView} />
+						<ViewToggle
+							view={view}
+							handleView={handleView}
+							moduleView='employeesView'
+						/>
 					)}
 
 					{searchClear && (

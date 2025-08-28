@@ -7,6 +7,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAllUsers } from '../../../redux/usersSlice';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Index = () => {
 	const user = JSON.parse(localStorage.getItem('user'));
@@ -14,6 +15,14 @@ const Index = () => {
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('users')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 
 	const tableColumns = [
 		{

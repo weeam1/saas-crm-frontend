@@ -20,23 +20,23 @@ import { extractLocationData } from 'utils/helpers';
 import { useMemo } from 'react';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
+import { safeValue } from './../../../../utils/index';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const role =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
-		leadWhatsappNumber: leadData.leadWhatsappNumber || '',
-		leadPhoneNumber: leadData.leadPhoneNumber || '',
+		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
+		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		nationality: leadData.nationality || '',
 		budget: leadData.budget || '',
 		ip: ip || '',
@@ -51,7 +51,8 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
-		r_u_in_uae: leadData.r_u_in_uae || '',
+		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
+		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
 		adset: leadData.adset || '',
@@ -100,13 +101,13 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	];
 
 	const allowedFields = useMemo(() => {
-		if (role === 'superAdmin') {
+		if (isSuperAdmin) {
 			return fields;
 		}
 
 		// Agent role edit phone number only
 		const phoneField =
-			role === 'Agent'
+			userRoleName === 'Agent'
 				? fields.filter((field) =>
 						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
 					)

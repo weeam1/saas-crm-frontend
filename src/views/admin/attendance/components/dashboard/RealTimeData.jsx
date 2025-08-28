@@ -21,6 +21,7 @@ import AttendanceQRCode from './AttendanceQRCode';
 import { currentTZ } from 'utils/helpers';
 import AttendanceRoleChart from 'views/admin/reports-v2/components/attendance/AttendanceRoleChart';
 import AttendanceAreaChart from 'views/admin/reports-v2/components/attendance/AttendanceAreaChart';
+import { usePermissions } from 'hooks/usePermissions';
 
 const RealTimeData = ({
 	data,
@@ -39,6 +40,8 @@ const RealTimeData = ({
 	const tick = useCallback(() => {
 		setTime(moment().tz(tz));
 	}, [tz]);
+
+	const { hasPermission } = usePermissions();
 
 	useEffect(() => {
 		const interval = setInterval(tick, 1000);
@@ -122,17 +125,21 @@ const RealTimeData = ({
 							<Text fontSize='18px' mb='2' fontWeight='bold'>
 								{currentDate}
 							</Text>
-							<Box justifySelf='flex-end' w='fit-content'>
-								<AttendanceQRCode />
-							</Box>
+							{hasPermission('attendance', 'qr') && (
+								<Box justifySelf='flex-end' w='fit-content'>
+									<AttendanceQRCode />
+								</Box>
+							)}
 						</HStack>
 					</Box>
 					<SimpleGrid columns={{ base: '1fr', md: 2, lg: 3 }} spacing={5}>
 						{stats.map((stat, index) => (
 							<Box
 								key={index}
-								as={RouterLink}
-								to={stat.link}
+								as={hasPermission('attendance', 'record') ? RouterLink : 'div'}
+								to={
+									hasPermission('attendance', 'record') ? stat.link : undefined
+								}
 								cursor='pointer'
 								p={6}
 								borderRadius='lg'

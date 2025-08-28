@@ -1,25 +1,18 @@
-import {
-	Box,
-	Text,
-	Flex,
-	Icon,
-	Stack,
-	Button,
-	SimpleGrid,
-} from '@chakra-ui/react';
+import { Box, Text, Flex, Icon, Stack, SimpleGrid } from '@chakra-ui/react';
 import { FaBuilding } from 'react-icons/fa';
 import { StatusBadge } from './_shared/StatusBadge';
-import { FiChevronRight, FiX } from 'react-icons/fi';
 import { formatPostDate, formatCurrency } from 'utils/helpers';
-import { FaPen } from 'react-icons/fa6';
 import { TeamMember } from './_shared/TeamMember';
+import MenuOptions from './_shared/MenuOptions';
 
 export const DealCard = ({
 	deal,
-	loginedUser,
+	user,
+	isSuperAdmin,
 	handleEdit,
 	handleView,
 	handleCancelled,
+	handleDelete,
 }) => {
 	const {
 		lead,
@@ -29,21 +22,19 @@ export const DealCard = ({
 		unitType,
 		unitPrice,
 		downpaymentPaid,
-		downpaymentPercent,
 		bookingAmountPaid,
-		bookingPercent,
-		spaDone,
-		invoiceSent,
+		// downpaymentPercent,
+		// bookingPercent,
+		// spaDone,
+		// invoiceSent,
+		// dealStatus,
 		createdAt,
 		manager,
 		agent,
 		closedBy,
 		salesPerson,
-		dealStatus,
 		currency,
 	} = deal;
-
-	const isAdmin = loginedUser?.role === 'superAdmin';
 
 	return (
 		<Box
@@ -69,9 +60,18 @@ export const DealCard = ({
 			transition='all 0.2s ease'
 		>
 			{/* Status badge */}
-			<Box position='absolute' top={3} right={3}>
+			<Flex position='absolute' gap='2' align='center' top={3} right={3}>
 				<StatusBadge status={commissionStatus} />
-			</Box>
+				<MenuOptions
+					user={user}
+					deal={deal}
+					isSuperAdmin={isSuperAdmin}
+					handleView={handleView}
+					handleDelete={handleDelete}
+					handleCancelled={handleCancelled}
+					handleEdit={handleEdit}
+				/>
+			</Flex>
 
 			<Stack justify='space-between' h='full' spacing={3}>
 				{/* Lead info with priority styling */}
@@ -161,7 +161,7 @@ export const DealCard = ({
 				</SimpleGrid>
 
 				{/* Bottom row with date and action */}
-				<Flex justify='flex-end' gap='2' align='center'>
+				{/* <Flex justify='flex-end' gap='2' align='center'>
 					<Button
 						size='xs'
 						variant='outline'
@@ -194,7 +194,7 @@ export const DealCard = ({
 								</Button>
 							</>
 						)}
-				</Flex>
+				</Flex> */}
 			</Stack>
 		</Box>
 	);

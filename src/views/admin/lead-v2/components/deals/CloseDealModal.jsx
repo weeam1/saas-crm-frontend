@@ -35,6 +35,7 @@ import {
 } from './../../../deals/dealUtils';
 import { FormSelect } from 'components/fields/FormFields';
 import { FiUploadCloud } from 'react-icons/fi';
+import useUserSession from 'hooks/useUserSession';
 
 const CloseDealModal = React.memo(
 	({
@@ -47,8 +48,7 @@ const CloseDealModal = React.memo(
 	}) => {
 		const { _id: leadId, leadName, leadPhoneNumber, leadWhatsappNumber } = lead;
 
-		const loginedUser = JSON.parse(localStorage.getItem('user'));
-		const isAdmin = loginedUser?.role === 'superAdmin';
+		const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
 
 		const phoneNumber =
 			typeof leadPhoneNumber === 'object'
@@ -66,7 +66,7 @@ const CloseDealModal = React.memo(
 				clientWhatsapp: whatsappNumber || '',
 				agentName: lead?.agentDetails?.fullName || 'Unassigned',
 				managerName: lead?.managerDetails?.fullName || 'Unassigned',
-				closedBy: loginedUser?.fullName || '',
+				closedBy: user?.fullName || '',
 
 				developer: '',
 				salesPerson: '',
@@ -241,7 +241,8 @@ const CloseDealModal = React.memo(
 											isRequired
 											isDisabled
 										/>
-										{loginedUser?.role !== 'Manager' && (
+
+										{userRoleName !== 'Manager' && (
 											<FormInput
 												label='Client Contact'
 												name='clientNumber'

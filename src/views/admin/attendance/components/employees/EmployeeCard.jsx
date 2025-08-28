@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Box, Avatar, Text, Badge } from '@chakra-ui/react';
 import { constant } from 'constant';
 import EmployeeAttendanceMark from './EmployeeAttendanceMark';
+import { usePermissions } from 'hooks/usePermissions';
 
 const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 	const agencyId = emp?.agency?._id;
@@ -56,7 +57,7 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 					mr={3}
 					name={emp?.fullName}
 				/>
-				<Box>
+				<Box py='2'>
 					<Text
 						fontWeight='medium'
 						fontSize={{ base: '16px', md: '24px' }}
@@ -78,30 +79,28 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 				</Box>
 			</Box>
 
-			{(loginRole === 'superAdmin' || loginRole === 'HR') && (
-				<>
-					{agencyId && officeSetting ? (
-						<EmployeeAttendanceMark
-							employeeId={emp._id}
-							todayRecord={emp.todayAttendanceRecord}
-							officeSetting={officeSetting}
-						/>
-					) : (
-						<Box
-							alignSelf='center'
-							p='2'
-							bg='gray.100'
-							color='red.400'
-							rounded='sm'
-							as={Link}
-							to={`/userView/${emp._id}`}
-							_hover={{ textDecoration: 'underline' }}
-						>
-							Add Employee agency
-						</Box>
-					)}
-				</>
-			)}
+			<>
+				{agencyId && officeSetting ? (
+					<EmployeeAttendanceMark
+						employeeId={emp._id}
+						todayRecord={emp.todayAttendanceRecord}
+						officeSetting={officeSetting}
+					/>
+				) : (
+					<Text
+						alignSelf='center'
+						p='2'
+						bg='gray.100'
+						color='red.400'
+						rounded='sm'
+						// as={Link}
+						// to={`/userView/${emp._id}`}
+						// _hover={{ textDecoration: 'underline' }}
+					>
+						Agency or settings is missing
+					</Text>
+				)}
+			</>
 		</Box>
 	);
 };

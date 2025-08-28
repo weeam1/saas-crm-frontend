@@ -31,6 +31,8 @@ import { getSmartTimezone } from 'hooks/useTimezone';
 import Logo_CRM from 'assets/logo-crm.png';
 import DefaultAuth from 'layouts/auth/Default';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { setPermissions } from '../../../redux/permissionSlice';
+import { buildPermissionMap } from 'utils/permissionUtils';
 
 function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -104,13 +106,26 @@ function SignIn() {
 				}
 				toast.success('Login Successfully!');
 				resetForm();
-				dispatch(setUser(response.data.user));
-				webSocketService.connect(response.data.user._id);
-				navigate('/superAdmin');
+
+				const userData = {
+					...response.data.user,
+					roleName:
+						response.data?.user?.roles?.[0]?.roleName ||
+						response.data?.user?.role ||
+						'user',
+				};
+
+				// build the permission map and store in redux store
+				const permissionMap = buildPermissionMap(userData);
+				dispatch(setPermissions(permissionMap));
+				dispatch(setUser(userData));
+
+				webSocketService.connect(userData._id);
+				navigate('/');
 
 				// create a user login log
 				createUserLog({
-					userId: response?.data?.user?._id,
+					userId: userData?._id,
 					action: 'LOGIN',
 					entity: 'Auth',
 					status: 'success',

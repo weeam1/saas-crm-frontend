@@ -36,6 +36,18 @@ import {
 } from "api/apiSlice";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+
+const ListingTypeSchema = Yup.object().shape({
+  name: Yup.string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must not exceed 50 characters")
+    .required("Listing type name is required"),
+  status: Yup.boolean().required(),
+});
+
 const ListingTypes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,11 +59,6 @@ const ListingTypes = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
   const { createUserLog } = useUserActivityLog();
-
-  const [formData, setFormData] = useState({
-    name: "",
-    status: true,
-  });
 
   const buildQueryParams = () => ({
     page: currentPage,
@@ -86,20 +93,12 @@ const ListingTypes = () => {
     setCurrentPage(newPage);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
       if (isEditMode) {
         await updateItemMutation({
           path: `/listing/secondary/types/${currentType._id}`,
-          body: formData,
+          body: values,
         }).unwrap();
         toast.success("Listing type updated successfully");
         createUserLog({
@@ -109,12 +108,12 @@ const ListingTypes = () => {
           entityType: "SecondaryListingType",
           entityId: currentType._id,
           status: "success",
-          message: `"${user?.fullName}" update the listing type "${currentType?.name || "Untitled"}".`,
+          message: `"${user?.fullName}" updated the listing type "${currentType?.name || "Untitled"}".`,
         });
       } else {
         const response = await createItemMutation({
           path: "/listing/secondary/types",
-          body: formData,
+          body: values,
         }).unwrap();
         createUserLog({
           userId: user?._id,
@@ -127,33 +126,30 @@ const ListingTypes = () => {
         });
         toast.success("Listing type created successfully");
       }
-      resetForm();
       onClose();
+      setIsEditMode(false);
+      setCurrentType(null);
       refetch();
     } catch (error) {
       console.error(error);
       const errorMsg =
         error?.data?.message ||
-        `Failed to ${isEditMode? "updated" : "create"} the listing type. Please try again.`;
+        `Failed to ${isEditMode ? "update" : "create"} the listing type. Please try again.`;
       toast.error(error.data?.message || "An error occurred");
-        createUserLog({
-          userId: user?._id,
-          action: isEditMode? "UPDATE" : "CREATE",
-          entity: "listing_Type",
-          entityType: "SecondaryListingType",
-          entityId: currentType._id,
-          status: error?.status === "500" ? "error" : "fail",
-          message: errorMsg,
-        });
+      createUserLog({
+        userId: user?._id,
+        action: isEditMode ? "UPDATE" : "CREATE",
+        entity: "listing_Type",
+        entityType: "SecondaryListingType",
+        entityId: currentType?._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
   const handleEdit = (type) => {
     setCurrentType(type);
-    setFormData({
-      name: type.name,
-      status: type.status,
-    });
     setIsEditMode(true);
     onOpen();
   };
@@ -192,15 +188,6 @@ const ListingTypes = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      status: true,
-    });
-    setIsEditMode(false);
-    setCurrentType(null);
-  };
-
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
@@ -215,21 +202,19 @@ const ListingTypes = () => {
         entityType: "SecondaryListingType",
         entityId: response?.doc?._id,
         status: "success",
-        message: `"${user?.fullName}" update the status of listing  Type "${response?.doc?.name || "Untitled"}".`,
+        message: `"${user?.fullName}" updated the status of listing type "${response?.doc?.name || "Untitled"}".`,
       });
       toast.success(`Listing type status updated successfully`);
       refetch();
     } catch (error) {
       console.error(error);
-      toast.error(
-        error.data?.message || "Failed to update listing type status"
-      );
+      toast.error(error.data?.message || "Failed to update listing type status");
       const errorMsg =
         error?.data?.message ||
-        "Failed to delete the status of  listing type. Please try again.";
+        "Failed to update the status of listing type. Please try again.";
       createUserLog({
         userId: user?._id,
-        action: "DELETE",
+        action: "UPDATE",
         entity: "listing_Type",
         entityType: "SecondaryListingType",
         entityId: type._id,
@@ -259,7 +244,8 @@ const ListingTypes = () => {
           py={3}
           px={6}
           onClick={() => {
-            resetForm();
+            setIsEditMode(false);
+            setCurrentType(null);
             onOpen();
           }}
         >
@@ -404,58 +390,81 @@ const ListingTypes = () => {
             {isEditMode ? "Edit Listing Type" : "Add New Listing Type"}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl>
-              <FormLabel>Listing Type</FormLabel>
-              <Input
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter listing type name"
-              />
-            </FormControl>
 
-            <FormControl mt={4}>
-              <FormLabel>Active Status</FormLabel>
-              <Switch
-                name="status"
-                isChecked={formData.status}
-                onChange={handleInputChange}
-                colorScheme="green"
-              />
-            </FormControl>
-          </ModalBody>
+          <Formik
+            enableReinitialize
+            initialValues={{
+              name: currentType?.name || "",
+              status: currentType?.status ?? true,
+            }}
+            validationSchema={ListingTypeSchema}
+            onSubmit={async (values, { setSubmitting }) => {
+              await handleSubmit(values);
+              setSubmitting(false);
+            }}
+          >
+            {({ values, errors, touched, handleChange, handleSubmit, isSubmitting }) => (
+              <Form onSubmit={handleSubmit}>
+                <ModalBody pb={6}>
+                  <FormControl isInvalid={touched.name && errors.name}>
+                    <FormLabel>Listing Type</FormLabel>
+                    <Input
+                      name="name"
+                      value={values.name}
+                      onChange={handleChange}
+                      placeholder="Enter listing type name"
+                    />
+                    {touched.name && errors.name && (
+                      <Text color="red.500" fontSize="sm">
+                        {errors.name}
+                      </Text>
+                    )}
+                  </FormControl>
 
-          <ModalFooter>
-            <Button
-              variant="outline"
-              bg="#e2e8f0"
-              size="md"
-              w="100px"
-              borderRadius="3px"
-              mr={2}
-              onClick={() => {
-                onClose();
-                resetForm();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              bg="#d99a36"
-              color="white"
-              w="100px"
-              borderRadius="3px"
-              size="md"
-              onClick={handleSubmit}
-              _hover={{ bg: "brand.400", color: "white" }}
-              _active={{
-                bg: "brand.300",
-              }}
-            >
-              Save
-            </Button>
-          </ModalFooter>
+                  <FormControl mt={4}>
+                    <FormLabel>Active Status</FormLabel>
+                    <Switch
+                      name="status"
+                      isChecked={values.status}
+                      onChange={handleChange}
+                      colorScheme="green"
+                    />
+                  </FormControl>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button
+                    variant="outline"
+                    bg="#e2e8f0"
+                    size="md"
+                    w="100px"
+                    borderRadius="3px"
+                    mr={2}
+                    onClick={() => {
+                      onClose();
+                      setIsEditMode(false);
+                      setCurrentType(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    bg="#d99a36"
+                    color="white"
+                    w="100px"
+                    borderRadius="3px"
+                    size="md"
+                    isLoading={isSubmitting}
+                    _hover={{ bg: "brand.400", color: "white" }}
+                    _active={{ bg: "brand.300" }}
+                  >
+                    Save
+                  </Button>
+                </ModalFooter>
+              </Form>
+            )}
+          </Formik>
         </ModalContent>
       </Modal>
     </Box>

@@ -6,6 +6,7 @@ import ErrorMessage from "components/Message/ErrorMessage";
 import AdvancedSearch from "../candidates/components/AdvancedSearch";
 import SearchTags from "components/shared/SearchTags";
 import { experienceYearsOptions } from "../helpers";
+import useUserSession from "hooks/useUserSession";
 
 const ShortListedData = ({ invitedRefetch }) => {
   const [advanceSearch, setAdvanceSearch] = useState(false);
@@ -16,8 +17,8 @@ const ShortListedData = ({ invitedRefetch }) => {
     direction: null,
   });
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.role === "superAdmin";
+  
+  const { isSuperAdmin } = useUserSession();
 
   const [data, setData] = useState([]);
 
@@ -54,7 +55,7 @@ const ShortListedData = ({ invitedRefetch }) => {
       path: "/agencies",
     },
     {
-      skip: !isAdmin,
+      skip: !isSuperAdmin,
     }
   );
 

@@ -25,6 +25,7 @@ import {
 	Tbody,
 	Td,
 } from '@chakra-ui/react';
+import useUserSession from 'hooks/useUserSession';
 
 const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 	const {
@@ -34,12 +35,9 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 		maxLeadLimit,
 	} = errorLeadData;
 
+	const { isSuperAdmin, role } = useUserSession();
+
 	if (!isOpen) return null;
-
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const superAdmin = user?.role === 'superAdmin';
-	const role = user?.roles[0]?.roleName;
 
 	const target = role === 'Agent' ? 'You' : 'Agent';
 
@@ -135,7 +133,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										<Text>
 											{`The agent has no remaining lead capacity. Please reassign
 											some leads ${
-												superAdmin
+												isSuperAdmin
 													? ` or adjust the agent's lead limit in the
 											settings.`
 													: ''

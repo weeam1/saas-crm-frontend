@@ -24,6 +24,7 @@ const AllCheckBox = ({
 			isChecked={selectedValues.length === Ids.length && Ids.length > 0}
 			onChange={handleChecked}
 			colorScheme='brand'
+			sx={{ '.chakra-checkbox__control': { _focus: { boxShadow: 'none' } } }}
 		>
 			All
 		</Checkbox>

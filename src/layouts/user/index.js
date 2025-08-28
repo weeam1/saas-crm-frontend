@@ -1,103 +1,31 @@
+import React, { Suspense, useEffect, useState } from 'react';
+
 import { Portal, Box, useDisclosure, Flex, Icon } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
 import Navbar from 'components/navbar/NavbarAdmin.js';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
-import React, { Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ROLE_PATH } from '../../roles';
-import newRoute from 'routes.js';
-import {
-	MdCampaign,
-	MdHome,
-	MdInsertChartOutlined,
-	MdLeaderboard,
-	MdLock,
-	MdPeopleOutline,
-} from 'react-icons/md';
-import {
-	FaUserCircle,
-	FaDollarSign,
-	FaRegCalendarCheck,
-	FaRegCopy,
-	FaList,
-	FaWhatsapp,
-	FaTasks,
-	FaHandshake,
-} from 'react-icons/fa';
+import configRoutes from 'routes.js';
+import { MdPeopleOutline } from 'react-icons/md';
+import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
+
+import { useFetchItemsQuery } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
+
 import Spinner from 'components/spinner/Spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../redux/imageSlice';
-import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
-import Report from 'views/admin/reports';
-import DailyReport from 'views/admin/dailyReport';
-import Announcements from 'views/admin/announcement';
-import Hiring from 'views/admin/hiring';
-import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
-import ShortListedCandidates from 'views/admin/hiring/shortListedCandidates';
-import Candidates from 'views/admin/hiring/candidates';
-import InterviewScreen from 'views/admin/hiring/interview/InterviewScreen';
-import InterviewedCandidates from 'views/admin/hiring/interviewedCandidates';
-import OfferLetter from 'views/admin/hiring/interviewedCandidates/OfferLetter';
-import OfficeSettings from 'views/admin/agencies/OfficeSetting';
-import Expenses from 'views/admin/expenses';
-import AddListing from 'views/admin/Listing/Component/AddListing';
-import ViewListing from 'views/admin/Listing/Component/ViewLisitng';
-import UpdateListing from 'views/admin/Listing/Component/UpdateListing';
-import SettingPage from 'views/admin/Listing/Component/settings/index';
-import OfferView from 'views/admin/hiring/interviewedCandidates/OfferView';
 import TakeSurvey from 'views/admin/survey/TakeSurvey';
-import LeaderBoard from 'views/admin/survey/LeaderBoard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
-import { useFetchItemsQuery } from 'api/apiSlice';
 
-const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
-const MainDashboard = React.lazy(() => import('views/admin/default'));
-const SignInCentered = React.lazy(() => import('views/auth/signIn'));
-const UserPage = React.lazy(() => import('views/admin/users'));
-// const LeadPool = React.lazy(() => import('views/admin/leadpool'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
-const HRModule = React.lazy(() => import('views/admin/hrModule'));
-// const Lead = React.lazy(() => import('views/admin/lead'));
-const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 
-const LeadPoolVersion2 = React.lazy(() => import('views/admin/leadPool-v2'));
-const CurrencyPoints = React.lazy(() => import('views/admin/currencypoints'));
-
-const Attendance = React.lazy(() => import('views/admin/attendance'));
-const AttendenceV2 = React.lazy(
-	() => import('views/admin/attendance/AttendenceV2')
-);
-
-const Employees = React.lazy(
-	() => import('views/admin/attendance/components/employees')
-);
-const Records = React.lazy(
-	() => import('views/admin/attendance/components/records')
-);
-const MyAttendance = React.lazy(
-	() => import('views/admin/attendance/components/myAttendance')
-);
 const AttendanceDashboard = React.lazy(
 	() => import('views/admin/attendance/components/dashboard')
 );
-
-const UserView = React.lazy(() => import('views/admin/users/View'));
-
-const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
-const BankAccounts = React.lazy(() => import('views/admin/bankAccountsV2'));
-const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
-const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
-const InvoiceDevelopers = React.lazy(
-	() => import('views/admin/invoice/developers')
-);
-
-const DeveloperInvoices = React.lazy(
-	() => import('views/admin/invoice/developers/DeveloperInvoices')
-);
-const Listing = React.lazy(() => import('views/admin/Listing'));
-const Survey = React.lazy(() => import('views/admin/survey'));
-const DealsScreen = React.lazy(() => import('views/admin/deals'));
 
 export default function User(props) {
 	const { ...rest } = props;
@@ -105,14 +33,16 @@ export default function User(props) {
 	const [fixed] = useState(false);
 	const [toggleSidebar, setToggleSidebar] = useState(false);
 	const [openSidebar, setOpenSidebar] = useState(true);
-	const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
 
 	const { data: whatsappUser } = useFetchItemsQuery(
 		{
 			path: `whatsapp/users/${user?._id}`,
 		},
 		{
-			skip: !user?._id || user?.role === 'superAdmin',
+			skip: !user?._id || isSuperAdmin,
 		}
 	);
 
@@ -122,186 +52,20 @@ export default function User(props) {
 		return window.location.pathname !== '/admin/full-screen-maps';
 	};
 
-	const filterAccess = (rolesData) => {
-		return rolesData?.map((role) => {
-			role.access = role?.access?.filter(
-				(access) =>
-					access.create || access.update || access.delete || access.view
-			);
-			return role;
-		});
-	};
-
-	// Example usage:
-	const updatedRolesData = filterAccess(user?.roles);
-	let access = [];
-	updatedRolesData?.map((item) => {
-		item?.access?.map((data) => access.push(data));
-	});
-
-	let mergedPermissions = {};
-
-	access.forEach((permission) => {
-		const { title, ...rest } = permission;
-
-		if (!mergedPermissions[title]) {
-			mergedPermissions[title] = { ...rest };
-		} else {
-			// Merge with priority to true values
-			Object.keys(rest).forEach((key) => {
-				if (mergedPermissions[title][key] !== true) {
-					mergedPermissions[title][key] = rest[key];
-				}
-			});
-		}
-	});
-
 	let routes = [
-		{
-			name: 'Dashboard',
-			layout: [ROLE_PATH.user],
-			path: '/default',
-			icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
-			component: MainDashboard,
-		},
-
-		{
-			name: 'Lead',
-			layout: [ROLE_PATH.user],
-			path: '/lead',
-			icon: (
-				<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadScreen,
-		},
-
-		{
-			name: 'Leads Pool',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/pool',
-			icon: (
-				<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
-			),
-			component: LeadPoolAgent,
-		},
-
-		{
-			name: 'Deals',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/deals',
-			icon: (
-				<Icon as={FaHandshake} width='20px' height='20px' color='inherit' />
-			),
-			component: DealsScreen,
-		},
-
-		{
-			name: 'Attendance',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/attendance',
-			icon: (
-				<Icon
-					as={FaRegCalendarCheck}
-					width='20px'
-					height='20px'
-					color='inherit'
-				/>
-			),
-			component: AttendenceV2,
-		},
-		{
-			name: 'My Attendance',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/attendance/employees/:id',
-			under: 'my-attendance',
-			parentName: 'Attendance',
-			component: MyAttendance,
-		},
-		{
-			name: 'Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing',
-			icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
-			component: Listing,
-		},
-		{
-			name: 'Adding Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/add-listing',
-			under: 'listing',
-			parentName: 'Listing',
-			component: AddListing,
-		},
-		{
-			name: 'View Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/view-listing/:id',
-			under: 'listing',
-			parentName: 'Listing',
-			component: ViewListing,
-		},
-		{
-			name: 'Update Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/update/:id',
-			under: 'listing',
-			parentName: 'Listing',
-			component: UpdateListing,
-		},
+		...configRoutes,
 		// {
-		// 	name: 'HR Module',
-		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		// 	path: '/hrmodule',
+		// 	moduleId: 'leadpool_agents',
+		// 	name: 'Leads Pool',
+		// 	layout: [ROLE_PATH.user],
+		// 	path: '/pool',
 		// 	icon: (
-		// 		<Icon as={FaUserCircle} width='20px' height='20px' color='inherit' />
+		// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
 		// 	),
-		// 	component: HRModule,
+		// 	component: LeadPoolAgent,
 		// },
-
 		{
-			name: 'Sign In',
-			layout: '/auth',
-			path: '/sign-in',
-			icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
-			component: SignInCentered,
-		},
-		// {
-		// 	name: 'Points',
-		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		// 	path: '/points',
-		// 	icon: (
-		// 		<Icon as={FaDollarSign} width='20px' height='20px' color='inherit' />
-		// 	),
-		// 	component: CurrencyPoints,
-		// },
-
-		{
-			name: 'User View',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			parentName: 'Users',
-			under: 'users',
-			path: '/userView/:id',
-			component: UserView,
-		},
-
-		{
-			name: 'Survey',
-			layout: [ROLE_PATH.user],
-			path: '/survey',
-			icon: (
-				<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-			),
-			component: Survey,
-		},
-		{
-			name: 'Survey Board',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/survey/survey-leader-board',
-			under: 'Survey',
-			parentName: 'Survey',
-			component: LeaderBoard,
-		},
-		{
+			moduleId: 'survey',
 			name: 'Take Survey',
 			layout: [ROLE_PATH.user],
 			path: '/survey/take-survey/:id',
@@ -311,21 +75,49 @@ export default function User(props) {
 		},
 	];
 
-	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Users',
-			layout: [ROLE_PATH.user],
-			path: '/user',
-			icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-			component: UserPage,
-		});
-		// Remove the "Leads Pool" route
-		routes = routes.filter((route) => route.name !== 'Leads Pool');
+	// insert "Lead Pool" at index 3 (after Leads)
+	// routes.splice(3, 0, {
+	// 	name: 'Leads Pool',
+	// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	path: '/pool',
+	// 	icon: (
+	// 		<Icon as={MdPeopleOutline} width='20px' height='20px' color='inherit' />
+	// 	),
+	// 	component: LeadPoolAgent,
+	// 	moduleId: 'leadpool_agents',
+	// });
+
+	if (userRoleName === 'Attendance') {
+		// Define the "Candidates" route
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'attendance'
+		);
+
+		const attendanceRoutes = [
+			{
+				moduleId: 'attendance',
+				name: 'Attendance',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/attendance/dashboard',
+				icon: (
+					<Icon
+						as={FaRegCalendarCheck}
+						width='20px'
+						height='20px'
+						color='inherit'
+					/>
+				),
+				component: AttendanceDashboard,
+			},
+		];
+
+		routes = [...filterRoutes, ...attendanceRoutes];
 	}
 
 	// if user has whatsapp and also enable then show it
 	if (whatsappActive) {
 		routes.push({
+			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/whatsapp/chat',
@@ -334,404 +126,28 @@ export default function User(props) {
 		});
 	}
 
-	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Adding Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/add-listing',
-			under: 'listing',
-			parentName: 'Listing',
-			component: AddListing,
-		});
-		// Remove the "Adding Listing" route
-		routes = routes.filter((route) => route.name !== 'Adding Listing');
-	}
-	if (user?.roles[0]?.roleName === 'Manager') {
-		routes.push({
-			name: 'Update Listing',
-			layout: [ROLE_PATH.user],
-			path: '/listing/update/:id',
-			under: 'listing',
-			parentName: 'Listing',
-			component: UpdateListing,
-		});
-		// Remove the "Updating Listing" route
-		routes = routes.filter((route) => route.name !== 'Update Listing');
-	}
+	// filter the only allowed routes (modules)
+	const finalRoutes = routes?.filter((route) => {
+		if (!route.moduleId) return true;
+		return hasPermission(route.moduleId);
+	});
 
-	if (user?.roles[0]?.roleName === 'HR') {
-		// Define the "Candidates" route
-		const hiringRoutes = [
-			{
-				name: 'Hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring',
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Office Settings',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/office-settings/:id',
-				under: 'office-settings',
-				component: OfficeSettings,
-			},
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Attendance,
-			},
+	console.log({ initialRoutes: routes, finalRoutes });
 
-			{
-				name: 'Attendance Dashboard',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: AttendanceDashboard,
-			},
-			{
-				name: 'Employees',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees',
-				under: 'employees',
-				parentName: 'Attendance',
-				component: Employees,
-			},
-			{
-				name: 'Attendance Record',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/record',
-				under: 'attendance-record',
-				parentName: 'Attendance',
-				component: Records,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
+	const defaultRoute =
+		finalRoutes.filter(
+			(route) => route.layout !== '/auth' || route.under !== 'users'
+		)[0]?.path || '/default';
 
-			{
-				name: 'Offer View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/interviewed-candidates/offer-letter/view/:id',
-				under: 'offerView',
-				parentName: 'Hiring',
-				component: OfferView,
-			},
+	// const accessRoute = newRoute?.filter((item) =>
+	// 	Object.keys(mergedPermissions)?.find(
+	// 		(data) =>
+	// 			data?.toLowerCase() === item?.name?.toLowerCase() ||
+	// 			data?.toLowerCase() === item.parentName?.toLowerCase()
+	// 	)
+	// );
 
-			{
-				name: 'Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey',
-				icon: (
-					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-				),
-				component: Survey,
-			},
-			{
-				name: 'Survey Board',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/survey/survey-leader-board',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: LeaderBoard,
-			},
-			{
-				name: 'Take Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey/take-survey/:id',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: TakeSurvey,
-			},
-			// Task management Task V2
-			{
-				name: 'Task',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/task',
-				icon: <Icon as={FaTasks} width='20px' height='20px' color='inherit' />,
-				component: TaskV2,
-			},
-		];
-
-		// 	// Only show the "Hiring" route for HR role
-		routes = hiringRoutes;
-	}
-	if (user?.roles[0]?.roleName === 'Developer') {
-		const developerRoutes = [
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: MyAttendance,
-			},
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-		];
-
-		routes = developerRoutes;
-	}
-
-	if (user?.roles[0]?.roleName === 'Attendance') {
-		// Define the "Candidates" route
-		const attendanceRoutes = [
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: AttendanceDashboard,
-			},
-
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-		];
-
-		routes = attendanceRoutes;
-	}
-
-	if (user?.roles[0]?.roleName === 'accountant') {
-		const accountantRoutes = [
-			{
-				name: 'User View',
-				layout: [ROLE_PATH.user],
-				parentName: 'Users',
-				under: 'users',
-				path: '/userView/:id',
-				component: UserView,
-			},
-
-			// ------------- Invoice Module Routes ------------------------ //
-			{
-				name: 'Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={HiOutlineDocumentReport}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				path: '/invoice',
-				component: InvoiceModule,
-			},
-			{
-				name: 'Bank Accounts',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/invoice/bank-accounts',
-				parentName: 'Invoice',
-				under: 'bank-accounts',
-				component: BankAccounts,
-			},
-			{
-				name: 'Invoice Developers',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers',
-				parentName: 'Invoice',
-				component: InvoiceDevelopers,
-			},
-			{
-				name: 'Developer Invoices',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'developer-invoices',
-				path: '/invoice/developers/invoices/:id',
-				parentName: 'Invoice',
-				component: DeveloperInvoices,
-			},
-			{
-				name: 'Single Invoice',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'single-invoice',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/view/:id',
-				component: SingleInvoice,
-			},
-			{
-				name: 'Invoice Entries',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				under: 'invoice-entries',
-				parentName: 'Invoice',
-				path: '/invoice/developers/invoices/entries/:id',
-				component: AddEntry,
-			},
-			{
-				name: 'Expenses',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-
-				path: '/expenses',
-				icon: (
-					<Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />
-				),
-				component: Expenses,
-			},
-			{
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance',
-				icon: (
-					<Icon
-						as={FaRegCalendarCheck}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Attendance,
-			},
-			{
-				name: 'My Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/employees/:id',
-				under: 'my-attendance',
-				parentName: 'Attendance',
-				component: MyAttendance,
-			},
-
-			{
-				name: 'Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey',
-				icon: (
-					<Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />
-				),
-				component: Survey,
-			},
-			{
-				name: 'Survey Board',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/survey/survey-leader-board',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: LeaderBoard,
-			},
-			{
-				name: 'Take Survey',
-				layout: [ROLE_PATH.user],
-				path: '/survey/take-survey/:id',
-				under: 'Survey',
-				parentName: 'Survey',
-				component: TakeSurvey,
-			},
-		];
-
-		routes = accountantRoutes;
-	}
-
-	const accessRoute = newRoute?.filter((item) =>
-		Object.keys(mergedPermissions)?.find(
-			(data) =>
-				data?.toLowerCase() === item?.name?.toLowerCase() ||
-				data?.toLowerCase() === item.parentName?.toLowerCase()
-		)
-	);
-
-	routes.push(...accessRoute);
-
-	if (user?.roles[0]?.roleName === 'Manager') {
-		// Define the new routes to be inserted
-		const newRoutes = [
-			{
-				name: 'Announcement',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/announcements',
-				icon: (
-					<Icon as={MdCampaign} width='20px' height='20px' color='inherit' />
-				),
-				component: Announcements,
-			},
-			{
-				name: 'Hiring',
-				path: '/hiring',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				icon: (
-					<Icon
-						as={FaClipboardUser}
-						width='20px'
-						height='20px'
-						color='inherit'
-					/>
-				),
-				component: Hiring,
-			},
-			{
-				name: 'Short Listed',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/hiring/short-listed',
-				under: 'shortListed',
-				parentName: 'Hiring',
-				component: ShortListedCandidates,
-			},
-			{
-				name: 'Interview',
-				layout: [ROLE_PATH.user, ROLE_PATH.superAdmin],
-				path: '/hiring/interview/:interviewId',
-				under: 'interview',
-				parentName: 'Hiring',
-				component: InterviewScreen,
-			},
-		];
-
-		// Insert the new routes at index 3 and 4
-		routes.splice(3, 0, ...newRoutes);
-	}
+	// routes.push(...accessRoute);
 
 	const getActiveRoute = (routes) => {
 		if (!Array.isArray(routes)) {
@@ -934,7 +350,7 @@ export default function User(props) {
 					}}
 				>
 					<Sidebar
-						routes={routes}
+						routes={finalRoutes}
 						display='none'
 						{...rest}
 						openSidebar={openSidebar}
@@ -971,13 +387,13 @@ export default function User(props) {
 							<Box className='header'>
 								<Navbar
 									onOpen={onOpen}
-									logoText={'Horizon UI Dashboard PRO'}
-									brandText={getActiveRoute(routes)}
-									secondary={getActiveNavbar(routes)}
-									message={getActiveNavbarText(routes)}
+									logoText={'Weeam CRM'}
+									brandText={getActiveRoute(finalRoutes)}
+									secondary={getActiveNavbar(finalRoutes)}
+									message={getActiveNavbarText(finalRoutes)}
 									fixed={fixed}
-									routes={routes}
-									under={under(routes)}
+									routes={finalRoutes}
+									under={under(finalRoutes)}
 									largeLogo={largeLogo}
 									openSidebar={openSidebar}
 									setOpenSidebar={setOpenSidebar}
@@ -1010,64 +426,10 @@ export default function User(props) {
 										<Routes>
 											{getRoutes(routes)}
 
-											{user?.roles[0]?.roleName === 'HR' ? (
-												<>
-													<Route
-														path='/*'
-														element={<Navigate to='/hiring' />}
-													/>
-													<Route path='hiring'>
-														<Route path='candidates' element={<Candidates />} />
-														<Route
-															path='interview-candidates'
-															element={<interviewCandidates />}
-														/>
-														<Route
-															path='short-listed'
-															element={<ShortListedCandidates />}
-														/>
-														<Route
-															path='interview/:interviewId'
-															element={<InterviewScreen />}
-														/>
-														<Route
-															path='interviewed-candidates'
-															element={<InterviewedCandidates />}
-														/>
-														<Route
-															path='interviewed-candidates/offer-letter/:id'
-															element={<OfferLetter />}
-														/>
-														<Route
-															path='interviewed-candidates/offer-letter/veiw/:id'
-															element={<OfferView />}
-														/>
-													</Route>
-												</>
-											) : user?.roles[0]?.roleName === 'accountant' ? (
-												<>
-													<Route
-														path='/*'
-														element={<Navigate to='/invoice' />}
-													/>
-												</>
-											) : user?.roles[0]?.roleName === 'Attendance' ? (
-												<>
-													<Route
-														path='/*'
-														element={<Navigate to='/attendance/dashboard' />}
-													/>
-												</>
-											) : user?.roles[0]?.roleName === 'Developer' ? (
-												<>
-													<Route
-														path='/*'
-														element={<Navigate to='/attendance' />}
-													/>
-												</>
-											) : (
-												<Route path='/*' element={<Navigate to='/default' />} />
-											)}
+											<Route
+												path='/*'
+												element={<Navigate to={defaultRoute} />}
+											/>
 										</Routes>
 									</Suspense>
 								</Box>
@@ -1082,3 +444,48 @@ export default function User(props) {
 		</Box>
 	);
 }
+
+// {
+// 	userRoleName === 'HR' ? (
+// 		<>
+// 			<Route path='/*' element={<Navigate to={defaultRoute} />} />
+// 			{/* <Route path='hiring'>
+// 												<Route path='candidates' element={<Candidates />} />
+// 												<Route
+// 													path='interview-candidates'
+// 													element={<interviewCandidates />}
+// 												/>
+// 												<Route
+// 													path='short-listed'
+// 													element={<ShortListedCandidates />}
+// 												/>
+// 												<Route
+// 													path='interview/:interviewId'
+// 													element={<InterviewScreen />}
+// 												/>
+// 												<Route
+// 													path='interviewed-candidates'
+// 													element={<InterviewedCandidates />}
+// 												/>
+// 												<Route
+// 													path='interviewed-candidates/offer-letter/:id'
+// 													element={<OfferLetter />}
+// 												/>
+// 												<Route
+// 													path='interviewed-candidates/offer-letter/veiw/:id'
+// 													element={<OfferView />}
+// 												/>
+// 											</Route> */}
+// 		</>
+// 	) : userRoleName === 'Attendance' ? (
+// 		<>
+// 			<Route path='/*' element={<Navigate to='/attendance/dashboard' />} />
+// 		</>
+// 	) : userRoleName === 'Developer' ? (
+// 		<>
+// 			<Route path='/*' element={<Navigate to='/attendance' />} />
+// 		</>
+// 	) : (
+// 		<Route path='/*' element={<Navigate to={defaultRoute} />} />
+// 	);
+// }

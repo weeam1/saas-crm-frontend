@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Pagination from './components/Pagination';
 import { getApi, putApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -11,11 +11,20 @@ import { sendLeadNotification } from 'api';
 import { formattedDate } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 // lead for admin
 const LeadScreen = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('leadpool_admin')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.some((role) => role.roleName === 'agent');
