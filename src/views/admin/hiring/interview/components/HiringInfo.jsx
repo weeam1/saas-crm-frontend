@@ -9,12 +9,15 @@ import {
 	FormErrorMessage,
 	Button,
 	Checkbox,
+	useDisclosure,
 } from '@chakra-ui/react';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { jobTypes } from 'utils/options';
 import RejectedCandidate from './RejectedCandidate';
+import InterviewNoteModal from './InterviewNoteModal';
+import { toast } from 'react-toastify';
 
 const HiringInfo = ({
 	interview,
@@ -23,6 +26,12 @@ const HiringInfo = ({
 	positionOptions,
 	updatingInterview,
 }) => {
+	const {
+		isOpen: isInterviewNoteOpen,
+		onOpen: onInterviewNoteOpen,
+		onClose: onInterviewNoteClose,
+	} = useDisclosure();
+
 	const initialValues = {
 		position: interview?.candidate?.position._id || '',
 		jobType: interview?.jobType || '',
@@ -30,6 +39,7 @@ const HiringInfo = ({
 		commission: interview?.commission || '',
 		incentive: interview?.incentive || '',
 		isNextRound: false,
+		interviewNote: '',
 	};
 
 	const isFinalRound = interview.currentRound === 'final';
@@ -71,6 +81,7 @@ const HiringInfo = ({
 	const formik = useFormik({
 		initialValues,
 		validationSchema,
+
 		onSubmit: (values) => {
 			onSubmit(values); // Proceed to the next step
 			setHiringData(values);
@@ -80,6 +91,30 @@ const HiringInfo = ({
 	useEffect(() => {
 		setHiringData(formik.values);
 	}, [formik.values, setHiringData]);
+
+	const handleEndInterview = async () => {
+		const isValid = await formik
+			.validateForm()
+			.then((errors) => Object.keys(errors).length === 0);
+
+		if (isValid) {
+			onInterviewNoteOpen();
+		} else
+			toast.warning(
+				'Please complete all required fields before ending the interview.'
+			);
+	};
+
+	const submitInterview = ({ note }) => {
+		if (note && note.trim() !== '') {
+			setHiringData((values) => ({
+				...values,
+				interviewNote: note.trim(),
+			}));
+		}
+		formik.handleSubmit();
+		onInterviewNoteClose();
+	};
 
 	return (
 		<Box w='full'>
@@ -282,12 +317,20 @@ const HiringInfo = ({
 						_active={{ bg: '#D4AC50' }}
 						w='full'
 						mt={6}
-						type='submit'
+						onClick={handleEndInterview}
 					>
 						{updatingInterview ? 'Loading...' : 'End Interview'}
 					</Button>
 				</form>
 			</Box>
+
+			{isInterviewNoteOpen && (
+				<InterviewNoteModal
+					isOpen={isInterviewNoteOpen}
+					onClose={onInterviewNoteClose}
+					onSubmit={submitInterview}
+				/>
+			)}
 		</Box>
 	);
 };

@@ -257,7 +257,7 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 										</Td>
 
 										{/* Actions */}
-										<Td>
+										<Td width='fit-content'>
 											<HStack alignItems='center'>
 												{hasPermission('survey', 'delete') && (
 													<CustomTooltip label='Delete Survey'>
