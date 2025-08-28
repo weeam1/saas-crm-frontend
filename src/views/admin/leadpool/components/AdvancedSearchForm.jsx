@@ -290,7 +290,7 @@ const AdvancedSearchForm = (props) => {
 							value={values['agentAssigned']}
 						>
 							<option value=''>Select agent</option>
-							{agents.map((agent) => (
+							{agents.filter(agent => agent.isActive === true ).map((agent) => (
 								<option key={agent._id} value={agent._id}>
 									{agent.name}
 								</option>
