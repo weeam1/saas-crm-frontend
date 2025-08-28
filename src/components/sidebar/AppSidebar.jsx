@@ -199,7 +199,7 @@ export default function AppSidebar({
 	const Brand = (
 		<Flex
 			align='center'
-			h='64px'
+			minH='64px'
 			px={6}
 			borderBottomWidth='1px'
 			borderColor={border}
@@ -268,6 +268,22 @@ export default function AppSidebar({
 				p={2}
 				w={'100%'}
 				overflowY='auto'
+				sx={{
+					// ChatGPT-like scrollbar
+					'&::-webkit-scrollbar': {
+						width: '6px',
+					},
+					'&::-webkit-scrollbar-thumb': {
+						background: 'gray.200',
+						borderRadius: '10px',
+					},
+					'&::-webkit-scrollbar-thumb:hover': {
+						background: 'gray.300',
+					},
+					'&::-webkit-scrollbar-track': {
+						background: 'transparent',
+					},
+				}}
 			>
 				<VStack align='stretch' spacing={1}>
 					{visibleRoutes.map((r) => (

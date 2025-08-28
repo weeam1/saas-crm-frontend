@@ -1,22 +1,7 @@
-// AppNavbar.js
-import {
-	Box,
-	Flex,
-	IconButton,
-	Image,
-	Heading,
-	useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 import { AiOutlineMenuUnfold, AiOutlineMenuFold } from 'react-icons/ai';
-import { Link as RouterLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import BrandLogo from 'assets/logo/logo.png';
-import { buildPermissionMap } from 'utils/permissionUtils';
-import { setPermissions } from './../../redux/permissionSlice';
-import { useEffect } from 'react';
-import { getApi } from 'services/api';
 import useUserSession from 'hooks/useUserSession';
-import { useDispatch } from 'react-redux';
 import AdminNavbarLinks from './NavbarLinksAdmin';
 import { useIsMobile } from 'hooks/useIsMobile';
 
@@ -53,7 +38,7 @@ export default function AppNavbar({
 			borderBottom='1px solid'
 			borderColor={borderColor}
 			transition='all 0.3s ease'
-			zIndex='10000'
+			zIndex='10'
 			px='6'
 		>
 			<Flex align='center' justify='space-between' h='100%'>
@@ -66,13 +51,13 @@ export default function AppNavbar({
 					justifyContent='center'
 					fontSize='20px'
 					bg='transparent'
-					p='0' // 🔑 remove padding
-					m='0' // 🔑 remove margin
-					border='none' // 🔑 remove native border
-					outline='none' // 🔑 remove focus outline
-					_hover={{ bg: 'transparent' }} // no hover bg
-					_active={{ bg: 'transparent', transform: 'none' }} // no click shrink
-					_focus={{ boxShadow: 'none' }} // no blue ring
+					p='0'
+					m='0'
+					border='none'
+					outline='none'
+					_hover={{ bg: 'transparent' }}
+					_active={{ bg: 'transparent', transform: 'none' }}
+					_focus={{ boxShadow: 'none' }}
 					cursor='pointer'
 				>
 					{openSidebar ? <AiOutlineMenuFold /> : <AiOutlineMenuUnfold />}

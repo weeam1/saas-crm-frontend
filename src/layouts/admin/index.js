@@ -58,29 +58,31 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			(route) => route.moduleId !== 'attendance'
 		);
 
-		appSidebarRoutes = [
-			...filterSidebarRoutes,
-			{
-				moduleId: 'attendance',
-				name: 'Attendance',
-				path: '/attendance/dashboard',
-				icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
-			},
-		];
+		console.log({ dashobard: hasPermission('attendance', 'dashboard') });
 
-		console.log({ appSidebarRoutes });
+		if (hasPermission('attendance', 'dashboard')) {
+			appSidebarRoutes = [
+				...filterSidebarRoutes,
+				{
+					moduleId: 'attendance',
+					name: 'Attendance',
+					path: '/attendance/dashboard',
+					icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+				},
+			];
 
-		const attendanceRoutes = [
-			{
-				moduleId: 'attendance',
-				name: 'Attendance',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/attendance/dashboard',
-				component: AttendanceDashboard,
-			},
-		];
+			const attendanceRoutes = [
+				{
+					moduleId: 'attendance',
+					name: 'Attendance',
+					layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+					path: '/attendance/dashboard',
+					component: AttendanceDashboard,
+				},
+			];
 
-		appRoutes = [...filterRoutes, ...attendanceRoutes];
+			appRoutes = [...filterRoutes, ...attendanceRoutes];
+		}
 	}
 
 	// if user has whatsapp and also enable then show it

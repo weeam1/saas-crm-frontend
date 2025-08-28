@@ -9,6 +9,7 @@ import {
 import { FiSettings } from 'react-icons/fi';
 import { usePermissions } from 'hooks/usePermissions';
 import { useEffect } from 'react';
+import useUserSession from 'hooks/useUserSession';
 
 const NavigationBoxes = () => {
 	const navigate = useNavigate();
@@ -19,9 +20,7 @@ const NavigationBoxes = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
 
 	const allMenuItems = [
 		{
@@ -36,21 +35,18 @@ const NavigationBoxes = () => {
 			icon: FaUserCheck,
 			route: `/attendance/employees/${user?._id}`,
 		},
-		{
-			label: 'Office Settings',
-			icon: FiSettings,
-			route: `/office-settings/${user?.agency?._id}`,
-		},
+		// {
+		// 	label: 'Office Settings',
+		// 	icon: FiSettings,
+		// 	route: `/office-settings/${user?.agency?._id}`,
+		// },
 	];
 
 	// Show all items for superAdmin and HR; otherwise, only show "My Attendance"
 	const menuItems =
-		role === 'superAdmin' || role === 'Attendance'
-			? allMenuItems.filter(
-					(item) =>
-						item.label !== 'My Attendance' && item.label !== 'Office Settings'
-				)
-			: role === 'HR'
+		isSuperAdmin || isAdmin
+			? allMenuItems.filter((item) => item.label !== 'My Attendance')
+			: userRoleName === 'HR'
 				? allMenuItems
 				: allMenuItems.filter((item) => item.label === 'My Attendance');
 

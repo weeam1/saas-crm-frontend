@@ -136,8 +136,10 @@ const RealTimeData = ({
 						{stats.map((stat, index) => (
 							<Box
 								key={index}
-								as={RouterLink}
-								to={stat.link}
+								as={hasPermission('attendance', 'record') ? RouterLink : 'div'}
+								to={
+									hasPermission('attendance', 'record') ? stat.link : undefined
+								}
 								cursor='pointer'
 								p={6}
 								borderRadius='lg'
