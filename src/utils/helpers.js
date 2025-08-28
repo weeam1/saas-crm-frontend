@@ -276,7 +276,6 @@ export const mergeSort = (arr) => {
 	const mid = Math.floor(arr.length / 2);
 	const left = mergeSort(arr.slice(0, mid));
 	const right = mergeSort(arr.slice(mid));
-
 	return merge(left, right);
 };
 
@@ -391,4 +390,8 @@ export const formatCallDuration = (seconds) => {
 export const formatName = (name) => {
 	if (!name) return '';
 	return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+};
+
+export const removeDisableUser = (arr) => {
+	return arr.filter((user) => user.isActive === true);
 };

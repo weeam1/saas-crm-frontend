@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 
+import { removeDisableUser } from 'utils/helpers';
 const { GridItem, FormLabel, Text, Select, Box } = require('@chakra-ui/react');
 
 const ManagerAgentForm = ({
@@ -63,7 +64,7 @@ const ManagerAgentForm = ({
 							value={values['managerAssigned']}
 						>
 							<option value=''>Select manager</option>
-							{tree?.managers?.map((manager) => (
+							{removeDisableUser(tree?.managers)?.map((manager) => (
 								<option key={manager._id} value={manager._id}>
 									{manager.firstName} {manager.lastName}
 								</option>
@@ -100,12 +101,12 @@ const ManagerAgentForm = ({
 						>
 							<option value=''>Select agent</option>
 							{filteredAgents?.length
-								? filteredAgents.map((agent) => (
+								? removeDisableUser(filteredAgents)?.map((agent) => (
 										<option key={agent._id} value={agent._id}>
 											{agent.firstName} {agent.lastName}
 										</option>
 									))
-								: allAgents?.map((agent) => (
+								: removeDisableUser(allAgents).map((agent) => (
 										<option key={agent._id} value={agent._id}>
 											{agent.firstName} {agent.lastName}
 										</option>
@@ -141,11 +142,13 @@ const ManagerAgentForm = ({
 							value={values['agentAssigned']}
 						>
 							<option value=''>Select agent</option>
-							{tree?.agents[`manager-${user._id}`]?.map((agent) => (
-								<option key={agent._id} value={agent._id}>
-									{agent.firstName} {agent.lastName}
-								</option>
-							))}
+							{removeDisableUser(tree?.agents[`manager-${user._id}`]).map(
+								(agent) => (
+									<option key={agent._id} value={agent._id}>
+										{agent.firstName} {agent.lastName}
+									</option>
+								)
+							)}
 							<option value={-1}>No Agent</option>
 						</Select>
 					</Box>
