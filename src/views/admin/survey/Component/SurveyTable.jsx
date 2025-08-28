@@ -9,8 +9,7 @@ import {
 	Td,
 	Text,
 	Button,
-	Tooltip,
-	Flex,
+	HStack,
 	Badge,
 	useDisclosure,
 	Modal,
@@ -24,12 +23,7 @@ import {
 	Alert,
 	AlertIcon,
 } from '@chakra-ui/react';
-import {
-	DeleteIcon,
-	ViewIcon,
-	EditIcon,
-	CheckCircleIcon,
-} from '@chakra-ui/icons';
+import { DeleteIcon, ViewIcon } from '@chakra-ui/icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDeleteItemMutation } from 'api/apiSlice';
@@ -38,6 +32,9 @@ import NoData from 'components/Message/NoData';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import CustomTooltip from '../../../../components/shared/CustomTooltip';
+import CheckIcon from 'assets/icons/check.png';
+import { Image } from '@chakra-ui/react';
 
 const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 	const columns = [
@@ -260,74 +257,91 @@ const SurveyTable = ({ data, isLoading, isFetching, viewLoading, refetch }) => {
 										</Td>
 
 										{/* Actions */}
-										<Td py={4} textAlign='center'>
-											<Flex>
+										<Td>
+											<HStack alignItems='center'>
 												{hasPermission('survey', 'delete') && (
-													<Tooltip label='Delete Survey' hasArrow>
+													<CustomTooltip label='Delete Survey'>
 														<Button
-															variant='ghost'
-															colorScheme='red'
-															size='sm'
+															bg='red.500'
+															color='white'
+															h='6'
+															py='2'
+															px='4'
+															fontSize='xs'
+															fontWeight='normal'
+															shadow='sm'
+															rounded='md'
+															flex={1}
+															_hover={{ bg: 'red.300' }}
+															_active={{ bg: 'red.400' }}
 															onClick={() => handleDeleteClick(survey._id)}
 														>
-															<DeleteIcon />
+															Delete
 														</Button>
-													</Tooltip>
+													</CustomTooltip>
 												)}
 												{hasPermission('survey', 'read') && (
-													<Tooltip label='View Survey' hasArrow>
+													<CustomTooltip label='View Survey'>
 														<Button
-															variant='ghost'
-															colorScheme='yellow'
-															size='sm'
-															_disabled={{
-																opacity: 0.6,
-																cursor: 'not-allowed',
-															}}
+															bg='#EDC270'
+															color='gray.800'
+															h='6'
+															w={'100%'}
+															py='2'
+															px='4'
+															fontSize='xs'
+															fontWeight='normal'
+															shadow='sm'
+															rounded='md'
+															_hover={{ bg: '#E0B960' }}
+															_active={{ bg: '#D4AC50' }}
 															onClick={() =>
 																navigate(`/survey/view-survey/${survey._id}`)
 															}
 														>
-															<ViewIcon />
+															View survey
 														</Button>
-													</Tooltip>
+													</CustomTooltip>
 												)}
 
-												{!isOwner && (
-													<Tooltip
-														label={
-															isSurveyCompleted
-																? 'Survey Completed'
-																: 'Take Survey'
-														}
-														hasArrow
-													>
-														<Button
-															variant='ghost'
-															colorScheme={
-																isSurveyCompleted ? 'gray' : 'yellow'
-															}
-															size='sm'
-															isDisabled={isSurveyCompleted}
-															_disabled={{
-																opacity: 0.6,
-																cursor: 'not-allowed',
-															}}
-															onClick={() => {
-																if (!isSurveyCompleted) {
-																	navigate(`/survey/take-survey/${survey._id}`);
-																}
-															}}
-														>
-															{isSurveyCompleted ? (
-																<CheckCircleIcon />
-															) : (
-																<EditIcon />
-															)}
-														</Button>
-													</Tooltip>
-												)}
-											</Flex>
+												{!isOwner &&
+													(!isSurveyCompleted ? (
+														<CustomTooltip label={'Take Survey'}>
+															<Button
+																bg={'#EDC270'}
+																color='gray.800'
+																h='6'
+																py='2'
+																px='4'
+																fontSize='xs'
+																fontWeight='normal'
+																shadow='sm'
+																rounded='md'
+																_hover={{ bg: '#E0B960' }}
+																_active={{
+																	bg: '#D4AC50',
+																}}
+																onClick={() => {
+																	if (!isSurveyCompleted) {
+																		navigate(
+																			`/survey/take-survey/${survey._id}`
+																		);
+																	}
+																}}
+															>
+																Take Survey
+															</Button>
+														</CustomTooltip>
+													) : (
+														<CustomTooltip label='Survey Completed'>
+															<Image
+																src={CheckIcon}
+																alt='Completed'
+																boxSize='24px'
+															/>
+														</CustomTooltip>
+													))}
+											</HStack>
 										</Td>
 									</Tr>
 								);
