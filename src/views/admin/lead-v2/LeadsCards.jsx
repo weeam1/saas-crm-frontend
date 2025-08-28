@@ -203,6 +203,9 @@ const LeadsCards = ({ handleView, view }) => {
 								aria-label='Bulk Whatsapp Message'
 							>
 								Bulk Whatsapp
+								{selectedValues?.length > 0
+									? ` (${selectedValues?.length})`
+									: null}
 							</Button>
 						)}
 
