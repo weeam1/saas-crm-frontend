@@ -126,6 +126,7 @@ const Leads = ({
     if (searchTags?.length === 0) {
       setSelectedLeads([]);
       setSelectedValues([]);
+      setCurrentPageSelection([])
       setSearchClear(false);
       return;
     }

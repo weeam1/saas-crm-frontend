@@ -215,25 +215,23 @@ const LeadsCards = ({ handleView, view }) => {
               </Button> // count added
             )}
 
-
-						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
-							<Button
-								{...buttonStyle}
-								onClick={openWhatsappModal}
-								isDisabled={!(selectedValues && selectedValues?.length > 1)}
-								variant='solid'
-								bg='whatsapp.500'
-								_active={{ bg: 'whatsapp.600' }}
-								py='2'
-								px='5'
-								aria-label='Bulk Whatsapp Message'
-							>
-								Bulk Whatsapp
-								{selectedValues?.length > 0
-									? ` (${selectedValues?.length})`
-									: null}
-							</Button> // count added
-						)}
+            {hasPermission("leads", "bulkAssign") && (
+              <Button
+                {...buttonStyle}
+                onClick={() => setBulkAssign(true)}
+                isDisabled={!(selectedValues && selectedValues?.length > 1)}
+                variant="solid"
+                bg="brand.400"
+                py="2"
+                px="5"
+                aria-label="Bulk Assign"
+              >
+                Bulk Assign
+                {selectedValues?.length > 0
+                  ? ` (${selectedValues?.length})`
+                  : null}
+              </Button>
+            )}
 
             {hasPermission("leads", "create") && (
               <Button
