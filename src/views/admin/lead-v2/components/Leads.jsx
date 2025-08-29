@@ -135,7 +135,7 @@ const Leads = ({
     setSearchClear(false);
     setRefetchLoading(true);
     // setSelectedLeads([]);
-    // setSelectedValues([]);
+    // setSelectedValues([]); // commented to retain selected leads on clear
     clearSearchParams();
   };
 
