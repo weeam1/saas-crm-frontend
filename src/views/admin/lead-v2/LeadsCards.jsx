@@ -205,8 +205,8 @@ const LeadsCards = ({ handleView, view }) => {
 								Bulk Whatsapp
 								{selectedValues?.length > 0
 									? ` (${selectedValues?.length})`
-									: null}
-							</Button>
+									: null} 
+							</Button> // count added 
 						)}
 
 						{hasPermission('leads', 'bulkAssign') && (
