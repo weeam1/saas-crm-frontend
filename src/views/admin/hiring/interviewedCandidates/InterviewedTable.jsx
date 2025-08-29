@@ -13,6 +13,7 @@ import {
 	Button,
 	HStack,
 	useDisclosure,
+	Tooltip,
 } from '@chakra-ui/react';
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import TableLoading from 'components/loading/TableLoading';
@@ -20,7 +21,7 @@ import FlagBadge from '../_components/FlagBadge';
 import OfferLetterIcon from './OfferLetterIcon';
 import FeedbackView from './FeedbackView';
 import { useState } from 'react';
-import { MdVisibility } from 'react-icons/md';
+import { MdOutlineNoteAlt, MdVisibility } from 'react-icons/md';
 import InterviewStatusBadge from './InterviewStatusBadge';
 import { RiUserForbidLine } from 'react-icons/ri';
 
@@ -216,20 +217,48 @@ const InterviewedTable = ({
 												)}
 
 												{item?.status === 'rejected' && (
-													<IconButton
-														aria-label='Rejected Reason'
-														icon={<RiUserForbidLine />}
-														size='xs'
-														colorScheme='red'
-														variant='solid'
-														onClick={() => {
-															setFeedback({
-																message: item.rejectionReason,
-																title: 'Rejection Reason',
-															});
-															onOpen();
-														}}
-													/>
+													<Tooltip
+														label='Rejection Reason'
+														hasArrow
+														placement='top'
+													>
+														<IconButton
+															aria-label='Rejected Reason'
+															icon={<RiUserForbidLine />}
+															size='xs'
+															colorScheme='red'
+															variant='solid'
+															onClick={() => {
+																setFeedback({
+																	message: item.rejectionReason,
+																	title: 'Rejection Reason',
+																});
+																onOpen();
+															}}
+														/>
+													</Tooltip>
+												)}
+												{item?.interviewNote && (
+													<Tooltip
+														label='Interview Note'
+														hasArrow
+														placement='top'
+													>
+														<IconButton
+															aria-label='Interview note'
+															icon={<MdOutlineNoteAlt />}
+															size='xs'
+															colorScheme='green'
+															variant='solid'
+															onClick={() => {
+																setFeedback({
+																	message: item.interviewNote,
+																	title: 'Interview Note',
+																});
+																onOpen();
+															}}
+														/>
+													</Tooltip>
 												)}
 
 												{item.status === 'end' && (

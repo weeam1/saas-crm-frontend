@@ -66,7 +66,7 @@ const LeadsCards = ({ handleView, view }) => {
 	const [errorModal, setErrorModal] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 	const [manageCols, setManageCols] = useState(false);
-
+	const [currentPageSelection, setCurrentPageSelection] = useState({});
 	const hiddenFields = JSON.parse(
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
@@ -138,20 +138,20 @@ const LeadsCards = ({ handleView, view }) => {
 		}
 	};
 
-	const openWhatsappModal = () => {
-		if (selectedValues.length > 50) {
-			return toast.error(
-				'Bulk WhatsApp messages are limited to 50 leads. Please select fewer recipients.'
-			);
-		}
-		setBulkWhatsappMessage(true);
-	};
-
 	const onBulkMessageSuccess = () => {
 		setSelectedLeads([]);
 		setSelectedValues([]);
 		setSelectAllChecked(false);
 		setBulkWhatsappMessage(false);
+	};
+
+	const openWhatsappModal = () => {
+		// if (selectedValues.length > 50) {
+		// 	return toast.error(
+		// 		'Bulk WhatsApp messages are limited to 50 leads. Please select fewer recipients.'
+		// 	);
+		// }
+		setBulkWhatsappMessage(true);
 	};
 
 	return (
@@ -173,7 +173,6 @@ const LeadsCards = ({ handleView, view }) => {
 					<span style={{ marginRight: '4px' }}>Leads</span>
 					<CountUpComponent targetNumber={leads?.totalLeads} />
 				</Text>
-
 				{/* Action buttons only for Admins */}
 				<HStack
 					flexDirection={{ base: 'column', md: 'row' }}
@@ -184,10 +183,13 @@ const LeadsCards = ({ handleView, view }) => {
 					<Flex wrap='wrap' gap='2'>
 						<AllCheckBox
 							leads={leads}
-							setSelectAllChecked={setSelectAllChecked}
 							selectedValues={selectedValues}
-							setSelectedValues={setSelectedValues}
 							setSelectedLeads={setSelectedLeads}
+							setSelectedValues={setSelectedValues}
+							selectAllChecked={selectAllChecked}
+							setSelectAllChecked={setSelectAllChecked}
+							currentPage={currentPage}
+							pageSize={pageSize}
 						/>
 
 						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
@@ -203,7 +205,10 @@ const LeadsCards = ({ handleView, view }) => {
 								aria-label='Bulk Whatsapp Message'
 							>
 								Bulk Whatsapp
-							</Button>
+								{selectedValues?.length > 0
+									? ` (${selectedValues?.length})`
+									: null}
+							</Button> // count added
 						)}
 
 						{hasPermission('leads', 'bulkAssign') && (
@@ -223,7 +228,6 @@ const LeadsCards = ({ handleView, view }) => {
 									: null}
 							</Button>
 						)}
-
 						{hasPermission('leads', 'create') && (
 							<Button
 								{...buttonStyle}
@@ -286,6 +290,8 @@ const LeadsCards = ({ handleView, view }) => {
 				selectAllChecked={selectAllChecked}
 				dateTimeIsOpen={dateTimeIsOpen}
 				dateTimeOnClose={dateTimeOnClose}
+				setCurrentPageSelection={setCurrentPageSelection}
+				currentPageSelection={currentPageSelection}
 			/>
 
 			{bulkAssign && selectedValues?.length && (
