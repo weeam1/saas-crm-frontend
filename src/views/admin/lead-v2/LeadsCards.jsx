@@ -66,7 +66,7 @@ const LeadsCards = ({ handleView, view }) => {
 	const [errorModal, setErrorModal] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 	const [manageCols, setManageCols] = useState(false);
-
+	const [currentPageSelection, setCurrentPageSelection] = useState({});
 	const hiddenFields = JSON.parse(
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
@@ -138,6 +138,13 @@ const LeadsCards = ({ handleView, view }) => {
 		}
 	};
 
+	const onBulkMessageSuccess = () => {
+		setSelectedLeads([]);
+		setSelectedValues([]);
+		setSelectAllChecked(false);
+		setBulkWhatsappMessage(false);
+	};
+
 	const openWhatsappModal = () => {
 		// if (selectedValues.length > 50) {
 		// 	return toast.error(
@@ -145,13 +152,6 @@ const LeadsCards = ({ handleView, view }) => {
 		// 	);
 		// }
 		setBulkWhatsappMessage(true);
-	};
-
-	const onBulkMessageSuccess = () => {
-		setSelectedLeads([]);
-		setSelectedValues([]);
-		setSelectAllChecked(false);
-		setBulkWhatsappMessage(false);
 	};
 
 	return (
@@ -184,10 +184,13 @@ const LeadsCards = ({ handleView, view }) => {
 					<Flex wrap='wrap' gap='2'>
 						<AllCheckBox
 							leads={leads}
-							setSelectAllChecked={setSelectAllChecked}
 							selectedValues={selectedValues}
-							setSelectedValues={setSelectedValues}
 							setSelectedLeads={setSelectedLeads}
+							setSelectedValues={setSelectedValues}
+							selectAllChecked={selectAllChecked}
+							setSelectAllChecked={setSelectAllChecked}
+							currentPage={currentPage}
+							pageSize={pageSize}
 						/>
 
 						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
@@ -226,7 +229,6 @@ const LeadsCards = ({ handleView, view }) => {
 									: null}
 							</Button>
 						)}
-
 						{hasPermission('leads', 'create') && (
 							<Button
 								{...buttonStyle}
@@ -289,6 +291,8 @@ const LeadsCards = ({ handleView, view }) => {
 				selectAllChecked={selectAllChecked}
 				dateTimeIsOpen={dateTimeIsOpen}
 				dateTimeOnClose={dateTimeOnClose}
+				setCurrentPageSelection={setCurrentPageSelection}
+				currentPageSelection={currentPageSelection}
 			/>
 
 			{bulkAssign && selectedValues?.length && (

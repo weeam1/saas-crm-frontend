@@ -40,6 +40,8 @@ const Leads = ({
   dateTimeIsOpen,
   dateTimeOnClose,
   // queryParams,
+  setCurrentPageSelection,
+  currentPageSelection
 }) => {
   const [permission, emailAccess, callAccess] = HasAccess([
     "Lead",
@@ -161,6 +163,25 @@ const Leads = ({
 
   // Handle page changes
   const handlePageChange = (page) => {
+    setCurrentPageSelection((prev) => ({
+      ...prev,
+      [currentPage]: {
+        selectAllChecked,
+        selectedValues: selectedValues.filter((id) =>
+          leads?.doc?.some((lead) => lead._id === id)
+        ),
+      },
+    }));
+
+    if (currentPageSelection[page]) {
+      setSelectAllChecked(currentPageSelection[page].selectAllChecked);
+      setSelectedValues((prev) => [
+        ...new Set([...prev, ...currentPageSelection[page].selectedValues]),
+      ]);
+    } else {
+      setSelectAllChecked(false);
+    }
+
     setCurrentPage((prevPage) => {
       if (prevPage === page) return prevPage;
       setRefetchLoading(true);
