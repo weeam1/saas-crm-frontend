@@ -74,9 +74,7 @@ const SidebarItem = React.memo(function SidebarItem({
 			role='link'
 			data-testid={`sidebar-link-${route.moduleId}`}
 			transition='background 200ms ease'
-			display={'flex'}
-			flexDir={collapsed ? 'column' : 'row'}
-			alignItems={collapsed ? 'center' : 'none'}
+			alignItems={'center'}
 		>
 			<Box
 				as='span'
@@ -269,7 +267,6 @@ export default function AppSidebar({
 				w={'100%'}
 				overflowY='auto'
 				sx={{
-					// ChatGPT-like scrollbar
 					'&::-webkit-scrollbar': {
 						width: '6px',
 					},
