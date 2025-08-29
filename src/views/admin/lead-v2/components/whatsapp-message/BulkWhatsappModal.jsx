@@ -224,7 +224,7 @@ const BulkWhatsappModal = ({
 
 	return (
 		<>
-			<Modal isOpen={isOpen} onClose={onClose} size='3xl' isCentered>
+			<Modal isOpen={isOpen} onClose={onClose} size='6xl' isCentered>
 				<ModalOverlay backdropFilter='blur(2px)' />
 				<ModalContent borderRadius='xl' boxShadow='xl' m={2}>
 					<ModalHeader
@@ -241,7 +241,7 @@ const BulkWhatsappModal = ({
 
 					<ModalBody
 						py={4}
-						maxHeight='50vh'
+						maxHeight={{ base: '50vh', md: '60vh', lg: '70vh' }}
 						overflowY='auto'
 						scrollBehavior='smooth'
 					>
@@ -281,17 +281,20 @@ const BulkWhatsappModal = ({
 								</Box>
 
 								<Box>
-									<Text fontSize='md' fontWeight='bold'>
+									<Text fontSize='md' mb='2' fontWeight='bold'>
 										Select a template
 									</Text>
 
 									<SimpleGrid
 										columns={1}
 										spacing={1}
-										maxHeight='50vh'
+										maxHeight={{ base: '20vh', md: '30vh', lg: '40vh' }}
 										overflowY='auto'
 										scrollBehavior='smooth'
-										p='2'
+										bg='softGray.100'
+										rounded='md'
+										p='4'
+										mb='4'
 									>
 										{filteredTemplates?.map((template) => (
 											<Box

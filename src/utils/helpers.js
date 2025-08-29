@@ -73,7 +73,7 @@ export const validatePhoneNumber = (phoneNumber) => {
 	if (!phoneNumber) return null;
 
 	// Remove all spaces
-	let sanitized = phoneNumber.replace(/\s+/g, '');
+	let sanitized = phoneNumber.toString().replace(/\s+/g, '');
 
 	// Remove leading '+' or '00'
 	if (sanitized.startsWith('+')) {

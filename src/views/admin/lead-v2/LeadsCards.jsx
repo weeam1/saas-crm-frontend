@@ -139,11 +139,11 @@ const LeadsCards = ({ handleView, view }) => {
 	};
 
 	const openWhatsappModal = () => {
-		if (selectedValues.length > 50) {
-			return toast.error(
-				'Bulk WhatsApp messages are limited to 50 leads. Please select fewer recipients.'
-			);
-		}
+		// if (selectedValues.length > 50) {
+		// 	return toast.error(
+		// 		'Bulk WhatsApp messages are limited to 50 leads. Please select fewer recipients.'
+		// 	);
+		// }
 		setBulkWhatsappMessage(true);
 	};
 
@@ -205,8 +205,8 @@ const LeadsCards = ({ handleView, view }) => {
 								Bulk Whatsapp
 								{selectedValues?.length > 0
 									? ` (${selectedValues?.length})`
-									: null} 
-							</Button> // count added 
+									: null}
+							</Button> // count added
 						)}
 
 						{hasPermission('leads', 'bulkAssign') && (
