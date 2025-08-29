@@ -189,7 +189,7 @@ const LeadStatusPieChart = ({ data }) => {
 				mt={4}
 				colorScheme='brand'
 				size='md'
-				onClick={() => navigate('/pool')}
+				onClick={() => navigate('/agent_pool')}
 			>
 				Buy Leads
 			</Button>

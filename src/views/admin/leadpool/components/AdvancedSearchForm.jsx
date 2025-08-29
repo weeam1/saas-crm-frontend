@@ -1,246 +1,246 @@
-import { useMemo } from "react";
-import { mainLeadStatus } from "utils/options";
-import { leadStatus } from "utils/options";
+import { useMemo } from 'react';
+import { mainLeadStatus } from 'utils/options';
+import { leadStatus } from 'utils/options';
 // import ManagerAgentForm from "./ManagerAgentForm";
-import { removeDisableUser } from "utils/helpers";
+import { removeDisableUser } from 'utils/helpers';
 
 const {
-  Grid,
-  GridItem,
-  FormLabel,
-  Input,
-  Text,
-  Select,
-  Box,
-} = require("@chakra-ui/react");
+	Grid,
+	GridItem,
+	FormLabel,
+	Input,
+	Text,
+	Select,
+	Box,
+} = require('@chakra-ui/react');
 
 const AdvancedSearchForm = (props) => {
-  const {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-    user,
-    tree,
-    agents,
-  } = props;
+	const {
+		values,
+		errors,
+		touched,
+		handleChange,
+		handleBlur,
+		user,
+		tree,
+		agents,
+	} = props;
 
-  const isSuperAdmin = user.role === "superAdmin";
-  const isAgent = user?.roles[0]?.roleName === "Agent";
+	const isSuperAdmin = user.role === 'superAdmin';
+	const isAgent = user?.roles[0]?.roleName === 'Agent';
 
-  // Define field configurations
-  const allFields = useMemo(
-    () => [
-      { name: "leadName", label: "Name", placeholder: "Enter Lead Name" },
-      { name: "leadEmail", label: "Email", placeholder: "Enter Lead Email" },
-      {
-        name: "nationality",
-        label: "Nationality",
-        placeholder: "Search by Nationality",
-      },
-      {
-        name: "ip",
-        label: "Country Source",
-        placeholder: "Search by Country Source",
-      },
-      {
-        name: "leadAddress",
-        label: "Lead Address",
-        placeholder: "Search by Address",
-      },
-      {
-        name: "leadCampaign",
-        label: "Lead Campaign",
-        placeholder: "Search by Campaign",
-      },
-      {
-        name: "leadSourceDetails",
-        label: "Source Content",
-        placeholder: "Search by Source Content",
-      },
-      {
-        name: "leadSourceMedium",
-        label: "Source Medium",
-        placeholder: "Search by Source Medium",
-      },
-      {
-        name: "pageUrl",
-        label: "Campaign URL",
-        placeholder: "Search by Campaign URL",
-      },
-      {
-        name: "r_u_in_uae",
-        label: "Are You in UAE?",
-        placeholder: "Search by UAE Status",
-      },
-      {
-        name: "leadLang",
-        label: "Lead Language",
-        placeholder: "Search by Language",
-      },
-      {
-        name: "lastNote",
-        label: "Last Note",
-        placeholder: "Search by last note",
-      },
-      {
-        name: "budget",
-        label: "Budget",
-        placeholder: "Search by Budget",
-      },
-      {
-        name: "timetocall",
-        label: "Time To Call",
-        placeholder: "Search by time to call",
-      },
-      // {
-      // 	name: "createdAt",
-      // 	label: "Date And Time",
-      // 	placeholder: "Search by date and time",
-      // },
-    ],
-    []
-  );
+	// Define field configurations
+	const allFields = useMemo(
+		() => [
+			{ name: 'leadName', label: 'Name', placeholder: 'Enter Lead Name' },
+			{ name: 'leadEmail', label: 'Email', placeholder: 'Enter Lead Email' },
+			{
+				name: 'nationality',
+				label: 'Nationality',
+				placeholder: 'Search by Nationality',
+			},
+			{
+				name: 'ip',
+				label: 'Country Source',
+				placeholder: 'Search by Country Source',
+			},
+			{
+				name: 'leadAddress',
+				label: 'Lead Address',
+				placeholder: 'Search by Address',
+			},
+			{
+				name: 'leadCampaign',
+				label: 'Lead Campaign',
+				placeholder: 'Search by Campaign',
+			},
+			{
+				name: 'leadSourceDetails',
+				label: 'Source Content',
+				placeholder: 'Search by Source Content',
+			},
+			{
+				name: 'leadSourceMedium',
+				label: 'Source Medium',
+				placeholder: 'Search by Source Medium',
+			},
+			{
+				name: 'pageUrl',
+				label: 'Campaign URL',
+				placeholder: 'Search by Campaign URL',
+			},
+			{
+				name: 'r_u_in_uae',
+				label: 'Are You in UAE?',
+				placeholder: 'Search by UAE Status',
+			},
+			{
+				name: 'leadLang',
+				label: 'Lead Language',
+				placeholder: 'Search by Language',
+			},
+			{
+				name: 'lastNote',
+				label: 'Last Note',
+				placeholder: 'Search by last note',
+			},
+			{
+				name: 'budget',
+				label: 'Budget',
+				placeholder: 'Search by Budget',
+			},
+			{
+				name: 'timetocall',
+				label: 'Time To Call',
+				placeholder: 'Search by time to call',
+			},
+			// {
+			// 	name: "createdAt",
+			// 	label: "Date And Time",
+			// 	placeholder: "Search by date and time",
+			// },
+		],
+		[]
+	);
 
-  // Define fields to display based on roles
-  const displayedFields = useMemo(() => {
-    if (isAgent) {
-      return allFields; // Show all fields to agents
-    }
+	// Define fields to display based on roles
+	const displayedFields = useMemo(() => {
+		if (isAgent) {
+			return allFields; // Show all fields to agents
+		}
 
-    if (isSuperAdmin) {
-      // Show only specific fields to super admins
-      return allFields.filter((field) =>
-        [
-          "leadName",
-          "requestedByAgent",
-          "nationality",
-          "leadEmail",
-          "status",
-        ].includes(field.name)
-      );
-    }
+		if (isSuperAdmin) {
+			// Show only specific fields to super admins
+			return allFields.filter((field) =>
+				[
+					'leadName',
+					'requestedByAgent',
+					'nationality',
+					'leadEmail',
+					'status',
+				].includes(field.name)
+			);
+		}
 
-    // Default: Show all fields for other roles
-    return allFields;
-  }, [isSuperAdmin, isAgent, allFields]);
-  // Utility function for rendering fields
-  const renderField = (field) => (
-    <GridItem key={field.name}>
-      <FormLabel
-        display="flex"
-        ms="4px"
-        fontSize="sm"
-        fontWeight="600"
-        color="#000"
-        mb="0"
-        mt={2}
-      >
-        {field.label}
-      </FormLabel>
-      <Input
-        fontSize="sm"
-        onChange={handleChange}
-        onBlur={handleBlur}
-        value={values[field.name]}
-        name={field.name}
-        placeholder={field.placeholder}
-        fontWeight="500"
-      />
-      <Text mb="10px" color="red">
-        {errors[field.name] && touched[field.name] && errors[field.name]}
-      </Text>
-    </GridItem>
-  );
+		// Default: Show all fields for other roles
+		return allFields;
+	}, [isSuperAdmin, isAgent, allFields]);
+	// Utility function for rendering fields
+	const renderField = (field) => (
+		<GridItem key={field.name}>
+			<FormLabel
+				display='flex'
+				ms='4px'
+				fontSize='sm'
+				fontWeight='600'
+				color='#000'
+				mb='0'
+				mt={2}
+			>
+				{field.label}
+			</FormLabel>
+			<Input
+				fontSize='sm'
+				onChange={handleChange}
+				onBlur={handleBlur}
+				value={values[field.name]}
+				name={field.name}
+				placeholder={field.placeholder}
+				fontWeight='500'
+			/>
+			<Text mb='10px' color='red'>
+				{errors[field.name] && touched[field.name] && errors[field.name]}
+			</Text>
+		</GridItem>
+	);
 
-  const leadStatusFilter = ["deal", "deal_out"];
+	const leadStatusFilter = ['deal', 'deal_out'];
 
-  return (
-    <Grid
-      overflow="scroll"
-      height={isSuperAdmin ? "30vh" : "45vh"}
-      p="2"
-      templateColumns={{
-        base: "repeat(1, 1fr)",
-        md: "repeat(3,1fr)",
-        lg: isSuperAdmin ? "repeat(3,1fr)" : "repeat(4,1fr)",
-      }}
-      mb={3}
-      gap={3}
-    >
-      {displayedFields.map(renderField)}
+	return (
+		<Grid
+			overflow='scroll'
+			height={isSuperAdmin ? '30vh' : '45vh'}
+			p='2'
+			templateColumns={{
+				base: 'repeat(1, 1fr)',
+				md: 'repeat(3,1fr)',
+				lg: isSuperAdmin ? 'repeat(3,1fr)' : 'repeat(4,1fr)',
+			}}
+			mb={3}
+			gap={3}
+		>
+			{displayedFields.map(renderField)}
 
-      {/* Lead Status Field */}
-      <GridItem>
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="600"
-          color="#000"
-          mb="0"
-          mt={2}
-        >
-          Lead Status
-        </FormLabel>
-        <Select
-          value={values?.leadStatus}
-          fontSize="sm"
-          name="leadStatus"
-          onChange={handleChange}
-          fontWeight="500"
-          placeholder="Select Lead Status"
-        >
-          {leadStatus
-            ?.filter((item) => !leadStatusFilter.includes(item.value))
-            ?.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-        </Select>
-        <Text mb="10px" color="red">
-          {errors.leadStatus && touched.leadStatus && errors.leadStatus}
-        </Text>
-      </GridItem>
+			{/* Lead Status Field */}
+			<GridItem>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Lead Status
+				</FormLabel>
+				<Select
+					value={values?.leadStatus}
+					fontSize='sm'
+					name='leadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Lead Status'
+				>
+					{leadStatus
+						?.filter((item) => !leadStatusFilter.includes(item.value))
+						?.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
+				</Text>
+			</GridItem>
 
-      {/* Extra Status Field */}
-      <GridItem>
-        <FormLabel
-          display="flex"
-          ms="4px"
-          fontSize="sm"
-          fontWeight="600"
-          color="#000"
-          mb="0"
-          mt={2}
-        >
-          Main Status
-        </FormLabel>
-        <Select
-          value={values?.eLeadStatus}
-          fontSize="sm"
-          name="eLeadStatus"
-          onChange={handleChange}
-          fontWeight="500"
-          placeholder="Select Main Lead Status"
-        >
-          {mainLeadStatus
-            ?.filter((item) => item.value !== "deal")
-            ?.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          <option value="-1">No MStatus</option>
-        </Select>
-        <Text mb="10px" color="red">
-          {errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
-        </Text>
-      </GridItem>
-      {/* Extra Status Field */}
-      {/* <GridItem colSpan={{ base: 12, md: 6 }}>
+			{/* Extra Status Field */}
+			<GridItem>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Main Status
+				</FormLabel>
+				<Select
+					value={values?.eLeadStatus}
+					fontSize='sm'
+					name='eLeadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Main Lead Status'
+				>
+					{mainLeadStatus
+						?.filter((item) => item.value !== 'deal')
+						?.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
+					<option value='-1'>No MStatus</option>
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+			{/* Extra Status Field */}
+			{/* <GridItem colSpan={{ base: 12, md: 6 }}>
 					<FormLabel
 						display="flex"
 						ms="4px"
@@ -270,44 +270,44 @@ const AdvancedSearchForm = (props) => {
 						{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
 					</Text>
 				</GridItem> */}
-				
-      {isSuperAdmin && (
-        <GridItem>
-          <FormLabel
-            display="flex"
-            ms="4px"
-            fontSize="sm"
-            fontWeight="600"
-            color="#000"
-            mb="0"
-            mt={2}
-          >
-            Requested By Agent
-          </FormLabel>
-          <Box>
-            <Select
-              name="agentAssigned"
-              onChange={handleChange}
-              value={values["agentAssigned"]}
-            >
-              <option value="">Select agent</option>
-              {removeDisableUser(agents).map((agent) => (
-                <option key={agent._id} value={agent._id}>
-                  {agent.name}
-                </option>
-              ))}
-              {/* <option value={-1}>No Agent</option> */}
-            </Select>
-          </Box>
-          <Text mb="10px" color="red">
-            {errors.agentAssigned &&
-              touched.agentAssigned &&
-              errors.agentAssigned}
-          </Text>
-        </GridItem>
-      )}
-    </Grid>
-  );
+
+			{isSuperAdmin && (
+				<GridItem>
+					<FormLabel
+						display='flex'
+						ms='4px'
+						fontSize='sm'
+						fontWeight='600'
+						color='#000'
+						mb='0'
+						mt={2}
+					>
+						Requested By Agent
+					</FormLabel>
+					<Box>
+						<Select
+							name='agentAssigned'
+							onChange={handleChange}
+							value={values['agentAssigned']}
+						>
+							<option value=''>Select agent</option>
+							{removeDisableUser(agents).map((agent) => (
+								<option key={agent._id} value={agent._id}>
+									{agent.name}
+								</option>
+							))}
+							{/* <option value={-1}>No Agent</option> */}
+						</Select>
+					</Box>
+					<Text mb='10px' color='red'>
+						{errors.agentAssigned &&
+							touched.agentAssigned &&
+							errors.agentAssigned}
+					</Text>
+				</GridItem>
+			)}
+		</Grid>
+	);
 };
 
 export default AdvancedSearchForm;

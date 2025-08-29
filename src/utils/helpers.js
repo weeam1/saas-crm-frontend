@@ -1,94 +1,94 @@
-import moment from "moment";
+import moment from 'moment';
 
 export const currentTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export const formatLastMessageTime = (timestamp) => {
-  if (!timestamp) return "";
+	if (!timestamp) return '';
 
-  // Fallback to browser timezone if none provided
-  const tz = localStorage.getItem("timezone_cache") || currentTZ;
+	// Fallback to browser timezone if none provided
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
 
-  // Create moment object with proper timezone
-  const m = moment(timestamp).tz(tz);
+	// Create moment object with proper timezone
+	const m = moment(timestamp).tz(tz);
 
-  // Within last minute → "Now"
-  if (moment().tz(tz).diff(m) < 60 * 1000) {
-    return "Now";
-  }
+	// Within last minute → "Now"
+	if (moment().tz(tz).diff(m) < 60 * 1000) {
+		return 'Now';
+	}
 
-  // Today → Show time (e.g., "2:30 PM")
-  if (m.isSame(moment().tz(tz), "day")) {
-    return m.format("h:mm A");
-  }
+	// Today → Show time (e.g., "2:30 PM")
+	if (m.isSame(moment().tz(tz), 'day')) {
+		return m.format('h:mm A');
+	}
 
-  // Yesterday → "Yesterday"
-  if (m.isSame(moment().tz(tz).subtract(1, "day"), "day")) {
-    return "Yesterday";
-  }
+	// Yesterday → "Yesterday"
+	if (m.isSame(moment().tz(tz).subtract(1, 'day'), 'day')) {
+		return 'Yesterday';
+	}
 
-  // This year → Show day/month (e.g., "May 27")
-  if (m.isSame(moment().tz(tz), "year")) {
-    return m.format("MMM D");
-  }
+	// This year → Show day/month (e.g., "May 27")
+	if (m.isSame(moment().tz(tz), 'year')) {
+		return m.format('MMM D');
+	}
 
-  // Older than current year → Full date (e.g., "27/05/2023")
-  return m.format("DD/MM/YYYY");
+	// Older than current year → Full date (e.g., "27/05/2023")
+	return m.format('DD/MM/YYYY');
 };
 
 export const formattedDate = (_date) => {
-  if (_date === "") {
-    return "";
-  }
+	if (_date === '') {
+		return '';
+	}
 
-  const date = new Date(_date);
+	const date = new Date(_date);
 
-  // Get the formatted date
-  const options = {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
-  const formattedDate = date.toLocaleDateString("en-US", options);
+	// Get the formatted date
+	const options = {
+		weekday: 'short',
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+	};
+	const formattedDate = date.toLocaleDateString('en-US', options);
 
-  return formattedDate;
+	return formattedDate;
 };
 
 export const formatCurrency = (amount, currency) => {
-  return new Intl.NumberFormat("en-AE", {
-    style: "currency",
-    currency: currency || "AED",
-    maximumFractionDigits: 0,
-  }).format(amount);
+	return new Intl.NumberFormat('en-AE', {
+		style: 'currency',
+		currency: currency || 'AED',
+		maximumFractionDigits: 0,
+	}).format(amount);
 };
 
 export const toCapitalCase = (str) =>
-  str
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+	str
+		.toLowerCase()
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
 
 export const validatePhoneNumber = (phoneNumber) => {
-  if (!phoneNumber) return null;
+	if (!phoneNumber) return null;
 
-  // Remove all spaces
-  let sanitized = phoneNumber.replace(/\s+/g, "");
+	// Remove all spaces
+	let sanitized = phoneNumber.toString().replace(/\s+/g, '');
 
-  // Remove leading '+' or '00'
-  if (sanitized.startsWith("+")) {
-    sanitized = sanitized.slice(1);
-  } else if (sanitized.startsWith("00")) {
-    sanitized = sanitized.slice(2);
-  }
+	// Remove leading '+' or '00'
+	if (sanitized.startsWith('+')) {
+		sanitized = sanitized.slice(1);
+	} else if (sanitized.startsWith('00')) {
+		sanitized = sanitized.slice(2);
+	}
 
-  // Validate: starts with non-zero digit and 10-15 digits long
-  if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
-    console.log("invalid number", sanitized);
-    return null;
-  }
+	// Validate: starts with non-zero digit and 10-15 digits long
+	if (!/^[1-9]\d{9,14}$/.test(sanitized)) {
+		console.log('invalid number', sanitized);
+		return null;
+	}
 
-  return sanitized;
+	return sanitized;
 };
 
 // export const validatePhoneNumber = (phoneNumber) => {
@@ -173,169 +173,169 @@ export const validatePhoneNumber = (phoneNumber) => {
 // };
 
 export const formatPostDate = (date, timezone) => {
-  try {
-    // Create moment objects with timezone handling
-    const now = timezone ? moment().tz(timezone) : moment();
-    const inputDate = timezone ? moment(date).tz(timezone) : moment(date);
+	try {
+		// Create moment objects with timezone handling
+		const now = timezone ? moment().tz(timezone) : moment();
+		const inputDate = timezone ? moment(date).tz(timezone) : moment(date);
 
-    if (!inputDate.isValid()) return "Invalid date";
+		if (!inputDate.isValid()) return 'Invalid date';
 
-    // Calculate difference in seconds
-    const diffSeconds = now.diff(inputDate, "seconds");
+		// Calculate difference in seconds
+		const diffSeconds = now.diff(inputDate, 'seconds');
 
-    // Relative time formats
-    if (diffSeconds < 60) return "now";
-    if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`;
-    if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)}h ago`;
+		// Relative time formats
+		if (diffSeconds < 60) return 'now';
+		if (diffSeconds < 3600) return `${Math.floor(diffSeconds / 60)} min ago`;
+		if (diffSeconds < 86400) return `${Math.floor(diffSeconds / 3600)}h ago`;
 
-    // Format full date with timezone
-    return inputDate.format("ddd DD MMM YY, hh:mm A");
-  } catch (error) {
-    console.error("Date formatting error:", error);
-    return "Invalid date";
-  }
+		// Format full date with timezone
+		return inputDate.format('ddd DD MMM YY, hh:mm A');
+	} catch (error) {
+		console.error('Date formatting error:', error);
+		return 'Invalid date';
+	}
 };
 
 export const toUTCString = (date) => {
-  return date
-    ? moment(date).utcOffset(0, true).startOf("day").toISOString()
-    : null;
+	return date
+		? moment(date).utcOffset(0, true).startOf('day').toISOString()
+		: null;
 };
 
 export const formatDNS = (dateStr) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+	const date = new Date(dateStr);
+	return date.toLocaleDateString('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+	});
 };
 
 export const extractLocationData = (ipString, countryNames) => {
-  const countryList = new Set(countryNames);
+	const countryList = new Set(countryNames);
 
-  if (ipString === null) {
-    return { ip: null, country: null, city: null };
-  }
+	if (ipString === null) {
+		return { ip: null, country: null, city: null };
+	}
 
-  const parts = ipString?.split("-").map((part) => part.trim());
+	const parts = ipString?.split('-').map((part) => part.trim());
 
-  let ip = null,
-    city = null,
-    country = null;
+	let ip = null,
+		city = null,
+		country = null;
 
-  const isValidIPv4 = (str) => {
-    const octets = str.split(".");
-    return (
-      octets.length === 4 &&
-      octets.every(
-        (octet) =>
-          /^\d+$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255
-      )
-    );
-  };
+	const isValidIPv4 = (str) => {
+		const octets = str.split('.');
+		return (
+			octets.length === 4 &&
+			octets.every(
+				(octet) =>
+					/^\d+$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255
+			)
+		);
+	};
 
-  // If first part is a valid IPv4 address or a pure number, set it as IP
-  if (isValidIPv4(parts[0]) || /^\d*$/.test(parts[0])) {
-    ip = parts.shift(); // Remove IP so remaining parts are city & country
-  }
+	// If first part is a valid IPv4 address or a pure number, set it as IP
+	if (isValidIPv4(parts[0]) || /^\d*$/.test(parts[0])) {
+		ip = parts.shift(); // Remove IP so remaining parts are city & country
+	}
 
-  if (parts.length === 2) {
-    const firstPartLower = parts[0].toLowerCase();
-    const secondPartLower = parts[1].toLowerCase();
+	if (parts.length === 2) {
+		const firstPartLower = parts[0].toLowerCase();
+		const secondPartLower = parts[1].toLowerCase();
 
-    if (countryList.has(secondPartLower)) {
-      city = parts[0];
-      country = parts[1];
-    } else if (countryList.has(firstPartLower)) {
-      country = parts[0];
-      city = parts[1]; // Handle misplaced country
-    } else {
-      city = parts[0];
-      country = null;
-    }
-  } else if (parts.length === 1) {
-    const partLower = parts[0].toLowerCase();
-    country = countryList.has(partLower) ? parts[0] : null;
-    city = country ? null : parts[0];
-  }
+		if (countryList.has(secondPartLower)) {
+			city = parts[0];
+			country = parts[1];
+		} else if (countryList.has(firstPartLower)) {
+			country = parts[0];
+			city = parts[1]; // Handle misplaced country
+		} else {
+			city = parts[0];
+			country = null;
+		}
+	} else if (parts.length === 1) {
+		const partLower = parts[0].toLowerCase();
+		country = countryList.has(partLower) ? parts[0] : null;
+		city = country ? null : parts[0];
+	}
 
-  return { ip, city, country };
+	return { ip, city, country };
 };
 
 export const renderValue = (value) => {
-  if (!value) return "No data";
-  if (typeof value === "string" || typeof value === "number") return value;
-  if (typeof value === "object" && value.text) return value.text;
-  return "Invalid data";
+	if (!value) return 'No data';
+	if (typeof value === 'string' || typeof value === 'number') return value;
+	if (typeof value === 'object' && value.text) return value.text;
+	return 'Invalid data';
 };
 
 export const mergeSort = (arr) => {
-  if (arr.length <= 1) return arr;
-  
-  const mid = Math.floor(arr.length / 2);
-  const left = mergeSort(arr.slice(0, mid));
-  const right = mergeSort(arr.slice(mid));
-  return merge(left, right);
+	if (arr.length <= 1) return arr;
+
+	const mid = Math.floor(arr.length / 2);
+	const left = mergeSort(arr.slice(0, mid));
+	const right = mergeSort(arr.slice(mid));
+	return merge(left, right);
 };
 
 const merge = (left, right) => {
-  let sortedArr = [];
-  let i = 0,
-    j = 0;
+	let sortedArr = [];
+	let i = 0,
+		j = 0;
 
-  while (i < left.length && j < right.length) {
-    if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
-      sortedArr.push(left[i]);
-      i++;
-    } else {
-      sortedArr.push(right[j]);
-      j++;
-    }
-  }
+	while (i < left.length && j < right.length) {
+		if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
+			sortedArr.push(left[i]);
+			i++;
+		} else {
+			sortedArr.push(right[j]);
+			j++;
+		}
+	}
 
-  return [...sortedArr, ...left.slice(i), ...right.slice(j)];
+	return [...sortedArr, ...left.slice(i), ...right.slice(j)];
 };
 
 export const BRAND_COLORS = [
-  "#B79045",
-  "#D99A36",
-  "#E5B668",
-  "#EDD199",
-  "#F5ECCB",
+	'#B79045',
+	'#D99A36',
+	'#E5B668',
+	'#EDD199',
+	'#F5ECCB',
 ];
 
 export const formattedValue = (value, precision = 0) =>
-  Number(value).toLocaleString(undefined, {
-    minimumFractionDigits: precision,
-    maximumFractionDigits: precision,
-  });
+	Number(value).toLocaleString(undefined, {
+		minimumFractionDigits: precision,
+		maximumFractionDigits: precision,
+	});
 
 export const formatTime = (seconds) => {
-  const safeSeconds = Math.max(0, seconds);
-  const mins = Math.floor(safeSeconds / 60);
-  const secs = Math.floor(safeSeconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+	const safeSeconds = Math.max(0, seconds);
+	const mins = Math.floor(safeSeconds / 60);
+	const secs = Math.floor(safeSeconds % 60);
+	return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
 export const formatDateHeader = (date) => {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+	const today = new Date();
+	const yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
 
-  const messageDate = new Date(date);
+	const messageDate = new Date(date);
 
-  if (messageDate.toDateString() === today.toDateString()) {
-    return "Today";
-  } else if (messageDate.toDateString() === yesterday.toDateString()) {
-    return "Yesterday";
-  } else {
-    return messageDate.toLocaleDateString([], {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    });
-  }
+	if (messageDate.toDateString() === today.toDateString()) {
+		return 'Today';
+	} else if (messageDate.toDateString() === yesterday.toDateString()) {
+		return 'Yesterday';
+	} else {
+		return messageDate.toLocaleDateString([], {
+			weekday: 'long',
+			month: 'short',
+			day: 'numeric',
+		});
+	}
 };
 
 // export const formatMessageTime = (date) => {
@@ -343,55 +343,55 @@ export const formatDateHeader = (date) => {
 // };
 
 export const formatMessageTime = (date) => {
-  if (!date) return "";
+	if (!date) return '';
 
-  const tz = localStorage.getItem("timezone_cache") || currentTZ;
+	const tz = localStorage.getItem('timezone_cache') || currentTZ;
 
-  return moment(date).tz(tz).format("h:mm A");
+	return moment(date).tz(tz).format('h:mm A');
 };
 
 export const whatsappColors = {
-  primary: "#008069",
-  secondary: "#00A884",
-  incomingBg: "softGray.100",
-  outgoingBg: "#D9FDD3",
-  textDark: "#111B21",
-  textLight: "#FFFFFF",
-  textSecondary: "#667781",
-  sidebarBg: "#F0F2F5",
-  headerBg: "#F0F2F5",
-  inputBg: "#FFFFFF",
-  recordingDot: "#34B7F1",
-  userHoverBg: "rgba(0, 0, 0, 0.05)",
-  userSelectedBg: "rgba(0, 0, 0, 0.08)",
-  messageHoverBg: "rgba(0, 0, 0, 0.03)",
-  timeStampColor: "#667781",
-  replyBg: "#F0F2F5",
-  replyBorder: "#D1D7DB",
-  chatHeaderBg: "#F0F2F5",
+	primary: '#008069',
+	secondary: '#00A884',
+	incomingBg: 'softGray.100',
+	outgoingBg: '#D9FDD3',
+	textDark: '#111B21',
+	textLight: '#FFFFFF',
+	textSecondary: '#667781',
+	sidebarBg: '#F0F2F5',
+	headerBg: '#F0F2F5',
+	inputBg: '#FFFFFF',
+	recordingDot: '#34B7F1',
+	userHoverBg: 'rgba(0, 0, 0, 0.05)',
+	userSelectedBg: 'rgba(0, 0, 0, 0.08)',
+	messageHoverBg: 'rgba(0, 0, 0, 0.03)',
+	timeStampColor: '#667781',
+	replyBg: '#F0F2F5',
+	replyBorder: '#D1D7DB',
+	chatHeaderBg: '#F0F2F5',
 };
 
 export const formatCallDuration = (seconds) => {
-  const sec = parseInt(seconds, 10) || 0;
+	const sec = parseInt(seconds, 10) || 0;
 
-  const hrs = Math.floor(sec / 3600);
-  const mins = Math.floor((sec % 3600) / 60);
-  const remainingSecs = sec % 60;
+	const hrs = Math.floor(sec / 3600);
+	const mins = Math.floor((sec % 3600) / 60);
+	const remainingSecs = sec % 60;
 
-  const parts = [];
+	const parts = [];
 
-  if (hrs > 0) parts.push(`${hrs} hr`);
-  if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
-  parts.push(`${remainingSecs} sec`);
+	if (hrs > 0) parts.push(`${hrs} hr`);
+	if (mins > 0 || hrs > 0) parts.push(`${mins} min`);
+	parts.push(`${remainingSecs} sec`);
 
-  return parts.join(" ");
+	return parts.join(' ');
 };
 
 export const formatName = (name) => {
-  if (!name) return "";
-  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+	if (!name) return '';
+	return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 };
 
 export const removeDisableUser = (arr) => {
-  return arr.filter((user) => user.isActive === true);
+	return arr.filter((user) => user.isActive === true);
 };
