@@ -253,7 +253,7 @@ const InterviewedTable = ({
 															onClick={() => {
 																setFeedback({
 																	message: item.interviewNote,
-																	title: 'InterviewNote',
+																	title: 'Interview Note',
 																});
 																onOpen();
 															}}
