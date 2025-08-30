@@ -85,11 +85,8 @@ const TopSearch = ({
     <Box
       mb={4}
       p={4}
-      bg="white"
-      borderRadius="md"
-      boxShadow="sm"
       position="relative"
-      zIndex={10}
+      zIndex={2}
     >
       <Flex
         direction={{ base: "column", md: "row" }}
