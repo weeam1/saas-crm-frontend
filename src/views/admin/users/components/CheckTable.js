@@ -300,17 +300,20 @@ export default function CheckTable(props) {
 	};
 
 	const statusChange = (user, status) => {
-		const updatedIndex = data?.findIndex((item) => item._id === user?._id);
+		setData((prev) => {
+			const idx = prev.findIndex((item) => item._id === user?._id);
 
-		if (updatedIndex !== -1) {
-			// user.isActive = status;
-			data[updatedIndex] = { ...user, isActive: status };
-			// data[updatedIndex] = user;
-		} else {
-			data.push(user);
-		}
+			if (idx !== -1) {
+				// update existing user
+				const updated = [...prev];
+				updated[idx] = { ...user, isActive: status };
+				return updated;
+			} else {
+				// add new user
+				return [...prev, { ...user, isActive: status }];
+			}
+		});
 	};
-
 	return (
 		<>
 			<Card

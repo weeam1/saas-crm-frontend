@@ -1,4 +1,11 @@
-import { Spinner, Switch, Text, useDisclosure, Flex } from '@chakra-ui/react';
+import {
+	Spinner,
+	Switch,
+	Text,
+	useDisclosure,
+	Flex,
+	Box,
+} from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
@@ -120,7 +127,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	}, [initialStatus]);
 
 	return (
-		<>
+		<Box>
 			<Text
 				color={isActive ? 'green.400' : 'red.400'}
 				fontSize='sm'
@@ -189,7 +196,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 					handleProceed={handleInfoProceed}
 				/>
 			)}
-		</>
+		</Box>
 	);
 };
 
