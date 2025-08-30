@@ -1,382 +1,420 @@
 import {
-	Box,
-	Button,
-	Checkbox,
-	Flex,
-	FormLabel,
-	Grid,
-	GridItem,
-	HStack,
-	Icon,
-	IconButton,
-	Input,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
-	Portal,
-	Table,
-	Tag,
-	TagLabel,
-	Tbody,
-	Td,
-	Text,
-	Th,
-	Thead,
-	Tooltip,
-	Tr,
-	useClipboard,
-	useColorModeValue,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { useEffect, useMemo, useState } from 'react';
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormLabel,
+  Grid,
+  GridItem,
+  HStack,
+  Icon,
+  IconButton,
+  Input,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Portal,
+  Table,
+  Tag,
+  TagLabel,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+  useClipboard,
+  useColorModeValue,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
 import {
-	useGlobalFilter,
-	usePagination,
-	useSortBy,
-	useTable,
-} from 'react-table';
+  useGlobalFilter,
+  usePagination,
+  useSortBy,
+  useTable,
+} from "react-table";
 
 // Custom components
 import {
-	AddIcon,
-	CopyIcon,
-	DeleteIcon,
-	EditIcon,
-	SearchIcon,
-	ViewIcon,
-} from '@chakra-ui/icons';
-import Card from 'components/card/Card';
-import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import Pagination from 'components/pagination/Pagination';
-import Spinner from 'components/spinner/Spinner';
-import { FaCoins, FaSort, FaSortDown, FaSortUp } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import Delete from '../Delete';
-import AddUser from '../Add';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import { CiMenuKebab } from 'react-icons/ci';
-import { IoIosArrowBack } from 'react-icons/io';
-import Edit from '../Edit';
-import DataNotFound from 'components/notFoundData';
-import CustomSearchInput from 'components/search/search';
-import CopyID from './CopyID';
-import AddCoinsModal from '../AddCoinsModal';
-import RemoveCoinsModal from '../RemoveCoinsModal';
-import StatusToggle from './StatusToogle';
-import TableLoading from 'components/loading/TableLoading';
-import { formatCurrency } from 'utils/helpers';
-import { BsCircleFill } from 'react-icons/bs';
-import { toast } from 'react-toastify';
-import useUserSession from 'hooks/useUserSession';
+  AddIcon,
+  CopyIcon,
+  DeleteIcon,
+  EditIcon,
+  SearchIcon,
+  ViewIcon,
+} from "@chakra-ui/icons";
+import Card from "components/card/Card";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
+import Pagination from "components/pagination/Pagination";
+import Spinner from "components/spinner/Spinner";
+import { FaCoins, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import Delete from "../Delete";
+import AddUser from "../Add";
+import { useFormik } from "formik";
+import * as yup from "yup";
+import { CiMenuKebab } from "react-icons/ci";
+import { IoIosArrowBack } from "react-icons/io";
+import Edit from "../Edit";
+import DataNotFound from "components/notFoundData";
+import CustomSearchInput from "components/search/search";
+import CopyID from "./CopyID";
+import AddCoinsModal from "../AddCoinsModal";
+import RemoveCoinsModal from "../RemoveCoinsModal";
+import StatusToggle from "./StatusToogle";
+import TableLoading from "components/loading/TableLoading";
+import { formatCurrency } from "utils/helpers";
+import { BsCircleFill } from "react-icons/bs";
+import { toast } from "react-toastify";
+import useUserSession from "hooks/useUserSession";
+import TopSearch from "./TopSearch";
 
 export default function CheckTable(props) {
-	// const { columnsData, action, setAction } = props;
-	const {
-		columnsData,
-		tableData,
-		fetchData,
-		dataColumn,
-		isLoding,
-		allData,
-		setSearchedData,
-		setDisplaySearchData,
-		displaySearchData,
-		selectedColumns,
-		setSelectedColumns,
-		dynamicColumns,
-		setDynamicColumns,
-		setAction,
-		setData,
-		action,
-	} = props;
+  // const { columnsData, action, setAction } = props;
+  const {
+    columnsData,
+    tableData,
+    fetchData,
+    dataColumn,
+    isLoding,
+    allData,
+    setSearchedData,
+    setDisplaySearchData,
+    displaySearchData,
+    selectedColumns,
+    setSelectedColumns,
+    dynamicColumns,
+    setDynamicColumns,
+    setAction,
+    setData,
+    action,
+  } = props;
 
-	const { user, isSuperAdmin } = useUserSession();
+  const { user, isSuperAdmin } = useUserSession();
 
-	const textColor = useColorModeValue('gray.500', 'white');
-	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
-	// const columns = useMemo(() => columnsData, [columnsData]);
-	const columns = useMemo(() => dataColumn, [dataColumn]);
-	const data = useMemo(() => tableData, [tableData]);
+  const textColor = useColorModeValue("gray.500", "white");
+  const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  // const columns = useMemo(() => columnsData, [columnsData]);
+  const columns = useMemo(() => dataColumn, [dataColumn]);
+  const data = useMemo(() => tableData, [tableData]);
 
-	const [selectedValues, setSelectedValues] = useState([]);
-	const [deleteModel, setDelete] = useState(false);
-	const [gopageValue, setGopageValue] = useState();
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [advaceSearch, setAdvaceSearch] = useState(false);
-	const [addCoinsModal, setAddCoinsModal] = useState({
-		user: null,
-		isOpen: false,
-	});
-	const [removeCoinsModal, setRemoveCoinsModal] = useState({
-		user: null,
-		isOpen: false,
-	});
-	const [searchClear, setSearchClear] = useState(false);
-	const [searchbox, setSearchbox] = useState('');
-	const [manageColumns, setManageColumns] = useState(false);
-	const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn);
-	const [getTagValues, setGetTagValues] = useState([]);
-	const [edit, setEdit] = useState(false);
-	const [selectedId, setSelectedId] = useState();
-	const [editData, setEditData] = useState({});
-	const navigate = useNavigate();
-	const [column, setColumn] = useState('');
+  const [selectedValues, setSelectedValues] = useState([]);
+  const [deleteModel, setDelete] = useState(false);
+  const [gopageValue, setGopageValue] = useState();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [advaceSearch, setAdvaceSearch] = useState(false);
+  const [addCoinsModal, setAddCoinsModal] = useState({
+    user: null,
+    isOpen: false,
+  });
+  const [removeCoinsModal, setRemoveCoinsModal] = useState({
+    user: null,
+    isOpen: false,
+  });
+  const [searchClear, setSearchClear] = useState(false);
+  const [searchbox, setSearchbox] = useState("");
+  const [manageColumns, setManageColumns] = useState(false);
+  const [tempSelectedColumns, setTempSelectedColumns] = useState(dataColumn);
+  const [getTagValues, setGetTagValues] = useState([]);
+  const [edit, setEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState();
+  const [editData, setEditData] = useState({});
+  const navigate = useNavigate();
+  const [column, setColumn] = useState("");
+  const [filters, setFilters] = useState({});
 
-	const [tableLoading, setTableLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(true);
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setTableLoading(false);
-		}, 1500);
+  const [topLevelSearch, setTopLevelSearch] = useState(false);
 
-		return () => clearTimeout(timeout);
-	}, []);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setTableLoading(false);
+    }, 1500);
 
-	let isColumnSelected;
-	const toggleColumnVisibility = (columnKey) => {
-		setColumn(columnKey);
+    return () => clearTimeout(timeout);
+  }, []);
 
-		isColumnSelected = tempSelectedColumns?.some(
-			(column) => column?.accessor === columnKey
-		);
+  let isColumnSelected;
+  const toggleColumnVisibility = (columnKey) => {
+    setColumn(columnKey);
 
-		if (isColumnSelected) {
-			const updatedColumns = tempSelectedColumns?.filter(
-				(column) => column?.accessor !== columnKey
-			);
-			setTempSelectedColumns(updatedColumns);
-		} else {
-			const columnToAdd = dynamicColumns?.find(
-				(column) => column?.accessor === columnKey
-			);
-			setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
-		}
-	};
-	const handleColumnClear = () => {
-		isColumnSelected = selectedColumns?.some(
-			(selectedColumn) => selectedColumn?.accessor === column?.accessor
-		);
-		setTempSelectedColumns(dynamicColumns);
-		setManageColumns(!manageColumns ? !manageColumns : false);
-	};
-	const initialValues = {
-		firstName: '',
-		username: '',
-		lastName: '',
-	};
-	const validationSchema = yup.object({
-		firstName: yup.string(),
-		username: yup.string().email('User Email is invalid'),
-		lastName: yup.string(),
-	});
-	const formik = useFormik({
-		initialValues: initialValues,
-		validationSchema: validationSchema,
-		onSubmit: (values, { resetForm }) => {
-			const searchResult = allData?.filter(
-				(item) =>
-					(!values?.firstName ||
-						(item?.firstName &&
-							item?.firstName
-								.toLowerCase()
-								.includes(values?.firstName?.toLowerCase()))) &&
-					(!values?.username ||
-						(item?.username &&
-							item?.username
-								.toLowerCase()
-								.includes(values?.username?.toLowerCase()))) &&
-					(!values?.lastName ||
-						(item?.lastName &&
-							item?.lastName
-								.toLowerCase()
-								.includes(values?.lastName?.toLowerCase())))
-			);
-			let getValue = [
-				values.firstName,
-				values?.username,
-				values?.lastName,
-			].filter((value) => value);
-			setGetTagValues(getValue);
-			setSearchedData(searchResult);
-			setDisplaySearchData(true);
-			setAdvaceSearch(false);
-			setSearchClear(true);
-			resetForm();
-		},
-	});
+    isColumnSelected = tempSelectedColumns?.some(
+      (column) => column?.accessor === columnKey
+    );
 
-	const handleClear = () => {
-		setDisplaySearchData(false);
-		setSearchbox('');
-		setGetTagValues([]);
-	};
+    if (isColumnSelected) {
+      const updatedColumns = tempSelectedColumns?.filter(
+        (column) => column?.accessor !== columnKey
+      );
+      setTempSelectedColumns(updatedColumns);
+    } else {
+      const columnToAdd = dynamicColumns?.find(
+        (column) => column?.accessor === columnKey
+      );
+      setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
+    }
+  };
+  const handleColumnClear = () => {
+    isColumnSelected = selectedColumns?.some(
+      (selectedColumn) => selectedColumn?.accessor === column?.accessor
+    );
+    setTempSelectedColumns(dynamicColumns);
+    setManageColumns(!manageColumns ? !manageColumns : false);
+  };
+  const initialValues = {
+    firstName: "",
+    username: "",
+    lastName: "",
+  };
+  const validationSchema = yup.object({
+    firstName: yup.string(),
+    username: yup.string().email("User Email is invalid"),
+    lastName: yup.string(),
+  });
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: (values, { resetForm }) => {
+      const searchResult = allData?.filter(
+        (item) =>
+          (!values?.firstName ||
+            (item?.firstName &&
+              item?.firstName
+                .toLowerCase()
+                .includes(values?.firstName?.toLowerCase()))) &&
+          (!values?.username ||
+            (item?.username &&
+              item?.username
+                .toLowerCase()
+                .includes(values?.username?.toLowerCase()))) &&
+          (!values?.lastName ||
+            (item?.lastName &&
+              item?.lastName
+                .toLowerCase()
+                .includes(values?.lastName?.toLowerCase())))
+      );
+      let getValue = [
+        values.firstName,
+        values?.username,
+        values?.lastName,
+      ].filter((value) => value);
+      setGetTagValues(getValue);
+      setSearchedData(searchResult);
+      setDisplaySearchData(true);
+      setAdvaceSearch(false);
+      setSearchClear(true);
+      resetForm();
+    },
+  });
 
-	useEffect(() => {
-		setSearchedData && setSearchedData(data);
-	}, []);
-	const {
-		errors,
-		touched,
-		values,
-		handleBlur,
-		handleChange,
-		handleSubmit,
-		setFieldValue,
-		resetForm,
-		dirty,
-	} = formik;
-	const handleClick = () => {
-		onOpen();
-	};
+  const handleClear = () => {
+    setDisplaySearchData(false);
+    setSearchbox("");
+    setGetTagValues([]);
+  };
 
-	const tableInstance = useTable(
-		{
-			columns,
-			data,
-			initialState: { pageIndex: 0 },
-		},
-		useGlobalFilter,
-		useSortBy,
-		usePagination
-	);
+  useEffect(() => {
+    setSearchedData && setSearchedData(data);
+  }, []);
+  const {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setFieldValue,
+    resetForm,
+    dirty,
+  } = formik;
+  const handleClick = () => {
+    onOpen();
+  };
 
-	const {
-		getTableProps,
-		getTableBodyProps,
-		headerGroups,
-		prepareRow,
-		page,
-		canPreviousPage,
-		canNextPage,
-		pageOptions,
-		pageCount,
-		gotoPage,
-		nextPage,
-		previousPage,
-		setPageSize,
-		state: { pageIndex, pageSize },
-	} = tableInstance;
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+      initialState: { pageIndex: 0 },
+    },
+    useGlobalFilter,
+    useSortBy,
+    usePagination
+  );
 
-	if (pageOptions.length < gopageValue) {
-		setGopageValue(pageOptions.length);
-	}
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    prepareRow,
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize },
+  } = tableInstance;
 
-	const handleCheckboxChange = (event, value) => {
-		if (event.target.checked) {
-			setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
-		} else {
-			setSelectedValues((prevSelectedValues) =>
-				prevSelectedValues.filter((selectedValue) => selectedValue !== value)
-			);
-		}
-	};
+  if (pageOptions.length < gopageValue) {
+    setGopageValue(pageOptions.length);
+  }
 
-	useEffect(() => {
-		fetchData();
-	}, []);
-	// }, [action]);
+  const handleCheckboxChange = (event, value) => {
+    if (event.target.checked) {
+      setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
+    } else {
+      setSelectedValues((prevSelectedValues) =>
+        prevSelectedValues.filter((selectedValue) => selectedValue !== value)
+      );
+    }
+  };
 
-	const handleSearch = (results) => {
-		setSearchedData(results);
-	};
+  useEffect(() => {
+    fetchData();
+  }, []);
+  // }, [action]);
 
-	const updateUsers = (user) => {
-		const updatedIndex = data.findIndex((item) => item._id === user?._id);
+  const handleSearch = (results) => {
+    setSearchedData(results);
+  };
 
-		if (updatedIndex !== -1) {
-			data[updatedIndex] = user;
-		} else {
-			data.push(user);
-		}
-	};
+  const updateUsers = (user) => {
+    const updatedIndex = data.findIndex((item) => item._id === user?._id);
 
-	const statusChange = (user, status) => {
-		setData((prev) => {
-			const idx = prev.findIndex((item) => item._id === user?._id);
+    if (updatedIndex !== -1) {
+      data[updatedIndex] = user;
+    } else {
+      data.push(user);
+    }
+  };
 
-			if (idx !== -1) {
-				// update existing user
-				const updated = [...prev];
-				updated[idx] = { ...user, isActive: status };
-				return updated;
-			} else {
-				// add new user
-				return [...prev, { ...user, isActive: status }];
-			}
-		});
-	};
-	return (
-		<>
-			<Card
-				direction='column'
-				w='100%'
-				py={3}
-				px={2}
-				overflowX={{ sm: 'scroll', lg: 'hidden' }}
-			>
-				<Grid templateColumns='repeat(12, 1fr)' gap={4} mx={4}>
-					<GridItem
-						colSpan={{ base: 12, md: 8 }}
-						display={'flex'}
-						alignItems={'center'}
-					>
-						<Flex alignItems={'center'} flexWrap={'wrap'} gap={2}>
-							<Text
-								color={useColorModeValue('secondaryGray.900', 'white')}
-								fontSize='22px'
-								fontWeight='700'
-								lineHeight='100%'
-							>
-								Users (
-								<CountUpComponent
-									key={data?.length}
-									targetNumber={data?.length}
-								/>
-								)
-							</Text>
-							<CustomSearchInput
-								setSearchbox={setSearchbox}
-								setDisplaySearchData={setDisplaySearchData}
-								searchbox={searchbox}
-								allData={allData}
-								dataColumn={dataColumn}
-								onSearch={handleSearch}
-								fetchSearch={handleSearch}
-							/>
-							<Button
-								variant='outline'
-								colorScheme='brand'
-								leftIcon={<SearchIcon />}
-								onClick={() => setAdvaceSearch(true)}
-								size='sm'
-							>
-								Advance Search
-							</Button>
-							{displaySearchData === true ? (
-								<Button
-									variant='outline'
-									size='sm'
-									colorScheme='red'
-									ms={2}
-									onClick={() => {
-										handleClear();
-									}}
-								>
-									clear
-								</Button>
-							) : (
-								''
-							)}
-							{/* {selectedValues.length > 0 && (
+  const statusChange = (user, status) => {
+    setData((prev) => {
+      const idx = prev.findIndex((item) => item._id === user?._id);
+
+      if (idx !== -1) {
+        // update existing user
+        const updated = [...prev];
+        updated[idx] = { ...user, isActive: status };
+        return updated;
+      } else {
+        // add new user
+        return [...prev, { ...user, isActive: status }];
+      }
+    });
+  };
+
+  const handleFilterChange = (newFilters) => {
+    let filteredData = allData;
+
+    if (newFilters.role) {
+      filteredData = filteredData.filter(
+        (user) => user.roles?.[0]?.roleName === newFilters.role
+      );
+    }
+
+    if (newFilters.status !== undefined) {
+      filteredData = filteredData.filter(
+        (user) => user.isOnline === newFilters.status
+      );
+    }
+
+    if (newFilters.accountStatus !== undefined) {
+      filteredData = filteredData.filter(
+        (user) => user.isActive === newFilters.accountStatus
+      );
+    }
+
+    setSearchedData(filteredData);
+    setDisplaySearchData(true);
+    setTopLevelSearch(true);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({});
+    setGetTagValues([]);
+    setSearchbox("");
+    setTopLevelSearch(false);
+    setDisplaySearchData(false);
+  };
+  return (
+    <>
+      <Card
+        direction="column"
+        w="100%"
+        py={3}
+        px={2}
+        overflowX={{ sm: "scroll", lg: "hidden" }}
+      >
+        <Grid templateColumns="repeat(12, 1fr)" gap={4} mx={4}>
+          <GridItem
+            colSpan={{ base: 12, md: 8 }}
+            display={"flex"}
+            alignItems={"center"}
+          >
+            <Flex alignItems={"center"} flexWrap={"wrap"} gap={2}>
+              <Text
+                color={useColorModeValue("secondaryGray.900", "white")}
+                fontSize="22px"
+                fontWeight="700"
+                lineHeight="100%"
+              >
+                Users (
+                <CountUpComponent
+                  key={data?.length}
+                  targetNumber={data?.length}
+                />
+                )
+              </Text>
+              <CustomSearchInput
+                setSearchbox={setSearchbox}
+                setDisplaySearchData={setDisplaySearchData}
+                searchbox={searchbox}
+                allData={allData}
+                dataColumn={dataColumn}
+                onSearch={handleSearch}
+                fetchSearch={handleSearch}
+              />
+              <Button
+                variant="outline"
+                colorScheme="brand"
+                leftIcon={<SearchIcon />}
+                onClick={() => setAdvaceSearch(true)}
+                size="sm"
+              >
+                Advance Search
+              </Button>
+              {displaySearchData === true && !topLevelSearch ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  colorScheme="red"
+                  ms={2}
+                  onClick={() => {
+                    handleClear();
+                  }}
+                >
+                  clear
+                </Button>
+              ) : (
+                ""
+              )}
+              {/* {selectedValues.length > 0 && (
 								<DeleteIcon
 									onClick={() => setDelete(true)}
 									color={'red'}
@@ -384,16 +422,16 @@ export default function CheckTable(props) {
 									cursor='pointer'
 								/>
 							)} */}
-						</Flex>
-					</GridItem>
-					<GridItem
-						colSpan={{ base: 12, md: 4 }}
-						display={'flex'}
-						justifyContent={'end'}
-						alignItems={'center'}
-						textAlign={'right'}
-					>
-						{/* <Menu isLazy>
+            </Flex>
+          </GridItem>
+          <GridItem
+            colSpan={{ base: 12, md: 4 }}
+            display={"flex"}
+            justifyContent={"end"}
+            alignItems={"center"}
+            textAlign={"right"}
+          >
+            {/* <Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
 							</MenuButton>
@@ -417,19 +455,19 @@ export default function CheckTable(props) {
 							</MenuList>
 						</Menu> */}
 
-						{isSuperAdmin && (
-							<Button
-								onClick={() => handleClick()}
-								variant='brand'
-								size='sm'
-								leftIcon={<AddIcon />}
-								borderRadius={'md'}
-							>
-								Add New
-							</Button>
-						)}
+            {isSuperAdmin && (
+              <Button
+                onClick={() => handleClick()}
+                variant="brand"
+                size="sm"
+                leftIcon={<AddIcon />}
+                borderRadius={"md"}
+              >
+                Add New
+              </Button>
+            )}
 
-						{/* <Button
+            {/* <Button
 							onClick={() => navigate('/admin-setting')}
 							variant='brand'
 							size='sm'
@@ -438,26 +476,26 @@ export default function CheckTable(props) {
 						>
 							Back
 						</Button> */}
-					</GridItem>
-					<HStack spacing={4}>
-						{getTagValues &&
-							getTagValues.map((item) => (
-								<Tag
-									size={'md'}
-									p={2}
-									key={item}
-									borderRadius='full'
-									variant='solid'
-									colorScheme='gray'
-								>
-									<TagLabel>{item}</TagLabel>
-									{/* <TagCloseButton /> */}
-								</Tag>
-							))}
-					</HStack>
-				</Grid>
-				{/* Delete model */}
-				{/* {deleteModel && (
+          </GridItem>
+          <HStack spacing={4} mb={2}>
+            {getTagValues &&
+              getTagValues.map((item) => (
+                <Tag
+                  size={"md"}
+                  p={2}
+                  key={item}
+                  borderRadius="full"
+                  variant="solid"
+                  colorScheme="gray"
+                >
+                  <TagLabel>{item}</TagLabel>
+                  {/* <TagCloseButton /> */}
+                </Tag>
+              ))}
+          </HStack>
+        </Grid>
+        {/* Delete model */}
+        {/* {deleteModel && (
 					<Delete
 						isOpen={deleteModel}
 						onClose={setDelete}
@@ -472,62 +510,69 @@ export default function CheckTable(props) {
 					/>
 				)} */}
 
-				<Box
-					overflowY={'auto'}
-					height='70vh'
-					scrollBehavior='smooth'
-					borderRadius='md'
-					boxShadow='sm'
-					bg='white'
-				>
-					<Table {...getTableProps()} variant='striped'>
-						<Thead
-							color='gray.500'
-							mb='24px'
-							position='sticky'
-							top={0}
-							bg='white'
-							zIndex={1}
-							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
-						>
-							{headerGroups?.map((headerGroup, index) => (
-								<Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-									{headerGroup.headers?.map((column, index) => (
-										<Th key={index} bg='brand.200' whiteSpace='nowrap' py={4}>
-											<Box
-												display='flex'
-												alignItems='center'
-												justifyContent='center'
-											>
-												<Text
-													fontSize={{ base: '12px', md: '14px' }}
-													fontWeight='600'
-													color='gray.700'
-													textTransform='capitalize'
-												>
-													{column.render('Header')}
-												</Text>
-											</Box>
-										</Th>
-									))}
-								</Tr>
-							))}
-						</Thead>
-						<Tbody {...getTableBodyProps()}>
-							{isLoding || tableLoading ? (
-								<TableLoading columns={columns} length='10' py='4' />
-							) : data?.length > 0 ? (
-								page?.map((row, i) => {
-									prepareRow(row);
+        <TopSearch
+          filters={filters}
+          setFilters={setFilters}
+          onFilterChange={handleFilterChange}
+          handleClear={handleClearFilters}
+          allData={allData}
+        />
+        <Box
+          overflowY={"auto"}
+          height="70vh"
+          scrollBehavior="smooth"
+          borderRadius="md"
+          boxShadow="sm"
+          bg="white"
+        >
+          <Table {...getTableProps()} variant="striped">
+            <Thead
+              color="gray.500"
+              mb="24px"
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={1}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+            >
+              {headerGroups?.map((headerGroup, index) => (
+                <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                  {headerGroup.headers?.map((column, index) => (
+                    <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Text
+                          fontSize={{ base: "12px", md: "14px" }}
+                          fontWeight="600"
+                          color="gray.700"
+                          textTransform="capitalize"
+                        >
+                          {column.render("Header")}
+                        </Text>
+                      </Box>
+                    </Th>
+                  ))}
+                </Tr>
+              ))}
+            </Thead>
+            <Tbody {...getTableBodyProps()}>
+              {isLoding || tableLoading ? (
+                <TableLoading columns={columns} length="10" py="4" />
+              ) : data?.length > 0 ? (
+                page?.map((row, i) => {
+                  prepareRow(row);
 
-									return (
-										<Tr {...row?.getRowProps()} key={i}>
-											{row?.cells?.map((cell, index) => {
-												let data = '';
-												if (cell?.column.Header === '#') {
-													data = (
-														<Flex align='center'>
-															{/* {isSuperAdmin &&
+                  return (
+                    <Tr {...row?.getRowProps()} key={i}>
+                      {row?.cells?.map((cell, index) => {
+                        let data = "";
+                        if (cell?.column.Header === "#") {
+                          data = (
+                            <Flex align="center">
+                              {/* {isSuperAdmin &&
 															cell?.row?.original?.role !== 'superAdmin' ? (
 																<Checkbox
 																	colorScheme='brandScheme'
@@ -543,233 +588,233 @@ export default function CheckTable(props) {
 															) : (
 																<Text me='28px'></Text>
 															)} */}
-															<Text
-																color={textColor}
-																fontSize='sm'
-																fontWeight='700'
-															>
-																{cell?.row?.index + 1}
-															</Text>
-														</Flex>
-													);
-												}
-												// else if (cell?.column.Header === 'ID') {
-												// 	data = <CopyID value={row?.original?._id || ''} />;
-												// }
-												else if (cell?.column.Header === 'email') {
-													const email = cell?.value;
-													const userId = cell?.row?.values._id;
+                              <Text
+                                color={textColor}
+                                fontSize="sm"
+                                fontWeight="700"
+                              >
+                                {cell?.row?.index + 1}
+                              </Text>
+                            </Flex>
+                          );
+                        }
+                        // else if (cell?.column.Header === 'ID') {
+                        // 	data = <CopyID value={row?.original?._id || ''} />;
+                        // }
+                        else if (cell?.column.Header === "email") {
+                          const email = cell?.value;
+                          const userId = cell?.row?.values._id;
 
-													data = (
-														<Link to={`/userView/${userId}`}>
-															<Text
-																me='10px'
-																sx={{
-																	'&:hover': {
-																		color: 'blue.400',
-																		textDecoration: 'underline',
-																	},
-																}}
-																color='brand.500'
-																fontSize='sm'
-																fontWeight='700'
-															>
-																{email}
-															</Text>
-														</Link>
-													);
-												} else if (cell?.column.Header === 'first Name') {
-													data = (
-														<Text
-															me='10px'
-															color={textColor}
-															fontSize='sm'
-															fontWeight='700'
-														>
-															{cell?.value ? cell?.value : ' - '}
-														</Text>
-													);
-												} else if (cell?.column.Header === 'last Name') {
-													data = (
-														<Text
-															me='10px'
-															color={textColor}
-															fontSize='sm'
-															fontWeight='700'
-														>
-															{cell?.value ? cell?.value : ' - '}
-														</Text>
-													);
-												} else if (cell?.column.Header === 'Status') {
-													data = (
-														<HStack
-															spacing={1.5}
-															px={2}
-															py={0.5}
-															borderRadius='md'
-															borderWidth='1px'
-															width='fit-content'
-															align='center'
-															bg={
-																row?.original?.isOnline ? 'green.50' : 'red.50'
-															}
-															borderColor={
-																row?.original?.isOnline
-																	? 'green.400'
-																	: 'red.400'
-															}
-														>
-															<Icon
-																as={BsCircleFill}
-																color={
-																	row?.original?.isOnline
-																		? 'green.400'
-																		: 'red.400'
-																}
-																boxSize={2.5}
-															/>
-															<Text
-																fontSize='sm'
-																fontWeight='medium'
-																color='gray.800'
-															>
-																{row?.original?.isOnline ? 'Online' : 'Offline'}
-															</Text>
-														</HStack>
-													);
-												} else if (cell?.column.Header === 'role') {
-													data = (
-														<Text
-															color={textColor}
-															fontSize='sm'
-															fontWeight='700'
-														>
-															{cell?.value ||
-																cell?.row?.original?.role ||
-																'N/A'}
-														</Text>
-													);
-												} else if (cell?.column.Header === 'Coins') {
-													data = (
-														<Text
-															color='blue.400'
-															fontSize='sm'
-															fontWeight='700'
-														>
-															{cell?.value || 'N/A'}
-														</Text>
-													);
-												} else if (cell?.column.Header === 'Target') {
-													data = (
-														<Box textAlign='center'>
-															<Text
-																fontSize='sm'
-																color={textColor}
-																fontWeight='700'
-																textAlign='center'
-															>
-																{formatCurrency(
-																	cell?.value,
-																	row.original.currency
-																)}
-															</Text>
-														</Box>
-													);
-												} else if (cell?.column.Header === 'Account Status') {
-													data = (
-														<StatusToggle
-															user={row?.original}
-															initialStatus={cell?.value}
-															role={
-																row?.original?.role === 'superAdmin'
-																	? 'superAdmin'
-																	: row?.original?.roles[0]?.roleName
-															}
-															statusChange={statusChange}
-														/>
-													);
-												} else if (cell?.column.Header === 'Action') {
-													data = (
-														<Box
-															fontSize='md'
-															fontWeight='900'
-															textAlign={'center'}
-															zIndex='popover'
-														>
-															<Menu isLazy>
-																<MenuButton>
-																	<CiMenuKebab />
-																</MenuButton>
+                          data = (
+                            <Link to={`/userView/${userId}`}>
+                              <Text
+                                me="10px"
+                                sx={{
+                                  "&:hover": {
+                                    color: "blue.400",
+                                    textDecoration: "underline",
+                                  },
+                                }}
+                                color="brand.500"
+                                fontSize="sm"
+                                fontWeight="700"
+                              >
+                                {email}
+                              </Text>
+                            </Link>
+                          );
+                        } else if (cell?.column.Header === "first Name") {
+                          data = (
+                            <Text
+                              me="10px"
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell?.value ? cell?.value : " - "}
+                            </Text>
+                          );
+                        } else if (cell?.column.Header === "last Name") {
+                          data = (
+                            <Text
+                              me="10px"
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell?.value ? cell?.value : " - "}
+                            </Text>
+                          );
+                        } else if (cell?.column.Header === "Status") {
+                          data = (
+                            <HStack
+                              spacing={1.5}
+                              px={2}
+                              py={0.5}
+                              borderRadius="md"
+                              borderWidth="1px"
+                              width="fit-content"
+                              align="center"
+                              bg={
+                                row?.original?.isOnline ? "green.50" : "red.50"
+                              }
+                              borderColor={
+                                row?.original?.isOnline
+                                  ? "green.400"
+                                  : "red.400"
+                              }
+                            >
+                              <Icon
+                                as={BsCircleFill}
+                                color={
+                                  row?.original?.isOnline
+                                    ? "green.400"
+                                    : "red.400"
+                                }
+                                boxSize={2.5}
+                              />
+                              <Text
+                                fontSize="sm"
+                                fontWeight="medium"
+                                color="gray.800"
+                              >
+                                {row?.original?.isOnline ? "Online" : "Offline"}
+                              </Text>
+                            </HStack>
+                          );
+                        } else if (cell?.column.Header === "role") {
+                          data = (
+                            <Text
+                              color={textColor}
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell?.value ||
+                                cell?.row?.original?.role ||
+                                "N/A"}
+                            </Text>
+                          );
+                        } else if (cell?.column.Header === "Coins") {
+                          data = (
+                            <Text
+                              color="blue.400"
+                              fontSize="sm"
+                              fontWeight="700"
+                            >
+                              {cell?.value || "N/A"}
+                            </Text>
+                          );
+                        } else if (cell?.column.Header === "Target") {
+                          data = (
+                            <Box textAlign="center">
+                              <Text
+                                fontSize="sm"
+                                color={textColor}
+                                fontWeight="700"
+                                textAlign="center"
+                              >
+                                {formatCurrency(
+                                  cell?.value,
+                                  row.original.currency
+                                )}
+                              </Text>
+                            </Box>
+                          );
+                        } else if (cell?.column.Header === "Account Status") {
+                          data = (
+                            <StatusToggle
+                              user={row?.original}
+                              initialStatus={cell?.value}
+                              role={
+                                row?.original?.role === "superAdmin"
+                                  ? "superAdmin"
+                                  : row?.original?.roles[0]?.roleName
+                              }
+                              statusChange={statusChange}
+                            />
+                          );
+                        } else if (cell?.column.Header === "Action") {
+                          data = (
+                            <Box
+                              fontSize="md"
+                              fontWeight="900"
+                              textAlign={"center"}
+                              zIndex="popover"
+                            >
+                              <Menu isLazy>
+                                <MenuButton>
+                                  <CiMenuKebab />
+                                </MenuButton>
 
-																<Portal>
-																	<MenuList
-																		minW={'fit-content'}
-																		placement='top'
-																		// transform={'translate(1520px, 173px);'}
-																	>
-																		{(isSuperAdmin ||
-																			user?.roles[0]?.roleName ===
-																				'Manager') && (
-																			<MenuItem
-																				py={2.5}
-																				onClick={() => {
-																					setEdit(true);
-																					setSelectedId(
-																						cell?.row?.original._id
-																					);
-																					setEditData(cell?.row?.original);
-																				}}
-																				icon={<EditIcon mb={1} fontSize={15} />}
-																			>
-																				Edit
-																			</MenuItem>
-																		)}
+                                <Portal>
+                                  <MenuList
+                                    minW={"fit-content"}
+                                    placement="top"
+                                    // transform={'translate(1520px, 173px);'}
+                                  >
+                                    {(isSuperAdmin ||
+                                      user?.roles[0]?.roleName ===
+                                        "Manager") && (
+                                      <MenuItem
+                                        py={2.5}
+                                        onClick={() => {
+                                          setEdit(true);
+                                          setSelectedId(
+                                            cell?.row?.original._id
+                                          );
+                                          setEditData(cell?.row?.original);
+                                        }}
+                                        icon={<EditIcon mb={1} fontSize={15} />}
+                                      >
+                                        Edit
+                                      </MenuItem>
+                                    )}
 
-																		<MenuItem
-																			py={2.5}
-																			color={'green'}
-																			onClick={() =>
-																				navigate(
-																					`/userView/${cell?.row?.values._id}`
-																				)
-																			}
-																			icon={<ViewIcon mb={1} fontSize={15} />}
-																		>
-																			View
-																		</MenuItem>
-																		{isSuperAdmin && (
-																			<>
-																				<MenuItem
-																					py={2.5}
-																					color={'green'}
-																					onClick={() =>
-																						setAddCoinsModal({
-																							user: row?.original,
-																							isOpen: true,
-																						})
-																					}
-																					icon={
-																						<FaCoins mb={1} fontSize={15} />
-																					}
-																				>
-																					Add Coins
-																				</MenuItem>
-																				<MenuItem
-																					py={2.5}
-																					color={'green'}
-																					onClick={() =>
-																						setRemoveCoinsModal({
-																							user: row?.original,
-																							isOpen: true,
-																						})
-																					}
-																					icon={
-																						<FaCoins mb={1} fontSize={15} />
-																					}
-																				>
-																					Remove Coins
-																				</MenuItem>
-																				{/* {cell?.row?.original?.role ===
+                                    <MenuItem
+                                      py={2.5}
+                                      color={"green"}
+                                      onClick={() =>
+                                        navigate(
+                                          `/userView/${cell?.row?.values._id}`
+                                        )
+                                      }
+                                      icon={<ViewIcon mb={1} fontSize={15} />}
+                                    >
+                                      View
+                                    </MenuItem>
+                                    {isSuperAdmin && (
+                                      <>
+                                        <MenuItem
+                                          py={2.5}
+                                          color={"green"}
+                                          onClick={() =>
+                                            setAddCoinsModal({
+                                              user: row?.original,
+                                              isOpen: true,
+                                            })
+                                          }
+                                          icon={
+                                            <FaCoins mb={1} fontSize={15} />
+                                          }
+                                        >
+                                          Add Coins
+                                        </MenuItem>
+                                        <MenuItem
+                                          py={2.5}
+                                          color={"green"}
+                                          onClick={() =>
+                                            setRemoveCoinsModal({
+                                              user: row?.original,
+                                              isOpen: true,
+                                            })
+                                          }
+                                          icon={
+                                            <FaCoins mb={1} fontSize={15} />
+                                          }
+                                        >
+                                          Remove Coins
+                                        </MenuItem>
+                                        {/* {cell?.row?.original?.role ===
 																				'superAdmin' ? (
 																					''
 																				) : (
@@ -787,238 +832,238 @@ export default function CheckTable(props) {
 																						Delete
 																					</MenuItem>
 																				)} */}
-																			</>
-																		)}
-																	</MenuList>
-																</Portal>
-															</Menu>
-														</Box>
-													);
-												}
-												return (
-													<Td
-														{...cell?.getCellProps()}
-														key={index}
-														fontSize={{ sm: '14px' }}
-														minW={{ sm: '150px', md: '200px', lg: 'auto' }}
-														borderColor='transparent'
-													>
-														{data}
-													</Td>
-												);
-											})}
-										</Tr>
-									);
-								})
-							) : (
-								<Tr>
-									<Td colSpan={columns.length}>
-										<Text
-											textAlign={'center'}
-											width='100%'
-											color={textColor}
-											fontSize='sm'
-											fontWeight='700'
-										>
-											<DataNotFound />
-										</Text>
-									</Td>
-								</Tr>
-							)}
-						</Tbody>
-					</Table>
-				</Box>
-				{data?.length > 5 && (
-					<Pagination
-						gotoPage={gotoPage}
-						gopageValue={gopageValue}
-						setGopageValue={setGopageValue}
-						pageCount={pageCount}
-						canPreviousPage={canPreviousPage}
-						previousPage={previousPage}
-						canNextPage={canNextPage}
-						pageOptions={pageOptions}
-						setPageSize={setPageSize}
-						nextPage={nextPage}
-						pageSize={pageSize}
-						pageIndex={pageIndex}
-					/>
-				)}
-			</Card>
-			{isOpen && (
-				<AddUser
-					isOpen={isOpen}
-					size={'lg'}
-					setAction={setAction}
-					onClose={onClose}
-					fetchData={fetchData}
-				/>
-			)}
+                                      </>
+                                    )}
+                                  </MenuList>
+                                </Portal>
+                              </Menu>
+                            </Box>
+                          );
+                        }
+                        return (
+                          <Td
+                            {...cell?.getCellProps()}
+                            key={index}
+                            fontSize={{ sm: "14px" }}
+                            minW={{ sm: "150px", md: "200px", lg: "auto" }}
+                            borderColor="transparent"
+                          >
+                            {data}
+                          </Td>
+                        );
+                      })}
+                    </Tr>
+                  );
+                })
+              ) : (
+                <Tr>
+                  <Td colSpan={columns.length}>
+                    <Text
+                      textAlign={"center"}
+                      width="100%"
+                      color={textColor}
+                      fontSize="sm"
+                      fontWeight="700"
+                    >
+                      <DataNotFound />
+                    </Text>
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
+        </Box>
+        {data?.length > 5 && (
+          <Pagination
+            gotoPage={gotoPage}
+            gopageValue={gopageValue}
+            setGopageValue={setGopageValue}
+            pageCount={pageCount}
+            canPreviousPage={canPreviousPage}
+            previousPage={previousPage}
+            canNextPage={canNextPage}
+            pageOptions={pageOptions}
+            setPageSize={setPageSize}
+            nextPage={nextPage}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+          />
+        )}
+      </Card>
+      {isOpen && (
+        <AddUser
+          isOpen={isOpen}
+          size={"lg"}
+          setAction={setAction}
+          onClose={onClose}
+          fetchData={fetchData}
+        />
+      )}
 
-			{edit && (
-				<Edit
-					isOpen={edit}
-					size={'sm'}
-					setAction={setAction}
-					onClose={onClose}
-					fetchData={fetchData}
-					data={editData}
-					setEdit={setEdit}
-					selectedId={selectedId}
-					refrence='table'
-					updateUsers={updateUsers}
-				/>
-			)}
-			{addCoinsModal?.isOpen && (
-				<AddCoinsModal
-					isOpen={addCoinsModal?.isOpen}
-					setDisplaySearchData={setDisplaySearchData}
-					size={'sm'}
-					onClose={() => setAddCoinsModal({ isOpen: false, user: null })}
-					fetchData={fetchData}
-					updateUsers={updateUsers}
-					selectedUser={addCoinsModal?.user}
-				/>
-			)}
+      {edit && (
+        <Edit
+          isOpen={edit}
+          size={"sm"}
+          setAction={setAction}
+          onClose={onClose}
+          fetchData={fetchData}
+          data={editData}
+          setEdit={setEdit}
+          selectedId={selectedId}
+          refrence="table"
+          updateUsers={updateUsers}
+        />
+      )}
+      {addCoinsModal?.isOpen && (
+        <AddCoinsModal
+          isOpen={addCoinsModal?.isOpen}
+          setDisplaySearchData={setDisplaySearchData}
+          size={"sm"}
+          onClose={() => setAddCoinsModal({ isOpen: false, user: null })}
+          fetchData={fetchData}
+          updateUsers={updateUsers}
+          selectedUser={addCoinsModal?.user}
+        />
+      )}
 
-			{removeCoinsModal?.isOpen && (
-				<RemoveCoinsModal
-					isOpen={removeCoinsModal?.isOpen}
-					setDisplaySearchData={setDisplaySearchData}
-					size={'sm'}
-					onClose={() => setRemoveCoinsModal({ isOpen: false, user: null })}
-					fetchData={fetchData}
-					updateUsers={updateUsers}
-					selectedUser={removeCoinsModal?.user}
-				/>
-			)}
+      {removeCoinsModal?.isOpen && (
+        <RemoveCoinsModal
+          isOpen={removeCoinsModal?.isOpen}
+          setDisplaySearchData={setDisplaySearchData}
+          size={"sm"}
+          onClose={() => setRemoveCoinsModal({ isOpen: false, user: null })}
+          fetchData={fetchData}
+          updateUsers={updateUsers}
+          selectedUser={removeCoinsModal?.user}
+        />
+      )}
 
-			{/* Advance filter */}
-			{advaceSearch && (
-				<Modal
-					onClose={() => {
-						setAdvaceSearch(false);
-						resetForm();
-					}}
-					isOpen={advaceSearch}
-					isCentered
-				>
-					<ModalOverlay />
-					<ModalContent>
-						<ModalHeader>Advance Search</ModalHeader>
-						<ModalCloseButton
-							onClick={() => {
-								setAdvaceSearch(false);
-								resetForm();
-							}}
-						/>
-						<ModalBody>
-							<Grid templateColumns='repeat(12, 1fr)' mb={3} gap={2}>
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='600'
-										color={'#000'}
-										mb='0'
-										mt={2}
-									>
-										First Name
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values?.firstName}
-										name='firstName'
-										placeholder='Enter First Name'
-										fontWeight='500'
-									/>
-									<Text mb='10px' color={'red'}>
-										{' '}
-										{errors.firstName && touched.firstName && errors.firstName}
-									</Text>
-								</GridItem>
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='600'
-										color={'#000'}
-										mb='0'
-										mt={2}
-									>
-										Last Name
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values?.lastName}
-										name='lastName'
-										placeholder='Enter Last Name'
-										fontWeight='500'
-									/>
-									<Text mb='10px' color={'red'}>
-										{' '}
-										{errors.lastName && touched.lastName && errors.lastName}
-									</Text>
-								</GridItem>
-								<GridItem colSpan={{ base: 12 }}>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='600'
-										color={'#000'}
-										mb='0'
-										mt={2}
-									>
-										Email Id
-									</FormLabel>
-									<Input
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values?.username}
-										name='username'
-										placeholder='Enter User Name'
-										fontWeight='500'
-									/>
-									<Text mb='10px' color={'red'}>
-										{' '}
-										{errors.username && touched.username && errors.username}
-									</Text>
-								</GridItem>
-							</Grid>
-						</ModalBody>
-						<ModalFooter>
-							<Button
-								size='sm'
-								variant='brand'
-								mr={2}
-								onClick={handleSubmit}
-								disabled={isLoding || !dirty ? true : false}
-							>
-								{isLoding ? <Spinner /> : 'Search'}
-							</Button>
-							<Button
-								size='sm'
-								variant='outline'
-								colorScheme='red'
-								onClick={() => resetForm()}
-							>
-								Clear
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal>
-			)}
+      {/* Advance filter */}
+      {advaceSearch && (
+        <Modal
+          onClose={() => {
+            setAdvaceSearch(false);
+            resetForm();
+          }}
+          isOpen={advaceSearch}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Advance Search</ModalHeader>
+            <ModalCloseButton
+              onClick={() => {
+                setAdvaceSearch(false);
+                resetForm();
+              }}
+            />
+            <ModalBody>
+              <Grid templateColumns="repeat(12, 1fr)" mb={3} gap={2}>
+                <GridItem colSpan={{ base: 12 }}>
+                  <FormLabel
+                    display="flex"
+                    ms="4px"
+                    fontSize="sm"
+                    fontWeight="600"
+                    color={"#000"}
+                    mb="0"
+                    mt={2}
+                  >
+                    First Name
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values?.firstName}
+                    name="firstName"
+                    placeholder="Enter First Name"
+                    fontWeight="500"
+                  />
+                  <Text mb="10px" color={"red"}>
+                    {" "}
+                    {errors.firstName && touched.firstName && errors.firstName}
+                  </Text>
+                </GridItem>
+                <GridItem colSpan={{ base: 12 }}>
+                  <FormLabel
+                    display="flex"
+                    ms="4px"
+                    fontSize="sm"
+                    fontWeight="600"
+                    color={"#000"}
+                    mb="0"
+                    mt={2}
+                  >
+                    Last Name
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values?.lastName}
+                    name="lastName"
+                    placeholder="Enter Last Name"
+                    fontWeight="500"
+                  />
+                  <Text mb="10px" color={"red"}>
+                    {" "}
+                    {errors.lastName && touched.lastName && errors.lastName}
+                  </Text>
+                </GridItem>
+                <GridItem colSpan={{ base: 12 }}>
+                  <FormLabel
+                    display="flex"
+                    ms="4px"
+                    fontSize="sm"
+                    fontWeight="600"
+                    color={"#000"}
+                    mb="0"
+                    mt={2}
+                  >
+                    Email Id
+                  </FormLabel>
+                  <Input
+                    fontSize="sm"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values?.username}
+                    name="username"
+                    placeholder="Enter User Name"
+                    fontWeight="500"
+                  />
+                  <Text mb="10px" color={"red"}>
+                    {" "}
+                    {errors.username && touched.username && errors.username}
+                  </Text>
+                </GridItem>
+              </Grid>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                size="sm"
+                variant="brand"
+                mr={2}
+                onClick={handleSubmit}
+                disabled={isLoding || !dirty ? true : false}
+              >
+                {isLoding ? <Spinner /> : "Search"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                colorScheme="red"
+                onClick={() => resetForm()}
+              >
+                Clear
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
 
-			{/* Manage Columns */}
-			{/* <Modal
+      {/* Manage Columns */}
+      {/* <Modal
 				onClose={() => {
 					setManageColumns(false);
 					resetForm();
@@ -1078,6 +1123,6 @@ export default function CheckTable(props) {
 					</ModalFooter>
 				</ModalContent>
 			</Modal> */}
-		</>
-	);
+    </>
+  );
 }
