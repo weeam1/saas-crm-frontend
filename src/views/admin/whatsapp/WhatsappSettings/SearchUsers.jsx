@@ -102,7 +102,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 					shadow='md'
 					borderRadius='md'
 					mt={2}
-					zIndex={10}
+					zIndex={50}
 					maxH='300px'
 					overflowY='auto'
 				>
@@ -137,7 +137,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 					shadow='md'
 					borderRadius='md'
 					mt={2}
-					zIndex={10}
+					zIndex={50}
 				>
 					<NoData label='user' />
 				</Box>
