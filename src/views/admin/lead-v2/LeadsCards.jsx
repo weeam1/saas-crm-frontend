@@ -30,20 +30,13 @@ import { HasAccess } from './../../../redux/accessUtils';
 import BulkWhatsappModal from './components/whatsapp-message/BulkWhatsappModal';
 import ViewToggle from 'components/toggle/ViewToggle';
 import { usePermissions } from 'hooks/usePermissions';
+import LeadsLayout from './layout/LeadLayout';
+import useUserSession from 'hooks/useUserSession';
 
 const LeadsCards = ({ handleView, view }) => {
-	// const user = JSON.parse(localStorage.getItem('user'));
-	const user = useSelector((state) => state.user.user);
+	const { user } = useUserSession();
+
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
-
-	console.log({ user });
-
-	const role =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
-
-	const [permission] = HasAccess(['Lead']);
 
 	const { hasPermission } = usePermissions();
 
@@ -268,7 +261,8 @@ const LeadsCards = ({ handleView, view }) => {
 				</HStack>
 			</Flex>
 
-			<Leads
+			<LeadsLayout
+				layoutView={view}
 				data={leads}
 				leadsError={leadsError}
 				leadsLoading={leadsLoading}

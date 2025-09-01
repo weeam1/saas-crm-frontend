@@ -194,7 +194,7 @@ const MainStatus = ({ lead, role }) => {
 				>
 					M Status
 				</Text>
-				<CustomTooltip label={label}>
+				<CustomTooltip label={label || 'N/A'}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</CustomTooltip>
 			</HStack>

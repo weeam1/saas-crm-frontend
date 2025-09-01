@@ -30,13 +30,12 @@ const Index = () => {
 	return (
 		<VStack justifyContent='flex-start' gap='2'>
 			{view !== 'table' && <PageSizeAlert />}
-			<Suspense fallback={<Loader />}>
-				{view === 'table' ? (
+			{/* {view === 'table' ? (
 					<LeadsTable handleView={handleViewChange} view={view} />
 				) : (
 					<LeadsCards handleView={handleViewChange} view={view} />
-				)}
-			</Suspense>
+				)} */}
+			<LeadsCards handleView={handleViewChange} view={view} />
 		</VStack>
 	);
 };
