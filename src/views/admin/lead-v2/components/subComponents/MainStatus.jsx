@@ -27,6 +27,8 @@ const MainStatus = ({ lead, role }) => {
 
 	const [closeDeal, setCloseDeal] = useState(false);
 
+	const layoutView = localStorage.getItem('leadView') || 'grid';
+
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
@@ -185,20 +187,24 @@ const MainStatus = ({ lead, role }) => {
 
 	return (
 		<>
-			<HStack alignItems='center' justifyContent='space-between'>
-				<Text
-					fontWeight='medium'
-					fontSize={leadlabelFontSize}
-					color='softGray.200'
-					mr={2}
-				>
-					M Status
-				</Text>
-				<CustomTooltip label={label || 'N/A'}>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</CustomTooltip>
-			</HStack>
+			{layoutView !== 'table' && (
+				<HStack alignItems='center' justifyContent='space-between'>
+					<Text
+						fontWeight='medium'
+						fontSize={leadlabelFontSize}
+						color='softGray.200'
+						mr={2}
+					>
+						M Status
+					</Text>
+					<CustomTooltip label={label || 'N/A'}>
+						<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					</CustomTooltip>
+				</HStack>
+			)}
+
 			<SelectInput
+				mt={layoutView === 'table' ? '20px' : 0}
 				name='eLeadStatus'
 				options={mainLeadStatus || []}
 				placeholder='Select'
