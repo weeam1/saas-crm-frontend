@@ -86,7 +86,7 @@ const Status = ({ lead }) => {
 					userId: user?._id,
 					action: 'UPDATE',
 					entity: 'Lead',
-enityType: 'Lead',
+					enityType: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
 					message: `${user?.fullName} update the lead status from '${selected || 'No Status'} to '${data.leadStatus}'.`,
@@ -101,7 +101,7 @@ enityType: 'Lead',
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Lead',
-enityType: 'Lead',
+				enityType: 'Lead',
 				entityId: lead._id || null,
 				status: e?.status === 500 ? 'error' : 'fail',
 				message: `failed to update the lead status'.`,
@@ -139,7 +139,7 @@ enityType: 'Lead',
 				<Tooltip label={label} closeOnClick={false} hasArrow>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</Tooltip> */}
-				<CustomTooltip label={label}>
+				<CustomTooltip label={label || 'N/A'}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</CustomTooltip>
 			</HStack>
