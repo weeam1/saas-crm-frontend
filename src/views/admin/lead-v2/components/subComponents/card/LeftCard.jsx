@@ -216,7 +216,7 @@ const LeftCard = ({
 						</GridItem>
 					)}
 
-				{!hideContact && (
+				{!hideContact && hasPermission('leads', 'contactDetails') && (
 					<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 						{/* Phone */}
 						{!hiddenFields.includes('leadPhoneNumber') && (
