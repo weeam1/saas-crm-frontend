@@ -217,196 +217,185 @@ const CloseDealModal = React.memo(
 					</ModalHeader>
 					<ModalCloseButton />
 
-					<ModalBody py={4}>
-						<Grid
-							templateColumns={{ base: '1fr', lg: '1fr 500px' }}
-							gap={4}
-							p={4}
-							overflowY='auto'
-							maxH={{ base: '50vh', md: '60vh' }}
-						>
-							{/* Left Column */}
+					<ModalBody py={4} overflowY='auto'
+							maxH={{ base: '50vh', md: '60vh' }} >
+						<VStack spacing={6} align="stretch">
+							{/* Lead Information */}
 							<Box>
-								{/* Lead Information */}
-								<Box mb={6}>
-									<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
-										Lead Information
-									</Text>
-									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-										<FormInput
-											label='Client Name'
-											name='clientName'
-											register={register}
-											errors={errors}
-											isRequired
-											isDisabled
-										/>
+								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+									Lead Information
+								</Text>
+								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+									<FormInput
+										label='Client Name'
+										name='clientName'
+										register={register}
+										errors={errors}
+										isRequired
+										isDisabled
+									/>
 
-										{userRoleName !== 'Manager' && (
-											<FormInput
-												label='Client Contact'
-												name='clientNumber'
-												register={register}
-												errors={errors}
-												isRequired
-												isDisabled
-											/>
-										)}
+									{userRoleName !== 'Manager' && (
+										<FormInput
+											label='Client Contact'
+											name='clientNumber'
+											register={register}
+											errors={errors}
+											isRequired
+											isDisabled
+										/>
+									)}
 
-										<FormInput
-											label='Manager'
-											name='managerName'
-											register={register}
-											errors={errors}
-											isDisabled
-											isRequired
-										/>
-										<FormInput
-											label='Agent'
-											name='agentName'
-											register={register}
-											errors={errors}
-											isDisabled
-											isRequired
-										/>
-										<FormInput
-											label='Closed By'
-											name='closedBy'
-											register={register}
-											errors={errors}
-											isDisabled
-											isRequired
-										/>
-									</SimpleGrid>
-								</Box>
-
-								{/* Property Information */}
-								<Box mb={6}>
-									<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
-										Property Information
-									</Text>
-									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-										<FormInput
-											label='Developer'
-											name='developer'
-											register={register}
-											errors={errors}
-											isRequired
-										/>
-										<FormInput
-											label='Sales Person'
-											name='salesPerson'
-											register={register}
-											errors={errors}
-											isRequired
-										/>
-										<FormInput
-											label='Project Name'
-											name='projectName'
-											register={register}
-											errors={errors}
-											isRequired
-										/>
-										<FormInput
-											label='Unit Number'
-											name='unitNumber'
-											register={register}
-											errors={errors}
-											isRequired
-										/>
-										<FormInput
-											label='Unit Type'
-											name='unitType'
-											register={register}
-											errors={errors}
-											isRequired
-										/>
-										<FormInput
-											label='Unit Price'
-											name='unitPrice'
-											register={register}
-											errors={errors}
-											type='number'
-											step='0.01'
-											isRequired
-										/>
-									</SimpleGrid>
-								</Box>
+									<FormInput
+										label='Manager'
+										name='managerName'
+										register={register}
+										errors={errors}
+										isDisabled
+										isRequired
+									/>
+									<FormInput
+										label='Agent'
+										name='agentName'
+										register={register}
+										errors={errors}
+										isDisabled
+										isRequired
+									/>
+									<FormInput
+										label='Closed By'
+										name='closedBy'
+										register={register}
+										errors={errors}
+										isDisabled
+										isRequired
+									/>
+								</SimpleGrid>
 							</Box>
 
-							{/* Right Column */}
+							{/* Property Information */}
 							<Box>
-								{/* Payment Details */}
-								<Box mb={6}>
-									<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
-										Payment Details
-									</Text>
-									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-										<FormInput
-											label='Downpayment Paid'
-											name='downpaymentPaid'
-											register={register}
-											errors={errors}
-											type='number'
-											step='0.01'
-											isRequired
-										/>
-										<VStack align='start' spacing={1} minW='180px'>
-											<Text
-												fontWeight='semibold'
-												fontSize='sm'
-												color='gray.600'
-											>
-												Downpayment %
-											</Text>
-											<Text fontSize='sm' p={2} w='full' bg='gray.100'>
-												{downpaymentPercent.toFixed(2)}%
-											</Text>
-										</VStack>
-										<FormInput
-											label='Booking Amount Paid'
-											name='bookingAmountPaid'
-											register={register}
-											errors={errors}
-											type='number'
-											step='0.01'
-											isRequired
-										/>
-										<VStack align='start' spacing={1} minW='180px'>
-											<Text
-												fontWeight='semibold'
-												fontSize='sm'
-												color='gray.600'
-											>
-												Booking %
-											</Text>
-											<Text p={2} w='full' bg='gray.100' fontSize='sm'>
-												{bookingPercent.toFixed(2)}%
-											</Text>
-										</VStack>
-									</SimpleGrid>
+								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+									Property Information
+								</Text>
+								<SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+									<FormInput
+										label='Developer'
+										name='developer'
+										register={register}
+										errors={errors}
+										isRequired
+									/>
+									<FormInput
+										label='Sales Person'
+										name='salesPerson'
+										register={register}
+										errors={errors}
+										isRequired
+									/>
+									<FormInput
+										label='Project Name'
+										name='projectName'
+										register={register}
+										errors={errors}
+										isRequired
+									/>
+									<FormInput
+										label='Unit Number'
+										name='unitNumber'
+										register={register}
+										errors={errors}
+										isRequired
+									/>
+									<FormInput
+										label='Unit Type'
+										name='unitType'
+										register={register}
+										errors={errors}
+										isRequired
+									/>
+									<FormInput
+										label='Unit Price'
+										name='unitPrice'
+										register={register}
+										errors={errors}
+										type='number'
+										step='0.01'
+										isRequired
+									/>
+								</SimpleGrid>
+							</Box>
 
-									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-										<FormSelect
-											label='Currency'
-											name='currency'
-											register={register}
-											errors={errors}
-											isDisabled
-											isRequired
-											options={currencies}
-										/>
-										<FormSelect
-											label='Commission Status'
-											name='commissionStatus'
-											register={register}
-											errors={errors}
-											isRequired
-											options={commissionStatuses}
-											placeholder='Select status'
-										/>
-									</SimpleGrid>
-								</Box>
+							{/* Payment Details */}
+							<Box>
+								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+									Payment Details
+								</Text>
+								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+									<FormInput
+										label='Downpayment Paid'
+										name='downpaymentPaid'
+										register={register}
+										errors={errors}
+										type='number'
+										step='0.01'
+										isRequired
+									/>
+									<VStack align='start' spacing={1} minW='180px'>
+										<Text
+											fontWeight='semibold'
+											fontSize='sm'
+											color='gray.600'
+										>
+											Downpayment %
+										</Text>
+										<Text fontSize='sm' p={2} w='full' bg='gray.100'>
+											{downpaymentPercent.toFixed(2)}%
+										</Text>
+									</VStack>
+									<FormInput
+										label='Booking Amount Paid'
+										name='bookingAmountPaid'
+										register={register}
+										errors={errors}
+										type='number'
+										step='0.01'
+										isRequired
+									/>
+									<VStack align='start' spacing={1} minW='180px'>
+										<Text
+											fontWeight='semibold'
+											fontSize='sm'
+											color='gray.600'
+										>
+											Booking %
+										</Text>
+										<Text p={2} w='full' bg='gray.100' fontSize='sm'>
+											{bookingPercent.toFixed(2)}%
+										</Text>
+									</VStack>
+								</SimpleGrid>
+
+								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+									<FormSelect
+										label='Currency'
+										name='currency'
+										register={register}
+										errors={errors}
+										isDisabled
+										isRequired
+										options={currencies}
+									/>
+									<FormSelect
+										label='Commission Status'
+										name='commissionStatus'
+										register={register}
+										errors={errors}
+										isRequired
+										options={commissionStatuses}
+										placeholder='Select status'
+									/>
+								</SimpleGrid>
 
 								{/* Extra Info & Upload */}
 								<Box>
@@ -484,7 +473,7 @@ const CloseDealModal = React.memo(
 									)}
 								</Box>
 							</Box>
-						</Grid>
+						</VStack>
 					</ModalBody>
 
 					<ModalFooter bg='gray.50' borderBottomRadius='xl' px={6} py={3}>
