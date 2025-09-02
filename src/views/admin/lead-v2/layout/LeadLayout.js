@@ -1,5 +1,5 @@
 import { shallowEqual, useSelector } from 'react-redux';
-import { Box, Button, Flex, Grid } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, useDisclosure } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { HasAccess } from '../../../../redux/accessUtils';
@@ -17,6 +17,8 @@ import SearchBox from '../components/SearchBox';
 import LeadsModals from '../components/LeadsModals';
 import DateFilter from '../components/DateFilter';
 import Pagination from '../components/Pagination';
+import ManageColumnsModal from "../components/ManageColumnsModal";
+import DisplayManageButton from "../components/DisplayManageButton";
 
 const LeadsLayout = ({
 	layoutView,
@@ -64,6 +66,58 @@ const LeadsLayout = ({
 
 	const [isLoaded, setIsLoaded] = useState(false);
 	// const [refetchLoading, setRefetchLoading] = useState(false);
+	const {
+		isOpen: manageColumnsOpen,
+		onOpen: openManageColumns,
+		onClose: closeManageColumns,
+	} = useDisclosure();
+
+	const [selectedStatus, setSelectedStatus] = useState([]);
+	const [selectedMstatus, setSelectedMstatus] = useState([]);
+
+	const [choiceSelectedStatus, setChoiceSelectedStatus] = useState([]);
+	const [choiceSelectedMstatus, setChoiceSelectedMstatus] = useState([]);
+
+	const statusOptions = [
+		{ value: "interested", label: "Interested" },
+		{ value: "sold", label: "Sold" },
+		{ value: "not_interested", label: "Not Interested" },
+		{ value: "reassigned", label: "Reassigned" },
+		{ value: "new", label: "New" },
+		{ value: "no_answer", label: "No Answer" },
+		{ value: "unreachable", label: "Unreachable" },
+		{ value: "callback", label: "Callback" },
+		{ value: "voice_mail", label: "Voice Mail" },
+		{ value: "wrong_number", label: "Wrong Number" },
+		{ value: "waiting", label: "Waiting" },
+		{ value: "follow_up", label: "Follow Up" },
+		{ value: "meeting", label: "Meeting" },
+		{ value: "follow_up_after_meeting", label: "Follow Up After Meeting" },
+		{ value: "deal", label: "Deal" },
+		{ value: "deal_out", label: "Deal Out" },
+		{ value: "whatsapp_send", label: "Whatsapp Send" },
+		{ value: "whatsapp_rec", label: "Whatsapp Rec" },
+		{ value: "will_attend_the_show", label: "Will Attend the Show" },
+		{ value: "attended_the_show", label: "Attended the Show" },
+		{ value: "junk", label: "Junk" },
+		{ value: "shift_project", label: "Shift Project" },
+		{ value: "broker", label: "Broker" },
+		{ value: "request", label: "Request" },
+	];
+
+	const mstatusOptions = [
+		{ value: "interested", label: "Interested" },
+		{ value: "not_interested", label: "Not Interested" },
+		{ value: "no_response", label: "No Response" },
+		{ value: "interested_seller", label: "Interested Seller" },
+		{ value: "interested_buyer", label: "Interested Buyer" },
+		{ value: "hot", label: "Hot" },
+		{ value: "secondary_request", label: "Secondary request" },
+		{ value: "show", label: "Show" },
+		{ value: "junk", label: "Junk" },
+		{ value: "deal", label: "Deal" },
+		{ value: "change_agent", label: "Change Agent" },
+	];
 
 	useEffect(() => {
 		if (leadsLoading) {
@@ -185,6 +239,19 @@ const LeadsLayout = ({
 			setRefetchLoading(true);
 		}
 	};
+	const handleStatusChange = (value, isChecked) => {
+		setSelectedStatus((prev) =>
+		isChecked ? [...prev, value] : prev.filter((item) => item !== value)
+		);
+		  setChoiceSelectedStatus((prev) => prev.filter((s) => !isChecked && s !== value));
+	};
+
+	const handleMstatusChange = (value, isChecked) => {
+		setSelectedMstatus((prev) =>
+		isChecked ? [...prev, value] : prev.filter((item) => item !== value)
+		);
+		setChoiceSelectedMstatus((prev) => prev.filter((s) => !isChecked && s !== value));
+	};
 
 	console.log({ viewLead, leadDetails });
 
@@ -211,6 +278,8 @@ const LeadsLayout = ({
 				setLeadAddtionalInfo={setLeadAddtionalInfo}
 				setIsLeadCycle={setIsLeadCycle}
 				leadAddtionalInfo={leadAddtionalInfo}
+                choiceSelectedStatus={choiceSelectedStatus}
+                choiceSelectedMstatus={choiceSelectedMstatus}
 			/>
 		) : (
 			<LeadTableView
@@ -234,6 +303,8 @@ const LeadsLayout = ({
 				setLeadAddtionalInfo={setLeadAddtionalInfo}
 				setIsLeadCycle={setIsLeadCycle}
 				leadAddtionalInfo={leadAddtionalInfo}
+        		choiceSelectedStatus={choiceSelectedStatus}
+        		choiceSelectedMstatus={choiceSelectedMstatus}
 			/>
 		);
 
@@ -335,6 +406,40 @@ const LeadsLayout = ({
 			{/* divider  */}
 			<Box height='2px' my={4} bg='softGray.50' />
 
+			{/* Manage Columns Button */}
+			<Flex justifyContent="flex-end" mb={4}>
+				<Button
+				size="md"
+				bg="brand.500"
+				color="white"
+				borderRadius="md"
+				fontSize="sm"
+				fontWeight="medium"
+				height="36px"
+				px={5}
+				onClick={openManageColumns}
+				_hover={{ bg: "brand.600" }}
+				_active={{ bg: "brand.700" }}
+				boxShadow="sm"
+				>
+					Additional Filter
+				</Button>
+			</Flex>
+
+			{/* Display selected status/mstatus buttons */}
+			{(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
+				<DisplayManageButton
+				selectedStatus={selectedStatus}
+				selectedMstatus={selectedMstatus}
+				statusOptions={statusOptions}
+				mstatusOptions={mstatusOptions}
+				setChoiceSelectedStatus={setChoiceSelectedStatus}
+				setChoiceSelectedMstatus={setChoiceSelectedMstatus}
+					choiceSelectedStatus={choiceSelectedStatus}
+				choiceSelectedMstatus={choiceSelectedMstatus}
+				/>
+			)}
+
 			{leadsError ? (
 				<ErrorMessage
 					message={leadsError?.data?.message || 'Something went wrong!'}
@@ -396,6 +501,18 @@ const LeadsLayout = ({
 					setSearchQueryParams={setSearchQueryParams}
 				/>
 			)}
+
+			{/* Manage Columns Modal */}
+			<ManageColumnsModal
+				isOpen={manageColumnsOpen}
+				onClose={closeManageColumns}
+				statusOptions={statusOptions}
+				mstatusOptions={mstatusOptions}
+				selectedStatus={selectedStatus}
+				selectedMstatus={selectedMstatus}
+				onStatusChange={handleStatusChange}
+				onMstatusChange={handleMstatusChange}
+			/>
 		</Box>
 	);
 };
