@@ -61,8 +61,6 @@ const LeadTableView = memo((props) => {
 
 	const hiddenFields = useSelector((state) => state.leads.hiddenFields || []);
 
-	console.log('hiddenFields', hiddenFields);
-
 	const { pageSize, queryParams, refetchLoading, setRefetchLoading } =
 		useFilteredQueryParams();
 
@@ -70,7 +68,7 @@ const LeadTableView = memo((props) => {
 		if (leadsRefetching) {
 			setRefetchLoading(true);
 		} else {
-			const timer = setTimeout(() => setRefetchLoading(false), 2000);
+			const timer = setTimeout(() => setRefetchLoading(false), 1500);
 			return () => clearTimeout(timer);
 		}
 	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
@@ -78,15 +76,15 @@ const LeadTableView = memo((props) => {
 	// Dynamically filter columns by permission
 	const tableColumns = useMemo(() => {
 		const baseCols = [
-			{ Header: '#', accessor: 'intID', width: 10 },
+			{ Header: 'ID', accessor: 'intID', width: 10 },
 			{ Header: 'Name', accessor: 'leadName', width: 200 },
 			{ Header: 'Manager', accessor: 'managerAssigned', width: 200 },
 			{ Header: 'Agent', accessor: 'agentAssigned', width: 200 },
-			{ Header: 'M Status', accessor: 'eLeadStatus', width: 170 },
+			{ Header: 'M Status', accessor: 'eLeadStatus', width: 190 },
 			{ Header: 'Status', accessor: 'leadStatus', width: 200 },
 			{ Header: 'Timetocall', accessor: 'timetocall', width: 100 },
 			{ Header: 'Budget', accessor: 'budget', width: 100 },
-			{ Header: 'Created', accessor: 'createdDate', width: 150 },
+			{ Header: 'Date & Time', accessor: 'createdDate', width: 150 },
 			{ Header: 'Nationality', accessor: 'nationality', width: 100 },
 			{ Header: 'Language', accessor: 'leadLang', width: 100 },
 			{ Header: 'Last Note', accessor: 'lastNote', width: 200 },
@@ -97,24 +95,25 @@ const LeadTableView = memo((props) => {
 			{ Header: 'Campaign URL', accessor: 'pageUrl', width: 200 },
 			{ Header: 'Address', accessor: 'leadAddress', width: 150 },
 			{ Header: 'Medium', accessor: 'leadSourceMedium', width: 120 },
-			{ Header: 'In UAE?', accessor: 'r_u_in_uae', width: 50 },
+			{ Header: 'Attendance', accessor: 'attendanceDay', width: 100 },
+			{ Header: 'In UAE?', accessor: 'r_u_in_uae', width: 40 },
 		];
 
 		if (hasPermission('leads', 'contactDetails')) {
 			baseCols.splice(7, 0, {
 				Header: 'Phone',
 				accessor: 'leadPhoneNumber',
-				width: 150,
+				width: 170,
 			});
 			baseCols.splice(8, 0, {
 				Header: 'Whatsapp',
 				accessor: 'leadWhatsappNumber',
-				width: 150,
+				width: 170,
 			});
 			baseCols.splice(9, 0, {
 				Header: 'Email',
 				accessor: 'leadEmail',
-				width: 150,
+				width: 170,
 			});
 		}
 
@@ -147,7 +146,7 @@ const LeadTableView = memo((props) => {
 					color='gray.900'
 					zIndex={1}
 				>
-					<Tr py='4'>
+					<Tr h='12'>
 						<Th>
 							{/* <Checkbox
 								isChecked={selectAllChecked}
@@ -160,6 +159,10 @@ const LeadTableView = memo((props) => {
 								minW={col?.width ? `${col.width}px` : '100px'}
 								textAlign='center'
 								py='2'
+								fontSize='sm'
+								fontWeight='semibold'
+								color='gray.700'
+								textTransform='capitalize'
 							>
 								{col.Header}
 							</Th>
@@ -181,6 +184,7 @@ const LeadTableView = memo((props) => {
 									{/* Row checkbox */}
 									<Td>
 										<Checkbox
+											colorScheme='brand'
 											isChecked={selectedValues.includes(lead._id)}
 											onChange={(e) => {
 												if (e.target.checked) {
@@ -320,9 +324,15 @@ const LeadTableView = memo((props) => {
 												</Td>
 											);
 										}
-										if (col.Header === 'Created') {
+
+										if (col.accessor === 'createdDate') {
 											return (
-												<Td key={col.accessor} minW='200px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='200px'
+													textAlign='center'
+												>
 													{format(
 														new Date(lead?.createdDate),
 														'MMM d, yyyy h:mm a'
@@ -333,7 +343,12 @@ const LeadTableView = memo((props) => {
 
 										if (col.Header === 'City') {
 											return (
-												<Td key={col.accessor} minW='80px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
 													{city || 'N/A'}
 												</Td>
 											);
@@ -341,7 +356,12 @@ const LeadTableView = memo((props) => {
 
 										if (col.Header === 'Country') {
 											return (
-												<Td key={col.accessor} minW='80px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
 													{country || 'N/A'}
 												</Td>
 											);
@@ -369,9 +389,17 @@ const LeadTableView = memo((props) => {
 							);
 						})
 					) : queryParams?.lead ? (
-						<LeadUnassignedMessage />
+						<Tr>
+							<Td colSpan={tableColumns?.length + 1} py='4' h='40vh'>
+								<LeadUnassignedMessage />
+							</Td>
+						</Tr>
 					) : (
-						<NoData label='leads' />
+						<Tr>
+							<Td py='4' h='40vh' colSpan={tableColumns?.length + 1}>
+								<NoData label='leads' />
+							</Td>
+						</Tr>
 					)}
 				</Tbody>
 			</Table>

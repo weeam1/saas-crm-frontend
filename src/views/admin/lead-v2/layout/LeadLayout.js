@@ -237,6 +237,8 @@ const LeadsLayout = memo(
 			</Suspense>
 		);
 
+		console.log(leadsRefetching, 'leadsRefetching');
+
 		return (
 			<Box>
 				<Flex

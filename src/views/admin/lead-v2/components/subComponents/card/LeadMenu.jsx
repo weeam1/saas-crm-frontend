@@ -23,6 +23,7 @@ import { setActiveChat } from '../../../../../../redux/whatsappSlice';
 import { validatePhoneNumber } from 'utils/helpers';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import { FiMoreVertical } from 'react-icons/fi';
 
 const LeadMenu = ({
 	lead,
@@ -104,7 +105,17 @@ const LeadMenu = ({
 
 	return (
 		<Menu isLazy closeOnSelect={false} size='sm'>
-			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
+			<MenuButton
+				as={IconButton}
+				icon={<FiMoreVertical />}
+				aria-label='Options'
+				variant='ghost'
+				size='sm'
+				fontSize='18px'
+				rounded='full'
+				_focus={{ boxShadow: 'none', outline: 'none' }}
+			/>
+			{/* <MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' /> */}
 			<MenuList minW='fit-content' fontSize='sm'>
 				{/* {(isSuperAdmin && access?.update) ||
 				(user?.role !== 'superAdmin' && allowedUserEdit) ? ( */}
