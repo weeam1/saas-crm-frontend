@@ -206,18 +206,16 @@ const LeadsLayout = memo(
       setSelectedStatus((prev) =>
         isChecked ? [...prev, value] : prev.filter((item) => item !== value)
       );
-      setChoiceSelectedStatus((prev) =>
-        prev.filter((s) => !isChecked && s !== value)
-      );
+      !isChecked &&
+        setChoiceSelectedStatus((prev) => prev.filter((s) => s === value));
     };
 
     const handleMstatusChange = (value, isChecked) => {
       setSelectedMstatus((prev) =>
         isChecked ? [...prev, value] : prev.filter((item) => item !== value)
       );
-      setChoiceSelectedMstatus((prev) =>
-        prev.filter((s) => !isChecked && s !== value)
-      );
+      !isChecked &&
+        setChoiceSelectedMstatus((prev) => prev.filter((s) => s === value));
     };
     const handleSearchByName = useCallback(() => {
       // const term = searchTermRef.current.trim();
@@ -316,6 +314,20 @@ const LeadsLayout = memo(
         )}
       </Suspense>
     );
+
+    useEffect(() => {
+      if (choiceSelectedStatus.length > 0 || choiceSelectedMstatus.length > 0) {
+        setQueryParams({
+          statusFilters: {
+            mainStatuses:
+              choiceSelectedMstatus.length > 0 ? choiceSelectedMstatus : null,
+            statuses:
+              choiceSelectedStatus.length > 0 ? choiceSelectedStatus : null,
+          },
+        });
+        setRefetchLoading(true);
+      }
+    }, [choiceSelectedStatus, choiceSelectedMstatus]);
 
     console.log(leadsRefetching, "leadsRefetching");
 
