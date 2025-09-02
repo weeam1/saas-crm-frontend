@@ -12,6 +12,7 @@ import {
 	Box,
 	Text,
 	Flex,
+	Button,
 } from '@chakra-ui/react';
 import LeadUnassignedMessage from '../../components/subComponents/LeadUnassignedMessage';
 import NoData from 'components/Message/NoData';
@@ -128,6 +129,16 @@ const LeadTableView = memo((props) => {
 		// 🔥 filter out hidden fields by accessor
 		return baseCols.filter((col) => !hiddenFields.includes(col.accessor));
 	}, [hiddenFields]);
+
+	const onContactClick = (value, type) => {
+		if (!value) return null;
+
+		if (type === 'phone') {
+			window.location.href = `tel:${value}`;
+		}
+		// Whatsapp redirect
+		else window.open(`https://wa.me/${value}`);
+	};
 
 	return (
 		<Box
@@ -363,6 +374,57 @@ const LeadTableView = memo((props) => {
 													textAlign='center'
 												>
 													{country || 'N/A'}
+												</Td>
+											);
+										}
+										if (col.Header === 'Phone') {
+											return (
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
+													{lead?.leadPhoneNumber ? (
+														<Button
+															variant='link'
+															size='sm'
+															onClick={() =>
+																onContactClick(lead?.leadPhoneNumber, 'phone')
+															}
+														>
+															{safeValue(lead?.leadPhoneNumber)}
+														</Button>
+													) : (
+														'N/A'
+													)}
+												</Td>
+											);
+										}
+										if (col.Header === 'Whatsapp') {
+											return (
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
+													{lead?.leadWhatsappNumber ? (
+														<Button
+															variant='link'
+															size='sm'
+															onClick={() =>
+																onContactClick(
+																	lead?.leadWhatsappNumber,
+																	'whatsapp'
+																)
+															}
+														>
+															{safeValue(lead?.leadWhatsappNumber)}
+														</Button>
+													) : (
+														'N/A'
+													)}
 												</Td>
 											);
 										}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+/******************************************* */
 
 const CustomTooltip = ({
 	label,
@@ -663,6 +664,8 @@ const CustomTooltip = ({
 };
 
 export default CustomTooltip;
+
+/******************************************* */
 
 // const CustomTooltip = ({
 // 	label,
