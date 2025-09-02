@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import LeadUnassignedMessage from '../../components/subComponents/LeadUnassignedMessage';
 import NoData from 'components/Message/NoData';
 import { Grid } from '@chakra-ui/react';
@@ -7,7 +7,7 @@ import useFilteredQueryParams from '../../useFilteredQueryParams';
 import { shallowEqual, useSelector } from 'react-redux';
 import LeadCard from '../../components/LeadCard';
 
-const LeadGridView = (props) => {
+const LeadGridView = memo((props) => {
 	const {
 		isLoaded,
 		leadsLoading,
@@ -45,7 +45,7 @@ const LeadGridView = (props) => {
 
 	return (
 		<div>
-			{!isLoaded || leadsLoading || refetchLoading ? (
+			{!isLoaded || leadsRefetching || leadsLoading || refetchLoading ? (
 				<CardLoader count={pageSize} />
 			) : leads && leads?.totalLeads ? (
 				<Grid
@@ -116,6 +116,8 @@ const LeadGridView = (props) => {
 			)}
 		</div>
 	);
-};
+});
+
+LeadGridView.displayName = 'LeadGridView';
 
 export default LeadGridView;

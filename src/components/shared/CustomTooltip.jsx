@@ -317,7 +317,7 @@ const CustomTooltip = ({
 				}
 
 				.tooltip-trigger:focus-visible {
-					outline: 2px solid #3b82f6;
+					// outline: 2px solid #3b82f6;
 					outline-offset: 2px;
 					border-radius: 4px;
 				}

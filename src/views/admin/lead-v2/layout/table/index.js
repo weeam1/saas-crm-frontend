@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
 import {
 	Table,
@@ -32,7 +32,7 @@ import { format } from 'date-fns';
 import { extractLocationData } from 'utils/helpers';
 import LeadTypeBadge from '../../components/subComponents/LeadTypeBadge';
 
-const LeadTableView = (props) => {
+const LeadTableView = memo((props) => {
 	const {
 		isLoaded,
 		leadsLoading,
@@ -59,6 +59,8 @@ const LeadTableView = (props) => {
 
 	const leads = useSelector((state) => state.leads, shallowEqual);
 
+	const hiddenFields = useSelector((state) => state.leads.hiddenFields || []);
+
 	const { pageSize, queryParams, refetchLoading, setRefetchLoading } =
 		useFilteredQueryParams();
 
@@ -66,7 +68,7 @@ const LeadTableView = (props) => {
 		if (leadsRefetching) {
 			setRefetchLoading(true);
 		} else {
-			const timer = setTimeout(() => setRefetchLoading(false), 2000);
+			const timer = setTimeout(() => setRefetchLoading(false), 1500);
 			return () => clearTimeout(timer);
 		}
 	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
@@ -74,35 +76,45 @@ const LeadTableView = (props) => {
 	// Dynamically filter columns by permission
 	const tableColumns = useMemo(() => {
 		const baseCols = [
-			{ Header: '#', accessor: 'intID', width: 10 },
-			{ Header: 'Name', accessor: 'leadName', width: 20 },
-			{ Header: 'Manager', accessor: 'managerAssigned' },
-			{ Header: 'Agent', accessor: 'agentAssigned' },
-			{ Header: 'Status', accessor: 'leadStatus' },
-			{ Header: 'M Status', accessor: 'eLeadStatus' },
-			{ Header: 'Timetocall', accessor: 'timetocall' },
-			{ Header: 'Budget', accessor: 'budget' },
-			{ Header: 'Created', accessor: 'createdDate' },
-			{ Header: 'Nationality', accessor: 'nationality' },
-			{ Header: 'Language', accessor: 'leadLang' },
-			{ Header: 'Last Note', width: 100, accessor: 'lastNote' },
-			{ Header: 'City', accessor: 'ip' },
-			{ Header: 'Country', accessor: 'ip' },
-			{ Header: 'Source Content', accessor: 'leadSourceDetails' },
-			{ Header: 'Campaign', accessor: 'leadCampaign' },
-			{ Header: 'Campaign URL', accessor: 'pageUrl' },
-			{ Header: 'Address', accessor: 'leadAddress' },
-			{ Header: 'Medium', accessor: 'leadSourceMedium' },
-			{ Header: 'In UAE?', accessor: 'r_u_in_uae' },
+			{ Header: 'ID', accessor: 'intID', width: 10 },
+			{ Header: 'Name', accessor: 'leadName', width: 200 },
+			{ Header: 'Manager', accessor: 'managerAssigned', width: 200 },
+			{ Header: 'Agent', accessor: 'agentAssigned', width: 200 },
+			{ Header: 'M Status', accessor: 'eLeadStatus', width: 190 },
+			{ Header: 'Status', accessor: 'leadStatus', width: 200 },
+			{ Header: 'Timetocall', accessor: 'timetocall', width: 100 },
+			{ Header: 'Budget', accessor: 'budget', width: 100 },
+			{ Header: 'Date & Time', accessor: 'createdDate', width: 150 },
+			{ Header: 'Nationality', accessor: 'nationality', width: 100 },
+			{ Header: 'Language', accessor: 'leadLang', width: 100 },
+			{ Header: 'Last Note', accessor: 'lastNote', width: 200 },
+			{ Header: 'City', accessor: 'city', width: 100 },
+			{ Header: 'Country', accessor: 'country', width: 150 },
+			{ Header: 'Source Content', accessor: 'leadSourceDetails', width: 200 },
+			{ Header: 'Campaign', accessor: 'leadCampaign', width: 200 },
+			{ Header: 'Campaign URL', accessor: 'pageUrl', width: 200 },
+			{ Header: 'Address', accessor: 'leadAddress', width: 150 },
+			{ Header: 'Medium', accessor: 'leadSourceMedium', width: 120 },
+			{ Header: 'Attendance', accessor: 'attendanceDay', width: 100 },
+			{ Header: 'In UAE?', accessor: 'r_u_in_uae', width: 40 },
 		];
 
 		if (hasPermission('leads', 'contactDetails')) {
-			baseCols.splice(7, 0, { Header: 'Phone', accessor: 'leadPhoneNumber' });
+			baseCols.splice(7, 0, {
+				Header: 'Phone',
+				accessor: 'leadPhoneNumber',
+				width: 170,
+			});
 			baseCols.splice(8, 0, {
 				Header: 'Whatsapp',
 				accessor: 'leadWhatsappNumber',
+				width: 170,
 			});
-			baseCols.splice(9, 0, { Header: 'Email', accessor: 'leadEmail' });
+			baseCols.splice(9, 0, {
+				Header: 'Email',
+				accessor: 'leadEmail',
+				width: 170,
+			});
 		}
 
 		// Action column always last
@@ -110,9 +122,12 @@ const LeadTableView = (props) => {
 			Header: 'Actions',
 			accessor: 'actions',
 			isSortable: false,
+			width: 20,
 		});
-		return baseCols;
-	}, []);
+
+		// 🔥 filter out hidden fields by accessor
+		return baseCols.filter((col) => !hiddenFields.includes(col.accessor));
+	}, [hiddenFields]);
 
 	return (
 		<Box
@@ -131,21 +146,32 @@ const LeadTableView = (props) => {
 					color='gray.900'
 					zIndex={1}
 				>
-					<Tr>
+					<Tr h='12'>
 						<Th>
-							<Checkbox
+							{/* <Checkbox
 								isChecked={selectAllChecked}
 								onChange={(e) => setSelectAllChecked(e.target.checked)}
-							/>
+							/> */}
 						</Th>
 						{tableColumns.map((col) => (
-							<Th key={col.accessor}>{col.Header}</Th>
+							<Th
+								key={col.accessor}
+								minW={col?.width ? `${col.width}px` : '100px'}
+								textAlign='center'
+								py='2'
+								fontSize='sm'
+								fontWeight='semibold'
+								color='gray.700'
+								textTransform='capitalize'
+							>
+								{col.Header}
+							</Th>
 						))}
 					</Tr>
 				</Thead>
 
 				<Tbody>
-					{!isLoaded || leadsLoading || refetchLoading ? (
+					{refetchLoading || leadsRefetching || !isLoaded || leadsLoading ? (
 						<TableLoading columns={tableColumns} length={10} py='4' />
 					) : leads && leads?.totalLeads ? (
 						leads?.doc?.map((lead) => {
@@ -158,6 +184,7 @@ const LeadTableView = (props) => {
 									{/* Row checkbox */}
 									<Td>
 										<Checkbox
+											colorScheme='brand'
 											isChecked={selectedValues.includes(lead._id)}
 											onChange={(e) => {
 												if (e.target.checked) {
@@ -273,7 +300,11 @@ const LeadTableView = (props) => {
 										}
 										if (col.Header === 'M Status') {
 											return (
-												<Td key={col.accessor} minW='200px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													minW={`${col.width}px`}
+													textAlign='center'
+												>
 													<MainStatus
 														lead={lead}
 														refreshLeads={refreshLeads}
@@ -284,14 +315,24 @@ const LeadTableView = (props) => {
 										}
 										if (col.Header === 'Status') {
 											return (
-												<Td key={col.accessor} minW='200px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													minW={`${col.width}px`}
+													textAlign='center'
+												>
 													<Status lead={lead} refreshLeads={refreshLeads} />
 												</Td>
 											);
 										}
-										if (col.Header === 'Created') {
+
+										if (col.accessor === 'createdDate') {
 											return (
-												<Td key={col.accessor} minW='200px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='200px'
+													textAlign='center'
+												>
 													{format(
 														new Date(lead?.createdDate),
 														'MMM d, yyyy h:mm a'
@@ -299,9 +340,15 @@ const LeadTableView = (props) => {
 												</Td>
 											);
 										}
+
 										if (col.Header === 'City') {
 											return (
-												<Td key={col.accessor} minW='80px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
 													{city || 'N/A'}
 												</Td>
 											);
@@ -309,7 +356,12 @@ const LeadTableView = (props) => {
 
 										if (col.Header === 'Country') {
 											return (
-												<Td key={col.accessor} minW='80px' textAlign='center'>
+												<Td
+													key={col.accessor}
+													color={'gray.600'}
+													minW='80px'
+													textAlign='center'
+												>
 													{country || 'N/A'}
 												</Td>
 											);
@@ -321,6 +373,11 @@ const LeadTableView = (props) => {
 												key={col.accessor}
 												textAlign='center'
 												maxWidth='150px'
+												color={
+													col.accessor === 'pageUrl' ? 'blue.500' : 'gray.600'
+												}
+												minW={col.width ? `${col.width}px` : '100px'}
+												fontWeight={400}
 											>
 												<Text noOfLines={2}>
 													{safeValue(lead[col.accessor]) || 'N/A'}
@@ -332,14 +389,24 @@ const LeadTableView = (props) => {
 							);
 						})
 					) : queryParams?.lead ? (
-						<LeadUnassignedMessage />
+						<Tr>
+							<Td colSpan={tableColumns?.length + 1} py='4' h='40vh'>
+								<LeadUnassignedMessage />
+							</Td>
+						</Tr>
 					) : (
-						<NoData label='leads' />
+						<Tr>
+							<Td py='4' h='40vh' colSpan={tableColumns?.length + 1}>
+								<NoData label='leads' />
+							</Td>
+						</Tr>
 					)}
 				</Tbody>
 			</Table>
 		</Box>
 	);
-};
+});
+
+LeadTableView.displayName = 'LeadTableView';
 
 export default LeadTableView;
