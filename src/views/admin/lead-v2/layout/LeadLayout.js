@@ -418,7 +418,18 @@ const LeadsLayout = memo(
         <Box height="2px" my={4} bg="softGray.50" />
 
         {/* Manage Columns Button */}
-        <Flex justifyContent="flex-end" mb={4}>
+        <Flex
+          justifyContent={
+            selectedStatus.length > 0 || selectedMstatus.length > 0
+              ? "space-between"
+              : "flex-end"
+          }
+          gap={2}
+          mb={4}
+          flexDir={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "normal" }}
+        >
+          {/* Button */}
           <Button
             size="md"
             bg="brand.500"
@@ -426,30 +437,34 @@ const LeadsLayout = memo(
             borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
-            height="36px"
+            height="40px"
+            minW={{ base: "100%", md: "250px" }}
+            maxW={{ base: "100%", md: "250px" }}
             px={5}
             onClick={openManageColumns}
             _hover={{ bg: "brand.600" }}
             _active={{ bg: "brand.700" }}
             boxShadow="sm"
+            order={{ base: 0, md: 1 }}
           >
             Additional Filter
           </Button>
-        </Flex>
 
-        {/* Display selected status/mstatus buttons */}
-        {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
-          <DisplayManageButton
-            selectedStatus={selectedStatus}
-            selectedMstatus={selectedMstatus}
-            statusOptions={statusOptions}
-            mstatusOptions={mstatusOptions}
-            setChoiceSelectedStatus={setChoiceSelectedStatus}
-            setChoiceSelectedMstatus={setChoiceSelectedMstatus}
-            choiceSelectedStatus={choiceSelectedStatus}
-            choiceSelectedMstatus={choiceSelectedMstatus}
-          />
-        )}
+          {/* Display selected status/mstatus buttons */}
+          {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
+            <DisplayManageButton
+              selectedStatus={selectedStatus}
+              selectedMstatus={selectedMstatus}
+              statusOptions={statusOptions}
+              mstatusOptions={mstatusOptions}
+              setChoiceSelectedStatus={setChoiceSelectedStatus}
+              setChoiceSelectedMstatus={setChoiceSelectedMstatus}
+              choiceSelectedStatus={choiceSelectedStatus}
+              choiceSelectedMstatus={choiceSelectedMstatus}
+              order={{ base: 1, md: 0 }}
+            />
+          )}
+        </Flex>
 
         {leadsError ? (
           <ErrorMessage
