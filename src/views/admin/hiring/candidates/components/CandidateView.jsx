@@ -161,6 +161,10 @@ const CandidateView = ({
 									label='Agency'
 									value={candidate?.agency?.name || 'N/A'}
 								/>
+								<DisplayField
+									label='Source'
+									value={candidate?.source || 'N/A'}
+								/>
 
 								{candidate.invited && (
 									<>
