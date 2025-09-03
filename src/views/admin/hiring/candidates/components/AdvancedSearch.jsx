@@ -37,6 +37,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		agency: '',
 		inviteAccepted: '',
 		visaType: '',
+		source: '',
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
@@ -94,14 +95,15 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 
 	const getFields = (type) => {
 		const baseFields = [
-			{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
-			{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
-			{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
+			{ name: 'name', label: 'Name', placeholder: 'Enter name' },
+			{ name: 'email', label: 'Email', placeholder: 'Enter email' },
+			{ name: 'phone', label: 'Phone No', placeholder: 'Enter phone number' },
 			{
 				name: 'whatsApp',
 				label: 'WhatsApp No',
-				placeholder: 'WhatsApp Number',
+				placeholder: 'WhatsApp number',
 			},
+			{ name: 'source', label: 'Source', placeholder: 'Enter source' },
 			// {
 			// 	name: 'experienceYears',
 			// 	label: 'Experience in Years',

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+/******************************************* */
 
 const CustomTooltip = ({
 	label,
@@ -317,7 +318,7 @@ const CustomTooltip = ({
 				}
 
 				.tooltip-trigger:focus-visible {
-					outline: 2px solid #3b82f6;
+					// outline: 2px solid #3b82f6;
 					outline-offset: 2px;
 					border-radius: 4px;
 				}
@@ -663,6 +664,8 @@ const CustomTooltip = ({
 };
 
 export default CustomTooltip;
+
+/******************************************* */
 
 // const CustomTooltip = ({
 // 	label,

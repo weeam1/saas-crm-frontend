@@ -26,6 +26,8 @@ const Status = ({ lead }) => {
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
 
+	const layoutView = localStorage.getItem('leadView') || 'grid';
+
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const [loading, setLoading] = useState(false);
@@ -86,7 +88,7 @@ const Status = ({ lead }) => {
 					userId: user?._id,
 					action: 'UPDATE',
 					entity: 'Lead',
-enityType: 'Lead',
+					enityType: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
 					message: `${user?.fullName} update the lead status from '${selected || 'No Status'} to '${data.leadStatus}'.`,
@@ -101,7 +103,7 @@ enityType: 'Lead',
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Lead',
-enityType: 'Lead',
+				enityType: 'Lead',
 				entityId: lead._id || null,
 				status: e?.status === 500 ? 'error' : 'fail',
 				message: `failed to update the lead status'.`,
@@ -126,24 +128,24 @@ enityType: 'Lead',
 
 	return (
 		<>
-			<HStack alignItems='center' justifyContent='space-between'>
-				<Text
-					fontWeight='medium'
-					fontSize={leadlabelFontSize}
-					color='softGray.200'
-					mr={2}
-				>
-					Status
-				</Text>
-				{/* 
-				<Tooltip label={label} closeOnClick={false} hasArrow>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip> */}
-				<CustomTooltip label={label}>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</CustomTooltip>
-			</HStack>
+			{layoutView !== 'table' && (
+				<HStack alignItems='center' justifyContent='space-between'>
+					<Text
+						fontWeight='medium'
+						fontSize={leadlabelFontSize}
+						color='softGray.200'
+						mr={2}
+					>
+						Status
+					</Text>
+
+					<CustomTooltip label={label || 'N/A'}>
+						<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					</CustomTooltip>
+				</HStack>
+			)}
 			<SelectInput
+				mt={layoutView === 'table' ? '20px' : 0}
 				name='leadStatus'
 				options={leadStatus}
 				placeholder='Select'

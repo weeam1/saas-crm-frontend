@@ -201,7 +201,7 @@ const LeadScreen = () => {
 
 				if (user.role !== 'superAdmin') {
 					queryParams.append('user', user._id);
-					queryParams.append('role', user.roles?.[0]?.roleName || '');
+					queryParams.append('role', user.roles[0]?.roleName || '');
 					if (dateTime?.from && dateTime?.to) {
 						queryParams.append('dateTime', `${dateTime.from}|${dateTime.to}`);
 					}
@@ -273,7 +273,7 @@ const LeadScreen = () => {
 
 				if (user.role !== 'superAdmin') {
 					queryParams.append('user', user._id);
-					queryParams.append('role', user.roles?.[0]?.roleName || '');
+					queryParams.append('role', user.roles[0]?.roleName || '');
 					if (dateTime?.from && dateTime?.to) {
 						queryParams.append('dateTime', `${dateTime.from}|${dateTime.to}`);
 					}
