@@ -1,339 +1,108 @@
-import { useEffect, useMemo, useState } from 'react';
-import {
-	Box,
-	Button,
-	Flex,
-	HStack,
-	Text,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { useFetchItemsQuery } from 'api/apiSlice';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { FaTachometerAlt, FaUsers } from 'react-icons/fa';
 
-import { buttonStyle } from 'utils/btn';
-import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import DataView from './DataView';
-import DealFilterModal from './components/DealFilterModal';
-import SearchTags from 'components/search/SearchTags';
-import { BiX } from 'react-icons/bi';
-import { useSelector } from 'react-redux';
-import TopPagination from 'components/pagination/TopPagination';
-import ErrorMessage from 'components/Message/ErrorMessage';
-import { dealsLabels } from 'utils/searchLabels';
-import DateFilterButton from '../lead-v2/components/DateFilterButton';
-import DateRangeFilter from './components/DateRangeFilter';
-import { format } from 'date-fns';
-import ViewToggle from 'components/toggle/ViewToggle';
+import NotPermission from 'components/notPermission/NotPermission';
+import TabNavigationDisplay from 'components/TabNavigationDisplay/TabNavigationDisplay';
+
+import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
-import { useNavigate } from 'react-router-dom';
+import DealsScreen from './DealsScreen';
+import SharedDealsScreen from './SharedDealsScreen';
 
-const LIMIT = 12;
+const DealsLayout = () => {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [tabKey, setTabKey] = useState(0);
 
-const DealsScreen = () => {
-	const [deals, setDeals] = useState([]);
-	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [searchClear, setSearchClear] = useState(false);
-	const [searchTags, setSearchTags] = useState([]);
-	const [filters, setFilters] = useState([]);
-
-	const [view, setView] = useState(() => {
-		return localStorage.getItem('dealsView') || 'table';
-	});
+	const { user, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
-	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (!hasPermission('deal')) return navigate('/default');
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	// always read param string (not object reference)
+	const tabFromParams = searchParams.get('tab')?.toLowerCase();
 
-	// const [viewLoading, setViewLoading] = useState(false);
-	const [isRefetching, setIsRefetching] = useState(false);
-
-	const {
-		isOpen: dateTimeIsOpen,
-		onOpen: dateTimeOnOpen,
-		onClose: dateTimeOnClose,
-	} = useDisclosure();
-
-	const tree = useSelector((state) => state.user.tree);
-
-	const [queryParams, setQueryParams] = useState({ page: 1, limit: LIMIT });
-
-	const {
-		data,
-		isLoading,
-		isFetching,
-		refetch,
-		error: dealsError,
-	} = useFetchItemsQuery(
-		{ path: 'deals', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+	// useMemo so tabsData is stable
+	const allTabsData = useMemo(
+		() => [
+			{
+				id: 'closed_deals',
+				label: 'Deals',
+				icon: FaTachometerAlt,
+				param: 'closed_deals',
+				title: 'Closed Deals',
+				description:
+					'View and analyze completed deals, transaction details, and performance metrics.',
+				component: <DealsScreen key='closed_deals' />,
+			},
+			{
+				id: 'shared_deals',
+				label: 'Shared Deals',
+				icon: FaUsers,
+				param: 'shared_deals',
+				title: 'Shared Deals',
+				description:
+					'Explore deals with distributed ownership, shared credit, or collaborative participation.',
+				component: <SharedDealsScreen key='shared_deals' />,
+			},
+		],
+		[user?._id] // only re-create when user changes
 	);
 
+	const tabsData = useMemo(
+		() => allTabsData.filter((tab) => !tab.id || hasPermission('deal', tab.id)),
+		[allTabsData, hasPermission]
+	);
+
+	const activeTabIndex = useMemo(() => {
+		const idx = tabsData.findIndex((tab) => tab.param === tabFromParams);
+		return idx >= 0 ? idx : 0;
+	}, [tabsData, tabFromParams]);
+
 	useEffect(() => {
-		let showTimer;
+		if (tabsData.length === 0) return;
 
-		const isBackgroundRefetch = isFetching && !isLoading;
+		const currentTab = tabFromParams;
 
-		if (isBackgroundRefetch) {
-			// Delay showing the refetching state
-			setIsRefetching(true);
+		const isValidTab = tabsData.some((tab) => tab.param === currentTab);
 
-			showTimer = setTimeout(() => {
-				setIsRefetching(false);
-			}, 2000);
-		} else {
-			setIsRefetching(false);
+		if (!currentTab || !isValidTab) {
+			// always default to first available tab (index 0)
+			const fallback = tabsData[0].param;
+			setSearchParams({ tab: fallback }, { replace: true });
 		}
+	}, [tabsData, searchParams, setSearchParams, tabFromParams]);
 
-		return () => {
-			clearTimeout(showTimer);
-		};
-	}, [isFetching, isLoading]);
+	const handleTabChange = useCallback(
+		(index) => {
+			const tabParam = tabsData[index]?.param;
+			if (!tabParam) return;
 
-	// Refetch on queryParams change
-	useEffect(() => {
-		refetch({ path: '/deals', params: queryParams });
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [queryParams]);
-
-	// Update deals when data is fetched
-	useEffect(() => {
-		if (data?.doc) {
-			setDeals(data.doc);
-		}
-	}, [data?.doc]);
-
-	const handleDealFilters = (filters) => {
-		// Clean filters: remove keys with undefined, null, empty string
-		const cleanObject = (obj) =>
-			Object.fromEntries(
-				Object.entries(obj).filter(
-					([_, v]) => v !== undefined && v !== null && v !== ''
-				)
-			);
-
-		const cleaned = cleanObject(filters);
-		setFilters(cleaned);
-
-		let tags = [];
-
-		Object.entries(cleaned).forEach(([key, value]) => {
-			let displayValue = value;
-
-			// Handle manager
-			if (key === 'manager') {
-				const manager = tree.managers.find(
-					(user) => user?._id?.toString() === value
-				);
-				displayValue = manager
-					? `${manager.firstName} ${manager.lastName}`
-					: value === '-1'
-						? 'No Manager'
-						: value;
+			// Only update search params if it's actually different
+			if (tabParam !== tabFromParams) {
+				setSearchParams({ tab: tabParam });
+			} else {
+				// same tab clicked → force re-render of tab content
+				setTabKey((prev) => prev + 1);
 			}
+		},
+		[tabsData, tabFromParams, setSearchParams]
+	);
 
-			// Handle agent
-			if (key === 'agent') {
-				const agentsArray = Object.values(tree.agents).flatMap(
-					(agentList) => agentList
-				);
-				const agent = agentsArray.find(
-					(user) => user?._id?.toString() === value
-				);
-				displayValue = agent
-					? `${agent.firstName} ${agent.lastName}`
-					: value === '-1'
-						? 'No Agent'
-						: value;
-			}
-
-			if (key === 'spaDone') {
-				displayValue = value === 'true' ? 'Signed' : 'Pending';
-			}
-
-			if (key === 'invoiceSent') {
-				console.log(value);
-				displayValue = value === 'true' ? 'Yes' : 'No';
-			}
-
-			if (key === 'closedBy') {
-				const closedByValue = filters.closedBy;
-
-				if (typeof closedByValue === 'object' && closedByValue !== null) {
-					displayValue = closedByValue.fullName;
-				}
-			}
-
-			tags.push(`${dealsLabels[key]}: ${displayValue}`);
-		});
-
-		let searchFilters = { ...cleaned };
-
-		// Extract `closedBy._id`
-		if (cleaned.closedBy && typeof cleaned.closedBy === 'object') {
-			searchFilters.closedBy = cleaned.closedBy._id;
-		}
-
-		setSearchTags(tags);
-		setSearchClear(true);
-		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
-	};
-
-	const handleDateFilter = (dateFilter) => {
-		dateTimeOnClose();
-		const { from, to } = dateFilter;
-
-		// refresh the params
-		setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT, from, to });
-
-		const searchValues = [
-			`Start: ${format(new Date(from), 'd MMM, yyyy')}`,
-			`End: ${format(new Date(to), 'd MMM, yyyy')}`,
-		];
-
-		setSearchTags(searchValues);
-		setSearchClear(true);
-	};
-
-	const handlePageChange = (page) => {
-		setQueryParams((prev) => ({ ...prev, page: Number(page) }));
-	};
-
-	const handlePageSize = (limit) => {
-		setQueryParams({ page: 1, limit: Number(limit) });
-	};
-
-	const handleClear = () => {
-		setQueryParams({ page: 1, limit: LIMIT });
-		setSearchTags([]);
-		setFilters([]);
-		setSearchClear(false);
-	};
-
-	const handleViewChange = (newView) => {
-		setView(newView);
-		// setViewLoading(true);
-
-		// setTimeout(() => {
-		// 	setViewLoading(false);
-		// }, 1000);
-	};
-
+	if (tabsData.length === 0) {
+		return <NotPermission moduleName='deals' />;
+	}
 	return (
-		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-			<Flex justify='space-between' align='center' mb={4} flexDir={{base:"column", sm:"column", md:"row"}} gap={2}>
-				<HStack gap='1' fontWeight='bold'>
-					<Text fontSize='lg'>Close Deals</Text>
-					<CountUpComponent
-						key={data?.meta?.total}
-						targetNumber={data?.meta?.total}
-					/>
-				</HStack>
-
-				<HStack gap='2' display={"flex"} flexDir={{base:"column", sm:"column", md:"row"}} align='center'>
-					<Button
-						onClick={() => setIsFilterOpen(true)}
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-					>
-						Advanced Search
-					</Button>
-
-					<DateFilterButton onClick={dateTimeOnOpen} />
-					<ViewToggle
-						moduleView='dealsView'
-						view={view}
-						handleView={handleViewChange}
-					/>
-				</HStack>
-			</Flex>
-			{/* Search tags */}
-			{searchClear && searchTags && (
-				<Flex
-					flexDirection={{ base: 'row', lg: 'row' }}
-					justifyContent='space-between'
-					alignItems='center'
-					flexWrap='wrap'
-					py='2'
-				>
-					<SearchTags searchTags={searchTags} />
-
-					{searchClear && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='softGray.100'
-							w='fit-content'
-							color='gray.800'
-							sx={{
-								svg: {
-									fill: 'gray.800',
-								},
-							}}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)}
-				</Flex>
-			)}
-			{!isLoading && (
-				<TopPagination
-					currentPage={queryParams.page}
-					totalPages={data?.meta?.totalPages}
-					onPageChange={handlePageChange}
-					totalItems={data?.meta?.total}
-					itemsPerPage={queryParams.limit}
-					refetching={isFetching}
-					loading={isLoading}
-					handlePageSize={handlePageSize}
-				/>
-			)}
-			{/* <DealCards
-				deals={deals}
-				isLoading={isLoading}
-				isFetching={isFetching}
-				handleNext={handleNext}
-				handlePrev={handlePrev}
-				refetch={refetch}
-			/> */}
-			{dealsError ? (
-				<ErrorMessage
-					message={dealsError?.data?.message || 'Something went wrong!'}
-				/>
-			) : (
-				<DataView
-					deals={deals}
-					view={view}
-					setDeals={setDeals}
-					isLoading={isLoading}
-					isRefetching={isRefetching}
-					refetch={refetch}
-				/>
-			)}
-			{isFilterOpen && (
-				<DealFilterModal
-					isOpen={isFilterOpen}
-					onClose={() => setIsFilterOpen(false)}
-					onFilterApply={handleDealFilters}
-					initialFilters={filters}
-					tree={tree}
-				/>
-			)}
-
-			{dateTimeIsOpen && (
-				<DateRangeFilter
-					isOpen={dateTimeIsOpen}
-					onClose={dateTimeOnClose}
-					handleDateFilter={handleDateFilter}
-				/>
-			)}
-		</Box>
+		<>
+			<TabNavigationDisplay
+				tabsData={tabsData.map((tab) => ({
+					...tab,
+					component:
+						tab.param === tabFromParams?.toLowerCase() ? tab.component : null,
+				}))}
+				activeTab={activeTabIndex}
+				onTabChange={handleTabChange}
+			/>
+		</>
 	);
 };
 
-export default DealsScreen;
+export default DealsLayout;
