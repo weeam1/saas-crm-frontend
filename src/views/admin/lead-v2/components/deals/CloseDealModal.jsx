@@ -85,7 +85,7 @@ const CloseDealModal = React.memo(
         commissionStatus: "",
         currency: "AED",
         shareUser: null,
-        sharePercent: 0,
+        sharePercent: "",
       }),
       [lead]
     );
@@ -328,11 +328,12 @@ const CloseDealModal = React.memo(
                           : null;
 
                         return (
+                          (roleName === "Manager" || roleName === "Agent") &&
                           u._id !== user._id &&
                           u._id !== lead?.agentAssigned &&
                           u._id !== lead?.managerAssigned &&
                           roleName !== "superAdmin" &&
-                          roleName !== "admin"
+                          roleName !== "Admin"
                         );
                       })}
                       onSelectUser={handleSelectUser}

@@ -91,6 +91,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 							size='sm'
 							onClick={handleClear}
 							aria-label='Clear selection'
+							top={size === "sm" ? "-4px" : "0px"}
 						/>
 					</InputRightElement>
 				)}

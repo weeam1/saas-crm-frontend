@@ -42,8 +42,12 @@ const DisplayManageButton = ({
             }}
             border="1px solid"
             borderColor="blue.200"
-            rightIcon={<SmallCloseIcon boxSize={3} />}
-            onClick={() => onRemoveStatus(status)}
+            rightIcon={
+              <SmallCloseIcon
+                boxSize={3}
+                onClick={() => onRemoveStatus(status)}
+              />
+            }
           >
             {getLabel(status, statusOptions)}
           </Button>
@@ -71,8 +75,12 @@ const DisplayManageButton = ({
             }}
             border="1px solid"
             borderColor="brand.200"
-            rightIcon={<SmallCloseIcon boxSize={3} />}
-            onClick={() => onRemoveMstatus(mstatus)}
+            rightIcon={
+              <SmallCloseIcon
+                boxSize={3}
+                onClick={() => onRemoveMstatus(mstatus)}
+              />
+            }
           >
             {getLabel(mstatus, mstatusOptions)}
           </Button>
