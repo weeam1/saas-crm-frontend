@@ -488,9 +488,6 @@ const LeadsLayout = memo(
           </Flex>
         )}
 
-        {/* divider  */}
-        <Box height="2px" my={4} bg="softGray.50" />
-
         {/* Manage Columns Button */}
         <Flex
           justifyContent={
@@ -499,7 +496,7 @@ const LeadsLayout = memo(
               : "flex-end"
           }
           gap={2}
-          mb={4}
+          my={4}
           flexDir={{ base: "column", md: "row" }}
           alignItems={{ base: "stretch", md: "normal" }}
         >
@@ -512,7 +509,8 @@ const LeadsLayout = memo(
             borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
-
+      minW={{ base: "100%", md: "100px" }}
+            maxW={{ base: "100%", md: "100px" }}
             onClick={openManageColumns}
             _hover={{ bg: "brand.600" }}
             _active={{ bg: "brand.700" }}
@@ -534,6 +532,10 @@ const LeadsLayout = memo(
             />
           )}
         </Flex>
+
+        {/* divider  */}
+        <Box height="2px" my={4} bg="softGray.50" />
+
 
         {leadsError ? (
           <ErrorMessage
