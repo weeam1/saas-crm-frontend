@@ -5,11 +5,14 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   ModalCloseButton,
   Checkbox,
   Grid,
   Box,
   Text,
+  Button,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const ManageColumnsModal = ({
@@ -22,14 +25,25 @@ const ManageColumnsModal = ({
   onStatusChange,
   onMstatusChange,
 }) => {
+  // Handle light/dark mode
+  const headerBg = useColorModeValue("brand.500", "brand.400");
+  const footerBg = useColorModeValue("brand.50", "brand.900");
+  const textColor = useColorModeValue("white", "gray.100");
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
       <ModalContent mx={4} maxH="75vh" h="75vh" maxW="90vw">
-        <ModalHeader textAlign="center" pb={2}>
-          Manage Columns
+        {/* Header*/}
+        <ModalHeader
+          pb={2}
+          bg={headerBg}
+          color={textColor}
+          borderTopRadius="md"
+        >
+          Quick Filter
         </ModalHeader>
-        <ModalCloseButton />
+        <ModalCloseButton color={textColor} />
         <ModalBody pb={6} overflowY="auto" flex="1">
           {/* Status Section */}
           <Box mb={6}>
@@ -99,6 +113,13 @@ const ManageColumnsModal = ({
             </Grid>
           </Box>
         </ModalBody>
+
+        {/* Footer */}
+        <ModalFooter bg={footerBg} borderBottomRadius="md">
+          <Button colorScheme="brand" mr={3} onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

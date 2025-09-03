@@ -94,11 +94,8 @@ const LeadsLayout = memo(
     const [selectedStatus, setSelectedStatus] = useState([]);
     const [selectedMstatus, setSelectedMstatus] = useState([]);
 
-    const [choiceSelectedStatus, setChoiceSelectedStatus] = useState([]);
-    const [choiceSelectedMstatus, setChoiceSelectedMstatus] = useState([]);
-
     const statusOptions = [
-      { value: "interested", label: "Interested" },
+      { value: "active", label: "Interested" },
       { value: "sold", label: "Sold" },
       { value: "not_interested", label: "Not Interested" },
       { value: "reassigned", label: "Reassigned" },
@@ -202,21 +199,102 @@ const LeadsLayout = memo(
       clearSearchParams();
     };
 
-    const handleStatusChange = (value, isChecked) => {
-      setSelectedStatus((prev) =>
-        isChecked ? [...prev, value] : prev.filter((item) => item !== value)
-      );
-      !isChecked &&
-        setChoiceSelectedStatus((prev) => prev.filter((s) => s === value));
+    useEffect(() => {
+      if (queryParams?.statusFilters) {
+        let parsedFilters;
+        try {
+          parsedFilters =
+            typeof queryParams.statusFilters === "string"
+              ? JSON.parse(queryParams.statusFilters)
+              : queryParams.statusFilters;
+        } catch (err) {
+          console.error("Invalid statusFilters JSON:", err);
+          return;
+        }
+
+        const { mainStatuses, statuses } = parsedFilters;
+
+        if (Array.isArray(statuses)) {
+          setSelectedStatus(statuses);
+        }
+        if (Array.isArray(mainStatuses)) {
+          setSelectedMstatus(mainStatuses);
+        }
+      }
+    }, [queryParams]);
+
+    // build clean filters 
+    const buildFilters = (statusesArr, mStatusesArr) => {
+      const filters = {};
+      if (statusesArr.length > 0) filters.statuses = statusesArr;
+      if (mStatusesArr.length > 0) filters.mainStatuses = mStatusesArr;
+      return filters;
     };
 
-    const handleMstatusChange = (value, isChecked) => {
-      setSelectedMstatus((prev) =>
-        isChecked ? [...prev, value] : prev.filter((item) => item !== value)
-      );
-      !isChecked &&
-        setChoiceSelectedMstatus((prev) => prev.filter((s) => s === value));
+    // Status handler
+    const handleStatusChange = (value, isChecked) => {
+      setSelectedStatus((prev) => {
+        const updated = isChecked
+          ? [...prev, value]
+          : prev.filter((item) => item !== value);
+
+        setQueryParams({
+          page: 1,
+          statusFilters: buildFilters(updated, selectedMstatus),
+        });
+
+        setRefetchLoading(true);
+        return updated;
+      });
     };
+
+    //  MStatus handler
+    const handleMstatusChange = (value, isChecked) => {
+      setSelectedMstatus((prev) => {
+        const updated = isChecked
+          ? [...prev, value]
+          : prev.filter((item) => item !== value);
+
+        setQueryParams({
+          page: 1,
+          statusFilters: buildFilters(selectedStatus, updated),
+        });
+
+        setRefetchLoading(true);
+        return updated;
+      });
+    };
+
+    //  Remove Status
+    const handleRemoveStatus = (status) => {
+      setSelectedStatus((prev) => {
+        const updated = prev.filter((item) => item !== status);
+
+        setQueryParams({
+          page: 1,
+          statusFilters: buildFilters(updated, selectedMstatus),
+        });
+
+        setRefetchLoading(true);
+        return updated;
+      });
+    };
+
+    // Remove MStatus
+    const handleRemoveMstatus = (mstatus) => {
+      setSelectedMstatus((prev) => {
+        const updated = prev.filter((item) => item !== mstatus);
+
+        setQueryParams({
+          page: 1,
+          statusFilters: buildFilters(selectedStatus, updated),
+        });
+
+        setRefetchLoading(true);
+        return updated;
+      });
+    };
+
     const handleSearchByName = useCallback(() => {
       // const term = searchTermRef.current.trim();
       const term = searchTermRef.current.trim().replace(/^\+/, "");
@@ -295,8 +373,6 @@ const LeadsLayout = memo(
       setLeadAddtionalInfo,
       setIsLeadCycle,
       leadAddtionalInfo,
-      choiceSelectedStatus,
-      choiceSelectedMstatus,
     };
 
     const leadDataLayout = (
@@ -314,20 +390,6 @@ const LeadsLayout = memo(
         )}
       </Suspense>
     );
-
-    useEffect(() => {
-      if (choiceSelectedStatus.length > 0 || choiceSelectedMstatus.length > 0) {
-        setQueryParams({
-          statusFilters: {
-            mainStatuses:
-              choiceSelectedMstatus.length > 0 ? choiceSelectedMstatus : null,
-            statuses:
-              choiceSelectedStatus.length > 0 ? choiceSelectedStatus : null,
-          },
-        });
-        setRefetchLoading(true);
-      }
-    }, [choiceSelectedStatus, choiceSelectedMstatus]);
 
     console.log(leadsRefetching, "leadsRefetching");
 
@@ -443,23 +505,21 @@ const LeadsLayout = memo(
         >
           {/* Button */}
           <Button
+            {...buttonStyle}
             size="md"
             bg="brand.500"
             color="white"
             borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
-            height="40px"
-            minW={{ base: "100%", md: "250px" }}
-            maxW={{ base: "100%", md: "250px" }}
-            px={5}
+
             onClick={openManageColumns}
             _hover={{ bg: "brand.600" }}
             _active={{ bg: "brand.700" }}
             boxShadow="sm"
             order={{ base: 0, md: 1 }}
           >
-            Additional Filter
+            Quick Filter
           </Button>
 
           {/* Display selected status/mstatus buttons */}
@@ -469,11 +529,8 @@ const LeadsLayout = memo(
               selectedMstatus={selectedMstatus}
               statusOptions={statusOptions}
               mstatusOptions={mstatusOptions}
-              setChoiceSelectedStatus={setChoiceSelectedStatus}
-              setChoiceSelectedMstatus={setChoiceSelectedMstatus}
-              choiceSelectedStatus={choiceSelectedStatus}
-              choiceSelectedMstatus={choiceSelectedMstatus}
-              order={{ base: 1, md: 0 }}
+              onRemoveStatus={handleRemoveStatus}
+              onRemoveMstatus={handleRemoveMstatus}
             />
           )}
         </Flex>

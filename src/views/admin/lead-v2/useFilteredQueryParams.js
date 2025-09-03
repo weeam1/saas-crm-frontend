@@ -140,7 +140,7 @@ export const useFilteredQueryParams = () => {
 		const statusFilters = searchParams.get('statusFilters');
 		if (statusFilters) {
 			const parsedStatusFilters = safeJSONParse(statusFilters);	
-			if (parsedStatusFilters) {
+			if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
 				updatedParams.statusFilters = statusFilters;
 			}
 		}
