@@ -25,7 +25,7 @@ const SearchBox = ({
 			// alignSelf='end'
 			width={{ base: '100%', lg: 'fit-content' }}
 			bg='softGray.50'
-			p='2'
+			p='1'
 			borderRadius='md'
 		>
 			<HStack
