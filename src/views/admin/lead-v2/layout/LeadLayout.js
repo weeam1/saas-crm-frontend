@@ -31,7 +31,7 @@ import SearchBox from "../components/SearchBox";
 import LeadsModals from "../components/LeadsModals";
 import DateFilter from "../components/DateFilter";
 import Pagination from "../components/Pagination";
-import ManageColumnsModal from "../components/ManageColumnsModal";
+import QuickFilterModal from "../components/QuickFilterModal";
 import DisplayManageButton from "../components/DisplayManageButton";
 import Loader from "components/loading/Loader";
 
@@ -599,7 +599,7 @@ const LeadsLayout = memo(
           />
         )}
         {/* Manage Columns Modal */}
-        <ManageColumnsModal
+        <QuickFilterModal
           isOpen={manageColumnsOpen}
           onClose={closeManageColumns}
           statusOptions={statusOptions}

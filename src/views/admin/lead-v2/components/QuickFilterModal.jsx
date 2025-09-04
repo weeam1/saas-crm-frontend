@@ -15,7 +15,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
-const ManageColumnsModal = ({
+const QuickFilterModal = ({
   isOpen,
   onClose,
   statusOptions,
@@ -125,4 +125,4 @@ const ManageColumnsModal = ({
   );
 };
 
-export default ManageColumnsModal;
+export default QuickFilterModal;
