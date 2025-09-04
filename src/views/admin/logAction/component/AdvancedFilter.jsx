@@ -37,7 +37,8 @@ const AdvancedFilter = ({
   levelOptions,
   entityOptions,
   usersData,
-  roleData
+  roleData,
+  setSearchTags,
 }) => {
   const [openCalendar, setOpenCalendar] = React.useState(null);
   const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
@@ -51,6 +52,55 @@ const AdvancedFilter = ({
     return date
       ? moment(date).utcOffset(0, true).startOf("day").toISOString()
       : null;
+  };
+  const getFilterDisplayName = (key, value) => {
+    if (!value) return null;
+    switch (key) {
+      case "userId":
+        const user = usersData?.doc?.find((u) => u._id === value);
+        return `User: ${user ? user.fullName || user.username : value}`;
+
+      case "status":
+       
+        return `Status: ${value}`;
+
+      case "entity":
+          return `Entity: ${value}`;
+
+      case "action":
+        return `Action: ${value}`;
+
+      case "securityLevel":
+        return `Level: ${value}`;
+
+      case "roleId":
+        const role = roleData?.find((r) => r._id === value);
+        return `Role: ${role ? role.roleName : value}`;
+
+      case "from":
+        return value ? `From: ${moment(value).format("MMM D, YYYY")}` : null;
+
+      case "to":
+        return value ? `To: ${moment(value).format("MMM D, YYYY")}` : null;
+
+      default:
+        return value;
+    }
+  };
+
+  const generateSearchTags = (filters) => {
+    const tags = [];
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== "") {
+        const displayName = getFilterDisplayName(key, value);
+        if (displayName) {
+          tags.push(displayName);
+        }
+      }
+    });
+
+    return tags.length > 0 ? tags : null;
   };
 
   const formik = useFormik({
@@ -70,8 +120,10 @@ const AdvancedFilter = ({
         from: values.from ? toUTCString(values.from) : undefined,
         to: values.to ? toUTCString(values.to) : undefined,
       };
+      const tags = generateSearchTags(cleanedValues);
       applyFilters(cleanedValues);
       onClose();
+      setSearchTags([...tags]);
     },
   });
 
@@ -89,6 +141,7 @@ const AdvancedFilter = ({
           roleId: filters.roleId || "",
         },
       });
+      setSearchTags([]);
     }
   }, [isOpen, filters]);
 
@@ -106,6 +159,7 @@ const AdvancedFilter = ({
       },
     });
     resetFilters();
+    setSearchTags([]);
   };
 
   const handleSelectUser = (user) => {
@@ -180,14 +234,12 @@ const AdvancedFilter = ({
                 <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                   User
                 </FormLabel>
-                <Box position="relative" zIndex="dropdown">
                   <SearchUsers
                     selectedUserId={formik.values.userId}
                     users={usersData?.doc || []}
                     onSelectUser={handleSelectUser}
                     isMobile={isMobile}
                   />
-                </Box>
               </FormControl>
 
               {/* Date Range Section */}
@@ -241,7 +293,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Status
                   </FormLabel>
-                  <Box position="relative" zIndex="dropdown">
+                  <Box>
                     <Select
                       name="status"
                       placeholder="Select status"
@@ -263,7 +315,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Module
                   </FormLabel>
-                  <Box position="relative" zIndex="dropdown">
+                  <Box >
                     <Select
                       name="entity"
                       placeholder="Select module"
@@ -287,7 +339,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Action
                   </FormLabel>
-                  <Box position="relative" zIndex="dropdown">
+                  <Box>
                     <Select
                       name="action"
                       placeholder="Select action"
@@ -309,7 +361,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Security Level
                   </FormLabel>
-                  <Box position="relative" zIndex="dropdown">
+                  <Box>
                     <Select
                       name="securityLevel"
                       placeholder="Select level"
@@ -331,7 +383,7 @@ const AdvancedFilter = ({
                 <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                   Role
                 </FormLabel>
-                <Box position="relative" zIndex="dropdown">
+                <Box>
                   <Select
                     name="roleId"
                     placeholder="Select role"

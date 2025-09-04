@@ -137,6 +137,14 @@ export const useFilteredQueryParams = () => {
 			}
 		}
 
+		const statusFilters = searchParams.get('statusFilters');
+		if (statusFilters) {
+			const parsedStatusFilters = safeJSONParse(statusFilters);	
+			if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
+				updatedParams.statusFilters = statusFilters;
+			}
+		}
+
 		// Handle 'search' parameter
 		const searchParam = searchParams.get('search');
 		if (searchParam) {
