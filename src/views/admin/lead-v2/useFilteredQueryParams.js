@@ -110,6 +110,7 @@ export const useFilteredQueryParams = () => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
 		setCurrentPage(page);
+		setPageSize(pageSize)
 		const lead = searchParams.get('lead');
 
 		if (lead) {
