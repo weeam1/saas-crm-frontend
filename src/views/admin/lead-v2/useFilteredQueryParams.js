@@ -109,7 +109,7 @@ export const useFilteredQueryParams = () => {
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
-
+		setCurrentPage(page);
 		const lead = searchParams.get('lead');
 
 		if (lead) {
