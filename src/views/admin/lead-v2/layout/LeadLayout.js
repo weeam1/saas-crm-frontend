@@ -576,6 +576,10 @@ const LeadsLayout = memo(
           selectedMstatus={selectedMstatus}
           onStatusChange={handleStatusChange}
           onMstatusChange={handleMstatusChange}
+          setQueryParams={setQueryParams}
+          setRefetchLoading={setRefetchLoading}
+          setSelectedStatus={setSelectedStatus}
+          setSelectedMstatus={setSelectedMstatus}
         />
       </Box>
     );
