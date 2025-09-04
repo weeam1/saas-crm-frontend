@@ -391,6 +391,24 @@ const LeadsLayout = memo(
 
     return (
       <Box>
+        {/* Manage Columns Button */}
+        <Flex
+          gap={2}
+          flexDir={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "normal" }}
+        >
+          {/* Display selected status/mstatus buttons */}
+          {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
+            <DisplayManageButton
+              selectedStatus={selectedStatus}
+              selectedMstatus={selectedMstatus}
+              statusOptions={statusOptions}
+              mstatusOptions={mstatusOptions}
+              onRemoveStatus={handleRemoveStatus}
+              onRemoveMstatus={handleRemoveMstatus}
+            />
+          )}
+        </Flex>
         <Flex
           width="full"
           justifyContent="space-between"
@@ -432,25 +450,6 @@ const LeadsLayout = memo(
             <SearchTags searchTags={searchTags} />
           </Flex>
         )}
-        {/* Manage Columns Button */}
-        <Flex
-          gap={2}
-          my={4}
-          flexDir={{ base: "column", md: "row" }}
-          alignItems={{ base: "stretch", md: "normal" }}
-        >
-          {/* Display selected status/mstatus buttons */}
-          {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
-            <DisplayManageButton
-              selectedStatus={selectedStatus}
-              selectedMstatus={selectedMstatus}
-              statusOptions={statusOptions}
-              mstatusOptions={mstatusOptions}
-              onRemoveStatus={handleRemoveStatus}
-              onRemoveMstatus={handleRemoveMstatus}
-            />
-          )}
-        </Flex>
 
         {/* Clear and Delete button  */}
         {(selectedValues.length > 0 || searchClear) && (
