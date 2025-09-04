@@ -20,9 +20,9 @@ import {
   FaUserShield,
   FaUserTag,
   FaUserTie,
-  FaHandshake,
   FaUserFriends,
   FaPercentage,
+  FaMoneyBillAlt 
 } from "react-icons/fa";
 import { CheckCircleIcon, TimeIcon } from "@chakra-ui/icons";
 import { formatPostDate, formatCurrency } from "utils/helpers";
@@ -81,6 +81,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
     sharePercent,
   } = deal;
 
+  console.log("deal", deal)
   const PersonCard = ({ title, person, icon }) => {
     if (!person) return null;
     return (
@@ -138,13 +139,6 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
       borderColor="gray.100"
       bg="gray.50"
     >
-      <Flex align="center" gap={3} mb={3}>
-        <Icon as={FaHandshake} color="brand.500" boxSize={5} />
-        <Text fontSize="sm" fontWeight="bold" color="brand.500">
-          Shared Deal
-        </Text>
-      </Flex>
-
       <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
         <Flex align="center" gap={3}>
           <Icon as={FaUserFriends} color="brand.400" boxSize={4} />
@@ -165,6 +159,16 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
               Share Percentage
             </Text>
             <Text fontWeight="medium">{sharePercent}%</Text>
+          </Box>
+        </Flex>
+
+		<Flex align="center" gap={3}>
+          <Icon as={FaMoneyBillAlt } color="brand.400" boxSize={4} />
+          <Box>
+            <Text fontSize="xs" color="gray.500">
+              Share Amount
+            </Text>
+            <Text fontWeight="medium">AED { ((bookingAmountPaid * sharePercent) / 100).toFixed(2)}</Text>
           </Box>
         </Flex>
       </SimpleGrid>
