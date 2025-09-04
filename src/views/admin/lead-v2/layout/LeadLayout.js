@@ -57,6 +57,9 @@ const LeadsLayout = memo(
     dateTimeOnClose,
     setCurrentPageSelection,
     currentPageSelection,
+    manageColumnsOpen,
+    openManageColumns,
+    closeManageColumns,
   }) => {
     const { hasPermission } = usePermissions();
 
@@ -85,11 +88,6 @@ const LeadsLayout = memo(
 
     const [isLoaded, setIsLoaded] = useState(false);
     // const [refetchLoading, setRefetchLoading] = useState(false);
-    const {
-      isOpen: manageColumnsOpen,
-      onOpen: openManageColumns,
-      onClose: closeManageColumns,
-    } = useDisclosure();
 
     const [selectedStatus, setSelectedStatus] = useState([]);
     const [selectedMstatus, setSelectedMstatus] = useState([]);
@@ -223,7 +221,7 @@ const LeadsLayout = memo(
       }
     }, [queryParams]);
 
-    // build clean filters 
+    // build clean filters
     const buildFilters = (statusesArr, mStatusesArr) => {
       const filters = {};
       if (statusesArr.length > 0) filters.statuses = statusesArr;
@@ -434,6 +432,25 @@ const LeadsLayout = memo(
             <SearchTags searchTags={searchTags} />
           </Flex>
         )}
+        {/* Manage Columns Button */}
+        <Flex
+          gap={2}
+          my={4}
+          flexDir={{ base: "column", md: "row" }}
+          alignItems={{ base: "stretch", md: "normal" }}
+        >
+          {/* Display selected status/mstatus buttons */}
+          {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
+            <DisplayManageButton
+              selectedStatus={selectedStatus}
+              selectedMstatus={selectedMstatus}
+              statusOptions={statusOptions}
+              mstatusOptions={mstatusOptions}
+              onRemoveStatus={handleRemoveStatus}
+              onRemoveMstatus={handleRemoveMstatus}
+            />
+          )}
+        </Flex>
 
         {/* Clear and Delete button  */}
         {(selectedValues.length > 0 || searchClear) && (
@@ -486,54 +503,8 @@ const LeadsLayout = memo(
           </Flex>
         )}
 
-        {/* Manage Columns Button */}
-        <Flex
-          justifyContent={
-            selectedStatus.length > 0 || selectedMstatus.length > 0
-              ? "space-between"
-              : "flex-end"
-          }
-          gap={2}
-          my={4}
-          flexDir={{ base: "column", md: "row" }}
-          alignItems={{ base: "stretch", md: "normal" }}
-        >
-          {/* Button */}
-          <Button
-            {...buttonStyle}
-            size="md"
-            bg="brand.500"
-            color="white"
-            borderRadius="md"
-            fontSize="sm"
-            fontWeight="medium"
-      minW={{ base: "100%", md: "100px" }}
-            maxW={{ base: "100%", md: "100px" }}
-            onClick={openManageColumns}
-            _hover={{ bg: "brand.600" }}
-            _active={{ bg: "brand.700" }}
-            boxShadow="sm"
-            order={{ base: 0, md: 1 }}
-          >
-            Quick Filter
-          </Button>
-
-          {/* Display selected status/mstatus buttons */}
-          {(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
-            <DisplayManageButton
-              selectedStatus={selectedStatus}
-              selectedMstatus={selectedMstatus}
-              statusOptions={statusOptions}
-              mstatusOptions={mstatusOptions}
-              onRemoveStatus={handleRemoveStatus}
-              onRemoveMstatus={handleRemoveMstatus}
-            />
-          )}
-        </Flex>
-
         {/* divider  */}
         <Box height="2px" my={4} bg="softGray.50" />
-
 
         {leadsError ? (
           <ErrorMessage
@@ -610,7 +581,6 @@ const LeadsLayout = memo(
       </Box>
     );
   }
-
 );
 
 LeadsLayout.displayName = "LeadsLayout";

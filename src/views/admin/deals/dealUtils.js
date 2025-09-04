@@ -51,7 +51,8 @@ export const dealSchema = Yup.object().shape({
         schema
           .typeError("Share Percentage is required")
           .required("Share Percentage is required")
-          .min(0.01, "Share Percentage must be greater than 0"),
+          .min(0.01, "Share Percentage must be greater than 0")
+		  .max(100, "Share Percentage cannot exceed 100"),
       otherwise: (schema) => schema.nullable().notRequired(),
     }),
 });
