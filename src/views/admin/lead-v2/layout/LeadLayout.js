@@ -26,6 +26,7 @@ import Pagination from '../components/Pagination';
 import QuickFilterModal from '../components/QuickFilterModal';
 import DisplayManageButton from '../components/DisplayManageButton';
 import Loader from 'components/loading/Loader';
+import TopPagination from 'components/pagination/TopPagination';
 
 const LeadTableView = lazy(() => import('./table'));
 const LeadGridView = lazy(() => import('./grid'));
@@ -34,6 +35,10 @@ const LeadsLayout = memo(
 	({
 		layoutView,
 		data,
+		pageSize,
+		setPageSize,
+		currentPage,
+		setCurrentPage,
 		leadsError,
 		leadsLoading,
 		leadsRefetching,
@@ -56,10 +61,10 @@ const LeadsLayout = memo(
 		const { hasPermission } = usePermissions();
 
 		const {
-			currentPage,
-			setCurrentPage,
-			pageSize,
-			setPageSize,
+			// currentPage,
+			// setCurrentPage,
+			// pageSize,
+			// setPageSize,
 			queryParams,
 			setQueryParams,
 			setSearchQueryParams,
@@ -70,6 +75,8 @@ const LeadsLayout = memo(
 			clearSearchParams,
 			setRefetchLoading,
 		} = useFilteredQueryParams();
+
+		console.log({ queryParams });
 
 		// const leads = useSelector(
 		// 	(state) => state.leads,
@@ -210,6 +217,9 @@ const LeadsLayout = memo(
 				if (Array.isArray(mainStatuses)) {
 					setSelectedMstatus(mainStatuses);
 				}
+
+				searchTags && setSearchTags([]);
+				searchClear && setSearchClear(false);
 			} else {
 				setSelectedStatus([]);
 				setSelectedMstatus([]);
@@ -336,14 +346,22 @@ const LeadsLayout = memo(
 			});
 		};
 
-		const handlePageSize = (e) => {
-			const newSize = Number(e.target.value);
-			if (newSize !== pageSize) {
-				setPageSize(newSize);
+		const handlePageSize = (newPageSize) => {
+			console.log({ newPageSize });
+			if (newPageSize !== pageSize) {
+				setPageSize(newPageSize);
 				setCurrentPage(1);
 				setRefetchLoading(true);
 			}
 		};
+		// const handlePageSize = (e) => {
+		// 	const newSize = Number(e.target.value);
+		// 	if (newSize !== pageSize) {
+		// 		setPageSize(newSize);
+		// 		setCurrentPage(1);
+		// 		setRefetchLoading(true);
+		// 	}
+		// };
 
 		const commonProps = {
 			isLoaded,
@@ -412,7 +430,7 @@ const LeadsLayout = memo(
 					flexDirection={{ base: 'column', lg: 'row' }}
 				>
 					{/* Pagination */}
-					<Pagination
+					{/* <Pagination
 						currentPage={data?.currentPage ?? currentPage}
 						totalPages={data?.totalPages ?? ''}
 						onPageChange={handlePageChange}
@@ -422,6 +440,18 @@ const LeadsLayout = memo(
 						refetching={leadsRefetching}
 						loading={leadsLoading}
 						handlePageSize={handlePageSize}
+					/> */}
+
+					<TopPagination
+						currentPage={queryParams?.page || currentPage}
+						totalPages={data?.totalPages ?? ''}
+						totalItems={data?.totalLeads ?? ''}
+						itemsPerPage={queryParams?.pageSize || pageSize}
+						refetching={leadsRefetching}
+						loading={leadsLoading}
+						onPageChange={handlePageChange}
+						handlePageSize={handlePageSize}
+						maximumPageSize={20}
 					/>
 
 					{/* Search Box */}

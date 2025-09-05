@@ -6,7 +6,7 @@ import { leadLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 32;
+const DEFAULT_PAGE_SIZE = 40;
 const MAX_PAGE_SIZE = 200;
 
 // const usePaginationParams = (DEFAULT_PAGE = 1, DEFAULT_PAGE_SIZE = 32) => {
@@ -83,7 +83,6 @@ export const useFilteredQueryParams = () => {
 	const [searchTags, setSearchTags] = useState([]);
 	const [searchClear, setSearchClear] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);
-	const [statusFilters, setStatusFilters] = useState(null);
 
 	const tree = useSelector((state) => state.user.tree);
 
@@ -149,7 +148,10 @@ export const useFilteredQueryParams = () => {
 			const parsedStatusFilters = safeJSONParse(statusFilters);
 			if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
 				updatedParams.statusFilters = statusFilters;
-				setStatusFilters(parsedStatusFilters);
+				setSearchTags([]);
+				setSearchClear(false);
+			} else {
+				searchParams.delete('statusFilters');
 			}
 		}
 

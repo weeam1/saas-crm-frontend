@@ -173,7 +173,7 @@ const Pagination = ({
 				</NumberInput> */}
 
 				<NumberInput
-					value={currentPage || gotoPage || 1}
+					value={gotoPage ?? 1}
 					onChange={(valueString) => {
 						const value = Number(valueString) || '';
 						if (value <= (totalPages ?? 999999999)) {

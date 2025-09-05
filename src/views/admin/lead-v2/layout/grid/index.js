@@ -31,7 +31,7 @@ const LeadGridView = memo((props) => {
 	} = props;
 	const leads = useSelector((state) => state.leads, shallowEqual);
 
-	const { pageSize, queryParams, refetchLoading, setRefetchLoading } =
+	const { queryParams, refetchLoading, setRefetchLoading } =
 		useFilteredQueryParams();
 
 	useEffect(() => {
@@ -42,8 +42,6 @@ const LeadGridView = memo((props) => {
 			return () => clearTimeout(timer);
 		}
 	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
-
-	console.log({ pageSize });
 
 	return (
 		<div>
