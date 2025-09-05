@@ -111,6 +111,7 @@ const LogTable = () => {
     entity: "",
     action: "",
     securityLevel: "",
+    entityId: ""
   });
 
   const { colorMode } = useColorMode();
@@ -143,6 +144,7 @@ const LogTable = () => {
     if (filters.action) params.action = filters.action;
     if (filters.securityLevel) params.securityLevel = filters.securityLevel;
     if (filters.roleId) params.roleId = filters.roleId;
+    if (filters.entityId) params.entityId = filters.entityId;
 
     return params;
   };
@@ -297,6 +299,7 @@ const LogTable = () => {
       entity: "",
       action: "",
       securityLevel: "",
+      entityId: ""
     });
     setCurrentPage(1);
     setSearchTags(null);
@@ -332,8 +335,11 @@ const LogTable = () => {
     },
   });
 
+  console.log("Rendered with searchTags:", searchTags);
   return (
-    <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
+    <Box borderRadius="md" mt={"-18px"} mr={"-5px"}  bg={"white"}
+    p={2}
+    >
       <Stack
         direction={{ base: "column", sm: "row" }}
         justifyContent="space-between"
@@ -363,7 +369,7 @@ const LogTable = () => {
           />
         </Flex>
       </Stack>
-      {searchTags && filters && (
+      {searchTags && searchTags?.length > 0  && filters && (
         <Flex gap={2} flexDir={{ base: "column", sm: "column", md: "row" }} mb={2} justifyContent={"space-between"} alignItems={{ base: "flex-start", sm: "center" }}>
           <SearchTags searchTags={searchTags} />
 

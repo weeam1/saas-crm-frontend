@@ -24,6 +24,7 @@ import { FiX } from "react-icons/fi";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 import moment from "moment";
+import DropdownSearchUser from "components/search/DropdownSearchUser";
 
 const AdvancedFilter = ({
   isOpen,
@@ -83,6 +84,9 @@ const AdvancedFilter = ({
       case "to":
         return value ? `To: ${moment(value).format("MMM D, YYYY")}` : null;
 
+      case "entityId":
+        const entityUser = usersData?.doc?.find((u) => u._id === value);
+        return `Entity User: ${entityUser ? entityUser.fullName || entityUser.username : value}`;
       default:
         return value;
     }
@@ -113,6 +117,7 @@ const AdvancedFilter = ({
       action: "",
       securityLevel: "",
       roleId: "",
+      entityId: "",
     },
     onSubmit: (values) => {
       const cleanedValues = {
@@ -120,6 +125,7 @@ const AdvancedFilter = ({
         from: values.from ? toUTCString(values.from) : undefined,
         to: values.to ? toUTCString(values.to) : undefined,
       };
+      values.entity !== "Lead" && (cleanedValues.entityId = "");
       const tags = generateSearchTags(cleanedValues);
       applyFilters(cleanedValues);
       onClose();
@@ -139,6 +145,7 @@ const AdvancedFilter = ({
           action: filters.action || "",
           securityLevel: filters.securityLevel || "",
           roleId: filters.roleId || "",
+          entityId: filters.entityId || "",
         },
       });
       setSearchTags([]);
@@ -156,6 +163,7 @@ const AdvancedFilter = ({
         action: "",
         securityLevel: "",
         roleId: "",
+        entityId: "",
       },
     });
     resetFilters();
@@ -176,6 +184,7 @@ const AdvancedFilter = ({
       action: filters.action || "",
       securityLevel: filters.securityLevel || "",
       roleId: filters.roleId || "",
+      entityId: filters.entityId || "",
     };
   }, [filters]);
 
@@ -234,12 +243,12 @@ const AdvancedFilter = ({
                 <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                   User
                 </FormLabel>
-                  <SearchUsers
-                    selectedUserId={formik.values.userId}
-                    users={usersData?.doc || []}
-                    onSelectUser={handleSelectUser}
-                    isMobile={isMobile}
-                  />
+                <SearchUsers
+                  selectedUserId={formik.values.userId}
+                  users={usersData?.doc || []}
+                  onSelectUser={handleSelectUser}
+                  isMobile={isMobile}
+                />
               </FormControl>
 
               {/* Date Range Section */}
@@ -315,7 +324,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Module
                   </FormLabel>
-                  <Box >
+                  <Box>
                     <Select
                       name="entity"
                       placeholder="Select module"
@@ -334,6 +343,31 @@ const AdvancedFilter = ({
                 </FormControl>
               </SimpleGrid>
 
+              {/* Entity User  */}
+              {formik.values.entity === "Lead" && (
+                <FormControl mt={4}>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Entity User
+                  </FormLabel>
+                  <DropdownSearchUser
+                    selectedUserId={formik.values.entityId}
+                    users={
+                      usersData?.doc.filter((u) => {
+                        const roleName = Array.isArray(u?.roles)
+                          ? u.roles[0]?.roleName
+                          : null;
+                        return roleName === "Manager" || roleName === "Agent";
+                      }) || []
+                    }
+                    onSelectUser={(user) =>
+                      formik.setFieldValue("entityId", user?._id || "")
+                    }
+                    isMobile={isMobile}
+                    size="sm"
+                  />
+                
+                </FormControl>
+              )}
               <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
