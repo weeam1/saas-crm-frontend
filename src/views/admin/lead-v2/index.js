@@ -109,7 +109,7 @@ const Index = () => {
       refetchOnReconnect: true, // Refetch on internet reconnection
     }
   );
-
+  
   const refreshLeads = useCallback(() => {
     leadsRefetch({
       path: "/lead/v2",
@@ -124,9 +124,10 @@ const Index = () => {
         updateLeads({
           leads,
           currentPage,
-          pageSize,
+          pageSize: leads?.length,
         })
       );
+      setQueryParams({page: currentPage, pageSize: leads?.doc?.length || 32}); 
     }
   }, [leads, currentPage, pageSize, dispatch]);
 
