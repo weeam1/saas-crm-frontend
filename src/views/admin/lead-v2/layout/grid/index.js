@@ -43,10 +43,12 @@ const LeadGridView = memo((props) => {
 		}
 	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
 
+	console.log({ pageSize });
+
 	return (
 		<div>
 			{!isLoaded || leadsRefetching || leadsLoading || refetchLoading ? (
-				<CardLoader count={pageSize} />
+				<CardLoader count={32} />
 			) : leads && leads?.totalLeads ? (
 				<Grid
 					sx={{

@@ -25,6 +25,8 @@ const Pagination = ({
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
+	console.log({ currentPage });
+
 	const leads = useSelector((state) => state.leads);
 
 	useEffect(() => {
@@ -171,7 +173,7 @@ const Pagination = ({
 				</NumberInput> */}
 
 				<NumberInput
-					value={gotoPage ?? 1}
+					value={currentPage || gotoPage || 1}
 					onChange={(valueString) => {
 						const value = Number(valueString) || '';
 						if (value <= (totalPages ?? 999999999)) {

@@ -49,7 +49,7 @@ const LastNoteField = ({ label, lead }) => {
 					</Text>
 				)}
 
-				<CustomTooltip label={tooltipLabel}>
+				<CustomTooltip label={tooltipLabel} persistent={true}>
 					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
 				</CustomTooltip>
 			</HStack>

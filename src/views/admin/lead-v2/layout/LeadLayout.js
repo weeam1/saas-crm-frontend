@@ -9,15 +9,7 @@ import React, {
 } from 'react';
 
 import { shallowEqual, useSelector } from 'react-redux';
-import {
-	Box,
-	Button,
-	Flex,
-	Grid,
-	VStack,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { HasAccess } from '../../../../redux/accessUtils';
+import { Box, Button, Flex, VStack } from '@chakra-ui/react';
 import { BiX } from 'react-icons/bi';
 import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
@@ -218,6 +210,9 @@ const LeadsLayout = memo(
 				if (Array.isArray(mainStatuses)) {
 					setSelectedMstatus(mainStatuses);
 				}
+			} else {
+				setSelectedStatus([]);
+				setSelectedMstatus([]);
 			}
 		}, [queryParams]);
 
@@ -236,7 +231,7 @@ const LeadsLayout = memo(
 					? [...prev, value]
 					: prev.filter((item) => item !== value);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(updated, selectedMstatus),
 				});
@@ -253,7 +248,7 @@ const LeadsLayout = memo(
 					? [...prev, value]
 					: prev.filter((item) => item !== value);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(selectedStatus, updated),
 				});
@@ -268,7 +263,7 @@ const LeadsLayout = memo(
 			setSelectedStatus((prev) => {
 				const updated = prev.filter((item) => item !== status);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(updated, selectedMstatus),
 				});
@@ -283,7 +278,7 @@ const LeadsLayout = memo(
 			setSelectedMstatus((prev) => {
 				const updated = prev.filter((item) => item !== mstatus);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(selectedStatus, updated),
 				});

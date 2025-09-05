@@ -20,6 +20,8 @@ import CloseDealModal from '../deals/CloseDealModal';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 
+const AdminStatus = ['deal', 'show'];
+
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
 	const [label, setLabel] = useState('');
@@ -49,7 +51,7 @@ const MainStatus = ({ lead, role }) => {
 
 			const { skipDealModal = false } = options;
 
-			if (userRoleName !== 'superAdmin') {
+			if (userRoleName !== 'superAdmin' && AdminStatus.includes(newStatus)) {
 				return toast.error('Only super admin can change main status');
 			}
 
