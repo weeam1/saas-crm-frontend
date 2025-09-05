@@ -178,7 +178,6 @@ const LeadsLayout = memo(
     const handleClear = () => {
       // for selected leads
       if (searchTags?.length === 0) {
-        setQueryParams({ page: 1 });
         setSelectedLeads([]);
         setSelectedValues([]);
         setCurrentPageSelection([]);

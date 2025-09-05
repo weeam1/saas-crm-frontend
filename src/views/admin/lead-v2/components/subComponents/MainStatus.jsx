@@ -33,7 +33,7 @@ const MainStatus = ({ lead, role }) => {
 
 	const dispatch = useDispatch();
 
-	const { user } = useUserSession();
+	const { user, userRoleName } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
 	const hanldeMainStatus = async (statusOrEvent, options = {}) => {
@@ -48,6 +48,10 @@ const MainStatus = ({ lead, role }) => {
 			};
 
 			const { skipDealModal = false } = options;
+
+			if (userRoleName !== 'superAdmin') {
+				return toast.error('Only super admin can change main status');
+			}
 
 			if (newStatus === 'deal' && !skipDealModal) {
 				return setCloseDeal(true);
