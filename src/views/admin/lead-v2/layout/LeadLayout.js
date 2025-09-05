@@ -32,7 +32,7 @@ import LeadsModals from '../components/LeadsModals';
 import DateFilter from '../components/DateFilter';
 import Pagination from '../components/Pagination';
 import QuickFilterModal from '../components/QuickFilterModal';
-import DisplayManageButton from '../components/DisplayManageButton';
+import DisplayQuickFilter from '../components/DisplayQuickFilter';
 import Loader from 'components/loading/Loader';
 
 const LeadTableView = lazy(() => import('./table'));
@@ -399,7 +399,7 @@ const LeadsLayout = memo(
 				>
 					{/* Display selected status/mstatus buttons */}
 					{(selectedStatus.length > 0 || selectedMstatus.length > 0) && (
-						<DisplayManageButton
+						<DisplayQuickFilter
 							selectedStatus={selectedStatus}
 							selectedMstatus={selectedMstatus}
 							statusOptions={statusOptions}

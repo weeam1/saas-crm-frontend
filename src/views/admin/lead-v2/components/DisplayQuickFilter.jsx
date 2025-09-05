@@ -1,7 +1,7 @@
 import React from "react";
-import { Flex, Button } from "@chakra-ui/react";
+import { Flex, Box } from "@chakra-ui/react";
 import { SmallCloseIcon } from "@chakra-ui/icons";
-const DisplayManageButton = ({
+const DisplayQuickFilter = ({
   selectedStatus,
   selectedMstatus,
   statusOptions,
@@ -22,7 +22,7 @@ const DisplayManageButton = ({
     <Flex gap={2} flexWrap="wrap" mt={2} mb={4} align="center">
       {selectedStatus.length > 0 &&
         selectedStatus.map((status) => (
-          <Button
+          <Box
             key={`status-${status}`}
             size="sm"
             bg={"blue.100"}
@@ -30,32 +30,23 @@ const DisplayManageButton = ({
             borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
-            height="32px"
             px={3}
-            _hover={{
-              bg: "blue.50",
-              color: "blue.700",
-            }}
-            _active={{
-              bg: "blue.200",
-              color: "blue.900",
-            }}
+            py={2}
             border="1px solid"
             borderColor="blue.200"
-            rightIcon={
-              <SmallCloseIcon
-                boxSize={3}
-                onClick={() => onRemoveStatus(status)}
-              />
-            }
           >
-            {getLabel(status, statusOptions)}
-          </Button>
+            {getLabel(status, statusOptions)}{" "}
+            <SmallCloseIcon
+              boxSize={3}
+              onClick={() => onRemoveStatus(status)}
+              cursor={"pointer"}
+            />
+          </Box>
         ))}
 
       {selectedMstatus.length > 0 &&
         selectedMstatus.map((mstatus) => (
-          <Button
+          <Box
             key={`mstatus-${mstatus}`}
             size="sm"
             bg={"brand.100"}
@@ -63,30 +54,21 @@ const DisplayManageButton = ({
             borderRadius="md"
             fontSize="sm"
             fontWeight="medium"
-            height="32px"
             px={3}
-            _hover={{
-              bg: "brand.50",
-              color: "brand.700",
-            }}
-            _active={{
-              bg: "brand.200",
-              color: "brand.900",
-            }}
+            py={2}
             border="1px solid"
             borderColor="brand.200"
-            rightIcon={
-              <SmallCloseIcon
-                boxSize={3}
-                onClick={() => onRemoveMstatus(mstatus)}
-              />
-            }
           >
-            {getLabel(mstatus, mstatusOptions)}
-          </Button>
+            {getLabel(mstatus, mstatusOptions)}{" "}
+            <SmallCloseIcon
+              boxSize={3}
+              cursor={"pointer"}
+              onClick={() => onRemoveMstatus(mstatus)}
+            />
+          </Box>
         ))}
     </Flex>
   );
 };
 
-export default DisplayManageButton;
+export default DisplayQuickFilter;
