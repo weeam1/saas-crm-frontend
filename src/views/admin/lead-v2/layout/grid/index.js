@@ -31,7 +31,7 @@ const LeadGridView = memo((props) => {
 	} = props;
 	const leads = useSelector((state) => state.leads, shallowEqual);
 
-	const { pageSize, queryParams, refetchLoading, setRefetchLoading } =
+	const { queryParams, refetchLoading, setRefetchLoading } =
 		useFilteredQueryParams();
 
 	useEffect(() => {
@@ -46,7 +46,7 @@ const LeadGridView = memo((props) => {
 	return (
 		<div>
 			{!isLoaded || leadsRefetching || leadsLoading || refetchLoading ? (
-				<CardLoader count={pageSize} />
+				<CardLoader count={32} />
 			) : leads && leads?.totalLeads ? (
 				<Grid
 					sx={{

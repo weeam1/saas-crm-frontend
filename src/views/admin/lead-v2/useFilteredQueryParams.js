@@ -6,7 +6,7 @@ import { leadLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 32;
+const DEFAULT_PAGE_SIZE = 40;
 const MAX_PAGE_SIZE = 200;
 
 // const usePaginationParams = (DEFAULT_PAGE = 1, DEFAULT_PAGE_SIZE = 32) => {
@@ -87,6 +87,8 @@ export const useFilteredQueryParams = () => {
 	const tree = useSelector((state) => state.user.tree);
 
 	const updateSearchParams = (params) => {
+		console.log('old Params:', params);
+
 		setSearchParams(() => {
 			const updatedParams = new URLSearchParams();
 
@@ -103,12 +105,16 @@ export const useFilteredQueryParams = () => {
 			return updatedParams;
 		});
 
+		console.log('Updated Params:', params);
+
 		setQueryParams(params);
 	};
 
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
+
+		console.log({ page, pageSize });
 
 		const lead = searchParams.get('lead');
 
@@ -142,6 +148,10 @@ export const useFilteredQueryParams = () => {
 			const parsedStatusFilters = safeJSONParse(statusFilters);
 			if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
 				updatedParams.statusFilters = statusFilters;
+				setSearchTags([]);
+				setSearchClear(false);
+			} else {
+				searchParams.delete('statusFilters');
 			}
 		}
 
@@ -205,6 +215,12 @@ export const useFilteredQueryParams = () => {
 			});
 		}
 
+		// if (pageSizeFromParams !== pageSize) {
+		// 	console.log('PageSize changed from params');
+		// 	setCurrentPage(1);
+		// 	setPageSize(pageSizeFromParams || DEFAULT_PAGE_SIZE);
+		// }
+
 		// If pageSize changes, reset to page 1
 		// if (pageSizeFromParams !== pageSize) {
 		// 	// Use a callback to ensure state updates first
@@ -235,8 +251,14 @@ export const useFilteredQueryParams = () => {
 	};
 
 	const clearSearchParams = () => {
-		setSearchParams({ page: DEFAULT_PAGE, pageSize: DEFAULT_PAGE_SIZE });
-		setQueryParams({ page: DEFAULT_PAGE, pageSize: DEFAULT_PAGE_SIZE });
+		setSearchParams({
+			page: 1 || DEFAULT_PAGE,
+			pageSize: pageSize || DEFAULT_PAGE_SIZE,
+		});
+		setQueryParams({
+			page: 1 || DEFAULT_PAGE,
+			pageSize: pageSize || DEFAULT_PAGE_SIZE,
+		});
 	};
 
 	return {

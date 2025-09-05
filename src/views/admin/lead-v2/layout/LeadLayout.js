@@ -9,15 +9,7 @@ import React, {
 } from 'react';
 
 import { shallowEqual, useSelector } from 'react-redux';
-import {
-	Box,
-	Button,
-	Flex,
-	Grid,
-	VStack,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { HasAccess } from '../../../../redux/accessUtils';
+import { Box, Button, Flex, VStack } from '@chakra-ui/react';
 import { BiX } from 'react-icons/bi';
 import { DeleteIcon } from '@chakra-ui/icons';
 import useFilteredQueryParams from '../useFilteredQueryParams';
@@ -34,6 +26,7 @@ import Pagination from '../components/Pagination';
 import QuickFilterModal from '../components/QuickFilterModal';
 import DisplayQuickFilter from '../components/DisplayQuickFilter';
 import Loader from 'components/loading/Loader';
+import TopPagination from 'components/pagination/TopPagination';
 
 const LeadTableView = lazy(() => import('./table'));
 const LeadGridView = lazy(() => import('./grid'));
@@ -42,6 +35,10 @@ const LeadsLayout = memo(
 	({
 		layoutView,
 		data,
+		pageSize,
+		setPageSize,
+		currentPage,
+		setCurrentPage,
 		leadsError,
 		leadsLoading,
 		leadsRefetching,
@@ -64,10 +61,10 @@ const LeadsLayout = memo(
 		const { hasPermission } = usePermissions();
 
 		const {
-			currentPage,
-			setCurrentPage,
-			pageSize,
-			setPageSize,
+			// currentPage,
+			// setCurrentPage,
+			// pageSize,
+			// setPageSize,
 			queryParams,
 			setQueryParams,
 			setSearchQueryParams,
@@ -78,6 +75,8 @@ const LeadsLayout = memo(
 			clearSearchParams,
 			setRefetchLoading,
 		} = useFilteredQueryParams();
+
+		console.log({ queryParams });
 
 		// const leads = useSelector(
 		// 	(state) => state.leads,
@@ -218,6 +217,12 @@ const LeadsLayout = memo(
 				if (Array.isArray(mainStatuses)) {
 					setSelectedMstatus(mainStatuses);
 				}
+
+				searchTags && setSearchTags([]);
+				searchClear && setSearchClear(false);
+			} else {
+				setSelectedStatus([]);
+				setSelectedMstatus([]);
 			}
 		}, [queryParams]);
 
@@ -236,7 +241,7 @@ const LeadsLayout = memo(
 					? [...prev, value]
 					: prev.filter((item) => item !== value);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(updated, selectedMstatus),
 				});
@@ -253,7 +258,7 @@ const LeadsLayout = memo(
 					? [...prev, value]
 					: prev.filter((item) => item !== value);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(selectedStatus, updated),
 				});
@@ -268,7 +273,7 @@ const LeadsLayout = memo(
 			setSelectedStatus((prev) => {
 				const updated = prev.filter((item) => item !== status);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(updated, selectedMstatus),
 				});
@@ -283,7 +288,7 @@ const LeadsLayout = memo(
 			setSelectedMstatus((prev) => {
 				const updated = prev.filter((item) => item !== mstatus);
 
-				setQueryParams({
+				setSearchQueryParams({
 					page: 1,
 					statusFilters: buildFilters(selectedStatus, updated),
 				});
@@ -341,14 +346,22 @@ const LeadsLayout = memo(
 			});
 		};
 
-		const handlePageSize = (e) => {
-			const newSize = Number(e.target.value);
-			if (newSize !== pageSize) {
-				setPageSize(newSize);
+		const handlePageSize = (newPageSize) => {
+			console.log({ newPageSize });
+			if (newPageSize !== pageSize) {
+				setPageSize(newPageSize);
 				setCurrentPage(1);
 				setRefetchLoading(true);
 			}
 		};
+		// const handlePageSize = (e) => {
+		// 	const newSize = Number(e.target.value);
+		// 	if (newSize !== pageSize) {
+		// 		setPageSize(newSize);
+		// 		setCurrentPage(1);
+		// 		setRefetchLoading(true);
+		// 	}
+		// };
 
 		const commonProps = {
 			isLoaded,
@@ -417,7 +430,7 @@ const LeadsLayout = memo(
 					flexDirection={{ base: 'column', lg: 'row' }}
 				>
 					{/* Pagination */}
-					<Pagination
+					{/* <Pagination
 						currentPage={data?.currentPage ?? currentPage}
 						totalPages={data?.totalPages ?? ''}
 						onPageChange={handlePageChange}
@@ -427,6 +440,18 @@ const LeadsLayout = memo(
 						refetching={leadsRefetching}
 						loading={leadsLoading}
 						handlePageSize={handlePageSize}
+					/> */}
+
+					<TopPagination
+						currentPage={queryParams?.page || currentPage}
+						totalPages={data?.totalPages ?? ''}
+						totalItems={data?.totalLeads ?? ''}
+						itemsPerPage={queryParams?.pageSize || pageSize}
+						refetching={leadsRefetching}
+						loading={leadsLoading}
+						onPageChange={handlePageChange}
+						handlePageSize={handlePageSize}
+						maximumPageSize={20}
 					/>
 
 					{/* Search Box */}

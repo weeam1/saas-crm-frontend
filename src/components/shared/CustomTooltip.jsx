@@ -6,7 +6,7 @@ const CustomTooltip = ({
 	children,
 	hasArrow = true,
 	openDelay = 100,
-	closeDelay = 300,
+	closeDelay = 500,
 	hoverCloseDelay = 500,
 	placement = 'top',
 	className = '',
@@ -304,11 +304,13 @@ const CustomTooltip = ({
 
 				.tooltip-trigger {
 					display: inline-flex;
-					cursor: ${effectiveTrigger === 'click'
-						? 'pointer'
-						: effectiveTrigger === 'hover'
-							? 'help'
-							: 'default'};
+					cursor: ${
+						effectiveTrigger === 'click'
+							? 'pointer'
+							: effectiveTrigger === 'hover'
+								? 'help'
+								: 'default'
+					};
 					transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 					outline: none;
 				}
@@ -342,7 +344,7 @@ const CustomTooltip = ({
 					transform-origin: center;
 					transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 					word-wrap: break-word;
-					line-height: 1.4;
+					// line-height: 1.4;
 				}
 
 				.tooltip-base.show {
@@ -601,20 +603,6 @@ const CustomTooltip = ({
 						animation: none;
 					}
 				}
-
-				/* Click indicator for mobile */
-				@media (max-width: 768px) {
-					.tooltip-trigger::after {
-						content: '';
-						position: absolute;
-						top: -2px;
-						right: -2px;
-						width: 4px;
-						height: 4px;
-						border-radius: 50%;
-						background: #3b82f6;
-						opacity: 0.7;
-					}
 				}
 			`}</style>
 

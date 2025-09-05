@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
+import { max } from 'date-fns';
 
 const TopPagination = ({
 	currentPage,
@@ -19,7 +20,7 @@ const TopPagination = ({
 	refetching,
 	loading,
 	handlePageSize,
-	sizeMedium =false
+	sizeMedium = false,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
@@ -75,7 +76,7 @@ const TopPagination = ({
 	};
 
 	const buttonStyle = {
-		size: sizeMedium ? 'xx-small':'xs',
+		size: sizeMedium ? 'xx-small' : 'xs',
 		borderRadius: 'lg',
 		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
 		_active: { bg: 'softGray.500' },
@@ -99,11 +100,23 @@ const TopPagination = ({
 			steps.push(totalItems);
 		}
 
+		// Special case: if total > 1000, ensure 200 is present
+		if (totalItems > 1000) {
+			console.log('added 200');
+			steps.push(200);
+		}
+
 		// Deduplicate, filter and sort
-		return [...new Set(steps)]
-			.filter((n) => n <= max && n > 0)
-			.sort((a, b) => a - b);
+		return [...new Set(steps)].filter((n) => n > 0).sort((a, b) => a - b);
 	};
+
+	console.log(
+		'page size options',
+		generatePageSizeOptions(totalItems, itemsPerPage)
+	);
+
+	console.log('itemsPerPage', itemsPerPage);
+	console.log('totalItems', totalItems);
 
 	const onPageSizeChange = useCallback(
 		(e) => {
@@ -121,7 +134,7 @@ const TopPagination = ({
 	return (
 		<HStack
 			spacing={3}
-			p={sizeMedium? 0 : 2}
+			p={sizeMedium ? 0 : 2}
 			gap='2'
 			flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
 			flexWrap='wrap'
@@ -137,7 +150,7 @@ const TopPagination = ({
 			}}
 			width='100%'
 			maxWidth='100%'
-			fontSize={sizeMedium ? 'xx-small':'sm'}	
+			fontSize={sizeMedium ? 'xx-small' : 'sm'}
 		>
 			{/* First & Previous Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
@@ -167,8 +180,8 @@ const TopPagination = ({
 					color='black'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
-					py={ sizeMedium?'2': 0}
-					px={ sizeMedium?'5': 0}
+					py={sizeMedium ? '2' : 0}
+					px={sizeMedium ? '5' : 0}
 				>
 					Previous
 				</Button>
@@ -189,7 +202,7 @@ const TopPagination = ({
 					onBlur={handleGoToBlur}
 					min={1}
 					max={totalPages ?? 999999999}
-					size={sizeMedium ? 'xx-small':'sm'}
+					size={sizeMedium ? 'xx-small' : 'sm'}
 					borderRadius='md'
 					width='5rem'
 					bg='softGray.50'
@@ -220,14 +233,18 @@ const TopPagination = ({
 			</HStack>
 
 			{/* Showing start-end of totalItems */}
-			<Text color='gray.800' fontSize={sizeMedium ? 'xx-small':'sm'}fontWeight='medium'>
+			<Text
+				color='gray.800'
+				fontSize={sizeMedium ? 'xx-small' : 'sm'}
+				fontWeight='medium'
+			>
 				Showing {startIndex} - {endIndex} of {totalItems}
 			</Text>
 
 			{/* Next & Last Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
 				<Select
-					size={sizeMedium ? 'xs': "sm"}
+					size={sizeMedium ? 'xs' : 'sm'}
 					w={{ base: '32' }}
 					value={itemsPerPage}
 					// value={
@@ -279,8 +296,8 @@ const TopPagination = ({
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
-					py={ sizeMedium?'2': 0}
-					px={ sizeMedium?'5': 0}
+					py={sizeMedium ? '2' : 0}
+					px={sizeMedium ? '5' : 0}
 				>
 					Next
 				</Button>
