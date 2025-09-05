@@ -335,8 +335,11 @@ const LogTable = () => {
     },
   });
 
+  console.log("Rendered with searchTags:", searchTags);
   return (
-    <Box borderRadius="md" mt={"-18px"} mr={"-5px"}>
+    <Box borderRadius="md" mt={"-18px"} mr={"-5px"}  bg={"white"}
+    p={2}
+    >
       <Stack
         direction={{ base: "column", sm: "row" }}
         justifyContent="space-between"
@@ -366,7 +369,7 @@ const LogTable = () => {
           />
         </Flex>
       </Stack>
-      {searchTags && filters && (
+      {searchTags && searchTags?.length > 0  && filters && (
         <Flex gap={2} flexDir={{ base: "column", sm: "column", md: "row" }} mb={2} justifyContent={"space-between"} alignItems={{ base: "flex-start", sm: "center" }}>
           <SearchTags searchTags={searchTags} />
 

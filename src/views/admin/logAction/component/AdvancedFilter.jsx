@@ -24,6 +24,7 @@ import { FiX } from "react-icons/fi";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 import moment from "moment";
+import DropdownSearchUser from "components/search/DropdownSearchUser";
 
 const AdvancedFilter = ({
   isOpen,
@@ -348,7 +349,7 @@ const AdvancedFilter = ({
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
                     Entity User
                   </FormLabel>
-                  <SearchUsers
+                  <DropdownSearchUser
                     selectedUserId={formik.values.entityId}
                     users={
                       usersData?.doc.filter((u) => {
@@ -364,6 +365,7 @@ const AdvancedFilter = ({
                     isMobile={isMobile}
                     size="sm"
                   />
+                
                 </FormControl>
               )}
               <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
