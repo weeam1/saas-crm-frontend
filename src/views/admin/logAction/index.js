@@ -111,6 +111,7 @@ const LogTable = () => {
     entity: "",
     action: "",
     securityLevel: "",
+    entityId: ""
   });
 
   const { colorMode } = useColorMode();
@@ -143,6 +144,7 @@ const LogTable = () => {
     if (filters.action) params.action = filters.action;
     if (filters.securityLevel) params.securityLevel = filters.securityLevel;
     if (filters.roleId) params.roleId = filters.roleId;
+    if (filters.entityId) params.entityId = filters.entityId;
 
     return params;
   };
@@ -297,6 +299,7 @@ const LogTable = () => {
       entity: "",
       action: "",
       securityLevel: "",
+      entityId: ""
     });
     setCurrentPage(1);
     setSearchTags(null);
