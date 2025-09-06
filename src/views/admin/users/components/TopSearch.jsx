@@ -83,7 +83,6 @@ const TopSearch = ({
 
   return (
     <Box
-      mb={4}
       p={4}
       position="relative"
       zIndex={2}

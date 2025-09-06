@@ -361,26 +361,24 @@ export default function CheckTable(props) {
         px={2}
         overflowX={{ sm: "scroll", lg: "hidden" }}
       >
-        <Grid templateColumns="repeat(12, 1fr)" gap={4} mx={4}>
+        <Text
+          color={useColorModeValue("secondaryGray.900", "white")}
+          fontSize="22px"
+          fontWeight="700"
+          lineHeight="100%"
+          m={4}
+        >
+          Users (
+          <CountUpComponent key={data?.length} targetNumber={data?.length} />)
+        </Text>
+        <Grid templateColumns="repeat(12, 1fr)" gap={4}>
           <GridItem
             colSpan={{ base: 12, md: 8 }}
             display={"flex"}
             alignItems={"center"}
+            flexWrap={"wrap"}
+            gap={2}
           >
-            <Flex alignItems={"center"} flexWrap={"wrap"} gap={2}>
-              <Text
-                color={useColorModeValue("secondaryGray.900", "white")}
-                fontSize="22px"
-                fontWeight="700"
-                lineHeight="100%"
-              >
-                Users (
-                <CountUpComponent
-                  key={data?.length}
-                  targetNumber={data?.length}
-                />
-                )
-              </Text>
               <CustomSearchInput
                 setSearchbox={setSearchbox}
                 setDisplaySearchData={setDisplaySearchData}
@@ -422,7 +420,6 @@ export default function CheckTable(props) {
 									cursor='pointer'
 								/>
 							)} */}
-            </Flex>
           </GridItem>
           <GridItem
             colSpan={{ base: 12, md: 4 }}
@@ -477,7 +474,6 @@ export default function CheckTable(props) {
 							Back
 						</Button> */}
           </GridItem>
-          <HStack spacing={4} mb={2}>
             {getTagValues &&
               getTagValues.map((item) => (
                 <Tag
@@ -492,7 +488,6 @@ export default function CheckTable(props) {
                   {/* <TagCloseButton /> */}
                 </Tag>
               ))}
-          </HStack>
         </Grid>
         {/* Delete model */}
         {/* {deleteModel && (
