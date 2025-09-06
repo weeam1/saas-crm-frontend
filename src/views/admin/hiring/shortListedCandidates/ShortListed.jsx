@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, useDisclosure } from '@chakra-ui/react';
 import { FaUsers } from 'react-icons/fa';
 
 import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import AddShortListedNote from '../_components/AddShortListedNote';
 
 const ShortListed = ({
 	data,
@@ -57,6 +58,12 @@ const ShortListed = ({
 		{ key: 'createdAt', label: 'Apply Date', width: '150px' }, // Apply Date column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
+
+	const {
+		isOpen: isFeedbackNoteOpen,
+		onOpen: onFeedbackNoteOpen,
+		onClose: onFeedbackNoteClose,
+	} = useDisclosure();
 
 	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
 
@@ -216,6 +223,12 @@ const ShortListed = ({
 		setArrangeInterviewOpen(true);
 	};
 
+	const handleOpenFeedbackNote = (id) => {
+		const selectedCandidate = data.find((item) => item._id === id);
+		setCandidate(selectedCandidate);
+		onFeedbackNoteOpen();
+	};
+
 	// Update filtered data on search change
 	const handleFilteredData = (filtered) => {
 		setIsSearch(true);
@@ -287,6 +300,7 @@ const ShortListed = ({
 				isFetching={isFetching}
 				handleViewCandidate={handleViewCandidate}
 				handleArrangeInterview={handleArrangeInterview}
+				handleOpenFeedbackNote={handleOpenFeedbackNote}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -328,6 +342,14 @@ const ShortListed = ({
 					setSelectedTime={setSelectedTime}
 					isLoading={isInviting}
 					handleScheduleInterview={handleScheduleInterview}
+				/>
+			)}
+
+			{isFeedbackNoteOpen && (
+				<AddShortListedNote
+					applicationId={candidate?._id}
+					isOpen={isFeedbackNoteOpen}
+					onClose={onFeedbackNoteClose}
 				/>
 			)}
 		</Box>

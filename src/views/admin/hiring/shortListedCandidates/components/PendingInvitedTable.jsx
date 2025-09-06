@@ -27,6 +27,7 @@ const PendingInvitedTable = ({
 	sortConfig,
 	handleViewCandidate,
 	handleArrangeInterview,
+	handleOpenFeedbackNote,
 }) => {
 	return (
 		<>
@@ -100,6 +101,22 @@ const PendingInvitedTable = ({
 										{/* <Td>{item.nationality}</Td> */}
 										<Td>
 											<HStack gap='1' alignItems='center'>
+												{/* <Button
+													bg='#EDC270'
+													color='gray.800'
+													h='6'
+													py='2'
+													px='4'
+													fontSize='xs'
+													fontWeight='normal'
+													shadow='sm'
+													rounded='md'
+													_hover={{ bg: '#E0B960' }}
+													_active={{ bg: '#D4AC50' }}
+													onClick={() => handleOpenFeedbackNote(item._id)}
+												>
+													Add Note
+												</Button> */}
 												<Button
 													bg='#EDC270'
 													color='gray.800'
