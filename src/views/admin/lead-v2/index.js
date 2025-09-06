@@ -29,6 +29,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import LeadsLayout from './layout/LeadLayout';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
+import { FiRefreshCw } from "react-icons/fi";
 
 const Index = () => {
 	const { user } = useUserSession();
@@ -284,6 +285,16 @@ const Index = () => {
 
 						<DateFilterButton onClick={dateTimeOnOpen} />
 					</HStack>
+						<IconButton
+							icon={<FiRefreshCw />}
+							aria-label="Refresh logs"
+							onClick={() => {
+								leadsRefetch();
+							}}
+							isLoading={leadsRefetching}
+							variant="outline"
+							size="sm"
+						/>
 					<HStack>
 						<ViewToggle
 							handleView={handleViewChange}

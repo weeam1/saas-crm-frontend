@@ -10,6 +10,7 @@ import {
 	Divider,
 	Select,
 	useDisclosure,
+	IconButton
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
@@ -22,6 +23,7 @@ import DateFilterButton from './DateFilterButton';
 import DateFilter from './DateFilter';
 import { formattedDate } from 'utils/helpers';
 import SearchTags from 'components/search/SearchTags';
+import { FiRefreshCw } from "react-icons/fi";
 
 const Pagination = ({
 	data,
@@ -267,6 +269,17 @@ const Pagination = ({
 						isLoading={isLoading}
 					/>
 					<DateFilterButton onClick={dateTimeOnOpen} />
+						<IconButton
+							icon={<FiRefreshCw />}
+							aria-label="Refresh logs"
+							onClick={() => {
+								setCurrentPage(1);
+								setGotoPage(1);
+							}}
+							isLoading={hasFetched}
+							variant="outline"
+							size="md"
+						/>
 				</HStack>
 
 				<Flex

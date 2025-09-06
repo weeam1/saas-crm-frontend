@@ -32,6 +32,7 @@ import ViewToggle from "components/toggle/ViewToggle";
 import { usePermissions } from "hooks/usePermissions";
 import LeadsLayout from "./layout/LeadLayout";
 import useUserSession from "hooks/useUserSession";
+import { FiRefreshCw } from "react-icons/fi";
 
 const LeadsCards = ({ handleView, view }) => {
   const { user } = useUserSession();
@@ -276,6 +277,16 @@ const LeadsCards = ({ handleView, view }) => {
 
             <DateFilterButton onClick={dateTimeOnOpen} />
           </HStack>
+            <IconButton
+							icon={<FiRefreshCw />}
+							aria-label="Refresh logs"
+							onClick={() => {
+								leadsRefetch();
+							}}
+							isLoading={leadsRefetching}
+							variant="outline"
+							size="sm"
+						/>
           <HStack>
             <ViewToggle
               handleView={handleView}
