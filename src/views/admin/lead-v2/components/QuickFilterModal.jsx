@@ -36,7 +36,7 @@ const QuickFilterModal = ({
   const textColor = useColorModeValue("white", "gray.100");
 
   const allStatusSelected = selectedStatus.length === statusOptions.length;
-  
+
   const allMstatusSelected = selectedMstatus.length === mstatusOptions.length;
 
   const buildFilters = (statusesArr, mStatusesArr) => {
@@ -48,16 +48,16 @@ const QuickFilterModal = ({
 
   const handleStatusSelectAll = (isChecked) => {
     if (isChecked) {
-      const allStatusValues = statusOptions.map(option => option.value);
+      const allStatusValues = statusOptions.map((option) => option.value);
       setSelectedStatus(allStatusValues);
-      
+
       setQueryParams({
         page: 1,
         statusFilters: buildFilters(allStatusValues, selectedMstatus),
       });
     } else {
       setSelectedStatus([]);
-      
+
       setQueryParams({
         page: 1,
         statusFilters: buildFilters([], selectedMstatus),
@@ -68,16 +68,16 @@ const QuickFilterModal = ({
 
   const handleMstatusSelectAll = (isChecked) => {
     if (isChecked) {
-      const allMstatusValues = mstatusOptions.map(option => option.value);
+      const allMstatusValues = mstatusOptions.map((option) => option.value);
       setSelectedMstatus(allMstatusValues);
-      
+
       setQueryParams({
         page: 1,
         statusFilters: buildFilters(selectedStatus, allMstatusValues),
       });
     } else {
       setSelectedMstatus([]);
-      
+
       setQueryParams({
         page: 1,
         statusFilters: buildFilters(selectedStatus, []),
@@ -119,75 +119,16 @@ const QuickFilterModal = ({
         </ModalHeader>
         <ModalCloseButton color={textColor} />
         <ModalBody pb={6} overflowY="auto" flex="1">
-          {/* Status Section */}
-          <Box mb={6}>
-            <Flex justifyContent="space-between" alignItems="center" mb={3}>
-              <Text fontWeight="semibold">Status</Text>
-              <Flex gap={2} alignItems="center">
-                <Checkbox
-                  isChecked={allStatusSelected}
-                  isIndeterminate={selectedStatus.length > 0 && !allStatusSelected}
-                  onChange={(e) => handleStatusSelectAll(e.target.checked)}
-                  colorScheme="blue"
-                  size="lg"
-                >
-                  <Text fontSize="sm">Select All</Text>
-                </Checkbox>
-              </Flex>
-            </Flex>
-            
-            {/* Clear button positioned below the status header */}
-            {selectedStatus.length > 0 && (
-              <Flex justifyContent="flex-end" mb={3}>
-                <Button 
-                  size="xs" 
-                  variant="ghost"
-                  colorScheme="red"
-                  onClick={handleClearAllStatus}
-                  fontWeight="normal"
-                >
-                  Clear All 
-                </Button>
-              </Flex>
-            )}
-            
-            <Grid
-              templateColumns="repeat(auto-fit, minmax(200px, 1fr))"
-              gap={3}
-            >
-              {statusOptions.map((option) => (
-                <Checkbox
-                  key={option.value}
-                  isChecked={selectedStatus.includes(option.value)}
-                  onChange={(e) =>
-                    onStatusChange(option.value, e.target.checked)
-                  }
-                  colorScheme="blue"
-                  size="lg"
-                  p={2}
-                >
-                  <Text
-                    fontWeight={
-                      selectedStatus.includes(option.value)
-                        ? "medium"
-                        : "normal"
-                    }
-                  >
-                    {option.label}
-                  </Text>
-                </Checkbox>
-              ))}
-            </Grid>
-          </Box>
-
           {/* MStatus Section */}
-          <Box>
+          <Box my={3}>
             <Flex justifyContent="space-between" alignItems="center" mb={3}>
               <Text fontWeight="semibold">MStatus</Text>
               <Flex gap={2} alignItems="center">
                 <Checkbox
                   isChecked={allMstatusSelected}
-                  isIndeterminate={selectedMstatus.length > 0 && !allMstatusSelected}
+                  isIndeterminate={
+                    selectedMstatus.length > 0 && !allMstatusSelected
+                  }
                   onChange={(e) => handleMstatusSelectAll(e.target.checked)}
                   colorScheme="brand"
                   size="lg"
@@ -196,22 +137,22 @@ const QuickFilterModal = ({
                 </Checkbox>
               </Flex>
             </Flex>
-            
+
             {/* Clear button positioned below the mstatus header */}
             {selectedMstatus.length > 0 && (
               <Flex justifyContent="flex-end" mb={3}>
-                <Button 
-                  size="xs" 
+                <Button
+                  size="xs"
                   variant="ghost"
                   colorScheme="red"
                   onClick={handleClearAllMstatus}
                   fontWeight="normal"
                 >
-                  Clear All 
+                  Clear All
                 </Button>
               </Flex>
             )}
-            
+
             <Grid
               templateColumns="repeat(auto-fit, minmax(200px, 1fr))"
               gap={3}
@@ -230,6 +171,69 @@ const QuickFilterModal = ({
                   <Text
                     fontWeight={
                       selectedMstatus.includes(option.value)
+                        ? "medium"
+                        : "normal"
+                    }
+                  >
+                    {option.label}
+                  </Text>
+                </Checkbox>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Status Section */}
+          <Box mb={6}>
+            <Flex justifyContent="space-between" alignItems="center" mb={3}>
+              <Text fontWeight="semibold">Status</Text>
+              <Flex gap={2} alignItems="center">
+                <Checkbox
+                  isChecked={allStatusSelected}
+                  isIndeterminate={
+                    selectedStatus.length > 0 && !allStatusSelected
+                  }
+                  onChange={(e) => handleStatusSelectAll(e.target.checked)}
+                  colorScheme="blue"
+                  size="lg"
+                >
+                  <Text fontSize="sm">Select All</Text>
+                </Checkbox>
+              </Flex>
+            </Flex>
+
+            {/* Clear button positioned below the status header */}
+            {selectedStatus.length > 0 && (
+              <Flex justifyContent="flex-end" mb={3}>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  onClick={handleClearAllStatus}
+                  fontWeight="normal"
+                >
+                  Clear All
+                </Button>
+              </Flex>
+            )}
+
+            <Grid
+              templateColumns="repeat(auto-fit, minmax(200px, 1fr))"
+              gap={3}
+            >
+              {statusOptions.map((option) => (
+                <Checkbox
+                  key={option.value}
+                  isChecked={selectedStatus.includes(option.value)}
+                  onChange={(e) =>
+                    onStatusChange(option.value, e.target.checked)
+                  }
+                  colorScheme="blue"
+                  size="lg"
+                  p={2}
+                >
+                  <Text
+                    fontWeight={
+                      selectedStatus.includes(option.value)
                         ? "medium"
                         : "normal"
                     }
