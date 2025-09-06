@@ -101,17 +101,19 @@ const TopSearch = ({
             variant="outline"
             size="sm"
             borderRadius="md"
-            bg={filters.role ? "blue.100" : "gray.200"}
-            _hover={{ bg: filters.role ? "blue.200" : "gray.300" }}
-            _expanded={{ bg: filters.role ? "blue.100" : "gray.200" }}
+            bg={filters.role ? "brand.100" : "brand.50"}
+            color={filters.role ? "brand.700" : "brand.600"}
+            _hover={{ bg: "brand.200", color: "brand.800" }}
+            _expanded={{ bg: "brand.100", color: "brand.800" }}
           >
             Role: {filters.role ? getFilterLabel("role", filters.role).replace("role: ", "") : "All"}
           </MenuButton>
-          <MenuList borderRadius="md" zIndex={20} maxH="300px" overflowY="auto">
+          <MenuList borderRadius="md" zIndex={20} maxH="300px" overflowY="auto" bg="brand.50">
             <MenuItem 
               onClick={() => handleFilterChange("role", "")}
-              bg={!filters.role ? "blue.50" : "transparent"}
-                _hover={{ bg: "gray.400" }}
+              bg={!filters.role ? "brand.100" : "brand.50"}
+              color="brand.700"
+              _hover={{ bg: "brand.200", color: "brand.800" }}
             >
               All Roles
             </MenuItem>
@@ -119,8 +121,9 @@ const TopSearch = ({
               <MenuItem
                 key={role.value}
                 onClick={() => handleFilterChange("role", role.value)}
-                bg={filters.role === role.value ? "blue.50" : "transparent"}
-                  _hover={{ bg: "gray.400" }}
+                bg={filters.role === role.value ? "brand.100" : "brand.50"}
+                color={filters.role === role.value ? "brand.700" : "brand.600"}
+                _hover={{ bg: "brand.200", color: "brand.800" }}
               >
                 {role.label}
               </MenuItem>
@@ -136,18 +139,20 @@ const TopSearch = ({
             variant="outline"
             size="sm"
             borderRadius="md"
-            bg={filters.status !== undefined ? "blue.100" : "gray.200"}
-            _hover={{ bg: filters.status !== undefined ? "blue.200" : "gray.300" }}
-            _expanded={{ bg: filters.status !== undefined ? "blue.100" : "gray.200" }}
+            bg={filters.status !== undefined ? "brand.100" : "brand.50"}
+            color={filters.status !== undefined ? "brand.700" : "brand.600"}
+            _hover={{ bg: "brand.200", color: "brand.800" }}
+            _expanded={{ bg: "brand.100", color: "brand.800" }}
           >
             Status:{" "}
             {filters.status !== undefined ? getFilterLabel("status", filters.status).replace("status: ", "") : "All"}
           </MenuButton>
-          <MenuList borderRadius="md" zIndex={20}>
+          <MenuList borderRadius="md" zIndex={20} bg="brand.50">
             <MenuItem 
               onClick={() => handleFilterChange("status", "")}
-              bg={filters.status === undefined ? "blue.50" : "transparent"}
-                _hover={{ bg: "gray.400" }}
+              bg={filters.status === undefined ? "brand.100" : "brand.50"}
+              color="brand.700"
+              _hover={{ bg: "brand.200", color: "brand.800" }}
             >
               All Status
             </MenuItem>
@@ -155,8 +160,9 @@ const TopSearch = ({
               <MenuItem
                 key={status.value}
                 onClick={() => handleFilterChange("status", status.value)}
-                bg={filters.status === status.value ? "blue.50" : "transparent"}
-                 _hover={{ bg: "gray.400" }}
+                bg={filters.status === status.value ? "brand.100" : "brand.50"}
+                color={filters.status === status.value ? "brand.700" : "brand.600"}
+                _hover={{ bg: "brand.200", color: "brand.800" }}
               >
                 {status.label}
               </MenuItem>
@@ -172,20 +178,22 @@ const TopSearch = ({
             variant="outline"
             size="sm"
             borderRadius="md"
-            bg={filters.accountStatus !== undefined ? "blue.100" : "gray.200"}
-            _hover={{ bg: filters.accountStatus !== undefined ? "blue.200" : "gray.300" }}
-            _expanded={{ bg: filters.accountStatus !== undefined ? "blue.100" : "gray.200" }}
+            bg={filters.accountStatus !== undefined ? "brand.100" : "brand.50"}
+            color={filters.accountStatus !== undefined ? "brand.700" : "brand.600"}
+            _hover={{ bg: "brand.200", color: "brand.800" }}
+            _expanded={{ bg: "brand.100", color: "brand.800" }}
           >
             Account:{" "}
             {filters.accountStatus !== undefined
               ? getFilterLabel("accountStatus", filters.accountStatus).replace("account: ", "")
               : "All"}
           </MenuButton>
-          <MenuList borderRadius="md" zIndex={20}>
+          <MenuList borderRadius="md" zIndex={20} bg="brand.50">
             <MenuItem 
               onClick={() => handleFilterChange("accountStatus", "")}
-              bg={filters.accountStatus === undefined ? "blue.50" : "transparent"}
-                _hover={{ bg: "gray.400" }}
+              bg={filters.accountStatus === undefined ? "brand.100" : "brand.50"}
+              color="brand.700"
+              _hover={{ bg: "brand.200", color: "brand.800" }}
             >
               All Accounts
             </MenuItem>
@@ -197,10 +205,11 @@ const TopSearch = ({
                 }
                 bg={
                   filters.accountStatus === account.value
-                    ? "blue.50"
-                    : "transparent"
+                    ? "brand.100"
+                    : "brand.50"
                 }
-                _hover={{ bg: "gray.400" }}
+                color={filters.accountStatus === account.value ? "brand.700" : "brand.600"}
+                _hover={{ bg: "brand.200", color: "brand.800" }}
               >
                 {account.label}
               </MenuItem>
