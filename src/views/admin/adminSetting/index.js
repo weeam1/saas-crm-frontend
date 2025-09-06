@@ -59,7 +59,7 @@ const Index = () => {
 							}
 						/>
 					}
-					name='Roles'
+					name='Roles & Permissions'
 					// value={contactData?.length || 0}
 				/>
 				<MiniStatistics
