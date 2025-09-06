@@ -29,7 +29,7 @@ const Index = () => {
 			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap='20px' mb='20px'>
 				<MiniStatistics
 					fontsize='md'
-					onClick={() => navigate('/user')}
+					onClick={() => navigate('/admin-setting/users')}
 					startContent={
 						<IconBox
 							w='56px'

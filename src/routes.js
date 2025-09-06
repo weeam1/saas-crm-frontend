@@ -750,6 +750,15 @@ const routes = [
 		component: User,
 	},
 	{
+		moduleId: 'users',
+		name: 'Users',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/admin-setting/users',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: User,
+	},
+	{
 		name: 'User View',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		parentName: 'Email',
