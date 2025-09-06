@@ -29,7 +29,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import LeadsLayout from './layout/LeadLayout';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw } from 'react-icons/fi';
 
 const Index = () => {
 	const { user } = useUserSession();
@@ -168,15 +168,7 @@ const Index = () => {
 	};
 
 	return (
-		<Box
-			py='8'
-			px='4'
-			rounded='md'
-			shadow='sm'
-			fontFamily="'DM Sans', sans-serif"
-			bg='white'
-			width='100%'
-		>
+		<Box py='8' px='4' rounded='md' shadow='sm' bg='white' width='100%'>
 			<Flex
 				justifyContent='space-between'
 				flexDirection={{ base: 'column', md: 'row' }}
@@ -285,16 +277,16 @@ const Index = () => {
 
 						<DateFilterButton onClick={dateTimeOnOpen} />
 					</HStack>
-						<IconButton
-							icon={<FiRefreshCw />}
-							aria-label="Refresh logs"
-							onClick={() => {
-								leadsRefetch();
-							}}
-							isLoading={leadsRefetching}
-							variant="outline"
-							size="sm"
-						/>
+					<IconButton
+						icon={<FiRefreshCw />}
+						aria-label='Refresh logs'
+						onClick={() => {
+							leadsRefetch();
+						}}
+						isLoading={leadsRefetching}
+						variant='outline'
+						size='sm'
+					/>
 					<HStack>
 						<ViewToggle
 							handleView={handleViewChange}

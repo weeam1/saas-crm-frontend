@@ -22,7 +22,7 @@ import AdvancedSearchModal from '../components/AdvancedSearchModal';
 import SearchBox from '../components/SearchBox';
 import LeadsModals from '../components/LeadsModals';
 import DateFilter from '../components/DateFilter';
-import Pagination from '../components/Pagination';
+// import Pagination from '../components/Pagination';
 import QuickFilterModal from '../components/QuickFilterModal';
 import DisplayQuickFilter from '../components/DisplayQuickFilter';
 import Loader from 'components/loading/Loader';
@@ -131,6 +131,7 @@ const LeadsLayout = memo(
 			{ value: 'deal', label: 'Deal' },
 			{ value: 'change_agent', label: 'Change Agent' },
 		];
+
 		useEffect(() => {
 			if (leadsLoading) {
 				setIsLoaded(false);
