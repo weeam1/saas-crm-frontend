@@ -78,6 +78,7 @@ import { BsCircleFill } from "react-icons/bs";
 import { toast } from "react-toastify";
 import useUserSession from "hooks/useUserSession";
 import TopSearch from "./TopSearch";
+import SearchTags from "components/search/SearchTags";
 
 export default function CheckTable(props) {
   // const { columnsData, action, setAction } = props;
@@ -465,19 +466,10 @@ export default function CheckTable(props) {
 							Back
 						</Button> */}
         {getTagValues &&
-          getTagValues.map((item) => (
-            <Tag
-              size={"md"}
-              key={item}
-              borderRadius="full"
-              variant="solid"
-              colorScheme="gray"
-              my={2}
-            >
-              <TagLabel textAlign={"center"}>{item}</TagLabel>
-              {/* <TagCloseButton /> */}
-            </Tag>
-          ))}
+        <Box mx={4}>
+          <SearchTags searchTags={getTagValues} />
+        </Box>
+        }
         {/* Delete model */}
         {/* {deleteModel && (
 					<Delete
