@@ -140,7 +140,12 @@ const Status = ({ lead }) => {
 					</Text>
 
 					<CustomTooltip label={label || 'N/A'}>
-						<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+						<Icon
+							as={InfoIcon}
+							cursor='pointer'
+							boxSize={leadIconSize}
+							color='blue.300'
+						/>
 					</CustomTooltip>
 				</HStack>
 			)}

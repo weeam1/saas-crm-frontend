@@ -160,7 +160,12 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 							: 'N/A'
 					}`}
 				>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					<Icon
+						as={InfoIcon}
+						cursor='pointer'
+						boxSize={leadIconSize}
+						color='blue.300'
+					/>
 				</CustomTooltip>
 			</Flex>
 

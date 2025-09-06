@@ -159,7 +159,12 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 							: 'N/A'
 					}`}
 				>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					<Icon
+						as={InfoIcon}
+						boxSize={leadIconSize}
+						cursor='pointer'
+						color='blue.300'
+					/>
 				</CustomTooltip>
 			</Flex>
 			<SelectInput
