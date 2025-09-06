@@ -139,6 +139,7 @@ const ShortListedTable = ({
 													<Button
 														bg='#EDC270'
 														color='gray.800'
+														flex={1}
 														h='6'
 														py='2'
 														px='4'
