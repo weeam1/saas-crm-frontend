@@ -361,6 +361,7 @@ export default function CheckTable(props) {
         px={2}
         overflowX={{ sm: "scroll", lg: "hidden" }}
       >
+        <Flex justifyContent={"space-between"} align="center" mb={1} flexDir={{ base: "column", md: "row" }} >
         <Text
           color={useColorModeValue("secondaryGray.900", "white")}
           fontSize="22px"
@@ -371,48 +372,45 @@ export default function CheckTable(props) {
           Users (
           <CountUpComponent key={data?.length} targetNumber={data?.length} />)
         </Text>
-        <Grid templateColumns="repeat(12, 1fr)" gap={4}>
-          <GridItem
-            colSpan={{ base: 12, md: 8 }}
-            display={"flex"}
-            alignItems={"center"}
-            flexWrap={"wrap"}
-            gap={2}
+        <Flex
+          align="center"
+          gap={2}
+          flexDir={{ base: "column", md: "row" }}
+        >
+          <CustomSearchInput
+            setSearchbox={setSearchbox}
+            setDisplaySearchData={setDisplaySearchData}
+            searchbox={searchbox}
+            allData={allData}
+            dataColumn={dataColumn}
+            onSearch={handleSearch}
+            fetchSearch={handleSearch}
+          />
+          <Button
+            variant="outline"
+            colorScheme="brand"
+            leftIcon={<SearchIcon />}
+            onClick={() => setAdvaceSearch(true)}
+            size="sm"
           >
-              <CustomSearchInput
-                setSearchbox={setSearchbox}
-                setDisplaySearchData={setDisplaySearchData}
-                searchbox={searchbox}
-                allData={allData}
-                dataColumn={dataColumn}
-                onSearch={handleSearch}
-                fetchSearch={handleSearch}
-              />
-              <Button
-                variant="outline"
-                colorScheme="brand"
-                leftIcon={<SearchIcon />}
-                onClick={() => setAdvaceSearch(true)}
-                size="sm"
-              >
-                Advance Search
-              </Button>
-              {displaySearchData === true && !topLevelSearch ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  colorScheme="red"
-                  ms={2}
-                  onClick={() => {
-                    handleClear();
-                  }}
-                >
-                  clear
-                </Button>
-              ) : (
-                ""
-              )}
-              {/* {selectedValues.length > 0 && (
+            Advance Search
+          </Button>
+          {displaySearchData === true && !topLevelSearch ? (
+            <Button
+              variant="outline"
+              size="sm"
+              colorScheme="red"
+              ms={2}
+              onClick={() => {
+                handleClear();
+              }}
+            >
+              clear
+            </Button>
+          ) : (
+            ""
+          )}
+          {/* {selectedValues.length > 0 && (
 								<DeleteIcon
 									onClick={() => setDelete(true)}
 									color={'red'}
@@ -420,15 +418,7 @@ export default function CheckTable(props) {
 									cursor='pointer'
 								/>
 							)} */}
-          </GridItem>
-          <GridItem
-            colSpan={{ base: 12, md: 4 }}
-            display={"flex"}
-            justifyContent={"end"}
-            alignItems={"center"}
-            textAlign={"right"}
-          >
-            {/* <Menu isLazy>
+          {/* <Menu isLazy>
 							<MenuButton p={4}>
 								<BsColumnsGap />
 							</MenuButton>
@@ -452,19 +442,20 @@ export default function CheckTable(props) {
 							</MenuList>
 						</Menu> */}
 
-            {isSuperAdmin && (
-              <Button
-                onClick={() => handleClick()}
-                variant="brand"
-                size="sm"
-                leftIcon={<AddIcon />}
-                borderRadius={"md"}
-              >
-                Add New
-              </Button>
-            )}
-
-            {/* <Button
+          {isSuperAdmin && (
+            <Button
+              onClick={() => handleClick()}
+              variant="brand"
+              size="sm"
+              leftIcon={<AddIcon />}
+              borderRadius={"md"}
+            >
+              Add New
+            </Button>
+          )}
+        </Flex>
+        </Flex>
+        {/* <Button
 							onClick={() => navigate('/admin-setting')}
 							variant='brand'
 							size='sm'
@@ -473,22 +464,20 @@ export default function CheckTable(props) {
 						>
 							Back
 						</Button> */}
-          </GridItem>
-            {getTagValues &&
-              getTagValues.map((item) => (
-                <Tag
-                  size={"md"}
-                  p={2}
-                  key={item}
-                  borderRadius="full"
-                  variant="solid"
-                  colorScheme="gray"
-                >
-                  <TagLabel>{item}</TagLabel>
-                  {/* <TagCloseButton /> */}
-                </Tag>
-              ))}
-        </Grid>
+        {getTagValues &&
+          getTagValues.map((item) => (
+            <Tag
+              size={"md"}
+              key={item}
+              borderRadius="full"
+              variant="solid"
+              colorScheme="gray"
+              my={2}
+            >
+              <TagLabel textAlign={"center"}>{item}</TagLabel>
+              {/* <TagCloseButton /> */}
+            </Tag>
+          ))}
         {/* Delete model */}
         {/* {deleteModel && (
 					<Delete
