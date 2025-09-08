@@ -60,7 +60,7 @@ const AdminWhatsapp = () => {
 
 				{hasPermission('whatsapp', 'settings') && (
 					<CustomTooltip label='Settings'>
-						<Link to='/settings/whatsapp_manager'>
+						<Link to='/whatsapp/settings'>
 							<IconButton
 								icon={<FiSettings />}
 								aria-label='Settings'

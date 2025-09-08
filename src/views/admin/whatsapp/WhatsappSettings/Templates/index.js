@@ -53,13 +53,18 @@ const Templates = () => {
 		<>
 			<AppButton
 				leftIcon={<FaChevronLeft />}
-				onClick={() => navigate('/settings/whatsapp_manager')}
+				onClick={() => navigate('/whatsapp/settings')}
 				mb='4'
 			>
 				Back
 			</AppButton>
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-				<Flex justify='space-between' align='center' mb={4} flexDir={{base:"column", sm: "column", md:"row"}}>
+				<Flex
+					justify='space-between'
+					align='center'
+					mb={4}
+					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+				>
 					<Flex gap='2' fontSize='lg' fontWeight='bold'>
 						<Text>Whatsapp Templates</Text>
 						<CountUpComponent
@@ -75,7 +80,7 @@ const Templates = () => {
 						size='sm'
 						onClick={() =>
 							navigate(
-								`/settings/whatsapp_manager/message_templates/${businessId}/create_template`
+								`/whatsapp/settings/message_templates/${businessId}/create_template`
 							)
 						}
 					>

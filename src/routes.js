@@ -177,6 +177,9 @@ const UserView = React.lazy(() => import('views/admin/users/View'));
 
 // Auth
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
+const BulkMessage = React.lazy(
+	() => import('views/admin/whatsapp/BulkMessage')
+);
 
 const routes = [
 	// ========================== Dashboard ==========================
@@ -591,7 +594,7 @@ const routes = [
 		moduleId: 'whatsapp',
 		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp',
+		path: '/whatsapp/chats',
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
 		component: AdminWhatsapp,
 	},
@@ -599,7 +602,7 @@ const routes = [
 		moduleId: 'whatsapp',
 		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/chat/:id',
+		path: '/whatsapp/chats/:id',
 		under: 'whatsapp',
 		parent: 'whatsapp',
 		component: UserWhatsapp,
@@ -608,7 +611,7 @@ const routes = [
 		moduleId: 'whatsapp',
 		name: 'Whatsapp Templates',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/settings/whatsapp_manager/message_templates/:businessId',
+		path: '/whatsapp/settings/message_templates/:businessId',
 		under: 'whatsapp_manager',
 		parent: 'whatsapp_manager',
 		component: WhatsappTemplates,
@@ -617,10 +620,19 @@ const routes = [
 		moduleId: 'whatsapp',
 		name: 'Whatsapp Templates',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/settings/whatsapp_manager/message_templates/:businessId/create_template',
+		path: '/whatsapp/settings/message_templates/:businessId/create_template',
 		under: 'whatsapp_manager',
 		parent: 'whatsapp_manager',
 		component: CreateWhatsappTemplate,
+	},
+	{
+		moduleId: 'whatsapp_bulk_messages',
+		name: 'Bulk Messages',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/bulk-messages',
+		under: 'whatsapp_manager',
+		parent: 'whatsapp_manager',
+		component: BulkMessage,
 	},
 
 	// ------------- Roles Routes ------------------------
@@ -768,11 +780,11 @@ const routes = [
 	},
 
 	{
-		moduleId: 'admin_settings',
+		// moduleId: 'admin_settings',
 		name: 'Whatsapp Manager',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/settings/whatsapp_manager',
-		under: '/settings/dwhatsapp_manager',
+		path: '/whatsapp/settings',
+		under: '/whatsapp/settings',
 		component: WhatsappSettings,
 	},
 	{

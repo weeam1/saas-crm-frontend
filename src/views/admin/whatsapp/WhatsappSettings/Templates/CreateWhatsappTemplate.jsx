@@ -239,7 +239,7 @@ const CreateWhatsappTemplate = () => {
 			<AppButton
 				leftIcon={<FaChevronLeft />}
 				onClick={() =>
-					navigate(`/settings/whatsapp_manager/message_templates/${businessId}`)
+					navigate(`/whatsapp/settings/message_templates/${businessId}`)
 				}
 			>
 				Back

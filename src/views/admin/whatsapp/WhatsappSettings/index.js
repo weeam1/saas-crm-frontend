@@ -193,7 +193,7 @@ const WhatsappSettings = () => {
 
 	return (
 		<>
-			{hasPermission('admin_settings') && (
+			{/* {hasPermission('admin_settings') && (
 				<AppButton
 					leftIcon={<FaChevronLeft />}
 					onClick={() => navigate('/admin-setting')}
@@ -201,7 +201,7 @@ const WhatsappSettings = () => {
 				>
 					Back
 				</AppButton>
-			)}
+			)} */}
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 				<Flex
 					justify='space-between'
