@@ -19,22 +19,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 import { useMemo } from 'react';
 import { toCapitalCase } from 'utils/helpers';
-import { safeValue } from 'utils';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
+import { safeValue } from './../../../../utils/index';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-
-	const role =
-		user?.role === 'superAdmin'
-			? 'superAdmin'
-			: (user?.roles?.[0]?.roleName ?? 'unknown');
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName, isSuperAdmin } = useUserSession();
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: leadData.leadName || '',
+		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
 		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		nationality: leadData.nationality || '',
@@ -51,6 +51,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
+		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
@@ -100,13 +101,13 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	];
 
 	const allowedFields = useMemo(() => {
-		if (role === 'superAdmin') {
+		if (isSuperAdmin) {
 			return fields;
 		}
 
 		// Agent role edit phone number only
 		const phoneField =
-			role === 'Agent'
+			userRoleName === 'Agent'
 				? fields.filter((field) =>
 						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
 					)
@@ -122,6 +123,8 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	}, []);
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
+
+	const { createUserLog } = useUserActivityLog();
 
 	const dispatch = useDispatch();
 
@@ -148,14 +151,38 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			}).unwrap();
 
 			toast.success('Lead updated successfully.');
+
 			onClose();
 			actions.resetForm();
 			dispatch(addOrUpdateLead(res));
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadData._id,
+				status: 'success',
+				message: `${res?.leadName || ''} Lead is updated successfully`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data.message ||
+				`Lead ${leadData?.leadName || ''} failed to update.`;
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadData._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
+
 	return (
 		<Drawer
 			isOpen={isOpen}

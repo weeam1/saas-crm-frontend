@@ -39,6 +39,25 @@ import TopPagination from "components/pagination/TopPagination";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
+
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object().shape({
+  unitType: Yup.string().required("Unit Type is required"),
+  name: Yup.string()
+    .max(50, "Name must be at most 50 characters")
+    .required("Sub Type is required"),
+  status: Yup.boolean(),
+});
+
+const unitTypeValidationSchema = Yup.object().shape({
+  name: Yup.string()
+    .max(50, "Name must be at most 50 characters")
+    .required("Unit Type name is required"),
+  status: Yup.boolean(),
+});
 
 const SubUnitType = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,24 +69,13 @@ const SubUnitType = () => {
   const [currentUnitType, setCurrentUnitType] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
+  const { createUserLog } = useUserActivityLog();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    unitType: "",
-    name: "",
-    status: true,
-  });
 
   const [isUnitTypeModalOpen, setIsUnitTypeModalOpen] = useState(false);
-  const [unitTypeForm, setUnitTypeForm] = useState({
-    name: "",
-    status: true,
-  });
 
   const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
+    const params = { page: currentPage, limit: pageSize };
     return params;
   };
 
@@ -79,11 +87,10 @@ const SubUnitType = () => {
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
 
-  const { data: unitTypeData, refetch: refetchingUnitType } =
-    useFetchItemsQuery(
-      { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
-      { refetchOnMountOrArgChange: true, skip: !user._id }
-    );
+  const { data: unitTypeData, refetch: refetchingUnitType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true, skip: !user._id }
+  );
 
   const [createItemMuation] = useCreateItemMutation();
   const [updateItemMuation] = useUpdateItemMutation();
@@ -104,36 +111,42 @@ const SubUnitType = () => {
     refetch();
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleUnitTypeInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setUnitTypeForm({
-      ...unitTypeForm,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (values, { resetForm }) => {
     try {
       if (isEditMode) {
         await updateItemMuation({
           path: `/listing/secondary/unit-types/sub-category/${currentUnitType._id}`,
-          body: formData,
+          body: values,
         }).unwrap();
         toast.success("Unit Type updated successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "listing_Sub_Unit_Type",
+          entityType: "ListingSubUnitType",
+          entityId: currentUnitType._id,
+          status: "success",
+          message: `"${user?.fullName}" update the listing sub Unit Type "${
+            currentUnitType?.name || "Untitled"
+          }".`,
+        });
       } else {
-        await createItemMuation({
+        const response = await createItemMuation({
           path: "/listing/secondary/unit-types/sub-category",
-          body: formData,
+          body: values,
         }).unwrap();
-        toast.success("Unit Type created successfully");
+        toast.success("Sub Unit Type created successfully");
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "listing_Sub_Unit_Type",
+          entityType: "ListingSubUnitType",
+          entityId: response?.doc?._id,
+          status: "success",
+          message: `"${user?.fullName}" created the listing sub unit type "${
+            response?.doc.name || "Untitled"
+          }".`,
+        });
       }
       resetForm();
       onClose();
@@ -141,32 +154,63 @@ const SubUnitType = () => {
     } catch (error) {
       console.error(error);
       toast.error(error.data?.message || "An error occurred");
+      const errorMsg =
+        error?.data?.message ||
+        `Failed to ${isEditMode ? "updated" : "create"} the listing  sub unit type. Please try again.`;
+      toast.error(error.data?.message || "An error occurred");
+      createUserLog({
+        userId: user?._id,
+        action: isEditMode ? "UPDATE" : "CREATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: currentUnitType._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
-  const handleUnitTypeSave = async () => {
+  const handleUnitTypeSave = async (values, { resetForm }) => {
     try {
-      await createItemMuation({
+      const response = await createItemMuation({
         path: "/listing/secondary/unit-types",
-        body: unitTypeForm,
+        body: values,
       }).unwrap();
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" created the listing sub unit type "${
+          response?.doc?.name || "Untitled"
+        }".`,
+      });
       toast.success("Unit Type created successfully");
       setIsUnitTypeModalOpen(false);
-      setUnitTypeForm({ name: "", status: true });
+      resetForm();
       refetchingUnitType();
       onOpen();
     } catch (error) {
       toast.error(error.data?.message || "Failed to create unit type");
+      const errorMsg =
+        error?.data?.message ||
+        `Failed to create the listing  sub unit type. Please try again.`;
+      toast.error(error.data?.message || "An error occurred");
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
   const handleEdit = (unitType) => {
     setCurrentUnitType(unitType);
-    setFormData({
-      unitType: unitType.unitType?._id || unitType.unitType || "",
-      name: unitType.name || "",
-      status: unitType.status,
-    });
     setIsEditMode(true);
     onOpen();
   };
@@ -177,31 +221,50 @@ const SubUnitType = () => {
         path: `/listing/secondary/unit-types/sub-category/${id}`,
       }).unwrap();
       toast.success("Unit Type deleted successfully");
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: id,
+        status: "success",
+        message: `"${user?.fullName}" deleted the listing sub unit type.`,
+      });
       refetch();
     } catch (error) {
       console.error(error);
       toast.error(error.data?.message || "Failed to delete unit type");
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      unitType: "",
-      name: "",
-      status: true,
-    });
-    setIsEditMode(false);
-    setCurrentUnitType(null);
   };
 
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
-      await updateItemMuation({
+      const response = await updateItemMuation({
         path: `/listing/secondary/unit-types/sub-category/status/${type._id}`,
         body: { status: newStatus },
       }).unwrap();
-
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: response?.doc?._id,
+        status: "success",
+        message: `"${user?.fullName}" update the status of listing sub Unit Type "${response?.doc?.name || "Untitled"}".`,
+      });
       toast.success(`Listing type status updated successfully`);
       refetch();
     } catch (error) {
@@ -209,6 +272,18 @@ const SubUnitType = () => {
       toast.error(
         error.data?.message || "Failed to update listing type status"
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the status of unit listing type. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "listing_Sub_Unit_Type",
+        entityType: "ListingSubUnitType",
+        entityId: type._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -261,7 +336,7 @@ const SubUnitType = () => {
               px={6}
               w={{ base: "100%", md: "auto" }}
               onClick={() => {
-                resetForm();
+               setIsEditMode(false);
                 onOpen();
               }}
             >
@@ -412,180 +487,115 @@ const SubUnitType = () => {
             )}
           </Box>
         </Box>
-        {/* Add/Edit Modal */}
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
-          <ModalOverlay />
-          <ModalContent
-            mx={{ base: 2, sm: 4, md: 8 }}
-            w={{ base: "95vw", sm: "90vw", md: "500px" }}
-            maxW="100vw"
-          >
-            <ModalHeader>
-              {isEditMode ? "Edit Unit Types" : "Add New Unit Types"}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody pb={6}>
-              <FormControl>
-                <FormLabel>
-                  <Flex alignItems="center" justifyContent="space-between">
-                    <span>Unit Type</span>
-                    <IconButton
-                      aria-label="Add Unit Type"
-                      icon={<AddIcon />}
-                      size="xs"
-                      ml={2}
-                      onClick={() => {
-                        setIsUnitTypeModalOpen(true);
-                        onClose();
-                      }}
-                    />
-                  </Flex>
-                </FormLabel>
-                <Select
-                  name="unitType"
-                  value={formData.unitType}
-                  onChange={handleInputChange}
-                  placeholder="Select unit type"
-                >
-                  {unitTypeData?.doc?.map((type) => (
-                    <option key={type._id} value={type._id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl mt={4}>
-                <FormLabel>Sub Type</FormLabel>
-                <Input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter sub type"
-                />
-              </FormControl>
-
-              <FormControl mt={4}>
-                <FormLabel>Active Status</FormLabel>
-                <Switch
-                  name="status"
-                  isChecked={formData.status}
-                  onChange={handleInputChange}
-                  colorScheme="green"
-                />
-              </FormControl>
-            </ModalBody>
-
-            <ModalFooter>
-              <Button
-                variant="outline"
-                bg="#e2e8f0"
-                size="md"
-                w="100px"
-                borderRadius="3px"
-                mr={2}
-                onClick={() => {
-                  onClose();
-                  resetForm();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                bg="#d99a36"
-                color="white"
-                w="100px"
-                borderRadius="3px"
-                size="md"
-                onClick={handleSubmit}
-                _hover={{ bg: "brand.400", color: "white" }}
-                _active={{
-                  bg: "brand.300",
-                }}
-              >
-                Save
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-
-        {/* Unit Type Modal */}
-        <Modal
-          isOpen={isUnitTypeModalOpen}
-          onClose={() => {
-            setIsUnitTypeModalOpen(false);
-            onOpen();
-          }}
-          isCentered
-        >
-          <ModalOverlay />
-          <ModalContent
-            mx={{ base: 2, sm: 4, md: 8 }} // Responsive horizontal margin
-            w={{ base: "95vw", sm: "90vw", md: "500px" }} // Responsive width
-            maxW="100vw"
-          >
-            <ModalHeader>Create New Unit Type</ModalHeader>
-            <ModalCloseButton
-              onClick={() => {
-                setIsUnitTypeModalOpen(false);
-                onOpen();
-              }}
-            />
-            <ModalBody pb={6}>
-              <FormControl>
-                <FormLabel>Unit Type Name</FormLabel>
-                <Input
-                  name="name"
-                  value={unitTypeForm.name}
-                  onChange={handleUnitTypeInputChange}
-                  placeholder="Enter unit type name"
-                />
-              </FormControl>
-
-              <FormControl mt={4}>
-                <FormLabel>Active Status</FormLabel>
-                <Switch
-                  name="status"
-                  isChecked={unitTypeForm.status}
-                  onChange={handleUnitTypeInputChange}
-                  colorScheme="green"
-                />
-              </FormControl>
-            </ModalBody>
-
-            <ModalFooter>
-              <Button
-                variant="outline"
-                bg="#e2e8f0"
-                size="md"
-                w="100px"
-                borderRadius="3px"
-                mr={2}
-                onClick={() => {
-                  setIsUnitTypeModalOpen(false);
-                  onOpen();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                bg="#d99a36"
-                color="white"
-                w="100px"
-                borderRadius="3px"
-                size="md"
-                onClick={handleUnitTypeSave}
-                _hover={{ bg: "brand.400", color: "white" }}
-                _active={{
-                  bg: "brand.300",
-                }}
-              >
-                Save
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
       </Box>
+
+      {/* Add/Edit Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent w={{ base: "95vw", md: "500px" }}>
+          <ModalHeader>{isEditMode ? "Edit Unit Types" : "Add New Unit Types"}</ModalHeader>
+          <ModalCloseButton />
+          <Formik
+            initialValues={{
+              unitType: currentUnitType?.unitType?._id || "",
+              name: currentUnitType?.name || "",
+              status: currentUnitType?.status ?? true,
+            }}
+            validationSchema={validationSchema}
+            enableReinitialize
+            onSubmit={handleSubmit}
+          >
+            {({ errors, touched, values, setFieldValue }) => (
+              <Form>
+                <ModalBody pb={6}>
+                  <FormControl isInvalid={errors.unitType && touched.unitType}>
+                    <FormLabel>Unit Type</FormLabel>
+                    <Select
+                      name="unitType"
+                      value={values.unitType}
+                      onChange={(e) => setFieldValue("unitType", e.target.value)}
+                    >
+                      <option value="">Select unit type</option>
+                      {unitTypeData?.doc?.map((type) => (
+                        <option key={type._id} value={type._id}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </Select>
+                    {errors.unitType && touched.unitType && (
+                      <Text color="red.500" fontSize="sm">{errors.unitType}</Text>
+                    )}
+                  </FormControl>
+
+                  <FormControl mt={4} isInvalid={errors.name && touched.name}>
+                    <FormLabel>Sub Type</FormLabel>
+                    <Field as={Input} name="name" placeholder="Enter sub type" />
+                    {errors.name && touched.name && (
+                      <Text color="red.500" fontSize="sm">{errors.name}</Text>
+                    )}
+                  </FormControl>
+
+                  <FormControl mt={4}>
+                    <FormLabel>Active Status</FormLabel>
+                    <Switch
+                      isChecked={values.status}
+                      onChange={(e) => setFieldValue("status", e.target.checked)}
+                      colorScheme="green"
+                    />
+                  </FormControl>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button onClick={onClose} mr={2}>Cancel</Button>
+                  <Button type="submit" bg="#d99a36" color="white">Save</Button>
+                </ModalFooter>
+              </Form>
+            )}
+          </Formik>
+        </ModalContent>
+      </Modal>
+
+      {/* Unit Type Modal */}
+      <Modal isOpen={isUnitTypeModalOpen} onClose={() => setIsUnitTypeModalOpen(false)} isCentered>
+        <ModalOverlay />
+        <ModalContent w={{ base: "95vw", md: "500px" }}>
+          <ModalHeader>Create New Unit Type</ModalHeader>
+          <ModalCloseButton />
+          <Formik
+            initialValues={{ name: "", status: true }}
+            validationSchema={unitTypeValidationSchema}
+            onSubmit={handleUnitTypeSave}
+          >
+            {({ errors, touched, values, setFieldValue }) => (
+              <Form>
+                <ModalBody pb={6}>
+                  <FormControl isInvalid={errors.name && touched.name}>
+                    <FormLabel>Unit Type Name</FormLabel>
+                    <Field as={Input} name="name" placeholder="Enter unit type name" />
+                    {errors.name && touched.name && (
+                      <Text color="red.500" fontSize="sm">{errors.name}</Text>
+                    )}
+                  </FormControl>
+
+                  <FormControl mt={4}>
+                    <FormLabel>Active Status</FormLabel>
+                    <Switch
+                      isChecked={values.status}
+                      onChange={(e) => setFieldValue("status", e.target.checked)}
+                      colorScheme="green"
+                    />
+                  </FormControl>
+                </ModalBody>
+
+                <ModalFooter>
+                  <Button onClick={() => setIsUnitTypeModalOpen(false)} mr={2}>Cancel</Button>
+                  <Button type="submit" bg="#d99a36" color="white">Save</Button>
+                </ModalFooter>
+              </Form>
+            )}
+          </Formik>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

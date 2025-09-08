@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CreateAgency from './CreateAgency';
 import AgencyTable from './AgencyTable';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Grid, Heading, HStack } from '@chakra-ui/react';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import EditAgency from './EditAgency';
 import { buttonStyle } from '../lead-v2/components/constants';
@@ -82,6 +82,48 @@ const Agency = () => {
 					isLoading={isLoading}
 				/>
 			</Box>
+
+			{/* grid system */}
+			{/* <Grid
+				templateColumns={{
+					base: '1fr',
+					md: 'repeat(2, 1fr)',
+				}}
+				gap='4'
+				mx='auto'
+				p='10'
+				maxW='800px'
+			>
+				<Grid
+					templateColumns={{
+						base: '1fr',
+					}}
+					gap='4'
+				>
+					<Box bg='red.200' h='10vh' color='white' p='5'>
+						1
+					</Box>
+					<Box bg='red.200' h='10vh' color='white' p='5'>
+						2
+					</Box>
+					<Box bg='red.200' h='10vh' color='white' p='5'>
+						3
+					</Box>
+				</Grid>
+				<Grid
+					templateColumns={{
+						base: '1fr',
+					}}
+					gap='4'
+				>
+					<Box bg='blue.200' h='21.5vh' color='white' p='5'>
+						5
+					</Box>
+					<Box bg='red.200' h='10vh' color='white' p='5'>
+						6
+					</Box>
+				</Grid>
+			</Grid> */}
 		</div>
 	);
 };

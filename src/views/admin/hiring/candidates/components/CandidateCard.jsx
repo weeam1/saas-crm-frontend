@@ -20,6 +20,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addMissingFile } from './../../../../../redux/missingFilesSlice';
 import { FaBriefcase, FaUser } from 'react-icons/fa';
 import { formatName } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const CandidateCard = ({ candidate, refetch, mode }) => {
 	const {
@@ -41,6 +43,9 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 
 	const dispatch = useDispatch();
 	const missingFiles = useSelector((state) => state.missingFiles.missingFiles);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const handleViewCV = async (resume) => {
 		try {
@@ -64,6 +69,16 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -95,10 +110,33 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
 		}
+	};
+
+	const handleViewApplication = () => {
+		setApplicationOpen(true);
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Hiring',
+			entityType: 'Application',
+			entityId: candidate?._id,
+			status: 'success',
+			message: `Candidate ${candidate.name}’s details viewed by ${user?.fullName}.`,
+		});
 	};
 
 	const getStatusColor = (status) => {
@@ -262,7 +300,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
 						_active={{ bg: '#D4AC50' }} // Darker shade for active state
 						w='83px'
 						h='30px'
-						onClick={() => setApplicationOpen(true)}
+						onClick={handleViewApplication}
 					>
 						View
 					</Button>

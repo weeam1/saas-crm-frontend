@@ -21,8 +21,8 @@ import {
   FormLabel,
   Select,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiFilter, FiDownload } from "react-icons/fi";
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon, DownloadIcon } from "@chakra-ui/icons";
+import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -30,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../developers/components/Pagination";
 import TableLoading from "components/loading/TableLoading";
 import * as XLSX from "xlsx";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const IncomingTable = ({ month, year, refetchSummary }) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
@@ -42,7 +43,10 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
   const [deleteItemMutation] = useDeleteItemMutation();
+  const { createUserLog } = useUserActivityLog();
+
   const columns = [
     "Date",
     "developer",
@@ -127,6 +131,15 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
         autoClose: 3000,
       });
       refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Invoice",
+        entityId: invoiceId,
+        entityType: "Invoice",
+        status: "success",
+        message: `${user?.fullName} deleted incoming expense.`,
+      });
     } catch (error) {
       console.error("Failed to delete expenses:", error);
       toast.error(
@@ -134,6 +147,18 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
           "Failed to delete the expenses. Please try again.",
         { autoClose: 3000 }
       );
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to delete the incoming expense. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Invoice",
+        entityType: "Invoice",
+        entityId: invoiceId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
     }
   };
 
@@ -178,11 +203,22 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
       px={2}
       marginTop={"-16px"}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+        gap={1}
+      >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Payments
         </Text>
-        <Box gap={2} display="flex" alignItems="center">
+        <Box
+          gap={2}
+          display="flex"
+          alignItems="center"
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -207,8 +243,7 @@ const IncomingTable = ({ month, year, refetchSummary }) => {
 
           <Button
             size="md"
-            variant="outline"
-            leftIcon={<FiDownload />}
+            leftIcon={<DownloadIcon />}
             py={3}
             px={6}
             onClick={exportToExcel}

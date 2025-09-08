@@ -7,7 +7,7 @@ const PositionsList = ({ positions, onEdit }) => {
 			<Text fontSize='2xl' fontWeight='bold' mb='4'>
 				Positions
 			</Text>
-			<List spacing={3} width='500px' margin='auto' p='4'>
+			<List spacing={3} w={{base: "100%", sm: "100%", md: "50%"}} mx='auto' p='4'>
 				{positions?.totalDocs > 0 ? (
 					positions?.doc?.map((position) => (
 						<ListItem

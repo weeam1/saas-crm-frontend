@@ -18,10 +18,15 @@ import { extractLocationData } from 'utils/helpers';
 import { useSelector } from 'react-redux';
 import { toCapitalCase } from 'utils/helpers';
 import { safeValue } from 'utils';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
@@ -123,7 +128,7 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 			delete updatedValues.city;
 			delete updatedValues.country;
 
-			await updateItemMuation({
+			const res = await updateItemMuation({
 				path: `/lead/edit-lead/${leadData._id}`,
 				body: updatedValues,
 			}).unwrap();
@@ -132,9 +137,31 @@ const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 			onClose();
 			actions.resetForm();
 			refreshData();
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadData._id,
+				status: 'success',
+				message: `${res?.leadName || ''} Lead is updated successfully`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data.message ||
+				`Lead ${leadData?.leadName || ''} failed to update.`;
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadData._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 	return (

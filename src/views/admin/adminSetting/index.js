@@ -15,18 +15,21 @@ import {
 	MdDeveloperMode,
 } from 'react-icons/md';
 import { FaWhatsapp } from 'react-icons/fa6';
+// import { usePermissions } from 'hooks/usePermissions';
 
 const Index = () => {
 	const navigate = useNavigate();
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 
+	// const { hasPermission } = usePermissions();
+
 	return (
 		<div>
 			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap='20px' mb='20px'>
 				<MiniStatistics
 					fontsize='md'
-					onClick={() => navigate('/user')}
+					onClick={() => navigate('/admin-setting/users')}
 					startContent={
 						<IconBox
 							w='56px'
@@ -56,7 +59,7 @@ const Index = () => {
 							}
 						/>
 					}
-					name='Roles'
+					name='Roles & Permissions'
 					// value={contactData?.length || 0}
 				/>
 				<MiniStatistics

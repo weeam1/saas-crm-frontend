@@ -21,6 +21,9 @@ import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
 import { validatePhoneNumber } from 'utils/helpers';
+import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
+import { FiMoreVertical } from 'react-icons/fi';
 
 const LeadMenu = ({
 	lead,
@@ -42,7 +45,9 @@ const LeadMenu = ({
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
-	const user = useSelector((state) => state.user.user);
+	// const user = useSelector((state) => state.user.user);
+	const { user, isSuperAdmin, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
 
 	// const loginUser = useSelector((state) => state.user.user);
 
@@ -57,8 +62,11 @@ const LeadMenu = ({
 			: lead.leadWhatsappNumber;
 
 	// agent edit the lead only phone and lead name (when status is show)
-	const allowedUserEdit =
-		user?.roles[0]?.roleName === 'Agent' ? true : lead?.eLeadStatus === 'show';
+	const allowedUserEdit = isSuperAdmin
+		? true
+		: user?.roleName === 'Agent'
+			? true
+			: lead?.eLeadStatus === 'show';
 
 	// const { setIsLeadCycle } = useStateContext();
 
@@ -67,9 +75,9 @@ const LeadMenu = ({
 
 		if (!businessPhone) {
 			toast.error(
-				user?.role === 'superAdmin'
+				isSuperAdmin
 					? 'Please first setup our whatsapp!'
-					: 'Your WhatsApp is not setup, please contact with Admin.'
+					: 'Your WhatsApp is not setup, please contact with super Admin.'
 			);
 			return;
 		}
@@ -88,20 +96,31 @@ const LeadMenu = ({
 
 		dispatch(setActiveChat(newContact));
 
-		const redirectUrl =
-			user?.role === 'superAdmin'
-				? `/whatsapp/chat/${user._id}`
-				: `/whatsapp/chat`;
+		const redirectUrl = isSuperAdmin
+			? `/whatsapp/chat/${user._id}`
+			: `/whatsapp/chat`;
 
 		navigate(redirectUrl);
 	};
 
 	return (
 		<Menu isLazy closeOnSelect={false} size='sm'>
-			<MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' />
+			<MenuButton
+				as={IconButton}
+				icon={<FiMoreVertical />}
+				aria-label='Options'
+				variant='ghost'
+				size='sm'
+				fontSize='18px'
+				rounded='full'
+				_focus={{ boxShadow: 'none', outline: 'none' }}
+			/>
+			{/* <MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' /> */}
 			<MenuList minW='fit-content' fontSize='sm'>
-				{(user?.role === 'superAdmin' && access?.update) ||
-				(user?.role !== 'superAdmin' && allowedUserEdit) ? (
+				{/* {(isSuperAdmin && access?.update) ||
+				(user?.role !== 'superAdmin' && allowedUserEdit) ? ( */}
+				{/* {(isSuperAdmin && access?.update) || */}
+				{hasPermission('leads', 'update') && allowedUserEdit ? (
 					<MenuItem
 						onClick={() => {
 							setEditLead(true);
@@ -112,17 +131,15 @@ const LeadMenu = ({
 						Edit
 					</MenuItem>
 				) : null}
-
-				{['Manager', 'Agent'].includes(user?.roles[0]?.roleName) && (
+				{['Manager', 'Agent'].includes(userRoleName) && (
 					<ReleaseLead
 						isReleased={lead?.isReleased}
-						role={user?.roles[0]?.roleName}
+						role={userRoleName}
 						leadId={lead?._id}
 						as={MenuItem}
 						refreshData={refreshData}
 					/>
 				)}
-
 				{/* {callAccess?.create && (
 					<MenuItem
 					
@@ -135,7 +152,8 @@ const LeadMenu = ({
 						Create Call
 					</MenuItem>
 				)} */}
-				{emailAccess?.create && (
+				{/* {emailAccess?.create && ( */}
+				{hasPermission('leads', 'sendEmail') && (
 					<MenuItem
 						onClick={() => {
 							setSendEmail(true);
@@ -146,13 +164,16 @@ const LeadMenu = ({
 						Send Email
 					</MenuItem>
 				)}
-				<MenuItem
-					onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
-					icon={<FaHistory fontSize={15} />}
-				>
-					View Lead Cycle
-				</MenuItem>
-				{user?.role === 'superAdmin' && (
+				{hasPermission('leads', 'viewLeadCycle') && (
+					<MenuItem
+						onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
+						icon={<FaHistory fontSize={15} />}
+					>
+						View Lead Cycle
+					</MenuItem>
+				)}
+				{/* {isSuperAdmin && ( */}
+				{hasPermission('leads', 'viewPhoneHistory') && (
 					<MenuItem
 						onClick={() => {
 							setViewPhoneHistory({
@@ -165,7 +186,6 @@ const LeadMenu = ({
 						View Phone History
 					</MenuItem>
 				)}
-
 				{/* <MenuItem
 				
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
@@ -188,7 +208,7 @@ const LeadMenu = ({
 				>
 					Open in WhatsApp
 				</MenuItem>
-				{user?.roles[0]?.roleName === 'Agent' && (
+				{/* {user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
 						// onClick={() => {
 						// 	setTaskInits(lead);
@@ -198,18 +218,21 @@ const LeadMenu = ({
 					>
 						Create Follow Up
 					</MenuItem>
-				)}
+				)} */}
 
-				<MenuItem
-					onClick={() => {
-						setLeadAddtionalInfo(true);
-						setLeadDetails(lead);
-					}}
-					icon={<AiFillInfoCircle fontSize={15} />}
-				>
-					Addtional Info
-				</MenuItem>
-				{access?.delete && user?.role === 'superAdmin' && (
+				{hasPermission('leads', 'leadAdditionalInfo') && (
+					<MenuItem
+						onClick={() => {
+							setLeadAddtionalInfo(true);
+							setLeadDetails(lead);
+						}}
+						icon={<AiFillInfoCircle fontSize={15} />}
+					>
+						Addtional Info
+					</MenuItem>
+				)}
+				{/* {access?.delete && isSuperAdmin && ( */}
+				{hasPermission('leads', 'delete') && (
 					<MenuItem
 						color='red'
 						onClick={() => {

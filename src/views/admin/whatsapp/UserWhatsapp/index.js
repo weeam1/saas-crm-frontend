@@ -13,6 +13,7 @@ import Loader from 'components/loading/Loader';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
 import { HStack } from '@chakra-ui/react';
+import { usePermissions } from 'hooks/usePermissions';
 
 const UserWhatsapp = () => {
 	const { id } = useParams();
@@ -23,6 +24,14 @@ const UserWhatsapp = () => {
 
 	const userRole = loginUser?.roles[0]?.roleName || loginUser?.role;
 	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('whatsapp')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 
 	useEffect(() => {
 		if (id) {
@@ -57,8 +66,6 @@ const UserWhatsapp = () => {
 			dispatch(setCurrentUser(user));
 		}
 	}, [contacts, dispatch, user]);
-
-	const navigate = useNavigate();
 
 	return usersLoading ? (
 		<Loader />

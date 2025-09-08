@@ -37,6 +37,7 @@ import { buttonStyle } from 'utils/btn';
 import PasswordPermission from './components/PasswordPermission';
 import { fetchActiveTree, fetchTree } from './userApis';
 import { currencyOptions } from 'utils/options';
+import useUserSession from 'hooks/useUserSession';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -82,8 +83,7 @@ const Edit = (props) => {
 		currency: data?.currency ?? 'AED',
 	};
 
-	const user = JSON.parse(window.localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	const tree = useSelector((state) => state.user.activeTree);
 
@@ -266,7 +266,7 @@ const Edit = (props) => {
 					</ModalHeader>
 					<ModalBody>
 						<Grid
-							h={isAdmin ? '60vh' : '50vh'}
+							h={isSuperAdmin ? '60vh' : '50vh'}
 							overflow={'scroll'}
 							templateColumns='repeat(12, 1fr)'
 							gap={3}
@@ -372,7 +372,7 @@ const Edit = (props) => {
 										errors.phoneNumber}
 								</Text>
 							</GridItem>
-							{isAdmin && (
+							{isSuperAdmin && (
 								<>
 									<GridItem colSpan={{ base: 6 }}>
 										<FormLabel
@@ -563,7 +563,7 @@ const Edit = (props) => {
 								</>
 							)}
 
-							{(isAdmin ||
+							{(isSuperAdmin ||
 								(user?.roles[0]?.roleName === 'Manager' &&
 									user._id !== data._id)) && (
 								<>
@@ -625,7 +625,7 @@ const Edit = (props) => {
 								</>
 							)}
 
-							{isAdmin && (
+							{isSuperAdmin && (
 								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'

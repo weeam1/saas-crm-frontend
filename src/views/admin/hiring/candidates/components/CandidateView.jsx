@@ -10,10 +10,9 @@ import {
 	Spinner,
 	HStack,
 	Box,
-	IconButton,
-	Tooltip,
 	Stack,
 	Text,
+	useDisclosure,
 } from '@chakra-ui/react';
 import ExperienceDetails from './ExperienceDetails';
 import DisplayField from 'components/displays/DisplayField';
@@ -26,6 +25,10 @@ import StatusBadge from 'components/shared/StatusBadge';
 import EditCandidate from './EditCandidate';
 import { FiEdit } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { FaClockRotateLeft } from 'react-icons/fa6';
+import CandidateStatusHistory from '../../_components/CandidateStatusHistory';
 
 const CandidateView = ({
 	isOpen,
@@ -41,6 +44,15 @@ const CandidateView = ({
 
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
+	const {
+		isOpen: isApplicationHistoryOpen,
+		onOpen: onApplicationHistoryOpen,
+		onClose: onApplicationHistoryClose,
+	} = useDisclosure();
+
 	const handleApplicationStatus = async () => {
 		try {
 			await updateItemMutation({
@@ -51,8 +63,29 @@ const CandidateView = ({
 			refetch();
 			onClose();
 			toast.success('Application status successfully updated');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `${user?.fullName} changed the candidate’s application status to "${newStatus}".`,
+			});
 		} catch (error) {
-			toast.error(error?.data?.message || 'Applicaiton status not updated!');
+			const errorMsg = error?.data?.message || 'Application status not updated';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 
@@ -74,17 +107,31 @@ const CandidateView = ({
 								)}
 							</HStack>
 							{/* Edit Icon Button */}
-							<Button
-								{...buttonStyle}
-								bg='gray.200'
-								color='gray.800'
-								py='2'
-								px='4'
-								leftIcon={<FiEdit />}
-								onClick={() => setIsEditModalOpen(true)}
-							>
-								Edit
-							</Button>
+							<HStack spacing={2} mt={{ base: 2, md: 0 }} ml='auto'>
+								<Button
+									{...buttonStyle}
+									bg='gray.200'
+									color='gray.800'
+									py='2'
+									px='4'
+									leftIcon={<FiEdit />}
+									onClick={() => setIsEditModalOpen(true)}
+								>
+									Edit
+								</Button>
+
+								<Button
+									{...buttonStyle}
+									bg='gray.200'
+									color='gray.800'
+									py='2'
+									px='4'
+									leftIcon={<FaClockRotateLeft />}
+									onClick={onApplicationHistoryOpen}
+								>
+									History
+								</Button>
+							</HStack>
 						</Stack>
 					</ModalHeader>
 					<ModalCloseButton mt='6' />
@@ -136,6 +183,10 @@ const CandidateView = ({
 								<DisplayField
 									label='Agency'
 									value={candidate?.agency?.name || 'N/A'}
+								/>
+								<DisplayField
+									label='Source'
+									value={candidate?.source || 'N/A'}
 								/>
 
 								{candidate.invited && (
@@ -262,6 +313,14 @@ const CandidateView = ({
 					}}
 					candidate={candidate}
 					refetch={refetch}
+				/>
+			)}
+
+			{isApplicationHistoryOpen && (
+				<CandidateStatusHistory
+					isOpen={isApplicationHistoryOpen}
+					onClose={onApplicationHistoryClose}
+					candidate={candidate}
 				/>
 			)}
 		</>

@@ -22,6 +22,7 @@ import DataNotFound from "components/notFoundData";
 import { buttonStyle } from "utils/btn";
 import TableLoading from "components/loading/TableLoading";
 import ContactDetailsModal from "./ContactDetailsModal";
+import { Link as RouterLink } from "react-router-dom";
 
 const DevelopersTableView = ({
   data,
@@ -43,7 +44,7 @@ const DevelopersTableView = ({
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-   const handleContactClick = (contacts, developer_name, imageUrl, e) => {
+  const handleContactClick = (contacts, developer_name, imageUrl, e) => {
     e?.stopPropagation();
     setSelectedContacts(contacts);
     setDeveloperName(developer_name);
@@ -52,9 +53,9 @@ const DevelopersTableView = ({
   };
 
   const capitalizeFirstLetter = (str) => {
-  if (!str) return "N/A";
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
+    if (!str) return "N/A";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
 
   return (
     <Box
@@ -174,7 +175,12 @@ const DevelopersTableView = ({
                     );
                   } else if (column.Header === "Address") {
                     cellData = (
-                      <Text fontSize="sm" fontWeight="700">
+                      <Text
+                        whiteSpace="wrap"
+                        minWidth="200px"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                      >
                         {row.address || "N/A"}
                       </Text>
                     );
@@ -215,7 +221,11 @@ const DevelopersTableView = ({
                   } else if (column.Header === "Action") {
                     cellData = (
                       <Flex justifyContent="center" gap={2}>
-                        <Link to={`/invoice/developers/invoices/${row?._id}`}>
+                        <Link
+                          as={RouterLink}
+                          to={`/invoice/developers/invoices/${row?._id}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Button
                             {...buttonStyle}
                             colorScheme="brand"

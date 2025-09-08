@@ -16,11 +16,12 @@ import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { getCurrentInterviewRound } from 'views/admin/hiring/helpers';
 import { useMemo } from 'react';
+import useUserSession from 'hooks/useUserSession';
 
 const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 	const navigate = useNavigate();
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
 
 	const {
 		data: interview,

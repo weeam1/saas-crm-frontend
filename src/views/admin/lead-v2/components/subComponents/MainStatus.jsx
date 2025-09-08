@@ -17,6 +17,10 @@ import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
 import CloseDealModal from '../deals/CloseDealModal';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
+
+const AdminStatus = ['deal', 'show'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -25,9 +29,14 @@ const MainStatus = ({ lead, role }) => {
 
 	const [closeDeal, setCloseDeal] = useState(false);
 
+	const layoutView = localStorage.getItem('leadView') || 'grid';
+
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
+
+	const { user, userRoleName } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const hanldeMainStatus = async (statusOrEvent, options = {}) => {
 		try {
@@ -41,6 +50,10 @@ const MainStatus = ({ lead, role }) => {
 			};
 
 			const { skipDealModal = false } = options;
+
+			if (userRoleName !== 'superAdmin' && AdminStatus.includes(newStatus)) {
+				return toast.error('Only super admin can change main status');
+			}
 
 			if (newStatus === 'deal' && !skipDealModal) {
 				return setCloseDeal(true);
@@ -87,12 +100,44 @@ const MainStatus = ({ lead, role }) => {
 						fcblid: lead?.fcblid || null,
 					});
 				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'success',
+					message: `${user?.fullName} update the lead main status from '${selected || 'No Status'} to '${newStatus}'.`,
+				});
 			} else if (response.status === 400) {
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'fail',
+					message: `failed to update the lead main status'.`,
+				});
 			} else {
 				toast.error('Something went wrong!');
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} catch (error) {
 			// Check if the error contains response data
@@ -100,9 +145,31 @@ const MainStatus = ({ lead, role }) => {
 				const errorDetails =
 					error.response.data?.message || 'Invalid input provided.';
 				toast.error(`Bad Request: ${errorDetails}`);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'fail',
+					message: `failed to update the lead main status'.`,
+				});
 			} else {
 				console.error('Unexpected error:', error);
 				toast.error('Something went wrong!');
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: 'error',
+					message: `failed to update the lead main status'.`,
+				});
 			}
 		} finally {
 			setLoading(false);
@@ -126,20 +193,29 @@ const MainStatus = ({ lead, role }) => {
 
 	return (
 		<>
-			<HStack alignItems='center' justifyContent='space-between'>
-				<Text
-					fontWeight='medium'
-					fontSize={leadlabelFontSize}
-					color='softGray.200'
-					mr={2}
-				>
-					M Status
-				</Text>
-				<CustomTooltip label={label}>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</CustomTooltip>
-			</HStack>
+			{layoutView !== 'table' && (
+				<HStack alignItems='center' justifyContent='space-between'>
+					<Text
+						fontWeight='medium'
+						fontSize={leadlabelFontSize}
+						color='softGray.200'
+						mr={2}
+					>
+						M Status
+					</Text>
+					<CustomTooltip label={label || 'N/A'}>
+						<Icon
+							as={InfoIcon}
+							cursor='pointer'
+							boxSize={leadIconSize}
+							color='blue.300'
+						/>
+					</CustomTooltip>
+				</HStack>
+			)}
+
 			<SelectInput
+				mt={layoutView === 'table' ? '20px' : 0}
 				name='eLeadStatus'
 				options={mainLeadStatus || []}
 				placeholder='Select'

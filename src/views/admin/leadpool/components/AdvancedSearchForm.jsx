@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 // import ManagerAgentForm from "./ManagerAgentForm";
+import { removeDisableUser } from 'utils/helpers';
 
 const {
 	Grid,
@@ -290,7 +291,7 @@ const AdvancedSearchForm = (props) => {
 							value={values['agentAssigned']}
 						>
 							<option value=''>Select agent</option>
-							{agents.map((agent) => (
+							{removeDisableUser(agents).map((agent) => (
 								<option key={agent._id} value={agent._id}>
 									{agent.name}
 								</option>

@@ -32,6 +32,7 @@ import Loader from 'components/loading/Loader';
 import DisplayField from 'components/displays/DisplayField';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { formatCurrency } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
 
 const View = () => {
 	const RoleColumn = [
@@ -42,8 +43,7 @@ const View = () => {
 	const dispatch = useDispatch();
 	const userData = useSelector((state) => state.user.user);
 
-	const user = JSON.parse(window.localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin, isAdmin, userRoleName } = useUserSession();
 
 	const userName =
 		typeof userData === 'string' ? JSON.parse(userData) : userData;
@@ -136,7 +136,7 @@ const View = () => {
 								<Flex
 									justifyContent={{ base: 'start', sm: 'start', md: 'end' }}
 								>
-									{isAdmin || user?.roles[0]?.roleName === 'Manager' ? (
+									{isSuperAdmin || isAdmin || userRoleName === 'Manager' ? (
 										<Menu>
 											<MenuButton
 												variant='outline'
@@ -186,7 +186,7 @@ const View = () => {
 										</Menu>
 									) : (
 										data?._id === user?._id &&
-										!isAdmin && (
+										!isSuperAdmin && (
 											<Button
 												onClick={() => handleOpenModal(userData)}
 												leftIcon={<EditIcon />}

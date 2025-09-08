@@ -12,8 +12,10 @@ import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { sendLeadNotification } from 'api';
 import { format } from 'date-fns';
-import { mergeSort } from 'utils/helpers';
+import { mergeSort, removeDisableUser } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 	const [selected, setSelected] = useState(agentAssigned || '');
@@ -24,7 +26,10 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 	const tree = useSelector((state) => state.user.tree);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	useEffect(() => {
 		setSelected(agentAssigned);
@@ -84,10 +89,43 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 				// send lead notification
 				sendLeadNotification(user?._id, agentAssignedValue, lead);
+
+				let message;
+
+				if (agentAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
+				} else {
+					const agent = agents?.find(
+						(agent) => agent._id === agentAssignedValue
+					);
+					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: agentAssignedValue || null,
+					status: 'success',
+					message,
+				});
 			}
 		} catch (error) {
 			console.error('Failed to update the agent:', error);
 			toast.error('Agent not updated. Please try again.');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: lead._id || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: `failed to assigned the lead'.`,
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -95,7 +133,9 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 
 	// Filter agents related to the assigned manager
 	const agents = useMemo(() => {
-		return mergeSort(tree?.agents?.[`manager-${managerAssigned}`] || []);
+		return mergeSort(
+			removeDisableUser(tree?.agents?.[`manager-${managerAssigned}`] || [])
+		);
 	}, [managerAssigned, tree]);
 
 	return (
@@ -119,7 +159,12 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 							: 'N/A'
 					}`}
 				>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					<Icon
+						as={InfoIcon}
+						boxSize={leadIconSize}
+						cursor='pointer'
+						color='blue.300'
+					/>
 				</CustomTooltip>
 			</Flex>
 			<SelectInput

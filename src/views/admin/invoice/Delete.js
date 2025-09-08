@@ -15,11 +15,16 @@ import {
   useDeleteManyInvoicesMutation,
 } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const Delete = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteItem, { isLoading: deleteLoading }] = useDeleteItemMutation();
   const [deleteManyInvoices] = useDeleteManyInvoicesMutation();
+
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const { createUserLog } = useUserActivityLog();
 
   const handleDeleteClick = async () => {
     try {
@@ -36,7 +41,15 @@ const Delete = (props) => {
           method: "DELETE",
           body: { ids: props.data },
         }).unwrap();
-
+        createUserLog({
+          userId: user?._id,
+          action: "DELETE",
+          entity: "Invoice",
+          entityType: "Invoice",
+          entityId: response?.data?.invoice._id,
+          status: "success",
+          message: `"${user?.fullName}" deleted the many invoice.`,
+        });
         toast.success(`${props.data.length} invoice(s) deleted successfully!`);
       } else if (props.method === "one" && props.id) {
         response = await deleteItem({
@@ -45,6 +58,15 @@ const Delete = (props) => {
         }).unwrap();
 
         toast.success("Invoice deleted successfully!");
+        createUserLog({
+          userId: user?._id,
+          action: "DELETE",
+          entity: "Invoice",
+          entityType: "Invoice",
+          entityId: response?.data?.invoice._id,
+          status: "success",
+          message: `"${user?.fullName}" deleted the invoice.`,
+        });
       } else {
         console.error("Invalid delete props:", props);
         throw new Error("No valid data provided for deletion");
@@ -66,6 +88,15 @@ const Delete = (props) => {
         error?.message ||
         "An unexpected error occurred during deletion";
       toast.error(errorMessage);
+      createUserLog({
+        userId: user?._id,
+        action: "DELETE",
+        entity: "Invoice",
+        entityType: "Invoice",
+        entityId: props.id,
+        status: error?.status === 500 ? "error" : "fail",
+        message: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }

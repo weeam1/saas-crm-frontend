@@ -47,7 +47,7 @@ import { buttonStyle } from "utils/btn";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { useLocation } from "react-router-dom";
-import ViewToggle from "./ViewToggle";
+import ViewToggle from "components/toggle/ViewToggle";
 import DevelopersTableView from "./DevelopersTableView";
 import DevelopersCardView from "./DevelopersCardView";
 
@@ -250,7 +250,6 @@ export default function CheckTable(props) {
         w="100%"
         overflowX={{ sm: "scroll", lg: "hidden" }}
         marginTop={"-16px"}
-        marginLeft={"-4px"}
         borderRadius={"0px"}
       >
         <Grid templateColumns="repeat(12, 1fr)" gap={2} p={4}>
@@ -347,7 +346,7 @@ export default function CheckTable(props) {
             >
               Add New
             </Button>
-            <ViewToggle view={view} handleView={handleViewChange} />
+            <ViewToggle view={view} handleView={handleViewChange}  moduleView= "developersView"/>
           </GridItem>
         </Grid>
 

@@ -103,12 +103,12 @@ const SelectInterviewers = ({
 		// const filteredUsers = users.filter((item) => item._id !== user._id);
 		return (
 			<VStack
-				// spacing={4}
-				px={2}
+				px={0}
 				align='stretch'
-				scrollBehavior='smooth'
+				spacing={3}
 				maxHeight='500px' // Set a custom height for the container
 				overflowY='auto' // Enable vertical scrolling
+				w='100%'
 				sx={{
 					'&::-webkit-scrollbar': {
 						width: '6px', // Custom scrollbar width
@@ -126,13 +126,16 @@ const SelectInterviewers = ({
 					<Box
 						key={user._id}
 						display='flex'
-						alignItems='center'
+						alignItems='flex-start'
 						justifyContent='space-between'
-						p={2}
+						p={3}
 						borderWidth='1px'
 						borderRadius='md'
 						boxShadow='sm'
 						bg='#F8FAFC'
+						w='100%'
+						minH='70px'
+						overflow='hidden'
 					>
 						<Checkbox
 							isChecked={selectedIds.includes(user._id)}
@@ -142,10 +145,23 @@ const SelectInterviewers = ({
 							_focus={{
 								boxShadow: 'none', // Removed focus outline
 							}}
+							alignItems='flex-start'
+							w='100%'
 						>
-							<Box>
-								<Text fontSize='md'>{user.name}</Text>
-								<Text fontSize='sm' color='gray.500'>
+							<Box ml={2} overflow='hidden' flex='1'>
+								<Text
+									fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
+									fontWeight='medium'
+									isTruncated
+								>
+									{user.name}
+								</Text>
+								<Text
+									fontSize={{ base: 'xs', sm: 'xs', md: 'sm' }}
+									color='gray.500'
+									wordBreak='break-word'
+									whiteSpace='normal'
+								>
 									{user.email}
 								</Text>
 							</Box>
@@ -263,20 +279,20 @@ const SelectInterviewers = ({
 								borderRadius: '10px',
 							}}
 							_focus={{
-								boxShadow: 'none', // Removes the focus ring
+								boxShadow: 'none',
 							}}
+							fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
 						>
 							{tabName}
 						</Tab>
 					))}
 				</TabList>
 				<TabPanels bg='softGray.100' p={4} rounded='md'>
-					<TabPanel>{renderUserList(allUsers?.doc?.admins)}</TabPanel>
-					<TabPanel>{renderUserList(allUsers?.doc?.managers)}</TabPanel>
-					<TabPanel>{renderUserList(allUsers?.doc?.hrStaff)}</TabPanel>
+					<TabPanel p={0}>{renderUserList(allUsers?.doc?.admins)}</TabPanel>
+					<TabPanel p={0}>{renderUserList(allUsers?.doc?.managers)}</TabPanel>
+					<TabPanel p={0}>{renderUserList(allUsers?.doc?.hrStaff)}</TabPanel>
 				</TabPanels>
 			</Tabs>
-
 			<Button
 				bg='#EDC270'
 				color='gray.800'

@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
-const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
+const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 	const [search, setSearch] = useState('');
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [showDropdown, setShowDropdown] = useState(false);
@@ -66,6 +66,8 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 					borderColor='gray.300'
 					fontSize='sm'
 					py={1}
+					{...(size === "sm" ? { size: "sm" } : {})}
+					borderRadius='md'
 					_focus={{
 						borderColor: '#D99A36',
 						boxShadow: '0 0 0 1px #D99A36',
@@ -89,6 +91,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 							size='sm'
 							onClick={handleClear}
 							aria-label='Clear selection'
+							top={size === "sm" ? "-4px" : "0px"}
 						/>
 					</InputRightElement>
 				)}
@@ -102,7 +105,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 					shadow='md'
 					borderRadius='md'
 					mt={2}
-					zIndex={10}
+					zIndex={50}
 					maxH='300px'
 					overflowY='auto'
 				>
@@ -137,7 +140,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser }) => {
 					shadow='md'
 					borderRadius='md'
 					mt={2}
-					zIndex={10}
+					zIndex={50}
 				>
 					<NoData label='user' />
 				</Box>

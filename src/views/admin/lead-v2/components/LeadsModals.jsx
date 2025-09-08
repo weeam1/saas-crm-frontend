@@ -81,7 +81,7 @@ const LeadsModals = (props) => {
 			)}
 
 			{/* Delete model */}
-			{deleteLead && (
+			{deleteLead && selectedValues?.length > 1 ? (
 				<Delete
 					isOpen={deleteLead}
 					onClose={() => setDeleteLead(false)}
@@ -90,6 +90,17 @@ const LeadsModals = (props) => {
 					setSelectedValues={setSelectedValues}
 					url='api/lead/deleteMany'
 					method='many'
+					// setSelectAllChecked={setSelectAllChecked}
+				/>
+			) : (
+				<Delete
+					isOpen={deleteLead}
+					onClose={() => setDeleteLead(false)}
+					id={selectedValues[0]}
+					refetchData={refetchData}
+					setSelectedValues={setSelectedValues}
+					url='api/lead/delete/'
+					method='one'
 					// setSelectAllChecked={setSelectAllChecked}
 				/>
 			)}

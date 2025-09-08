@@ -1,4 +1,11 @@
-import { Spinner, Switch, Text, useDisclosure } from '@chakra-ui/react';
+import {
+	Spinner,
+	Switch,
+	Text,
+	useDisclosure,
+	Flex,
+	Box,
+} from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
@@ -7,6 +14,7 @@ import ReplaceManager from './ReplaceManager';
 import PasswordPermission from './PasswordPermission';
 import InfoModal from './InfoModal';
 import { fetchActiveTree, fetchTree } from '../userApis';
+import useUserSession from 'hooks/useUserSession';
 
 const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	const [isActive, setIsActive] = useState(initialStatus);
@@ -15,9 +23,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	const [replacementManager, setReplacementManager] = useState('');
 	const [securityPassword, setSecurityPassword] = useState('');
 
-	const loginUser = JSON.parse(localStorage.getItem('user'));
-
-	const isAdmin = loginUser?.role === 'superAdmin';
+	const { isSuperAdmin } = useUserSession();
 
 	const {
 		isOpen: replaceIsOpen,
@@ -121,7 +127,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	}, [initialStatus]);
 
 	return (
-		<>
+		<Box>
 			<Text
 				color={isActive ? 'green.400' : 'red.400'}
 				fontSize='sm'
@@ -140,16 +146,18 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 					/>
 				) : (
 					<>
-						{isActive ? 'Enable' : 'Disable'}
-						{isAdmin && (
-							<Switch
-								ml={2}
-								colorScheme='brand'
-								isChecked={isActive}
-								disabled={role === 'superAdmin'}
-								onChange={handleToggle}
-							/>
-						)}
+						<Flex gap={1}>
+							{isActive ? 'Enable' : 'Disable'}
+							{isSuperAdmin && (
+								<Switch
+									ml={2}
+									colorScheme='brand'
+									isChecked={isActive}
+									disabled={role === 'superAdmin'}
+									onChange={handleToggle}
+								/>
+							)}
+						</Flex>
 					</>
 				)}
 			</Text>
@@ -188,7 +196,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 					handleProceed={handleInfoProceed}
 				/>
 			)}
-		</>
+		</Box>
 	);
 };
 

@@ -327,6 +327,8 @@ import Loader from 'components/loading/Loader';
 import InterviewerPoints from './InterviewerPoints';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const getInterviewerPoints = (id, evaluations) =>
 	evaluations?.find((item) => item.interviewer._id === id);
@@ -359,6 +361,9 @@ const InterviewResult = ({
 		[interviewDoc]
 	);
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const totalPoints = (doc) => doc.totalInterviewers - doc.pendingEvaluations;
 
 	useEffect(() => {
@@ -387,8 +392,29 @@ const InterviewResult = ({
 			toast.success(`Interview result submitted for ${roundKey} round`);
 			onClose();
 			if (refetch) refetch();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Interview',
+				entityId: interviewId,
+				status: 'success',
+				message: `${user?.fullName} submitted the ${roundKey} interview results for ${interview?.doc?.candidate?.name}.`,
+			});
 		} catch (err) {
-			toast.error(err?.data?.message || 'Failed to update interview data');
+			const errorMsg = err?.data?.message || 'Failed to update interview data';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Interview',
+				entityId: interviewId,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

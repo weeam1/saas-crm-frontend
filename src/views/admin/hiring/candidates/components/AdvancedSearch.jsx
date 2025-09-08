@@ -21,6 +21,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { jobTypes } from 'utils/options';
 import { experienceYearsOptions, genderOptions } from '../../helpers';
 import { visaOptions } from 'utils/options';
+import useUserSession from 'hooks/useUserSession';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -36,12 +37,12 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 		agency: '',
 		inviteAccepted: '',
 		visaType: '',
+		source: '',
 	};
 
 	const [formValues, setFormValues] = useState(initialValues);
 
-	const user = JSON.parse(localStorage.getItem('user'));
-	const isAdmin = user?.role === 'superAdmin';
+	const { user, isSuperAdmin } = useUserSession();
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -60,7 +61,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 			path: '/agencies',
 		},
 		{
-			skip: !isAdmin,
+			skip: !isSuperAdmin,
 		}
 	);
 
@@ -94,14 +95,15 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 
 	const getFields = (type) => {
 		const baseFields = [
-			{ name: 'name', label: 'Name', placeholder: 'Enter Name' },
-			{ name: 'email', label: 'Email', placeholder: 'Enter Email' },
-			{ name: 'phone', label: 'Phone No', placeholder: 'Enter Phone Number' },
+			{ name: 'name', label: 'Name', placeholder: 'Enter name' },
+			{ name: 'email', label: 'Email', placeholder: 'Enter email' },
+			{ name: 'phone', label: 'Phone No', placeholder: 'Enter phone number' },
 			{
 				name: 'whatsApp',
 				label: 'WhatsApp No',
-				placeholder: 'WhatsApp Number',
+				placeholder: 'WhatsApp number',
 			},
+			{ name: 'source', label: 'Source', placeholder: 'Enter source' },
 			// {
 			// 	name: 'experienceYears',
 			// 	label: 'Experience in Years',
@@ -368,7 +370,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											</Select>
 										</GridItem>
 									)}
-									{isAdmin && (
+									{isSuperAdmin && (
 										<GridItem>
 											<FormLabel
 												display='flex'

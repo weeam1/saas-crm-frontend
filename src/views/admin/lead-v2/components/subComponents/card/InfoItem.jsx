@@ -30,7 +30,7 @@ const InfoItem = ({
 			</Text>
 
 			{/* Info Icon with Tooltip */}
-			<CustomTooltip label={value || 'N/A'}>
+			<CustomTooltip label={value || 'N/A'} persistent={true}>
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}

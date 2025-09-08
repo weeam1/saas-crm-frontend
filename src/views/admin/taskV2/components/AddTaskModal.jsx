@@ -23,6 +23,7 @@ import { useCreateItemMutation } from "api/apiSlice";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import { toast } from "react-toastify";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required("Title is required"),
@@ -43,6 +44,7 @@ const AddTaskModal = ({
 }) => {
   const [createTask] = useCreateItemMutation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const { createUserLog } = useUserActivityLog();
 
   const formik = useFormik({
     initialValues: {
@@ -63,10 +65,20 @@ const AddTaskModal = ({
           status: "Pending",
         };
 
-        await createTask({
+        const response = await createTask({
           path: "/taskV2",
           body: payload,
         }).unwrap();
+
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Task",
+          entityType: "TaskV2",
+          entityId: response._id,
+          status: "success",
+          message: `${user?.fullName} created task "${response?.title || "Untitled"}".`,
+        });
 
         toast.success("Task created successfully");
         onSuccess();
@@ -74,6 +86,16 @@ const AddTaskModal = ({
         onClose();
       } catch (error) {
         toast.error(error.data?.message || "Error creating task");
+        const errorMsg =
+          error?.data?.message || "Failed to creating task. Please try again.";
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Task",
+          entityType: "TaskV2",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       } finally {
         setSubmitting(false);
       }
@@ -105,7 +127,11 @@ const AddTaskModal = ({
                 <FormLabel>Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.assigned_to || null}
-                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
+                  users={
+                    user?.roles[0]?.roleName === "Manager"
+                      ? users
+                      : usersData?.doc || []
+                  }
                   onSelectUser={handleSelectUser}
                 />
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>

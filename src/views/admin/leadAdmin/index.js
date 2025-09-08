@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Pagination from './components/Pagination';
 import { getApi, putApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -9,9 +9,23 @@ import { getUserNameById } from 'utils';
 import { useSelector } from 'react-redux';
 import { sendLeadNotification } from 'api';
 import { formattedDate } from 'utils/helpers';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 // lead for admin
 const LeadScreen = () => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('leadpool_admin')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.some((role) => role.roleName === 'agent');
 	const users = useSelector((state) => state.user?.users) || [];
@@ -187,7 +201,7 @@ const LeadScreen = () => {
 
 				if (user.role !== 'superAdmin') {
 					queryParams.append('user', user._id);
-					queryParams.append('role', user.roles?.[0]?.roleName || '');
+					queryParams.append('role', user.roles[0]?.roleName || '');
 					if (dateTime?.from && dateTime?.to) {
 						queryParams.append('dateTime', `${dateTime.from}|${dateTime.to}`);
 					}
@@ -259,7 +273,7 @@ const LeadScreen = () => {
 
 				if (user.role !== 'superAdmin') {
 					queryParams.append('user', user._id);
-					queryParams.append('role', user.roles?.[0]?.roleName || '');
+					queryParams.append('role', user.roles[0]?.roleName || '');
 					if (dateTime?.from && dateTime?.to) {
 						queryParams.append('dateTime', `${dateTime.from}|${dateTime.to}`);
 					}
@@ -413,9 +427,31 @@ const LeadScreen = () => {
 					toast.success('Lead request approved successfully!');
 
 					sendLeadNotification(user?._id, agentId, updatedRes?.data);
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'APPROVE',
+						entity: 'Lead',
+						enityType: 'Lead',
+						entityId: leadId || null,
+						status: 'success',
+						message: `${user?.fullName} has approved the lead successfully.`,
+					});
 				} catch (error) {
 					console.log(error);
 					toast.error('Failed to update the lead');
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'APPROVE',
+						entity: 'Lead',
+						enityType: 'Lead',
+						entityId: leadId || null,
+						status: error?.response?.status === 500 ? 'error' : 'fail',
+						message: `Failed to approved the lead.`,
+					});
 				}
 			} else {
 				try {
@@ -473,16 +509,53 @@ const LeadScreen = () => {
 					}
 
 					toast.success('Lead request rejected successfully!');
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'REJECT',
+						entity: 'Lead',
+						enityType: 'Lead',
+						entityId: leadId || null,
+						status: 'success',
+						message: `${user?.fullName} has rejected the lead successfully.`,
+					});
 				} catch (error) {
 					console.log(error);
-					toast.error('Failed to update user coins');
+
+					const errorMsg =
+						error?.response?.data?.message || 'Failed to update the lead';
+					toast.error(errorMsg);
+
+					// update user activity log
+					createUserLog({
+						userId: user?._id,
+						action: 'UPDATE',
+						entity: 'Lead',
+						enityType: 'Lead',
+						entityId: leadId || null,
+						status: error?.response?.status === 500 ? 'error' : 'fail',
+						message: errorMsg,
+					});
 				}
 			}
 		} catch (error) {
 			console.log('error', error);
-			toast.error(
-				error.response?.data?.message || 'Failed to process lead request'
-			);
+
+			const errorMsg =
+				error?.response?.data?.message || 'Failed to process lead request';
+			toast.error(errorMsg);
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'REJECT',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadId || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

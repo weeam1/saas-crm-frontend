@@ -13,15 +13,20 @@ import { putApi } from 'services/api';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import { sendLeadNotification } from 'api';
-import { mergeSort } from 'utils/helpers';
+import { mergeSort, removeDisableUser } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
 	const tree = useSelector((state) => state.user.tree);
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	useEffect(() => {
 		setSelected(managerAssigned);
@@ -72,10 +77,44 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 
 				// send lead notification
 				sendLeadNotification(user?._id, managerAssignedValue, lead);
+
+				let message;
+
+				if (managerAssignedValue === '') {
+					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
+				} else {
+					const manager = tree?.managers?.find(
+						(user) => user._id === managerAssignedValue
+					);
+
+					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
+				}
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: managerAssignedValue || null,
+					status: 'success',
+					message,
+				});
 			}
 		} catch (error) {
 			console.error('Failed to update the manager:', error);
 			toast.error('Failed to update the manager');
+
+			// update user activity log
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: lead._id || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
+				message: 'Failed to update the manager',
+			});
 		} finally {
 			setLoading(false);
 		}
@@ -121,14 +160,19 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 							: 'N/A'
 					}`}
 				>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					<Icon
+						as={InfoIcon}
+						cursor='pointer'
+						boxSize={leadIconSize}
+						color='blue.300'
+					/>
 				</CustomTooltip>
 			</Flex>
 
 			<SelectInput
 				name='managerAssigned'
 				placeholder='Select'
-				options={mergeSort(tree?.managers || [])}
+				options={mergeSort(removeDisableUser(tree?.managers || []))}
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}

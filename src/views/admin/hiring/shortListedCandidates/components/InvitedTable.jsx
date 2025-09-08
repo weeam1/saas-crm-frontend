@@ -22,6 +22,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import StatusBadge from 'components/shared/StatusBadge';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const InvitedTable = ({
 	headers,
@@ -33,17 +35,20 @@ const InvitedTable = ({
 }) => {
 	const navigate = useNavigate();
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [createItemMutation, { isLoading: startingInterview }] =
 		useCreateItemMutation();
 
-	const handleStartInterview = async (candidateId) => {
+	const handleStartInterview = async (candidate) => {
 		try {
 			const data = await createItemMutation({
 				path: `/interviews`,
 				body: {
-					candidate: candidateId,
+					candidate: candidate._id,
 					leadInterviewer: user._id,
 				},
 			}).unwrap();
@@ -51,14 +56,34 @@ const InvitedTable = ({
 			if (data?.status === 'success' && data?.doc?._id) {
 				navigate(`/hiring/interview/${data.doc._id}?phase=select-interviewers`);
 				toast.success('Interview started...');
+
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Hiring',
+					entityType: 'Application',
+					entityId: candidate._id,
+					status: 'success',
+					message: `${user?.fullName} started the interview with ${candidate.name}.`,
+				});
 			} else {
 				toast.error('Invalid response from server.');
 			}
 		} catch (error) {
 			console.log(error);
-			toast.error(
-				error?.data?.message || 'Interview not started, please try again.'
-			);
+			const errorMsg =
+				error?.data?.message || 'Interview not started, please try again.';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate?._id,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 
@@ -193,7 +218,7 @@ const InvitedTable = ({
 														rounded='md'
 														_hover={{ bg: '#E0B960' }}
 														_active={{ bg: '#D4AC50' }}
-														onClick={() => handleStartInterview(item._id)}
+														onClick={() => handleStartInterview(item)}
 													>
 														Start Interview
 													</Button>

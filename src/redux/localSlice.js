@@ -1,7 +1,21 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const getUserFromStorage = () => {
+	try {
+		const data = sessionStorage.getItem('user') || localStorage.getItem('user');
+		if (!data) return null;
+		const parsed = JSON.parse(data);
+		return {
+			...parsed,
+			roleName: parsed?.roles?.[0]?.roleName || parsed?.role || 'user',
+		};
+	} catch {
+		return null;
+	}
+};
+
 const initialState = {
-	user: JSON.parse(window.localStorage.getItem('user')),
+	user: getUserFromStorage(),
 	tree: null,
 	activeTree: null,
 	users: null,
@@ -12,14 +26,31 @@ const localSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {
-		setUser: (state, action) => {
-			state.user = { ...action.payload };
+		// setUser: (state, action) => {
+		// 	state.user = { ...action.payload };
+		// },
+
+		setUser(state, action) {
+			state.user = action.payload;
+			const json = JSON.stringify(action.payload);
+			sessionStorage.setItem('user', json);
+			localStorage.setItem('user', json);
+		},
+		clearUser(state) {
+			state.user = null;
+			sessionStorage.removeItem('user');
+			localStorage.removeItem('user');
 		},
 
-		clearUser: (state) => {
-			state.user = null;
-			// You can also update localStorage here if needed
+		logOutUser() {
+			sessionStorage.clear();
+			localStorage.clear();
 		},
+
+		// clearUser: (state) => {
+		// 	state.user = null;
+		// 	// You can also update localStorage here if needed
+		// },
 		setTree: (state, action) => {
 			state.tree = action.payload;
 		},
@@ -32,15 +63,21 @@ const localSlice = createSlice({
 		setLeadPoolState: (state, action) => {
 			state.leadPoolState = action?.payload;
 		},
+
+		syncUser(state) {
+			state.user = getUserFromStorage();
+		},
 	},
 });
 
 export const {
 	setUser,
 	clearUser,
+	syncUser,
 	setTree,
 	setActiveTree,
 	setUsers,
+	logOutUser,
 	setLeadPoolState,
 } = localSlice.actions;
 

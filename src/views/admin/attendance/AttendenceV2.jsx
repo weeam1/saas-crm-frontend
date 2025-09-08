@@ -1,122 +1,158 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Box, Text, Icon } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
-  FaTachometerAlt,
-  FaUsers,
-  FaClipboardList,
-  FaUserCheck,
-} from "react-icons/fa";
-import { FiSettings } from "react-icons/fi";
-import TabNavigationDisplay from "../../../components/TabNavigationDisplay/TabNavigationDisplay";
-import Dashboard from "./components/dashboard/index";
-import Employees from "./components/employees/index";
-import Records from "./components/records/index";
-import MyAttendance from "./components/myAttendance/index";
+	FaTachometerAlt,
+	FaUsers,
+	FaClipboardList,
+	FaUserCheck,
+} from 'react-icons/fa';
+import TabNavigationDisplay from '../../../components/TabNavigationDisplay/TabNavigationDisplay';
+import Dashboard from './components/dashboard/index';
+import Employees from './components/employees/index';
+import Records from './components/records/index';
+import MyAttendance from './components/myAttendance/index';
+import NotPermission from 'components/notPermission/NotPermission';
 
-// import OfficeSettings from "./OfficeSettings";
+import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const AttendanceV2 = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [tabKey, setTabKey] = useState(0);
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [tabKey, setTabKey] = useState(0);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const role =
-    user?.role === "superAdmin" ? "superAdmin" : user?.roles[0]?.roleName;
-  const DEFAULT_TAB = role === "superAdmin" ? "dashboard" : "my-attendance";
+	const { user, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
 
-  const tabFromParams = searchParams.get("tab")?.toLowerCase() || DEFAULT_TAB;
-  const allTabsData = [
-    {
-      label: "Dashboard",
-      icon: FaTachometerAlt,
-      param: "dashboard",
-      title: "Attendance Dashboard",
-      description:
-        "View overall attendance statistics and key metrics at a glance.",
-      component: <Dashboard key="dashboard" />,
-    },
-    {
-      label: "Employees",
-      icon: FaUsers,
-      param: "employees",
-      title: "Employee Management",
-      description: "Manage employee attendance records and profiles.",
-      component: <Employees key="employees" />,
-    },
-    {
-      label: "Records",
-      icon: FaClipboardList,
-      param: "records",
-      title: "Attendance Records",
-      description: "View and manage all attendance records in detail.",
-      component: <Records key="records" />,
-    },
-    {
-      label: "My Attendance",
-      icon: FaUserCheck,
-      param: "my-attendance",
-      title: "My Attendance",
-      description: "View and track your personal attendance history.",
-      component: <MyAttendance key="my-attendance" userId={user?._id} />,
-    },
-    // {
-    //   label: 'Office Settings',
-    //   icon: FiSettings,
-    //   param: 'office-settings',
-    //   title: 'Office Settings',
-    //   description: 'Configure office attendance rules and settings.',
-    //   component: <OfficeSettings key="office-settings" agencyId={user?.agency?._id} />,
-    // },
-  ];
+	// const DEFAULT_TAB =
+	// 	userRoleName === 'superAdmin' ? 'dashboard' : 'my-attendance';
 
-  // Filter tabs based on user role
-  const tabsData =
-    role === "superAdmin" || role === "Attendance"
-      ? allTabsData.filter(
-          (tab) =>
-            tab.param !== "my-attendance" && tab.param !== "office-settings"
-        )
-      : role === "HR"
-        ? allTabsData
-        : allTabsData.filter((tab) => tab.param === "my-attendance");
+	// always read param string (not object reference)
+	const tabFromParams = searchParams.get('tab')?.toLowerCase();
 
-  const activeTabIndex = Math.max(
-    0,
-    tabsData.findIndex((tab) => tab.param === tabFromParams.toLowerCase())
-  );
+	// useMemo so tabsData is stable
+	const allTabsData = useMemo(
+		() => [
+			{
+				id: 'dashboard',
+				label: 'Dashboard',
+				icon: FaTachometerAlt,
+				param: 'dashboard',
+				title: 'Attendance Dashboard',
+				description:
+					'View overall attendance statistics and key metrics at a glance.',
+				component: <Dashboard key='dashboard' />,
+			},
+			{
+				id: 'employees',
+				label: 'Employees',
+				icon: FaUsers,
+				param: 'employees',
+				title: 'Employee Management',
+				description: 'Manage employee attendance records and profiles.',
+				component: <Employees key='employees' />,
+			},
+			{
+				id: 'record',
+				label: 'Records',
+				icon: FaClipboardList,
+				param: 'records',
+				title: 'Attendance Records',
+				description: 'View and manage all attendance records in detail.',
+				component: <Records key='records' />,
+			},
+			{
+				id: 'my_attendance',
+				label: 'My Attendance',
+				icon: FaUserCheck,
+				param: 'my-attendance',
+				title: 'My Attendance',
+				description: 'View and track your personal attendance history.',
+				component: <MyAttendance key='my-attendance' userId={user?._id} />,
+			},
+		],
+		[user?._id] // only re-create when user changes
+	);
 
-  useEffect(() => {
-    if (
-      !searchParams.get("tab") ||
-      !tabsData.some(
-        (tab) => tab.param === searchParams.get("tab")?.toLowerCase()
-      )
-    ) {
-      setSearchParams({ tab: DEFAULT_TAB });
-    }
-  }, [searchParams, setSearchParams, tabsData]);
+	const filteredTabs = useMemo(
+		() =>
+			allTabsData.filter(
+				(tab) => !tab.id || hasPermission('attendance', tab.id)
+			),
+		[allTabsData, hasPermission]
+	);
 
-  const handleTabChange = (index) => {
-    const tabParam = tabsData[index].param;
-    setSearchParams({ tab: tabParam });
+	const tabsData = useMemo(() => {
+		if (userRoleName === 'superAdmin') {
+			return filteredTabs.filter((tab) => tab.param !== 'my-attendance');
+		}
+		return filteredTabs;
+	}, [userRoleName, filteredTabs]);
 
-    if (index === activeTabIndex) {
-      setTabKey((prev) => prev + 1);
-    }
-  };
+	const activeTabIndex = useMemo(() => {
+		const idx = tabsData.findIndex((tab) => tab.param === tabFromParams);
+		return idx >= 0 ? idx : 0;
+	}, [tabsData, tabFromParams]);
 
-  return (
-    <TabNavigationDisplay
-      tabsData={tabsData.map((tab) => ({
-        ...tab,
-        component:
-          tab.param === tabFromParams.toLowerCase() ? tab.component : null,
-      }))}
-      activeTab={activeTabIndex}
-      onTabChange={handleTabChange}
-    />
-  );
+	// useEffect(() => {
+	// 	if (
+	// 		!tabFromParams ||
+	// 		!tabsData.some((tab) => tab.param === tabFromParams)
+	// 	) {
+	// 		const firstTab = tabsData[0]?.param; // safe check
+	// 		if (firstTab) {
+	// 			setSearchParams({ tab: firstTab }, { replace: true });
+	// 		}
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
+
+	useEffect(() => {
+		if (tabsData.length === 0) return;
+
+		const currentTab = tabFromParams;
+
+		const isValidTab = tabsData.some((tab) => tab.param === currentTab);
+
+		if (!currentTab || !isValidTab) {
+			// always default to first available tab (index 0)
+			const fallback = tabsData[0].param;
+			setSearchParams({ tab: fallback }, { replace: true });
+		}
+	}, [tabsData, searchParams, setSearchParams, tabFromParams]);
+
+	const handleTabChange = useCallback(
+		(index) => {
+			const tabParam = tabsData[index]?.param;
+			if (!tabParam) return;
+
+			// Only update search params if it's actually different
+			if (tabParam !== tabFromParams) {
+				setSearchParams({ tab: tabParam });
+			} else {
+				// same tab clicked → force re-render of tab content
+				setTabKey((prev) => prev + 1);
+			}
+		},
+		[tabsData, tabFromParams, setSearchParams]
+	);
+
+	
+		if (tabsData.length === 0) {
+			return <NotPermission moduleName="attendence"/> ;
+		}
+	return (
+		<>
+			<TabNavigationDisplay
+				tabsData={tabsData.map((tab) => ({
+					...tab,
+					component:
+						tab.param === tabFromParams?.toLowerCase() ? tab.component : null,
+				}))}
+				activeTab={activeTabIndex}
+				onTabChange={handleTabChange}
+			/>
+		</>
+	);
 };
 
 export default AttendanceV2;

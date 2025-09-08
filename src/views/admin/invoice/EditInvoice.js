@@ -23,6 +23,8 @@ import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
 import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const invoiceSchema = yup.object().shape({
 	developer_id: yup.string().required('Developer is required'),
@@ -32,7 +34,10 @@ const invoiceSchema = yup.object().shape({
 
 const Edit = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user')) || {};
+	// const user = JSON.parse(localStorage.getItem('user')) || {};
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const [filteredBankAccounts, setFilteredBankAccounts] = useState([]);
 
@@ -122,10 +127,19 @@ const Edit = (props) => {
 				method: 'PUT',
 				body: payload,
 			}).unwrap();
+
 			if (response) {
 				toast.success('Invoice updated successfully!');
 				// refetchInvoices();
-
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Invoice',
+					entityType: 'Invoice',
+					entityId: props.data?._id || null,
+					status: 'success',
+					message: `"${user?.fullName}" updated the invoice.`,
+				});
 				if (props.fetchData) {
 					props.fetchData({
 						pageIndex: props.pageIndex || 0,
@@ -140,6 +154,17 @@ const Edit = (props) => {
 		} catch (e) {
 			console.error('Error updating invoice:', e);
 			toast.error(e?.data?.message || e.message || 'Something went wrong!');
+			const errorMsg =
+				e?.data?.message || 'Failed to update invoice . Please try again.';
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Invoice',
+				entityType: 'Invoice',
+				entityId: props.data?._id || null,
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setIsLoading(false);
 		}

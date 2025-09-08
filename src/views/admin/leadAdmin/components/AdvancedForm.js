@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { mainLeadStatus } from 'utils/options';
+import { removeDisableUser } from 'utils/helpers';
 
 const AdvancedSearchForm = (props) => {
 	const {
@@ -278,7 +279,7 @@ const AdvancedSearchForm = (props) => {
 							value={values['agentAssigned'] || ''}
 						>
 							<option value=''>Select agent</option>
-							{agents?.map((agent) => (
+							{removeDisableUser(agents)?.map((agent) => (
 								<option key={agent._id} value={agent._id}>
 									{agent?.fullName}
 								</option>

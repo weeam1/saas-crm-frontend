@@ -22,14 +22,20 @@ import { leadStatusLabels } from 'utils/searchLabels';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
 import { format } from 'date-fns';
-import { CopyIcon } from '@chakra-ui/icons';
 import { InfoIcon } from '@chakra-ui/icons';
 
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { leadIconSize } from './components/constants';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+	const { user, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
+
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const [data, setData] = useState();
@@ -40,20 +46,47 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	});
 
 	const [isLoading, setIsLoading] = useState(false);
+	const { createUserLog } = useUserActivityLog();
 
 	const fetchData = async () => {
-		setIsLoading(true);
-		let response = await getApi('api/lead/view/', leadId);
-		setData(response.data?.lead);
+		try {
+			setIsLoading(true);
+			let response = await getApi('api/lead/view/', leadId);
+			setData(response.data?.lead);
 
-		const { ip, city, country } = extractLocationData(
-			response?.data?.lead?.ip,
-			countries
-		);
+			const { ip, city, country } = extractLocationData(
+				response?.data?.lead?.ip,
+				countries
+			);
 
-		setLeadIp({ ip, city, country });
+			setLeadIp({ ip, city, country });
 
-		setIsLoading(false);
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadId,
+				status: 'success',
+				message: `${user?.fullName || ''} viewed ${response?.data?.lead?.leadName || ''} lead.`,
+			});
+		} catch (err) {
+			console.error(err);
+			const errorMsg = err?.data?.message || 'Lead details not found!';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: leadId,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -65,17 +98,14 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 	let hideContact = false;
 
-	if (user?.roles[0]?.roleName === 'Manager') {
+	if (userRoleName === 'Manager') {
 		hideContact = true;
-	} else if (
-		searchParams.get('invite') &&
-		user?.roles[0]?.roleName !== 'superAdmin'
-	) {
+	} else if (searchParams.get('invite') && userRoleName !== 'superAdmin') {
 		hideContact = user?._id !== data?.agentAssigned;
 	}
 
 	const responsiveCols = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });
-	const sectionColSpan = useBreakpointValue({ base: 1, sm: 1, md: 1, lg: 1 });
+	const sectionColSpan = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });
 
 	if (isLoading) {
 		return (
@@ -121,8 +151,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 				<SectionCard title='Basic Information'>
 					<DetailGrid>
 						<DetailItem label='Lead Name' value={data?.leadName} />
-						{(user?.role === 'superAdmin' ||
-							(!hideContact && !isInLeadPool)) && (
+						{hasPermission('leads', 'contactDetails') && !hideContact && (
 							<>
 								<DetailItem label='Email' value={data?.leadEmail} />
 								<DetailItem
@@ -140,68 +169,79 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 				</SectionCard>
 			</GridItem>
 
-			{/* Status & Timeline Section */}
-			<GridItem colSpan={sectionColSpan}>
-				<SectionCard title='Status & Timeline'>
-					<DetailGrid>
-						<DetailItem
-							label='Status'
-							value={
-								data?.leadStatus ? leadStatusLabels[data?.leadStatus] : 'N/A'
-							}
-						/>
-						<DetailItem
-							label='Main Status'
-							value={
-								data?.eLeadStatus
-									? mainLeadStatusLabels[data?.eLeadStatus]
-									: 'N/A'
-							}
-						/>
-						<DetailItem
-							label='Follow-up Status'
-							value={data?.leadFollowUpStatus}
-						/>
-						<DetailItem
-							label='Created Date'
-							value={
-								data?.createdDate
-									? format(new Date(data?.createdDate), 'd MMM, yyyy h:mm a')
-									: 'N/A'
-							}
-						/>
-						{/* <DetailItem
-							label='Assigned Agent'
-							value={data?.leadAssignedAgent}
-						/> */}
-					</DetailGrid>
-				</SectionCard>
-			</GridItem>
+			<GridItem colSpan={{ base: 1, sm: 1, md: 2, lg: 2 }}>
+				<Grid
+					templateColumns={{
+						base: 'repeat(1, 1fr)',
+						sm: 'repeat(1, 1fr)',
+						md: 'repeat(2, 1fr)',
+					}}
+					gap={2}
+				>
+					{/* Status & Timeline Section */}
+					<GridItem>
+						<SectionCard title='Status & Timeline'>
+							<DetailGrid>
+								<DetailItem
+									label='Status'
+									value={
+										data?.leadStatus
+											? leadStatusLabels[data?.leadStatus]
+											: 'N/A'
+									}
+								/>
+								<DetailItem
+									label='Main Status'
+									value={
+										data?.eLeadStatus
+											? mainLeadStatusLabels[data?.eLeadStatus]
+											: 'N/A'
+									}
+								/>
+								<DetailItem
+									label='Follow-up Status'
+									value={data?.leadFollowUpStatus}
+								/>
+								<DetailItem
+									label='Created Date'
+									value={
+										data?.createdDate
+											? format(
+													new Date(data?.createdDate),
+													'd MMM, yyyy h:mm a'
+												)
+											: 'N/A'
+									}
+								/>
+							</DetailGrid>
+						</SectionCard>
+					</GridItem>
 
-			{/* Source & Tracking Section */}
-			<GridItem colSpan={sectionColSpan}>
-				<SectionCard title='Source & Tracking'>
-					<DetailGrid>
-						<DetailItem label='Source' value={data?.leadSource} />
-						<DetailItem
-							label='Channel'
-							value={data?.leadSourceChannel || data?.leadSourceMedium}
-						/>
-						<DetailItem label='Campaign' value={data?.leadCampaign} />
-						<DetailItem label='Adset' value={data?.adset} />
-						<DetailItem
-							label='Source Content'
-							value={data?.leadSourceDetails}
-						/>
-						<DetailItem
-							label='Page URL'
-							value={data?.pageUrl}
-							isLink={Boolean(data?.pageUrl)}
-						/>
-					</DetailGrid>
-				</SectionCard>
+					{/* Source & Tracking Section */}
+					<GridItem>
+						<SectionCard title='Source & Tracking'>
+							<DetailGrid>
+								<DetailItem label='Source' value={data?.leadSource} />
+								<DetailItem
+									label='Channel'
+									value={data?.leadSourceChannel || data?.leadSourceMedium}
+								/>
+								<DetailItem label='Campaign' value={data?.leadCampaign} />
+								<DetailItem label='Adset' value={data?.adset} />
+								<DetailItem
+									label='Source Content'
+									value={data?.leadSourceDetails}
+								/>
+								<DetailItem
+									label='Page URL'
+									value={data?.pageUrl}
+									isLink={Boolean(data?.pageUrl)}
+								/>
+							</DetailGrid>
+						</SectionCard>
+					</GridItem>
+				</Grid>
 			</GridItem>
-
 			{/* Additional Details Section */}
 			<GridItem colSpan={sectionColSpan}>
 				<SectionCard title='Additional Details'>

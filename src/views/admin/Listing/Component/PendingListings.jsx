@@ -24,6 +24,7 @@ import {
   Textarea,
   IconButton,
   useBreakpointValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
@@ -36,6 +37,7 @@ import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { ViewIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const PendingListings = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -51,8 +53,12 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [statusLoadingId, setStatusLoadingId] = useState(null);
+
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
+
+  const { createUserLog } = useUserActivityLog();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const columns = [
@@ -130,6 +136,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
   const handleStatusChange = async (listingId, status) => {
     setCurrentListingId(listingId);
     setSelectedStatus(status);
+    setStatusLoadingId(listingId);
 
     if (status === "rejected") {
       setIsRejectionModalOpen(true);
@@ -148,10 +155,20 @@ const PendingListings = ({ listingType, listingUnitType }) => {
         body.adminNotes = adminNotes;
       }
 
-      await updateStatus({
+      const response = await updateStatus({
         path: `listing/secondary/${listingId}/status`,
         body,
       }).unwrap();
+
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "listing",
+        entityType: "SecondaryListing",
+        entityId: response._id,
+        status: "success",
+        message: `"${user?.fullName}" respond on secondary listing "${response?.data?.projectName || "Untitled"}" status.`,
+      });
 
       toast.success("Status updated successfully");
 
@@ -164,7 +181,23 @@ const PendingListings = ({ listingType, listingUnitType }) => {
       setRejectionReason("");
       setAdminNotes("");
     } catch (error) {
+      const errorMsg =
+        error?.data?.message ||
+        "Failed to respond on the listing status. Please try again.";
+
       toast.error("Error updating status");
+
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Listing",
+        entityType: "SecondaryListing",
+        entityId: listingId || null,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
+    } finally {
+      setStatusLoadingId(null);
     }
   };
 
@@ -312,7 +345,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={10} py="4" />
             ) : (
               <Tbody>
                 {tableData.length > 0 ? (
@@ -481,21 +514,25 @@ const PendingListings = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         textAlign={"center"}
                       >
-                        <Select
-                          value={listing.status}
-                          onChange={(e) => {
-                            handleStatusChange(listing._id, e.target.value);
-                          }}
-                          size="sm"
-                          width="150px"
-                          focusBorderColor="brand.500"
-                          bg={getStatusColor(listing.status) + ".100"}
-                          color={getStatusColor(listing.status) + ".800"}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="active">Approved</option>
-                          <option value="rejected">Rejected</option>
-                        </Select>
+                        {statusLoadingId === listing._id ? (
+                          <Spinner size="sm" color="brand.500" />
+                        ) : (
+                          <Select
+                            value={listing.status}
+                            onChange={(e) => {
+                              handleStatusChange(listing._id, e.target.value);
+                            }}
+                            size="sm"
+                            width="150px"
+                            focusBorderColor="brand.500"
+                            bg={getStatusColor(listing.status) + ".100"}
+                            color={getStatusColor(listing.status) + ".800"}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="active">Approved</option>
+                            <option value="rejected">Rejected</option>
+                          </Select>
+                        )}
                       </Td>
                     </Tr>
                   ))
@@ -561,6 +598,7 @@ const PendingListings = ({ listingType, listingUnitType }) => {
               onClick={() =>
                 updateListingStatus(currentListingId, selectedStatus)
               }
+              isLoading={statusLoadingId ? true : false}
             >
               Confirm Rejection
             </Button>

@@ -36,6 +36,8 @@ import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
+import { useSocketEvents } from 'hooks/useSocketEvents';
+import useUserSession from 'hooks/useUserSession';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -48,11 +50,16 @@ function App() {
 	}, []);
 
 	const token = localStorage.getItem('token') || null;
+
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
-	const user = JSON.parse(localStorage.getItem('user'));
+	// const user = JSON.parse(localStorage.getItem('user'));
+
+	const { user } = useUserSession();
 	useNavigate();
+
+	const { registerUser, isConnected } = useSocketEvents();
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
@@ -70,6 +77,17 @@ function App() {
 	const user2 = useSelector((state) => state.user.user);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	useEffect(() => {
+		if (isConnected) {
+			const registerPayload = {
+				userId: user?._id || '',
+			};
+
+			registerUser(registerPayload);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [registerUser, isConnected, user?._id]);
 
 	useEffect(() => {
 		if (!user?._id) return;
@@ -208,18 +226,19 @@ function App() {
 				<ToastContainer />
 				<Routes>
 					{token && user?.role ? (
-						user?.role == 'user' ? (
-							<Route path='/*' element={<UserLayout />} />
-						) : user?.role === 'superAdmin' ? (
-							<Route path='/*' element={<AdminLayout />} />
-						) : (
-							''
-						)
+						<Route path='/*' element={<AdminLayout />} />
 					) : (
+						// user?.role === 'user' ? (
+						// 	<Route path='/*' element={<UserLayout />} />
+						// ) : user?.role === 'superAdmin' ? (
+						// 	<Route path='/*' element={<AdminLayout />} />
+						// ) : (
+						// 	''
+						// )
 						<Route path='/*' element={<AuthLayout />} />
 					)}
 				</Routes>
-				<LeadCycle />
+				{/* <LeadCycle /> */}
 			</>
 		);
 	else

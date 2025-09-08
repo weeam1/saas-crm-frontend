@@ -22,6 +22,8 @@ import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import { ATTENDANCE_STATUS_CONFIG, STATUS_CONFIG } from '../../constants';
 import MessageViewModal from 'components/modals/MessageViewModal';
 import { LuStickyNote } from 'react-icons/lu';
+import { usePermissions } from 'hooks/usePermissions';
+import useUserSession from 'hooks/useUserSession';
 
 const AttendanceTable = ({
 	attendanceRecord,
@@ -49,12 +51,14 @@ const AttendanceTable = ({
 		'Action',
 	];
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { hasPermission } = usePermissions();
+	const { user, userRoleName } = useUserSession();
 
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
+	const actionPermission =
+		hasPermission('attendance', 'view_note') ||
+		hasPermission('attendance', 'update');
 
-	const filterdColumns = ['HR', 'superAdmin'].includes(role)
+	const filterdColumns = actionPermission
 		? columns
 		: columns.filter((column) => column !== 'Action');
 
@@ -227,89 +231,95 @@ const AttendanceTable = ({
 														: '0m'
 													: 'Pending'}
 										</Td>
-										{['HR', 'superAdmin'].includes(role) && (
+										{actionPermission && (
 											<Td py={4} minWidth='100px'>
-												<IconButton
-													rounded='full'
-													aria-label='Leave note'
-													icon={<FaEdit />}
-													size='xs'
-													colorScheme='green'
-													variant='solid'
-													mr='1'
-													onClick={() => handleEdit(entry)}
-												/>
+												{hasPermission('attendance', 'update') && (
+													<IconButton
+														rounded='full'
+														aria-label='Leave note'
+														icon={<FaEdit />}
+														size='xs'
+														colorScheme='green'
+														variant='solid'
+														mr='1'
+														onClick={() => handleEdit(entry)}
+													/>
+												)}
 
-												{entry?.leaveNote?.length > 0 &&
-													entry?.status === 3 && (
-														<Tooltip
-															label='Leave Note'
-															hasArrow
-															placement='top'
-														>
-															<IconButton
-																aria-label='Leave note'
-																icon={<LuStickyNote />}
-																size='xs'
-																colorScheme='teal'
-																variant='solid'
-																onClick={() => {
-																	setNote({
-																		message: entry.leaveNote,
-																		title: 'Leave Note',
-																		modal: true,
-																	});
-																}}
-															/>
-														</Tooltip>
-													)}
-												{entry?.absentNote?.length > 0 &&
-													entry?.status === 0 && (
-														<Tooltip
-															label='Absent Note'
-															hasArrow
-															placement='top'
-														>
-															<IconButton
-																aria-label='Absent note'
-																icon={<LuStickyNote />}
-																size='xs'
-																colorScheme='teal'
-																variant='solid'
-																onClick={() => {
-																	setNote({
-																		message: entry.absentNote,
-																		title: 'Absent Note',
-																		modal: true,
-																	});
-																}}
-															/>
-														</Tooltip>
-													)}
+												{hasPermission('attendance', 'view_note') && (
+													<>
+														{entry?.leaveNote?.length > 0 &&
+															entry?.status === 3 && (
+																<Tooltip
+																	label='Leave Note'
+																	hasArrow
+																	placement='top'
+																>
+																	<IconButton
+																		aria-label='Leave note'
+																		icon={<LuStickyNote />}
+																		size='xs'
+																		colorScheme='teal'
+																		variant='solid'
+																		onClick={() => {
+																			setNote({
+																				message: entry.leaveNote,
+																				title: 'Leave Note',
+																				modal: true,
+																			});
+																		}}
+																	/>
+																</Tooltip>
+															)}
+														{entry?.absentNote?.length > 0 &&
+															entry?.status === 0 && (
+																<Tooltip
+																	label='Absent Note'
+																	hasArrow
+																	placement='top'
+																>
+																	<IconButton
+																		aria-label='Absent note'
+																		icon={<LuStickyNote />}
+																		size='xs'
+																		colorScheme='teal'
+																		variant='solid'
+																		onClick={() => {
+																			setNote({
+																				message: entry.absentNote,
+																				title: 'Absent Note',
+																				modal: true,
+																			});
+																		}}
+																	/>
+																</Tooltip>
+															)}
 
-												{[1, 2].includes(entry?.status) &&
-													entry?.checkinNote?.length > 0 && (
-														<Tooltip
-															label='Check-In Note'
-															hasArrow
-															placement='top'
-														>
-															<IconButton
-																aria-label='Check-In note'
-																icon={<LuStickyNote />}
-																size='xs'
-																colorScheme='teal'
-																variant='solid'
-																onClick={() => {
-																	setNote({
-																		message: entry?.checkinNote,
-																		title: 'Check-In Note',
-																		modal: true,
-																	});
-																}}
-															/>
-														</Tooltip>
-													)}
+														{[1, 2].includes(entry?.status) &&
+															entry?.checkinNote?.length > 0 && (
+																<Tooltip
+																	label='Check-In Note'
+																	hasArrow
+																	placement='top'
+																>
+																	<IconButton
+																		aria-label='Check-In note'
+																		icon={<LuStickyNote />}
+																		size='xs'
+																		colorScheme='teal'
+																		variant='solid'
+																		onClick={() => {
+																			setNote({
+																				message: entry?.checkinNote,
+																				title: 'Check-In Note',
+																				modal: true,
+																			});
+																		}}
+																	/>
+																</Tooltip>
+															)}
+													</>
+												)}
 											</Td>
 										)}
 									</Tr>

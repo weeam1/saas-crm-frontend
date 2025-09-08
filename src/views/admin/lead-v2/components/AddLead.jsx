@@ -20,8 +20,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
 import PhoneField from 'components/fields/PhoneField';
 import { toCapitalCase } from 'utils/helpers';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const AddLead = ({ isOpen, onClose, size }) => {
+	const { user } = useUserSession();
+
 	const initialValues = {
 		leadName: '',
 		leadWhatsappNumber: '',
@@ -106,6 +110,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();
+	const { createUserLog } = useUserActivityLog();
 
 	const dispatch = useDispatch();
 
@@ -136,9 +141,29 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			actions.resetForm();
 			dispatch(addOrUpdateLead(res));
 			// refreshData();
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				entityId: res?._id || null,
+				status: 'success',
+				message: `${res?.leadName || ''} Lead is created successfully`,
+			});
 		} catch (error) {
 			console.error(error);
-			toast.error(error.data.message || 'Lead not added');
+			const errorMsg =
+				error.data?.message || 'An error occurred while creating the lead.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Lead',
+				enityType: 'Lead',
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 

@@ -25,6 +25,8 @@ import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 const UserSetting = () => {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +40,9 @@ const UserSetting = () => {
 		onOpen: onAddOpen,
 		onClose: onAddClose,
 	} = useDisclosure();
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const {
 		isOpen: isEditOpen,
@@ -71,6 +76,7 @@ const UserSetting = () => {
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
+
 	const [deleteSipSetting] = useDeleteItemMutation();
 
 	const columns = [
@@ -118,8 +124,29 @@ const UserSetting = () => {
 				body: {},
 			}).unwrap();
 			toast.success('SIP Setting deleted successfully');
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Sip_Setting',
+				entityType: 'SipSetting',
+				entityId: id,
+				status: 'success',
+				message: `${user?.fullName} deleted the sip setting.`,
+			});
 			refetch();
 		} catch (error) {
+			const errorMsg =
+				error?.data?.message ||
+				'Failed to delete SIP Setting. Please try again.';
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Sip_Setting',
+				entityType: 'SipSetting',
+				entityId: id,
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 			toast.error(error.data?.message || 'Failed to delete SIP Setting');
 		}
 	};
@@ -189,6 +216,136 @@ const UserSetting = () => {
 				handlePageSize={handlePageSizeChange}
 			/>
 
+			<Box
+				borderRadius='lg'
+				boxShadow='sm'
+				bg='white'
+				maxH='85vh'
+				overflowY='auto'
+			>
+				<Table variant='striped' size='lg' bg='white'>
+					<Thead
+						position='sticky'
+						top={0}
+						bg='white'
+						zIndex={2}
+						boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+					>
+						<Tr>
+							{columns.map((header, index) => (
+								<Th
+									key={index}
+									bg='brand.200'
+									whiteSpace='nowrap'
+									py={4}
+									textAlign='center'
+								>
+									<Text
+										fontSize={{ base: '12px', md: '14px' }}
+										fontWeight='600'
+										color='gray.700'
+									>
+										{header}
+									</Text>
+								</Th>
+							))}
+						</Tr>
+					</Thead>
+					{isLoading ? (
+						<TableLoading columns={columns} length={7} py='4' />
+					) : (
+						<Tbody>
+							{data?.sipSettings?.length > 0 ? (
+								data.sipSettings.map((sip, index) => (
+									<Tr key={sip._id}>
+										<Td textAlign='center'>
+											{(currentPage - 1) * pageSize + index + 1}
+										</Td>
+										<Td
+											py={4}
+											fontSize={{ base: '12px', md: '14px' }}
+											fontWeight='400'
+											minWidth='200px'
+											textAlign={'center'}
+										>
+											{sip.userId?.fullName || 'N/A'}
+										</Td>
+										<Td
+											textAlign='center'
+											fontSize={{ base: '12px', md: '14px' }}
+										>
+											{sip.sipId}
+										</Td>
+										<Td
+											textAlign='center'
+											fontSize={{ base: '12px', md: '14px' }}
+										>
+											{sip.extensionId}
+										</Td>
+										<Td
+											textAlign='center'
+											fontSize={{ base: '12px', md: '14px' }}
+										>
+											{sip.sipIp}
+										</Td>
+										<Td
+											textAlign='center'
+											fontSize={{ base: '12px', md: '14px' }}
+										>
+											{sip.sipPort}
+										</Td>
+										<Td
+											py={4}
+											fontSize={{ base: '12px', md: '14px' }}
+											fontWeight='400'
+											minWidth='200px'
+											textAlign={'center'}
+										>
+											{sip.sipSimNumber || 'N/A'}
+										</Td>
+										<Td textAlign='center'>
+											<Flex justifyContent='center' gap={2}>
+												<IconButton
+													aria-label='Edit'
+													icon={<EditIcon />}
+													size='sm'
+													onClick={() => handleEdit(sip)}
+													color={'#c09f5f'}
+													_hover={{
+														backgroundColor: '#c09f5f',
+														color: 'white',
+													}}
+												/>
+												<IconButton
+													aria-label='Delete'
+													icon={<DeleteIcon />}
+													size='sm'
+													color={'#c09f5f'}
+													_hover={{
+														backgroundColor: '#c09f5f',
+														color: 'white',
+													}}
+													onClick={() => handleDelete(sip._id)}
+												/>
+											</Flex>
+										</Td>
+									</Tr>
+								))
+							) : (
+								<Tr>
+									<Td
+										colSpan={columns.length}
+										textAlign='center'
+										color='gray.500'
+									>
+										<NoData label='SIP settings' />
+									</Td>
+								</Tr>
+							)}
+						</Tbody>
+					)}
+				</Table>
+			</Box>
 			<Box
 				borderRadius='lg'
 				boxShadow='sm'

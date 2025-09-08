@@ -27,6 +27,7 @@ import CardShimmer from 'components/loading/CardShimmer';
 
 import NoData from 'components/Message/NoData';
 import RefButton from '../RefButton';
+import { usePermissions } from 'hooks/usePermissions';
 
 const normalizeBarData = (doc) => [
 	{
@@ -76,6 +77,8 @@ const normalizeAssignmentsData = (doc) => [
 
 export default function LeadsCharts() {
 	const [period, setPeriod] = useState('weekly');
+
+	const { hasPermission } = usePermissions();
 
 	const [chartData, setChartData] = useState({
 		analytics: [],
@@ -134,7 +137,9 @@ export default function LeadsCharts() {
 							>
 								Lead Report
 							</Text>
-							<RefButton to='/lead' label='Lead Module' />
+							{hasPermission('reports', 'link') && (
+								<RefButton to='/lead' label='Lead Module' />
+							)}
 						</HStack>
 
 						<TopFilter

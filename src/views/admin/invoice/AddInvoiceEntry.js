@@ -21,6 +21,8 @@ import { toast } from 'react-toastify';
 import { useCreateItemMutation } from 'api/apiSlice';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import useUserSession from 'hooks/useUserSession';
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -67,6 +69,11 @@ const AddEntryModal = (props) => {
 		useCreateItemMutation();
 	const cancelRef = useRef();
 	const navigate = useNavigate();
+
+	// const user = JSON.parse(localStorage.getItem("user")) || {};
+
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
 
 	const initialValues = {
 		unit_no: '',
@@ -183,11 +190,31 @@ const AddEntryModal = (props) => {
 			if (props.onSuccess) props.onSuccess(invoiceId);
 
 			setShowConfirmation(true);
-
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Invoice',
+				entityType: 'Invoice',
+				entityId: response?.data?.invoice._id,
+				status: 'success',
+				message: `"${user?.fullName}" created the invoice "${response?.data?.invoice?.invoiceNo || 'Untitled'}".`,
+			});
 			navigate(`/invoice/developers/invoices/entries/${invoiceId}`);
 		} catch (e) {
 			console.error('Error:', e);
-			toast.error(e?.data?.message || e.message || 'Operation failed');
+
+			const errorMsg =
+				e?.data?.message || e.message || 'Operation failed to created invoice.';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Invioce',
+				entityType: 'Invoice',
+				status: e?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setIsLoading(false);
 		}

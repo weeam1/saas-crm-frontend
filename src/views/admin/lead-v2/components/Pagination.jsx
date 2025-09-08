@@ -25,6 +25,8 @@ const Pagination = ({
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
+	console.log({ currentPage });
+
 	const leads = useSelector((state) => state.leads);
 
 	useEffect(() => {

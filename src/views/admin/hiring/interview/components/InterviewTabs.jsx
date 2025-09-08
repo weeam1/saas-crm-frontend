@@ -82,6 +82,7 @@ const InterviewTabs = memo(
 				hiringInfo = {
 					jobType: data.jobType,
 					position: data.position,
+					interviewNote: hiringData.interviewNote,
 				};
 
 				hiringInfo.amount = data.jobType === 'Commission' ? null : data.amount;
@@ -96,7 +97,7 @@ const InterviewTabs = memo(
 					body: { hiringData: hiringInfo },
 				}).unwrap();
 
-				toast.success('Interview data updated successfully');
+				toast.success('Interview updated successfully');
 
 				// Redirect to the appropriate page based on the interviewer
 				const redirectUrl = hiringInfo.isNextRound
@@ -139,25 +140,33 @@ const InterviewTabs = memo(
 							bg='softGray.100'
 							width='full'
 							mx='auto'
-							py='2'
-							px='4'
+							py={{ base: '1', md: '2' }}
+							px={{ base: '2', md: '4' }}
 							rounded='md'
 							shadow='sm'
+							display='flex'
+							flexDirection={{ base: 'column', sm: 'row' }}
+							gap={{ base: '1', sm: '2' }}
 						>
 							{/* Conditionally render the "Select Interviewers" tab separately if not invited */}
 							{/* {isCreatedBy && ( */}
 							<Tab
 								isDisabled={isInvitedInterviewer}
 								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }} // Removes focus outline
+								_focus={{ boxShadow: 'none' }}
 								rounded='md'
 								color={isInvitedInterviewer ? 'brand.500' : 'gray.800'}
-								width='full'
-								fontSize={{ base: 'sm', md: 'md' }}
+								flex='1'
+								minWidth='0'
+								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
+								py={{ base: '1', md: '2' }}
 							>
-								<HStack>
-									<LuUsers />
-									<Text>Select Interviewers</Text>
+								<HStack spacing={{ base: '1', md: '2' }}>
+									<Box
+										as={LuUsers}
+										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+									/>
+									<Text whiteSpace='nowrap'>Select Interviewers</Text>
 								</HStack>
 							</Tab>
 							{/* )} */}
@@ -167,15 +176,20 @@ const InterviewTabs = memo(
 									!isInvitedInterviewer || isInterviewerSubmittedPoints
 								}
 								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }} // Removes focus outline
+								_focus={{ boxShadow: 'none' }}
 								rounded='md'
 								color={isInterviewerSubmittedPoints ? 'brand.500' : 'gray.800'}
-								width='full'
-								fontSize={{ base: 'sm', md: 'md' }}
+								flex='1'
+								minWidth='0'
+								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
+								py={{ base: '1', md: '2' }}
 							>
-								<HStack>
-									<LuCheckSquare />
-									<Text>Evaluation Points</Text>
+								<HStack spacing={{ base: '1', md: '2' }}>
+									<Box
+										as={LuCheckSquare}
+										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+									/>
+									<Text whiteSpace='nowrap'>Evaluation Points</Text>
 								</HStack>
 							</Tab>
 							<Tab
@@ -183,22 +197,26 @@ const InterviewTabs = memo(
 									!isInvitedInterviewer || !isInterviewerSubmittedPoints
 								}
 								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }} // Removes focus outline
+								_focus={{ boxShadow: 'none' }}
 								rounded='md'
 								color={
 									!isInvitedInterviewer || !isInterviewerSubmittedPoints
 										? 'gray.500'
 										: 'gray.800'
 								}
-								width='full'
-								fontSize={{ base: 'sm', md: 'md' }}
+								flex='1'
+								minWidth='0'
+								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
+								py={{ base: '1', md: '2' }}
 							>
-								<HStack>
-									<LuFileText />
-									<Text>Hiring Info</Text>
+								<HStack spacing={{ base: '1', md: '2' }}>
+									<Box
+										as={LuFileText}
+										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+									/>
+									<Text whiteSpace='nowrap'>Hiring Info</Text>
 								</HStack>
 							</Tab>
-
 							{/* Other tabs */}
 							{/* {[
 								{ label: 'Evaluation Points', icon: LuCheckSquare },

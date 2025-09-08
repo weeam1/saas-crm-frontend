@@ -116,7 +116,7 @@ const AddInvoice = (props) => {
 
 	const modalSize = useBreakpointValue({
 		base: { width: '90%', height: 'auto' },
-		md: { width: '602px', height: '35vh' },
+		md: { width: '602px', height: '45vh' },
 	});
 
 	const customDropdownIcon = (

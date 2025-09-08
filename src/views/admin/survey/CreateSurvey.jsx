@@ -26,6 +26,7 @@ import CustomDatePicker from "components/datetime/CustomDatePicker";
 import Breadcrumb from "../../../components/shared/BreadCrumb";
 import { toast } from "react-toastify";
 import { getApi } from "services/api";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const inputStyles = {
   fontSize: "sm",
@@ -52,6 +53,8 @@ const CreateSurvey = () => {
   const toggleCalendar = (calendar) => {
     setOpenCalendar((prev) => (prev === calendar ? null : calendar));
   };
+
+  const { createUserLog } = useUserActivityLog();
 
   const formik = useFormik({
     initialValues: {
@@ -101,13 +104,22 @@ const CreateSurvey = () => {
           invitedUsers,
         };
 
-        await createItemMutation({
+        const response = await createItemMutation({
           path: "/surveys",
           body: payload,
         }).unwrap();
         toast.success("Survey created successfully!");
         resetForm();
         navigate("/survey");
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Survey",
+          entityType: "Survey",
+          entityId: response._id,
+          status: "success",
+          message: `"${user?.fullName}" created survey "${response?.doc?.title || "Untitled"}".`,
+        });
       } catch (error) {
         const errorMsg =
           error?.data?.message ||
@@ -115,6 +127,14 @@ const CreateSurvey = () => {
           "Failed to create survey. Please try again.";
         console.error("Failed to create survey:", errorMsg);
         toast.error(errorMsg);
+        createUserLog({
+          userId: user?._id,
+          action: "CREATE",
+          entity: "Survey",
+          entityType: "Survey",
+          status: error?.status === "500" ? "error" : "fail",
+          message: errorMsg,
+        });
       }
     },
   });
@@ -270,22 +290,24 @@ const CreateSurvey = () => {
                       formik.errors.closesAt && formik.touched.closesAt
                     }
                   >
-                    <CustomDatePicker
-                      selectedDate={formik.values.closesAt}
-                      handleDateChange={(date) =>
-                        formik.setFieldValue("closesAt", date)
-                      }
-                      placeholder="Select end date"
-                      minDate={(() => {
-                        const tomorrow = new Date();
-                        tomorrow.setDate(tomorrow.getDate() + 1);
-                        tomorrow.setHours(0, 0, 0, 0);
-                        return tomorrow;
-                      })()}
-                      isCalendarOpen={openCalendar === "endDate"}
-                      toggleCalendar={() => toggleCalendar("endDate")}
-                      inputStyles={inputStyles}
-                    />
+                    <VStack width="100%" alignItems="flex-start">
+                      <CustomDatePicker
+                        selectedDate={formik.values.closesAt}
+                        handleDateChange={(date) =>
+                          formik.setFieldValue("closesAt", date)
+                        }
+                        placeholder="Select end date"
+                        minDate={(() => {
+                          const tomorrow = new Date();
+                          tomorrow.setDate(tomorrow.getDate() + 1);
+                          tomorrow.setHours(0, 0, 0, 0);
+                          return tomorrow;
+                        })()}
+                        isCalendarOpen={openCalendar === "endDate"}
+                        toggleCalendar={() => toggleCalendar("endDate")}
+                        inputStyles={inputStyles}
+                      />
+                    </VStack>
                     <FormErrorMessage fontSize="xs">
                       {formik.errors.closesAt}
                     </FormErrorMessage>

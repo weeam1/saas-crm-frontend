@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Heading, HStack, useDisclosure } from '@chakra-ui/react';
 import { FaUsers } from 'react-icons/fa';
 
 import CandidateView from 'views/admin/hiring/candidates/components/CandidateView';
@@ -14,6 +14,9 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { addMissingFile } from './../../../../redux/missingFilesSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import AddShortListedNote from '../_components/AddShortListedNote';
 
 const ShortListed = ({
 	data,
@@ -39,6 +42,9 @@ const ShortListed = ({
 	const [searchData, setSearchData] = useState([]);
 	const [isSearch, setIsSearch] = useState(false);
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	const [updateItemMuation, { isLoading: isInviting }] =
 		useUpdateItemMutation();
 
@@ -52,6 +58,12 @@ const ShortListed = ({
 		{ key: 'createdAt', label: 'Apply Date', width: '150px' }, // Apply Date column width
 		{ key: 'action', label: 'Action', width: '200px' }, // Action column width
 	];
+
+	const {
+		isOpen: isFeedbackNoteOpen,
+		onOpen: onFeedbackNoteOpen,
+		onClose: onFeedbackNoteClose,
+	} = useDisclosure();
 
 	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
 
@@ -77,8 +89,27 @@ const ShortListed = ({
 			toast.success('Invite succesfully sended');
 			// short listed candidates refetch
 			refetch();
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
+			});
 		} catch (err) {
 			console.log(err);
+			const errorMsg =
+				err?.data?.message || 'Interview is not arranged, please try again.';
+			toast.error(errorMsg);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Hiring',
+				entityId: candidate._id,
+				status: err?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setArrangeInterviewOpen(false);
 			// invited candidates refetch
@@ -111,6 +142,16 @@ const ShortListed = ({
 
 			// Open the PDF if it exists
 			window.open(pdfURL, '_blank');
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV viewed by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -142,6 +183,16 @@ const ShortListed = ({
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link); // Clean up the DOM
+
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: candidate._id,
+				status: 'success',
+				message: `Candidate ${candidate.name}’s CV downloaded by ${user?.fullName}.`,
+			});
 		} catch (error) {
 			console.error('Error viewing CV:', error);
 			toast.error('Failed to retrieve the CV. Please try again later.');
@@ -152,12 +203,30 @@ const ShortListed = ({
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setApplicationOpen(true);
+
+		if (selectedCandidate) {
+			createUserLog({
+				userId: user?._id,
+				action: 'VIEW',
+				entity: 'Hiring',
+				entityType: 'Application',
+				entityId: selectedCandidate?._id,
+				status: 'success',
+				message: `Candidate ${selectedCandidate?.name}’s details viewed by ${user?.fullName}.`,
+			});
+		}
 	};
 
 	const handleArrangeInterview = async (id) => {
 		const selectedCandidate = data.find((item) => item._id === id);
 		setCandidate(selectedCandidate);
 		setArrangeInterviewOpen(true);
+	};
+
+	const handleOpenFeedbackNote = (id) => {
+		const selectedCandidate = data.find((item) => item._id === id);
+		setCandidate(selectedCandidate);
+		onFeedbackNoteOpen();
 	};
 
 	// Update filtered data on search change
@@ -231,6 +300,7 @@ const ShortListed = ({
 				isFetching={isFetching}
 				handleViewCandidate={handleViewCandidate}
 				handleArrangeInterview={handleArrangeInterview}
+				handleOpenFeedbackNote={handleOpenFeedbackNote}
 			/>
 			{data?.length > 0 && (
 				<TablePagination
@@ -272,6 +342,14 @@ const ShortListed = ({
 					setSelectedTime={setSelectedTime}
 					isLoading={isInviting}
 					handleScheduleInterview={handleScheduleInterview}
+				/>
+			)}
+
+			{isFeedbackNoteOpen && (
+				<AddShortListedNote
+					applicationId={candidate?._id}
+					isOpen={isFeedbackNoteOpen}
+					onClose={onFeedbackNoteClose}
 				/>
 			)}
 		</Box>

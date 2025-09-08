@@ -23,7 +23,8 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { useCreateItemMutation } from 'api/apiSlice';
 import BulkMessageSummary from './BulkMessageSummary';
-import { useSelector } from 'react-redux';
+import useUserSession from 'hooks/useUserSession';
+// import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const BulkWhatsappModal = ({
 	isOpen,
@@ -40,7 +41,8 @@ const BulkWhatsappModal = ({
 	const [errors, setErrors] = useState({});
 	const [touched, setTouched] = useState({});
 
-	const user = useSelector((state) => state.user.user);
+	const { user } = useUserSession();
+	// const { createUserLog } = useUserActivityLog();
 
 	const [summaryModal, setSummaryModal] = useState(false);
 
@@ -191,20 +193,6 @@ const BulkWhatsappModal = ({
 					.sort((a, b) => Number(a) - Number(b))
 					.map((key) => placeholderValues[key]?.trim() || '');
 			}
-			// if (extractPlaceholders?.length > 0) {
-			// 	const validPlaceholders = validatePlaceholders();
-
-			// 	const isEmptyObject = (obj) =>
-			// 		!obj || (typeof obj === 'object' && Object.keys(obj).length === 0);
-
-			// 	if (isEmptyObject(validPlaceholders)) {
-			// 		return toast.error('Please fill the required fields!');
-			// 	}
-
-			// 	placeholderArray = Object.keys(validPlaceholders)
-			// 		.sort((a, b) => Number(a) - Number(b))
-			// 		.map((key) => validPlaceholders[key]?.trim() || '');
-			// }
 
 			const body = {
 				type: 'template',
@@ -236,7 +224,7 @@ const BulkWhatsappModal = ({
 
 	return (
 		<>
-			<Modal isOpen={isOpen} onClose={onClose} size='3xl' isCentered>
+			<Modal isOpen={isOpen} onClose={onClose} size='6xl' isCentered>
 				<ModalOverlay backdropFilter='blur(2px)' />
 				<ModalContent borderRadius='xl' boxShadow='xl' m={2}>
 					<ModalHeader
@@ -253,7 +241,7 @@ const BulkWhatsappModal = ({
 
 					<ModalBody
 						py={4}
-						maxHeight='50vh'
+						maxHeight={{ base: '50vh', md: '60vh', lg: '70vh' }}
 						overflowY='auto'
 						scrollBehavior='smooth'
 					>
@@ -293,17 +281,20 @@ const BulkWhatsappModal = ({
 								</Box>
 
 								<Box>
-									<Text fontSize='md' fontWeight='bold'>
+									<Text fontSize='md' mb='2' fontWeight='bold'>
 										Select a template
 									</Text>
 
 									<SimpleGrid
 										columns={1}
 										spacing={1}
-										maxHeight='50vh'
+										maxHeight={{ base: '20vh', md: '30vh', lg: '40vh' }}
 										overflowY='auto'
 										scrollBehavior='smooth'
-										p='2'
+										bg='softGray.100'
+										rounded='md'
+										p='4'
+										mb='4'
 									>
 										{filteredTemplates?.map((template) => (
 											<Box

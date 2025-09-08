@@ -1,71 +1,72 @@
-import { AddIcon } from "@chakra-ui/icons";
-import { Button, Grid, GridItem, useDisclosure } from "@chakra-ui/react";
-import CheckTable from "./components/CheckTable";
-import { useEffect, useState } from "react";
-import { getApi } from "services/api";
-import AppButton from "components/shared/AppButton";
-import { IoArrowBack } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { AddIcon } from '@chakra-ui/icons';
+import { Button, Grid, GridItem, useDisclosure } from '@chakra-ui/react';
+import CheckTable from './components/CheckTable';
+import { useEffect, useState } from 'react';
+import { getApi } from 'services/api';
+import AppButton from 'components/shared/AppButton';
+import { IoArrowBack } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-   const navigate = useNavigate();
-   
-  const columns = [
-    {
-      Header: "#",
-      accessor: "_id",
-      isSortable: false,
-      width: 10,
-      display: false
-    },
+	const navigate = useNavigate();
 
-    { Header: "Role Name", accessor: "roleName" },
-    { Header: "Description", accessor: "description" }
-  ];
-  // const { isOpen, onOpen, onClose } = useDisclosure();
-  const [action, setAction] = useState(false);
-  const [isLoding, setIsLoding] = useState(false);
-  const [data, setData] = useState([]);
-  const size = "lg";
+	const columns = [
+		{
+			Header: '#',
+			accessor: '_id',
+			isSortable: false,
+			width: 10,
+			display: false,
+		},
 
-  // const handleClick = () => {
-  //   onOpen();
-  // };
+		{ Header: 'Role Name', accessor: 'roleName' },
+		{ Header: 'Description', accessor: 'description' },
+		{ Header: 'Action', accessor: 'action' },
+	];
+	// const { isOpen, onOpen, onClose } = useDisclosure();
+	const [action, setAction] = useState(false);
+	const [isLoding, setIsLoding] = useState(false);
+	const [data, setData] = useState([]);
+	const size = 'lg';
 
+	// const handleClick = () => {
+	//   onOpen();
+	// };
 
-  const fetchData = async () => {
-    setIsLoding(true);
-    let result = await getApi("api/role-access");
-    setData(result.data);
-    setIsLoding(false);
-  };
+	const fetchData = async () => {
+		setIsLoding(true);
+		let result = await getApi('api/role-access');
+		setData(result.data);
+		setIsLoding(false);
+	};
 
-  return (
-    <div>
-      {/* <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={1}>
+	return (
+		<div>
+			{/* <Grid templateColumns="repeat(6, 1fr)" mb={3} gap={1}>
                 <GridItem colStart={6} textAlign={"right"}>
                     <Button onClick={() => handleClick()} leftIcon={<AddIcon />} variant="brand">Add</Button>
                 </GridItem>
             </Grid> */}
-  <AppButton
-        ml="2"
-        leftIcon={<IoArrowBack />}
-        onClick={() => navigate(-1)}
-        mb={4}
-      >
-        Back
-      </AppButton>
-      <CheckTable
-        // isOpen={isOpen}
-        // onClose={onClose}
-        tableData={data}
-        setAction={setAction}
-        fetchData={fetchData}
-        action={action}
-        columnsData={columns}
-      />
-    </div>
-  );
+			<AppButton
+				ml='2'
+				leftIcon={<IoArrowBack />}
+				onClick={() => navigate(-1)}
+				mb={4}
+			>
+				Back
+			</AppButton>
+			<CheckTable
+				// isOpen={isOpen}
+				// onClose={onClose}
+				tableData={data}
+				setAction={setAction}
+				fetchData={fetchData}
+				action={action}
+				columnsData={columns}
+				isLoding={isLoding}
+			/>
+		</div>
+	);
 };
 
 export default Index;

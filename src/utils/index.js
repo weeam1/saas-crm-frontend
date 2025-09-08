@@ -274,3 +274,30 @@ export const generateSearchTags = (filters, tree) => {
 
 	return tags;
 };
+
+export const hasPermission = (moduleId, _actionKey = null) => {
+	const user = JSON.parse(sessionStorage.getItem('user'));
+	if (!user?.roles[0]?.permissions || user?.roles[0]?.permissions?.length === 0)
+		return false;
+
+	const currentModule = user.roles[0].permissions.find(
+		(item) => item.moduleId === moduleId
+	);
+
+	if (!currentModule) return false;
+
+	if (_actionKey === null) return currentModule?.isModuleEnabled || false;
+
+	if (currentModule?.actions?.length === 0) return false;
+
+	// if module is enabaled then checks actions in module
+	const currentAction = currentModule.actions?.find(
+		(action) => action.actionKey === _actionKey
+	);
+
+	if (!currentAction) return false;
+
+	console.log({ currentAction });
+
+	return currentAction?.isAllowed;
+};

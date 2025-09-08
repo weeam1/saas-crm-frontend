@@ -30,6 +30,7 @@ import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useCreateItemMutation } from "api/apiSlice";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 // Brand colors
 const brandColors = {
@@ -101,6 +102,8 @@ const AddUser = (props) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const role =
     user?.role === "superAdmin" ? "superAdmin" : user?.roles?.[0]?.roleName;
+
+  const { createUserLog } = useUserActivityLog();
 
   // const {
   // 	data: agenciesResponse,
@@ -246,6 +249,16 @@ const AddUser = (props) => {
         body: formData,
       }).unwrap();
 
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Developer",
+        entityType: "Developer",
+        entityId: response.data._id,
+        status: "success",
+        message: `${user?.fullName} created developer "${response?.data?.developer_name || "Untitled"}".`,
+      });
+
       if (response.status === "success") {
         toast.success("Developer added successfully");
         fetchData({ pageIndex, pageSize });
@@ -257,6 +270,16 @@ const AddUser = (props) => {
         onClose();
       }
     } catch (e) {
+      const errorMsg =
+        e?.data?.message || "Failed to created developer. Please try again.";
+      createUserLog({
+        userId: user?._id,
+        action: "CREATE",
+        entity: "Developer",
+        entityType: "Developer",
+        status: e?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
       if (e?.data?.message) {
         toast.error(e?.data?.message);
       } else if (e?.data?.error) {

@@ -10,6 +10,7 @@ import {
 	Divider,
 	Select,
 	useDisclosure,
+  	IconButton,
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
@@ -22,6 +23,7 @@ import ClearAdvancedSearchButton from './ClearButton';
 import DateFilter from 'views/admin/leadPool-v2/components/DateFilter';
 import { formattedDate } from 'utils/helpers';
 import DateFilterButton from 'views/admin/leadPool-v2/components/DateFilterButton';
+import { FiRefreshCw } from "react-icons/fi";
 
 const Pagination = ({
 	leads,
@@ -166,6 +168,17 @@ const Pagination = ({
 				>
 					<Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 					<DateFilterButton onClick={dateTimeOnOpen} />
+					<IconButton
+						icon={<FiRefreshCw />}
+						aria-label="Refresh logs"
+						onClick={() => {
+							setCurrentPage(1);
+							setGotoPage(1);
+						}}
+						isLoading={loading}
+						variant="outline"
+						size="md"
+					/>
 				</HStack>
 
 				<Flex

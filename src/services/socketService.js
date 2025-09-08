@@ -1,13 +1,15 @@
+import { io } from 'socket.io-client';
+
 import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
-import { io } from 'socket.io-client';
+import { updateAllUsers } from '../redux/usersSlice';
 
 class SocketService {
 	constructor() {
 		this.socket = null;
 		this.events = new Map();
 		this.connectionStatus = 'disconnected';
-		this.reconnectionAttempts = 0;
+		this.maxReconnectionAttempts = 10;
 		this.connectionPromise = null;
 	}
 
@@ -27,7 +29,7 @@ class SocketService {
 			path: '/socket.io',
 			// transports: ['socket.io'],
 			reconnection: true,
-			// reconnectionAttempts: this.maxReconnectionAttempts,
+			reconnectionAttempts: this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
@@ -65,6 +67,24 @@ class SocketService {
 				}
 			});
 
+			this.socket.on('user_online', (data) => {
+				// console.log('User online:', data);
+				store.dispatch(
+					updateAllUsers({ id: data.userId, updates: { isOnline: true } })
+				);
+			});
+
+			this.socket.on('user_offline', (data) => {
+				// console.log('User offline:', data);
+				store.dispatch(
+					updateAllUsers({ id: data.userId, updates: { isOnline: false } })
+				);
+			});
+
+			this.socket.on('activity_log_created', (data) => {
+				console.log('Activity: ', data);
+			});
+
 			// Connection error
 			this.socket.on('connect_error', (error) => {
 				this.connectionStatus = 'error';
@@ -75,7 +95,6 @@ class SocketService {
 			// Disconnection
 			this.socket.on('disconnect', (reason) => {
 				this.connectionStatus = 'disconnected';
-				console.log('Socket disconnected:', reason);
 				console.log('Socket disconnected:', reason);
 				if (
 					reason === 'io server disconnect' ||
@@ -107,6 +126,22 @@ class SocketService {
 	}
 
 	/**
+	 * Register user with the server
+	 *  Registration payload
+	 */
+	createUserActivityLog(payload) {
+		if (this.socket?.connected) {
+			this.socket.emit('user_activity', payload);
+		} else {
+			if (!this.connectionPromise) {
+				console.warn(
+					'Socket not connected, user activity log will be attempted when connection is established'
+				);
+			}
+		}
+	}
+
+	/**
 	 * Disconnect socket
 	 */
 	disconnect() {
@@ -115,6 +150,7 @@ class SocketService {
 			this.socket = null;
 			this.connectionPromise = null;
 			this.connectionStatus = 'disconnected';
+			this.reconnectionAttempts = 0;
 		}
 	}
 

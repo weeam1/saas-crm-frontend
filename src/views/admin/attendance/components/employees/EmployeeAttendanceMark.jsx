@@ -9,9 +9,14 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { FaBan, FaCalendarCheck } from 'react-icons/fa';
 import LeaveNoteModal from '../myAttendance/LeaveNoteModal';
 import NoteModal from '../myAttendance/NoteModal';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 
 const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const { timezone } = officeSetting;
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		isOpen: noteIsOpen,
@@ -54,6 +59,9 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 		} else setStatus(null);
 	}, []);
 
+	const { user } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
 	// for check in and absent
 	const [createItemMutation, { isLoading: isCreating }] =
 		useCreateItemMutation();
@@ -74,9 +82,28 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 
 			toast.success('Employee Check in successfully');
 			setStatus(1);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entityType: 'Attendance',
+
+				status: 'success',
+				message: `${user?.fullName} added employee check in.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee check in');
+			const errorMsg = e?.data?.message || 'Error in employee check in';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setCheckinLoading(false);
 		}
@@ -92,9 +119,28 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 
 			toast.success('Employee Absent successfully');
 			setStatus(-1);
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+				status: 'success',
+				message: `${user?.fullName} added employee absent.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee absent');
+
+			const errorMsg = e?.data?.message || 'Error in employee absent';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setAbsentLoading(false);
 		}
@@ -105,16 +151,38 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			const bodyData = { employeeId };
 
 			setCheckoutLoading(true);
-			await updateItemMutation({
+			const res = await updateItemMutation({
 				path: '/attendance/checkout',
 				body: bodyData,
 			}).unwrap();
 
 			toast.success('Employee checkout successfully');
 			setStatus(-1);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+
+				entityId: res?.doc?._id,
+				status: 'success',
+				message: `${user?.fullName} added employee check out.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee checkout');
+
+			const errorMsg = e?.data?.message || 'Error in employee checkout';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setCheckoutLoading(false);
 		}
@@ -133,9 +201,30 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			toast.success('Employee leave successfully');
 			noteOnClose();
 			setStatus(-1);
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+
+				status: 'success',
+				message: `${user?.fullName} added employee leave.`,
+			});
 		} catch (e) {
 			console.log(e);
-			toast.error(e?.data?.message || 'Error in employee leave');
+
+			const errorMsg = e?.data?.message || 'Error in employee leave';
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'CREATE',
+				entity: 'Attendance',
+				entityType: 'Attendance',
+
+				status: e?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		} finally {
 			setLeaveLoading(false);
 		}
@@ -151,6 +240,11 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 	const shouldRender = useMemo(() => {
 		return status !== -1;
 	}, [status]);
+
+	// Check logged in user has permission to perform this operations
+	if (!hasPermission('attendance', 'operations')) return null;
+
+	console.log('permissions allowed checking');
 
 	return shouldRender ? (
 		<Box

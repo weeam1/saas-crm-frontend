@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { Flex, Box, Text, Stack, useDisclosure,Tooltip } from "@chakra-ui/react";
+import {
+  Flex,
+  Box,
+  Text,
+  Stack,
+  useDisclosure,
+  Tooltip,
+} from "@chakra-ui/react";
 import TopPagination from "components/pagination/TopPagination";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import DateFilterButton from "views/admin/lead-v2/components/DateFilterButton";
 import DateFilter from "./FilterComponent/DateFilter";
 import { formatDNS } from "utils/helpers";
 import SearchTags from "components/search/SearchTags";
-import ViewToggle from "./ViewToggle";
+import ViewToggle from "components/toggle/ViewToggle";
 
 const FilterSearch = ({
   currentPage,
@@ -77,7 +84,11 @@ const FilterSearch = ({
         width="100%"
       >
         <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
-        <ViewToggle view={view} handleView={handleViewChange} />
+        <ViewToggle
+          view={view}
+          handleView={handleViewChange}
+          moduleView="surveysView"
+        />
         {isModalOpen && (
           <DateFilter
             isOpen={isModalOpen}
@@ -138,7 +149,12 @@ const FilterSearch = ({
             </Box> */}
       </Flex>
 
-      <Flex justifyContent="space-between" my={2}>
+      <Flex
+        justifyContent="space-between"
+        my={2}
+        alignItems={"center"}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+      >
         {searchTags && <SearchTags searchTags={searchTags} />}
         {/* Clear Button */}
         {(endDate || startDate) && (
@@ -148,11 +164,12 @@ const FilterSearch = ({
               fontSize="sm"
               color="red.500"
               fontWeight="medium"
+              borderColor="red.500"
+              borderWidth="1px"
               px={3}
               py={1}
-              borderRadius="md"
+              borderRadius="full"
               _hover={{ bg: "red.50" }}
-              onClick={handleClear}
             >
               Clear
             </Text>

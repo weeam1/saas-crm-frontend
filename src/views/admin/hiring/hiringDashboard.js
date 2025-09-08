@@ -11,13 +11,13 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { addPositions } from '../../../redux/positionsSlice';
 import { IoSettings } from 'react-icons/io5';
+import useUserSession from 'hooks/useUserSession';
 const HiringDashboard = () => {
 	const dispatch = useDispatch();
 
-	const user = JSON.parse(localStorage.getItem('user'));
+	const { userRoleName, isSuperAdmin } = useUserSession();
 
-	const isAdmin = user?.role === 'superAdmin';
-	const isManager = user?.roles[0]?.roleName === 'Manager';
+	const isManager = userRoleName === 'Manager';
 
 	const { data, isLoading, refetch } = useFetchItemsQuery(
 		{
@@ -25,6 +25,7 @@ const HiringDashboard = () => {
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
+
 	const { data: positionOptions, isLoading: positionsLoading } =
 		useFetchItemsQuery(
 			{
@@ -85,7 +86,7 @@ const HiringDashboard = () => {
 	) : (
 		<Box>
 			<Flex justifyContent='flex-end' alignItems='center'>
-				{isAdmin && (
+				{isSuperAdmin && (
 					<Button
 						colorScheme='gray'
 						borderRadius='5px'
