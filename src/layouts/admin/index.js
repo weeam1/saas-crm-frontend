@@ -5,7 +5,7 @@ import {
 	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
@@ -23,6 +23,8 @@ import { useDispatch } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import keys from 'config/keys';
+import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -44,6 +46,15 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			skip: !user?._id || isSuperAdmin,
 		}
 	);
+	
+	const {
+		data: ServerStatus,
+		error: serverError,
+		isError,
+		isLoading,
+	} = useFetchItemsQuery({
+		path: keys.baseLocalUrl,
+	});
 
 	const whatsappActive = whatsappUser?.doc?.isActive;
 	const dispatch = useDispatch();
@@ -175,6 +186,21 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			}
 		});
 	};
+
+    // If server is loading
+	if (isLoading) {
+		return (
+		<Flex align="center" justify="center" h="100vh">
+			<Loader />
+		</Flex>
+		);
+	}
+
+
+	// If server status is not 2000
+	if (serverError.originalStatus !== 200) {
+		return <ServerErrorPage />;
+	}
 
 	return (
 		<>
