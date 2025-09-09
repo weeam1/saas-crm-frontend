@@ -99,6 +99,11 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 					entityId: managerAssignedValue || null,
 					status: 'success',
 					message,
+					rawPayload: {
+						previousManager: lead?.managerAssigned || null,
+						newManager: managerAssignedValue || null,
+						leadId: lead?.intID || null,
+					},
 				});
 			}
 		} catch (error) {

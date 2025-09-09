@@ -110,6 +110,11 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 					entityId: agentAssignedValue || null,
 					status: 'success',
 					message,
+					rawPayload: {
+						previousAgent: lead?.agentAssigned || null,
+						newAgent: agentAssignedValue || null,
+						leadId: lead?.intID || null,
+					},
 				});
 			}
 		} catch (error) {
