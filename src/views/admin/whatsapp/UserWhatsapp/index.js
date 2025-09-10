@@ -32,7 +32,6 @@ const UserWhatsapp = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-
 	useEffect(() => {
 		if (id) {
 			setUserId(id);
@@ -75,7 +74,7 @@ const UserWhatsapp = () => {
 				<HStack justify='space-between' mb='2'>
 					<AppButton
 						leftIcon={<FaChevronLeft />}
-						onClick={() => navigate('/whatsapp')}
+						onClick={() => navigate('/whatsapp/chats')}
 					>
 						Back
 					</AppButton>
