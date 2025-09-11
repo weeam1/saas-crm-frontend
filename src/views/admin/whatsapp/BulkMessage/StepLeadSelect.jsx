@@ -448,7 +448,7 @@ export function StepLeadSelect({
 						colorScheme='whatsapp'
 						onClick={handleConfirm}
 					>
-						Send
+						Continue
 					</Button>
 				</HStack>
 			</Flex>

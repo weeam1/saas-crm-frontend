@@ -192,7 +192,7 @@ const Index = () => {
 				/>
 				<MiniStatistics
 					fontsize='md'
-					onClick={() => navigate('/settings/whatsapp_manager')}
+					onClick={() => navigate('/admin-setting/whatsapp/settings')}
 					startContent={
 						<IconBox
 							w='56px'

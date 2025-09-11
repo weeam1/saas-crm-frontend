@@ -788,6 +788,14 @@ const routes = [
 		component: WhatsappSettings,
 	},
 	{
+		// moduleId: 'admin_settings',
+		name: 'Whatsapp Manager',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/admin-setting/whatsapp/settings',
+		under: '/admin-setting',
+		component: WhatsappSettings,
+	},
+	{
 		moduleId: 'admin_settings',
 		name: 'Lead Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
