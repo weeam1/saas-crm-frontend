@@ -46,7 +46,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			skip: !user?._id || isSuperAdmin,
 		}
 	);
-	
+
 	const {
 		data: ServerStatus,
 		error: serverError,
@@ -97,21 +97,35 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	}
 
 	// if user has whatsapp and also enable then show it
-	if (whatsappActive) {
-		appRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chat',
-			component: UserWhatsapp,
-		});
+	if (whatsappActive && userRoleName !== 'superAdmin') {
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'whatsapp'
+		);
 
-		appSidebarRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			path: '/whatsapp/chat',
-			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
-		});
+		const filterSidebarRoutes = sidebarRoutes.filter(
+			(route) => route.moduleId !== 'whatsapp'
+		);
+
+		appSidebarRoutes = [
+			...filterSidebarRoutes,
+			{
+				moduleId: 'whatsapp',
+				name: 'Whatsapp',
+				path: '/whatsapp/chat',
+				icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+			},
+		];
+
+		appRoutes = [
+			...filterRoutes,
+			{
+				moduleId: 'whatsapp',
+				name: 'Whatsapp',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/whatsapp/chat',
+				component: UserWhatsapp,
+			},
+		];
 	}
 
 	// Super admin only show whatsapp users
@@ -187,15 +201,14 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		});
 	};
 
-    // If server is loading
+	// If server is loading
 	if (isLoading) {
 		return (
-		<Flex align="center" justify="center" h="100vh">
-			<Loader />
-		</Flex>
+			<Flex align='center' justify='center' h='100vh'>
+				<Loader />
+			</Flex>
 		);
 	}
-
 
 	// If server status is not 2000
 	if (serverError.originalStatus !== 200) {
