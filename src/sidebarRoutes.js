@@ -140,7 +140,6 @@ const sidebarRoutes = [
 		icon: <Icon as={MdInsertChartOutlined} w='20px' h='20px' />,
 	},
 
-	// -------- WhatsApp --------
 	{
 		moduleId: 'whatsapp',
 		name: 'Whatsapp',
