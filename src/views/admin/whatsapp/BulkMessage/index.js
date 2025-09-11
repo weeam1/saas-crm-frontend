@@ -97,7 +97,7 @@ const BulkMessage = () => {
 	};
 
 	return (
-		<Box maxW='8xl' mx='auto' mt={6} bg={tabBg} rounded='xl' shadow='sm' p={6}>
+		<Box mx={8} mt={6} bg={tabBg} rounded='xl' shadow='sm' p={6}>
 			<Tabs
 				index={tabIndex}
 				onChange={setTabIndex}

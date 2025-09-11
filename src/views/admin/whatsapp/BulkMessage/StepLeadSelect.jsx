@@ -19,6 +19,9 @@ import {
 	Spacer,
 	Badge,
 	Box,
+	Tag,
+	TagLabel,
+	TagCloseButton,
 } from '@chakra-ui/react';
 import { FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
 import { useFetchItemsQuery } from 'api/apiSlice'; // adjust path
@@ -26,6 +29,10 @@ import { safeValue } from 'utils';
 import TableLoading from 'components/loading/TableLoading';
 import { toast } from 'react-toastify';
 import { buttonStyle } from 'utils/btn';
+import AdvancedSearchModal from './filters/AdvancedSearch';
+import { BiX } from 'react-icons/bi';
+import SearchTags from 'components/search/SearchTags';
+import NoData from 'components/Message/NoData';
 
 const DEFAULT_LIMIT = 25;
 const PAGE_SIZES = [25, 50, 100, 150, 200];
@@ -43,7 +50,6 @@ export function StepLeadSelect({
 	const [search, setSearch] = useState('');
 	const [leadStatus, setLeadStatus] = useState(''); // example filter
 	const [mainLeadStatus, setMainLeadStatus] = useState(''); // example filter
-	const [applyToggle, setApplyToggle] = useState(0); // small state to trigger refetch when filters applied
 
 	// selection state
 
@@ -51,26 +57,19 @@ export function StepLeadSelect({
 
 	// whether user asked to select all matching results across pages
 	const [selectAllMatching, setSelectAllMatching] = useState(false);
+	const [appliedFilters, setAppliedFilters] = useState(null);
+	const [getTagValues, setGetTagValues] = useState([]);
+	const [isFormReset, setIsFormReset] = useState(null);
+	const [advanceSearch, setAdvanceSearch] = useState(false);
 
 	// Compose params for API
 	const params = useMemo(() => {
 		return {
-			...queryParams,
 			page,
 			pageSize: limit,
-			q: search || undefined,
-			leadStatus: leadStatus || undefined,
-			eLeadStatus: mainLeadStatus || undefined,
+			...(appliedFilters && { data: appliedFilters }),
 		};
-	}, [
-		queryParams,
-		page,
-		limit,
-		search,
-		leadStatus,
-		mainLeadStatus,
-		applyToggle,
-	]);
+	}, [appliedFilters, page, limit]);
 
 	const {
 		data,
@@ -191,13 +190,29 @@ export function StepLeadSelect({
 		}
 	};
 
+	const handleClear = () => {
+		setAppliedFilters(null);
+		setGetTagValues([]);
+		setIsFormReset(true); // resets form fields
+	};
+
+	const removeFilter = (key) => {
+		const updatedFilters = { ...appliedFilters };
+		delete updatedFilters[key];
+		setAppliedFilters(updatedFilters);
+
+		setGetTagValues((prev) => prev.filter((tag) => tag.key !== key));
+	};
+
 	// When page or filters change, we want to keep selectedLeadsMap intact (persistence across pages).
 	// Optionally: clear selectAllMatching when filters change
 	useEffect(() => {
 		setSelectAllMatching(false);
-	}, [search, leadStatus, mainLeadStatus, limit]);
+	}, [limit]);
 
 	const columns = ['checkbox', 'Lead Name', 'Phone', 'WhatsApp'];
+
+	console.log({ getTagValues });
 
 	return (
 		<Box>
@@ -205,58 +220,49 @@ export function StepLeadSelect({
 				<Heading size='md'>Leads</Heading>
 				<Text fontSize='sm' color='gray.600'>
 					Select leads for this bulk message.
-					{/* Search, filter and choose leads for this bulk message. */}
 				</Text>
 			</Box>
 
 			{/* Controls */}
 			<HStack spacing={3} wrap='wrap'>
-				{/* <Input
-					placeholder='Search by name or phone...'
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter') setPage(1);
-					}}
-				/> */}
-				{/* <Button colorScheme='brand' onClick={() => setPage(1)}>
+				<Button
+					border='1px solid'
+					borderColor='softGray.600'
+					bg='white'
+					borderRadius='md'
+					px={4}
+					fontSize='xs'
+					w='auto'
+					minW='max-content'
+					height='2.2rem'
+					_hover={{ bg: 'gray.50' }}
+					_active={{ bg: 'gray.100' }}
+					onClick={() => setAdvanceSearch(true)}
+				>
 					Advance Search
-				</Button> */}
+				</Button>
 
-				{/* <Select
-					placeholder='Filter by lead status'
-					value={leadStatus}
-					onChange={(e) => {
-						setLeadStatus(e.target.value);
-						setPage(1);
-					}}
-					w='200px'
-				>
-					<option value='new'>New</option>
-					<option value='contacted'>Contacted</option>
-					<option value='qualified'>Qualified</option>
-					<option value='lost'>Lost</option>
-				</Select>
-
-				<Select
-					placeholder='Filter by main status'
-					value={mainLeadStatus}
-					onChange={(e) => {
-						setMainLeadStatus(e.target.value);
-						setPage(1);
-					}}
-					w='200px'
-				>
-					<option value='hot'>Hot</option>
-					<option value='warm'>Warm</option>
-					<option value='cold'>Cold</option>
-				</Select> */}
-				{/* 
-				<IconButton
-					aria-label='Refresh'
-					icon={<FiRefreshCw />}
-					onClick={() => leadsRefetch && leadsRefetch()}
-				/> */}
+				{/* Clear and Delete button  */}
+				{getTagValues.length > 0 && (
+					<Button
+						{...buttonStyle}
+						variant='solid'
+						bg='softGray.100'
+						w='fit-content'
+						color='gray.800'
+						sx={{
+							svg: {
+								fill: 'gray.800',
+							},
+						}}
+						_active={{ bg: 'gray.100' }}
+						leftIcon={<BiX />}
+						aria-label='Clear'
+						onClick={handleClear}
+					>
+						Clear
+					</Button>
+				)}
 
 				<Spacer />
 
@@ -264,6 +270,22 @@ export function StepLeadSelect({
 					{selectedCount} selected {selectAllMatching ? ' (all matching)' : ''}
 				</Badge>
 			</HStack>
+
+			{/* Search tags */}
+			{getTagValues?.length > 0 && (
+				<Flex
+					flexDirection={{ base: 'row', lg: 'row' }}
+					justifyContent='space-between'
+					alignItems='center'
+					flexWrap='wrap'
+					py='1'
+				>
+					<SearchTags searchTags={getTagValues} />
+				</Flex>
+			)}
+
+			{/* divider  */}
+			<Box height='2px' my={3} bg='softGray.50' />
 
 			{/* Table */}
 			<Box
@@ -296,8 +318,8 @@ export function StepLeadSelect({
 							<TableLoading columns={columns} length='20' />
 						) : leads.length === 0 ? (
 							<Tr>
-								<Td colSpan={5}>
-									<Text color='gray.500'>No leads found.</Text>
+								<Td colSpan={4}>
+									<NoData label='leads' />
 								</Td>
 							</Tr>
 						) : (
@@ -340,29 +362,6 @@ export function StepLeadSelect({
 					</Tbody>
 				</Table>
 			</Box>
-
-			{/* Bulk selection banner */}
-			{/* {selectedCount > 0 && !selectAllMatching && (
-				<Flex p={3} bg='gray.50' rounded='md' align='center' gap={3}>
-					<Text fontSize='sm'>
-						{selectedCount} lead(s) selected on current pages.
-					</Text>
-					<Button
-						size='sm'
-						variant='link'
-						onClick={selectAllResultsAcrossPages}
-					>
-						Select all {totalResults} results
-					</Button>
-					<Button size='sm' variant='ghost' onClick={clearAllSelection}>
-						Clear
-					</Button>
-					<Spacer />
-					<Text fontSize='sm' color='gray.500'>
-						Showing {leads.length} / {totalResults}
-					</Text>
-				</Flex>
-			)} */}
 
 			{/* Pagination */}
 			<Flex align='center' gap={2} py='2'>
@@ -452,6 +451,19 @@ export function StepLeadSelect({
 					</Button>
 				</HStack>
 			</Flex>
+
+			{advanceSearch && (
+				<AdvancedSearchModal
+					advanceSearch={advanceSearch}
+					setAdvanceSearch={setAdvanceSearch}
+					isFormReset={isFormReset}
+					setIsFormReset={setIsFormReset}
+					setGetTagValues={setGetTagValues}
+					setAppliedFilters={setAppliedFilters}
+					appliedFilters={appliedFilters}
+					handleClear={handleClear}
+				/>
+			)}
 		</Box>
 	);
 }
