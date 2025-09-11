@@ -83,36 +83,12 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		}
 	}
 
-	// if user has whatsapp and also enable then show it
-	if (whatsappActive && userRoleName !== 'superAdmin') {
-		const filterRoutes = routes.filter(
-			(route) => route.moduleId !== 'whatsapp'
+	if (userRoleName !== 'superAdmin') {
+		// Always start clean: remove any old whatsapp routes
+		appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+		appSidebarRoutes = appSidebarRoutes.filter(
+			(r) => r.moduleId !== 'whatsapp'
 		);
-
-		const filterSidebarRoutes = sidebarRoutes.filter(
-			(route) => route.moduleId !== 'whatsapp'
-		);
-
-		appSidebarRoutes = [
-			...filterSidebarRoutes,
-			{
-				moduleId: 'whatsapp',
-				name: 'Whatsapp',
-				path: '/whatsapp/chat',
-				icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
-			},
-		];
-
-		appRoutes = [
-			...filterRoutes,
-			{
-				moduleId: 'whatsapp',
-				name: 'Whatsapp',
-				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-				path: '/whatsapp/chat',
-				component: UserWhatsapp,
-			},
-		];
 	}
 
 	// Super admin only show whatsapp users
@@ -123,6 +99,28 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 			path: '/whatsapp',
+		});
+
+		// -------- WhatsApp --------
+		// sidebarRoutes.push(
+		// );
+	}
+	// if user has whatsapp and also enable then show it
+	else if (whatsappActive) {
+		// Always start clean: remove any old whatsapp routes
+		appSidebarRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			path: '/whatsapp/chat',
+			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+		});
+
+		appRoutes.push({
+			moduleId: 'whatsapp',
+			name: 'Whatsapp',
+			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			component: UserWhatsapp,
 		});
 	}
 
