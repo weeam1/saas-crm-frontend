@@ -192,8 +192,8 @@ const AdvancedSearchModal = ({
 				isCentered
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay />
-				<ModalContent>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent borderRadius='xl' boxShadow='xl' m='2'>
 					<ModalHeader>Advance Search</ModalHeader>
 					<ModalCloseButton
 						onClick={() => {

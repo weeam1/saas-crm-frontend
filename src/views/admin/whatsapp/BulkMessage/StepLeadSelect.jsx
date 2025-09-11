@@ -359,7 +359,14 @@ export function StepLeadSelect({
 
 			{/* Bulk selection banner */}
 			{selectedCount > 0 && !selectAllMatching && (
-				<Flex p={3} bg='gray.50' rounded='md' align='center' gap={3}>
+				<Flex
+					p={3}
+					flexDir={{ base: 'column', md: 'row' }}
+					bg='gray.50'
+					rounded='md'
+					align='center'
+					gap={3}
+				>
 					<Text fontSize='sm'>
 						{selectedCount} lead(s) selected on current pages.
 					</Text>
