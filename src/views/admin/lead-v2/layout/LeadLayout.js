@@ -485,8 +485,7 @@ const LeadsLayout = memo(
 						alignItems='center'
 						py='2'
 					>
-						{searchTags?.length === 0 &&
-							selectedValues.length > 0 &&
+						{selectedValues.length > 0 &&
 							hasPermission('leads', 'bulkDelete') && (
 								<Button
 									{...buttonStyle}
