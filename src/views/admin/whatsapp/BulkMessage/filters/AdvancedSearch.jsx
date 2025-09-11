@@ -144,8 +144,6 @@ const AdvancedSearchModal = ({
 						}
 
 						// Add formatted value to tags for UI
-						console.log({ key, displayValue });
-
 						acc.tags.push(`${leadLabels[key]}: ${displayValue}`);
 					}
 

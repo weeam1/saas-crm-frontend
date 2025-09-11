@@ -19,9 +19,6 @@ import {
 	Spacer,
 	Badge,
 	Box,
-	Tag,
-	TagLabel,
-	TagCloseButton,
 } from '@chakra-ui/react';
 import { FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
 import { useFetchItemsQuery } from 'api/apiSlice'; // adjust path
@@ -33,6 +30,7 @@ import AdvancedSearchModal from './filters/AdvancedSearch';
 import { BiX } from 'react-icons/bi';
 import SearchTags from 'components/search/SearchTags';
 import NoData from 'components/Message/NoData';
+import Leads from './../../lead-v2/components/Leads';
 
 const DEFAULT_LIMIT = 25;
 const PAGE_SIZES = [25, 50, 100, 150, 200];
@@ -47,12 +45,8 @@ export function StepLeadSelect({
 	// local pagination & filters
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(DEFAULT_LIMIT);
-	const [search, setSearch] = useState('');
-	const [leadStatus, setLeadStatus] = useState(''); // example filter
-	const [mainLeadStatus, setMainLeadStatus] = useState(''); // example filter
 
 	// selection state
-
 	const selectedCount = selectedLeadsMap.size;
 
 	// whether user asked to select all matching results across pages
@@ -266,9 +260,9 @@ export function StepLeadSelect({
 
 				<Spacer />
 
-				<Badge colorScheme='purple'>
+				{/* <Badge colorScheme='purple'>
 					{selectedCount} selected {selectAllMatching ? ' (all matching)' : ''}
-				</Badge>
+				</Badge> */}
 			</HStack>
 
 			{/* Search tags */}
@@ -363,6 +357,23 @@ export function StepLeadSelect({
 				</Table>
 			</Box>
 
+			{/* Bulk selection banner */}
+			{selectedCount > 0 && !selectAllMatching && (
+				<Flex p={3} bg='gray.50' rounded='md' align='center' gap={3}>
+					<Text fontSize='sm'>
+						{selectedCount} lead(s) selected on current pages.
+					</Text>
+
+					<Button size='sm' variant='link' onClick={clearAllSelection}>
+						Clear all selected leads
+					</Button>
+					<Spacer />
+					<Text fontSize='sm' color='gray.500'>
+						Showing {leads.length} / {totalResults}
+					</Text>
+				</Flex>
+			)}
+
 			{/* Pagination */}
 			<Flex align='center' gap={2} py='2'>
 				<Button
@@ -405,10 +416,10 @@ export function StepLeadSelect({
 					))}
 				</Select>
 
-				<Spacer />
+				{/* <Spacer />
 				<Text fontSize='sm' color='gray.500'>
 					{isFetching ? 'Updating…' : `${totalResults} results`}
-				</Text>
+				</Text> */}
 			</Flex>
 
 			{/* Actions */}
@@ -446,6 +457,7 @@ export function StepLeadSelect({
 						fontSize={{ base: 'sm', md: 'lg' }}
 						colorScheme='whatsapp'
 						onClick={handleConfirm}
+						isDisabled={!selectedCount}
 					>
 						Continue
 					</Button>
