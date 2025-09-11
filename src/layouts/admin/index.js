@@ -58,8 +58,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			(route) => route.moduleId !== 'attendance'
 		);
 
-		console.log({ dashobard: hasPermission('attendance', 'dashboard') });
-
 		if (hasPermission('attendance', 'dashboard')) {
 			appSidebarRoutes = [
 				...filterSidebarRoutes,
@@ -86,21 +84,35 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	}
 
 	// if user has whatsapp and also enable then show it
-	if (whatsappActive) {
-		appRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chat',
-			component: UserWhatsapp,
-		});
+	if (whatsappActive && userRoleName !== 'superAdmin') {
+		const filterRoutes = routes.filter(
+			(route) => route.moduleId !== 'whatsapp'
+		);
 
-		appSidebarRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			path: '/whatsapp/chat',
-			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
-		});
+		const filterSidebarRoutes = sidebarRoutes.filter(
+			(route) => route.moduleId !== 'whatsapp'
+		);
+
+		appSidebarRoutes = [
+			...filterSidebarRoutes,
+			{
+				moduleId: 'whatsapp',
+				name: 'Whatsapp',
+				path: '/whatsapp/chat',
+				icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+			},
+		];
+
+		appRoutes = [
+			...filterRoutes,
+			{
+				moduleId: 'whatsapp',
+				name: 'Whatsapp',
+				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+				path: '/whatsapp/chat',
+				component: UserWhatsapp,
+			},
+		];
 	}
 
 	// Super admin only show whatsapp users
