@@ -147,17 +147,17 @@ const sidebarRoutes = [
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
 		children: [
 			{
-				moduleId: 'whatsapp_chats',
+				id: 'whatsapp_chats',
 				name: 'Chats',
 				path: '/whatsapp/chats',
 			},
 			{
-				moduleId: 'whatsapp_bulk_messages',
+				id: 'whatsapp_bulk_messages',
 				name: 'Bulk Message',
 				path: '/whatsapp/bulk-messages',
 			},
 			{
-				moduleId: 'whatsapp-settings',
+				id: 'whatsapp_settings',
 				name: 'Settings',
 				path: '/whatsapp/settings',
 			},

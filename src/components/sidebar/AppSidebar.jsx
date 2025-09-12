@@ -29,6 +29,7 @@ import BrandLogo from 'assets/logo/logo.png';
 import { usePermissions } from 'hooks/usePermissions';
 import { useIsMobile } from 'hooks/useIsMobile';
 import { MdExpandLess, MdExpandMore } from 'react-icons/md';
+import { filterRoutes } from './sidebarHelpers';
 
 // Storage keys
 const COLLAPSE_KEY = 'app:sidebar:collapsed';
@@ -287,15 +288,21 @@ export default function AppSidebar({
 	// 	});
 	// }, [routes, hasPermission]);
 
+	// const visibleRoutes = useMemo(() => {
+	// 	return routes?.filter((route) => {
+	// 		// always keep routes without moduleId
+	// 		if (!route.moduleId) {
+	// 			return true;
+	// 		}
+	// 		// keep only routes with permission
+	// 		return hasPermission(route.moduleId);
+	// 	});
+
+	// 	// also filter children routes with this mehtod hasPermission(route.moduleId, route.children.id) for every  children check if route.children avlaiable then check other permission nested
+	// }, [routes, hasPermission]);
+
 	const visibleRoutes = useMemo(() => {
-		return routes?.filter((route) => {
-			// always keep routes without moduleId
-			if (!route.moduleId) {
-				return true;
-			}
-			// keep only routes with permission
-			return hasPermission(route.moduleId);
-		});
+		return filterRoutes(routes || [], hasPermission);
 	}, [routes, hasPermission]);
 
 	const handleNavigate = useCallback(() => {

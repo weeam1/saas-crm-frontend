@@ -87,13 +87,14 @@ const BulkMessage = () => {
 
 	const closeSummary = () => {
 		setSummaryModal(false);
+		setFinalSummaryModal(false);
 		setTabIndex(0);
 		setSelectedAccount(null);
 		setSelectedTemplate(null);
 		setValidLeadsList(null);
 		setMessageSummary(null);
 		// clear map array
-		selectedLeadsMap.clear();
+		setSelectedLeadsMap(new Map());
 	};
 
 	return (

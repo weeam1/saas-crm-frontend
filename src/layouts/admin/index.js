@@ -107,13 +107,12 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	// Super admin only show whatsapp users
 	if (userRoleName === 'superAdmin') {
 		// -------- Whatsapp --------
-		appRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp',
-		});
-
+		// appRoutes.push({
+		// 	moduleId: 'whatsapp',
+		// 	name: 'Whatsapp',
+		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		// 	path: '/whatsapp/chats',
+		// });
 		// -------- WhatsApp --------
 		// sidebarRoutes.push(
 		// );

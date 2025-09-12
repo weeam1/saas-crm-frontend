@@ -464,7 +464,7 @@ export function StepLeadSelect({
 						fontSize={{ base: 'sm', md: 'lg' }}
 						colorScheme='whatsapp'
 						onClick={handleConfirm}
-						isDisabled={!selectedCount}
+						isDisabled={selectedCount < 2}
 					>
 						Continue
 					</Button>
