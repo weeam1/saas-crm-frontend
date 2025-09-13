@@ -16,7 +16,7 @@ import {
 import { FormInput } from 'components/fields/FormFields';
 import { FormSelect } from 'components/fields/FormFields';
 import { useEffect, useMemo } from 'react';
-import { commissionStatuses } from '../dealUtils';
+import { commissionStatuses, dealStatuses } from '../dealUtils';
 import { useForm } from 'react-hook-form';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -52,6 +52,7 @@ const DealFilterModal = ({
 		downpaymentPaid: '',
 		bookingAmountPaid: '',
 		invoiceSent: '',
+		dealStatus: '',
 	};
 
 	useEffect(() => {
@@ -237,7 +238,15 @@ const DealFilterModal = ({
 								name='commissionStatus'
 								register={register}
 								options={commissionStatuses}
-								placeholder='Select status'
+								placeholder='Select comission status'
+							/>
+							{/* Commission Status Dropdown */}
+							<FormSelect
+								label='Deal Status'
+								name='dealStatus'
+								register={register}
+								options={dealStatuses}
+								placeholder='Select deal status'
 							/>
 
 							{/* Unit Price Range */}

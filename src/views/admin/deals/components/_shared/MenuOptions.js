@@ -35,6 +35,15 @@ const MenuOptions = ({
 				_focus={{ boxShadow: 'none', outline: 'none' }}
 			/>
 			<MenuList borderRadius='xl' py={2} fontSize='md' minW='180px'>
+				<MenuItem
+					icon={<FiEye size={18} />}
+					onClick={() => handleView(deal)}
+					color='blue.600'
+					_hover={{ bg: 'blue.50', color: 'blue.700' }}
+				>
+					Deal details
+				</MenuItem>
+
 				{hasPermission('deal', 'update') && (
 					<MenuItem
 						icon={<FiEdit size={18} />} // bigger icons in menu
@@ -46,14 +55,7 @@ const MenuOptions = ({
 					</MenuItem>
 				)}
 
-				<MenuItem
-					icon={<FiEye size={18} />}
-					onClick={() => handleView(deal)}
-					color='blue.600'
-					_hover={{ bg: 'blue.50', color: 'blue.700' }}
-				>
-					Deal details
-				</MenuItem>
+				<MenuDivider />
 
 				{deal.dealStatus !== 'Cancelled' &&
 					// (isSuperAdmin || deal.closedBy._id === user._id)
@@ -67,8 +69,6 @@ const MenuOptions = ({
 							Cancel Deal
 						</MenuItem>
 					)}
-
-				<MenuDivider />
 
 				{hasPermission('deal', 'delete') && (
 					<MenuItem

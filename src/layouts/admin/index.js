@@ -59,42 +59,40 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const whatsappActive = whatsappUser?.doc?.isActive;
 	const dispatch = useDispatch();
 
-	if (userRoleName === 'Attendance') {
-		// Define the "Candidates" route
-		const filterRoutes = routes.filter(
-			(route) => route.moduleId !== 'attendance'
-		);
+	// if (userRoleName === 'Attendance') {
+	// 	// Define the "Candidates" route
+	// 	const filterRoutes = routes.filter(
+	// 		(route) => route.moduleId !== 'attendance'
+	// 	);
 
-		const filterSidebarRoutes = sidebarRoutes.filter(
-			(route) => route.moduleId !== 'attendance'
-		);
+	// 	const filterSidebarRoutes = sidebarRoutes.filter(
+	// 		(route) => route.moduleId !== 'attendance'
+	// 	);
 
-		console.log({ dashobard: hasPermission('attendance', 'dashboard') });
+	// 	if (hasPermission('attendance', 'dashboard')) {
+	// 		appSidebarRoutes = [
+	// 			...filterSidebarRoutes,
+	// 			{
+	// 				moduleId: 'attendance',
+	// 				name: 'Attendance',
+	// 				path: '/attendance/dashboard',
+	// 				icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+	// 			},
+	// 		];
 
-		if (hasPermission('attendance', 'dashboard')) {
-			appSidebarRoutes = [
-				...filterSidebarRoutes,
-				{
-					moduleId: 'attendance',
-					name: 'Attendance',
-					path: '/attendance/dashboard',
-					icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
-				},
-			];
+	// 		const attendanceRoutes = [
+	// 			{
+	// 				moduleId: 'attendance',
+	// 				name: 'Attendance',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: '/attendance/dashboard',
+	// 				component: AttendanceDashboard,
+	// 			},
+	// 		];
 
-			const attendanceRoutes = [
-				{
-					moduleId: 'attendance',
-					name: 'Attendance',
-					layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-					path: '/attendance/dashboard',
-					component: AttendanceDashboard,
-				},
-			];
-
-			appRoutes = [...filterRoutes, ...attendanceRoutes];
-		}
-	}
+	// 		appRoutes = [...filterRoutes, ...attendanceRoutes];
+	// 	}
+	// }
 
 	if (userRoleName !== 'superAdmin') {
 		// Always start clean: remove any old whatsapp routes
@@ -135,6 +133,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			path: '/whatsapp/chat',
+			component: UserWhatsapp,
 			path: '/whatsapp/chat',
 			component: UserWhatsapp,
 		});
