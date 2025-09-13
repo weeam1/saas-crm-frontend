@@ -175,7 +175,9 @@ const DealsScreen = () => {
 			searchFilters.closedBy = cleaned.closedBy._id;
 		}
 
-		setSearchTags(tags);
+		// setSearchTags(tags);
+		setSearchTags((prev) => [...prev, ...tags]);
+
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
 	};
@@ -185,14 +187,16 @@ const DealsScreen = () => {
 		const { from, to } = dateFilter;
 
 		// refresh the params
-		setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT, from, to });
+		// setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT });
+		setQueryParams((prev) => ({ ...prev, page: 1, from, to }));
 
 		const searchValues = [
 			`Start: ${format(new Date(from), 'd MMM, yyyy')}`,
 			`End: ${format(new Date(to), 'd MMM, yyyy')}`,
 		];
 
-		setSearchTags(searchValues);
+		setSearchTags((prev) => [...prev, ...searchValues]);
+
 		setSearchClear(true);
 	};
 
@@ -201,7 +205,11 @@ const DealsScreen = () => {
 	};
 
 	const handlePageSize = (limit) => {
-		setQueryParams({ page: 1, limit: Number(limit) });
+		setQueryParams((prev) => ({
+			...prev,
+			page: 1,
+			limit: Number(limit),
+		}));
 	};
 
 	const handleClear = () => {
