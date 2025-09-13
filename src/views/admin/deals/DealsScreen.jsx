@@ -176,7 +176,15 @@ const DealsScreen = () => {
 		}
 
 		// setSearchTags(tags);
-		setSearchTags((prev) => [...prev, ...tags]);
+		setSearchTags((prev) => {
+			const startTag = prev.find((t) => t.startsWith('Start:'));
+			const endTag = prev.find((t) => t.startsWith('End:'));
+
+			const preserved = [startTag, endTag].filter(Boolean);
+
+			// Add preserved first, then add all new tags
+			return [...preserved, ...tags];
+		});
 
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
@@ -195,7 +203,13 @@ const DealsScreen = () => {
 			`End: ${format(new Date(to), 'd MMM, yyyy')}`,
 		];
 
-		setSearchTags((prev) => [...prev, ...searchValues]);
+		setSearchTags((prev) => {
+			const filteredTags = prev.filter(
+				(t) => !t.startsWith('Start:') && !t.startsWith('End:')
+			);
+
+			return [...filteredTags, ...searchValues];
+		});
 
 		setSearchClear(true);
 	};
