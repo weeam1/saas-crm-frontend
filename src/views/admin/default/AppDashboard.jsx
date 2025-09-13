@@ -64,6 +64,14 @@ export default function AppDashboard() {
 	// 		? { userId: user._id }
 	// 		: {};
 
+	// const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	// const [year, setYear] = useState(() => new Date().getFullYear());
+
+	// const [salesQueryParmas, setSalesQueryParams] = useState({
+	// 	month,
+	// 	year,
+	// });
+
 	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
 		{
 			path: '/deals/monthly',

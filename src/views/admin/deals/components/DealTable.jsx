@@ -20,6 +20,7 @@ import { formatCurrency } from './../../../../utils/helpers';
 import ViewDealInvoice from './_shared/ViewDealInvoice';
 import useUserSession from 'hooks/useUserSession';
 import MenuOptions from './_shared/MenuOptions';
+import { useEffect, useState } from 'react';
 
 const DealTable = ({
 	data,
@@ -53,6 +54,16 @@ const DealTable = ({
 
 	const { user, isSuperAdmin } = useUserSession();
 
+	const [tableLoading, setTableLoading] = useState(true);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setTableLoading(false);
+		}, 1000); // 1s delay
+
+		return () => clearTimeout(timer);
+	}, []);
+
 	return (
 		<Box
 			maxHeight='80vh'
@@ -82,7 +93,7 @@ const DealTable = ({
 				</Thead>
 
 				<Tbody fontSize='sm'>
-					{isLoading || isRefetching ? (
+					{isLoading || isRefetching || tableLoading ? (
 						<TableLoading columns={columns} length={10} py='4' />
 					) : data?.length > 0 ? (
 						data.map((deal, i) => (

@@ -308,7 +308,7 @@ const EditDealModal = React.memo(
 											errors={errors}
 											isRequired
 										/>
-										<FormInput
+										{/* <FormInput
 											label='Unit Price'
 											name='unitPrice'
 											register={register}
@@ -316,7 +316,7 @@ const EditDealModal = React.memo(
 											type='number'
 											step='0.01'
 											isRequired
-										/>
+										/> */}
 									</SimpleGrid>
 								</Box>
 							</Box>
@@ -350,7 +350,7 @@ const EditDealModal = React.memo(
 												{downpaymentPercent.toFixed(2)}%
 											</Text>
 										</VStack>
-										<FormInput
+										{/* <FormInput
 											label='Booking Amount Paid'
 											name='bookingAmountPaid'
 											register={register}
@@ -358,8 +358,8 @@ const EditDealModal = React.memo(
 											type='number'
 											step='0.01'
 											isRequired
-										/>
-										<VStack align='start' spacing={1} minW='180px'>
+										/> */}
+										{/* <VStack align='start' spacing={1} minW='180px'>
 											<Text
 												fontWeight='semibold'
 												fontSize='sm'
@@ -370,7 +370,7 @@ const EditDealModal = React.memo(
 											<Text p={2} w='full' bg='gray.100' fontSize='sm'>
 												{bookingPercent.toFixed(2)}%
 											</Text>
-										</VStack>
+										</VStack> */}
 									</SimpleGrid>
 
 									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
