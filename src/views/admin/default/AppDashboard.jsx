@@ -59,15 +59,15 @@ export default function AppDashboard() {
 			}
 		);
 
-	const salesQueryParmas =
-		['Agent', 'Manager'].includes(userRoleName) && user?._id
-			? { userId: user._id }
-			: {};
+	// const salesQueryParmas =
+	// 	['Agent', 'Manager'].includes(userRoleName) && user?._id
+	// 		? { userId: user._id }
+	// 		: {};
 
 	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
 		{
 			path: '/deals/monthly',
-			params: salesQueryParmas,
+			// params: salesQueryParmas,
 		},
 		{
 			refetchOnMountOrArgChange: true,

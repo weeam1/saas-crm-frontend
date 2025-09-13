@@ -11,6 +11,7 @@ import {
 	Icon,
 	Flex,
 	Text,
+	HStack,
 } from '@chakra-ui/react';
 
 import {
@@ -23,25 +24,23 @@ import {
 import { formatCurrency } from 'utils/helpers';
 import SalesChart from './SalesChart';
 import useUserSession from 'hooks/useUserSession';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const SalesDashboard = ({ data }) => {
 	const { userRoleName } = useUserSession();
 
-	const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
+	// const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
 
 	const statsData = useMemo(
 		() => ({
-			totalDeals: isAdmin ? data?.totalDeals : data?.dealsCount,
-			totalSales: isAdmin ? data?.totalSales : data?.totalAmount,
-			totalTargets: isAdmin ? data?.totalTargets : data?.monthlyTarget,
-			remainingTargets: isAdmin
-				? data?.remainingTargets
-				: data?.remainingTarget,
-			averageAchievementRate: isAdmin
-				? data?.averageAchievementRate
-				: data?.targetAchievementRate,
+			totalDeals: data?.totalDeals,
+			totalSales: data?.totalSalesAmount,
+			totalTargets: data?.totalTargetAmount,
+			remainingTargets: data?.remainingTargetAmount,
+			averageAchievementRate: data?.achievementPercentage,
 		}),
-		[isAdmin, data]
+		[data]
 	);
 
 	// const statsCards = [
@@ -155,10 +154,21 @@ const SalesDashboard = ({ data }) => {
 	];
 	return (
 		<Box bg='white' p={6} borderRadius='2xl' mb='4' rounded='md'>
-			<Text fontSize='xl' fontWeight='bold' mb={8} color='gray.800'>
-				Overall Sales Performance
-			</Text>
-
+			<HStack spacing={2} align='center' mb={8}>
+				<Text
+					fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+					fontWeight='bold'
+					color='gray.800'
+				>
+					Monthly Sales Performance
+				</Text>
+				<CustomTooltip
+					label='This chart shows the monthly sales performance compared to targets.'
+					hasArrow
+				>
+					<InfoOutlineIcon color='gray.500' cursor='pointer' />
+				</CustomTooltip>
+			</HStack>
 			<SimpleGrid
 				columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
 				spacing={6}

@@ -58,7 +58,8 @@ export const formatCurrency = (amount, currency) => {
 	return new Intl.NumberFormat('en-AE', {
 		style: 'currency',
 		currency: currency || 'AED',
-		maximumFractionDigits: 0,
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2,
 	}).format(amount);
 };
 
