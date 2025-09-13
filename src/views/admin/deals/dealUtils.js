@@ -39,22 +39,21 @@ export const dealSchema = Yup.object().shape({
 	spaDone: Yup.boolean().optional(),
 	invoiceSent: Yup.boolean().optional(),
 	commissionStatus: Yup.string().required('Comission status is required'),
-	 sharePercent: Yup
-    .number()
-    .nullable()
-    .transform((value, originalValue) => {
-      return originalValue === "" ? null : value;
-    })
-    .when("shareUser", {
-      is: (val) => !!val, 
-      then: (schema) =>
-        schema
-          .typeError("Share Percentage is required")
-          .required("Share Percentage is required")
-          .min(0.01, "Share Percentage must be greater than 0")
-		  .max(100, "Share Percentage cannot exceed 100"),
-      otherwise: (schema) => schema.nullable().notRequired(),
-    }),
+	sharePercent: Yup.number()
+		.nullable()
+		.transform((value, originalValue) => {
+			return originalValue === '' ? null : value;
+		})
+		.when('shareUser', {
+			is: (val) => !!val,
+			then: (schema) =>
+				schema
+					.typeError('Share Percentage is required')
+					.required('Share Percentage is required')
+					.min(0.01, 'Share Percentage must be greater than 0')
+					.max(100, 'Share Percentage cannot exceed 100'),
+			otherwise: (schema) => schema.nullable().notRequired(),
+		}),
 });
 
 export const roundTo2 = (n) => Math.round(n * 100) / 100;
@@ -73,6 +72,16 @@ export const commissionStatuses = [
 	{
 		label: 'Partially Paid',
 		value: 'Partially Paid',
+	},
+];
+export const dealStatuses = [
+	{
+		label: 'Confirmed',
+		value: 'Confirmed',
+	},
+	{
+		label: 'Cancelled',
+		value: 'Cancelled',
 	},
 ];
 
