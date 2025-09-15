@@ -19,12 +19,15 @@ import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import CloseDealModal from '../deals/CloseDealModal';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
 	const [label, setLabel] = useState('');
 	const [bgColor, setBgColor] = useState('');
 	const [textColor, setTextColor] = useState('');
+
+	const [closeDeal, setCloseDeal] = useState(false);
 
 	const layoutView = localStorage.getItem('leadView') || 'grid';
 
@@ -38,12 +41,24 @@ const Status = ({ lead }) => {
 
 	const dispatch = useDispatch();
 
-	const handleStatus = async (e) => {
+	const handleStatus = async (statusOrEvent, options = {}) => {
 		try {
 			setLoading(true);
+
+			const newStatus =
+				typeof statusOrEvent === 'string'
+					? statusOrEvent
+					: statusOrEvent?.target?.value;
+
 			const data = {
-				leadStatus: e.target.value,
+				leadStatus: newStatus,
 			};
+
+			const { skipDealModal = false } = options;
+
+			if (newStatus === 'deal' && !skipDealModal) {
+				return setCloseDeal(true);
+			}
 
 			let response = await putApi(`api/lead/changeStatus/${lead?._id}`, data);
 			if (response.status === 200) {
@@ -57,7 +72,7 @@ const Status = ({ lead }) => {
 						value: data.leadStatus,
 					})
 				);
-				toast.success('Lead Status Updated!');
+				!skipDealModal && toast.success('Lead Status Updated!');
 
 				if (data.leadStatus === 'will_attend_the_show') {
 					setInviteModal(true);
@@ -126,6 +141,11 @@ const Status = ({ lead }) => {
 		}
 	}, [selected]);
 
+	const handleCloseDealSuccess = async () => {
+		setCloseDeal(false);
+		handleStatus('deal', { skipDealModal: true });
+	};
+
 	return (
 		<>
 			{layoutView !== 'table' && (
@@ -167,6 +187,16 @@ const Status = ({ lead }) => {
 					onClose={() => setInviteModal(false)}
 					isOpen={inviteModal}
 					lead={lead}
+				/>
+			)}
+
+			{closeDeal && (
+				<CloseDealModal
+					isOpen={closeDeal}
+					onClose={() => setCloseDeal(false)}
+					lead={lead}
+					mode='add'
+					onSuccess={handleCloseDealSuccess}
 				/>
 			)}
 		</>
