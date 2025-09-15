@@ -76,8 +76,8 @@ const CloseDealModal = React.memo(
 				unitNumber: '',
 				unitType: '',
 				unitPrice: '',
-				downpaymentPaid: '',
-				downpaymentPercent: '',
+				downpaymentPaid: 0,
+				downpaymentPercent: 0,
 				bookingAmountPaid: '',
 				bookingPercent: '',
 				spaDone: false,
@@ -439,7 +439,7 @@ const CloseDealModal = React.memo(
 										errors={errors}
 										type='number'
 										step='0.01'
-										isRequired
+										// isRequired
 									/>
 									<VStack align='start' spacing={1} minW='180px'>
 										<Text fontWeight='semibold' fontSize='sm' color='gray.600'>

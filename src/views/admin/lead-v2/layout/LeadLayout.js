@@ -76,8 +76,6 @@ const LeadsLayout = memo(
 			setRefetchLoading,
 		} = useFilteredQueryParams();
 
-		console.log({ queryParams });
-
 		// const leads = useSelector(
 		// 	(state) => state.leads,
 		// 	(prev, next) => prev === next
@@ -348,7 +346,6 @@ const LeadsLayout = memo(
 		};
 
 		const handlePageSize = (newPageSize) => {
-			console.log({ newPageSize });
 			if (newPageSize !== pageSize) {
 				setPageSize(newPageSize);
 				setCurrentPage(1);

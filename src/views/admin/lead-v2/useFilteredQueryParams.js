@@ -87,8 +87,6 @@ export const useFilteredQueryParams = () => {
 	const tree = useSelector((state) => state.user.tree);
 
 	const updateSearchParams = (params) => {
-		console.log('old Params:', params);
-
 		setSearchParams(() => {
 			const updatedParams = new URLSearchParams();
 
@@ -105,16 +103,12 @@ export const useFilteredQueryParams = () => {
 			return updatedParams;
 		});
 
-		console.log('Updated Params:', params);
-
 		setQueryParams(params);
 	};
 
 	useEffect(() => {
 		const { page, pageSize } = getPageParams();
 		let updatedParams = { page, pageSize };
-
-		console.log({ page, pageSize });
 
 		const lead = searchParams.get('lead');
 
@@ -216,7 +210,6 @@ export const useFilteredQueryParams = () => {
 		}
 
 		// if (pageSizeFromParams !== pageSize) {
-		// 	console.log('PageSize changed from params');
 		// 	setCurrentPage(1);
 		// 	setPageSize(pageSizeFromParams || DEFAULT_PAGE_SIZE);
 		// }
