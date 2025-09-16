@@ -504,7 +504,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                     >
                       {row.createdAt
                         ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
-                        : "no data Found"}
+                        : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -513,7 +513,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.expenseNo ? row.expenseNo : "no data Found"}
+                      {row.expenseNo ? row.expenseNo : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -522,7 +522,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.category ? row.category.name : "no data Found"}
+                      {row.category ? row.category.name : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -531,7 +531,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.description ? row.description : "no data Found"}
+                      {row.description ? row.description : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -541,7 +541,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                     >
                       {row.addedBy.fullName
                         ? row.addedBy.fullName
-                        : "no data Found"}
+                        : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -550,7 +550,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.amount ? row.amount : "no data Found"}
+                      {row.amount ? row.amount : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -559,7 +559,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.vat ? `${row.vat}%` : "no data Found"}
+                      {row.vat ? `${row.vat}%` : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -568,7 +568,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.totalAmount ? row.totalAmount : "no data Found"}
+                      {row.totalAmount ? row.totalAmount : "-"}
                     </Td>
                     <Td
                       py={4}

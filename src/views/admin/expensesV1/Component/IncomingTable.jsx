@@ -141,6 +141,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
         autoClose: 3000,
       });
       refetch();
+      refetchSummary()
       createUserLog({
         userId: user?._id,
         action: "DELETE",
@@ -204,6 +205,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
   };
 
   const handleSuccess = () => {
+    refetchSummary()
     refetch();
     onClose();
   };
@@ -334,7 +336,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
                     >
                       {row.createdAt
                         ? moment(row.createdAt).format("MM/DD/YYYY hh:mmA")
-                        : "no data Found"}
+                        : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -344,7 +346,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
                       textAlign={"center"}
                       textTransform="capitalize"
                     >
-                      {row.paymentMethod || "no data Found"}
+                      {row.paymentMethod || "-"}
                     </Td>
                     <Td
                       py={4}
@@ -353,7 +355,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row?.agency?.name ? row.agency.name : "no data Found"}
+                      {row?.agency?.name ? row.agency.name : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -371,7 +373,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
                       minWidth="100px"
                       textAlign={"center"}
                     >
-                      {row.description ? row.description : "no data Found"}
+                      {row.description ? row.description : "-"}
                     </Td>
                     <Td
                       py={4}
@@ -382,7 +384,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
                     >
                       {row?.addedBy?.fullName
                         ? row.addedBy.fullName
-                        : "no data Found"}
+                        : "-"}
                     </Td>
                     <Td
                       py={4}

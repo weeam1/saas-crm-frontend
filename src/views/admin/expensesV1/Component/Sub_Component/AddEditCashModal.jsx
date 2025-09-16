@@ -9,7 +9,6 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
   Select,
   Textarea,
   NumberInput,
@@ -143,8 +142,8 @@ const AddEditCashModal = ({ isOpen, onClose, cash, agencies, onSuccess }) => {
                 onChange={handleChange}
               >
                 <option value="cash">Cash</option>
-                <option value="credit">Credit</option>
-                <option value="debit">Debit</option>
+                <option value="credit card">Credit Card</option>
+                <option value="debit card">Debit Card</option>
               </Select>
             </FormControl>
 
