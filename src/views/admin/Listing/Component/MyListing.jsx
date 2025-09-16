@@ -344,7 +344,7 @@ const MyListing = ({ listingType, listingUnitType }) => {
 					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 					justifyContent={{ base: 'center', sm: 'center', md: 'normal' }}
 				>
-					{hasPermission('listing', 'create') && (
+					{hasPermission('listing', 'create:any') && (
 						<Button
 							size='md'
 							variant='brand'
