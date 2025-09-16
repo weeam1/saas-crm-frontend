@@ -171,7 +171,7 @@ const Index = () => {
 		<Box py='8' px='4' rounded='md' shadow='sm' bg='white' width='100%'>
 			<Flex
 				justifyContent='space-between'
-				flexDirection={{ base: 'column', md: 'row' }}
+				flexDirection={{ base: 'column', xl: 'row' }}
 				mb='4'
 			>
 				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
@@ -180,7 +180,7 @@ const Index = () => {
 				</Text>
 				{/* Action buttons only for Admins */}
 				<HStack
-					flexDirection={{ base: 'column', md: 'row' }}
+					flexDirection={{ base: 'column', xl: 'row' }}
 					gap='2'
 					justifyItems='flex-end'
 					alignItems='end'
@@ -276,18 +276,17 @@ const Index = () => {
 						/>
 
 						<DateFilterButton onClick={dateTimeOnOpen} />
-					</HStack>
-					<IconButton
-						icon={<FiRefreshCw />}
-						aria-label='Refresh logs'
-						onClick={() => {
-							leadsRefetch();
-						}}
-						isLoading={leadsRefetching}
-						variant='outline'
-						size='sm'
-					/>
-					<HStack>
+						<IconButton
+							icon={<FiRefreshCw />}
+							aria-label='Refresh logs'
+							onClick={() => {
+								leadsRefetch();
+							}}
+							isLoading={leadsRefetching}
+							variant='outline'
+							size='sm'
+						/>
+
 						<ViewToggle
 							handleView={handleViewChange}
 							view={view}

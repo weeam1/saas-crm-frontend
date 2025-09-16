@@ -32,24 +32,43 @@ export const dealSchema = Yup.object().shape({
 		.transform((value, originalValue) =>
 			String(originalValue).trim() === '' ? null : value
 		)
-		.when('unitPrice', (unitPrice, schema) =>
-			schema.test(
+		.when('unitPrice', (unitPriceArr, schema) => {
+			const unitPrice = Array.isArray(unitPriceArr)
+				? unitPriceArr[0]
+				: unitPriceArr;
+
+			return schema.test(
 				'valid-downpayment',
-				`Downpayment must be between 0 and ${unitPrice}`,
-				(value) => value == null || (value >= 0 && value <= unitPrice)
-			)
-		),
+				unitPrice
+					? `Downpayment must be between 0 and ${unitPrice}`
+					: 'Please enter Unit Price first',
+				(value) => {
+					if (!unitPrice || isNaN(unitPrice)) return false;
+					return value == null || (value >= 0 && value <= unitPrice);
+				}
+			);
+		}),
+
 	bookingAmountPaid: Yup.number()
 		.typeError('Booking Amount must be a number')
 		.nullable()
 		.min(0, 'Cannot be negative')
-		.when('unitPrice', (unitPrice, schema) =>
-			schema.test(
+		.when('unitPrice', (unitPriceArr, schema) => {
+			const unitPrice = Array.isArray(unitPriceArr)
+				? unitPriceArr[0]
+				: unitPriceArr;
+
+			return schema.test(
 				'valid-bookingAmount',
-				`Bokking Amount must be between 0 and ${unitPrice}`,
-				(value) => value == null || (value >= 0 && value <= unitPrice)
-			)
-		)
+				unitPrice
+					? `Booking Amount must be between 0 and ${unitPrice}`
+					: 'Please enter Unit Price first',
+				(value) => {
+					if (!unitPrice || isNaN(unitPrice)) return false;
+					return value == null || (value >= 0 && value <= unitPrice);
+				}
+			);
+		})
 		.required('Booking amount is required'),
 
 	// bookingAmountPaid: Yup.number()

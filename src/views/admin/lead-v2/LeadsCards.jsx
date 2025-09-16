@@ -166,7 +166,7 @@ const LeadsCards = ({ handleView, view }) => {
 		>
 			<Flex
 				justifyContent='space-between'
-				flexDirection={{ base: 'column', md: 'row' }}
+				flexDirection={{ base: 'column', lg: 'column', xl: 'row' }}
 				mb='4'
 			>
 				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
@@ -175,7 +175,7 @@ const LeadsCards = ({ handleView, view }) => {
 				</Text>
 				{/* Action buttons only for Admins */}
 				<HStack
-					flexDirection={{ base: 'column', md: 'row' }}
+					flexDirection={{ base: 'column', MdSettings: 'row' }}
 					gap='2'
 					justifyItems='flex-end'
 					alignItems='end'

@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { MdOutlineNoteAlt, MdVisibility } from 'react-icons/md';
 import InterviewStatusBadge from './InterviewStatusBadge';
 import { RiUserForbidLine } from 'react-icons/ri';
+import NextRoundConfirmModal from '../_components/NextRoundConfirmModal';
 
 const InterviewedTable = ({
 	headers,
@@ -41,6 +42,19 @@ const InterviewedTable = ({
 		title: 'Message',
 		message: 'N/A',
 	});
+
+	const [selectedInterview, setSelectedInterview] = useState(null);
+
+	const {
+		isOpen: isNextRoundModalOpen,
+		onOpen: onNextRoundModalOpen,
+		onClose: onNextRoundModalClose,
+	} = useDisclosure();
+
+	const handleNextInterview = (interview) => {
+		setSelectedInterview(interview);
+		onNextRoundModalOpen();
+	};
 
 	return (
 		<>
@@ -136,6 +150,7 @@ const InterviewedTable = ({
 												>
 													View
 												</Button>
+
 												{item?.status === 'rejected' ? null : (
 													<>
 														{item.isOffer ? (
@@ -189,29 +204,55 @@ const InterviewedTable = ({
 																/>
 															</>
 														) : (
-															<Button
-																bg='#EDC270'
-																color='gray.800'
-																h='6'
-																py='2'
-																px='4'
-																flex={1}
-																fontSize='xs'
-																fontWeight='normal'
-																shadow='sm'
-																rounded='md'
-																_hover={{ bg: '#E0B960' }}
-																_active={{ bg: '#D4AC50' }}
-																onClick={
-																	item.status === 'end'
-																		? () => handleSendOffer(item._id, 'edit')
-																		: () => handleViewResult(item)
-																}
-															>
-																{item.status === 'end'
-																	? 'Send Offer'
-																	: 'Submit Result'}
-															</Button>
+															<>
+																{!item.isMultiRound && (
+																	<Button
+																		bg='green.500'
+																		color='gray.100'
+																		h='6'
+																		py='2'
+																		px='4'
+																		fontSize='xs'
+																		fontWeight='normal'
+																		flexGrow={
+																			item?.status === 'rejected'
+																				? '1'
+																				: 'initial'
+																		}
+																		shadow='sm'
+																		rounded='md'
+																		_hover={{ bg: 'green.400' }}
+																		_active={{ bg: 'green.400' }}
+																		onClick={() => handleNextInterview(item)}
+																	>
+																		Next Round
+																	</Button>
+																)}
+
+																<Button
+																	bg='#EDC270'
+																	color='gray.800'
+																	h='6'
+																	py='2'
+																	px='4'
+																	flex={1}
+																	fontSize='xs'
+																	fontWeight='normal'
+																	shadow='sm'
+																	rounded='md'
+																	_hover={{ bg: '#E0B960' }}
+																	_active={{ bg: '#D4AC50' }}
+																	onClick={
+																		item.status === 'end'
+																			? () => handleSendOffer(item._id, 'edit')
+																			: () => handleViewResult(item)
+																	}
+																>
+																	{item.status === 'end'
+																		? 'Send Offer'
+																		: 'Submit Result'}
+																</Button>
+															</>
 														)}
 													</>
 												)}
@@ -301,6 +342,17 @@ const InterviewedTable = ({
 					isOpen={isOpen}
 					onClose={onClose}
 					message={feedback?.message}
+				/>
+			)}
+
+			{isNextRoundModalOpen && (
+				<NextRoundConfirmModal
+					isOpen={isNextRoundModalOpen}
+					onClose={() => {
+						onNextRoundModalClose();
+						setSelectedInterview(null);
+					}}
+					interview={selectedInterview}
 				/>
 			)}
 		</>
