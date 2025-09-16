@@ -58,9 +58,9 @@ const InterviewedRoundTable = ({
 	const handleStartInterview = async (interview) => {
 		try {
 			const data = await createItemMutation({
-				path: `/interviews/create-round`,
+				path: `/interviews/start-next-round`,
 				body: {
-					candidate: interview?.candidate?._id,
+					candidateId: interview?.candidate?._id,
 					interviewId: interview?._id,
 				},
 			}).unwrap();

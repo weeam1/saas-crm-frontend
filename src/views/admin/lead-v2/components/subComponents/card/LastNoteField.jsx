@@ -24,9 +24,11 @@ const LastNoteField = ({ label, lead }) => {
 
 	const tooltipLabel = lead?.lastNote ? (
 		<div>
-			<h4 style={{ marginBottom: '6px', fontSize: '12px' }}>
-				Added By: {lead?.latestNote?.addedBy?.fullName}
-			</h4>
+			{lead?.latestNote?.addedBy?.fullName && (
+				<h4 style={{ marginBottom: '6px', fontSize: '12px' }}>
+					Added By: {lead?.latestNote?.addedBy?.fullName}
+				</h4>
+			)}
 			<p style={{ marginBottom: '6px' }}>{lead?.lastNote}</p>
 			<span>
 				{isLatestNote &&
