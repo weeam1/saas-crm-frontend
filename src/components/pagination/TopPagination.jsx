@@ -102,21 +102,12 @@ const TopPagination = ({
 
 		// Special case: if total > 1000, ensure 200 is present
 		if (totalItems > 1000) {
-			console.log('added 200');
 			steps.push(200);
 		}
 
 		// Deduplicate, filter and sort
 		return [...new Set(steps)].filter((n) => n > 0).sort((a, b) => a - b);
 	};
-
-	console.log(
-		'page size options',
-		generatePageSizeOptions(totalItems, itemsPerPage)
-	);
-
-	console.log('itemsPerPage', itemsPerPage);
-	console.log('totalItems', totalItems);
 
 	const onPageSizeChange = useCallback(
 		(e) => {

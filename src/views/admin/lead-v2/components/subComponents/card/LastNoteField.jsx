@@ -24,6 +24,9 @@ const LastNoteField = ({ label, lead }) => {
 
 	const tooltipLabel = lead?.lastNote ? (
 		<div>
+			<h4 style={{ marginBottom: '6px', fontSize: '12px' }}>
+				Added By: {lead?.latestNote?.addedBy?.fullName}
+			</h4>
 			<p style={{ marginBottom: '6px' }}>{lead?.lastNote}</p>
 			<span>
 				{isLatestNote &&
@@ -49,8 +52,14 @@ const LastNoteField = ({ label, lead }) => {
 					</Text>
 				)}
 
+				{/* <CustomTooltip label={tooltipLabel} persistent={true} variant='primary'> */}
 				<CustomTooltip label={tooltipLabel} persistent={true}>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+					<Icon
+						as={InfoIcon}
+						boxSize={leadIconSize}
+						color='blue.300'
+						cursor='pointer'
+					/>
 				</CustomTooltip>
 			</HStack>
 

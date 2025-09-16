@@ -28,13 +28,34 @@ export const dealSchema = Yup.object().shape({
 
 	downpaymentPaid: Yup.number()
 		.typeError('Downpayment must be a number')
-		.min(0, 'Cannot be negative')
-		.required('Downpayment is required'),
-
+		.nullable()
+		.transform((value, originalValue) =>
+			String(originalValue).trim() === '' ? null : value
+		)
+		.when('unitPrice', (unitPrice, schema) =>
+			schema.test(
+				'valid-downpayment',
+				`Downpayment must be between 0 and ${unitPrice}`,
+				(value) => value == null || (value >= 0 && value <= unitPrice)
+			)
+		),
 	bookingAmountPaid: Yup.number()
-		.typeError('Booking amount must be a number')
+		.typeError('Booking Amount must be a number')
+		.nullable()
 		.min(0, 'Cannot be negative')
+		.when('unitPrice', (unitPrice, schema) =>
+			schema.test(
+				'valid-bookingAmount',
+				`Bokking Amount must be between 0 and ${unitPrice}`,
+				(value) => value == null || (value >= 0 && value <= unitPrice)
+			)
+		)
 		.required('Booking amount is required'),
+
+	// bookingAmountPaid: Yup.number()
+	// 	.typeError('Booking amount must be a number')
+	// 	.min(0, 'Cannot be negative')
+	// 	.required('Booking amount is required'),
 
 	spaDone: Yup.boolean().optional(),
 	invoiceSent: Yup.boolean().optional(),
@@ -72,6 +93,10 @@ export const commissionStatuses = [
 	{
 		label: 'Partially Paid',
 		value: 'Partially Paid',
+	},
+	{
+		label: 'Not Eligible',
+		value: 'Not Eligible',
 	},
 ];
 export const dealStatuses = [
