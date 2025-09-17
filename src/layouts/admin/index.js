@@ -102,40 +102,24 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		);
 	}
 
-	// Super admin only show whatsapp users
-	if (userRoleName === 'superAdmin') {
-		// -------- Whatsapp --------
-		// appRoutes.push({
-		// 	moduleId: 'whatsapp',
-		// 	name: 'Whatsapp',
-		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		// 	path: '/whatsapp/chats',
-		// });
-		// -------- WhatsApp --------
-		// sidebarRoutes.push(
-		// );
-	}
 	// if user has whatsapp and also enable then show it
-	else if (whatsappActive) {
+	if (whatsappActive) {
 		// Always start clean: remove any old whatsapp routes
-		appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
-		appSidebarRoutes = appSidebarRoutes.filter(
-			(r) => r.moduleId !== 'whatsapp'
-		);
+		// appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+		// appSidebarRoutes = appSidebarRoutes.filter(
+		// 	(r) => r.moduleId !== 'whatsapp'
+		// );
 		appSidebarRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
-			path: '/whatsapp/chat',
+			path: '/whatsapp/chats',
 			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
 		});
-
 		appRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chat',
-			component: UserWhatsapp,
-			path: '/whatsapp/chat',
+			path: '/whatsapp/chats',
 			component: UserWhatsapp,
 		});
 	}

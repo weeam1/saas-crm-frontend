@@ -217,7 +217,7 @@ const AttendanceReport = () => {
 						Attendance Report
 					</Text>
 
-					{hasPermission('reports', 'link') && (
+					{hasPermission('reports', 'link') && hasPermission('attendance') && (
 						<RefButton to='/attendance' label='Attendance Module' />
 					)}
 				</HStack>
