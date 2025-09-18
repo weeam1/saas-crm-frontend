@@ -27,6 +27,7 @@ import { newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
 import AnnouncementsModal from 'views/admin/announcement/components/AnnouncementsModal';
 import addNotification, { Notifications } from 'react-push-notification';
+import WeeamLoadingPage from "./components/welcome/WeeamLoadingPage";
 
 import logo from 'assets/img/app-logo.jpeg';
 
@@ -244,14 +245,7 @@ function App() {
 	else
 		return (
 			<>
-				<Flex
-					justifyContent={'center'}
-					alignItems={'center'}
-					width='100%'
-					height={'100vh'}
-				>
-					<Loader />
-				</Flex>
+			<WeeamLoadingPage/>
 			</>
 		);
 }
