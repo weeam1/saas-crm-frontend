@@ -1,9 +1,19 @@
-import { Box, Text, Flex, Icon, Stack, SimpleGrid } from '@chakra-ui/react';
+import {
+	Box,
+	Text,
+	Flex,
+	Icon,
+	Stack,
+	SimpleGrid,
+	Tooltip,
+} from '@chakra-ui/react';
 import { FaBuilding } from 'react-icons/fa';
 import { StatusBadge } from './_shared/StatusBadge';
 import { formatPostDate, formatCurrency } from 'utils/helpers';
 import { TeamMember } from './_shared/TeamMember';
 import MenuOptions from './_shared/MenuOptions';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { FiEye } from 'react-icons/fi';
 
 export const DealCard = ({
 	deal,
@@ -77,11 +87,19 @@ export const DealCard = ({
 				{/* Lead info with priority styling */}
 				<Box>
 					<Flex align='center' gap={2}>
-						<Box flex='1'>
+						<Flex flex='1' align='center' gap='2'>
+							<Icon
+								as={FiEye}
+								boxSize='10px'
+								onClick={() => handleView(deal)}
+								color='gray.600'
+								_hover={{ color: 'brand.400' }}
+								cursor='pointer'
+							/>
 							<Text fontWeight='bold' fontSize='sm' maxW='200px' isTruncated>
 								{lead?.leadName}
 							</Text>
-						</Box>
+						</Flex>
 						{/* <Box mr='14'>
 							{spaDone && (
 								<CustomTooltip label='SPA Signed'>

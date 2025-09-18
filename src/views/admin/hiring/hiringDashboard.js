@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { addPositions } from '../../../redux/positionsSlice';
 import { IoSettings } from 'react-icons/io5';
 import useUserSession from 'hooks/useUserSession';
+import CardShimmer from 'components/loading/CardShimmer';
 const HiringDashboard = () => {
 	const dispatch = useDispatch();
 
@@ -82,7 +83,14 @@ const HiringDashboard = () => {
 	const navigate = useNavigate();
 
 	return isLoading || interviewLoading ? (
-		<Loader />
+		<Box py='8'>
+			<CardShimmer
+				count={6}
+				height='200px'
+				columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3, '2xl': 3 }}
+				gap='4'
+			/>
+		</Box>
 	) : (
 		<Box>
 			<Flex justifyContent='flex-end' alignItems='center'>
@@ -90,13 +98,11 @@ const HiringDashboard = () => {
 					<Button
 						colorScheme='gray'
 						borderRadius='5px'
-						size={{ base: 'sm', md: 'md' }}
 						px={{ base: 4, md: 6 }}
 						py={{ base: 2, md: 3 }}
 						fontSize={{ base: 'sm', md: 'md' }}
 						leftIcon={<Icon as={IoSettings} boxSize={4} />}
 						onClick={() => navigate('/hiring/settings')}
-						mb={4}
 					>
 						Settings
 					</Button>
