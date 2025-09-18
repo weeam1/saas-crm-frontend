@@ -77,7 +77,7 @@ const CreateSurvey = () => {
         let invitedUsers = [];
         if (values.selectedRole === "all") {
           invitedUsers = allUsers
-            .filter((u) => u._id !== user._id)
+            .filter((u) => u._id !== user._id || user.role !== "superAdmin")
             .map((user) => user._id);
         } else if (values.selectedRole === "managers") {
           invitedUsers = managers.map((manager) => manager._id);
@@ -139,6 +139,7 @@ const CreateSurvey = () => {
     },
   });
 
+  console.log("allUsers",allUsers)
   const addQuestion = () => {
     formik.setFieldValue("questions", [
       ...formik.values.questions,
