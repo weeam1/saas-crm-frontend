@@ -49,6 +49,10 @@ const safeJSONParse = (value) => {
 	try {
 		return JSON.parse(value);
 	} catch (error) {
+		// fallback: check for pipe-delimited dates
+		if (typeof value === 'string' && value.includes('|')) {
+			return value.split('|').map((v) => v.trim());
+		}
 		console.error('Invalid JSON format:', value, error);
 		return null; // Return null if parsing fails
 	}
@@ -236,6 +240,7 @@ export const useFilteredQueryParams = () => {
 	}, [currentPage, pageSize]);
 
 	const setSearchQueryParams = (params) => {
+		// const updatedParams = { ...queryParams, ...params, page: 1, pageSize };
 		const updatedParams = { ...params, page: 1, pageSize };
 		isEffectTriggered.current = true;
 
