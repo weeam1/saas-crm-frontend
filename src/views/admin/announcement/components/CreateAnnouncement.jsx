@@ -292,12 +292,12 @@ const CreateAnnouncement = ({ user }) => {
 								/>
 							</HStack>
 						</>
-					) : (
+					) : !isManager ? (
 						<Alert status='warning' variant='subtle' borderRadius='md'>
 							<AlertIcon />
 							You don't have permission to create an announcement.
 						</Alert>
-					)}
+					) : null}
 
 					{isManager && !hasPermission('announcement', 'all_users') && (
 						<Text mb={{ base: 1, md: 3 }} color='gray.500'>
