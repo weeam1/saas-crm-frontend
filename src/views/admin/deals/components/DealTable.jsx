@@ -10,6 +10,7 @@ import {
 	Badge,
 	HStack,
 	Button,
+	Icon,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 
@@ -21,6 +22,8 @@ import ViewDealInvoice from './_shared/ViewDealInvoice';
 import useUserSession from 'hooks/useUserSession';
 import MenuOptions from './_shared/MenuOptions';
 import { useEffect, useState } from 'react';
+import { FiEye } from 'react-icons/fi';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const DealTable = ({
 	data,
@@ -101,16 +104,25 @@ const DealTable = ({
 								{/* <Td minW='100px' textAlign='left'>
 									{deal.lead?.intID || 'N/A'}
 								</Td> */}
-								<Td minW='150px' textAlign='left'>
-									<Text
-										onClick={() => handleView(deal)}
-										variant='link'
-										fontSize='sm'
-										cursor='pointer'
-										_hover={{ textDecoration: 'underline', color: 'brand.500' }}
-									>
-										{deal.lead?.leadName || 'N/A'}
-									</Text>
+								<Td
+									minW='160px'
+									textAlign='left'
+									display='flex'
+									alignItems='center'
+									gap='2'
+								>
+									<CustomTooltip label='view deal details' variant='light'>
+										<Icon
+											as={FiEye}
+											boxSize='10px'
+											onClick={() => handleView(deal)}
+											color='gray.600'
+											_hover={{ color: 'brand.400' }}
+											cursor='pointer'
+										/>
+									</CustomTooltip>
+
+									<Text fontSize='sm'>{deal.lead?.leadName || 'N/A'}</Text>
 								</Td>
 								<Td
 									maxWidth='200px'

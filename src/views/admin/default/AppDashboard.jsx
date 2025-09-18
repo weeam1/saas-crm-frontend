@@ -13,6 +13,7 @@ import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 import SalesDashboard from './components/sales/SalesDashboard';
 import useUserSession from 'hooks/useUserSession';
 import { hasPermission } from 'utils';
+import CardShimmer from 'components/loading/CardShimmer';
 
 export default function AppDashboard() {
 	const { colorMode } = useColorMode();
@@ -86,7 +87,14 @@ export default function AppDashboard() {
 		todaySummaryLoading ||
 		leadStatusLoading ||
 		salesLoading ? (
-		<Loader />
+		<Box py='2'>
+			<CardShimmer
+				count={12}
+				height='200px'
+				columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4, '2xl': 4 }}
+				gap='4'
+			/>
+		</Box>
 	) : (
 		<Box>
 			{/* <Header /> */}

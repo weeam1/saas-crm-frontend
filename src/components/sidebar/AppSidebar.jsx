@@ -212,9 +212,9 @@ const SidebarItem = React.memo(function SidebarItem({
 			{hasChildren && (
 				<Collapse in={open} animateOpacity>
 					<VStack align='start' pl={10} spacing={1} mt={1}>
-						{route.children.map((child) => (
+						{route.children.map((child, index) => (
 							<NavLink
-								key={child.moduleId}
+								key={child.id + index}
 								to={child.path}
 								onClick={onClick}
 								style={{ width: '100%' }}

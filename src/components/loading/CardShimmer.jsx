@@ -15,6 +15,7 @@ const CardShimmer = ({
 	count = 2,
 	columns = { base: 1, sm: 2, md: 3, lg: 4, xl: 5, '2xl': 6 },
 	height = '250px',
+	gap = '2',
 	...customStyling
 }) => {
 	const gridTemplate = {};
@@ -29,7 +30,7 @@ const CardShimmer = ({
 			sx={{
 				...gridTemplate,
 			}}
-			gap='2'
+			gap={gap}
 			w='full'
 		>
 			{[...Array(count)].map((_, index) => (

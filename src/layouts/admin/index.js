@@ -25,6 +25,7 @@ import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
+import AppLoader from 'components/loading/AppLoader';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -244,9 +245,10 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 					>
 						<Suspense
 							fallback={
-								<Flex align='center' justify='center' h='100vh'>
-									<Loader />
-								</Flex>
+								null
+								// <Flex align='center' justify='center' h='100vh' w='full'>
+								// 	<AppLoader />
+								// </Flex>
 							}
 						>
 							<Routes>
