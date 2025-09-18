@@ -79,10 +79,6 @@ const LeadTableView = memo((props) => {
 		const baseCols = [
 			{ Header: 'ID', accessor: 'intID', width: 10 },
 			{ Header: 'Name', accessor: 'leadName', width: 200 },
-			{ Header: 'Manager', accessor: 'managerAssigned', width: 200 },
-			{ Header: 'Agent', accessor: 'agentAssigned', width: 200 },
-			{ Header: 'M Status', accessor: 'eLeadStatus', width: 190 },
-			{ Header: 'Status', accessor: 'leadStatus', width: 200 },
 			{ Header: 'Timetocall', accessor: 'timetocall', width: 100 },
 			{ Header: 'Budget', accessor: 'budget', width: 100 },
 			{ Header: 'Date & Time', accessor: 'createdDate', width: 150 },
@@ -99,6 +95,35 @@ const LeadTableView = memo((props) => {
 			{ Header: 'Attendance', accessor: 'attendanceDay', width: 100 },
 			{ Header: 'In UAE?', accessor: 'r_u_in_uae', width: 40 },
 		];
+
+		if (hasPermission('leads', 'managerAssign')) {
+			baseCols.splice(2, 0, {
+				Header: 'Manager',
+				accessor: 'managerAssigned',
+				width: 200,
+			});
+		}
+		if (hasPermission('leads', 'agentAssign')) {
+			baseCols.splice(3, 0, {
+				Header: 'Agent',
+				accessor: 'agentAssigned',
+				width: 200,
+			});
+		}
+		if (hasPermission('leads', 'mainStatus')) {
+			baseCols.splice(4, 0, {
+				Header: 'M Status',
+				accessor: 'eLeadStatus',
+				width: 190,
+			});
+		}
+		if (hasPermission('leads', 'leadStatus')) {
+			baseCols.splice(5, 0, {
+				Header: 'Status',
+				accessor: 'leadStatus',
+				width: 200,
+			});
+		}
 
 		if (hasPermission('leads', 'contactDetails')) {
 			baseCols.splice(7, 0, {

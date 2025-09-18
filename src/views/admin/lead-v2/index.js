@@ -182,10 +182,10 @@ const Index = () => {
 				<HStack
 					flexDirection={{ base: 'column', xl: 'row' }}
 					gap='2'
-					justifyItems='flex-end'
+					justifyContent='flex-end'
 					alignItems='end'
 				>
-					<Flex wrap='wrap' gap='2'>
+					<Flex wrap='wrap' justifyItems='flex-end' gap='2'>
 						<AllCheckBox
 							leads={leads}
 							selectedValues={selectedValues}

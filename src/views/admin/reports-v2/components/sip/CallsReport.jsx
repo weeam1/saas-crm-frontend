@@ -133,6 +133,7 @@ const CallsReport = () => {
 						Call Stats
 					</Text>
 					{hasPermission('reports', 'link') &&
+						hasPermission('sip') &&
 						location?.pathname !== '/sip' && (
 							<RefButton to='/sip' label='Call Logs Module' />
 						)}

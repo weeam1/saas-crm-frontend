@@ -9,7 +9,6 @@ import {
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
-import { max } from 'date-fns';
 
 const TopPagination = ({
 	currentPage,

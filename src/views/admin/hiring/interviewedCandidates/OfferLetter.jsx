@@ -48,7 +48,7 @@ const validationSchema = Yup.object().shape({
 		.required('Location is required'),
 	position: Yup.string().required('Position is required'),
 	amount: Yup.number().when('jobType', {
-		is: (jobType) => ['Commission', 'SalaryPlusCommission'].includes(jobType),
+		is: (jobType) => ['SalaryPlusCommission'].includes(jobType),
 		then: (schema) =>
 			schema
 				.nullable()
@@ -128,7 +128,7 @@ const OfferLetter = () => {
 				jobType: data.jobType || '',
 				location: agencies?.doc[0]?.location || '',
 				position: data.position || '',
-				amount: data?.amount || '',
+				amount: data?.amount || 0,
 				incentive: data?.incentive || '',
 				commission: data?.commission || '',
 				instructions: data?.instructions || '',
@@ -257,170 +257,175 @@ const OfferLetter = () => {
 						enableReinitialize
 						initialValues={offerDetails}
 						validationSchema={validationSchema}
-						onSubmit={onSubmitOffer}
+						onSubmit={(values) => {
+							onSubmitOffer(values);
+						}}
 					>
-						{({ handleSubmit, setFieldValue, errors, touched, values }) => (
-							<Form onSubmit={handleSubmit}>
-								<Grid
-									templateColumns={{
-										base: '1fr',
-										md: 'repeat(2, 1fr)',
-									}}
-									gap={3}
-									w='full'
-									p={{ base: 2, md: 4 }}
-									mt={2}
-								>
-									<CustomSelect
-										label='Position'
-										name='position'
-										options={positionOptions?.doc}
-										isReadOnly={!isEditing}
-										isInvalid={errors.position && touched.position}
-										placeholder={offerDetails.position}
-										onChange={(e) => {
-											setFieldValue('position', e.target.value);
-											handleFieldChange('position', e.target.value);
+						{({ handleSubmit, setFieldValue, errors, touched, values }) => {
+							// console.log('Formik Errors:', errors);
+							// console.log('Formik Touched:', touched);
+							return (
+								<Form onSubmit={handleSubmit}>
+									<Grid
+										templateColumns={{
+											base: '1fr',
+											md: 'repeat(2, 1fr)',
 										}}
-									/>
-
-									<CustomSelect
-										label='Job Type'
-										name='jobType'
-										options={jobTypes}
-										isReadOnly={!isEditing}
-										isInvalid={errors.jobType && touched.jobType}
-										placeholder={offerDetails.jobType}
-										onChange={(e) => {
-											setFieldValue('jobType', e.target.value);
-											handleFieldChange('jobType', e.target.value);
-										}}
-									/>
-
-									{values?.jobType !== 'Commission' && (
-										<CustomInput
-											label='Salary Amount'
-											name='amount'
-											type='number'
-											placeholder={offerDetails.amount}
+										gap={3}
+										w='full'
+										p={{ base: 2, md: 4 }}
+										mt={2}
+									>
+										<CustomSelect
+											label='Position'
+											name='position'
+											options={positionOptions?.doc}
 											isReadOnly={!isEditing}
-											isInvalid={errors.amount && touched.amount}
+											isInvalid={errors.position && touched.position}
+											placeholder={offerDetails.position}
 											onChange={(e) => {
-												setFieldValue('amount', e.target.value);
-												handleFieldChange('amount', e.target.value);
+												setFieldValue('position', e.target.value);
+												handleFieldChange('position', e.target.value);
 											}}
 										/>
-									)}
-									{values.jobType !== 'Salary' && (
-										<CustomInput
-											label='Commission %'
-											name='commission'
-											min={0}
-											max={100}
-											type='number'
-											step='any'
-											placeholder={offerDetails.commission}
+
+										<CustomSelect
+											label='Job Type'
+											name='jobType'
+											options={jobTypes}
 											isReadOnly={!isEditing}
-											isInvalid={errors.commission && touched.commission}
+											isInvalid={errors.jobType && touched.jobType}
+											placeholder={offerDetails.jobType}
 											onChange={(e) => {
-												setFieldValue('commission', e.target.value);
-												handleFieldChange('commission', e.target.value);
+												setFieldValue('jobType', e.target.value);
+												handleFieldChange('jobType', e.target.value);
 											}}
 										/>
-									)}
 
-									<CustomInput
-										label='Incentive (optional)'
-										name='incentive'
-										type='number'
-										placeholder={offerDetails.incentive}
-										isReadOnly={!isEditing}
-										isInvalid={errors.incentive && touched.incentive}
-										onChange={(e) => {
-											setFieldValue('incentive', e.target.value);
-											handleFieldChange('incentive', e.target.value);
-										}}
-									/>
+										{values?.jobType !== 'Commission' && (
+											<CustomInput
+												label='Salary Amount'
+												name='amount'
+												type='number'
+												placeholder={offerDetails.amount}
+												isReadOnly={!isEditing}
+												isInvalid={errors.amount && touched.amount}
+												onChange={(e) => {
+													setFieldValue('amount', e.target.value);
+													handleFieldChange('amount', e.target.value);
+												}}
+											/>
+										)}
+										{values.jobType !== 'Salary' && (
+											<CustomInput
+												label='Commission %'
+												name='commission'
+												min={0}
+												max={100}
+												type='number'
+												step='any'
+												placeholder={offerDetails.commission}
+												isReadOnly={!isEditing}
+												isInvalid={errors.commission && touched.commission}
+												onChange={(e) => {
+													setFieldValue('commission', e.target.value);
+													handleFieldChange('commission', e.target.value);
+												}}
+											/>
+										)}
 
-									<FormControl isInvalid={errors?.joiningDate}>
-										{!isEditing ? (
-											interview?.doc?.joiningDate && (
-												<>
+										<CustomInput
+											label='Incentive (optional)'
+											name='incentive'
+											type='number'
+											placeholder={offerDetails.incentive}
+											isReadOnly={!isEditing}
+											isInvalid={errors.incentive && touched.incentive}
+											onChange={(e) => {
+												setFieldValue('incentive', e.target.value);
+												handleFieldChange('incentive', e.target.value);
+											}}
+										/>
+
+										<FormControl isInvalid={errors?.joiningDate}>
+											{!isEditing ? (
+												interview?.doc?.joiningDate && (
+													<>
+														<FormLabel fontSize='sm'>Joining Date</FormLabel>
+														<Field
+															as={Input}
+															bg='gray.100'
+															borderColor='gray.300'
+															fontSize='sm'
+															py={1}
+															value={formattedDate(interview?.doc?.joiningDate)}
+															_focus={{ outline: 'none' }}
+															isReadOnly={true}
+														/>
+													</>
+												)
+											) : (
+												<Box position='relative' width='100%'>
 													<FormLabel fontSize='sm'>Joining Date</FormLabel>
-													<Field
-														as={Input}
-														bg='gray.100'
-														borderColor='gray.300'
-														fontSize='sm'
-														py={1}
-														value={formattedDate(interview?.doc?.joiningDate)}
-														_focus={{ outline: 'none' }}
-														isReadOnly={true}
-													/>
-												</>
-											)
-										) : (
-											<Box position='relative' width='100%'>
-												<FormLabel fontSize='sm'>Joining Date</FormLabel>
-												<InputGroup>
-													<Input
-														value={
-															selectedDate
-																? selectedDate.toLocaleDateString()
-																: ''
-														}
-														placeholder='Select a date'
-														readOnly
-														required
-														bg='gray.100'
-														borderColor={
-															errors?.joiningDate ? 'red.500' : 'gray.300'
-														}
-														borderRadius='md'
-														fontSize='sm'
-														py={1}
-														focusBorderColor={
-															errors?.joiningDate ? 'red.500' : '#E0B960'
-														}
-														isReadOnly
-													/>
-													<InputRightElement>
-														<FaRegCalendar
-															size={16}
-															cursor='pointer'
-															onClick={toggleCalendar}
+													<InputGroup>
+														<Input
+															value={
+																selectedDate
+																	? selectedDate.toLocaleDateString()
+																	: ''
+															}
+															placeholder='Select a date'
+															readOnly
+															required
+															bg='gray.100'
+															borderColor={
+																errors?.joiningDate ? 'red.500' : 'gray.300'
+															}
+															borderRadius='md'
+															fontSize='sm'
+															py={1}
+															focusBorderColor={
+																errors?.joiningDate ? 'red.500' : '#E0B960'
+															}
+															isReadOnly
 														/>
-													</InputRightElement>
-												</InputGroup>
-												{showCalendar && (
-													<Box
-														position='absolute'
-														top='50px'
-														zIndex='10'
-														bg='white'
-														border='1px solid #e2e8f0'
-														borderRadius='md'
-														boxShadow='0px 4px 6px rgba(0, 0, 0, 0.1)'
-													>
-														<Calendar
-															onChange={handleDateChange}
-															value={selectedDate}
-															// minDate={new Date()}
-															className='custom-calendar'
-														/>
-													</Box>
-												)}
-											</Box>
-										)}
-										{errors?.joiningDate && (
-											<Text color='red.500' fontSize='sm'>
-												{errors?.joiningDate}
-											</Text>
-										)}
-									</FormControl>
+														<InputRightElement>
+															<FaRegCalendar
+																size={16}
+																cursor='pointer'
+																onClick={toggleCalendar}
+															/>
+														</InputRightElement>
+													</InputGroup>
+													{showCalendar && (
+														<Box
+															position='absolute'
+															top='50px'
+															zIndex='10'
+															bg='white'
+															border='1px solid #e2e8f0'
+															borderRadius='md'
+															boxShadow='0px 4px 6px rgba(0, 0, 0, 0.1)'
+														>
+															<Calendar
+																onChange={handleDateChange}
+																value={selectedDate}
+																// minDate={new Date()}
+																className='custom-calendar'
+															/>
+														</Box>
+													)}
+												</Box>
+											)}
+											{errors?.joiningDate && (
+												<Text color='red.500' fontSize='sm'>
+													{errors?.joiningDate}
+												</Text>
+											)}
+										</FormControl>
 
-									<GridItem colSpan={{ base: 1, md: 2 }}>
-										{/* <CustomInput
+										<GridItem colSpan={{ base: 1, md: 2 }}>
+											{/* <CustomInput
 											label='Location'
 											name='location'
 											placeholder={offerDetails.location}
@@ -431,87 +436,90 @@ const OfferLetter = () => {
 												handleFieldChange('location', e.target.value);
 											}}
 										/> */}
-										<EditableSelect
-											label='Location'
-											name='location'
-											placeholder={
-												agencies?.doc?.[0]?.location ||
-												'Select or enter location'
-											}
-											defaultValue={
-												agencies?.doc?.[0]?.location || offerDetails?.location
-											}
-											isInvalid={errors.location && touched.location}
-											onChange={(e) => {
-												setFieldValue('location', e.target.value);
-												handleFieldChange('location', e.target.value);
-											}}
-											options={
-												Array.isArray(agencies?.doc)
-													? agencies.doc
-															.map((a) => a?.location)
-															.filter(Boolean)
-															.filter((loc, i, arr) => arr.indexOf(loc) === i) // Remove duplicates
-															.map((loc) => ({ label: loc, value: loc }))
-													: []
-											}
-										/>
-									</GridItem>
+											<EditableSelect
+												label='Location'
+												name='location'
+												placeholder={
+													agencies?.doc?.[0]?.location ||
+													'Select or enter location'
+												}
+												defaultValue={
+													agencies?.doc?.[0]?.location || offerDetails?.location
+												}
+												isInvalid={errors.location && touched.location}
+												onChange={(e) => {
+													setFieldValue('location', e.target.value);
+													handleFieldChange('location', e.target.value);
+												}}
+												options={
+													Array.isArray(agencies?.doc)
+														? agencies.doc
+																.map((a) => a?.location)
+																.filter(Boolean)
+																.filter((loc, i, arr) => arr.indexOf(loc) === i) // Remove duplicates
+																.map((loc) => ({ label: loc, value: loc }))
+														: []
+												}
+											/>
+										</GridItem>
 
-									<GridItem colSpan={{ base: 1, md: 2 }}>
-										<CustomInput
-											label='Instructions'
-											name='instructions'
-											type='textarea'
-											isReadOnly={!isEditing}
-											isInvalid={errors.instructions && touched.instructions}
-											placeholder={offerDetails.instructions}
-											onChange={(e) => {
-												setFieldValue('instructions', e.target.value);
-												handleFieldChange('instructions', e.target.value);
-											}}
-										/>
-									</GridItem>
+										<GridItem colSpan={{ base: 1, md: 2 }}>
+											<CustomInput
+												label='Instructions'
+												name='instructions'
+												type='textarea'
+												isReadOnly={!isEditing}
+												isInvalid={errors.instructions && touched.instructions}
+												placeholder={offerDetails.instructions}
+												onChange={(e) => {
+													setFieldValue('instructions', e.target.value);
+													handleFieldChange('instructions', e.target.value);
+												}}
+											/>
+										</GridItem>
 
-									<GridItem colSpan={{ base: 1, md: 2 }}>
-										<FormLabel fontSize='sm'>Remarks</FormLabel>
-										<Box
-											border='none'
-											outline='none'
-											bg='#F2F2F2'
-											p='3'
-											fontSize='sm'
-											rounded='md'
-											shadow='sm'
+										<GridItem colSpan={{ base: 1, md: 2 }}>
+											<FormLabel fontSize='sm'>Remarks</FormLabel>
+											<Box
+												border='none'
+												outline='none'
+												bg='#F2F2F2'
+												p='3'
+												fontSize='sm'
+												rounded='md'
+												shadow='sm'
+											>
+												{offerDetails?.remarks}
+											</Box>
+										</GridItem>
+									</Grid>
+
+									<OfferLetterEditor
+										onSend={onSubmitOffer}
+										offerDetails={offerDetails}
+										emailBody={emailBody}
+										interview={interview?.doc}
+										setEmailBody={setEmailBody}
+										setOfferDetails={setOfferDetails}
+									/>
+									<Flex justifyContent='flex-end'>
+										<Button
+											{...buttonStyle}
+											colorScheme='brand'
+											isLoading={sendingOffer}
+											// isDisabled={!isEditing}
+											type='submit'
+											py='3'
+											px='6'
 										>
-											{offerDetails?.remarks}
-										</Box>
-									</GridItem>
-								</Grid>
-
-								<OfferLetterEditor
-									onSend={onSubmitOffer}
-									offerDetails={offerDetails}
-									emailBody={emailBody}
-									interview={interview?.doc}
-									setEmailBody={setEmailBody}
-									setOfferDetails={setOfferDetails}
-								/>
-								<Flex justifyContent='flex-end'>
-									<Button
-										{...buttonStyle}
-										colorScheme='brand'
-										isLoading={sendingOffer}
-										isDisabled={!isEditing}
-										type='submit'
-										py='3'
-										px='6'
-									>
-										{interview?.doc?.isOffer ? 'Resend Offer' : 'Submit Offer'}
-									</Button>
-								</Flex>
-							</Form>
-						)}
+											{interview?.doc?.isOffer
+												? 'Resend Offer'
+												: 'Submit Offer'}
+										</Button>
+									</Flex>
+								</Form>
+							);
+						}}
 					</Formik>
 				</Box>
 			</Box>

@@ -425,7 +425,15 @@ const LeadsLayout = memo(
 					justifyContent='space-between'
 					alignItems='center'
 					gap='2'
-					flexDirection={{ base: 'column', lg: 'row' }}
+					sx={{
+						flexDirection: {
+							base: 'column',
+						},
+						'@media (min-width: 1695px)': {
+							flexDirection: 'row',
+						},
+					}}
+					// flexDirection={{ base: 'column', xl: 'row' }}
 				>
 					{/* Pagination */}
 					{/* <Pagination
