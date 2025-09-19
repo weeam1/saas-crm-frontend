@@ -27,6 +27,7 @@ import * as Yup from 'yup';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const formatNumberWithCommas = (value) => {
 	if (!value) return '';
@@ -55,12 +56,14 @@ const UpdateListing = () => {
 
 	const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
+	const { hasPermission } = usePermissions();
+
 	const {
 		data: listing,
 		isLoading,
 		isError,
 	} = useFetchItemsQuery(
-		{ path: `listing/secondary/${id}` },
+		{ path: `listing/secondary/${id}/${hasPermission('listing', 'read:any') ? true : false}` },
 		{ refetchOnMountOrArgChange: true }
 	);
 
