@@ -1,22 +1,21 @@
 import { useColorModeValue, Box, useColorMode } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { getApi } from 'services/api';
+import { useState } from 'react';
 import { HasAccess } from '../../../redux/accessUtils';
 
-import Header from './components/Header';
 import DashboardStatCards from './components/DashboardStatCards';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import ReportChart from './components/ReportChart';
 import TodaySummary from './components/TodaySummary';
 import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 import SalesDashboard from './components/sales/SalesDashboard';
 import useUserSession from 'hooks/useUserSession';
-import { hasPermission } from 'utils';
 import CardShimmer from 'components/loading/CardShimmer';
+import OnlineUsersCard from './components/OnlineUsersCard';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default function AppDashboard() {
 	const { colorMode } = useColorMode();
+	const { hasPermission } = usePermissions();
 	// Chakra Color Mode
 	const viewsState = HasAccess([
 		'Contacts',
@@ -98,6 +97,8 @@ export default function AppDashboard() {
 	) : (
 		<Box>
 			{/* <Header /> */}
+
+			{hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />}
 
 			<SalesDashboard data={sales} />
 

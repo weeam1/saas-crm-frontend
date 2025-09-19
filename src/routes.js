@@ -186,7 +186,7 @@ const BulkMessage = React.lazy(
 const routes = [
 	// ========================== Dashboard ==========================
 	{
-		moduleId: 'dashboard',
+		// moduleId: 'dashboard',
 		name: 'Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/default',
@@ -628,7 +628,7 @@ const routes = [
 		component: CreateWhatsappTemplate,
 	},
 	{
-		moduleId: 'whatsapp_bulk_messages',
+		// moduleId: 'whatsapp_bulk_messages',
 		name: 'Bulk Messages',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/bulk-messages',
