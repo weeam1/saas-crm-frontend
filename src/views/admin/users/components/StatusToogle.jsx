@@ -71,7 +71,6 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 				// const agents = tree?.agents?.[`manager-${user._id}`];
 
 				// if (agents?.length > 0) {
-				// console.log('Agents legnth: ', agents);
 				replaceOnOpen();
 				return;
 				// }

@@ -29,7 +29,7 @@ import { toast } from 'react-toastify';
 import {
 	ALLOWED_FILE_TYPES,
 	commissionStatuses,
-	currencies,
+	// currencies,
 	dealSchema,
 	roundTo2,
 } from './../../../deals/dealUtils';
@@ -38,6 +38,7 @@ import { FiUploadCloud } from 'react-icons/fi';
 import useUserSession from 'hooks/useUserSession';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { InfoIcon } from '@chakra-ui/icons';
+import { currencies } from 'constants/currencies';
 
 const CloseDealModal = React.memo(
 	({
@@ -474,7 +475,7 @@ const CloseDealModal = React.memo(
 										name='currency'
 										register={register}
 										errors={errors}
-										isDisabled
+										// isDisabled
 										isRequired
 										options={currencies}
 									/>

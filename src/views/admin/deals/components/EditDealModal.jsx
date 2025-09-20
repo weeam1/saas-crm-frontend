@@ -30,7 +30,7 @@ import {
 	ALLOWED_FILE_TYPES,
 	commissionStatuses,
 	dealSchema,
-	currencies,
+	// currencies,
 	roundTo2,
 } from '../dealUtils';
 import { FormSelect } from 'components/fields/FormFields';
@@ -39,6 +39,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { CloseIcon } from '@chakra-ui/icons';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { currencies } from 'constants/currencies';
 
 const EditDealModal = React.memo(
 	({ isOpen, onClose, initialData, onSuccess }) => {
@@ -209,9 +210,6 @@ const EditDealModal = React.memo(
 				return toast.error('Invoice document not uploaded!');
 			}
 
-			// Debug: Log the FormData entries
-			console.log('Final FormData:', Object.fromEntries(formData));
-
 			// Submission
 			handleEditDeal(formData);
 		};
@@ -379,7 +377,7 @@ const EditDealModal = React.memo(
 											name='currency'
 											register={register}
 											errors={errors}
-											isDisabled
+											// isDisabled
 											isRequired
 											options={currencies}
 										/>
