@@ -7,8 +7,8 @@ export function useSocketEvents() {
 
 	const connect = useCallback(async () => {
 		try {
-			// await socketService.connect('http://localhost:5000');
-			await socketService.connect(keys.socketIoUrl);
+			await socketService.connect('http://localhost:5000');
+			// await socketService.connect(keys.socketIoUrl);
 
 			if (socketService.socket) {
 				setIsConnected(socketService.socket.connected);

@@ -33,8 +33,6 @@ const TimeInput = ({
 	const centerConfig = { base: 50, md: 60 };
 	const sizeConfig = { base: '100px', md: '120px' };
 
-	console.log({ isNormal });
-
 	return (
 		// <Popover
 		// 	isOpen={isOpen}

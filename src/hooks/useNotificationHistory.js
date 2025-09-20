@@ -83,7 +83,6 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 			}
 		} catch (error) {
 			if (error.response?.status === 307) {
-				console.log('Redirected to:', error.response.headers.location);
 			} else {
 				toast.error('Failed to fetch history.');
 			}

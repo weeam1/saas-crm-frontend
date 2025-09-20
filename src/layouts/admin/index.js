@@ -166,9 +166,20 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	}, []);
 
 	const getRoutes = (routes) => {
-		const finalRoutes = appRoutes?.filter((route) => {
-			if (!route.moduleId) return true;
-			return hasPermission(route.moduleId);
+		// filter routes
+		const finalRoutes = routes?.filter((route) => {
+			// if route has parent/child, check both
+			if (route.parent && route.childId) {
+				return hasPermission(route.parent, route.childId);
+			}
+
+			// if only moduleId (parent module level)
+			if (route.moduleId) {
+				return hasPermission(route.moduleId);
+			}
+
+			// routes without permission binding always allowed
+			return true;
 		});
 
 		return finalRoutes.map((prop, key) => {

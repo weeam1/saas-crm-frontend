@@ -53,13 +53,6 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 		try {
 			const newStatus = !isActive;
 
-			// console.log({
-			// 	isAllowed,
-			// 	isActive,
-			// 	replacementManager,
-			// 	securityPassword,
-			// });
-
 			if (!newStatus && !isAllowed) {
 				infoOnOpen();
 				return;

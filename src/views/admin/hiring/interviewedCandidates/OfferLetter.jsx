@@ -144,8 +144,6 @@ const OfferLetter = () => {
 		}
 	}, [interview, offerType]);
 
-	console.log({ offerDetails });
-
 	const [createItemMutation, { isLoading: sendingOffer }] =
 		useCreateItemMutation();
 
