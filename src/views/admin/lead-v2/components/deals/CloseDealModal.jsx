@@ -475,7 +475,7 @@ const CloseDealModal = React.memo(
 										name='currency'
 										register={register}
 										errors={errors}
-										// isDisabled
+										isDisabled
 										isRequired
 										options={currencies}
 									/>
