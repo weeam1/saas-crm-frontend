@@ -338,7 +338,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 													Commission Status
 												</Text>
 												<Text fontSize='sm' fontWeight='medium'>
-													{commissionStatus}
+													{commissionStatus || 'N/A'}
 												</Text>
 											</Box>
 										</Flex>

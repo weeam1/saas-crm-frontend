@@ -78,7 +78,7 @@ export const dealSchema = Yup.object().shape({
 
 	spaDone: Yup.boolean().optional(),
 	invoiceSent: Yup.boolean().optional(),
-	commissionStatus: Yup.string().required('Comission status is required'),
+	// commissionStatus: Yup.string().required('Comission status is required'),
 	sharePercent: Yup.number()
 		.nullable()
 		.transform((value, originalValue) => {

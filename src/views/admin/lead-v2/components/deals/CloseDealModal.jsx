@@ -484,7 +484,7 @@ const CloseDealModal = React.memo(
 										name='commissionStatus'
 										register={register}
 										errors={errors}
-										isRequired
+										// isRequired={}
 										options={commissionStatuses}
 										placeholder='Select status'
 									/>
