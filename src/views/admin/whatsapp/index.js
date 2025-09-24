@@ -87,7 +87,7 @@ const Whatsapp = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const { registerUser, isConnected } = useSocketEvents();
+	const { registerWhatsappUser, isConnected } = useSocketEvents();
 
 	const {
 		isOpen: isWATemplateOpen,
@@ -143,9 +143,9 @@ const Whatsapp = () => {
 				userId: currentUser?.user?._id || '',
 			};
 
-			registerUser(registerPayload);
+			registerWhatsappUser(registerPayload);
 		}
-	}, [currentUser, registerUser, isConnected]);
+	}, [currentUser, registerWhatsappUser, isConnected]);
 
 	const dispatch = useDispatch();
 

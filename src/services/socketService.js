@@ -81,6 +81,10 @@ class SocketService {
 				);
 			});
 
+			this.socket.on('connection_status', (data) => {
+				console.log('Connection Status:', data);
+			});
+
 			this.socket.on('activity_log_created', (data) => {
 				console.log('Activity: ', data);
 			});
@@ -120,6 +124,21 @@ class SocketService {
 			if (!this.connectionPromise) {
 				console.warn(
 					'Socket not connected, registration will be attempted when connection is established'
+				);
+			}
+		}
+	}
+	/**
+	 * Register user with the server
+	 *  Registration payload
+	 */
+	registerWhatsappUser(payload) {
+		if (this.socket?.connected) {
+			this.socket.emit('whatsapp_register', payload);
+		} else {
+			if (!this.connectionPromise) {
+				console.warn(
+					'Socket not connected, whatsapp registration will be attempted when connection is established'
 				);
 			}
 		}
