@@ -98,11 +98,11 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 	let hideContact = false;
 
-	if (userRoleName === 'Manager') {
-		hideContact = true;
+	if (userRoleName === 'superAdmin') {
+		hideContact = false;
 	} else if (searchParams.get('invite') && userRoleName !== 'superAdmin') {
 		hideContact = user?._id !== data?.agentAssigned;
-	}
+	} else if (isInLeadPool) hideContact = true;
 
 	const responsiveCols = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });
 	const sectionColSpan = useBreakpointValue({ base: 1, sm: 1, md: 2, lg: 2 });

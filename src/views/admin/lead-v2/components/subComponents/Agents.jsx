@@ -70,6 +70,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 						id: lead?._id,
 						updates: [
 							{ key: 'agentAssigned', value: agentAssignedValue },
+							{ key: 'agentDetails', value: res?.data?.agentDetails || null },
 							{
 								key: 'agentAssignedDate',
 								value:

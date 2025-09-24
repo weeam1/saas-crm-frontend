@@ -9,6 +9,8 @@ import {
 	Text,
 	Badge,
 	HStack,
+	Button,
+	Icon,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 
@@ -19,6 +21,9 @@ import { formatCurrency } from './../../../../utils/helpers';
 import ViewDealInvoice from './_shared/ViewDealInvoice';
 import useUserSession from 'hooks/useUserSession';
 import MenuOptions from './_shared/MenuOptions';
+import { useEffect, useState } from 'react';
+import { FiEye } from 'react-icons/fi';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const DealTable = ({
 	data,
@@ -52,6 +57,16 @@ const DealTable = ({
 
 	const { user, isSuperAdmin } = useUserSession();
 
+	const [tableLoading, setTableLoading] = useState(true);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setTableLoading(false);
+		}, 1000); // 1s delay
+
+		return () => clearTimeout(timer);
+	}, []);
+
 	return (
 		<Box
 			maxHeight='80vh'
@@ -81,7 +96,7 @@ const DealTable = ({
 				</Thead>
 
 				<Tbody fontSize='sm'>
-					{isLoading || isRefetching ? (
+					{isLoading || isRefetching || tableLoading ? (
 						<TableLoading columns={columns} length={10} py='4' />
 					) : data?.length > 0 ? (
 						data.map((deal, i) => (
@@ -89,39 +104,62 @@ const DealTable = ({
 								{/* <Td minW='100px' textAlign='left'>
 									{deal.lead?.intID || 'N/A'}
 								</Td> */}
-								<Td minW='200px' textAlign='left'>
-									{deal.lead?.leadName || 'N/A'}
+								<Td
+									minW='160px'
+									textAlign='left'
+									display='flex'
+									alignItems='center'
+									gap='2'
+								>
+									<CustomTooltip label='view deal details' variant='light'>
+										<Icon
+											as={FiEye}
+											boxSize='10px'
+											onClick={() => handleView(deal)}
+											color='gray.600'
+											_hover={{ color: 'brand.400' }}
+											cursor='pointer'
+										/>
+									</CustomTooltip>
+
+									<Text fontSize='sm'>{deal.lead?.leadName || 'N/A'}</Text>
 								</Td>
-								<Td minW='200px' textAlign='center' color='brand.500'>
+								<Td
+									maxWidth='200px'
+									isTruncated
+									// minW='200px'
+									textAlign='center'
+									color='brand.500'
+								>
 									{deal.manager?.fullName
 										? deal.manager.fullName
 										: 'No Manager'}
 								</Td>
-								<Td minW='200px' textAlign='center' color='brand.500'>
+								<Td minWidth='150px' textAlign='center' color='brand.500'>
 									{deal.agent?.fullName ? deal.agent.fullName : 'No Agent'}
 								</Td>
-								<Td textAlign='center' minW='250px'>
+								<Td textAlign='center' minWidth='150px'>
 									{deal.projectName || 'N/A'}
 								</Td>
 								<Td textAlign='center'>{deal.unitNumber || 'N/A'}</Td>
-								<Td textAlign='center' minW='150px'>
+								<Td textAlign='center' minW='120px'>
 									{deal.unitType || 'N/A'}
 								</Td>
 								{/* <Td textAlign='center'>{deal.salesPerson || 'N/A'}</Td> */}
 
-								<Td textAlign='center' minW='200px'>
+								<Td textAlign='center' minW='150px'>
 									{formatCurrency(deal.bookingAmountPaid, deal.currency)}
 								</Td>
 
-								<Td textAlign='center' minW='250px'>
+								<Td textAlign='center' minW='200px'>
 									{deal?.closedBy?.fullName || 'N/A'}
 								</Td>
 
-								<Td minW='250px' textAlign='center'>
+								<Td minW='150px' textAlign='center'>
 									{format(new Date(deal?.dealDate), 'd MMM, yyyy h:mm a')}
 								</Td>
 
-								<Td textAlign='center' minW='60px'>
+								<Td textAlign='center' minW='50px'>
 									<Badge
 										colorScheme={
 											deal.dealStatus === 'Confirmed' ? 'green' : 'red'
@@ -136,7 +174,7 @@ const DealTable = ({
 								</Td>
 								<Td textAlign='center'>{deal.downpaymentPercent || 0}%</Td> */}
 
-								<Td textAlign='center' minW='100px'>
+								<Td textAlign='center' minW='50px'>
 									<Badge colorScheme={deal.spaDone ? 'green' : 'red'}>
 										{deal.spaDone ? 'Signed' : 'Pending'}
 									</Badge>
@@ -152,7 +190,7 @@ const DealTable = ({
 									</HStack>
 								</Td>
 
-								<Td textAlign='center' minW='100px'>
+								<Td textAlign='center' minW='50px'>
 									<StatusBadge status={deal.commissionStatus} />
 								</Td>
 

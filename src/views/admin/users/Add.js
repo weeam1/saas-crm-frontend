@@ -147,6 +147,10 @@ const AddUser = (props) => {
 				valuesObj['roles'] = [valuesObj.role?.toString()];
 			}
 
+			if(valuesObj['username']) {
+				valuesObj['username'] = values.username.trim().toLowerCase();
+			}
+			
 			const bodyData = {};
 
 			Object.keys(valuesObj).forEach((key) => {

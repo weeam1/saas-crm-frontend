@@ -137,7 +137,7 @@ export default function LeadsCharts() {
 							>
 								Lead Report
 							</Text>
-							{hasPermission('reports', 'link') && (
+							{hasPermission('reports', 'link') && hasPermission('leads') && (
 								<RefButton to='/lead' label='Lead Module' />
 							)}
 						</HStack>

@@ -9,7 +9,6 @@ import {
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
-import { max } from 'date-fns';
 
 const TopPagination = ({
 	currentPage,
@@ -102,21 +101,12 @@ const TopPagination = ({
 
 		// Special case: if total > 1000, ensure 200 is present
 		if (totalItems > 1000) {
-			console.log('added 200');
 			steps.push(200);
 		}
 
 		// Deduplicate, filter and sort
 		return [...new Set(steps)].filter((n) => n > 0).sort((a, b) => a - b);
 	};
-
-	console.log(
-		'page size options',
-		generatePageSizeOptions(totalItems, itemsPerPage)
-	);
-
-	console.log('itemsPerPage', itemsPerPage);
-	console.log('totalItems', totalItems);
 
 	const onPageSizeChange = useCallback(
 		(e) => {
@@ -180,8 +170,10 @@ const TopPagination = ({
 					color='black'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
-					py={sizeMedium ? '2' : 0}
-					px={sizeMedium ? '5' : 0}
+					// py={sizeMedium ? '2' : 0}
+					// px={sizeMedium ? '5' : 0}
+					py='2'
+					px='5'
 				>
 					Previous
 				</Button>
@@ -296,8 +288,10 @@ const TopPagination = ({
 					color='black'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
-					py={sizeMedium ? '2' : 0}
-					px={sizeMedium ? '5' : 0}
+					// py={sizeMedium ? '2' : 0}
+					// px={sizeMedium ? '5' : 0}
+					py='2'
+					px='5'
 				>
 					Next
 				</Button>

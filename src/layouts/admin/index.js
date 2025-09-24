@@ -25,6 +25,8 @@ import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
 import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
+import AppLoader from 'components/loading/AppLoader';
+import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -59,42 +61,40 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const whatsappActive = whatsappUser?.doc?.isActive;
 	const dispatch = useDispatch();
 
-	if (userRoleName === 'Attendance') {
-		// Define the "Candidates" route
-		const filterRoutes = routes.filter(
-			(route) => route.moduleId !== 'attendance'
-		);
+	// if (userRoleName === 'Attendance') {
+	// 	// Define the "Candidates" route
+	// 	const filterRoutes = routes.filter(
+	// 		(route) => route.moduleId !== 'attendance'
+	// 	);
 
-		const filterSidebarRoutes = sidebarRoutes.filter(
-			(route) => route.moduleId !== 'attendance'
-		);
+	// 	const filterSidebarRoutes = sidebarRoutes.filter(
+	// 		(route) => route.moduleId !== 'attendance'
+	// 	);
 
-		console.log({ dashobard: hasPermission('attendance', 'dashboard') });
+	// 	if (hasPermission('attendance', 'dashboard')) {
+	// 		appSidebarRoutes = [
+	// 			...filterSidebarRoutes,
+	// 			{
+	// 				moduleId: 'attendance',
+	// 				name: 'Attendance',
+	// 				path: '/attendance/dashboard',
+	// 				icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+	// 			},
+	// 		];
 
-		if (hasPermission('attendance', 'dashboard')) {
-			appSidebarRoutes = [
-				...filterSidebarRoutes,
-				{
-					moduleId: 'attendance',
-					name: 'Attendance',
-					path: '/attendance/dashboard',
-					icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
-				},
-			];
+	// 		const attendanceRoutes = [
+	// 			{
+	// 				moduleId: 'attendance',
+	// 				name: 'Attendance',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: '/attendance/dashboard',
+	// 				component: AttendanceDashboard,
+	// 			},
+	// 		];
 
-			const attendanceRoutes = [
-				{
-					moduleId: 'attendance',
-					name: 'Attendance',
-					layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-					path: '/attendance/dashboard',
-					component: AttendanceDashboard,
-				},
-			];
-
-			appRoutes = [...filterRoutes, ...attendanceRoutes];
-		}
-	}
+	// 		appRoutes = [...filterRoutes, ...attendanceRoutes];
+	// 	}
+	// }
 
 	if (userRoleName !== 'superAdmin') {
 		// Always start clean: remove any old whatsapp routes
@@ -104,38 +104,24 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		);
 	}
 
-	// Super admin only show whatsapp users
-	if (userRoleName === 'superAdmin') {
-		// -------- Whatsapp --------
-		// appRoutes.push({
-		// 	moduleId: 'whatsapp',
-		// 	name: 'Whatsapp',
-		// 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		// 	path: '/whatsapp/chats',
-		// });
-		// -------- WhatsApp --------
-		// sidebarRoutes.push(
-		// );
-	}
 	// if user has whatsapp and also enable then show it
-	else if (whatsappActive) {
+	if (whatsappActive) {
 		// Always start clean: remove any old whatsapp routes
-		appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
-		appSidebarRoutes = appSidebarRoutes.filter(
-			(r) => r.moduleId !== 'whatsapp'
-		);
+		// appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+		// appSidebarRoutes = appSidebarRoutes.filter(
+		// 	(r) => r.moduleId !== 'whatsapp'
+		// );
 		appSidebarRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
-			path: '/whatsapp/chat',
+			path: '/whatsapp/chats',
 			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
 		});
-
 		appRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chat',
+			path: '/whatsapp/chats',
 			component: UserWhatsapp,
 		});
 	}
@@ -180,7 +166,23 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	}, []);
 
 	const getRoutes = (routes) => {
-		return routes.map((prop, key) => {
+		// filter routes
+		const finalRoutes = routes?.filter((route) => {
+			// if route has parent/child, check both
+			if (route.parent && route.childId) {
+				return hasPermission(route.parent, route.childId);
+			}
+
+			// if only moduleId (parent module level)
+			if (route.moduleId) {
+				return hasPermission(route.moduleId);
+			}
+
+			// routes without permission binding always allowed
+			return true;
+		});
+
+		return finalRoutes.map((prop, key) => {
 			// if (!prop.under && prop.layout === '/superAdmin') {
 			if (!prop.under && prop.layout?.includes(ROLE_PATH.superAdmin)) {
 				return (
@@ -260,9 +262,10 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 					>
 						<Suspense
 							fallback={
-								<Flex align='center' justify='center' h='100vh'>
-									<Loader />
-								</Flex>
+								null
+								// <Flex align='center' justify='center' h='100vh' w='full'>
+								// 	<AppLoader />
+								// </Flex>
 							}
 						>
 							<Routes>

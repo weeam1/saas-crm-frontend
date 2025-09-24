@@ -23,10 +23,18 @@ const SearchBox = ({
 	return (
 		<Box
 			// alignSelf='end'
-			width={{ base: '100%', lg: 'fit-content' }}
+			width={{ base: '100%', xl: 'fit-content' }}
 			bg='softGray.50'
 			p='1'
 			borderRadius='md'
+			// sx={{
+			// 	width: {
+			// 		base: '100%',
+			// 	},
+			// 	'@media (min-width: 1795px)': {
+			// 		wdith: 'fit-content',
+			// 	},
+			// }}
 		>
 			<HStack
 				spacing={3}
@@ -41,7 +49,15 @@ const SearchBox = ({
 					border='1px solid'
 					borderColor='softGray.600'
 					borderRadius='md'
-					width={{ base: '100%', md: '18rem' }}
+					width={{ base: '100%', xl: '18rem' }}
+					// sx={{
+					// 	width: {
+					// 		base: '100%',
+					// 	},
+					// 	'@media (min-width: 1695px)': {
+					// 		wdith: '18rem',
+					// 	},
+					// }}
 					overflow='hidden'
 				>
 					<Input

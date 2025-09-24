@@ -175,7 +175,15 @@ const SharedDealsScreen = () => {
 			searchFilters.closedBy = cleaned.closedBy._id;
 		}
 
-		setSearchTags(tags);
+		setSearchTags((prev) => {
+			const startTag = prev.find((t) => t.startsWith('Start:'));
+			const endTag = prev.find((t) => t.startsWith('End:'));
+
+			const preserved = [startTag, endTag].filter(Boolean);
+
+			// Add preserved first, then add all new tags
+			return [...preserved, ...tags];
+		});
 		setSearchClear(true);
 		setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
 	};
@@ -185,14 +193,22 @@ const SharedDealsScreen = () => {
 		const { from, to } = dateFilter;
 
 		// refresh the params
-		setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT, from, to });
+		// setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT, from, to });
+		setQueryParams((prev) => ({ ...prev, page: 1, from, to }));
 
 		const searchValues = [
 			`Start: ${format(new Date(from), 'd MMM, yyyy')}`,
 			`End: ${format(new Date(to), 'd MMM, yyyy')}`,
 		];
 
-		setSearchTags(searchValues);
+		// setSearchTags((prev) => ({ ...prev, ...searchValues }));
+		setSearchTags((prev) => {
+			const filteredTags = prev.filter(
+				(t) => !t.startsWith('Start:') && !t.startsWith('End:')
+			);
+
+			return [...filteredTags, ...searchValues];
+		});
 		setSearchClear(true);
 	};
 
@@ -201,7 +217,11 @@ const SharedDealsScreen = () => {
 	};
 
 	const handlePageSize = (limit) => {
-		setQueryParams({ page: 1, limit: Number(limit) });
+		setQueryParams((prev) => ({
+			...prev,
+			page: 1,
+			limit: Number(limit),
+		}));
 	};
 
 	const handleClear = () => {

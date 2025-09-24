@@ -155,8 +155,6 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 		}
 	};
 
-	console.log({ owner: data, id: user?._id });
-
 	return (
 		<>
 			<Box

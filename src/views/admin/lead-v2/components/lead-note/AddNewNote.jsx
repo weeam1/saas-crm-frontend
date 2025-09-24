@@ -37,25 +37,30 @@ const AddNewNote = ({
 		if (noteValue.trim()) {
 			try {
 				setIsLoding(true);
-				await postApi('api/leadnote', {
+				const res = await postApi('api/leadnote', {
 					leadID: paramId,
 					note: noteValue,
 				});
+
 				toast.success('Note added successfuly');
 				setNoteAdded((noteAdded) => (noteAdded === 0 ? 1 : 0));
 				setNoteValue('');
 
-				const updates = [
-					{
-						id: paramId,
-						lastNote: noteValue,
-						latestNote: {
-							createdAt: new Date().toISOString(),
+				if (res?.data?.doc) {
+					const updates = [
+						{
+							id: paramId,
+							lastNote: noteValue,
+							latestNote: {
+								createdAt: new Date().toISOString(),
+								addedBy: res?.data?.doc?.addedBy,
+							},
 						},
-					},
-				];
+					];
 
-				dispatch(updateMultipleLeadFields({ updates }));
+					dispatch(updateMultipleLeadFields({ updates }));
+				}
+
 				onClose();
 
 				createUserLog({

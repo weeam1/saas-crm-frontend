@@ -72,8 +72,6 @@ const Add = (props) => {
 		(props?.leadData?.fields || []).map((field) => [field?.name, ''])
 	);
 
-	console.log({ leadData: props.leadData });
-
 	const initialValues = {
 		...initialFieldValues,
 		createBy: JSON.parse(localStorage.getItem('user'))._id,

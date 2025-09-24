@@ -253,8 +253,6 @@ const OfficeSettings = ({ userId }) => {
 				const prevParams = Object.fromEntries(prev.entries());
 				const updatedParams = { ...prevParams, ...newFilters };
 
-				console.log({ prevParams, updatedParams });
-
 				// Prevent updating if nothing has changed
 				if (JSON.stringify(prevParams) === JSON.stringify(updatedParams)) {
 					return prevParams; // No change, avoid state update

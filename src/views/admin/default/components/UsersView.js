@@ -1,12 +1,6 @@
-import {
-	Button,
-	CircularProgress,
-	Heading,
-	SimpleGrid,
-} from '@chakra-ui/react';
+import { Button, CircularProgress, Heading } from '@chakra-ui/react';
 import Card from 'components/card/Card';
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { postApi } from 'services/api';
 import Chart from 'components/charts/LineChart.js';
 import UserViewProperties from './UserViewProperties';

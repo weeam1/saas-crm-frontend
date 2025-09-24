@@ -17,6 +17,7 @@ import leadsReducer from './leadsSlice';
 import whatsappReducer from './whatsappSlice';
 import sipReducer from './sipSlice';
 import permissionReducer from './permissionSlice';
+import onlineUsersReducer from './onlineUsersSlice';
 
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
@@ -27,6 +28,7 @@ enableMapSet();
 
 const store = configureStore({
 	reducer: {
+		onlineUsers: onlineUsersReducer,
 		leads: leadsReducer,
 		roles: roleReducer,
 		filters: filtersReducer,

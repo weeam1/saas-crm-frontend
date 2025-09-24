@@ -76,8 +76,6 @@ const LeadsLayout = memo(
 			setRefetchLoading,
 		} = useFilteredQueryParams();
 
-		console.log({ queryParams });
-
 		// const leads = useSelector(
 		// 	(state) => state.leads,
 		// 	(prev, next) => prev === next
@@ -348,7 +346,6 @@ const LeadsLayout = memo(
 		};
 
 		const handlePageSize = (newPageSize) => {
-			console.log({ newPageSize });
 			if (newPageSize !== pageSize) {
 				setPageSize(newPageSize);
 				setCurrentPage(1);
@@ -428,7 +425,15 @@ const LeadsLayout = memo(
 					justifyContent='space-between'
 					alignItems='center'
 					gap='2'
-					flexDirection={{ base: 'column', lg: 'row' }}
+					sx={{
+						flexDirection: {
+							base: 'column',
+						},
+						'@media (min-width: 1695px)': {
+							flexDirection: 'row',
+						},
+					}}
+					// flexDirection={{ base: 'column', xl: 'row' }}
 				>
 					{/* Pagination */}
 					{/* <Pagination

@@ -55,6 +55,16 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 						updates: [
 							{ key: 'managerAssigned', value: managerAssignedValue },
 							{
+								key: 'managerDetails',
+								value: res?.data?.managerDetails || null,
+							},
+
+							// if manager is unassigned then null agent also
+							...(managerAssignedValue === ''
+								? [{ key: 'agentDetails', value: null }]
+								: []),
+
+							{
 								key: 'managerAssignedDate',
 								value:
 									managerAssignedValue !== '' ? new Date().toISOString() : null,

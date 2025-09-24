@@ -51,7 +51,7 @@ const MainStatus = ({ lead, role }) => {
 
 			const { skipDealModal = false } = options;
 
-			if (userRoleName !== 'superAdmin' && AdminStatus.includes(newStatus)) {
+			if (userRoleName !== 'superAdmin' && AdminStatus.includes(selected)) {
 				return toast.error('Only super admin can change main status');
 			}
 

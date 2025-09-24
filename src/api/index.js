@@ -147,7 +147,6 @@ export const sendLeadFeedback = async ({
 			],
 		};
 
-		console.log(eventData, status, email, phone);
 		await axios.post(url, eventData);
 		// console.log(`Lead feedback sent: ${event_name}`, data, eventData);
 	} catch (error) {

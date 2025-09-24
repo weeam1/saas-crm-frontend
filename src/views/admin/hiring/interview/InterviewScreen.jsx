@@ -149,12 +149,6 @@ const InterviewScreen = memo(() => {
 		[updateItemMutation, navigate]
 	);
 
-	// console.log({
-	// 	isLeadInterviewer,
-	// 	isInterviewerSubmittedPoints,
-	// 	interviewersSelected,
-	// });
-
 	// Render content
 	return isRefetching || interviewLoading || cancellingInterview ? (
 		<Loader />

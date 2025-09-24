@@ -1,21 +1,21 @@
 import { useColorModeValue, Box, useColorMode } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { getApi } from 'services/api';
+import { useState } from 'react';
 import { HasAccess } from '../../../redux/accessUtils';
 
-import Header from './components/Header';
 import DashboardStatCards from './components/DashboardStatCards';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
 import ReportChart from './components/ReportChart';
 import TodaySummary from './components/TodaySummary';
 import LeadStatusPieChart from './components/lead-status/LeadStatusPieChart';
 import SalesDashboard from './components/sales/SalesDashboard';
 import useUserSession from 'hooks/useUserSession';
-import { hasPermission } from 'utils';
+import CardShimmer from 'components/loading/CardShimmer';
+import OnlineUsersCard from './components/OnlineUsersCard';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default function AppDashboard() {
 	const { colorMode } = useColorMode();
+	const { hasPermission } = usePermissions();
 	// Chakra Color Mode
 	const viewsState = HasAccess([
 		'Contacts',
@@ -59,15 +59,23 @@ export default function AppDashboard() {
 			}
 		);
 
-	const salesQueryParmas =
-		['Agent', 'Manager'].includes(userRoleName) && user?._id
-			? { userId: user._id }
-			: {};
+	// const salesQueryParmas =
+	// 	['Agent', 'Manager'].includes(userRoleName) && user?._id
+	// 		? { userId: user._id }
+	// 		: {};
+
+	// const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	// const [year, setYear] = useState(() => new Date().getFullYear());
+
+	// const [salesQueryParmas, setSalesQueryParams] = useState({
+	// 	month,
+	// 	year,
+	// });
 
 	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
 		{
 			path: '/deals/monthly',
-			params: salesQueryParmas,
+			// params: salesQueryParmas,
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -78,10 +86,19 @@ export default function AppDashboard() {
 		todaySummaryLoading ||
 		leadStatusLoading ||
 		salesLoading ? (
-		<Loader />
+		<Box py='2'>
+			<CardShimmer
+				count={12}
+				height='200px'
+				columns={{ base: 1, sm: 1, md: 2, lg: 3, xl: 4, '2xl': 4 }}
+				gap='4'
+			/>
+		</Box>
 	) : (
 		<Box>
 			{/* <Header /> */}
+
+			{hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />}
 
 			<SalesDashboard data={sales} />
 

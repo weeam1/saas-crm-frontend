@@ -12,6 +12,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import { useNavigate } from 'react-router-dom';
 import sidebarRoutes from 'sidebarRoutes';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
+import useUserSession from 'hooks/useUserSession';
 
 // descriptions for each module
 const moduleDescriptions = {
@@ -49,12 +50,22 @@ const gradients = [
 const PermissionSection = () => {
 	const navigate = useNavigate();
 	const { hasPermission } = usePermissions();
+	const { user } = useUserSession();
 
 	// filter by permissions
 	const visibleRoutes = useMemo(() => {
 		return sidebarRoutes?.filter((route) => {
 			if (route.name === 'Dashboard') return false;
 			if (!route.moduleId) return true;
+
+			if (route.moduleId === 'whatsapp') {
+				if (
+					user?.whatsappDetails?.isActive &&
+					user?.whatsappDetails?.phoneNumber
+				)
+					return true;
+				else return false;
+			}
 			return hasPermission(route.moduleId);
 		});
 	}, [hasPermission]);
