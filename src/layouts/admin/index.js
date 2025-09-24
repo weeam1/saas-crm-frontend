@@ -26,6 +26,7 @@ import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 import AppLoader from 'components/loading/AppLoader';
+import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -165,7 +166,23 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	}, []);
 
 	const getRoutes = (routes) => {
-		return routes.map((prop, key) => {
+		// filter routes
+		const finalRoutes = routes?.filter((route) => {
+			// if route has parent/child, check both
+			if (route.parent && route.childId) {
+				return hasPermission(route.parent, route.childId);
+			}
+
+			// if only moduleId (parent module level)
+			if (route.moduleId) {
+				return hasPermission(route.moduleId);
+			}
+
+			// routes without permission binding always allowed
+			return true;
+		});
+
+		return finalRoutes.map((prop, key) => {
 			// if (!prop.under && prop.layout === '/superAdmin') {
 			if (!prop.under && prop.layout?.includes(ROLE_PATH.superAdmin)) {
 				return (

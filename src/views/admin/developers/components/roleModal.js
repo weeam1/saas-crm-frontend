@@ -76,7 +76,6 @@ const RoleModal = (props) => {
     };
 
     const uniqueValues = [...new Set(selectedValues)];
-    console.log("Unique::", uniqueValues); 
 
     const handleSubmit = async () => {
         try {

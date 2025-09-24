@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
 import { updateAllUsers } from '../redux/usersSlice';
+import { setOnlineUsers } from '../redux/onlineUsersSlice';
 
 class SocketService {
 	constructor() {
@@ -60,25 +61,26 @@ class SocketService {
 			});
 
 			this.socket.on('newContact', (contact) => {
-				console.log(' New contact:', contact);
-
 				if (contact) {
 					store.dispatch(addContact(contact));
 				}
 			});
 
 			this.socket.on('user_online', (data) => {
-				// console.log('User online:', data);
+				console.log('User online:', data);
 				store.dispatch(
 					updateAllUsers({ id: data.userId, updates: { isOnline: true } })
 				);
+				store.dispatch(setOnlineUsers(data));
 			});
 
 			this.socket.on('user_offline', (data) => {
-				// console.log('User offline:', data);
+				console.log('User offline:', data);
 				store.dispatch(
 					updateAllUsers({ id: data.userId, updates: { isOnline: false } })
 				);
+
+				store.dispatch(setOnlineUsers(data));
 			});
 
 			this.socket.on('activity_log_created', (data) => {

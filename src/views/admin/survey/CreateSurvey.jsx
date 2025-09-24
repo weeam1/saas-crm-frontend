@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import {
@@ -27,6 +27,7 @@ import Breadcrumb from "../../../components/shared/BreadCrumb";
 import { toast } from "react-toastify";
 import { getApi } from "services/api";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const inputStyles = {
   fontSize: "sm",
@@ -40,6 +41,7 @@ const inputStyles = {
 
 const CreateSurvey = () => {
   const navigate = useNavigate();
+  const { hasPermission } = usePermissions();
   const [createItemMutation] = useCreateItemMutation();
   const user = JSON.parse(localStorage.getItem("user"));
   const {
@@ -47,6 +49,11 @@ const CreateSurvey = () => {
     managers = [],
     agents = [],
   } = useFetchUserHierarchy(user);
+
+  useEffect(() => {
+    if (!hasPermission("survey", "create")) return navigate("/default");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Add openCalendar state and toggleCalendar function
   const [openCalendar, setOpenCalendar] = useState(null);
@@ -104,6 +111,17 @@ const CreateSurvey = () => {
           invitedUsers,
         };
 
+        const addQuestion = () => {
+          formik.setFieldValue("questions", [
+            ...formik.values.questions,
+            {
+              text: "",
+              type: "text",
+              options: [],
+            },
+          ]);
+        };
+
         const response = await createItemMutation({
           path: "/surveys",
           body: payload,
@@ -139,7 +157,6 @@ const CreateSurvey = () => {
     },
   });
 
-  console.log("allUsers",allUsers)
   const addQuestion = () => {
     formik.setFieldValue("questions", [
       ...formik.values.questions,

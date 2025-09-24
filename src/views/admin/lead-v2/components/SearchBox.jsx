@@ -65,7 +65,7 @@ const SearchBox = ({
 						placeholder='search..'
 						border='none'
 						fontSize='xs'
-						height='2.2rem'
+						height='2.5rem'
 						onChange={handleInputChange}
 						onKeyDown={(e) => e.key === 'Enter' && handleSearchByName()}
 						_focus={{ boxShadow: 'none' }}

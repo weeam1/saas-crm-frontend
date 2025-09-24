@@ -187,8 +187,6 @@ const WhatsappSettings = () => {
 		setPagination({ page: 1, limit: Number(limit) });
 	};
 
-	console.log({ users, data });
-
 	const navigate = useNavigate();
 
 	const location = useLocation();

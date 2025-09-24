@@ -29,8 +29,6 @@ export const resolveMessageType = (file) => {
 };
 
 export const generateRoomId = (val1, val2) => {
-	console.log({ val1, val2 });
-
 	const [a, b] = [
 		val1?.toString()?.toLowerCase(),
 		val2?.toString()?.toLowerCase(),

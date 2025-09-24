@@ -41,8 +41,6 @@ const UsersTable = ({
 		'Action',
 	];
 
-	console.log({ data });
-
 	const navigate = useNavigate();
 
 	return (

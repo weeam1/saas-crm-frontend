@@ -82,7 +82,6 @@ const LeadCard = ({
 	};
 
 	const handleBuyClick = () => {
-		console.log('Buy clicked for lead:', _id);
 		if (leadStatusValue?.toLowerCase() !== 'rejected') {
 			sendRequest(_id);
 		}
@@ -459,7 +458,6 @@ const LeadCard = ({
 				<LeadsModal
 					leadsModal={leadsModal}
 					onClose={() => {
-						console.log('Closing LeadsModal');
 						setLeadsModal({ isOpen: false, lid: null });
 					}}
 					reFreshData={refreshData}

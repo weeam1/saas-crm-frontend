@@ -80,9 +80,9 @@ function App() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	useEffect(() => {
-		if (isConnected) {
+		if (isConnected && user?._id) {
 			const registerPayload = {
-				userId: user?._id || '',
+				userId: user?._id,
 			};
 
 			registerUser(registerPayload);

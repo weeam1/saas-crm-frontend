@@ -186,7 +186,7 @@ const BulkMessage = React.lazy(
 const routes = [
 	// ========================== Dashboard ==========================
 	{
-		moduleId: 'dashboard',
+		// moduleId: 'dashboard',
 		name: 'Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/default',
@@ -592,49 +592,59 @@ const routes = [
 	// 	icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
 	// 	component: Whatsapp,
 	// },
+
+	// **** Whatsapp **** //
 	{
-		moduleId: 'whatsapp',
+		childId: 'whatsapp_chats',
 		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/chats',
+		parent: 'whatsapp',
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
 		component: AdminWhatsapp,
 	},
 	{
-		moduleId: 'whatsapp',
+		childId: 'whatsapp_chats',
 		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/chats/:id',
-		under: 'whatsapp',
 		parent: 'whatsapp',
 		component: UserWhatsapp,
 	},
 	{
-		moduleId: 'whatsapp',
-		name: 'Whatsapp Templates',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/settings/message_templates/:businessId',
-		under: 'whatsapp_manager',
-		parent: 'whatsapp_manager',
-		component: WhatsappTemplates,
-	},
-	{
-		moduleId: 'whatsapp',
-		name: 'Whatsapp Templates',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/settings/message_templates/:businessId/create_template',
-		under: 'whatsapp_manager',
-		parent: 'whatsapp_manager',
-		component: CreateWhatsappTemplate,
-	},
-	{
-		moduleId: 'whatsapp_bulk_messages',
+		childId: 'whatsapp_bulk_messages',
 		name: 'Bulk Messages',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/bulk-messages',
-		under: 'whatsapp_manager',
-		parent: 'whatsapp_manager',
+		parent: 'whatsapp',
 		component: BulkMessage,
+	},
+
+	{
+		childId: 'whatsapp_settings',
+		name: 'Whatsapp Setttings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/settings',
+		parent: 'whatsapp',
+		component: WhatsappSettings,
+	},
+
+	{
+		childId: 'whatsapp_settings',
+		name: 'Whatsapp Templates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/settings/message_templates/:businessId',
+		parent: 'whatsapp',
+		component: WhatsappTemplates,
+	},
+
+	{
+		childId: 'whatsapp_settings',
+		name: 'Whatsapp Templates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/settings/message_templates/:businessId/create_template',
+		parent: 'whatsapp',
+		component: CreateWhatsappTemplate,
 	},
 
 	// ------------- Roles Routes ------------------------
@@ -782,16 +792,8 @@ const routes = [
 	},
 
 	{
-		// moduleId: 'admin_settings',
-		name: 'Whatsapp Manager',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/settings',
-		under: '/whatsapp/settings',
-		component: WhatsappSettings,
-	},
-	{
-		// moduleId: 'admin_settings',
-		name: 'Whatsapp Manager',
+		moduleId: 'admin_settings',
+		name: 'Whatsapp Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/admin-setting/whatsapp/settings',
 		under: '/admin-setting',
