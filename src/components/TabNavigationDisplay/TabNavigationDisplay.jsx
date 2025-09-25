@@ -47,7 +47,7 @@ const TabNavigationDisplay = ({ tabsData, activeTab, onTabChange }) => {
             display: 'none', 
           },
           '-ms-overflow-style': 'none',  
-          'scrollbar-width': 'none',  
+          scrollbarWidth: 'none',  
         }}
       >
         <Box display="flex" minWidth="max-content">
