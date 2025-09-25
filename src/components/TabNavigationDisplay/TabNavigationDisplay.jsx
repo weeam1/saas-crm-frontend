@@ -46,7 +46,7 @@ const TabNavigationDisplay = ({ tabsData, activeTab, onTabChange }) => {
           '&::-webkit-scrollbar': {
             display: 'none', 
           },
-          '-ms-overflow-style': 'none',  
+          msOverflowStyle: 'none',
           scrollbarWidth: 'none',  
         }}
       >
