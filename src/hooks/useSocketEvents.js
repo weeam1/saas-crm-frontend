@@ -29,7 +29,7 @@ export function useSocketEvents() {
 		return () => {
 			socketService.disconnect();
 		};
-	}, [connect]);
+	}, []);
 
 	// Register user payload
 	const registerUser = useCallback((payload) => {

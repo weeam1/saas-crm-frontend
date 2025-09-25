@@ -59,7 +59,7 @@ import { toast } from 'react-toastify';
 import EmojiPicker from 'emoji-picker-react';
 import Recorder from 'opus-recorder';
 
-import { useSocketEvents } from 'hooks/useSocketEvents';
+// import { useSocketEvents } from 'hooks/useSocketEvents';
 import { formatTime, whatsappColors } from 'utils/helpers.js';
 import { resolveMessageType } from './components/helpers';
 import { appendMessage, setCurrentAudio } from '../../../redux/whatsappSlice';
@@ -73,6 +73,8 @@ import useIsMobile from './components/useIsMobile';
 import MenuOptions from './components/MenuOptions';
 import { useNavigate } from 'react-router-dom';
 import { usePermissions } from 'hooks/usePermissions';
+import socketService from 'services/socketService';
+// import { useSocketEvents } from 'hooks/useSocketEvents';
 
 const Whatsapp = () => {
 	const currentUser = useSelector((state) => state.whatsapp.currentUser || {});
@@ -87,7 +89,7 @@ const Whatsapp = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const { registerWhatsappUser, isConnected } = useSocketEvents();
+	// const { isConnected } = useSocketEvents();
 
 	const {
 		isOpen: isWATemplateOpen,
@@ -136,16 +138,18 @@ const Whatsapp = () => {
 	}, [contacts, searchQuery]);
 
 	useEffect(() => {
-		if (currentUser?.phoneNumber && isConnected) {
+		if (currentUser?.phoneNumber) {
 			setBusinessPhone(currentUser?.phoneNumber);
 			const registerPayload = {
 				phoneNumber: currentUser?.phoneNumber,
 				userId: currentUser?.user?._id || '',
 			};
 
-			registerWhatsappUser(registerPayload);
+			socketService.registerUser(registerPayload);
 		}
-	}, [currentUser, registerWhatsappUser, isConnected]);
+
+		return socketService.disconnect();
+	}, [currentUser]);
 
 	const dispatch = useDispatch();
 
