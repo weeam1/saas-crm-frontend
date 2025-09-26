@@ -24,7 +24,7 @@ import { toast } from 'react-toastify';
 
 import { CopyIcon } from '@chakra-ui/icons';
 
-const LeadIdDisplay = ({ leadId }) => {
+const LeadIdDisplay = ({ leadId, type = 'single' }) => {
 	const handleCopy = () => {
 		navigator.clipboard.writeText(leadId);
 		toast.success(`Lead ID ${leadId} copied to clipboard.`);
@@ -33,10 +33,12 @@ const LeadIdDisplay = ({ leadId }) => {
 	if (!leadId) return null;
 
 	return (
-		<Box mt={3}>
-			<Text fontSize='sm' color='gray.500'>
-				Lead ID
-			</Text>
+		<Box>
+			{type === 'single' && (
+				<Text fontSize='sm' color='gray.500'>
+					Lead ID
+				</Text>
+			)}
 			<HStack
 				p={2}
 				bg='gray.50'
@@ -76,8 +78,11 @@ const LogDetailsDrawer = ({
 	const isLeadId =
 		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadId;
 
+	const isBulkLeads =
+		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadIds;
+
 	return (
-		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size='md'>
+		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size='lg'>
 			<DrawerOverlay />
 			<DrawerContent>
 				<DrawerHeader bg={headerBg} color='white' py={3}>
@@ -182,9 +187,33 @@ const LogDetailsDrawer = ({
 							>
 								{selectedLog.message}
 							</Text>
-							{isLeadId && (
+							{isLeadId ? (
 								<LeadIdDisplay leadId={selectedLog?.rawPayload?.leadId} />
-							)}
+							) : isBulkLeads ? (
+								<Box py='2'>
+									<Text fontSize='sm' mb='2' color='gray.500'>
+										Leads ({selectedLog?.rawPayload?.leadIds?.length || 0})
+									</Text>
+									<Flex
+										maxH='20vh'
+										overflowY='scroll'
+										scrollBehavior='smooth'
+										gap='2'
+										flexWrap='wrap'
+										justifyContent='flex-start'
+										alignItems='center'
+										bg='softGray.100'
+										py='2'
+										px='4'
+										m='2'
+										rounded='md'
+									>
+										{selectedLog?.rawPayload?.leadIds?.map((leadId) => (
+											<LeadIdDisplay leadId={leadId} type='bulk' />
+										))}
+									</Flex>
+								</Box>
+							) : null}
 						</Box>
 
 						<Divider borderColor={borderColor} />

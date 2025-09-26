@@ -84,6 +84,8 @@ const BulkAssignModal = (props) => {
 	const { createUserLog } = useUserActivityLog();
 	const tree = useSelector((state) => state.user.activeTree);
 
+	console.log(tree);
+
 	const closeHandler = () => {
 		setBulkAssign(false);
 	};
@@ -105,6 +107,16 @@ const BulkAssignModal = (props) => {
 
 			setIsLoading(true);
 
+			let managerDetails = null;
+			let agentDetails = null;
+
+			if (values?.managerAssigned) {
+				managerDetails = tree?.managers?.find(
+					(user) =>
+						user?._id?.toString() === values?.managerAssigned?.toString()
+				);
+			}
+
 			if (values?.agentAssigned) {
 				const stats = await fetchAgentLeadsSats(
 					values.agentAssigned,
@@ -118,6 +130,12 @@ const BulkAssignModal = (props) => {
 					setErrorModal(true);
 					return;
 				}
+
+				const managerAgents =
+					tree?.agents[`manager-${values?.managerAssigned}`] || [];
+				agentDetails = managerAgents?.find(
+					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
+				);
 			}
 
 			let res = await putApi(`api/lead/bulk-assign`, payload);
@@ -140,6 +158,20 @@ const BulkAssignModal = (props) => {
 				setSelectedLeads([]);
 				setSelectAllChecked(false);
 
+				let message;
+
+				if (managerDetails?.fullName && agentDetails?.fullName) {
+					message = `Bulk leads assigned by ${user?.fullName} to Manager ${managerDetails.fullName} and Agent ${agentDetails.fullName}.`;
+				} else if (managerDetails?.fullName) {
+					message = `Bulk leads assigned by ${user?.fullName} to Manager ${managerDetails.fullName}.`;
+				} else if (agentDetails?.fullName) {
+					message = `Bulk leads assigned by ${user?.fullName} to Agent ${agentDetails.fullName}.`;
+				} else {
+					message = `Bulk leads assigned by ${user?.fullName}, but remain unassigned to any manager or agent.`;
+				}
+
+				const leadIds = selectedLeads.map((lead) => lead.intID);
+
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
@@ -147,7 +179,10 @@ const BulkAssignModal = (props) => {
 					entity: 'Lead',
 					enityType: 'Lead',
 					status: 'success',
-					message: `Bulk Leads assigned by ${user?.fullName} successfully.`,
+					rawPayload: {
+						leadIds,
+					},
+					message,
 				});
 			} else if (res.status === 400) {
 				// const errorDetails =

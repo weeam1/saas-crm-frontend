@@ -37,6 +37,12 @@ export function useSocketEvents() {
 		socketService.registerUser(payload);
 	}, []);
 
+	// Register whatsapp user payload
+	const registerWhatsappUser = useCallback((payload) => {
+		console.log('Registering user with payload:', payload);
+		socketService.registerWhatsappUser(payload);
+	}, []);
+
 	// Create User activity log payload
 	const createUserActivityLog = useCallback((payload) => {
 		console.log('Registerin user activity log with payload:', payload);
@@ -48,5 +54,11 @@ export function useSocketEvents() {
 		return socketService.emit(event, data);
 	}, []);
 
-	return { registerUser, createUserActivityLog, isConnected, emit };
+	return {
+		registerUser,
+		registerWhatsappUser,
+		createUserActivityLog,
+		isConnected,
+		emit,
+	};
 }

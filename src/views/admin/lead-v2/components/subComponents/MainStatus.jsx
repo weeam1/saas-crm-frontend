@@ -111,7 +111,7 @@ const MainStatus = ({ lead, role }) => {
 					status: 'success',
 					message: `${user?.fullName} update the lead main status from '${selected || 'No Status'} to '${newStatus}'.`,
 				});
-			} else if (response.status === 400) {
+			} else if (response.status !== 200) {
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);

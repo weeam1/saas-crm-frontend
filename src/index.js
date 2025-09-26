@@ -37,8 +37,10 @@ import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
-import { useSocketEvents } from 'hooks/useSocketEvents';
+// import { useSocketEvents } from 'hooks/useSocketEvents';
+import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
+import { useSocketEvents } from 'hooks/useSocketEvents';
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -60,7 +62,8 @@ function App() {
 	const { user } = useUserSession();
 	useNavigate();
 
-	const { registerUser, isConnected } = useSocketEvents();
+	// initilize the web sockets
+	const { isConnected } = useSocketEvents();
 
 	const showNotification = (customOptions) => {
 		const notificationOptions = {
@@ -85,10 +88,12 @@ function App() {
 				userId: user?._id,
 			};
 
-			registerUser(registerPayload);
+			console.log('RIGSTER USER AGAIN RECONNECT');
+
+			socketService.registerUser(registerPayload);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [registerUser, isConnected, user?._id]);
+	}, [user?._id, isConnected]);
 
 	useEffect(() => {
 		if (!user?._id) return;
