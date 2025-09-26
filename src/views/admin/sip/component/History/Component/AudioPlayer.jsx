@@ -10,7 +10,7 @@ import {
   Button,
   Spinner,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause, FaExclamationTriangle } from "react-icons/fa";
+import { FaPlay, FaPause, FaArrowDown } from "react-icons/fa";
 
 const formatTime = (seconds) => {
   const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
@@ -144,29 +144,46 @@ const AudioPlayer = ({
       maxW="800px"
       gap={3}
       color="white"
-      opacity={1}
+      position="relative"
     >
+      {/* Download Button Top-Right */}
+      <IconButton
+        as="a"
+        href={url}
+        download
+        aria-label="Download Audio"
+        icon={<FaArrowDown />}
+        size="sm"
+        variant="brand"
+        colorScheme="whiteAlpha"
+        position="absolute"
+        bottom="5px"
+        right="8px"
+        _hover={{ bg: "whiteAlpha.300" }}
+        isDisabled={isDisabled}
+      />
+
       <audio ref={audioRef} preload="metadata" />
 
       <Flex align="center" gap={4}>
-          <IconButton
-            onClick={togglePlay}
-            aria-label="Play/Pause"
-            icon={
-              loading ? (
-                <Spinner size="xs" color="white" />
-              ) : error || duration <= 0 ? (
-                <FaPlay />
-              ) : isPlaying ? (
-                <FaPause />
-              ) : (
-                <FaPlay />
-              )
-            }
-            size="sm"
-            colorScheme={"brand"}
-            isDisabled={isDisabled}
-          />
+        <IconButton
+          onClick={togglePlay}
+          aria-label="Play/Pause"
+          icon={
+            loading ? (
+              <Spinner size="xs" color="white" />
+            ) : error || duration <= 0 ? (
+              <FaPlay />
+            ) : isPlaying ? (
+              <FaPause />
+            ) : (
+              <FaPlay />
+            )
+          }
+          size="sm"
+          colorScheme={"brand"}
+          isDisabled={isDisabled}
+        />
 
         <Slider
           flex="1"
@@ -175,7 +192,7 @@ const AudioPlayer = ({
           min={0}
           step={1}
           onChange={handleSeek}
-          isDisabled={ loading}
+          isDisabled={loading}
           colorScheme="brand"
         >
           <SliderTrack>
