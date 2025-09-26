@@ -19,7 +19,7 @@ const WeeamLoadingPage = () => {
 
   return (
     <Box
-      bg="black"
+      bg="white"
       h="100vh"
       display="flex"
       flexDirection="column"
