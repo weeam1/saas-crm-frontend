@@ -181,6 +181,7 @@ const BulkMessage = () => {
 					selectedLeadsMap={selectedLeadsMap}
 					setValidLeadsList={setValidLeadsList}
 					onConfirm={handleSubmitMessage}
+					isLoading={isLoading}
 				/>
 			)}
 

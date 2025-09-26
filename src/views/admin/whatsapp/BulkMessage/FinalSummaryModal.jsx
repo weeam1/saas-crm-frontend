@@ -68,7 +68,7 @@ const FinalSummaryModal = ({
 			<ModalOverlay />
 			<ModalContent rounded='lg' shadow='xl' m='4'>
 				<ModalHeader>Confirm Bulk Message</ModalHeader>
-				<ModalCloseButton />
+				<ModalCloseButton isDisabled={isLoading} />
 
 				{/* <ModalBody>
 					<Text fontWeight='semibold' color='gray.700' mb={2}>
@@ -233,7 +233,7 @@ const FinalSummaryModal = ({
 				</ModalBody>
 
 				<ModalFooter>
-					<Button variant='ghost' onClick={onClose}>
+					<Button variant='ghost' onClick={onClose} isDisabled={isLoading}>
 						Cancel
 					</Button>
 					<Button
