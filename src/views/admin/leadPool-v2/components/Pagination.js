@@ -276,7 +276,7 @@ const Pagination = ({
 								setCurrentPage(1);
 								setGotoPage(1);
 							}}
-							isLoading={hasFetched}
+							isLoading={isLoading}
 							variant="outline"
 							size="md"
 						/>

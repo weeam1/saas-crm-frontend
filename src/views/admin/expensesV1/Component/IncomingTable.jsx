@@ -320,7 +320,7 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={8} py="4" />
           ) : (
             <Tbody>

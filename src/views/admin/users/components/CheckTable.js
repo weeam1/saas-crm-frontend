@@ -714,7 +714,6 @@ export default function CheckTable(props) {
 															fontSize='md'
 															fontWeight='900'
 															textAlign={'center'}
-															zIndex='popover'
 														>
 															<Menu isLazy>
 																<MenuButton>
@@ -726,6 +725,7 @@ export default function CheckTable(props) {
 																		minW={'fit-content'}
 																		placement='top'
 																		// transform={'translate(1520px, 173px);'}
+																		zIndex={99999} 
 																	>
 																		{(isSuperAdmin ||
 																			user?.roles[0]?.roleName ===

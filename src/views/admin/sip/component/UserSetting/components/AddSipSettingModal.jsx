@@ -320,7 +320,9 @@ const AddSipSettingModal = ({
 
               <FormControl
                 isInvalid={
-                  formik.errors.sipSimNumber && formik.touched.sipSimNumber
+                  !!formik.values.sipSimNumber &&
+                  formik.errors.sipSimNumber &&
+                  formik.touched.sipSimNumber
                 }
               >
                 <FormLabel>SIM Number (Optional)</FormLabel>
@@ -329,11 +331,14 @@ const AddSipSettingModal = ({
                   placeholder="SIM number if applicable"
                   value={formik.values.sipSimNumber}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   focusBorderColor="#E0B960"
                 />
-                <FormErrorMessage>
-                  {formik.errors.sipSimNumber}
-                </FormErrorMessage>
+                {!!formik.values.sipSimNumber && (
+                  <FormErrorMessage>
+                    {formik.errors.sipSimNumber}
+                  </FormErrorMessage>
+                )}
               </FormControl>
             </VStack>
           </ModalBody>

@@ -402,7 +402,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
           alignItems="center"
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-          <IconButton
+          {/* <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
             aria-label="Filter Date"
@@ -411,7 +411,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             size="sm"
             borderRadius="full"
             boxShadow="md"
-          />
+          /> */}
 
           <Button
             size="md"
@@ -486,7 +486,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
               ))}
             </Tr>
           </Thead>
-          {isLoading && isFetching ? (
+          {isLoading || isFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
