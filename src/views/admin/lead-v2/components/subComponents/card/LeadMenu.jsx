@@ -10,13 +10,11 @@ import {
 import { EditIcon, DeleteIcon, PhoneIcon, EmailIcon } from '@chakra-ui/icons';
 import { FaHistory } from 'react-icons/fa';
 import { BsWhatsapp } from 'react-icons/bs';
-import { MdTask } from 'react-icons/md';
-import { CiMenuKebab } from 'react-icons/ci';
 import { useNavigate } from 'react-router-dom';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
@@ -62,7 +60,7 @@ const LeadMenu = ({
 			: lead.leadWhatsappNumber;
 
 	// agent edit the lead only phone and lead name (when status is show)
-	const allowedUserEdit = isSuperAdmin
+	const allowedUserEdit = ['Admin', 'superAdmin'].includes(user?.roleName)
 		? true
 		: user?.roleName === 'Agent'
 			? true
