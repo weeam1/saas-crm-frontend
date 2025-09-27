@@ -178,6 +178,8 @@ const BulkAssignModal = (props) => {
 					action: 'BULK_ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
+					leadAgent: values?.agentAssigned || null,
+					leadManager: values?.managerAssigned || null,
 					status: 'success',
 					rawPayload: {
 						leadIds,

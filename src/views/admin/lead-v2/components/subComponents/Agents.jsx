@@ -108,7 +108,8 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: agentAssignedValue || null,
+					entityId: lead?._id || null,
+					leadAgent: agentAssignedValue || null,
 					status: 'success',
 					message,
 					rawPayload: {
