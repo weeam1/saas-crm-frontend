@@ -86,7 +86,10 @@ const Status = ({ lead }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
-					const { ip } = extractLocationData(lead?.ip, countries);
+					const { ip, city, country } = extractLocationData(
+						lead?.ip,
+						countries
+					);
 
 					sendLeadFeedback({
 						email: leadEmail,
@@ -95,6 +98,13 @@ const Status = ({ lead }) => {
 						action: 'Status',
 						ip,
 						fcblid: lead?.fcblid || null,
+						fbp: lead?.fbp || null,
+						country,
+						city,
+						zip: lead?.zip || null,
+						userAgent: lead?.userAgent || null,
+						leadName: lead?.leadName,
+						leadId: lead?.intID,
 					});
 				}
 
