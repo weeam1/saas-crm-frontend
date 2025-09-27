@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Image, Spinner, keyframes, useBreakpointValue, Text } from "@chakra-ui/react";
+import { Box, Image, keyframes, useBreakpointValue } from "@chakra-ui/react";
 import logo from "assets/logo/logo.png";
+import "./loader.css"; // Import the CSS file below
 
 const shimmer = keyframes`
   0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
@@ -9,13 +10,17 @@ const shimmer = keyframes`
 `;
 
 const glowPulse = keyframes`
-  0% { filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.2)); }
-  50% { filter: drop-shadow(0px 0px 25px rgba(255,255,255,0.6)); }
-  100% { filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.2)); }
+  0% { filter: drop-shadow(0px 0px 5px rgba(0,0,0,0.15)); }
+  50% { filter: drop-shadow(0px 0px 20px rgba(0,0,0,0.3)); }
+  100% { filter: drop-shadow(0px 0px 5px rgba(0,0,0,0.15)); }
 `;
 
 const WeeamLoadingPage = () => {
-  const logoSize = useBreakpointValue({ base: "80px", md: "100px", lg: "150px" });
+  const logoSize = useBreakpointValue({
+    base: "80px",
+    md: "100px",
+    lg: "150px",
+  });
 
   return (
     <Box
@@ -28,8 +33,12 @@ const WeeamLoadingPage = () => {
       position="relative"
       overflow="hidden"
     >
-      {/* Logo  */}
-      <Box position="relative" overflow="hidden" animation={`${glowPulse} 3s ease-in-out infinite`}>
+      {/* Logo with shimmer and glow */}
+      <Box
+        position="relative"
+        overflow="hidden"
+        animation={`${glowPulse} 3s ease-in-out infinite`}
+      >
         <Image
           src={logo}
           alt="logo"
@@ -49,32 +58,8 @@ const WeeamLoadingPage = () => {
         />
       </Box>
 
-      {/* Spinner */}
-      <Spinner
-        mt={4}
-        thickness="5px"
-        speed="0.8s"
-        emptyColor="gray.600"
-        color="white"
-        size="md"
-      />
-      
-      <Text
-        mt={2}
-        color="black.800"
-        fontSize="md"
-        fontWeight="medium"
-        letterSpacing="wide"
-        animation="pulse 1.5s infinite"
-        sx={{
-          "@keyframes pulse": {
-            "0%, 100%": { opacity: 0.3 },
-            "50%": { opacity: 1 },
-          },
-        }}
-      >
-        Loading...
-      </Text>
+      {/* Custom Dot Loader */}
+      <div className="dot-loader" />
     </Box>
   );
 };

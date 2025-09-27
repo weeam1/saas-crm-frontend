@@ -62,11 +62,10 @@ const AdvancedFilter = ({
         return `User: ${user ? user.fullName || user.username : value}`;
 
       case "status":
-       
         return `Status: ${value}`;
 
       case "entity":
-          return `Entity: ${value}`;
+        return `Entity: ${value}`;
 
       case "action":
         return `Action: ${value}`;
@@ -84,9 +83,12 @@ const AdvancedFilter = ({
       case "to":
         return value ? `To: ${moment(value).format("MMM D, YYYY")}` : null;
 
-      case "entityId":
-        const entityUser = usersData?.doc?.find((u) => u._id === value);
-        return `Entity User: ${entityUser ? entityUser.fullName || entityUser.username : value}`;
+      case "leadAgent":
+        const leadAgent = usersData?.doc?.find((u) => u._id === value);
+        return `lead Agent : ${leadAgent ? leadAgent.fullName || leadAgent.username : value}`;
+      case "leadManager":
+        const leadManager = usersData?.doc?.find((u) => u._id === value);
+        return `lead Manager : ${leadManager ? leadManager.fullName || leadManager.username : value}`;
       default:
         return value;
     }
@@ -117,7 +119,8 @@ const AdvancedFilter = ({
       action: "",
       securityLevel: "",
       roleId: "",
-      entityId: "",
+      leadAgent: filters.leadAgent || "",
+      leadManager: filters.leadManager || "",
     },
     onSubmit: (values) => {
       const cleanedValues = {
@@ -145,7 +148,8 @@ const AdvancedFilter = ({
           action: filters.action || "",
           securityLevel: filters.securityLevel || "",
           roleId: filters.roleId || "",
-          entityId: filters.entityId || "",
+          leadAgent: filters.leadAgent || "",
+          leadManager: filters.leadManager || "",
         },
       });
       setSearchTags([]);
@@ -163,7 +167,8 @@ const AdvancedFilter = ({
         action: "",
         securityLevel: "",
         roleId: "",
-        entityId: "",
+        leadAgent: "",
+        leadManager: "",
       },
     });
     resetFilters();
@@ -184,7 +189,8 @@ const AdvancedFilter = ({
       action: filters.action || "",
       securityLevel: filters.securityLevel || "",
       roleId: filters.roleId || "",
-      entityId: filters.entityId || "",
+      leadAgent: filters.leadAgent || "",
+      leadManager: filters.leadManager || "",
     };
   }, [filters]);
 
@@ -343,31 +349,52 @@ const AdvancedFilter = ({
                 </FormControl>
               </SimpleGrid>
 
-              {/* Entity User  */}
-              {formik.values.entity === "Lead" && (
-                <FormControl mt={4}>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
-                    Entity User
-                  </FormLabel>
-                  <DropdownSearchUser
-                    selectedUserId={formik.values.entityId}
-                    users={
-                      usersData?.doc.filter((u) => {
-                        const roleName = Array.isArray(u?.roles)
-                          ? u.roles[0]?.roleName
-                          : null;
-                        return roleName === "Manager" || roleName === "Agent";
-                      }) || []
-                    }
-                    onSelectUser={(user) =>
-                      formik.setFieldValue("entityId", user?._id || "")
-                    }
-                    isMobile={isMobile}
-                    size="sm"
-                  />
-                
-                </FormControl>
-              )}
+              {/* Lead Manager  */}
+              <FormControl mt={4}>
+                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                  Lead Manager
+                </FormLabel>
+                <DropdownSearchUser
+                  selectedUserId={formik.values.entityId}
+                  users={
+                    usersData?.doc.filter((u) => {
+                      const roleName = Array.isArray(u?.roles)
+                        ? u.roles[0]?.roleName
+                        : null;
+                      return roleName === "Manager";
+                    }) || []
+                  }
+                  onSelectUser={(user) =>
+                    formik.setFieldValue("leadManager", user?._id || "")
+                  }
+                  isMobile={isMobile}
+                  size="sm"
+                />
+              </FormControl>
+
+              {/* Lead Agent */}
+              <FormControl mt={4}>
+                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                  Lead Agent
+                </FormLabel>
+                <DropdownSearchUser
+                  selectedUserId={formik.values.entityId}
+                  users={
+                    usersData?.doc.filter((u) => {
+                      const roleName = Array.isArray(u?.roles)
+                        ? u.roles[0]?.roleName
+                        : null;
+                      return roleName === "Agent";
+                    }) || []
+                  }
+                  onSelectUser={(user) =>
+                    formik.setFieldValue("leadAgent", user?._id || "")
+                  }
+                  isMobile={isMobile}
+                  size="sm"
+                />
+              </FormControl>
+
               <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
                 <FormControl>
                   <FormLabel mb={1} fontSize="sm" fontWeight="medium">
