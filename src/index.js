@@ -56,6 +56,7 @@ function App() {
 
 	const dispatch = useDispatch();
 	const [appLoaded, setAppLoaded] = useState(false);
+	const [splashScreen, setSplashScreen] = useState(true);
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	// const user = JSON.parse(localStorage.getItem('user'));
 
@@ -81,6 +82,13 @@ function App() {
 	const user2 = useSelector((state) => state.user.user);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+	// Splash screen
+	useEffect(() => {
+		const timer = setTimeout(() => setSplashScreen(false), 3600);
+		return () => clearTimeout(timer);
+	}, []);
 
 	useEffect(() => {
 		if (isConnected && user?._id) {
@@ -217,8 +225,13 @@ function App() {
 		}
 	}, [user2]);
 
-	if (appLoaded)
-		return (
+	// Show splash screen
+	if (!appLoaded || splashScreen) {
+		return <WeeamLoadingPage />;
+	}
+
+
+	return (
 			<>
 				<Notifications />
 
@@ -247,13 +260,8 @@ function App() {
 				{/* <LeadCycle /> */}
 			</>
 		);
-	else
-		return (
-			<>
-			<WeeamLoadingPage/>
-			</>
-		);
 }
+
 
 ReactDOM.render(
 	<Provider store={store}>

@@ -73,7 +73,7 @@ export default function Auth({ setIsLogin }) {
 										width='100%'
 										height={'100vh'}
 									>
-										<WeeamLoadingPage />
+										<Spinner color={"brand.500"} size={"md"} />
 									</Flex>
 								}
 							>

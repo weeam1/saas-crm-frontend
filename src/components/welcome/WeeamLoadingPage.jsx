@@ -15,7 +15,7 @@ const glowPulse = keyframes`
 `;
 
 const WeeamLoadingPage = () => {
-  const logoSize = useBreakpointValue({ base: "180px", md: "300px", lg: "400px" });
+  const logoSize = useBreakpointValue({ base: "80px", md: "100px", lg: "150px" });
 
   return (
     <Box
@@ -51,18 +51,18 @@ const WeeamLoadingPage = () => {
 
       {/* Spinner */}
       <Spinner
-        mt={8}
+        mt={4}
         thickness="5px"
         speed="0.8s"
         emptyColor="gray.600"
         color="white"
-        size="xl"
+        size="md"
       />
       
       <Text
-        mt={4}
-        color="whiteAlpha.800"
-        fontSize="lg"
+        mt={2}
+        color="black.800"
+        fontSize="md"
         fontWeight="medium"
         letterSpacing="wide"
         animation="pulse 1.5s infinite"

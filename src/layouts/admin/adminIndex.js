@@ -16,6 +16,7 @@ import { fetchImage } from "../../redux/imageSlice";
 import { usePermissions } from "hooks/usePermissions";
 import AppSidebar from "components/sidebar/AppSidebar";
 import sidebarRoutes from "sidebarRoutes";
+import WeeamLoadingPage from "components/welcome/WeeamLoadingPage";
 
 // Custom Chakra theme
 export default function Dashboard(props) {
@@ -266,7 +267,7 @@ export default function Dashboard(props) {
                         alignItems={"center"}
                         width="100%"
                       >
-                        <Spinner  />
+                        <Spinner color={"brand.500"} size={"md"} />
                       </Flex>
                     }
                   >
