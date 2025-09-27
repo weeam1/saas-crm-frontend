@@ -89,15 +89,25 @@ const MainStatus = ({ lead, role }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
-					const { ip } = extractLocationData(lead?.ip, countries);
+					const { ip, city, country } = extractLocationData(
+						lead?.ip,
+						countries
+					);
 
 					sendLeadFeedback({
 						email: leadEmail,
 						phone: leadPhone,
 						status: newStatus,
 						action: 'MStatus',
-						ip,
 						fcblid: lead?.fcblid || null,
+						fbp: lead?.fbp || null,
+						ip,
+						country,
+						city,
+						zip: lead?.zip || null,
+						userAgent: lead?.userAgent || null,
+						leadName: lead?.leadName,
+						leadId: lead?.intID,
 					});
 				}
 

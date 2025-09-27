@@ -106,7 +106,8 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: managerAssignedValue || null,
+					entityId: lead?._id || null,
+					leadManager: managerAssignedValue || null,
 					status: 'success',
 					message,
 					rawPayload: {
