@@ -84,8 +84,6 @@ const BulkAssignModal = (props) => {
 	const { createUserLog } = useUserActivityLog();
 	const tree = useSelector((state) => state.user.activeTree);
 
-	console.log(tree);
-
 	const closeHandler = () => {
 		setBulkAssign(false);
 	};
