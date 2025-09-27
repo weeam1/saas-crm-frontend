@@ -174,16 +174,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							borderRadius='lg'
 							boxShadow='sm'
 						>
-							{/* Dynamic content based on type */}
-							{item.type === 'creation' && (
-								<Text fontSize={{ base: 'sm', md: 'md' }}>
-									🎯 <strong>Lead created</strong> by{' '}
-									<Text as='span' color='blue.500' fontWeight='600'>
-										{item?.updatedBy}
-									</Text>
-								</Text>
-							)}
-
 							{(item.type === 'assignment-manager' ||
 								item.type === 'assignment-agent') && (
 								<Box>
@@ -259,6 +249,16 @@ export default function LeadHistoryTimeline({ timelineData }) {
 										</Text>
 									</Text>
 								</Box>
+							)}
+
+							{/* Dynamic content based on type */}
+							{item.type === 'creation' && (
+								<Text fontSize={{ base: 'sm', md: 'md' }}>
+									🎯 <strong>Lead created</strong> by{' '}
+									<Text as='span' color='blue.500' fontWeight='600'>
+										{item?.updatedBy}
+									</Text>
+								</Text>
 							)}
 						</Box>
 					</Box>

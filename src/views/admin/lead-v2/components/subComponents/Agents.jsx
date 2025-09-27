@@ -105,7 +105,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
-					action: 'UPDATE',
+					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
 					entityId: agentAssignedValue || null,
@@ -125,7 +125,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 			// update user activity log
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE',
+				action: 'ASSIGN',
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,

@@ -103,7 +103,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
-					action: 'UPDATE',
+					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
 					entityId: managerAssignedValue || null,
@@ -123,7 +123,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			// update user activity log
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE',
+				action: 'ASSIGN',
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,
