@@ -250,7 +250,7 @@ function App() {
 	else
 		return (
 			<>
-			<WeeamLoadingPage/>
+			""
 			</>
 		);
 }
