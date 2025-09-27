@@ -348,52 +348,56 @@ const AdvancedFilter = ({
                   </Box>
                 </FormControl>
               </SimpleGrid>
-
+            
               {/* Lead Manager  */}
-              <FormControl mt={4}>
-                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
-                  Lead Manager
-                </FormLabel>
-                <DropdownSearchUser
-                  selectedUserId={formik.values.entityId}
-                  users={
-                    usersData?.doc.filter((u) => {
-                      const roleName = Array.isArray(u?.roles)
-                        ? u.roles[0]?.roleName
-                        : null;
-                      return roleName === "Manager";
-                    }) || []
-                  }
-                  onSelectUser={(user) =>
-                    formik.setFieldValue("leadManager", user?._id || "")
-                  }
-                  isMobile={isMobile}
-                  size="sm"
-                />
-              </FormControl>
+              {formik.values.entity === "Lead" && (
+                <FormControl mt={4}>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Lead Manager
+                  </FormLabel>
+                  <DropdownSearchUser
+                    selectedUserId={formik.values.entityId}
+                    users={
+                      usersData?.doc.filter((u) => {
+                        const roleName = Array.isArray(u?.roles)
+                          ? u.roles[0]?.roleName
+                          : null;
+                        return roleName === "Manager";
+                      }) || []
+                    }
+                    onSelectUser={(user) =>
+                      formik.setFieldValue("leadManager", user?._id || "")
+                    }
+                    isMobile={isMobile}
+                    size="sm"
+                  />
+                </FormControl>
+              )}
 
               {/* Lead Agent */}
-              <FormControl mt={4}>
-                <FormLabel mb={1} fontSize="sm" fontWeight="medium">
-                  Lead Agent
-                </FormLabel>
-                <DropdownSearchUser
-                  selectedUserId={formik.values.entityId}
-                  users={
-                    usersData?.doc.filter((u) => {
-                      const roleName = Array.isArray(u?.roles)
-                        ? u.roles[0]?.roleName
-                        : null;
-                      return roleName === "Agent";
-                    }) || []
-                  }
-                  onSelectUser={(user) =>
-                    formik.setFieldValue("leadAgent", user?._id || "")
-                  }
-                  isMobile={isMobile}
-                  size="sm"
-                />
-              </FormControl>
+              {formik.values.entity === "Lead" && (
+                <FormControl mt={4}>
+                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
+                    Lead Agent
+                  </FormLabel>
+                  <DropdownSearchUser
+                    selectedUserId={formik.values.entityId}
+                    users={
+                      usersData?.doc.filter((u) => {
+                        const roleName = Array.isArray(u?.roles)
+                          ? u.roles[0]?.roleName
+                          : null;
+                        return roleName === "Agent";
+                      }) || []
+                    }
+                    onSelectUser={(user) =>
+                      formik.setFieldValue("leadAgent", user?._id || "")
+                    }
+                    isMobile={isMobile}
+                    size="sm"
+                  />
+                </FormControl>
+              )}
 
               <SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w="full">
                 <FormControl>
