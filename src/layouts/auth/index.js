@@ -8,6 +8,7 @@ import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 // Layout components
 import { SidebarContext } from 'contexts/SidebarContext';
 import Spinner from 'components/spinner/Spinner';
+import WeeamLoadingPage from "components/welcome/WeeamLoadingPage";
 
 // Custom Chakra theme
 export default function Auth({ setIsLogin }) {
@@ -72,7 +73,7 @@ export default function Auth({ setIsLogin }) {
 										width='100%'
 										height={'100vh'}
 									>
-										<Spinner />
+										<Spinner color={"brand.500"} size={"md"} />
 									</Flex>
 								}
 							>

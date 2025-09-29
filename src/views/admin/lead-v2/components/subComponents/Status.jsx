@@ -86,7 +86,10 @@ const Status = ({ lead }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
-					const { ip } = extractLocationData(lead?.ip, countries);
+					const { ip, city, country } = extractLocationData(
+						lead?.ip,
+						countries
+					);
 
 					sendLeadFeedback({
 						email: leadEmail,
@@ -95,6 +98,13 @@ const Status = ({ lead }) => {
 						action: 'Status',
 						ip,
 						fcblid: lead?.fcblid || null,
+						fbp: lead?.fbp || null,
+						country,
+						city,
+						zip: lead?.zip || null,
+						userAgent: lead?.userAgent || null,
+						leadName: lead?.leadName,
+						leadId: lead?.intID,
 					});
 				}
 
@@ -108,10 +118,26 @@ const Status = ({ lead }) => {
 					status: 'success',
 					message: `${user?.fullName} update the lead status from '${selected || 'No Status'} to '${data.leadStatus}'.`,
 				});
+			} else {
+				console.log(response);
+				toast.error(
+					response?.response?.data?.message || 'Something went wrong!'
+				);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: response?.status === 500 ? 'error' : 'fail',
+					message: `failed to update the lead status'.`,
+				});
 			}
 		} catch (e) {
-			console.log(e);
-			toast.error('Something went wrong!');
+			console.log(e?.response);
+			toast.error(e?.response?.data?.message || 'Something went wrong!');
 
 			// update user activity log
 			createUserLog({

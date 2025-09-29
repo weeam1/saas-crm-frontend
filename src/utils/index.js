@@ -150,6 +150,31 @@ export const safeValue = (value, key = 'result') => {
 	return value ?? null;
 };
 
+export const generateSimpleUUID = () => {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+		const r = (Math.random() * 16) | 0;
+		const v = c === 'x' ? r : (r & 0x3) | 0x8;
+		return v.toString(16);
+	});
+};
+
+export const splitName = (fullName) => {
+	if (!fullName || typeof fullName !== 'string') {
+		return { firstName: '', lastName: '' };
+	}
+
+	const parts = fullName.trim().split(/\s+/);
+
+	if (parts.length === 1) {
+		return { firstName: parts[0], lastName: '' };
+	}
+
+	const firstName = parts[0];
+	const lastName = parts.slice(1).join(' ');
+
+	return { firstName, lastName };
+};
+
 export const getUserNameById = (id, tree) => {
 	// const tree = useSelector((state) => state.user.tree);
 

@@ -43,14 +43,14 @@ class SocketService {
 
 		this.connectionPromise = new Promise((resolve, reject) => {
 			this.socket.on('connect', () => {
-				console.log('Socket connected:', this.socket.id);
+				// console.log('Socket connected:', this.socket.id);
 				this.connectionStatus = 'connected';
 				// this.reconnectionAttempts = 0;
 				resolve(this.socket.id);
 			});
 
 			this.socket.on('chatMessage', (msg) => {
-				console.log('Message received:', msg);
+				// console.log('Message received:', msg);
 				if (msg.roomId) {
 					store.dispatch(
 						appendMessage({
@@ -89,7 +89,7 @@ class SocketService {
 			});
 
 			this.socket.on('activity_log_created', (data) => {
-				console.log('Activity: ', data);
+				// console.log('Activity: ', data);
 			});
 
 			// Connection error

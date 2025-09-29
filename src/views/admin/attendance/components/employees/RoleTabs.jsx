@@ -145,7 +145,7 @@ const RoleTabs = ({ updateFilters, key }) => {
 				css={{
 					'&::-webkit-scrollbar': { display: 'none' },
 					'-ms-overflow-style': 'none',
-					'scrollbar-width': 'none',
+					scrollbarWidth: 'none',
 				}}
 			>
 				{isLoading ? (

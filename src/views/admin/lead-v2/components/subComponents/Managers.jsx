@@ -103,10 +103,11 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
-					action: 'UPDATE',
+					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: managerAssignedValue || null,
+					entityId: lead?._id || null,
+					leadManager: managerAssignedValue || null,
 					status: 'success',
 					message,
 					rawPayload: {
@@ -123,7 +124,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			// update user activity log
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE',
+				action: 'ASSIGN',
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,

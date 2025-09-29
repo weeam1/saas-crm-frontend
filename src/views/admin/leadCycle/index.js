@@ -38,8 +38,8 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
 			const response = data?.data;
 			setLeadName(response.lead.leadName);
 
-			const timelineData = [];
-			let createdByName = 'Unknown';
+			let timelineData = [];
+			let createdByName = 'Web';
 			if (response.lead?.createBy?.fullName) {
 				createdByName = response.lead.createBy.fullName;
 			}
@@ -51,15 +51,19 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
 			);
 			timelineData.push(leadCreatedItem);
 			if (response?.data?.length) {
-				response?.data?.forEach((updated) => {
-					const newCallItem = new TimelineItem(
-						updated.type,
-						updated.updatedAt,
-						updated.updatedBy?.fullName,
-						updated.updatedData
-					);
-					timelineData.push(newCallItem);
-				});
+				const newItems = response?.data?.map(
+					(updated) =>
+						new TimelineItem(
+							updated.type,
+							updated.updatedAt,
+							updated.updatedBy?.fullName,
+							updated.updatedData
+						)
+				);
+
+				timelineData = [...timelineData, ...newItems].sort(
+					(a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+				);
 			}
 
 			setData(timelineData);

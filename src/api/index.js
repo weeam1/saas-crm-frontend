@@ -2,12 +2,20 @@ import axios from 'axios';
 import keys from 'config/keys';
 import SHA256 from 'crypto-js/sha256';
 import encHex from 'crypto-js/enc-hex';
+import encBase64 from 'crypto-js/enc-base64';
 
 import { constant } from 'constant';
+import { splitName } from 'utils';
 
 const { getApi } = require('services/api');
 
 const server = 'baseUrl';
+
+function generateUniqueId() {
+	const now = Date.now().toString();
+	const random = Math.random().toString();
+	return SHA256(now + random).toString(encHex); // 64 hex chars
+}
 
 export const setAuthHeader = (headers) => {
 	const token = localStorage.getItem('accessToken');
@@ -87,21 +95,30 @@ export const getApplications = async (
 };
 
 // Hash function for security
-const hash = (data) => {
+const sha256Hash = (data) => {
 	if (!data) return null;
 	return SHA256(data?.trim()?.toLowerCase()).toString(encHex);
 };
 
 // send lead feedback
-export const sendLeadFeedback = async ({
-	email,
-	phone,
-	ip,
-	fbclid,
-	status,
-	action,
-}) => {
+export const sendLeadFeedback = async (pixelData) => {
 	try {
+		const {
+			leadId,
+			email,
+			phone,
+			ip,
+			fbclid,
+			status,
+			action,
+			leadName,
+			userAgent,
+			fbp,
+			country,
+			city,
+			zip,
+		} = pixelData;
+
 		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
 
 		const eventNameMapMStatus = {
@@ -127,28 +144,43 @@ export const sendLeadFeedback = async ({
 				? eventNameMapMStatus[status]
 				: eventNameMapStatus[status];
 
-		const user_data = {};
-		const hashedEmail = hash(email);
-		const hashedPhone = hash(phone);
+		const user_data = {
+			lead_id: leadId,
+		};
+		const hashedEmail = sha256Hash(email);
+		const hashedPhone = sha256Hash(phone);
 
-		if (hashedEmail) user_data.em = [hashedEmail];
-		if (hashedPhone) user_data.ph = [hashedPhone];
-		if (ip) user_data.client_ip_address = ip;
-		if (fbclid) user_data.fbc = fbclid;
+		const { firstName, lastName } = splitName(leadName);
+
+		if (hashedEmail) user_data.em = [hashedEmail]; // customer email
+		if (hashedPhone) user_data.ph = [hashedPhone]; // customer phone
+		if (ip) user_data.client_ip_address = ip; // client ip address
+		if (fbclid) user_data.fbc = fbclid; // client facbeook click ad id
+		if (fbp) user_data.fbp = fbp; // faccebook id
+		if (userAgent) user_data.client_user_agent = userAgent; // client broswer where the lead comes
+
+		// Must be hashed values
+		if (zip) user_data.zp = [sha256Hash(zip)];
+		if (city) user_data.ct = [sha256Hash(city)];
+		if (country) user_data.country = [sha256Hash(country)];
+		if (firstName) user_data.fn = sha256Hash(firstName); // first name
+		if (lastName) user_data.ln = sha256Hash(lastName); // last name
 
 		const eventData = {
 			data: [
 				{
+					event_id: generateUniqueId(),
 					event_name,
 					event_time: Math.floor(Date.now() / 1000),
-					user_data,
 					action_source: 'website',
+					event_source_url: window?.location?.href || `${keys.clientUrl}leads`,
+					user_data,
 				},
 			],
 		};
 
 		await axios.post(url, eventData);
-		// console.log(`Lead feedback sent: ${event_name}`, data, eventData);
+		console.log(`Lead feedback sent: ${event_name}`, eventData);
 	} catch (error) {
 		console.error(
 			'Error sending lead feedback:',

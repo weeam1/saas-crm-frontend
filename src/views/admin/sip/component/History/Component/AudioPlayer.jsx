@@ -10,7 +10,9 @@ import {
   Button,
   Spinner,
 } from "@chakra-ui/react";
-import { FaPlay, FaPause, FaExclamationTriangle } from "react-icons/fa";
+import { FaPlay, FaPause, FaArrowDown } from "react-icons/fa";
+import useUserSession from "hooks/useUserSession";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const formatTime = (seconds) => {
   const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
@@ -24,6 +26,7 @@ const AudioPlayer = ({
   playerId,
   currentlyPlayingId,
   setCurrentlyPlayingId,
+  id,
 }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -32,6 +35,9 @@ const AudioPlayer = ({
   const [playbackRate, setPlaybackRate] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const { user } = useUserSession();
+  const { createUserLog } = useUserActivityLog();
 
   const isCurrent = currentlyPlayingId === playerId;
   const isDisabled = error || duration <= 0;
@@ -144,29 +150,55 @@ const AudioPlayer = ({
       maxW="800px"
       gap={3}
       color="white"
-      opacity={1}
+      position="relative"
     >
+      {/* Download Button Top-Right */}
+      <IconButton
+        as="a"
+        href={url}
+        download
+        aria-label="Download Audio"
+        icon={<FaArrowDown />}
+        size="sm"
+        variant="brand"
+        colorScheme="whiteAlpha"
+        position="absolute"
+        bottom="5px"
+        right="8px"
+        _hover={{ bg: "whiteAlpha.300" }}
+        isDisabled={isDisabled}
+        onClick={() => {
+          createUserLog({
+            userId: user?._id,
+            action: "DOWNLOAD",
+            entity: "Call_Logs",
+            status: "success",
+            message: `"${user?.fullName}" download the audio .`,
+          });
+        }}
+      />
+
       <audio ref={audioRef} preload="metadata" />
 
       <Flex align="center" gap={4}>
-          <IconButton
-            onClick={togglePlay}
-            aria-label="Play/Pause"
-            icon={
-              loading ? (
-                <Spinner size="xs" color="white" />
-              ) : error || duration <= 0 ? (
-                <FaPlay />
-              ) : isPlaying ? (
-                <FaPause />
-              ) : (
-                <FaPlay />
-              )
-            }
-            size="sm"
-            colorScheme={"brand"}
-            isDisabled={isDisabled}
-          />
+        <IconButton
+          onClick={togglePlay}
+          aria-label="Play/Pause"
+          icon={
+            loading ? (
+              <Spinner size="xs" color="white" />
+            ) : error || duration <= 0 ? (
+              <FaPlay />
+            ) : isPlaying ? (
+              <FaPause />
+            ) : (
+              <FaPlay />
+            )
+          }
+          size="sm"
+          colorScheme={"brand"}
+          isDisabled={isDisabled}
+        />
 
         <Slider
           flex="1"
@@ -175,7 +207,7 @@ const AudioPlayer = ({
           min={0}
           step={1}
           onChange={handleSeek}
-          isDisabled={ loading}
+          isDisabled={loading}
           colorScheme="brand"
         >
           <SliderTrack>

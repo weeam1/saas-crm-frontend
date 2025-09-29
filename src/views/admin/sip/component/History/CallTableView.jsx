@@ -303,6 +303,7 @@ const CallTableView = ({
 												playerId={call.id || call.uniqueid || `player-${index}`}
 												timestamp={new Date(call.calldate)}
 												duration={call?.duration}
+												id= {call?.uniqueid}
 											/>
 											{call.billsec > 0 && (
 												<Button
