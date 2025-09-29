@@ -81,7 +81,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
       createUserLog({
         userId: user?._id,
         action: "CREATE",
-        entity: "SIP_History",
+        entity: "Call_Logs",
         entityType: "VoiceTranscription",
         entityId: res?.doc?._id,
         status: "success",
@@ -95,7 +95,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
       createUserLog({
         userId: user?._id,
         action: "CREATE",
-        entity: "SIP_History",
+        entity: "Call_Logs",
         entityType: "VoiceTranscription",
         status: error?.status === "500" ? "error" : "fail",
         message: errorMsg,
