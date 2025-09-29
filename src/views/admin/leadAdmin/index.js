@@ -432,7 +432,7 @@ const LeadScreen = () => {
 					createUserLog({
 						userId: user?._id,
 						action: 'APPROVE',
-						entity: 'Lead',
+						entity: 'Lead_Pool',
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: 'success',
@@ -446,7 +446,7 @@ const LeadScreen = () => {
 					createUserLog({
 						userId: user?._id,
 						action: 'APPROVE',
-						entity: 'Lead',
+						entity: 'Lead_Pool',
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: error?.response?.status === 500 ? 'error' : 'fail',
@@ -514,7 +514,7 @@ const LeadScreen = () => {
 					createUserLog({
 						userId: user?._id,
 						action: 'REJECT',
-						entity: 'Lead',
+						entity: 'Lead_Pool',
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: 'success',
@@ -531,7 +531,7 @@ const LeadScreen = () => {
 					createUserLog({
 						userId: user?._id,
 						action: 'UPDATE',
-						entity: 'Lead',
+						entity: 'Lead_Pool',
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: error?.response?.status === 500 ? 'error' : 'fail',
@@ -550,7 +550,7 @@ const LeadScreen = () => {
 			createUserLog({
 				userId: user?._id,
 				action: 'REJECT',
-				entity: 'Lead',
+				entity: 'Lead_Pool',
 				enityType: 'Lead',
 				entityId: leadId || null,
 				status: error?.response?.status === 500 ? 'error' : 'fail',

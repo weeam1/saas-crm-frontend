@@ -395,7 +395,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'success',
@@ -425,7 +425,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'fail',
@@ -439,7 +439,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'error',
@@ -495,7 +495,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'DELETE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'success',
@@ -512,7 +512,7 @@ const Index = () => {
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
-				entity: 'Lead',
+				entity: 'Lead_Pool',
 				enityType: 'Lead',
 				entityId: leadId || null,
 				status: error?.response?.status === 500 ? 'error' : 'fail',
