@@ -188,6 +188,7 @@ const CallCard = ({
 									timestamp={new Date(call.calldate)}
 									duration={call?.duration}
 									compact
+									id= {call?.uniqueid}
 								/>
 								{call.billsec > 0 && (
 									<Button
