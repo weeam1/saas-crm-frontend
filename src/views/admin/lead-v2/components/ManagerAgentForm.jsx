@@ -44,82 +44,82 @@ const ManagerAgentForm = ({
 
 	return (
 		<>
-			{['Admin', 'superAdmin'].includes(user?.roles?.[0]?.roleName) && (
-				<GridItem colSpan={{ base: 12, md: 6 }}>
-					<FormLabel
-						display='flex'
-						ms='4px'
-						fontSize='sm'
-						fontWeight='600'
-						color='#000'
-						mb='0'
-						mt={2}
-					>
-						Manager
-					</FormLabel>
-					<Box>
-						<Select
-							name='managerAssigned'
-							onChange={handleManagerChange}
-							value={values['managerAssigned']}
+					{['Admin', 'superAdmin'].includes(user?.roles?.[0]?.roleName) && (
+				<>
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel
+							display='flex'
+							ms='4px'
+							fontSize='sm'
+							fontWeight='600'
+							color='#000'
+							mb='0'
+							mt={2}
 						>
-							<option value=''>Select manager</option>
-							{removeDisableUser(tree?.managers)?.map((manager) => (
-								<option key={manager._id} value={manager._id}>
-									{manager.firstName} {manager.lastName}
-								</option>
-							))}
-							<option value={-1}>No Manager</option>
-						</Select>
-					</Box>
-					<Text mb='10px' color='red'>
-						{errors.managerAssigned &&
-							touched.managerAssigned &&
-							errors.managerAssigned}
-					</Text>
-				</GridItem>
-			)}
+							Manager
+						</FormLabel>
+						<Box>
+							<Select
+								name='managerAssigned'
+								onChange={handleManagerChange}
+								value={values['managerAssigned']}
+							>
+								<option value=''>Select manager</option>
+								{removeDisableUser(tree?.managers)?.map((manager) => (
+									<option key={manager._id} value={manager._id}>
+										{manager.firstName} {manager.lastName}
+									</option>
+								))}
+								<option value={-1}>No Manager</option>
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.managerAssigned &&
+								touched.managerAssigned &&
+								errors.managerAssigned}
+						</Text>
+					</GridItem>
 
-			{user?.role === 'superAdmin' && (
-				<GridItem colSpan={{ base: 12, md: 6 }}>
-					<FormLabel
-						display='flex'
-						ms='4px'
-						fontSize='sm'
-						fontWeight='600'
-						color='#000'
-						mb='0'
-						mt={2}
-					>
-						Agent
-					</FormLabel>
-					<Box>
-						<Select
-							name='agentAssigned'
-							onChange={handleChange}
-							value={values['agentAssigned']}
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel
+							display='flex'
+							ms='4px'
+							fontSize='sm'
+							fontWeight='600'
+							color='#000'
+							mb='0'
+							mt={2}
 						>
-							<option value=''>Select agent</option>
-							{filteredAgents?.length
-								? removeDisableUser(filteredAgents)?.map((agent) => (
-										<option key={agent._id} value={agent._id}>
-											{agent.firstName} {agent.lastName}
-										</option>
-									))
-								: removeDisableUser(allAgents).map((agent) => (
-										<option key={agent._id} value={agent._id}>
-											{agent.firstName} {agent.lastName}
-										</option>
-									))}
-							<option value={-1}>No Agent</option>
-						</Select>
-					</Box>
-					<Text mb='10px' color='red'>
-						{errors.agentAssigned &&
-							touched.agentAssigned &&
-							errors.agentAssigned}
-					</Text>
-				</GridItem>
+							Agent
+						</FormLabel>
+						<Box>
+							<Select
+								name='agentAssigned'
+								onChange={handleChange}
+								value={values['agentAssigned']}
+							>
+								<option value=''>Select agent</option>
+								{filteredAgents?.length
+									? removeDisableUser(filteredAgents)?.map((agent) => (
+											<option key={agent._id} value={agent._id}>
+												{agent.firstName} {agent.lastName}
+											</option>
+										))
+									: removeDisableUser(allAgents).map((agent) => (
+											<option key={agent._id} value={agent._id}>
+												{agent.firstName} {agent.lastName}
+											</option>
+										))}
+								<option value={-1}>No Agent</option>
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.agentAssigned &&
+								touched.agentAssigned &&
+								errors.agentAssigned}
+						</Text>
+					</GridItem>
+				</>
 			)}
 
 			{user?.roles?.[0]?.roleName === 'Manager' && (
