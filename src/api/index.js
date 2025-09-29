@@ -173,7 +173,7 @@ export const sendLeadFeedback = async (pixelData) => {
 					event_name,
 					event_time: Math.floor(Date.now() / 1000),
 					action_source: 'website',
-					event_source_url: `${keys.clientUrl}/lead`,
+					event_source_url: window?.location?.href || `${keys.clientUrl}leads`,
 					user_data,
 				},
 			],
