@@ -44,7 +44,7 @@ const ManagerAgentForm = ({
 
 	return (
 		<>
-			{user?.role === 'superAdmin' && (
+			{['Admin', 'superAdmin'].includes(user?.roles?.[0]?.roleName) && (
 				<GridItem colSpan={{ base: 12, md: 6 }}>
 					<FormLabel
 						display='flex'
