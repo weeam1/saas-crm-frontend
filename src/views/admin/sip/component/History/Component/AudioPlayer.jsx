@@ -172,8 +172,6 @@ const AudioPlayer = ({
             userId: user?._id,
             action: "DOWNLOAD",
             entity: "Call_Logs",
-            entityType: "Audio_Downloadable",
-            entityId: id,
             status: "success",
             message: `"${user?.fullName}" download the audio .`,
           });
