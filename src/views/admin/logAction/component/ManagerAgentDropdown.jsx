@@ -13,7 +13,7 @@ const {
 	SimpleGrid,
 } = require('@chakra-ui/react');
 
-const ManagerAgentDropdown = ({ handleChange, values, errors, touched }) => {
+const ManagerAgentDropdown = ({ handleChange, values, errors, touched, formik }) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
 	const { user, userRoleName } = useUserSession();
 
@@ -36,6 +36,8 @@ const ManagerAgentDropdown = ({ handleChange, values, errors, touched }) => {
 		} else {
 			setFilteredAgents([]);
 		}
+		
+		formik.setFieldValue('leadAgent', '')
 	};
 
 	useEffect(() => {

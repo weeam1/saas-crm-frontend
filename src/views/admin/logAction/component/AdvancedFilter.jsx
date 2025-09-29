@@ -153,7 +153,8 @@ const AdvancedFilter = ({
 					leadManager: filters.leadManager || '',
 				},
 			});
-			setSearchTags([]);
+			
+			!filters && setSearchTags([]);
 		}
 	}, [isOpen, filters]);
 
@@ -356,6 +357,7 @@ const AdvancedFilter = ({
 									values={formik.values}
 									errors={formik.errors}
 									touched={formik.touched}
+									formik={formik}
 								/>
 							)}
 
