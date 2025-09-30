@@ -156,7 +156,7 @@ const CallCard = ({
 					<Flex justify='space-between' mb={3}>
 						<Box width='48%'>
 							<Text fontSize='2xs' color='gray.500' mb={1}>
-								Date
+								Date & Time
 							</Text>
 							<Text fontSize='xs' isTruncated>
 								{call.calldate

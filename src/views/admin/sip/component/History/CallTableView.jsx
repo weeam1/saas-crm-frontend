@@ -157,7 +157,7 @@ const CallTableView = ({
 }) => {
 	const columns = [
 		'Call id',
-		'Call date',
+		'Call date & time',
 		'Call Mode',
 		'Call from',
 		'Call to',
@@ -235,7 +235,7 @@ const CallTableView = ({
 									textAlign={'center'}
 								>
 									{call.calldate
-										? moment(call.calldate).format('dddd D, MMMM YYYY')
+										? moment(call.calldate).format('MMM D, h:mm A')
 										: 'no data found'}
 								</Td>
 								<Td
