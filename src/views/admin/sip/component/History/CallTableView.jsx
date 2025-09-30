@@ -157,7 +157,7 @@ const CallTableView = ({
 }) => {
 	const columns = [
 		'Call id',
-		'Call date',
+		'Call date & time',
 		'Call Mode',
 		'Call from',
 		'Call to',
