@@ -12,16 +12,18 @@ import { useDispatch } from 'react-redux';
 import Loader from 'components/loading/Loader';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
-import { HStack } from '@chakra-ui/react';
+import { HStack, Text } from '@chakra-ui/react';
 import { usePermissions } from 'hooks/usePermissions';
 import WhatsappQRLogin from './WhatsappQRLogin';
-import { useWhatsappEvents } from 'hooks/useWhatsappEvents';
+import { useWhatsappEvents } from 'hooks/whatsapp/useWhatsappEvents';
 import useUserSession from 'hooks/useUserSession';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const UserWhatsapp = () => {
 	const { id } = useParams();
 
 	const [userId, setUserId] = useState('');
+	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 
 	const { user: loginUser, userRoleName, isSuperAdmin } = useUserSession();
 
@@ -43,17 +45,43 @@ const UserWhatsapp = () => {
 
 	const [isWhatsappLoggedIn, setIsWhatsppLoggedIn] = useState(false);
 
-	const { whatsappInitilize } = useWhatsappEvents();
+	const { whatsappInitialize, isSocketConnected, qr } = useWhatsappEvents();
 
-	// const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
-	// 	{
-	// 		path: `/user/v2/view/${param.id}`,
-	// 	},
-	// 	{
-	// 		skip: isSuperAdmin,
-	// 		refetchOnMountOrArgChange: true,
-	// 	}
-	// );
+	console.log({ qr });
+
+	const {
+		data: userDetails,
+		isLoading,
+		refetch,
+		isFetching,
+	} = useFetchItemsQuery(
+		{
+			path: `/user/v2/view/${userId}`,
+		},
+		{
+			skip: !userId,
+			refetchOnMountOrArgChange: true,
+		}
+	);
+
+	const [initialized, setInitialized] = useState(false);
+
+	useEffect(() => {
+		if (initialized) return;
+		if (!isSocketConnected || !userDetails) return;
+
+		if (!userDetails?.whatsappDetails?.phoneNumber) {
+			setWhatsappErrorMessage('This User has no whatsapp account');
+			return;
+		}
+
+		whatsappInitialize({
+			userId,
+			phoneNumber: userDetails.whatsappDetails.phoneNumber,
+		});
+		setInitialized(true);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isSocketConnected, userDetails, userId, initialized]);
 
 	useEffect(() => {
 		if (!hasPermission('whatsapp')) return navigate('/default');
@@ -73,7 +101,13 @@ const UserWhatsapp = () => {
 				</HStack>
 			)}
 
-			{isWhatsappLoggedIn ? <Whatsapp /> : <WhatsappQRLogin />}
+			{whatsappErrorMessage ? (
+				<ErrorMessage message='This user has no whatsapp account' />
+			) : isWhatsappLoggedIn ? (
+				<Whatsapp />
+			) : (
+				<WhatsappQRLogin qr={qr} />
+			)}
 		</>
 	);
 };

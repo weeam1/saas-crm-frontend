@@ -11,48 +11,21 @@ import {
 } from '@chakra-ui/react';
 import QRCode from 'react-qr-code';
 import { FaWhatsapp } from 'react-icons/fa6';
+import Loader from 'components/loading/Loader';
 
-const WhatsAppQRLogin = () => {
-	const qr =
-		'2@w/iBpi4BQ6s8WVJ4X2VXHZJGCY3WQ3JsiIkyNJGm1LXCkas7SzfpFQR0/JwXSYcm72nhOa0Y6D7WPYR1ir8mQuwMaHwrVSSdO6M=,T2pvQkylg3KH7F5jbcJwA6nnKMz3YDuuXorO2iZiryU=,1O8dpAWb9A9/EbtIVEzqIqFallLUxUQV35ejgwSPmVQ=,V11xJAZgjtfZbsuy58zHaGJ78fpwX0WJ4ajDN3KJ+kM=,1';
+const WhatsAppQRLogin = ({ qr }) => {
 	const [qrCode, setQrCode] = useState(qr);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isConnected, setIsConnected] = useState(false);
-	const [timeRemaining, setTimeRemaining] = useState(120); // 2 minutes
-	const socketRef = useRef(null);
 
-	// Timer countdown
 	useEffect(() => {
-		if (timeRemaining <= 0) {
-			handleQRExpired();
-			return;
+		if (qr && qr?.trim !== '') {
+			console.log('loadiing flase......');
+			setIsLoading(false);
+			setQrCode(qr);
+		} else {
+			setIsLoading(true);
 		}
-
-		const timer = setInterval(() => {
-			setTimeRemaining((prev) => prev - 1);
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, [timeRemaining]);
-
-	const generateNewQRCode = () => {
-		setIsLoading(false);
-	};
-
-	const handleQRExpired = () => {
-		generateNewQRCode();
-	};
-
-	const formatTime = (seconds) => {
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${mins}:${secs.toString().padStart(2, '0')}`;
-	};
-
-	const handlePhoneLogin = () => {
-		// Redirect to phone number login flow
-		console.log('Redirect to phone login');
-	};
+	}, [qr]);
 
 	return (
 		<Box minH='100vh' maxW='6xl' m='auto' bg='gray.50' p={4}>
@@ -161,7 +134,7 @@ const WhatsAppQRLogin = () => {
 
 					{/* Footer */}
 					<VStack spacing={3}>
-						<Text fontSize='xs' color='green.600' textAlign='center'>
+						<Text fontSize='xs' color='gray.700' textAlign='center'>
 							🔒 Your personal messages are end-to-end encrypted
 						</Text>
 					</VStack>
