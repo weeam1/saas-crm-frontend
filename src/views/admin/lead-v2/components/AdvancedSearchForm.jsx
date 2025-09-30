@@ -14,8 +14,16 @@ const {
 } = require('@chakra-ui/react');
 
 const AdvancedSearchForm = (props) => {
-	const { values, errors, touched, handleChange, handleBlur, user, tree } =
-		props;
+	const {
+		values,
+		errors,
+		touched,
+		handleChange,
+		handleBlur,
+		user,
+		tree,
+		setFieldValue,
+	} = props;
 
 	// Define field configurations
 	const fields = useMemo(
@@ -237,6 +245,7 @@ const AdvancedSearchForm = (props) => {
 				values={values}
 				errors={errors}
 				touched={touched}
+				setFieldValue={setFieldValue}
 			/>
 		</Grid>
 	);

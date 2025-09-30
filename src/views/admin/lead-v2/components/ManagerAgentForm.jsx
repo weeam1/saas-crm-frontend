@@ -11,6 +11,7 @@ const ManagerAgentForm = ({
 	values,
 	errors,
 	touched,
+	setFieldValue,
 }) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
 
@@ -31,6 +32,9 @@ const ManagerAgentForm = ({
 		} else {
 			setFilteredAgents([]);
 		}
+
+		setFieldValue('agentAssigned', '');
+		// values['agentAssigned'] = '';
 	};
 
 	useEffect(() => {
