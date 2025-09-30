@@ -1,7 +1,7 @@
 .dot-loader {
   height: 20px;
   aspect-ratio: 2.5;
-  --_g: no-repeat radial-gradient(farthest-side, var(--brand-color, #927303) 90%, #0000);
+  --_g: no-repeat radial-gradient(farthest-side, var(--brand-color, #b79045) 90%, #0000);
   background: var(--_g), var(--_g), var(--_g), var(--_g);
   background-size: 20% 50%;
   animation: dotWave 1s infinite linear;
