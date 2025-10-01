@@ -32,9 +32,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
-		leadName: leadData.leadName || '',
-		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
-		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
+		leadName: safeValue(leadData.leadName) || '',
 		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
 		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
 		nationality: leadData.nationality || '',
@@ -51,7 +49,6 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadAddress: leadData.leadAddress || '',
 		leadEmail: leadData.leadEmail || '',
 		leadSourceMedium: leadData.leadSourceMedium || '',
-		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
 		attendanceDay: leadData.attendanceDay || '',
 		lastNote: leadData.lastNote || '',
