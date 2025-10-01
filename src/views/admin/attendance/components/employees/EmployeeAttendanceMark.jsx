@@ -13,7 +13,12 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 
-const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
+const EmployeeAttendanceMark = ({
+	todayRecord,
+	employeeId,
+	officeSetting,
+	employeeName,
+}) => {
 	const { timezone } = officeSetting;
 
 	const { hasPermission } = usePermissions();
@@ -89,7 +94,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				entity: 'Attendance',
 				entityType: 'Attendance',
 				status: 'success',
-				message: `${user?.fullName} added employee check in.`,
+				message: `${user?.fullName} added checked in for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -125,7 +130,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				entity: 'Attendance',
 				entityType: 'Attendance',
 				status: 'success',
-				message: `${user?.fullName} added employee absent.`,
+				message: `${user?.fullName} added absent for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -165,7 +170,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				entityType: 'Attendance',
 				entityId: res?.doc?._id,
 				status: 'success',
-				message: `${user?.fullName} added employee check out.`,
+				message: `${user?.fullName} added check out for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -205,7 +210,7 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				entity: 'Attendance',
 				entityType: 'Attendance',
 				status: 'success',
-				message: `${user?.fullName} added employee leave.`,
+				message: `${user?.fullName} added leave for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);

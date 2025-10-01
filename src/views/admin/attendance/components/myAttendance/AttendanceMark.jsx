@@ -19,6 +19,7 @@ const AttendanceMark = ({
 	refetch,
 	officeSettings,
 	employeeId,
+	employeeName,
 }) => {
 	const [status, setStatus] = useState(null);
 
@@ -113,7 +114,7 @@ const AttendanceMark = ({
 				entity: 'Attendance',
 				entityType: 'Attendance',
 				status: 'success',
-				message: `${user?.fullName} added employee check in.`,
+				message: `${user?.fullName} added check in for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -165,7 +166,7 @@ const AttendanceMark = ({
 
 				entityId: res?.doc?._id,
 				status: 'success',
-				message: `${user?.fullName} added employee check out.`,
+				message: `${user?.fullName} added check out for ${employeeName}.`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -206,7 +207,7 @@ const AttendanceMark = ({
 				entityType: 'Attendance',
 
 				status: 'success',
-				message: `${user?.fullName} added employee absent.`,
+				message: `${user?.fullName} added absent for ${employeeName}..`,
 			});
 		} catch (e) {
 			console.log(e);
@@ -250,7 +251,7 @@ const AttendanceMark = ({
 				entityType: 'Attendance',
 
 				status: 'success',
-				message: `${user?.fullName} added employee leave.`,
+				message: `${user?.fullName} added leave for ${employeeName}..`,
 			});
 		} catch (e) {
 			console.log(e);

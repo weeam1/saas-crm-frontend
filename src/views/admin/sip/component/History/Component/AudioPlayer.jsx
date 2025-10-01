@@ -11,7 +11,6 @@ import {
 	Spinner,
 } from '@chakra-ui/react';
 import { FaPlay, FaPause, FaArrowDown } from 'react-icons/fa';
-import { FaPlay, FaPause, FaArrowDown } from 'react-icons/fa';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
@@ -153,23 +152,7 @@ const AudioPlayer = ({
 			color='white'
 			position='relative'
 		>
-			{/* Download Button*/}
-			<IconButton
-				as='a'
-				href={url}
-				download
-				aria-label='Download Audio'
-				icon={<FaArrowDown />}
-				size='sm'
-				variant='brand'
-				colorScheme='whiteAlpha'
-				position='absolute'
-				bottom='5px'
-				right='8px'
-				_hover={{ bg: 'whiteAlpha.300' }}
-				isDisabled={isDisabled}
-			/>
-			position="relative" >{/* Download Button Top-Right */}
+			{/* Download Button Top-Right */}
 			<IconButton
 				as='a'
 				href={url}
@@ -194,7 +177,9 @@ const AudioPlayer = ({
 					});
 				}}
 			/>
+
 			<audio ref={audioRef} preload='metadata' />
+
 			<Flex align='center' gap={4}>
 				<IconButton
 					onClick={togglePlay}
@@ -263,6 +248,7 @@ const AudioPlayer = ({
 					{playbackRate}x
 				</Button>
 			</Flex>
+
 			<Flex justify='space-between' px={10}>
 				<Text fontSize='xs' color='brand.500'>
 					{formatTime(currentTime)}
