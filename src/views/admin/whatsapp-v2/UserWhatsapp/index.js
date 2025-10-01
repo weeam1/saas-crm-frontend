@@ -96,7 +96,8 @@ const UserWhatsapp = () => {
 
 	useEffect(() => {
 		if (isReady) setIsLoading(false);
-		else if (qr && qr?.trim !== '') {
+
+		if (qr && qr?.trim !== '') {
 			setIsLoading(false);
 		} else {
 			setIsLoading(true);
@@ -115,6 +116,9 @@ const UserWhatsapp = () => {
 	if (error) {
 		console.log({ error });
 	}
+
+	console.log({ qr });
+
 	useEffect(() => {
 		if (!hasPermission('whatsapp')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
