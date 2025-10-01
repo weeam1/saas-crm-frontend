@@ -69,7 +69,7 @@ const entityOptions = [
   { label: "Auth", value: "Auth" },
   { label: "Lead", value: "Lead" },
   { label: "Leads Pool", value: "Lead_Pool" },
-  { label: "Annoucement", value: "Annoucement" },
+  { label: "Announcement", value: "Announcement" },
   { label: "Hiring", value: "Hiring" },
   { label: "Attendence", value: "Attendence" },
   { label: "Invoice", value: "Invoice" },
