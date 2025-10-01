@@ -144,6 +144,7 @@ const Attendance = ({ userId }) => {
 									refetch={refetch}
 									employeeId={employeeId}
 									officeSettings={data?.officeSettings}
+									employeeName={data?.employee?.fullName || ''}
 								/>
 							)}
 						</Box>
