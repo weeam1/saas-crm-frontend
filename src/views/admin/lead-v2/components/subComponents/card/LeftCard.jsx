@@ -18,6 +18,7 @@ import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
 import { usePermissions } from 'hooks/usePermissions';
+import { safeValue } from 'utils';
 
 const LeftCard = ({
 	lead,
@@ -83,7 +84,7 @@ const LeftCard = ({
 						isTruncated
 						maxWidth='6rem'
 					>
-						{lead?.leadName || 'N/A'}
+						{safeValue(lead?.leadName) || 'N/A'}
 					</Text>
 					<LeadTypeBadge leadType={leadType} roleName={role} />
 				</HStack>
