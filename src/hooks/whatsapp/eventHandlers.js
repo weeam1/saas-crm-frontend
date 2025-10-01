@@ -21,6 +21,14 @@ export const eventHandlers = {
 		...state,
 		error: payload,
 	}),
+	[WHATSAPP_EVENTS.ERROR]: (state, payload) => ({
+		...state,
+		error: payload,
+	}),
+	[WHATSAPP_EVENTS.CHATS_LOADED]: (state, payload) => ({
+		...state,
+		chats: payload?.chats || [],
+	}),
 	[WHATSAPP_EVENTS.NEW_MESSAGE]: (state, payload) => ({
 		...state,
 		messages: [...state.messages, payload],

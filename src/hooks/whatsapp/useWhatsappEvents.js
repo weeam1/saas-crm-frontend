@@ -6,6 +6,7 @@ const initialState = {
 	qr: '',
 	isAuthenticated: false,
 	isReady: false,
+	chats: [],
 	messages: [],
 	error: null,
 };
@@ -41,9 +42,15 @@ export function useWhatsappEvents() {
 		socketService.emit('initialize_whatsapp', payload);
 	};
 
+	const getChats = (sessionId) => {
+		console.log('Get chats: ', sessionId);
+		socketService.emit('get_chats', { sessionId });
+	};
+
 	return {
 		...state,
 		whatsappInitialize,
+		getChats,
 		isSocketConnected: socketService.connectionStatus === 'connected',
 	};
 }

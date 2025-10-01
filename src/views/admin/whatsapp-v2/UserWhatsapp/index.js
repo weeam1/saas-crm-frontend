@@ -45,10 +45,25 @@ const UserWhatsapp = () => {
 
 	const [isWhatsappLoggedIn, setIsWhatsppLoggedIn] = useState(false);
 
-	const { whatsappInitialize, isSocketConnected, qr } = useWhatsappEvents();
+	const {
+		whatsappInitialize,
+		isSocketConnected,
+		qr,
+		isReady,
+		getChats,
+		chats,
+	} = useWhatsappEvents();
 
 	console.log({ qr });
 
+	useEffect(() => {
+		if (isReady && userId) {
+			// call socket event get chats
+			getChats(userId);
+		}
+	}, [getChats, isReady, userId]);
+
+	console.log({ isReady });
 	const {
 		data: userDetails,
 		isLoading,
@@ -105,6 +120,14 @@ const UserWhatsapp = () => {
 				<ErrorMessage message='This user has no whatsapp account' />
 			) : isWhatsappLoggedIn ? (
 				<Whatsapp />
+			) : isReady && chats ? (
+				<>
+					{chats?.map((chat) => (
+						<Text>{chat?.name}</Text>
+					))}
+				</>
+			) : isReady ? (
+				<Text>Whatsapp is Connected Now!</Text>
 			) : (
 				<WhatsappQRLogin qr={qr} />
 			)}

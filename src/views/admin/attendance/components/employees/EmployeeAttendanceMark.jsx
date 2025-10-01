@@ -86,8 +86,8 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 			createUserLog({
 				userId: user?._id,
 				action: 'CREATE',
+				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added employee check in.`,
 			});
@@ -163,7 +163,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'UPDATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				entityId: res?.doc?._id,
 				status: 'success',
 				message: `${user?.fullName} added employee check out.`,
@@ -179,7 +178,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'UPDATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
@@ -206,7 +204,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added employee leave.`,
 			});
@@ -221,7 +218,6 @@ const EmployeeAttendanceMark = ({ todayRecord, employeeId, officeSetting }) => {
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

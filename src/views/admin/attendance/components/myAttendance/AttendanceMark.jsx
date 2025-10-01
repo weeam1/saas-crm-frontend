@@ -112,7 +112,6 @@ const AttendanceMark = ({
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added employee check in.`,
 			});
@@ -126,7 +125,6 @@ const AttendanceMark = ({
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
