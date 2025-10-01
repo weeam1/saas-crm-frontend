@@ -51,6 +51,7 @@ const levels = {
 	CREATE: 3,
 	LOGIN: 4,
 	UPDATE: 5,
+	CANCEL: 6,
 	APPROVE: 6,
 	DELETE: 7,
 	BULK_DELETE: 8,

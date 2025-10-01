@@ -24,7 +24,13 @@ import NoteModal from './NoteModal';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
-const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
+const CreateAttendance = ({
+	isOpen,
+	onClose,
+	employeeId,
+	refetch,
+	employeeName,
+}) => {
 	const [checkInTime, setCheckInTime] = useState('09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState('06:00 PM');
 	const [selectedDate, setSelectedDate] = useState(new Date());
@@ -124,7 +130,7 @@ const CreateAttendance = ({ isOpen, onClose, employeeId, refetch }) => {
 				entityType: 'Attendance',
 
 				status: 'success',
-				message: `${user?.fullName} added attendance record.`,
+				message: `${user?.fullName} added ${employeeName || ''} attendance record.`,
 			});
 		} catch (error) {
 			console.error(error);

@@ -177,6 +177,7 @@ const Attendance = ({ userId }) => {
 								onClose={() => setAddAttendance(false)}
 								employeeId={employeeId}
 								refetch={refetch}
+								employeeName={data?.employee?.fullName || ''}
 							/>
 						)}
 					</Flex>

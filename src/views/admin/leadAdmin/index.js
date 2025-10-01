@@ -355,6 +355,8 @@ const LeadScreen = () => {
 
 		const currentDate = new Date().toISOString();
 
+		const agentDetails = users?.find((user) => user?._id === agentId);
+
 		try {
 			const res = await axios.put(
 				constant['baseUrl'] + 'api/adminApproval/update',
@@ -436,7 +438,10 @@ const LeadScreen = () => {
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: 'success',
-						message: `${user?.fullName} has approved the lead successfully.`,
+						message: `${user?.fullName} has successfully approved the lead '${updatedRes?.data?.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
+						rawPayload: {
+							leadId: updatedRes?.data?.intID || null,
+						},
 					});
 				} catch (error) {
 					console.log(error);
@@ -455,8 +460,9 @@ const LeadScreen = () => {
 				}
 			} else {
 				try {
+					let lead;
 					if (agentId) {
-						const lead = await getApi(`api/lead/view/${leadId}`);
+						lead = await getApi(`api/lead/view/${leadId}`);
 						const r = await getApi(`api/user/view/${agentId}`);
 						await putApi(`api/user/edit/${agentId}`, {
 							coins:
@@ -518,7 +524,10 @@ const LeadScreen = () => {
 						enityType: 'Lead',
 						entityId: leadId || null,
 						status: 'success',
-						message: `${user?.fullName} has rejected the lead successfully.`,
+						rawPayload: {
+							leadId: lead?.data?.lead.intID || null,
+						},
+						message: `${user?.fullName} has successfully rejected the lead '${lead?.data?.lead.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
 					});
 				} catch (error) {
 					console.log(error);
