@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import socketService from 'services/socketService';
 import { eventHandlers } from './eventHandlers';
 
@@ -9,6 +9,7 @@ const initialState = {
 	chats: [],
 	messages: [],
 	error: null,
+	whatsapp_disconnect: '',
 };
 
 function reducer(state, action) {
@@ -42,10 +43,10 @@ export function useWhatsappEvents() {
 		socketService.emit('initialize_whatsapp', payload);
 	};
 
-	const getChats = (sessionId) => {
+	const getChats = useCallback((sessionId) => {
 		console.log('Get chats: ', sessionId);
 		socketService.emit('get_chats', { sessionId });
-	};
+	}, []);
 
 	return {
 		...state,

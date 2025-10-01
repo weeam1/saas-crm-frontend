@@ -33,4 +33,8 @@ export const eventHandlers = {
 		...state,
 		messages: [...state.messages, payload],
 	}),
+	[WHATSAPP_EVENTS.DISCONNECT]: (state, payload) => ({
+		...state,
+		whatsapp_disconnect: payload?.reason || 'Whatsapp disconnected',
+	}),
 };

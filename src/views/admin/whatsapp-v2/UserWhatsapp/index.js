@@ -18,12 +18,15 @@ import WhatsappQRLogin from './WhatsappQRLogin';
 import { useWhatsappEvents } from 'hooks/whatsapp/useWhatsappEvents';
 import useUserSession from 'hooks/useUserSession';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import ChatList from './ChatList';
+import WAConnectionSuccess from './WAConnectionSuccess';
 
 const UserWhatsapp = () => {
 	const { id } = useParams();
 
 	const [userId, setUserId] = useState('');
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const { user: loginUser, userRoleName, isSuperAdmin } = useUserSession();
 
@@ -52,21 +55,14 @@ const UserWhatsapp = () => {
 		isReady,
 		getChats,
 		chats,
+		error,
+		fail,
+		whatsapp_disconnect,
 	} = useWhatsappEvents();
 
-	console.log({ qr });
-
-	useEffect(() => {
-		if (isReady && userId) {
-			// call socket event get chats
-			getChats(userId);
-		}
-	}, [getChats, isReady, userId]);
-
-	console.log({ isReady });
 	const {
 		data: userDetails,
-		isLoading,
+		isLoading: userLoading,
 		refetch,
 		isFetching,
 	} = useFetchItemsQuery(
@@ -99,9 +95,34 @@ const UserWhatsapp = () => {
 	}, [isSocketConnected, userDetails, userId, initialized]);
 
 	useEffect(() => {
+		if (isReady) setIsLoading(false);
+		else if (qr && qr?.trim !== '') {
+			setIsLoading(false);
+		} else {
+			setIsLoading(true);
+		}
+	}, [isReady, qr]);
+
+	useEffect(() => {
+		if (isReady && userId) {
+			// call socket event get chats
+			getChats(userId);
+		}
+	}, [getChats, isReady, userId]);
+
+	if (chats) console.log({ isReady, chats });
+
+	if (error) {
+		console.log({ error });
+	}
+	useEffect(() => {
 		if (!hasPermission('whatsapp')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	if (isLoading || userLoading) {
+		return <Loader />;
+	}
 
 	return (
 		<>
@@ -116,7 +137,7 @@ const UserWhatsapp = () => {
 				</HStack>
 			)}
 
-			{whatsappErrorMessage ? (
+			{/* {whatsappErrorMessage ? (
 				<ErrorMessage message='This user has no whatsapp account' />
 			) : isWhatsappLoggedIn ? (
 				<Whatsapp />
@@ -128,6 +149,25 @@ const UserWhatsapp = () => {
 				</>
 			) : isReady ? (
 				<Text>Whatsapp is Connected Now!</Text>
+			) : (
+				<WhatsappQRLogin qr={qr} />
+			)} */}
+
+			{whatsappErrorMessage ? (
+				<ErrorMessage
+					message='This user has no WhatsApp account'
+					type='warning'
+				/>
+			) : error || fail ? (
+				<Text>{error || fail}</Text>
+			) : whatsapp_disconnect ? (
+				<Text>{whatsapp_disconnect}</Text>
+			) : isWhatsappLoggedIn ? (
+				<Whatsapp />
+			) : isReady && chats ? (
+				<ChatList chats={chats} />
+			) : isReady ? (
+				<WAConnectionSuccess />
 			) : (
 				<WhatsappQRLogin qr={qr} />
 			)}
