@@ -96,8 +96,7 @@ const UserWhatsapp = () => {
 
 	useEffect(() => {
 		if (isReady) setIsLoading(false);
-
-		if (qr && qr?.trim !== '') {
+		else if (qr && qr?.trim !== '') {
 			setIsLoading(false);
 		} else {
 			setIsLoading(true);
@@ -168,7 +167,7 @@ const UserWhatsapp = () => {
 				<Text>{whatsapp_disconnect}</Text>
 			) : isWhatsappLoggedIn ? (
 				<Whatsapp />
-			) : isReady && chats ? (
+			) : isReady && chats?.length > 0 ? (
 				<ChatList chats={chats} />
 			) : isReady ? (
 				<WAConnectionSuccess />
