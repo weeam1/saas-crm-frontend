@@ -100,7 +100,7 @@ const LeftCard = ({
 					{!hiddenFields.includes('leadSourceDetails') && (
 						<EntityField
 							label='Source Content'
-							value={lead.leadSourceDetails}
+							value={safeValue(lead?.leadSourceDetails)}
 							valueProps={{ color: '#FFBB00' }}
 							isInfo={true}
 						/>
@@ -109,7 +109,7 @@ const LeftCard = ({
 					{!hiddenFields.includes('timetocall') && (
 						<EntityField
 							label='Time to Call'
-							value={lead?.timetocall}
+							value={safeValue(lead?.timetocall)}
 							isInfo={true}
 							valueProps={{ color: 'green.600' }}
 						/>

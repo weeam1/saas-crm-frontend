@@ -2,6 +2,7 @@ import { Flex, Text, Icon, useColorModeValue } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { leadIconSize, leadlabelFontSize } from '../../constants';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { safeValue } from 'utils';
 // import CustomTooltip from '../CustomTooltip';
 
 const InfoItem = ({
@@ -30,7 +31,7 @@ const InfoItem = ({
 			</Text>
 
 			{/* Info Icon with Tooltip */}
-			<CustomTooltip label={value || 'N/A'} persistent={true}>
+			<CustomTooltip label={safeValue(value) || 'N/A'} persistent={true}>
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}
