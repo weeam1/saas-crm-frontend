@@ -199,24 +199,6 @@ const AudioPlayer = ({
 					colorScheme={'brand'}
 					isDisabled={isDisabled}
 				/>
-				<IconButton
-					onClick={togglePlay}
-					aria-label='Play/Pause'
-					icon={
-						loading ? (
-							<Spinner size='xs' color='white' />
-						) : error || duration <= 0 ? (
-							<FaPlay />
-						) : isPlaying ? (
-							<FaPause />
-						) : (
-							<FaPlay />
-						)
-					}
-					size='sm'
-					colorScheme={'brand'}
-					isDisabled={isDisabled}
-				/>
 
 				<Slider
 					flex='1'
@@ -225,7 +207,6 @@ const AudioPlayer = ({
 					min={0}
 					step={1}
 					onChange={handleSeek}
-					isDisabled={loading}
 					isDisabled={loading}
 					colorScheme='brand'
 				>
