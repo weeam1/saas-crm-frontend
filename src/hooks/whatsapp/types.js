@@ -8,4 +8,5 @@ export const WHATSAPP_EVENTS = {
 	NEW_MESSAGE: 'new_message',
 	DISCONNECT: 'whatsapp_disconnected',
 	CHATS_LOADED: 'chats_loaded',
+	CHAT_LOADED: 'chat_loaded',
 };

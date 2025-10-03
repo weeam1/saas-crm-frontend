@@ -11,9 +11,11 @@ import {
 	InputGroup,
 	InputLeftElement,
 	Icon,
+	Button,
 } from '@chakra-ui/react';
 import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
+import { useWhatsappEvents } from 'hooks/whatsapp/useWhatsappEvents';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -31,7 +33,11 @@ const truncateMessage = (message, length = 35) => {
 		: message;
 };
 
-const ChatList = ({ chats }) => {
+const ChatList = ({ allConversations, userId }) => {
+	const { logoutWhatsapp, getChat, userChats } = useWhatsappEvents();
+
+	console.log({ userChats });
+
 	return (
 		<Box
 			bg='white'
@@ -43,13 +49,28 @@ const ChatList = ({ chats }) => {
 			overflow='hidden'
 		>
 			{/* Header */}
-			<Box p={4} borderBottom='1px solid' borderColor='gray.100'>
-				<Text fontSize='xl' fontWeight='bold' color='gray.800'>
-					WhatsApp Chats
-				</Text>
-				<Text fontSize='sm' color='gray.600' mt={1}>
-					{chats.length} conversations
-				</Text>
+			<Flex
+				flexDir={{ base: 'column', md: 'row' }}
+				alignItems='center'
+				justifyContent='space-between'
+				w='full'
+				p={4}
+				bg='softGray.100'
+				borderBottom='1px solid'
+				borderColor='softGray.100'
+			>
+				<Box>
+					<Text fontSize='xl' fontWeight='bold' color='gray.800'>
+						WhatsApp Chats
+					</Text>
+					<Text fontSize='sm' color='gray.600' mt={1}>
+						{allConversations?.length} conversations
+					</Text>
+				</Box>
+
+				<Button size='sm' onClick={() => logoutWhatsapp(userId)}>
+					Logout Whatsapp
+				</Button>
 
 				{/* Search Bar */}
 				{/* <InputGroup mt={3}>
@@ -67,19 +88,24 @@ const ChatList = ({ chats }) => {
 						}}
 					/>
 				</InputGroup> */}
-			</Box>
+			</Flex>
 
 			{/* Chat List */}
 			<VStack spacing={0} divider={<Divider />} overflowY='auto' maxH='700px'>
-				{chats?.map((chat) => (
-					<ChatListItem key={chat.id} chat={chat} />
+				{allConversations?.map((chat) => (
+					<ChatListItem
+						key={chat.id}
+						chat={chat}
+						getChat={getChat}
+						userId={userId}
+					/>
 				))}
 			</VStack>
 		</Box>
 	);
 };
 
-const ChatListItem = ({ chat }) => {
+const ChatListItem = ({ chat, getChat, userId }) => {
 	const getAvatarProps = (chat) => {
 		if (chat.profilePicture) {
 			return {
@@ -113,6 +139,7 @@ const ChatListItem = ({ chat }) => {
 			transition='all 0.2s'
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
+			onClick={() => getChat(userId, chat?.id)}
 		>
 			<Flex align='center' justify='space-between'>
 				<Flex align='center' flex='1' minW='0'>

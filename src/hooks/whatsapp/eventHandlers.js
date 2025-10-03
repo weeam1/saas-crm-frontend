@@ -23,18 +23,41 @@ export const eventHandlers = {
 	}),
 	[WHATSAPP_EVENTS.ERROR]: (state, payload) => ({
 		...state,
-		error: payload,
+		error: payload?.message,
 	}),
 	[WHATSAPP_EVENTS.CHATS_LOADED]: (state, payload) => ({
 		...state,
-		chats: payload?.chats || [],
+		allConversations: payload?.chats || [],
 	}),
+	[WHATSAPP_EVENTS.CHAT_LOADED]: (state, payload) => {
+		const { whatsappId, chat } = payload;
+
+		const userChats = { ...state.userChats };
+		const chatsForUser = userChats[whatsappId]
+			? [...userChats[whatsappId]]
+			: [];
+
+		const chatIndex = chatsForUser.findIndex((c) => c.id === chat.id);
+
+		if (chatIndex >= 0) {
+			chatsForUser[chatIndex] = { ...chatsForUser[chatIndex], ...chat };
+		} else {
+			chatsForUser.push(chat);
+		}
+
+		userChats[whatsappId] = chatsForUser;
+
+		return {
+			...state,
+			userChats,
+		};
+	},
 	[WHATSAPP_EVENTS.NEW_MESSAGE]: (state, payload) => ({
 		...state,
 		messages: [...state.messages, payload],
 	}),
 	[WHATSAPP_EVENTS.DISCONNECT]: (state, payload) => ({
 		...state,
-		whatsapp_disconnect: payload?.reason || 'Whatsapp disconnected',
+		whatsapp_disconnect: payload?.message || 'Whatsapp disconnected',
 	}),
 };

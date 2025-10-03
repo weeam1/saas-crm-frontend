@@ -6,8 +6,10 @@ const initialState = {
 	qr: '',
 	isAuthenticated: false,
 	isReady: false,
-	chats: [],
+	allConversations: [],
+	userChats: {}, // { userId: [chat objects] }
 	messages: [],
+
 	error: null,
 	whatsapp_disconnect: '',
 };
@@ -38,20 +40,42 @@ export function useWhatsappEvents() {
 		};
 	}, []);
 
-	const whatsappInitialize = (payload) => {
+	const whatsappInitialize = useCallback((payload) => {
 		console.log('Regiter whatsapp: ', payload);
 		socketService.emit('initialize_whatsapp', payload);
-	};
+	}, []);
 
 	const getChats = useCallback((sessionId) => {
 		console.log('Get chats: ', sessionId);
 		socketService.emit('get_chats', { sessionId });
 	}, []);
 
+	const disconnectWhatsapp = useCallback((sessionId) => {
+		console.log('whatsapp diconnected');
+		socketService.emit('disconnect_whatsapp', { sessionId });
+	}, []);
+
+	const logoutWhatsapp = useCallback((sessionId) => {
+		console.log('whatsapp logout');
+		socketService.emit('logout_whatsapp', { sessionId });
+		localStorage.setItem('whatsapp_auth', false);
+	}, []);
+
+	const getChat = useCallback((sessionId, whatsappId) => {
+		console.log('get user Chat');
+		if (!sessionId || !whatsappId) {
+			return console.warn('sessionId and whatsappId missing');
+		}
+		socketService.emit('get_chat', { sessionId, whatsappId });
+	}, []);
+
 	return {
 		...state,
 		whatsappInitialize,
 		getChats,
+		getChat,
+		disconnectWhatsapp,
+		logoutWhatsapp,
 		isSocketConnected: socketService.connectionStatus === 'connected',
 	};
 }
