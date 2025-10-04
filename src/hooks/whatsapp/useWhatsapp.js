@@ -117,7 +117,7 @@ export const useWhatsapp = () => {
 		dispatch(reset());
 	}, []);
 
-	console.log({ ...state });
+	// console.log({ ...state });
 
 	return {
 		...state,

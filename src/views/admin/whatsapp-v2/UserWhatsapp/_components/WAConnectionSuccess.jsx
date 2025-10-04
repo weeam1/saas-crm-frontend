@@ -14,12 +14,33 @@ const WAConnectionSuccess = ({ loadingChats }) => {
 		if (loadingChats) {
 			setProgress(0);
 			interval = setInterval(() => {
-				setProgress((prev) => (prev >= 100 ? 100 : prev + 10));
+				setProgress((prev) => {
+					if (prev >= 95) return 95; // stop at 95% until loading finishes
+					return prev + 5;
+				});
 			}, 300);
+		} else {
+			// once finished → jump to 100
+			setProgress(100);
+			const timeout = setTimeout(() => setProgress(0), 500); // reset after short delay
+			return () => clearTimeout(timeout);
 		}
 
 		return () => clearInterval(interval);
 	}, [loadingChats]);
+
+	// useEffect(() => {
+	// 	let interval;
+
+	// 	if (loadingChats) {
+	// 		setProgress(0);
+	// 		interval = setInterval(() => {
+	// 			setProgress((prev) => (prev >= 100 ? 100 : prev + 10));
+	// 		}, 300);
+	// 	}
+
+	// 	return () => clearInterval(interval);
+	// }, [loadingChats]);
 
 	return (
 		<Flex h='80vh' align='center' justify='center'>

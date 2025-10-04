@@ -37,7 +37,7 @@ const ChatList = ({
 	userId,
 	setSelectedChat,
 	selectChat,
-	logoutWhatsapp,
+	logoutHandler,
 	getChat,
 }) => {
 	const onSelectedChatHandler = (chatId) => {
@@ -74,7 +74,7 @@ const ChatList = ({
 					</Text>
 				</Box>
 
-				<Button size='xs' onClick={() => logoutWhatsapp(userId)}>
+				<Button size='xs' onClick={logoutHandler}>
 					Logout Whatsapp
 				</Button>
 

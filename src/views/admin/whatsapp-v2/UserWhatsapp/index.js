@@ -100,10 +100,13 @@ const UserWhatsapp = () => {
 	// 4. Manage loadingChats animation
 	// ---------------------------
 	useEffect(() => {
-		if (isReady && allConversations?.length) {
+		if (isReady) {
 			setLoadingChats(true);
-			const timer = setTimeout(() => setLoadingChats(false), 3000);
-			return () => clearTimeout(timer);
+
+			if (allConversations?.length) {
+				const timer = setTimeout(() => setLoadingChats(false), 3000);
+				return () => clearTimeout(timer);
+			}
 		}
 	}, [isReady, allConversations]);
 
@@ -132,8 +135,6 @@ const UserWhatsapp = () => {
 			window.removeEventListener('unload', handleBeforeUnload);
 		};
 	}, [safeDisconnect]);
-
-	console.log({ loadingChats });
 
 	if (isLoading || userLoading) return <InitialLoading />;
 

@@ -7,11 +7,15 @@ import ChatList from '../_components/ChatList';
 import Chat from '../_components/Chat';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import Loader from 'components/loading/Loader';
+import { useNavigate } from 'react-router-dom';
+import ErrorState from '../_components/ErrorState';
 
 const WhatsappScreen = ({ userId, loadingChats }) => {
 	const [selectedChat, setSelectedChat] = useState(null);
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
+
+	const navigate = useNavigate();
 
 	const {
 		// values
@@ -26,15 +30,35 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 		getChat,
 	} = useWhatsapp();
 
+	console.log({
+		userChats,
+		qr,
+		isReady,
+		allConversations,
+		error,
+		fail,
+		whatsapp_disconnect,
+		logoutWhatsapp,
+		getChat,
+	});
+	const logoutHandler = (id) => {
+		logoutWhatsapp(id);
+		navigate('/');
+	};
+
 	// ---- State Handling ----
 	const renderContent = () => {
+		// Usage
 		if (error || fail) {
-			return <Text color='red.500'>{error || fail}</Text>;
+			return <ErrorState message={error || fail} type='error' />;
 		}
 
 		if (whatsapp_disconnect) {
 			return (
-				<Text color='orange.400'>WhatsApp disconnected. Please reconnect.</Text>
+				<ErrorState
+					message='WhatsApp disconnected. Please reconnect.'
+					type='warning'
+				/>
 			);
 		}
 
@@ -48,7 +72,7 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 							userId={userId}
 							setSelectedChat={setSelectedChat}
 							selectedChat={selectedChat}
-							logoutWhatsapp={logoutWhatsapp}
+							logoutHandler={logoutHandler}
 							getChat={getChat}
 						/>
 					</Box>
