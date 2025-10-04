@@ -48,11 +48,6 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 
 	// ---- State Handling ----
 	const renderContent = () => {
-		// Usage
-		if (error || fail) {
-			return <ErrorState message={error || fail} type='error' />;
-		}
-
 		if (whatsapp_disconnect) {
 			return (
 				<ErrorState
@@ -142,6 +137,11 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 
 		if (isReady) {
 			return <WAConnectionSuccess loadingChats={loadingChats} />;
+		}
+
+		// Usage
+		if (error || fail) {
+			return <ErrorState message={error || fail} type='error' />;
 		}
 
 		return qr && <WhatsappQRLogin qr={qr} />;
