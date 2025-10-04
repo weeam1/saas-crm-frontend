@@ -27,7 +27,7 @@ const DealsLayout = () => {
 				id: 'closed_deals',
 				label: 'Deals',
 				icon: FaTachometerAlt,
-				param: 'closed_deals',
+				param: 'closed-deals',
 				title: 'Closed Deals',
 				description:
 					'View and analyze completed deals, transaction details, and performance metrics.',
@@ -37,7 +37,7 @@ const DealsLayout = () => {
 				id: 'shared_deals',
 				label: 'Shared Deals',
 				icon: FaUsers,
-				param: 'shared_deals',
+				param: 'shared-deals',
 				title: 'Shared Deals',
 				description:
 					'Explore deals with distributed ownership, shared credit, or collaborative participation.',

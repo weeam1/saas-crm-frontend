@@ -123,14 +123,15 @@ const EditSipSettingModal = ({
         }).unwrap();
 
         createUserLog({
-          userId: user?._id,
-          action: "UPDATE",
-          entity: "Sip_Setting",
-          entityType: "SipSetting",
-          entityId: response._id,
-          status: "success",
-          message: `${user?.fullName} updated sip setting with sip id "${response?.sipId || "Untitled"}".`,
-        });
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Call_Logs',
+
+					entityType: 'SipSetting',
+					entityId: response._id,
+					status: 'success',
+					message: `${user?.fullName} updated sip setting with sip id "${response?.sipId || 'Untitled'}".`,
+				});
         toast.success("SIP Setting updated successfully");
         onSuccess();
         onClose();
@@ -140,14 +141,15 @@ const EditSipSettingModal = ({
           error?.data?.message ||
           "Failed to update SIP Setting. Please try again.";
         createUserLog({
-          userId: user?._id,
-          action: "UPDATE",
-          entity: "Sip_Setting",
-          entityType: "SipSetting",
-          entityId: sipSetting._id || null,
-          status: error?.status === "500" ? "error" : "fail",
-          message: errorMsg,
-        });
+					userId: user?._id,
+					action: 'UPDATE',
+					entity: 'Call_Logs',
+
+					entityType: 'SipSetting',
+					entityId: sipSetting._id || null,
+					status: error?.status === '500' ? 'error' : 'fail',
+					message: errorMsg,
+				});
       } finally {
         setSubmitting(false);
       }

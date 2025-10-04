@@ -116,7 +116,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					entityType: 'Attendance',
 					entityId: res?.doc?._id,
 					status: 'success',
-					message: `${user?.fullName || ''} updated attendance record`,
+					message: `${user?.fullName || ''} updated ${data?.employee?.fullName || ''} attendance record`,
 				});
 			}
 		} catch (e) {
@@ -129,7 +129,6 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 				action: 'UPDATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

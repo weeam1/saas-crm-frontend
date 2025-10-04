@@ -157,7 +157,7 @@ const CallTableView = ({
 }) => {
 	const columns = [
 		'Call id',
-		'Call date',
+		'Call date & time',
 		'Call Mode',
 		'Call from',
 		'Call to',
@@ -235,7 +235,7 @@ const CallTableView = ({
 									textAlign={'center'}
 								>
 									{call.calldate
-										? moment(call.calldate).format('dddd D, MMMM YYYY')
+										? moment(call.calldate).format('MMM D, h:mm A')
 										: 'no data found'}
 								</Td>
 								<Td
@@ -303,6 +303,7 @@ const CallTableView = ({
 												playerId={call.id || call.uniqueid || `player-${index}`}
 												timestamp={new Date(call.calldate)}
 												duration={call?.duration}
+												id= {call?.uniqueid}
 											/>
 											{call.billsec > 0 && (
 												<Button

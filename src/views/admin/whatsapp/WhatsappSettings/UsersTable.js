@@ -41,8 +41,6 @@ const UsersTable = ({
 		'Action',
 	];
 
-	console.log({ data });
-
 	const navigate = useNavigate();
 
 	return (
@@ -120,7 +118,7 @@ const UsersTable = ({
 												colorScheme='brand'
 												onClick={() =>
 													navigate(
-														`/settings/whatsapp_manager/message_templates/${item?.businessId}`
+														`/whatsapp/settings/message_templates/${item?.businessId}`
 													)
 												}
 											>

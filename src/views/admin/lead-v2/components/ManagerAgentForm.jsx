@@ -11,8 +11,10 @@ const ManagerAgentForm = ({
 	values,
 	errors,
 	touched,
+	setFieldValue,
 }) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
+	const [managerId, setMangerId] = useState(null);
 
 	const getAllAgents = (tree) => {
 		const agentsList = Object.values(tree?.agents || {}).flat();
@@ -27,10 +29,15 @@ const ManagerAgentForm = ({
 		if (selectedManagerId) {
 			const agentsKey = `manager-${selectedManagerId}`;
 			const agentsList = tree?.agents[agentsKey] || [];
+
 			setFilteredAgents(agentsList);
+			setMangerId(selectedManagerId);
 		} else {
 			setFilteredAgents([]);
+			setMangerId(null);
 		}
+
+		setFieldValue('agentAssigned', '');
 	};
 
 	useEffect(() => {
@@ -44,7 +51,7 @@ const ManagerAgentForm = ({
 
 	return (
 		<>
-					{['Admin', 'superAdmin'].includes(user?.roles?.[0]?.roleName) && (
+			{['Admin', 'superAdmin'].includes(user?.roles?.[0]?.roleName) && (
 				<>
 					<GridItem colSpan={{ base: 12, md: 6 }}>
 						<FormLabel
@@ -99,7 +106,7 @@ const ManagerAgentForm = ({
 								value={values['agentAssigned']}
 							>
 								<option value=''>Select agent</option>
-								{filteredAgents?.length
+								{managerId
 									? removeDisableUser(filteredAgents)?.map((agent) => (
 											<option key={agent._id} value={agent._id}>
 												{agent.firstName} {agent.lastName}

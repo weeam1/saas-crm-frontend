@@ -29,7 +29,7 @@ import { toast } from 'react-toastify';
 import {
 	ALLOWED_FILE_TYPES,
 	commissionStatuses,
-	currencies,
+	// currencies,
 	dealSchema,
 	roundTo2,
 } from './../../../deals/dealUtils';
@@ -38,6 +38,7 @@ import { FiUploadCloud } from 'react-icons/fi';
 import useUserSession from 'hooks/useUserSession';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { InfoIcon } from '@chakra-ui/icons';
+import { currencies } from 'constants/currencies';
 
 const CloseDealModal = React.memo(
 	({
@@ -76,8 +77,8 @@ const CloseDealModal = React.memo(
 				unitNumber: '',
 				unitType: '',
 				unitPrice: '',
-				downpaymentPaid: '',
-				downpaymentPercent: '',
+				downpaymentPaid: 0,
+				downpaymentPercent: 0,
 				bookingAmountPaid: '',
 				bookingPercent: '',
 				spaDone: false,
@@ -439,7 +440,7 @@ const CloseDealModal = React.memo(
 										errors={errors}
 										type='number'
 										step='0.01'
-										isRequired
+										// isRequired
 									/>
 									<VStack align='start' spacing={1} minW='180px'>
 										<Text fontWeight='semibold' fontSize='sm' color='gray.600'>
@@ -483,7 +484,7 @@ const CloseDealModal = React.memo(
 										name='commissionStatus'
 										register={register}
 										errors={errors}
-										isRequired
+										// isRequired={}
 										options={commissionStatuses}
 										placeholder='Select status'
 									/>

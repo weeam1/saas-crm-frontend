@@ -30,6 +30,7 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { safeValue } from './../../../utils/index';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -52,7 +53,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		try {
 			setIsLoading(true);
 			let response = await getApi('api/lead/view/', leadId);
-			setData(response.data?.lead);
+			setData(response?.data?.lead);
 
 			const { ip, city, country } = extractLocationData(
 				response?.data?.lead?.ip,
@@ -246,11 +247,17 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 			<GridItem colSpan={sectionColSpan}>
 				<SectionCard title='Additional Details'>
 					<DetailGrid>
-						<DetailItem label='Nationality' value={data?.nationality} />
-						<DetailItem label='Preferred Time' value={data?.timetocall} />
-						<DetailItem label='In UAE?' value={formatValue(data?.r_u_in_uae)} />
-						<DetailItem label='Interest' value={data?.interest} />
-						<DetailItem label='Language' value={data?.leadLang} />
+						<DetailItem
+							label='Nationality'
+							value={safeValue(data?.nationality)}
+						/>
+						<DetailItem
+							label='Preferred Time'
+							value={safeValue(data?.timetocall)}
+						/>
+						<DetailItem label='In UAE?' value={safeValue(data?.r_u_in_uae)} />
+						<DetailItem label='Interest' value={safeValue(data?.interest)} />
+						<DetailItem label='Language' value={safeValue(data?.leadLang)} />
 					</DetailGrid>
 				</SectionCard>
 			</GridItem>

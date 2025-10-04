@@ -184,6 +184,8 @@ const ManagerAgentImport = ({
 		? tree?.agents[`manager-${user._id}`] || []
 		: filteredAgents;
 
+	console.log({ managerAgents });
+
 	return (
 		<>
 			{/* Manager Selection (Super Admin Only) */}

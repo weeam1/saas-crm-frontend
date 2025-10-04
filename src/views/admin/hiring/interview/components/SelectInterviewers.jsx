@@ -172,8 +172,6 @@ const SelectInterviewers = ({
 		);
 	};
 
-	// console.log({ selectedIds, selectedInterviewer });
-
 	// const getSenderName = (id) => {
 	// 	return combinedUsers.find((user) => user._id === id)?.name;
 	// };
@@ -203,8 +201,6 @@ const SelectInterviewers = ({
 					candidate_name: interview?.candidate?.name,
 					candidate_job_type: interview?.candidate?.position.name,
 				};
-
-				console.log(interviewData);
 
 				const { data } = await axios.post(
 					`${keys.socketUrl}/interview_invite`,

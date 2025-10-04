@@ -38,7 +38,7 @@ const HiringReport = () => {
 				<Text fontSize={{ base: 'md', md: 'xl', lg: '2xl' }} fontWeight='bold'>
 					Hiring Report
 				</Text>
-				{hasPermission('reports', 'link') && (
+				{hasPermission('reports', 'link') && hasPermission('hiring') && (
 					<RefButton to='/hiring?tab=dashboard' label='Hiring Module' />
 				)}
 			</HStack>

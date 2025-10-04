@@ -147,8 +147,6 @@ const EvaluationPoints = ({
 		useUpdateItemMutation();
 	const navigate = useNavigate();
 
-	console.log({ interview });
-
 	// Get evaluation data for the current round
 	const currentEvaluationData = interview?.evaluations || {};
 	const isSubmitted =

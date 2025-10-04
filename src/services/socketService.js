@@ -3,6 +3,8 @@ import { io } from 'socket.io-client';
 import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
 import { updateAllUsers } from '../redux/usersSlice';
+import { setOnlineUsers } from '../redux/onlineUsersSlice';
+import keys from 'config/keys';
 
 class SocketService {
 	constructor() {
@@ -19,7 +21,7 @@ class SocketService {
 	 * @param {object} [options] - Socket.IO options
 	 * @returns {Promise} Resolves when connected
 	 */
-	connect(url, options = {}) {
+	connect(url = keys.socketIoUrl, options = {}) {
 		if (this.connectionPromise) {
 			return this.connectionPromise;
 		}
@@ -29,11 +31,11 @@ class SocketService {
 			path: '/socket.io',
 			// transports: ['socket.io'],
 			reconnection: true,
-			reconnectionAttempts: this.maxReconnectionAttempts,
+			reconnectionAttempts: Infinity || this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
-			forceNew: true,
+			forceNew: true, // <-- don’t force new connection
 			timeout: 5000,
 		};
 
@@ -41,14 +43,14 @@ class SocketService {
 
 		this.connectionPromise = new Promise((resolve, reject) => {
 			this.socket.on('connect', () => {
-				console.log('Socket connected:', this.socket.id);
+				// console.log('Socket connected:', this.socket.id);
 				this.connectionStatus = 'connected';
-				this.reconnectionAttempts = 0;
+				// this.reconnectionAttempts = 0;
 				resolve(this.socket.id);
 			});
 
 			this.socket.on('chatMessage', (msg) => {
-				console.log('Message received:', msg);
+				// console.log('Message received:', msg);
 				if (msg.roomId) {
 					store.dispatch(
 						appendMessage({
@@ -60,29 +62,34 @@ class SocketService {
 			});
 
 			this.socket.on('newContact', (contact) => {
-				console.log(' New contact:', contact);
-
 				if (contact) {
 					store.dispatch(addContact(contact));
 				}
 			});
 
 			this.socket.on('user_online', (data) => {
-				// console.log('User online:', data);
+				console.log('User online:', data);
 				store.dispatch(
 					updateAllUsers({ id: data.userId, updates: { isOnline: true } })
 				);
+				store.dispatch(setOnlineUsers(data));
 			});
 
 			this.socket.on('user_offline', (data) => {
-				// console.log('User offline:', data);
+				console.log('User offline:', data);
 				store.dispatch(
 					updateAllUsers({ id: data.userId, updates: { isOnline: false } })
 				);
+
+				store.dispatch(setOnlineUsers(data));
+			});
+
+			this.socket.on('connection_status', (data) => {
+				console.log('Connection Status:', data);
 			});
 
 			this.socket.on('activity_log_created', (data) => {
-				console.log('Activity: ', data);
+				// console.log('Activity: ', data);
 			});
 
 			// Connection error
@@ -114,12 +121,28 @@ class SocketService {
 	 *  Registration payload
 	 */
 	registerUser(payload) {
+		console.log({ socket: this.socket?.connected });
 		if (this.socket?.connected) {
 			this.socket.emit('register', payload);
 		} else {
 			if (!this.connectionPromise) {
 				console.warn(
 					'Socket not connected, registration will be attempted when connection is established'
+				);
+			}
+		}
+	}
+	/**
+	 * Register user with the server
+	 *  Registration payload
+	 */
+	registerWhatsappUser(payload) {
+		if (this.socket?.connected) {
+			this.socket.emit('whatsapp_register', payload);
+		} else {
+			if (!this.connectionPromise) {
+				console.warn(
+					'Socket not connected, whatsapp registration will be attempted when connection is established'
 				);
 			}
 		}
@@ -150,7 +173,7 @@ class SocketService {
 			this.socket = null;
 			this.connectionPromise = null;
 			this.connectionStatus = 'disconnected';
-			this.reconnectionAttempts = 0;
+			// this.reconnectionAttempts = 0;
 		}
 	}
 

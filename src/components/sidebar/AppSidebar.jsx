@@ -20,12 +20,16 @@ import {
 	Avatar,
 	Badge,
 	Image,
+	Collapse,
+	Icon,
 } from '@chakra-ui/react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiMenu } from 'react-icons/fi';
 import BrandLogo from 'assets/logo/logo.png';
 import { usePermissions } from 'hooks/usePermissions';
 import { useIsMobile } from 'hooks/useIsMobile';
+import { MdExpandLess, MdExpandMore } from 'react-icons/md';
+import { filterRoutes } from './sidebarHelpers';
 
 // Storage keys
 const COLLAPSE_KEY = 'app:sidebar:collapsed';
@@ -47,22 +51,104 @@ const safeStorage = {
 	},
 };
 
+// const SidebarItem = React.memo(function SidebarItem({
+// 	route,
+// 	active,
+// 	collapsed,
+// 	onClick,
+// 	isMobile,
+// }) {
+// 	const activeBg = useColorModeValue('brand.100', 'brand.300');
+// 	const activeColor = useColorModeValue('brand.500', 'gray.200');
+// 	const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
+
+// 	const content = (
+// 		<HStack
+// 			as={NavLink}
+// 			to={route.path}
+// 			onClick={onClick}
+// 			align='center'
+// 			spacing={3}
+// 			px={3}
+// 			py={2.5}
+// 			borderRadius='lg'
+// 			_hover={{ bg: active ? activeBg : hoverBg }}
+// 			bg={active ? activeBg : 'transparent'}
+// 			aria-current={active ? 'page' : undefined}
+// 			role='link'
+// 			data-testid={`sidebar-link-${route.moduleId}`}
+// 			transition='background 200ms ease'
+// 			alignItems={'center'}
+// 		>
+// 			<Box
+// 				as='span'
+// 				fontSize='lg'
+// 				color={active ? activeColor : 'inherit'}
+// 				display='inline-flex'
+// 				alignItems='center'
+// 				justifyContent='center'
+// 				w='32px'
+// 			>
+// 				{route.icon}
+// 			</Box>
+// 			{(!collapsed || isMobile) && (
+// 				<Text
+// 					noOfLines={1}
+// 					fontWeight={'500'}
+// 					color={active ? activeColor : 'inherit'}
+// 					fontSize='sm'
+// 				>
+// 					{route.name}
+// 				</Text>
+// 			)}
+// 		</HStack>
+// 	);
+
+// 	if (collapsed) {
+// 		return (
+// 			<Tooltip label={route.name} placement='right' openDelay={300} hasArrow>
+// 				<Box>{content}</Box>
+// 			</Tooltip>
+// 		);
+// 	}
+// 	return content;
+// });
+
 const SidebarItem = React.memo(function SidebarItem({
 	route,
 	active,
 	collapsed,
 	onClick,
 	isMobile,
+	setCollapsed,
 }) {
+	const [open, setOpen] = useState(false);
+
 	const activeBg = useColorModeValue('brand.100', 'brand.300');
 	const activeColor = useColorModeValue('brand.500', 'gray.200');
 	const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
 
+	const hasChildren =
+		Array.isArray(route.children) && route.children.length > 0;
+
+	const handleSidebarItemClick = () => {
+		if (hasChildren) {
+			// if collapsed, first expand the sidebar
+			if (collapsed && !isMobile) {
+				setCollapsed(false);
+				setOpen(true);
+			} else {
+				setOpen((prev) => !prev);
+			}
+		}
+		if (onClick && !hasChildren) onClick(); // only navigate if leaf
+	};
+
 	const content = (
 		<HStack
-			as={NavLink}
-			to={route.path}
-			onClick={onClick}
+			as={hasChildren ? 'div' : NavLink}
+			to={hasChildren ? undefined : route.path}
+			onClick={handleSidebarItemClick}
 			align='center'
 			spacing={3}
 			px={3}
@@ -74,11 +160,11 @@ const SidebarItem = React.memo(function SidebarItem({
 			role='link'
 			data-testid={`sidebar-link-${route.moduleId}`}
 			transition='background 200ms ease'
-			alignItems={'center'}
+			cursor='pointer'
 		>
 			<Box
 				as='span'
-				fontSize='lg'
+				fontSize='sm'
 				color={active ? activeColor : 'inherit'}
 				display='inline-flex'
 				alignItems='center'
@@ -88,14 +174,26 @@ const SidebarItem = React.memo(function SidebarItem({
 				{route.icon}
 			</Box>
 			{(!collapsed || isMobile) && (
-				<Text
+				<Box
+					as='span'
 					noOfLines={1}
-					fontWeight={'500'}
+					fontWeight='600'
 					color={active ? activeColor : 'inherit'}
-					fontSize='sm'
+					fontSize='xs'
+					p={0}
+					m='0'
+					flex='1'
+					h='fit-content'
 				>
 					{route.name}
-				</Text>
+				</Box>
+			)}
+			{hasChildren && !collapsed && (
+				<Icon
+					as={open ? MdExpandLess : MdExpandMore}
+					boxSize={4}
+					color='gray.400'
+				/>
 			)}
 		</HStack>
 	);
@@ -107,7 +205,39 @@ const SidebarItem = React.memo(function SidebarItem({
 			</Tooltip>
 		);
 	}
-	return content;
+
+	return (
+		<Box>
+			{content}
+			{hasChildren && (
+				<Collapse in={open} animateOpacity>
+					<VStack align='start' pl={10} spacing={1} mt={1}>
+						{route.children.map((child, index) => (
+							<NavLink
+								key={child.id + index}
+								to={child.path}
+								onClick={onClick}
+								style={{ width: '100%' }}
+							>
+								{({ isActive }) => (
+									<Text
+										px={2}
+										py={1.5}
+										fontSize='sm'
+										borderRadius='md'
+										color={isActive ? activeColor : 'gray.600'}
+										_hover={{ bg: hoverBg }}
+									>
+										{child.name}
+									</Text>
+								)}
+							</NavLink>
+						))}
+					</VStack>
+				</Collapse>
+			)}
+		</Box>
+	);
 });
 
 export default function AppSidebar({
@@ -158,27 +288,46 @@ export default function AppSidebar({
 	// 	});
 	// }, [routes, hasPermission]);
 
+	// const visibleRoutes = useMemo(() => {
+	// 	return routes?.filter((route) => {
+	// 		// always keep routes without moduleId
+	// 		if (!route.moduleId) {
+	// 			return true;
+	// 		}
+	// 		// keep only routes with permission
+	// 		return hasPermission(route.moduleId);
+	// 	});
+
+	// 	// also filter children routes with this mehtod hasPermission(route.moduleId, route.children.id) for every  children check if route.children avlaiable then check other permission nested
+	// }, [routes, hasPermission]);
+
 	const visibleRoutes = useMemo(() => {
-		return routes?.filter((route) => {
-			// always keep routes without moduleId
-			if (!route.moduleId) {
-				return true;
-			}
-			// keep only routes with permission
-			return hasPermission(route.moduleId);
-		});
+		return filterRoutes(routes || [], hasPermission);
 	}, [routes, hasPermission]);
 
 	const handleNavigate = useCallback(() => {
-		if (onNavigate) onNavigate();
+		// if (onNavigate) onNavigate();
 		if (isMobile) setMobileOpen(false);
-	}, [onNavigate, isMobile, setMobileOpen]);
+	}, [isMobile, setMobileOpen]);
+
+	// const isActive = useCallback(
+	// 	(path) => {
+	// 		return (
+	// 			location.pathname === path || location.pathname.startsWith(path + '/')
+	// 		);
+	// 	},
+	// 	[location.pathname]
+	// );
 
 	const isActive = useCallback(
 		(path) => {
-			return (
-				location.pathname === path || location.pathname.startsWith(path + '/')
-			);
+			const currentPath = location.pathname.replace(/\/+$/, '');
+			const targetPath = path.replace(/\/+$/, '');
+
+			if (currentPath === targetPath) return true;
+
+			// match only if next char after targetPath is "/"
+			return currentPath.startsWith(targetPath + '/');
 		},
 		[location.pathname]
 	);
@@ -291,6 +440,7 @@ export default function AppSidebar({
 							active={isActive(r.path)}
 							onClick={handleNavigate}
 							isMobile={isMobile}
+							setCollapsed={setCollapsed}
 						/>
 					))}
 				</VStack>

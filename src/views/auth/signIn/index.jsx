@@ -33,6 +33,7 @@ import DefaultAuth from 'layouts/auth/Default';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { setPermissions } from '../../../redux/permissionSlice';
 import { buildPermissionMap } from 'utils/permissionUtils';
+import socketService from 'services/socketService';
 
 function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -120,7 +121,14 @@ function SignIn() {
 				dispatch(setPermissions(permissionMap));
 				dispatch(setUser(userData));
 
+				// notification and announcments socket (python sockets)
 				webSocketService.connect(userData._id);
+				await socketService.connect();
+				// connect web scoket.io (node js sockets)
+				socketService.registerUser({
+					userId: userData?._id || '',
+				});
+
 				navigate('/');
 
 				// create a user login log

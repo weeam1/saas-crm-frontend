@@ -395,11 +395,14 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'success',
-					message: `${user?.fullName} request to purchase the lead.`,
+					message: `${user?.fullName} request to purchase the '${lead?.leadName || ''}' lead.`,
+					rawPayload: {
+						leadId: lead?.intID || null,
+					},
 				});
 			} else {
 				throw new Error('Failed to update user coins');
@@ -425,7 +428,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'fail',
@@ -439,7 +442,7 @@ const Index = () => {
 				createUserLog({
 					userId: user?._id,
 					action: 'PURCHASE',
-					entity: 'Lead',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'error',
@@ -494,12 +497,15 @@ const Index = () => {
 
 				createUserLog({
 					userId: user?._id,
-					action: 'DELETE',
-					entity: 'Lead',
+					action: 'CANCEL',
+					entity: 'Lead_Pool',
 					enityType: 'Lead',
 					entityId: leadId || null,
 					status: 'success',
-					message: `${user?.fullName} canceled the request to purchase the lead.`,
+					message: `${user?.fullName} canceled the request to purchase the '${leadResponse?.data?.lead?.leadName || ''}' lead.`,
+					rawPayload: {
+						leadId: leadResponse?.data?.lead?.intID || null,
+					},
 				});
 			}
 		} catch (error) {
@@ -511,8 +517,8 @@ const Index = () => {
 
 			createUserLog({
 				userId: user?._id,
-				action: 'DELETE',
-				entity: 'Lead',
+				action: 'CANCEL',
+				entity: 'Lead_Pool',
 				enityType: 'Lead',
 				entityId: leadId || null,
 				status: error?.response?.status === 500 ? 'error' : 'fail',

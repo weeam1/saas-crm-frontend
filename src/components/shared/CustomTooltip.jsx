@@ -296,7 +296,7 @@ const CustomTooltip = ({
 
 	return (
 		<>
-			<style jsx>{`
+			<style>{`
 				.tooltip-container {
 					position: relative;
 					display: inline-block;

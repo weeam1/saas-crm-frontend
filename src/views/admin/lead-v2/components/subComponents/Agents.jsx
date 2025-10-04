@@ -105,12 +105,18 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
-					action: 'UPDATE',
+					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: agentAssignedValue || null,
+					entityId: lead?._id || null,
+					leadAgent: agentAssignedValue || null,
 					status: 'success',
 					message,
+					rawPayload: {
+						previousAgent: lead?.agentAssigned || null,
+						newAgent: agentAssignedValue || null,
+						leadId: lead?.intID || null,
+					},
 				});
 			}
 		} catch (error) {
@@ -120,7 +126,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 			// update user activity log
 			createUserLog({
 				userId: user?._id,
-				action: 'UPDATE',
+				action: 'ASSIGN',
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,

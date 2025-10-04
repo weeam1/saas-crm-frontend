@@ -140,12 +140,28 @@ const sidebarRoutes = [
 		icon: <Icon as={MdInsertChartOutlined} w='20px' h='20px' />,
 	},
 
-	// -------- WhatsApp --------
 	{
 		moduleId: 'whatsapp',
 		name: 'Whatsapp',
 		path: '/whatsapp',
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		children: [
+			{
+				id: 'whatsapp_chats',
+				name: 'Chats',
+				path: '/whatsapp/chats',
+			},
+			{
+				id: 'whatsapp_bulk_messages',
+				name: 'Bulk Message',
+				path: '/whatsapp/bulk-messages',
+			},
+			{
+				id: 'whatsapp_settings',
+				name: 'Settings',
+				path: '/whatsapp/settings',
+			},
+		],
 	},
 
 	// -------- Users --------

@@ -227,7 +227,6 @@ const CreateWhatsappTemplate = () => {
 
 			toast.success('Template submitted for review');
 			navigate(`/settings/whatsapp_manager/message_templates/${businessId}`);
-			console.log('Request Body:', requestBody);
 		} catch (error) {
 			console.error(error);
 			toast.error(error?.data?.message || 'Failed to create template!');
@@ -239,7 +238,7 @@ const CreateWhatsappTemplate = () => {
 			<AppButton
 				leftIcon={<FaChevronLeft />}
 				onClick={() =>
-					navigate(`/settings/whatsapp_manager/message_templates/${businessId}`)
+					navigate(`/whatsapp/settings/message_templates/${businessId}`)
 				}
 			>
 				Back

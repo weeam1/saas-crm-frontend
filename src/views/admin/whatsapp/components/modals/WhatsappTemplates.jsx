@@ -100,15 +100,6 @@ const WhatsappTemplates = ({
 		return finalBody;
 	}, [templateBody, templateHeader, templateFooter, placeholderValues]);
 
-	// const hasPlaceholders = useMemo(() => {
-	// 	const body = selectedTemplate?.components?.find(
-	// 		(c) => c.type === 'BODY'
-	// 	)?.text;
-
-	// 	console.log({ body });
-	// 	return body ? /\{\{\d+\}\}/.test(body) : false;
-	// }, [selectedTemplate]);
-
 	const extractPlaceholders = useMemo(() => {
 		const body = selectedTemplate?.components?.find(
 			(c) => c.type === 'BODY'
@@ -206,46 +197,6 @@ const WhatsappTemplates = ({
 										p='2'
 									>
 										{filteredTemplates?.map((template) => (
-											// <Box
-											// 	key={template.id}
-											// 	cursor='pointer'
-											// 	p={2}
-											// 	mb={3}
-											// 	borderRadius='lg'
-											// 	borderWidth='1px'
-											// 	borderColor={
-											// 		selectedTemplate?.id === template.id
-											// 			? 'green.300'
-											// 			: 'gray.200'
-											// 	}
-											// 	bg={
-											// 		selectedTemplate?.id === template.id
-											// 			? 'green.50'
-											// 			: 'white'
-											// 	}
-											// 	_hover={{ borderColor: 'green.300', bg: 'green.50' }}
-											// 	transition='all 0.2s'
-											// 	onClick={() => setSelectedTemplate(template)}
-											// >
-											// 	<Flex justify='space-between' align='center' mb={2}>
-											// 		<Text
-											// 			fontWeight='bold'
-											// 			fontSize={{ base: 'xs', md: 'sm' }}
-											// 		>
-											// 			{template.name}
-											// 		</Text>
-											// 		<Badge
-											// 			colorScheme={
-											// 				template.status === 'APPROVED'
-											// 					? 'green'
-											// 					: 'orange'
-											// 			}
-											// 			fontSize='xs'
-											// 		>
-											// 			{template.status}
-											// 		</Badge>
-											// 	</Flex>
-											// </Box>
 											<Box
 												key={template.id}
 												cursor='pointer'
@@ -305,20 +256,6 @@ const WhatsappTemplates = ({
 													>
 														{template.name}
 													</Text>
-													{/* <Badge
-															colorScheme={
-																template.status === 'APPROVED'
-																	? 'green'
-																	: 'orange'
-															}
-															fontSize='10px'
-															px={1.5}
-															py={0.5}
-															borderRadius='md'
-															variant='subtle'
-														>
-															{template.status}
-														</Badge> */}
 												</Flex>
 											</Box>
 										))}
@@ -333,25 +270,6 @@ const WhatsappTemplates = ({
 									scrollBehavior='smooth'
 								>
 									{/* Name Input Field */}
-									{/* {selectedTemplate && hasPlaceholders && (
-										<Box mb={3}>
-											<Text fontSize='sm' fontWeight='medium' mb={1}>
-												Name
-											</Text>
-											<Input
-												placeholder='Enter name e.g: Weeam'
-												size='sm'
-												bg='white'
-												value={placeholderValues['1'] || ''}
-												onChange={(e) =>
-													setPlaceholderValues({
-														...placeholderValues,
-														1: e.target.value,
-													})
-												}
-											/>
-										</Box>
-									)} */}
 
 									{selectedTemplate &&
 										extractPlaceholders?.length > 0 &&
@@ -414,11 +332,6 @@ const WhatsappTemplates = ({
 													<Text fontSize='sm' whiteSpace='pre-line'>
 														{previewText}
 													</Text>
-													{/* {templateFooter && (
-														<Text fontSize='xs' color='gray.500' mt={2}>
-															{templateFooter}
-														</Text>
-													)} */}
 												</Box>
 
 												<Box p={3} bg='gray.50' rounded='lg'>
@@ -444,9 +357,6 @@ const WhatsappTemplates = ({
 													<Text fontSize='sm'>
 														Category: {selectedTemplate.category}
 													</Text>
-													{/* <Text fontSize='sm'>
-													Sub-category: {selectedTemplate.sub_category}
-												</Text> */}
 												</Box>
 											</>
 										) : (

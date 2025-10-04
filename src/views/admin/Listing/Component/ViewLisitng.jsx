@@ -22,6 +22,7 @@ import { constant } from 'constant';
 import { toast } from 'react-toastify';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const ViewListing = () => {
 	const { id } = useParams();
@@ -30,6 +31,7 @@ const ViewListing = () => {
 	const { user, isSuperAdmin } = useUserSession();
 
 	const { createUserLog } = useUserActivityLog();
+	const { hasPermission } = usePermissions();
 
 	const colSpan = useBreakpointValue({ base: 2, sm: 1 });
 
@@ -39,7 +41,7 @@ const ViewListing = () => {
 		isError,
 		isFetching,
 	} = useFetchItemsQuery(
-		{ path: `listing/secondary/${id}` },
+		{ path: `listing/secondary/${id}/${hasPermission('listing', 'read:any') ? true : false}`  },
 		{ refetchOnMountOrArgChange: true }
 	);
 

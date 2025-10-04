@@ -127,7 +127,7 @@ const UserSetting = () => {
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
-				entity: 'Sip_Setting',
+				entity: 'Call_Logs',
 				entityType: 'SipSetting',
 				entityId: id,
 				status: 'success',
@@ -141,7 +141,7 @@ const UserSetting = () => {
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
-				entity: 'Sip_Setting',
+				entity: 'Call_Logs',
 				entityType: 'SipSetting',
 				entityId: id,
 				status: error?.status === 500 ? 'error' : 'fail',

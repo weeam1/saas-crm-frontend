@@ -4,6 +4,7 @@ import CreateAnnouncement from './components/CreateAnnouncement';
 import History from './components/History';
 import TabNavigationDisplay from '../../../components/TabNavigationDisplay/TabNavigationDisplay';
 import useUserSession from 'hooks/useUserSession';
+import { usePermissions } from 'hooks/usePermissions';
 
 const DEFAULT_TAB = 'announcement';
 
@@ -14,16 +15,22 @@ const Announcements = () => {
 	const tabFromParams = searchParams.get('tab')?.toLowerCase() || DEFAULT_TAB;
 	const [tabKey, setTabKey] = useState(0);
 
+	const { hasPermission } = usePermissions();
+
 	const tabsData = useMemo(
 		() => [
-			{
-				label: 'Announcement',
-				param: 'announcement',
-				title: 'Create New Announcement',
-				description:
-					'Quickly create and publish new announcements to keep everyone informed and updated.',
-				component: <CreateAnnouncement key={tabKey} user={user} />,
-			},
+			...(hasPermission('announcement', 'create')
+				? [
+						{
+							label: 'Announcement',
+							param: 'announcement',
+							title: 'Create New Announcement',
+							description:
+								'Quickly create and publish new announcements to keep everyone informed and updated.',
+							component: <CreateAnnouncement key={tabKey} user={user} />,
+						},
+					]
+				: []),
 			{
 				label: 'History',
 				param: 'history',
@@ -48,7 +55,7 @@ const Announcements = () => {
 				(tab) => tab.param === searchParams.get('tab')?.toLowerCase()
 			)
 		) {
-			setSearchParams({ tab: DEFAULT_TAB });
+			setSearchParams({ tab: tabsData[0]?.param });
 		}
 	}, [searchParams, setSearchParams, tabsData]);
 

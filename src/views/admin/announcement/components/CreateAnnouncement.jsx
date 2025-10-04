@@ -7,6 +7,8 @@ import {
 	HStack,
 	Icon,
 	Flex,
+	Alert,
+	AlertIcon,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -22,6 +24,7 @@ import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { buttonStyle } from 'utils/btn';
 import { HiSpeakerphone } from 'react-icons/hi';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
 // import useUserSession from 'hooks/useUserSession';
 
 const CreateAnnouncement = ({ user }) => {
@@ -30,6 +33,7 @@ const CreateAnnouncement = ({ user }) => {
 
 	// const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const { hasPermission } = usePermissions();
 
 	// Set roles
 	const isManager = user?.roles[0]?.roleName === 'Manager';
@@ -243,21 +247,23 @@ const CreateAnnouncement = ({ user }) => {
 			</HStack>
 			<Box maxWidth={{ base: 'full', md: '1200px' }} mx='auto'>
 				<form onSubmit={handleSend}>
-					<Textarea
-						placeholder='Type your message...'
-						value={message}
-						onChange={(e) => setMessage(e.target.value)}
-						mb={{ base: 2, md: 4 }}
-						size='lg'
-						fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
-						height='60'
-						resize='none'
-						overflowY='auto'
-						focusBorderColor='brand.200'
-						backgroundColor='gray.100'
-					/>
+					{(hasPermission('announcement', 'all_users') || isManager) && (
+						<Textarea
+							placeholder='Type your message...'
+							value={message}
+							onChange={(e) => setMessage(e.target.value)}
+							mb={{ base: 2, md: 4 }}
+							size='lg'
+							fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+							height='60'
+							resize='none'
+							overflowY='auto'
+							focusBorderColor='brand.200'
+							backgroundColor='gray.100'
+						/>
+					)}
 
-					{isSuperAdmin && (
+					{hasPermission('announcement', 'all_users') ? (
 						<>
 							<Text fontWeight='bold' mb={{ base: 1, md: 2 }}>
 								Send to:
@@ -286,32 +292,39 @@ const CreateAnnouncement = ({ user }) => {
 								/>
 							</HStack>
 						</>
-					)}
+					) : !isManager ? (
+						<Alert status='warning' variant='subtle' borderRadius='md'>
+							<AlertIcon />
+							You don't have permission to create an announcement.
+						</Alert>
+					) : null}
 
-					{isManager && (
+					{isManager && !hasPermission('announcement', 'all_users') && (
 						<Text mb={{ base: 1, md: 3 }} color='gray.500'>
 							Note: Announcement will be sent all agents under you.
 						</Text>
 					)}
 
-					<Flex justifyContent='flex-end'>
-						<Button
-							{...buttonStyle}
-							colorScheme='brand'
-							w={{ base: 'full', md: 'auto' }}
-							px={{ base: 6, md: 12 }}
-							py={{ base: 3, md: 5 }}
-							type='submit'
-							isDisabled={
-								!message.trim() ||
-								(!isManager && !selectedRole) ||
-								(selectedRole === 'team' && !selectedManager)
-							}
-							leftIcon={<Icon as={MdSend} />}
-						>
-							{loading ? 'Sending...' : 'Send'}
-						</Button>
-					</Flex>
+					{(isManager || hasPermission('announcement', 'all_users')) && (
+						<Flex justifyContent='flex-end'>
+							<Button
+								{...buttonStyle}
+								colorScheme='brand'
+								w={{ base: 'full', md: 'auto' }}
+								px={{ base: 6, md: 12 }}
+								py={{ base: 3, md: 5 }}
+								type='submit'
+								isDisabled={
+									!message.trim() ||
+									(!isManager && !selectedRole) ||
+									(selectedRole === 'team' && !selectedManager)
+								}
+								leftIcon={<Icon as={MdSend} />}
+							>
+								{loading ? 'Sending...' : 'Send'}
+							</Button>
+						</Flex>
+					)}
 				</form>
 			</Box>
 

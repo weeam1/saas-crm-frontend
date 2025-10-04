@@ -53,13 +53,6 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 		try {
 			const newStatus = !isActive;
 
-			// console.log({
-			// 	isAllowed,
-			// 	isActive,
-			// 	replacementManager,
-			// 	securityPassword,
-			// });
-
 			if (!newStatus && !isAllowed) {
 				infoOnOpen();
 				return;
@@ -78,7 +71,6 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 				// const agents = tree?.agents?.[`manager-${user._id}`];
 
 				// if (agents?.length > 0) {
-				// console.log('Agents legnth: ', agents);
 				replaceOnOpen();
 				return;
 				// }

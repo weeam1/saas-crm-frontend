@@ -11,7 +11,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import TopPagination from 'components/pagination/TopPagination';
@@ -187,21 +187,23 @@ const WhatsappSettings = () => {
 		setPagination({ page: 1, limit: Number(limit) });
 	};
 
-	console.log({ users, data });
-
 	const navigate = useNavigate();
+
+	const location = useLocation();
+	const pathname = location?.pathname;
 
 	return (
 		<>
-			{hasPermission('admin_settings') && (
-				<AppButton
-					leftIcon={<FaChevronLeft />}
-					onClick={() => navigate('/admin-setting')}
-					mb='4'
-				>
-					Back
-				</AppButton>
-			)}
+			{pathname.includes('admin-setting') &&
+				hasPermission('admin_settings') && (
+					<AppButton
+						leftIcon={<FaChevronLeft />}
+						onClick={() => navigate('/admin-setting')}
+						mb='4'
+					>
+						Back
+					</AppButton>
+				)}
 			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 				<Flex
 					justify='space-between'

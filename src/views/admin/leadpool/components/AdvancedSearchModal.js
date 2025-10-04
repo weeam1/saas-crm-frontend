@@ -35,8 +35,6 @@ const AdvancedSearchModal = ({
 
 	const { agents } = useFetchUserHierarchy(user);
 
-	console.log({ agents });
-
 	const formClearHanlder = () => {
 		// handleClear();
 		formikResetForm();

@@ -225,10 +225,14 @@ const Permission = () => {
 					<>
 						{/* <LeadpoolSelector modules={modules} setModules={setModules} /> */}
 						<Grid
-							templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+							templateColumns={{ base: '1fr', xl: 'repeat(2, 1fr)' }}
 							gap={6}
 							mx='auto'
 							alignItems='start'
+							// h='65vh'
+							// p='2'
+							// overflow='scroll'
+							// scrollBehavior='smooth'
 						>
 							<Grid gap={6}>
 								{filteredModules

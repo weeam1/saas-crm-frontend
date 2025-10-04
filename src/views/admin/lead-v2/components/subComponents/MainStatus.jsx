@@ -89,15 +89,25 @@ const MainStatus = ({ lead, role }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
-					const { ip } = extractLocationData(lead?.ip, countries);
+					const { ip, city, country } = extractLocationData(
+						lead?.ip,
+						countries
+					);
 
 					sendLeadFeedback({
 						email: leadEmail,
 						phone: leadPhone,
 						status: newStatus,
 						action: 'MStatus',
-						ip,
 						fcblid: lead?.fcblid || null,
+						fbp: lead?.fbp || null,
+						ip,
+						country,
+						city,
+						zip: lead?.zip || null,
+						userAgent: lead?.userAgent || null,
+						leadName: lead?.leadName,
+						leadId: lead?.intID,
 					});
 				}
 
@@ -111,7 +121,7 @@ const MainStatus = ({ lead, role }) => {
 					status: 'success',
 					message: `${user?.fullName} update the lead main status from '${selected || 'No Status'} to '${newStatus}'.`,
 				});
-			} else if (response.status === 400) {
+			} else if (response.status !== 200) {
 				const errorDetails =
 					response?.response?.data?.message || 'Invalid request data.';
 				toast.error(`${errorDetails}`);

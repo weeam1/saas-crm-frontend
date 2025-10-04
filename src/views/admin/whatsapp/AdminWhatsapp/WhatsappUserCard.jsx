@@ -154,7 +154,7 @@ const WhatsappUserCard = ({ data }) => {
 					size='sm'
 					rounded='full'
 					px={4}
-					onClick={() => navigate(`/whatsapp/chat/${user?._id}`)}
+					onClick={() => navigate(`/whatsapp/chats/${user?._id}`)}
 					shadow='md'
 				>
 					WhatsApp Chat
