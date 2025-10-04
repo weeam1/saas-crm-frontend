@@ -32,30 +32,27 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
-		leadName: leadData.leadName || '',
-		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
-		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
-		leadWhatsappNumber: safeValue(leadData.leadWhatsappNumber) || '',
-		leadPhoneNumber: safeValue(leadData.leadPhoneNumber) || '',
-		nationality: leadData.nationality || '',
-		budget: leadData.budget || '',
-		ip: ip || '',
-		city: city || '',
-		country: country || '',
-		leadLang: leadData.leadLang || '',
-		timetocall: leadData.timetocall || '',
-		leadSourceDetails: leadData.leadSourceDetails || '',
-		leadSourceChannel: leadData.leadSourceChannel || '',
-		leadCampaign: leadData.leadCampaign || '',
-		pageUrl: leadData.pageUrl || '',
-		leadAddress: leadData.leadAddress || '',
-		leadEmail: leadData.leadEmail || '',
-		leadSourceMedium: leadData.leadSourceMedium || '',
-		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
-		r_u_in_uae: safeValue(leadData.r_u_in_uae) || '',
-		attendanceDay: leadData.attendanceDay || '',
-		lastNote: leadData.lastNote || '',
-		adset: leadData.adset || '',
+		leadName: safeValue(leadData?.leadName) || '',
+		leadWhatsappNumber: safeValue(leadData?.leadWhatsappNumber) || '',
+		leadPhoneNumber: safeValue(leadData?.leadPhoneNumber) || '',
+		nationality: safeValue(leadData?.nationality) || '',
+		budget: safeValue(leadData?.budget) || '',
+		ip: safeValue(ip) || '',
+		city: safeValue(city) || '',
+		country: safeValue(country) || '',
+		leadLang: safeValue(leadData?.leadLang) || '',
+		timetocall: safeValue(leadData?.timetocall) || '',
+		leadSourceDetails: safeValue(leadData?.leadSourceDetails) || '',
+		leadSourceChannel: safeValue(leadData?.leadSourceChannel) || '',
+		leadCampaign: safeValue(leadData?.leadCampaign) || '',
+		pageUrl: safeValue(leadData?.pageUrl) || '',
+		leadAddress: safeValue(leadData?.leadAddress) || '',
+		leadEmail: safeValue(leadData?.leadEmail) || '',
+		leadSourceMedium: safeValue(leadData?.leadSourceMedium) || '',
+		r_u_in_uae: safeValue(leadData?.r_u_in_uae) || '',
+		attendanceDay: safeValue(leadData?.attendanceDay) || '',
+		lastNote: safeValue(leadData?.lastNote) || '',
+		adset: safeValue(leadData?.adset) || '',
 	};
 
 	// Only "name" is required; others are optional.
@@ -131,9 +128,9 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const handleSubmit = async (values, actions) => {
 		try {
 			const formattedIp = [
-				values.ip || '',
-				values.city || '',
-				values.country || '',
+				values?.ip || '',
+				values?.city || '',
+				values?.country || '',
 			]
 				.join('-')
 				.trim();
@@ -146,7 +143,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 			delete updatedValues.country;
 
 			const res = await updateItemMuation({
-				path: `/lead/edit-lead/${leadData._id}`,
+				path: `/lead/edit-lead/${leadData?._id}`,
 				body: updatedValues,
 			}).unwrap();
 
@@ -160,7 +157,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 				action: 'UPDATE',
 				entity: 'Lead',
 				enityType: 'Lead',
-				entityId: leadData._id,
+				entityId: leadData?._id || null,
 				status: 'success',
 				message: `${res?.leadName || ''} Lead is updated successfully`,
 			});
@@ -176,7 +173,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 				action: 'UPDATE',
 				entity: 'Lead',
 				enityType: 'Lead',
-				entityId: leadData._id,
+				entityId: leadData?._id,
 				status: error?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});

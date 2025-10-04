@@ -76,7 +76,8 @@ const LogDetailsDrawer = ({
 	if (!selectedLog) return null;
 
 	const isLeadId =
-		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadId;
+		['Lead', 'Lead_Pool'].includes(selectedLog?.entity) &&
+		selectedLog?.rawPayload?.leadId;
 
 	const isBulkLeads =
 		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadIds;

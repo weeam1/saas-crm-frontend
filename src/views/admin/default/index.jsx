@@ -5,6 +5,7 @@ import useUserSession from 'hooks/useUserSession';
 import PermissionSection from './components/PermissionSection';
 import { usePermissions } from 'hooks/usePermissions';
 import AppDashboard from './AppDashboard';
+import AppsDownloadSection from './components/AppsDownloadSection';
 
 export default function Dashboard() {
 	const { user, userRoleName } = useUserSession();
@@ -29,6 +30,8 @@ export default function Dashboard() {
 					<PermissionSection />
 				</Box>
 			)}
+
+			<AppsDownloadSection />
 		</Box>
 	);
 }

@@ -13,8 +13,16 @@ const {
 	SimpleGrid,
 } = require('@chakra-ui/react');
 
-const ManagerAgentDropdown = ({ handleChange, values, errors, touched, formik }) => {
+const ManagerAgentDropdown = ({
+	handleChange,
+	values,
+	errors,
+	touched,
+	formik,
+}) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
+	const [managerId, setMangerId] = useState(null);
+
 	const { user, userRoleName } = useUserSession();
 
 	const tree = useSelector((state) => state.user.activeTree);
@@ -32,12 +40,15 @@ const ManagerAgentDropdown = ({ handleChange, values, errors, touched, formik })
 		if (selectedManagerId) {
 			const agentsKey = `manager-${selectedManagerId}`;
 			const agentsList = tree?.agents[agentsKey] || [];
+
 			setFilteredAgents(agentsList);
+			setMangerId(selectedManagerId);
 		} else {
 			setFilteredAgents([]);
+			setMangerId(null);
 		}
-		
-		formik.setFieldValue('leadAgent', '')
+
+		formik.setFieldValue('leadAgent', '');
 	};
 
 	useEffect(() => {
@@ -102,7 +113,7 @@ const ManagerAgentDropdown = ({ handleChange, values, errors, touched, formik })
 								value={values['leadAgent']}
 							>
 								<option value=''>Select agent</option>
-								{filteredAgents?.length
+								{managerId
 									? filteredAgents?.map((agent) => (
 											<option key={agent._id} value={agent._id}>
 												{agent.fullName}

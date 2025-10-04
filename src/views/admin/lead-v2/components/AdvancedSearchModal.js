@@ -169,6 +169,7 @@ const AdvancedSearchModal = ({
 		handleSubmit,
 		resetForm: formikResetForm,
 		dirty,
+		setFieldValue,
 	} = formik;
 
 	// Send the reset function to the parent
@@ -209,6 +210,7 @@ const AdvancedSearchModal = ({
 							handleBlur={handleBlur}
 							user={user}
 							tree={tree}
+							setFieldValue={setFieldValue}
 						/>
 					</ModalBody>
 					<ModalFooter>

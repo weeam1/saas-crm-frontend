@@ -85,6 +85,7 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 						employeeId={emp._id}
 						todayRecord={emp.todayAttendanceRecord}
 						officeSetting={officeSetting}
+						employeeName={emp?.fullName || ''}
 					/>
 				) : (
 					<Text

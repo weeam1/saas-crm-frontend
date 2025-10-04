@@ -18,6 +18,7 @@ import { leadlabelFontSize, leadValueFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
 import { usePermissions } from 'hooks/usePermissions';
+import { safeValue } from 'utils';
 
 const LeftCard = ({
 	lead,
@@ -83,7 +84,7 @@ const LeftCard = ({
 						isTruncated
 						maxWidth='6rem'
 					>
-						{lead?.leadName || 'N/A'}
+						{safeValue(lead?.leadName) || 'N/A'}
 					</Text>
 					<LeadTypeBadge leadType={leadType} roleName={role} />
 				</HStack>
@@ -99,7 +100,7 @@ const LeftCard = ({
 					{!hiddenFields.includes('leadSourceDetails') && (
 						<EntityField
 							label='Source Content'
-							value={lead.leadSourceDetails}
+							value={safeValue(lead?.leadSourceDetails)}
 							valueProps={{ color: '#FFBB00' }}
 							isInfo={true}
 						/>
@@ -108,7 +109,7 @@ const LeftCard = ({
 					{!hiddenFields.includes('timetocall') && (
 						<EntityField
 							label='Time to Call'
-							value={lead?.timetocall}
+							value={safeValue(lead?.timetocall)}
 							isInfo={true}
 							valueProps={{ color: 'green.600' }}
 						/>

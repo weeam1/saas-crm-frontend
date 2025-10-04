@@ -144,6 +144,7 @@ const Attendance = ({ userId }) => {
 									refetch={refetch}
 									employeeId={employeeId}
 									officeSettings={data?.officeSettings}
+									employeeName={data?.employee?.fullName || ''}
 								/>
 							)}
 						</Box>
@@ -176,6 +177,7 @@ const Attendance = ({ userId }) => {
 								onClose={() => setAddAttendance(false)}
 								employeeId={employeeId}
 								refetch={refetch}
+								employeeName={data?.employee?.fullName || ''}
 							/>
 						)}
 					</Flex>
