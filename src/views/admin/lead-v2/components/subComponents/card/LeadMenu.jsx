@@ -14,14 +14,16 @@ import { useNavigate } from 'react-router-dom';
 
 import ReleaseLead from '../../ReleaseLead';
 import { AiFillInfoCircle } from 'react-icons/ai';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
-import { validatePhoneNumber } from 'utils/helpers';
+// import { validatePhoneNumber } from 'utils/helpers';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { FiMoreVertical } from 'react-icons/fi';
+import { extractLocationData } from 'utils/helpers';
+import { normalizePhone } from 'utils/phoneValidation';
 
 const LeadMenu = ({
 	lead,
@@ -46,6 +48,10 @@ const LeadMenu = ({
 	// const user = useSelector((state) => state.user.user);
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
+
+	const countries = useSelector(
+		(state) => state?.countries?.countryNames || []
+	);
 
 	// const loginUser = useSelector((state) => state.user.user);
 
@@ -80,7 +86,10 @@ const LeadMenu = ({
 			return;
 		}
 
-		const validNum = validatePhoneNumber(whatsappNumber);
+		const { country } = extractLocationData(lead?.ip, countries);
+
+		// const validNum = validatePhoneNumber(whatsappNumber);
+		const validNum = normalizePhone(whatsappNumber, country);
 
 		if (!validNum) return toast.error('Not valid WhatsApp number!');
 
