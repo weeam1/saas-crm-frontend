@@ -82,7 +82,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { reset } from 'redux/whatsappWebSlice';
+import { reset } from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
 
 export const useWhatsapp = () => {
