@@ -21,11 +21,14 @@ const UserWhatsapp = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
 
-	const { user: loginUser, userRoleName, isSuperAdmin } = useUserSession();
+	const { user: loginUser, isSuperAdmin } = useUserSession();
 
 	const navigate = useNavigate();
 	const { hasPermission } = usePermissions();
 
+	// ---------------------------
+	// 1. Permission check + userId setup
+	// ---------------------------
 	useEffect(() => {
 		if (!hasPermission('whatsapp')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,8 +37,10 @@ const UserWhatsapp = () => {
 	useEffect(() => {
 		if (id) {
 			setUserId(id);
+		} else if (loginUser?._id && !isSuperAdmin) {
+			setUserId(loginUser?._id);
 		} else redirect('/');
-	}, [id]);
+	}, [id, loginUser?._id, isSuperAdmin]);
 
 	const {
 		// events
@@ -57,20 +62,6 @@ const UserWhatsapp = () => {
 	);
 
 	const [initialized, setInitialized] = useState(false);
-
-	// ---------------------------
-	// 1. Permission check + userId setup
-	// ---------------------------
-	useEffect(() => {
-		if (!hasPermission('whatsapp')) {
-			navigate('/default');
-		}
-	}, [hasPermission, navigate]);
-
-	useEffect(() => {
-		if (id) setUserId(id);
-		else navigate('/');
-	}, [id, navigate]);
 
 	// ---------------------------
 	// 2. Initialize WhatsApp ONCE when socket + userDetails are ready
@@ -100,6 +91,8 @@ const UserWhatsapp = () => {
 			setIsLoading(false);
 		} else if (!qr) {
 			setIsLoading(true);
+		} else if (qr) {
+			setIsLoading(false);
 		}
 	}, [isReady, userId, getChats, qr]);
 
