@@ -122,16 +122,16 @@ const ViewSurveyResponse = React.lazy(
 
 // Whatsapp
 const AdminWhatsapp = React.lazy(
-	() => import('views/admin/whatsapp/AdminWhatsapp')
+	() => import('views/admin/whatsapp-v2/AdminWhatsapp')
 );
 const UserWhatsapp = React.lazy(
-	() => import('views/admin/whatsapp/UserWhatsapp')
+	() => import('views/admin/whatsapp-v2/UserWhatsapp')
 );
 const WhatsappSettings = React.lazy(
-	() => import('views/admin/whatsapp/WhatsappSettings')
+	() => import('views/admin/whatsapp-v2/WhatsappSettings')
 );
 const WhatsappTemplates = React.lazy(
-	() => import('views/admin/whatsapp/WhatsappSettings/Templates')
+	() => import('views/admin/whatsapp-v2/WhatsappSettings/Templates')
 );
 const CreateWhatsappTemplate = React.lazy(
 	() =>
