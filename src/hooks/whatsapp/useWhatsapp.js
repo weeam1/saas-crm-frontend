@@ -85,39 +85,105 @@ import { useDispatch, useSelector } from 'react-redux';
 import { reset } from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
 
+// export const useWhatsapp = () => {
+// 	const state = useSelector((s) => s.whatsappWeb);
+// 	const dispatch = useDispatch();
+
+// 	const isSocketConnected = useMemo(
+// 		() => socketService?.connectionStatus === 'connected' || false,
+// 		[]
+// 	);
+
+// 	const whatsappInitialize = useCallback((payload) => {
+// 		if (isSocketConnected) socketService.emit('initialize_whatsapp', payload);
+// 	}, []);
+
+// 	const getChats = useCallback((sessionId) => {
+// 		socketService.emit('get_chats', { sessionId });
+// 	}, []);
+
+// 	const getChat = useCallback((sessionId, whatsappId) => {
+// 		if (!sessionId || !whatsappId) return;
+// 		socketService.emit('get_chat', { sessionId, whatsappId });
+// 	}, []);
+
+// 	const disconnectWhatsapp = useCallback((sessionId) => {
+// 		socketService.emit('disconnect_whatsapp', { sessionId });
+// 	}, []);
+
+// 	const logoutWhatsapp = useCallback((sessionId) => {
+// 		socketService.emit('logout_whatsapp', { sessionId });
+// 		localStorage.setItem('whatsapp_auth', false);
+// 		dispatch(reset());
+// 	}, []);
+
+// 	// console.log({ ...state });
+
+// 	return {
+// 		...state,
+// 		whatsappInitialize,
+// 		getChats,
+// 		getChat,
+// 		disconnectWhatsapp,
+// 		logoutWhatsapp,
+// 		isSocketConnected,
+// 	};
+// };
+
 export const useWhatsapp = () => {
 	const state = useSelector((s) => s.whatsappWeb);
 	const dispatch = useDispatch();
 
+	// Track socket status
 	const isSocketConnected = useMemo(
 		() => socketService?.connectionStatus === 'connected' || false,
-		[]
+		[state] // add state if connectionStatus changes in redux
 	);
 
-	const whatsappInitialize = useCallback((payload) => {
-		socketService.emit('initialize_whatsapp', payload);
-	}, []);
+	// Unified emitter (checks connection before emitting)
+	const emitSafe = useCallback(
+		(event, payload) => {
+			if (!isSocketConnected) {
+				console.warn(`Socket not connected. Event "${event}" skipped.`);
+				return;
+			}
+			socketService.emit(event, payload);
+		},
+		[isSocketConnected]
+	);
 
-	const getChats = useCallback((sessionId) => {
-		socketService.emit('get_chats', { sessionId });
-	}, []);
+	// Wrapped methods
+	const whatsappInitialize = useCallback(
+		(payload) => emitSafe('initialize_whatsapp', payload),
+		[emitSafe]
+	);
 
-	const getChat = useCallback((sessionId, whatsappId) => {
-		if (!sessionId || !whatsappId) return;
-		socketService.emit('get_chat', { sessionId, whatsappId });
-	}, []);
+	const getChats = useCallback(
+		(sessionId) => emitSafe('get_chats', { sessionId }),
+		[emitSafe]
+	);
 
-	const disconnectWhatsapp = useCallback((sessionId) => {
-		socketService.emit('disconnect_whatsapp', { sessionId });
-	}, []);
+	const getChat = useCallback(
+		(sessionId, whatsappId) => {
+			if (!sessionId || !whatsappId) return;
+			emitSafe('get_chat', { sessionId, whatsappId });
+		},
+		[emitSafe]
+	);
 
-	const logoutWhatsapp = useCallback((sessionId) => {
-		socketService.emit('logout_whatsapp', { sessionId });
-		localStorage.setItem('whatsapp_auth', false);
-		dispatch(reset());
-	}, []);
+	const disconnectWhatsapp = useCallback(
+		(sessionId) => emitSafe('disconnect_whatsapp', { sessionId }),
+		[emitSafe]
+	);
 
-	// console.log({ ...state });
+	const logoutWhatsapp = useCallback(
+		(sessionId) => {
+			emitSafe('logout_whatsapp', { sessionId });
+			localStorage.setItem('whatsapp_auth', false);
+			dispatch(reset());
+		},
+		[emitSafe, dispatch]
+	);
 
 	return {
 		...state,
