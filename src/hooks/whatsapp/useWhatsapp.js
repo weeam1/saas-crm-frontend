@@ -82,11 +82,12 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { reset } from 'redux/whatsappWebSlice';
 import socketService from 'services/socketService';
 
 export const useWhatsapp = () => {
 	const state = useSelector((s) => s.whatsappWeb);
-	// const dispatch = useDispatch();
+	const dispatch = useDispatch();
 
 	const isSocketConnected = useMemo(
 		() => socketService?.connectionStatus === 'connected' || false,
@@ -113,6 +114,7 @@ export const useWhatsapp = () => {
 	const logoutWhatsapp = useCallback((sessionId) => {
 		socketService.emit('logout_whatsapp', { sessionId });
 		localStorage.setItem('whatsapp_auth', false);
+		dispatch(reset());
 	}, []);
 
 	console.log({ ...state });
