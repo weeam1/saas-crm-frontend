@@ -18,15 +18,15 @@ const WhatsAppQRLogin = ({ qr }) => {
 	const [qrCode, setQrCode] = useState(qr);
 	const [isLoading, setIsLoading] = useState(false);
 
-	useEffect(() => {
-		if (qr && qr?.trim !== '') {
-			console.log('loadiing flase......');
-			setIsLoading(false);
-			setQrCode(qr);
-		} else {
-			setIsLoading(true);
-		}
-	}, [qr]);
+	// useEffect(() => {
+	// 	if (qr && qr?.trim !== '') {
+	// 		console.log('loadiing flase......');
+	// 		setIsLoading(false);
+	// 		setQrCode(qr);
+	// 	} else {
+	// 		setIsLoading(true);
+	// 	}
+	// }, [qr]);
 
 	return (
 		<Box
@@ -95,36 +95,36 @@ const WhatsAppQRLogin = ({ qr }) => {
 							borderRadius='lg'
 							position='relative'
 						>
-							{isLoading ? (
+							{/* {isLoading ? (
 								<Box w='256px' h='256px'>
 									<Center h='full'>
 										<Spinner size='xl' color='green.500' />
 									</Center>
 								</Box>
-							) : (
-								<>
-									<QRCode
-										value={qrCode}
-										size={256}
-										level='H'
-										marginSize={4}
-										// fgColor='#25D366'
-									/>
+							) : ( */}
+							<>
+								<QRCode
+									value={qrCode}
+									size={256}
+									level='H'
+									marginSize={4}
+									// fgColor='#25D366'
+								/>
 
-									<Box
-										position='absolute'
-										top='50%'
-										left='50%'
-										transform='translate(-50%, -50%)'
-										bg='white'
-										p={1}
-										rounded='full'
-									>
-										{/* <Spinner size='sm' color='green.500' /> */}
-										<FaWhatsapp size='32' />
-									</Box>
-								</>
-							)}
+								<Box
+									position='absolute'
+									top='50%'
+									left='50%'
+									transform='translate(-50%, -50%)'
+									bg='white'
+									p={1}
+									rounded='full'
+								>
+									{/* <Spinner size='sm' color='green.500' /> */}
+									<FaWhatsapp size='32' />
+								</Box>
+							</>
+							{/* )} */}
 						</Box>
 
 						{/* Timer */}

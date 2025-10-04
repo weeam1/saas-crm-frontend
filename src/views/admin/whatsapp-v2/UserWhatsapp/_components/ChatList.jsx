@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
-import { useWhatsappEvents } from 'hooks/whatsapp/useWhatsappEvents';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -33,19 +32,27 @@ const truncateMessage = (message, length = 35) => {
 		: message;
 };
 
-const ChatList = ({ allConversations, userId }) => {
-	const { logoutWhatsapp, getChat, userChats } = useWhatsappEvents();
-
-	console.log({ userChats });
+const ChatList = ({
+	allConversations,
+	userId,
+	setSelectedChat,
+	selectChat,
+	logoutWhatsapp,
+	getChat,
+}) => {
+	const onSelectedChatHandler = (chatId) => {
+		getChat(userId, chatId);
+		setSelectedChat(chatId);
+	};
 
 	return (
 		<Box
-			bg='white'
-			rounded='lg'
+			// rounded='lg'
 			shadow='sm'
 			border='1px solid'
 			borderColor='gray.200'
-			maxH='800px'
+			// maxH='800px'
+			h='full'
 			overflow='hidden'
 		>
 			{/* Header */}
@@ -55,7 +62,6 @@ const ChatList = ({ allConversations, userId }) => {
 				justifyContent='space-between'
 				w='full'
 				p={4}
-				bg='softGray.100'
 				borderBottom='1px solid'
 				borderColor='softGray.100'
 			>
@@ -63,12 +69,12 @@ const ChatList = ({ allConversations, userId }) => {
 					<Text fontSize='xl' fontWeight='bold' color='gray.800'>
 						WhatsApp Chats
 					</Text>
-					<Text fontSize='sm' color='gray.600' mt={1}>
+					<Text fontSize='sm' color='gray.500' mt={1}>
 						{allConversations?.length} conversations
 					</Text>
 				</Box>
 
-				<Button size='sm' onClick={() => logoutWhatsapp(userId)}>
+				<Button size='xs' onClick={() => logoutWhatsapp(userId)}>
 					Logout Whatsapp
 				</Button>
 
@@ -91,12 +97,12 @@ const ChatList = ({ allConversations, userId }) => {
 			</Flex>
 
 			{/* Chat List */}
-			<VStack spacing={0} divider={<Divider />} overflowY='auto' maxH='700px'>
+			<VStack spacing={0} divider={<Divider />} overflowY='auto' maxH='full'>
 				{allConversations?.map((chat) => (
 					<ChatListItem
 						key={chat.id}
 						chat={chat}
-						getChat={getChat}
+						onSelectedChatHandler={onSelectedChatHandler}
 						userId={userId}
 					/>
 				))}
@@ -105,7 +111,7 @@ const ChatList = ({ allConversations, userId }) => {
 	);
 };
 
-const ChatListItem = ({ chat, getChat, userId }) => {
+const ChatListItem = ({ chat, onSelectedChatHandler, userId }) => {
 	const getAvatarProps = (chat) => {
 		if (chat.profilePicture) {
 			return {
@@ -139,7 +145,7 @@ const ChatListItem = ({ chat, getChat, userId }) => {
 			transition='all 0.2s'
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
-			onClick={() => getChat(userId, chat?.id)}
+			onClick={() => onSelectedChatHandler(chat?.id)}
 		>
 			<Flex align='center' justify='space-between'>
 				<Flex align='center' flex='1' minW='0'>
@@ -149,11 +155,12 @@ const ChatListItem = ({ chat, getChat, userId }) => {
 						<Flex align='center' mb={1}>
 							<Text
 								fontWeight='semibold'
-								color='gray.800'
+								// color='gray.800'
 								fontSize='md'
 								noOfLines={1}
 							>
-								{chat.name}
+								{/* {chat.name} */}
+								****************
 							</Text>
 
 							{/* Badges */}

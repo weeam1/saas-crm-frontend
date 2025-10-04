@@ -1,4 +1,4 @@
-import { WHATSAPP_EVENTS } from './types';
+import { WHATSAPP_EVENTS } from '../../services/whatsapp/types';
 
 export const eventHandlers = {
 	[WHATSAPP_EVENTS.QR_CODE]: (state, payload) => ({

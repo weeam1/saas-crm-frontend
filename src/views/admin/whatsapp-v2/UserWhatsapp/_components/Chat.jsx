@@ -1,46 +1,367 @@
-import React from 'react';
-import { Flex, Box, Text, Input, Button } from '@chakra-ui/react';
+// import { Flex, Box, Text, Input, Button } from '@chakra-ui/react';
+// import { whatsappColors } from 'utils/helpers';
+
+// const Chat = ({ chat }) => {
+// 	const messages = chat ? Object.values(chat?.[0]) : [];
+
+// 	console.log('messages: ', messages);
+// 	return (
+// 		<Flex direction='column' h='100%'>
+// 			{/* Header */}
+// 			<Box p={3} borderBottom='1px solid #ddd' bg='gray.100'>
+// 				<Text fontWeight='bold'>{chat?.name || 'Unknown User'}</Text>
+// 				<Text fontSize='sm' color='gray.500'>
+// 					{chat?.phoneNumber || '***********'}
+// 				</Text>
+// 			</Box>
+
+// 			{/* Messages */}
+// 			<Box flex='1' bg='red.200' overflowY='auto' p={3} w='full'>
+// 				{messages?.length ? (
+// 					messages?.map((msg, idx) => {
+// 						// console.log({ msg });
+// 						return (
+// 							<Box
+// 								key={idx}
+// 								p={2}
+// 								my={1}
+// 								// bg={msg.fromMe ? 'green.100' : 'gray.200'}
+// 								bg={
+// 									msg.fromMe
+// 										? whatsappColors.outgoingBg
+// 										: whatsappColors.incomingBg
+// 								}
+// 								alignSelf={msg.fromMe ? 'flex-end' : 'flex-start'}
+// 								borderRadius='md'
+// 								w='fit-content'
+// 								maxW='50%'
+// 							>
+// 								<Text>{msg?.body}</Text>
+// 							</Box>
+// 						);
+// 					})
+// 				) : (
+// 					<Flex align='center' justify='center' h='100%'>
+// 						<Text color='gray.400'>No messages yet.</Text>
+// 					</Flex>
+// 				)}
+// 			</Box>
+
+// 			{/* Input */}
+// 			<Box p={3} borderTop='1px solid #ddd' bg='gray.50'>
+// 				<Flex>
+// 					<Input placeholder='Type a message...' mr={2} />
+// 					<Button colorScheme='green'>Send</Button>
+// 				</Flex>
+// 			</Box>
+// 		</Flex>
+// 	);
+// };
+
+// export default Chat;
+
+import { useState, useRef, useEffect, useMemo } from 'react';
+import {
+	Flex,
+	Box,
+	Text,
+	Input,
+	Button,
+	Image,
+	IconButton,
+	HStack,
+	VStack,
+} from '@chakra-ui/react';
+import { AttachmentIcon, PhoneIcon } from '@chakra-ui/icons';
+import { useCallback } from 'react';
+import { BiCheck, BiCheckDouble } from 'react-icons/bi';
+import { MessageAck } from '../constants';
+import { getTimeFormat } from '../../components/helpers';
+
+// Ack status codes
+//  -1 : ACK_ERROR
+//   0 : ACK_PENDING  (just created, not sent)
+//   1 : ACK_SERVER   (server received)
+//   2 : ACK_DEVICE   (delivered to recipient device)
+//   3 : ACK_READ     (recipient has read the message)
+//   4 : ACK_PLAYED   (for audio/video played)
+
+const whatsappColors = {
+	outgoingBg: '#dcf8c6',
+	incomingBg: '#ffffff',
+	primary: '#25d366',
+	headerBg: '#f0f0f0',
+	inputBg: '#f5f5f5',
+};
 
 const Chat = ({ chat }) => {
+	const [message, setMessage] = useState('');
+	const messagesEndRef = useRef(null);
+
+	// Sort messages by timestamp (newest at the bottom)
+	const messages = useMemo(
+		() =>
+			chat
+				? Object.values(chat?.[0] || {}).sort((a, b) => {
+						const timeA = a.timestamp || a.time || 0;
+						const timeB = b.timestamp || b.time || 0;
+						return timeA - timeB;
+					})
+				: [],
+		[chat]
+	);
+
+	// Auto-scroll to bottom when new messages arrive
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages]);
+
+	const scrollToBottom = () => {
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	};
+
+	const formatTime = (timestamp) => {
+		if (!timestamp) return '';
+		const date = new Date(timestamp);
+		return date.toLocaleTimeString('en-US', {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		});
+	};
+
+	const renderMessageContent = (msg) => {
+		switch (msg.type) {
+			case 'image':
+				return (
+					<Box>
+						<Image
+							src={msg.body || msg.url}
+							alt='Shared image'
+							maxW='300px'
+							maxH='300px'
+							borderRadius='md'
+							fallbackSrc='https://via.placeholder.com/300x300?text=Image'
+						/>
+						{msg.caption && (
+							<Text mt={2} fontSize='sm'>
+								{msg.caption}
+							</Text>
+						)}
+					</Box>
+				);
+
+			case 'audio':
+				return (
+					<HStack bg='blackAlpha.200' p={3} borderRadius='md' spacing={3}>
+						<Box
+							w='24px'
+							h='24px'
+							bg='green.500'
+							borderRadius='full'
+							display='flex'
+							alignItems='center'
+							justifyContent='center'
+						>
+							<PhoneIcon color='white' w='12px' h='12px' />
+						</Box>
+						<VStack align='start' spacing={0}>
+							<Text fontSize='sm' fontWeight='bold'>
+								Audio
+							</Text>
+							<Text fontSize='xs' color='gray.600'>
+								{msg.duration || '0:00'}
+							</Text>
+						</VStack>
+					</HStack>
+				);
+
+			case 'text':
+			default:
+				return <Text whiteSpace='pre-wrap'>{msg.body}</Text>;
+		}
+	};
+
+	const handleSendMessage = () => {
+		if (message.trim()) {
+			// Here you would typically send the message to your backend
+			console.log('Sending message:', message);
+			setMessage('');
+		}
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSendMessage();
+		}
+	};
+
 	return (
-		<Flex direction='column' h='100%'>
+		<Flex direction='column' h='90vh'>
 			{/* Header */}
-			<Box p={3} borderBottom='1px solid #ddd' bg='gray.100'>
-				<Text fontWeight='bold'>{chat?.name || 'Unknown User'}</Text>
-				<Text fontSize='sm' color='gray.500'>
-					{chat?.phoneNumber}
-				</Text>
+			<Box
+				p={4}
+				borderBottom='1px solid #e0e0e0'
+				bg={whatsappColors.headerBg}
+				shadow='sm'
+			>
+				<HStack justify='space-between' align='center'>
+					<VStack align='start' spacing={0}>
+						<Text fontWeight='bold' fontSize='lg'>
+							{chat?.name || 'Unknown User'}
+						</Text>
+						<Text fontSize='sm' color='gray.500'>
+							{chat?.phoneNumber || '***********'}
+						</Text>
+					</VStack>
+					<HStack>
+						<Text fontSize='xs' color='gray.500'>
+							Last seen today at {formatTime(Date.now())}
+						</Text>
+					</HStack>
+				</HStack>
 			</Box>
 
-			{/* Messages */}
-			<Box flex='1' overflowY='auto' p={3} bg='white'>
-				{chat?.messages?.length ? (
-					chat.messages.map((msg, idx) => (
-						<Box
-							key={idx}
-							p={2}
-							my={1}
-							bg={msg.fromMe ? 'green.100' : 'gray.200'}
-							alignSelf={msg.fromMe ? 'flex-end' : 'flex-start'}
-							borderRadius='md'
-							maxW='70%'
-						>
-							<Text>{msg.body}</Text>
-						</Box>
-					))
+			{/* Messages Container */}
+			<Box
+				flex='1'
+				// bg={`repeating-linear-gradient(
+				//   0deg,
+				//   #e5ddd6,
+				//   #e5ddd6 20px,
+				//   #d6dbd2 20px,
+				//   #d6dbd2 40px
+				// )`}
+				overflowY='auto'
+				p={4}
+				position='relative'
+			>
+				{messages?.length ? (
+					<VStack align='stretch' spacing={2} width='100%'>
+						{messages?.map((msg, idx) => (
+							<Flex
+								key={idx}
+								justify={msg.fromMe ? 'flex-end' : 'flex-start'}
+								width='100%'
+							>
+								<Box
+									py={2}
+									px={2}
+									bg={
+										msg.fromMe
+											? whatsappColors.outgoingBg
+											: whatsappColors.incomingBg
+									}
+									borderRadius='lg'
+									maxW='70%'
+									position='relative'
+									shadow='sm'
+									// border='1px solid rgba(0,0,0,0.1)'
+								>
+									{renderMessageContent(msg)}
+
+									<Flex
+										justifyContent='flex-end'
+										align='center'
+										gap={1}
+										// mt={2}
+									>
+										{/* Message time */}
+										<Text
+											fontSize='xs'
+											color='gray.500'
+											textAlign={msg.fromMe ? 'right' : 'left'}
+										>
+											{getTimeFormat(msg.timestamp)}
+										</Text>
+
+										{/* Message status indicator for outgoing messages */}
+										{msg.fromMe && (
+											<Box>
+												{msg.ack === MessageAck.ACK_PENDING && (
+													<BiCheck size={16} color='gray' /> // single gray tick
+												)}
+
+												{msg.ack === MessageAck.ACK_SERVER && (
+													<BiCheckDouble size={16} color='gray' /> // double gray tick (server received)
+												)}
+
+												{msg.ack === MessageAck.ACK_DEVICE && (
+													<BiCheckDouble size={16} color='gray' /> // double gray tick (delivered to device)
+												)}
+
+												{msg.ack === MessageAck.ACK_READ && (
+													<BiCheckDouble size={16} color='blue' /> // double blue tick (read)
+												)}
+
+												{msg.ack === MessageAck.ACK_PLAYED && (
+													<BiCheckDouble size={16} color='blue' /> // double blue tick (played, same as read)
+												)}
+											</Box>
+										)}
+									</Flex>
+								</Box>
+							</Flex>
+						))}
+						<div ref={messagesEndRef} />
+					</VStack>
 				) : (
-					<Flex align='center' justify='center' h='100%'>
-						<Text color='gray.400'>No messages yet.</Text>
+					<Flex align='center' justify='center' h='100%' direction='column'>
+						<Text color='gray.400' fontSize='lg' mb={2}>
+							No messages yet
+						</Text>
+						<Text color='gray.400' fontSize='sm'>
+							Start a conversation by sending a message
+						</Text>
 					</Flex>
 				)}
 			</Box>
 
-			{/* Input */}
-			<Box p={3} borderTop='1px solid #ddd' bg='gray.50'>
-				<Flex>
-					<Input placeholder='Type a message...' mr={2} />
-					<Button colorScheme='green'>Send</Button>
-				</Flex>
+			{/* Input Area */}
+			<Box p={3} borderTop='1px solid #e0e0e0' bg={whatsappColors.inputBg}>
+				<HStack spacing={2}>
+					{/* Attachment Button */}
+					<IconButton
+						aria-label='Attach file'
+						icon={<AttachmentIcon />}
+						variant='ghost'
+						colorScheme='gray'
+						size='lg'
+					/>
+
+					{/* Message Input */}
+					<Input
+						placeholder='Type a message...'
+						value={message}
+						onChange={(e) => setMessage(e.target.value)}
+						onKeyPress={handleKeyPress}
+						bg='white'
+						borderRadius='full'
+						size='lg'
+						border='1px solid #e0e0e0'
+						_focus={{
+							borderColor: whatsappColors.primary,
+							boxShadow: 'none',
+						}}
+					/>
+
+					{/* Send Button */}
+					<Button
+						colorScheme='green'
+						bg={whatsappColors.primary}
+						borderRadius='full'
+						size='lg'
+						px={6}
+						onClick={handleSendMessage}
+						isDisabled={!message.trim()}
+						_hover={{
+							bg: '#128C7E',
+						}}
+					>
+						Send
+					</Button>
+				</HStack>
 			</Box>
 		</Flex>
 	);
