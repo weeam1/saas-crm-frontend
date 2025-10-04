@@ -105,56 +105,6 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
   return { added, modified, removed };
 }
 
-
-function buildPermissionUpdateMessage(
-  user,
-  addedModules = [],
-  modifiedModules = [],
-  removedModules = []
-) {
-  let parts = [];
-
-  // Handle added modules
-  if (addedModules.length > 0) {
-    addedModules.forEach((m) => {
-      const allowedActions = m.actions
-        .filter((a) => a.isAllowed)
-        .map((a) => a.actionKey);
-      console.log("allowedActions", allowedActions);
-      parts.push(
-        `added module ${m.moduleName} with actions: [${allowedActions.length ? allowedActions.join(", ") : "no action added"}]`
-      );
-    });
-  }
-
-  // Handle modified modules
-  if (modifiedModules.length > 0) {
-    modifiedModules.forEach((m) => {
-      const allowedActions = m.actions
-        .filter((a) => a.isAllowed)
-        .map((a) => a.actionKey);
-
-      console.log("allowedActions", allowedActions);
-      parts.push(
-        `modified module ${m.moduleName} with actions: [${allowedActions.length ? allowedActions.join(", ") : "no action enabled"}]`
-      );
-    });
-  }
-
-  // Handle removed modules
-  if (removedModules.length > 0) {
-    removedModules.forEach((m) => {
-      const removedActions = m.actions.map((a) => a.actionKey);
-      console.log("removedActions", removedActions);
-      parts.push(
-        `removed module ${m.moduleName} with actions: [${removedActions.length ? removedActions.join(", ") : "no actions"}]`
-      );
-    });
-  }
-
-  return `${user?.fullName} updated permissions: ${parts.join("; ")}.`;
-}
-
 const Permission = () => {
   const { id, roleName } = useParams();
   const borderColor = useColorModeValue("brand.300", "brand.500");
