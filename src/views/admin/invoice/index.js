@@ -209,7 +209,6 @@ const InvoiceModule = () => {
 		}
 	};
 
-	console.log('hasSettings', hasSettings);
 	return (
 		<>
 			<Flex justifyContent={'flex-end'} marginRight={5}>

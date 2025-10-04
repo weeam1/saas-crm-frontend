@@ -50,7 +50,7 @@ class SocketService {
 			});
 
 			this.socket.on('chatMessage', (msg) => {
-				// console.log('Message received:', msg);
+				console.log('Message received:', msg);
 				if (msg.roomId) {
 					store.dispatch(
 						appendMessage({
