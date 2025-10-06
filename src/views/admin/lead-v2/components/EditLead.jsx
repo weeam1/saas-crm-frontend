@@ -22,19 +22,21 @@ import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { safeValue } from './../../../../utils/index';
+import { usePermissions } from 'hooks/usePermissions';
 
 const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
 	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
 
 	// const user = JSON.parse(localStorage.getItem('user'));
-	const { user, userRoleName, isSuperAdmin } = useUserSession();
+	const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
+	const { hasPermission } = usePermissions();
 
 	// Set initial values for your form using the data object:
 	const initialValues = {
 		leadName: safeValue(leadData?.leadName) || '',
-		leadWhatsappNumber: safeValue(leadData?.leadWhatsappNumber) || '',
-		leadPhoneNumber: safeValue(leadData?.leadPhoneNumber) || '',
+		leadWhatsappNumber: safeValue(leadData?.leadWhatsappNumber, 'result') || '',
+		leadPhoneNumber: safeValue(leadData?.leadPhoneNumber, 'result') || '',
 		nationality: safeValue(leadData?.nationality) || '',
 		budget: safeValue(leadData?.budget) || '',
 		ip: safeValue(ip) || '',
@@ -98,25 +100,24 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 	];
 
 	const allowedFields = useMemo(() => {
-		if (isSuperAdmin) {
+		if (hasPermission('leads', 'update')) {
 			return fields;
 		}
 
 		// Agent role edit phone number only
-		const phoneField =
-			userRoleName === 'Agent'
-				? fields.filter((field) =>
-						['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
-					)
-				: [];
+		const phoneField = hasPermission('leads', 'edit_contacts')
+			? fields.filter((field) =>
+					['leadPhoneNumber', 'leadWhatsappNumber'].includes(field.name)
+				)
+			: [];
 
 		// Add name field if leadEStatus is 'show'
-		const nameField =
-			leadData?.eLeadStatus === 'show'
-				? fields.filter((field) => field.name === 'leadName')
-				: [];
+		// const nameField =
+		// 	leadData?.eLeadStatus === 'show'
+		// 		? fields.filter((field) => field.name === 'leadName')
+		// 		: [];
 
-		return [...nameField, ...phoneField];
+		return [...phoneField];
 	}, []);
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();

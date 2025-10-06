@@ -143,7 +143,7 @@ export const generateValidationSchema = (fields) => {
 	}, {});
 };
 
-export const safeValue = (value, key = 'result') => {
+export const safeValue = (value, key = 'text') => {
 	if (value && typeof value === 'object') {
 		return value[key] ?? null;
 	}
