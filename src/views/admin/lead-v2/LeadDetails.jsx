@@ -258,6 +258,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 						<DetailItem label='In UAE?' value={safeValue(data?.r_u_in_uae)} />
 						<DetailItem label='Interest' value={safeValue(data?.interest)} />
 						<DetailItem label='Language' value={safeValue(data?.leadLang)} />
+						<DetailItem label='Budget' value={safeValue(data?.budget)} />
 					</DetailGrid>
 				</SectionCard>
 			</GridItem>
