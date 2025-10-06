@@ -78,51 +78,54 @@ const AdminWhatsapp = () => {
 
 			<WhatsappCards
 				data={instances}
+				setInstances={setInstances}
 				isLoading={isLoading}
 				isFetching={isFetching}
 				handleNext={handleNext}
 				handlePrev={handlePrev}
 			/>
 
-			<Flex
-				justify='center'
-				align='center'
-				mt={6}
-				maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
-				mx='auto'
-			>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					onClick={handlePrev}
-					px={{ base: 2, md: 4, lg: 6 }}
-					isDisabled={page === 1 || isFetching}
-				>
-					Previous
-				</Button>
-				<Text
-					px={{ base: 2, md: 4, lg: 6 }}
+			{instances?.length > LIMIT && (
+				<Flex
+					justify='center'
 					align='center'
-					fontSize='sm'
-					flex={1}
+					mt={6}
+					maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
+					mx='auto'
 				>
-					Page {page} of {totalPages}
-				</Text>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					shadow='sm'
-					px={{ base: 2, md: 4, lg: 6 }}
-					onClick={handleNext}
-					isDisabled={page === totalPages || isFetching}
-				>
-					Next
-				</Button>
-			</Flex>
+					<Button
+						{...buttonStyle}
+						bg='softGray.100'
+						color='gray.800'
+						_active={{ bg: 'gray.200' }}
+						onClick={handlePrev}
+						px={{ base: 2, md: 4, lg: 6 }}
+						isDisabled={page === 1 || isFetching}
+					>
+						Previous
+					</Button>
+					<Text
+						px={{ base: 2, md: 4, lg: 6 }}
+						align='center'
+						fontSize='sm'
+						flex={1}
+					>
+						Page {page} of {totalPages}
+					</Text>
+					<Button
+						{...buttonStyle}
+						bg='softGray.100'
+						color='gray.800'
+						_active={{ bg: 'gray.200' }}
+						shadow='sm'
+						px={{ base: 2, md: 4, lg: 6 }}
+						onClick={handleNext}
+						isDisabled={page === totalPages || isFetching}
+					>
+						Next
+					</Button>
+				</Flex>
+			)}
 		</Box>
 	);
 };

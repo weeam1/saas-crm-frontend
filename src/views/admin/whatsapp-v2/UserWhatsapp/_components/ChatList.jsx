@@ -34,7 +34,7 @@ const truncateMessage = (message, length = 35) => {
 
 const ChatList = ({
 	allConversations,
-	userId,
+	whatsappId,
 	setSelectedChat,
 	selectedChat,
 	logoutHandler,
@@ -42,7 +42,7 @@ const ChatList = ({
 }) => {
 	const onSelectedChatHandler = (chatId) => {
 		setSelectedChat(chatId);
-		getChat(userId, chatId);
+		getChat(whatsappId, chatId);
 	};
 
 	return (
@@ -109,7 +109,7 @@ const ChatList = ({
 						key={chat.id}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
-						userId={userId}
+						whatsappId={whatsappId}
 						selectedChat={selectedChat}
 					/>
 				))}
@@ -121,7 +121,7 @@ const ChatList = ({
 const ChatListItem = ({
 	chat,
 	onSelectedChatHandler,
-	userId,
+	whatsappId,
 	selectedChat,
 }) => {
 	const getAvatarProps = (chat) => {

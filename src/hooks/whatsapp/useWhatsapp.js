@@ -95,6 +95,7 @@ export const useWhatsapp = () => {
 	);
 
 	const whatsappInitialize = useCallback((payload) => {
+		console.log('initialize_whatsapp: ', payload);
 		socketService.emit('initialize_whatsapp', payload);
 	}, []);
 

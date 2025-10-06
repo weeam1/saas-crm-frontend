@@ -191,9 +191,10 @@ const Chat = ({ chat }) => {
 					</HStack>
 				);
 
-			case 'text':
-			default:
+			case 'chat':
 				return <Text whiteSpace='pre-wrap'>{msg.body}</Text>;
+			default:
+				return null;
 		}
 	};
 
@@ -239,7 +240,14 @@ const Chat = ({ chat }) => {
 			</Box>
 
 			{/* Messages Container */}
-			<Box flex='1' overflowY='auto' p={4} position='relative'>
+			<Box
+				flex='1'
+				p={4}
+				scrollBehavior='smoth'
+				overflowY='auto'
+				position='relative'
+				maxH='100%'
+			>
 				{messages?.length ? (
 					<Flex
 						direction='column'
@@ -247,8 +255,8 @@ const Chat = ({ chat }) => {
 						align='stretch'
 						spacing={2}
 						gap='1'
-						width='100%'
-						height='100%'
+						// width='100vw'
+						// height='100vh'
 						ref={containerRef}
 					>
 						{messages?.map((msg, idx) => (
@@ -320,7 +328,7 @@ const Chat = ({ chat }) => {
 						<div ref={messagesEndRef} />
 					</Flex>
 				) : (
-					<Flex align='center' justify='center' h='100%' direction='column'>
+					<Flex align='center' justify='center' h='100vh' direction='column'>
 						<Text color='gray.400' fontSize='lg' mb={2}>
 							No messages yet
 						</Text>
@@ -332,7 +340,7 @@ const Chat = ({ chat }) => {
 			</Box>
 
 			{/* Input Area */}
-			<Box p={3} borderTop='1px solid #e0e0e0' bg={whatsappColors.inputBg}>
+			<Box p={2} borderTop='1px solid #e0e0e0' bg={whatsappColors.inputBg}>
 				<HStack spacing={2}>
 					{/* Attachment Button */}
 					<IconButton
@@ -340,7 +348,7 @@ const Chat = ({ chat }) => {
 						icon={<AttachmentIcon />}
 						variant='ghost'
 						colorScheme='gray'
-						size='lg'
+						size='md'
 					/>
 
 					{/* Message Input */}
@@ -351,7 +359,7 @@ const Chat = ({ chat }) => {
 						onKeyPress={handleKeyPress}
 						bg='white'
 						borderRadius='full'
-						size='lg'
+						size='md'
 						border='1px solid #e0e0e0'
 						_focus={{
 							borderColor: whatsappColors.primary,
@@ -364,7 +372,7 @@ const Chat = ({ chat }) => {
 						colorScheme='green'
 						bg={whatsappColors.primary}
 						borderRadius='full'
-						size='lg'
+						size='md'
 						px={6}
 						onClick={handleSendMessage}
 						isDisabled={!message.trim()}

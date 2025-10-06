@@ -27,7 +27,7 @@ import { formatPostDate } from 'utils/helpers';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
-const WhatsappUserCard = ({ data }) => {
+const WhatsappUserCard = ({ data, updateAllInstances }) => {
 	const navigate = useNavigate();
 	const { user, instanceName, isActive, createdAt } = data || {};
 
@@ -49,10 +49,13 @@ const WhatsappUserCard = ({ data }) => {
 			}).unwrap();
 
 			toast.success(`Instance ${val ? 'enabled' : 'disabled'} successfully`);
+
+			updateAllInstances(data?._id, { isActive: val });
 		} catch (error) {
 			toast.error('Failed to update instance status');
 		}
 	};
+
 	return (
 		<Box
 			bg={cardBg}
@@ -119,7 +122,7 @@ const WhatsappUserCard = ({ data }) => {
 					<Switch
 						id={`status-${data?._id}`}
 						isChecked={isActive}
-						onChange={(e) => updateInstanceStatus(e.target.checked ? 1 : 0)}
+						onChange={(e) => updateInstanceStatus(e.target.checked)}
 						colorScheme='whatsapp'
 						size='md'
 						isDisabled={isLoading}
@@ -167,10 +170,10 @@ const WhatsappUserCard = ({ data }) => {
 					size='sm'
 					rounded='full'
 					px={4}
-					onClick={() => navigate(`/whatsapp/chats/${user?._id}`)}
+					onClick={() => navigate(`/whatsapp/${data?.whatsappId}`)}
 					shadow='md'
 				>
-					WhatsApp Chat
+					Chat
 				</Button>
 			</Flex>
 		</Box>

@@ -10,7 +10,7 @@ import Loader from 'components/loading/Loader';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../_components/ErrorState';
 
-const WhatsappScreen = ({ userId, loadingChats }) => {
+const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 	const [selectedChat, setSelectedChat] = useState(null);
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
@@ -64,7 +64,7 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 					<Box w='30%' borderRight='1px solid #ddd' overflowY='auto'>
 						<ChatList
 							allConversations={allConversations}
-							userId={userId}
+							whatsappId={whatsappId}
 							setSelectedChat={setSelectedChat}
 							selectedChat={selectedChat}
 							logoutHandler={logoutHandler}

@@ -114,14 +114,14 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		appSidebarRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
-			path: '/whatsapp/chats',
+			path: '/whatsapp',
 			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
 		});
 		appRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chats',
+			path: '/whatsapp',
 			component: UserWhatsapp,
 		});
 	}
