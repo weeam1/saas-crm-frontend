@@ -1,6 +1,7 @@
 import axios from 'axios';
+import keys from 'config/keys';
 
-const BASE_URL = 'https://webrtc.weeam.info/search';
+const BASE_URL = `${keys.sipApiUrl}/search`;
 
 export const fetchCallHistoryData = async (filters) => {
 	try {
@@ -15,7 +16,7 @@ export const fetchCallHistoryData = async (filters) => {
 	}
 };
 
-const BASE_URL_2 = 'https://webrtc.weeam.info/call-stats';
+const BASE_URL_2 = `${keys.sipApiUrl}/call-stats`;
 
 export const fetchTotalTimeCallsRecordStats = async (days = 30) => {
 	try {

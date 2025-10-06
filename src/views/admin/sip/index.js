@@ -6,6 +6,7 @@ import TabNavigationDisplay from 'components/TabNavigationDisplay/TabNavigationD
 import CallsReport from '../reports-v2/components/sip/CallsReport';
 import UserSetting from './component/UserSetting';
 import { usePermissions } from 'hooks/usePermissions';
+import Analytics from "./component/Analytics/index";
 
 const DEFAULT_TAB = 'dashboard';
 
@@ -63,6 +64,14 @@ const Sip = () => {
 				component: (
 					<SipHistory key={tabKey} setTotalCallRecord={setTotalCallRecord} />
 				),
+			},
+			{
+				label: 'User Analytics',
+				param: 'user-analytics',
+				title: `Analytics Log`,
+				description:
+					'Explore detailed records of each call including timestamps, duration, participants, and call modes for a comprehensive communication history.',
+				component: <Analytics/> ,
 			},
 			...(hasPermission('sip', 'user_settings')
 				? [
