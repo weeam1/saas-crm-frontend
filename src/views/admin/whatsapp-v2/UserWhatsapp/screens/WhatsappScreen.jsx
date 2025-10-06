@@ -48,15 +48,6 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 
 	// ---- State Handling ----
 	const renderContent = () => {
-		if (whatsapp_disconnect) {
-			return (
-				<ErrorState
-					message='WhatsApp disconnected. Please reconnect.'
-					type='warning'
-				/>
-			);
-		}
-
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
 				<Flex h='100%' bg='white' color='gray.700' rounded='md'>
@@ -139,12 +130,23 @@ const WhatsappScreen = ({ userId, loadingChats }) => {
 			return <WAConnectionSuccess loadingChats={loadingChats} />;
 		}
 
+		if (qr) {
+			return <WhatsappQRLogin qr={qr} />;
+		}
+
 		// Usage
 		if (error || fail) {
 			return <ErrorState message={error || fail} type='error' />;
 		}
 
-		return qr && <WhatsappQRLogin qr={qr} />;
+		if (whatsapp_disconnect) {
+			return (
+				<ErrorState
+					message='WhatsApp disconnected. Please reconnect.'
+					type='warning'
+				/>
+			);
+		}
 	};
 
 	return (
