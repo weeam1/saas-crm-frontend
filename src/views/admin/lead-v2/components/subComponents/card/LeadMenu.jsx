@@ -66,11 +66,9 @@ const LeadMenu = ({
 			: lead.leadWhatsappNumber;
 
 	// agent edit the lead only phone and lead name (when status is show)
-	const allowedUserEdit = ['Admin', 'superAdmin'].includes(user?.roleName)
-		? true
-		: user?.roleName === 'Agent'
-			? true
-			: lead?.eLeadStatus === 'show';
+	// const allowedUserEdit = ['Admin', 'superAdmin'].includes(user?.roleName)
+	// 	? true
+	// 	: lead?.eLeadStatus === 'show';
 
 	// const { setIsLeadCycle } = useStateContext();
 
@@ -127,7 +125,8 @@ const LeadMenu = ({
 				{/* {(isSuperAdmin && access?.update) ||
 				(user?.role !== 'superAdmin' && allowedUserEdit) ? ( */}
 				{/* {(isSuperAdmin && access?.update) || */}
-				{hasPermission('leads', 'update') && allowedUserEdit ? (
+				{hasPermission('leads', 'update') ||
+				hasPermission('leads', 'edit_contacts') ? (
 					<MenuItem
 						onClick={() => {
 							setEditLead(true);
