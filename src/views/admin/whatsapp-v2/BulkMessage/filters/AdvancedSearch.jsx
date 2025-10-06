@@ -1,0 +1,239 @@
+import { useSelector } from 'react-redux';
+import { validationLeadSearchSchema } from 'schema/leadSchema';
+import { useFormik } from 'formik';
+import React, { useEffect } from 'react';
+
+import {
+	leadLabels,
+	mainLeadStatusLabels,
+	leadStatusLabels,
+} from 'utils/searchLabels';
+
+const LazyAdvancedSearchForm = React.lazy(
+	() => import('views/admin/lead-v2/components/AdvancedSearchForm')
+);
+
+const {
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalCloseButton,
+	ModalBody,
+	ModalFooter,
+	Button,
+	Spinner,
+} = require('@chakra-ui/react');
+
+const AdvancedSearchModal = ({
+	advanceSearch,
+	setAdvanceSearch,
+	isFormReset,
+	setIsFormReset,
+	setGetTagValues,
+	setAppliedFilters,
+	appliedFilters,
+	handleClear,
+}) => {
+	const user = JSON.parse(localStorage.getItem('user'));
+	const tree = useSelector((state) => state.user.tree);
+
+	const formClearHanlder = () => {
+		handleClear();
+		formikResetForm();
+	};
+
+	useEffect(() => {
+		if (
+			appliedFilters &&
+			advanceSearch &&
+			Object.keys(appliedFilters).length > 0
+		) {
+			formik.setValues(JSON.parse(appliedFilters)); // prefill form
+		}
+	}, [advanceSearch]);
+
+	const initialValues = {
+		intID: '',
+		leadName: '',
+		leadStatus: '',
+		eLeadStatus: '',
+		leadEmail: '',
+		leadPhoneNumber: '',
+		managerAssigned: '',
+		agentAssigned: '',
+		leadWhatsappNumber: '',
+		nationality: '',
+		ip: '',
+		leadAddress: '',
+		leadCampaign: '',
+		leadSourceDetails: '',
+		leadSourceMedium: '',
+		pageUrl: '',
+		r_u_in_uae: '',
+		timetocall: '',
+		leadLang: '',
+		lastNote: '',
+		budget: '',
+		isReleased: '',
+	};
+
+	const formik = useFormik({
+		initialValues,
+		validationSchema: validationLeadSearchSchema,
+		onSubmit: (values, { formikResetForm }) => {
+			// Initialize cleanedData and tags
+			const { cleanedData, tags } = Object.entries(values).reduce(
+				(acc, [key, value]) => {
+					if (value !== '' && value !== undefined) {
+						// Add raw value to cleanedData for API
+						acc.cleanedData[key] = value;
+
+						let displayValue = value;
+
+						// Special formatting rules for score range
+						if (key === 'fromLeadScore' || key === 'toLeadScore') {
+							displayValue = `${values.fromLeadScore || 0}-${
+								values.toLeadScore || 'max'
+							}`;
+						}
+
+						// Special formatting for leadStatus
+						if (key === 'leadStatus') {
+							displayValue =
+								value === 'active'
+									? 'Interested'
+									: value === 'pending'
+										? 'Not Interested'
+										: leadStatusLabels[value];
+						}
+
+						// Special formatting for leadStatus
+						if (key === 'eLeadStatus') {
+							displayValue =
+								value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
+						}
+
+						// Handle agentAssigned
+						if (key === 'agentAssigned') {
+							const agentsArray = Object.values(tree.agents).flatMap(
+								(managerArray) => managerArray
+							);
+							const assignedAgent = agentsArray.find(
+								(agent) => agent?._id?.toString() === value
+							);
+
+							displayValue = assignedAgent
+								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+								: value === '-1'
+									? 'No Agent'
+									: value;
+						}
+
+						// Handle managerAssigned
+						if (key === 'managerAssigned') {
+							const assignedManager = tree.managers.find(
+								(user) => user?._id?.toString() === value
+							);
+
+							displayValue = assignedManager
+								? `${assignedManager.firstName} ${assignedManager.lastName}`
+								: value === '-1'
+									? 'No Manager'
+									: value;
+						}
+
+						// Add formatted value to tags for UI
+						acc.tags.push(`${leadLabels[key]}: ${displayValue}`);
+					}
+
+					return acc;
+				},
+				{ cleanedData: {}, tags: [] }
+			);
+
+			console.log({ cleanedData });
+
+			// Call API with cleaned data
+			setAppliedFilters(JSON.stringify(cleanedData)); // updates API query
+			setGetTagValues(tags); // updates UI tags
+			setAdvanceSearch(false);
+		},
+	});
+
+	const {
+		errors,
+		touched,
+		values,
+		handleBlur,
+		handleChange,
+		handleSubmit,
+		resetForm: formikResetForm,
+		dirty,
+	} = formik;
+
+	// Send the reset function to the parent
+	useEffect(() => {
+		if (isFormReset) {
+			formikResetForm();
+			setIsFormReset(false);
+		}
+	}, [isFormReset, formikResetForm, setIsFormReset]);
+
+	return (
+		<React.Suspense fallback={<Spinner />}>
+			<Modal
+				size='6xl'
+				onClose={() => {
+					setAdvanceSearch(false);
+					// formikResetForm();
+				}}
+				isOpen={advanceSearch}
+				isCentered
+				motionPreset='slideInBottom'
+			>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent borderRadius='xl' boxShadow='xl' m='2'>
+					<ModalHeader>Advance Search</ModalHeader>
+					<ModalCloseButton
+						onClick={() => {
+							setAdvanceSearch(false);
+							formikResetForm();
+						}}
+					/>
+					<ModalBody width='100%'>
+						<LazyAdvancedSearchForm
+							values={values}
+							errors={errors}
+							touched={touched}
+							handleChange={handleChange}
+							handleBlur={handleBlur}
+							user={user}
+							tree={tree}
+						/>
+					</ModalBody>
+					<ModalFooter>
+						<Button
+							colorScheme='red'
+							variant='outline'
+							size='sm'
+							mr={2}
+							onClick={formClearHanlder}
+						>
+							Clear
+						</Button>
+						<Button
+							colorScheme='brand'
+							size='sm'
+							onClick={handleSubmit}
+							disabled={!dirty}
+						>
+							Search
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</React.Suspense>
+	);
+};
+export default AdvancedSearchModal;

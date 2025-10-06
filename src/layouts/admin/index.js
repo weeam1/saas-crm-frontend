@@ -22,7 +22,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useDispatch } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import UserWhatsapp from 'views/admin/whatsapp-v2/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 import AppLoader from 'components/loading/AppLoader';

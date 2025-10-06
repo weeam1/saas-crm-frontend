@@ -15,6 +15,7 @@ import countriesReducer, {
 import usersReducer from './usersSlice';
 import leadsReducer from './leadsSlice';
 import whatsappReducer from './whatsappSlice';
+import whatsappWebReducer from './whatsappWebSlice';
 import sipReducer from './sipSlice';
 import permissionReducer from './permissionSlice';
 import onlineUsersReducer from './onlineUsersSlice';
@@ -44,6 +45,7 @@ const store = configureStore({
 		invoiceModalData: invoiceModalDataReducer,
 		webSocket: webSocketReducer,
 		permissions: permissionReducer,
+		whatsappWeb: whatsappWebReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
