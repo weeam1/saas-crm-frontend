@@ -10,12 +10,16 @@ import {
 	chatLoaded,
 	newMessage,
 	disconnect,
+	whatsappLoading,
 } from './../../redux/whatsappWebSlice';
 import { WHATSAPP_EVENTS } from './types';
 
 export const registerWhatsappSocket = (store) => {
 	socketService.on(WHATSAPP_EVENTS.QR_CODE, (payload) =>
 		store.dispatch(qrCode(payload))
+	);
+	socketService.on(WHATSAPP_EVENTS.WHATSAPP_LOADING, (payload) =>
+		store.dispatch(whatsappLoading(payload))
 	);
 	socketService.on(WHATSAPP_EVENTS.AUTH_FAIL, (payload) =>
 		store.dispatch(authFail(payload))

@@ -9,6 +9,7 @@ const initialState = {
 	messages: [],
 	error: null,
 	whatsapp_disconnect: '',
+	whatsapp_loading: null,
 };
 
 const whatsappWebSlice = createSlice({
@@ -29,6 +30,9 @@ const whatsappWebSlice = createSlice({
 		},
 		fail: (state, action) => {
 			state.error = action.payload;
+		},
+		whatsappLoading: (state, action) => {
+			state.whatsapp_loading = action.payload;
 		},
 		error: (state, action) => {
 			state.error = action.payload?.message || 'Unknown error';
@@ -68,6 +72,7 @@ export const {
 	qrCode,
 	authFail,
 	authenticated,
+	whatsappLoading,
 	ready,
 	fail,
 	error,

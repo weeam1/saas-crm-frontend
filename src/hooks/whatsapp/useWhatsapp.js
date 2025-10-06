@@ -111,11 +111,14 @@ export const useWhatsapp = () => {
 		socketService.emit('disconnect_whatsapp', { sessionId });
 	}, []);
 
-	const logoutWhatsapp = useCallback((sessionId) => {
-		socketService.emit('logout_whatsapp', { sessionId });
-		localStorage.setItem('whatsapp_auth', false);
-		dispatch(reset());
-	}, []);
+	const logoutWhatsapp = useCallback(
+		(sessionId) => {
+			socketService.emit('logout_whatsapp', { sessionId });
+			localStorage.setItem('whatsapp_auth', false);
+			dispatch(reset());
+		},
+		[dispatch]
+	);
 
 	// console.log({ ...state });
 

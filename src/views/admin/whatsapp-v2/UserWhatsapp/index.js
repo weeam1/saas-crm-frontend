@@ -50,6 +50,7 @@ const UserWhatsapp = () => {
 
 		// values
 		isSocketConnected,
+		isAuthenticated,
 		qr,
 		isReady,
 		allConversations,
