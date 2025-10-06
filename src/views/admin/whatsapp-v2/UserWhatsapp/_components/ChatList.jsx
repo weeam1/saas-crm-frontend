@@ -36,13 +36,13 @@ const ChatList = ({
 	allConversations,
 	userId,
 	setSelectedChat,
-	selectChat,
+	selectedChat,
 	logoutHandler,
 	getChat,
 }) => {
 	const onSelectedChatHandler = (chatId) => {
-		getChat(userId, chatId);
 		setSelectedChat(chatId);
+		getChat(userId, chatId);
 	};
 
 	return (
@@ -50,7 +50,7 @@ const ChatList = ({
 			// rounded='lg'
 			shadow='sm'
 			border='1px solid'
-			borderColor='gray.200'
+			borderColor='gray.100'
 			// maxH='800px'
 			h='full'
 			overflow='hidden'
@@ -66,12 +66,12 @@ const ChatList = ({
 				borderColor='softGray.100'
 			>
 				<Box>
-					<Text fontSize='xl' fontWeight='bold' color='gray.800'>
-						WhatsApp Chats
+					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
+						WhatsApp
 					</Text>
-					<Text fontSize='sm' color='gray.500' mt={1}>
+					{/* <Text fontSize='xs' color='gray.500' mt={1}>
 						{allConversations?.length} conversations
-					</Text>
+					</Text> */}
 				</Box>
 
 				<Button size='xs' onClick={logoutHandler}>
@@ -97,13 +97,20 @@ const ChatList = ({
 			</Flex>
 
 			{/* Chat List */}
-			<VStack spacing={0} divider={<Divider />} overflowY='auto' maxH='full'>
+			<VStack
+				spacing={0}
+				divider={<Divider />}
+				p='2'
+				overflowY='auto'
+				maxH='full'
+			>
 				{allConversations?.map((chat) => (
 					<ChatListItem
 						key={chat.id}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
 						userId={userId}
+						selectedChat={selectedChat}
 					/>
 				))}
 			</VStack>
@@ -111,7 +118,12 @@ const ChatList = ({
 	);
 };
 
-const ChatListItem = ({ chat, onSelectedChatHandler, userId }) => {
+const ChatListItem = ({
+	chat,
+	onSelectedChatHandler,
+	userId,
+	selectedChat,
+}) => {
 	const getAvatarProps = (chat) => {
 		if (chat.profilePicture) {
 			return {
@@ -138,11 +150,13 @@ const ChatListItem = ({ chat, onSelectedChatHandler, userId }) => {
 
 	return (
 		<Box
-			p={4}
+			p={2}
 			w='100%'
 			cursor='pointer'
 			// _hover={{ bg: 'gray.50' }}
 			transition='all 0.2s'
+			bg={selectedChat === chat?.id ? 'softGray.100' : 'transparent'}
+			rounded={selectedChat === chat?.id ? 'md' : '1px'}
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
 			onClick={() => onSelectedChatHandler(chat?.id)}
@@ -152,69 +166,74 @@ const ChatListItem = ({ chat, onSelectedChatHandler, userId }) => {
 					<Avatar size='md' {...avatarProps} mr={3} />
 
 					<Box flex='1' minW='0'>
-						<Flex align='center' mb={1}>
+						<Flex align='center' justify='space-between' mb={1}>
 							<Text
 								fontWeight='semibold'
 								// color='gray.800'
-								fontSize='md'
+								fontSize='sm'
 								noOfLines={1}
+								filter='blur(8px)'
 							>
-								{/* {chat.name} */}
-								****************
+								{chat?.name || '***********'}
+								{/* ************** */}
 							</Text>
 
 							{/* Badges */}
-							<HStack ml={2} spacing={1}>
+							{/* <HStack ml={2} spacing={1}>
 								{chat.isGroup && (
-									<Badge colorScheme='purple' size='sm' variant='subtle'>
+									<Badge colorScheme='purple' size='xs' variant='subtle'>
 										Group
 									</Badge>
 								)}
 								{chat.pinned && (
-									<Badge colorScheme='yellow' size='sm' variant='subtle'>
+									<Badge colorScheme='yellow' size='xs' variant='subtle'>
 										Pinned
 									</Badge>
 								)}
 								{chat.archived && (
-									<Badge colorScheme='gray' size='sm' variant='subtle'>
+									<Badge colorScheme='gray' size='xs' variant='subtle'>
 										Archived
 									</Badge>
 								)}
-							</HStack>
+							</HStack> */}
+
+							{/* Message Status & Time */}
+							<Flex
+								align='center'
+								justifySelf='flex-end'
+								justify='space-between'
+							>
+								<Text fontSize='xs' color='gray.500'>
+									{chat.lastMessage?.timestamp
+										? formatTime(chat.lastMessage.timestamp)
+										: ''}
+								</Text>
+
+								{/* Unread Count */}
+								{chat.unreadCount > 0 && (
+									<Badge
+										colorScheme='green'
+										variant='solid'
+										borderRadius='full'
+										minW='20px'
+										h='20px'
+										display='flex'
+										alignItems='center'
+										justifyContent='center'
+										fontSize='xs'
+									>
+										{chat.unreadCount}
+									</Badge>
+								)}
+							</Flex>
 						</Flex>
 
 						{/* Last Message */}
-						<Text fontSize='sm' color='gray.600' noOfLines={1} mb={1}>
+						<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
 							{chat.lastMessage
 								? truncateMessage(chat.lastMessage.body)
 								: 'No messages yet'}
 						</Text>
-
-						{/* Message Status & Time */}
-						<Flex align='center' justify='space-between'>
-							<Text fontSize='xs' color='gray.500'>
-								{chat.lastMessage?.timestamp
-									? formatTime(chat.lastMessage.timestamp)
-									: ''}
-							</Text>
-
-							{/* Unread Count */}
-							{chat.unreadCount > 0 && (
-								<Badge
-									colorScheme='green'
-									variant='solid'
-									borderRadius='full'
-									minW='20px'
-									h='20px'
-									display='flex'
-									alignItems='center'
-									justifyContent='center'
-									fontSize='xs'
-								>
-									{chat.unreadCount}
-								</Badge>
-							)}
-						</Flex>
 					</Box>
 				</Flex>
 			</Flex>

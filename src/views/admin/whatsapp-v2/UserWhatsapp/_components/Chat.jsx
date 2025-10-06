@@ -77,6 +77,7 @@ import { useCallback } from 'react';
 import { BiCheck, BiCheckDouble } from 'react-icons/bi';
 import { MessageAck } from '../constants';
 import { getTimeFormat } from '../../components/helpers';
+import { whatsappColors } from 'utils/helpers';
 
 // Ack status codes
 //  -1 : ACK_ERROR
@@ -86,17 +87,18 @@ import { getTimeFormat } from '../../components/helpers';
 //   3 : ACK_READ     (recipient has read the message)
 //   4 : ACK_PLAYED   (for audio/video played)
 
-const whatsappColors = {
-	outgoingBg: '#dcf8c6',
-	incomingBg: '#ffffff',
-	primary: '#25d366',
-	headerBg: '#f0f0f0',
-	inputBg: '#f5f5f5',
-};
+// const whatsappColors = {
+// 	outgoingBg: '#dcf8c6',
+// 	incomingBg: '#ffffff',
+// 	primary: '#25d366',
+// 	headerBg: '#f0f0f0',
+// 	inputBg: '#f5f5f5',
+// };
 
 const Chat = ({ chat }) => {
 	const [message, setMessage] = useState('');
 	const messagesEndRef = useRef(null);
+	const containerRef = useRef();
 
 	// Sort messages by timestamp (newest at the bottom)
 	const messages = useMemo(
@@ -111,14 +113,27 @@ const Chat = ({ chat }) => {
 		[chat]
 	);
 
-	// Auto-scroll to bottom when new messages arrive
-	useEffect(() => {
-		scrollToBottom();
-	}, [messages]);
+	// // Auto-scroll to bottom when new messages arrive
+	// useEffect(() => {
+	// 	scrollToBottom();
+	// }, [messages]);
 
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	};
+	// const scrollToBottom = () => {
+	// 	messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// };
+
+	useEffect(() => {
+		if (!messages?.length) return;
+
+		const container = containerRef.current;
+		const isNearBottom =
+			container.scrollHeight - container.scrollTop - container.clientHeight <
+			100;
+
+		if (isNearBottom) {
+			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+		}
+	}, [messages]);
 
 	const formatTime = (timestamp) => {
 		if (!timestamp) return '';
@@ -208,37 +223,33 @@ const Chat = ({ chat }) => {
 			>
 				<HStack justify='space-between' align='center'>
 					<VStack align='start' spacing={0}>
-						<Text fontWeight='bold' fontSize='lg'>
+						<Text filter='blur(8px)' fontWeight='bold' fontSize='lg'>
 							{chat?.name || 'Unknown User'}
 						</Text>
-						<Text fontSize='sm' color='gray.500'>
+						{/* <Text fontSize='sm' color='gray.500'>
 							{chat?.phoneNumber || '***********'}
-						</Text>
+						</Text> */}
 					</VStack>
-					<HStack>
+					{/* <HStack>
 						<Text fontSize='xs' color='gray.500'>
 							Last seen today at {formatTime(Date.now())}
 						</Text>
-					</HStack>
+					</HStack> */}
 				</HStack>
 			</Box>
 
 			{/* Messages Container */}
-			<Box
-				flex='1'
-				// bg={`repeating-linear-gradient(
-				//   0deg,
-				//   #e5ddd6,
-				//   #e5ddd6 20px,
-				//   #d6dbd2 20px,
-				//   #d6dbd2 40px
-				// )`}
-				overflowY='auto'
-				p={4}
-				position='relative'
-			>
+			<Box flex='1' overflowY='auto' p={4} position='relative'>
 				{messages?.length ? (
-					<VStack align='stretch' spacing={2} width='100%'>
+					<Flex
+						direction='column'
+						justify='flex-end'
+						align='stretch'
+						spacing={2}
+						width='100%'
+						height='100%'
+						ref={containerRef}
+					>
 						{messages?.map((msg, idx) => (
 							<Flex
 								key={idx}
@@ -247,13 +258,13 @@ const Chat = ({ chat }) => {
 							>
 								<Box
 									py={2}
-									px={2}
+									px={3}
 									bg={
 										msg.fromMe
 											? whatsappColors.outgoingBg
 											: whatsappColors.incomingBg
 									}
-									borderRadius='lg'
+									rounded='lg'
 									maxW='70%'
 									position='relative'
 									shadow='sm'
@@ -264,8 +275,9 @@ const Chat = ({ chat }) => {
 									<Flex
 										justifyContent='flex-end'
 										align='center'
+										justifySelf='flex-end'
 										gap={1}
-										// mt={2}
+										width='fit-content'
 									>
 										{/* Message time */}
 										<Text
@@ -305,7 +317,7 @@ const Chat = ({ chat }) => {
 							</Flex>
 						))}
 						<div ref={messagesEndRef} />
-					</VStack>
+					</Flex>
 				) : (
 					<Flex align='center' justify='center' h='100%' direction='column'>
 						<Text color='gray.400' fontSize='lg' mb={2}>
