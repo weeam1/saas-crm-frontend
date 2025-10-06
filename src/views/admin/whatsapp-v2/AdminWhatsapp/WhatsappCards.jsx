@@ -53,7 +53,7 @@ const WhatsappCards = ({ data, isLoading, isFetching }) => {
 					))}
 				</SimpleGrid>
 			) : (
-				<NoData label='users' />
+				<NoData label='instances' />
 			)}
 		</>
 	);

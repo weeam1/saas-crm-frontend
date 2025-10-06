@@ -246,6 +246,7 @@ const Chat = ({ chat }) => {
 						justify='flex-end'
 						align='stretch'
 						spacing={2}
+						gap='1'
 						width='100%'
 						height='100%'
 						ref={containerRef}

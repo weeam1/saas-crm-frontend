@@ -12,13 +12,13 @@ import { usePermissions } from 'hooks/usePermissions';
 const LIMIT = 10;
 
 const AdminWhatsapp = () => {
-	const [users, setUsers] = useState([]);
+	const [instances, setInstances] = useState([]);
 	const [page, setPage] = useState(1);
 	const { hasPermission } = usePermissions();
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
-			path: 'whatsapp/users',
+			path: 'whatsapp/instances',
 			params: { page, limit: LIMIT },
 		},
 		{
@@ -28,7 +28,7 @@ const AdminWhatsapp = () => {
 
 	useEffect(() => {
 		if (data?.doc?.length) {
-			setUsers(data?.doc);
+			setInstances(data?.doc);
 		}
 	}, [data?.doc]);
 
@@ -54,8 +54,11 @@ const AdminWhatsapp = () => {
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
 				<Flex fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>Whatsapp Users</Text>
-					<CountUpComponent key={users?.length} targetNumber={users?.length} />
+					<Text>Whatsapp Instances</Text>
+					<CountUpComponent
+						key={instances?.length}
+						targetNumber={instances?.length}
+					/>
 				</Flex>
 
 				{hasPermission('whatsapp', 'settings') && (
@@ -74,7 +77,7 @@ const AdminWhatsapp = () => {
 			</Flex>
 
 			<WhatsappCards
-				data={users}
+				data={instances}
 				isLoading={isLoading}
 				isFetching={isFetching}
 				handleNext={handleNext}
