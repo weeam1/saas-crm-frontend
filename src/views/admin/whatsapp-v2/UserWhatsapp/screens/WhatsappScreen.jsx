@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Flex, Box, Text, Spinner, Button, Image } from '@chakra-ui/react';
 
 import WhatsappQRLogin from '../_components/WhatsappQRLogin';
@@ -41,10 +41,11 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 		logoutWhatsapp,
 		getChat,
 	});
-	const logoutHandler = (id) => {
+
+	const logoutHandler = useCallback((id) => {
 		logoutWhatsapp(id);
 		navigate('/');
-	};
+	}, []);
 
 	// ---- State Handling ----
 	const renderContent = () => {

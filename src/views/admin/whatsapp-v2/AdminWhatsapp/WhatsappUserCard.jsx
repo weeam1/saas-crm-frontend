@@ -27,7 +27,7 @@ import { formatPostDate } from 'utils/helpers';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 
-const WhatsappUserCard = ({ data, updateAllInstances }) => {
+const WhatsappUserCard = ({ data, updateInstances }) => {
 	const navigate = useNavigate();
 	const { user, instanceName, isActive, createdAt } = data || {};
 
@@ -50,7 +50,7 @@ const WhatsappUserCard = ({ data, updateAllInstances }) => {
 
 			toast.success(`Instance ${val ? 'enabled' : 'disabled'} successfully`);
 
-			updateAllInstances(data?._id, { isActive: val });
+			updateInstances(data?._id, { isActive: val });
 		} catch (error) {
 			toast.error('Failed to update instance status');
 		}

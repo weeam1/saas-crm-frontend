@@ -2,19 +2,37 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEffect, useState } from 'react';
 import WhatsappCards from './WhatsappCards';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import { Box, Button, Flex, IconButton, Stack, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	IconButton,
+	Stack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { Link } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
 import { usePermissions } from 'hooks/usePermissions';
+import CreateInstance from './CreateInstance';
+import { whatsappColors } from 'utils/helpers';
+import { FaPlus } from 'react-icons/fa';
 
 const LIMIT = 10;
 
 const AdminWhatsapp = () => {
 	const [instances, setInstances] = useState([]);
+	const [selectedInstance, setSelectedInstance] = useState({});
 	const [page, setPage] = useState(1);
 	const { hasPermission } = usePermissions();
+
+	const {
+		isOpen: createInstanceIsOpen,
+		onClose: createInstanceOnClose,
+		onOpen: createInstanceOpen,
+	} = useDisclosure();
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
@@ -50,6 +68,20 @@ const AdminWhatsapp = () => {
 		if (page > 1) setPage((prev) => prev - 1);
 	};
 
+	const updateInstances = (id, updated) => {
+		setInstances((prev) => {
+			const exists = prev.some((item) => item._id === id);
+			if (exists) {
+				// Update existing instance
+				return prev.map((item) =>
+					item._id === id ? { ...item, ...updated } : item
+				);
+			}
+			// Add new instance if not found
+			return [{ ...updated }, ...prev];
+		});
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
@@ -61,7 +93,21 @@ const AdminWhatsapp = () => {
 					/>
 				</Flex>
 
-				{hasPermission('whatsapp', 'settings') && (
+				<Button
+					leftIcon={<FaPlus size='1em' />}
+					colorScheme='whatsapp'
+					_hover={{ bg: whatsappColors.primary }}
+					_active={{ bg: whatsappColors.primary }}
+					size='sm'
+					rounded='md'
+					px={4}
+					shadow='md'
+					onClick={createInstanceOpen}
+				>
+					Create Instance
+				</Button>
+
+				{/* {hasPermission('whatsapp', 'settings') && (
 					<CustomTooltip label='Settings'>
 						<Link to='/whatsapp/settings'>
 							<IconButton
@@ -73,17 +119,27 @@ const AdminWhatsapp = () => {
 							/>
 						</Link>
 					</CustomTooltip>
-				)}
+				)} */}
 			</Flex>
 
 			<WhatsappCards
 				data={instances}
-				setInstances={setInstances}
+				updateInstances={updateInstances}
 				isLoading={isLoading}
 				isFetching={isFetching}
 				handleNext={handleNext}
 				handlePrev={handlePrev}
 			/>
+
+			{createInstanceIsOpen && (
+				<CreateInstance
+					isOpen={createInstanceIsOpen}
+					onClose={createInstanceOnClose}
+					instance={selectedInstance}
+					updateInstances={updateInstances}
+					mode='Add'
+				/>
+			)}
 
 			{instances?.length > LIMIT && (
 				<Flex

@@ -12,9 +12,12 @@ import {
 	InputLeftElement,
 	Icon,
 	Button,
+	IconButton,
 } from '@chakra-ui/react';
 import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
+import { FaChevronLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -45,6 +48,8 @@ const ChatList = ({
 		getChat(whatsappId, chatId);
 	};
 
+	const navigate = useNavigate();
+
 	return (
 		<Box
 			// rounded='lg'
@@ -65,14 +70,20 @@ const ChatList = ({
 				borderBottom='1px solid'
 				borderColor='softGray.100'
 			>
-				<Box>
+				<HStack>
+					<IconButton
+						aria-label='Back'
+						icon={<FaChevronLeft size={16} />}
+						variant='ghost'
+						onClick={() => navigate('/whatsapp')}
+					/>
 					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
 						Chats
 					</Text>
 					{/* <Text fontSize='xs' color='gray.500' mt={1}>
 						{allConversations?.length} conversations
 					</Text> */}
-				</Box>
+				</HStack>
 
 				<Button size='xs' onClick={logoutHandler}>
 					Logout Whatsapp

@@ -5,6 +5,7 @@ const initialState = {
 	isAuthenticated: false,
 	isReady: false,
 	allConversations: [],
+	activeChat: null,
 	userChats: {},
 	messages: [],
 	error: null,
@@ -27,6 +28,7 @@ const whatsappWebSlice = createSlice({
 		},
 		ready: (state) => {
 			state.isReady = true;
+			state.whatsapp_disconnect = '';
 		},
 		fail: (state, action) => {
 			state.error = action.payload;
@@ -39,6 +41,9 @@ const whatsappWebSlice = createSlice({
 		},
 		chatsLoaded: (state, action) => {
 			state.allConversations = action.payload?.chats || [];
+		},
+		setActiveChat: (state, action) => {
+			state.activeChat = action.payload;
 		},
 		chatLoaded: (state, action) => {
 			const { whatsappId, chat } = action.payload;

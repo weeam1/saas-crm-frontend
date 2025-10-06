@@ -110,16 +110,14 @@ export const useWhatsapp = () => {
 
 	const disconnectWhatsapp = useCallback((sessionId) => {
 		socketService.emit('disconnect_whatsapp', { sessionId });
+		dispatch(reset());
 	}, []);
 
-	const logoutWhatsapp = useCallback(
-		(sessionId) => {
-			socketService.emit('logout_whatsapp', { sessionId });
-			localStorage.setItem('whatsapp_auth', false);
-			dispatch(reset());
-		},
-		[dispatch]
-	);
+	const logoutWhatsapp = useCallback((sessionId) => {
+		socketService.emit('logout_whatsapp', { sessionId });
+		localStorage.setItem('whatsapp_auth', false);
+		dispatch(reset());
+	}, []);
 
 	// console.log({ ...state });
 

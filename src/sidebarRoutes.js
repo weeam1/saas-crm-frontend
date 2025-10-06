@@ -153,7 +153,7 @@ const sidebarRoutes = [
 			},
 			{
 				id: 'whatsapp_chats',
-				name: 'Whatsapp',
+				name: 'Instances',
 				version: 'Beta',
 				path: '/whatsapp',
 			},
