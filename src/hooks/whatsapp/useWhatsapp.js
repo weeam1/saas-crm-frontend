@@ -116,7 +116,7 @@ export const useWhatsapp = () => {
 	const logoutWhatsapp = useCallback((sessionId) => {
 		socketService.emit('logout_whatsapp', { sessionId });
 		localStorage.setItem('whatsapp_auth', false);
-		// dispatch(reset());
+		dispatch(reset());
 	}, []);
 
 	// console.log({ ...state });

@@ -40,11 +40,9 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 		whatsapp_disconnect,
 	});
 
-	const logoutHandler = useCallback((id) => {
-		logoutWhatsapp(id);
+	const logoutHandler = useCallback(() => {
+		logoutWhatsapp(whatsappId);
 		navigate('/');
-
-		console.log('call logout');
 	}, []);
 
 	// ---- State Handling ----
