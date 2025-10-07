@@ -15,6 +15,10 @@ import {
 import { WHATSAPP_EVENTS } from './types';
 
 export const registerWhatsappSocket = (store) => {
+	const isSocketConnected = socketService.connectionStatus === 'connected';
+
+	if (!isSocketConnected) return;
+
 	socketService.on(WHATSAPP_EVENTS.QR_CODE, (payload) =>
 		store.dispatch(qrCode(payload))
 	);

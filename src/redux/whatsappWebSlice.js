@@ -37,6 +37,7 @@ const whatsappWebSlice = createSlice({
 			state.whatsapp_loading = action.payload;
 		},
 		error: (state, action) => {
+			console.log('message error: ', action.payload);
 			state.error = action.payload?.message || 'Unknown error';
 		},
 		chatsLoaded: (state, action) => {
@@ -48,8 +49,6 @@ const whatsappWebSlice = createSlice({
 		chatLoaded: (state, action) => {
 			const { whatsappId, chat } = action.payload;
 			if (!whatsappId || !chat) return;
-
-			console.log('coming chat: ', chat[0]);
 
 			const chatsForUser = state.userChats[whatsappId] || [];
 			const chatIndex = chatsForUser.findIndex((c) => c.id === chat.id);
@@ -68,6 +67,7 @@ const whatsappWebSlice = createSlice({
 		disconnect: (state, action) => {
 			state.whatsapp_disconnect =
 				action.payload?.message || 'Whatsapp disconnected';
+			state.qr = '';
 		},
 		reset: () => initialState,
 	},

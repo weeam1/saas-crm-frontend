@@ -89,7 +89,7 @@ const Whatsapp = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// const { isConnected } = useSocketEvents();
+	// const { isConnected, registerWhatsappUser } = useSocketEvents();
 
 	const {
 		isOpen: isWATemplateOpen,
@@ -146,9 +146,10 @@ const Whatsapp = () => {
 			};
 
 			socketService.registerUser(registerPayload);
+			// registerWhatsappUser(registerPayload);
 		}
 
-		return socketService.disconnect();
+		// return socketService.disconnect();
 	}, [currentUser]);
 
 	const dispatch = useDispatch();
