@@ -35,6 +35,7 @@ import { setPermissions } from '../../redux/permissionSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { setUser } from '../../redux/localSlice';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -59,6 +60,7 @@ export default function HeaderLinks(props) {
 
 	const navigate = useNavigate();
 	const { user } = useUserSession();
+	const { logoutWhatsapp, isAuthenticated, qr } = useWhatsapp();
 
 	// const data = typeof userData === 'string' ? JSON.parse(userData) : userData;
 	// const user = user?.fullName;
@@ -110,6 +112,11 @@ export default function HeaderLinks(props) {
 	const logOut = (message) => {
 		localStorage.clear();
 		sessionStorage.clear();
+
+		// when user
+		if (qr || isAuthenticated) {
+			logoutWhatsapp();
+		}
 
 		// disconnect the web sockets
 		webSocketService.disconnect();

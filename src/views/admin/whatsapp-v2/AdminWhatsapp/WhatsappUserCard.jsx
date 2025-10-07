@@ -10,6 +10,9 @@ import {
 	Tooltip,
 	useColorModeValue,
 	Button,
+	FormControl,
+	FormLabel,
+	Switch,
 } from '@chakra-ui/react';
 import {
 	FaWhatsapp,
@@ -17,13 +20,16 @@ import {
 	FaUserTie,
 	FaBuilding,
 	FaCalendarAlt,
+	FaUser,
 } from 'react-icons/fa';
 import UserAvatar from 'components/shared/UserAvatar';
 import { formatPostDate } from 'utils/helpers';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
 
-const WhatsappUserCard = ({ data }) => {
+const WhatsappUserCard = ({ data, updateInstances }) => {
 	const navigate = useNavigate();
-	const { user, phoneNumber, isActive, createdAt } = data || {};
+	const { user, instanceName, isActive, createdAt } = data || {};
 
 	// Color values based on color mode
 	const cardBg = useColorModeValue('#dcf8c6', 'gray.800');
@@ -33,8 +39,22 @@ const WhatsappUserCard = ({ data }) => {
 	const textColor = useColorModeValue('gray.700', 'gray.300');
 	const secondaryTextColor = useColorModeValue('gray.500', 'gray.400');
 
-	// WhatsApp gradient for the button
-	const whatsappGradient = `linear-gradient(to right, ${whatsappGreen}, #34B7F1)`;
+	const [updateInstance, { isLoading }] = useUpdateItemMutation();
+
+	const updateInstanceStatus = async (val) => {
+		try {
+			await updateInstance({
+				path: `/whatsapp/instances/status/${data?._id}`,
+				body: { isActive: val },
+			}).unwrap();
+
+			toast.success(`Instance ${val ? 'enabled' : 'disabled'} successfully`);
+
+			updateInstances(data?._id, { isActive: val });
+		} catch (error) {
+			toast.error('Failed to update instance status');
+		}
+	};
 
 	return (
 		<Box
@@ -63,24 +83,19 @@ const WhatsappUserCard = ({ data }) => {
 				bg={whatsappGreen}
 			/>
 
+			{/* Header with instance info + status toggle */}
 			<Flex justify='space-between' align='flex-start' mb={4}>
 				<Flex gap={4} align='center' flex='1'>
-					<UserAvatar
-						src={user?.profileImage}
-						name={user?.fullName}
-						size='lg'
-					/>
+					<UserAvatar name={instanceName} size='md' />
 					<Box flex='1' minW={0}>
-						<Flex align='center' gap={2}>
-							<Text
-								fontWeight='bold'
-								fontSize='xl'
-								noOfLines={1}
-								color={textColor}
-							>
-								{user?.fullName || 'Unnamed'}
-							</Text>
-						</Flex>
+						<Text
+							fontWeight='bold'
+							fontSize='xl'
+							noOfLines={1}
+							color={textColor}
+						>
+							{instanceName}
+						</Text>
 						<Flex
 							align='center'
 							gap={2}
@@ -88,27 +103,38 @@ const WhatsappUserCard = ({ data }) => {
 							color={secondaryTextColor}
 							mt={1}
 						>
-							<FaPhone size='0.8em' />
-							<Text>{phoneNumber}</Text>
+							<FaUser size='1em' />
+							<Text>{user?.fullName}</Text>
 						</Flex>
 					</Box>
 				</Flex>
+
+				{/* Status Toggle */}
+				<FormControl display='flex' alignItems='center' w='auto'>
+					<FormLabel
+						htmlFor={`status-${data?._id}`}
+						mb='0'
+						fontSize='sm'
+						color={secondaryTextColor}
+					>
+						{isActive ? 'Active' : 'Disabled'}
+					</FormLabel>
+					<Switch
+						id={`status-${data?._id}`}
+						isChecked={isActive}
+						onChange={(e) => updateInstanceStatus(e.target.checked)}
+						colorScheme='whatsapp'
+						size='md'
+						isDisabled={isLoading}
+						transition='all 0.2s ease'
+					/>
+				</FormControl>
 			</Flex>
 
 			<Divider borderColor={borderColor} my={3} />
 
+			{/* Details */}
 			<Stack spacing={3} fontSize='sm' color={textColor} mb={4}>
-				<Flex align='center' gap={3}>
-					<Box color={secondaryTextColor}>
-						<FaBuilding size='1em' />
-					</Box>
-					<Text>
-						<Text as='span' color={secondaryTextColor}>
-							Agency:{' '}
-						</Text>
-						{user?.agency?.name || 'N/A'}
-					</Text>
-				</Flex>
 				<Flex align='center' gap={3}>
 					<Box color={secondaryTextColor}>
 						<FaUserTie size='1em' />
@@ -133,18 +159,8 @@ const WhatsappUserCard = ({ data }) => {
 				</Flex>
 			</Stack>
 
-			<Flex justify='space-between' align='center'>
-				<Badge
-					colorScheme={isActive ? 'green' : 'red'}
-					px={3}
-					py={1}
-					rounded='full'
-					fontSize='sm'
-					fontWeight='medium'
-				>
-					{isActive ? 'Active' : 'Disabled'}
-				</Badge>
-
+			{/* Action Button */}
+			<Flex justify='flex-end' align='center'>
 				<Button
 					leftIcon={<FaWhatsapp size='1.2em' />}
 					colorScheme='whatsapp'
@@ -154,10 +170,10 @@ const WhatsappUserCard = ({ data }) => {
 					size='sm'
 					rounded='full'
 					px={4}
-					onClick={() => navigate(`/whatsapp/chats/${user?._id}`)}
+					onClick={() => navigate(`/whatsapp/${data?.whatsappId}`)}
 					shadow='md'
 				>
-					WhatsApp Chat
+					Chat
 				</Button>
 			</Flex>
 		</Box>
