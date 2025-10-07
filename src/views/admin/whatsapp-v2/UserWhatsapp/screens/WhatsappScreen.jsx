@@ -38,13 +38,13 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 		error,
 		fail,
 		whatsapp_disconnect,
-		logoutWhatsapp,
-		getChat,
 	});
 
 	const logoutHandler = useCallback((id) => {
 		logoutWhatsapp(id);
 		navigate('/');
+
+		console.log('call logout');
 	}, []);
 
 	// ---- State Handling ----

@@ -75,7 +75,7 @@ const ChatList = ({
 						aria-label='Back'
 						icon={<FaChevronLeft size={16} />}
 						variant='ghost'
-						onClick={() => navigate('/whatsapp')}
+						onClick={() => navigate('/whatsapp/instances')}
 					/>
 					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
 						Chats
@@ -183,7 +183,7 @@ const ChatListItem = ({
 								// color='gray.800'
 								fontSize='sm'
 								noOfLines={1}
-								filter='blur(8px)'
+								filter='blur(5px)'
 							>
 								{chat?.name || '***********'}
 								{/* ************** */}

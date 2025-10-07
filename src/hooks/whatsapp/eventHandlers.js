@@ -56,6 +56,10 @@ export const eventHandlers = {
 		...state,
 		messages: [...state.messages, payload],
 	}),
+	[WHATSAPP_EVENTS.SEND_ACK]: (state, payload) => ({
+		...state,
+		messages: [...state.messages, payload],
+	}),
 	[WHATSAPP_EVENTS.DISCONNECT]: (state, payload) => ({
 		...state,
 		whatsapp_disconnect: payload?.message || 'Whatsapp disconnected',

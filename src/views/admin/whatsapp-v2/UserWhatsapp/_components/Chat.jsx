@@ -247,6 +247,7 @@ const Chat = ({ chat }) => {
 				overflowY='auto'
 				position='relative'
 				maxH='100%'
+				ref={containerRef}
 			>
 				{messages?.length ? (
 					<Flex
@@ -255,9 +256,7 @@ const Chat = ({ chat }) => {
 						align='stretch'
 						spacing={2}
 						gap='1'
-						// width='100vw'
-						// height='100vh'
-						ref={containerRef}
+						minH='100%'
 					>
 						{messages?.map((msg, idx) => (
 							<Flex

@@ -64,11 +64,10 @@ const whatsappWebSlice = createSlice({
 		newMessage: (state, action) => {
 			state.messages.push(action.payload);
 		},
-		disconnect: (state, action) => {
-			state.whatsapp_disconnect =
-				action.payload?.message || 'Whatsapp disconnected';
-			state.qr = '';
-		},
+		disconnect: (state, action) => ({
+			...initialState,
+			whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
+		}),
 		reset: () => initialState,
 	},
 });

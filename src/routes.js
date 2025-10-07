@@ -125,8 +125,8 @@ const AdminWhatsapp = React.lazy(
 	() => import('views/admin/whatsapp/AdminWhatsapp')
 );
 
-const AdminWhatsappV2 = React.lazy(
-	() => import('views/admin/whatsapp-v2/AdminWhatsapp')
+const WhatsappInstances = React.lazy(
+	() => import('views/admin/whatsapp-v2/Instances')
 );
 
 const UserWhatsappV2 = React.lazy(
@@ -607,16 +607,16 @@ const routes = [
 		childId: 'whatsapp_chats',
 		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp',
+		path: '/whatsapp/instances',
 		parent: 'whatsapp',
 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
-		component: AdminWhatsappV2,
+		component: WhatsappInstances,
 	},
 	{
 		childId: 'whatsapp_chats',
 		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/:id',
+		path: '/whatsapp/instances/:id',
 		parent: 'whatsapp',
 		component: UserWhatsappV2,
 	},
