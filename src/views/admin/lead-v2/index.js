@@ -230,7 +230,8 @@ const Index = () => {
 							</Button> // count added
 						)}
 
-						{hasPermission('leads', 'bulkAssign') && (
+						{(hasPermission('leads', 'bulkAssign_all') ||
+							hasPermission('leads', 'bulkAssign_agents')) && (
 							<Button
 								{...buttonStyle}
 								onClick={() => setBulkAssign(true)}

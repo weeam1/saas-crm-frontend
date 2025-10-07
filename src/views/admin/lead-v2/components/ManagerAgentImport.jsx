@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { usePermissions } from 'hooks/usePermissions';
 import React, { useState, useEffect } from 'react';
 
 const { GridItem, FormLabel, Text, Select, Box } = require('@chakra-ui/react');
@@ -159,6 +160,8 @@ const ManagerAgentImport = ({
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isManager = user?.roles?.[0]?.roleName === 'Manager';
 
+	const { hasPermission } = usePermissions();
+
 	// Update filtered agents when manager selection changes
 	useEffect(() => {
 		const selectedManagerId = values['managerAssigned'];
@@ -189,61 +192,90 @@ const ManagerAgentImport = ({
 	return (
 		<>
 			{/* Manager Selection (Super Admin Only) */}
-			{isSuperAdmin && (
-				<GridItem colSpan={{ base: 12, md: 6 }}>
-					<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-						Select Manager
-					</FormLabel>
-					<Box>
-						<Select
-							name='managerAssigned'
-							// placeholder='Select Manager'
-							onChange={handleChange}
-							value={values['managerAssigned'] || ''}
-						>
-							<option value=''>No manager</option>
-							{tree?.managers?.map((manager) => (
-								<option key={manager._id} value={manager._id}>
-									{manager.firstName} {manager.lastName}
-								</option>
-							))}
-						</Select>
-					</Box>
-					<Text mb='10px' color='red'>
-						{errors.managerAssigned &&
-							touched.managerAssigned &&
-							errors.managerAssigned}
-					</Text>
-				</GridItem>
+			{hasPermission('leads', 'bulkAssign_all') ? (
+				<>
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+							Select Manager
+						</FormLabel>
+						<Box>
+							<Select
+								name='managerAssigned'
+								// placeholder='Select Manager'
+								onChange={handleChange}
+								value={values['managerAssigned'] || ''}
+							>
+								<option value=''>No manager</option>
+								{tree?.managers?.map((manager) => (
+									<option key={manager._id} value={manager._id}>
+										{manager.firstName} {manager.lastName}
+									</option>
+								))}
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.managerAssigned &&
+								touched.managerAssigned &&
+								errors.managerAssigned}
+						</Text>
+					</GridItem>
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+							Select Agent
+						</FormLabel>
+						<Box>
+							<Select
+								name='agentAssigned'
+								onChange={handleChange}
+								value={values['agentAssigned'] || ''}
+								// placeholder='Select Agent'
+							>
+								<option value=''>No agent</option>
+
+								{managerAgents.map((agent) => (
+									<option key={agent._id} value={agent._id}>
+										{agent.firstName} {agent.lastName}
+									</option>
+								))}
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.agentAssigned &&
+								touched.agentAssigned &&
+								errors.agentAssigned}
+						</Text>
+					</GridItem>
+				</>
+			) : (
+				hasPermission('leads', 'bulkAssign_agents') && (
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+							Select Agent
+						</FormLabel>
+						<Box>
+							<Select
+								name='agentAssigned'
+								onChange={handleChange}
+								value={values['agentAssigned'] || ''}
+								// placeholder='Select Agent'
+							>
+								<option value=''>No agent</option>
+
+								{managerAgents.map((agent) => (
+									<option key={agent._id} value={agent._id}>
+										{agent.firstName} {agent.lastName}
+									</option>
+								))}
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.agentAssigned &&
+								touched.agentAssigned &&
+								errors.agentAssigned}
+						</Text>
+					</GridItem>
+				)
 			)}
-
-			{/* Agent Selection (Super Admin & Manager) */}
-			<GridItem colSpan={{ base: 12, md: 6 }}>
-				<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-					Select Agent
-				</FormLabel>
-				<Box>
-					<Select
-						name='agentAssigned'
-						onChange={handleChange}
-						value={values['agentAssigned'] || ''}
-						// placeholder='Select Agent'
-					>
-						<option value=''>No agent</option>
-
-						{managerAgents.map((agent) => (
-							<option key={agent._id} value={agent._id}>
-								{agent.firstName} {agent.lastName}
-							</option>
-						))}
-					</Select>
-				</Box>
-				<Text mb='10px' color='red'>
-					{errors.agentAssigned &&
-						touched.agentAssigned &&
-						errors.agentAssigned}
-				</Text>
-			</GridItem>
 		</>
 	);
 };
