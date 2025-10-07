@@ -44,7 +44,20 @@ const Analytics = () => {
     try {
       setLoadingAnalytics(true);
       const res = await axios.get(url);
-      setAnalyticsData(res.data);
+      const mergedAnalytics = res.data.analytics.map((a) => {
+        const matchedUser = data.sipSettings.find(
+          (s) => String(s.extensionId) === String(a.extension)
+        );
+        return {
+          ...a,
+          fullName: matchedUser?.userId?.fullName || "Unknown User",
+        };
+      });
+
+      setAnalyticsData({
+        ...res.data,
+        analytics: mergedAnalytics,
+      });
     } catch (err) {
       console.error("Error fetching analytics:", err);
     } finally {
