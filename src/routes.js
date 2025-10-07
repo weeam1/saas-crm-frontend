@@ -122,16 +122,24 @@ const ViewSurveyResponse = React.lazy(
 
 // Whatsapp
 const AdminWhatsapp = React.lazy(
+	() => import('views/admin/whatsapp/AdminWhatsapp')
+);
+
+const AdminWhatsappV2 = React.lazy(
 	() => import('views/admin/whatsapp-v2/AdminWhatsapp')
 );
-const UserWhatsapp = React.lazy(
+
+const UserWhatsappV2 = React.lazy(
 	() => import('views/admin/whatsapp-v2/UserWhatsapp')
 );
+const UserWhatsapp = React.lazy(
+	() => import('views/admin/whatsapp/UserWhatsapp')
+);
 const WhatsappSettings = React.lazy(
-	() => import('views/admin/whatsapp-v2/WhatsappSettings')
+	() => import('views/admin/whatsapp/WhatsappSettings')
 );
 const WhatsappTemplates = React.lazy(
-	() => import('views/admin/whatsapp-v2/WhatsappSettings/Templates')
+	() => import('views/admin/whatsapp/WhatsappSettings/Templates')
 );
 const CreateWhatsappTemplate = React.lazy(
 	() =>
@@ -594,6 +602,26 @@ const routes = [
 	// },
 
 	// **** Whatsapp **** //
+	// V2 routes
+	{
+		childId: 'whatsapp_chats',
+		name: 'Whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp',
+		parent: 'whatsapp',
+		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		component: AdminWhatsappV2,
+	},
+	{
+		childId: 'whatsapp_chats',
+		name: 'User Whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/:id',
+		parent: 'whatsapp',
+		component: UserWhatsappV2,
+	},
+
+	// V1 routes
 	{
 		childId: 'whatsapp_chats',
 		name: 'Whatsapp',

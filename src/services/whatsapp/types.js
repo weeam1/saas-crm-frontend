@@ -5,6 +5,7 @@ export const WHATSAPP_EVENTS = {
 	READY: 'whatsapp_ready',
 	FAIL: 'fail',
 	ERROR: 'whatsapp_error',
+	WHATSAPP_LOADING: 'whatsapp_loading',
 	NEW_MESSAGE: 'new_message',
 	DISCONNECT: 'whatsapp_disconnected',
 	CHATS_LOADED: 'chats_loaded',

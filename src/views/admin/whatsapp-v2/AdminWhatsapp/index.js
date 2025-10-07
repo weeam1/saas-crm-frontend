@@ -2,23 +2,41 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEffect, useState } from 'react';
 import WhatsappCards from './WhatsappCards';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import { Box, Button, Flex, IconButton, Stack, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Flex,
+	IconButton,
+	Stack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { Link } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
 import { usePermissions } from 'hooks/usePermissions';
+import CreateInstance from './CreateInstance';
+import { whatsappColors } from 'utils/helpers';
+import { FaPlus } from 'react-icons/fa';
 
 const LIMIT = 10;
 
 const AdminWhatsapp = () => {
-	const [users, setUsers] = useState([]);
+	const [instances, setInstances] = useState([]);
+	const [selectedInstance, setSelectedInstance] = useState({});
 	const [page, setPage] = useState(1);
 	const { hasPermission } = usePermissions();
 
+	const {
+		isOpen: createInstanceIsOpen,
+		onClose: createInstanceOnClose,
+		onOpen: createInstanceOpen,
+	} = useDisclosure();
+
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
-			path: 'whatsapp/users',
+			path: 'whatsapp/instances',
 			params: { page, limit: LIMIT },
 		},
 		{
@@ -28,7 +46,7 @@ const AdminWhatsapp = () => {
 
 	useEffect(() => {
 		if (data?.doc?.length) {
-			setUsers(data?.doc);
+			setInstances(data?.doc);
 		}
 	}, [data?.doc]);
 
@@ -50,15 +68,46 @@ const AdminWhatsapp = () => {
 		if (page > 1) setPage((prev) => prev - 1);
 	};
 
+	const updateInstances = (id, updated) => {
+		setInstances((prev) => {
+			const exists = prev.some((item) => item._id === id);
+			if (exists) {
+				// Update existing instance
+				return prev.map((item) =>
+					item._id === id ? { ...item, ...updated } : item
+				);
+			}
+			// Add new instance if not found
+			return [{ ...updated }, ...prev];
+		});
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
 				<Flex fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>Whatsapp Users</Text>
-					<CountUpComponent key={users?.length} targetNumber={users?.length} />
+					<Text>Whatsapp Instances</Text>
+					<CountUpComponent
+						key={instances?.length}
+						targetNumber={instances?.length}
+					/>
 				</Flex>
 
-				{hasPermission('whatsapp', 'settings') && (
+				<Button
+					leftIcon={<FaPlus size='1em' />}
+					colorScheme='whatsapp'
+					_hover={{ bg: whatsappColors.primary }}
+					_active={{ bg: whatsappColors.primary }}
+					size='sm'
+					rounded='md'
+					px={4}
+					shadow='md'
+					onClick={createInstanceOpen}
+				>
+					Create Instance
+				</Button>
+
+				{/* {hasPermission('whatsapp', 'settings') && (
 					<CustomTooltip label='Settings'>
 						<Link to='/whatsapp/settings'>
 							<IconButton
@@ -70,56 +119,69 @@ const AdminWhatsapp = () => {
 							/>
 						</Link>
 					</CustomTooltip>
-				)}
+				)} */}
 			</Flex>
 
 			<WhatsappCards
-				data={users}
+				data={instances}
+				updateInstances={updateInstances}
 				isLoading={isLoading}
 				isFetching={isFetching}
 				handleNext={handleNext}
 				handlePrev={handlePrev}
 			/>
 
-			<Flex
-				justify='center'
-				align='center'
-				mt={6}
-				maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
-				mx='auto'
-			>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					onClick={handlePrev}
-					px={{ base: 2, md: 4, lg: 6 }}
-					isDisabled={page === 1 || isFetching}
-				>
-					Previous
-				</Button>
-				<Text
-					px={{ base: 2, md: 4, lg: 6 }}
+			{createInstanceIsOpen && (
+				<CreateInstance
+					isOpen={createInstanceIsOpen}
+					onClose={createInstanceOnClose}
+					instance={selectedInstance}
+					updateInstances={updateInstances}
+					mode='Add'
+				/>
+			)}
+
+			{instances?.length > LIMIT && (
+				<Flex
+					justify='center'
 					align='center'
-					fontSize='sm'
-					flex={1}
+					mt={6}
+					maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
+					mx='auto'
 				>
-					Page {page} of {totalPages}
-				</Text>
-				<Button
-					{...buttonStyle}
-					bg='softGray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
-					shadow='sm'
-					px={{ base: 2, md: 4, lg: 6 }}
-					onClick={handleNext}
-					isDisabled={page === totalPages || isFetching}
-				>
-					Next
-				</Button>
-			</Flex>
+					<Button
+						{...buttonStyle}
+						bg='softGray.100'
+						color='gray.800'
+						_active={{ bg: 'gray.200' }}
+						onClick={handlePrev}
+						px={{ base: 2, md: 4, lg: 6 }}
+						isDisabled={page === 1 || isFetching}
+					>
+						Previous
+					</Button>
+					<Text
+						px={{ base: 2, md: 4, lg: 6 }}
+						align='center'
+						fontSize='sm'
+						flex={1}
+					>
+						Page {page} of {totalPages}
+					</Text>
+					<Button
+						{...buttonStyle}
+						bg='softGray.100'
+						color='gray.800'
+						_active={{ bg: 'gray.200' }}
+						shadow='sm'
+						px={{ base: 2, md: 4, lg: 6 }}
+						onClick={handleNext}
+						isDisabled={page === totalPages || isFetching}
+					>
+						Next
+					</Button>
+				</Flex>
+			)}
 		</Box>
 	);
 };

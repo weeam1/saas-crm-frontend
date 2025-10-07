@@ -50,7 +50,7 @@ class SocketService {
 			});
 
 			this.socket.on('chatMessage', (msg) => {
-				// console.log('Message received:', msg);
+				console.log('Message received:', msg);
 				if (msg.roomId) {
 					store.dispatch(
 						appendMessage({
@@ -187,9 +187,11 @@ class SocketService {
 	 * @param {function} callback - Callback function
 	 */
 	on(event, handler) {
-		if (!this.events.has(event)) this.events.set(event, []);
-		this.events.get(event).push(handler);
-		if (this.socket) this.socket.on(event, handler);
+		if ((this.connectionStatus = 'connected')) {
+			if (!this.events.has(event)) this.events.set(event, []);
+			this.events.get(event).push(handler);
+			if (this.socket) this.socket.on(event, handler);
+		}
 	}
 
 	/**
@@ -242,7 +244,9 @@ class SocketService {
 	 */
 	emit(event, data, ack) {
 		if (!this.socket || !this.socket.connected) {
-			return Promise.reject(new Error('Socket not connected'));
+			// return Promise.reject(new Error('Socket not connected'));
+			console.warn('Socket not connected!');
+			return -1;
 		}
 
 		if (ack) {

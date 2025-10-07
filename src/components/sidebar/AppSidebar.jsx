@@ -186,6 +186,11 @@ const SidebarItem = React.memo(function SidebarItem({
 					h='fit-content'
 				>
 					{route.name}
+					{route?.version && (
+						<Badge as='span' mx='2' colorScheme='green' fontSize='xs'>
+							{route.version}
+						</Badge>
+					)}
 				</Box>
 			)}
 			{hasChildren && !collapsed && (
@@ -229,6 +234,11 @@ const SidebarItem = React.memo(function SidebarItem({
 										_hover={{ bg: hoverBg }}
 									>
 										{child.name}
+										{child?.version && (
+											<Badge as='span' mx='2' colorScheme='green' fontSize='xs'>
+												{child.version}
+											</Badge>
+										)}
 									</Text>
 								)}
 							</NavLink>
