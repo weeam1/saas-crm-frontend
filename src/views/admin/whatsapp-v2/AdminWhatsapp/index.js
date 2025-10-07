@@ -82,6 +82,10 @@ const AdminWhatsapp = () => {
 		});
 	};
 
+	const removeInstance = (id) => {
+		setInstances((prev) => prev.filter((item) => item._id !== id));
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex justify='space-between' align='center' mb={4}>
@@ -125,6 +129,7 @@ const AdminWhatsapp = () => {
 			<WhatsappCards
 				data={instances}
 				updateInstances={updateInstances}
+				removeInstance={removeInstance}
 				isLoading={isLoading}
 				isFetching={isFetching}
 				handleNext={handleNext}

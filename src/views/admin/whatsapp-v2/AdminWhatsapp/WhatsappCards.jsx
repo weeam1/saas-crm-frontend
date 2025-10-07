@@ -3,7 +3,13 @@ import WhatsappUserCard from './WhatsappUserCard';
 import CardShimmer from 'components/loading/CardShimmer';
 import { SimpleGrid } from '@chakra-ui/react';
 
-const WhatsappCards = ({ data, isLoading, isFetching, updateInstances }) => {
+const WhatsappCards = ({
+	data,
+	isLoading,
+	isFetching,
+	updateInstances,
+	removeInstance,
+}) => {
 	return (
 		<>
 			{isLoading || isFetching ? (
@@ -53,6 +59,7 @@ const WhatsappCards = ({ data, isLoading, isFetching, updateInstances }) => {
 							key={item._id}
 							data={item}
 							updateInstances={updateInstances}
+							removeInstance={removeInstance}
 						/>
 					))}
 				</SimpleGrid>
