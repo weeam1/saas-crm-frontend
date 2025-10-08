@@ -184,8 +184,6 @@ const BulkWhatsappModal = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedLeads]);
 
-	console.log({ validLeadsList });
-
 	const handleSend = async () => {
 		try {
 			if (!templates?.whatsappDetails?.phoneNumber) {
