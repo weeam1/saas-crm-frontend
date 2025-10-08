@@ -21,9 +21,6 @@ import {
 	Tooltip,
 } from '@chakra-ui/react';
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { extractLocationData } from 'utils/helpers';
-import { validatePhoneNumber } from 'utils/helpers';
 import { normalizePhone } from 'utils/phoneValidation';
 
 const FinalSummaryModal = ({
@@ -34,10 +31,6 @@ const FinalSummaryModal = ({
 	setValidLeadsList,
 	isLoading,
 }) => {
-	const countries = useSelector(
-		(state) => state?.countries?.countryNames || []
-	);
-
 	const { validLeadsList, invalidLeadsList } = useMemo(() => {
 		const valid = [];
 		const invalid = [];
@@ -48,21 +41,19 @@ const FinalSummaryModal = ({
 					? lead.leadWhatsappNumber?.result
 					: lead.leadWhatsappNumber;
 
-			const { country } = extractLocationData(lead?.ip, countries);
+			// const { country } = extractLocationData(lead?.ip, countries);
 
 			const normalizedLead = {
 				id: lead.lead_id || lead.id,
 				name: lead.leadName || '',
 				whatsapp: whatsappNumber,
-				country,
+				// country,
 			};
 
 			// console.log({ normalizedLead });
 
-			const validPhone = normalizePhone(
-				normalizedLead?.whatsapp,
-				normalizedLead?.country || 'United Arab Emirates'
-			);
+			const validPhone = normalizePhone(normalizedLead?.whatsapp);
+			// normalizedLead?.country || 'United Arab Emirates'
 
 			// console.log({ validPhone });
 

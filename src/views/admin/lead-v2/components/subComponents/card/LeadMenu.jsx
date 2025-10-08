@@ -18,11 +18,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
 import { setActiveChat } from '../../../../../../redux/whatsappSlice';
-// import { validatePhoneNumber } from 'utils/helpers';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { FiMoreVertical } from 'react-icons/fi';
-import { extractLocationData } from 'utils/helpers';
 import { normalizePhone } from 'utils/phoneValidation';
 
 const LeadMenu = ({
@@ -48,10 +46,6 @@ const LeadMenu = ({
 	// const user = useSelector((state) => state.user.user);
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
-
-	const countries = useSelector(
-		(state) => state?.countries?.countryNames || []
-	);
 
 	// const loginUser = useSelector((state) => state.user.user);
 
@@ -84,10 +78,7 @@ const LeadMenu = ({
 			return;
 		}
 
-		const { country } = extractLocationData(lead?.ip, countries);
-
-		// const validNum = validatePhoneNumber(whatsappNumber);
-		const validNum = normalizePhone(whatsappNumber, country);
+		const validNum = normalizePhone(whatsappNumber);
 
 		if (!validNum) return toast.error('Not valid WhatsApp number!');
 

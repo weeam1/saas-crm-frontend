@@ -55,25 +55,6 @@ function App() {
 	// chunk handler
 	useChunkErrorHandler();
 
-	// console.warn(
-	// 	'+923048327753 to valid: ',
-	// 	normalizePhone('+923048327753', 'Pakistan')
-	// );
-	// // → +923452334324
-	// console.warn(
-	// 	'+92 0345 2334324 to valid: ',
-	// 	normalizePhone('+92 0345 2334324', 'Pakistan')
-	// );
-	// console.warn(
-	// 	'923048327753 to valid: ',
-	// 	normalizePhone('+923048327753', 'Pakistan')
-	// );
-	// console.warn(
-	// 	'+9710585577271 to valid: ',
-	// 	normalizePhone('+971585577271', 'United Arab Emirates')
-	// );
-	// // → +923452334324
-
 	useEffect(() => {
 		getSmartTimezone();
 	}, []);
