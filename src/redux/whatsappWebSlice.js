@@ -47,28 +47,92 @@ const whatsappWebSlice = createSlice({
 			state.activeChat = action.payload;
 		},
 		chatLoaded: (state, action) => {
-			const { whatsappId, chat } = action.payload;
-			if (!whatsappId || !chat) return;
+			const { sessionId, chatId, messages } = action.payload;
+			if (!sessionId || !chatId) return;
 
-			const chatsForUser = state.userChats[whatsappId] || [];
-			const chatIndex = chatsForUser.findIndex((c) => c.id === chat.id);
-
-			if (chatIndex >= 0) {
-				chatsForUser[chatIndex] = { ...chatsForUser[chatIndex], ...chat };
-			} else {
-				chatsForUser.push(chat);
-			}
-
-			state.userChats[whatsappId] = chatsForUser;
+			// Replace or set messages list for this chatId
+			state.userChats[chatId] = messages || [];
 		},
 		newMessage: (state, action) => {
-			state.messages.push(action.payload);
+			const { message } = action.payload;
+
+			if (!message) return;
+			console.log('new message received:', message);
+
+			const chatId = message?.fromMe ? message?.to : message?.from;
+			if (!chatId) return;
+
+			// Ensure the chat array exists
+			if (!Array.isArray(state.userChats[chatId])) {
+				state.userChats[chatId] = [];
+			}
+
+			// Ensure the chat array exists
+			const messages = state.userChats[chatId] || [];
+			state.userChats[chatId] = messages;
+
+			const msgId = message?.id?._serialized;
+			if (!msgId) return;
+
+			// const messages = state.userChats[chatId];
+
+			// Find message index directly
+			const index = messages.findIndex((m) => m?.id?._serialized === msgId);
+
+			if (index === -1) {
+				messages.push(message);
+			} else {
+				// Find the index of the existing message
+				const index = messages.findIndex(
+					(m) => m?.id?._serialized === message?.id?._serialized
+				);
+
+				// Replace that message with the new one
+				if (index !== -1) {
+					messages[index] = {
+						...messages[index],
+						...message, // merge fields (so old props not lost)
+					};
+				}
+			}
+
+			// state.userChats[chatId] = messages;
 		},
-		disconnect: (state, action) => {
-			state.whatsapp_disconnect =
-				action.payload?.message || 'Whatsapp disconnected';
-			state.qr = '';
+		messageAck: (state, action) => {
+			const { message, ack } = action.payload;
+
+			if (!message || !ack) return;
+			console.log('message ack:', ack);
+
+			const chatId = message?.fromMe ? message?.to : message?.from;
+			if (!chatId) return;
+
+			const messages = state.userChats[chatId] || [];
+
+			// Ensure the chat array exists
+			if (!Array.isArray(messages)) return;
+
+			// Find the index of the existing message
+			const index = messages.findIndex(
+				(m) => m?.id?._serialized === message?.id?._serialized
+			);
+
+			// Replace that message with the new one
+			if (index !== -1) {
+				messages[index] = {
+					...messages[index],
+					ack,
+				};
+			}
+
+			// state.userChats[chatId] = messages;
 		},
+
+		disconnect: (state, action) => ({
+			...initialState,
+			whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
+		}),
+
 		reset: () => initialState,
 	},
 });
@@ -81,11 +145,19 @@ export const {
 	ready,
 	fail,
 	error,
+	setActiveChat,
 	chatsLoaded,
 	chatLoaded,
 	newMessage,
+	messageAck,
 	disconnect,
 	reset,
 } = whatsappWebSlice.actions;
+
+// export the selector
+export const getMessagesByChatId = (state, chatId) => {
+	console.log('get messages: ', chatId);
+	return state.whatsappWeb.userChats[chatId] || [];
+};
 
 export default whatsappWebSlice.reducer;

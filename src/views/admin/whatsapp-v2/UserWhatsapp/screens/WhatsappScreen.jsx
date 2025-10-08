@@ -9,8 +9,9 @@ import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import Loader from 'components/loading/Loader';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../_components/ErrorState';
+import BrandLogo from 'assets/logo/logo.png';
 
-const WhatsappScreen = ({ whatsappId, loadingChats }) => {
+const WhatsappScreen = ({ sessionId, loadingChats }) => {
 	const [selectedChat, setSelectedChat] = useState(null);
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
@@ -30,25 +31,29 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 		getChat,
 	} = useWhatsapp();
 
-	console.log({
-		userChats,
-		qr,
-		isReady,
-		allConversations,
-		error,
-		fail,
-		whatsapp_disconnect,
-		logoutWhatsapp,
-		getChat,
-	});
+	console.log({ userChats });
 
-	const logoutHandler = useCallback((id) => {
-		logoutWhatsapp(id);
+	const logoutHandler = () => {
+		logoutWhatsapp(sessionId);
 		navigate('/');
-	}, []);
+	};
 
 	// ---- State Handling ----
 	const renderContent = () => {
+		// Usage
+		if (error || fail) {
+			return <ErrorState message={error || fail} type='error' />;
+		}
+
+		if (whatsapp_disconnect) {
+			return (
+				<ErrorState
+					message='WhatsApp disconnected. Please reconnect.'
+					type='warning'
+				/>
+			);
+		}
+
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
 				<Flex h='100%' bg='white' color='gray.700' rounded='md'>
@@ -56,7 +61,7 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 					<Box w='30%' borderRight='1px solid #ddd' overflowY='auto'>
 						<ChatList
 							allConversations={allConversations}
-							whatsappId={whatsappId}
+							sessionId={sessionId}
 							setSelectedChat={setSelectedChat}
 							selectedChat={selectedChat}
 							logoutHandler={logoutHandler}
@@ -66,8 +71,8 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 
 					{/* Right Chat Screen */}
 					<Box w='70%' h='100%' bg='#f7f7f7'>
-						{userChats[selectedChat] ? (
-							<Chat chat={userChats[selectedChat]} />
+						{userChats[selectedChat?.id] ? (
+							<Chat chatId={selectedChat?.id} sessionId={sessionId} />
 						) : selectedChat ? (
 							<Loader />
 						) : (
@@ -79,42 +84,24 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 								color='gray.800'
 							>
 								{/* Illustration */}
-								<Image
-									src='https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
-									alt='Download WhatsApp'
-									maxW='60px'
-									mb={6}
-								/>
-
+								<Image src={BrandLogo} alt='Weeam CRM' maxW='60px' mb={6} />
 								{/* Title */}
 								<Text fontSize='xl' fontWeight='medium' mb={2}>
-									Download WhatsApp for Windows or Mac
+									Manage Your Customer Chats Seamlessly
 								</Text>
 
 								{/* Subtitle */}
 								<Text
 									fontSize='sm'
 									color='gray.600'
-									maxW='400px'
+									maxW='500px'
 									textAlign='center'
 									mb={6}
 								>
-									Make calls, share your screen and get a faster experience when
-									you download the Windows or Mac app.
+									Stay connected with clients, track conversations, and boost
+									productivity by handling all customer chats directly from your
+									CRM Whatsapp.
 								</Text>
-
-								{/* Download button */}
-								<Button
-									as='a'
-									href='https://www.whatsapp.com/download'
-									target='_blank'
-									rel='noopener noreferrer'
-									colorScheme='green'
-									size='sm'
-									borderRadius='full'
-								>
-									Download
-								</Button>
 
 								{/* Footer note */}
 								<Text fontSize='xs' color='gray.500' mt={12}>
@@ -133,20 +120,6 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 
 		if (qr) {
 			return <WhatsappQRLogin qr={qr} />;
-		}
-
-		// Usage
-		if (error || fail) {
-			return <ErrorState message={error || fail} type='error' />;
-		}
-
-		if (whatsapp_disconnect) {
-			return (
-				<ErrorState
-					message='WhatsApp disconnected. Please reconnect.'
-					type='warning'
-				/>
-			);
 		}
 	};
 

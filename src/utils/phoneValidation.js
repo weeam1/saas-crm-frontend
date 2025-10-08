@@ -12,7 +12,9 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 // 		(c) => c.name.toLowerCase() === countryName.toLowerCase()
 // 	);
 
-// 	// console.log({ countryName, code: country });
+// 	console.log({ countryName, country });
+
+// 	if (!country) return null;
 
 // 	if (!country) return null;
 

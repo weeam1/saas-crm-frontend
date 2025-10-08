@@ -34,7 +34,6 @@ import { toast } from 'react-toastify';
 import CreateInstance from './CreateInstance';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import { useState } from 'react';
-import CustomTooltip from 'components/shared/CustomTooltip';
 
 const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -182,7 +181,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 					</Box>
 					<Text>
 						<Text as='span' color={secondaryTextColor}>
-							Member since:{' '}
+							Created on:{' '}
 						</Text>
 						{formatPostDate(createdAt)}
 					</Text>
@@ -221,7 +220,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 					size='sm'
 					rounded='full'
 					px={4}
-					onClick={() => navigate(`/whatsapp/${data?.whatsappId}`)}
+					onClick={() => navigate(`/whatsapp/instances/${data?.sessionId}`)}
 					shadow='md'
 				>
 					Chat
@@ -396,7 +395,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 // 					size='sm'
 // 					rounded='full'
 // 					px={4}
-// 					onClick={() => navigate(`/whatsapp/${data?.whatsappId}`)}
+// 					onClick={() => navigate(`/whatsapp/${data?.sessionId}`)}
 // 					shadow='md'
 // 				>
 // 					Chat
