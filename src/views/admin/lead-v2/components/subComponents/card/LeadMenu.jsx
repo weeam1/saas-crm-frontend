@@ -62,8 +62,8 @@ const LeadMenu = ({
 			: lead?.leadPhoneNumber;
 	const whatsappNumber =
 		typeof lead.leadWhatsappNumber === 'object'
-			? lead.leadWhatsappNumber?.result
-			: lead.leadWhatsappNumber;
+			? lead?.leadWhatsappNumber?.result
+			: lead?.leadWhatsappNumber;
 
 	// agent edit the lead only phone and lead name (when status is show)
 	// const allowedUserEdit = ['Admin', 'superAdmin'].includes(user?.roleName)
@@ -102,8 +102,8 @@ const LeadMenu = ({
 		dispatch(setActiveChat(newContact));
 
 		const redirectUrl = isSuperAdmin
-			? `/whatsapp/chat/${user._id}`
-			: `/whatsapp/chat`;
+			? `/whatsapp/chats/${user._id}`
+			: `/whatsapp/chats`;
 
 		navigate(redirectUrl);
 	};
