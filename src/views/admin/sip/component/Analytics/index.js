@@ -48,6 +48,7 @@ const Analytics = () => {
         return {
           ...a,
           fullName: matchedUser?.userId?.fullName || "Unknown User",
+          sipId : matchedUser.sipId,
         };
       });
 

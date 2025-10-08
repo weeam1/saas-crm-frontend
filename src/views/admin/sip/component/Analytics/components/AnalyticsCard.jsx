@@ -67,7 +67,7 @@ const AnalyticsCard = ({ item, month, year }) => {
           py={1}
           borderRadius="md"
         >
-          Ext: {item.extension}
+          caller Id: {item.sipId}
         </Badge>
       </Flex>
 
