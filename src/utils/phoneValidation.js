@@ -1,9 +1,6 @@
 import countryCodes from '../data/countryCodes.json';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-// countryCodeJson = your JSON file with Country, CountryCode, Iso2
-// e.g. { "name": "Pakistan", "dial_code": "+92", "code": "PK" }
-
 // export function normalizePhone(input, countryName) {
 // 	if (!input || !countryName) return null;
 
@@ -37,13 +34,24 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 export function normalizePhone(input) {
 	if (!input) return null;
 
+	input = String(input); // always string
+
 	// 1. Clean input (remove spaces, dashes, parentheses)
 	let cleaned = input.replace(/[^\d+]/g, '');
 
-	// 2. Find matching country by dial code prefix
-	const country = countryCodes.find((c) => cleaned.startsWith(c.dial_code));
+	// Ensure cleaned always starts with '+'
+	if (!cleaned.startsWith('+')) {
+		cleaned = '+' + cleaned;
+	}
 
-	console.log({ country, input });
+	// 2. Find matching country by dial code prefix
+	const country = countryCodes.find((c) =>
+		cleaned.startsWith(c.dial_code.replace(/\+/g, ''))
+			? true
+			: cleaned.startsWith(c.dial_code)
+	);
+
+	console.log({ cleaned, country, input });
 
 	if (!country) return null; // no match for any known dial code
 
@@ -55,8 +63,10 @@ export function normalizePhone(input) {
 	// 4. Reconstruct normalized number
 	const normalized = `${dialCode}${localPart}`;
 
+	console.log({ normalized });
+
 	// 5. Validate using libphonenumber
 	const phoneNumber = parsePhoneNumberFromString(normalized, country.code);
-
-	return phoneNumber?.isValid() ? phoneNumber.number : null; // returns E.164 if valid
+	// returns E.164 if valid
+	return phoneNumber?.isValid() ? phoneNumber.number : null;
 }

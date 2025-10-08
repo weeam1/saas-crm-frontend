@@ -55,6 +55,8 @@ function App() {
 	// chunk handler
 	useChunkErrorHandler();
 
+	// console.log('check : 5147141938: ', normalizePhone(5147141938));
+
 	useEffect(() => {
 		getSmartTimezone();
 	}, []);

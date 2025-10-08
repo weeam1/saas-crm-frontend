@@ -169,20 +169,19 @@ const BulkWhatsappModal = ({
 						? lead.leadWhatsappNumber?.result
 						: lead.leadWhatsappNumber;
 
-				// const { country } = extractLocationData(lead?.ip, countries);
 				const whatsapp = normalizePhone(whatsappNumber);
-				// lead?.country || 'United Arab Emirates'
 
 				return {
 					id: lead.lead_id || lead.id,
 					name: lead.leadName || '',
 					whatsapp,
-					// country,
 				};
 			})
 			.filter((lead) => lead?.whatsapp);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedLeads]);
+
+	console.log({ validLeadsList });
 
 	const handleSend = async () => {
 		try {
