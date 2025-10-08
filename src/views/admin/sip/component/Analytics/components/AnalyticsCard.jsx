@@ -13,16 +13,33 @@ import {
   HStack,
 } from "@chakra-ui/react";
 
-const AnalyticsCard = ({ item }) => {
-
+const AnalyticsCard = ({ item, month, year }) => {
   const now = new Date();
-  const currentMonth = now.getMonth() + 1; 
+  const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
-  const isCurrentMonth =
-    item.month === currentMonth && item.year === currentYear;
+  const formatDuration = (hours, seconds) => {
+    const totalSeconds = Math.round(seconds);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${h}h ${m}m ${s}s`;
+  };
 
-  const dayLabel = isCurrentMonth ? "Today" : "Previous month";
+  const getLabel = () => {
+    if (year === currentYear && month === currentMonth) {
+      return "This Month";
+    } else if (year === currentYear && month === currentMonth - 1) {
+      return "Last Month";
+    } else {
+      const monthName = new Date(year, month - 1).toLocaleString("default", {
+        month: "long",
+      });
+      return `${monthName} ${year}`;
+    }
+  };
+
+  const label = getLabel();
 
   return (
     <Box
@@ -54,13 +71,30 @@ const AnalyticsCard = ({ item }) => {
         </Badge>
       </Flex>
 
+      {/* Month Label */}
+      <Flex justify="flex-start" align="center" mb={3}>
+        <Badge
+          px={3}
+          py={1}
+          borderRadius="full"
+          bg="goldenrod"
+          color="white"
+          fontSize="0.75rem"
+          fontWeight="semibold"
+          shadow="sm"
+          letterSpacing="wide"
+        >
+          📅 {label}
+        </Badge>
+      </Flex>
+
       <Divider borderColor="goldenrod" opacity={0.3} mb={3} />
 
       {/* Stats */}
       <HStack justify="space-between" spacing={3} mb={3}>
         <Stat>
           <StatLabel color="gray.600" fontSize="sm">
-            Total Calls ({dayLabel})
+            Total Calls
           </StatLabel>
           <StatNumber color="gray.800" fontSize="xl">
             {item.total_calls.today}
@@ -97,18 +131,25 @@ const AnalyticsCard = ({ item }) => {
 
       <Divider borderColor="gray.200" mb={3} />
 
-      {/* Duration */}
+      {/* Duration Section */}
       <Box>
         <Text fontSize="sm" color="gray.700" mb={1}>
-          ⏱ Duration ({dayLabel}):{" "}
+          ⏱ Duration ({label} - Daily):{" "}
           <Text as="span" fontWeight="bold" color="goldenrod">
-            {item.duration.today_hours}h {item.duration.today_seconds}s
+            {formatDuration(
+              item.duration.today_hours,
+              item.duration.today_seconds
+            )}
           </Text>
         </Text>
+
         <Text fontSize="sm" color="gray.700">
-          📆 Duration (Month):{" "}
+          📆 Total Duration ({label}):{" "}
           <Text as="span" fontWeight="bold" color="goldenrod">
-            {item.duration.month_hours}h {item.duration.month_seconds}s
+            {formatDuration(
+              item.duration.month_hours,
+              item.duration.month_seconds
+            )}
           </Text>
         </Text>
       </Box>

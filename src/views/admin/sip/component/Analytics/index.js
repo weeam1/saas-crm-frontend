@@ -7,15 +7,17 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { FiRefreshCw } from "react-icons/fi";
-import { useDisclosure } from "@chakra-ui/react";
 import { useFetchItemsQuery } from "api/apiSlice";
 import axios from "axios";
 import keys from "config/keys";
 import AnalyticsCard from "./components/AnalyticsCard";
-import FilterModal from "./components/FilterModal";
-import { FiCalendar } from "react-icons/fi";
+import DateFilter from "../../../attendance/components/DateFilter";
 
 const Analytics = () => {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
   const { data, isLoading } = useFetchItemsQuery(
     { path: "sipSetting" },
     { refetchOnMountOrArgChange: true }
@@ -24,13 +26,8 @@ const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
-  const [month, setMonth] = useState(8);
-  const [year, setYear] = useState(2025);
-
-  const [tempMonth, setTempMonth] = useState(month);
-  const [tempYear, setTempYear] = useState(year);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear);
 
   const fetchAnalytics = async (m = month, y = year) => {
     if (!data?.sipSettings?.length) return;
@@ -71,12 +68,11 @@ const Analytics = () => {
     }
   }, [data]);
 
-  const handleDateFilter = () => {
-    setMonth(tempMonth);
-    setYear(tempYear);
-    fetchAnalytics(tempMonth, tempYear);
-    onClose();
-  };
+ 	const onFilterChange = (value) => {
+		setMonth(Number(value.month));
+		setYear(Number(value.year));
+		fetchAnalytics(value.month, value.year);
+	};
 
   return (
     <Box p={6} bg={"white"} mt={"-16px"}>
@@ -90,15 +86,7 @@ const Analytics = () => {
           SIP Call Analytics
         </Heading>
         <Box display="flex" gap={3}>
-          <IconButton
-            icon={<FiCalendar />}
-            aria-label="Filter Data"
-            onClick={onOpen}
-            variant="brand"
-            size="md"
-            borderColor="goldenrod"
-            color="white"
-          />
+          <DateFilter onFilterChange={onFilterChange} />
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
@@ -119,20 +107,16 @@ const Analytics = () => {
       ) : (
         <SimpleGrid columns={[1, 2, 3]} spacing={6}>
           {analyticsData?.analytics?.map((item) => (
-            <AnalyticsCard key={item.extension} item={item} />
+            <AnalyticsCard
+              key={item.extension}
+              item={item}
+              month={month}
+              year={year}
+            />
           ))}
         </SimpleGrid>
       )}
 
-      <FilterModal
-        isOpen={isOpen}
-        onClose={onClose}
-        tempMonth={tempMonth}
-        setTempMonth={setTempMonth}
-        tempYear={tempYear}
-        setTempYear={setTempYear}
-        handleDateFilter={handleDateFilter}
-      />
     </Box>
   );
 };
