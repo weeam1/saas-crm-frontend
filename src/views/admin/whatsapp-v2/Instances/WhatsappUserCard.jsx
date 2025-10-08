@@ -220,7 +220,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 					size='sm'
 					rounded='full'
 					px={4}
-					onClick={() => navigate(`/whatsapp/instances/${data?.whatsappId}`)}
+					onClick={() => navigate(`/whatsapp/instances/${data?.sessionId}`)}
 					shadow='md'
 				>
 					Chat
@@ -395,7 +395,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 // 					size='sm'
 // 					rounded='full'
 // 					px={4}
-// 					onClick={() => navigate(`/whatsapp/${data?.whatsappId}`)}
+// 					onClick={() => navigate(`/whatsapp/${data?.sessionId}`)}
 // 					shadow='md'
 // 				>
 // 					Chat

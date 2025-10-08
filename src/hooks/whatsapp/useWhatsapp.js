@@ -61,12 +61,12 @@
 // 		localStorage.setItem('whatsapp_auth', false);
 // 	}, []);
 
-// 	const getChat = useCallback((sessionId, whatsappId) => {
+// 	const getChat = useCallback((sessionId, sessionId) => {
 // 		console.log('get user Chat');
-// 		if (!sessionId || !whatsappId) {
-// 			return console.warn('sessionId and whatsappId missing');
+// 		if (!sessionId || !sessionId) {
+// 			return console.warn('sessionId and sessionId missing');
 // 		}
-// 		socketService.emit('get_chat', { sessionId, whatsappId });
+// 		socketService.emit('get_chat', { sessionId, sessionId });
 // 	}, []);
 
 // 	return {
@@ -82,7 +82,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { reset } from './../../redux/whatsappWebSlice';
+import { reset, setActiveChat } from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
 
 export const useWhatsapp = () => {
@@ -103,21 +103,36 @@ export const useWhatsapp = () => {
 		socketService.emit('get_chats', { sessionId });
 	}, []);
 
-	const getChat = useCallback((sessionId, whatsappId) => {
-		if (!sessionId || !whatsappId) return;
-		socketService.emit('get_chat', { sessionId, whatsappId });
+	const getChat = useCallback(
+		(sessionId, chat) => {
+			if (!sessionId || !chat?.id) return;
+			socketService.emit('get_chat', { sessionId, chatId: chat?.id });
+			dispatch(setActiveChat(chat));
+		},
+		[dispatch]
+	);
+
+	const sendMessage = useCallback((sessionId, to, message, options = {}) => {
+		if (!sessionId) return;
+		socketService.emit('send_message', { sessionId, to, message });
 	}, []);
 
-	const disconnectWhatsapp = useCallback((sessionId) => {
-		socketService.emit('disconnect_whatsapp', { sessionId });
-		dispatch(reset());
-	}, []);
+	const disconnectWhatsapp = useCallback(
+		(sessionId) => {
+			socketService.emit('disconnect_whatsapp', { sessionId });
+			dispatch(reset());
+		},
+		[dispatch]
+	);
 
-	const logoutWhatsapp = useCallback((sessionId) => {
-		socketService.emit('logout_whatsapp', { sessionId });
-		localStorage.setItem('whatsapp_auth', false);
-		dispatch(reset());
-	}, []);
+	const logoutWhatsapp = useCallback(
+		(sessionId) => {
+			socketService.emit('logout_whatsapp', { sessionId });
+			localStorage.setItem('whatsapp_auth', false);
+			dispatch(reset());
+		},
+		[dispatch]
+	);
 
 	// console.log({ ...state });
 
@@ -126,6 +141,7 @@ export const useWhatsapp = () => {
 		whatsappInitialize,
 		getChats,
 		getChat,
+		sendMessage,
 		disconnectWhatsapp,
 		logoutWhatsapp,
 		isSocketConnected,

@@ -10,7 +10,7 @@ import Loader from 'components/loading/Loader';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../_components/ErrorState';
 
-const WhatsappScreen = ({ whatsappId, loadingChats }) => {
+const WhatsappScreen = ({ sessionId, loadingChats }) => {
 	const [selectedChat, setSelectedChat] = useState(null);
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
@@ -30,23 +30,29 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 		getChat,
 	} = useWhatsapp();
 
-	console.log({
-		userChats,
-		qr,
-		isReady,
-		allConversations,
-		error,
-		fail,
-		whatsapp_disconnect,
-	});
+	console.log({ userChats });
 
-	const logoutHandler = useCallback(() => {
-		logoutWhatsapp(whatsappId);
+	const logoutHandler = () => {
+		logoutWhatsapp(sessionId);
 		navigate('/');
-	}, []);
+	};
 
 	// ---- State Handling ----
 	const renderContent = () => {
+		// Usage
+		if (error || fail) {
+			return <ErrorState message={error || fail} type='error' />;
+		}
+
+		if (whatsapp_disconnect) {
+			return (
+				<ErrorState
+					message='WhatsApp disconnected. Please reconnect.'
+					type='warning'
+				/>
+			);
+		}
+
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
 				<Flex h='100%' bg='white' color='gray.700' rounded='md'>
@@ -54,7 +60,7 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 					<Box w='30%' borderRight='1px solid #ddd' overflowY='auto'>
 						<ChatList
 							allConversations={allConversations}
-							whatsappId={whatsappId}
+							sessionId={sessionId}
 							setSelectedChat={setSelectedChat}
 							selectedChat={selectedChat}
 							logoutHandler={logoutHandler}
@@ -65,7 +71,7 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 					{/* Right Chat Screen */}
 					<Box w='70%' h='100%' bg='#f7f7f7'>
 						{userChats[selectedChat] ? (
-							<Chat chat={userChats[selectedChat]} />
+							<Chat chatId={selectedChat} sessionId={sessionId} />
 						) : selectedChat ? (
 							<Loader />
 						) : (
@@ -131,20 +137,6 @@ const WhatsappScreen = ({ whatsappId, loadingChats }) => {
 
 		if (qr) {
 			return <WhatsappQRLogin qr={qr} />;
-		}
-
-		// Usage
-		if (error || fail) {
-			return <ErrorState message={error || fail} type='error' />;
-		}
-
-		if (whatsapp_disconnect) {
-			return (
-				<ErrorState
-					message='WhatsApp disconnected. Please reconnect.'
-					type='warning'
-				/>
-			);
 		}
 	};
 

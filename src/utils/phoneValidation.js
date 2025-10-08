@@ -12,6 +12,8 @@ export function normalizePhone(input, countryName) {
 		(c) => c.name.toLowerCase() === countryName.toLowerCase()
 	);
 
+	console.log({ countryName, country });
+
 	if (!country) return null;
 
 	// 2. Clean number (remove spaces, dashes, brackets)

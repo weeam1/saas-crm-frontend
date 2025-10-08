@@ -37,15 +37,15 @@ const truncateMessage = (message, length = 35) => {
 
 const ChatList = ({
 	allConversations,
-	whatsappId,
+	sessionId,
 	setSelectedChat,
 	selectedChat,
 	logoutHandler,
 	getChat,
 }) => {
-	const onSelectedChatHandler = (chatId) => {
-		setSelectedChat(chatId);
-		getChat(whatsappId, chatId);
+	const onSelectedChatHandler = (chat) => {
+		setSelectedChat(chat);
+		getChat(sessionId, chat);
 	};
 
 	const navigate = useNavigate();
@@ -120,7 +120,7 @@ const ChatList = ({
 						key={chat.id}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
-						whatsappId={whatsappId}
+						sessionId={sessionId}
 						selectedChat={selectedChat}
 					/>
 				))}
@@ -132,7 +132,7 @@ const ChatList = ({
 const ChatListItem = ({
 	chat,
 	onSelectedChatHandler,
-	whatsappId,
+	sessionId,
 	selectedChat,
 }) => {
 	const getAvatarProps = (chat) => {
@@ -170,7 +170,7 @@ const ChatListItem = ({
 			rounded={selectedChat === chat?.id ? 'md' : '1px'}
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
-			onClick={() => onSelectedChatHandler(chat?.id)}
+			onClick={() => onSelectedChatHandler(chat)}
 		>
 			<Flex align='center' justify='space-between'>
 				<Flex align='center' flex='1' minW='0'>
