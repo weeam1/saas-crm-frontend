@@ -13,7 +13,6 @@ import {
 	Badge,
 	Icon,
 	Button,
-	HStack,
 	VStack,
 } from '@chakra-ui/react';
 import { FiCopy } from 'react-icons/fi';
@@ -27,8 +26,6 @@ import { FaPhone } from 'react-icons/fa6';
 import IncomingCallIcon from 'assets/icons/incomming-call.png';
 import OutgoingCallIcon from 'assets/icons/Outgoing-call.png';
 import CustomTooltip from '../../../../../components/shared/CustomTooltip';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { toast } from 'react-toastify';
 import TranscribeModal from './Component/TranscribeModal';
 
 const StatusBadge = ({ status }) => {

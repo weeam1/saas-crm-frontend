@@ -178,7 +178,13 @@ const SipDashboard = React.lazy(
 	() => import('views/admin/sip/component/Dashboard')
 );
 const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/History')
+	() => import('views/admin/sip/component/History/index')
+);
+const SipSettings =React.lazy(
+	() => import('views/admin/sip/component/UserSetting/index')
+);
+const SipUserAnalytics =React.lazy(
+	() => import('views/admin/sip/component/Analytics/index')
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
@@ -490,6 +496,24 @@ const routes = [
 		under: 'Sip',
 		parentName: 'Sip',
 		component: SipHistory,
+	},
+	{
+		moduleId: 'sip',
+		name: 'Sip settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/settings',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipSettings,
+	},
+	{
+		moduleId: 'sip',
+		name: 'Sip history',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/user-analytics',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipUserAnalytics,
 	},
 
 	// Listing --------------------------------------

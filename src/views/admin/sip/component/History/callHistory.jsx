@@ -9,14 +9,12 @@ import {
 } from '@chakra-ui/react';
 import { FiSearch } from 'react-icons/fi';
 import { fetchCallHistoryData } from '../../../../../services/sip/index';
-import moment from 'moment';
-import Pagination from '../../../developers/components/Pagination';
 import TableLoading from 'components/loading/TableLoading';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import ActiveFiltersDisplay from './Component/ActiveFiltersDisplay';
 import AdvancedSearchModal from './Component/AdvancedSearchModal';
 import { toast } from 'react-toastify';
-import { formatCallDuration } from 'utils/helpers';
+
 import ViewToggle from "components/toggle/ViewToggle";
 import CallTableView from './CallTableView';
 import CallGrid from './CallGrid';
@@ -222,6 +220,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
 						py='4'
 					/>
 				) : (
+
 					<CallGrid loading={loading} pageSize={pageSize} />
 				)
 			) : calls && calls.length > 0 ? (
