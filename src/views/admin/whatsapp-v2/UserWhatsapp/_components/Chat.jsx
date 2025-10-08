@@ -28,18 +28,46 @@ const Chat = ({ chatId, sessionId }) => {
 
 	const messages = useSelector((state) => getMessagesByChatId(state, chatId));
 
+	// useEffect(() => {
+	// 	if (!messages?.length) return;
+	// 	requestAnimationFrame(() => {
+	// 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// 	});
+	// }, [messages]);
+
 	useEffect(() => {
 		if (!messages?.length) return;
 
-		const container = containerRef.current;
-		const isNearBottom =
-			container.scrollHeight - container.scrollTop - container.clientHeight <
-			100;
+		// Small timeout ensures DOM fully updates
+		const timer = setTimeout(() => {
+			messagesEndRef.current?.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end',
+			});
+		}, 30); // 👈 tweak this (20–50ms works well)
 
-		if (isNearBottom) {
-			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-		}
+		return () => clearTimeout(timer);
 	}, [messages]);
+
+	// useEffect(() => {
+	// 	if (!messages?.length) return;
+	// 	const container = containerRef.current;
+	// 	if (!container) return;
+
+	// 	const isAtBottom =
+	// 		Math.abs(
+	// 			container.scrollHeight - container.scrollTop - container.clientHeight
+	// 		) < 50;
+
+	// 	console.log({ isAtBottom, msg: messages?.length });
+
+	// 	// Always scroll to bottom on initial load or if user is already near bottom
+	// 	if (isAtBottom || messages.length === 1) {
+	// 		requestAnimationFrame(() => {
+	// 			messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// 		});
+	// 	}
+	// }, [messages]);
 
 	const renderMessageContent = (msg) => {
 		switch (msg.type) {

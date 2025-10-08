@@ -67,14 +67,19 @@ const whatsappWebSlice = createSlice({
 				state.userChats[chatId] = [];
 			}
 
-			const messages = state.userChats[chatId];
+			// Ensure the chat array exists
+			const messages = state.userChats[chatId] || [];
+			state.userChats[chatId] = messages;
 
-			// Check for duplicate
-			const exists = messages.some(
-				(m) => m?.id?._serialized === message?.id?._serialized
-			);
+			const msgId = message?.id?._serialized;
+			if (!msgId) return;
 
-			if (!exists) {
+			// const messages = state.userChats[chatId];
+
+			// Find message index directly
+			const index = messages.findIndex((m) => m?.id?._serialized === msgId);
+
+			if (index === -1) {
 				messages.push(message);
 			} else {
 				// Find the index of the existing message
@@ -91,7 +96,7 @@ const whatsappWebSlice = createSlice({
 				}
 			}
 
-			state.userChats[chatId] = messages;
+			// state.userChats[chatId] = messages;
 		},
 		messageAck: (state, action) => {
 			const { message, ack } = action.payload;
@@ -102,12 +107,10 @@ const whatsappWebSlice = createSlice({
 			const chatId = message?.fromMe ? message?.to : message?.from;
 			if (!chatId) return;
 
-			// Ensure the chat array exists
-			if (!Array.isArray(state.userChats[chatId])) {
-				state.userChats[chatId] = [];
-			}
+			const messages = state.userChats[chatId] || [];
 
-			const messages = state.userChats[chatId];
+			// Ensure the chat array exists
+			if (!Array.isArray(messages)) return;
 
 			// Find the index of the existing message
 			const index = messages.findIndex(
@@ -118,11 +121,11 @@ const whatsappWebSlice = createSlice({
 			if (index !== -1) {
 				messages[index] = {
 					...messages[index],
-					ack, // update only ack value
+					ack,
 				};
 			}
 
-			state.userChats[chatId] = messages;
+			// state.userChats[chatId] = messages;
 		},
 
 		disconnect: (state, action) => ({
@@ -152,7 +155,9 @@ export const {
 } = whatsappWebSlice.actions;
 
 // export the selector
-export const getMessagesByChatId = (state, chatId) =>
-	state.whatsappWeb.userChats[chatId] || [];
+export const getMessagesByChatId = (state, chatId) => {
+	console.log('get messages: ', chatId);
+	return state.whatsappWeb.userChats[chatId] || [];
+};
 
 export default whatsappWebSlice.reducer;

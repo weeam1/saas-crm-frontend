@@ -166,8 +166,8 @@ const ChatListItem = ({
 			cursor='pointer'
 			// _hover={{ bg: 'gray.50' }}
 			transition='all 0.2s'
-			bg={selectedChat === chat?.id ? 'softGray.100' : 'transparent'}
-			rounded={selectedChat === chat?.id ? 'md' : '1px'}
+			bg={selectedChat?.id === chat?.id ? 'softGray.100' : 'transparent'}
+			rounded={selectedChat?.id === chat?.id ? 'md' : '1px'}
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
 			onClick={() => onSelectedChatHandler(chat)}
