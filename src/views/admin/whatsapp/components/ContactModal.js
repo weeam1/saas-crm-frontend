@@ -56,7 +56,7 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 
 	const handleAddContact = async () => {
 		try {
-			const validNum = validatePhoneNumber(phoneNumber);
+			const validNum = normalizePhone(phoneNumber);
 
 			if (!validNum)
 				return toast.error('Please enter a valid WhatsApp number!');
