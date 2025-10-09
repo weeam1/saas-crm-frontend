@@ -11,6 +11,7 @@ import {
   StatNumber,
   StatHelpText,
   HStack,
+  VStack,
 } from "@chakra-ui/react";
 
 const AnalyticsCard = ({ item, month, year }) => {
@@ -27,25 +28,21 @@ const AnalyticsCard = ({ item, month, year }) => {
   };
 
   const getLabel = () => {
-    if (year === currentYear && month === currentMonth) {
-      return "This Month";
-    } else if (year === currentYear && month === currentMonth - 1) {
-      return "Last Month";
-    } else {
-      const monthName = new Date(year, month - 1).toLocaleString("default", {
-        month: "long",
-      });
-      return `${monthName} ${year}`;
-    }
+    if (year === currentYear && month === currentMonth) return "This Month";
+    if (year === currentYear && month === currentMonth - 1) return "Last Month";
+    const monthName = new Date(year, month - 1).toLocaleString("default", {
+      month: "long",
+    });
+    return `${monthName} ${year}`;
   };
 
   const label = getLabel();
 
   return (
     <Box
-      p={6}
+      p={{ base: 4, md: 6 }}
       borderRadius="2xl"
-      shadow="lg"
+      shadow="md"
       bgGradient="linear(to-br, white, #fff8e1)"
       border="1px solid"
       borderColor="goldenrod"
@@ -54,87 +51,113 @@ const AnalyticsCard = ({ item, month, year }) => {
         boxShadow: "xl",
       }}
       transition="all 0.3s ease"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        fontSize: { base: "0.8rem", md: "0.9rem" },
+      }}
     >
       {/* Header */}
-      <Flex justify="space-between" align="center" mb={3}>
-        <Heading size="md" color="goldenrod">
+      <Flex
+        justify="space-between"
+        align={{ base: "flex-start", sm: "center" }}
+        direction={{ base: "column", sm: "row" }}
+        mb={3}
+        gap={2}
+      >
+        <Heading
+          size={{ base: "sm", md: "md" }}
+          color="goldenrod"
+          wordBreak="break-word"
+        >
           {item.fullName || "Unknown User"}
         </Heading>
         <Badge
           colorScheme="yellow"
-          fontSize="0.8em"
+          fontSize={{ base: "0.7em", md: "0.8em" }}
           px={2}
           py={1}
           borderRadius="md"
         >
-          caller Id: {item.sipId}
+          Caller ID: {item.sipId}
         </Badge>
       </Flex>
 
       {/* Month Label */}
-      <Flex justify="flex-start" align="center" mb={3}>
-        <Badge
-          px={3}
-          py={1}
-          borderRadius="full"
-          bg="goldenrod"
-          color="white"
-          fontSize="0.75rem"
-          fontWeight="semibold"
-          shadow="sm"
-          letterSpacing="wide"
-        >
-          📅 {label}
-        </Badge>
-      </Flex>
+      <Badge
+        px={3}
+        py={1}
+        borderRadius="full"
+        bg="goldenrod"
+        color="white"
+        fontSize={{ base: "0.7rem", md: "0.8rem" }}
+        fontWeight="semibold"
+        shadow="sm"
+        alignSelf="flex-start"
+        mb={3}
+      >
+        📅 {label}
+      </Badge>
 
       <Divider borderColor="goldenrod" opacity={0.3} mb={3} />
 
       {/* Stats */}
-      <HStack justify="space-between" spacing={3} mb={3}>
-        <Stat>
-          <StatLabel color="gray.600" fontSize="sm">
-            Total Calls
-          </StatLabel>
-          <StatNumber color="gray.800" fontSize="xl">
-            {item.total_calls.today}
-          </StatNumber>
-          <StatHelpText fontSize="sm" color="gray.500">
-            Month: {item.total_calls.month}
-          </StatHelpText>
-        </Stat>
+      <VStack spacing={3} align="stretch">
+        <HStack justify="space-between" wrap="wrap" spacing={3}>
+          <Stat>
+            <StatLabel color="gray.600" fontSize={{ base: "xs", md: "sm" }}>
+              Total Calls
+            </StatLabel>
+            <StatNumber color="gray.800" fontSize={{ base: "md", md: "xl" }}>
+              {item.total_calls.today}
+            </StatNumber>
+            <StatHelpText
+              fontSize={{ base: "xs", md: "sm" }}
+              color="gray.500"
+            >
+              Month: {item.total_calls.month}
+            </StatHelpText>
+          </Stat>
 
-        <Stat>
-          <StatLabel color="green.600" fontSize="sm">
-            Answered
-          </StatLabel>
-          <StatNumber color="green.700" fontSize="xl">
-            {item.answered.today}
-          </StatNumber>
-          <StatHelpText fontSize="sm" color="gray.500">
-            Month: {item.answered.month}
-          </StatHelpText>
-        </Stat>
+          <Stat>
+            <StatLabel color="green.600" fontSize={{ base: "xs", md: "sm" }}>
+              Answered
+            </StatLabel>
+            <StatNumber color="green.700" fontSize={{ base: "md", md: "xl" }}>
+              {item.answered.today}
+            </StatNumber>
+            <StatHelpText
+              fontSize={{ base: "xs", md: "sm" }}
+              color="gray.500"
+            >
+              Month: {item.answered.month}
+            </StatHelpText>
+          </Stat>
 
-        <Stat>
-          <StatLabel color="red.500" fontSize="sm">
-            Unanswered
-          </StatLabel>
-          <StatNumber color="red.600" fontSize="xl">
-            {item.unanswered.today}
-          </StatNumber>
-          <StatHelpText fontSize="sm" color="gray.500">
-            Month: {item.unanswered.month}
-          </StatHelpText>
-        </Stat>
-      </HStack>
+          <Stat>
+            <StatLabel color="red.500" fontSize={{ base: "xs", md: "sm" }}>
+              Unanswered
+            </StatLabel>
+            <StatNumber color="red.600" fontSize={{ base: "md", md: "xl" }}>
+              {item.unanswered.today}
+            </StatNumber>
+            <StatHelpText
+              fontSize={{ base: "xs", md: "sm" }}
+              color="gray.500"
+            >
+              Month: {item.unanswered.month}
+            </StatHelpText>
+          </Stat>
+        </HStack>
+      </VStack>
 
-      <Divider borderColor="gray.200" mb={3} />
+      <Divider borderColor="gray.200" my={3} />
 
       {/* Duration Section */}
       <Box>
-        <Text fontSize="sm" color="gray.700" mb={1}>
-          ⏱ Duration ({label} - Daily):{" "}
+        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700" mb={1}>
+          ⏱ Duration (Daily):{" "}
           <Text as="span" fontWeight="bold" color="goldenrod">
             {formatDuration(
               item.duration.today_hours,
@@ -143,7 +166,7 @@ const AnalyticsCard = ({ item, month, year }) => {
           </Text>
         </Text>
 
-        <Text fontSize="sm" color="gray.700">
+        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
           📆 Total Duration ({label}):{" "}
           <Text as="span" fontWeight="bold" color="goldenrod">
             {formatDuration(

@@ -48,7 +48,7 @@ const Analytics = () => {
         return {
           ...a,
           fullName: matchedUser?.userId?.fullName || "Unknown User",
-          sipId : matchedUser.sipId,
+          sipId: matchedUser.sipId,
         };
       });
 
@@ -69,11 +69,11 @@ const Analytics = () => {
     }
   }, [data]);
 
- 	const onFilterChange = (value) => {
-		setMonth(Number(value.month));
-		setYear(Number(value.year));
-		fetchAnalytics(value.month, value.year);
-	};
+  const onFilterChange = (value) => {
+    setMonth(Number(value.month));
+    setYear(Number(value.year));
+    fetchAnalytics(value.month, value.year);
+  };
 
   return (
     <Box p={6} bg={"white"} mt={"-16px"}>
@@ -99,25 +99,30 @@ const Analytics = () => {
         </Box>
       </Box>
 
-      {loadingAnalytics || isLoading ? (
-        <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} height="200px" borderRadius="md" />
-          ))}
-        </SimpleGrid>
-      ) : (
-        <SimpleGrid columns={[1, 2, 3]} spacing={6}>
-          {analyticsData?.analytics?.map((item) => (
-            <AnalyticsCard
-              key={item.extension}
-              item={item}
-              month={month}
-              year={year}
-            />
-          ))}
-        </SimpleGrid>
-      )}
-
+      <SimpleGrid
+        spacing={6}
+        sx={{
+          gridTemplateColumns: {
+            base: "repeat(auto-fit, minmax(250px, 1fr))", // auto fit cards
+            md: "repeat(auto-fit, minmax(300px, 1fr))",
+            lg: "repeat(auto-fit, minmax(350px, 1fr))",
+          },
+          alignItems: "stretch",
+        }}
+      >
+        {loadingAnalytics || isLoading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} height="220px" borderRadius="2xl" />
+            ))
+          : analyticsData?.analytics?.map((item) => (
+              <AnalyticsCard
+                key={item.extension}
+                item={item}
+                month={month}
+                year={year}
+              />
+            ))}
+      </SimpleGrid>
     </Box>
   );
 };
