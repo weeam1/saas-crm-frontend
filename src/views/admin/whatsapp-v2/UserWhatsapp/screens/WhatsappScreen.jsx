@@ -31,8 +31,6 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 		getChat,
 	} = useWhatsapp();
 
-	console.log({ userChats });
-
 	const logoutHandler = () => {
 		logoutWhatsapp(sessionId);
 		navigate('/');

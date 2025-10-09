@@ -18,6 +18,7 @@ import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
 import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import useUserSession from 'hooks/useUserSession';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -49,6 +50,7 @@ const ChatList = ({
 	};
 
 	const navigate = useNavigate();
+	const { isSuperAdmin } = useUserSession();
 
 	return (
 		<Box
@@ -71,12 +73,15 @@ const ChatList = ({
 				borderColor='softGray.100'
 			>
 				<HStack>
-					<IconButton
-						aria-label='Back'
-						icon={<FaChevronLeft size={16} />}
-						variant='ghost'
-						onClick={() => navigate('/whatsapp/instances')}
-					/>
+					{isSuperAdmin && (
+						<IconButton
+							aria-label='Back'
+							icon={<FaChevronLeft size={16} />}
+							variant='ghost'
+							onClick={() => navigate('/whatsapp/instances')}
+						/>
+					)}
+
 					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
 						Chats
 					</Text>

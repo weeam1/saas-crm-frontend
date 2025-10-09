@@ -18,7 +18,7 @@ const WAConnectionSuccess = ({ loadingChats }) => {
 					if (prev >= 95) return 95; // stop at 95% until loading finishes
 					return prev + 5;
 				});
-			}, 300);
+			}, 100);
 		} else {
 			// once finished → jump to 100
 			setProgress(100);

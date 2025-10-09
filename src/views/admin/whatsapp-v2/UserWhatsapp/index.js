@@ -26,6 +26,16 @@ const UserWhatsapp = () => {
 	const navigate = useNavigate();
 	const { hasPermission } = usePermissions();
 
+	const { data: instanceData, isLoading: instanceLoading } = useFetchItemsQuery(
+		{
+			path: `/whatsapp/instances/user/${loginUser?._id}`,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+			skip: !loginUser?._id && isSuperAdmin,
+		}
+	);
+
 	// ---------------------------
 	// 1. Permission check + sessionId setup
 	// ---------------------------
@@ -37,8 +47,23 @@ const UserWhatsapp = () => {
 	useEffect(() => {
 		if (id) {
 			setSessionId(id);
+		}
+		// whatsapp instance + instance is active
+		else if (instanceData?.doc && instanceData?.doc?.isActive) {
+			const _sessionId = instanceData?.doc?.sessionId;
+			setSessionId(_sessionId);
+			window.history.replaceState(null, '', `?session=${_sessionId}`);
+		}
+		// if account id disabled
+		else if (!instanceData?.doc?.isActive) {
+			console.log('whatsapp deisbaled');
+			setWhatsappErrorMessage(
+				'WhatsApp instance is inactive. Please contact your administrator to re-enable it.'
+			);
 		} else redirect('/');
-	}, [id, isSuperAdmin]);
+	}, [id, instanceData?.doc, instanceData?.doc?.isActive]);
+
+	console.log({ whatsappErrorMessage });
 
 	const {
 		// events
@@ -102,7 +127,7 @@ const UserWhatsapp = () => {
 			setLoadingChats(true);
 
 			if (allConversations?.length) {
-				const timer = setTimeout(() => setLoadingChats(false), 3000);
+				const timer = setTimeout(() => setLoadingChats(false), 1000);
 				return () => clearTimeout(timer);
 			}
 		}
@@ -147,10 +172,10 @@ const UserWhatsapp = () => {
 				</HStack>
 			)} */}
 
-			{isLoading ? (
+			{isLoading && !whatsappErrorMessage ? (
 				<InitialLoading />
 			) : whatsappErrorMessage ? (
-				<ErrorMessage message={whatsappErrorMessage} type='error' />
+				<ErrorMessage message={whatsappErrorMessage} type='warning' />
 			) : (
 				<WhatsappScreen loadingChats={loadingChats} sessionId={sessionId} />
 			)}

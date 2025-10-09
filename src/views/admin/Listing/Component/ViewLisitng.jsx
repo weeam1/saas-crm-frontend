@@ -41,7 +41,9 @@ const ViewListing = () => {
 		isError,
 		isFetching,
 	} = useFetchItemsQuery(
-		{ path: `listing/secondary/${id}/${hasPermission('listing', 'read:any') ? true : false}`  },
+		{
+			path: `listing/secondary/${id}/${hasPermission('listing', 'read:any') ? true : false}`,
+		},
 		{ refetchOnMountOrArgChange: true }
 	);
 
@@ -119,35 +121,60 @@ const ViewListing = () => {
 		);
 	}
 
-	const handleDownloadDocument = async (file) => {
-		try {
-			if (!file) {
-				toast.error('No file specified for download.');
-				return;
-			}
+	// const handleDownloadDocument = async (file) => {
+	// 	try {
+	// 		if (!file) {
+	// 			toast.error('No file specified for download.');
+	// 			return;
+	// 		}
 
-			const fileURL = `${constant.baseUrl}${file}`;
-			const response = await fetch(fileURL, { method: 'HEAD' });
+	// 		const fileURL = `${constant.baseUrl}${file}`;
+	// 		const response = await fetch(fileURL, { method: 'HEAD' });
+
+	// 		if (!response.ok) {
+	// 			toast.error('File not found on the server.');
+	// 			return;
+	// 		}
+
+	// 		const blob = await response.blob();
+	// 		const downloadUrl = window.URL.createObjectURL(blob);
+
+	// 		const link = document.createElement('a');
+	// 		link.href = downloadUrl;
+	// 		link.download = file.split('/').pop();
+	// 		document.body.appendChild(link);
+	// 		link.click();
+	// 		link.remove();
+
+	// 		window.URL.revokeObjectURL(downloadUrl);
+	// 	} catch (error) {
+	// 		console.error('Download error:', error);
+	// 		toast.error('Failed to download the file.');
+	// 	}
+	// };
+
+	const handleDownloadDocument = async (fileUrl) => {
+		try {
+			const pdfURL = `${constant['baseUrl']}${fileUrl}`;
+			// Check if the file exists using a HEAD request
+			const response = await fetch(pdfURL, { method: 'HEAD' });
 
 			if (!response.ok) {
-				toast.error('File not found on the server.');
+				// Store the missing file to prevent future requests
+				toast.error('File could not be downloaded');
 				return;
 			}
 
-			const blob = await response.blob();
-			const downloadUrl = window.URL.createObjectURL(blob);
-
+			// Create an anchor element for the download
 			const link = document.createElement('a');
-			link.href = downloadUrl;
-			link.download = file.split('/').pop();
+			link.href = pdfURL;
+			link.download = pdfURL.split('/').pop(); // Extract the file name from the URL
 			document.body.appendChild(link);
 			link.click();
-			link.remove();
-
-			window.URL.revokeObjectURL(downloadUrl);
+			document.body.removeChild(link); // Clean up the DOM
 		} catch (error) {
-			console.error('Download error:', error);
-			toast.error('Failed to download the file.');
+			console.error('Error viewing CV:', error);
+			toast.error('Failed to retrieve the File. Please try again later.');
 		}
 	};
 
