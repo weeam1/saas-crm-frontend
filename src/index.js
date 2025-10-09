@@ -48,6 +48,7 @@ import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
+// import { normalizePhone } from 'utils/phoneValidation';
 
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);

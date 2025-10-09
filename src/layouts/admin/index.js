@@ -40,14 +40,17 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
 
+	// only check for other non super admin user's
 	const { data: whatsappUser } = useFetchItemsQuery(
 		{
-			path: `whatsapp/users/${user?._id}`,
+			path: `whatsapp/instances/user/${user?._id}`,
 		},
 		{
 			skip: !user?._id || isSuperAdmin,
 		}
 	);
+
+	console.log({ whatsappUser });
 
 	const {
 		data: ServerStatus,
@@ -59,6 +62,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	});
 
 	const whatsappActive = whatsappUser?.doc?.isActive;
+	// const whatsappActive = user?.whatsappDetails?.isActive || false;
+
 	const dispatch = useDispatch();
 
 	// if (userRoleName === 'Attendance') {
@@ -114,14 +119,14 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		appSidebarRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
-			path: '/whatsapp',
+			path: '/whatsapp/instance',
 			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
 		});
 		appRoutes.push({
 			moduleId: 'whatsapp',
 			name: 'Whatsapp',
 			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp',
+			path: `/whatsapp/instance`,
 			component: UserWhatsapp,
 		});
 	}
