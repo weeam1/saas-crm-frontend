@@ -173,11 +173,11 @@ const sidebarRoutes = [
 				id: 'whatsapp_chats',
 				name: 'Instances',
 				version: 'Beta',
-				path: '/whatsapp',
+				path: '/whatsapp/instances',
 			},
 			{
 				id: 'whatsapp_bulk_messages',
-				name: 'Bulk Message',
+				name: 'Whatsapp Campaigns',
 				path: '/whatsapp/bulk-messages',
 			},
 			{

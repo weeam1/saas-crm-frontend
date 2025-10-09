@@ -18,13 +18,11 @@ import {
 import { toast } from 'react-toastify';
 
 import { useState, useMemo, useEffect } from 'react';
-import { validatePhoneNumber } from 'utils/helpers';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { useCreateItemMutation } from 'api/apiSlice';
 import BulkMessageSummary from './BulkMessageSummary';
 import useUserSession from 'hooks/useUserSession';
-import { extractLocationData } from 'utils/helpers';
 import { normalizePhone } from 'utils/phoneValidation';
 import { useSelector } from 'react-redux';
 // import { useUserActivityLog } from 'hooks/useUserActivityLog';
@@ -45,10 +43,6 @@ const BulkWhatsappModal = ({
 	const [touched, setTouched] = useState({});
 
 	const { user } = useUserSession();
-	const countries = useSelector(
-		(state) => state?.countries?.countryNames || []
-	);
-
 	// const { createUserLog } = useUserActivityLog();
 
 	const [summaryModal, setSummaryModal] = useState(false);
@@ -175,24 +169,20 @@ const BulkWhatsappModal = ({
 						? lead.leadWhatsappNumber?.result
 						: lead.leadWhatsappNumber;
 
-				const { country } = extractLocationData(lead?.ip, countries);
-				const whatsapp = normalizePhone(
-					whatsappNumber,
-					lead?.country || 'United Arab Emirates'
-				);
+				// const { country } = extractLocationData(lead?.ip, countries);
+				const whatsapp = normalizePhone(whatsappNumber);
+				// lead?.country || 'United Arab Emirates'
 
 				return {
 					id: lead.lead_id || lead.id,
 					name: lead.leadName || '',
 					whatsapp,
-					country,
+					// country,
 				};
 			})
 			.filter((lead) => lead?.whatsapp);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedLeads]);
-
-	console.log({ validLeadsList });
 
 	const handleSend = async () => {
 		try {

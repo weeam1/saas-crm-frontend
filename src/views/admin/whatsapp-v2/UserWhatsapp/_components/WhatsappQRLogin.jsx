@@ -39,7 +39,7 @@ const WhatsAppQRLogin = ({ qr }) => {
 				<HStack justify='space-between' mb='2'>
 					<AppButton
 						leftIcon={<FaChevronLeft />}
-						onClick={() => navigate('/whatsapp')}
+						onClick={() => navigate('/whatsapp/instances')}
 					>
 						Back
 					</AppButton>

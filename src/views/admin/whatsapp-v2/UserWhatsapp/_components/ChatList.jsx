@@ -37,15 +37,15 @@ const truncateMessage = (message, length = 35) => {
 
 const ChatList = ({
 	allConversations,
-	whatsappId,
+	sessionId,
 	setSelectedChat,
 	selectedChat,
 	logoutHandler,
 	getChat,
 }) => {
-	const onSelectedChatHandler = (chatId) => {
-		setSelectedChat(chatId);
-		getChat(whatsappId, chatId);
+	const onSelectedChatHandler = (chat) => {
+		setSelectedChat(chat);
+		getChat(sessionId, chat);
 	};
 
 	const navigate = useNavigate();
@@ -75,7 +75,7 @@ const ChatList = ({
 						aria-label='Back'
 						icon={<FaChevronLeft size={16} />}
 						variant='ghost'
-						onClick={() => navigate('/whatsapp')}
+						onClick={() => navigate('/whatsapp/instances')}
 					/>
 					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
 						Chats
@@ -120,7 +120,7 @@ const ChatList = ({
 						key={chat.id}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
-						whatsappId={whatsappId}
+						sessionId={sessionId}
 						selectedChat={selectedChat}
 					/>
 				))}
@@ -132,7 +132,7 @@ const ChatList = ({
 const ChatListItem = ({
 	chat,
 	onSelectedChatHandler,
-	whatsappId,
+	sessionId,
 	selectedChat,
 }) => {
 	const getAvatarProps = (chat) => {
@@ -166,11 +166,11 @@ const ChatListItem = ({
 			cursor='pointer'
 			// _hover={{ bg: 'gray.50' }}
 			transition='all 0.2s'
-			bg={selectedChat === chat?.id ? 'softGray.100' : 'transparent'}
-			rounded={selectedChat === chat?.id ? 'md' : '1px'}
+			bg={selectedChat?.id === chat?.id ? 'softGray.100' : 'transparent'}
+			rounded={selectedChat?.id === chat?.id ? 'md' : '1px'}
 			borderLeft='4px solid transparent'
 			_hover={{ borderLeftColor: 'green.400' }}
-			onClick={() => onSelectedChatHandler(chat?.id)}
+			onClick={() => onSelectedChatHandler(chat)}
 		>
 			<Flex align='center' justify='space-between'>
 				<Flex align='center' flex='1' minW='0'>
@@ -183,7 +183,7 @@ const ChatListItem = ({
 								// color='gray.800'
 								fontSize='sm'
 								noOfLines={1}
-								filter='blur(8px)'
+								filter='blur(5px)'
 							>
 								{chat?.name || '***********'}
 								{/* ************** */}

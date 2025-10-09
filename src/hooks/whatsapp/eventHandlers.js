@@ -30,12 +30,12 @@ export const eventHandlers = {
 		allConversations: payload?.chats || [],
 	}),
 	[WHATSAPP_EVENTS.CHAT_LOADED]: (state, payload) => {
-		const { whatsappId, chat } = payload;
+		const { sessionId, chat } = payload;
+
+		console.log('coming chat: ', chat);
 
 		const userChats = { ...state.userChats };
-		const chatsForUser = userChats[whatsappId]
-			? [...userChats[whatsappId]]
-			: [];
+		const chatsForUser = userChats[sessionId] ? [...userChats[sessionId]] : [];
 
 		const chatIndex = chatsForUser.findIndex((c) => c.id === chat.id);
 
@@ -45,7 +45,7 @@ export const eventHandlers = {
 			chatsForUser.push(chat);
 		}
 
-		userChats[whatsappId] = chatsForUser;
+		userChats[sessionId] = chatsForUser;
 
 		return {
 			...state,
@@ -56,6 +56,20 @@ export const eventHandlers = {
 		...state,
 		messages: [...state.messages, payload],
 	}),
+	[WHATSAPP_EVENTS.MESSAGE_ACK]: (state, { payload }) => {
+		const { chatId, sessionId, msgResponse } = payload;
+
+		// Ensure the user's chat array exists
+		if (!state.userChats[sessionId]) {
+			state.userChats[sessionId] = [];
+		}
+
+		// Append new message
+		const chat = state.userChats[sessionId];
+
+		// append messages in chat[0]
+	},
+
 	[WHATSAPP_EVENTS.DISCONNECT]: (state, payload) => ({
 		...state,
 		whatsapp_disconnect: payload?.message || 'Whatsapp disconnected',

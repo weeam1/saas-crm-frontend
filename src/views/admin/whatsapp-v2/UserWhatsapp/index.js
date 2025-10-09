@@ -16,7 +16,7 @@ import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 const UserWhatsapp = () => {
 	const { id } = useParams();
 
-	const [whatsappId, setWhatsappId] = useState('');
+	const [sessionId, setSessionId] = useState('');
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
@@ -27,7 +27,7 @@ const UserWhatsapp = () => {
 	const { hasPermission } = usePermissions();
 
 	// ---------------------------
-	// 1. Permission check + whatsappId setup
+	// 1. Permission check + sessionId setup
 	// ---------------------------
 	useEffect(() => {
 		if (!hasPermission('whatsapp')) return navigate('/default');
@@ -36,7 +36,7 @@ const UserWhatsapp = () => {
 
 	useEffect(() => {
 		if (id) {
-			setWhatsappId(id);
+			setSessionId(id);
 		} else redirect('/');
 	}, [id, isSuperAdmin]);
 
@@ -56,8 +56,8 @@ const UserWhatsapp = () => {
 
 	// --- user details query ---
 	// const { data: userDetails, isLoading: userLoading } = useFetchItemsQuery(
-	// 	{ path: `/user/v2/view/${whatsappId}` },
-	// 	{ skip: !whatsappId, refetchOnMountOrArgChange: true }
+	// 	{ path: `/user/v2/view/${sessionId}` },
+	// 	{ skip: !sessionId, refetchOnMountOrArgChange: true }
 	// );
 
 	const [initialized, setInitialized] = useState(false);
@@ -71,28 +71,28 @@ const UserWhatsapp = () => {
 			return;
 		}
 
-		if (!initialized && whatsappId) {
+		if (!initialized && sessionId) {
 			whatsappInitialize({
-				whatsappId,
+				sessionId,
 			});
 			setInitialized(true);
 		}
-	}, [isSocketConnected, initialized, whatsappId, whatsappInitialize]);
+	}, [isSocketConnected, initialized, sessionId, whatsappInitialize]);
 
 	// ---------------------------
 	// 3. Fetch chats when ready (only once per ready state)
 	// ---------------------------
 	useEffect(() => {
-		if (isReady && whatsappId) {
+		if (isReady && sessionId) {
 			localStorage.setItem('whatsapp_auth', 'true');
-			getChats(whatsappId);
+			getChats(sessionId);
 			setIsLoading(false);
 		} else if (!qr) {
 			setIsLoading(true);
 		} else if (qr) {
 			setIsLoading(false);
 		}
-	}, [isReady, whatsappId, getChats, qr]);
+	}, [isReady, sessionId, getChats, qr]);
 
 	// ---------------------------
 	// 4. Manage loadingChats animation
@@ -114,11 +114,11 @@ const UserWhatsapp = () => {
 	const disconnectedRef = useRef(false);
 
 	const safeDisconnect = useCallback(() => {
-		if (!disconnectedRef.current && whatsappId) {
-			disconnectWhatsapp(whatsappId);
+		if (!disconnectedRef.current && sessionId) {
+			disconnectWhatsapp(sessionId);
 			disconnectedRef.current = true;
 		}
-	}, [disconnectWhatsapp, whatsappId]);
+	}, [disconnectWhatsapp, sessionId]);
 
 	useEffect(() => {
 		return () => safeDisconnect();
@@ -152,7 +152,7 @@ const UserWhatsapp = () => {
 			) : whatsappErrorMessage ? (
 				<ErrorMessage message={whatsappErrorMessage} type='error' />
 			) : (
-				<WhatsappScreen loadingChats={loadingChats} whatsappId={whatsappId} />
+				<WhatsappScreen loadingChats={loadingChats} sessionId={sessionId} />
 			)}
 		</>
 	);

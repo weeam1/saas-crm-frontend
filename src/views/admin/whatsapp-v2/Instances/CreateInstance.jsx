@@ -26,8 +26,10 @@ import SearchUsers from '../WhatsappSettings/SearchUsers';
 import { toast } from 'react-toastify';
 
 const schema = Yup.object().shape({
-	userId: Yup.string(),
-	instanceName: Yup.string().required('Instance name is required'),
+	userId: Yup.string().required('User is requried'),
+	instanceName: Yup.string()
+		.required('Instance name is required')
+		.max(50, 'Max 50 characters'),
 });
 
 const CreateInstance = ({
@@ -35,7 +37,7 @@ const CreateInstance = ({
 	onClose,
 	instance,
 	updateInstances,
-	mode = 'add',
+	mode = 'Add',
 }) => {
 	const { data: usersData, isLoading: usersLoading } = useFetchItemsQuery({
 		path: '/v2/user/search_users',
@@ -51,7 +53,7 @@ const CreateInstance = ({
 		handleSubmit,
 		setValue,
 		reset,
-		formState: { errors },
+		formState: { errors, isDirty, isSubmitting, dirtyFields },
 	} = useForm({
 		defaultValues: initialValues,
 		resolver: yupResolver(schema),
@@ -71,10 +73,16 @@ const CreateInstance = ({
 
 			let res;
 
-			if (mode === 'edit') {
+			if (mode === 'Edit') {
+				// Build payload from dirty fields only
+				// const dirtyKeys = Object.keys(dirtyFields);
+				// payload = dirtyKeys.reduce((acc, key) => {
+				// 	acc[key] = formData[key];
+				// 	return acc;
+				// }, {});
 				// Edit Mode → Update existing instance
 				res = await updateInstance({
-					path: `/whatsapp/instances/${formData._id}`,
+					path: `/whatsapp/instances/${instance?._id}`,
 					body: payload,
 				}).unwrap();
 
@@ -101,7 +109,10 @@ const CreateInstance = ({
 	};
 
 	const handleSelectUser = (user) => {
-		setValue('userId', user?._id || null);
+		setValue('userId', user?._id || null, {
+			shouldValidate: true,
+			shouldDirty: true,
+		});
 	};
 
 	return (
@@ -111,19 +122,17 @@ const CreateInstance = ({
 				<ModalHeader>{mode} Whatsapp Instance</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody pb={4}>
-					{mode === 'Add' && (
-						<FormControl isInvalid={errors.userId} mb={4}>
-							<FormLabel>Select User (optional)</FormLabel>
-							<SearchUsers
-								selectedUserId={
-									mode === 'Edit' ? (initialValues?.userId ?? null) : null
-								}
-								users={usersData?.doc || []}
-								onSelectUser={handleSelectUser}
-							/>
-							<FormErrorMessage>{errors.userId?.message}</FormErrorMessage>
-						</FormControl>
-					)}
+					<FormControl isInvalid={errors.userId} mb={4}>
+						<FormLabel>Select User</FormLabel>
+						<SearchUsers
+							selectedUserId={
+								mode === 'Edit' ? (initialValues?.userId ?? null) : null
+							}
+							users={usersData?.doc || []}
+							onSelectUser={handleSelectUser}
+						/>
+						<FormErrorMessage>{errors.userId?.message}</FormErrorMessage>
+					</FormControl>
 
 					<FormControl mb='4' isInvalid={errors.instanceName}>
 						<FormLabel>Instance Name</FormLabel>
@@ -156,8 +165,9 @@ const CreateInstance = ({
 						onClick={handleSubmit(onSubmit)}
 						colorScheme='brand'
 						isLoading={isCreating || isUpdating}
+						isDisabled={isSubmitting}
 					>
-						{mode === 'Edit' ? 'Save' : 'Add'}
+						{mode === 'Edit' ? 'Update' : 'Create'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>
