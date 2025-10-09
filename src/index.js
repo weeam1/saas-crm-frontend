@@ -9,14 +9,7 @@ import {
 } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
-import UserLayout from 'layouts/user';
-import {
-	ChakraProvider,
-	ColorModeScript,
-	Flex,
-	Box,
-	Spinner,
-} from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import theme from 'theme/theme';
 import { ThemeEditorProvider } from '@hypertheme-editor/chakra-ui';
 import { ToastContainer } from 'react-toastify';
@@ -27,7 +20,6 @@ import { useDispatch } from 'react-redux';
 import { getApi } from 'services/api';
 import { setActiveTree, setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
-import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
 import { newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
@@ -43,11 +35,11 @@ import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
-// import { useSocketEvents } from 'hooks/useSocketEvents';
 import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
+// import { normalizePhone } from 'utils/phoneValidation';
 
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
@@ -59,7 +51,10 @@ function App() {
 	// register whatsapp socket
 	registerWhatsappSocket(store);
 
-	// console.log('check : 5147141938: ', normalizePhone(5147141938));
+	// console.log(
+	// 	'check : 92000003495580124: ',
+	// 	normalizePhone('92000003495580124')
+	// );
 
 	useEffect(() => {
 		getSmartTimezone();
