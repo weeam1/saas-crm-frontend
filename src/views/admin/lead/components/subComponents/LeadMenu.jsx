@@ -24,6 +24,7 @@ import LeadPhoneHistory from 'views/admin/lead-v2/components/subComponents/LeadP
 import LeadAdditionalInfoModal from 'views/admin/lead-v2/components/lead-note/LeadAdditionalInfoModal';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { normalizePhone } from 'utils/phoneValidation';
 
 const LeadMenu = ({
 	refreshData,
@@ -87,7 +88,7 @@ const LeadMenu = ({
 			return;
 		}
 
-		const validNum = validatePhoneNumber(whatsappNumber);
+		const validNum = normalizePhone(whatsappNumber);
 
 		if (!validNum) return toast.error('Not valid WhatsApp number!');
 
