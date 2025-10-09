@@ -128,20 +128,30 @@ const handleDownloadDocument = async (file) => {
       return;
     }
 
-    const fileURL = `${constant.baseUrl}${file}`;
-    const response = await fetch(fileURL,{method:"GET"});
+    const fileURL = `${constant.baseUrl}fetch-files`;
+
+    const response = await fetch(fileURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ file }), // send file path in body
+    });
 
     if (!response.ok) {
-      toast.error("File not found on the server.");
+      toast.error("File not found or failed to download.");
       return;
     }
 
     const blob = await response.blob();
     const downloadUrl = window.URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = downloadUrl;
-    link.download = file.split("/").pop();
+
+    // Extract the filename from the full path
+    const decodedName = decodeURIComponent(file.split("/").pop());
+    link.download = decodedName;
+
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -153,8 +163,6 @@ const handleDownloadDocument = async (file) => {
     toast.error("Failed to download the file.");
   }
 };
-
-
 
   return (
     <Box>
