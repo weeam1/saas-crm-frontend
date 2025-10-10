@@ -6,11 +6,6 @@ import {
   Flex,
   Badge,
   Divider,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  HStack,
   VStack,
 } from "@chakra-ui/react";
 
@@ -37,6 +32,25 @@ const AnalyticsCard = ({ item, month, year }) => {
   };
 
   const label = getLabel();
+  const isCurrentMonth = year === currentYear && month === currentMonth;
+
+  //  Daily values
+  const dailyCalls = isCurrentMonth ? item.total_calls.today : 0;
+  const dailyAnswered = isCurrentMonth ? item.answered.today : 0;
+  const dailyUnanswered = isCurrentMonth ? item.unanswered.today : 0;
+
+  // Monthly values
+  const monthlyCalls = item.total_calls.month;
+  const monthlyAnswered = item.answered.month;
+  const monthlyUnanswered = item.unanswered.month;
+
+  // Average calls and duration
+  const avgCalls =
+    monthlyCalls > 0 ? (monthlyCalls / 30).toFixed(1) : 0;
+  const avgDuration =
+    monthlyAnswered > 0
+      ? (item.duration.month_seconds / monthlyAnswered).toFixed(1)
+      : 0;
 
   return (
     <Box
@@ -51,12 +65,6 @@ const AnalyticsCard = ({ item, month, year }) => {
         boxShadow: "xl",
       }}
       transition="all 0.3s ease"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        fontSize: { base: "0.8rem", md: "0.9rem" },
-      }}
     >
       {/* Header */}
       <Flex
@@ -102,80 +110,61 @@ const AnalyticsCard = ({ item, month, year }) => {
 
       <Divider borderColor="goldenrod" opacity={0.3} mb={3} />
 
-      {/* Stats */}
-      <VStack spacing={3} align="stretch">
-        <HStack justify="space-between" wrap="wrap" spacing={3}>
-          <Stat>
-            <StatLabel color="gray.600" fontSize={{ base: "xs", md: "sm" }}>
-              Total Calls
-            </StatLabel>
-            <StatNumber color="gray.800" fontSize={{ base: "md", md: "xl" }}>
-              {item.total_calls.today}
-            </StatNumber>
-            <StatHelpText
-              fontSize={{ base: "xs", md: "sm" }}
-              color="gray.500"
-            >
-              Month: {item.total_calls.month}
-            </StatHelpText>
-          </Stat>
+      {/*  Summary Section */}
+      <VStack align="flex-start" spacing={2}>
+        {/*  Daily Section (only if current month) */}
+        {isCurrentMonth && (
+          <>
+            <Text fontWeight="bold" color="goldenrod">
+              📅 Daily Summary
+            </Text>
+            <Text fontSize={{ base: "sm", md: "md" }}>
+              📞 <b>Total Calls:</b> {dailyCalls}
+            </Text>
+            <Text fontSize={{ base: "sm", md: "md" }} color="green.700">
+              ✅ <b>Answered:</b> {dailyAnswered}
+            </Text>
+            <Text fontSize={{ base: "sm", md: "md" }} color="red.600">
+              ❌ <b>Unanswered:</b> {dailyUnanswered}
+            </Text>
+            <Text fontSize={{ base: "sm", md: "md" }} color="orange.700">
+              ⏱ <b>Duration:</b>{" "}
+              {formatDuration(
+                item.duration.today_hours,
+                item.duration.today_seconds
+              )}
+            </Text>
+            <Divider borderColor="gray.300" my={2} />
+          </>
+        )}
 
-          <Stat>
-            <StatLabel color="green.600" fontSize={{ base: "xs", md: "sm" }}>
-              Answered
-            </StatLabel>
-            <StatNumber color="green.700" fontSize={{ base: "md", md: "xl" }}>
-              {item.answered.today}
-            </StatNumber>
-            <StatHelpText
-              fontSize={{ base: "xs", md: "sm" }}
-              color="gray.500"
-            >
-              Month: {item.answered.month}
-            </StatHelpText>
-          </Stat>
-
-          <Stat>
-            <StatLabel color="red.500" fontSize={{ base: "xs", md: "sm" }}>
-              Unanswered
-            </StatLabel>
-            <StatNumber color="red.600" fontSize={{ base: "md", md: "xl" }}>
-              {item.unanswered.today}
-            </StatNumber>
-            <StatHelpText
-              fontSize={{ base: "xs", md: "sm" }}
-              color="gray.500"
-            >
-              Month: {item.unanswered.month}
-            </StatHelpText>
-          </Stat>
-        </HStack>
+        {/*  Monthly Section */}
+        <Text fontWeight="bold" color="goldenrod">
+          🗓️ Monthly Summary
+        </Text>
+        <Text fontSize={{ base: "sm", md: "md" }}>
+          📞 <b>Total Calls:</b> {monthlyCalls}
+        </Text>
+        <Text fontSize={{ base: "sm", md: "md" }} color="green.700">
+          ✅ <b>Answered:</b> {monthlyAnswered}
+        </Text>
+        <Text fontSize={{ base: "sm", md: "md" }} color="red.600">
+          ❌ <b>Unanswered:</b> {monthlyUnanswered}
+        </Text>
+        <Text fontSize={{ base: "sm", md: "md" }} color="purple.700">
+          📊 <b>Average Calls/Day:</b> {avgCalls}
+        </Text>
+        <Text fontSize={{ base: "sm", md: "md" }} color="orange.700">
+          ⏱ <b>Avg Call Duration:</b> {avgDuration}s
+        </Text>
+        <Text fontSize={{ base: "sm", md: "sm" }} color="gray.700">
+          🕒 <b>Total Duration:</b>{" "}
+          {formatDuration(
+            item.duration.month_hours,
+            item.duration.month_seconds
+          )}
+        </Text>
       </VStack>
-
-      <Divider borderColor="gray.200" my={3} />
-
-      {/* Duration Section */}
-      <Box>
-        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700" mb={1}>
-          ⏱ Duration (Daily):{" "}
-          <Text as="span" fontWeight="bold" color="goldenrod">
-            {formatDuration(
-              item.duration.today_hours,
-              item.duration.today_seconds
-            )}
-          </Text>
-        </Text>
-
-        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
-          📆 Total Duration ({label}):{" "}
-          <Text as="span" fontWeight="bold" color="goldenrod">
-            {formatDuration(
-              item.duration.month_hours,
-              item.duration.month_seconds
-            )}
-          </Text>
-        </Text>
-      </Box>
     </Box>
   );
 };
