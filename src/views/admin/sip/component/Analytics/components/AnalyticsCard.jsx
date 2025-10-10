@@ -20,7 +20,8 @@ const AnalyticsCard = ({ item, month, year }) => {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
-  const formatDuration = (hours, seconds) => {
+  const formatDuration = (seconds) => {
+    if (!seconds || isNaN(seconds) || seconds <= 0) return "0h 0m 0s";
     const totalSeconds = Math.round(seconds);
     const h = Math.floor(totalSeconds / 3600);
     const m = Math.floor((totalSeconds % 3600) / 60);
@@ -40,20 +41,25 @@ const AnalyticsCard = ({ item, month, year }) => {
   const label = getLabel();
   const isCurrentMonth = year === currentYear && month === currentMonth;
 
-  // Values
-  const dailyCalls = isCurrentMonth ? item.total_calls.today : "-";
-  const dailyAnswered = isCurrentMonth ? item.answered.today : "-";
-  const dailyUnanswered = isCurrentMonth ? item.unanswered.today : "-";
+  const dailyCalls = isCurrentMonth ? item?.total_calls?.today || 0 : 0;
+  const dailyAnswered = isCurrentMonth ? item?.answered?.today || 0 : 0;
+  const dailyUnanswered = isCurrentMonth ? item?.unanswered?.today || 0 : 0;
+  const dailySeconds = isCurrentMonth ? item?.duration?.today_seconds || 0 : 0;
 
-  const monthlyCalls = item.total_calls.month || 0;
-  const monthlyAnswered = item.answered.month || 0;
-  const monthlyUnanswered = item.unanswered.month || 0;
+  const monthlyCalls = item?.total_calls?.month || 0;
+  const monthlyAnswered = item?.answered?.month || 0;
+  const monthlyUnanswered = item?.unanswered?.month || 0;
+  const monthSeconds = item?.duration?.month_seconds || 0;
 
-  const avgCalls = monthlyCalls > 0 ? Math.round(monthlyCalls / 30) : 0;
-  const avgDuration =
-    monthlyAnswered > 0
-      ? Math.round(item.duration.month_seconds / monthlyAnswered)
-      : 0;
+  const dailyAvgDurationSeconds =
+    dailyAnswered > 0 ? dailySeconds / dailyAnswered : 0;
+  const avgCallsSeconds = monthlyCalls > 0 ? monthSeconds / 30 : 0;
+  const avgDurationSeconds =
+    monthlyAnswered > 0 ? monthSeconds / monthlyAnswered : 0;
+
+  const dailyAvgDuration = formatDuration(dailyAvgDurationSeconds);
+  const avgCalls = formatDuration(avgCallsSeconds);
+  const avgDuration = formatDuration(avgDurationSeconds);
 
   return (
     <Box
@@ -64,32 +70,39 @@ const AnalyticsCard = ({ item, month, year }) => {
       border="1px solid"
       borderColor="goldenrod"
       _hover={{
-        transform: "translateY(-5px) scale(1.02)",
-        boxShadow: "xl",
+        transform: "translateY(-4px) scale(1.01)",
+        boxShadow: "lg",
       }}
-      transition="all 0.3s ease"
+      transition="all 0.25s ease"
+      fontSize={{ base: "xs", sm: "sm", md: "md" }}
     >
       {/* Header */}
       <Flex
         justify="space-between"
         align={{ base: "flex-start", sm: "center" }}
         direction={{ base: "column", sm: "row" }}
-        mb={3}
+        mb={2}
         gap={2}
       >
         <Heading
-          size={{ base: "sm", md: "md" }}
+          size={{ base: "xs", sm: "sm", md: "md" }}
           color="goldenrod"
-          wordBreak="break-word"
+          noOfLines={1}
+          textOverflow="ellipsis"
+          overflow="hidden"
+          whiteSpace="nowrap"
+          maxW="100%"
         >
           {item.fullName || "Unknown User"}
         </Heading>
+
         <Badge
           colorScheme="yellow"
-          fontSize={{ base: "0.7em", md: "0.8em" }}
-          px={2}
-          py={1}
+          fontSize={{ base: "0.65em", sm: "0.75em", md: "0.8em" }}
+          px={{ base: 1.5, sm: 2 }}
+          py={{ base: 0.5, sm: 1 }}
           borderRadius="md"
+          whiteSpace="nowrap"
         >
           Caller ID: {item.sipId || "-"}
         </Badge>
@@ -97,35 +110,34 @@ const AnalyticsCard = ({ item, month, year }) => {
 
       {/* Month Label */}
       <Badge
-        px={3}
-        py={1}
+        px={{ base: 2, sm: 3 }}
+        py={{ base: 0.5, sm: 1 }}
         borderRadius="full"
         bg="goldenrod"
         color="white"
-        fontSize={{ base: "0.7rem", md: "0.8rem" }}
+        fontSize={{ base: "0.65rem", sm: "0.75rem", md: "0.8rem" }}
         fontWeight="semibold"
         shadow="sm"
-        alignSelf="flex-start"
         mb={3}
       >
         📅 {label}
       </Badge>
 
-      <Divider borderColor="goldenrod" opacity={0.3} mb={3} />
+      <Divider borderColor="goldenrod" opacity={0.3} mb={2} />
 
       {/* Stats Table */}
       <TableContainer width="100%">
         <Table size={{ base: "sm", md: "md" }} variant="simple">
           <Thead>
             <Tr>
-              <Th color="black" fontSize={{ base: "xs", md: "sm" }} pl={2}>
+              <Th color="black" fontSize={{ base: "xs", sm: "sm" }}>
                 Status
               </Th>
               {isCurrentMonth && (
                 <Th
                   color="black"
                   textAlign="center"
-                  fontSize={{ base: "xs", md: "sm" }}
+                  fontSize={{ base: "xs", sm: "sm" }}
                 >
                   Today
                 </Th>
@@ -133,7 +145,7 @@ const AnalyticsCard = ({ item, month, year }) => {
               <Th
                 color="black"
                 textAlign="center"
-                fontSize={{ base: "xs", md: "sm" }}
+                fontSize={{ base: "xs", sm: "sm" }}
               >
                 Monthly
               </Th>
@@ -159,18 +171,30 @@ const AnalyticsCard = ({ item, month, year }) => {
 
             <Tr>
               <Td fontWeight="medium" color="purple.700">
-                📊 Avg Calls
+                📊 Avg Calls (Time)
               </Td>
-              {isCurrentMonth && <Td textAlign="center">-</Td>}
-              <Td textAlign="center">{avgCalls}</Td>
+              {isCurrentMonth && (
+                <Td textAlign="center" color="purple.600" fontWeight="semibold">
+                  {avgCalls}
+                </Td>
+              )}
+              <Td textAlign="center" color="purple.600" fontWeight="semibold">
+                {avgCalls}
+              </Td>
             </Tr>
 
             <Tr>
               <Td fontWeight="medium" color="orange.700">
-                ⏱ Avg Duration (s)
+                ⏱ Avg Duration
               </Td>
-              {isCurrentMonth && <Td textAlign="center">-</Td>}
-              <Td textAlign="center">{avgDuration}</Td>
+              {isCurrentMonth && (
+                <Td textAlign="center" color="orange.600" fontWeight="semibold">
+                  {dailyAvgDuration}
+                </Td>
+              )}
+              <Td textAlign="center" color="orange.600" fontWeight="semibold">
+                {avgDuration}
+              </Td>
             </Tr>
 
             <Tr>
@@ -178,22 +202,25 @@ const AnalyticsCard = ({ item, month, year }) => {
                 📞 Total Calls
               </Td>
               {isCurrentMonth && <Td textAlign="center">{dailyCalls}</Td>}
-              <Td textAlign="center">{monthlyCalls}</Td>
+              <Td textAlign="center" fontWeight="bold" color="gray.800">
+                {monthlyCalls}
+              </Td>
             </Tr>
           </Tbody>
         </Table>
       </TableContainer>
 
-      <Divider borderColor="gray.200" my={3} />
+      <Divider borderColor="gray.200" my={2} />
 
       {/* Duration Section */}
-      <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+      <Text
+        fontSize={{ base: "2xs", sm: "xs", md: "sm" }}
+        color="gray.700"
+        noOfLines={1}
+      >
         🕒 <b>Total Duration ({label}):</b>{" "}
         <Text as="span" color="goldenrod" fontWeight="bold">
-          {formatDuration(
-            item.duration.month_hours,
-            item.duration.month_seconds
-          )}
+          {formatDuration(monthSeconds)}
         </Text>
       </Text>
     </Box>

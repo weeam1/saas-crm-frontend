@@ -83,8 +83,10 @@ const Analytics = () => {
         justifyContent="space-between"
         alignItems="center"
         mb={6}
+        flexDir={{base: "column", sm :"column", md:"row"}}
+        gap={2}
       >
-        <Heading size="lg" color="goldenrod">
+        <Heading fontSize={{base:"md", sm: "md", md:"lg"}} color="goldenrod" >
           SIP Call Analytics
         </Heading>
         <Box display="flex" gap={3}>
