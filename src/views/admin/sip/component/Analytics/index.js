@@ -111,7 +111,7 @@ const Analytics = () => {
         }}
       >
         {loadingAnalytics || isLoading
-          ? Array.from({ length: 6 }).map((_, i) => (
+          ? Array.from({ length: 30 }).map((_, i) => (
               <Skeleton key={i} height="220px" borderRadius="2xl" />
             ))
           : analyticsData?.analytics?.map((item) => (

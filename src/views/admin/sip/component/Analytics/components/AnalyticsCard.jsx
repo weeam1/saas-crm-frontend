@@ -6,7 +6,13 @@ import {
   Flex,
   Badge,
   Divider,
-  VStack,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
 } from "@chakra-ui/react";
 
 const AnalyticsCard = ({ item, month, year }) => {
@@ -34,17 +40,15 @@ const AnalyticsCard = ({ item, month, year }) => {
   const label = getLabel();
   const isCurrentMonth = year === currentYear && month === currentMonth;
 
-  //  Daily values
-  const dailyCalls = isCurrentMonth ? item.total_calls.today : 0;
-  const dailyAnswered = isCurrentMonth ? item.answered.today : 0;
-  const dailyUnanswered = isCurrentMonth ? item.unanswered.today : 0;
+  // Values
+  const dailyCalls = isCurrentMonth ? item.total_calls.today : "-";
+  const dailyAnswered = isCurrentMonth ? item.answered.today : "-";
+  const dailyUnanswered = isCurrentMonth ? item.unanswered.today : "-";
 
-  // Monthly values
-  const monthlyCalls = item.total_calls.month;
-  const monthlyAnswered = item.answered.month;
-  const monthlyUnanswered = item.unanswered.month;
+  const monthlyCalls = item.total_calls.month || 0;
+  const monthlyAnswered = item.answered.month || 0;
+  const monthlyUnanswered = item.unanswered.month || 0;
 
-  // Average calls and duration
   const avgCalls =
     monthlyCalls > 0 ? (monthlyCalls / 30).toFixed(1) : 0;
   const avgDuration =
@@ -54,7 +58,7 @@ const AnalyticsCard = ({ item, month, year }) => {
 
   return (
     <Box
-      p={{ base: 4, md: 6 }}
+      p={{ base: 3, md: 6 }}
       borderRadius="2xl"
       shadow="md"
       bgGradient="linear(to-br, white, #fff8e1)"
@@ -88,7 +92,7 @@ const AnalyticsCard = ({ item, month, year }) => {
           py={1}
           borderRadius="md"
         >
-          Caller ID: {item.sipId}
+          Caller ID: {item.sipId || item.extension}
         </Badge>
       </Flex>
 
@@ -110,61 +114,77 @@ const AnalyticsCard = ({ item, month, year }) => {
 
       <Divider borderColor="goldenrod" opacity={0.3} mb={3} />
 
-      {/*  Summary Section */}
-      <VStack align="flex-start" spacing={2}>
-        {/*  Daily Section (only if current month) */}
-        {isCurrentMonth && (
-          <>
-            <Text fontWeight="bold" color="goldenrod">
-              📅 Daily Summary
-            </Text>
-            <Text fontSize={{ base: "sm", md: "md" }}>
-              📞 <b>Total Calls:</b> {dailyCalls}
-            </Text>
-            <Text fontSize={{ base: "sm", md: "md" }} color="green.700">
-              ✅ <b>Answered:</b> {dailyAnswered}
-            </Text>
-            <Text fontSize={{ base: "sm", md: "md" }} color="red.600">
-              ❌ <b>Unanswered:</b> {dailyUnanswered}
-            </Text>
-            <Text fontSize={{ base: "sm", md: "md" }} color="orange.700">
-              ⏱ <b>Duration:</b>{" "}
-              {formatDuration(
-                item.duration.today_hours,
-                item.duration.today_seconds
+      {/* Stats Table */}
+      <TableContainer width="100%">
+        <Table size={{ base: "sm", md: "md" }} variant="simple">
+          <Thead bg="goldenrod" color="white">
+            <Tr>
+              <Th color="white" fontSize={{ base: "xs", md: "sm" }} pl={2}>
+                Status
+              </Th>
+              {isCurrentMonth && (
+                <Th color="white" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+                  Daily
+                </Th>
               )}
-            </Text>
-            <Divider borderColor="gray.300" my={2} />
-          </>
-        )}
+              <Th color="white" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+                Monthly
+              </Th>
+            </Tr>
+          </Thead>
 
-        {/*  Monthly Section */}
-        <Text fontWeight="bold" color="goldenrod">
-          🗓️ Monthly Summary
-        </Text>
-        <Text fontSize={{ base: "sm", md: "md" }}>
-          📞 <b>Total Calls:</b> {monthlyCalls}
-        </Text>
-        <Text fontSize={{ base: "sm", md: "md" }} color="green.700">
-          ✅ <b>Answered:</b> {monthlyAnswered}
-        </Text>
-        <Text fontSize={{ base: "sm", md: "md" }} color="red.600">
-          ❌ <b>Unanswered:</b> {monthlyUnanswered}
-        </Text>
-        <Text fontSize={{ base: "sm", md: "md" }} color="purple.700">
-          📊 <b>Average Calls/Day:</b> {avgCalls}
-        </Text>
-        <Text fontSize={{ base: "sm", md: "md" }} color="orange.700">
-          ⏱ <b>Avg Call Duration:</b> {avgDuration}s
-        </Text>
-        <Text fontSize={{ base: "sm", md: "sm" }} color="gray.700">
-          🕒 <b>Total Duration:</b>{" "}
+          <Tbody>
+            <Tr>
+              <Td fontWeight="medium" color="green.700">✅ Answered</Td>
+              {isCurrentMonth && (
+                <Td textAlign="center">{dailyAnswered}</Td>
+              )}
+              <Td textAlign="center">{monthlyAnswered}</Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="red.600">❌ Unanswered</Td>
+              {isCurrentMonth && (
+                <Td textAlign="center">{dailyUnanswered}</Td>
+              )}
+              <Td textAlign="center">{monthlyUnanswered}</Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="purple.700">📊 Avg Calls</Td>
+              {isCurrentMonth && <Td textAlign="center">-</Td>}
+              <Td textAlign="center">{avgCalls}</Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="orange.700">⏱ Avg Duration (s)</Td>
+              {isCurrentMonth && <Td textAlign="center">-</Td>}
+              <Td textAlign="center">{avgDuration}</Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="gray.800">📞 Total Calls</Td>
+              {isCurrentMonth && (
+                <Td textAlign="center">{dailyCalls}</Td>
+              )}
+              <Td textAlign="center">{monthlyCalls}</Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
+
+      <Divider borderColor="gray.200" my={3} />
+
+      {/* Duration Section */}
+      <Text fontSize={{ base: "xs", md: "sm" }} color="gray.700">
+        🕒 <b>Total Duration ({label}):</b>{" "}
+        <Text as="span" color="goldenrod" fontWeight="bold">
           {formatDuration(
             item.duration.month_hours,
             item.duration.month_seconds
           )}
         </Text>
-      </VStack>
+      </Text>
     </Box>
   );
 };
