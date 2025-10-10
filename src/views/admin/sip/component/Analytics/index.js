@@ -12,6 +12,7 @@ import axios from "axios";
 import keys from "config/keys";
 import AnalyticsCard from "./components/AnalyticsCard";
 import DateFilter from "../../../attendance/components/DateFilter";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const Analytics = () => {
   const now = new Date();
@@ -110,18 +111,24 @@ const Analytics = () => {
           alignItems: "stretch",
         }}
       >
-        {loadingAnalytics || isLoading
-          ? Array.from({ length: 30 }).map((_, i) => (
-              <Skeleton key={i} height="220px" borderRadius="2xl" />
-            ))
-          : analyticsData?.analytics?.map((item) => (
-              <AnalyticsCard
-                key={item.extension}
-                item={item}
-                month={month}
-                year={year}
-              />
-            ))}
+        {loadingAnalytics || isLoading ? (
+          Array.from({ length: 30 }).map((_, i) => (
+            <Skeleton key={i} height="220px" borderRadius="2xl" />
+          ))
+        ) : analyticsData?.analytics.length > 0 ? (
+          analyticsData?.analytics?.map((item) => (
+            <AnalyticsCard
+              key={item.extension}
+              item={item}
+              month={month}
+              year={year}
+            />
+          ))
+        ) : (
+          <Box w="full" p="4" textAlign="center">
+            <NoData label="user analytics records" />
+          </Box>
+        )}
       </SimpleGrid>
     </Box>
   );
