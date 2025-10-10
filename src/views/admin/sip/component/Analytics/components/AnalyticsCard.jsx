@@ -49,11 +49,10 @@ const AnalyticsCard = ({ item, month, year }) => {
   const monthlyAnswered = item.answered.month || 0;
   const monthlyUnanswered = item.unanswered.month || 0;
 
-  const avgCalls =
-    monthlyCalls > 0 ? (monthlyCalls / 30).toFixed(1) : 0;
+  const avgCalls = monthlyCalls > 0 ? Math.round(monthlyCalls / 30) : 0;
   const avgDuration =
     monthlyAnswered > 0
-      ? (item.duration.month_seconds / monthlyAnswered).toFixed(1)
+      ? Math.round(item.duration.month_seconds / monthlyAnswered)
       : 0;
 
   return (
@@ -123,11 +122,19 @@ const AnalyticsCard = ({ item, month, year }) => {
                 Status
               </Th>
               {isCurrentMonth && (
-                <Th color="black" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+                <Th
+                  color="black"
+                  textAlign="center"
+                  fontSize={{ base: "xs", md: "sm" }}
+                >
                   Today
                 </Th>
               )}
-              <Th color="black" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+              <Th
+                color="black"
+                textAlign="center"
+                fontSize={{ base: "xs", md: "sm" }}
+              >
                 Monthly
               </Th>
             </Tr>
@@ -135,38 +142,42 @@ const AnalyticsCard = ({ item, month, year }) => {
 
           <Tbody>
             <Tr>
-              <Td fontWeight="medium" color="green.700">✅ Answered</Td>
-              {isCurrentMonth && (
-                <Td textAlign="center">{dailyAnswered}</Td>
-              )}
+              <Td fontWeight="medium" color="green.700">
+                ✅ Answered
+              </Td>
+              {isCurrentMonth && <Td textAlign="center">{dailyAnswered}</Td>}
               <Td textAlign="center">{monthlyAnswered}</Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="red.600">❌ Unanswered</Td>
-              {isCurrentMonth && (
-                <Td textAlign="center">{dailyUnanswered}</Td>
-              )}
+              <Td fontWeight="medium" color="red.600">
+                ❌ Unanswered
+              </Td>
+              {isCurrentMonth && <Td textAlign="center">{dailyUnanswered}</Td>}
               <Td textAlign="center">{monthlyUnanswered}</Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="purple.700">📊 Avg Calls</Td>
+              <Td fontWeight="medium" color="purple.700">
+                📊 Avg Calls
+              </Td>
               {isCurrentMonth && <Td textAlign="center">-</Td>}
               <Td textAlign="center">{avgCalls}</Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="orange.700">⏱ Avg Duration (s)</Td>
+              <Td fontWeight="medium" color="orange.700">
+                ⏱ Avg Duration (s)
+              </Td>
               {isCurrentMonth && <Td textAlign="center">-</Td>}
               <Td textAlign="center">{avgDuration}</Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="gray.800">📞 Total Calls</Td>
-              {isCurrentMonth && (
-                <Td textAlign="center">{dailyCalls}</Td>
-              )}
+              <Td fontWeight="medium" color="gray.800">
+                📞 Total Calls
+              </Td>
+              {isCurrentMonth && <Td textAlign="center">{dailyCalls}</Td>}
               <Td textAlign="center">{monthlyCalls}</Td>
             </Tr>
           </Tbody>
