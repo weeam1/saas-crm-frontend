@@ -1,26 +1,22 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
-	Box,
-	Flex,
-	IconButton,
-	useColorModeValue,
-	useBreakpointValue,
-	Button,
-} from '@chakra-ui/react';
-import { FiSearch } from 'react-icons/fi';
-import { fetchCallHistoryData } from '../../../../../services/sip/index';
-import moment from 'moment';
-import Pagination from '../../../developers/components/Pagination';
-import TableLoading from 'components/loading/TableLoading';
-import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
-import ActiveFiltersDisplay from './Component/ActiveFiltersDisplay';
-import AdvancedSearchModal from './Component/AdvancedSearchModal';
-import { toast } from 'react-toastify';
-import { formatCallDuration } from 'utils/helpers';
+  Box,
+  Flex,
+  IconButton,
+  useColorModeValue,
+  useBreakpointValue,
+  Button,
+} from "@chakra-ui/react";
+import { FiSearch } from "react-icons/fi";
+import { fetchCallHistoryData } from "../../../../../services/sip/index";
+import ActiveFiltersDisplay from "./Component/ActiveFiltersDisplay";
+import AdvancedSearchModal from "./Component/AdvancedSearchModal";
+import { toast } from "react-toastify";
+
 import ViewToggle from "components/toggle/ViewToggle";
-import CallTableView from './CallTableView';
-import CallGrid from './CallGrid';
-import TopPagination from 'components/pagination/TopPagination';
+import CallTableView from "./CallTableView";
+import CallGrid from "./CallGrid";
+import TopPagination from "components/pagination/TopPagination";
 
 const CallHistory = ({ setTotalCallRecord }) => {
 	const [calls, setCalls] = useState([]);
@@ -203,51 +199,29 @@ const CallHistory = ({ setTotalCallRecord }) => {
 				refetching={loading}
 				loading={loading}
 			/>
-			{loading ? (
-				view === 'table' ? (
-					<TableLoading
-						columns={[
-							'Call id',
-							'Call date',
-							'Call Mode',
-							'Call from',
-							'Call to',
-							'Recording',
-							'Status',
-							'Type',
-							'Call Duration',
-							'Talk Duration',
-						]}
-						length={10}
-						py='4'
-					/>
+			{
+				view === "table" ? (
+				<CallTableView
+					calls={calls}
+					currentlyPlayingId={currentlyPlayingId}
+					handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+					setCurrentlyPlayingId={setCurrentlyPlayingId}
+					handleCopy={handleCopy}
+					copied={copied}
+					loading={loading}
+				/>
 				) : (
-					<CallGrid loading={loading} pageSize={pageSize} />
+				<CallGrid
+					calls={calls}
+					currentlyPlayingId={currentlyPlayingId}
+					handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+					setCurrentlyPlayingId={setCurrentlyPlayingId}
+					handleCopy={handleCopy}
+					pageSize= {pageSize}
+					loading={loading}
+				/>
 				)
-			) : calls && calls.length > 0 ? (
-				view === 'table' ? (
-					<CallTableView
-						calls={calls}
-						currentlyPlayingId={currentlyPlayingId}
-						handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
-						setCurrentlyPlayingId={setCurrentlyPlayingId}
-						handleCopy={handleCopy}
-						copied={copied}
-					/>
-				) : (
-					<CallGrid
-						calls={calls}
-						currentlyPlayingId={currentlyPlayingId}
-						handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
-						setCurrentlyPlayingId={setCurrentlyPlayingId}
-						handleCopy={handleCopy}
-					/>
-				)
-			) : (
-				<Box w='full' p='4' textAlign='center'>
-					<NoData label='call records' />
-				</Box>
-			)}
+			}
 
 			<AdvancedSearchModal
 				isOpen={isFilterOpen}
