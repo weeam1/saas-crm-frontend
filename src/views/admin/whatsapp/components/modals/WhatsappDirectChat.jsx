@@ -16,14 +16,14 @@ import { useDispatch } from 'react-redux';
 import { generateRoomId } from '../helpers';
 import { setActiveChat } from '../../../../../redux/whatsappSlice';
 import { toast } from 'react-toastify';
-import { validatePhoneNumber } from 'utils/helpers';
+import { normalizePhone } from 'utils/phoneValidation';
 
 const WhatsappDirectChatModal = ({ isOpen, onClose, businessPhone }) => {
 	const [phoneNumber, setPhoneNumber] = useState('');
 	const dispatch = useDispatch();
 
 	const handleOpenChat = async () => {
-		const validNum = validatePhoneNumber(phoneNumber);
+		const validNum = normalizePhone(phoneNumber);
 
 		if (!validNum) return toast.error('Please enter a valid WhatsApp number!');
 
