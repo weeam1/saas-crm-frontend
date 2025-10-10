@@ -117,17 +117,17 @@ const AnalyticsCard = ({ item, month, year }) => {
       {/* Stats Table */}
       <TableContainer width="100%">
         <Table size={{ base: "sm", md: "md" }} variant="simple">
-          <Thead bg="goldenrod" color="white">
+          <Thead>
             <Tr>
-              <Th color="white" fontSize={{ base: "xs", md: "sm" }} pl={2}>
+              <Th color="black" fontSize={{ base: "xs", md: "sm" }} pl={2}>
                 Status
               </Th>
               {isCurrentMonth && (
-                <Th color="white" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
-                  Daily
+                <Th color="black" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+                  Today
                 </Th>
               )}
-              <Th color="white" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
+              <Th color="black" textAlign="center" fontSize={{ base: "xs", md: "sm" }}>
                 Monthly
               </Th>
             </Tr>
