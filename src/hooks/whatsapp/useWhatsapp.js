@@ -134,7 +134,7 @@ export const useWhatsapp = () => {
 		[dispatch]
 	);
 
-	// console.log({ ...state });
+	console.log({ ...state });
 
 	return {
 		...state,

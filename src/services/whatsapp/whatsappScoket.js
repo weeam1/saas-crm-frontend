@@ -15,10 +15,16 @@ import {
 } from './../../redux/whatsappWebSlice';
 import { WHATSAPP_EVENTS } from './types';
 
+let listenersRegistered = false;
+
 export const registerWhatsappSocket = (store) => {
 	const isSocketConnected = socketService.connectionStatus === 'connected';
 
-	if (!isSocketConnected) return;
+	// if (!isSocketConnected) return;
+
+	if (!isSocketConnected || listenersRegistered) return;
+
+	listenersRegistered = true; // prevent double registration
 
 	socketService.on(WHATSAPP_EVENTS.QR_CODE, (payload) =>
 		store.dispatch(qrCode(payload))

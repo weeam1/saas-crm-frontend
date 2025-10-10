@@ -123,15 +123,17 @@ const UserWhatsapp = () => {
 	// 4. Manage loadingChats animation
 	// ---------------------------
 	useEffect(() => {
-		if (isReady) {
+		if (isReady && !isAuthenticated) {
+			console.log('loading chats effect');
 			setLoadingChats(true);
 
 			if (allConversations?.length) {
 				const timer = setTimeout(() => setLoadingChats(false), 1000);
+
 				return () => clearTimeout(timer);
 			}
 		}
-	}, [isReady, allConversations]);
+	}, [isReady, allConversations, isAuthenticated]);
 
 	// ---------------------------
 	// 5. Cleanup on unmount / reload

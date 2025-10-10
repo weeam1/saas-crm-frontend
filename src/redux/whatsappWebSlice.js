@@ -96,6 +96,47 @@ const whatsappWebSlice = createSlice({
 				}
 			}
 
+			// update the all converstations lastMessage data and also unread count
+			const chatIndex = state.allConversations?.findIndex(
+				(item) => item?.id === chatId
+			);
+
+			if (chatIndex !== -1) {
+				const isActiveChat = state.activeChat?.id === chatId;
+
+				const isNotLastMessage =
+					state.allConversations[chatIndex]?.lastMessage?.id !==
+					message?.id?._serialized;
+
+				if (isNotLastMessage) {
+					const newLastMessage = {
+						id: message?.id?._serialized,
+						body: message?.body || '',
+						timestamp: message?.timestamp || Date.now(),
+						type: message?.type || 'chat',
+						fromMe: message?.fromMe,
+						hasMedia: message?.hasMedia || false,
+					};
+
+					console.log({ count: state.allConversations[chatIndex].unreadCount });
+
+					// Build updated chat
+					const updatedChat = {
+						...state.allConversations[chatIndex],
+						lastMessage: newLastMessage,
+						unreadCount: isActiveChat
+							? 0
+							: Number(state.allConversations[chatIndex].unreadCount || 0) + 1,
+						timestamp: message?.timestamp || Date.now(),
+					};
+
+					// Remove from current position and move to top
+					state.allConversations.splice(chatIndex, 1);
+					state.allConversations.unshift(updatedChat);
+
+					state.allConversations.sort((a, b) => b.timestamp - a.timestamp);
+				}
+			}
 			// state.userChats[chatId] = messages;
 		},
 		messageAck: (state, action) => {

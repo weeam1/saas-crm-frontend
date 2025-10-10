@@ -219,37 +219,42 @@ const ChatListItem = ({
 								justifySelf='flex-end'
 								justify='space-between'
 							>
-								<Text fontSize='xs' color='gray.500'>
+								<Text
+									fontSize='xs'
+									color={chat.unreadCount ? 'green.500' : 'gray.500'}
+								>
 									{chat.lastMessage?.timestamp
 										? formatTime(chat.lastMessage.timestamp)
 										: ''}
 								</Text>
-
-								{/* Unread Count */}
-								{chat.unreadCount > 0 && (
-									<Badge
-										colorScheme='green'
-										variant='solid'
-										borderRadius='full'
-										minW='20px'
-										h='20px'
-										display='flex'
-										alignItems='center'
-										justifyContent='center'
-										fontSize='xs'
-									>
-										{chat.unreadCount}
-									</Badge>
-								)}
 							</Flex>
 						</Flex>
 
 						{/* Last Message */}
-						<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
-							{chat.lastMessage
-								? truncateMessage(chat.lastMessage.body)
-								: 'No messages yet'}
-						</Text>
+						<HStack justifyContent='space-between'>
+							<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
+								{chat.lastMessage
+									? truncateMessage(chat.lastMessage.body)
+									: 'No messages yet'}
+							</Text>
+							{/* Unread Count */}
+							{chat.unreadCount > 0 && (
+								<Box
+									bg='green.500'
+									color='white'
+									borderRadius='full'
+									minW='18px'
+									minH='18px'
+									display='flex'
+									alignItems='center'
+									justifyContent='center'
+									fontSize='xs'
+									fontWeight='bold'
+								>
+									{chat.unreadCount}
+								</Box>
+							)}
+						</HStack>
 					</Box>
 				</Flex>
 			</Flex>
