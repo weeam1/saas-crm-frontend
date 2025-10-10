@@ -92,7 +92,7 @@ const AnalyticsCard = ({ item, month, year }) => {
           py={1}
           borderRadius="md"
         >
-          Caller ID: {item.sipId || item.extension}
+          Caller ID: {item.sipId || "-"}
         </Badge>
       </Flex>
 
