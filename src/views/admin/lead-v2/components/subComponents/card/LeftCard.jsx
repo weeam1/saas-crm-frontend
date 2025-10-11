@@ -47,9 +47,11 @@ const LeftCard = ({
 
 	let hideContact = false;
 
-	if (role === 'Manager') {
-		hideContact = true;
-	} else if (queryParams?.invite && role !== 'superAdmin') {
+	// if (role === 'Manager') {
+	// 	hideContact = true;
+	// } else 
+	
+		if (queryParams?.invite && role !== 'superAdmin') {
 		hideContact = user?._id !== lead?.agentAssigned;
 		// if (role === 'Manager') {
 		// 	hideContact = user?._id !== lead?.managerAssigned;
