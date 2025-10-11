@@ -89,13 +89,21 @@ const Analytics = () => {
         justifyContent="space-between"
         alignItems="center"
         mb={6}
-        flexDir={{base: "column", sm :"column", md:"row"}}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
         gap={2}
       >
-        <Heading fontSize={{base:"md", sm: "md", md:"lg"}} color="goldenrod" >
+        <Heading
+          fontSize={{ base: "md", sm: "md", md: "lg" }}
+          color="goldenrod"
+        >
           SIP Call Analytics
         </Heading>
-        <Box display="flex" gap={3} alignItems={"center"}  flexDir={{base: "column", sm :"column", md:"row"}}>
+        <Box
+          display="flex"
+          gap={3}
+          alignItems={"center"}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
             view={view}
@@ -134,7 +142,12 @@ const Analytics = () => {
             ))
           ) : analyticsData?.analytics?.length > 0 ? (
             analyticsData.analytics.map((item) => (
-              <AnalyticsCard key={item.extension} item={item} month={month} year={year} />
+              <AnalyticsCard
+                key={item.extension}
+                item={item}
+                month={month}
+                year={year}
+              />
             ))
           ) : (
             <Box w="full" p="4" textAlign="center">
@@ -144,8 +157,26 @@ const Analytics = () => {
         </SimpleGrid>
       ) : (
         <>
-       {(!loadingAnalytics || !isLoading) && <UserChartAnalytics analytics={analyticsData?.analytics} />}
-       </>
+          {loadingAnalytics || isLoading ? (
+            <SimpleGrid
+              spacing={6}
+              sx={{
+                gridTemplateColumns: {
+                  base: "1fr",
+                  md: "1fr 1fr",
+                  lg: "1fr 1fr",
+                },
+                alignItems: "stretch",
+              }}
+            >
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} height="300px" borderRadius="2xl" />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <UserChartAnalytics analytics={analyticsData?.analytics} />
+          )}
+        </>
       )}
     </Box>
   );

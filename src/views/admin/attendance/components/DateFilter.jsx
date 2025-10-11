@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, useBreakpointValue } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
 import moment from "moment";
 import { useSearchParams } from "react-router-dom";
@@ -15,7 +15,11 @@ const DateFilter = ({ onFilterChange }) => {
 
   const [date, setDate] = useState(moment(`${year}-${month}-01`).toDate());
   const [showCalendar, setShowCalendar] = useState(false);
-  const calendarRef = useRef();
+  const [popupStyle, setPopupStyle] = useState({});
+  const buttonRef = useRef();
+  const modalRef = useRef();
+
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const handleDateChange = (selectedDate) => {
     setDate(selectedDate);
@@ -26,9 +30,45 @@ const DateFilter = ({ onFilterChange }) => {
     });
   };
 
+const calculatePopupPosition = () => {
+  if (!buttonRef.current) return;
+  const rect = buttonRef.current.getBoundingClientRect();
+  const calendarWidth = 350;
+  const calendarHeight = 350;
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+
+  let left = rect.left + window.scrollX;
+  let top = rect.bottom + window.scrollY + 8;
+
+  if (left + calendarWidth > screenWidth - 10) left = screenWidth - calendarWidth - 10;
+  if (left < 10) left = 10;
+  if (top + calendarHeight > screenHeight - 10)
+    top = rect.top + window.scrollY - calendarHeight - 8;
+
+  // 🧠 Fix here
+  requestAnimationFrame(() => {
+    setPopupStyle({
+      position: "fixed",
+      top: `${top}px`,
+      left: `${left}px`,
+    });
+  });
+};
+
+  useEffect(() => {
+    if (showCalendar && !isMobile) {
+      calculatePopupPosition();
+    }
+  }, [showCalendar, isMobile]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(e.target) &&
+        !buttonRef.current.contains(e.target)
+      ) {
         setShowCalendar(false);
       }
     };
@@ -37,49 +77,97 @@ const DateFilter = ({ onFilterChange }) => {
   }, []);
 
   return (
-    <Box position="relative" ref={calendarRef}>
+    <Box position="relative" w="fit-content">
       <Button
+        ref={buttonRef}
         leftIcon={<CalendarIcon />}
-        bg="softGray.50"
+        bg="gray.50"
         color="gray.800"
         borderRadius="md"
-        size="md"
-        fontSize={{ base: "sm", md: "md" }}
+        size={{ base: "sm", md: "md", lg: "lg" }}
+        fontSize={{ base: "sm", md: "md", lg: "lg" }}
+        px={{ base: 3, md: 5 }}
+        py={{ base: 2, md: 3 }}
         onClick={() => setShowCalendar(!showCalendar)}
         _hover={{ bg: "gray.100" }}
         shadow="sm"
+        border="1px solid rgba(0,0,0,0.15)"
+        transition="all 0.2s ease-in-out"
       >
         {moment(date).format("MMM YYYY")}
       </Button>
 
-      {/*  Calendar Drawer */}
       {showCalendar && (
-        <Box
-          position="absolute"
-          top="110%"
-          right={{ base: "50%", md: "0" }}
-          left={{ base: "50%", md: "auto" }}
-          transform={{ base: "translateX(-50%)", md: "none" }}
-          zIndex="100"
-          bg="white"
-          border="none"
-          borderRadius="md"
-          boxShadow="md"
-          p={2}
-          w={{ base: "90vw", sm: "80vw", md: "auto" }} 
-          maxW="360px"
-          overflow="hidden"
-        >
-          <Calendar
-            onChange={handleDateChange}
-            value={date}
-            view="year"
-            onClickMonth={handleDateChange}
-            maxDate={moment().endOf("month").toDate()}
-            tileDisabled={({ date }) => date.getDate() !== 1}
-          />
-        </Box>
+        <>
+          {/* Mobile Overlay */}
+          {isMobile && (
+            <Box
+              position="fixed"
+              top="0"
+              left="0"
+              width="100vw"
+              height="100vh"
+              bg="rgba(0,0,0,0.4)"
+              zIndex="998"
+              onClick={() => setShowCalendar(false)}
+            />
+          )}
+
+          {/* Calendar */}
+          <Box
+            ref={modalRef}
+            zIndex="999"
+            bg="white"
+            borderRadius="xl"
+            boxShadow="0 10px 25px rgba(0,0,0,0.25)"
+            border="1px solid rgba(0,0,0,0.2)"
+            p={{ base: 3, md: 4 }}
+            w={{ base: "90vw", sm: "80vw", md: "350px" }}
+            maxW="420px"
+            transition="all 0.3s ease"
+            {...(isMobile
+              ? {
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }
+              : popupStyle)}
+          >
+            <Calendar
+              onChange={handleDateChange}
+              value={date}
+              view="year"
+              onClickMonth={handleDateChange}
+              maxDate={moment().endOf("month").toDate()}
+              tileDisabled={({ date }) => date.getDate() !== 1}
+              className="custom-calendar"
+            />
+          </Box>
+        </>
       )}
+
+      {/* Custom Styles */}
+      <style jsx global>{`
+        .react-calendar {
+          width: 100%;
+          border: none !important;
+          font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+          .react-calendar {
+            font-size: 0.8rem;
+          }
+        }
+        .react-calendar__tile--active {
+          background: #3182ce !important;
+          color: white !important;
+          border-radius: 8px;
+        }
+        .react-calendar__navigation button {
+          color: #2d3748;
+        }
+      `}</style>
     </Box>
   );
 };
