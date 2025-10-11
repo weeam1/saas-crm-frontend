@@ -50,8 +50,6 @@ export function normalizePhone(input) {
 	// 2. Find matching country by dial code prefix
 	const country = countryCodes.find((c) => cleaned.startsWith(c.dial_code));
 
-	console.log({ country, input });
-
 	if (!country) return null; // no match for any known dial code
 
 	// 3. Remove extra zeros if appear after dial code
@@ -61,8 +59,6 @@ export function normalizePhone(input) {
 
 	// 4. Reconstruct normalized number
 	const normalized = `${dialCode}${localPart}`;
-
-	console.log({ normalized });
 
 	// 5. Validate using libphonenumber
 	const phoneNumber = parsePhoneNumberFromString(normalized, country.code);

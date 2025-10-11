@@ -31,6 +31,7 @@ import {
 	deleteContact,
 } from '../../../../redux/whatsappSlice';
 import { validatePhoneNumber } from 'utils/helpers';
+import { normalizePhone } from 'utils/phoneValidation';
 
 const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 	const [editingContact, setEditingContact] = useState(null);
@@ -55,17 +56,17 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 
 	const handleAddContact = async () => {
 		try {
-			const validNum = validatePhoneNumber(phoneNumber);
+			const validNum = normalizePhone(phoneNumber);
 
 			if (!validNum)
 				return toast.error('Please enter a valid WhatsApp number!');
 
-			const roomId = generateRoomId(validNum, businessPhone);
+			// const roomId = generateRoomId(validNum, businessPhone);
 
 			const newContact = {
 				name,
 				phoneNumber: validNum,
-				roomId,
+				// roomId,
 				ownerId: businessPhone,
 			};
 
@@ -77,7 +78,7 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 			const contact = {
 				...newContact,
 				_id: newUser?.doc?._id,
-				roomId,
+				roomId: newUser?.doc?.roomId,
 			};
 
 			dispatch(addContact(contact));
@@ -92,18 +93,16 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 
 	const handleUpdateContact = async (data) => {
 		try {
-			const validNum = validatePhoneNumber(phoneNumber);
+			const validNum = normalizePhone(phoneNumber);
 
 			if (!validNum)
 				return toast.error('Please enter a valid WhatsApp number!');
 
 			const updateData = { name, phoneNumber: validNum };
-			const roomId = generateRoomId(validNum, businessPhone);
+			// const roomId = generateRoomId(validNum, businessPhone);
 
 			if (data?._id) {
 				updateData.id = data?._id;
-			} else {
-				updateData.roomId = roomId;
 			}
 
 			const res = await createContactAPI({
@@ -113,7 +112,7 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 
 			const contact = {
 				...updateData,
-				roomId,
+				roomId: res?.doc?.roomId,
 				_id: res?.doc?._id,
 			};
 

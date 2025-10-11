@@ -28,6 +28,8 @@ const ChatMessages = ({ chat, isSending, roomId, from, to }) => {
 	const [fetchChatLoading, setFetchChatLoading] = useState(false);
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
+	// console.log({ activeChat });
+
 	const messages = useSelector((state) => state.whatsapp.chats[roomId] || []);
 
 	const [chatQuery, setChatQuery] = useState({

@@ -130,6 +130,24 @@ const sidebarRoutes = [
 		name: 'Call Logs',
 		path: '/sip',
 		icon: <Icon as={FaPhone} w='20px' h='20px' />,
+		children: [
+			{
+				name: 'Sip Dashboard',
+				path: '/sip/dashboard',
+			},
+				{
+				name: 'Sip History',
+				path: '/sip/history',
+			},
+				{
+				name: 'User Analytics',
+				path: '/sip/user-analytics',
+			},
+				{
+				name: 'Sip Settings ',
+				path: '/sip/settings',
+			},
+		],
 	},
 
 	// -------- Reports --------

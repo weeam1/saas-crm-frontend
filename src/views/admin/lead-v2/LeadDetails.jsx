@@ -138,6 +138,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		return typeof value === 'object' ? value.result || value.text : value;
 	};
 
+	console.log("data",data)
 	return (
 		<Grid
 			templateColumns={{

@@ -69,6 +69,8 @@ const LeadMenu = ({
 	const handleOpenWhatsapp = async () => {
 		const businessPhone = user?.whatsappDetails?.phoneNumber;
 
+		// console.log({ whatsapp: user?.whatsappDetails, businessPhone });
+
 		if (!businessPhone) {
 			toast.error(
 				isSuperAdmin

@@ -41,21 +41,13 @@ const FinalSummaryModal = ({
 					? lead.leadWhatsappNumber?.result
 					: lead.leadWhatsappNumber;
 
-			// const { country } = extractLocationData(lead?.ip, countries);
+			const validPhone = normalizePhone(whatsappNumber);
 
 			const normalizedLead = {
 				id: lead.lead_id || lead.id,
 				name: lead.leadName || '',
-				whatsapp: whatsappNumber,
-				// country,
+				whatsapp: validPhone,
 			};
-
-			// console.log({ normalizedLead });
-
-			const validPhone = normalizePhone(normalizedLead?.whatsapp);
-			// normalizedLead?.country || 'United Arab Emirates'
-
-			// console.log({ validPhone });
 
 			if (validPhone) {
 				valid.push(normalizedLead);
