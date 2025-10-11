@@ -6,274 +6,321 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   LineChart,
   Line,
   CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
   RadarChart,
   PolarGrid,
   PolarRadiusAxis,
   Radar,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { Box, Heading, SimpleGrid, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  SimpleGrid,
+  useColorModeValue,
+  Skeleton,
+  Text,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const COLORS = ["#3B82F6", "#F97316", "#10B981", "#8B5CF6", "#EAB308"];
+const COLORS = ["#3B82F6", "#F97316", "#10B981", "#8B5CF6", "#EF4444"];
 
-const UserChartAnalytics = ({ analytics }) => {
+const CustomBarTooltip = ({ active, payload }) => {
+  if (active && payload?.length) {
+    const d = payload[0].payload;
+    return (
+      <Box bg="gray.800" color="white" p={3} rounded="md" fontSize="sm">
+        <Text fontWeight="bold">{d.fullName}</Text>
+        <Text>📞 Total: {d.total}</Text>
+        <Text>✅ Answered: {d.answered}</Text>
+        <Text>❌ Unanswered: {d.unanswered}</Text>
+        <Text>⏱ Duration: {d.duration}s</Text>
+      </Box>
+    );
+  }
+  return null;
+};
+
+const CustomPieTooltip = ({ active, payload }) => {
+  if (active && payload?.length) {
+    const d = payload[0].payload;
+    return (
+      <Box bg="gray.800" color="white" p={3} rounded="md" fontSize="sm">
+        <Text fontWeight="bold">👤 {d.fullName}</Text>
+        <Text>✅ Answered: {d.answered}</Text>
+        <Text>❌ Unanswered: {d.unanswered}</Text>
+      </Box>
+    );
+  }
+  return null;
+};
+
+const CustomRadarTooltip = ({ active, payload }) => {
+  if (active && payload?.length) {
+    const data = payload[0].payload;
+    return (
+      <Box
+        bg="gray.800"
+        color="white"
+        p={3}
+        rounded="md"
+        shadow="lg"
+        fontSize="sm"
+      >
+        <Text fontWeight="bold" mb={1}>
+          👤 {data.fullName}
+        </Text>
+        <Text>📞 Total Calls: {data.total_calls}</Text>
+        <Text>✅ Answered: {data.answered}</Text>
+        <Text>❌ Unanswered: {data.unanswered}</Text>
+        <Text>⏱ Avg Duration: {data.avg_duration_min} min</Text>
+      </Box>
+    );
+  }
+  return null;
+};
+
+const CustomLineTooltip = ({ active, payload, label }) => {
+  if (active && payload?.length) {
+    return (
+      <Box
+        bg="gray.800"
+        color="white"
+        p={3}
+        rounded="md"
+        shadow="lg"
+        fontSize="sm"
+      >
+        <Text fontWeight="bold" mb={1}>
+          📅 {label}
+        </Text>
+        {payload.map((entry, idx) => {
+          if (!entry.value) return null;
+          return (
+            <Text key={idx}>
+              👤 {entry.name} — 📞 Calls: {entry.value}
+            </Text>
+          );
+        })}
+      </Box>
+    );
+  }
+  return null;
+};
+
+const UserChartAnalytics = ({ graphData, loading }) => {
   const bgCard = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.800", "gray.100");
   const gridColor = useColorModeValue("#e5e7eb", "#4b5563");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "#4b5563");
 
-  if (!analytics?.length)
+  // Responsive sizes
+  const tickFontSize = useBreakpointValue({ base: 9, sm: 10, md: 11 });
+  const chartHeight = useBreakpointValue({ base: 220, sm: 250, md: 300 });
+  const headingSize = useBreakpointValue({ base: "xs", sm: "sm", md: "sm" });
+
+  if (loading) {
+    return (
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} height={chartHeight} borderRadius="2xl" />
+        ))}
+      </SimpleGrid>
+    );
+  }
+
+  if (!graphData?.charts) {
     return (
       <Box w="full" p="4" textAlign="center">
-        <NoData label="user analytics records" />
+        <NoData label="user graph analytics" />
       </Box>
     );
+  }
 
-  // Prepare data
-  const barData = analytics.map((item, index) => ({
-    id: index + 1,
-    fullName: item.fullName || "N/A",
-    Answered: item.answered?.month || 0,
-    Unanswered: item.unanswered?.month || 0,
-  }));
+  const { top_10_agents, line_chart, radar_chart, answered_vs_unanswered } =
+    graphData.charts;
 
-  const totalAnswered = barData.reduce((a, b) => a + b.Answered, 0);
-  const totalUnanswered = barData.reduce((a, b) => a + b.Unanswered, 0);
+  const agentMap = {};
+  top_10_agents?.forEach((a) => {
+    if (a.fullName) agentMap[a.extension] = a.fullName;
+  });
 
-  const pieData = [
-    { name: "Answered", value: totalAnswered },
-    { name: "Unanswered", value: totalUnanswered },
-  ];
+  const formattedLineData = line_chart.map((d) => {
+    const newObj = { date: d.date };
+    Object.keys(d)
+      .filter((k) => k !== "date")
+      .forEach((ext) => {
+        const name = agentMap[ext];
+        if (name) newObj[name] = d[ext];
+      });
+    return newObj;
+  });
 
-  const radarData = barData.map((item) => ({
-    fullName: item.fullName,
-    Answered: item.Answered,
-    Unanswered: item.Unanswered,
-  }));
+  const agentNames = Object.keys(formattedLineData[0] || {}).filter(
+    (k) => k !== "date"
+  );
+
+  const pieData = answered_vs_unanswered
+    .map((item) => {
+      const name = agentMap[item.extension];
+      return name ? { ...item, fullName: name } : null;
+    })
+    .filter(Boolean);
+
+  const radarData = radar_chart
+    .map((item) => {
+      const name = agentMap[item.extension];
+      return name ? { ...item, fullName: name } : null;
+    })
+    .filter(Boolean);
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-      {/* Bar Chart */}
+    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 8 }} mt={6}>
+      {/* Top Agents Bar Chart */}
       <Box
         bg={bgCard}
-        p={5}
+        p={{ base: 3, md: 5 }}
         rounded="2xl"
         shadow="md"
         border="1px solid"
         borderColor={borderColor}
       >
-        <Heading size="sm" mb={4} color={textColor}>
-          📊 Answered vs Unanswered per Agent
+        <Heading size={headingSize} mb={4} color={textColor}>
+          🧑‍💼 Top 10 Agents (Total Calls)
         </Heading>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
           <BarChart
-            data={barData}
-            margin={{ top: 30, right: 30, left: 10, bottom: 10 }}
+            data={top_10_agents
+              .map((a) => {
+                const name = agentMap[a.extension];
+                return name ? { ...a, fullName: name } : null;
+              })
+              .filter(Boolean)}
           >
             <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
             <XAxis
-              dataKey="id"
-              tick={{ fill: textColor, fontSize: 12 }}
-              label={{ value: "Agents", position: "insideBottom", dy: 10 }}
+              dataKey="fullName"
+              tick={{ fontSize: tickFontSize }}
+              angle={-30}
+              textAnchor="end"
+              interval={0}
+              height={50}
             />
-            <YAxis tick={{ fill: textColor, fontSize: 12 }} />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <Box
-                      bg={bgCard}
-                      p={3}
-                      borderRadius="md"
-                      boxShadow="md"
-                      border={`1px solid ${gridColor}`}
-                    >
-                      <strong>{data.fullName}</strong>
-                      <br />
-                      <span>Answered: {data.Answered}</span>
-                      <br />
-                      <span>Unanswered: {data.Unanswered}</span>
-                    </Box>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend verticalAlign="top" wrapperStyle={{ marginBottom: 10 }} />
-            <Bar dataKey="Answered" fill="#3B82F6" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="Unanswered" fill="#F97316" radius={[6, 6, 0, 0]} />
+            <YAxis />
+            <Tooltip content={<CustomBarTooltip />} />
+            <Bar dataKey="answered" fill="#3B82F6" />
+            <Bar dataKey="unanswered" fill="#F97316" />
           </BarChart>
+        </ResponsiveContainer>
+      </Box>
+
+      {/* Daily Calls Line Chart */}
+      <Box
+        bg={bgCard}
+        p={{ base: 3, md: 5 }}
+        rounded="2xl"
+        shadow="md"
+        border="1px solid"
+        borderColor={borderColor}
+      >
+        <Heading size={headingSize} mb={4} color={textColor}>
+          📅 Daily Calls Trend (By Agent)
+        </Heading>
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <LineChart data={formattedLineData}>
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+            <XAxis dataKey="date" tick={{ fontSize: tickFontSize }} />
+            <YAxis />
+            <Tooltip content={<CustomLineTooltip />} />
+            {agentNames.map((name, index) => (
+              <Line
+                key={name}
+                type="monotone"
+                dataKey={name}
+                name={name}
+                stroke={COLORS[index % COLORS.length]}
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+                isAnimationActive={false}
+              />
+            ))}
+          </LineChart>
         </ResponsiveContainer>
       </Box>
 
       {/* Pie Chart */}
       <Box
         bg={bgCard}
-        p={5}
+        p={{ base: 3, md: 5 }}
         rounded="2xl"
         shadow="md"
         border="1px solid"
         borderColor={borderColor}
       >
-        <Heading size="sm" mb={4} color={textColor}>
-          🥧 Team Summary: Total Answered vs Unanswered
+        <Heading size={headingSize} mb={4} color={textColor}>
+          🥧 Answered vs Unanswered (By Agent)
         </Heading>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart margin={{ top: 20 }}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <PieChart>
+            <Tooltip content={<CustomPieTooltip />} />
             <Pie
               data={pieData}
-              dataKey="value"
-              nameKey="name"
+              dataKey="answered"
               cx="50%"
               cy="50%"
-              outerRadius={100}
-              label={({ name, percent }) =>
-                `${name}: ${(percent * 100).toFixed(1)}%`
-              }
+              outerRadius={chartHeight / 4}
+              labelLine={false}
+              label={false}
+              isAnimationActive={false}
             >
               {pieData.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: bgCard,
-                border: `1px solid ${gridColor}`,
-              }}
-            />
-            <Legend verticalAlign="bottom" wrapperStyle={{ marginTop: 10 }} />
           </PieChart>
-        </ResponsiveContainer>
-      </Box>
-
-      {/* Line Chart */}
-      <Box
-        bg={bgCard}
-        p={5}
-        rounded="2xl"
-        shadow="md"
-        border="1px solid"
-        borderColor={borderColor}
-      >
-        <Heading size="sm" mb={4} color={textColor}>
-          📈 Monthly Calls Trend
-        </Heading>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={barData}
-            margin={{ top: 30, right: 30, left: 10, bottom: 10 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-            <XAxis
-              dataKey="id"
-              tick={{ fill: textColor, fontSize: 12 }}
-              label={{ value: "Agents", position: "insideBottom", dy: 10 }}
-            />
-            <YAxis tick={{ fill: textColor, fontSize: 12 }} />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <Box
-                      bg={bgCard}
-                      p={3}
-                      borderRadius="md"
-                      boxShadow="md"
-                      border={`1px solid ${gridColor}`}
-                    >
-                      <strong>{data.fullName}</strong>
-                      <br />
-                      <span>Answered: {data.Answered}</span>
-                      <br />
-                      <span>Unanswered: {data.Unanswered}</span>
-                    </Box>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend verticalAlign="top" wrapperStyle={{ marginBottom: 10 }} />
-            <Line
-              type="monotone"
-              dataKey="Answered"
-              stroke="#3B82F6"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Unanswered"
-              stroke="#F97316"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-            />
-          </LineChart>
         </ResponsiveContainer>
       </Box>
 
       {/* Radar Chart */}
       <Box
         bg={bgCard}
-        p={5}
+        p={{ base: 3, md: 5 }}
         rounded="2xl"
         shadow="md"
         border="1px solid"
         borderColor={borderColor}
       >
-        <Heading size="sm" mb={4} color={textColor}>
-          🕸 Agent Comparison
+        <Heading size={headingSize} mb={4} color={textColor}>
+          🕸 Agent Comparison (Avg Duration)
         </Heading>
-        <ResponsiveContainer width="100%" height={300}>
-          <RadarChart data={radarData} margin={{ top: 30, bottom: 10 }}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <RadarChart data={radarData}>
             <PolarGrid stroke={gridColor} />
-            <PolarRadiusAxis tick={{ fill: textColor }} />
+            <PolarRadiusAxis />
+            <Tooltip content={<CustomRadarTooltip />} />
             <Radar
-              name="Answered"
-              dataKey="Answered"
+              name="Total Calls"
+              dataKey="total_calls"
               stroke="#3B82F6"
               fill="#3B82F6"
-              fillOpacity={0.5}
+              fillOpacity={0.4}
             />
             <Radar
-              name="Unanswered"
-              dataKey="Unanswered"
-              stroke="#F97316"
-              fill="#F97316"
-              fillOpacity={0.5}
+              name="Answered"
+              dataKey="answered"
+              stroke="#10B981"
+              fill="#10B981"
+              fillOpacity={0.3}
             />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <Box
-                      bg={bgCard}
-                      p={3}
-                      borderRadius="md"
-                      boxShadow="md"
-                      border={`1px solid ${gridColor}`}
-                    >
-                      <strong>{data.fullName}</strong>
-                      <br />
-                      <span>Answered: {data.Answered}</span>
-                      <br />
-                      <span>Unanswered: {data.Unanswered}</span>
-                    </Box>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Legend verticalAlign="top" wrapperStyle={{ marginBottom: 10 }} />
           </RadarChart>
         </ResponsiveContainer>
       </Box>

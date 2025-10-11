@@ -31,6 +31,8 @@ const Analytics = () => {
 
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
+  const [graphData, setGraphData] = useState(null);
+  const [loadingGraph, setLoadingGraph] = useState(false);
 
   const [view, setView] = useState(
     localStorage.getItem("analyticsView") || "card"
@@ -70,9 +72,56 @@ const Analytics = () => {
     }
   };
 
+  const fetchGraphAnalytics = async (m = month, y = year) => {
+    if (!data?.sipSettings?.length) return;
+
+    const extensionsParams = data.sipSettings
+      .map((item) => `extensions=${item.extensionId}`)
+      .join("&");
+
+    const url = `${keys.sipApiUrl}/user-analytics?year=${y}&month=${m}&${extensionsParams}`;
+
+    try {
+      setLoadingGraph(true);
+      const res = await axios.get(url);
+
+      // Map extension IDs to names
+      const mappedCharts = {};
+      for (const [key, chart] of Object.entries(res.data.charts || {})) {
+        if (Array.isArray(chart)) {
+          mappedCharts[key] = chart.map((entry) => {
+            if (entry.extension) {
+              const matchedUser = data.sipSettings.find(
+                (s) => String(s.extensionId) === String(entry.extension)
+              );
+              return {
+                ...entry,
+                fullName:
+                  matchedUser?.userId?.fullName || `Ext ${entry.extension}`,
+              };
+            }
+            return entry;
+          });
+        } else {
+          mappedCharts[key] = chart;
+        }
+      }
+
+      setGraphData({
+        ...res.data,
+        charts: mappedCharts,
+      });
+    } catch (err) {
+      console.error("Error fetching graph analytics:", err);
+    } finally {
+      setLoadingGraph(false);
+    }
+  };
+
   useEffect(() => {
     if (data?.sipSettings?.length) {
       fetchAnalytics();
+      fetchGraphAnalytics();
     }
   }, [data]);
 
@@ -116,7 +165,10 @@ const Analytics = () => {
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
-            onClick={() => fetchAnalytics()}
+            onClick={() => {
+              fetchAnalytics();
+              fetchGraphAnalytics();
+            }}
             isLoading={loadingAnalytics}
             variant="outline"
             size="md"
@@ -156,27 +208,7 @@ const Analytics = () => {
           )}
         </SimpleGrid>
       ) : (
-        <>
-          {loadingAnalytics || isLoading ? (
-            <SimpleGrid
-              spacing={6}
-              sx={{
-                gridTemplateColumns: {
-                  base: "1fr",
-                  md: "1fr 1fr",
-                  lg: "1fr 1fr",
-                },
-                alignItems: "stretch",
-              }}
-            >
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} height="300px" borderRadius="2xl" />
-              ))}
-            </SimpleGrid>
-          ) : (
-            <UserChartAnalytics analytics={analyticsData?.analytics} />
-          )}
-        </>
+        <UserChartAnalytics graphData={graphData} loading={loadingGraph} />
       )}
     </Box>
   );
