@@ -77,6 +77,7 @@ const UserWhatsapp = () => {
 		fail,
 		isSocketConnected,
 		isAuthenticated,
+		whatsapp_disconnect,
 		qr,
 		isReady,
 		allConversations,
@@ -174,7 +175,11 @@ const UserWhatsapp = () => {
 				</HStack>
 			)} */}
 
-			{isLoading && !whatsappErrorMessage && !error && !fail ? (
+			{isLoading &&
+			!whatsappErrorMessage &&
+			!error &&
+			!fail &&
+			!whatsapp_disconnect ? (
 				<InitialLoading />
 			) : whatsappErrorMessage ? (
 				<ErrorMessage message={whatsappErrorMessage} type='warning' />

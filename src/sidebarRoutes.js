@@ -135,15 +135,15 @@ const sidebarRoutes = [
 				name: 'Sip Dashboard',
 				path: '/sip/dashboard',
 			},
-				{
+			{
 				name: 'Sip History',
 				path: '/sip/history',
 			},
-				{
+			{
 				name: 'User Analytics',
 				path: '/sip/user-analytics',
 			},
-				{
+			{
 				name: 'Sip Settings ',
 				path: '/sip/settings',
 			},
@@ -170,7 +170,7 @@ const sidebarRoutes = [
 				path: '/whatsapp/chats',
 			},
 			{
-				id: 'whatsapp_chats',
+				// id: 'whatsapp_chats',
 				name: 'Instances',
 				version: 'Beta',
 				path: '/whatsapp/instances',

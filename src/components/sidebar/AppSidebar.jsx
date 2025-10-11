@@ -219,7 +219,7 @@ const SidebarItem = React.memo(function SidebarItem({
 					<VStack align='start' pl={10} spacing={1} mt={1}>
 						{route.children.map((child, index) => (
 							<NavLink
-								key={child.id + index}
+								key={`${child?.id || child?.path || 'unknown'}-${index}`}
 								to={child.path}
 								onClick={onClick}
 								style={{ width: '100%' }}
@@ -442,9 +442,9 @@ export default function AppSidebar({
 				}}
 			>
 				<VStack align='stretch' spacing={1}>
-					{visibleRoutes.map((r) => (
+					{visibleRoutes.map((r, index) => (
 						<SidebarItem
-							key={r.path}
+							key={`${r?.moduleId || r?.id || r?.path || 'unknown'}-${index}`}
 							route={r}
 							collapsed={collapsed}
 							active={isActive(r.path)}
