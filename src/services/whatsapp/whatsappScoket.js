@@ -12,6 +12,7 @@ import {
 	messageAck,
 	disconnect,
 	whatsappLoading,
+	setChatsFetching,
 } from './../../redux/whatsappWebSlice';
 import { WHATSAPP_EVENTS } from './types';
 
@@ -45,9 +46,10 @@ export const registerWhatsappSocket = (store) => {
 	socketService.on(WHATSAPP_EVENTS.ERROR, (payload) =>
 		store.dispatch(error(payload))
 	);
-	socketService.on(WHATSAPP_EVENTS.CHATS_LOADED, (payload) =>
-		store.dispatch(chatsLoaded(payload))
-	);
+	socketService.on(WHATSAPP_EVENTS.CHATS_LOADED, (payload) => {
+		store.dispatch(chatsLoaded(payload));
+		store.dispatch(setChatsFetching(false));
+	});
 	socketService.on(WHATSAPP_EVENTS.CHAT_LOADED, (payload) =>
 		store.dispatch(chatLoaded(payload))
 	);

@@ -1,18 +1,24 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Flex, Box, Text, Spinner, Button, Image } from '@chakra-ui/react';
 
 import WhatsappQRLogin from '../_components/WhatsappQRLogin';
 import WAConnectionSuccess from '../_components/WAConnectionSuccess';
 import ChatList from '../_components/ChatList';
 import Chat from '../_components/Chat';
-import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import Loader from 'components/loading/Loader';
 import { useNavigate } from 'react-router-dom';
 import ErrorState from '../_components/ErrorState';
 import BrandLogo from 'assets/logo/logo.png';
+import { useSelector } from 'react-redux';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+
+const CHATS_LIMIT_PER_PAGE = 30;
 
 const WhatsappScreen = ({ sessionId, loadingChats }) => {
 	const [selectedChat, setSelectedChat] = useState(null);
+
+	const [fetchingChats, setFetchingChats] = useState(false);
+	const [page, setPage] = useState(1);
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
 
@@ -20,6 +26,7 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 
 	const {
 		// values
+		getChats,
 		userChats,
 		qr,
 		isReady,
@@ -29,7 +36,17 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 		whatsapp_disconnect,
 		logoutWhatsapp,
 		getChat,
+		hasMoreChats,
 	} = useWhatsapp();
+
+	const getMoreChats = useCallback(() => {
+		if (allConversations?.length >= CHATS_LIMIT_PER_PAGE * page) {
+			const nextPage = page + 1;
+			setPage(nextPage);
+			// setFetchingChats(true);
+			getChats(sessionId, nextPage, CHATS_LIMIT_PER_PAGE);
+		}
+	}, [allConversations?.length, getChats, page, sessionId]);
 
 	const logoutHandler = () => {
 		logoutWhatsapp(sessionId);
@@ -54,9 +71,9 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
-				<Flex h='100%' bg='white' color='gray.700' rounded='md'>
+				<Flex h='95%' bg='white' color='gray.700' rounded='md'>
 					{/* Left Sidebar (Chats List) */}
-					<Box w='30%' borderRight='1px solid #ddd' overflowY='auto'>
+					<Box w='25%' borderRight='1px solid #ddd'>
 						<ChatList
 							allConversations={allConversations}
 							sessionId={sessionId}
@@ -64,11 +81,25 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 							selectedChat={selectedChat}
 							logoutHandler={logoutHandler}
 							getChat={getChat}
+							getMoreChats={getMoreChats}
+							fetchingChats={fetchingChats}
+							hasMoreChats={hasMoreChats}
 						/>
 					</Box>
 
 					{/* Right Chat Screen */}
-					<Box w='70%' h='100%' bg='#f7f7f7'>
+					<Box
+						w='75%'
+						// h='100%'
+						bg='linear-gradient(135deg, rgba(250, 247, 231, 0.4), rgba(237, 209, 153, 0.4))'
+						backdropFilter='blur(16px) saturate(180%)'
+						webkitbackdropfilter='blur(16px) saturate(180%)'
+						border='1px solid rgba(255, 255, 255, 0.3)'
+						boxShadow='0 8px 32px rgba(31, 38, 135, 0.1)'
+						borderRadius='xl'
+						// overflowY='auto'
+						// bg='#f7f7f7'
+					>
 						{userChats[selectedChat?.id] ? (
 							<Chat chatId={selectedChat?.id} sessionId={sessionId} />
 						) : selectedChat ? (

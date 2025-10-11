@@ -82,7 +82,11 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { reset, setActiveChat } from './../../redux/whatsappWebSlice';
+import {
+	reset,
+	setActiveChat,
+	setChatsFetching,
+} from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
 
 export const useWhatsapp = () => {
@@ -99,8 +103,11 @@ export const useWhatsapp = () => {
 		socketService.emit('initialize_whatsapp', payload);
 	}, []);
 
-	const getChats = useCallback((sessionId) => {
-		socketService.emit('get_chats', { sessionId });
+	const getChats = useCallback((sessionId, page = 1, limit = 30) => {
+		console.warn('getChats: ', { sessionId, page, limit });
+		if (!sessionId) return;
+		dispatch(setChatsFetching(true));
+		socketService.emit('get_chats', { sessionId, page, limit });
 	}, []);
 
 	const getChat = useCallback(

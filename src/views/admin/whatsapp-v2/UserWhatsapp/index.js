@@ -20,6 +20,7 @@ const UserWhatsapp = () => {
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
+	const [whatsappLoaded, setWhatsappLoaded] = useState(false);
 
 	const { user: loginUser, isSuperAdmin } = useUserSession();
 
@@ -32,7 +33,7 @@ const UserWhatsapp = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
-			skip: !loginUser?._id && isSuperAdmin,
+			skip: !loginUser?._id || isSuperAdmin,
 		}
 	);
 
@@ -112,6 +113,7 @@ const UserWhatsapp = () => {
 			localStorage.setItem('whatsapp_auth', 'true');
 			getChats(sessionId);
 			setIsLoading(false);
+			setLoadingChats(true);
 		} else if (!qr) {
 			setIsLoading(true);
 		} else if (qr) {
@@ -123,17 +125,13 @@ const UserWhatsapp = () => {
 	// 4. Manage loadingChats animation
 	// ---------------------------
 	useEffect(() => {
-		if (isReady && !isAuthenticated) {
-			console.log('loading chats effect');
-			setLoadingChats(true);
+		console.log('isReady, loading');
+		if (allConversations?.length) {
+			const timer = setTimeout(() => setLoadingChats(false), 1000);
 
-			if (allConversations?.length) {
-				const timer = setTimeout(() => setLoadingChats(false), 1000);
-
-				return () => clearTimeout(timer);
-			}
+			return () => clearTimeout(timer);
 		}
-	}, [isReady, allConversations, isAuthenticated]);
+	}, [allConversations]);
 
 	// ---------------------------
 	// 5. Cleanup on unmount / reload

@@ -9,24 +9,35 @@ import {
 	IconButton,
 	HStack,
 	VStack,
+	Avatar,
 } from '@chakra-ui/react';
 import { AttachmentIcon, PhoneIcon } from '@chakra-ui/icons';
 import { BiCheck, BiCheckDouble } from 'react-icons/bi';
 import { MessageAck } from '../constants';
 import { getTimeFormat } from '../../components/helpers';
 import { whatsappColors } from 'utils/helpers';
-import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import { useSelector } from 'react-redux';
-import { getMessagesByChatId } from '../../../../../redux/whatsappWebSlice';
+import {
+	getChat,
+	getMessagesByChatId,
+} from '../../../../../redux/whatsappWebSlice';
+import ChatDate from './ChatDate';
+import ParticipantAvatar from './groups/ParticipantAvatar';
+import { IoSend } from 'react-icons/io5';
+import { FiUsers } from 'react-icons/fi';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 
 const Chat = ({ chatId, sessionId }) => {
 	const [message, setMessage] = useState('');
 	const messagesEndRef = useRef(null);
 	const containerRef = useRef();
 
-	const { sendMessage } = useWhatsapp();
+	const { sendMessage, activeChat } = useWhatsapp();
 
 	const messages = useSelector((state) => getMessagesByChatId(state, chatId));
+	const chat = useSelector((state) => getChat(state, chatId));
+
+	console.log({ messages });
 
 	// useEffect(() => {
 	// 	if (!messages?.length) return;
@@ -44,7 +55,7 @@ const Chat = ({ chatId, sessionId }) => {
 				behavior: 'smooth',
 				block: 'end',
 			});
-		}, 30); // 👈 tweak this (20–50ms works well)
+		}, 30);
 
 		return () => clearTimeout(timer);
 	}, [messages]);
@@ -87,6 +98,7 @@ const Chat = ({ chatId, sessionId }) => {
 								{msg.caption}
 							</Text>
 						)}
+						{msg.body && <Text whiteSpace='pre-wrap'>{msg.body}</Text>}
 					</Box>
 				);
 
@@ -112,6 +124,7 @@ const Chat = ({ chatId, sessionId }) => {
 								{msg.duration || '0:00'}
 							</Text>
 						</VStack>
+						{msg.body && <Text whiteSpace='pre-wrap'>{msg.body}</Text>}
 					</HStack>
 				);
 
@@ -137,8 +150,32 @@ const Chat = ({ chatId, sessionId }) => {
 		}
 	};
 
+	const getAvatarProps = (chat) => {
+		if (chat.profilePicture) {
+			return {
+				src: activeChat?.profilePicture,
+				name: activeChat.name,
+			};
+		}
+
+		if (chat.isGroup) {
+			return {
+				bg: 'purple.500',
+				icon: <FiUsers color='white' />,
+			};
+		}
+
+		return {
+			name: activeChat.name,
+			bg: 'green.500',
+			color: 'white',
+		};
+	};
+
+	const avatarProps = getAvatarProps(chat);
+
 	return (
-		<Flex direction='column' h='90vh'>
+		<Flex direction='column' h='100%'>
 			{/* Header */}
 			<Box
 				p={4}
@@ -146,15 +183,15 @@ const Chat = ({ chatId, sessionId }) => {
 				bg={whatsappColors.headerBg}
 				shadow='sm'
 			>
-				<HStack justify='space-between' align='center'>
-					<VStack align='start' spacing={0}>
-						<Text filter='blur(8px)' fontWeight='bold' fontSize='lg'>
-							{'Unknown User'}
-						</Text>
-						{/* <Text fontSize='sm' color='gray.500'>
+				<HStack gap='2' align='center'>
+					<Avatar size='sm' {...avatarProps} />
+
+					<Text filter='blur(4px)' fontWeight='bold' fontSize='lg'>
+						{activeChat?.name || '***********'}
+					</Text>
+					{/* <Text fontSize='sm' color='gray.500'>
 							{chat?.phoneNumber || '***********'}
 						</Text> */}
-					</VStack>
 					{/* <HStack>
 						<Text fontSize='xs' color='gray.500'>
 							Last seen today at {formatTime(Date.now())}
@@ -182,72 +219,186 @@ const Chat = ({ chatId, sessionId }) => {
 						gap='1'
 						minH='100%'
 					>
-						{messages
-							?.filter((msg) => !msg.hasMedia) // text chat messages for now in phase 1
-							?.map((msg, idx) => (
-								<Flex
-									key={idx}
-									justify={msg.fromMe ? 'flex-end' : 'flex-start'}
-									width='100%'
-								>
-									<Box
-										py={2}
-										px={3}
-										bg={
-											msg.fromMe
-												? whatsappColors.outgoingBg
-												: whatsappColors.incomingBg
-										}
-										rounded='lg'
-										maxW='70%'
-										position='relative'
-										shadow='sm'
-										// border='1px solid rgba(0,0,0,0.1)'
+						{/* // ?.filter((msg) => !msg.hasMedia) // text chat messages for now in
+						phase 1 */}
+						{messages?.map((msg, idx) => {
+							if (msg.isStatus) return null;
+
+							const isGroupChat = chat?.isGroup;
+							const participant = isGroupChat
+								? chat?.participants?.find((p) => p.id === msg.author)
+								: null;
+
+							return (
+								// <Box>
+								// 	<ChatDate
+								// 		timestamp={msg?.timestamp}
+								// 		prevMsg={messages[idx - 1]}
+								// 	/>
+
+								// 	<Flex
+								// 		key={idx}
+								// 		justify={msg.fromMe ? 'flex-end' : 'flex-start'}
+								// 		width='100%'
+								// 	>
+								// 		{/* If group chat then show participent avatar */}
+								// 		{participant && (
+								// 			<ParticipantAvatar
+								// 				name={participant?.name}
+								// 				number={participant?.number}
+								// 			/>
+								// 		)}
+								// 		<Box
+								// 			py={2}
+								// 			px={3}
+								// 			mx='4'
+								// 			bg={
+								// 				msg.fromMe
+								// 					? whatsappColors.outgoingBg
+								// 					: whatsappColors.incomingBg
+								// 			}
+								// 			rounded='lg'
+								// 			maxW='70%'
+								// 			position='relative'
+								// 			shadow='sm'
+								// 			// border='1px solid rgba(0,0,0,0.1)'
+								// 		>
+								// 			{renderMessageContent(msg)}
+
+								// 			<Flex
+								// 				justifyContent='flex-end'
+								// 				align='center'
+								// 				justifySelf='flex-end'
+								// 				gap={1}
+								// 				width='fit-content'
+								// 			>
+								// 				{/* Message time */}
+								// 				<Text
+								// 					fontSize='xs'
+								// 					color='gray.500'
+								// 					textAlign={msg.fromMe ? 'right' : 'left'}
+								// 				>
+								// 					{getTimeFormat(msg.timestamp)}
+								// 				</Text>
+
+								// 				{/* Message status indicator for outgoing messages */}
+								// 				{msg.fromMe && (
+								// 					<Box>
+								// 						{msg.ack === MessageAck.ACK_PENDING && (
+								// 							<BiCheck size={16} color='gray' /> // single gray tick
+								// 						)}
+
+								// 						{[
+								// 							MessageAck.ACK_SERVER, // double gray tick (server received)
+								// 							MessageAck.ACK_DEVICE, // double gray tick (delivered to device)
+								// 						].includes(msg.ack) && (
+								// 							<BiCheckDouble size={16} color='gray' />
+								// 						)}
+
+								// 						{[
+								// 							MessageAck.ACK_READ, // double blue tick (read)
+								// 							MessageAck.ACK_PLAYED, // double blue tick (played, same as read)
+								// 						].includes(msg.ack) && (
+								// 							<BiCheckDouble size={16} color='blue' />
+								// 						)}
+								// 					</Box>
+								// 				)}
+								// 			</Flex>
+								// 		</Box>
+								// 	</Flex>
+								// </Box>
+								<Box w='100%' mb={2} key={idx + msg.id?._serialized}>
+									{/* Chat date separator */}
+									<ChatDate
+										key={idx + msg.from}
+										timestamp={msg?.timestamp}
+										prevMsg={messages[idx - 1]}
+									/>
+
+									<Flex
+										justify={msg.fromMe ? 'flex-end' : 'flex-start'}
+										align='flex-end'
+										w='100%'
+										px={2}
+										gap={2}
 									>
-										{renderMessageContent(msg)}
+										{/* Incoming message avatar (group or non-me) */}
+										{!msg.fromMe && isGroupChat && (
+											<ParticipantAvatar
+												name={''}
+												number={msg?.author}
+												size='sm'
+											/>
+										)}
 
-										<Flex
-											justifyContent='flex-end'
-											align='center'
-											justifySelf='flex-end'
-											gap={1}
-											width='fit-content'
+										{/* Message bubble */}
+										<Box
+											position='relative'
+											bg={
+												msg.fromMe
+													? whatsappColors.outgoingBg
+													: whatsappColors.incomingBg
+											}
+											color={msg.fromMe ? 'gray.900' : 'gray.800'}
+											px={3}
+											py={2}
+											maxW='75%'
+											rounded='lg'
+											shadow='sm'
+											borderRadius={
+												msg.fromMe
+													? '20px 20px 4px 20px' // outgoing bubble shape
+													: '20px 20px 20px 4px' // incoming bubble shape
+											}
 										>
-											{/* Message time */}
-											<Text
+											{/* Message Text / Media / Content */}
+											<Box>{renderMessageContent(msg)}</Box>
+
+											{/* Timestamp + Status */}
+											<Flex
+												justify='flex-end'
+												align='center'
+												gap={1}
+												mt={1}
+												opacity={0.7}
 												fontSize='xs'
-												color='gray.500'
-												textAlign={msg.fromMe ? 'right' : 'left'}
 											>
-												{getTimeFormat(msg.timestamp)}
-											</Text>
+												<Text>{getTimeFormat(msg.timestamp)}</Text>
 
-											{/* Message status indicator for outgoing messages */}
-											{msg.fromMe && (
-												<Box>
-													{msg.ack === MessageAck.ACK_PENDING && (
-														<BiCheck size={16} color='gray' /> // single gray tick
-													)}
+												{msg.fromMe && (
+													<Box>
+														{msg.ack === MessageAck.ACK_PENDING && (
+															<BiCheck size={15} color='gray' />
+														)}
+														{[
+															MessageAck.ACK_SERVER,
+															MessageAck.ACK_DEVICE,
+														].includes(msg.ack) && (
+															<BiCheckDouble size={15} color='gray' />
+														)}
+														{[
+															MessageAck.ACK_READ,
+															MessageAck.ACK_PLAYED,
+														].includes(msg.ack) && (
+															<BiCheckDouble size={15} color='blue' />
+														)}
+													</Box>
+												)}
+											</Flex>
+										</Box>
 
-													{[
-														MessageAck.ACK_SERVER, // double gray tick (server received)
-														MessageAck.ACK_DEVICE, // double gray tick (delivered to device)
-													].includes(msg.ack) && (
-														<BiCheckDouble size={16} color='gray' />
-													)}
-
-													{[
-														MessageAck.ACK_READ, // double blue tick (read)
-														MessageAck.ACK_PLAYED, // double blue tick (played, same as read)
-													].includes(msg.ack) && (
-														<BiCheckDouble size={16} color='blue' />
-													)}
-												</Box>
-											)}
-										</Flex>
-									</Box>
-								</Flex>
-							))}
+										{/* Outgoing message avatar (optional for group view) */}
+										{msg.fromMe && isGroupChat && (
+											<ParticipantAvatar
+												name={'You'}
+												number={msg?.author}
+												size='sm'
+											/>
+										)}
+									</Flex>
+								</Box>
+							);
+						})}
 						<div ref={messagesEndRef} />
 					</Flex>
 				) : (
@@ -263,7 +414,12 @@ const Chat = ({ chatId, sessionId }) => {
 			</Box>
 
 			{/* Input Area */}
-			<Box p={2} borderTop='1px solid #e0e0e0' bg={whatsappColors.inputBg}>
+			<Box
+				p={2}
+				// borderTop='1px solid softgray.100'
+				// bg='linear-gradient(135deg, rgba(250, 247, 231, 0.4), rgba(237, 209, 153, 0.4))'
+				// bg={whatsappColors.inputBg}
+			>
 				<HStack spacing={2}>
 					{/* Attachment Button */}
 					{/* <IconButton
@@ -291,20 +447,24 @@ const Chat = ({ chatId, sessionId }) => {
 					/>
 
 					{/* Send Button */}
-					<Button
+					<IconButton
+						aria-label='Send message'
+						icon={<IoSend size={20} />}
 						colorScheme='green'
 						bg={whatsappColors.primary}
 						borderRadius='full'
 						size='md'
-						px={6}
 						onClick={handleSendMessage}
 						isDisabled={!message.trim()}
 						_hover={{
 							bg: '#128C7E',
+							transform: 'scale(1.05)',
+							transition: 'all 0.2s ease-in-out',
 						}}
-					>
-						Send
-					</Button>
+						_active={{
+							transform: 'scale(0.95)',
+						}}
+					/>
 				</HStack>
 			</Box>
 		</Flex>

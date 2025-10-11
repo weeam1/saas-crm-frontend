@@ -2,11 +2,51 @@ import { Box, Flex, Text, Icon, VStack, Progress } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const MotionBox = motion(Box);
 
 const WAConnectionSuccess = ({ loadingChats }) => {
 	const [progress, setProgress] = useState(0);
+
+	// const { whatsapp_loading, totalChats } = useSelector(
+	// 	(state) => state.whatsappWeb
+	// );
+
+	// const actualPercent = whatsapp_loading?.percent ?? 0;
+	// const isFinished = totalChats || actualPercent >= 99;
+
+	// useEffect(() => {
+	// 	let interval;
+	// 	let timeout;
+
+	// 	if (!isFinished) {
+	// 		// Progress is ongoing — smooth auto-increment until 95–99%
+	// 		interval = setInterval(() => {
+	// 			setProgress((prev) => {
+	// 				// If the backend is reporting a percent, follow it closely
+	// 				if (actualPercent > prev && actualPercent < 99) {
+	// 					return actualPercent;
+	// 				}
+
+	// 				// Otherwise, gently increase the progress manually
+	// 				if (prev < 95) return prev + 2;
+	// 				return prev;
+	// 			});
+	// 		}, 150);
+	// 	} else {
+	// 		// Done loading — complete the bar gracefully
+	// 		setProgress(100);
+	// 		timeout = setTimeout(() => setProgress(0), 1000); // smooth reset after 1s
+	// 	}
+
+	// 	return () => {
+	// 		clearInterval(interval);
+	// 		clearTimeout(timeout);
+	// 	};
+	// }, [whatsapp_loading.percent, totalChats, isFinished, actualPercent]);
+
+	// whstapp_loading?.percent
 
 	useEffect(() => {
 		let interval;
@@ -28,19 +68,6 @@ const WAConnectionSuccess = ({ loadingChats }) => {
 
 		return () => clearInterval(interval);
 	}, [loadingChats]);
-
-	// useEffect(() => {
-	// 	let interval;
-
-	// 	if (loadingChats) {
-	// 		setProgress(0);
-	// 		interval = setInterval(() => {
-	// 			setProgress((prev) => (prev >= 100 ? 100 : prev + 10));
-	// 		}, 300);
-	// 	}
-
-	// 	return () => clearInterval(interval);
-	// }, [loadingChats]);
 
 	return (
 		<Flex h='80vh' align='center' justify='center'>
