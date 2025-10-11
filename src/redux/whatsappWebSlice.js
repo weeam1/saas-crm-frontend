@@ -99,6 +99,12 @@ const whatsappWebSlice = createSlice({
 
 			// Replace or set messages list for this chatId
 			state.userChats[chatId] = messages || [];
+
+			// also update unread count to 0 in all conversations if active chat
+			const chat = state.allConversations?.find((c) => c.id === chatId);
+			if (chat) {
+				chat.unreadCount = 0;
+			}
 		},
 		newMessage: (state, action) => {
 			const { message } = action.payload;

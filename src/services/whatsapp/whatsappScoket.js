@@ -50,9 +50,9 @@ export const registerWhatsappSocket = (store) => {
 		store.dispatch(chatsLoaded(payload));
 		store.dispatch(setChatsFetching(false));
 	});
-	socketService.on(WHATSAPP_EVENTS.CHAT_LOADED, (payload) =>
-		store.dispatch(chatLoaded(payload))
-	);
+	socketService.on(WHATSAPP_EVENTS.CHAT_LOADED, (payload) => {
+		store.dispatch(chatLoaded(payload));
+	});
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_SENT, (payload) =>
 		store.dispatch(newMessage(payload))
 	);
