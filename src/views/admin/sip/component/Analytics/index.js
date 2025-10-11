@@ -13,6 +13,8 @@ import keys from "config/keys";
 import AnalyticsCard from "./components/AnalyticsCard";
 import DateFilter from "../../../attendance/components/DateFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import ViewToggle from "./components/ViewToggle";
+import UserChartAnalytics from "./components/UserChartAnalytics";
 
 const Analytics = () => {
   const now = new Date();
@@ -29,6 +31,10 @@ const Analytics = () => {
 
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
+
+  const [view, setView] = useState(
+    localStorage.getItem("analyticsView") || "card"
+  );
 
   const fetchAnalytics = async (m = month, y = year) => {
     if (!data?.sipSettings?.length) return;
@@ -49,7 +55,7 @@ const Analytics = () => {
         return {
           ...a,
           fullName: matchedUser?.userId?.fullName || "Unknown User",
-          sipId: matchedUser.sipId,
+          sipId: matchedUser?.sipId || "-",
         };
       });
 
@@ -89,8 +95,16 @@ const Analytics = () => {
         <Heading fontSize={{base:"md", sm: "md", md:"lg"}} color="goldenrod" >
           SIP Call Analytics
         </Heading>
-        <Box display="flex" gap={3}>
+        <Box display="flex" gap={3} alignItems={"center"}  flexDir={{base: "column", sm :"column", md:"row"}}>
           <DateFilter onFilterChange={onFilterChange} />
+          <ViewToggle
+            view={view}
+            handleView={(val) => {
+              setView(val);
+              localStorage.setItem("analyticsView", val);
+            }}
+            moduleView="analyticsView"
+          />
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
@@ -102,36 +116,37 @@ const Analytics = () => {
         </Box>
       </Box>
 
-      <SimpleGrid
-        spacing={6}
-        sx={{
-          gridTemplateColumns: {
-            base: "repeat(auto-fit, minmax(250px, 1fr))", // auto fit cards
-            md: "repeat(auto-fit, minmax(300px, 1fr))",
-            lg: "repeat(auto-fit, minmax(350px, 1fr))",
-          },
-          alignItems: "stretch",
-        }}
-      >
-        {loadingAnalytics || isLoading ? (
-          Array.from({ length: 30 }).map((_, i) => (
-            <Skeleton key={i} height="220px" borderRadius="2xl" />
-          ))
-        ) : analyticsData?.analytics.length > 0 ? (
-          analyticsData?.analytics?.map((item) => (
-            <AnalyticsCard
-              key={item.extension}
-              item={item}
-              month={month}
-              year={year}
-            />
-          ))
-        ) : (
-          <Box w="full" p="4" textAlign="center">
-            <NoData label="user analytics records" />
-          </Box>
-        )}
-      </SimpleGrid>
+      {view === "card" ? (
+        <SimpleGrid
+          spacing={6}
+          sx={{
+            gridTemplateColumns: {
+              base: "repeat(auto-fit, minmax(250px, 1fr))",
+              md: "repeat(auto-fit, minmax(300px, 1fr))",
+              lg: "repeat(auto-fit, minmax(350px, 1fr))",
+            },
+            alignItems: "stretch",
+          }}
+        >
+          {loadingAnalytics || isLoading ? (
+            Array.from({ length: 30 }).map((_, i) => (
+              <Skeleton key={i} height="220px" borderRadius="2xl" />
+            ))
+          ) : analyticsData?.analytics?.length > 0 ? (
+            analyticsData.analytics.map((item) => (
+              <AnalyticsCard key={item.extension} item={item} month={month} year={year} />
+            ))
+          ) : (
+            <Box w="full" p="4" textAlign="center">
+              <NoData label="user analytics records" />
+            </Box>
+          )}
+        </SimpleGrid>
+      ) : (
+        <>
+       {(!loadingAnalytics || !isLoading) && <UserChartAnalytics analytics={analyticsData?.analytics} />}
+       </>
+      )}
     </Box>
   );
 };
