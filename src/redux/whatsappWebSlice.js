@@ -23,6 +23,7 @@ const whatsappWebSlice = createSlice({
 	reducers: {
 		qrCode: (state, action) => {
 			state.qr = action.payload?.qrCode || '';
+			state.whatsapp_disconnect = '';
 		},
 		authFail: (state, action) => {
 			state.error = action.payload;
