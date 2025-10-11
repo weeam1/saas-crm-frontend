@@ -88,8 +88,13 @@ const AdminWhatsapp = () => {
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
-			<Flex justify='space-between' align='center' mb={4}>
-				<Flex fontSize='lg' fontWeight='bold' gap='2'>
+			<Flex
+				flexDir={{ base: 'column', md: 'row' }}
+				justify='space-between'
+				align='center'
+				mb={4}
+			>
+				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
 					<Text>Whatsapp Instances</Text>
 					<CountUpComponent
 						key={instances?.length}
@@ -98,6 +103,7 @@ const AdminWhatsapp = () => {
 				</Flex>
 
 				<Button
+					alignSelf='flex-end'
 					leftIcon={<FaPlus size='1em' />}
 					colorScheme='whatsapp'
 					_hover={{ bg: whatsappColors.primary }}
