@@ -5,6 +5,8 @@ import {
   SimpleGrid,
   Skeleton,
   IconButton,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { FiRefreshCw } from "react-icons/fi";
 import { useFetchItemsQuery } from "api/apiSlice";
@@ -33,7 +35,8 @@ const Analytics = () => {
   const [year, setYear] = useState(currentYear);
   const [graphData, setGraphData] = useState(null);
   const [loadingGraph, setLoadingGraph] = useState(false);
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedChart, setSelectedChart] = useState(null);
   const [view, setView] = useState(
     localStorage.getItem("analyticsView") || "card"
   );
@@ -153,6 +156,17 @@ const Analytics = () => {
           alignItems={"center"}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
+          <Button
+            colorScheme="brand"
+            size="lg"
+            w="full"
+            onClick={() => {
+              setSelectedChart("all");
+              onOpen();
+            }}
+          >
+            View Full Analytics
+          </Button>
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
             view={view}
@@ -208,7 +222,15 @@ const Analytics = () => {
           )}
         </SimpleGrid>
       ) : (
-        <UserChartAnalytics graphData={graphData} loading={loadingGraph} />
+        <UserChartAnalytics
+          graphData={graphData}
+          loading={loadingGraph}
+          selectedChart={selectedChart}
+          setSelectedChart={setSelectedChart}
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+        />
       )}
     </Box>
   );

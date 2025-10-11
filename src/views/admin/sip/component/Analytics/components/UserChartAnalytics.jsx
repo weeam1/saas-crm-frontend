@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -17,7 +16,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
+  Legend
 } from "recharts";
 import {
   Box,
@@ -27,11 +26,22 @@ import {
   Skeleton,
   Text,
   useBreakpointValue,
+  IconButton,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalCloseButton,
+  ModalBody,
 } from "@chakra-ui/react";
+
+import { FiMaximize2 } from "react-icons/fi";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const COLORS = ["#3B82F6", "#F97316", "#10B981", "#8B5CF6", "#EF4444"];
+//brand variation colors
+const COLORS = ["#D4AF37", "#B8860B", "#FFD700", "#C0A060", "#8B7500"];
 
+// Tooltips 
 const CustomBarTooltip = ({ active, payload }) => {
   if (active && payload?.length) {
     const d = payload[0].payload;
@@ -66,17 +76,8 @@ const CustomRadarTooltip = ({ active, payload }) => {
   if (active && payload?.length) {
     const data = payload[0].payload;
     return (
-      <Box
-        bg="gray.800"
-        color="white"
-        p={3}
-        rounded="md"
-        shadow="lg"
-        fontSize="sm"
-      >
-        <Text fontWeight="bold" mb={1}>
-          👤 {data.fullName}
-        </Text>
+      <Box bg="gray.800" color="white" p={3} rounded="md" fontSize="xs">
+        <Text fontWeight="bold">👤 {data.fullName}</Text>
         <Text>📞 Total Calls: {data.total_calls}</Text>
         <Text>✅ Answered: {data.answered}</Text>
         <Text>❌ Unanswered: {data.unanswered}</Text>
@@ -90,45 +91,43 @@ const CustomRadarTooltip = ({ active, payload }) => {
 const CustomLineTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
     return (
-      <Box
-        bg="gray.800"
-        color="white"
-        p={3}
-        rounded="md"
-        shadow="lg"
-        fontSize="sm"
-      >
-        <Text fontWeight="bold" mb={1}>
-          📅 {label}
-        </Text>
-        {payload.map((entry, idx) => {
-          if (!entry.value) return null;
-          return (
-            <Text key={idx}>
-              👤 {entry.name} — 📞 Calls: {entry.value}
-            </Text>
-          );
-        })}
+      <Box bg="gray.800" color="white" p={3} rounded="md" fontSize="xs">
+        <Text fontWeight="bold">📅 {label}</Text>
+        {payload.map((entry, idx) => (
+          <Text key={idx}>
+            👤 {entry.name}: {entry.value} calls
+          </Text>
+        ))}
       </Box>
     );
   }
   return null;
 };
 
-const UserChartAnalytics = ({ graphData, loading }) => {
+//  Main Component 
+const UserChartAnalytics = ({ graphData, loading, selectedChart, setSelectedChart,  isOpen, onOpen, onClose }) => {
+
   const bgCard = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.800", "gray.100");
   const gridColor = useColorModeValue("#e5e7eb", "#4b5563");
   const borderColor = useColorModeValue("gray.200", "#4b5563");
 
-  // Responsive sizes
-  const tickFontSize = useBreakpointValue({ base: 9, sm: 10, md: 11 });
-  const chartHeight = useBreakpointValue({ base: 220, sm: 250, md: 300 });
-  const headingSize = useBreakpointValue({ base: "xs", sm: "sm", md: "sm" });
+  const tickFontSize = useBreakpointValue({ base: 8, sm: 9, md: 11 });
+  const chartHeight = useBreakpointValue({
+    base: 200,
+    sm: 240,
+    md: 300,
+    lg: 360,
+  });
+  const headingSize = useBreakpointValue({ base: "sm", sm: "md" });
+  const gridSpacing = useBreakpointValue({ base: 4, sm: 5, md: 6 });
+  const labelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 12 });
+  const isSmallScreen = useBreakpointValue({ base: true, md: false });
 
+  // Data handling 
   if (loading) {
     return (
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={gridSpacing}>
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} height={chartHeight} borderRadius="2xl" />
         ))}
@@ -153,14 +152,14 @@ const UserChartAnalytics = ({ graphData, loading }) => {
   });
 
   const formattedLineData = line_chart.map((d) => {
-    const newObj = { date: d.date };
+    const obj = { date: d.date };
     Object.keys(d)
       .filter((k) => k !== "date")
       .forEach((ext) => {
         const name = agentMap[ext];
-        if (name) newObj[name] = d[ext];
+        if (name) obj[name] = d[ext];
       });
-    return newObj;
+    return obj;
   });
 
   const agentNames = Object.keys(formattedLineData[0] || {}).filter(
@@ -181,190 +180,227 @@ const UserChartAnalytics = ({ graphData, loading }) => {
     })
     .filter(Boolean);
 
-  return (
-    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 4, md: 8 }} mt={6}>
-      {/* Top Agents Bar Chart */}
-      <Box
-        bg={bgCard}
-        p={{ base: 3, md: 5 }}
-        rounded="2xl"
-        shadow="md"
-        border="1px solid"
-        borderColor={borderColor}
-      >
-        <Heading size={headingSize} mb={4} color={textColor}>
-          🧑‍💼 Top 10 Agents (Total Calls)
-        </Heading>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <BarChart
-            data={top_10_agents
-              .map((a) => {
-                const name = agentMap[a.extension];
-                return name ? { ...a, fullName: name } : null;
-              })
-              .filter(Boolean)}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-            <XAxis
-              dataKey="fullName"
-              tick={{ fontSize: tickFontSize }}
-              angle={-30}
-              textAnchor="end"
-              interval={0}
-              height={50}
-            />
-            <YAxis />
-            <Tooltip content={<CustomBarTooltip />} />
-            <Bar dataKey="answered" fill="#3B82F6" />
-            <Bar dataKey="unanswered" fill="#F97316" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
+  //Render Charts 
+  const renderChart = (type) => {
+    switch (type) {
+      case "bar":
+        return (
+          <ResponsiveContainer width="100%" height={chartHeight}>
+            <BarChart data={top_10_agents}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="fullName" tick={{ fontSize: tickFontSize }} />
+              <YAxis tick={{ fontSize: tickFontSize }} />
+              <Tooltip content={<CustomBarTooltip />} />
+              <Bar dataKey="answered" fill={COLORS[0]} />
+              <Bar dataKey="unanswered" fill={COLORS[1]} />
+            </BarChart>
+          </ResponsiveContainer>
+        );
 
-      {/* Daily Calls Line Chart */}
-      <Box
-        bg={bgCard}
-        p={{ base: 3, md: 5 }}
-        rounded="2xl"
-        shadow="md"
-        border="1px solid"
-        borderColor={borderColor}
-      >
-        <Heading size={headingSize} mb={4} color={textColor}>
-          📅 Daily Calls Trend (By Agent)
-        </Heading>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <LineChart data={formattedLineData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-            <XAxis dataKey="date" tick={{ fontSize: tickFontSize }} />
-            <YAxis />
-            <Tooltip content={<CustomLineTooltip />} />
-            {agentNames.map((name, index) => (
-              <Line
-                key={name}
-                type="monotone"
-                dataKey={name}
-                name={name}
-                stroke={COLORS[index % COLORS.length]}
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-                isAnimationActive={false}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </Box>
-
-      {/* Pie Chart */}
-      <Box
-        bg={bgCard}
-        p={{ base: 3, md: 5 }}
-        rounded="2xl"
-        shadow="md"
-        border="1px solid"
-        borderColor={borderColor}
-      >
-        <Heading size={headingSize} mb={4} color={textColor}>
-          🥧 Answered vs Unanswered (By Agent)
-        </Heading>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <PieChart>
-            <Tooltip content={<CustomPieTooltip />} />
-            <Pie
-              data={pieData}
-              dataKey="answered"
-              cx="50%"
-              cy="50%"
-              outerRadius={chartHeight / 4}
-              labelLine={false}
-              label={false}
-              isAnimationActive={false}
-            >
-              {pieData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
+      case "line":
+        return (
+          <ResponsiveContainer width="100%" height={chartHeight}>
+            <LineChart data={formattedLineData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="date" tick={{ fontSize: tickFontSize }} />
+              <YAxis tick={{ fontSize: tickFontSize }} />
+              <Tooltip content={<CustomLineTooltip />} />
+              {agentNames.map((name, idx) => (
+                <Line
+                  key={name}
+                  type="monotone"
+                  dataKey={name}
+                  stroke={COLORS[idx % COLORS.length]}
+                  strokeWidth={1.5}
+                  dot={{ r: isSmallScreen ? 1 : 2 }}
                 />
               ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-      </Box>
+            </LineChart>
+          </ResponsiveContainer>
+        );
 
-      {/* Radar Chart */}
-      <Box
-        bg={bgCard}
-        p={{ base: 3, md: 5 }}
-        rounded="2xl"
-        shadow="md"
-        border="1px solid"
-        borderColor={borderColor}
-      >
-        <Heading size={headingSize} mb={4} color={textColor}>
-          🕸 Agent Comparison (Avg Duration)
-        </Heading>
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <RadarChart
-            cx="50%"
-            cy="50%"
-            outerRadius="80%"
-            data={radarData}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      case "pie":
+        // Custom label renderer
+        const renderCustomLabel = ({
+          cx,
+          cy,
+          midAngle,
+          innerRadius,
+          outerRadius,
+          percent,
+          fullName,
+        }) => {
+          const RADIAN = Math.PI / 180;
+          const radius = innerRadius + (outerRadius - innerRadius) * 1.3;
+          const x = cx + radius * Math.cos(-midAngle * RADIAN);
+          const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+          // Responsive font size
+          const fontSize =
+            window.innerWidth < 400 ? 8 : window.innerWidth < 768 ? 10 : 12;
+
+          return (
+            <text
+              x={x}
+              y={y}
+              fill="#333"
+              textAnchor={x > cx ? "start" : "end"}
+              dominantBaseline="central"
+              fontSize={fontSize}
+              fontWeight="600"
+            >
+              {fullName}
+            </text>
+          );
+        };
+
+        return (
+          <Box
+            w="full"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            h={{ base: "220px", sm: "260px", md: "320px", lg: "360px" }}
           >
-            <defs>
-              <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.6} />
-                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.2} />
-              </linearGradient>
-              <linearGradient id="answeredGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10B981" stopOpacity={0.6} />
-                <stop offset="100%" stopColor="#10B981" stopOpacity={0.2} />
-              </linearGradient>
-            </defs>
-            <PolarGrid stroke={gridColor} strokeDasharray="3 3" radialLines />
-            {/* <PolarAngleAxis
-              dataKey="fullName"
-              tick={{ fontSize: tickFontSize, fill: textColor }}
-              tickLine={false}
-            /> */}
-            <PolarRadiusAxis
-              angle={30}
-              tick={{ fontSize: tickFontSize, fill: textColor }}
-            />
-            <Radar
-              name="Total Calls"
-              dataKey="total_calls"
-              stroke="#3B82F6"
-              fill="url(#totalGradient)"
-              fillOpacity={1}
-              strokeWidth={2}
-              dot={{ fill: "#3B82F6", r: 4 }}
-              activeDot={{ r: 6 }}
-              isAnimationActive={true}
-            />
-            <Radar
-              name="Answered"
-              dataKey="answered"
-              stroke="#10B981"
-              fill="url(#answeredGradient)"
-              fillOpacity={1}
-              strokeWidth={2}
-              dot={{ fill: "#10B981", r: 4 }}
-              activeDot={{ r: 6 }}
-              isAnimationActive={true}
-            />
-            <Tooltip content={<CustomRadarTooltip />} />
-            <Legend
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Tooltip content={<CustomPieTooltip />} />
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={
+                    window.innerWidth < 400
+                      ? 60
+                      : window.innerWidth < 768
+                        ? 80
+                        : 100
+                  }
+                  innerRadius={
+                    window.innerWidth < 400
+                      ? 30
+                      : window.innerWidth < 768
+                        ? 45
+                        : 60
+                  }
+                  paddingAngle={2}
+                  dataKey="answered"
+                  label={renderCustomLabel}
+                  labelLine={false}
+                >
+                  {pieData.map((_, index) => (
+                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </Box>
+        );
+
+      case "radar":
+        return (
+          <ResponsiveContainer width="100%" height={chartHeight + 20}>
+            <RadarChart data={radarData}>
+              <PolarGrid />
+              <PolarAngleAxis
+                dataKey="fullName"
+                tick={{ fontSize: labelFontSize }}
+              />
+              <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
+              <Radar
+                dataKey="answered"
+                stroke={COLORS[2]}
+                fill={COLORS[2]}
+                fillOpacity={0.5}
+              />
+                 <Radar
+                dataKey="total_calls"
+                stroke={COLORS[1]}
+                fill={COLORS[1]}
+                fillOpacity={0.5}
+              />
+              <Tooltip content={<CustomRadarTooltip />} />
+               <Legend
               verticalAlign="top"
               height={36}
               iconType="circle"
               wrapperStyle={{ fontSize: tickFontSize, color: textColor }}
             />
-          </RadarChart>
-        </ResponsiveContainer>
-      </Box>
-    </SimpleGrid>
+            </RadarChart>
+          </ResponsiveContainer>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Box w="full" px={[2, 3, 4, 6]}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={gridSpacing} mt={4}>
+        {["bar", "line", "pie", "radar"].map((type, i) => (
+          <Box
+            key={i}
+            bg={bgCard}
+            p={4}
+            rounded="xl"
+            shadow="sm"
+            border="1px solid"
+            borderColor={borderColor}
+            position="relative"
+          >
+            <IconButton
+              icon={<FiMaximize2 size={16} />}
+              position="absolute"
+              top={3}
+              right={3}
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedChart(type);
+                onOpen();
+              }}
+              aria-label="Expand Chart"
+            />
+            <Heading size={headingSize} mb={2} color={textColor}>
+              {type === "bar"
+                ? "🧑‍💼 Top 10 Agents"
+                : type === "line"
+                  ? "📅 Daily Calls Trend"
+                  : type === "pie"
+                    ? "🥧 Answered vs Unanswered"
+                    : "🕸 Agent Comparison"}
+            </Heading>
+            {renderChart(type)}
+          </Box>
+        ))}
+      </SimpleGrid>
+
+      <Modal isOpen={isOpen} onClose={onClose} size="full" isCentered>
+        <ModalOverlay />
+        <ModalContent bg="white" p={4}>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedChart === "all" ? (
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                {["bar", "line", "pie", "radar"].map((type, i) => (
+                  <Box key={i}>{renderChart(type)}</Box>
+                ))}
+              </SimpleGrid>
+            ) : (
+              <Box
+                h="90vh"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                {renderChart(selectedChart)}
+              </Box>
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </Box>
   );
 };
 
