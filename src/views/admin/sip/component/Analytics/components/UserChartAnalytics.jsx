@@ -12,10 +12,12 @@ import {
   RadarChart,
   PolarGrid,
   PolarRadiusAxis,
+  PolarAngleAxis,
   Radar,
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from "recharts";
 import {
   Box,
@@ -303,23 +305,61 @@ const UserChartAnalytics = ({ graphData, loading }) => {
           🕸 Agent Comparison (Avg Duration)
         </Heading>
         <ResponsiveContainer width="100%" height={chartHeight}>
-          <RadarChart data={radarData}>
-            <PolarGrid stroke={gridColor} />
-            <PolarRadiusAxis />
-            <Tooltip content={<CustomRadarTooltip />} />
+          <RadarChart
+            cx="50%"
+            cy="50%"
+            outerRadius="80%"
+            data={radarData}
+            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+          >
+            <defs>
+              <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.6} />
+                <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.2} />
+              </linearGradient>
+              <linearGradient id="answeredGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10B981" stopOpacity={0.6} />
+                <stop offset="100%" stopColor="#10B981" stopOpacity={0.2} />
+              </linearGradient>
+            </defs>
+            <PolarGrid stroke={gridColor} strokeDasharray="3 3" radialLines />
+            {/* <PolarAngleAxis
+              dataKey="fullName"
+              tick={{ fontSize: tickFontSize, fill: textColor }}
+              tickLine={false}
+            /> */}
+            <PolarRadiusAxis
+              angle={30}
+              tick={{ fontSize: tickFontSize, fill: textColor }}
+            />
             <Radar
               name="Total Calls"
               dataKey="total_calls"
               stroke="#3B82F6"
-              fill="#3B82F6"
-              fillOpacity={0.4}
+              fill="url(#totalGradient)"
+              fillOpacity={1}
+              strokeWidth={2}
+              dot={{ fill: "#3B82F6", r: 4 }}
+              activeDot={{ r: 6 }}
+              isAnimationActive={true}
             />
             <Radar
               name="Answered"
               dataKey="answered"
               stroke="#10B981"
-              fill="#10B981"
-              fillOpacity={0.3}
+              fill="url(#answeredGradient)"
+              fillOpacity={1}
+              strokeWidth={2}
+              dot={{ fill: "#10B981", r: 4 }}
+              activeDot={{ r: 6 }}
+              isAnimationActive={true}
+            />
+            <Tooltip content={<CustomRadarTooltip />} />
+            <Legend
+              verticalAlign="top"
+              height={36}
+              iconType="circle"
+              wrapperStyle={{ fontSize: tickFontSize, color: textColor }}
             />
           </RadarChart>
         </ResponsiveContainer>
