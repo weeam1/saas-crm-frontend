@@ -76,7 +76,7 @@ const BulkMessage = () => {
 				body,
 			}).unwrap();
 
-			setMessageSummary(res?.summary);
+			// setMessageSummary(res?.summary);
 			setSummaryModal(true);
 			console.log({ body });
 		} catch (err) {
@@ -189,7 +189,7 @@ const BulkMessage = () => {
 				<BulkMessageSummary
 					isOpen={summaryModal}
 					onClose={closeSummary}
-					summary={messageSummary}
+					// summary={messageSummary}
 				/>
 			)}
 		</Box>
