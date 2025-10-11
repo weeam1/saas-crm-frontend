@@ -123,7 +123,7 @@ const WhatsAppQRLogin = ({ qr }) => {
 										value={qrCode}
 										size={256}
 										level='H'
-										marginSize={4}
+										// marginSize={4}
 										// fgColor='#25D366'
 									/>
 

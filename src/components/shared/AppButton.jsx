@@ -28,7 +28,7 @@ const AppButton = forwardRef(
 		const renderIcon = (icon) => {
 			if (!icon) return null;
 			return cloneElement(icon, {
-				boxSize: icon.props.boxSize || theme.sizes[4],
+				boxsize: icon.props.boxsize || theme.sizes[4],
 			});
 		};
 

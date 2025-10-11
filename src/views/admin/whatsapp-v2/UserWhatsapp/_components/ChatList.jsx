@@ -129,9 +129,9 @@ const ChatList = ({
 				overflowY='auto'
 				// maxH='full'
 			>
-				{allConversations?.map((chat) => (
+				{allConversations?.map((chat, index) => (
 					<ChatListItem
-						key={chat.id}
+						key={chat.id + index}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
 						sessionId={sessionId}
