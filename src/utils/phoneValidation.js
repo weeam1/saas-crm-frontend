@@ -60,8 +60,6 @@ export function normalizePhone(input) {
 	// 4. Reconstruct normalized number
 	const normalized = `${dialCode}${localPart}`;
 
-	console.log({ input, country, normalized });
-
 	// 5. Validate using libphonenumber
 	const phoneNumber = parsePhoneNumberFromString(normalized, country.code);
 

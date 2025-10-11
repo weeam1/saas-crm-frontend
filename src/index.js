@@ -48,7 +48,6 @@ function App() {
 	// chunk handler
 	useChunkErrorHandler();
 
-	// register whatsapp socket
 	registerWhatsappSocket(store);
 
 	// console.log(
@@ -58,6 +57,7 @@ function App() {
 
 	useEffect(() => {
 		getSmartTimezone();
+		// register whatsapp socket
 	}, []);
 
 	const token = localStorage.getItem('token') || null;

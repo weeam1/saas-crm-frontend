@@ -20,11 +20,22 @@ const UserWhatsapp = () => {
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
+	const [whatsappLoaded, setWhatsappLoaded] = useState(false);
 
 	const { user: loginUser, isSuperAdmin } = useUserSession();
 
 	const navigate = useNavigate();
 	const { hasPermission } = usePermissions();
+
+	const { data: instanceData, isLoading: instanceLoading } = useFetchItemsQuery(
+		{
+			path: `/whatsapp/instances/user/${loginUser?._id}`,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+			skip: !loginUser?._id || isSuperAdmin,
+		}
+	);
 
 	// ---------------------------
 	// 1. Permission check + sessionId setup
@@ -37,8 +48,23 @@ const UserWhatsapp = () => {
 	useEffect(() => {
 		if (id) {
 			setSessionId(id);
+		}
+		// whatsapp instance + instance is active
+		else if (instanceData?.doc && instanceData?.doc?.isActive) {
+			const _sessionId = instanceData?.doc?.sessionId;
+			setSessionId(_sessionId);
+			window.history.replaceState(null, '', `?session=${_sessionId}`);
+		}
+		// if account id disabled
+		else if (!instanceData?.doc?.isActive) {
+			console.log('whatsapp deisbaled');
+			setWhatsappErrorMessage(
+				'WhatsApp instance is inactive. Please contact your administrator to re-enable it.'
+			);
 		} else redirect('/');
-	}, [id, isSuperAdmin]);
+	}, [id, instanceData?.doc, instanceData?.doc?.isActive]);
+
+	console.log({ whatsappErrorMessage });
 
 	const {
 		// events
@@ -87,6 +113,7 @@ const UserWhatsapp = () => {
 			localStorage.setItem('whatsapp_auth', 'true');
 			getChats(sessionId);
 			setIsLoading(false);
+			setLoadingChats(true);
 		} else if (!qr) {
 			setIsLoading(true);
 		} else if (qr) {
@@ -98,15 +125,13 @@ const UserWhatsapp = () => {
 	// 4. Manage loadingChats animation
 	// ---------------------------
 	useEffect(() => {
-		if (isReady) {
-			setLoadingChats(true);
+		console.log('isReady, loading');
+		if (allConversations?.length) {
+			const timer = setTimeout(() => setLoadingChats(false), 1000);
 
-			if (allConversations?.length) {
-				const timer = setTimeout(() => setLoadingChats(false), 3000);
-				return () => clearTimeout(timer);
-			}
+			return () => clearTimeout(timer);
 		}
-	}, [isReady, allConversations]);
+	}, [allConversations]);
 
 	// ---------------------------
 	// 5. Cleanup on unmount / reload
@@ -147,10 +172,10 @@ const UserWhatsapp = () => {
 				</HStack>
 			)} */}
 
-			{isLoading ? (
+			{isLoading && !whatsappErrorMessage ? (
 				<InitialLoading />
 			) : whatsappErrorMessage ? (
-				<ErrorMessage message={whatsappErrorMessage} type='error' />
+				<ErrorMessage message={whatsappErrorMessage} type='warning' />
 			) : (
 				<WhatsappScreen loadingChats={loadingChats} sessionId={sessionId} />
 			)}
