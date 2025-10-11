@@ -13,11 +13,14 @@ import {
 	Icon,
 	Button,
 	IconButton,
+	Spinner,
 } from '@chakra-ui/react';
 import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
 import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import useUserSession from 'hooks/useUserSession';
+import { useSelector } from 'react-redux';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -42,13 +45,18 @@ const ChatList = ({
 	selectedChat,
 	logoutHandler,
 	getChat,
+	getMoreChats,
+	hasMoreChats,
 }) => {
 	const onSelectedChatHandler = (chat) => {
 		setSelectedChat(chat);
 		getChat(sessionId, chat);
 	};
 
+	const { isChatsFetching } = useSelector((state) => state.whatsappWeb);
+
 	const navigate = useNavigate();
+	const { isSuperAdmin } = useUserSession();
 
 	return (
 		<Box
@@ -57,8 +65,10 @@ const ChatList = ({
 			border='1px solid'
 			borderColor='gray.100'
 			// maxH='800px'
+			// overflow='hidden'
+			display='flex'
+			flexDir='column'
 			h='full'
-			overflow='hidden'
 		>
 			{/* Header */}
 			<Flex
@@ -71,12 +81,15 @@ const ChatList = ({
 				borderColor='softGray.100'
 			>
 				<HStack>
-					<IconButton
-						aria-label='Back'
-						icon={<FaChevronLeft size={16} />}
-						variant='ghost'
-						onClick={() => navigate('/whatsapp/instances')}
-					/>
+					{isSuperAdmin && (
+						<IconButton
+							aria-label='Back'
+							icon={<FaChevronLeft size={16} />}
+							variant='ghost'
+							onClick={() => navigate('/whatsapp/instances')}
+						/>
+					)}
+
 					<Text fontSize='sm' fontWeight='bold' color='gray.800'>
 						Chats
 					</Text>
@@ -112,8 +125,9 @@ const ChatList = ({
 				spacing={0}
 				divider={<Divider />}
 				p='2'
+				flex='1'
 				overflowY='auto'
-				maxH='full'
+				// maxH='full'
 			>
 				{allConversations?.map((chat) => (
 					<ChatListItem
@@ -124,6 +138,32 @@ const ChatList = ({
 						selectedChat={selectedChat}
 					/>
 				))}
+
+				{/* Pagination / Load More */}
+				<Flex
+					p={3}
+					justify='center'
+					borderTop='1px solid'
+					borderColor='gray.100'
+				>
+					{isChatsFetching ? (
+						<Spinner />
+					) : hasMoreChats ? (
+						<Button
+							variant='ghost'
+							size='sm'
+							onClick={getMoreChats}
+							leftIcon={<FiMessageSquare />}
+							colorScheme='green'
+						>
+							Load More
+						</Button>
+					) : (
+						<Text fontSize='xs' color='gray.400'>
+							All chats loaded ✅
+						</Text>
+					)}
+				</Flex>
 			</VStack>
 		</Box>
 	);
@@ -136,14 +176,14 @@ const ChatListItem = ({
 	selectedChat,
 }) => {
 	const getAvatarProps = (chat) => {
-		if (chat.profilePicture) {
+		if (chat?.profilePicture) {
 			return {
-				src: chat.profilePicture,
-				name: chat.name,
+				src: chat?.profilePicture,
+				name: chat?.name,
 			};
 		}
 
-		if (chat.isGroup) {
+		if (chat?.isGroup) {
 			return {
 				bg: 'purple.500',
 				icon: <FiUsers color='white' />,
@@ -151,7 +191,7 @@ const ChatListItem = ({
 		}
 
 		return {
-			name: chat.name,
+			name: chat?.name,
 			bg: 'green.500',
 			color: 'white',
 		};
@@ -181,9 +221,11 @@ const ChatListItem = ({
 							<Text
 								fontWeight='semibold'
 								// color='gray.800'
+								isTruncated
+								maxW='70%'
 								fontSize='sm'
 								noOfLines={1}
-								filter='blur(5px)'
+								filter='blur(4px)'
 							>
 								{chat?.name || '***********'}
 								{/* ************** */}
@@ -196,12 +238,12 @@ const ChatListItem = ({
 										Group
 									</Badge>
 								)}
-								{chat.pinned && (
+								{chat?.pinned && (
 									<Badge colorScheme='yellow' size='xs' variant='subtle'>
 										Pinned
 									</Badge>
 								)}
-								{chat.archived && (
+								{chat?.archived && (
 									<Badge colorScheme='gray' size='xs' variant='subtle'>
 										Archived
 									</Badge>
@@ -214,37 +256,42 @@ const ChatListItem = ({
 								justifySelf='flex-end'
 								justify='space-between'
 							>
-								<Text fontSize='xs' color='gray.500'>
+								<Text
+									fontSize='xs'
+									color={chat.unreadCount ? 'green.500' : 'gray.500'}
+								>
 									{chat.lastMessage?.timestamp
 										? formatTime(chat.lastMessage.timestamp)
 										: ''}
 								</Text>
-
-								{/* Unread Count */}
-								{chat.unreadCount > 0 && (
-									<Badge
-										colorScheme='green'
-										variant='solid'
-										borderRadius='full'
-										minW='20px'
-										h='20px'
-										display='flex'
-										alignItems='center'
-										justifyContent='center'
-										fontSize='xs'
-									>
-										{chat.unreadCount}
-									</Badge>
-								)}
 							</Flex>
 						</Flex>
 
 						{/* Last Message */}
-						<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
-							{chat.lastMessage
-								? truncateMessage(chat.lastMessage.body)
-								: 'No messages yet'}
-						</Text>
+						<HStack justifyContent='space-between'>
+							<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
+								{chat.lastMessage
+									? truncateMessage(chat.lastMessage.body)
+									: 'No messages yet'}
+							</Text>
+							{/* Unread Count */}
+							{chat?.unreadCount > 0 && (
+								<Box
+									bg='green.500'
+									color='white'
+									borderRadius='full'
+									minW='18px'
+									minH='18px'
+									display='flex'
+									alignItems='center'
+									justifyContent='center'
+									fontSize='xs'
+									fontWeight='bold'
+								>
+									{chat.unreadCount}
+								</Box>
+							)}
+						</HStack>
 					</Box>
 				</Flex>
 			</Flex>

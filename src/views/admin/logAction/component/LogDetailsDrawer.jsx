@@ -23,6 +23,7 @@ import DeviceInfoRow from './DeviceInfoRow';
 import { toast } from 'react-toastify';
 
 import { CopyIcon } from '@chakra-ui/icons';
+import PermissionDisplay from './PermissionDisplay';
 
 const LeadIdDisplay = ({ leadId, type = 'single' }) => {
 	const handleCopy = () => {
@@ -82,6 +83,7 @@ const LogDetailsDrawer = ({
 	const isBulkLeads =
 		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadIds;
 
+		console.log("selectedLog", selectedLog)
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size='lg'>
 			<DrawerOverlay />
@@ -186,7 +188,11 @@ const LogDetailsDrawer = ({
 								borderRadius='md'
 								fontSize='xs'
 							>
-								{selectedLog.message}
+								<Text>{selectedLog.message}</Text>
+								<Text>{selectedLog?.rawPayload?.permission && (
+									<PermissionDisplay permission={selectedLog?.rawPayload?.permission}/>
+								)}</Text>
+
 							</Text>
 							{isLeadId ? (
 								<LeadIdDisplay leadId={selectedLog?.rawPayload?.leadId} />
