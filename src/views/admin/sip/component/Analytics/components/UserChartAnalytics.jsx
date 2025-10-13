@@ -231,13 +231,13 @@ const UserChartAnalytics = ({ graphData, loading, selectedChart, setSelectedChar
           fullName,
         }) => {
           const RADIAN = Math.PI / 180;
-          const radius = innerRadius + (outerRadius - innerRadius) * 1.3;
+          const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
           const x = cx + radius * Math.cos(-midAngle * RADIAN);
           const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
           // Responsive font size
           const fontSize =
-            window.innerWidth < 400 ? 8 : window.innerWidth < 768 ? 10 : 12;
+            window.innerWidth < 400 ? 8 : window.innerWidth < 768 ? 10 : 10;
 
           return (
             <text
@@ -274,14 +274,14 @@ const UserChartAnalytics = ({ graphData, loading, selectedChart, setSelectedChar
                       ? 60
                       : window.innerWidth < 768
                         ? 80
-                        : 100
+                        : 150
                   }
                   innerRadius={
                     window.innerWidth < 400
                       ? 30
                       : window.innerWidth < 768
                         ? 45
-                        : 60
+                        : 90
                   }
                   paddingAngle={2}
                   dataKey="answered"
