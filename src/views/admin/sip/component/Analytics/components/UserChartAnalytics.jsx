@@ -126,7 +126,9 @@ const UserChartAnalytics = ({
   const gridColor = useColorModeValue("#e5e7eb", "#4b5563");
   const borderColor = useColorModeValue("gray.200", "#4b5563");
 
+  const barSize = useBreakpointValue({ base: 15, sm: 20, md: 25, lg: 30 });
   const tickFontSize = useBreakpointValue({ base: 8, sm: 9, md: 11 });
+   const labelFontSizeBarChart = useBreakpointValue({ base: 4, sm: 5, md: 10 });
   const chartHeight = useBreakpointValue({
     base: 200,
     sm: 240,
@@ -197,19 +199,45 @@ const UserChartAnalytics = ({
   //Render Charts
   const renderChart = (type) => {
     switch (type) {
-      case "bar":
-        return (
-          <ResponsiveContainer width="100%" height={chartHeight}>
-            <BarChart data={top_10_agents}>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-              <XAxis dataKey="fullName" tick={{ fontSize: tickFontSize }} />
-              <YAxis tick={{ fontSize: tickFontSize }} />
-              <Tooltip content={<CustomBarTooltip />} />
-              <Bar dataKey="answered" fill={COLORS[0]} />
-              <Bar dataKey="unanswered" fill={COLORS[1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        );
+    case "bar":
+
+      return (
+        <ResponsiveContainer width="100%" height={chartHeight}>
+          <BarChart
+            data={top_10_agents}
+            margin={{ top: 20, right: 30, left: 10, bottom: 30 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+            <XAxis
+              dataKey="fullName"
+              tick={{ fontSize: labelFontSizeBarChart}}
+              interval={0}
+              angle={-15}
+              textAnchor="end"
+            />
+            <YAxis tick={{ fontSize: tickFontSize }} />
+            <Tooltip content={<CustomBarTooltip />} />
+            <Legend
+              verticalAlign="top"
+              height={36}
+              iconType="circle"
+              wrapperStyle={{ fontSize: tickFontSize }}
+            />
+            <Bar
+              dataKey="answered"
+              fill={COLORS[0]}
+              barSize={barSize}
+              radius={[6, 6, 0, 0]}
+            />
+            <Bar
+              dataKey="unanswered"
+              fill={COLORS[1]}
+              barSize={barSize}
+              radius={[6, 6, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      );
 
       case "line":
         return (
@@ -288,14 +316,18 @@ const UserChartAnalytics = ({
                       ? 60
                       : window.innerWidth < 768
                         ? 80
-                        : 150
+                        : window.innerWidth < 1025
+                          ? 110
+                          : 150
                   }
                   innerRadius={
                     window.innerWidth < 400
                       ? 30
                       : window.innerWidth < 768
                         ? 45
-                        : 90
+                        : window.innerWidth < 1025
+                          ? 40
+                          : 90
                   }
                   paddingAngle={2}
                   dataKey="answered"
@@ -310,7 +342,7 @@ const UserChartAnalytics = ({
             </ResponsiveContainer>
           </Box>
         );
-        
+
       case "radar":
         const customLegend = () => (
           <Box display="flex" justifyContent="center" gap={4} mt={2}>
@@ -416,14 +448,56 @@ const UserChartAnalytics = ({
           </Box>
         ))}
       </SimpleGrid>
-
       <Modal isOpen={isOpen} onClose={onClose} size="full" isCentered>
         <ModalOverlay />
-        <ModalContent bg="white" p={4}>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalContent
+          bg={bgCard}
+          maxH="100vh"
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+          position="relative"
+        >
+          {/* ✅ Header section */}
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            px={{ base: 4, md: 6 }}
+            py={{ base: 3, md: 4 }}
+            position="sticky"
+            top="0"
+            bg={bgCard}
+            zIndex={20}
+            borderBottom="1px solid"
+            borderColor="gray.200"
+          >
+            <Heading fontSize={{ base: "lg", md: "xl" }}>
+              {selectedChart === "all"
+                ? "All Charts Overview"
+                : selectedChart === "bar"
+                  ? "Top 10 Agents"
+                  : selectedChart === "line"
+                    ? "Daily Calls Trend"
+                    : selectedChart === "pie"
+                      ? "Answered vs Unanswered"
+                      : "Agent Comparison"}
+            </Heading>
+            <ModalCloseButton
+              position="static"
+              size={{ base: "sm", md: "md" }}
+              color="gray.600"
+            />
+          </Box>
+
+          <ModalBody
+            overflowY="auto"
+          >
             {selectedChart === "all" ? (
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+              <SimpleGrid
+                columns={{ base: 1, md: 2 }}
+                spacing={{ base: 6, md: 10 }}
+              >
                 {["bar", "line", "pie", "radar"].map((type, i) => (
                   <Box key={i}>{renderChart(type)}</Box>
                 ))}

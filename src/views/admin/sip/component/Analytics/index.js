@@ -158,8 +158,12 @@ const Analytics = () => {
         >
           <Button
             colorScheme="brand"
-            size="lg"
-            w="full"
+            size={{ base: "sm", sm: "md", md: "lg" }}
+            w={{ base: "full", sm: "auto" }} 
+            px={{ base: 4, sm: 6, md: 8 }} 
+            py={{ base: 3, sm: 4, md: 4 }}
+            fontSize={{ base: "sm", sm: "md", md: "lg" }} 
+            borderRadius={"md"}
             onClick={() => {
               setSelectedChart("all");
               onOpen();
@@ -167,6 +171,7 @@ const Analytics = () => {
           >
             View Full Analytics
           </Button>
+
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
             view={view}
