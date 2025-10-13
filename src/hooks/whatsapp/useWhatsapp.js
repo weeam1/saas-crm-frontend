@@ -100,6 +100,7 @@ export const useWhatsapp = () => {
 
 	const whatsappInitialize = useCallback((payload) => {
 		console.log('initialize_whatsapp: ', payload);
+		dispatch(reset());
 		socketService.emit('initialize_whatsapp', payload);
 	}, []);
 
@@ -136,6 +137,12 @@ export const useWhatsapp = () => {
 		[state.activeChat]
 	);
 
+	const downloadMedia = useCallback((sessionId, messageId) => {
+		if (!sessionId || !messageId) return;
+
+		socketService.emit('download_media', { sessionId, messageId });
+	}, []);
+
 	const disconnectWhatsapp = useCallback(
 		(sessionId) => {
 			socketService.emit('disconnect_whatsapp', { sessionId });
@@ -164,6 +171,7 @@ export const useWhatsapp = () => {
 		markChatAsSeen,
 		disconnectWhatsapp,
 		logoutWhatsapp,
+		downloadMedia,
 		isSocketConnected,
 	};
 };

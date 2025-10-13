@@ -77,7 +77,6 @@ const UserWhatsapp = () => {
 		fail,
 		isSocketConnected,
 		isAuthenticated,
-		whatsapp_disconnect,
 		qr,
 		isReady,
 		allConversations,
@@ -128,7 +127,6 @@ const UserWhatsapp = () => {
 	// 4. Manage loadingChats animation
 	// ---------------------------
 	useEffect(() => {
-		console.log('isReady, loading');
 		if (allConversations?.length) {
 			const timer = setTimeout(() => setLoadingChats(false), 1000);
 
@@ -175,11 +173,10 @@ const UserWhatsapp = () => {
 				</HStack>
 			)} */}
 
-			{isLoading &&
+			{(isLoading || instanceLoading) &&
 			!whatsappErrorMessage &&
 			!error &&
-			!fail &&
-			!whatsapp_disconnect ? (
+			!fail ? (
 				<InitialLoading />
 			) : whatsappErrorMessage ? (
 				<ErrorMessage message={whatsappErrorMessage} type='warning' />

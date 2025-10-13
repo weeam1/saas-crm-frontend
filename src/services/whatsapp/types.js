@@ -15,4 +15,6 @@ export const WHATSAPP_EVENTS = {
 
 	CHAT_SEEN: 'chat_seen',
 	CHAT_SEEN_RESPONSE: 'chat_seen_response',
+	DOWNLOAD_MEDIA: 'download_media',
+	DOWNLOAD_MEDIA_RESPONSE: 'download_media_response',
 };

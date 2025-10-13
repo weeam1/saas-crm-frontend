@@ -33,7 +33,6 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 		allConversations,
 		error,
 		fail,
-		whatsapp_disconnect,
 		logoutWhatsapp,
 		getChat,
 		hasMoreChats,
@@ -60,14 +59,14 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 			return <ErrorState message={error || fail} type='error' />;
 		}
 
-		if (whatsapp_disconnect) {
-			return (
-				<ErrorState
-					message='WhatsApp disconnected. Please reconnect.'
-					type='warning'
-				/>
-			);
-		}
+		// if (whatsapp_disconnect) {
+		// 	return (
+		// 		<ErrorState
+		// 			message='WhatsApp disconnected. Please reconnect.'
+		// 			type='warning'
+		// 		/>
+		// 	);
+		// }
 
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
@@ -152,8 +151,16 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 		}
 	};
 
+	// const thumbnail =
+	// 	'/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIAEgAKAMBIgACEQEDEQH/xAAvAAACAwEBAAAAAAAAAAAAAAAAAgEDBAUGAQEBAQEAAAAAAAAAAAAAAAABAAID/9oADAMBAAIQAxAAAADz7dCTXOXsU1zC4X0OyjXYRM98ZSS6arSLmkMlZikOi1c/QLvhviSotjhrjnAGsAf/xAAlEAACAwACAgEDBQAAAAAAAAABAgADEQQhEjFBBRUiJDRCUVL/2gAIAQEAAT8AnU+J7hEXjuS6qmmDgX/4n2yyH6baPiPSVOGcLusuwwsYFw9nZ5kD1DrjVnMVBSz+I2cEfp0hA9xLna8qF/GaBYV/sTl/t2BlCotVYGhcjAht+Jo+B7ijWLETmEikmFDWoUegMhwYNE/EfyGxscYHycy5VrCL2Zx+Ze5ALy3kObSCehG5TbgETlaD5DJbYbAAFyVOw7BgbwRiw3ZVYqvrCW3UMJ5KwGHuVAAdiWWL4wAEbGVR2YAJ/8QAGBEBAAMBAAAAAAAAAAAAAAAAAQAQETD/2gAIAQIBAT8A4MdrWJf/xAAdEQEAAgIDAQEAAAAAAAAAAAABAAIQESExURJi/9oACAEDAQE/ANHs1+ifFvJbtxSyDmlLJxFqpxEruFg6IZ//2Q==';
+
 	return (
 		<Flex h='90vh' w='100%'>
+			{/* <img
+				src={`data:image/jpeg;base64,${thumbnail}`}
+				alt='Chat thumbnail'
+				style={{ width: 100, height: 100, borderRadius: 8 }}
+			/> */}
 			<Box w='100%' h='100%'>
 				{renderContent()}
 			</Box>

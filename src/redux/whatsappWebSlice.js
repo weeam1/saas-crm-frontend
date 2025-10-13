@@ -15,6 +15,7 @@ const initialState = {
 	isChatsFetching: false,
 	whatsapp_disconnect: '',
 	whatsapp_loading: {},
+	downloaded_media: {}, // { messageId: base64String }
 };
 
 const whatsappWebSlice = createSlice({
@@ -46,7 +47,8 @@ const whatsappWebSlice = createSlice({
 		},
 		error: (state, action) => {
 			console.log('message error: ', action.payload);
-			state.error = action.payload?.message || 'Unknown error';
+			state.error =
+				action.payload?.message || 'Error: Please reload and try again!';
 		},
 		// chatsLoaded: (state, action) => {
 		// 	console.log('chats loaded: ', action.payload);
@@ -89,6 +91,15 @@ const whatsappWebSlice = createSlice({
 			state.page = page;
 			state.hasMoreChats = hasMore;
 		},
+		saveDownloadedMedia: (state, action) => {
+			const { media, mediaKey } = action.payload || {};
+			if (!media) return;
+
+			state.downloaded_media[mediaKey] = media?.data;
+
+			const localMedia = state.downloaded_media || {};
+			localStorage.setItem(`whatsapp_media`, JSON.stringify(localMedia));
+		},
 
 		setActiveChat: (state, action) => {
 			state.activeChat = action.payload;
@@ -113,7 +124,7 @@ const whatsappWebSlice = createSlice({
 			console.log('new message received:', message);
 
 			const msgId = message?.id?._serialized;
-			if (!msgId || message?.isStatus || message?.hasMedia) return;
+			if (!msgId || message?.isStatus) return;
 
 			const chatId = message?.fromMe ? message?.to : message?.from;
 			if (!chatId) return;
@@ -155,7 +166,7 @@ const whatsappWebSlice = createSlice({
 
 			const newLastMessage = {
 				id: message?.id?._serialized,
-				body: message?.body || '',
+				body: message?.hasMedia ? `📷 image` : message?.body,
 				timestamp: message?.timestamp || Date.now(),
 				type: message?.type || 'chat',
 				fromMe: message?.fromMe,
@@ -237,7 +248,7 @@ const whatsappWebSlice = createSlice({
 
 		disconnect: (state, action) => ({
 			...initialState,
-			whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
+			// whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
 		}),
 
 		reset: () => initialState,
@@ -260,6 +271,7 @@ export const {
 	disconnect,
 	setChatsFetching,
 	reset,
+	saveDownloadedMedia,
 } = whatsappWebSlice.actions;
 
 // export the selector

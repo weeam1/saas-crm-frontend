@@ -13,6 +13,7 @@ import {
 	disconnect,
 	whatsappLoading,
 	setChatsFetching,
+	saveDownloadedMedia,
 } from './../../redux/whatsappWebSlice';
 import { WHATSAPP_EVENTS } from './types';
 
@@ -58,6 +59,9 @@ export const registerWhatsappSocket = (store) => {
 	);
 	socketService.on(WHATSAPP_EVENTS.NEW_MESSAGE, (payload) =>
 		store.dispatch(newMessage(payload))
+	);
+	socketService.on(WHATSAPP_EVENTS.DOWNLOAD_MEDIA_RESPONSE, (payload) =>
+		store.dispatch(saveDownloadedMedia(payload))
 	);
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_ACK, (payload) =>
 		store.dispatch(messageAck(payload))
