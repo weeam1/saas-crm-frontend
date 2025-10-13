@@ -128,7 +128,7 @@ const UserChartAnalytics = ({
 
   const barSize = useBreakpointValue({ base: 15, sm: 20, md: 25, lg: 30 });
   const tickFontSize = useBreakpointValue({ base: 8, sm: 9, md: 11 });
-   const labelFontSizeBarChart = useBreakpointValue({ base: 4, sm: 5, md: 10 });
+  const labelFontSizeBarChart = useBreakpointValue({ base: 2, sm: 4, md: 6 });
   const chartHeight = useBreakpointValue({
     base: 200,
     sm: 240,
@@ -225,12 +225,14 @@ const UserChartAnalytics = ({
             />
             <Bar
               dataKey="answered"
+              name="Answered"
               fill={COLORS[0]}
               barSize={barSize}
               radius={[6, 6, 0, 0]}
             />
             <Bar
               dataKey="unanswered"
+               name="Un answered"
               fill={COLORS[1]}
               barSize={barSize}
               radius={[6, 6, 0, 0]}
