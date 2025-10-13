@@ -105,7 +105,7 @@ const CustomLineTooltip = ({ active, payload, label }) => {
 };
 
 //  Main Component 
-const UserChartAnalytics = ({ graphData, loading, selectedChart, setSelectedChart,  isOpen, onOpen, onClose }) => {
+const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart, setSelectedChart,  isOpen, onOpen, onClose }) => {
 
   const bgCard = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.800", "gray.100");
@@ -125,7 +125,7 @@ const UserChartAnalytics = ({ graphData, loading, selectedChart, setSelectedChar
   const isSmallScreen = useBreakpointValue({ base: true, md: false });
 
   // Data handling 
-  if (loading) {
+  if (loading || loadingAnalytics) {
     return (
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={gridSpacing}>
         {Array.from({ length: 4 }).map((_, i) => (

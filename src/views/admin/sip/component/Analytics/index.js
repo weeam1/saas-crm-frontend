@@ -29,12 +29,12 @@ const Analytics = () => {
   );
 
   const [analyticsData, setAnalyticsData] = useState(null);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
 
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
   const [graphData, setGraphData] = useState(null);
-  const [loadingGraph, setLoadingGraph] = useState(false);
+  const [loadingGraph, setLoadingGraph] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedChart, setSelectedChart] = useState(null);
   const [view, setView] = useState(
@@ -225,6 +225,7 @@ const Analytics = () => {
         <UserChartAnalytics
           graphData={graphData}
           loading={loadingGraph}
+          loadingAnalytics={loadingAnalytics}
           selectedChart={selectedChart}
           setSelectedChart={setSelectedChart}
           isOpen={isOpen}
