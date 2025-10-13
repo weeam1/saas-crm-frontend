@@ -160,8 +160,8 @@ const Analytics = () => {
             colorScheme="brand"
             size={{ base: "sm", sm: "md", md: "lg" }}
             w={{ base: "full", sm: "auto" }} 
-            px={{ base: 4, sm: 6, md: 8 }} 
-            py={{ base: 3, sm: 4, md: 4 }}
+            px={{ base: 4, sm: 2, md: 4 }} 
+            py={{ base: 3, sm: 2, md: 3 }}
             fontSize={{ base: "sm", sm: "md", md: "lg" }} 
             borderRadius={"md"}
             onClick={() => {
