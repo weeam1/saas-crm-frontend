@@ -16,7 +16,7 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend
+  Legend,
 } from "recharts";
 import {
   Box,
@@ -27,21 +27,27 @@ import {
   Text,
   useBreakpointValue,
   IconButton,
-  Button,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalCloseButton,
   ModalBody,
+  Flex,
 } from "@chakra-ui/react";
 
 import { FiMaximize2 } from "react-icons/fi";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import {
+  BsPeopleFill,
+  BsCalendarDate,
+  BsPieChartFill,
+  BsDiagram3,
+} from "react-icons/bs";
 
 //brand variation colors
 const COLORS = ["#D4AF37", "#B8860B", "#FFD700", "#C0A060", "#8B7500"];
 
-// Tooltips 
+// Tooltips
 const CustomBarTooltip = ({ active, payload }) => {
   if (active && payload?.length) {
     const d = payload[0].payload;
@@ -104,9 +110,17 @@ const CustomLineTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-//  Main Component 
-const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart, setSelectedChart,  isOpen, onOpen, onClose }) => {
-
+//  Main Component
+const UserChartAnalytics = ({
+  graphData,
+  loading,
+  loadingAnalytics,
+  selectedChart,
+  setSelectedChart,
+  isOpen,
+  onOpen,
+  onClose,
+}) => {
   const bgCard = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("gray.800", "gray.100");
   const gridColor = useColorModeValue("#e5e7eb", "#4b5563");
@@ -124,7 +138,7 @@ const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart
   const labelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 12 });
   const isSmallScreen = useBreakpointValue({ base: true, md: false });
 
-  // Data handling 
+  // Data handling
   if (loading || loadingAnalytics) {
     return (
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={gridSpacing}>
@@ -180,7 +194,7 @@ const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart
     })
     .filter(Boolean);
 
-  //Render Charts 
+  //Render Charts
   const renderChart = (type) => {
     switch (type) {
       case "bar":
@@ -313,19 +327,19 @@ const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart
                 fill={COLORS[2]}
                 fillOpacity={0.5}
               />
-                 <Radar
+              <Radar
                 dataKey="total_calls"
                 stroke={COLORS[1]}
                 fill={COLORS[1]}
                 fillOpacity={0.5}
               />
               <Tooltip content={<CustomRadarTooltip />} />
-               <Legend
-              verticalAlign="top"
-              height={36}
-              iconType="circle"
-              wrapperStyle={{ fontSize: tickFontSize, color: textColor }}
-            />
+              <Legend
+                verticalAlign="top"
+                height={36}
+                iconType="circle"
+                wrapperStyle={{ fontSize: tickFontSize, color: textColor }}
+              />
             </RadarChart>
           </ResponsiveContainer>
         );
@@ -363,13 +377,23 @@ const UserChartAnalytics = ({ graphData, loading,loadingAnalytics, selectedChart
               aria-label="Expand Chart"
             />
             <Heading size={headingSize} mb={2} color={textColor}>
-              {type === "bar"
-                ? "🧑‍💼 Top 10 Agents"
-                : type === "line"
-                  ? "📅 Daily Calls Trend"
-                  : type === "pie"
-                    ? "🥧 Answered vs Unanswered"
-                    : "🕸 Agent Comparison"}
+              {type === "bar" ? (
+                <Flex  gap={3} alignItems={"center"}>
+                  <BsPeopleFill /> Top 10 Agents
+                </Flex>
+              ) : type === "line" ? (
+                 <Flex  gap={3} alignItems={"center"}>
+                  <BsCalendarDate /> Daily Calls Trend
+                </Flex>
+              ) : type === "pie" ? (
+                <Flex  gap={3} alignItems={"center"}>
+                  <BsPieChartFill /> Answered vs Unanswered
+                </Flex>
+              ) : (
+                <Flex  gap={3} alignItems={"center"}>
+                  <BsDiagram3 /> Agent Comparison
+                </Flex>
+              )}
             </Heading>
             {renderChart(type)}
           </Box>
