@@ -310,38 +310,55 @@ const UserChartAnalytics = ({
             </ResponsiveContainer>
           </Box>
         );
-
+        
       case "radar":
+        const customLegend = () => (
+          <Box display="flex" justifyContent="center" gap={4} mt={2}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box w="12px" h="12px" bg={COLORS[2]} borderRadius="full" />
+              <Text fontSize={tickFontSize} color={textColor}>
+                Answered Calls
+              </Text>
+            </Box>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box w="12px" h="12px" bg={COLORS[1]} borderRadius="full" />
+              <Text fontSize={tickFontSize} color={textColor}>
+                Total Calls
+              </Text>
+            </Box>
+          </Box>
+        );
+
         return (
-          <ResponsiveContainer width="100%" height={chartHeight + 20}>
-            <RadarChart data={radarData}>
-              <PolarGrid />
-              <PolarAngleAxis
-                dataKey="fullName"
-                tick={{ fontSize: labelFontSize }}
-              />
-              <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
-              <Radar
-                dataKey="answered"
-                stroke={COLORS[2]}
-                fill={COLORS[2]}
-                fillOpacity={0.5}
-              />
-              <Radar
-                dataKey="total_calls"
-                stroke={COLORS[1]}
-                fill={COLORS[1]}
-                fillOpacity={0.5}
-              />
-              <Tooltip content={<CustomRadarTooltip />} />
-              <Legend
-                verticalAlign="top"
-                height={36}
-                iconType="circle"
-                wrapperStyle={{ fontSize: tickFontSize, color: textColor }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+          <Box w="full">
+            {/* Legend */}
+            {customLegend()}
+            <ResponsiveContainer width="100%" height={chartHeight + 20}>
+              <RadarChart data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis
+                  dataKey="fullName"
+                  tick={{ fontSize: labelFontSize }}
+                />
+                <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
+                <Radar
+                  name="Answered Calls"
+                  dataKey="answered"
+                  stroke={COLORS[2]}
+                  fill={COLORS[2]}
+                  fillOpacity={0.5}
+                />
+                <Radar
+                  name="Total Calls"
+                  dataKey="total_calls"
+                  stroke={COLORS[1]}
+                  fill={COLORS[1]}
+                  fillOpacity={0.5}
+                />
+                <Tooltip content={<CustomRadarTooltip />} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </Box>
         );
 
       default:
@@ -378,19 +395,19 @@ const UserChartAnalytics = ({
             />
             <Heading size={headingSize} mb={2} color={textColor}>
               {type === "bar" ? (
-                <Flex  gap={3} alignItems={"center"}>
+                <Flex gap={3} alignItems={"center"}>
                   <BsPeopleFill /> Top 10 Agents
                 </Flex>
               ) : type === "line" ? (
-                 <Flex  gap={3} alignItems={"center"}>
+                <Flex gap={3} alignItems={"center"}>
                   <BsCalendarDate /> Daily Calls Trend
                 </Flex>
               ) : type === "pie" ? (
-                <Flex  gap={3} alignItems={"center"}>
+                <Flex gap={3} alignItems={"center"}>
                   <BsPieChartFill /> Answered vs Unanswered
                 </Flex>
               ) : (
-                <Flex  gap={3} alignItems={"center"}>
+                <Flex gap={3} alignItems={"center"}>
                   <BsDiagram3 /> Agent Comparison
                 </Flex>
               )}
