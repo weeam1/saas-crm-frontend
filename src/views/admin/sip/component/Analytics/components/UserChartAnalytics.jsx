@@ -314,7 +314,7 @@ const UserChartAnalytics = ({
                   outerRadius={
                     window.innerWidth < 400
                       ? 60
-                      : window.innerWidth < 768
+                      : window.innerWidth < 825
                         ? 80
                         : window.innerWidth < 1025
                           ? 110
@@ -323,7 +323,7 @@ const UserChartAnalytics = ({
                   innerRadius={
                     window.innerWidth < 400
                       ? 30
-                      : window.innerWidth < 768
+                      : window.innerWidth < 825
                         ? 45
                         : window.innerWidth < 1025
                           ? 40
