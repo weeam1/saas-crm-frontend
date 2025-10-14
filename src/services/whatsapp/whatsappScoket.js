@@ -16,6 +16,7 @@ import {
 	saveDownloadedMedia,
 } from './../../redux/whatsappWebSlice';
 import { WHATSAPP_EVENTS } from './types';
+import { handleAfterDownload } from './mediaDownloadHandler';
 
 let listenersRegistered = false;
 
@@ -60,9 +61,30 @@ export const registerWhatsappSocket = (store) => {
 	socketService.on(WHATSAPP_EVENTS.NEW_MESSAGE, (payload) =>
 		store.dispatch(newMessage(payload))
 	);
-	socketService.on(WHATSAPP_EVENTS.DOWNLOAD_MEDIA_RESPONSE, (payload) =>
-		store.dispatch(saveDownloadedMedia(payload))
-	);
+	socketService.on(WHATSAPP_EVENTS.DOWNLOAD_MEDIA_RESPONSE, (payload) => {
+		// payload expected: { mediaKey, media: { data: 'base64...', mimeType, fileName }, action }
+		try {
+			const { mediaKey, media, action = 'open' } = payload || {};
+			if (!mediaKey || !media) return;
+
+			console.log('DOWNLOAD_MEDIA_RESPONSE received: ', payload);
+
+			store.dispatch(saveDownloadedMedia({ media, mediaKey }));
+
+			const mimeType = media?.mimetype || '';
+
+			const isImageVideoAudio = ['image/', 'video/', 'audio/'].some((prefix) =>
+				mimeType.startsWith(prefix)
+			);
+
+			// // perform requested action (open or download)
+			if (!isImageVideoAudio) {
+				handleAfterDownload({ mediaKey, media, action });
+			}
+		} catch (err) {
+			console.error('DOWNLOAD_MEDIA_RESPONSE error', err);
+		}
+	});
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_ACK, (payload) =>
 		store.dispatch(messageAck(payload))
 	);

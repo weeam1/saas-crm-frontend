@@ -21,6 +21,7 @@ import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import useUserSession from 'hooks/useUserSession';
 import { useSelector } from 'react-redux';
+import { getMessageLabel } from '../../utils/helpers';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -238,16 +239,6 @@ const ChatListItem = ({
 										Group
 									</Badge>
 								)}
-								{chat?.pinned && (
-									<Badge colorScheme='yellow' size='xs' variant='subtle'>
-										Pinned
-									</Badge>
-								)}
-								{chat?.archived && (
-									<Badge colorScheme='gray' size='xs' variant='subtle'>
-										Archived
-									</Badge>
-								)}
 							</HStack> */}
 
 							{/* Message Status & Time */}
@@ -271,7 +262,7 @@ const ChatListItem = ({
 						<HStack justifyContent='space-between'>
 							<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
 								{chat.lastMessage
-									? truncateMessage(chat.lastMessage.body)
+									? truncateMessage(getMessageLabel(chat.lastMessage))
 									: 'No messages yet'}
 							</Text>
 							{/* Unread Count */}

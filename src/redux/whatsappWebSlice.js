@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { getMessageLabel } from 'views/admin/whatsapp-v2/utils/helpers';
+import { getMediaSrc } from 'views/admin/whatsapp-v2/utils/mediaSelector';
 
 const initialState = {
 	qr: '',
@@ -93,12 +95,20 @@ const whatsappWebSlice = createSlice({
 		},
 		saveDownloadedMedia: (state, action) => {
 			const { media, mediaKey } = action.payload || {};
-			if (!media) return;
+			// if (!media) return;
 
-			state.downloaded_media[mediaKey] = media?.data;
+			// state.downloaded_media[mediaKey] = media?.data;
 
-			const localMedia = state.downloaded_media || {};
-			localStorage.setItem(`whatsapp_media`, JSON.stringify(localMedia));
+			if (!media || !mediaKey) return;
+			// media = { data: 'base64string', mimeType: 'image/png', fileName: 'pic.png' }
+			state.downloaded_media[mediaKey] = {
+				data: getMediaSrc({
+					data: media.data,
+					mimeType: media.mimetype,
+				}),
+				mimeType: media.mimetype,
+				fileName: media.filename || 'File',
+			};
 		},
 
 		setActiveChat: (state, action) => {
@@ -166,7 +176,7 @@ const whatsappWebSlice = createSlice({
 
 			const newLastMessage = {
 				id: message?.id?._serialized,
-				body: message?.hasMedia ? `📷 image` : message?.body,
+				body: getMessageLabel(message),
 				timestamp: message?.timestamp || Date.now(),
 				type: message?.type || 'chat',
 				fromMe: message?.fromMe,

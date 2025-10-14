@@ -1,17 +1,5 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import {
-	Flex,
-	Box,
-	Text,
-	Input,
-	Button,
-	Image,
-	IconButton,
-	HStack,
-	VStack,
-	Avatar,
-} from '@chakra-ui/react';
-import { AttachmentIcon, PhoneIcon } from '@chakra-ui/icons';
+import { useRef, useEffect, useCallback } from 'react';
+import { Flex, Box, Text } from '@chakra-ui/react';
 import { BiCheck, BiCheckDouble } from 'react-icons/bi';
 import { MessageAck } from '../constants';
 import { getTimeFormat } from '../../components/helpers';
@@ -28,6 +16,7 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 	const containerRef = useRef();
 
 	const messages = useSelector((state) => getMessagesByChatId(state, chatId));
+
 	const { downloadMedia } = useWhatsapp();
 
 	useEffect(() => {
@@ -45,8 +34,8 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 	}, [messages]);
 
 	const handleDownloadMedia = useCallback(
-		(msgId) => {
-			downloadMedia(sessionId, msgId);
+		(messageId, action) => {
+			downloadMedia({ sessionId, messageId, action });
 		},
 		[downloadMedia, sessionId]
 	);

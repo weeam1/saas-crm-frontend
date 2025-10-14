@@ -137,11 +137,22 @@ export const useWhatsapp = () => {
 		[state.activeChat]
 	);
 
-	const downloadMedia = useCallback((sessionId, messageId) => {
-		if (!sessionId || !messageId) return;
+	const downloadMedia = useCallback(
+		({ sessionId, messageId, action = 'download' }) => {
+			if (!sessionId || !messageId) return;
 
-		socketService.emit('download_media', { sessionId, messageId });
-	}, []);
+			// socketService.emit('download_media', { sessionId, messageId });
+
+			const payload = {
+				sessionId,
+				messageId,
+				action,
+			};
+
+			socketService.emit('download_media', payload);
+		},
+		[]
+	);
 
 	const disconnectWhatsapp = useCallback(
 		(sessionId) => {

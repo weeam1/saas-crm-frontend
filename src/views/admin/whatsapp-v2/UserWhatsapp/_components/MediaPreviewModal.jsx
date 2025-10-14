@@ -8,20 +8,27 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-function MediaPreviewModal({ isOpen, onClose, media }) {
+function MediaPreviewModal({ isOpen, onClose, media, mediaUrl }) {
 	if (!media) return null;
 
-	const isVideo = media?.mimetype?.startsWith('video');
-	const isImage = media?.mimetype?.startsWith('image');
+	const isVideo = media?.mimeType?.startsWith('video');
+	const isImage = media?.mimeType?.startsWith('image');
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size='full' motionPreset='scale'>
-			<ModalOverlay bg='blackAlpha.900' />
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			size='full'
+			motionPreset='scale'
+			closeOnOverlayClick={true}
+		>
+			<ModalOverlay bg='blackAlpha.900' onClick={onClose} />
 			<ModalContent
 				bg='black'
 				display='flex'
 				alignItems='center'
 				justifyContent='center'
+				onClick={onClose}
 			>
 				<ModalCloseButton
 					color='white'
@@ -34,30 +41,33 @@ function MediaPreviewModal({ isOpen, onClose, media }) {
 					alignItems='center'
 					justifyContent='center'
 					p={0}
-					h='100vh'
+					h='80vh'
 					w='100vw'
 				>
-					{isImage && (
-						<Image
-							src={media.url || `data:${media.mimetype};base64,${media.data}`}
-							maxH='100vh'
-							maxW='100vw'
-							objectFit='contain'
-							alt={media.filename || 'Image'}
-						/>
-					)}
+					{/* stop click propagation INSIDE content */}
+					<Box onClick={(e) => e.stopPropagation()}>
+						{isImage && (
+							<Image
+								src={mediaUrl}
+								maxH='80vh'
+								maxW='80vw'
+								objectFit='contain'
+								alt={media.filename || 'Image'}
+							/>
+						)}
 
-					{isVideo && (
-						<Box
-							as='video'
-							src={media.url || `data:${media.mimetype};base64,${media.data}`}
-							controls
-							autoPlay
-							maxH='100vh'
-							maxW='100vw'
-							objectFit='contain'
-						/>
-					)}
+						{isVideo && (
+							<Box
+								as='video'
+								src={mediaUrl}
+								controls
+								autoPlay
+								maxH='100vh'
+								maxW='100vw'
+								objectFit='contain'
+							/>
+						)}
+					</Box>
 				</ModalBody>
 			</ModalContent>
 		</Modal>
