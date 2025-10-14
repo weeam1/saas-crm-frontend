@@ -132,11 +132,11 @@ const sidebarRoutes = [
 		icon: <Icon as={FaPhone} w='20px' h='20px' />,
 		children: [
 			{
-				name: 'Sip Dashboard',
+				name: 'Dashboard',
 				path: '/sip/dashboard',
 			},
 				{
-				name: 'Sip History',
+				name: 'Call History',
 				path: '/sip/history',
 			},
 				{
@@ -144,7 +144,7 @@ const sidebarRoutes = [
 				path: '/sip/user-analytics',
 			},
 				{
-				name: 'Sip Settings ',
+				name: 'User Settings ',
 				path: '/sip/settings',
 			},
 		],
