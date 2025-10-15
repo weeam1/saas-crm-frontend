@@ -1,4 +1,4 @@
-import { Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import MediaPreviewModal from './MediaPreviewModal';
 import { getMediaTypeInfo } from '../../utils/mimeTypes';
@@ -93,47 +93,60 @@ const MessageContent = ({ msg, onDownload }) => {
 		return <NoMediaFound />;
 	}
 
-	switch (msg.type) {
-		case 'image':
-			return (
-				<ImageMedia
-					mediaUrl={mediaUrl}
-					msg={msg}
-					isDownloading={isDownloading}
-					whatsappMedia={whatsappMedia}
-					onDownload={handleDownload}
-					onPreview={openPreview}
-				/>
-			);
+	const renderMedia = () => {
+		switch (msg.type) {
+			case 'image':
+				return (
+					<ImageMedia
+						mediaUrl={mediaUrl}
+						msg={msg}
+						isDownloading={isDownloading}
+						whatsappMedia={whatsappMedia}
+						onDownload={handleDownload}
+						onPreview={openPreview}
+					/>
+				);
 
-		case 'video':
-			return (
-				<VideoMedia
-					mediaUrl={mediaUrl}
-					msg={msg}
-					isDownloading={isDownloading}
-					whatsappMedia={whatsappMedia}
-					onDownload={handleDownload}
-					onPreview={openPreview}
-				/>
-			);
+			case 'video':
+				return (
+					<VideoMedia
+						mediaUrl={mediaUrl}
+						msg={msg}
+						isDownloading={isDownloading}
+						whatsappMedia={whatsappMedia}
+						onDownload={handleDownload}
+						onPreview={openPreview}
+					/>
+				);
 
-		case 'audio':
-			return <AudioMedia msg={msg} />;
+			case 'audio':
+				return <AudioMedia msg={msg} />;
 
-		case 'document':
-			return (
-				<DocumentMedia
-					msg={msg}
-					isDownloading={isDownloading}
-					mimeTypeInfo={mimeTypeInfo}
-					onDownload={handleDownload}
-				/>
-			);
+			case 'document':
+				return (
+					<DocumentMedia
+						msg={msg}
+						isDownloading={isDownloading}
+						mimeTypeInfo={mimeTypeInfo}
+						onDownload={handleDownload}
+					/>
+				);
 
-		default:
-			return <Text whiteSpace='pre-wrap'>{msg.body}</Text>;
-	}
+			default:
+				return <Text whiteSpace='pre-wrap'>{msg.body}</Text>;
+		}
+	};
+
+	return (
+		<Box>
+			{renderMedia()}
+			{msg?._data?.caption && msg?._data?.caption !== msg?._data?.filename && (
+				<Text maxW={{ base: '100px', md: '300px' }} whiteSpace='pre-wrap'>
+					{msg?._data?.caption}
+				</Text>
+			)}
+		</Box>
+	);
 
 	// switch (msg.type) {
 	// 	case 'image':

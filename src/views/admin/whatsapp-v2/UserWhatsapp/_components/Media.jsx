@@ -22,6 +22,8 @@ export const ImageMedia = memo(
 			display='inline-block'
 			borderRadius='md'
 			overflow='hidden'
+			w='100%'
+			maxW={{ base: '100px', md: '350px' }}
 		>
 			{mediaUrl && (
 				<Image
@@ -84,6 +86,8 @@ export const VideoMedia = memo(
 			borderRadius='md'
 			overflow='hidden'
 			bg='black'
+			w='100%'
+			maxW={{ base: '100px', md: '350px' }}
 		>
 			{!whatsappMedia ? (
 				<>
@@ -145,13 +149,14 @@ export const VideoMedia = memo(
 );
 
 export const AudioMedia = memo(({ msg }) => (
-	<HStack bg='blackAlpha.200' p={3} borderRadius='md' spacing={3}>
+	<HStack bg='blackAlpha.200' width='100%' p={3} borderRadius='md' spacing={3}>
 		<Box
 			w='24px'
 			h='24px'
 			bg='green.500'
 			borderRadius='full'
 			display='flex'
+			maxW={{ base: '100px', md: '350px' }}
 			alignItems='center'
 			justifyContent='center'
 		>
@@ -174,7 +179,9 @@ export const DocumentMedia = memo(
 			p={1}
 			borderRadius='md'
 			spacing={3}
-			fontSize={{ base: 'xs', md: 'md' }}
+			width='100%'
+			maxW={{ base: '100px', md: '350px' }}
+			fontSize={{ base: 'xs', md: 'sm' }}
 		>
 			<Flex align='center' minW='300px' gap={2}>
 				<Icon as={mimeTypeInfo.icon} boxSize={6} color={mimeTypeInfo.color} />
@@ -250,7 +257,8 @@ export const NoMediaFound = memo(() => (
 		borderColor='red.100'
 		borderRadius='xl'
 		p={4}
-		maxW='300px'
+		width='100%'
+		maxW={{ base: '100px', md: '350px' }}
 	>
 		<Flex align='center' gap={3}>
 			<Box
