@@ -18,7 +18,7 @@ import CallTableView from "./CallTableView";
 import CallGrid from "./CallGrid";
 import TopPagination from "components/pagination/TopPagination";
 
-const CallHistory = ({ setTotalCallRecord }) => {
+const CallHistory = () => {
 	const [calls, setCalls] = useState([]);
 	const [page, setPage] = useState(1);
 	const [pageSize, setPageSize] = useState(12);
@@ -60,12 +60,14 @@ const CallHistory = ({ setTotalCallRecord }) => {
 	const loadCalls = useCallback(async () => {
 		try {
 			setLoading(true);
+				console.log("data.total_pages " )
 			const params = buildQueryParams();
 			const data = await fetchCallHistoryData(params);
 
 			setCalls(data.data || []);
 			setTotalItems(data.total_records || 0);
-			setTotalCallRecord(data.total_records || 0);
+			// setTotalCallRecord(data.total_records || 0);
+			console.log("data.total_pages ", data.total_pages )
 			setTotalPages(data.total_pages || 1);
 			if (data.page) setPage(data.page);
 
@@ -144,6 +146,7 @@ const CallHistory = ({ setTotalCallRecord }) => {
 		setCurrentlyPlayingId(null);
 	}, [page, calls]);
 
+	console.log("totalPages", totalPages)
 	return (
 		<Box
 			overflowX='auto'

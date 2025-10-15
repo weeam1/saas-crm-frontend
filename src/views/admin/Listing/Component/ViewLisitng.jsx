@@ -33,7 +33,7 @@ const ViewListing = () => {
   const { createUserLog } = useUserActivityLog();
   const { hasPermission } = usePermissions();
 
-  const colSpan = useBreakpointValue({ base: 2, sm: 1 });
+  const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
   const {
     data: listing,

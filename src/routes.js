@@ -186,6 +186,9 @@ const SipSettings =React.lazy(
 const SipUserAnalytics =React.lazy(
 	() => import('views/admin/sip/component/Analytics/index')
 );
+const SharedSipRecording = React.lazy(
+	() => import ("views/admin/sip/component/sharedRecording/index")
+)
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
@@ -514,6 +517,15 @@ const routes = [
 		under: 'Sip',
 		parentName: 'Sip',
 		component: SipUserAnalytics,
+	},
+		{
+		moduleId: 'sip',
+		name: 'Shared Recoding',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/shared-recording',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SharedSipRecording,
 	},
 
 	// Listing --------------------------------------
