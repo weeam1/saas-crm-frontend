@@ -23,7 +23,7 @@ export const ImageMedia = memo(
 			borderRadius='md'
 			overflow='hidden'
 			w='100%'
-			maxW={{ base: '100px', md: '350px' }}
+			maxW={{ base: '260px', md: '350px' }}
 		>
 			{mediaUrl && (
 				<Image
@@ -87,7 +87,7 @@ export const VideoMedia = memo(
 			overflow='hidden'
 			bg='black'
 			w='100%'
-			maxW={{ base: '100px', md: '350px' }}
+			maxW={{ base: '260px', md: '350px' }}
 		>
 			{!whatsappMedia ? (
 				<>
@@ -179,19 +179,22 @@ export const DocumentMedia = memo(
 			p={1}
 			borderRadius='md'
 			spacing={3}
-			width='100%'
-			maxW={{ base: '100px', md: '350px' }}
+			bg='red.200'
+			// width='100%'
+			// maxW={{ base: '350px' }}
+			w={{ base: '260px', md: '300px' }}
 			fontSize={{ base: 'xs', md: 'sm' }}
+			align='start'
 		>
-			<Flex align='center' minW='300px' gap={2}>
+			<Flex align='center' gap={2}>
 				<Icon as={mimeTypeInfo.icon} boxSize={6} color={mimeTypeInfo.color} />
-				<VStack align='start'>
+				<VStack align='start' bg='blue.200'>
 					<Text
 						fontWeight='semibold'
-						fontSize='sm'
-						noOfLines={1}
-						maxW='300px'
+						fontSize='xs'
+						maxW={{ base: '220px', md: '260px' }}
 						isTruncated
+						noOfLines={1}
 					>
 						{msg?._data?.filename || 'Document'}
 					</Text>

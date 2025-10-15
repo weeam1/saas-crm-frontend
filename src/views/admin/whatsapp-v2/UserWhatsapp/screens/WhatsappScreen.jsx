@@ -72,7 +72,11 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 			return (
 				<Flex h='95%' bg='white' color='gray.700' rounded='md'>
 					{/* Left Sidebar (Chats List) */}
-					<Box w='25%' borderRight='1px solid #ddd'>
+					<Box
+						w='25%'
+						display={{ base: 'none', md: 'block' }}
+						borderRight='1px solid #ddd'
+					>
 						<ChatList
 							allConversations={allConversations}
 							sessionId={sessionId}
@@ -88,7 +92,7 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 
 					{/* Right Chat Screen */}
 					<Box
-						w='75%'
+						w={{ base: '100%', md: '75%' }}
 						// h='100%'
 						bg='linear-gradient(135deg, rgba(250, 247, 231, 0.4), rgba(237, 209, 153, 0.4))'
 						backdropFilter='blur(16px) saturate(180%)'
