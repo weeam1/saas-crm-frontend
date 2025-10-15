@@ -1,5 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Flex, Box, Text, Spinner, Button, Image } from '@chakra-ui/react';
+import {
+	Flex,
+	Box,
+	Text,
+	Spinner,
+	Button,
+	Image,
+	DrawerBody,
+	DrawerCloseButton,
+	DrawerContent,
+	DrawerOverlay,
+	Drawer,
+	useDisclosure,
+	IconButton,
+} from '@chakra-ui/react';
 
 import WhatsappQRLogin from '../_components/WhatsappQRLogin';
 import WAConnectionSuccess from '../_components/WAConnectionSuccess';
@@ -11,6 +25,7 @@ import ErrorState from '../_components/ErrorState';
 import BrandLogo from 'assets/logo/logo.png';
 import { useSelector } from 'react-redux';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import { FiMenu, FiMessageSquare } from 'react-icons/fi';
 
 const CHATS_LIMIT_PER_PAGE = 30;
 
@@ -23,6 +38,14 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
 
 	const navigate = useNavigate();
+
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	// when a chat is selected, close drawer automatically on mobile
+	const handleChatSelect = (chat) => {
+		setSelectedChat(chat);
+		onClose(); // auto-close drawer
+	};
 
 	const {
 		// values
@@ -71,6 +94,28 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 		if (!loadingChats && isReady && allConversations?.length > 0) {
 			return (
 				<Flex h='95%' bg='white' color='gray.700' rounded='md'>
+					{/* WhatsApp-style Floating Chat Button */}
+					<Box
+						display={{ base: 'flex', md: 'none' }}
+						alignItems='center'
+						justifyContent='center'
+						position='fixed'
+						top='6rem'
+						right='2rem'
+						zIndex='999'
+					>
+						<IconButton
+							onClick={onOpen}
+							icon={<FiMessageSquare size='18' />}
+							aria-label='Open chats'
+							color='white'
+							rounded='full'
+							bg='#25D366' // WhatsApp green
+							_hover={{ bg: '#1DA955' }}
+							boxShadow='lg'
+							p={4}
+						/>
+					</Box>
 					{/* Left Sidebar (Chats List) */}
 					<Box
 						w='25%'
@@ -89,6 +134,27 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 							hasMoreChats={hasMoreChats}
 						/>
 					</Box>
+
+					{/* Mobile Drawer */}
+					<Drawer isOpen={isOpen} placement='left' onClose={onClose}>
+						<DrawerOverlay />
+						<DrawerContent maxW='80%'>
+							<DrawerCloseButton />
+							<DrawerBody p={0}>
+								<ChatList
+									allConversations={allConversations}
+									sessionId={sessionId}
+									setSelectedChat={handleChatSelect}
+									selectedChat={selectedChat}
+									logoutHandler={logoutHandler}
+									getChat={getChat}
+									getMoreChats={getMoreChats}
+									fetchingChats={fetchingChats}
+									hasMoreChats={hasMoreChats}
+								/>
+							</DrawerBody>
+						</DrawerContent>
+					</Drawer>
 
 					{/* Right Chat Screen */}
 					<Box

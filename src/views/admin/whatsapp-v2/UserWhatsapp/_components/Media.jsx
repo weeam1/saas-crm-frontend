@@ -179,7 +179,6 @@ export const DocumentMedia = memo(
 			p={1}
 			borderRadius='md'
 			spacing={3}
-			bg='red.200'
 			// width='100%'
 			// maxW={{ base: '350px' }}
 			w={{ base: '260px', md: '300px' }}
@@ -188,7 +187,7 @@ export const DocumentMedia = memo(
 		>
 			<Flex align='center' gap={2}>
 				<Icon as={mimeTypeInfo.icon} boxSize={6} color={mimeTypeInfo.color} />
-				<VStack align='start' bg='blue.200'>
+				<VStack align='start'>
 					<Text
 						fontWeight='semibold'
 						fontSize='xs'

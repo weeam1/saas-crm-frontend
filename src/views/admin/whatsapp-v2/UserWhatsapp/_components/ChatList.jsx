@@ -74,7 +74,7 @@ const ChatList = ({
 			{/* Header */}
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
-				alignItems='center'
+				alignItems={{ base: 'start', md: 'center' }}
 				justifyContent='space-between'
 				w='full'
 				p={4}
@@ -99,7 +99,7 @@ const ChatList = ({
 					</Text> */}
 				</HStack>
 
-				<Button size='xs' onClick={logoutHandler}>
+				<Button size='xs' onClick={logoutHandler} alignSelf='flex-end'>
 					Logout Whatsapp
 				</Button>
 

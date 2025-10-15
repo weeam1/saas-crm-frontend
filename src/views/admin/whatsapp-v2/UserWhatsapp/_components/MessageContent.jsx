@@ -141,7 +141,7 @@ const MessageContent = ({ msg, onDownload }) => {
 		<Box>
 			{renderMedia()}
 			{msg?._data?.caption && msg?._data?.caption !== msg?._data?.filename && (
-				<Text maxW={{ base: '100px', md: '300px' }} whiteSpace='pre-wrap'>
+				<Text maxW={{ base: '260px', md: '300px' }} whiteSpace='pre-wrap'>
 					{msg?._data?.caption}
 				</Text>
 			)}
