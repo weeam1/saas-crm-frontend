@@ -9,6 +9,7 @@ export const getMessageLabel = (message) => {
 		video: '🎥 Video',
 		document: `📄 ${filename || 'Document'}`,
 		audio: '🎧 Audio',
+		ptt: '🎙️ Voice Message',
 		sticker: '🩵 Sticker',
 		location: '📍 Location',
 		contact: '👤 Contact',

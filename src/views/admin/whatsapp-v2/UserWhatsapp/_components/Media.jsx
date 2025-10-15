@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { memo } from 'react';
 import { formatFileSize } from 'utils/whatsappUtils';
+import AudioPlayer from '../../components/Media/AudioPlayer';
 
 export const ImageMedia = memo(
 	({ msg, mediaUrl, isDownloading, whatsappMedia, onDownload, onPreview }) => (
@@ -148,9 +149,9 @@ export const VideoMedia = memo(
 	)
 );
 
-export const AudioMedia = memo(({ msg }) => (
+export const AudioMedia = memo(({ msg, mediaUrl }) => (
 	<HStack bg='blackAlpha.200' width='100%' p={3} borderRadius='md' spacing={3}>
-		<Box
+		{/* <Box
 			w='24px'
 			h='24px'
 			bg='green.500'
@@ -169,7 +170,9 @@ export const AudioMedia = memo(({ msg }) => (
 			<Text fontSize='xs' color='gray.600'>
 				{msg.duration || '0:00'}
 			</Text>
-		</VStack>
+		</VStack> */}
+
+		<AudioPlayer key={msg.mediaKey} id={msg.mediaKey} audioSrc={mediaUrl} />
 	</HStack>
 ));
 

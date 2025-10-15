@@ -176,7 +176,7 @@ const whatsappWebSlice = createSlice({
 
 			const newLastMessage = {
 				id: message?.id?._serialized,
-				body: getMessageLabel(message),
+				body: message?.body || 'New Message',
 				timestamp: message?.timestamp || Date.now(),
 				type: message?.type || 'chat',
 				fromMe: message?.fromMe,
