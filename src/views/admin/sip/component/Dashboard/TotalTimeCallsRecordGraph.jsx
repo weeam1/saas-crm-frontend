@@ -211,7 +211,7 @@ export default function TotalTimeCallsRecordGraph() {
         </VStack>
       </Flex>
 
-      <Box h="300px" w="100%">
+      <Box h="60vh" w="100%">
         <canvas ref={chartRef} />
       </Box>
     </Box>
