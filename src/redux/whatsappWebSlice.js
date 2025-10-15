@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { getMessageLabel } from 'views/admin/whatsapp-v2/utils/helpers';
+import { getMediaSrc } from 'views/admin/whatsapp-v2/utils/mediaSelector';
 
 const initialState = {
 	qr: '',
@@ -15,6 +17,7 @@ const initialState = {
 	isChatsFetching: false,
 	whatsapp_disconnect: '',
 	whatsapp_loading: {},
+	downloaded_media: {}, // { messageId: base64String }
 };
 
 const whatsappWebSlice = createSlice({
@@ -23,6 +26,7 @@ const whatsappWebSlice = createSlice({
 	reducers: {
 		qrCode: (state, action) => {
 			state.qr = action.payload?.qrCode || '';
+			state.whatsapp_disconnect = '';
 		},
 		authFail: (state, action) => {
 			state.error = action.payload;
@@ -45,7 +49,8 @@ const whatsappWebSlice = createSlice({
 		},
 		error: (state, action) => {
 			console.log('message error: ', action.payload);
-			state.error = action.payload?.message || 'Unknown error';
+			state.error =
+				action.payload?.message || 'Error: Please reload and try again!';
 		},
 		// chatsLoaded: (state, action) => {
 		// 	console.log('chats loaded: ', action.payload);
@@ -88,6 +93,23 @@ const whatsappWebSlice = createSlice({
 			state.page = page;
 			state.hasMoreChats = hasMore;
 		},
+		saveDownloadedMedia: (state, action) => {
+			const { media, mediaKey } = action.payload || {};
+			// if (!media) return;
+
+			// state.downloaded_media[mediaKey] = media?.data;
+
+			if (!media || !mediaKey) return;
+			// media = { data: 'base64string', mimeType: 'image/png', fileName: 'pic.png' }
+			state.downloaded_media[mediaKey] = {
+				data: getMediaSrc({
+					data: media.data,
+					mimeType: media.mimetype,
+				}),
+				mimeType: media.mimetype,
+				fileName: media.filename || 'File',
+			};
+		},
 
 		setActiveChat: (state, action) => {
 			state.activeChat = action.payload;
@@ -98,6 +120,12 @@ const whatsappWebSlice = createSlice({
 
 			// Replace or set messages list for this chatId
 			state.userChats[chatId] = messages || [];
+
+			// also update unread count to 0 in all conversations if active chat
+			const chat = state.allConversations?.find((c) => c.id === chatId);
+			if (chat) {
+				chat.unreadCount = 0;
+			}
 		},
 		newMessage: (state, action) => {
 			const { message } = action.payload;
@@ -106,7 +134,7 @@ const whatsappWebSlice = createSlice({
 			console.log('new message received:', message);
 
 			const msgId = message?.id?._serialized;
-			if (!msgId || message?.isStatus || message?.hasMedia) return;
+			if (!msgId || message?.isStatus) return;
 
 			const chatId = message?.fromMe ? message?.to : message?.from;
 			if (!chatId) return;
@@ -148,7 +176,7 @@ const whatsappWebSlice = createSlice({
 
 			const newLastMessage = {
 				id: message?.id?._serialized,
-				body: message?.body || '',
+				body: getMessageLabel(message),
 				timestamp: message?.timestamp || Date.now(),
 				type: message?.type || 'chat',
 				fromMe: message?.fromMe,
@@ -230,7 +258,7 @@ const whatsappWebSlice = createSlice({
 
 		disconnect: (state, action) => ({
 			...initialState,
-			whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
+			// whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
 		}),
 
 		reset: () => initialState,
@@ -253,6 +281,7 @@ export const {
 	disconnect,
 	setChatsFetching,
 	reset,
+	saveDownloadedMedia,
 } = whatsappWebSlice.actions;
 
 // export the selector

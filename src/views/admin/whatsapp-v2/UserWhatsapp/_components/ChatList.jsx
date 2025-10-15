@@ -21,6 +21,7 @@ import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import useUserSession from 'hooks/useUserSession';
 import { useSelector } from 'react-redux';
+import { getMessageLabel } from '../../utils/helpers';
 
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
@@ -73,7 +74,7 @@ const ChatList = ({
 			{/* Header */}
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
-				alignItems='center'
+				alignItems={{ base: 'start', md: 'center' }}
 				justifyContent='space-between'
 				w='full'
 				p={4}
@@ -98,7 +99,7 @@ const ChatList = ({
 					</Text> */}
 				</HStack>
 
-				<Button size='xs' onClick={logoutHandler}>
+				<Button size='xs' onClick={logoutHandler} alignSelf='flex-end'>
 					Logout Whatsapp
 				</Button>
 
@@ -129,9 +130,9 @@ const ChatList = ({
 				overflowY='auto'
 				// maxH='full'
 			>
-				{allConversations?.map((chat) => (
+				{allConversations?.map((chat, index) => (
 					<ChatListItem
-						key={chat.id}
+						key={chat.id + index}
 						chat={chat}
 						onSelectedChatHandler={onSelectedChatHandler}
 						sessionId={sessionId}
@@ -238,16 +239,6 @@ const ChatListItem = ({
 										Group
 									</Badge>
 								)}
-								{chat?.pinned && (
-									<Badge colorScheme='yellow' size='xs' variant='subtle'>
-										Pinned
-									</Badge>
-								)}
-								{chat?.archived && (
-									<Badge colorScheme='gray' size='xs' variant='subtle'>
-										Archived
-									</Badge>
-								)}
 							</HStack> */}
 
 							{/* Message Status & Time */}
@@ -271,7 +262,7 @@ const ChatListItem = ({
 						<HStack justifyContent='space-between'>
 							<Text fontSize='xs' color='gray.600' noOfLines={1} mb={1}>
 								{chat.lastMessage
-									? truncateMessage(chat.lastMessage.body)
+									? truncateMessage(getMessageLabel(chat.lastMessage))
 									: 'No messages yet'}
 							</Text>
 							{/* Unread Count */}

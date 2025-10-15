@@ -100,6 +100,7 @@ export const useWhatsapp = () => {
 
 	const whatsappInitialize = useCallback((payload) => {
 		console.log('initialize_whatsapp: ', payload);
+		dispatch(reset());
 		socketService.emit('initialize_whatsapp', payload);
 	}, []);
 
@@ -119,10 +120,39 @@ export const useWhatsapp = () => {
 		[dispatch]
 	);
 
-	const sendMessage = useCallback((sessionId, to, message, options = {}) => {
-		if (!sessionId) return;
-		socketService.emit('send_message', { sessionId, to, message });
+	const markChatAsSeen = useCallback((sessionId, chatId) => {
+		if (!sessionId || !chatId) return;
+		socketService.emit('chat_seen', { sessionId, chatId });
 	}, []);
+
+	const sendMessage = useCallback(
+		(sessionId, to, message, options = {}) => {
+			if (!sessionId || !to) return;
+			// if active chat is same as to, send seen along with message
+			if (state.activeChat && state.activeChat?.id === to) {
+				options = { ...options, sendSeen: true, isViewOnce: true };
+			}
+			socketService.emit('send_message', { sessionId, to, message });
+		},
+		[state.activeChat]
+	);
+
+	const downloadMedia = useCallback(
+		({ sessionId, messageId, action = 'download' }) => {
+			if (!sessionId || !messageId) return;
+
+			// socketService.emit('download_media', { sessionId, messageId });
+
+			const payload = {
+				sessionId,
+				messageId,
+				action,
+			};
+
+			socketService.emit('download_media', payload);
+		},
+		[]
+	);
 
 	const disconnectWhatsapp = useCallback(
 		(sessionId) => {
@@ -149,8 +179,10 @@ export const useWhatsapp = () => {
 		getChats,
 		getChat,
 		sendMessage,
+		markChatAsSeen,
 		disconnectWhatsapp,
 		logoutWhatsapp,
+		downloadMedia,
 		isSocketConnected,
 	};
 };
