@@ -60,11 +60,6 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
         path: "/sipSetting/log/status-change",
         body: { recordingId, oldStatus, newStatus },
       }).unwrap();
-
-      toast.info(`Status change logged: ${oldStatus} → ${newStatus}`, {
-        position: "top-right",
-        autoClose: 2000,
-      });
     } catch (err) {
       console.error("Update access failed:", err);
       toast.error("Failed to update access!", {
@@ -165,7 +160,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         isLoading={loadingUserId === item.sharedWith?._id}
                         borderRadius="md"
                       >
-                        {item.active ? "Set Inactive" : "Set Active"}
+                        {item.active ? "Allowed" : "Not Allowed"}
                       </Button>
                     </VStack>
                   </HStack>

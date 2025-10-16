@@ -281,7 +281,7 @@ const SharedSipRecording = () => {
                           setCurrentlyPlayingId={setCurrentlyPlayingId}
                           playerId={call.uniqueid}
                           onPlayStart={() => handleLogPlay(call.callData)}
-                          call={call}
+                          call={call.callData}
                         />
                         <Button
                           variant="link"

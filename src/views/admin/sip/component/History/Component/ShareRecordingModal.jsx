@@ -98,6 +98,8 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
           data: payload,
         },
       }).unwrap();
+      setSelectedUsers([]);
+      setSearch("");
       onClose();
     } catch (err) {
       console.error("❌ Share failed:", err);
