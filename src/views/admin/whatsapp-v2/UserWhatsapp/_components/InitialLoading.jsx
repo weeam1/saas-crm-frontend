@@ -6,7 +6,7 @@ const MotionBox = motion(Box);
 
 const InitialLoading = () => {
 	return (
-		<Flex h='80vh' align='center'>
+		<Flex h='80vh' align='center' justify='center'>
 			<MotionBox
 				bg='gray.100'
 				rounded='2xl'
@@ -15,8 +15,7 @@ const InitialLoading = () => {
 				borderColor={'gray.200'}
 				p={8}
 				textAlign='center'
-				minW='800px'
-				mx='auto'
+				minW={{ base: '80vw', md: '40vw' }}
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				transition={{ duration: 0.4 }}

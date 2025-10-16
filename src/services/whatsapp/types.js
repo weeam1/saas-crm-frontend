@@ -12,4 +12,9 @@ export const WHATSAPP_EVENTS = {
 	DISCONNECT: 'whatsapp_disconnected',
 	CHATS_LOADED: 'chats_loaded',
 	CHAT_LOADED: 'chat_loaded',
+
+	CHAT_SEEN: 'chat_seen',
+	CHAT_SEEN_RESPONSE: 'chat_seen_response',
+	DOWNLOAD_MEDIA: 'download_media',
+	DOWNLOAD_MEDIA_RESPONSE: 'download_media_response',
 };

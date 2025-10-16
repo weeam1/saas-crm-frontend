@@ -174,7 +174,7 @@ const sidebarRoutes = [
 				path: '/whatsapp/chats',
 			},
 			{
-				id: 'whatsapp_chats',
+				// id: 'whatsapp_chats',
 				name: 'Instances',
 				version: 'Beta',
 				path: '/whatsapp/instances',

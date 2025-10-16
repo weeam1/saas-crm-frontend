@@ -58,14 +58,16 @@ const WhatsAppQRLogin = ({ qr }) => {
 					{/* Header */}
 					<VStack spacing={3}>
 						<HStack spacing={3}>
-							<Box w='40px' h='40px'>
-								<Image
-									src='https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
-									alt='WhatsApp'
-									fallback={
-										<Box w='full' h='full' bg='green.500' borderRadius='lg' />
-									}
-								/>
+							<Box
+								w='40px'
+								h='40px'
+								display='flex'
+								alignItems='center'
+								justifyContent='center'
+								bg='green.500'
+								rounded='full'
+							>
+								<FaWhatsapp size='60%' color='white' />
 							</Box>
 							<Text fontSize='2xl' fontWeight='bold' color='gray.700'>
 								WhatsApp Web
@@ -123,7 +125,7 @@ const WhatsAppQRLogin = ({ qr }) => {
 										value={qrCode}
 										size={256}
 										level='H'
-										marginSize={4}
+										// marginSize={4}
 										// fgColor='#25D366'
 									/>
 

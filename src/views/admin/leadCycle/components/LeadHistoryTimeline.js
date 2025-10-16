@@ -179,12 +179,32 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
-										{/* <strong>
-											Assigned to{' '}
-											{item.type === 'assignment-manager' ? 'manager' : 'agent'}
-											:
-										</strong>{' '} */}
-										<Text as='span' color='teal.500' fontWeight='600'>
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+							{(item.type === 'unassigned-manager' ||
+								item.type === 'unassigned-agent') && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										♻️
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
 											{item?.updatedData}
 										</Text>
 									</Text>
@@ -201,8 +221,11 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										🔄
-										{/* <strong>Status changed to:</strong>{' '} */}
-										<Text as='span' color='purple.500' fontWeight='600'>
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
 											{item?.updatedData}
 										</Text>
 									</Text>
@@ -219,8 +242,11 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										🔄
-										{/* <strong>Main Status changed to:</strong>{' '} */}
-										<Text as='span' color='brand.500' fontWeight='600'>
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
 											{item?.updatedData}
 										</Text>
 									</Text>
@@ -237,9 +263,32 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										💰
-										{/* <strong>Lead purchased by:</strong>{' '} */}
-										<Text as='span' color='green.500' fontWeight='600'>
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
 											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+							{item.type === 'release' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔓
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{`${item?.role} Release Lead`}
 										</Text>
 									</Text>
 									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
@@ -255,7 +304,11 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							{item.type === 'creation' && (
 								<Text fontSize={{ base: 'sm', md: 'md' }}>
 									🎯 <strong>Lead created</strong> by{' '}
-									<Text as='span' color='blue.500' fontWeight='600'>
+									<Text
+										as='span'
+										color={getStatusColor(item.type)}
+										fontWeight='600'
+									>
 										{item?.updatedBy}
 									</Text>
 								</Text>
@@ -274,9 +327,12 @@ const getStatusColor = (type) => {
 		creation: 'blue.500',
 		'assignment-manager': 'teal.500',
 		'assignment-agent': 'cyan.500',
+		'unassigned-manager': 'gray.500',
+		'unassigned-agent': 'gray.500',
 		status: 'purple.500',
 		mStatus: 'brand.500',
 		'lead-buy': 'green.500',
+		release: 'red.500',
 	};
 	return colors[type] || 'gray.500';
 };
@@ -286,9 +342,12 @@ const getBadgeColor = (type) => {
 		creation: 'blue',
 		'assignment-manager': 'teal',
 		'assignment-agent': 'cyan',
+		'unassigned-manager': 'gray',
+		'unassigned-agent': 'gray',
 		status: 'purple',
 		mStatus: 'brand',
 		'lead-buy': 'green',
+		release: 'red',
 	};
 	return colors[type] || 'gray';
 };
@@ -296,8 +355,11 @@ const getBadgeColor = (type) => {
 const getTypeLabel = (type) => {
 	const labels = {
 		creation: 'Created',
+		release: 'Release',
 		'assignment-manager': 'Manager Assigned',
 		'assignment-agent': 'Agent Assigned',
+		'unassigned-manager': 'Unassigned Manager',
+		'unassigned-agent': 'Unassigned Agent',
 		status: 'Status Changed',
 		mStatus: 'M Status Changed',
 		'lead-buy': 'Purchased',
