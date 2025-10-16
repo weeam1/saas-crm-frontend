@@ -135,6 +135,7 @@ const LeadMenu = ({
 						isReleased={lead?.isReleased}
 						role={userRoleName}
 						leadId={lead?._id}
+						lead={lead}
 						as={MenuItem}
 						refreshData={refreshData}
 					/>

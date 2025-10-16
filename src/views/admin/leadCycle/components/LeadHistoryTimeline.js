@@ -250,6 +250,23 @@ export default function LeadHistoryTimeline({ timelineData }) {
 									</Text>
 								</Box>
 							)}
+							{item.type === 'release' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔓
+										{/* <strong>Lead purchased by:</strong>{' '} */}
+										<Text as='span' color='red.500' fontWeight='600'>
+											{`${item?.role} Release Lead`}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
 
 							{/* Dynamic content based on type */}
 							{item.type === 'creation' && (
@@ -289,6 +306,7 @@ const getBadgeColor = (type) => {
 		status: 'purple',
 		mStatus: 'brand',
 		'lead-buy': 'green',
+		release: 'red',
 	};
 	return colors[type] || 'gray';
 };
@@ -296,6 +314,7 @@ const getBadgeColor = (type) => {
 const getTypeLabel = (type) => {
 	const labels = {
 		creation: 'Created',
+		release: 'Release',
 		'assignment-manager': 'Manager Assigned',
 		'assignment-agent': 'Agent Assigned',
 		status: 'Status Changed',
