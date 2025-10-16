@@ -160,7 +160,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         isLoading={loadingUserId === item.sharedWith?._id}
                         borderRadius="md"
                       >
-                        {item.active ? "Allowed" : "Not Allowed"}
+                        {item.active ? "Not Allowed" : "Allowed"}
                       </Button>
                     </VStack>
                   </HStack>
