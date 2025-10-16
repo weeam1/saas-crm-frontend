@@ -13,6 +13,7 @@ import {
 import { FaPlay, FaPause, FaArrowDown } from "react-icons/fa";
 import { useCreateItemMutation } from "api/apiSlice";
 import useUserSession from "hooks/useUserSession";
+import { usePermissions } from "hooks/usePermissions";
 
 const formatTime = (seconds) => {
   const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
@@ -36,8 +37,8 @@ const AudioPlayer = ({
   const [playbackRate, setPlaybackRate] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [hasStartedLog, setHasStartedLog] = useState(false); 
-
+  const [hasStartedLog, setHasStartedLog] = useState(false);
+  const { hasPermission } = usePermissions();
   const { user } = useUserSession();
   const [createItemMutation] = useCreateItemMutation();
 
@@ -196,22 +197,34 @@ const AudioPlayer = ({
       position="relative"
     >
       {/* Download button */}
-      <IconButton
-        as="a"
-        href={url}
-        download
-        aria-label="Download Audio"
-        icon={<FaArrowDown />}
-        size="sm"
-        variant="brand"
-        colorScheme="whiteAlpha"
-        position="absolute"
-        bottom="5px"
-        right="8px"
-        _hover={{ bg: "whiteAlpha.300" }}
-        isDisabled={error || duration <= 0}
-      />
-
+      {hasPermission("sip", "recording_share") && (
+        <IconButton
+          as="a"
+          href={url}
+          download
+          aria-label="Download Audio"
+          icon={<FaArrowDown />}
+          size="sm"
+          variant="brand"
+          colorScheme="whiteAlpha"
+          position="absolute"
+          bottom="5px"
+          right="8px"
+          _hover={{ bg: "whiteAlpha.300" }}
+          isDisabled={error || duration <= 0}
+          onClick={async () => {
+            await createItemMutation({
+              path: "/sipSetting/sharedSipRecording/share",
+              body: {
+                action: "DOWNLOAD",
+                message: "Recording Download",
+                recordingId,
+                data: call,
+              },
+            }).unwrap();
+          }}
+        />
+      )}
       <audio ref={audioRef} preload="metadata" />
 
       <Flex align="center" gap={4}>
