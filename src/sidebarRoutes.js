@@ -136,21 +136,25 @@ const sidebarRoutes = [
 				path: '/sip/dashboard',
 			},
 			{
+				id: 'call_history',
 				name: 'Call History',
 				path: '/sip/history',
 			},
 			{
+				id: 'user_analytics',
 				name: 'User Analytics',
 				path: '/sip/user-analytics',
 			},
 			{
-				name: 'User Settings ',
+				id: 'user_settings',
+				name: 'User Settings',
 				path: '/sip/settings',
 			},
 			{
+				id: 'shared_recordings',
 				name: 'Shared Recording',
 				path: '/sip/shared-recording',
-			}
+			},
 		],
 	},
 
