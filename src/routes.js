@@ -492,7 +492,7 @@ const routes = [
 		component: SipDashboard,
 	},
 	{
-		moduleId: 'call_history',
+		childId: 'call_history',
 		name: 'Call history',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/history',
@@ -501,7 +501,7 @@ const routes = [
 		component: SipHistory,
 	},
 	{
-		moduleId: 'user_settings',
+		childId: 'user_settings',
 		name: 'User settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/settings',
@@ -510,7 +510,7 @@ const routes = [
 		component: SipSettings,
 	},
 	{
-		moduleId: 'user_analytics',
+		childId: 'user_analytics',
 		name: 'User Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/user-analytics',
@@ -519,7 +519,7 @@ const routes = [
 		component: SipUserAnalytics,
 	},
 	{
-		moduleId: 'shared_recordings',
+		childId: 'shared_recordings',
 		name: 'Shared Recoding',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/shared-recording',
