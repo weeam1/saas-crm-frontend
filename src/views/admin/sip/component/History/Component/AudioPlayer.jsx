@@ -197,7 +197,7 @@ const AudioPlayer = ({
       position="relative"
     >
       {/* Download button */}
-      {hasPermission("sip", "recording_share") && (
+      {hasPermission("sip", "download_recording") && (
         <IconButton
           as="a"
           href={url}
