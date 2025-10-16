@@ -84,8 +84,6 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
         recordingId: call.uniqueid || call.recording,
         sharedWith: selectedUsers.map((u) => u._id),
         callData: call,
-        action: "SHARED",
-        message: "Recording shared",
       };
 
       await createItemMutation({

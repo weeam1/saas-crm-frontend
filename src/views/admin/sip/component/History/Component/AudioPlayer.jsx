@@ -213,15 +213,17 @@ const AudioPlayer = ({
           _hover={{ bg: "whiteAlpha.300" }}
           isDisabled={error || duration <= 0}
           onClick={async () => {
-            await createItemMutation({
-              path: "/sipSetting/sharedSipRecording/share",
-              body: {
-                action: "DOWNLOAD",
-                message: "Recording Download",
-                recordingId,
-                data: call,
-              },
-            }).unwrap();
+            try {
+              await createItemMutation({
+                path: "/sipSetting/log/download",
+                body: {
+                  recordingId,
+                  data: call,
+                },
+              }).unwrap();
+            } catch (error) {
+              console.log(error);
+            }
           }}
         />
       )}
