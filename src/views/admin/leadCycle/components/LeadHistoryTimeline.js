@@ -179,11 +179,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
-										{/* <strong>
-											Assigned to{' '}
-											{item.type === 'assignment-manager' ? 'manager' : 'agent'}
-											:
-										</strong>{' '} */}
 										<Text as='span' color='teal.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
@@ -201,7 +196,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										🔄
-										{/* <strong>Status changed to:</strong>{' '} */}
 										<Text as='span' color='purple.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
@@ -219,7 +213,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										🔄
-										{/* <strong>Main Status changed to:</strong>{' '} */}
 										<Text as='span' color='brand.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
@@ -237,7 +230,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										💰
-										{/* <strong>Lead purchased by:</strong>{' '} */}
 										<Text as='span' color='green.500' fontWeight='600'>
 											{item?.updatedData}
 										</Text>
@@ -254,7 +246,6 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										🔓
-										{/* <strong>Lead purchased by:</strong>{' '} */}
 										<Text as='span' color='red.500' fontWeight='600'>
 											{`${item?.role} Release Lead`}
 										</Text>
