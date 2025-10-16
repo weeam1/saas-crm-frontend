@@ -17,224 +17,277 @@ import ViewToggle from "components/toggle/ViewToggle";
 import CallTableView from "./CallTableView";
 import CallGrid from "./CallGrid";
 import TopPagination from "components/pagination/TopPagination";
+import ShareRecordingModal from "./Component/ShareRecordingModal";
+import LogModal from "./Component/LogModal";
+import SharedDetailModal from "./Component/SharedDetailModal";
 
 const CallHistory = () => {
-	const [calls, setCalls] = useState([]);
-	const [page, setPage] = useState(1);
-	const [pageSize, setPageSize] = useState(12);
-	const [totalItems, setTotalItems] = useState(0);
-	const [totalPages, setTotalPages] = useState(1);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState('');
-	const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
-	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [filters, setFilters] = useState({});
-	const [filterChanged, setFilterChanged] = useState(false);
-	const [copied, setCopied] = useState(false);
-	const [view, setView] = useState(() => {
-		return localStorage.getItem('callHistoryView') || 'table';
-	});
+  const [calls, setCalls] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [filterChanged, setFilterChanged] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [view, setView] = useState(() => {
+    return localStorage.getItem("callHistoryView") || "table";
+  });
 
-	const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isLogOpen, setIsLogOpen] = useState(false);
+  const [isSharedDetailOpen, setIsSharedDetailOpen] = useState(false);
+  const [selectedCallForModal, setSelectedCallForModal] = useState(null);
 
-	const buildQueryParams = useCallback(() => {
-		const params = {
-			page: page,
-			page_size: pageSize,
-		};
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-		if (filters.call_from) params.call_from = filters.call_from;
-		if (filters.call_to) params.call_to = filters.call_to;
-		if (filters.clid) params.clid = filters.clid;
-		if (filters.start_date)
-			params.start_date = new Date(filters.start_date)
-				.toISOString()
-				.slice(0, 10);
-		if (filters.end_date)
-			params.end_date = new Date(filters.end_date).toISOString().slice(0, 10);
-		if (filters.disposition) params.disposition = filters.disposition;
+  const buildQueryParams = useCallback(() => {
+    const params = {
+      page: page,
+      page_size: pageSize,
+    };
 
-		return params;
-	}, [page, pageSize, filters]);
+    if (filters.call_from) params.call_from = filters.call_from;
+    if (filters.call_to) params.call_to = filters.call_to;
+    if (filters.clid) params.clid = filters.clid;
+    if (filters.start_date)
+      params.start_date = new Date(filters.start_date)
+        .toISOString()
+        .slice(0, 10);
+    if (filters.end_date)
+      params.end_date = new Date(filters.end_date).toISOString().slice(0, 10);
+    if (filters.disposition) params.disposition = filters.disposition;
 
-	const loadCalls = useCallback(async () => {
-		try {
-			setLoading(true);
-				console.log("data.total_pages " )
-			const params = buildQueryParams();
-			const data = await fetchCallHistoryData(params);
+    return params;
+  }, [page, pageSize, filters]);
 
-			setCalls(data.data || []);
-			setTotalItems(data.total_records || 0);
-			// setTotalCallRecord(data.total_records || 0);
-			console.log("data.total_pages ", data.total_pages )
-			setTotalPages(data.total_pages || 1);
-			if (data.page) setPage(data.page);
+  const loadCalls = useCallback(async () => {
+    try {
+      setLoading(true);
+      console.log("data.total_pages ");
+      const params = buildQueryParams();
+      const data = await fetchCallHistoryData(params);
 
-			if (data.page_size && pageSize === 10 && page === 1) {
-				setPageSize(data.page_size);
-			}
-		} catch (err) {
-			setError('Failed to fetch call history');
-		} finally {
-			setLoading(false);
-		}
-	}, [buildQueryParams, pageSize, page]);
+      setCalls(data.data || []);
+      setTotalItems(data.total_records || 0);
+      // setTotalCallRecord(data.total_records || 0);
+      console.log("data.total_pages ", data.total_pages);
+      setTotalPages(data.total_pages || 1);
+      if (data.page) setPage(data.page);
 
-	useEffect(() => {
-		loadCalls();
-	}, [loadCalls]);
+      if (data.page_size && pageSize === 10 && page === 1) {
+        setPageSize(data.page_size);
+      }
+    } catch (err) {
+      setError("Failed to fetch call history");
+    } finally {
+      setLoading(false);
+    }
+  }, [buildQueryParams, pageSize, page]);
 
-	const handlePageChange = useCallback((newPage) => {
-		setPage(newPage);
-	}, []);
+  useEffect(() => {
+    loadCalls();
+  }, [loadCalls]);
 
-	const handlePageSizeChange = useCallback((value) => {
-		setPageSize(value);
-		setPage(1);
-	}, []);
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage);
+  }, []);
 
-	const handleSetCurrentlyPlaying = useCallback((playerId) => {
-		setCurrentlyPlayingId(playerId);
-	}, []);
+  const handlePageSizeChange = useCallback((value) => {
+    setPageSize(value);
+    setPage(1);
+  }, []);
 
-	const handleClearFilters = useCallback((filterKey) => {
-		if (filterKey) {
-			setFilters((prev) => {
-				const newFilters = { ...prev };
-				delete newFilters[filterKey];
-				return newFilters;
-			});
-		} else {
-			setFilters({});
-		}
-		setPage(1);
-		setFilterChanged((prev) => !prev);
-	}, []);
+  const handleSetCurrentlyPlaying = useCallback((playerId) => {
+    setCurrentlyPlayingId(playerId);
+  }, []);
 
-	const handleApplyFilters = useCallback((newFilters) => {
-		const cleanedFilters = Object.fromEntries(
-			Object.entries(newFilters).filter(
-				([_, value]) => value !== '' && value !== undefined && value !== null
-			)
-		);
+  const handleClearFilters = useCallback((filterKey) => {
+    if (filterKey) {
+      setFilters((prev) => {
+        const newFilters = { ...prev };
+        delete newFilters[filterKey];
+        return newFilters;
+      });
+    } else {
+      setFilters({});
+    }
+    setPage(1);
+    setFilterChanged((prev) => !prev);
+  }, []);
 
-		setFilters(cleanedFilters);
-		setPage(1);
-		setFilterChanged((prev) => !prev);
-	}, []);
+  const handleApplyFilters = useCallback((newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined && value !== null
+      )
+    );
 
-	const handleViewChange = (newView) => {
-		setView(newView);
-		localStorage.setItem('callHistoryView', newView);
-	};
+    setFilters(cleanedFilters);
+    setPage(1);
+    setFilterChanged((prev) => !prev);
+  }, []);
 
-	const handleCopy = async (number) => {
-		if (!number) return;
+  const handleViewChange = (newView) => {
+    setView(newView);
+    localStorage.setItem("callHistoryView", newView);
+  };
 
-		try {
-			await navigator.clipboard.writeText(number);
-			setCopied(true);
-			toast.success(`Copied: ${number}`, { autoClose: 2000 });
-			setTimeout(() => setCopied(false), 2000);
-		} catch (err) {
-			toast.error('Failed to copy!', { autoClose: 2000 });
-		}
-	};
+  const handleCopy = async (number) => {
+    if (!number) return;
 
-	useEffect(() => {
-		setCurrentlyPlayingId(null);
-	}, [page, calls]);
+    try {
+      await navigator.clipboard.writeText(number);
+      setCopied(true);
+      toast.success(`Copied: ${number}`, { autoClose: 2000 });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy!", { autoClose: 2000 });
+    }
+  };
 
-	console.log("totalPages", totalPages)
-	return (
-		<Box
-			overflowX='auto'
-			borderWidth='1px'
-			borderColor={useColorModeValue('gray.200', 'gray.700')}
-			borderRadius='0px'
-			bg='white'
-			p={3}
-			marginTop={'-16px'}
-		>
-			<Flex justifyContent='flex-end' alignItems='center' m={3} gap={2} flexWrap={"wrap"}>
-				{isMobile ? (
-					<IconButton
-						icon={<FiSearch />}
-						onClick={() => setIsFilterOpen(true)}
-						aria-label='Search Listings'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
-				) : (
-					<Button
-						colorScheme='brand'
-						size='md'
-						borderRadius='full'
-						py={3}
-						px={6}
-						onClick={() => setIsFilterOpen(true)}
-					>
-						Advanced Search
-					</Button>
-				)}
-				<ViewToggle view={view} handleView={handleViewChange}  moduleView="callHistoryView"/>
-			</Flex>
+  useEffect(() => {
+    setCurrentlyPlayingId(null);
+  }, [page, calls]);
 
-			<Box m={3}>
-				<ActiveFiltersDisplay
-					filters={filters}
-					onClearFilters={handleClearFilters}
-				/>
-			</Box>
+  const openShareModal = (call) => {
+    setSelectedCallForModal(call);
+    setIsShareOpen(true);
+  };
 
-			<TopPagination
-				currentPage={page}
-				totalPages={totalPages}
-				onPageChange={handlePageChange}
-				totalItems={totalItems}
-				itemsPerPage={pageSize}
-				setPageSize={setPageSize}
-				handlePageSize={handlePageSizeChange}
-				refetching={loading}
-				loading={loading}
-			/>
-			{
-				view === "table" ? (
-				<CallTableView
-					calls={calls}
-					currentlyPlayingId={currentlyPlayingId}
-					handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
-					setCurrentlyPlayingId={setCurrentlyPlayingId}
-					handleCopy={handleCopy}
-					copied={copied}
-					loading={loading}
-				/>
-				) : (
-				<CallGrid
-					calls={calls}
-					currentlyPlayingId={currentlyPlayingId}
-					handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
-					setCurrentlyPlayingId={setCurrentlyPlayingId}
-					handleCopy={handleCopy}
-					pageSize= {pageSize}
-					loading={loading}
-				/>
-				)
-			}
+  const openLogModal = (call) => {
+    setSelectedCallForModal(call);
+    setIsLogOpen(true);
+  };
 
-			<AdvancedSearchModal
-				isOpen={isFilterOpen}
-				onClose={() => setIsFilterOpen(false)}
-				onApplyFilters={handleApplyFilters}
-				initialFilters={filters}
-				clearFilter={filterChanged}
-			/>
-		</Box>
-	);
+  const openSharedDetailModal = (call) => {
+    setSelectedCallForModal(call);
+    setIsSharedDetailOpen(true);
+  };
+  return (
+    <Box
+      overflowX="auto"
+      borderWidth="1px"
+      borderColor={useColorModeValue("gray.200", "gray.700")}
+      borderRadius="0px"
+      bg="white"
+      p={3}
+      marginTop={"-16px"}
+    >
+      <Flex
+        justifyContent="flex-end"
+        alignItems="center"
+        m={3}
+        gap={2}
+        flexWrap={"wrap"}
+      >
+        {isMobile ? (
+          <IconButton
+            icon={<FiSearch />}
+            onClick={() => setIsFilterOpen(true)}
+            aria-label="Search Listings"
+            colorScheme="brand"
+            variant="solid"
+            size="sm"
+            borderRadius="full"
+            boxShadow="md"
+          />
+        ) : (
+          <Button
+            colorScheme="brand"
+            size="md"
+            borderRadius="full"
+            py={3}
+            px={6}
+            onClick={() => setIsFilterOpen(true)}
+          >
+            Advanced Search
+          </Button>
+        )}
+        <ViewToggle
+          view={view}
+          handleView={handleViewChange}
+          moduleView="callHistoryView"
+        />
+      </Flex>
+
+      <Box m={3}>
+        <ActiveFiltersDisplay
+          filters={filters}
+          onClearFilters={handleClearFilters}
+        />
+      </Box>
+
+      <TopPagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalItems={totalItems}
+        itemsPerPage={pageSize}
+        setPageSize={setPageSize}
+        handlePageSize={handlePageSizeChange}
+        refetching={loading}
+        loading={loading}
+      />
+      {view === "table" ? (
+        <CallTableView
+          calls={calls}
+          currentlyPlayingId={currentlyPlayingId}
+          handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          handleCopy={handleCopy}
+          copied={copied}
+          loading={loading}
+          openLogModal={openLogModal}
+          openShareModal={openShareModal}
+          openSharedDetailModal={openSharedDetailModal}
+        />
+      ) : (
+        <CallGrid
+          calls={calls}
+          currentlyPlayingId={currentlyPlayingId}
+          handleSetCurrentlyPlaying={handleSetCurrentlyPlaying}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          handleCopy={handleCopy}
+          pageSize={pageSize}
+          loading={loading}
+          openLogModal={openLogModal}
+          openShareModal={openShareModal}
+          openSharedDetailModal={openSharedDetailModal}
+        />
+      )}
+
+      <AdvancedSearchModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={filters}
+        clearFilter={filterChanged}
+      />
+
+      <ShareRecordingModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        call={selectedCallForModal}
+      />
+
+      <LogModal
+        isOpen={isLogOpen}
+        onClose={() => setIsLogOpen(false)}
+        call={selectedCallForModal}
+      />
+
+      <SharedDetailModal
+        isOpen={isSharedDetailOpen}
+        onClose={() => setIsSharedDetailOpen(false)}
+        call={selectedCallForModal}
+      />
+    </Box>
+  );
 };
 
 export default CallHistory;

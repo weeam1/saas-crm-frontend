@@ -18,9 +18,8 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Spinner,
 } from "@chakra-ui/react";
-import { FiCopy, FiMoreVertical, FiShare2, FiList } from "react-icons/fi";
+import { FiCopy, FiMoreVertical, FiShare2, FiList, FiActivity, FiUsers } from "react-icons/fi";
 import moment from "moment";
 import AudioPlayer from "./Component/AudioPlayer";
 import { formatCallDuration } from "utils/helpers";
@@ -35,12 +34,6 @@ import TranscribeModal from "./Component/TranscribeModal";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-import ShareRecordingModal from "./Component/ShareRecordingModal"
-import LogModal from "./Component/LogModal";
-import SharedDetailModal from "./Component/SharedDetailModal";
-
-import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
-
 const StatusBadge = ({ status }) => (
   <Badge bg={"transparent"} px={2} py={1} color={"black"}>
     {status || "no data found"}
@@ -48,111 +41,111 @@ const StatusBadge = ({ status }) => (
 );
 
 const StatusColor = ({ children, status }) => {
-	let color;
-	switch (status) {
-		case 'ANSWERED':
-			color = '#DEFFF3';
-			break;
-		case 'NO ANSWER':
-			color = '#F8E3FF';
-			break;
-		case 'FAILED':
-			color = '#FFE0E0';
-			break;
-		case 'BUSY':
-			color = '#FFE0E0';
-			break;
-		default:
-			color = 'gray.500';
-	}
+  let color;
+  switch (status) {
+    case "ANSWERED":
+      color = "#DEFFF3";
+      break;
+    case "NO ANSWER":
+      color = "#F8E3FF";
+      break;
+    case "FAILED":
+      color = "#FFE0E0";
+      break;
+    case "BUSY":
+      color = "#FFE0E0";
+      break;
+    default:
+      color = "gray.500";
+  }
 
-	return (
-		<Badge bg={color} px={2} py={1} borderRadius={'15px'} color={'black'}>
-			{children}
-		</Badge>
-	);
+  return (
+    <Badge bg={color} px={2} py={1} borderRadius={"15px"} color={"black"}>
+      {children}
+    </Badge>
+  );
 };
 
 const CallStatusIcon = ({ status }) => {
-	switch (status) {
-		case 'ANSWERED':
-			return (
-				<img
-					src={Vector}
-					alt='icon'
-					style={{ width: '1rem', height: '1rem' }}
-					color='#DEFFF3'
-				/>
-			);
-		case 'NO ANSWER':
-			return (
-				<img
-					src={subway_call_2}
-					alt='icon'
-					style={{ width: '1rem', height: '1rem' }}
-					color='##F8E3FF'
-				/>
-			);
-		case 'FAILED':
-		case 'BUSY':
-			return (
-				<img
-					src={subway_call_3}
-					alt='icon'
-					style={{ width: '1rem', height: '1rem' }}
-					color='#DEFFF3'
-				/>
-			);
-		default:
-			return <Icon as={FaPhone} color='gray.500' h={'1rem'} w={'1rem'} />;
-	}
+  switch (status) {
+    case "ANSWERED":
+      return (
+        <img
+          src={Vector}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#DEFFF3"
+        />
+      );
+    case "NO ANSWER":
+      return (
+        <img
+          src={subway_call_2}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="##F8E3FF"
+        />
+      );
+    case "FAILED":
+    case "BUSY":
+      return (
+        <img
+          src={subway_call_3}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#DEFFF3"
+        />
+      );
+    default:
+      return <Icon as={FaPhone} color="gray.500" h={"1rem"} w={"1rem"} />;
+  }
 };
 
 const CallModeIcon = ({ callMode }) => {
-	switch (callMode) {
-		case 'Outgoing':
-			return (
-				<img
-					src={OutgoingCallIcon}
-					alt='icon'
-					style={{ width: '1rem', height: '1rem' }}
-					color='#E11111'
-				/>
-			);
-		case 'Incoming':
-			return (
-				<img
-					src={IncomingCallIcon}
-					alt='icon'
-					style={{ width: '1rem', height: '1rem' }}
-					color='#1EB006'
-				/>
-			);
-		default:
-			return null;
-	}
+  switch (callMode) {
+    case "Outgoing":
+      return (
+        <img
+          src={OutgoingCallIcon}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#E11111"
+        />
+      );
+    case "Incoming":
+      return (
+        <img
+          src={IncomingCallIcon}
+          alt="icon"
+          style={{ width: "1rem", height: "1rem" }}
+          color="#1EB006"
+        />
+      );
+    default:
+      return null;
+  }
 };
 
 const CallHelper = ({ callMode }) => {
-	let color = '';
-	switch (callMode) {
-		case 'Outgoing':
-			color = '#E11111';
-			break;
-		case 'Incoming':
-			color = '#1EB006';
-			break;
-		default:
-			color = 'black';
-	}
-	return (
-		<Flex gap={2} alignItems={'center'} color={color}>
-			<Box>
-				<CallModeIcon callMode={callMode} />
-			</Box>
-			<Box>{callMode}</Box>
-		</Flex>
-	);
+  let color = "";
+  switch (callMode) {
+    case "Outgoing":
+      color = "#E11111";
+      break;
+    case "Incoming":
+      color = "#1EB006";
+      break;
+    default:
+      color = "black";
+  }
+  return (
+    <Flex gap={2} alignItems={"center"} color={color}>
+      <Box>
+        <CallModeIcon callMode={callMode} />
+      </Box>
+      <Box>{callMode}</Box>
+    </Flex>
+  );
 };
 
 const CallTableView = ({
@@ -163,7 +156,9 @@ const CallTableView = ({
   handleCopy,
   copied,
   loading,
-  currentUser,
+  openLogModal,
+  openShareModal,
+  openSharedDetailModal,
 }) => {
   const columns = [
     "Call id",
@@ -176,20 +171,11 @@ const CallTableView = ({
     "Type",
     "Call Duration",
     "Talk Duration",
-    "Actions"
+    "Actions",
   ];
 
   const [transcribeModal, setTranscribeModal] = useState(false);
   const [currentCall, setCurrentCall] = useState(false);
-
-  // modal controls
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isLogOpen, setIsLogOpen] = useState(false);
-  const [isSharedDetailOpen, setIsSharedDetailOpen] = useState(false);
-  const [selectedCallForModal, setSelectedCallForModal] = useState(null);
-
-  // API mutation for logging play (uses generic createItemMutation)
-  const [createItemMutation, { isLoading: isMutating }] = useCreateItemMutation();
 
   const handleOpenTranscribe = (data) => {
     setCurrentCall(data);
@@ -202,50 +188,32 @@ const CallTableView = ({
     setCurrentCall(null);
   };
 
-  // When a user starts playback, log it via backend
-  const handleLogPlay = useCallback(
-    async (call) => {
-      try {
-        const payload = {
-          recordingId: call.uniqueid || call.recording,
-        };
-        // Path to backend endpoint - adjust prefix if your backend differs
-        await createItemMutation({
-          path: "/playHistory/log",
-          body: payload,
-        }).unwrap();
-      } catch (err) {
-        console.error("Failed to log play:", err);
-      }
-    },
-    [createItemMutation]
-  );
-
-  const openShareModal = (call) => {
-    setSelectedCallForModal(call);
-    setIsShareOpen(true);
-  };
-
-  const openLogModal = (call) => {
-    setSelectedCallForModal(call);
-    setIsLogOpen(true);
-  };
-
-  const openSharedDetailModal = (call) => {
-    setSelectedCallForModal(call);
-    setIsSharedDetailOpen(true);
-  };
-
   return (
     <>
       <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto" mt={3}>
         <Table variant="striped" size="sm" bg="white">
-          <Thead position="sticky" top={0} bg="white" zIndex={2} boxShadow="0px 2px 8px rgba(0,0,0,0.1)" fontSize={"16px"} borderRadius="lg">
+          <Thead
+            position="sticky"
+            top={0}
+            bg="white"
+            zIndex={2}
+            boxShadow="0px 2px 8px rgba(0,0,0,0.1)"
+            fontSize={"16px"}
+            borderRadius="lg"
+          >
             <Tr>
               {columns.map((header, index) => (
                 <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box display="flex" alignItems="center" justifyContent="center">
-                    <Text fontSize={{ base: "12px", md: "14px" }} fontWeight="600" color="gray.700">
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                    >
                       {header}
                     </Text>
                   </Box>
@@ -260,59 +228,127 @@ const CallTableView = ({
             <Tbody>
               {calls.map((call, index) => (
                 <Tr key={call.id || call.uniqueid || index}>
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     {call.uniqueid || "no data found"}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="200px" textAlign={"center"}>
-                    {call.calldate ? moment(call.calldate).format("MMM D, h:mm A") : "no data found"}
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="200px"
+                    textAlign={"center"}
+                  >
+                    {call.calldate
+                      ? moment(call.calldate).format("MMM D, h:mm A")
+                      : "no data found"}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
-                    {call.call_mode ? <CallHelper callMode={call.call_mode} /> : "no data found"}
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.call_mode ? (
+                      <CallHelper callMode={call.call_mode} />
+                    ) : (
+                      "no data found"
+                    )}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     {call.src || "no data found"}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"} color={"#8247FF"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                    color={"#8247FF"}
+                  >
                     <Flex align="center" justify="center" gap={2}>
                       {call.dst || "no data found"}
                       {call.dst && (
-                        <CustomTooltip label={copied ? "Copied!" : "Copy"} hasArrow>
-                          <IconButton icon={<FiCopy />} size="xs" aria-label="Copy phone number" variant="ghost" colorScheme="purple" onClick={() => handleCopy(call.dst)} />
+                        <CustomTooltip
+                          label={copied ? "Copied!" : "Copy"}
+                          hasArrow
+                        >
+                          <IconButton
+                            icon={<FiCopy />}
+                            size="xs"
+                            aria-label="Copy phone number"
+                            variant="ghost"
+                            colorScheme="purple"
+                            onClick={() => handleCopy(call.dst)}
+                          />
                         </CustomTooltip>
                       )}
                     </Flex>
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "11px", md: "13px" }} fontWeight="400" minWidth="400px" textAlign={"center"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "11px", md: "13px" }}
+                    fontWeight="400"
+                    minWidth="400px"
+                    textAlign={"center"}
+                  >
                     {call.recording ? (
                       <VStack>
                         <AudioPlayer
                           url={`https://webrtc.weeam.info/file/${call.recording}`}
                           currentlyPlayingId={currentlyPlayingId}
                           setCurrentlyPlayingId={handleSetCurrentlyPlaying}
-                          playerId={call.id || call.uniqueid || `player-${index}`}
+                          playerId={
+                            call.id || call.uniqueid || `player-${index}`
+                          }
                           timestamp={new Date(call.calldate)}
                           duration={call?.duration}
                           id={call?.uniqueid}
-                          // IMPORTANT: AudioPlayer must call onPlayStart() when playback starts.
-                          onPlayStart={() => handleLogPlay(call)}
+                          call={call}
                         />
                         {call.billsec > 0 && (
-                          <Button alignSelf="flex-end" variant="link" colorScheme="brand" fontSize="xs" onClick={() => handleOpenTranscribe(call)}>
+                          <Button
+                            alignSelf="flex-end"
+                            variant="link"
+                            colorScheme="brand"
+                            fontSize="xs"
+                            onClick={() => handleOpenTranscribe(call)}
+                          >
                             Transcribe
                           </Button>
                         )}
                       </VStack>
                     ) : (
-                      <Text fontSize="sm" color="gray.500">no data found</Text>
+                      <Text fontSize="sm" color="gray.500">
+                        no data found
+                      </Text>
                     )}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     <Flex align="center" justify="center" gap={1}>
                       <StatusColor status={call.disposition}>
                         <Flex alignItems={"center"}>
@@ -323,25 +359,62 @@ const CallTableView = ({
                     </Flex>
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
                     {call.lastapp || "no data found"}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
-                    {call.duration ? `${formatCallDuration(call.duration)}` : "0 sec"}
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.duration
+                      ? `${formatCallDuration(call.duration)}`
+                      : "0 sec"}
                   </Td>
 
-                  <Td py={4} fontSize={{ base: "12px", md: "14px" }} fontWeight="400" minWidth="100px" textAlign={"center"}>
-                    {call.billsec ? `${formatCallDuration(call.billsec)}` : "0 sec"}
+                  <Td
+                    py={4}
+                    fontSize={{ base: "12px", md: "14px" }}
+                    fontWeight="400"
+                    minWidth="100px"
+                    textAlign={"center"}
+                  >
+                    {call.billsec
+                      ? `${formatCallDuration(call.billsec)}`
+                      : "0 sec"}
                   </Td>
 
                   <Td py={4} textAlign="center">
                     <Menu>
-                      <MenuButton as={IconButton} icon={<FiMoreVertical />} size="sm" variant="ghost" aria-label="Actions" />
+                      <MenuButton
+                        as={IconButton}
+                        icon={<FiMoreVertical />}
+                        size="sm"
+                        variant="ghost"
+                        aria-label="Actions"
+                      />
                       <MenuList>
-                        <MenuItem icon={<FiList />} onClick={() => openLogModal(call)}>View Log</MenuItem>
-                        <MenuItem icon={<FiShare2 />} onClick={() => openShareModal(call)}>Share Recording</MenuItem>
-                        <MenuItem onClick={() => openSharedDetailModal(call)}>Shared Detail</MenuItem>
+                        <MenuItem icon={<FiActivity />} onClick={() => openLogModal(call)}>
+                          View Log
+                        </MenuItem>
+                        <MenuItem icon={<FiShare2 />} onClick={() => openShareModal(call)}>
+                          Share Recording
+                        </MenuItem>
+                        <MenuItem
+                          icon={<FiUsers />}
+                          onClick={() => openSharedDetailModal(call)}
+                        >
+                          Shared Detail
+                        </MenuItem>
                       </MenuList>
                     </Menu>
                   </Td>
@@ -350,7 +423,14 @@ const CallTableView = ({
             </Tbody>
           ) : (
             <Tr borderColor="gray.200" textAlign="center">
-              <Td borderBottom="none" colSpan="13" fontSize={{ base: "12px", md: "15px" }} fontWeight="500" color="gray.500" textAlign="center">
+              <Td
+                borderBottom="none"
+                colSpan="13"
+                fontSize={{ base: "12px", md: "15px" }}
+                fontWeight="500"
+                color="gray.500"
+                textAlign="center"
+              >
                 <NoData label="call records" />
               </Td>
             </Tr>
@@ -359,27 +439,13 @@ const CallTableView = ({
       </Box>
 
       {/* Modals */}
-      {transcribeModal && <TranscribeModal isOpen={transcribeModal} onClose={handleTranscribeClose} data={currentCall} />}
-
-      <ShareRecordingModal
-        isOpen={isShareOpen}
-        onClose={() => setIsShareOpen(false)}
-        call={selectedCallForModal}
-        currentUser={currentUser}
-      />
-
-      <LogModal
-        isOpen={isLogOpen}
-        onClose={() => setIsLogOpen(false)}
-        call={selectedCallForModal}
-      />
-
-      <SharedDetailModal
-        isOpen={isSharedDetailOpen}
-        onClose={() => setIsSharedDetailOpen(false)}
-        call={selectedCallForModal}
-        currentUser={currentUser}
-      />
+      {transcribeModal && (
+        <TranscribeModal
+          isOpen={transcribeModal}
+          onClose={handleTranscribeClose}
+          data={currentCall}
+        />
+      )}
     </>
   );
 };

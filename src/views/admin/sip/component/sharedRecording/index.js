@@ -13,22 +13,15 @@ import {
   Badge,
   Button,
   VStack,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
 } from "@chakra-ui/react";
-import { FiCopy, FiMoreVertical, FiShare2, FiList } from "react-icons/fi";
+import { FiCopy} from "react-icons/fi";
 import moment from "moment";
 import { toast } from "react-toastify";
 
-import AudioPlayer from "./Component/AudioPlayer";
-import TranscribeModal from "./Component/TranscribeModal";
+import AudioPlayer from "../History/Component/AudioPlayer";
+import TranscribeModal from "../History/Component/TranscribeModal";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-import ShareRecordingModal from "./Component/ShareRecordingModal";
-import LogModal from "./Component/LogModal";
-import SharedDetailModal from "./Component/SharedDetailModal";
 
 import { useCreateItemMutation, useFetchItemsQuery } from "api/apiSlice";
 import { formatCallDuration } from "utils/helpers";
@@ -40,8 +33,6 @@ import IncomingCallIcon from "assets/icons/incomming-call.png";
 import OutgoingCallIcon from "assets/icons/Outgoing-call.png";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { FaPhone } from "react-icons/fa6";
-
-// ====================== STATUS / MODE HELPERS ======================
 
 const StatusBadge = ({ status }) => (
   <Badge bg="transparent" px={2} py={1} color="black">
@@ -114,7 +105,6 @@ const CallHelper = ({ mode }) => {
   );
 };
 
-// ====================== MAIN COMPONENT ======================
 
 const SharedSipRecording = () => {
   const [copied, setCopied] = useState(false);
@@ -122,9 +112,6 @@ const SharedSipRecording = () => {
   const [transcribeModal, setTranscribeModal] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
 
-  const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isLogOpen, setIsLogOpen] = useState(false);
-  const [isSharedDetailOpen, setIsSharedDetailOpen] = useState(false);
 
   const { data: calls, isLoading } = useFetchItemsQuery(
     { path: "/sipSetting/sharedSipRecording/active" },
@@ -133,7 +120,6 @@ const SharedSipRecording = () => {
 
   const [createItemMutation] = useCreateItemMutation();
 
-  // ====================== Copy Handler ======================
   const handleCopy = async (number) => {
     if (!number) return;
     try {
@@ -146,7 +132,6 @@ const SharedSipRecording = () => {
     }
   };
 
-  // ====================== Log Play Handler ======================
   const handleLogPlay = useCallback(
     async (call) => {
       try {
@@ -162,7 +147,6 @@ const SharedSipRecording = () => {
     [createItemMutation]
   );
 
-  // ====================== Transcribe Modal ======================
   const handleOpenTranscribe = (call) => {
     setSelectedCall(call);
     setTranscribeModal(true);
@@ -211,9 +195,6 @@ const SharedSipRecording = () => {
                   </Box>
                 </Th>
               ))}
-              {/* <Th py={3} bg="brand.100" textAlign="center">
-                Actions
-              </Th> */}
             </Tr>
           </Thead>
 
@@ -300,11 +281,12 @@ const SharedSipRecording = () => {
                           setCurrentlyPlayingId={setCurrentlyPlayingId}
                           playerId={call.uniqueid}
                           onPlayStart={() => handleLogPlay(call.callData)}
+                          call={call}
                         />
                         <Button
                           variant="link"
                           size="xs"
-                          colorScheme="purple"
+                          colorScheme="brand"
                           onClick={() => handleOpenTranscribe(call.callData)}
                         >
                           Transcribe
@@ -355,27 +337,6 @@ const SharedSipRecording = () => {
                   >
                     {formatCallDuration(call.callData.billsec || 0)}
                   </Td>
-                  {/* <Td textAlign="center">
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        icon={<FiMoreVertical />}
-                        variant="ghost"
-                        size="sm"
-                      />
-                      <MenuList>
-                        <MenuItem icon={<FiList />} onClick={() => setIsLogOpen(true)}>
-                          View Log
-                        </MenuItem>
-                        <MenuItem icon={<FiShare2 />} onClick={() => setIsShareOpen(true)}>
-                          Share Recording
-                        </MenuItem>
-                        <MenuItem onClick={() => setIsSharedDetailOpen(true)}>
-                          Shared Detail
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Td> */}
                 </Tr>
               ))}
             </Tbody>
@@ -399,13 +360,6 @@ const SharedSipRecording = () => {
           data={selectedCall}
         />
       )}
-
-      {/* <ShareRecordingModal
-        isOpen={isShareOpen}
-        onClose={() => setIsShareOpen(false)}
-        call={selectedCall}
-        currentUser={currentUser}
-      /> */}
     </>
   );
 };

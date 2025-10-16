@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
 	Box,
 	Flex,
@@ -10,6 +10,10 @@ import {
 	Divider,
 	Button,
 	VStack,
+	Menu,
+  	MenuButton,
+  	MenuList,
+  	MenuItem,
 } from '@chakra-ui/react';
 import {
 	FiCopy,
@@ -21,6 +25,7 @@ import {
 import moment from 'moment';
 import AudioPlayer from './Component/AudioPlayer';
 import { formatCallDuration } from 'utils/helpers';
+import { FiMoreVertical, FiShare2, FiActivity, FiUsers } from "react-icons/fi";
 
 const CallCard = ({
 	call,
@@ -29,6 +34,9 @@ const CallCard = ({
 	handleCopy,
 	handleOpenTranscribe,
 	index,
+	openLogModal,
+  	openShareModal,
+  	openSharedDetailModal,
 }) => {
 	const cardBg = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -91,20 +99,45 @@ const CallCard = ({
 					<Text fontSize='xs'>{call.disposition || 'Unknown'}</Text>
 				</Badge>
 
-				<Flex align='center' minWidth='90px' justify='flex-end'>
-					<Icon
-						as={callModeData.icon}
-						color={callModeData.color}
-						mr={1}
-						boxSize={3}
-					/>
-					<Text fontSize='xs' color={callModeData.color}>
-						{call.call_mode || 'Unknown'}
-					</Text>
+				<Flex align='center' justify='flex-end'>
+					<Flex align='center'>
+						<Icon
+							as={callModeData.icon}
+							color={callModeData.color}
+							mr={1}
+							boxSize={3}
+						/>
+						<Text fontSize='xs' color={callModeData.color}>
+							{call.call_mode || 'Unknown'}
+						</Text>
+					</Flex>
+					<Menu>
+						<MenuButton
+							as={IconButton}
+							icon={<FiMoreVertical />}
+							size="sm"
+							variant="ghost"
+							aria-label="Actions"
+						/>
+						<MenuList>
+							<MenuItem icon={<FiActivity />} onClick={() => openLogModal(call)}>
+							View Log
+							</MenuItem>
+							<MenuItem icon={<FiShare2 />} onClick={() => openShareModal(call)}>
+							Share Recording
+							</MenuItem>
+							<MenuItem
+							icon={<FiUsers />}
+							onClick={() => openSharedDetailModal(call)}
+							>
+							Shared Detail
+							</MenuItem>
+						</MenuList>
+					</Menu>
 				</Flex>
 			</Flex>
 
-			<Divider my={2} />
+			<Divider my={1} />
 
 			<Box mb={3} flex='1'>
 				<Flex direction='column' height='100%' justify='space-between'>
@@ -189,6 +222,7 @@ const CallCard = ({
 									duration={call?.duration}
 									compact
 									id= {call?.uniqueid}
+									call= {call}
 								/>
 								{call.billsec > 0 && (
 									<Button

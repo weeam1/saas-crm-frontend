@@ -23,13 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 
-/**
- * ShareRecordingModal.jsx
- * - Allows selecting multiple active users
- * - Search dropdown with live filter
- * - Selected users shown as tags
- */
-const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
+const ShareRecordingModal = ({ isOpen, onClose, call }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -38,15 +32,14 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
-  // 🔹 Fetch all users (active ones)
   const { data: usersData, isLoading } = useFetchItemsQuery(
     { path: "/v2/user/search_users" },
     { refetchOnMountOrArgChange: true }
   );
 
-  const [createItemMutation, { isLoading: isSharing }] = useCreateItemMutation();
+  const [createItemMutation, { isLoading: isSharing }] =
+    useCreateItemMutation();
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setSelectedUsers([]);
@@ -55,7 +48,6 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
     }
   }, [isOpen]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -92,7 +84,6 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
         recordingId: call.uniqueid || call.recording,
         sharedWith: selectedUsers.map((u) => u._id),
         callData: call,
-        sharedBy: currentUser?._id,
       };
 
       await createItemMutation({
@@ -100,6 +91,13 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
         body: payload,
       }).unwrap();
 
+      await createItemMutation({
+        path: "/sipSetting/log/share",
+        body: {
+          recordingId: call.uniqueid || call.recording,
+          data: payload,
+        },
+      }).unwrap();
       onClose();
     } catch (err) {
       console.error("❌ Share failed:", err);
@@ -138,7 +136,7 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
             </Text>
           </Box>
 
-          {/* 🔍 User Search Input */}
+          {/* User Search Input */}
           <Box position="relative" mb={3}>
             <Input
               placeholder="Search users by name or email..."
@@ -156,7 +154,7 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
               size="md"
             />
 
-            {/* 🔽 Dropdown */}
+            {/* Dropdown */}
             {showDropdown && (
               <Box
                 position="absolute"
@@ -179,12 +177,7 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
                     <Text fontSize="sm">Loading users...</Text>
                   </HStack>
                 ) : filteredUsers.length === 0 ? (
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
-                    p={3}
-                    textAlign="center"
-                  >
+                  <Text fontSize="sm" color="gray.500" p={3} textAlign="center">
                     No active users found
                   </Text>
                 ) : (
@@ -211,7 +204,7 @@ const ShareRecordingModal = ({ isOpen, onClose, call, currentUser }) => {
             )}
           </Box>
 
-          {/* 👥 Selected Users */}
+          {/* Selected Users */}
           {selectedUsers.length > 0 && (
             <VStack align="start" spacing={2} w="full">
               <Text fontSize="sm" color="gray.600" fontWeight="500">

@@ -30,7 +30,6 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
   const bgCard = useColorModeValue("gray.50", "gray.700");
   const hoverEffect = useColorModeValue("gray.100", "gray.600");
 
-  //  Fetch shared users for this recording
   const { data: sharedData, isLoading, refetch } = useFetchItemsQuery(
     { path: `/sipSetting/sharedSipRecording/${recordingId}` },
     { skip: !isOpen || !recordingId, refetchOnMountOrArgChange: true }
@@ -39,17 +38,30 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
   const [createItemMutation] = useCreateItemMutation();
   const [loadingUserId, setLoadingUserId] = useState(null);
 
-  //  Update access (toggle active/inactive)
   const updateAccess = async (userId) => {
     try {
       setLoadingUserId(userId);
+      const target = sharedData?.data?.find((u) => u.sharedWith?._id === userId);
+      const oldStatus = target?.active ? "Active" : "Inactive";
+      const newStatus = target?.active ? "Inactive" : "Active";
+
       await createItemMutation({
         path: "/sipSetting/sharedSipRecording/update",
         body: { recordingId, userId },
       }).unwrap();
-      await refetch();
 
+      await refetch();
       toast.success("Access status updated successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+
+      await createItemMutation({
+        path: "/sipSetting/log/status-change",
+        body: { recordingId, oldStatus, newStatus },
+      }).unwrap();
+
+      toast.info(`Status change logged: ${oldStatus} → ${newStatus}`, {
         position: "top-right",
         autoClose: 2000,
       });
@@ -69,7 +81,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent borderRadius="2xl" overflow="hidden" maxH="85vh">
+       <ModalContent borderRadius="2xl" overflow="hidden" maxH="85vh">
         <ModalHeader bg={brandColor} color="white" fontWeight="semibold" fontSize="lg">
           Shared Recording Detail
         </ModalHeader>
