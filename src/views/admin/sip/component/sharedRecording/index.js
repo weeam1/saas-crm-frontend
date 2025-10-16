@@ -199,7 +199,7 @@ const SharedSipRecording = () => {
           </Thead>
 
           {isLoading ? (
-            <TableLoading columns={columns} length={5} />
+            <TableLoading columns={columns} length={20} />
           ) : calls && calls?.data.length > 0 ? (
             <Tbody>
               {calls?.data.map((call, index) => (

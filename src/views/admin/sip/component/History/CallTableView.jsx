@@ -19,7 +19,13 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { FiCopy, FiMoreVertical, FiShare2, FiList, FiActivity, FiUsers } from "react-icons/fi";
+import {
+  FiCopy,
+  FiMoreVertical,
+  FiShare2,
+  FiActivity,
+  FiUsers,
+} from "react-icons/fi";
 import moment from "moment";
 import AudioPlayer from "./Component/AudioPlayer";
 import { formatCallDuration } from "utils/helpers";
@@ -33,6 +39,7 @@ import CustomTooltip from "../../../../../components/shared/CustomTooltip";
 import TranscribeModal from "./Component/TranscribeModal";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { usePermissions } from "hooks/usePermissions";
 
 const StatusBadge = ({ status }) => (
   <Badge bg={"transparent"} px={2} py={1} color={"black"}>
@@ -160,6 +167,11 @@ const CallTableView = ({
   openShareModal,
   openSharedDetailModal,
 }) => {
+  const { hasPermission } = usePermissions();
+  const canShareRecording =
+    hasPermission("sip", "recording_share") ||
+    hasPermission("sip", "recording_logs");
+
   const columns = [
     "Call id",
     "Call date & time",
@@ -171,7 +183,7 @@ const CallTableView = ({
     "Type",
     "Call Duration",
     "Talk Duration",
-    "Actions",
+    ...(canShareRecording ? ["Actions"] : []),
   ];
 
   const [transcribeModal, setTranscribeModal] = useState(false);
@@ -392,32 +404,46 @@ const CallTableView = ({
                       ? `${formatCallDuration(call.billsec)}`
                       : "0 sec"}
                   </Td>
-
-                  <Td py={4} textAlign="center">
-                    <Menu>
-                      <MenuButton
-                        as={IconButton}
-                        icon={<FiMoreVertical />}
-                        size="sm"
-                        variant="ghost"
-                        aria-label="Actions"
-                      />
-                      <MenuList>
-                        <MenuItem icon={<FiActivity />} onClick={() => openLogModal(call)}>
-                          View Log
-                        </MenuItem>
-                        <MenuItem icon={<FiShare2 />} onClick={() => openShareModal(call)}>
-                          Share Recording
-                        </MenuItem>
-                        <MenuItem
-                          icon={<FiUsers />}
-                          onClick={() => openSharedDetailModal(call)}
-                        >
-                          Shared Detail
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </Td>
+                  {(hasPermission("sip", "recording_share") ||
+                    hasPermission("sip", "recording_logs")) && (
+                    <Td py={4} textAlign="center">
+                      <Menu>
+                        <MenuButton
+                          as={IconButton}
+                          icon={<FiMoreVertical />}
+                          size="sm"
+                          variant="ghost"
+                          aria-label="Actions"
+                        />
+                        <MenuList>
+                          {hasPermission("sip", "recording_logs") && (
+                            <MenuItem
+                              icon={<FiActivity />}
+                              onClick={() => openLogModal(call)}
+                            >
+                              View Log
+                            </MenuItem>
+                          )}
+                          {hasPermission("sip", "recording_share") && (
+                            <MenuItem
+                              icon={<FiShare2 />}
+                              onClick={() => openShareModal(call)}
+                            >
+                              Share Recording
+                            </MenuItem>
+                          )}
+                          {hasPermission("sip", "recording_share") && (
+                            <MenuItem
+                              icon={<FiUsers />}
+                              onClick={() => openSharedDetailModal(call)}
+                            >
+                              Shared Detail
+                            </MenuItem>
+                          )}
+                        </MenuList>
+                      </Menu>
+                    </Td>
+                  )}
                 </Tr>
               ))}
             </Tbody>
