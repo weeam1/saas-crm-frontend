@@ -15,11 +15,12 @@ import { useStateContext } from 'contexts/store';
 import CardShimmer from 'components/loading/CardShimmer';
 
 class TimelineItem {
-	constructor(type, updatedAt, updatedBy, updatedData) {
+	constructor(type, updatedAt, updatedBy, updatedData, role) {
 		this.type = type;
 		this.updatedAt = updatedAt;
 		this.updatedBy = updatedBy;
 		this.updatedData = updatedData;
+		this.role = role;
 	}
 }
 
@@ -57,7 +58,8 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
 							updated.type,
 							updated.updatedAt,
 							updated.updatedBy?.fullName,
-							updated.updatedData
+							updated.updatedData,
+							updated.updatedBy?.roles[0]?.roleName
 						)
 				);
 
