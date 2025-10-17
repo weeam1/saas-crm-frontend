@@ -156,13 +156,14 @@ const Analytics = () => {
           alignItems={"center"}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
+           {view !== "card" && (
           <Button
             colorScheme="brand"
             size={{ base: "sm", sm: "md", md: "lg" }}
-            w={{ base: "full", sm: "auto" }} 
-            px={{ base: 4, sm: 2, md: 4 }} 
+            w={{ base: "full", sm: "auto" }}
+            px={{ base: 4, sm: 2, md: 4 }}
             py={{ base: 3, sm: 2, md: 3 }}
-            fontSize={{ base: "sm", sm: "md", md: "lg" }} 
+            fontSize={{ base: "sm", sm: "md", md: "lg" }}
             borderRadius={"md"}
             onClick={() => {
               setSelectedChart("all");
@@ -171,7 +172,7 @@ const Analytics = () => {
           >
             View Full Analytics
           </Button>
-
+           )}
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
             view={view}
@@ -236,6 +237,8 @@ const Analytics = () => {
           isOpen={isOpen}
           onOpen={onOpen}
           onClose={onClose}
+          month={month}
+          year={year}
         />
       )}
     </Box>
