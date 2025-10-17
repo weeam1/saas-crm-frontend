@@ -330,7 +330,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 												}}
 											/>
 
-											{hasPermission('hiring', 'edit_agency') && (
+											{hasPermission('hiring', 'edit_candidate_agency') && (
 												<CustomSelect
 													label='Agency'
 													name='agency'
