@@ -31,13 +31,7 @@ const AgencyFilter = ({
 
 	return (
 		<>
-			<Modal
-				fontFamily="'DM Sans', sans-serif"
-				isOpen={isOpen}
-				onClose={onClose}
-				size='md'
-				isCentered
-			>
+			<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader>Agency Filter</ModalHeader>
