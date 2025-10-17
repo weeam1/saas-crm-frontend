@@ -88,6 +88,7 @@ import {
 	setChatsFetching,
 } from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
+import { WHATSAPP_EVENTS } from 'services/whatsapp/types';
 
 export const useWhatsapp = () => {
 	const state = useSelector((s) => s.whatsappWeb);
@@ -114,15 +115,15 @@ export const useWhatsapp = () => {
 	const getChat = useCallback(
 		(sessionId, chat) => {
 			if (!sessionId || !chat?.id) return;
-			socketService.emit('get_chat', { sessionId, chatId: chat?.id });
 			dispatch(setActiveChat(chat));
+			socketService.emit('get_chat', { sessionId, chatId: chat?.id });
 		},
 		[dispatch]
 	);
 
 	const markChatAsSeen = useCallback((sessionId, chatId) => {
 		if (!sessionId || !chatId) return;
-		socketService.emit('chat_seen', { sessionId, chatId });
+		socketService.emit(WHATSAPP_EVENTS.CHAT_SEEN, { sessionId, chatId });
 	}, []);
 
 	const sendMessage = useCallback(

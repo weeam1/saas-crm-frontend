@@ -106,7 +106,7 @@ const Chat = ({ chatId, sessionId }) => {
 						size='md'
 					/> */}
 
-					<MediaAttachment />
+					{/* <MediaAttachment /> */}
 
 					{/* Message Input */}
 					<Input

@@ -150,7 +150,7 @@ export const VideoMedia = memo(
 );
 
 export const AudioMedia = memo(({ msg, mediaUrl }) => (
-	<HStack bg='blackAlpha.200' width='100%' p={3} borderRadius='md' spacing={3}>
+	<HStack width='100%' p={1} borderRadius='md' spacing={3}>
 		{/* <Box
 			w='24px'
 			h='24px'
