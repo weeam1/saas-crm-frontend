@@ -78,9 +78,8 @@ const WAConnectionSuccess = ({ loadingChats }) => {
 				border='1px solid'
 				borderColor='gray.200'
 				p={8}
+				minW={{ base: '80vw', md: '40vw' }}
 				textAlign='center'
-				minW='80vw'
-				mx='auto'
 				initial={{ opacity: 0, scale: 0.9 }}
 				animate={{ opacity: 1, scale: 1 }}
 				transition={{ duration: 0.4 }}

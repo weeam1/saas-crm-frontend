@@ -215,7 +215,7 @@ const BulkWhatsappModal = ({
 				body,
 			}).unwrap();
 
-			setMessageSummary(res?.summary);
+			// setMessageSummary(res?.summary);
 			setSummaryModal(true);
 		} catch (err) {
 			console.error('Error sending bulk message:', err);
@@ -566,7 +566,7 @@ const BulkWhatsappModal = ({
 				<BulkMessageSummary
 					isOpen={summaryModal}
 					onClose={closeSummary}
-					summary={messageSummary}
+					// summary={messageSummary}
 				/>
 			)}
 		</>
