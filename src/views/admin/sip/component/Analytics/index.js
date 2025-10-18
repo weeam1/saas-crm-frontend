@@ -5,10 +5,9 @@ import {
   SimpleGrid,
   Skeleton,
   IconButton,
-  Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw, FiMaximize2 } from "react-icons/fi";
 import { useFetchItemsQuery } from "api/apiSlice";
 import axios from "axios";
 import keys from "config/keys";
@@ -17,6 +16,7 @@ import DateFilter from "../../../attendance/components/DateFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import ViewToggle from "./components/ViewToggle";
 import UserChartAnalytics from "./components/UserChartAnalytics";
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 const Analytics = () => {
   const now = new Date();
@@ -156,32 +156,20 @@ const Analytics = () => {
           alignItems={"center"}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-           {view !== "card" && (
-          <Button
-            colorScheme="brand"
-            size={{ base: "sm", sm: "md", md: "lg" }}
-            w={{ base: "full", sm: "auto" }}
-            px={{ base: 4, sm: 2, md: 4 }}
-            py={{ base: 3, sm: 2, md: 3 }}
-            fontSize={{ base: "sm", sm: "md", md: "lg" }}
-            borderRadius={"md"}
-            onClick={() => {
-              setSelectedChart("all");
-              onOpen();
-            }}
-          >
-            View Full Analytics
-          </Button>
-           )}
-          <DateFilter onFilterChange={onFilterChange} />
-          <ViewToggle
-            view={view}
-            handleView={(val) => {
-              setView(val);
-              localStorage.setItem("analyticsView", val);
-            }}
-            moduleView="analyticsView"
-          />
+          {view !== "card" && (
+            <CustomTooltip label="View chart on full screen">
+            <IconButton
+              icon={<FiMaximize2 size={16} />}
+              variant="brand"
+              size="sm"
+              onClick={() => {
+                setSelectedChart("all");
+                onOpen();
+              }}
+              aria-label="Expand Chart"
+            />
+            </CustomTooltip>
+          )}
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
@@ -192,6 +180,15 @@ const Analytics = () => {
             isLoading={loadingAnalytics}
             variant="outline"
             size="md"
+          />
+          <DateFilter onFilterChange={onFilterChange} />
+          <ViewToggle
+            view={view}
+            handleView={(val) => {
+              setView(val);
+              localStorage.setItem("analyticsView", val);
+            }}
+            moduleView="analyticsView"
           />
         </Box>
       </Box>
