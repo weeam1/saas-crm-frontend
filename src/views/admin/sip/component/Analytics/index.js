@@ -37,9 +37,7 @@ const Analytics = () => {
   const [loadingGraph, setLoadingGraph] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedChart, setSelectedChart] = useState(null);
-  const [view, setView] = useState(
-    localStorage.getItem("analyticsView") || "card"
-  );
+  const [view, setView] = useState("analyticsView");
 
   const fetchAnalytics = async (m = month, y = year) => {
     if (!data?.sipSettings?.length) return;
@@ -126,7 +124,7 @@ const Analytics = () => {
       if (view === "card") fetchAnalytics();
       else fetchGraphAnalytics();
 
-      console.log("view", view)
+      console.log("view", view);
     }
   }, [data, view]);
 
@@ -208,7 +206,7 @@ const Analytics = () => {
             alignItems: "stretch",
           }}
         >
-          {loadingAnalytics || isLoading || loadingGraph? (
+          {loadingAnalytics || isLoading || loadingGraph ? (
             Array.from({ length: 30 }).map((_, i) => (
               <Skeleton key={i} height="220px" borderRadius="2xl" />
             ))
