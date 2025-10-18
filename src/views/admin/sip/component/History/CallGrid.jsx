@@ -13,6 +13,9 @@ const CallGrid = ({
   handleCopy,
   loading,
   pageSize,
+  openLogModal,
+  openShareModal,
+  openSharedDetailModal,
 }) => {
   const [transcribeModal, setTranscribeModal] = useState(false);
   const [currentCall, setCurrentCall] = useState(false);
@@ -57,6 +60,9 @@ const CallGrid = ({
                 handleCopy={handleCopy}
                 handleOpenTranscribe={handleOpenTranscribe}
                 index={index}
+                openLogModal={openLogModal}
+                openShareModal={openShareModal}
+                openSharedDetailModal={openSharedDetailModal}
               />
             </GridItem>
           ))}

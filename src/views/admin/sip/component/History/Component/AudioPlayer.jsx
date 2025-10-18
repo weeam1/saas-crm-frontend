@@ -1,245 +1,293 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
-	Flex,
-	IconButton,
-	Slider,
-	SliderTrack,
-	SliderFilledTrack,
-	SliderThumb,
-	Text,
-	Button,
-	Spinner,
-} from '@chakra-ui/react';
-import { FaPlay, FaPause, FaArrowDown } from 'react-icons/fa';
-import useUserSession from 'hooks/useUserSession';
-import { useUserActivityLog } from 'hooks/useUserActivityLog';
+  Flex,
+  IconButton,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Text,
+  Button,
+  Spinner,
+} from "@chakra-ui/react";
+import { FaPlay, FaPause, FaArrowDown } from "react-icons/fa";
+import { useCreateItemMutation } from "api/apiSlice";
+import useUserSession from "hooks/useUserSession";
+import { usePermissions } from "hooks/usePermissions";
 
 const formatTime = (seconds) => {
-	const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
-	const m = Math.floor(safe / 60);
-	const s = Math.floor(safe % 60);
-	return `${m}:${s < 10 ? '0' : ''}${s}`;
+  const safe = isNaN(seconds) || !isFinite(seconds) ? 0 : Math.max(0, seconds);
+  const m = Math.floor(safe / 60);
+  const s = Math.floor(safe % 60);
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
 };
 
 const AudioPlayer = ({
-	url,
-	playerId,
-	currentlyPlayingId,
-	setCurrentlyPlayingId,
-	id,
+  url,
+  playerId,
+  currentlyPlayingId,
+  setCurrentlyPlayingId,
+  id,
+  call, // recording info
 }) => {
-	const audioRef = useRef(null);
-	const [isPlaying, setIsPlaying] = useState(false);
-	const [duration, setDuration] = useState(0);
-	const [currentTime, setCurrentTime] = useState(0);
-	const [playbackRate, setPlaybackRate] = useState(1);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(false);
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [hasStartedLog, setHasStartedLog] = useState(false);
+  const { hasPermission } = usePermissions();
+  const { user } = useUserSession();
+  const [createItemMutation] = useCreateItemMutation();
 
-	const { user } = useUserSession();
-	const { createUserLog } = useUserActivityLog();
+  const recordingId = call?.uniqueid || call?.recording;
 
-	const isCurrent = currentlyPlayingId === playerId;
-	const isDisabled = error || duration <= 0;
+  //  Log play in backend
+  const handleLogPlay = useCallback(
+    async (durationPlayed, totalDuration) => {
+      try {
+        await createItemMutation({
+          path: `sipSetting/log/play`,
+          body: {
+            recordingId,
+            durationPlayed,
+            totalDuration,
+            data: {
+              callData: call,
+            },
+          },
+        }).unwrap();
+      } catch (err) {
+        console.error("Failed to log play:", err);
+      }
+    },
+    [createItemMutation, recordingId, call]
+  );
 
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (audio && !audio.src) {
-			audio.src = url;
-			audio.load();
-		}
-	}, [url]);
+  //  Setup audio on mount
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio && !audio.src) {
+      audio.src = url;
+      audio.load();
+    }
+  }, [url]);
 
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio) return;
+  //  Audio event listeners
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-		const onLoadedMetadata = () => {
-			setDuration(audio.duration || 0);
-			setLoading(false);
-			if (audio.duration <= 0 || !isFinite(audio.duration)) {
-				setError(true);
-			}
-		};
+    const onLoadedMetadata = () => {
+      setDuration(audio.duration || 0);
+      setLoading(false);
+      if (audio.duration <= 0 || !isFinite(audio.duration)) {
+        setError(true);
+      }
+    };
 
-		const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
 
-		const onEnded = () => {
-			setIsPlaying(false);
-			setCurrentlyPlayingId(null);
-		};
+    const onEnded = async () => {
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
 
-		const onError = () => {
-			setError(true);
-			setLoading(false);
-		};
+      // ✅ Log only when playback completes
+      await handleLogPlay(audio.duration, audio.duration);
 
-		audio.addEventListener('loadedmetadata', onLoadedMetadata);
-		audio.addEventListener('timeupdate', onTimeUpdate);
-		audio.addEventListener('ended', onEnded);
-		audio.addEventListener('error', onError);
+      // reset log flag so next full play logs again
+      setHasStartedLog(false);
+    };
 
-		return () => {
-			audio.pause();
-			audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-			audio.removeEventListener('timeupdate', onTimeUpdate);
-			audio.removeEventListener('ended', onEnded);
-			audio.removeEventListener('error', onError);
-		};
-	}, []);
+    const onError = () => {
+      setError(true);
+      setLoading(false);
+    };
 
-	useEffect(() => {
-		const audio = audioRef.current;
-		if (!audio) return;
+    audio.addEventListener("loadedmetadata", onLoadedMetadata);
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("error", onError);
 
-		if (!isCurrent && isPlaying) {
-			audio.pause();
-			audio.currentTime = 0;
-			setIsPlaying(false);
-		}
-	}, [currentlyPlayingId]);
+    return () => {
+      audio.pause();
+      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("error", onError);
+    };
+  }, [handleLogPlay, setCurrentlyPlayingId]);
 
-	const togglePlay = () => {
-		const audio = audioRef.current;
-		if (!audio || isDisabled) return;
+  //  Pause other players if one is playing
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-		if (isPlaying) {
-			audio.pause();
-			setIsPlaying(false);
-			setCurrentlyPlayingId(null);
-		} else {
-			setCurrentlyPlayingId(playerId);
-			audio.playbackRate = playbackRate;
-			audio
-				.play()
-				.then(() => {
-					setIsPlaying(true);
-					setError(false);
-				})
-				.catch(() => {
-					setError(true);
-					setIsPlaying(false);
-				});
-		}
-	};
+    if (!isPlaying && isPlaying === false) return;
+    if (!isPlaying && currentlyPlayingId !== playerId) {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPlaying(false);
+    }
+  }, [currentlyPlayingId]);
 
-	const handleSeek = (value) => {
-		const audio = audioRef.current;
-		if (audio && !isDisabled) {
-			audio.currentTime = value;
-			setCurrentTime(value);
-		}
-	};
+  //  Toggle play/pause with restricted logging
+  const togglePlay = async () => {
+    const audio = audioRef.current;
+    if (!audio || error || duration <= 0) return;
 
-	const cyclePlaybackRate = () => {
-		if (isDisabled) return;
-		const nextRate = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
-		setPlaybackRate(nextRate);
-		if (audioRef.current) {
-			audioRef.current.playbackRate = nextRate;
-		}
-	};
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      setCurrentlyPlayingId(null);
+    } else {
+      setCurrentlyPlayingId(playerId);
+      audio.playbackRate = playbackRate;
 
-	return (
-		<Flex
-			direction='column'
-			bg='brand.200'
-			p='12px'
-			borderRadius='md'
-			w='100%'
-			maxW='800px'
-			gap={3}
-			color='white'
-			position='relative'
-		>
-			{/* Download Button Top-Right */}
-			<IconButton
-				as='a'
-				href={url}
-				download
-				aria-label='Download Audio'
-				icon={<FaArrowDown />}
-				size='sm'
-				variant='brand'
-				colorScheme='whiteAlpha'
-				position='absolute'
-				bottom='5px'
-				right='8px'
-				_hover={{ bg: 'whiteAlpha.300' }}
-				isDisabled={isDisabled}
-				onClick={() => {
-					createUserLog({
-						userId: user?._id,
-						action: 'DOWNLOAD',
-						entity: 'Call_Logs',
-						status: 'success',
-						message: `"${user?.fullName}" download the audio .`,
-					});
-				}}
-			/>
+      try {
+        await audio.play();
+        setIsPlaying(true);
+        setError(false);
 
-			<audio ref={audioRef} preload='metadata' />
+        // Log only once per play session (first play)
+        if (!hasStartedLog) {
+          await handleLogPlay(0.01, audio.duration);
+          setHasStartedLog(true);
+        }
+      } catch {
+        setError(true);
+        setIsPlaying(false);
+      }
+    }
+  };
 
-			<Flex align='center' gap={4}>
-				<IconButton
-					onClick={togglePlay}
-					aria-label='Play/Pause'
-					icon={
-						loading ? (
-							<Spinner size='xs' color='white' />
-						) : error || duration <= 0 ? (
-							<FaPlay />
-						) : isPlaying ? (
-							<FaPause />
-						) : (
-							<FaPlay />
-						)
-					}
-					size='sm'
-					colorScheme={'brand'}
-					isDisabled={isDisabled}
-				/>
+  //  Seek manually
+  const handleSeek = (value) => {
+    const audio = audioRef.current;
+    if (audio && duration > 0) {
+      audio.currentTime = value;
+      setCurrentTime(value);
+    }
+  };
 
-				<Slider
-					flex='1'
-					value={currentTime}
-					max={duration}
-					min={0}
-					step={1}
-					onChange={handleSeek}
-					isDisabled={loading}
-					colorScheme='brand'
-				>
-					<SliderTrack>
-						<SliderFilledTrack />
-					</SliderTrack>
-					<SliderThumb boxSize={3} />
-				</Slider>
+  //  Change playback speed
+  const cyclePlaybackRate = () => {
+    const nextRate = playbackRate === 1 ? 1.5 : playbackRate === 1.5 ? 2 : 1;
+    setPlaybackRate(nextRate);
+    if (audioRef.current) audioRef.current.playbackRate = nextRate;
+  };
 
-				<Button
-					size='sm'
-					fontSize='13px'
-					onClick={cyclePlaybackRate}
-					bg='brand.500'
-					_hover={{ bg: 'brand.400' }}
-					color='white'
-					borderRadius='full'
-					minW='60px'
-				>
-					{playbackRate}x
-				</Button>
-			</Flex>
+  //  Reset log when URL changes
+  useEffect(() => {
+    setHasStartedLog(false);
+  }, [url]);
 
-			<Flex justify='space-between' px={10}>
-				<Text fontSize='xs' color='brand.500'>
-					{formatTime(currentTime)}
-				</Text>
-				<Text fontSize='xs' color='brand.500'>
-					{formatTime(duration)}
-				</Text>
-			</Flex>
-		</Flex>
-	);
+  return (
+    <Flex
+      direction="column"
+      bg="brand.200"
+      p="12px"
+      borderRadius="md"
+      w="100%"
+      maxW="800px"
+      gap={3}
+      color="white"
+      position="relative"
+    >
+      {/* Download button */}
+      {hasPermission("sip", "download_recording") && (
+        <IconButton
+          as="a"
+          href={url}
+          download
+          aria-label="Download Audio"
+          icon={<FaArrowDown />}
+          size="sm"
+          variant="brand"
+          colorScheme="whiteAlpha"
+          position="absolute"
+          bottom="5px"
+          right="8px"
+          _hover={{ bg: "whiteAlpha.300" }}
+          isDisabled={error || duration <= 0}
+          onClick={async () => {
+            try {
+              await createItemMutation({
+                path: "/sipSetting/log/download",
+                body: {
+                  recordingId,
+                  data: call,
+                },
+              }).unwrap();
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+        />
+      )}
+      <audio ref={audioRef} preload="metadata" />
+
+      <Flex align="center" gap={4}>
+        <IconButton
+          onClick={togglePlay}
+          aria-label="Play/Pause"
+          icon={
+            loading ? (
+              <Spinner size="xs" color="white" />
+            ) : error ? (
+              <FaPlay />
+            ) : isPlaying ? (
+              <FaPause />
+            ) : (
+              <FaPlay />
+            )
+          }
+          size="sm"
+          colorScheme="brand"
+          isDisabled={error || duration <= 0}
+        />
+
+        <Slider
+          flex="1"
+          value={currentTime}
+          max={duration}
+          min={0}
+          step={1}
+          onChange={handleSeek}
+          colorScheme="brand"
+        >
+          <SliderTrack>
+            <SliderFilledTrack />
+          </SliderTrack>
+          <SliderThumb boxSize={3} />
+        </Slider>
+
+        <Button
+          size="sm"
+          fontSize="13px"
+          onClick={cyclePlaybackRate}
+          bg="brand.500"
+          _hover={{ bg: "brand.400" }}
+          color="white"
+          borderRadius="full"
+          minW="60px"
+        >
+          {playbackRate}x
+        </Button>
+      </Flex>
+
+      <Flex justify="space-between" px={10}>
+        <Text fontSize="xs" color="brand.500">
+          {formatTime(currentTime)}
+        </Text>
+        <Text fontSize="xs" color="brand.500">
+          {formatTime(duration)}
+        </Text>
+      </Flex>
+    </Flex>
+  );
 };
 
 export default AudioPlayer;

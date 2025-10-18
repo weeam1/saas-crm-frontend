@@ -5,10 +5,9 @@ import {
   SimpleGrid,
   Skeleton,
   IconButton,
-  Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw, FiMaximize2 } from "react-icons/fi";
 import { useFetchItemsQuery } from "api/apiSlice";
 import axios from "axios";
 import keys from "config/keys";
@@ -17,6 +16,7 @@ import DateFilter from "../../../attendance/components/DateFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import ViewToggle from "./components/ViewToggle";
 import UserChartAnalytics from "./components/UserChartAnalytics";
+import CustomTooltip from "components/shared/CustomTooltip";
 
 const Analytics = () => {
   const now = new Date();
@@ -29,12 +29,12 @@ const Analytics = () => {
   );
 
   const [analyticsData, setAnalyticsData] = useState(null);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
   const [graphData, setGraphData] = useState(null);
-  const [loadingGraph, setLoadingGraph] = useState(true);
+  const [loadingGraph, setLoadingGraph] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedChart, setSelectedChart] = useState(null);
   const [view, setView] = useState(
@@ -123,15 +123,18 @@ const Analytics = () => {
 
   useEffect(() => {
     if (data?.sipSettings?.length) {
-      fetchAnalytics();
-      fetchGraphAnalytics();
+      if (view === "card") fetchAnalytics();
+      else fetchGraphAnalytics();
+
+      console.log("view", view)
     }
-  }, [data]);
+  }, [data, view]);
 
   const onFilterChange = (value) => {
     setMonth(Number(value.month));
     setYear(Number(value.year));
     fetchAnalytics(value.month, value.year);
+    fetchGraphAnalytics(value.month, value.year);
   };
 
   return (
@@ -156,22 +159,31 @@ const Analytics = () => {
           alignItems={"center"}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-          <Button
-            colorScheme="brand"
-            size={{ base: "sm", sm: "md", md: "lg" }}
-            w={{ base: "full", sm: "auto" }} 
-            px={{ base: 4, sm: 2, md: 4 }} 
-            py={{ base: 3, sm: 2, md: 3 }}
-            fontSize={{ base: "sm", sm: "md", md: "lg" }} 
-            borderRadius={"md"}
+          {view !== "card" && (
+            <CustomTooltip label="View chart on full screen">
+              <IconButton
+                icon={<FiMaximize2 size={16} />}
+                variant="brand"
+                size="sm"
+                onClick={() => {
+                  setSelectedChart("all");
+                  onOpen();
+                }}
+                aria-label="Expand Chart"
+              />
+            </CustomTooltip>
+          )}
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
             onClick={() => {
-              setSelectedChart("all");
-              onOpen();
+              fetchAnalytics();
+              fetchGraphAnalytics();
             }}
-          >
-            View Full Analytics
-          </Button>
-
+            isLoading={loadingAnalytics || loadingGraph || isLoading}
+            variant="outline"
+            size="md"
+          />
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
             view={view}
@@ -180,17 +192,6 @@ const Analytics = () => {
               localStorage.setItem("analyticsView", val);
             }}
             moduleView="analyticsView"
-          />
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => {
-              fetchAnalytics();
-              fetchGraphAnalytics();
-            }}
-            isLoading={loadingAnalytics}
-            variant="outline"
-            size="md"
           />
         </Box>
       </Box>
@@ -207,7 +208,7 @@ const Analytics = () => {
             alignItems: "stretch",
           }}
         >
-          {loadingAnalytics || isLoading ? (
+          {loadingAnalytics || isLoading || loadingGraph? (
             Array.from({ length: 30 }).map((_, i) => (
               <Skeleton key={i} height="220px" borderRadius="2xl" />
             ))
@@ -230,12 +231,14 @@ const Analytics = () => {
         <UserChartAnalytics
           graphData={graphData}
           loading={loadingGraph}
-          loadingAnalytics={loadingAnalytics}
+          loadingAnalytics={isLoading}
           selectedChart={selectedChart}
           setSelectedChart={setSelectedChart}
           isOpen={isOpen}
           onOpen={onOpen}
           onClose={onClose}
+          month={month}
+          year={year}
         />
       )}
     </Box>

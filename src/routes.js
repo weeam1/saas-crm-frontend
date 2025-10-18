@@ -180,11 +180,14 @@ const SipDashboard = React.lazy(
 const SipHistory = React.lazy(
 	() => import('views/admin/sip/component/History/index')
 );
-const SipSettings =React.lazy(
+const SipSettings = React.lazy(
 	() => import('views/admin/sip/component/UserSetting/index')
 );
-const SipUserAnalytics =React.lazy(
+const SipUserAnalytics = React.lazy(
 	() => import('views/admin/sip/component/Analytics/index')
+);
+const SharedSipRecording = React.lazy(
+	() => import('views/admin/sip/component/sharedRecording/index')
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
@@ -481,7 +484,7 @@ const routes = [
 	},
 	{
 		moduleId: 'sip',
-		name: 'Sip Dashboard',
+		name: 'Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/dashboard',
 		under: 'Sip',
@@ -489,8 +492,8 @@ const routes = [
 		component: SipDashboard,
 	},
 	{
-		moduleId: 'sip',
-		name: 'Sip history',
+		childId: 'call_history',
+		name: 'Call history',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/history',
 		under: 'Sip',
@@ -498,8 +501,8 @@ const routes = [
 		component: SipHistory,
 	},
 	{
-		moduleId: 'sip',
-		name: 'Sip settings',
+		childId: 'user_settings',
+		name: 'User settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/settings',
 		under: 'Sip',
@@ -507,13 +510,22 @@ const routes = [
 		component: SipSettings,
 	},
 	{
-		moduleId: 'sip',
-		name: 'Sip history',
+		childId: 'user_analytics',
+		name: 'User Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/user-analytics',
 		under: 'Sip',
 		parentName: 'Sip',
 		component: SipUserAnalytics,
+	},
+	{
+		childId: 'shared_recordings',
+		name: 'Shared Recoding',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/shared-recording',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SharedSipRecording,
 	},
 
 	// Listing --------------------------------------
