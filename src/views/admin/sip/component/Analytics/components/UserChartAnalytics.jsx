@@ -142,9 +142,9 @@ const UserChartAnalytics = ({
   const gridColor = useColorModeValue("#e5e7eb", "#4b5563");
   const borderColor = useColorModeValue("gray.200", "#4b5563");
 
-  const barSize = useBreakpointValue({ base: 14, sm: 18, md: 24, lg: 28 });
   const tickFontSize = useBreakpointValue({ base: 9, sm: 10, md: 12 });
   const labelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 18 });
+  const radarLabelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 15 });
   const chartHeight = useBreakpointValue({
     base: 220,
     sm: 260,
@@ -192,7 +192,6 @@ const UserChartAnalytics = ({
         const name = agentMap[ext];
         if (name) obj[name] = d[ext];
       });
-    console.log("obj", obj);
     return obj;
   });
 
@@ -357,7 +356,7 @@ const UserChartAnalytics = ({
                   data={pieData}
                   cx="50%"
                   cy="45%"
-                  outerRadius="70%"
+                  outerRadius="60%"
                   innerRadius="35%"
                   label={({ fullName }) => fullName.split(" ")[0]}
                   dataKey="answered"
@@ -385,17 +384,17 @@ const UserChartAnalytics = ({
       case "radar":
         return (
             <ResponsiveContainer width="100%" height={height} position={"relative"}
-            zindex={1000}
-            p={30}>
-              <RadarChart data={radarData}>
+            zindex={1000}>
+              <RadarChart data={radarData} style={{padding:10}}>
                 <PolarGrid />
                 <PolarAngleAxis
                   dataKey="fullName"
-                  tick={{ fontSize: labelFontSize, dy: 5 }}
+                  tick={{ fontSize: radarLabelFontSize, dy: 5,padding:10 }}
                   tickFormatter={(fullName) => {
                     const name = fullName.split(" ")[0];
                     return name;
                   }}
+                  style={{padding:10}}
                 />
                 <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
                 <Radar

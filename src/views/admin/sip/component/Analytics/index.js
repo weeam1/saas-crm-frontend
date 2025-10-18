@@ -123,10 +123,10 @@ const Analytics = () => {
 
   useEffect(() => {
     if (data?.sipSettings?.length) {
-      fetchAnalytics();
-      fetchGraphAnalytics();
+      if (view === "card") fetchAnalytics();
+      else fetchGraphAnalytics();
     }
-  }, [data]);
+  }, [data, view]);
 
   const onFilterChange = (value) => {
     setMonth(Number(value.month));
