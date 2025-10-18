@@ -28,24 +28,20 @@ export default function TotalTimeCallsRecordGraph() {
   const [uniqueCalls, setUniqueCalls] = useState(0);
   const [avgMinutes, setAvgMinutes] = useState(0);
   const [totalSeconds, setTotalSeconds] = useState(0);
-  const [chartData, setChartData] = useState({
-    labels: [],
-    totalTime: [],
-    uniqueCalls: [],
-  });
 
   const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("#2D3748", "#E2E8F0");
+  const gridColor = useColorModeValue("#EDF2F7", "#4A5568");
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
   const updateChart = (data) => {
-    const labels = data.daily.map((d) => moment(d.date).format("MMMM D"));
+    const labels = data.daily.map((d) => moment(d.date).format("MMM DD"));
+
     const totalTime = data.daily.map(
       (d) => parseFloat(d.duration.replace("s", "")) / 60
     ); // in minutes
     const uniqueCalls = data.daily.map((d) => d.joinedCount);
-
-    setChartData({ labels, totalTime, uniqueCalls });
 
     if (chartInstance.current) {
       chartInstance.current.destroy();
@@ -60,10 +56,16 @@ export default function TotalTimeCallsRecordGraph() {
           {
             label: "Total Time (minutes)",
             data: totalTime,
-            backgroundColor: "#4299E1",
+            backgroundColor: (ctx) => {
+              const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
+              gradient.addColorStop(0, "rgba(66,153,225,0.9)");
+              gradient.addColorStop(1, "rgba(66,153,225,0.3)");
+              return gradient;
+            },
+            borderRadius: 6,
+            borderSkipped: false,
             barPercentage: 0.5,
             categoryPercentage: 0.5,
-            order: 2,
             yAxisID: "y",
           },
           {
@@ -72,10 +74,10 @@ export default function TotalTimeCallsRecordGraph() {
             borderColor: "#38A169",
             backgroundColor: "transparent",
             borderWidth: 2,
+            pointBackgroundColor: "#38A169",
+            pointRadius: 4,
+            tension: 0.3,
             type: "line",
-            pointRadius: 0,
-            tension: 0,
-            order: 2,
             yAxisID: "y1",
           },
         ],
@@ -83,44 +85,83 @@ export default function TotalTimeCallsRecordGraph() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: "index",
+          intersect: false,
+        },
         scales: {
           x: {
-            grid: { display: false, drawBorder: false },
+            grid: {
+              display: false,
+            },
             ticks: {
               font: { size: 12 },
+              color: textColor,
               padding: 10,
               autoSkip: false,
               maxRotation: 25,
               minRotation: 25,
             },
-            border: { display: false },
           },
           y: {
-            position: "left",
             beginAtZero: true,
-            suggestedMax: Math.max(...totalTime) + 10 || 10,
-            ticks: {
-              stepSize: 5,
-              callback: (value) => value,
+            grid: {
+              color: gridColor,
+              drawBorder: false,
             },
-            grid: { color: "#E2E8F0", drawBorder: false },
-            border: { display: false },
+            ticks: {
+              color: textColor,
+              callback: (value) => `${value}`,
+            },
+            title: {
+              display: true,
+              text: "Total Time (min)",
+              color: textColor,
+              font: { size: 13, weight: "bold" },
+            },
           },
           y1: {
-            position: "right",
             beginAtZero: true,
-            suggestedMax: Math.max(...uniqueCalls) + 15 || 15,
-            ticks: {
-              stepSize: 10,
-              callback: (value) => value,
+            grid: {
+              display: false,
             },
-            grid: { display: false, drawBorder: false },
-            border: { display: false },
+            position: "right",
+            ticks: {
+              color: textColor,
+              callback: (value) => `${value}`,
+            },
+            title: {
+              display: true,
+              text: "Unique Calls",
+              color: textColor,
+              font: { size: 13, weight: "bold" },
+            },
           },
         },
         plugins: {
-          legend: { display: false },
-          tooltip: { enabled: true },
+          legend: {
+            display: true,
+            position: "top",
+            labels: {
+              color: textColor,
+              boxWidth: 15,
+              padding: 15,
+              font: { size: 13, weight: 500 },
+            },
+          },
+          tooltip: {
+            backgroundColor: "#1A202C",
+            titleColor: "#fff",
+            bodyColor: "#E2E8F0",
+            borderWidth: 1,
+            borderColor: "#2D3748",
+            cornerRadius: 6,
+            displayColors: true,
+          },
+        },
+        animation: {
+          duration: 1200,
+          easing: "easeOutQuart",
         },
       },
     });
@@ -153,20 +194,20 @@ export default function TotalTimeCallsRecordGraph() {
     <Box
       p={4}
       bg={bgColor}
-      borderRadius="0px"
-      maxW="auto"
+      borderRadius="lg"
+      shadow="md"
       mx={2}
-      marginTop={"-16px"}
-      marginLeft={"-4px"}
+      mt={-2}
+      h="100%"
     >
-      <Flex justify="space-between" align="center" mb={8}>
-        <Heading size="lg" fontWeight="bold">
+      <Flex justify="space-between" align="center" mb={6}>
+        <Heading size="lg" fontWeight="bold" color={textColor}>
           Total Time and Calls
         </Heading>
         <Select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          w="180px"
+          w="160px"
           bg="gray.100"
           borderRadius="md"
           _hover={{ cursor: "pointer" }}
@@ -177,7 +218,7 @@ export default function TotalTimeCallsRecordGraph() {
         </Select>
       </Flex>
 
-      <Flex justify="space-between" mb={10} wrap="wrap">
+      <Flex justify="space-between" mb={8} wrap="wrap">
         <VStack align="flex-start" spacing={1} minW="200px" mb={4}>
           <HStack>
             <Square size="16px" bg="blue.400" />
