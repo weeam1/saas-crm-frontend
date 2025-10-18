@@ -16,7 +16,7 @@ import DateFilter from "../../../attendance/components/DateFilter";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import ViewToggle from "./components/ViewToggle";
 import UserChartAnalytics from "./components/UserChartAnalytics";
-import CustomTooltip from 'components/shared/CustomTooltip';
+import CustomTooltip from "components/shared/CustomTooltip";
 
 const Analytics = () => {
   const now = new Date();
@@ -132,6 +132,7 @@ const Analytics = () => {
     setMonth(Number(value.month));
     setYear(Number(value.year));
     fetchAnalytics(value.month, value.year);
+    fetchGraphAnalytics(value.month, value.year);
   };
 
   return (
@@ -158,16 +159,16 @@ const Analytics = () => {
         >
           {view !== "card" && (
             <CustomTooltip label="View chart on full screen">
-            <IconButton
-              icon={<FiMaximize2 size={16} />}
-              variant="brand"
-              size="sm"
-              onClick={() => {
-                setSelectedChart("all");
-                onOpen();
-              }}
-              aria-label="Expand Chart"
-            />
+              <IconButton
+                icon={<FiMaximize2 size={16} />}
+                variant="brand"
+                size="sm"
+                onClick={() => {
+                  setSelectedChart("all");
+                  onOpen();
+                }}
+                aria-label="Expand Chart"
+              />
             </CustomTooltip>
           )}
           <IconButton

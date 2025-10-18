@@ -344,70 +344,92 @@ const UserChartAnalytics = ({
 
       case "pie":
         return (
-          <ResponsiveContainer width="100%" height={height}>
-            <PieChart>
-              <Tooltip content={<CustomPieTooltip />} />
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="45%"
-                outerRadius="70%"
-                innerRadius="35%"
-                label={({ fullName }) => fullName.split(" ")[0]}
-                dataKey="answered"
-                labelLine={false}
-              >
-                {pieData.map((value, index) => (
-                  <Cell key={index} fill={colorMap[value.fullName]} />
-                ))}
-              </Pie>
-              <Legend
-                layout="horizontal"
-                verticalAlign="bottom"
-                wrapperStyle={{ fontSize: tickFontSize }}
-                formatter={(value, entry) => {
-                  const name = entry?.payload?.fullName
-                    ? entry.payload.fullName.split(" ")[0]
-                    : value;
-                  return name;
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div
+            width="100%"
+            height={height}
+            position={"relative"}
+            zindex={1000}
+            p={30}
+          >
+            <ResponsiveContainer
+              width="100%"
+              height={height}
+              position={"relative"}
+              zindex={1000}
+              p={30}
+            >
+              <PieChart>
+                <Tooltip content={<CustomPieTooltip />} />
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="45%"
+                  outerRadius="70%"
+                  innerRadius="35%"
+                  label={({ fullName }) => fullName.split(" ")[0]}
+                  dataKey="answered"
+                  labelLine={false}
+                >
+                  {pieData.map((value, index) => (
+                    <Cell key={index} fill={colorMap[value.fullName]} />
+                  ))}
+                </Pie>
+                <Legend
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  wrapperStyle={{ fontSize: tickFontSize }}
+                  formatter={(value, entry) => {
+                    const name = entry?.payload?.fullName
+                      ? entry.payload.fullName.split(" ")[0]
+                      : value;
+                    return name;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         );
 
       case "radar":
         return (
-          <ResponsiveContainer width="100%" height={height}>
-            <RadarChart data={radarData}>
-              <PolarGrid />
-              <PolarAngleAxis
-                dataKey="fullName"
-                tick={{ fontSize: labelFontSize, dy: 5 }}
-                tickFormatter={(fullName) => {
-                  const name = fullName.split(" ")[0];
-                  return name;
-                }}
-              />
-              <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
-              <Radar
-                name="Answered"
-                dataKey="answered"
-                stroke={COLORS[0]}
-                fill={COLORS[0]}
-                fillOpacity={0.6}
-              />
-              <Radar
-                name="Total Calls"
-                dataKey="total_calls"
-                stroke={COLORS[2]}
-                fill={COLORS[2]}
-                fillOpacity={0.4}
-              />
-              <Tooltip content={<CustomRadarTooltip />} />
-              <Legend wrapperStyle={{ fontSize: tickFontSize }} />
-            </RadarChart>
-          </ResponsiveContainer>
+          <div
+            width="100%"
+            height={height}
+            position={"relative"}
+            zindex={1000}
+            p={30}
+          >
+            <ResponsiveContainer width="100%" height={height}>
+              <RadarChart data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis
+                  dataKey="fullName"
+                  tick={{ fontSize: labelFontSize, dy: 5 }}
+                  tickFormatter={(fullName) => {
+                    const name = fullName.split(" ")[0];
+                    return name;
+                  }}
+                />
+                <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
+                <Radar
+                  name="Answered"
+                  dataKey="answered"
+                  stroke={COLORS[0]}
+                  fill={COLORS[0]}
+                  fillOpacity={0.6}
+                />
+                <Radar
+                  name="Total Calls"
+                  dataKey="total_calls"
+                  stroke={COLORS[2]}
+                  fill={COLORS[2]}
+                  fillOpacity={0.4}
+                />
+                <Tooltip content={<CustomRadarTooltip />} />
+                <Legend wrapperStyle={{ fontSize: tickFontSize }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
         );
       default:
         return null;
@@ -455,7 +477,8 @@ const UserChartAnalytics = ({
                 </>
               ) : type === "line" ? (
                 <>
-                  <BsCalendarDate />Calls Trend
+                  <BsCalendarDate />
+                  Calls Trend
                 </>
               ) : type === "pie" ? (
                 <>
