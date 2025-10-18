@@ -150,7 +150,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         py={1}
                         borderRadius="md"
                       >
-                        {item.active ? "Active" : "Inactive"}
+                        {item.active ? "Shared" : "Un Shared"}
                       </Badge>
 
                       <Button
@@ -160,7 +160,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         isLoading={loadingUserId === item.sharedWith?._id}
                         borderRadius="md"
                       >
-                        {item.active ? "Not Allowed" : "Allowed"}
+                        {item.active ? "Shared" : "Un Shared"}
                       </Button>
                     </VStack>
                   </HStack>
