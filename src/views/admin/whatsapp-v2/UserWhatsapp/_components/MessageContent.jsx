@@ -74,6 +74,12 @@ const MessageContent = ({ msg, onDownload }) => {
 		[onDownload]
 	);
 
+	useEffect(() => {
+		if (msg?.type === 'ptt' && msg?.id?._serialized) {
+			handleDownload(msg?.id?._serialized);
+		}
+	}, [handleDownload, msg?.id?._serialized, msg?.type]);
+
 	if (isPreviewOpen) {
 		return (
 			<MediaPreviewModal
@@ -119,8 +125,9 @@ const MessageContent = ({ msg, onDownload }) => {
 					/>
 				);
 
-			case 'audio':
-				return <AudioMedia msg={msg} />;
+			// case 'audio':
+			case 'ptt':
+				return <AudioMedia msg={msg} mediaUrl={mediaUrl} />;
 
 			case 'document':
 				return (

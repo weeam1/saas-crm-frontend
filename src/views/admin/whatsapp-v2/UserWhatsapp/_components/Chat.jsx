@@ -16,6 +16,8 @@ import { IoSend } from 'react-icons/io5';
 import { FiUsers } from 'react-icons/fi';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import ChatMessage from './ChatMessage';
+import { AttachmentIcon } from '@chakra-ui/icons';
+import MediaAttachment from './_shared/MediaAttachment';
 
 const Chat = ({ chatId, sessionId }) => {
 	const [message, setMessage] = useState('');
@@ -103,6 +105,8 @@ const Chat = ({ chatId, sessionId }) => {
 						colorScheme='gray'
 						size='md'
 					/> */}
+
+					<MediaAttachment />
 
 					{/* Message Input */}
 					<Input
