@@ -344,13 +344,6 @@ const UserChartAnalytics = ({
 
       case "pie":
         return (
-          <div
-            width="100%"
-            height={height}
-            position={"relative"}
-            zindex={1000}
-            p={30}
-          >
             <ResponsiveContainer
               width="100%"
               height={height}
@@ -387,19 +380,13 @@ const UserChartAnalytics = ({
                 />
               </PieChart>
             </ResponsiveContainer>
-          </div>
         );
 
       case "radar":
         return (
-          <div
-            width="100%"
-            height={height}
-            position={"relative"}
+            <ResponsiveContainer width="100%" height={height} position={"relative"}
             zindex={1000}
-            p={30}
-          >
-            <ResponsiveContainer width="100%" height={height}>
+            p={30}>
               <RadarChart data={radarData}>
                 <PolarGrid />
                 <PolarAngleAxis
@@ -429,7 +416,6 @@ const UserChartAnalytics = ({
                 <Legend wrapperStyle={{ fontSize: tickFontSize }} />
               </RadarChart>
             </ResponsiveContainer>
-          </div>
         );
       default:
         return null;
