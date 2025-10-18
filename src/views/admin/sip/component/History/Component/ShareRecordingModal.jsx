@@ -141,7 +141,7 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
           {/* User Search Input */}
           <Box position="relative" mb={3}>
             <Input
-              placeholder="Search users by name or email..."
+              placeholder="Search users by name..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

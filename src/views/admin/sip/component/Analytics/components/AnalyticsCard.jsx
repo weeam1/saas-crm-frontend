@@ -20,6 +20,10 @@ const AnalyticsCard = ({ item, month, year }) => {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
+  const cellFont = "clamp(0.55rem, 1.5vw, 0.85rem)";
+  const headingFont = "clamp(0.7rem, 1.8vw, 1rem)";
+  const smallFont = "clamp(0.5rem, 1.2vw, 0.75rem)";
+
   const formatDuration = (seconds) => {
     if (!seconds || isNaN(seconds) || seconds <= 0) return "0h 0m 0s";
     const totalSeconds = Math.round(seconds);
@@ -32,9 +36,7 @@ const AnalyticsCard = ({ item, month, year }) => {
   const getLabel = () => {
     if (year === currentYear && month === currentMonth) return "This Month";
     if (year === currentYear && month === currentMonth - 1) return "Last Month";
-    const monthName = new Date(year, month - 1).toLocaleString("default", {
-      month: "long",
-    });
+    const monthName = new Date(year, month - 1).toLocaleString("default", { month: "long" });
     return `${monthName} ${year}`;
   };
 
@@ -51,11 +53,9 @@ const AnalyticsCard = ({ item, month, year }) => {
   const monthlyUnanswered = item?.unanswered?.month || 0;
   const monthSeconds = item?.duration?.month_seconds || 0;
 
-  const dailyAvgDurationSeconds =
-    dailyAnswered > 0 ? dailySeconds / dailyAnswered : 0;
+  const dailyAvgDurationSeconds = dailyAnswered > 0 ? dailySeconds / dailyAnswered : 0;
   const avgCallsSeconds = monthlyCalls > 0 ? monthSeconds / 30 : 0;
-  const avgDurationSeconds =
-    monthlyAnswered > 0 ? monthSeconds / monthlyAnswered : 0;
+  const avgDurationSeconds = monthlyAnswered > 0 ? monthSeconds / monthlyAnswered : 0;
 
   const dailyAvgDuration = formatDuration(dailyAvgDurationSeconds);
   const avgCalls = formatDuration(avgCallsSeconds);
@@ -63,29 +63,29 @@ const AnalyticsCard = ({ item, month, year }) => {
 
   return (
     <Box
-      p={{ base: 3, md: 6 }}
+      p={{ base: 2, sm: 3, md: 5 }}
       borderRadius="2xl"
-      shadow="md"
-      bgGradient="linear(to-br, white, #fff8e1)"
+      shadow="sm"
+      bgGradient="linear(to-br, white, #fff9e6)"
       border="1px solid"
       borderColor="goldenrod"
-      _hover={{
-        transform: "translateY(-4px) scale(1.01)",
-        boxShadow: "lg",
-      }}
       transition="all 0.25s ease"
-      fontSize={{ base: "xs", sm: "sm", md: "md" }}
+      _hover={{
+        transform: "translateY(-3px) scale(1.005)",
+        boxShadow: "md",
+      }}
+      w="100%"
     >
       {/* Header */}
       <Flex
         justify="space-between"
         align={{ base: "flex-start", sm: "center" }}
         direction={{ base: "column", sm: "row" }}
-        mb={2}
-        gap={2}
+        mb={1}
+        gap={1}
       >
         <Heading
-          size={{ base: "xs", sm: "sm", md: "md" }}
+          fontSize={headingFont}
           color="goldenrod"
           noOfLines={1}
           textOverflow="ellipsis"
@@ -98,9 +98,9 @@ const AnalyticsCard = ({ item, month, year }) => {
 
         <Badge
           colorScheme="yellow"
-          fontSize={{ base: "0.65em", sm: "0.75em", md: "0.8em" }}
-          px={{ base: 1.5, sm: 2 }}
-          py={{ base: 0.5, sm: 1 }}
+          fontSize={smallFont}
+          px={2}
+          py={0.5}
           borderRadius="md"
           whiteSpace="nowrap"
         >
@@ -110,34 +110,52 @@ const AnalyticsCard = ({ item, month, year }) => {
 
       {/* Month Label */}
       <Badge
-        px={{ base: 2, sm: 3 }}
-        py={{ base: 0.5, sm: 1 }}
+        px={2}
+        py={0.5}
         borderRadius="full"
         bg="goldenrod"
         color="white"
-        fontSize={{ base: "0.65rem", sm: "0.75rem", md: "0.8rem" }}
+        fontSize={smallFont}
         fontWeight="semibold"
         shadow="sm"
-        mb={3}
+        mb={2}
       >
         📅 {label}
       </Badge>
 
       <Divider borderColor="goldenrod" opacity={0.3} mb={2} />
 
-      {/* Stats Table */}
-      <TableContainer width="100%">
-        <Table size={{ base: "sm", md: "md" }} variant="simple">
+      {/* Table */}
+      <TableContainer w="100%" overflowX="hidden">
+        <Table
+          size="sm"
+          variant="unstyled"
+          w="100%"
+          sx={{
+            tableLayout: "fixed",
+            wordWrap: "break-word",
+            whiteSpace: "normal",
+          }}
+        >
           <Thead>
             <Tr>
-              <Th color="black" fontSize={{ base: "xs", sm: "sm" }}>
+              <Th
+                color="black"
+                fontSize={cellFont}
+                p="0.25rem"
+                textAlign="left"
+                whiteSpace="nowrap"
+                w="40%"
+              >
                 Status
               </Th>
               {isCurrentMonth && (
                 <Th
                   color="black"
                   textAlign="center"
-                  fontSize={{ base: "xs", sm: "sm" }}
+                  fontSize={cellFont}
+                  p="0.25rem"
+                  w="30%"
                 >
                   Today
                 </Th>
@@ -145,7 +163,9 @@ const AnalyticsCard = ({ item, month, year }) => {
               <Th
                 color="black"
                 textAlign="center"
-                fontSize={{ base: "xs", sm: "sm" }}
+                fontSize={cellFont}
+                p="0.25rem"
+                w={isCurrentMonth ? "30%" : "40%"}
               >
                 Monthly
               </Th>
@@ -154,55 +174,105 @@ const AnalyticsCard = ({ item, month, year }) => {
 
           <Tbody>
             <Tr>
-              <Td fontWeight="medium" color="green.700">
-                ✅ Answered
-              </Td>
-              {isCurrentMonth && <Td textAlign="center">{dailyAnswered}</Td>}
-              <Td textAlign="center">{monthlyAnswered}</Td>
-            </Tr>
-
-            <Tr>
-              <Td fontWeight="medium" color="red.600">
-                ❌ Unanswered
-              </Td>
-              {isCurrentMonth && <Td textAlign="center">{dailyUnanswered}</Td>}
-              <Td textAlign="center">{monthlyUnanswered}</Td>
-            </Tr>
-
-            <Tr>
-              <Td fontWeight="medium" color="purple.700">
-                📊 Avg Calls (Time)
+              <Td fontWeight="medium" color="green.700" fontSize={cellFont} p="0.25rem">
+                Answered
               </Td>
               {isCurrentMonth && (
-                <Td textAlign="center" color="purple.600" fontWeight="semibold">
+                <Td textAlign="center" fontSize={cellFont} p="0.25rem">
+                  {dailyAnswered}
+                </Td>
+              )}
+              <Td textAlign="center" fontSize={cellFont} p="0.25rem">
+                {monthlyAnswered}
+              </Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="red.600" fontSize={cellFont} p="0.25rem">
+                Unanswered
+              </Td>
+              {isCurrentMonth && (
+                <Td textAlign="center" fontSize={cellFont} p="0.25rem">
+                  {dailyUnanswered}
+                </Td>
+              )}
+              <Td textAlign="center" fontSize={cellFont} p="0.25rem">
+                {monthlyUnanswered}
+              </Td>
+            </Tr>
+
+            <Tr>
+              <Td fontWeight="medium" color="purple.700" fontSize={cellFont} p="0.25rem">
+                Avg Calls (Time)
+              </Td>
+              {isCurrentMonth && (
+                <Td
+                  textAlign="center"
+                  color="purple.600"
+                  fontWeight="semibold"
+                  fontSize={cellFont}
+                  p="0.25rem"
+                  sx={{ wordBreak: "break-word" }}
+                >
                   {avgCalls}
                 </Td>
               )}
-              <Td textAlign="center" color="purple.600" fontWeight="semibold">
+              <Td
+                textAlign="center"
+                color="purple.600"
+                fontWeight="semibold"
+                fontSize={cellFont}
+                p="0.25rem"
+                sx={{ wordBreak: "break-word" }}
+              >
                 {avgCalls}
               </Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="orange.700">
-                ⏱ Avg Duration
+              <Td fontWeight="medium" color="orange.700" fontSize={cellFont} p="0.25rem">
+                Avg Duration
               </Td>
               {isCurrentMonth && (
-                <Td textAlign="center" color="orange.600" fontWeight="semibold">
+                <Td
+                  textAlign="center"
+                  color="orange.600"
+                  fontWeight="semibold"
+                  fontSize={cellFont}
+                  p="0.25rem"
+                  sx={{ wordBreak: "break-word" }}
+                >
                   {dailyAvgDuration}
                 </Td>
               )}
-              <Td textAlign="center" color="orange.600" fontWeight="semibold">
+              <Td
+                textAlign="center"
+                color="orange.600"
+                fontWeight="semibold"
+                fontSize={cellFont}
+                p="0.25rem"
+                sx={{ wordBreak: "break-word" }}
+              >
                 {avgDuration}
               </Td>
             </Tr>
 
             <Tr>
-              <Td fontWeight="medium" color="gray.800">
-                📞 Total Calls
+              <Td fontWeight="medium" color="gray.800" fontSize={cellFont} p="0.25rem">
+                Total Calls
               </Td>
-              {isCurrentMonth && <Td textAlign="center">{dailyCalls}</Td>}
-              <Td textAlign="center" fontWeight="bold" color="gray.800">
+              {isCurrentMonth && (
+                <Td textAlign="center" fontSize={cellFont} p="0.25rem">
+                  {dailyCalls}
+                </Td>
+              )}
+              <Td
+                textAlign="center"
+                fontWeight="bold"
+                color="gray.800"
+                fontSize={cellFont}
+                p="0.25rem"
+              >
                 {monthlyCalls}
               </Td>
             </Tr>
@@ -214,9 +284,10 @@ const AnalyticsCard = ({ item, month, year }) => {
 
       {/* Duration Section */}
       <Text
-        fontSize={{ base: "2xs", sm: "xs", md: "sm" }}
+        fontSize={smallFont}
         color="gray.700"
-        noOfLines={1}
+        wordBreak="break-word"
+        whiteSpace="normal"
       >
         🕒 <b>Total Duration ({label}):</b>{" "}
         <Text as="span" color="goldenrod" fontWeight="bold">

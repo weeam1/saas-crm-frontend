@@ -11,6 +11,7 @@ import {
   HStack,
   VStack,
   Square,
+  Divider,
 } from "@chakra-ui/react";
 import Chart from "chart.js/auto";
 import moment from "moment";
@@ -28,6 +29,8 @@ export default function TotalTimeCallsRecordGraph() {
   const [uniqueCalls, setUniqueCalls] = useState(0);
   const [avgMinutes, setAvgMinutes] = useState(0);
   const [totalSeconds, setTotalSeconds] = useState(0);
+  const [monthRanges, setMonthRanges] = useState([]);
+  const [monthHeader, setMonthHeader] = useState("");
 
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("#2D3748", "#E2E8F0");
@@ -36,16 +39,49 @@ export default function TotalTimeCallsRecordGraph() {
   const chartInstance = useRef(null);
 
   const updateChart = (data) => {
-    const labels = data.daily.map((d) => moment(d.date).format("MMM DD"));
+    const daily = data.daily.map((d) => ({
+      date: moment(d.date),
+      duration: parseFloat(d.duration.replace("s", "")) / 60,
+      unique: d.joinedCount,
+    }));
 
-    const totalTime = data.daily.map(
-      (d) => parseFloat(d.duration.replace("s", "")) / 60
-    ); // in minutes
-    const uniqueCalls = data.daily.map((d) => d.joinedCount);
+    //  Group by month
+    const grouped = daily.reduce((acc, item) => {
+      const month = item.date.format("MMM");
+      if (!acc[month]) acc[month] = [];
+      acc[month].push(item);
+      return acc;
+    }, {});
 
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
+    const labels = daily.map((d) => d.date.format("MMM"));
+    const totalTime = daily.map((d) => d.duration);
+    const uniqueCalls = daily.map((d) => d.unique);
+
+    //  Calculate month ranges for display 
+    const ranges = Object.keys(grouped).map((month) => {
+      const days = grouped[month].map((d) => d.date.date());
+      const start = Math.min(...days);
+      const end = Math.max(...days);
+      return `${month} ${start}–${end}`;
+    });
+    setMonthRanges(ranges);
+
+    //  Create top header range
+    const months = Object.keys(grouped);
+    if (months.length > 0) {
+      const firstMonth = months[0];
+      const lastMonth = months[months.length - 1];
+      if (months.length === 1) {
+        setMonthHeader(firstMonth);
+      } else if (months.length === 2) {
+        setMonthHeader(`${firstMonth} – ${lastMonth}`);
+      } else {
+        setMonthHeader(`${firstMonth} – ${lastMonth}`);
+      }
     }
+
+    //  Destroy old chart
+    if (chartInstance.current) chartInstance.current.destroy();
 
     const ctx = chartRef.current.getContext("2d");
     chartInstance.current = new Chart(ctx, {
@@ -91,28 +127,20 @@ export default function TotalTimeCallsRecordGraph() {
         },
         scales: {
           x: {
-            grid: {
-              display: false,
-            },
+            grid: { display: false },
             ticks: {
-              font: { size: 12 },
               color: textColor,
+              font: { size: 12 },
               padding: 10,
-              autoSkip: false,
-              maxRotation: 25,
-              minRotation: 25,
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: true,
             },
           },
           y: {
             beginAtZero: true,
-            grid: {
-              color: gridColor,
-              drawBorder: false,
-            },
-            ticks: {
-              color: textColor,
-              callback: (value) => `${value}`,
-            },
+            grid: { color: gridColor, drawBorder: false },
+            ticks: { color: textColor },
             title: {
               display: true,
               text: "Total Time (min)",
@@ -122,14 +150,9 @@ export default function TotalTimeCallsRecordGraph() {
           },
           y1: {
             beginAtZero: true,
-            grid: {
-              display: false,
-            },
+            grid: { display: false },
             position: "right",
-            ticks: {
-              color: textColor,
-              callback: (value) => `${value}`,
-            },
+            ticks: { color: textColor },
             title: {
               display: true,
               text: "Unique Calls",
@@ -156,11 +179,10 @@ export default function TotalTimeCallsRecordGraph() {
             borderWidth: 1,
             borderColor: "#2D3748",
             cornerRadius: 6,
-            displayColors: true,
           },
         },
         animation: {
-          duration: 1200,
+          duration: 1000,
           easing: "easeOutQuart",
         },
       },
@@ -173,9 +195,7 @@ export default function TotalTimeCallsRecordGraph() {
         const data = await fetchTotalTimeCallsRecordStats(days);
         setUniqueCalls(data.unique_calls);
         setAvgMinutes(data.average_minutes);
-        const durationInSeconds = parseFloat(
-          data.allTime.duration.replace("s", "")
-        );
+        const durationInSeconds = parseFloat(data.allTime.duration.replace("s", ""));
         setTotalSeconds(durationInSeconds);
         updateChart(data);
       } catch (error) {
@@ -184,22 +204,15 @@ export default function TotalTimeCallsRecordGraph() {
     };
 
     getData();
-
     return () => {
       if (chartInstance.current) chartInstance.current.destroy();
     };
   }, [days]);
 
   return (
-    <Box
-      p={4}
-      bg={bgColor}
-      borderRadius="lg"
-      shadow="md"
-      mx={2}
-      mt={-2}
-      h="100%"
-    >
+    <Box p={4} bg={bgColor} borderRadius="lg" shadow="md" mx={2} mt={-2}>
+
+
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg" fontWeight="bold" color={textColor}>
           Total Time and Calls
@@ -252,9 +265,32 @@ export default function TotalTimeCallsRecordGraph() {
         </VStack>
       </Flex>
 
+     {/* Top Month Range Header */}
+      {monthHeader && (
+        <Text
+          textAlign="center"
+          fontSize="lg"
+          fontWeight="bold"
+          color={textColor}
+          mb={2}
+        >
+          {monthHeader}
+        </Text>
+      )}
+
       <Box h="60vh" w="100%">
         <canvas ref={chartRef} />
       </Box>
+
+      {/* Month Range Summary Below Chart */}
+      <Divider my={4} />
+      <Flex justify="center" gap={6} wrap="wrap">
+        {monthRanges.map((range, i) => (
+          <Text key={i} fontSize="sm" color="gray.500" fontWeight="medium">
+            {range}
+          </Text>
+        ))}
+      </Flex>
     </Box>
   );
 }
