@@ -41,11 +41,13 @@ export default function TotalTimeCallsRecordGraph() {
   const chartInstance = useRef(null);
 
   const updateChart = (data) => {
-    const daily = data.daily.map((d) => ({
-      date: moment(d.date),
-      duration: parseFloat(d.duration.replace("s", "")) / 60,
-      unique: d.joinedCount,
-    }));
+    const daily = data.daily
+      .map((d) => ({
+        date: moment(d.date),
+        duration: parseFloat(d.duration.replace("s", "")) / 60,
+        unique: d.joinedCount,
+      }))
+      .sort((a, b) => a.date - b.date); 
 
     // Group by month
     const grouped = daily.reduce((acc, item) => {
@@ -71,18 +73,13 @@ export default function TotalTimeCallsRecordGraph() {
     if (months.length > 0) {
       const firstMonth = months[0];
       const lastMonth = months[months.length - 1];
-      if (months.length === 1) {
-        setMonthHeader(firstMonth);
-      } else if (months.length === 2) {
-        setMonthHeader(`${firstMonth} – ${lastMonth}`);
-      } else {
-        setMonthHeader(`${firstMonth} – ${lastMonth}`);
-      }
+      setMonthHeader(
+        months.length === 1 ? firstMonth : `${firstMonth} – ${lastMonth}`
+      );
     }
 
     if (chartInstance.current) chartInstance.current.destroy();
 
-    // Create Chart
     const ctx = chartRef.current.getContext("2d");
     chartInstance.current = new Chart(ctx, {
       type: "bar",

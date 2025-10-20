@@ -4,7 +4,7 @@ import { FaRegChartBar, FaThLarge } from "react-icons/fa";
 
 const icons = [
   { label: "Card View", icon: FaThLarge, value: "card" },
-  { label: "Graph View", icon: FaRegChartBar, value: "graph" },
+  { label: "analyticsView View", icon: FaRegChartBar, value: "analyticsView" },
 ];
 
 const ViewToggle = ({ view, handleView, moduleView }) => {
@@ -42,8 +42,8 @@ const ViewToggle = ({ view, handleView, moduleView }) => {
 
   const handlePointerUp = () => {
     if (sliderPosition > 0.5 && view === "card") {
-      handleView("graph");
-    } else if (sliderPosition < 0.5 && view === "graph") {
+      handleView("analyticsView");
+    } else if (sliderPosition < 0.5 && view === "analyticsView") {
       handleView("card");
     } else {
       setSliderPosition(view === "card" ? 0 : 1);
@@ -55,6 +55,8 @@ const ViewToggle = ({ view, handleView, moduleView }) => {
   const handleClick = (value) => handleView(value);
 
   const renderButton = ({ label, icon: Icon, value }) => {
+    console.log("value", value);
+    console.log("view", view)
     const isActive = view === value;
 
     return (

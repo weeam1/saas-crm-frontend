@@ -43,8 +43,8 @@ import {
   BsPieChartFill,
   BsDiagram3,
   BsTelephoneFill,
-  BsCheckCircleFill,
-  BsXCircleFill,
+  BsCheckCircle ,
+  BsXCircle,
   BsPersonFill,
 } from "react-icons/bs";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -83,10 +83,10 @@ const CustomBarTooltip = ({ active, payload }) =>
         <BsTelephoneFill /> Total: {payload[0].payload.total}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsCheckCircleFill color="green"/> Answered: {payload[0].payload.answered}
+        <BsCheckCircle /> Answered: {payload[0].payload.answered}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsXCircleFill color="red"/> Unanswered: {payload[0].payload.unanswered}
+        <BsXCircle/> Unanswered: {payload[0].payload.unanswered}
       </Text>
       <Text>⏱ Duration: {payload[0].payload.duration}s</Text>
     </TooltipBox>
@@ -124,10 +124,10 @@ const CustomPieTooltip = ({ active, payload }) =>
         <BsPersonFill /> {payload[0].payload.fullName}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsCheckCircleFill color="green"/> Answered: {payload[0].payload.answered}
+        <BsCheckCircle /> Answered: {payload[0].payload.answered}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsXCircleFill color="red"/> Unanswered: {payload[0].payload.unanswered}
+        <BsXCircle/> Unanswered: {payload[0].payload.unanswered}
       </Text>
     </TooltipBox>
   ) : null;
@@ -142,10 +142,10 @@ const CustomRadarTooltip = ({ active, payload }) =>
         <BsTelephoneFill /> Total Calls: {payload[0].payload.total_calls}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsCheckCircleFill color="green"/> Answered: {payload[0].payload.answered}
+        <BsCheckCircle /> Answered: {payload[0].payload.answered}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsXCircleFill color="red"/> Unanswered: {payload[0].payload.unanswered}
+        <BsXCircle /> Unanswered: {payload[0].payload.unanswered}
       </Text>
       <Text>⏱ Avg Duration: {payload[0].payload.avg_duration_min} min</Text>
     </TooltipBox>

@@ -123,8 +123,6 @@ const Analytics = () => {
     if (data?.sipSettings?.length) {
       if (view === "card") fetchAnalytics();
       else fetchGraphAnalytics();
-
-      console.log("view", view);
     }
   }, [data, view]);
 
