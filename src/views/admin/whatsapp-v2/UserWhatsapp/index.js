@@ -64,8 +64,6 @@ const UserWhatsapp = () => {
 		} else redirect('/');
 	}, [id, instanceData?.doc, instanceData?.doc?.isActive]);
 
-	console.log({ whatsappErrorMessage });
-
 	const {
 		// events
 		whatsappInitialize,

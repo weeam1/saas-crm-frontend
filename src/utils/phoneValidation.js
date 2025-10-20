@@ -65,3 +65,13 @@ export function normalizePhone(input) {
 
 	return phoneNumber?.isValid() ? phoneNumber.number : null; // returns E.164 if valid
 }
+
+export function formatToWhatsappId(number) {
+	if (!number) return null;
+
+	// Remove any non-digit characters
+	const cleaned = number.replace(/\D/g, '');
+
+	// Return formatted WhatsApp ID
+	return `${cleaned}@c.us`;
+}
