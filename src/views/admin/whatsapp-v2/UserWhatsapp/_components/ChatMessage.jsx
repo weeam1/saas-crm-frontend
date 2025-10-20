@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback } from 'react';
-import { Flex, Box, Text } from '@chakra-ui/react';
+import { Flex, Box, Text, Center, Spinner } from '@chakra-ui/react';
 import { BiCheck, BiCheckDouble } from 'react-icons/bi';
 import { MessageAck } from '../constants';
 import { getTimeFormat } from '../../components/helpers';
@@ -10,14 +10,19 @@ import ParticipantAvatar from './groups/ParticipantAvatar';
 import ChatDate from './ChatDate';
 import MessageContent from './MessageContent';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import Loader from 'components/loading/Loader';
+import useFileAttachment from './_shared/useFileAttachment';
+import MessageSendingLoader from './_shared/MessageSendingLoader';
 
-const ChatMessage = ({ chat, chatId, sessionId }) => {
+const ChatMessage = ({ chat, chatId, sessionId, sending, setSending }) => {
 	const messagesEndRef = useRef(null);
 	const containerRef = useRef();
 
 	const messages = useSelector((state) => getMessagesByChatId(state, chatId));
 
-	const { downloadMedia } = useWhatsapp();
+	console.log({ messages });
+
+	const { downloadMedia, downloaded_media } = useWhatsapp();
 
 	useEffect(() => {
 		if (!messages?.length) return;
@@ -30,8 +35,9 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 			});
 		}, 30);
 
+		setSending(false);
 		return () => clearTimeout(timer);
-	}, [messages]);
+	}, [messages, setSending]);
 
 	const handleDownloadMedia = useCallback(
 		(messageId, action) => {
@@ -75,7 +81,6 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 									timestamp={msg?.timestamp}
 									prevMsg={messages[idx - 1]}
 								/>
-
 								<Flex
 									justify={msg.fromMe ? 'flex-end' : 'flex-start'}
 									align='flex-end'
@@ -116,6 +121,7 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 										<MessageContent
 											msg={msg}
 											onDownload={handleDownloadMedia}
+											downloaded_media={downloaded_media}
 										/>
 
 										{/* Timestamp + Status */}
@@ -163,6 +169,14 @@ const ChatMessage = ({ chat, chatId, sessionId }) => {
 							</Box>
 						);
 					})}
+
+					{/* Sending loading show new message send */}
+					{sending && (
+						<Flex w='100%' p='4' justify='flex-end' align='flex-end' mb={2}>
+							<Spinner />
+						</Flex>
+					)}
+
 					<div ref={messagesEndRef} />
 				</Flex>
 			) : (

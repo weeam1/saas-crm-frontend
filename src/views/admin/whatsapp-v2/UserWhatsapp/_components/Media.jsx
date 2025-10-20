@@ -36,10 +36,11 @@ export const ImageMedia = memo(
 					objectFit='cover'
 					borderRadius='lg'
 					onClick={onPreview}
+					filter={whatsappMedia ? 'blur(0px)' : 'blur(4px)'}
 				/>
 			)}
 
-			{isDownloading ? (
+			{/* {isDownloading ? (
 				<Center
 					position='absolute'
 					top='50%'
@@ -65,8 +66,82 @@ export const ImageMedia = memo(
 						bg='rgba(0,0,0,0.5)'
 						color='white'
 						_hover={{ bg: 'rgba(0,0,0,0.7)' }}
-						onClick={() => onDownload(msg.id?._serialized)}
+						onClick={() => onDownload(msg)}
 					/>
+				)
+			)} */}
+
+			{isDownloading ? (
+				<Center
+					position='absolute'
+					top='50%'
+					left='50%'
+					transform='translate(-50%, -50%)'
+					bg='rgba(0,0,0,0.5)'
+					borderRadius='full'
+					p={3}
+				>
+					<Spinner size='lg' color='white' thickness='3px' speed='0.6s' />
+				</Center>
+			) : msg?._data?.size > 50 * 1024 * 1024 ? ( // check 50 MB in bytes
+				<Center
+					position='absolute'
+					top='50%'
+					left='50%'
+					transform='translate(-50%, -50%)'
+					textAlign='center'
+					px={3}
+				>
+					<Text
+						fontSize='sm'
+						color='white'
+						bg='rgba(0,0,0,0.6)'
+						px={3}
+						py={2}
+						borderRadius='lg'
+					>
+						File too large — please check this video on your mobile.
+					</Text>
+				</Center>
+			) : (
+				!whatsappMedia && (
+					<Flex
+						position='absolute'
+						top='50%'
+						left='50%'
+						transform='translate(-50%, -50%)'
+						align='center'
+						bg='rgba(0,0,0,0.5)'
+						color='white'
+						px={2}
+						py={1}
+						borderRadius='full'
+						_hover={{ bg: 'rgba(0,0,0,0.6)' }}
+						transition='all 0.2s'
+						gap={2}
+						cursor='pointer'
+						onClick={() => onDownload(msg)}
+					>
+						<IconButton
+							aria-label='Download'
+							icon={<DownloadIcon />}
+							borderRadius='full'
+							size='sm' // smaller icon than lg
+							bg='transparent'
+							color='white'
+							_hover={{ bg: 'rgba(255,255,255,0.1)' }}
+						/>
+						{msg?._data?.size && (
+							<Text
+								fontSize='sm'
+								fontWeight='medium'
+								color='whiteAlpha.900'
+								lineHeight='1'
+							>
+								{formatFileSize(msg?._data?.size)}
+							</Text>
+						)}
+					</Flex>
 				)
 			)}
 
@@ -98,11 +173,12 @@ export const VideoMedia = memo(
 						w={msg?.width || '300px'}
 						maxW='350px'
 						maxH={msg?.height || '350px'}
-						objectFit='cover'
+						objectFit='contain'
 						borderRadius='lg'
+						filter={whatsappMedia ? 'blur(0px)' : 'blur(4px)'}
 					/>
 
-					{isDownloading ? (
+					{/* {isDownloading ? (
 						<Center
 							position='absolute'
 							top='50%'
@@ -127,8 +203,80 @@ export const VideoMedia = memo(
 							bg='rgba(0,0,0,0.5)'
 							color='white'
 							_hover={{ bg: 'rgba(0,0,0,0.7)' }}
-							onClick={() => onDownload(msg.id?._serialized, 'video')}
+							onClick={() => onDownload(msg, 'video')}
 						/>
+					)} */}
+
+					{isDownloading ? (
+						<Center
+							position='absolute'
+							top='50%'
+							left='50%'
+							transform='translate(-50%, -50%)'
+							bg='rgba(0,0,0,0.5)'
+							borderRadius='full'
+							p={3}
+						>
+							<Spinner size='lg' color='white' thickness='3px' speed='0.6s' />
+						</Center>
+					) : msg?._data?.size > 50 * 1024 * 1024 ? ( // check 50 MB in bytes
+						<Center
+							position='absolute'
+							top='50%'
+							left='50%'
+							transform='translate(-50%, -50%)'
+							textAlign='center'
+							px={3}
+						>
+							<Text
+								fontSize='sm'
+								color='white'
+								bg='rgba(0,0,0,0.6)'
+								px={3}
+								py={2}
+								borderRadius='lg'
+							>
+								File too large — please check this video on your mobile.
+							</Text>
+						</Center>
+					) : (
+						<Flex
+							position='absolute'
+							top='50%'
+							left='50%'
+							transform='translate(-50%, -50%)'
+							align='center'
+							bg='rgba(0,0,0,0.5)'
+							color='white'
+							px={2}
+							py={1}
+							borderRadius='full'
+							_hover={{ bg: 'rgba(0,0,0,0.6)' }}
+							transition='all 0.2s'
+							gap={2}
+							cursor='pointer'
+							onClick={() => onDownload(msg)}
+						>
+							<IconButton
+								aria-label='Download'
+								icon={<DownloadIcon />}
+								borderRadius='full'
+								size='sm' // smaller icon than lg
+								bg='transparent'
+								color='white'
+								_hover={{ bg: 'rgba(255,255,255,0.1)' }}
+							/>
+							{msg?._data?.size && (
+								<Text
+									fontSize='sm'
+									fontWeight='medium'
+									color='whiteAlpha.900'
+									lineHeight='1'
+								>
+									{formatFileSize(msg?._data?.size)}
+								</Text>
+							)}
+						</Flex>
 					)}
 				</>
 			) : (
@@ -189,7 +337,7 @@ export const DocumentMedia = memo(
 			align='start'
 		>
 			<Flex align='center' gap={2}>
-				<Icon as={mimeTypeInfo.icon} boxSize={6} color={mimeTypeInfo.color} />
+				<Icon as={mimeTypeInfo.icon} boxSize={8} color={mimeTypeInfo.color} />
 				<VStack align='start'>
 					<Text
 						fontWeight='semibold'
@@ -231,7 +379,7 @@ export const DocumentMedia = memo(
 						color='gray.600'
 						bg='whatsapp.300'
 						rounded='md'
-						onClick={() => onDownload(msg.id?._serialized, 'open')}
+						onClick={() => onDownload(msg, 'open')}
 						_hover={{ shadow: 'lg' }}
 						isDisabled={isDownloading}
 					>
@@ -243,7 +391,7 @@ export const DocumentMedia = memo(
 					rounded='md'
 					color='gray.600'
 					bg='whatsapp.300'
-					onClick={() => onDownload(msg.id?._serialized, 'download')}
+					onClick={() => onDownload(msg, 'download')}
 					flex={1}
 					_hover={{ shadow: 'lg' }}
 					isDisabled={isDownloading}

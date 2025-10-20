@@ -152,6 +152,7 @@ import {
 	FaAndroid,
 	FaFile,
 } from 'react-icons/fa';
+import { BiSolidFilePdf } from 'react-icons/bi';
 
 export function getMediaTypeInfo(mimeType = '') {
 	if (!mimeType) {
@@ -202,7 +203,8 @@ export function getMediaTypeInfo(mimeType = '') {
 			label: 'PDF Document',
 			ext: '.pdf',
 			color: 'red.400',
-			icon: FaFilePdf,
+			// icon: FaFilePdf,
+			icon: BiSolidFilePdf,
 		},
 
 		// 📝 Word

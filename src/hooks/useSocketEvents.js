@@ -3,23 +3,23 @@ import { useCallback, useEffect, useState } from 'react';
 import socketService from 'services/socketService';
 
 export function useSocketEvents() {
-	const [isConnected, setIsConnected] = useState(false);
+	// const [isConnected, setIsConnected] = useState(false);
 
 	const connect = useCallback(async () => {
 		try {
 			// await socketService.connect('http://localhost:5000');
 			await socketService.connect(keys.socketIoUrl);
 
-			if (socketService.socket) {
-				setIsConnected(socketService.socket.connected);
+			// if (socketService.socket) {
+			// 	setIsConnected(socketService.socket.connected);
 
-				// also listen to socket events to track future changes
-				socketService.socket.on('connect', () => setIsConnected(true));
-				socketService.socket.on('disconnect', () => setIsConnected(false));
-			}
+			// 	// // also listen to socket events to track future changes
+			// 	// socketService.socket.on('connect', () => setIsConnected(true));
+			// 	// socketService.socket.on('disconnect', () => setIsConnected(false));
+			// }
 		} catch (err) {
 			console.error('Socket connection failed:', err);
-			setIsConnected(false);
+			// setIsConnected(false);
 		}
 	}, []);
 
@@ -58,7 +58,7 @@ export function useSocketEvents() {
 		registerUser,
 		registerWhatsappUser,
 		createUserActivityLog,
-		isConnected,
+		isConnected: socketService?.connectionStatus === 'connected',
 		emit,
 	};
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import {
 	Menu,
@@ -22,6 +22,8 @@ import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { FiMoreVertical } from 'react-icons/fi';
 import { normalizePhone } from 'utils/phoneValidation';
+import { FaMessage } from 'react-icons/fa6';
+import DirectWhatsappMessage from '../../whatsapp-message/DirectWhatsappMessage';
 
 const LeadMenu = ({
 	lead,
@@ -42,6 +44,8 @@ const LeadMenu = ({
 }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
+	const [directMessageModal, setDirectMessageModal] = useState(false);
 
 	// const user = useSelector((state) => state.user.user);
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
@@ -101,46 +105,51 @@ const LeadMenu = ({
 		navigate(redirectUrl);
 	};
 
+	const handleDirectMessage = () => {
+		setDirectMessageModal(true);
+	};
+
 	return (
-		<Menu isLazy closeOnSelect={false} size='sm'>
-			<MenuButton
-				as={IconButton}
-				icon={<FiMoreVertical />}
-				aria-label='Options'
-				variant='ghost'
-				size='sm'
-				fontSize='18px'
-				rounded='full'
-				_focus={{ boxShadow: 'none', outline: 'none' }}
-			/>
-			{/* <MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' /> */}
-			<MenuList minW='fit-content' fontSize='sm'>
-				{/* {(isSuperAdmin && access?.update) ||
+		<>
+			<Menu isLazy closeOnSelect={false} size='sm'>
+				<MenuButton
+					as={IconButton}
+					icon={<FiMoreVertical />}
+					aria-label='Options'
+					variant='ghost'
+					size='sm'
+					fontSize='18px'
+					rounded='full'
+					_focus={{ boxShadow: 'none', outline: 'none' }}
+				/>
+				{/* <MenuButton as={IconButton} icon={<CiMenuKebab />} variant='ghost' /> */}
+				<MenuList minW='fit-content' fontSize='sm'>
+					{/* {(isSuperAdmin && access?.update) ||
 				(user?.role !== 'superAdmin' && allowedUserEdit) ? ( */}
-				{/* {(isSuperAdmin && access?.update) || */}
-				{hasPermission('leads', 'update') ||
-				hasPermission('leads', 'edit_contacts') ? (
-					<MenuItem
-						onClick={() => {
-							setEditLead(true);
-							setLeadDetails(lead);
-						}}
-						icon={<EditIcon fontSize={15} />}
-					>
-						Edit
-					</MenuItem>
-				) : null}
-				{['Manager', 'Agent'].includes(userRoleName) && (
-					<ReleaseLead
-						isReleased={lead?.isReleased}
-						role={userRoleName}
-						leadId={lead?._id}
-						lead={lead}
-						as={MenuItem}
-						refreshData={refreshData}
-					/>
-				)}
-				{/* {callAccess?.create && (
+					{/* {(isSuperAdmin && access?.update) || */}
+					{hasPermission('leads', 'update') ||
+					hasPermission('leads', 'edit_contacts') ? (
+						<MenuItem
+							onClick={() => {
+								setEditLead(true);
+								setLeadDetails(lead);
+							}}
+							icon={<EditIcon fontSize={15} />}
+						>
+							Edit
+						</MenuItem>
+					) : null}
+					{['Manager', 'Agent'].includes(userRoleName) && (
+						<ReleaseLead
+							isReleased={lead?.isReleased}
+							role={userRoleName}
+							leadId={lead?._id}
+							lead={lead}
+							as={MenuItem}
+							refreshData={refreshData}
+						/>
+					)}
+					{/* {callAccess?.create && (
 					<MenuItem
 					
 						// onClick={() => {
@@ -152,63 +161,71 @@ const LeadMenu = ({
 						Create Call
 					</MenuItem>
 				)} */}
-				{/* {emailAccess?.create && ( */}
-				{hasPermission('leads', 'sendEmail') && (
+					{/* {emailAccess?.create && ( */}
+					{hasPermission('leads', 'sendEmail') && (
+						<MenuItem
+							onClick={() => {
+								setSendEmail(true);
+								setLeadDetails(lead);
+							}}
+							icon={<EmailIcon fontSize={15} />}
+						>
+							Send Email
+						</MenuItem>
+					)}
+					{hasPermission('leads', 'viewLeadCycle') && (
+						<MenuItem
+							onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
+							icon={<FaHistory fontSize={15} />}
+						>
+							View Lead Cycle
+						</MenuItem>
+					)}
+					{/* {isSuperAdmin && ( */}
+					{hasPermission('leads', 'viewPhoneHistory') && (
+						<MenuItem
+							onClick={() => {
+								setViewPhoneHistory({
+									modal: true,
+									leadId: lead._id,
+								});
+							}}
+							icon={<FaHistory fontSize={15} />}
+						>
+							View Phone History
+						</MenuItem>
+					)}
+
 					<MenuItem
-						onClick={() => {
-							setSendEmail(true);
-							setLeadDetails(lead);
-						}}
-						icon={<EmailIcon fontSize={15} />}
+						py={2.5}
+						onClick={handleDirectMessage}
+						icon={<FaMessage fontSize={15} />}
 					>
-						Send Email
+						Direct Message
 					</MenuItem>
-				)}
-				{hasPermission('leads', 'viewLeadCycle') && (
-					<MenuItem
-						onClick={() => setIsLeadCycle({ isOpen: true, id: leadId })}
-						icon={<FaHistory fontSize={15} />}
-					>
-						View Lead Cycle
-					</MenuItem>
-				)}
-				{/* {isSuperAdmin && ( */}
-				{hasPermission('leads', 'viewPhoneHistory') && (
-					<MenuItem
-						onClick={() => {
-							setViewPhoneHistory({
-								modal: true,
-								leadId: lead._id,
-							});
-						}}
-						icon={<FaHistory fontSize={15} />}
-					>
-						View Phone History
-					</MenuItem>
-				)}
-				{/* <MenuItem
+					{/* <MenuItem
 				
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
 					icon={<FaHistory fontSize={15} />}
 				>
 					View Call History
 				</MenuItem> */}
-				<MenuItem
-					display={{ sm: 'block', xl: 'none' }}
-					onClick={() => {
-						if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
-					}}
-					icon={<PhoneIcon fontSize={15} />}
-				>
-					Open in Dialpad
-				</MenuItem>
-				<MenuItem
-					onClick={handleOpenWhatsapp}
-					icon={<BsWhatsapp fontSize={15} />}
-				>
-					Open in WhatsApp
-				</MenuItem>
-				{/* {user?.roles[0]?.roleName === 'Agent' && (
+					<MenuItem
+						display={{ sm: 'block', xl: 'none' }}
+						onClick={() => {
+							if (phoneNumber) window.location.href = `tel:${phoneNumber}`;
+						}}
+						icon={<PhoneIcon fontSize={15} />}
+					>
+						Open in Dialpad
+					</MenuItem>
+					<MenuItem
+						onClick={handleOpenWhatsapp}
+						icon={<BsWhatsapp fontSize={15} />}
+					>
+						Open in WhatsApp
+					</MenuItem>
+					{/* {user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
 						// onClick={() => {
 						// 	setTaskInits(lead);
@@ -220,32 +237,42 @@ const LeadMenu = ({
 					</MenuItem>
 				)} */}
 
-				{hasPermission('leads', 'leadAdditionalInfo') && (
-					<MenuItem
-						onClick={() => {
-							setLeadAddtionalInfo(true);
-							setLeadDetails(lead);
-						}}
-						icon={<AiFillInfoCircle fontSize={15} />}
-					>
-						Addtional Info
-					</MenuItem>
-				)}
-				{/* {access?.delete && isSuperAdmin && ( */}
-				{hasPermission('leads', 'delete') && (
-					<MenuItem
-						color='red'
-						onClick={() => {
-							setSelectedValues([leadId]);
-							setDeleteLead(true);
-						}}
-						icon={<DeleteIcon fontSize={15} />}
-					>
-						Delete
-					</MenuItem>
-				)}
-			</MenuList>
-		</Menu>
+					{hasPermission('leads', 'leadAdditionalInfo') && (
+						<MenuItem
+							onClick={() => {
+								setLeadAddtionalInfo(true);
+								setLeadDetails(lead);
+							}}
+							icon={<AiFillInfoCircle fontSize={15} />}
+						>
+							Addtional Info
+						</MenuItem>
+					)}
+					{/* {access?.delete && isSuperAdmin && ( */}
+					{hasPermission('leads', 'delete') && (
+						<MenuItem
+							color='red'
+							onClick={() => {
+								setSelectedValues([leadId]);
+								setDeleteLead(true);
+							}}
+							icon={<DeleteIcon fontSize={15} />}
+						>
+							Delete
+						</MenuItem>
+					)}
+				</MenuList>
+			</Menu>
+
+			{directMessageModal && (
+				<DirectWhatsappMessage
+					isOpen={directMessageModal}
+					onClose={() => setDirectMessageModal(false)}
+					user={user}
+					number={lead.leadWhatsappNumber}
+				/>
+			)}
+		</>
 	);
 };
 

@@ -12,17 +12,15 @@ import {
 	VideoMedia,
 } from './Media';
 
-const MessageContent = ({ msg, onDownload }) => {
+const MessageContent = ({ msg, onDownload, downloaded_media }) => {
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-	// const downloadedMedia = useSelector(
-	// 	(state) => state.whatsappWeb.downloaded_media
+	// const whatsappMedia = useSelector(
+	// 	(s) => s.whatsappWeb.downloaded_media[msg?.mediaKey],
+	// 	(a, b) => a === b
 	// );
 
-	const whatsappMedia = useSelector(
-		(s) => s.whatsappWeb.downloaded_media[msg?.mediaKey],
-		(a, b) => a === b
-	);
+	const whatsappMedia = downloaded_media?.[msg?.mediaKey] || null;
 
 	const [isDownloading, setIsDownloading] = useState(false);
 
@@ -67,18 +65,20 @@ const MessageContent = ({ msg, onDownload }) => {
 	};
 
 	const handleDownload = useCallback(
-		(messageId, action = 'download') => {
+		(msg, action = 'download') => {
+			if (downloaded_media?.[msg?.mediaKey]) return;
+
 			setIsDownloading(true);
-			onDownload(messageId, action);
+			onDownload(msg?.id?._serialized, action);
 		},
-		[onDownload]
+		[downloaded_media, onDownload]
 	);
 
 	useEffect(() => {
-		if (msg?.type === 'ptt' && msg?.id?._serialized) {
-			handleDownload(msg?.id?._serialized);
+		if (msg?.type === 'ptt') {
+			handleDownload(msg);
 		}
-	}, [handleDownload, msg?.id?._serialized, msg?.type]);
+	}, [handleDownload, msg, msg?.type]);
 
 	if (isPreviewOpen) {
 		return (
