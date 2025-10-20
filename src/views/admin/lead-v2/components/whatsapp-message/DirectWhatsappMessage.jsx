@@ -22,6 +22,7 @@ import { toast } from 'react-toastify';
 import { normalizePhone, formatToWhatsappId } from 'utils/phoneValidation';
 import { safeValue } from 'utils';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import Loader from 'components/loading/Loader';
 
 const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const [message, setMessage] = useState('');
@@ -33,6 +34,32 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const sessionId = user?.whatsappInstance?.sessionId || null;
 
 	const { sendMessage, isReady } = useWhatsapp();
+
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		let timeout;
+
+		const startReconnect = async () => {
+			setLoading(true);
+
+			if (isReady) {
+				// If already ready → show only 2s loading
+				timeout = setTimeout(() => {
+					setLoading(false);
+				}, 2000);
+			} else {
+				// If not ready → wait longer (5s)
+				timeout = setTimeout(() => {
+					setLoading(false);
+				}, 5000);
+			}
+		};
+
+		startReconnect();
+
+		return () => clearTimeout(timeout);
+	}, [isReady]);
 
 	useEffect(() => {
 		if (number) {
@@ -86,7 +113,9 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 				<ModalCloseButton color='whiteAlpha.900' />
 
 				<ModalBody py={6}>
-					{errorMessage ? (
+					{loading ? (
+						<Loader />
+					) : errorMessage ? (
 						<Center flexDir='column' py={6}>
 							<Text fontWeight='medium' color='red.400' mb={2}>
 								{errorMessage}
