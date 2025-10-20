@@ -171,7 +171,6 @@ const UserChartAnalytics = ({
   const borderColor = useColorModeValue("gray.200", "#4b5563");
 
   const tickFontSize = useBreakpointValue({ base: 9, sm: 10, md: 12 });
-  const labelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 18 });
   const radarLabelFontSize = useBreakpointValue({ base: 8, sm: 10, md: 15 });
   const chartHeight = useBreakpointValue({
     base: 220,
