@@ -172,15 +172,8 @@ const ChatMessage = ({ chat, chatId, sessionId, sending, setSending }) => {
 
 					{/* Sending loading show new message send */}
 					{sending && (
-						<Flex
-							w='100%'
-							bg='red.200'
-							p='4'
-							justify='flex-end'
-							align='flex-end'
-							mb={2}
-						>
-							<Loader />
+						<Flex w='100%' p='4' justify='flex-end' align='flex-end' mb={2}>
+							<Spinner />
 						</Flex>
 					)}
 

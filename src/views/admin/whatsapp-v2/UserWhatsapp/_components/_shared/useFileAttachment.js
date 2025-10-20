@@ -21,7 +21,7 @@ const useFileAttachment = () => {
 	const FILE_CONFIG = {
 		image: {
 			types: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-			maxSize: 50 * 1024 * 1024,
+			maxSize: 20 * 1024 * 1024,
 			icon: FaImage,
 			color: 'green.500',
 			previewComponent: (file, previewURL) => (
@@ -37,7 +37,7 @@ const useFileAttachment = () => {
 		},
 		video: {
 			types: ['video/mp4', 'video/avi', 'video/mov', 'video/mkv'],
-			maxSize: 50 * 1024 * 1024,
+			maxSize: 20 * 1024 * 1024,
 			icon: FaVideo,
 			color: 'purple.500',
 			previewComponent: (file, previewURL) => (
@@ -62,7 +62,7 @@ const useFileAttachment = () => {
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'text/plain',
 			],
-			maxSize: 50 * 1024 * 1024,
+			maxSize: 20 * 1024 * 1024,
 			icon: FaFile,
 			color: 'blue.500',
 			previewComponent: (file) => (
