@@ -19,8 +19,10 @@ import {
 } from '@chakra-ui/react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { normalizePhone } from 'utils/phoneValidation';
+import { normalizePhone, formatToWhatsappId } from 'utils/phoneValidation';
 import { safeValue } from 'utils';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import Loader from 'components/loading/Loader';
 
 const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const [message, setMessage] = useState('');
@@ -28,7 +30,36 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const [whatsappNumber, setWhatsappNumber] = useState('');
 	const [isSending, setIsSending] = useState(false);
 
-	const isWhatsAppActive = false || user?.whatsappInstance?.isActive;
+	const isWhatsAppActive = user?.whatsappInstance?.isActive || false;
+	const sessionId = user?.whatsappInstance?.sessionId || null;
+
+	const { sendMessage, isReady } = useWhatsapp();
+
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		let timeout;
+
+		const startReconnect = async () => {
+			setLoading(true);
+
+			if (isReady) {
+				// If already ready → show only 2s loading
+				timeout = setTimeout(() => {
+					setLoading(false);
+				}, 2000);
+			} else {
+				// If not ready → wait longer (5s)
+				timeout = setTimeout(() => {
+					setLoading(false);
+				}, 5000);
+			}
+		};
+
+		startReconnect();
+
+		return () => clearTimeout(timeout);
+	}, [isReady]);
 
 	useEffect(() => {
 		if (number) {
@@ -52,8 +83,11 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 		}
 
 		try {
-			// setIsSending(true);
-			// await onSend(whatsappNumber, message);
+			const whatsappId = formatToWhatsappId(whatsappNumber);
+
+			// console.log({ sessionId, to: whatsappId, message });
+
+			sendMessage({ sessionId, to: whatsappId, message });
 			toast.success('Message sent successfully!');
 			onClose();
 		} catch (err) {
@@ -69,7 +103,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
 			<ModalOverlay />
 			<ModalContent borderRadius='2xl' overflow='hidden'>
-				<ModalHeader bg='green.500' color='white' py={4}>
+				<ModalHeader bg='whatsapp.500' color='white' py={4}>
 					<HStack>
 						<Icon as={FaWhatsapp} boxSize={5} />
 						<Text fontSize='lg'>Send Direct Message</Text>
@@ -79,7 +113,9 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 				<ModalCloseButton color='whiteAlpha.900' />
 
 				<ModalBody py={6}>
-					{errorMessage ? (
+					{loading ? (
+						<Loader />
+					) : errorMessage ? (
 						<Center flexDir='column' py={6}>
 							<Text fontWeight='medium' color='red.400' mb={2}>
 								{errorMessage}
@@ -89,14 +125,23 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 								sending your message.
 							</Text>
 						</Center>
-					) : !isWhatsAppActive ? (
+					) : !isWhatsAppActive || !sessionId ? (
+						<Center flexDir='column' py={6}>
+							<Text fontWeight='medium' color='red.400' mb={2}>
+								WhatsApp account not found!
+							</Text>
+							<Text color='gray.500' fontSize='sm' textAlign='center'>
+								Please add your WhatsApp account in CRM before sending messages.
+							</Text>
+						</Center>
+					) : sessionId && !isReady ? (
 						<Center flexDir='column' py={6}>
 							<Text fontWeight='medium' color='red.400' mb={2}>
 								WhatsApp not connected
 							</Text>
 							<Text color='gray.500' fontSize='sm' textAlign='center'>
-								Please connect your WhatsApp account in CRM before sending
-								messages.
+								Reload the page and try again once your WhatsApp account is
+								connected.
 							</Text>
 						</Center>
 					) : (
@@ -105,7 +150,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 								placeholder='Type your message...'
 								value={message}
 								onChange={(e) => setMessage(e.target.value)}
-								focusBorderColor='green.400'
+								focusBorderColor='whatsapp.400'
 								size='md'
 								minH='120px'
 							/>
@@ -122,7 +167,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 								Close
 							</Button>
 							<Button
-								colorScheme='green'
+								colorScheme='whatsapp'
 								onClick={handleSend}
 								isLoading={isSending}
 								isDisabled={!message.trim()}
