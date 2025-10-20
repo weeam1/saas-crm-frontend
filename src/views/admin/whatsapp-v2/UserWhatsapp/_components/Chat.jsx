@@ -25,11 +25,23 @@ const Chat = ({ chatId, sessionId }) => {
 	const chat = useSelector((state) => getChat(state, chatId));
 
 	const { sendMessage, activeChat } = useWhatsapp();
+	const [sending, setSending] = useState(false);
 
-	const handleSendMessage = () => {
-		if (message.trim()) {
-			// console.log('Sending message:', message);
-			sendMessage(sessionId, chatId, message);
+	const handleSendMessage = ({ media, caption } = {}) => {
+		if (message.trim() || media) {
+			const whatsappPayload = {
+				sessionId,
+				to: chatId,
+				message,
+				...(media && { media }),
+				...(caption && { options: { caption } }),
+			};
+
+			console.log('Sending message:', whatsappPayload);
+
+			setSending(true);
+
+			sendMessage(whatsappPayload);
 			setMessage('');
 		}
 	};
@@ -77,7 +89,13 @@ const Chat = ({ chatId, sessionId }) => {
 				<HStack gap='2' align='center'>
 					<Avatar size='sm' {...avatarProps} />
 
-					<Text filter='blur(4px)' fontWeight='bold' fontSize='lg'>
+					<Text
+						// userSelect='none'
+						// onCopy={(e) => e.preventDefault()}
+						// filter='blur(4px)'
+						fontWeight='bold'
+						fontSize={{ base: 'sm', md: 'md' }}
+					>
 						{activeChat?.name || '***********'}
 					</Text>
 					{/* <Text fontSize='sm' color='gray.500'>
@@ -92,7 +110,13 @@ const Chat = ({ chatId, sessionId }) => {
 			</Box>
 
 			{/* Messages Container */}
-			<ChatMessage chat={chat} chatId={chatId} sessionId={sessionId} />
+			<ChatMessage
+				chat={chat}
+				chatId={chatId}
+				sessionId={sessionId}
+				setSending={setSending}
+				sending={sending}
+			/>
 
 			{/* Input Area */}
 			<Box p={2}>
@@ -106,7 +130,7 @@ const Chat = ({ chatId, sessionId }) => {
 						size='md'
 					/> */}
 
-					<MediaAttachment />
+					<MediaAttachment onSend={handleSendMessage} />
 
 					{/* Message Input */}
 					<Input

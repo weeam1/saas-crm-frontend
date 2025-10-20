@@ -226,7 +226,9 @@ const ChatListItem = ({
 								maxW='70%'
 								fontSize='sm'
 								noOfLines={1}
-								filter='blur(4px)'
+								// filter='blur(4px)'
+								// userSelect='none'
+								// onCopy={(e) => e.preventDefault()}
 							>
 								{chat?.name || '***********'}
 								{/* ************** */}

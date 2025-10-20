@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { formatFileSize } from 'utils/whatsappUtils';
+import { BiSolidFilePdf } from 'react-icons/bi';
 
 const useFileAttachment = () => {
 	const [attachedFile, setAttachedFile] = useState(null);
@@ -20,7 +21,7 @@ const useFileAttachment = () => {
 	const FILE_CONFIG = {
 		image: {
 			types: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-			maxSize: 100 * 1024 * 1024,
+			maxSize: 50 * 1024 * 1024,
 			icon: FaImage,
 			color: 'green.500',
 			previewComponent: (file, previewURL) => (
@@ -36,7 +37,7 @@ const useFileAttachment = () => {
 		},
 		video: {
 			types: ['video/mp4', 'video/avi', 'video/mov', 'video/mkv'],
-			maxSize: 100 * 1024 * 1024,
+			maxSize: 50 * 1024 * 1024,
 			icon: FaVideo,
 			color: 'purple.500',
 			previewComponent: (file, previewURL) => (
@@ -61,7 +62,7 @@ const useFileAttachment = () => {
 				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 				'text/plain',
 			],
-			maxSize: 100 * 1024 * 1024,
+			maxSize: 50 * 1024 * 1024,
 			icon: FaFile,
 			color: 'blue.500',
 			previewComponent: (file) => (
@@ -76,7 +77,7 @@ const useFileAttachment = () => {
 				>
 					<Icon as={getDocumentIcon(file)} boxSize={8} color='blue.500' />
 					<VStack align='start' spacing={0}>
-						<Text bg='red.200' fontSize='sm' fontWeight='medium' noOfLines={1}>
+						<Text fontSize='sm' fontWeight='medium' noOfLines={1}>
 							{file.name}
 						</Text>
 						<Text fontSize='xs' color='gray.500'>
@@ -111,7 +112,9 @@ const useFileAttachment = () => {
 			const config = FILE_CONFIG[fileType];
 
 			if (file.size > config.maxSize)
-				throw new Error('File size must be less than 100MB');
+				throw new Error(
+					`File size must be less than ${formatFileSize(config.maxSize)}`
+				);
 
 			if (!config.types.includes(file.type))
 				throw new Error(`Unsupported file type: ${file.type}`);
@@ -158,7 +161,7 @@ const useFileAttachment = () => {
 		let progress = 0;
 
 		const step = () => {
-			progress += 20; // increments in 20%
+			progress += 50; // increments in 50%
 			setUploadProgress(progress);
 			onProgress(progress);
 
@@ -195,14 +198,15 @@ const useFileAttachment = () => {
 						);
 						setAttachedFile({
 							file: { ...uploadedFile, previewURL },
+							mediaFile: file,
 							type: fileType,
-							payload,
+							payload: { ...payload, data: file },
 							preview: FILE_CONFIG[fileType].previewComponent(
 								uploadedFile,
 								previewURL
 							),
 						});
-						toast.success('File ready to send');
+						// toast.success('File ready to send');
 					}
 				);
 			} catch (error) {
