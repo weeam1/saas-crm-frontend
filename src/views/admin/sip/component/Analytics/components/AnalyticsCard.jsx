@@ -66,13 +66,15 @@ const AnalyticsCard = ({ item, month, year }) => {
       p={{ base: 2, sm: 3, md: 5 }}
       borderRadius="2xl"
       shadow="sm"
-      bgGradient="linear(to-br, white, #fff9e6)"
+      bg="white"
       border="1px solid"
-      borderColor="goldenrod"
-      transition="all 0.25s ease"
+      borderColor="gray.300"
+      transition="all 0.3s ease"
       _hover={{
-        transform: "translateY(-3px) scale(1.005)",
-        boxShadow: "md",
+        transform: "translateY(-3px) scale(1.01)",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+        bgGradient: "linear(to-br, #f0fff4, #e0f7fa)", 
+        borderColor: "gray.400",
       }}
       w="100%"
     >
@@ -86,7 +88,7 @@ const AnalyticsCard = ({ item, month, year }) => {
       >
         <Heading
           fontSize={headingFont}
-          color="goldenrod"
+          color="black"
           noOfLines={1}
           textOverflow="ellipsis"
           overflow="hidden"

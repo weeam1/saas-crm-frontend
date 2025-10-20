@@ -84,10 +84,10 @@ const calculatePopupPosition = () => {
         bg="gray.50"
         color="gray.800"
         borderRadius="md"
-        size={{ base: "sm", md: "md", lg: "lg" }}
-        fontSize={{ base: "sm", md: "md", lg: "lg" }}
-        px={{ base: 3, md: 5 }}
-        py={{ base: 2, md: 2 }}
+        size={"sm"}
+        fontSize={"sm"}
+        px={{ base: 3, md: 3 }}
+        py={{ base: 2, md: 1 }}
         onClick={() => setShowCalendar(!showCalendar)}
         _hover={{ bg: "gray.100" }}
         shadow="sm"

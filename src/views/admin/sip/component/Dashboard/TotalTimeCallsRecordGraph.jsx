@@ -21,7 +21,9 @@ const formatSeconds = (seconds) => {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  return `${hrs > 0 ? `${hrs} hrs ` : ""}${mins} min${secs > 0 ? ` ${secs}s` : ""}`;
+  return `${hrs > 0 ? `${hrs} hrs ` : ""}${mins} min${
+    secs > 0 ? ` ${secs}s` : ""
+  }`;
 };
 
 export default function TotalTimeCallsRecordGraph() {
@@ -39,13 +41,15 @@ export default function TotalTimeCallsRecordGraph() {
   const chartInstance = useRef(null);
 
   const updateChart = (data) => {
-    const daily = data.daily.map((d) => ({
-      date: moment(d.date),
-      duration: parseFloat(d.duration.replace("s", "")) / 60,
-      unique: d.joinedCount,
-    }));
+    const daily = data.daily
+      .map((d) => ({
+        date: moment(d.date),
+        duration: parseFloat(d.duration.replace("s", "")) / 60,
+        unique: d.joinedCount,
+      }))
+      .sort((a, b) => a.date - b.date); 
 
-    //  Group by month
+    // Group by month
     const grouped = daily.reduce((acc, item) => {
       const month = item.date.format("MMM");
       if (!acc[month]) acc[month] = [];
@@ -53,11 +57,10 @@ export default function TotalTimeCallsRecordGraph() {
       return acc;
     }, {});
 
-    const labels = daily.map((d) => d.date.format("MMM"));
+    const labels = daily.map((d) => d.date.format("D"));
     const totalTime = daily.map((d) => d.duration);
     const uniqueCalls = daily.map((d) => d.unique);
 
-    //  Calculate month ranges for display 
     const ranges = Object.keys(grouped).map((month) => {
       const days = grouped[month].map((d) => d.date.date());
       const start = Math.min(...days);
@@ -66,21 +69,15 @@ export default function TotalTimeCallsRecordGraph() {
     });
     setMonthRanges(ranges);
 
-    //  Create top header range
     const months = Object.keys(grouped);
     if (months.length > 0) {
       const firstMonth = months[0];
       const lastMonth = months[months.length - 1];
-      if (months.length === 1) {
-        setMonthHeader(firstMonth);
-      } else if (months.length === 2) {
-        setMonthHeader(`${firstMonth} – ${lastMonth}`);
-      } else {
-        setMonthHeader(`${firstMonth} – ${lastMonth}`);
-      }
+      setMonthHeader(
+        months.length === 1 ? firstMonth : `${firstMonth} – ${lastMonth}`
+      );
     }
 
-    //  Destroy old chart
     if (chartInstance.current) chartInstance.current.destroy();
 
     const ctx = chartRef.current.getContext("2d");
@@ -179,6 +176,12 @@ export default function TotalTimeCallsRecordGraph() {
             borderWidth: 1,
             borderColor: "#2D3748",
             cornerRadius: 6,
+            callbacks: {
+              title: (tooltipItems) => {
+                const index = tooltipItems[0].dataIndex;
+                return daily[index].date.format("DD MMM YYYY");
+              },
+            },
           },
         },
         animation: {
@@ -195,7 +198,9 @@ export default function TotalTimeCallsRecordGraph() {
         const data = await fetchTotalTimeCallsRecordStats(days);
         setUniqueCalls(data.unique_calls);
         setAvgMinutes(data.average_minutes);
-        const durationInSeconds = parseFloat(data.allTime.duration.replace("s", ""));
+        const durationInSeconds = parseFloat(
+          data.allTime.duration.replace("s", "")
+        );
         setTotalSeconds(durationInSeconds);
         updateChart(data);
       } catch (error) {
@@ -211,8 +216,7 @@ export default function TotalTimeCallsRecordGraph() {
 
   return (
     <Box p={4} bg={bgColor} borderRadius="lg" shadow="md" mx={2} mt={-2}>
-
-
+      {/* Header */}
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg" fontWeight="bold" color={textColor}>
           Total Time and Calls
@@ -228,9 +232,12 @@ export default function TotalTimeCallsRecordGraph() {
           <option value={30}>30 Days</option>
           <option value={60}>60 Days</option>
           <option value={90}>90 Days</option>
+          <option value={180}>180 Days</option>
+          <option value={360}>360 Days</option>
         </Select>
       </Flex>
 
+      {/* Summary Stats */}
       <Flex justify="space-between" mb={8} wrap="wrap">
         <VStack align="flex-start" spacing={1} minW="200px" mb={4}>
           <HStack>
@@ -265,7 +272,7 @@ export default function TotalTimeCallsRecordGraph() {
         </VStack>
       </Flex>
 
-     {/* Top Month Range Header */}
+      {/* Top Month Header */}
       {monthHeader && (
         <Text
           textAlign="center"
@@ -278,11 +285,12 @@ export default function TotalTimeCallsRecordGraph() {
         </Text>
       )}
 
+      {/* Chart */}
       <Box h="60vh" w="100%">
         <canvas ref={chartRef} />
       </Box>
 
-      {/* Month Range Summary Below Chart */}
+      {/* Month Range Summary */}
       <Divider my={4} />
       <Flex justify="center" gap={6} wrap="wrap">
         {monthRanges.map((range, i) => (

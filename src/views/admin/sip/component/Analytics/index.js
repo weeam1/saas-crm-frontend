@@ -123,8 +123,6 @@ const Analytics = () => {
     if (data?.sipSettings?.length) {
       if (view === "card") fetchAnalytics();
       else fetchGraphAnalytics();
-
-      console.log("view", view);
     }
   }, [data, view]);
 
@@ -161,7 +159,7 @@ const Analytics = () => {
             <CustomTooltip label="View chart on full screen">
               <IconButton
                 icon={<FiMaximize2 size={16} />}
-                variant="brand"
+                variant="outline"
                 size="sm"
                 onClick={() => {
                   setSelectedChart("all");
@@ -180,7 +178,7 @@ const Analytics = () => {
             }}
             isLoading={loadingAnalytics || loadingGraph || isLoading}
             variant="outline"
-            size="md"
+            size="sm"
           />
           <DateFilter onFilterChange={onFilterChange} />
           <ViewToggle
