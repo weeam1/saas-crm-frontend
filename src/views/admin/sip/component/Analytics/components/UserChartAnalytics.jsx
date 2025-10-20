@@ -42,8 +42,8 @@ import {
   BsCalendarDate,
   BsPieChartFill,
   BsDiagram3,
-  BsTelephoneFill,
-  BsCheckCircle ,
+  BsTelephone,
+  BsCheckCircle,
   BsXCircle,
   BsPersonFill,
 } from "react-icons/bs";
@@ -78,15 +78,17 @@ const TooltipBox = ({ children }) => (
 const CustomBarTooltip = ({ active, payload }) =>
   active && payload?.length ? (
     <TooltipBox>
-      <Text fontWeight="bold">{payload[0].payload.fullName}</Text>
+      <Text fontWeight="bold" display="flex" alignItems="center" gap={1}>
+        <BsPersonFill /> {payload[0].payload.fullName}
+      </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsTelephoneFill /> Total: {payload[0].payload.total}
+        <BsTelephone /> Total: {payload[0].payload.total}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
         <BsCheckCircle /> Answered: {payload[0].payload.answered}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsXCircle/> Unanswered: {payload[0].payload.unanswered}
+        <BsXCircle /> Unanswered: {payload[0].payload.unanswered}
       </Text>
       <Text>⏱ Duration: {payload[0].payload.duration}s</Text>
     </TooltipBox>
@@ -127,7 +129,7 @@ const CustomPieTooltip = ({ active, payload }) =>
         <BsCheckCircle /> Answered: {payload[0].payload.answered}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsXCircle/> Unanswered: {payload[0].payload.unanswered}
+        <BsXCircle /> Unanswered: {payload[0].payload.unanswered}
       </Text>
     </TooltipBox>
   ) : null;
@@ -139,7 +141,7 @@ const CustomRadarTooltip = ({ active, payload }) =>
         <BsPersonFill /> {payload[0].payload.fullName}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
-        <BsTelephoneFill /> Total Calls: {payload[0].payload.total_calls}
+        <BsTelephone /> Total Calls: {payload[0].payload.total_calls}
       </Text>
       <Text display="flex" alignItems="center" gap={1}>
         <BsCheckCircle /> Answered: {payload[0].payload.answered}
@@ -403,38 +405,42 @@ const UserChartAnalytics = ({
 
       case "radar":
         return (
-            <ResponsiveContainer width="100%" height={height} position={"relative"}
-            zindex={1000}>
-              <RadarChart data={radarData} style={{padding:10}}>
-                <PolarGrid />
-                <PolarAngleAxis
-                  dataKey="fullName"
-                  tick={{ fontSize: radarLabelFontSize, dy: 5,padding:10 }}
-                  tickFormatter={(fullName) => {
-                    const name = fullName.split(" ")[0];
-                    return name;
-                  }}
-                  style={{padding:10}}
-                />
-                <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
-                <Radar
-                  name="Answered"
-                  dataKey="answered"
-                  stroke={COLORS[0]}
-                  fill={COLORS[0]}
-                  fillOpacity={0.6}
-                />
-                <Radar
-                  name="Total Calls"
-                  dataKey="total_calls"
-                  stroke={COLORS[2]}
-                  fill={COLORS[2]}
-                  fillOpacity={0.4}
-                />
-                <Tooltip content={<CustomRadarTooltip />} />
-                <Legend wrapperStyle={{ fontSize: tickFontSize }} />
-              </RadarChart>
-            </ResponsiveContainer>
+          <ResponsiveContainer
+            width="100%"
+            height={height}
+            position={"relative"}
+            zindex={1000}
+          >
+            <RadarChart data={radarData} style={{ padding: 10 }}>
+              <PolarGrid />
+              <PolarAngleAxis
+                dataKey="fullName"
+                tick={{ fontSize: radarLabelFontSize, dy: 5, padding: 10 }}
+                tickFormatter={(fullName) => {
+                  const name = fullName.split(" ")[0];
+                  return name;
+                }}
+                style={{ padding: 10 }}
+              />
+              <PolarRadiusAxis tick={{ fontSize: tickFontSize }} />
+              <Radar
+                name="Answered"
+                dataKey="answered"
+                stroke={COLORS[0]}
+                fill={COLORS[0]}
+                fillOpacity={0.6}
+              />
+              <Radar
+                name="Total Calls"
+                dataKey="total_calls"
+                stroke={COLORS[2]}
+                fill={COLORS[2]}
+                fillOpacity={0.4}
+              />
+              <Tooltip content={<CustomRadarTooltip />} />
+              <Legend wrapperStyle={{ fontSize: tickFontSize }} />
+            </RadarChart>
+          </ResponsiveContainer>
         );
       default:
         return null;
