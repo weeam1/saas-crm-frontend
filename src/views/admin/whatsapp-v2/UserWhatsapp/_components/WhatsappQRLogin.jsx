@@ -1,28 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-	Box,
-	VStack,
-	HStack,
-	Text,
-	Center,
-	Divider,
-	Spinner,
-	Image,
-	Stack,
-} from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Divider, Stack } from '@chakra-ui/react';
 import QRCode from 'react-qr-code';
 import { FaWhatsapp } from 'react-icons/fa6';
-import Loader from 'components/loading/Loader';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from 'hooks/useIsMobile';
 
 const WhatsAppQRLogin = ({ qr }) => {
 	const [qrCode, setQrCode] = useState(qr);
 	const [isLoading, setIsLoading] = useState(false);
 	const { isSuperAdmin } = useUserSession();
 	const navigate = useNavigate();
+
+	const isMobile = useIsMobile();
 	// useEffect(() => {
 	// 	if (qr && qr?.trim !== '') {
 	// 		console.log('loadiing flase......');
@@ -107,7 +99,7 @@ const WhatsAppQRLogin = ({ qr }) => {
 						{/* QR Code Section */}
 						<VStack spacing={4}>
 							<Box
-								p={4}
+								p={{ base: 2, md: 4 }}
 								border='2px dashed'
 								borderColor='green.200'
 								borderRadius='lg'
@@ -123,7 +115,7 @@ const WhatsAppQRLogin = ({ qr }) => {
 								<>
 									<QRCode
 										value={qrCode}
-										size={256}
+										size={isMobile ? 150 : 256}
 										level='H'
 										// marginSize={4}
 										// fgColor='#25D366'

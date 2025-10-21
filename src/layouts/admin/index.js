@@ -101,6 +101,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	// 	}
 	// }
 
+	console.log({ isSuperAdmin, whatsappActive });
+
 	if (!isSuperAdmin) {
 		// Always start clean: remove any old whatsapp routes
 		appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
@@ -115,6 +117,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			// appSidebarRoutes = appSidebarRoutes.filter(
 			// 	(r) => r.moduleId !== 'whatsapp'
 			// );
+
 			appSidebarRoutes.push({
 				moduleId: 'whatsapp',
 				name: 'Whatsapp',
@@ -128,6 +131,9 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				path: `/whatsapp/instance`,
 				component: UserWhatsapp,
 			});
+
+			console.log('ROUTES UPDated');
+			console.log({ appRoutes, appSidebarRoutes });
 		}
 	}
 

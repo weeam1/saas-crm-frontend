@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
-const InitialLoading = () => {
+const InitialLoading = ({ timeoutError }) => {
 	return (
 		<Flex h='80vh' align='center' justify='center'>
 			<MotionBox
@@ -21,15 +21,31 @@ const InitialLoading = () => {
 				transition={{ duration: 0.4 }}
 			>
 				<VStack spacing={6} justifyContent='center' align='center'>
-					<>
-						<Spinner size='xl' color='green.500' speed='0.9s' thickness='4px' />
-						<Text fontSize='2xl' fontWeight='bold' color='gray.800'>
-							Connecting to WhatsApp...
-						</Text>
-						<Text fontSize='md' color='gray.600'>
-							Please wait while we establish a secure connection.
-						</Text>
-					</>
+					{timeoutError ? (
+						<>
+							<Text fontSize='2xl' fontWeight='bold' color='red.500'>
+								WhatsApp not connected
+							</Text>
+							<Text fontSize='md' color='gray.600'>
+								Connection timed out. Please try again later.
+							</Text>
+						</>
+					) : (
+						<>
+							<Spinner
+								size='xl'
+								color='green.500'
+								speed='0.9s'
+								thickness='4px'
+							/>
+							<Text fontSize='2xl' fontWeight='bold' color='gray.800'>
+								Connecting to WhatsApp...
+							</Text>
+							<Text fontSize='md' color='gray.600'>
+								Please wait while we establish a secure connection.
+							</Text>
+						</>
+					)}
 				</VStack>
 			</MotionBox>
 		</Flex>

@@ -20,6 +20,7 @@ const UserWhatsapp = () => {
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
+	const [timeoutError, setTimeoutError] = useState(false);
 	// const [whatsappLoaded, setWhatsappLoaded] = useState(false);
 
 	const { user: loginUser, isSuperAdmin } = useUserSession();
@@ -56,7 +57,7 @@ const UserWhatsapp = () => {
 			window.history.replaceState(null, '', `?session=${_sessionId}`);
 		}
 		// if account id disabled
-		else if (!instanceData?.doc?.isActive) {
+		else if (instanceData?.doc && !instanceData?.doc?.isActive) {
 			console.log('whatsapp deisbaled');
 			setWhatsappErrorMessage(
 				'WhatsApp instance is inactive. Please contact your administrator to re-enable it.'
@@ -149,6 +150,15 @@ const UserWhatsapp = () => {
 		return () => safeDisconnect();
 	}, [safeDisconnect]);
 
+	// useEffect(() => {
+	// 	const timer = setTimeout(() => {
+	// 		setTimeoutError(true);
+	// 		safeDisconnect();
+	// 	}, 60000); // 1 minute = 60000ms
+
+	// 	return () => clearTimeout(timer);
+	// }, [safeDisconnect]);
+
 	useEffect(() => {
 		const handleBeforeUnload = () => safeDisconnect();
 		window.addEventListener('beforeunload', handleBeforeUnload);
@@ -176,7 +186,7 @@ const UserWhatsapp = () => {
 			!whatsappErrorMessage &&
 			!error &&
 			!fail ? (
-				<InitialLoading />
+				<InitialLoading timeoutError={timeoutError} />
 			) : whatsappErrorMessage ? (
 				<ErrorMessage message={whatsappErrorMessage} type='warning' />
 			) : (
