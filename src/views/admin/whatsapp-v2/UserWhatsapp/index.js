@@ -20,7 +20,7 @@ const UserWhatsapp = () => {
 	const [whatsappErrorMessage, setWhatsappErrorMessage] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingChats, setLoadingChats] = useState(false);
-	const [whatsappLoaded, setWhatsappLoaded] = useState(false);
+	// const [whatsappLoaded, setWhatsappLoaded] = useState(false);
 
 	const { user: loginUser, isSuperAdmin } = useUserSession();
 
@@ -145,6 +145,7 @@ const UserWhatsapp = () => {
 	}, [disconnectWhatsapp, sessionId]);
 
 	useEffect(() => {
+		// safeDisconnect();
 		return () => safeDisconnect();
 	}, [safeDisconnect]);
 

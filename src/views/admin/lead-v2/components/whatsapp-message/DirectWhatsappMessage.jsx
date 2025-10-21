@@ -23,6 +23,7 @@ import { normalizePhone, formatToWhatsappId } from 'utils/phoneValidation';
 import { safeValue } from 'utils';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import Loader from 'components/loading/Loader';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const [message, setMessage] = useState('');
@@ -30,8 +31,20 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 	const [whatsappNumber, setWhatsappNumber] = useState('');
 	const [isSending, setIsSending] = useState(false);
 
-	const isWhatsAppActive = user?.whatsappInstance?.isActive || false;
-	const sessionId = user?.whatsappInstance?.sessionId || null;
+	const { data: instanceData, isLoading: instanceLoading } = useFetchItemsQuery(
+		{
+			path: `/whatsapp/instances/user/${user?._id}`,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+			skip: !user?._id,
+		}
+	);
+
+	const isWhatsAppActive =
+		(instanceData?.doc?.isActive && instanceData?.doc?.isWhatsapp) || false;
+
+	const sessionId = instanceData?.doc?.sessionId || null;
 
 	const { sendMessage, isReady } = useWhatsapp();
 
@@ -47,7 +60,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 				// If already ready → show only 2s loading
 				timeout = setTimeout(() => {
 					setLoading(false);
-				}, 2000);
+				}, 1000);
 			} else {
 				// If not ready → wait longer (5s)
 				timeout = setTimeout(() => {
@@ -113,7 +126,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 				<ModalCloseButton color='whiteAlpha.900' />
 
 				<ModalBody py={6}>
-					{loading ? (
+					{loading || instanceLoading ? (
 						<Loader />
 					) : errorMessage ? (
 						<Center flexDir='column' py={6}>

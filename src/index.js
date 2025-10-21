@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import 'assets/css/App.css';
 import {
@@ -39,7 +39,7 @@ import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
-import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+// import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
 // Create an audio instance
@@ -70,7 +70,9 @@ function App() {
 	// const user = JSON.parse(localStorage.getItem('user'));
 
 	const { user } = useUserSession();
-	const { whatsappInitialize } = useWhatsapp();
+	// const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
+
+	// const whatsappSessionId = user?.whatsappInstance?.sessionId;
 
 	useNavigate();
 
@@ -100,6 +102,28 @@ function App() {
 		return () => clearTimeout(timer);
 	}, []);
 
+	// // ---------------------------
+	// // Cleanup on unmount / reload
+	// // ---------------------------
+	// const disconnectedRef = useRef(false);
+
+	// const safeDisconnect = useCallback(() => {
+	// 	if (!disconnectedRef.current && whatsappSessionId) {
+	// 		disconnectWhatsapp(whatsappSessionId);
+	// 		disconnectedRef.current = true;
+	// 	}
+	// }, [disconnectWhatsapp, whatsappSessionId]);
+
+	// useEffect(() => {
+	// 	const handleBeforeUnload = () => safeDisconnect();
+	// 	window.addEventListener('beforeunload', handleBeforeUnload);
+	// 	window.addEventListener('unload', handleBeforeUnload);
+	// 	return () => {
+	// 		window.removeEventListener('beforeunload', handleBeforeUnload);
+	// 		window.removeEventListener('unload', handleBeforeUnload);
+	// 	};
+	// }, [safeDisconnect]);
+
 	useEffect(() => {
 		if (isConnected && user?._id) {
 			const registerPayload = {
@@ -110,20 +134,20 @@ function App() {
 
 			socketService.registerUser(registerPayload);
 
-			if (user?.whatsappInstance?.sessionId) {
-				// random delay between 3s–10s
-				const delay = Math.floor(Math.random() * 7000 + 3000);
+			// if (user?.whatsappInstance?.sessionId) {
+			// 	// random delay between 3s–10s
+			// 	const delay = Math.floor(Math.random() * 7000 + 3000);
 
-				setTimeout(async () => {
-					try {
-						whatsappInitialize({
-							sessionId: user?.whatsappInstance?.sessionId,
-						});
-					} catch (error) {
-						console.error('Failed to intilize whatsapp.', error);
-					}
-				}, delay);
-			}
+			// 	setTimeout(async () => {
+			// 		try {
+			// 			whatsappInitialize({
+			// 				sessionId: user?.whatsappInstance?.sessionId,
+			// 			});
+			// 		} catch (error) {
+			// 			console.error('Failed to intilize whatsapp.', error);
+			// 		}
+			// 	}, delay);
+			// }
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user?._id, isConnected]);

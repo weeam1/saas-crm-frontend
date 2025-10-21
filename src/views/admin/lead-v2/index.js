@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -30,11 +30,13 @@ import LeadsLayout from './layout/LeadLayout';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw } from 'react-icons/fi';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 
 const Index = () => {
 	const { user } = useUserSession();
 
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
+	const whatsappSessionId = user?.whatsappInstance?.sessionId || null;
 
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
@@ -52,6 +54,45 @@ const Index = () => {
 		if (!hasPermission('leads')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// ---------------------------
+	// Cleanup on unmount / reload
+	// ---------------------------
+	const disconnectedRef = useRef(false);
+	const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
+
+	useEffect(() => {
+		if (whatsappSessionId) {
+			const delay = Math.floor(Math.random() * 8000 + 2000);
+
+			setTimeout(async () => {
+				whatsappInitialize({
+					sessionId: whatsappSessionId,
+				});
+			}, delay);
+		}
+	}, [whatsappInitialize, whatsappSessionId]);
+
+	const safeDisconnect = useCallback(() => {
+		if (!disconnectedRef.current && whatsappSessionId) {
+			disconnectWhatsapp(whatsappSessionId);
+			disconnectedRef.current = true;
+		}
+	}, [disconnectWhatsapp, whatsappSessionId]);
+
+	useEffect(() => {
+		return () => safeDisconnect();
+	}, [safeDisconnect]);
+
+	useEffect(() => {
+		const handleBeforeUnload = () => safeDisconnect();
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		window.addEventListener('unload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+			window.removeEventListener('unload', handleBeforeUnload);
+		};
+	}, [safeDisconnect]);
 
 	const {
 		currentPage,
