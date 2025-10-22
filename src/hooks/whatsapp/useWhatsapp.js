@@ -80,7 +80,7 @@
 // 	};
 // }
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	reset,
@@ -88,10 +88,16 @@ import {
 	setChatsFetching,
 } from './../../redux/whatsappWebSlice';
 import socketService from 'services/socketService';
+import { WHATSAPP_EVENTS } from 'services/whatsapp/types';
 
 export const useWhatsapp = () => {
 	const state = useSelector((s) => s.whatsappWeb);
+	const downloadedMedia = useSelector((s) => s.whatsappWeb.downloaded_media);
 	const dispatch = useDispatch();
+
+	// chat category
+	// chats, groups, all
+	const [category, setCategory] = useState('chats');
 
 	const isSocketConnected = useMemo(
 		() => socketService?.connectionStatus === 'connected' || false,
@@ -104,35 +110,55 @@ export const useWhatsapp = () => {
 		socketService.emit('initialize_whatsapp', payload);
 	}, []);
 
-	const getChats = useCallback((sessionId, page = 1, limit = 30) => {
-		console.warn('getChats: ', { sessionId, page, limit });
-		if (!sessionId) return;
-		dispatch(setChatsFetching(true));
-		socketService.emit('get_chats', { sessionId, page, limit });
-	}, []);
+	const getChats = useCallback(
+		(sessionId, page = 1, limit = 30) => {
+			if (!sessionId) return;
+			dispatch(setChatsFetching(true));
+			socketService.emit('get_chats', {
+				sessionId,
+				page,
+				limit,
+				category,
+			});
+		},
+		[category, dispatch]
+	);
 
 	const getChat = useCallback(
 		(sessionId, chat) => {
 			if (!sessionId || !chat?.id) return;
-			socketService.emit('get_chat', { sessionId, chatId: chat?.id });
 			dispatch(setActiveChat(chat));
+			socketService.emit('get_chat', { sessionId, chatId: chat?.id });
 		},
 		[dispatch]
 	);
 
 	const markChatAsSeen = useCallback((sessionId, chatId) => {
 		if (!sessionId || !chatId) return;
-		socketService.emit('chat_seen', { sessionId, chatId });
+		socketService.emit(WHATSAPP_EVENTS.CHAT_SEEN, { sessionId, chatId });
 	}, []);
 
 	const sendMessage = useCallback(
-		(sessionId, to, message, options = {}) => {
+		(payload) => {
+			let { sessionId, to, message = '', media = null, options = {} } = payload;
+
 			if (!sessionId || !to) return;
-			// if active chat is same as to, send seen along with message
+			// if message to yourself, mark send seen along with message
 			if (state.activeChat && state.activeChat?.id === to) {
-				options = { ...options, sendSeen: true, isViewOnce: true };
+				options = { ...options, sendSeen: true };
 			}
-			socketService.emit('send_message', { sessionId, to, message });
+
+			const messageData = {
+				sessionId,
+				to,
+				message: message || '',
+				...(media && { media }),
+				...(options && { options }),
+			};
+
+			console.log({ messageData });
+
+			socketService.emit('send_message', messageData);
 		},
 		[state.activeChat]
 	);
@@ -140,6 +166,8 @@ export const useWhatsapp = () => {
 	const downloadMedia = useCallback(
 		({ sessionId, messageId, action = 'download' }) => {
 			if (!sessionId || !messageId) return;
+
+			// const isDownloaded = downloadedMedia[message]
 
 			// socketService.emit('download_media', { sessionId, messageId });
 
@@ -171,7 +199,7 @@ export const useWhatsapp = () => {
 		[dispatch]
 	);
 
-	console.log({ ...state });
+	// console.log({ ...state });
 
 	return {
 		...state,
@@ -184,5 +212,7 @@ export const useWhatsapp = () => {
 		logoutWhatsapp,
 		downloadMedia,
 		isSocketConnected,
+		setCategory,
+		category,
 	};
 };

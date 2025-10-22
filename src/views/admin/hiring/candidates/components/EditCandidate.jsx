@@ -32,6 +32,8 @@ import { toast } from 'react-toastify';
 import { buttonStyle } from 'utils/btn';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useMemo } from 'react';
+import { usePermissions } from 'hooks/usePermissions';
 
 // Validation Schema
 const candidateSchema = Yup.object().shape({
@@ -63,8 +65,19 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 			path: `/positions/options`,
 		});
 
+	const { data: agencies, isLoading: agencyLoading } = useFetchItemsQuery({
+		path: `/agencies`,
+	});
+
+	const agencyOptions = useMemo(() => {
+		return (agencies?.doc || [])
+			.filter((a) => a?._id && a?.name)
+			.map((a) => ({ value: a._id, label: a.name }));
+	}, [agencies]);
+
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const { hasPermission } = usePermissions();
 
 	const initialValues = {
 		name: candidate?.name || '',
@@ -82,6 +95,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 		experienceYears: candidate?.experienceYears || 0,
 		experience: candidate?.experience || 0,
 		engLangLevel: candidate?.engLangLevel || '',
+		agency: candidate?.agency?._id || '',
 	};
 
 	const handleSubmit = async (values) => {
@@ -129,7 +143,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 				<ModalHeader>Edit Candidate Information</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody pb={6}>
-					{positionsLoading ? (
+					{positionsLoading || agencyLoading ? (
 						<Loader />
 					) : (
 						<Formik
@@ -316,6 +330,20 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 												}}
 											/>
 
+											{hasPermission('hiring', 'edit_candidate_agency') && (
+												<CustomSelect
+													label='Agency'
+													name='agency'
+													options={agencyOptions}
+													placeholder='Select agency'
+													isInvalid={errors.agency && touched.agency}
+													errorMessage={errors.agency}
+													onChange={(e) => {
+														setFieldValue('agency', e.target.value);
+													}}
+												/>
+											)}
+
 											<CustomSelect
 												label='Driving License?'
 												name='drivingLicense'
@@ -355,7 +383,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 											label='Experience'
 											name='experience'
 											type='textarea'
-											h='15vh'
+											h='6vh'
 											resize='none'
 											isInvalid={errors.experience && touched.experience}
 											placeholder={'Enter experience'}

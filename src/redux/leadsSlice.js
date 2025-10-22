@@ -136,14 +136,23 @@ const leadsSlice = createSlice({
 				state.doc.unshift(newLead); // Add new lead at the top
 			}
 		},
+
 		deleteLead: (state, action) => {
-			const leadId = action.payload;
+			let leadIds = action.payload;
 
-			const index = state.doc.findIndex((lead) => lead._id === leadId);
-
-			if (index !== -1) {
-				state.doc.splice(index, 1);
+			if (!Array.isArray(leadIds)) {
+				leadIds = [leadIds];
 			}
+
+			console.log({ leadIds });
+
+			state.doc = state.doc.filter((lead) => !leadIds.includes(lead?._id));
+
+			state.totalLeads -= leadIds?.length;
+
+			// if (index !== -1) {
+			// 	state.doc.splice(index, 1);
+			// }
 		},
 
 		toggleCheckItem: (state, action) => {

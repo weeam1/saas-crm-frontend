@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const getUserFromStorage = () => {
 	try {
-		const data = sessionStorage.getItem('user') || localStorage.getItem('user');
+		const data = localStorage.getItem('user') || sessionStorage.getItem('user');
 		if (!data) return null;
 		const parsed = JSON.parse(data);
 		return {

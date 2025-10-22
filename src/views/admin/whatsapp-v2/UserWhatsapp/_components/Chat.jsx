@@ -16,6 +16,8 @@ import { IoSend } from 'react-icons/io5';
 import { FiUsers } from 'react-icons/fi';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import ChatMessage from './ChatMessage';
+import { AttachmentIcon } from '@chakra-ui/icons';
+import MediaAttachment from './_shared/MediaAttachment';
 
 const Chat = ({ chatId, sessionId }) => {
 	const [message, setMessage] = useState('');
@@ -23,11 +25,23 @@ const Chat = ({ chatId, sessionId }) => {
 	const chat = useSelector((state) => getChat(state, chatId));
 
 	const { sendMessage, activeChat } = useWhatsapp();
+	const [sending, setSending] = useState(false);
 
-	const handleSendMessage = () => {
-		if (message.trim()) {
-			// console.log('Sending message:', message);
-			sendMessage(sessionId, chatId, message);
+	const handleSendMessage = ({ media, caption } = {}) => {
+		if (message.trim() || media) {
+			const whatsappPayload = {
+				sessionId,
+				to: chatId,
+				message,
+				...(media && { media }),
+				...(caption && { options: { caption } }),
+			};
+
+			console.log('Sending message:', whatsappPayload);
+
+			setSending(true);
+
+			sendMessage(whatsappPayload);
 			setMessage('');
 		}
 	};
@@ -75,7 +89,13 @@ const Chat = ({ chatId, sessionId }) => {
 				<HStack gap='2' align='center'>
 					<Avatar size='sm' {...avatarProps} />
 
-					<Text filter='blur(4px)' fontWeight='bold' fontSize='lg'>
+					<Text
+						// userSelect='none'
+						// onCopy={(e) => e.preventDefault()}
+						// filter='blur(4px)'
+						fontWeight='bold'
+						fontSize={{ base: 'sm', md: 'md' }}
+					>
 						{activeChat?.name || '***********'}
 					</Text>
 					{/* <Text fontSize='sm' color='gray.500'>
@@ -90,7 +110,13 @@ const Chat = ({ chatId, sessionId }) => {
 			</Box>
 
 			{/* Messages Container */}
-			<ChatMessage chat={chat} chatId={chatId} sessionId={sessionId} />
+			<ChatMessage
+				chat={chat}
+				chatId={chatId}
+				sessionId={sessionId}
+				setSending={setSending}
+				sending={sending}
+			/>
 
 			{/* Input Area */}
 			<Box p={2}>
@@ -103,6 +129,8 @@ const Chat = ({ chatId, sessionId }) => {
 						colorScheme='gray'
 						size='md'
 					/> */}
+
+					<MediaAttachment onSend={handleSendMessage} />
 
 					{/* Message Input */}
 					<Input

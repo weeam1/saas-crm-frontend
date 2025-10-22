@@ -99,6 +99,8 @@ const whatsappWebSlice = createSlice({
 
 			// state.downloaded_media[mediaKey] = media?.data;
 
+			console.log('SLICE DWONLOAD MEDIA: ', mediaKey);
+
 			if (!media || !mediaKey) return;
 			// media = { data: 'base64string', mimeType: 'image/png', fileName: 'pic.png' }
 			state.downloaded_media[mediaKey] = {
@@ -176,7 +178,7 @@ const whatsappWebSlice = createSlice({
 
 			const newLastMessage = {
 				id: message?.id?._serialized,
-				body: getMessageLabel(message),
+				body: message?.body || 'New Message',
 				timestamp: message?.timestamp || Date.now(),
 				type: message?.type || 'chat',
 				fromMe: message?.fromMe,
@@ -261,7 +263,13 @@ const whatsappWebSlice = createSlice({
 			// whatsapp_disconnect: action.payload?.message || 'WhatsApp disconnected',
 		}),
 
-		reset: () => initialState,
+		reset: (state) => {
+			const preservedMedia = state.downloaded_media;
+			return {
+				...initialState,
+				downloaded_media: preservedMedia,
+			};
+		},
 	},
 });
 

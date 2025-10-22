@@ -93,16 +93,18 @@ const LeadsModals = (props) => {
 					// setSelectAllChecked={setSelectAllChecked}
 				/>
 			) : (
-				<Delete
-					isOpen={deleteLead}
-					onClose={() => setDeleteLead(false)}
-					id={selectedValues[0]}
-					refetchData={refetchData}
-					setSelectedValues={setSelectedValues}
-					url='api/lead/delete/'
-					method='one'
-					// setSelectAllChecked={setSelectAllChecked}
-				/>
+				deleteLead && (
+					<Delete
+						isOpen={deleteLead}
+						onClose={() => setDeleteLead(false)}
+						id={selectedValues[0]}
+						// refetchData={refetchData}
+						setSelectedValues={setSelectedValues}
+						url='api/lead/delete/'
+						method='one'
+						// setSelectAllChecked={setSelectAllChecked}
+					/>
+				)
 			)}
 
 			{isLeadCycle && (

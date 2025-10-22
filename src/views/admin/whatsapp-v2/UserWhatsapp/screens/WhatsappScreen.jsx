@@ -34,6 +34,7 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
 
 	const [fetchingChats, setFetchingChats] = useState(false);
 	const [page, setPage] = useState(1);
+	const [categroy, setCategory] = useState('all');
 	// check whatsapp user account is authenticated or login pervoius session exisit
 	const isWhatsappAuth = localStorage.getItem('whatsapp_auth') || false;
 

@@ -97,10 +97,9 @@ export default function AppDashboard() {
 	) : (
 		<Box>
 			{/* <Header /> */}
-
 			{hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />}
 
-			<SalesDashboard data={sales} />
+			{hasPermission('deal') && <SalesDashboard data={sales} />}
 
 			{['superAdmin', 'Admin'].includes(userRoleName) && (
 				<>

@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -15,7 +15,7 @@ import { buttonStyle } from './components/constants';
 import BulkAssignModal from './components/BulkAssignModal';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import DateFilterButton from './components/DateFilterButton';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { setHiddenFields, updateLeads } from '../../../redux/leadsSlice';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -30,11 +30,13 @@ import LeadsLayout from './layout/LeadLayout';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw } from 'react-icons/fi';
+import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 
 const Index = () => {
 	const { user } = useUserSession();
 
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
+	const whatsappSessionId = user?.whatsappInstance?.sessionId || null;
 
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
@@ -52,6 +54,45 @@ const Index = () => {
 		if (!hasPermission('leads')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// ---------------------------
+	// Cleanup on unmount / reload
+	// ---------------------------
+	const disconnectedRef = useRef(false);
+	const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
+
+	useEffect(() => {
+		if (whatsappSessionId) {
+			const delay = Math.floor(Math.random() * 8000 + 2000);
+
+			setTimeout(async () => {
+				whatsappInitialize({
+					sessionId: whatsappSessionId,
+				});
+			}, delay);
+		}
+	}, [whatsappInitialize, whatsappSessionId]);
+
+	const safeDisconnect = useCallback(() => {
+		if (!disconnectedRef.current && whatsappSessionId) {
+			disconnectWhatsapp(whatsappSessionId);
+			disconnectedRef.current = true;
+		}
+	}, [disconnectWhatsapp, whatsappSessionId]);
+
+	useEffect(() => {
+		return () => safeDisconnect();
+	}, [safeDisconnect]);
+
+	useEffect(() => {
+		const handleBeforeUnload = () => safeDisconnect();
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		window.addEventListener('unload', handleBeforeUnload);
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload);
+			window.removeEventListener('unload', handleBeforeUnload);
+		};
+	}, [safeDisconnect]);
 
 	const {
 		currentPage,
@@ -83,6 +124,11 @@ const Index = () => {
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 	const [hiddenCols, setHiddenCols] = useState(hiddenFields || []);
+
+	const totalLeads = useSelector(
+		(state) => state.leads?.totalLeads,
+		shallowEqual
+	);
 
 	const dispatch = useDispatch();
 
@@ -176,7 +222,7 @@ const Index = () => {
 			>
 				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
 					<span style={{ marginRight: '4px' }}>Leads</span>
-					<CountUpComponent targetNumber={leads?.totalLeads} />
+					<CountUpComponent targetNumber={totalLeads} />
 				</Text>
 				{/* Action buttons only for Admins */}
 				<HStack

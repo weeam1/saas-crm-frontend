@@ -58,9 +58,9 @@ export const registerWhatsappSocket = (store) => {
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_SENT, (payload) =>
 		store.dispatch(newMessage(payload))
 	);
-	socketService.on(WHATSAPP_EVENTS.NEW_MESSAGE, (payload) =>
-		store.dispatch(newMessage(payload))
-	);
+	socketService.on(WHATSAPP_EVENTS.NEW_MESSAGE, (payload) => {
+		store.dispatch(newMessage(payload));
+	});
 	socketService.on(WHATSAPP_EVENTS.DOWNLOAD_MEDIA_RESPONSE, (payload) => {
 		// payload expected: { mediaKey, media: { data: 'base64...', mimeType, fileName }, action }
 		try {

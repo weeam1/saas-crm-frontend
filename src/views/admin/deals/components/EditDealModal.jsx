@@ -29,7 +29,7 @@ import { toast } from 'react-toastify';
 import {
 	ALLOWED_FILE_TYPES,
 	commissionStatuses,
-	dealSchema,
+	editDealSchema,
 	// currencies,
 	roundTo2,
 } from '../dealUtils';
@@ -75,10 +75,12 @@ const EditDealModal = React.memo(
 			setValue,
 			control,
 		} = useForm({
-			resolver: yupResolver(dealSchema),
+			resolver: yupResolver(editDealSchema),
 			defaultValues,
 			mode: 'onChange',
 		});
+
+		console.log({ isValid, isDirty });
 
 		useEffect(() => {
 			if (initialData) {
@@ -132,6 +134,8 @@ const EditDealModal = React.memo(
 			reset();
 			onClose();
 		};
+
+		console.log({ defaultValues, isDirty, isValid, errors });
 
 		const handleEditDeal = async (data) => {
 			try {
@@ -232,7 +236,7 @@ const EditDealModal = React.memo(
 				return (event.target.value = null);
 			}
 
-			setValue('file', file);
+			setValue('file', file, { shouldValidate: true, shouldDirty: true });
 			// setFileName(file.name);
 
 			// finally clear the event
