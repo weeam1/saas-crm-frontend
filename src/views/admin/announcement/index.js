@@ -40,7 +40,7 @@ const Announcements = () => {
 				component: <History key={tabKey} user={user} />,
 			},
 		],
-		[tabKey, user]
+		[hasPermission, tabKey, user]
 	);
 
 	const activeTabIndex = Math.max(
