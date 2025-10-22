@@ -80,6 +80,8 @@ const EditDealModal = React.memo(
 			mode: 'onChange',
 		});
 
+		console.log({ isValid, isDirty });
+
 		useEffect(() => {
 			if (initialData) {
 				const { invoiceUrl, ...rest } = initialData;
@@ -234,7 +236,7 @@ const EditDealModal = React.memo(
 				return (event.target.value = null);
 			}
 
-			setValue('file', file);
+			setValue('file', file, { shouldValidate: true, shouldDirty: true });
 			// setFileName(file.name);
 
 			// finally clear the event
