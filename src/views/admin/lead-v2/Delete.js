@@ -12,17 +12,18 @@ import Spinner from 'components/spinner/Spinner';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import { deleteLead } from '../../../redux/leadsSlice';
 import { deleteApi, deleteManyApi } from 'services/api';
 
 const Delete = (props) => {
 	const [isLoding, setIsLoding] = useState(false);
-	// const user = JSON.parse(localStorage.getItem('user'));
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
-	const navigate = useNavigate();
+	const dispatch = useDispatch();
+
 	const handleDeleteClick = async () => {
 		if (props.method === 'one') {
 			try {
@@ -38,7 +39,6 @@ const Delete = (props) => {
 						status: 'success',
 						message: `Lead deleted successfully`,
 					});
-					navigate('/lead');
 				}
 			} catch (error) {
 				console.log(error);
@@ -58,7 +58,8 @@ const Delete = (props) => {
 				});
 			} finally {
 				setIsLoding(false);
-				props.refetchData();
+				// props.refetchData();
+				dispatch(deleteLead([props.id]));
 				props.onClose(false);
 				// props.setAction((pre) => !pre);
 				props.setSelectedValues([]);
@@ -98,6 +99,7 @@ const Delete = (props) => {
 				});
 			} finally {
 				setIsLoding(false);
+				// dispatch(deleteLead(props.data));
 				props.refetchData();
 			}
 		}

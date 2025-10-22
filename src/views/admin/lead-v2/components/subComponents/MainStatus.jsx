@@ -231,13 +231,13 @@ const MainStatus = ({ lead, role }) => {
 				placeholder='Select'
 				selectedValue={selected}
 				textColorCustom='white'
-				bgColorCustom='brand.300'
+				bgColorCustom={selected === 'deal' ? 'green.300' : 'brand.300'}
 				loading={loading}
 				isDisabled={
 					(selected === 'deal' && ['Agent', 'Manager'].includes(role)) ||
 					loading
 				}
-				borderColorCustom='brand.600'
+				borderColorCustom={selected === 'deal' ? 'green.500' : 'brand.600'}
 				size={leadSelectInputSize}
 				onChange={hanldeMainStatus}
 			/>

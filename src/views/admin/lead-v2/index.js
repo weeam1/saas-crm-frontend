@@ -15,7 +15,7 @@ import { buttonStyle } from './components/constants';
 import BulkAssignModal from './components/BulkAssignModal';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import DateFilterButton from './components/DateFilterButton';
-import { useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { setHiddenFields, updateLeads } from '../../../redux/leadsSlice';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
@@ -83,6 +83,11 @@ const Index = () => {
 		localStorage.getItem('userCustomColumns') || '[]'
 	);
 	const [hiddenCols, setHiddenCols] = useState(hiddenFields || []);
+
+	const totalLeads = useSelector(
+		(state) => state.leads?.totalLeads,
+		shallowEqual
+	);
 
 	const dispatch = useDispatch();
 
@@ -176,7 +181,7 @@ const Index = () => {
 			>
 				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
 					<span style={{ marginRight: '4px' }}>Leads</span>
-					<CountUpComponent targetNumber={leads?.totalLeads} />
+					<CountUpComponent targetNumber={totalLeads} />
 				</Text>
 				{/* Action buttons only for Admins */}
 				<HStack
