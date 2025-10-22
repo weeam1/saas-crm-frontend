@@ -80,8 +80,6 @@ const EditDealModal = React.memo(
 			mode: 'onChange',
 		});
 
-		console.log({ isValid, isDirty });
-
 		useEffect(() => {
 			if (initialData) {
 				const { invoiceUrl, ...rest } = initialData;
