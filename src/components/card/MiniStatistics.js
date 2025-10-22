@@ -32,7 +32,7 @@ export default function Default(props) {
 			}
 			cursor={'pointer'}
 			py='25px'
-			pb='40px'
+			// pb='40px'
 			onClick={props.onClick}
 		>
 			<Flex
