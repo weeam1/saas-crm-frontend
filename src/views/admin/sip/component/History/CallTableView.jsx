@@ -331,7 +331,7 @@ const CallTableView = ({
                             call.id || call.uniqueid || `player-${index}`
                           }
                           timestamp={new Date(call.calldate)}
-                          duration={call?.duration}
+                          billsec={call?.billsec}
                           id={call?.uniqueid}
                           call={call}
                         />
