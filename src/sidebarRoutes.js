@@ -115,6 +115,37 @@ const sidebarRoutes = [
 		name: 'Listing',
 		path: '/listing',
 		icon: <Icon as={FaList} w='20px' h='20px' />,
+		children: [
+			{
+				name: 'All Listings',
+				path: '/listing/all-listings',
+			},
+			{
+				name: 'My Listings',
+				path: '/listing/my-listings',
+			},
+			{
+				name: 'Pendings Listing',
+				path: '/listing/pending-listing',
+			},
+			{
+				name: 'Pending View Request',
+				path: '/listing/pending-view-listing',
+			},
+			{
+				name: 'Approved View Request',
+				path: '/listing/approved-view-listing',
+			},
+			{
+				name: 'Rejected View Request',
+				path: '/listing/reject-view-listing',
+			},
+
+			{
+				name: 'Listing Setting',
+				path: '/listing/settings',
+			},
+		],
 	},
 
 	// -------- Survey --------

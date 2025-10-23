@@ -35,6 +35,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	let appRoutes = [...routes];
 	let appSidebarRoutes = [...sidebarRoutes];
 
+	const isWhatsappUser = localStorage.getItem('isWhatsappUser');
+
 	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
 	const pageBg = useColorModeValue('whiteAlpa.100', 'gray.800');
 
@@ -101,8 +103,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	// 		appRoutes = [...filterRoutes, ...attendanceRoutes];
 	// 	}
 	// }
-
-	console.log({ isSuperAdmin, whatsappActive });
 
 	// Always start clean: remove any old whatsapp routes if permission disabled
 	// appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
@@ -269,10 +269,22 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 
 		// Only merge once if new children exist
 		if (newChildren.length > 0) {
+			localStorage.setItem('isWhatsappUser', true);
+
 			whatsappSidebarRoutes.children = [...existingChildren, ...newChildren];
 
+			// Remove Chat route if WhatsApp is NOT active
+			if (!whatsappActive) {
+				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/chat');
+			}
+
+			// Remove Instance route if Instance is NOT active
+			if (!instanceActive) {
+				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/instance');
+			}
+
 			// Add corresponding app routes
-			// if (whatsappActive) {
+			// if (!whatsappActive) {
 			// 	appRoutes.push({
 			// 		name: 'Chat',
 			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -281,9 +293,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			// 	});
 			// }
 
-			// console.log({ appRoutes });
-
-			// if (instanceActive) {
+			// if (!instanceActive) {
 			// 	appRoutes.push({
 			// 		name: 'Instance',
 			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -291,6 +301,12 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			// 		component: UserWhatsappInstance,
 			// 	});
 			// }
+		} else if (!isWhatsappUser) {
+			// remove any old whatsapp routes if permission disabled
+			appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+			appSidebarRoutes = appSidebarRoutes.filter(
+				(r) => r.moduleId !== 'whatsapp'
+			);
 		}
 	}
 
@@ -332,8 +348,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			}
 		});
 	};
-
-	console.log('final routes: ', getRoutes(appRoutes));
 
 	// If server is loading
 	if (isLoading) {
