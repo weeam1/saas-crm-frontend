@@ -29,6 +29,7 @@ const AudioPlayer = ({
   setCurrentlyPlayingId,
   id,
   call, // recording info
+  billsec
 }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -283,7 +284,7 @@ const AudioPlayer = ({
           {formatTime(currentTime)}
         </Text>
         <Text fontSize="xs" color="brand.500">
-          {formatTime(duration)}
+          {formatTime(billsec)}
         </Text>
       </Flex>
     </Flex>

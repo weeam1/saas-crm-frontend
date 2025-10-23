@@ -57,13 +57,13 @@ const ListingSettings = () => {
 
   return (
     <>
-      <AppButton
+      {/* <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
         onClick={() => navigate("/listing")}
       >
         Back
-      </AppButton>
+      </AppButton> */}
       <TabNavigationDisplay
         tabsData={tabsData}
         activeTab={activeTabIndex}

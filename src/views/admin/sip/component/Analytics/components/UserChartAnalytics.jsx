@@ -407,8 +407,6 @@ const UserChartAnalytics = ({
           <ResponsiveContainer
             width="100%"
             height={height}
-            position={"relative"}
-            zindex={1000}
           >
             <RadarChart data={radarData} style={{ padding: 10 }}>
               <PolarGrid />

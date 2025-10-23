@@ -34,6 +34,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const ViewRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -71,6 +72,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const { hasPermission } = usePermissions();
+
   const handlePageSizeChange = (newPageSize) => {
     setPageSize(newPageSize);
     setCurrentPage(1);
@@ -102,6 +105,9 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       if (filters.country) params.country = filters.country;
     }
 
+    if (hasPermission("listing", "show_all_request")) {
+      params.show_all_request = true;
+    }
     return params;
   };
 

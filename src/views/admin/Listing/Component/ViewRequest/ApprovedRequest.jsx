@@ -40,6 +40,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -57,6 +58,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const { createUserLog } = useUserActivityLog();
+
+  const { hasPermission } = usePermissions();
 
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
@@ -108,6 +111,10 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       if (filters.startFrom) params.startFrom = filters.startFrom;
       if (filters.startTo) params.startTo = filters.startTo;
       if (filters.country) params.country = filters.country;
+    }
+
+    if (hasPermission("listing", "show_all_request")) {
+      params.show_all_request = true;
     }
 
     return params;

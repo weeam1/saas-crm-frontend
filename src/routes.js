@@ -103,6 +103,25 @@ const UpdateListing = React.lazy(
 const SettingPage = React.lazy(
 	() => import('views/admin/Listing/Component/settings')
 );
+
+const AllListing = React.lazy(
+	() => import('views/admin/Listing/Component/AllListing')
+);
+const MyListing = React.lazy(
+	() => import('views/admin/Listing/Component/MyListing')
+);
+const PendingListing = React.lazy(
+	() => import('views/admin/Listing/Component/PendingListings')
+);
+const PendingViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/ViewRequest')
+);
+const ApprovedViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/ApprovedRequest')
+);
+const RejectedViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/RejectRequest')
+);
 const SubUnitType = React.lazy(
 	() =>
 		import(
@@ -129,10 +148,10 @@ const WhatsappInstances = React.lazy(
 	() => import('views/admin/whatsapp-v2/Instances')
 );
 
-const UserWhatsappInstance = React.lazy(
+const UserWhatsappV2 = React.lazy(
 	() => import('views/admin/whatsapp-v2/UserWhatsapp')
 );
-const UserWhatsappChat = React.lazy(
+const UserWhatsapp = React.lazy(
 	() => import('views/admin/whatsapp/UserWhatsapp')
 );
 const WhatsappSettings = React.lazy(
@@ -582,6 +601,60 @@ const routes = [
 		parentName: 'Listing',
 		component: SubUnitType,
 	},
+	{
+		moduleId: 'listing',
+		name: 'All Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/all-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: AllListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'My Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/my-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: MyListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Pendings Listing',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/pending-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PendingListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Pending View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/pending-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PendingViewRequest,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Approved View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/approved-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ApprovedViewRequest,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Rejected View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/reject-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: RejectedViewRequest,
+	},
 
 	// Survey Routes
 
@@ -640,7 +713,7 @@ const routes = [
 	// **** Whatsapp **** //
 	// V2 routes
 	{
-		childId: 'whatsapp_beta',
+		childId: 'whatsapp_chats',
 		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/instances',
@@ -649,12 +722,12 @@ const routes = [
 		component: WhatsappInstances,
 	},
 	{
-		childId: 'whatsapp_beta',
+		childId: 'whatsapp_chats',
 		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/instances/:id',
 		parent: 'whatsapp',
-		component: UserWhatsappInstance,
+		component: UserWhatsappV2,
 	},
 
 	// V1 routes
@@ -668,31 +741,15 @@ const routes = [
 		component: AdminWhatsapp,
 	},
 	{
-		// childId: 'whatsapp_chats',
-		name: 'Whatsapp Chat',
+		childId: 'whatsapp_chats',
+		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/chats/:id',
 		parent: 'whatsapp',
-		component: UserWhatsappChat,
+		component: UserWhatsapp,
 	},
 	{
-		// childId: 'whatsapp_chats',
-		name: 'Whatsapp Chat',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/chat',
-		parent: 'whatsapp',
-		component: UserWhatsappChat,
-	},
-	{
-		// childId: 'whatsapp_chats',
-		name: 'Whatsapp Instance',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/whatsapp/instance',
-		parent: 'whatsapp',
-		component: UserWhatsappInstance,
-	},
-	{
-		childId: 'whatsapp_campaigns',
+		childId: 'whatsapp_bulk_messages',
 		name: 'Bulk Messages',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/bulk-messages',

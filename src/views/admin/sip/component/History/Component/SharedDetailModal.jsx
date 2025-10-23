@@ -160,7 +160,7 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         isLoading={loadingUserId === item.sharedWith?._id}
                         borderRadius="md"
                       >
-                        {item.active ? "Shared" : "Un Shared"}
+                        {item.active ? "Un Shared" : "Shared"}
                       </Button>
                     </VStack>
                   </HStack>

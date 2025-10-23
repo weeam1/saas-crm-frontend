@@ -113,43 +113,44 @@ const CallCard = ({
               {call.call_mode || "Unknown"}
             </Text>
           </Flex>
-				  {(hasPermission("sip", "recording_share") || hasPermission("sip", "recording_logs") ) && (
-					  <Menu>
-						<MenuButton
-						  as={IconButton}
-						  icon={<FiMoreVertical />}
-						  size="sm"
-						  variant="ghost"
-						  aria-label="Actions"
-						/>
-						<MenuList>
-						  {hasPermission("sip", "recording_logs") && (
-							<MenuItem
-							  icon={<FiActivity />}
-							  onClick={() => openLogModal(call)}
-							>
-							  View Log
-							</MenuItem>
-						  )}
-						  {hasPermission("sip", "recording_share") && (
-							<MenuItem
-							  icon={<FiShare2 />}
-							  onClick={() => openShareModal(call)}
-							>
-							  Share Recording
-							</MenuItem>
-						  )}
-						  {hasPermission("sip", "recording_share") && (
-							<MenuItem
-							  icon={<FiUsers />}
-							  onClick={() => openSharedDetailModal(call)}
-							>
-							  Shared Detail
-							</MenuItem>
-						  )}
-						</MenuList>
-					  </Menu>
-				  )}
+          {(hasPermission("sip", "recording_share") ||
+            hasPermission("sip", "recording_logs")) && (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                icon={<FiMoreVertical />}
+                size="sm"
+                variant="ghost"
+                aria-label="Actions"
+              />
+              <MenuList>
+                {hasPermission("sip", "recording_logs") && (
+                  <MenuItem
+                    icon={<FiActivity />}
+                    onClick={() => openLogModal(call)}
+                  >
+                    View Log
+                  </MenuItem>
+                )}
+                {hasPermission("sip", "recording_share") && (
+                  <MenuItem
+                    icon={<FiShare2 />}
+                    onClick={() => openShareModal(call)}
+                  >
+                    Share Recording
+                  </MenuItem>
+                )}
+                {hasPermission("sip", "recording_share") && (
+                  <MenuItem
+                    icon={<FiUsers />}
+                    onClick={() => openSharedDetailModal(call)}
+                  >
+                    Shared Detail
+                  </MenuItem>
+                )}
+              </MenuList>
+            </Menu>
+          )}
         </Flex>
       </Flex>
 
@@ -239,6 +240,7 @@ const CallCard = ({
                   compact
                   id={call?.uniqueid}
                   call={call}
+                  billsec={call?.billsec}
                 />
                 {call.billsec > 0 && (
                   <Button
