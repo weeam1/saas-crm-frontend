@@ -347,13 +347,31 @@ export const sidebarRoutes = [
 		icon: FaList,
 		color: '#64748B', // Slate
 		children: [
-			{ name: 'All Listings', path: '/listing/all-listings' },
-			{ name: 'My Listings', path: '/listing/my-listings' },
-			{ name: 'Pending Listings', path: '/listing/pending-listing' },
-			{ name: 'Pending View Request', path: '/listing/pending-view-listing' },
-			{ name: 'Approved View Request', path: '/listing/approved-view-listing' },
-			{ name: 'Rejected View Request', path: '/listing/reject-view-listing' },
-			{ name: 'Listing Setting', path: '/listing/settings' },
+			{
+				id: 'all_listing',
+				name: 'All Listings',
+				path: '/listing/all-listings',
+			},
+			{
+				id: 'my_listing',
+				name: 'My Listings',
+				path: '/listing/my-listings',
+			},
+			{
+				id: 'pending_listing',
+				name: 'Pendings Listing',
+				path: '/listing/pending-listing',
+			},
+			{
+				id: 'view_requests',
+				name: 'View Requests',
+				path: '/listing/view-request-listing',
+			},
+			{
+				id: 'settings',
+				name: 'Listing Setting',
+				path: '/listing/settings',
+			},
 		],
 	},
 
@@ -407,10 +425,15 @@ export const sidebarRoutes = [
 		icon: FaWhatsapp,
 		color: '#25D366', // WhatsApp Green
 		children: [
-			{ id: 'whatsapp_chats', name: 'Chats', path: '/whatsapp/chats' },
+			{
+				id: 'whatsapp_chats',
+				name: 'Chats',
+				path: '/whatsapp/chats',
+			},
 			{
 				id: 'whatsapp_beta',
-				name: 'WhatsApp Beta',
+				name: 'WhatsApp',
+				version: 'Beta',
 				path: '/whatsapp/instances',
 			},
 			{
@@ -418,7 +441,11 @@ export const sidebarRoutes = [
 				name: 'Whatsapp Campaigns',
 				path: '/whatsapp/bulk-messages',
 			},
-			{ id: 'whatsapp_settings', name: 'Settings', path: '/whatsapp/settings' },
+			{
+				id: 'whatsapp_settings',
+				name: 'Settings',
+				path: '/whatsapp/settings',
+			},
 		],
 	},
 
