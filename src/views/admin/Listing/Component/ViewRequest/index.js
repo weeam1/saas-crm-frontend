@@ -6,20 +6,30 @@ import {
   TabPanels,
   TabPanel,
   Tabs,
-  Heading,
-  Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
 import ApprovedRequests from "./ApprovedRequest";
 import PendingRequests from "./ViewRequest";
 import RejectedRequests from "./RejectRequest";
+import useUserSession from "hooks/useUserSession";
+import { useFetchItemsQuery } from "api/apiSlice";
 
-const ViewRequests = ({ listingType, listingUnitType }) => {
+const ViewRequests = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const subTab = searchParams.get("subTab") || "pending";
   const tabFontSize = useBreakpointValue({ base: "xs", sm: "sm", md: "md" });
   const tabPadding = useBreakpointValue({ base: "2", sm: "3", md: "4" });
+  const { user } = useUserSession();
+  
+  const { data: listingType } = useFetchItemsQuery(
+    { path: `/listing/secondary/types` },
+    { refetchOnMountOrArgChange: true, skip: !user?._id }
+  );
 
+  const { data: listingUnitType } = useFetchItemsQuery(
+    { path: `/listing/secondary/unit-types` },
+    { refetchOnMountOrArgChange: true, skip: !user?._id }
+  );
   const tabs = [
     {
       id: "pending",
@@ -60,18 +70,23 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   };
 
   return (
-    <Tabs variant="goldenrod" index={activeTabIndex} onChange={handleTabChange} isLazy>
-      <TabList 
+    <Tabs
+      variant="goldenrod"
+      index={activeTabIndex}
+      onChange={handleTabChange}
+      isLazy
+    >
+      <TabList
         overflowX="auto"
         overflowY="hidden"
         mx={0}
         px={0}
         sx={{
-          '&::-webkit-scrollbar': {
-            display: 'none', 
+          "&::-webkit-scrollbar": {
+            display: "none",
           },
-          '-ms-overflow-style': 'none',  
-          scrollbarWidth: 'none',  
+          "-ms-overflow-style": "none",
+          scrollbarWidth: "none",
         }}
       >
         <Box display="flex" minWidth="max-content">
@@ -94,8 +109,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               px={tabPadding}
               py={2}
               whiteSpace="nowrap"
-              flexShrink={0} 
-              mx={0} 
+              flexShrink={0}
+              mx={0}
             >
               {tab.label}
             </Tab>
