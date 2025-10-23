@@ -17,9 +17,21 @@ import FinalSummaryModal from './FinalSummaryModal';
 import { toast } from 'react-toastify';
 import { useCreateItemMutation } from 'api/apiSlice';
 import BulkMessageSummary from 'views/admin/lead-v2/components/whatsapp-message/BulkMessageSummary';
+import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
 
 const BulkMessage = () => {
 	const tabBg = useColorModeValue('white', 'gray.800');
+
+	const navigate = useNavigate();
+	const { hasPermission } = usePermissions();
+
+	useEffect(() => {
+		if (!hasPermission('whatsapp', 'whatsapp_campaigns'))
+			return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	// const [step, setStep] = useState(0); // current active step
 	const [selectedAccount, setSelectedAccount] = useState(null);
 	const [selectedTemplate, setSelectedTemplate] = useState(null);

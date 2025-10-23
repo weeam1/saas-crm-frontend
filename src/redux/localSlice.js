@@ -14,6 +14,8 @@ const getUserFromStorage = () => {
 	}
 };
 
+console.log('local user: ', getUserFromStorage());
+
 const initialState = {
 	user: getUserFromStorage(),
 	tree: null,
@@ -33,6 +35,8 @@ const localSlice = createSlice({
 		setUser(state, action) {
 			state.user = action.payload;
 			const json = JSON.stringify(action.payload);
+
+			console.log('UPDATE LOCAL USER ');
 			sessionStorage.setItem('user', json);
 			localStorage.setItem('user', json);
 		},

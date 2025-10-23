@@ -129,10 +129,10 @@ const WhatsappInstances = React.lazy(
 	() => import('views/admin/whatsapp-v2/Instances')
 );
 
-const UserWhatsappV2 = React.lazy(
+const UserWhatsappInstance = React.lazy(
 	() => import('views/admin/whatsapp-v2/UserWhatsapp')
 );
-const UserWhatsapp = React.lazy(
+const UserWhatsappChat = React.lazy(
 	() => import('views/admin/whatsapp/UserWhatsapp')
 );
 const WhatsappSettings = React.lazy(
@@ -640,7 +640,7 @@ const routes = [
 	// **** Whatsapp **** //
 	// V2 routes
 	{
-		childId: 'whatsapp_chats',
+		childId: 'whatsapp_beta',
 		name: 'Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/instances',
@@ -649,12 +649,12 @@ const routes = [
 		component: WhatsappInstances,
 	},
 	{
-		childId: 'whatsapp_chats',
+		childId: 'whatsapp_beta',
 		name: 'User Whatsapp',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/instances/:id',
 		parent: 'whatsapp',
-		component: UserWhatsappV2,
+		component: UserWhatsappInstance,
 	},
 
 	// V1 routes
@@ -668,15 +668,31 @@ const routes = [
 		component: AdminWhatsapp,
 	},
 	{
-		childId: 'whatsapp_chats',
-		name: 'User Whatsapp',
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Chat',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/chats/:id',
 		parent: 'whatsapp',
-		component: UserWhatsapp,
+		component: UserWhatsappChat,
 	},
 	{
-		childId: 'whatsapp_bulk_messages',
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Chat',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/chat',
+		parent: 'whatsapp',
+		component: UserWhatsappChat,
+	},
+	{
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Instance',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/instance',
+		parent: 'whatsapp',
+		component: UserWhatsappInstance,
+	},
+	{
+		childId: 'whatsapp_campaigns',
 		name: 'Bulk Messages',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/bulk-messages',
