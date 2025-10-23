@@ -123,12 +123,12 @@ const sidebarRoutes = [
       },
       {
 		id: "my_listing",
-        name: "My Listings",
+        name: "Own Listings",
         path: "/listing/my-listings",
       },
       {
 		id: "pending_listing",
-        name: "Pendings Listing",
+        name: "Pendings",
         path: "/listing/pending-listing",
       },
       {
