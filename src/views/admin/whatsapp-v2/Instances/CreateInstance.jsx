@@ -86,7 +86,7 @@ const CreateInstance = ({
 					body: payload,
 				}).unwrap();
 
-				toast.success('WhatsApp instance updated successfully');
+				toast.success('WhatsApp chat updated successfully');
 			} else {
 				// Create Mode → Create new instance
 				res = await createInstance({
@@ -94,7 +94,7 @@ const CreateInstance = ({
 					body: payload,
 				}).unwrap();
 
-				toast.success('WhatsApp instance created successfully');
+				toast.success('WhatsApp chat created successfully');
 			}
 
 			console.log('Response:', res);
@@ -119,7 +119,7 @@ const CreateInstance = ({
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='3xl'>
 			<ModalOverlay />
 			<ModalContent m={2}>
-				<ModalHeader>{mode} Whatsapp Instance</ModalHeader>
+				<ModalHeader>{mode} Whatsapp Chat</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody pb={4}>
 					<FormControl isInvalid={errors.userId} mb={4}>
@@ -135,9 +135,9 @@ const CreateInstance = ({
 					</FormControl>
 
 					<FormControl mb='4' isInvalid={errors.instanceName}>
-						<FormLabel>Instance Name</FormLabel>
+						<FormLabel>Chat Name</FormLabel>
 						<Input
-							placeholder='Enter instance name'
+							placeholder='Enter chat name'
 							{...register('instanceName')}
 							_focus={{
 								borderColor: '#D99A36',
