@@ -30,6 +30,7 @@ const ViewRequests = () => {
     { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user?._id }
   );
+  
   const tabs = [
     {
       id: "pending",

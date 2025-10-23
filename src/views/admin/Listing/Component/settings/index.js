@@ -3,17 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import TabNavigationDisplay from "../../../../../components/TabNavigationDisplay/TabNavigationDisplay";
 import ListingUnitTypes from "./components/ListingUnitType/index";
 import ListingTypes from "./components/ListingTypes";
-import ListingStatus from "./components/ListingStatus";
-import AppButton from "components/shared/AppButton";
-import { IoArrowBack } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
 
 const DEFAULT_TAB = "unit-types";
 
 const ListingSettings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tabKey, setTabKey] = useState(0);
-  const navigate = useNavigate();
   const tabsData = [
     {
       label: "Unit Types",
