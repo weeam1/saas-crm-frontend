@@ -51,6 +51,12 @@ const LeadMenu = ({
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
 
+	const businessPhone = user?.whatsappDetails?.phoneNumber;
+
+	const whatsappInstance =
+		(user?.whatsappInstance?.sessionId && user?.whatsappInstance?.isActive) ||
+		false;
+
 	// const loginUser = useSelector((state) => state.user.user);
 
 	const leadId = lead?._id;
@@ -71,8 +77,6 @@ const LeadMenu = ({
 	// const { setIsLeadCycle } = useStateContext();
 
 	const handleOpenWhatsapp = async () => {
-		const businessPhone = user?.whatsappDetails?.phoneNumber;
-
 		// console.log({ whatsapp: user?.whatsappDetails, businessPhone });
 
 		if (!businessPhone) {
@@ -196,13 +200,15 @@ const LeadMenu = ({
 						</MenuItem>
 					)}
 
-					<MenuItem
-						py={2.5}
-						onClick={handleDirectMessage}
-						icon={<FaMessage fontSize={15} />}
-					>
-						Direct Message
-					</MenuItem>
+					{hasPermission('whatsapp') && whatsappInstance && (
+						<MenuItem
+							py={2.5}
+							onClick={handleDirectMessage}
+							icon={<FaMessage fontSize={15} />}
+						>
+							Direct Message
+						</MenuItem>
+					)}
 					{/* <MenuItem
 				
 					onClick={() => navigate(`/leadHistory/${leadId}`)}
@@ -219,12 +225,15 @@ const LeadMenu = ({
 					>
 						Open in Dialpad
 					</MenuItem>
-					<MenuItem
-						onClick={handleOpenWhatsapp}
-						icon={<BsWhatsapp fontSize={15} />}
-					>
-						Open in WhatsApp
-					</MenuItem>
+					{businessPhone && hasPermission('whatsapp') && (
+						<MenuItem
+							onClick={handleOpenWhatsapp}
+							icon={<BsWhatsapp fontSize={15} />}
+						>
+							Open in WhatsApp
+						</MenuItem>
+					)}
+
 					{/* {user?.roles[0]?.roleName === 'Agent' && (
 					<MenuItem
 						// onClick={() => {

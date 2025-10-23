@@ -191,7 +191,11 @@ const DealTable = ({
 								</Td>
 
 								<Td textAlign='center' minW='50px'>
-									<StatusBadge status={deal.commissionStatus} />
+									{deal?.commissionStatus ? (
+										<StatusBadge status={deal.commissionStatus} />
+									) : (
+										'N/A'
+									)}
 								</Td>
 
 								{/* <Td textAlign='left' minWidth='200px'>

@@ -93,9 +93,12 @@ export default function HeaderLinks(props) {
 
 				// dispatch(setUser(userData));
 				localStorage.setItem('user', JSON.stringify(userData));
+				sessionStorage.setItem('user', JSON.stringify(userData));
 
 				// build the permission map and store in redux store
 				const permissionMap = buildPermissionMap(userData);
+
+				// console.log({ permissionMap });
 				dispatch(setPermissions(permissionMap));
 			}
 		} catch (error) {

@@ -23,6 +23,17 @@ const WhatsappSettings = () => {
 	const [users, setUsers] = useState([]);
 	const { hasPermission } = usePermissions();
 
+	const location = useLocation();
+	const pathname = location?.pathname;
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!hasPermission('whatsapp', 'whatsapp_settings'))
+			return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [pagination, setPagination] = useState({
 		page: 1,
@@ -186,11 +197,6 @@ const WhatsappSettings = () => {
 	const handlePageSize = (limit) => {
 		setPagination({ page: 1, limit: Number(limit) });
 	};
-
-	const navigate = useNavigate();
-
-	const location = useLocation();
-	const pathname = location?.pathname;
 
 	return (
 		<>

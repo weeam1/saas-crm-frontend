@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import WhatsappCards from './WhatsappCards';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import {
+	Badge,
 	Box,
 	Button,
 	Flex,
@@ -13,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
 import CustomTooltip from 'components/shared/CustomTooltip';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
 import { usePermissions } from 'hooks/usePermissions';
 import CreateInstance from './CreateInstance';
@@ -27,6 +28,12 @@ const AdminWhatsapp = () => {
 	const [selectedInstance, setSelectedInstance] = useState({});
 	const [page, setPage] = useState(1);
 	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
+	useEffect(() => {
+		if (!hasPermission('whatsapp', 'whatsapp_beta'))
+			return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const {
 		isOpen: createInstanceIsOpen,
@@ -95,7 +102,12 @@ const AdminWhatsapp = () => {
 				mb={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>Whatsapp Instances</Text>
+					<Flex align='center' gap={2}>
+						<Text>Whatsapp Chats</Text>
+						<Badge colorScheme='green' variant='subtle' fontSize='0.7em'>
+							Beta
+						</Badge>
+					</Flex>
 					<CountUpComponent
 						key={instances?.length}
 						targetNumber={instances?.length}
@@ -114,7 +126,7 @@ const AdminWhatsapp = () => {
 					shadow='md'
 					onClick={createInstanceOpen}
 				>
-					Create Instance
+					Create Chat
 				</Button>
 
 				{/* {hasPermission('whatsapp', 'settings') && (
