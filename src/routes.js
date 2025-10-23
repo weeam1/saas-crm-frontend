@@ -659,13 +659,13 @@ const routes = [
     parentName: "Listing",
     component: RejectedViewRequest,
   },
-  // View Request Listing routes ----------
-  {
-    moduleId: "view_request_listing",
+    {
+    moduleId: "listing",
     name: "View Request Listing",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/view-request-listing",
-    icon: <Icon as={FaList} width="20px" height="20px" color="inherit" />,
+    path: "/listing/view-request-listing",
+    under: "listing",
+    parentName: "Listing",
     component: ViewRequestListing,
   },
 
