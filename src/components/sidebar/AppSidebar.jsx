@@ -171,7 +171,9 @@ const SidebarItem = React.memo(function SidebarItem({
 				justifyContent='center'
 				w='32px'
 			>
-				{route.icon}
+				{/* {route.icon} */}
+				{/* <Icon as={route.icon} color={route.color} /> */}
+				<Icon as={route.icon} color={route.color} w='20px' h='20px' />
 			</Box>
 			{(!collapsed || isMobile) && (
 				<Box
