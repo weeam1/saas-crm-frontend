@@ -19,6 +19,7 @@ import {
   FaHandshake,
   FaPhone,
   FaRegCopy,
+  FaListAlt 
 } from "react-icons/fa";
 import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
 import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
@@ -117,36 +118,34 @@ const sidebarRoutes = [
     icon: <Icon as={FaList} w="20px" h="20px" />,
     children: [
       {
+		childid: "all_listing",
         name: "All Listings",
         path: "/listing/all-listings",
       },
       {
+		childid: "my_listing",
         name: "My Listings",
         path: "/listing/my-listings",
       },
       {
+		childid: "pending_listing",
         name: "Pendings Listing",
         path: "/listing/pending-listing",
       },
       {
-        name: "Pending View Request",
-        path: "/listing/pending-view-listing",
+		childid: "view_requests",
+        name: "View Requests",
+        path:  "/view-request-listing",
       },
+    
       {
-        name: "Approved View Request",
-        path: "/listing/approved-view-listing",
-      },
-      {
-        name: "Rejected View Request",
-        path: "/listing/reject-view-listing",
-      },
-
-      {
+		childid: "settings",
         name: "Listing Setting",
         path: "/listing/settings",
       },
     ],
   },
+
 
   // -------- Survey --------
   {

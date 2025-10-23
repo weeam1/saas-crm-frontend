@@ -122,6 +122,10 @@ const ApprovedViewRequest = React.lazy(
 const RejectedViewRequest = React.lazy(
   () => import("views/admin/Listing/Component/ViewRequest/RejectRequest")
 );
+
+const ViewRequestListing = React.lazy(
+  () => import("views/admin/Listing/Component/ViewRequest/index")
+);
 const SubUnitType = React.lazy(
   () =>
     import(
@@ -655,7 +659,43 @@ const routes = [
     parentName: "Listing",
     component: RejectedViewRequest,
   },
+  // View Request Listing routes ----------
+  {
+    moduleId: "view_request_listing",
+    name: "View Request Listing",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/view-request-listing",
+    icon: <Icon as={FaList} width="20px" height="20px" color="inherit" />,
+    component: ViewRequestListing,
+  },
 
+  {
+    moduleId: "view_request_listing",
+    name: "Pending View Request",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/view-request-listing/pending-view-listing",
+    under: "view_request_listing",
+    parentName: "Listing",
+    component: PendingViewRequest,
+  },
+  {
+    moduleId: "view_request_listing",
+    name: "Approved View Request",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/view-request-listing/approved-view-listing",
+    under: "view_request_listing",
+    parentName: "Listing",
+    component: ApprovedViewRequest,
+  },
+  {
+    moduleId: "listing",
+    name: "Rejected View Request",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/view-request-listing/reject-view-listing",
+    under: "view_request_listing",
+    parentName: "Listing",
+    component: RejectedViewRequest,
+  },
   // Survey Routes
 
   {
