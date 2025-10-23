@@ -3,25 +3,25 @@
 // ====================================================================
 // import { Icon } from '@chakra-ui/react';
 import {
-	MdHome,
-	MdLeaderboard,
-	MdOutlineLaptopMac,
-	MdInsertChartOutlined,
-	MdOutlineAdminPanelSettings,
-	MdPeopleOutline,
-	MdCampaign,
-} from 'react-icons/md';
+  MdHome,
+  MdLeaderboard,
+  MdOutlineLaptopMac,
+  MdInsertChartOutlined,
+  MdOutlineAdminPanelSettings,
+  MdPeopleOutline,
+  MdCampaign,
+} from "react-icons/md";
 import {
-	FaTasks,
-	FaRegCalendarCheck,
-	FaList,
-	FaWhatsapp,
-	FaHandshake,
-	FaPhone,
-	FaRegCopy,
-} from 'react-icons/fa';
-import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
-import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
+  FaTasks,
+  FaRegCalendarCheck,
+  FaList,
+  FaWhatsapp,
+  FaHandshake,
+  FaPhone,
+  FaRegCopy,
+} from "react-icons/fa";
+import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
+import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
 
 // const sidebarRoutes = [
 // 	// -------- Dashboard --------
@@ -245,227 +245,239 @@ import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 // ];
 
 export const sidebarRoutes = [
-	// -------- Dashboard --------
-	{
-		name: 'Dashboard',
-		path: '/default',
-		icon: MdHome,
-		color: '#6366F1', // Indigo
-	},
+  // -------- Dashboard --------
+  {
+    name: "Dashboard",
+    path: "/default",
+    icon: MdHome,
+    color: "#6366F1", // Indigo
+  },
 
-	// -------- Leads --------
-	{
-		moduleId: 'leads',
-		name: 'Lead',
-		path: '/lead',
-		icon: MdLeaderboard,
-		color: '#9333EA', // Emerald
-	},
-	{
-		moduleId: 'leadpool_admin',
-		name: 'Lead Pool',
-		path: '/pool',
-		icon: MdOutlineAdminPanelSettings,
-		color: '#F59E0B', // Amber
-	},
-	{
-		moduleId: 'leadpool_agents',
-		name: 'Lead Pool (Agents)',
-		path: '/agent_pool',
-		icon: MdPeopleOutline,
-		color: '#FBBF24', // Yellow
-	},
+  // -------- Leads --------
+  {
+    moduleId: "leads",
+    name: "Lead",
+    path: "/lead",
+    icon: MdLeaderboard,
+    color: "#9333EA", // Emerald
+  },
+  {
+    moduleId: "leadpool_admin",
+    name: "Lead Pool",
+    path: "/pool",
+    icon: MdOutlineAdminPanelSettings,
+    color: "#F59E0B", // Amber
+  },
+  {
+    moduleId: "leadpool_agents",
+    name: "Lead Pool (Agents)",
+    path: "/agent_pool",
+    icon: MdPeopleOutline,
+    color: "#FBBF24", // Yellow
+  },
 
-	// -------- Deals --------
-	{
-		moduleId: 'deal',
-		name: 'Deals',
-		path: '/deals',
-		icon: FaHandshake,
-		color: '#22C55E', // Green
-	},
+  // -------- Deals --------
+  {
+    moduleId: "deal",
+    name: "Deals",
+    path: "/deals",
+    icon: FaHandshake,
+    color: "#22C55E", // Green
+  },
 
-	// ------- Announcement ------
-	{
-		moduleId: 'announcement',
-		name: 'Announcement',
-		path: '/announcements',
-		icon: MdCampaign,
-		color: '#EC4899', // Pink
-	},
+  // ------- Announcement ------
+  {
+    moduleId: "announcement",
+    name: "Announcement",
+    path: "/announcements",
+    icon: MdCampaign,
+    color: "#EC4899", // Pink
+    children: [
+      {
+        id: "create",
+        name: "Announcement",
+        path: "/announcement/create",
+      },
+      {
+        // id: "all_listing",
+        name: "History",
+        path: "/announcement/history",
+      },
+    ],
+  },
 
-	// -------- Hiring --------
-	{
-		moduleId: 'hiring',
-		name: 'Hiring',
-		path: '/hiring',
-		icon: FaClipboardUser,
-		color: '#0EA5E9', // Sky
-	},
+  // -------- Hiring --------
+  {
+    moduleId: "hiring",
+    name: "Hiring",
+    path: "/hiring",
+    icon: FaClipboardUser,
+    color: "#0EA5E9", // Sky
+  },
 
-	// -------- Attendance --------
-	{
-		moduleId: 'attendance',
-		name: 'Attendance',
-		path: '/attendance',
-		icon: FaRegCalendarCheck,
-		color: '#A855F7', // Violet
-	},
+  // -------- Attendance --------
+  {
+    moduleId: "attendance",
+    name: "Attendance",
+    path: "/attendance",
+    icon: FaRegCalendarCheck,
+    color: "#A855F7", // Violet
+  },
 
-	// -------- Invoices --------
-	{
-		moduleId: 'invoice',
-		name: 'Invoice',
-		path: '/invoice',
-		icon: HiOutlineDocumentReport,
-		color: '#3B82F6', // Blue
-	},
+  // -------- Invoices --------
+  {
+    moduleId: "invoice",
+    name: "Invoice",
+    path: "/invoice",
+    icon: HiOutlineDocumentReport,
+    color: "#3B82F6", // Blue
+  },
 
-	// -------- Expenses --------
-	{
-		moduleId: 'expense',
-		name: 'Expenses',
-		path: '/expenses',
-		icon: FaRegCopy,
-		color: '#F97316', // Orange
-	},
+  // -------- Expenses --------
+  {
+    moduleId: "expense",
+    name: "Expenses",
+    path: "/expenses",
+    icon: FaRegCopy,
+    color: "#F97316", // Orange
+  },
 
-	// -------- Tasks --------
-	{
-		moduleId: 'task',
-		name: 'Task',
-		path: '/task',
-		icon: FaTasks,
-		color: '#14B8A6', // Teal
-	},
+  // -------- Tasks --------
+  {
+    moduleId: "task",
+    name: "Task",
+    path: "/task",
+    icon: FaTasks,
+    color: "#14B8A6", // Teal
+  },
 
-	// -------- Listing --------
-	{
-		moduleId: 'listing',
-		name: 'Listing',
-		path: '/listing',
-		icon: FaList,
-		color: '#64748B', // Slate
-		children: [
-			{
-				id: 'all_listing',
-				name: 'All Listings',
-				path: '/listing/all-listings',
-			},
-			{
-				id: 'my_listing',
-				name: 'My Listings',
-				path: '/listing/my-listings',
-			},
-			{
-				id: 'pending_listing',
-				name: 'Pendings Listing',
-				path: '/listing/pending-listing',
-			},
-			{
-				id: 'view_requests',
-				name: 'View Requests',
-				path: '/listing/view-request-listing',
-			},
-			{
-				id: 'settings',
-				name: 'Listing Setting',
-				path: '/listing/settings',
-			},
-		],
-	},
+  // -------- Listing --------
+  {
+    moduleId: "listing",
+    name: "Listing",
+    path: "/listing",
+    icon: FaList,
+    color: "#64748B", // Slate
+    children: [
+      {
+        id: "all_listing",
+        name: "All Listings",
+        path: "/listing/all-listings",
+      },
+      {
+        id: "my_listing",
+        name: "My Listings",
+        path: "/listing/my-listings",
+      },
+      {
+        id: "pending_listing",
+        name: "Pendings Listing",
+        path: "/listing/pending-listing",
+      },
+      {
+        id: "view_requests",
+        name: "View Requests",
+        path: "/listing/view-request-listing",
+      },
+      {
+        id: "settings",
+        name: "Listing Setting",
+        path: "/listing/settings",
+      },
+    ],
+  },
 
-	// -------- Survey --------
-	{
-		moduleId: 'survey',
-		name: 'Survey',
-		path: '/survey',
-		icon: FaSquarePlus,
-		color: '#8B5CF6', // Violet
-	},
+  // -------- Survey --------
+  {
+    moduleId: "survey",
+    name: "Survey",
+    path: "/survey",
+    icon: FaSquarePlus,
+    color: "#8B5CF6", // Violet
+  },
 
-	// -------- Call Logs (SIP) --------
-	{
-		moduleId: 'sip',
-		name: 'Call Logs',
-		path: '/sip',
-		icon: FaPhone,
-		color: '#06B6D4', // Cyan
-		children: [
-			{ name: 'Dashboard', path: '/sip/dashboard' },
-			{ id: 'call_history', name: 'Call History', path: '/sip/history' },
-			{
-				id: 'user_analytics',
-				name: 'User Analytics',
-				path: '/sip/user-analytics',
-			},
-			{ id: 'user_settings', name: 'User Settings', path: '/sip/settings' },
-			{
-				id: 'shared_recordings',
-				name: 'Shared Recording',
-				path: '/sip/shared-recording',
-			},
-		],
-	},
+  // -------- Call Logs (SIP) --------
+  {
+    moduleId: "sip",
+    name: "Call Logs",
+    path: "/sip",
+    icon: FaPhone,
+    color: "#06B6D4", // Cyan
+    children: [
+      { name: "Dashboard", path: "/sip/dashboard" },
+      { id: "call_history", name: "Call History", path: "/sip/history" },
+      {
+        id: "user_analytics",
+        name: "User Analytics",
+        path: "/sip/user-analytics",
+      },
+      { id: "user_settings", name: "User Settings", path: "/sip/settings" },
+      {
+        id: "shared_recordings",
+        name: "Shared Recording",
+        path: "/sip/shared-recording",
+      },
+    ],
+  },
 
-	// -------- Reports --------
-	{
-		moduleId: 'reports',
-		name: 'Reports',
-		path: '/reporting-analytics',
-		icon: MdInsertChartOutlined,
-		color: '#2e6f77ff', // Lime
-	},
+  // -------- Reports --------
+  {
+    moduleId: "reports",
+    name: "Reports",
+    path: "/reporting-analytics",
+    icon: MdInsertChartOutlined,
+    color: "#2e6f77ff", // Lime
+  },
 
-	// -------- Whatsapp --------
-	{
-		moduleId: 'whatsapp',
-		name: 'Whatsapp',
-		path: '/whatsapp',
-		icon: FaWhatsapp,
-		color: '#25D366', // WhatsApp Green
-		children: [
-			{
-				id: 'whatsapp_chats',
-				name: 'Chats',
-				path: '/whatsapp/chats',
-			},
-			{
-				id: 'whatsapp_beta',
-				name: 'WhatsApp',
-				version: 'Beta',
-				path: '/whatsapp/instances',
-			},
-			{
-				id: 'whatsapp_campaigns',
-				name: 'Whatsapp Campaigns',
-				path: '/whatsapp/bulk-messages',
-			},
-			{
-				id: 'whatsapp_settings',
-				name: 'Settings',
-				path: '/whatsapp/settings',
-			},
-		],
-	},
+  // -------- Whatsapp --------
+  {
+    moduleId: "whatsapp",
+    name: "Whatsapp",
+    path: "/whatsapp",
+    icon: FaWhatsapp,
+    color: "#25D366", // WhatsApp Green
+    children: [
+      {
+        id: "whatsapp_chats",
+        name: "Chats",
+        path: "/whatsapp/chats",
+      },
+      {
+        id: "whatsapp_beta",
+        name: "WhatsApp",
+        version: "Beta",
+        path: "/whatsapp/instances",
+      },
+      {
+        id: "whatsapp_campaigns",
+        name: "Whatsapp Campaigns",
+        path: "/whatsapp/bulk-messages",
+      },
+      {
+        id: "whatsapp_settings",
+        name: "Settings",
+        path: "/whatsapp/settings",
+      },
+    ],
+  },
 
-	// -------- Users --------
-	{
-		moduleId: 'users',
-		name: 'Users',
-		path: '/user',
-		icon: HiUsers,
-		color: '#8B5CF6', // Violet
-	},
+  // -------- Users --------
+  {
+    moduleId: "users",
+    name: "Users",
+    path: "/user",
+    icon: HiUsers,
+    color: "#8B5CF6", // Violet
+  },
 
-	// -------- System Log --------
-	{
-		moduleId: 'system_log',
-		name: 'System Log',
-		path: '/system-log',
-		icon: MdOutlineLaptopMac,
-		color: '#c03910ff', // Gray
-	},
+  // -------- System Log --------
+  {
+    moduleId: "system_log",
+    name: "System Log",
+    path: "/system-log",
+    icon: MdOutlineLaptopMac,
+    color: "#c03910ff", // Gray
+  },
 ];
 
 export default sidebarRoutes;

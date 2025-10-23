@@ -212,6 +212,9 @@ const SharedSipRecording = React.lazy(
 	() => import('views/admin/sip/component/sharedRecording/index')
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
+const CreateAnnouncement = React.lazy(() => import('views/admin/announcement/components/CreateAnnouncement'));
+const AnnouncementHistory = React.lazy(() => import('views/admin/announcement/components/History'));
+
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
@@ -287,6 +290,35 @@ const routes = [
 		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
 		component: Announcement,
 	},
+		{
+		moduleId: 'announcement',
+		name: 'Announcement',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/announcement/create',
+		under: 'announcement',
+		parentName: 'announcement',
+		component: CreateAnnouncement,
+	},
+
+	{
+		moduleId: 'announcement',
+		name: 'History',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/announcement/history',
+		under: 'announcement',
+		parentName: 'announcement',
+		component: AnnouncementHistory,
+	},
+		{
+		moduleId: 'attendance',
+		name: 'Employees',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/attendance/employees',
+		under: 'employees',
+		parentName: 'Attendance',
+		component: Employees,
+	},
+	
 	{
 		moduleId: 'hiring',
 		name: 'Hiring',
