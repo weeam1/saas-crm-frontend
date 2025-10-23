@@ -118,28 +118,28 @@ const sidebarRoutes = [
     icon: <Icon as={FaList} w="20px" h="20px" />,
     children: [
       {
-		childid: "all_listing",
+		id: "all_listing",
         name: "All Listings",
         path: "/listing/all-listings",
       },
       {
-		childid: "my_listing",
+		id: "my_listing",
         name: "My Listings",
         path: "/listing/my-listings",
       },
       {
-		childid: "pending_listing",
+		id: "pending_listing",
         name: "Pendings Listing",
         path: "/listing/pending-listing",
       },
       {
-		childid: "view_requests",
+		id: "view_requests",
         name: "View Requests",
         path:  "/view-request-listing",
       },
     
       {
-		childid: "settings",
+		id: "settings",
         name: "Listing Setting",
         path: "/listing/settings",
       },
