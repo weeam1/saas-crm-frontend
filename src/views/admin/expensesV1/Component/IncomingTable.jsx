@@ -174,13 +174,13 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
 	};
 
 	const exportToExcel = () => {
-		if (!data || !data.doc || data.doc.length === 0) {
+		if (!data || !data?.balances || data?.balances.length === 0) {
 			toast.warning('No data to export');
 			return;
 		}
 
 		try {
-			const exportData = data.doc.map((item) => ({
+			const exportData = data?.balances.map((item) => ({
 				Date: item.createdAt
 					? moment(item.createdAt).format('MM/DD/YYYY hh:mmA')
 					: '',
@@ -191,10 +191,11 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
 				'Added By': item.addedBy ? item.addedBy.fullName : '',
 			}));
 
+			console.log("exportData", exportData)
 			const wb = XLSX.utils.book_new();
 			const ws = XLSX.utils.json_to_sheet(exportData);
 			XLSX.utils.book_append_sheet(wb, ws, 'Incoming Cash');
-			const fileName = `Incoming_Cash_${moment().format('YYYY-MM-DD')}.xlsx`;
+			const fileName = `Balance_${moment().format('YYYY-MM-DD')}.xlsx`;
 			XLSX.writeFile(wb, fileName);
 
 			toast.success('Export successful!');
