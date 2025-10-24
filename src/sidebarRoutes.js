@@ -413,6 +413,16 @@ export const sidebarRoutes = [
     path: "/expenses",
     icon: FaRegCopy,
     color: "#F97316", // Orange
+    children: [
+      {
+        name: "Balance",
+        path: "/expenses/balance",
+      },
+      {
+        name: "Outgoing Cash",
+        path: "/expenses/outgoing-cash",
+      },
+    ],
   },
 
   // -------- Tasks --------
@@ -467,6 +477,16 @@ export const sidebarRoutes = [
     path: "/survey",
     icon: FaSquarePlus,
     color: "#8B5CF6", // Violet
+        children: [
+      {
+        name: "Dashboard",
+        path: "/survey/dashboard",
+      },
+      {
+        name: "Records",
+        path: "/survey/records",
+      },
+    ],
   },
 
   // -------- Call Logs (SIP) --------

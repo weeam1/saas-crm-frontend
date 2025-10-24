@@ -384,7 +384,6 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
 			boxShadow='sm'
 			bg='white'
 			px={2}
-			marginTop={'-16px'}
 		>
 			<Flex
 				justifyContent='space-between'

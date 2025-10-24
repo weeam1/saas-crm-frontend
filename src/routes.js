@@ -93,8 +93,15 @@ const DeveloperInvoices = React.lazy(
 );
 const SingleInvoice = React.lazy(() => import("views/admin/invoice/View"));
 const AddEntry = React.lazy(() => import("views/admin/invoice/AddEntry"));
+
 const Expenses = React.lazy(() => import("views/admin/expenses"));
 const ExpensesV1 = React.lazy(() => import("views/admin/expensesV1/index"));
+const ExpenseBalanceScreen = React.lazy(
+  () => import("views/admin/expensesV1/ExpenseBalanceScreen")
+);
+const OutgoingCashScreen = React.lazy(
+  () => import("views/admin/expensesV1/OutgoingCashScreen")
+);
 
 const DeveloperDetails = React.lazy(
   () => import("views/admin/developers/components/DeveloperView")
@@ -104,8 +111,12 @@ const BankAccount = React.lazy(
   () => import("views/admin/bankAccountsV2/index")
 );
 
-const DeveloperScreen = React.lazy(() => import('views/admin/invoice/developers/index'))
-const ProjectScreen = React.lazy(() => import('views/admin/developers/projects/index'))
+const DeveloperScreen = React.lazy(
+  () => import("views/admin/invoice/developers/index")
+);
+const ProjectScreen = React.lazy(
+  () => import("views/admin/developers/projects/index")
+);
 
 // Listing
 const Listing = React.lazy(() => import("views/admin/Listing"));
@@ -159,7 +170,12 @@ const CreateSurvey = React.lazy(
 const ViewSurveyResponse = React.lazy(
   () => import("views/admin/survey/ViewSurveyResponse")
 );
-
+const SurveyDashboard = React.lazy(
+  () => import("views/admin/survey/Component/SurveyDashboard")
+);
+const SurveyManage = React.lazy(
+  () => import("views/admin/survey/Component/ManageSurveys")
+);
 // Whatsapp
 const AdminWhatsapp = React.lazy(
   () => import("views/admin/whatsapp/AdminWhatsapp")
@@ -445,7 +461,7 @@ const routes = [
     parentName: "invoice",
     component: BankAccount,
   },
-    {
+  {
     moduleId: "invoice",
     name: "Developer",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -454,7 +470,7 @@ const routes = [
     parentName: "invoice",
     component: DeveloperScreen,
   },
-    {
+  {
     moduleId: "invoice",
     name: "Project",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -470,6 +486,24 @@ const routes = [
     path: "/expenses",
     icon: <Icon as={FaRegCopy} width="20px" height="20px" color="inherit" />,
     component: ExpensesV1,
+  },
+  {
+    moduleId: "expense",
+    name: "Balance",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "expense",
+    path: "/expenses/balance",
+    parentName: "expense",
+    component: ExpenseBalanceScreen,
+  },
+  {
+    moduleId: "expense",
+    name: "Outgoing Cash",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "expense",
+    path: "/expenses/outgoing-cash",
+    parentName: "expense",
+    component: OutgoingCashScreen,
   },
   {
     moduleId: "invoice",
@@ -823,6 +857,24 @@ const routes = [
     path: "/survey",
     icon: <Icon as={FaSquarePlus} width="20px" height="20px" color="inherit" />,
     component: Survey,
+  },
+  {
+    moduleId: "survey",
+    name: "Dashboard",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/survey/dashboard",
+    under: "Survey",
+    parentName: "Survey",
+    component: SurveyDashboard,
+  },
+  {
+    moduleId: "survey",
+    name: "Records",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/survey/records",
+    under: "Survey",
+    parentName: "Survey",
+    component: SurveyManage,
   },
   {
     moduleId: "survey",
