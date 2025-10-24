@@ -363,22 +363,22 @@ export const sidebarRoutes = [
       {
         id: "dashboard",
         name: "Dashboard",
-        path: '/attendance/dashboard',
+        path: "/attendance/dashboard",
       },
       {
         id: "employees",
         name: "Employees",
-        path: '/attendance/employees',
+        path: "/attendance/employees",
       },
       {
         id: "record",
         name: "Record",
-       path: '/attendance/record',
+        path: "/attendance/record",
       },
       {
         id: "my_attendance",
         name: "My Attendence",
-        path: '/attendance/employees',
+        path: "/attendance/employees",
       },
     ],
   },
@@ -390,6 +390,20 @@ export const sidebarRoutes = [
     path: "/invoice",
     icon: HiOutlineDocumentReport,
     color: "#3B82F6", // Blue
+    children: [
+      {
+        name: "Bank Accounts",
+        path: "/invoice/bank-account",
+      },
+      {
+        name: "Developer",
+        path: "/invoice/developer",
+      },
+      {
+        name: "Project",
+        path: "/invoice/project",
+      },
+    ],
   },
 
   // -------- Expenses --------
