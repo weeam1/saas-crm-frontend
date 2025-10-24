@@ -357,7 +357,7 @@ const routes = [
 		component: AttendanceV2,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Attendance Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/dashboard',
@@ -366,7 +366,7 @@ const routes = [
 		component: AttendanceDashboard,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Employees',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/employees',
@@ -375,7 +375,7 @@ const routes = [
 		component: Employees,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Attendance Record',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/record',
@@ -384,10 +384,10 @@ const routes = [
 		component: Records,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'My Attendance',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/attendance/employees/:id',
+		path: '/attendance/employees',
 		under: 'my-attendance',
 		parentName: 'Attendance',
 		component: MyAttendance,

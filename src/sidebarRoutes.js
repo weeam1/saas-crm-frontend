@@ -359,6 +359,28 @@ export const sidebarRoutes = [
     path: "/attendance",
     icon: FaRegCalendarCheck,
     color: "#A855F7", // Violet
+    children: [
+      {
+        id: "dashboard",
+        name: "Dashboard",
+        path: '/attendance/dashboard',
+      },
+      {
+        id: "employees",
+        name: "Employees",
+        path: '/attendance/employees',
+      },
+      {
+        id: "record",
+        name: "Record",
+       path: '/attendance/record',
+      },
+      {
+        id: "my_attendance",
+        name: "My Attendence",
+        path: '/attendance/employees',
+      },
+    ],
   },
 
   // -------- Invoices --------
