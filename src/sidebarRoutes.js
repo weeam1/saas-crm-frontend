@@ -283,6 +283,18 @@ export const sidebarRoutes = [
     path: "/deals",
     icon: FaHandshake,
     color: "#22C55E", // Green
+    children: [
+      {
+        id: "closed_deals",
+        name: "Close Deals",
+        path: "/deals/close-deal",
+      },
+      {
+        id: "shared_deals",
+        name: "Shared Deals",
+        path: "/deals/shared-deals",
+      },
+    ],
   },
 
   // ------- Announcement ------
@@ -299,7 +311,6 @@ export const sidebarRoutes = [
         path: "/announcement/create",
       },
       {
-        // id: "all_listing",
         name: "History",
         path: "/announcement/history",
       },
@@ -313,6 +324,32 @@ export const sidebarRoutes = [
     path: "/hiring",
     icon: FaClipboardUser,
     color: "#0EA5E9", // Sky
+    children: [
+      {
+        name: "Dashboard",
+        path: "/hiring/dasboard",
+      },
+      {
+        name: "Candidates",
+        path: "/hiring/candidates",
+      },
+      {
+        name: "Short Listed",
+        path: "/hiring/short-listed",
+      },
+      {
+        name: "Multi-Round",
+        path: "/hiring/multi-round",
+      },
+      {
+        name: "Interviewed Candidates",
+        path: "/hiring/interviewed-candidates",
+      },
+      {
+        name: "Settings",
+        path: "/hiring/settings",
+      },
+    ],
   },
 
   // -------- Attendance --------

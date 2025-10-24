@@ -93,7 +93,7 @@ const HiringDashboard = () => {
 		</Box>
 	) : (
 		<Box>
-			<Flex justifyContent='flex-end' alignItems='center'>
+			{/* <Flex justifyContent='flex-end' alignItems='center'>
 				{isSuperAdmin && (
 					<Button
 						colorScheme='gray'
@@ -107,7 +107,7 @@ const HiringDashboard = () => {
 						Settings
 					</Button>
 				)}
-			</Flex>
+			</Flex> */}
 
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
 				{filteredStats.map((stat, index) => (

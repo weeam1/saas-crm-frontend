@@ -37,8 +37,8 @@ const Positions = () => {
 		<Loader />
 	) : (
 		<Box>
-			<Flex justifyContent='space-between' alignItems='center'>
-				<Button
+			<Flex justifyContent='flex-end' alignItems='center'>
+				{/* <Button
 					colorScheme='gray'
 					borderRadius='5px'
 					size={{ base: 'sm', md: 'md' }}
@@ -50,7 +50,7 @@ const Positions = () => {
 					mb={4}
 				>
 					Back
-				</Button>
+				</Button> */}
 				<Button
 					colorScheme='gray'
 					borderRadius='5px'

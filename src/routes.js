@@ -37,9 +37,12 @@ const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
+const SharedDealsScreen = React.lazy(() => import('views/admin/deals/SharedDealsScreen'));
+const CloseDealScreen = React.lazy(() => import('views/admin/deals/DealsScreen'));
 
 // Hiring
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const HiringDashboard = React.lazy(() => import('views/admin/hiring/hiringDashboard'))
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
 const ShortListedCandidates = React.lazy(
 	() => import('views/admin/hiring/shortListedCandidates')
@@ -57,7 +60,7 @@ const OfferView = React.lazy(
 	() => import('views/admin/hiring/interviewedCandidates/OfferView')
 );
 const Positions = React.lazy(() => import('views/admin/hiring/positions'));
-
+const InterviewedRound = React.lazy(() => import('views/admin/hiring/interviewedCandidates/Rounds/index'))
 // Attendance
 const AttendanceV2 = React.lazy(
 	() => import('views/admin/attendance/AttendenceV2')
@@ -281,6 +284,24 @@ const routes = [
 		icon: <Icon as={FaHandshake} width='20px' height='20px' color='inherit' />,
 		component: DealsScreen,
 	},
+	{
+		moduleId: 'deal',
+		name: 'Close Deals',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/deals/close-deal',
+		under: 'deal',
+		parentName: 'deal',
+		component: CloseDealScreen,
+	},
+	{
+		moduleId: 'deal',
+		name:  'Shared Deals',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/deals/shared-deals',
+		under: 'deal',
+		parentName: 'deal',
+		component: SharedDealsScreen,
+	},
 
 	{
 		moduleId: 'announcement',
@@ -317,17 +338,6 @@ const routes = [
 		under: 'employees',
 		parentName: 'Attendance',
 		component: Employees,
-	},
-	
-	{
-		moduleId: 'hiring',
-		name: 'Hiring',
-		path: '/hiring',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: (
-			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
-		),
-		component: Hiring,
 	},
 
 	// Attendance Routes
@@ -464,6 +474,26 @@ const routes = [
 	},
 
 	// ------------- Hiring Routes -----------------------
+
+		{
+		moduleId: 'hiring',
+		name: 'Hiring',
+		path: '/hiring',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		icon: (
+			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+		),
+		component: Hiring,
+	},
+	{
+		moduleId: 'hiring',
+		name: 'Hiring Dashboard',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/dasboard',
+		under: 'Hiring',
+		parentName: 'Hiring',
+		component: HiringDashboard,
+	},
 	{
 		moduleId: 'hiring',
 		name: 'Candidates',
@@ -499,6 +529,15 @@ const routes = [
 		under: 'interviewCandidates',
 		parentName: 'Hiring',
 		component: InterviewedCandidates,
+	},
+	{
+		moduleId: 'hiring',
+		name: 'Multi-Round Candidates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		 path: "/hiring/multi-round",
+		under: 'Hiring',
+		parentName: 'Hiring',
+		component: InterviewedRound,
 	},
 	{
 		moduleId: 'hiring',
