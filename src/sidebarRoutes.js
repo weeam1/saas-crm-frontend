@@ -270,7 +270,7 @@ export const sidebarRoutes = [
 	},
 	{
 		moduleId: 'leadpool_agents',
-		name: 'Lead Pool (Agents)',
+		name: 'Lead Pool',
 		path: '/agent_pool',
 		icon: MdPeopleOutline,
 		color: '#FBBF24', // Yellow
