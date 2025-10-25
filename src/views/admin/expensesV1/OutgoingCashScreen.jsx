@@ -81,7 +81,7 @@ const ExpenseBalanceScreen = () => {
           gap={1}
           px={3}
           py={1}
-          borderRadius="10px"
+          borderRadius="md"
           bg="gray.500"
           color="white"
           boxShadow="md"
