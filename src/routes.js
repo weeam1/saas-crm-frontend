@@ -34,6 +34,9 @@ const MainDashboard = React.lazy(() => import('views/admin/default'));
 
 // Leads & Deals
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
+const LeadAnalytics = React.lazy(
+	() => import('views/admin/lead-v2/leadAnalytics')
+);
 const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
@@ -238,12 +241,21 @@ const routes = [
 		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/lead',
+		under: 'lead',
+		parent: 'lead',
 		icon: (
 			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
 		),
 		component: LeadScreen,
 	},
-
+	{
+		// childId: 'lead_analytics',
+		name: 'Lead',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead_analytics',
+		parent: 'lead',
+		component: LeadAnalytics,
+	},
 	{
 		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',

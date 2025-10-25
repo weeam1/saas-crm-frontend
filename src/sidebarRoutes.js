@@ -10,6 +10,7 @@ import {
 	MdOutlineAdminPanelSettings,
 	MdPeopleOutline,
 	MdCampaign,
+	MdInsights,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -260,7 +261,21 @@ export const sidebarRoutes = [
 		path: '/lead',
 		icon: MdLeaderboard,
 		color: '#9333EA', // Emerald
+		children: [
+			{
+				// id: 'leads',
+				name: 'Leads',
+				path: '/lead',
+			},
+			{
+				id: 'lead_analytics',
+				name: 'Analytics',
+				path: '/lead_analytics',
+				version: 'Beta',
+			},
+		],
 	},
+
 	{
 		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',
