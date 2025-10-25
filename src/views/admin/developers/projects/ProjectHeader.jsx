@@ -114,8 +114,7 @@ const ProjectHeader = ({
 
 					<Button
 						{...buttonStyle}
-						variant='solid'
-						bg='brand.400'
+						 variant="brand"
 						w='fit-content'
 						color='white'
 						sx={{
@@ -123,7 +122,6 @@ const ProjectHeader = ({
 								fill: 'white',
 							},
 						}}
-						_active={{ bg: 'brand.500' }}
 						leftIcon={<FaPlus />}
 						aria-label='Create'
 						onClick={handleCreate}
