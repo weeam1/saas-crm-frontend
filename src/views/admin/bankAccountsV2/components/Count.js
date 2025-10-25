@@ -7,9 +7,8 @@ const AccountCount = ({ count }) => {
 
 	return (
 		<Text
-			fontSize={{ base: '18px', md: 'xl', lg: '28px' }}
-			fontWeight='medium'
-			fontFamily='DM Sans'
+			fontSize={"20px"}
+			fontWeight="bold"
 			color='#333'
 		>
 			All Bank Accounts (
