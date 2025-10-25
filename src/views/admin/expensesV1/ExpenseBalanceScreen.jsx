@@ -83,7 +83,7 @@ const ExpenseBalanceScreen = () => {
           px={3}
           py={1}
           borderRadius="md"
-          bg="gray.500"
+          bg="brand.500"
           color="white"
           boxShadow="md"
           cursor="pointer"
@@ -92,7 +92,7 @@ const ExpenseBalanceScreen = () => {
           onClick={handleOpenModal}
           _hover={{
             boxShadow: "lg",
-            bg: "gray.600",
+            bg: "brand.600",
             transform: "scale(1.04)",
           }}
         >
