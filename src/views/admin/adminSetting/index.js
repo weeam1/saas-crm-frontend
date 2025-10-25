@@ -14,21 +14,17 @@ const Index = () => {
     w: "24px",
     h: "24px",
     color: "white",
-    flexShrink: 0,
   };
 
   const iconBoxStyle = {
     w: "58px",
     h: "58px",
-    minW: "58px",
-    minH: "58px",
     bg: "linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: "full",
     shadow: "md",
-    flexShrink: 0,
     transition: "all 0.25s ease-in-out",
     _hover: { transform: "scale(1.05)", shadow: "lg" },
   };
@@ -36,8 +32,8 @@ const Index = () => {
   return (
     <Box w="100%">
       <SimpleGrid
-        columns={{ base: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
-        spacing={{ base: 5, md: 6, lg: 8 }}
+        templateColumns="repeat(auto-fit, minmax(clamp(220px, 23vw, 280px), 1fr))"
+        spacing={{ base: 4, md: 6, lg: 8 }}
         justifyItems="center"
         alignItems="stretch"
       >
