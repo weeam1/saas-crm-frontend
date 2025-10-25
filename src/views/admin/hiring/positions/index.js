@@ -52,12 +52,11 @@ const Positions = () => {
 					Back
 				</Button> */}
 				<Button
-					colorScheme='gray'
-					borderRadius='5px'
-					size={{ base: 'sm', md: 'md' }}
+					colorScheme='brand'
+					borderRadius='md'
+					size={"md"}
 					px={{ base: 4, md: 6 }}
 					py={{ base: 2, md: 3 }}
-					fontSize={{ base: 'sm', md: 'md' }}
 					leftIcon={<Icon as={IoAdd} boxSize={4} />}
 					onClick={() => setViewForm(true)}
 					mb={4}
