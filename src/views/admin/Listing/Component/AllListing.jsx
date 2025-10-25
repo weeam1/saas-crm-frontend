@@ -406,8 +406,8 @@ const AllListing = () => {
           ) : (
             <Button
               colorScheme="brand"
-              size="md"
-              borderRadius="full"
+              size="sm"
+              borderRadius="md"
               py={3}
               px={6}
               onClick={() => setIsFilterOpen(true)}

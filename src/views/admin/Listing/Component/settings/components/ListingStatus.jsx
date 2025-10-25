@@ -179,7 +179,8 @@ const ListingStatus = () => {
           Listing Statuses
         </Text>
         <Button
-          size="md"
+          size="sm"
+          borderRadius={"md"}
           variant="brand"
           leftIcon={<AddIcon />}
           py={3}
