@@ -35,7 +35,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	let appRoutes = [...routes];
 	let appSidebarRoutes = [...sidebarRoutes];
 
-	const isWhatsappUser = localStorage.getItem('isWhatsappUser');
+	const isWhatsappUser =
+		JSON.parse(sessionStorage.getItem('isWhatsappUser')) || false;
 
 	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
 	const pageBg = useColorModeValue('whiteAlpa.100', 'gray.800');
@@ -44,14 +45,14 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const { hasPermission } = usePermissions();
 
 	// only check for other non super admin user's
-	// const { data: whatsappUser } = useFetchItemsQuery(
-	// 	{
-	// 		path: `whatsapp/instances/user/${user?._id}`,
-	// 	},
-	// 	{
-	// 		skip: !user?._id || isSuperAdmin,
-	// 	}
-	// );
+	const { data: whatsappInstance } = useFetchItemsQuery(
+		{
+			path: `whatsapp/instances/user/${user?._id}`,
+		},
+		{
+			skip: !user?._id || isSuperAdmin,
+		}
+	);
 
 	// console.log({ whatsappUser });
 
@@ -65,7 +66,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	});
 
 	const whatsappActive = user?.whatsappDetails?.isActive || false;
-	const instanceActive = user?.whatsappInstance?.isActive || false;
+	const instanceActive = whatsappInstance?.doc?.isActive || false;
 
 	const dispatch = useDispatch();
 
@@ -269,17 +270,17 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 
 		// Only merge once if new children exist
 		if (newChildren.length > 0) {
-			localStorage.setItem('isWhatsappUser', true);
+			sessionStorage.setItem('isWhatsappUser', true);
 
 			whatsappSidebarRoutes.children = [...existingChildren, ...newChildren];
 
 			// Remove Chat route if WhatsApp is NOT active
-			if (!whatsappActive) {
+			if (whatsappActive === false) {
 				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/chat');
 			}
 
 			// Remove Instance route if Instance is NOT active
-			if (!instanceActive) {
+			if (instanceActive === false) {
 				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/instance');
 			}
 
@@ -302,6 +303,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			// 	});
 			// }
 		} else if (!isWhatsappUser) {
+			sessionStorage.setItem('isWhatsappUser', false);
+
 			// remove any old whatsapp routes if permission disabled
 			appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
 			appSidebarRoutes = appSidebarRoutes.filter(
