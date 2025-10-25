@@ -80,7 +80,7 @@ const ExpenseBalanceScreen = () => {
           alignItems="center"
           gap={1}
           px={3}
-          py={2}
+          py={1}
           borderRadius="10px"
           bg="gray.500"
           color="white"
