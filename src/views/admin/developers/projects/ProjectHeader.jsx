@@ -40,7 +40,7 @@ const ProjectHeader = ({
 			alignItems={{ base: 'stretch', md: 'center' }}
 			flexDirection={{ base: 'column', md: 'row' }}
 		>
-			<Heading fontSize='24px' fontWeight='600'>
+			<Heading fontSize='20px' fontWeight='600'>
 				{title}
 				<span style={{ marginLeft: '6px' }}>
 					({<CountUpComponent targetNumber={totalDocs || 0} />})
@@ -65,7 +65,7 @@ const ProjectHeader = ({
 						placeholder='Search'
 						border='none'
 						fontSize='xs'
-						height='2.2rem'
+						height='2.5rem'
 						onChange={handleInputChange}
 						onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
 						_focus={{ boxShadow: 'none' }}
