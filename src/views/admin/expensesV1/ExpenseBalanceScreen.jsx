@@ -184,10 +184,10 @@ const ExpenseBalanceScreen = () => {
               </Select>
 
               <Button
-                bg="goldenrod"
+                bg="brand.500"
                 color="white"
                 w="100%"
-                _hover={{ bg: "goldenrod", opacity: 0.9 }}
+                _hover={{ bg: "brand.600", opacity: 0.9 }}
                 onClick={handleDateFilter}
               >
                 Apply

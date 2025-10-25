@@ -430,8 +430,10 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             py={3}
             px={6}
             onClick={exportToExcel}
-            colorScheme="green"
+            bg={"green.400"}
+            _hover={{bg:"green.500"}}
             mr={2}
+            color={"white"}
           >
             Export
           </Button>
