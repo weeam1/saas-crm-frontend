@@ -103,6 +103,28 @@ const UpdateListing = React.lazy(
 const SettingPage = React.lazy(
 	() => import('views/admin/Listing/Component/settings')
 );
+
+const AllListing = React.lazy(
+	() => import('views/admin/Listing/Component/AllListing')
+);
+const MyListing = React.lazy(
+	() => import('views/admin/Listing/Component/MyListing')
+);
+const ViewRequestListing = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest')
+);
+const PendingListing = React.lazy(
+	() => import('views/admin/Listing/Component/PendingListings')
+);
+const PendingViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/ViewRequest')
+);
+const ApprovedViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/ApprovedRequest')
+);
+const RejectedViewRequest = React.lazy(
+	() => import('views/admin/Listing/Component/ViewRequest/RejectRequest')
+);
 const SubUnitType = React.lazy(
 	() =>
 		import(
@@ -124,7 +146,15 @@ const ViewSurveyResponse = React.lazy(
 const AdminWhatsapp = React.lazy(
 	() => import('views/admin/whatsapp/AdminWhatsapp')
 );
-const UserWhatsapp = React.lazy(
+
+const WhatsappInstances = React.lazy(
+	() => import('views/admin/whatsapp-v2/Instances')
+);
+
+const UserWhatsappInstance = React.lazy(
+	() => import('views/admin/whatsapp-v2/UserWhatsapp')
+);
+const UserWhatsappChat = React.lazy(
 	() => import('views/admin/whatsapp/UserWhatsapp')
 );
 const WhatsappSettings = React.lazy(
@@ -170,7 +200,16 @@ const SipDashboard = React.lazy(
 	() => import('views/admin/sip/component/Dashboard')
 );
 const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/History')
+	() => import('views/admin/sip/component/History/index')
+);
+const SipSettings = React.lazy(
+	() => import('views/admin/sip/component/UserSetting/index')
+);
+const SipUserAnalytics = React.lazy(
+	() => import('views/admin/sip/component/Analytics/index')
+);
+const SharedSipRecording = React.lazy(
+	() => import('views/admin/sip/component/sharedRecording/index')
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
@@ -467,7 +506,7 @@ const routes = [
 	},
 	{
 		moduleId: 'sip',
-		name: 'Sip Dashboard',
+		name: 'Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/dashboard',
 		under: 'Sip',
@@ -475,13 +514,40 @@ const routes = [
 		component: SipDashboard,
 	},
 	{
-		moduleId: 'sip',
-		name: 'Sip history',
+		childId: 'call_history',
+		name: 'Call history',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/history',
 		under: 'Sip',
 		parentName: 'Sip',
 		component: SipHistory,
+	},
+	{
+		childId: 'user_settings',
+		name: 'User settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/settings',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipSettings,
+	},
+	{
+		childId: 'user_analytics',
+		name: 'User Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/user-analytics',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SipUserAnalytics,
+	},
+	{
+		childId: 'shared_recordings',
+		name: 'Shared Recoding',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/shared-recording',
+		under: 'Sip',
+		parentName: 'Sip',
+		component: SharedSipRecording,
 	},
 
 	// Listing --------------------------------------
@@ -538,7 +604,99 @@ const routes = [
 		parentName: 'Listing',
 		component: SubUnitType,
 	},
+	{
+		moduleId: 'listing',
+		name: 'All Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/all-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: AllListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'My Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/my-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: MyListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Pendings Listing',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/pending-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PendingListing,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Pending View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/pending-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PendingViewRequest,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Approved View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/approved-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ApprovedViewRequest,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Rejected View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/reject-view-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		component: RejectedViewRequest,
+	},
+	// View Request Listing routes ----------
+	{
+		moduleId: 'listing',
+		name: 'View Request Listing',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/view-request-listing',
+		under: 'listing',
+		parentName: 'Listing',
+		icon: <Icon as={FaList} width='20px' height='20px' color='inherit' />,
+		component: ViewRequestListing,
+	},
 
+	{
+		moduleId: 'view_request_listing',
+		name: 'Pending View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/view-request-listing/pending-view-listing',
+		under: 'view_request_listing',
+		parentName: 'Listing',
+		component: PendingViewRequest,
+	},
+	{
+		moduleId: 'view_request_listing',
+		name: 'Approved View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/view-request-listing/approved-view-listing',
+		under: 'view_request_listing',
+		parentName: 'Listing',
+		component: ApprovedViewRequest,
+	},
+	{
+		moduleId: 'listing',
+		name: 'Rejected View Request',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/view-request-listing/reject-view-listing',
+		under: 'view_request_listing',
+		parentName: 'Listing',
+		component: RejectedViewRequest,
+	},
 	// Survey Routes
 
 	{
@@ -594,6 +752,26 @@ const routes = [
 	// },
 
 	// **** Whatsapp **** //
+	// V2 routes{
+	{
+		childId: 'whatsapp_beta',
+		name: 'Whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/instances',
+		parent: 'whatsapp',
+		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		component: WhatsappInstances,
+	},
+	{
+		childId: 'whatsapp_beta',
+		name: 'User Whatsapp',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/instances/:id',
+		parent: 'whatsapp',
+		component: UserWhatsappInstance,
+	},
+
+	// V1 routes
 	{
 		childId: 'whatsapp_chats',
 		name: 'Whatsapp',
@@ -604,15 +782,31 @@ const routes = [
 		component: AdminWhatsapp,
 	},
 	{
-		childId: 'whatsapp_chats',
-		name: 'User Whatsapp',
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Chat',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/chats/:id',
 		parent: 'whatsapp',
-		component: UserWhatsapp,
+		component: UserWhatsappChat,
 	},
 	{
-		childId: 'whatsapp_bulk_messages',
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Chat',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/chat',
+		parent: 'whatsapp',
+		component: UserWhatsappChat,
+	},
+	{
+		// childId: 'whatsapp_chats',
+		name: 'Whatsapp Instance',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/whatsapp/instance',
+		parent: 'whatsapp',
+		component: UserWhatsappInstance,
+	},
+	{
+		childId: 'whatsapp_campaigns',
 		name: 'Bulk Messages',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/whatsapp/bulk-messages',

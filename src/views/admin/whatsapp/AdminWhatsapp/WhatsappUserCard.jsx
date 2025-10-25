@@ -126,7 +126,7 @@ const WhatsappUserCard = ({ data }) => {
 					</Box>
 					<Text>
 						<Text as='span' color={secondaryTextColor}>
-							Member since:{' '}
+							Created on:{' '}
 						</Text>
 						{formatPostDate(createdAt)}
 					</Text>

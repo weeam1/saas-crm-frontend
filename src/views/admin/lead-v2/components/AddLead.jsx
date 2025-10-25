@@ -106,7 +106,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			type: 'select',
 			options: leadStatus,
 		},
-		{ name: 'lastNote', label: 'Last Note', type: 'text' },
+		// { name: 'lastNote', label: 'Last Note', type: 'text' },
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();

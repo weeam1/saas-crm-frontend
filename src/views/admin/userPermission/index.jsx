@@ -18,6 +18,92 @@ import { useNavigate } from 'react-router-dom';
 import PermissionCard from './components/PermissionCard';
 import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
 import LeadpoolSelector from './components/LeadpoolSelector';
+import useUserSession from 'hooks/useUserSession';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+
+function getModifiedAndNewModules(oldPermissions, newModules) {
+	const modified = [];
+	const added = [];
+	const removed = [];
+
+	// 🔹 Check for added & modified modules
+	newModules.forEach((newModule) => {
+		const oldModule = oldPermissions.find(
+			(m) => m.moduleId === newModule.moduleId
+		);
+
+		if (!oldModule) {
+			// ✅ New module added with all its actions
+			if (newModule.isModuleEnabled) {
+				added.push({
+					...newModule,
+					addedActions: [...newModule.actions], // all actions considered added
+				});
+			}
+		} else {
+			// ✅ Compare existing module for modifications
+			const addedActions = [];
+			const removedActions = [];
+			const modifiedActions = [];
+
+			const oldActionsMap = {};
+			oldModule.actions.forEach((a) => {
+				oldActionsMap[a.actionKey] = a;
+			});
+
+			const newActionsMap = {};
+			newModule.actions.forEach((a) => {
+				newActionsMap[a.actionKey] = a;
+			});
+
+			// 🔹 Find added & modified actions
+			newModule.actions.forEach((a) => {
+				if (!oldActionsMap[a.actionKey]) {
+					addedActions.push(a);
+				} else if (oldActionsMap[a.actionKey].isAllowed !== a.isAllowed) {
+					modifiedActions.push(a);
+				}
+			});
+
+			// 🔹 Find removed actions
+			oldModule.actions.forEach((a) => {
+				if (!newActionsMap[a.actionKey]) {
+					removedActions.push(a);
+				}
+			});
+
+			// 🔹 If anything changed at all
+			if (
+				oldModule.moduleName !== newModule.moduleName ||
+				addedActions.length > 0 ||
+				removedActions.length > 0 ||
+				modifiedActions.length > 0
+			) {
+				modified.push({
+					...newModule,
+					addedActions,
+					removedActions,
+					modifiedActions,
+				});
+			}
+		}
+	});
+
+	// 🔹 Check for removed modules
+	oldPermissions.forEach((oldModule) => {
+		const stillExists = newModules.find(
+			(m) => m.moduleId === oldModule.moduleId
+		);
+		if (!stillExists) {
+			removed.push({
+				...oldModule,
+				removedActions: [...oldModule.actions], // all actions removed
+			});
+		}
+	});
+
+	return { added, modified, removed };
+}
 
 const Permission = () => {
 	const { id, roleName } = useParams();
@@ -34,6 +120,9 @@ const Permission = () => {
 	const [originalModules, setOriginalModules] = useState([]);
 
 	const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
+
+	const { createUserLog } = useUserActivityLog();
+	const { user } = useUserSession();
 
 	const { data: RolePermission, isLoading: loadingRole } = useFetchItemsQuery(
 		{ path: '/role-access/permissions' },
@@ -145,16 +234,42 @@ const Permission = () => {
 	const handleUpdatePermission = async () => {
 		const payloadModules = getPayloadModules();
 
+		const { modified, added, removed } = getModifiedAndNewModules(
+			UserRolePermission?.doc?.permissions,
+			payloadModules
+		);
+
 		try {
 			await updateItem({
 				path: `role-access/update/${id}`,
 				body: { permissions: payloadModules },
 			}).unwrap();
 
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Permission',
+				status: 'success',
+				message: `${user.fullName} update the permission`,
+				rawPayload: { permission: { modified, added, removed } },
+			});
+
 			toast.success('Permissions updated successfully');
 			setOriginalModules(JSON.parse(JSON.stringify(modules)));
 		} catch (error) {
 			toast.error('Failed to update the permission');
+			const errorMsg =
+				error?.data?.message ||
+				error?.message ||
+				'Failed to update the permission. Please try again.';
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Permission',
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
 		}
 	};
 
@@ -184,7 +299,8 @@ const Permission = () => {
 			<Box borderRadius='xl' boxShadow='lg' bg={cardBg} p={6}>
 				{/* Header */}
 				<Heading mb={6} size='md' color='brand.600'>
-					{roleName} Role Permissions
+					{roleName === 'superAdmin' ? 'Super Admin' : roleName} Role
+					Permissions
 				</Heading>
 				{/* Search Section */}
 				{/* <Box mb={4}>

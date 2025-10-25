@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import 'assets/css/App.css';
 import {
@@ -9,14 +9,7 @@ import {
 } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
-import UserLayout from 'layouts/user';
-import {
-	ChakraProvider,
-	ColorModeScript,
-	Flex,
-	Box,
-	Spinner,
-} from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import theme from 'theme/theme';
 import { ThemeEditorProvider } from '@hypertheme-editor/chakra-ui';
 import { ToastContainer } from 'react-toastify';
@@ -27,7 +20,6 @@ import { useDispatch } from 'react-redux';
 import { getApi } from 'services/api';
 import { setActiveTree, setTree, setUsers } from './redux/localSlice';
 import ContextProvider from 'contexts/store';
-import LeadCycle from 'views/admin/leadCycle';
 import webSocketService from 'services/WebSocketService';
 import { newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
@@ -43,11 +35,13 @@ import { requestNotificationPermission } from 'services/NotificationService';
 import Loader from 'components/loading/Loader';
 import useChunkErrorHandler from 'hooks/useChunkErrorHandler';
 import { getSmartTimezone } from 'hooks/useTimezone';
-// import { useSocketEvents } from 'hooks/useSocketEvents';
 import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
+import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
+// import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
+
 // Create an audio instance
 const announcementSound = new Audio(newAnnouncementSound);
 
@@ -55,10 +49,16 @@ function App() {
 	// chunk handler
 	useChunkErrorHandler();
 
-	// console.log('check : 5147141938: ', normalizePhone(5147141938));
+	registerWhatsappSocket(store);
+
+	// console.log(
+	// 	'check : 92000003495580124: ',
+	// 	normalizePhone('92000003495580124')
+	// );
 
 	useEffect(() => {
 		getSmartTimezone();
+		// register whatsapp socket
 	}, []);
 
 	const token = localStorage.getItem('token') || null;
@@ -70,6 +70,10 @@ function App() {
 	// const user = JSON.parse(localStorage.getItem('user'));
 
 	const { user } = useUserSession();
+	// const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
+
+	// const whatsappSessionId = user?.whatsappInstance?.sessionId;
+
 	useNavigate();
 
 	// initilize the web sockets
@@ -98,6 +102,28 @@ function App() {
 		return () => clearTimeout(timer);
 	}, []);
 
+	// // ---------------------------
+	// // Cleanup on unmount / reload
+	// // ---------------------------
+	// const disconnectedRef = useRef(false);
+
+	// const safeDisconnect = useCallback(() => {
+	// 	if (!disconnectedRef.current && whatsappSessionId) {
+	// 		disconnectWhatsapp(whatsappSessionId);
+	// 		disconnectedRef.current = true;
+	// 	}
+	// }, [disconnectWhatsapp, whatsappSessionId]);
+
+	// useEffect(() => {
+	// 	const handleBeforeUnload = () => safeDisconnect();
+	// 	window.addEventListener('beforeunload', handleBeforeUnload);
+	// 	window.addEventListener('unload', handleBeforeUnload);
+	// 	return () => {
+	// 		window.removeEventListener('beforeunload', handleBeforeUnload);
+	// 		window.removeEventListener('unload', handleBeforeUnload);
+	// 	};
+	// }, [safeDisconnect]);
+
 	useEffect(() => {
 		if (isConnected && user?._id) {
 			const registerPayload = {
@@ -107,6 +133,21 @@ function App() {
 			console.log('RIGSTER USER AGAIN RECONNECT');
 
 			socketService.registerUser(registerPayload);
+
+			// if (user?.whatsappInstance?.sessionId) {
+			// 	// random delay between 3s–10s
+			// 	const delay = Math.floor(Math.random() * 7000 + 3000);
+
+			// 	setTimeout(async () => {
+			// 		try {
+			// 			whatsappInitialize({
+			// 				sessionId: user?.whatsappInstance?.sessionId,
+			// 			});
+			// 		} catch (error) {
+			// 			console.error('Failed to intilize whatsapp.', error);
+			// 		}
+			// 	}, delay);
+			// }
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [user?._id, isConnected]);

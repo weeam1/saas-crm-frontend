@@ -91,8 +91,8 @@ const EmployeeAttendanceMark = ({
 			createUserLog({
 				userId: user?._id,
 				action: 'CREATE',
+				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added checked in for ${employeeName}.`,
 			});
@@ -168,7 +168,6 @@ const EmployeeAttendanceMark = ({
 				action: 'UPDATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				entityId: res?.doc?._id,
 				status: 'success',
 				message: `${user?.fullName} added check out for ${employeeName}.`,
@@ -184,7 +183,6 @@ const EmployeeAttendanceMark = ({
 				action: 'UPDATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: e?.status === '500' ? 'error' : 'fail',
 				message: errorMsg,
 			});
@@ -211,7 +209,6 @@ const EmployeeAttendanceMark = ({
 				action: 'CREATE',
 				entity: 'Attendance',
 				entityType: 'Attendance',
-
 				status: 'success',
 				message: `${user?.fullName} added leave for ${employeeName}.`,
 			});

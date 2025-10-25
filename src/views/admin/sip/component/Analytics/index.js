@@ -1,0 +1,244 @@
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Heading,
+  SimpleGrid,
+  Skeleton,
+  IconButton,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { FiRefreshCw, FiMaximize2 } from "react-icons/fi";
+import { useFetchItemsQuery } from "api/apiSlice";
+import axios from "axios";
+import keys from "config/keys";
+import AnalyticsCard from "./components/AnalyticsCard";
+import DateFilter from "../../../attendance/components/DateFilter";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import ViewToggle from "./components/ViewToggle";
+import UserChartAnalytics from "./components/UserChartAnalytics";
+import CustomTooltip from "components/shared/CustomTooltip";
+
+const Analytics = () => {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  const { data, isLoading } = useFetchItemsQuery(
+    { path: "sipSetting" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+
+  const [month, setMonth] = useState(currentMonth);
+  const [year, setYear] = useState(currentYear);
+  const [graphData, setGraphData] = useState(null);
+  const [loadingGraph, setLoadingGraph] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedChart, setSelectedChart] = useState(null);
+  const [view, setView] = useState("analyticsView");
+
+  const fetchAnalytics = async (m = month, y = year) => {
+    if (!data?.sipSettings?.length) return;
+
+    const extensionsParams = data.sipSettings
+      .map((item) => `extensions=${item.extensionId}`)
+      .join("&");
+
+    const url = `${keys.sipApiUrl}/call-analytics?${extensionsParams}&month=${m}&year=${y}`;
+
+    try {
+      setLoadingAnalytics(true);
+      const res = await axios.get(url);
+      const mergedAnalytics = res.data.analytics.map((a) => {
+        const matchedUser = data.sipSettings.find(
+          (s) => String(s.extensionId) === String(a.extension)
+        );
+        return {
+          ...a,
+          fullName: matchedUser?.userId?.fullName || "Unknown User",
+          sipId: matchedUser?.sipId || "-",
+        };
+      });
+
+      setAnalyticsData({
+        ...res.data,
+        analytics: mergedAnalytics,
+      });
+    } catch (err) {
+      console.error("Error fetching analytics:", err);
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
+  const fetchGraphAnalytics = async (m = month, y = year) => {
+    if (!data?.sipSettings?.length) return;
+
+    const extensionsParams = data.sipSettings
+      .map((item) => `extensions=${item.extensionId}`)
+      .join("&");
+
+    const url = `${keys.sipApiUrl}/user-analytics?year=${y}&month=${m}&${extensionsParams}`;
+
+    try {
+      setLoadingGraph(true);
+      const res = await axios.get(url);
+
+      // Map extension IDs to names
+      const mappedCharts = {};
+      for (const [key, chart] of Object.entries(res.data.charts || {})) {
+        if (Array.isArray(chart)) {
+          mappedCharts[key] = chart.map((entry) => {
+            if (entry.extension) {
+              const matchedUser = data.sipSettings.find(
+                (s) => String(s.extensionId) === String(entry.extension)
+              );
+              return {
+                ...entry,
+                fullName:
+                  matchedUser?.userId?.fullName || `Ext ${entry.extension}`,
+              };
+            }
+            return entry;
+          });
+        } else {
+          mappedCharts[key] = chart;
+        }
+      }
+
+      setGraphData({
+        ...res.data,
+        charts: mappedCharts,
+      });
+    } catch (err) {
+      console.error("Error fetching graph analytics:", err);
+    } finally {
+      setLoadingGraph(false);
+    }
+  };
+
+  useEffect(() => {
+    if (data?.sipSettings?.length) {
+      if (view === "card") fetchAnalytics();
+      else fetchGraphAnalytics();
+    }
+  }, [data, view]);
+
+  const onFilterChange = (value) => {
+    setMonth(Number(value.month));
+    setYear(Number(value.year));
+    fetchAnalytics(value.month, value.year);
+    fetchGraphAnalytics(value.month, value.year);
+  };
+
+  return (
+    <Box p={6} bg={"white"} mt={"-16px"}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={6}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+        gap={2}
+      >
+        <Heading
+          fontSize={{ base: "md", sm: "md", md: "lg" }}
+          color="goldenrod"
+        >
+          SIP Call Analytics
+        </Heading>
+        <Box
+          display="flex"
+          gap={3}
+          alignItems={"center"}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
+          {view !== "card" && (
+            <CustomTooltip label="View chart on full screen">
+              <IconButton
+                icon={<FiMaximize2 size={16} />}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedChart("all");
+                  onOpen();
+                }}
+                aria-label="Expand Chart"
+              />
+            </CustomTooltip>
+          )}
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => {
+              fetchAnalytics();
+              fetchGraphAnalytics();
+            }}
+            isLoading={loadingAnalytics || loadingGraph || isLoading}
+            variant="outline"
+            size="sm"
+          />
+          <DateFilter onFilterChange={onFilterChange} />
+          <ViewToggle
+            view={view}
+            handleView={(val) => {
+              setView(val);
+              localStorage.setItem("analyticsView", val);
+            }}
+            moduleView="analyticsView"
+          />
+        </Box>
+      </Box>
+
+      {view === "card" ? (
+        <SimpleGrid
+          spacing={6}
+          sx={{
+            gridTemplateColumns: {
+              base: "repeat(auto-fit, minmax(250px, 1fr))",
+              md: "repeat(auto-fit, minmax(300px, 1fr))",
+              lg: "repeat(auto-fit, minmax(350px, 1fr))",
+            },
+            alignItems: "stretch",
+          }}
+        >
+          {loadingAnalytics || isLoading || loadingGraph ? (
+            Array.from({ length: 30 }).map((_, i) => (
+              <Skeleton key={i} height="220px" borderRadius="2xl" />
+            ))
+          ) : analyticsData?.analytics?.length > 0 ? (
+            analyticsData.analytics.map((item) => (
+              <AnalyticsCard
+                key={item.extension}
+                item={item}
+                month={month}
+                year={year}
+              />
+            ))
+          ) : (
+            <Box w="full" p="4" textAlign="center">
+              <NoData label="user analytics records" />
+            </Box>
+          )}
+        </SimpleGrid>
+      ) : (
+        <UserChartAnalytics
+          graphData={graphData}
+          loading={loadingGraph}
+          loadingAnalytics={isLoading}
+          selectedChart={selectedChart}
+          setSelectedChart={setSelectedChart}
+          isOpen={isOpen}
+          onOpen={onOpen}
+          onClose={onClose}
+          month={month}
+          year={year}
+        />
+      )}
+    </Box>
+  );
+};
+
+export default Analytics;

@@ -23,7 +23,7 @@ export default function Dashboard() {
 			<Header />
 
 			{/* Main Dashboard Access */}
-			{hasPermission('dashboard') && dashboardRoleAccess ? (
+			{hasPermission('dashboard') ? (
 				<AppDashboard />
 			) : (
 				<Box bg={'white'} py={1} borderRadius={'md'}>

@@ -1,7 +1,7 @@
 // ========================== SIDEBAR ROUTES ==========================
 // These are the routes shown in the sidebar
 // ====================================================================
-import { Icon } from '@chakra-ui/react';
+// import { Icon } from '@chakra-ui/react';
 import {
 	MdHome,
 	MdLeaderboard,
@@ -23,13 +23,234 @@ import {
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
-const sidebarRoutes = [
+// const sidebarRoutes = [
+// 	// -------- Dashboard --------
+// 	{
+// 		// moduleId: 'dashboard',
+// 		name: 'Dashboard',
+// 		path: '/default',
+// 		icon: <Icon as={MdHome} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Leads --------
+// 	{
+// 		moduleId: 'leads',
+// 		name: 'Lead',
+// 		path: '/lead',
+// 		icon: <Icon as={MdLeaderboard} w='20px' h='20px' />,
+// 	},
+// 	{
+// 		moduleId: 'leadpool_admin',
+// 		name: 'Lead Pool',
+// 		path: '/pool',
+// 		icon: <Icon as={MdOutlineAdminPanelSettings} w='20px' h='20px' />,
+// 	},
+// 	{
+// 		moduleId: 'leadpool_agents',
+// 		name: 'Lead Pool',
+// 		path: '/agent_pool',
+// 		icon: <Icon as={MdPeopleOutline} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Deals --------
+// 	{
+// 		moduleId: 'deal',
+// 		name: 'Deals',
+// 		path: '/deals',
+// 		icon: <Icon as={FaHandshake} w='20px' h='20px' />,
+// 	},
+
+// 	// ------- Announcement ------
+// 	{
+// 		moduleId: 'announcement',
+// 		name: 'Announcement',
+// 		path: '/announcements',
+// 		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
+// 	},
+
+// 	// -------- Hiring --------
+// 	{
+// 		moduleId: 'hiring',
+// 		name: 'Hiring',
+// 		path: '/hiring',
+// 		icon: <Icon as={FaClipboardUser} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Attendance --------
+// 	{
+// 		moduleId: 'attendance',
+// 		name: 'Attendance',
+// 		path: '/attendance',
+// 		icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Invoices --------
+// 	{
+// 		moduleId: 'invoice',
+// 		name: 'Invoice',
+// 		path: '/invoice',
+// 		icon: <Icon as={HiOutlineDocumentReport} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Expenses --------
+
+// 	{
+// 		moduleId: 'expense',
+// 		name: 'Expenses',
+// 		path: '/expenses',
+// 		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
+// 	},
+
+// 	// -------- Tasks --------
+// 	{
+// 		moduleId: 'task',
+// 		name: 'Task',
+// 		path: '/task',
+// 		icon: <Icon as={FaTasks} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- Listing --------
+// 	{
+// 		moduleId: 'listing',
+// 		name: 'Listing',
+// 		path: '/listing',
+// 		icon: <Icon as={FaList} w='20px' h='20px' />,
+// 		children: [
+// 			{
+// 				name: 'All Listings',
+// 				path: '/listing/all-listings',
+// 			},
+// 			{
+// 				name: 'My Listings',
+// 				path: '/listing/my-listings',
+// 			},
+// 			{
+// 				name: 'Pendings Listing',
+// 				path: '/listing/pending-listing',
+// 			},
+// 			{
+// 				name: 'Pending View Request',
+// 				path: '/listing/pending-view-listing',
+// 			},
+// 			{
+// 				name: 'Approved View Request',
+// 				path: '/listing/approved-view-listing',
+// 			},
+// 			{
+// 				name: 'Rejected View Request',
+// 				path: '/listing/reject-view-listing',
+// 			},
+
+// 			{
+// 				name: 'Listing Setting',
+// 				path: '/listing/settings',
+// 			},
+// 		],
+// 	},
+
+// 	// -------- Survey --------
+// 	{
+// 		moduleId: 'survey',
+// 		name: 'Survey',
+// 		path: '/survey',
+// 		icon: <Icon as={FaSquarePlus} w='20px' h='20px' />,
+// 	},
+
+// 	{
+// 		moduleId: 'sip',
+// 		name: 'Call Logs',
+// 		path: '/sip',
+// 		icon: <Icon as={FaPhone} w='20px' h='20px' />,
+// 		children: [
+// 			{
+// 				name: 'Dashboard',
+// 				path: '/sip/dashboard',
+// 			},
+// 			{
+// 				id: 'call_history',
+// 				name: 'Call History',
+// 				path: '/sip/history',
+// 			},
+// 			{
+// 				id: 'user_analytics',
+// 				name: 'User Analytics',
+// 				path: '/sip/user-analytics',
+// 			},
+// 			{
+// 				id: 'user_settings',
+// 				name: 'User Settings',
+// 				path: '/sip/settings',
+// 			},
+// 			{
+// 				id: 'shared_recordings',
+// 				name: 'Shared Recording',
+// 				path: '/sip/shared-recording',
+// 			},
+// 		],
+// 	},
+
+// 	// -------- Reports --------
+// 	{
+// 		moduleId: 'reports',
+// 		name: 'Reports',
+// 		path: '/reporting-analytics',
+// 		icon: <Icon as={MdInsertChartOutlined} w='20px' h='20px' />,
+// 	},
+
+// 	{
+// 		moduleId: 'whatsapp',
+// 		name: 'Whatsapp',
+// 		path: '/whatsapp',
+// 		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+// 		children: [
+// 			{
+// 				id: 'whatsapp_chats',
+// 				name: 'Chats',
+// 				path: '/whatsapp/chats',
+// 			},
+// 			{
+// 				id: 'whatsapp_beta',
+// 				name: 'WhatsApp',
+// 				version: 'Beta',
+// 				path: '/whatsapp/instances',
+// 			},
+// 			{
+// 				id: 'whatsapp_campaigns',
+// 				name: 'Whatsapp Campaigns',
+// 				path: '/whatsapp/bulk-messages',
+// 			},
+// 			{
+// 				id: 'whatsapp_settings',
+// 				name: 'Settings',
+// 				path: '/whatsapp/settings',
+// 			},
+// 		],
+// 	},
+
+// 	// -------- Users --------
+// 	{
+// 		moduleId: 'users',
+// 		name: 'Users',
+// 		path: '/user',
+// 		icon: <Icon as={HiUsers} w='20px' h='20px' />,
+// 	},
+
+// 	// -------- System Log --------
+// 	{
+// 		moduleId: 'system_log',
+// 		name: 'System Log',
+// 		path: '/system-log',
+// 		icon: <Icon as={MdOutlineLaptopMac} w='20px' h='20px' />,
+// 	},
+// ];
+
+export const sidebarRoutes = [
 	// -------- Dashboard --------
 	{
-		// moduleId: 'dashboard',
 		name: 'Dashboard',
 		path: '/default',
-		icon: <Icon as={MdHome} w='20px' h='20px' />,
+		icon: MdHome,
+		color: '#6366F1', // Indigo
 	},
 
 	// -------- Leads --------
@@ -37,19 +258,22 @@ const sidebarRoutes = [
 		moduleId: 'leads',
 		name: 'Lead',
 		path: '/lead',
-		icon: <Icon as={MdLeaderboard} w='20px' h='20px' />,
+		icon: MdLeaderboard,
+		color: '#9333EA', // Emerald
 	},
 	{
 		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',
 		path: '/pool',
-		icon: <Icon as={MdOutlineAdminPanelSettings} w='20px' h='20px' />,
+		icon: MdOutlineAdminPanelSettings,
+		color: '#F59E0B', // Amber
 	},
 	{
 		moduleId: 'leadpool_agents',
 		name: 'Lead Pool',
 		path: '/agent_pool',
-		icon: <Icon as={MdPeopleOutline} w='20px' h='20px' />,
+		icon: MdPeopleOutline,
+		color: '#FBBF24', // Yellow
 	},
 
 	// -------- Deals --------
@@ -57,7 +281,8 @@ const sidebarRoutes = [
 		moduleId: 'deal',
 		name: 'Deals',
 		path: '/deals',
-		icon: <Icon as={FaHandshake} w='20px' h='20px' />,
+		icon: FaHandshake,
+		color: '#22C55E', // Green
 	},
 
 	// ------- Announcement ------
@@ -65,7 +290,8 @@ const sidebarRoutes = [
 		moduleId: 'announcement',
 		name: 'Announcement',
 		path: '/announcements',
-		icon: <Icon as={MdCampaign} width='20px' height='20px' color='inherit' />,
+		icon: MdCampaign,
+		color: '#EC4899', // Pink
 	},
 
 	// -------- Hiring --------
@@ -73,7 +299,8 @@ const sidebarRoutes = [
 		moduleId: 'hiring',
 		name: 'Hiring',
 		path: '/hiring',
-		icon: <Icon as={FaClipboardUser} w='20px' h='20px' />,
+		icon: FaClipboardUser,
+		color: '#0EA5E9', // Sky
 	},
 
 	// -------- Attendance --------
@@ -81,7 +308,8 @@ const sidebarRoutes = [
 		moduleId: 'attendance',
 		name: 'Attendance',
 		path: '/attendance',
-		icon: <Icon as={FaRegCalendarCheck} w='20px' h='20px' />,
+		icon: FaRegCalendarCheck,
+		color: '#A855F7', // Violet
 	},
 
 	// -------- Invoices --------
@@ -89,16 +317,17 @@ const sidebarRoutes = [
 		moduleId: 'invoice',
 		name: 'Invoice',
 		path: '/invoice',
-		icon: <Icon as={HiOutlineDocumentReport} w='20px' h='20px' />,
+		icon: HiOutlineDocumentReport,
+		color: '#3B82F6', // Blue
 	},
 
 	// -------- Expenses --------
-
 	{
 		moduleId: 'expense',
 		name: 'Expenses',
 		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
+		icon: FaRegCopy,
+		color: '#F97316', // Orange
 	},
 
 	// -------- Tasks --------
@@ -106,7 +335,8 @@ const sidebarRoutes = [
 		moduleId: 'task',
 		name: 'Task',
 		path: '/task',
-		icon: <Icon as={FaTasks} w='20px' h='20px' />,
+		icon: FaTasks,
+		color: '#14B8A6', // Teal
 	},
 
 	// -------- Listing --------
@@ -114,7 +344,35 @@ const sidebarRoutes = [
 		moduleId: 'listing',
 		name: 'Listing',
 		path: '/listing',
-		icon: <Icon as={FaList} w='20px' h='20px' />,
+		icon: FaList,
+		color: '#64748B', // Slate
+		children: [
+			{
+				id: 'all_listing',
+				name: 'All Listings',
+				path: '/listing/all-listings',
+			},
+			{
+				id: 'my_listing',
+				name: 'My Listings',
+				path: '/listing/my-listings',
+			},
+			{
+				id: 'pending_listing',
+				name: 'Pendings Listing',
+				path: '/listing/pending-listing',
+			},
+			{
+				id: 'view_requests',
+				name: 'View Requests',
+				path: '/listing/view-request-listing',
+			},
+			{
+				id: 'settings',
+				name: 'Listing Setting',
+				path: '/listing/settings',
+			},
+		],
 	},
 
 	// -------- Survey --------
@@ -122,14 +380,32 @@ const sidebarRoutes = [
 		moduleId: 'survey',
 		name: 'Survey',
 		path: '/survey',
-		icon: <Icon as={FaSquarePlus} w='20px' h='20px' />,
+		icon: FaSquarePlus,
+		color: '#8B5CF6', // Violet
 	},
 
+	// -------- Call Logs (SIP) --------
 	{
 		moduleId: 'sip',
 		name: 'Call Logs',
 		path: '/sip',
-		icon: <Icon as={FaPhone} w='20px' h='20px' />,
+		icon: FaPhone,
+		color: '#06B6D4', // Cyan
+		children: [
+			{ name: 'Dashboard', path: '/sip/dashboard' },
+			{ id: 'call_history', name: 'Call History', path: '/sip/history' },
+			{
+				id: 'user_analytics',
+				name: 'User Analytics',
+				path: '/sip/user-analytics',
+			},
+			{ id: 'user_settings', name: 'User Settings', path: '/sip/settings' },
+			{
+				id: 'shared_recordings',
+				name: 'Shared Recording',
+				path: '/sip/shared-recording',
+			},
+		],
 	},
 
 	// -------- Reports --------
@@ -137,14 +413,17 @@ const sidebarRoutes = [
 		moduleId: 'reports',
 		name: 'Reports',
 		path: '/reporting-analytics',
-		icon: <Icon as={MdInsertChartOutlined} w='20px' h='20px' />,
+		icon: MdInsertChartOutlined,
+		color: '#2e6f77ff', // Lime
 	},
 
+	// -------- Whatsapp --------
 	{
 		moduleId: 'whatsapp',
 		name: 'Whatsapp',
 		path: '/whatsapp',
-		icon: <Icon as={FaWhatsapp} width='20px' height='20px' color='inherit' />,
+		icon: FaWhatsapp,
+		color: '#25D366', // WhatsApp Green
 		children: [
 			{
 				id: 'whatsapp_chats',
@@ -152,7 +431,13 @@ const sidebarRoutes = [
 				path: '/whatsapp/chats',
 			},
 			{
-				id: 'whatsapp_bulk_messages',
+				id: 'whatsapp_beta',
+				name: 'WhatsApp',
+				version: 'Beta',
+				path: '/whatsapp/instances',
+			},
+			{
+				id: 'whatsapp_campaigns',
 				name: 'Whatsapp Campaigns',
 				path: '/whatsapp/bulk-messages',
 			},
@@ -169,7 +454,8 @@ const sidebarRoutes = [
 		moduleId: 'users',
 		name: 'Users',
 		path: '/user',
-		icon: <Icon as={HiUsers} w='20px' h='20px' />,
+		icon: HiUsers,
+		color: '#8B5CF6', // Violet
 	},
 
 	// -------- System Log --------
@@ -177,7 +463,8 @@ const sidebarRoutes = [
 		moduleId: 'system_log',
 		name: 'System Log',
 		path: '/system-log',
-		icon: <Icon as={MdOutlineLaptopMac} w='20px' h='20px' />,
+		icon: MdOutlineLaptopMac,
+		color: '#c03910ff', // Gray
 	},
 ];
 

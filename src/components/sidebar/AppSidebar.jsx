@@ -171,7 +171,9 @@ const SidebarItem = React.memo(function SidebarItem({
 				justifyContent='center'
 				w='32px'
 			>
-				{route.icon}
+				{/* {route.icon} */}
+				{/* <Icon as={route.icon} color={route.color} /> */}
+				<Icon as={route.icon} color={route.color} w='20px' h='20px' />
 			</Box>
 			{(!collapsed || isMobile) && (
 				<Box
@@ -186,6 +188,11 @@ const SidebarItem = React.memo(function SidebarItem({
 					h='fit-content'
 				>
 					{route.name}
+					{route?.version && (
+						<Badge as='span' mx='2' colorScheme='green' fontSize='xs'>
+							{route.version}
+						</Badge>
+					)}
 				</Box>
 			)}
 			{hasChildren && !collapsed && (
@@ -214,7 +221,7 @@ const SidebarItem = React.memo(function SidebarItem({
 					<VStack align='start' pl={10} spacing={1} mt={1}>
 						{route.children.map((child, index) => (
 							<NavLink
-								key={child.id + index}
+								key={`${child?.id || child?.path || 'unknown'}-${index}`}
 								to={child.path}
 								onClick={onClick}
 								style={{ width: '100%' }}
@@ -229,6 +236,11 @@ const SidebarItem = React.memo(function SidebarItem({
 										_hover={{ bg: hoverBg }}
 									>
 										{child.name}
+										{child?.version && (
+											<Badge as='span' mx='2' colorScheme='green' fontSize='xs'>
+												{child.version}
+											</Badge>
+										)}
 									</Text>
 								)}
 							</NavLink>
@@ -432,9 +444,9 @@ export default function AppSidebar({
 				}}
 			>
 				<VStack align='stretch' spacing={1}>
-					{visibleRoutes.map((r) => (
+					{visibleRoutes.map((r, index) => (
 						<SidebarItem
-							key={r.path}
+							key={`${r?.moduleId || r?.id || r?.path || 'unknown'}-${index}`}
 							route={r}
 							collapsed={collapsed}
 							active={isActive(r.path)}

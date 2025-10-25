@@ -5,7 +5,7 @@ import {
 	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import React, { Suspense, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useState, version } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
@@ -22,7 +22,8 @@ import useUserSession from 'hooks/useUserSession';
 import { useDispatch } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
 import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-import UserWhatsapp from 'views/admin/whatsapp/UserWhatsapp';
+import UserWhatsappInstance from 'views/admin/whatsapp-v2/UserWhatsapp';
+import UserWhatsappChat from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 import AppLoader from 'components/loading/AppLoader';
@@ -34,20 +35,25 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	let appRoutes = [...routes];
 	let appSidebarRoutes = [...sidebarRoutes];
 
+	const isWhatsappUser = localStorage.getItem('isWhatsappUser');
+
 	const { isOpen: mobileOpen, onOpen, onClose } = useDisclosure();
 	const pageBg = useColorModeValue('whiteAlpa.100', 'gray.800');
 
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
 
-	const { data: whatsappUser } = useFetchItemsQuery(
-		{
-			path: `whatsapp/users/${user?._id}`,
-		},
-		{
-			skip: !user?._id || isSuperAdmin,
-		}
-	);
+	// only check for other non super admin user's
+	// const { data: whatsappUser } = useFetchItemsQuery(
+	// 	{
+	// 		path: `whatsapp/instances/user/${user?._id}`,
+	// 	},
+	// 	{
+	// 		skip: !user?._id || isSuperAdmin,
+	// 	}
+	// );
+
+	// console.log({ whatsappUser });
 
 	const {
 		data: ServerStatus,
@@ -58,7 +64,9 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		path: keys.baseLocalUrl,
 	});
 
-	const whatsappActive = whatsappUser?.doc?.isActive;
+	const whatsappActive = user?.whatsappDetails?.isActive || false;
+	const instanceActive = user?.whatsappInstance?.isActive || false;
+
 	const dispatch = useDispatch();
 
 	// if (userRoleName === 'Attendance') {
@@ -96,35 +104,94 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	// 	}
 	// }
 
-	if (userRoleName !== 'superAdmin') {
-		// Always start clean: remove any old whatsapp routes
-		appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
-		appSidebarRoutes = appSidebarRoutes.filter(
-			(r) => r.moduleId !== 'whatsapp'
-		);
-	}
+	// Always start clean: remove any old whatsapp routes if permission disabled
+	// appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+	// appSidebarRoutes = appSidebarRoutes.filter(
+	// 	(r) => r.moduleId !== 'whatsapp'
+	// );
 
-	// if user has whatsapp and also enable then show it
-	if (whatsappActive) {
-		// Always start clean: remove any old whatsapp routes
-		// appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
-		// appSidebarRoutes = appSidebarRoutes.filter(
-		// 	(r) => r.moduleId !== 'whatsapp'
-		// );
-		appSidebarRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			path: '/whatsapp/chats',
-			icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
-		});
-		appRoutes.push({
-			moduleId: 'whatsapp',
-			name: 'Whatsapp',
-			layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			path: '/whatsapp/chats',
-			component: UserWhatsapp,
-		});
-	}
+	// if (!isSuperAdmin && hasPermission('whatsapp')) {
+	// 	const whatsappSidebarRoutes = appSidebarRoutes.find(
+	// 		(r) => r.moduleId === 'whatsapp'
+	// 	);
+
+	// 	// Regular users - dynamic based on status and permissions
+	// 	const children = [];
+
+	// 	if (whatsappActive && !hasPermission('whatsapp', 'whatsapp_chats')) {
+	// 		children.push({
+	// 			name: 'Chat',
+	// 			path: '/whatsapp/chat',
+	// 		});
+	// 	}
+
+	// 	// Add instance route only if instance is active
+	// 	if (instanceActive && !hasPermission('whatsapp', 'whatsapp_instances')) {
+	// 		children.push({
+	// 			name: 'Instance',
+	// 			path: '/whatsapp/instance',
+	// 		});
+	// 	}
+
+	// 	console.log({ whatsappSidebarRoutes, children });
+
+	// 	if (children?.length > 0) {
+	// 		whatsappSidebarRoutes.children = [
+	// 			...whatsappSidebarRoutes.children,
+	// 			...children,
+	// 		];
+
+	// 		// Add corresponding app routes
+	// 		if (whatsappActive) {
+	// 			appRoutes.push({
+	// 				name: 'Chat',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: `/whatsapp/chat`,
+	// 				component: UserWhatsappChat,
+	// 			});
+	// 		}
+
+	// 		if (instanceActive) {
+	// 			appRoutes.push({
+	// 				name: 'Instance',
+	// 				layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 				path: `/whatsapp/instance`,
+	// 				component: UserWhatsappInstance,
+	// 			});
+	// 		}
+	// 	}
+
+	// 	// if user has whatsapp and also enable then show it
+	// 	// if (whatsappActive) {
+	// 	// 	appSidebarRoutes.push({
+	// 	// 		name: 'Instance',
+	// 	// 		path: '/whatsapp/instance',
+	// 	// 		icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+	// 	// 	});
+
+	// 	// 	appRoutes.push({
+	// 	// 		name: 'Instance',
+	// 	// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	// 		path: `/whatsapp/instance`,
+	// 	// 		component: UserWhatsapp,
+	// 	// 	});
+	// 	// }
+
+	// 	// if (whatsappActive) {
+	// 	// 	appSidebarRoutes.push({
+	// 	// 		name: 'Chat',
+	// 	// 		path: '/whatsapp/chat',
+	// 	// 		icon: <Icon as={FaWhatsapp} w='20px' h='20px' />,
+	// 	// 	});
+
+	// 	// 	appRoutes.push({
+	// 	// 		name: 'Chat',
+	// 	// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	// 	// 		path: `/whatsapp/chat`,
+	// 	// 		component: UserWhatsapp,
+	// 	// 	});
+	// 	// }
+	// }
 
 	// const {
 	// 	data: userData,
@@ -164,6 +231,84 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		if (r.moduleId === 'system_log') return true;
 		return true;
 	}, []);
+
+	if (!isSuperAdmin && hasPermission('whatsapp')) {
+		const whatsappSidebarRoutes = appSidebarRoutes.find(
+			(r) => r.moduleId === 'whatsapp'
+		);
+
+		if (!whatsappSidebarRoutes) return null;
+
+		const existingChildren = whatsappSidebarRoutes.children || [];
+		const newChildren = [];
+
+		// Add Chat child if active + not already exists + user lacks the full permission
+		// !hasPermission('whatsapp', 'whatsapp_chats') &&
+		if (
+			whatsappActive &&
+			!existingChildren.some((c) => c.path === '/whatsapp/chat')
+		) {
+			newChildren.push({
+				name: 'Meta Whatsapp',
+				path: '/whatsapp/chat',
+			});
+		}
+
+		// Add Instance child if active + not already exists + user lacks full instance permission
+		if (
+			instanceActive &&
+			!hasPermission('whatsapp', 'whatsapp_beta') &&
+			!existingChildren.some((c) => c.path === '/whatsapp/instance')
+		) {
+			newChildren.push({
+				name: 'Whatsapp',
+				version: 'Beta',
+				path: '/whatsapp/instance',
+			});
+		}
+
+		// Only merge once if new children exist
+		if (newChildren.length > 0) {
+			localStorage.setItem('isWhatsappUser', true);
+
+			whatsappSidebarRoutes.children = [...existingChildren, ...newChildren];
+
+			// Remove Chat route if WhatsApp is NOT active
+			if (!whatsappActive) {
+				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/chat');
+			}
+
+			// Remove Instance route if Instance is NOT active
+			if (!instanceActive) {
+				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/instance');
+			}
+
+			// Add corresponding app routes
+			// if (!whatsappActive) {
+			// 	appRoutes.push({
+			// 		name: 'Chat',
+			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 		path: `/whatsapp/chat`,
+			// 		component: UserWhatsappChat,
+			// 	});
+			// }
+
+			// if (!instanceActive) {
+			// 	appRoutes.push({
+			// 		name: 'Instance',
+			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+			// 		path: `/whatsapp/instance`,
+			// 		component: UserWhatsappInstance,
+			// 	});
+			// }
+		} else if (!isWhatsappUser) {
+			// remove any old whatsapp routes if permission disabled
+			appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
+			appSidebarRoutes = appSidebarRoutes.filter(
+				(r) => r.moduleId !== 'whatsapp'
+			);
+		}
+	}
 
 	const getRoutes = (routes) => {
 		// filter routes

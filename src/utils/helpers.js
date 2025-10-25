@@ -352,16 +352,22 @@ export const formatMessageTime = (date) => {
 };
 
 export const whatsappColors = {
-	primary: '#008069',
+	// primary: '#008069',
 	secondary: '#00A884',
-	incomingBg: 'softGray.100',
-	outgoingBg: '#D9FDD3',
+	// incomingBg: 'softGray.100',
+	// outgoingBg: '#D9FDD3',
 	textDark: '#111B21',
 	textLight: '#FFFFFF',
 	textSecondary: '#667781',
 	sidebarBg: '#F0F2F5',
-	headerBg: '#F0F2F5',
-	inputBg: '#FFFFFF',
+	// headerBg: '#F0F2F5',
+
+	outgoingBg: '#dcf8c6',
+	incomingBg: '#ffffff',
+	primary: '#25d366',
+	headerBg: '#fff',
+	inputBg: '#f5f5f5',
+	// inputBg: '#FFFFFF',
 	recordingDot: '#34B7F1',
 	userHoverBg: 'rgba(0, 0, 0, 0.05)',
 	userSelectedBg: 'rgba(0, 0, 0, 0.08)',

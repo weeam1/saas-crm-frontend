@@ -1,120 +1,108 @@
-import { Icon, SimpleGrid, useColorModeValue } from '@chakra-ui/react';
-import MiniStatistics from 'components/card/MiniStatistics';
-import IconBox from 'components/icons/IconBox';
-import { FaCreativeCommonsBy, FaWpforms } from 'react-icons/fa';
-import { HiOfficeBuilding, HiUsers } from 'react-icons/hi';
-import { TbExchange } from 'react-icons/tb';
-import { useNavigate } from 'react-router-dom';
-import { GrValidate } from 'react-icons/gr';
-import { TbTableColumn } from 'react-icons/tb';
-import { MdCampaign, MdSettings } from 'react-icons/md';
-
-import {
-	MdAccountBalanceWallet,
-	MdConstruction,
-	MdDeveloperMode,
-} from 'react-icons/md';
-import { FaWhatsapp } from 'react-icons/fa6';
-// import { usePermissions } from 'hooks/usePermissions';
+import { Icon, SimpleGrid, Box } from "@chakra-ui/react";
+import MiniStatistics from "components/card/MiniStatistics";
+import { FaCreativeCommonsBy, FaWpforms, FaWhatsapp } from "react-icons/fa";
+import { HiOfficeBuilding, HiUsers } from "react-icons/hi";
+import { TbExchange, TbTableColumn } from "react-icons/tb";
+import { MdSettings } from "react-icons/md";
+import { GrValidate } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-	const navigate = useNavigate();
-	const brandColor = useColorModeValue('brand.500', 'white');
-	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
+  const navigate = useNavigate();
+  // const { hasPermission } = usePermissions();
+  const iconStyle = {
+    w: "24px",
+    h: "24px",
+    color: "white",
+    flexShrink: 0,
+  };
 
-	// const { hasPermission } = usePermissions();
+  const iconBoxStyle = {
+    w: "58px",
+    h: "58px",
+    minW: "58px",
+    minH: "58px",
+    bg: "linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "full",
+    shadow: "md",
+    flexShrink: 0,
+    transition: "all 0.25s ease-in-out",
+    _hover: { transform: "scale(1.05)", shadow: "lg" },
+  };
 
-	return (
-		<div>
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap='20px' mb='20px'>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/admin-setting/users')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={HiUsers} color='white' />}
-						/>
-					}
-					name='Users'
-					// value={task?.length || 0}
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/role')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={
-								<Icon
-									w='28px'
-									h='28px'
-									as={FaCreativeCommonsBy}
-									color='white'
-								/>
-							}
-						/>
-					}
-					name='Roles & Permissions'
-					// value={contactData?.length || 0}
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/change-images')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={TbExchange} color='white' />}
-						/>
-					}
-					name='Change Images'
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/custom-Fields')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={FaWpforms} color='white' />}
-						/>
-					}
-					name='Custom Fields'
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/validations')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={GrValidate} color='white' />}
-						/>
-					}
-					name='Validations'
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/table-field')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={TbTableColumn} color='white' />}
-						/>
-					}
-					name='Table Fields'
-				/>
-				{/* <MiniStatistics
+  return (
+    <Box w="100%">
+      <SimpleGrid
+        columns={{ base: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
+        spacing={{ base: 5, md: 6, lg: 8 }}
+        justifyItems="center"
+        alignItems="stretch"
+      >
+        <MiniStatistics
+          onClick={() => navigate("/admin-setting/users")}
+          name="Users"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={HiUsers} {...iconStyle} />
+            </Box>
+          }
+          // value={task?.length || 0}
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/role")}
+          name="Roles & Permissions"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={FaCreativeCommonsBy} {...iconStyle} />
+            </Box>
+          }
+          // value={contactData?.length || 0}
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/change-images")}
+          name="Change Images"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={TbExchange} {...iconStyle} />
+            </Box>
+          }
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/custom-Fields")}
+          name="Custom Fields"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={FaWpforms} {...iconStyle} />
+            </Box>
+          }
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/validations")}
+          name="Validations"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={GrValidate} {...iconStyle} />
+            </Box>
+          }
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/table-field")}
+          name="Table Fields"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={TbTableColumn} {...iconStyle} />
+            </Box>
+          }
+        />
+        {/* <MiniStatistics
 					fontsize='md'
 					onClick={() => navigate('/developers')}
 					startContent={
@@ -149,7 +137,7 @@ const Index = () => {
 					}
 					name='Bank Accounts'
 				/> */}
-				{/* <MiniStatistics
+        {/* <MiniStatistics
 					fontsize="md"
 					onClick={() => navigate("/announcements")}
 					startContent={
@@ -162,50 +150,38 @@ const Index = () => {
 					}
 					name="Announcement"
 				/> */}
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/lead-settings')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={MdSettings} color='white' />} // Change icon here
-						/>
-					}
-					name='Lead Settings' // Update the name to reflect the new purpose
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/agencies')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={
-								<Icon w='28px' h='28px' as={HiOfficeBuilding} color='white' />
-							}
-						/>
-					}
-					name='Agencies'
-				/>
-				<MiniStatistics
-					fontsize='md'
-					onClick={() => navigate('/admin-setting/whatsapp/settings')}
-					startContent={
-						<IconBox
-							w='56px'
-							h='56px'
-							bg='linear-gradient(90deg, #4481EB 0%, #04BEFE 100%)'
-							icon={<Icon w='28px' h='28px' as={FaWhatsapp} color='white' />}
-						/>
-					}
-					name='Whatsapp Manager'
-				/>
-			</SimpleGrid>
-		</div>
-	);
+        <MiniStatistics
+          onClick={() => navigate("/lead-settings")}
+          name="Lead Settings" // Update the name to reflect the new purpose
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={MdSettings} {...iconStyle} />
+            </Box>
+          }
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/agencies")}
+          name="Agencies"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={HiOfficeBuilding} {...iconStyle} />
+            </Box>
+          }
+        />
+
+        <MiniStatistics
+          onClick={() => navigate("/admin-setting/whatsapp/settings")}
+          name="WhatsApp Manager"
+          startContent={
+            <Box {...iconBoxStyle}>
+              <Icon as={FaWhatsapp} {...iconStyle} />
+            </Box>
+          }
+        />
+      </SimpleGrid>
+    </Box>
+  );
 };
 
 export default Index;

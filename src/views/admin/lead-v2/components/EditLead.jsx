@@ -53,7 +53,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		leadSourceMedium: safeValue(leadData?.leadSourceMedium) || '',
 		r_u_in_uae: safeValue(leadData?.r_u_in_uae) || '',
 		attendanceDay: safeValue(leadData?.attendanceDay) || '',
-		lastNote: safeValue(leadData?.lastNote) || '',
+		// lastNote: safeValue(leadData?.lastNote) || '',
 		adset: safeValue(leadData?.adset) || '',
 	};
 
@@ -95,7 +95,7 @@ const EditLead = ({ isOpen, onClose, leadData, size }) => {
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
-		{ name: 'lastNote', label: 'Last Note', type: 'text' },
+		// { name: 'lastNote', label: 'Last Note', type: 'text' },
 		{ name: 'adset', label: 'Adset', type: 'text' },
 	];
 

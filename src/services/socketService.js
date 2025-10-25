@@ -92,6 +92,10 @@ class SocketService {
 				// console.log('Activity: ', data);
 			});
 
+			this.socket.on('qr', (data) => {
+				console.log('QR data detalls: ', data);
+			});
+
 			// Connection error
 			this.socket.on('connect_error', (error) => {
 				this.connectionStatus = 'error';
@@ -183,9 +187,41 @@ class SocketService {
 	 * @param {function} callback - Callback function
 	 */
 	on(event, handler) {
-		if (!this.events.has(event)) this.events.set(event, []);
-		this.events.get(event).push(handler);
-		if (this.socket) this.socket.on(event, handler);
+		if ((this.connectionStatus = 'connected')) {
+			if (!this.events.has(event)) this.events.set(event, []);
+			this.events.get(event).push(handler);
+			if (this.socket) this.socket.on(event, handler);
+		}
+	}
+
+	/**
+	 * Unregister event listener
+	 * @param {string} event - Event name
+	 * @param {function} handler - (optional) specific handler to remove
+	 */
+	off(event, handler) {
+		if (!this.events.has(event)) return;
+
+		if (handler) {
+			// Remove only this handler
+			const handlers = this.events.get(event).filter((h) => h !== handler);
+			this.events.set(event, handlers);
+
+			if (this.socket) {
+				this.socket.off(event, handler);
+			}
+		} else {
+			// Remove all handlers for this event
+
+			const handlers = this.events.get(event);
+			this.events.delete(event);
+
+			if (this.socket) {
+				for (const h of handlers) {
+					this.socket.off(event, h);
+				}
+			}
+		}
 	}
 
 	/**
@@ -208,7 +244,9 @@ class SocketService {
 	 */
 	emit(event, data, ack) {
 		if (!this.socket || !this.socket.connected) {
-			return Promise.reject(new Error('Socket not connected'));
+			// return Promise.reject(new Error('Socket not connected'));
+			console.warn('Socket not connected!');
+			return -1;
 		}
 
 		if (ack) {

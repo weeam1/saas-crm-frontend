@@ -40,6 +40,7 @@ import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { usePermissions } from "hooks/usePermissions";
 
 const RejectRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -57,6 +58,8 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const { hasPermission } = usePermissions();
 
   const { createUserLog } = useUserActivityLog();
 
@@ -111,7 +114,9 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
       if (filters.startTo) params.startTo = filters.startTo;
       if (filters.country) params.country = filters.country;
     }
-
+    if (hasPermission("listing", "show_all_request")) {
+      params.show_all_request = true;
+    }
     return params;
   };
 

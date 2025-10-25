@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const getUserFromStorage = () => {
 	try {
-		const data = sessionStorage.getItem('user') || localStorage.getItem('user');
+		const data = localStorage.getItem('user') || sessionStorage.getItem('user');
 		if (!data) return null;
 		const parsed = JSON.parse(data);
 		return {
@@ -13,6 +13,8 @@ const getUserFromStorage = () => {
 		return null;
 	}
 };
+
+console.log('local user: ', getUserFromStorage());
 
 const initialState = {
 	user: getUserFromStorage(),
@@ -33,6 +35,8 @@ const localSlice = createSlice({
 		setUser(state, action) {
 			state.user = action.payload;
 			const json = JSON.stringify(action.payload);
+
+			console.log('UPDATE LOCAL USER ');
 			sessionStorage.setItem('user', json);
 			localStorage.setItem('user', json);
 		},

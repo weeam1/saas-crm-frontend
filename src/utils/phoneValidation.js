@@ -60,10 +60,18 @@ export function normalizePhone(input) {
 	// 4. Reconstruct normalized number
 	const normalized = `${dialCode}${localPart}`;
 
-	console.log({ input, country, normalized });
-
 	// 5. Validate using libphonenumber
 	const phoneNumber = parsePhoneNumberFromString(normalized, country.code);
 
 	return phoneNumber?.isValid() ? phoneNumber.number : null; // returns E.164 if valid
+}
+
+export function formatToWhatsappId(number) {
+	if (!number) return null;
+
+	// Remove any non-digit characters
+	const cleaned = number.replace(/\D/g, '');
+
+	// Return formatted WhatsApp ID
+	return `${cleaned}@c.us`;
 }
