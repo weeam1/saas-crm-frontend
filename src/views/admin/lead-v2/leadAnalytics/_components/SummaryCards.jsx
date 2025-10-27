@@ -294,7 +294,7 @@ export const StatCardSkeleton = () => {
 			boxShadow='sm'
 			position='relative'
 			overflow='hidden'
-			height='140px'
+			height='150px'
 			animation={pulseAnimation}
 		>
 			<Flex direction='column' height='full' gap={3}>

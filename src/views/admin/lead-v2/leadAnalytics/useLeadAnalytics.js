@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const CATEGORIES = [
@@ -21,11 +21,19 @@ export const useLeadAnalytics = () => {
 	const urlCategory = searchParams.get('category');
 	const urlSearch = searchParams.get('search');
 
+	// Load on app start
+	const savedSort = localStorage.getItem('analyticsSort');
+	const initialSort = savedSort
+		? JSON.parse(savedSort)
+		: { key: null, direction: 'asc' };
+
 	const [selectedCategory, setSelectedCategory] = useState(
 		urlCategory || CATEGORIES[0].value
 	);
 	const [searchTerm, setSearchTerm] = useState(urlSearch || '');
-	const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+	const [sortConfig, setSortConfig] = useState(
+		initialSort || { key: null, direction: 'asc' }
+	);
 
 	const {
 		data: analyticsData = [],
@@ -53,6 +61,26 @@ export const useLeadAnalytics = () => {
 		}));
 	};
 
+	const updateSearchParams = useCallback(
+		(updates = {}) => {
+			setSearchParams((prev) => {
+				const params = new URLSearchParams(prev);
+
+				// apply incoming key-value updates
+				Object.entries(updates).forEach(([key, value]) => {
+					if (value === null || value === undefined || value === '') {
+						params.delete(key);
+					} else {
+						params.set(key, value);
+					}
+				});
+
+				return params;
+			});
+		},
+		[setSearchParams]
+	);
+
 	// const formattedData = useMemo(() => {
 	// 	if (!analyticsData?.data || !Array.isArray(analyticsData?.data)) return [];
 
@@ -76,16 +104,7 @@ export const useLeadAnalytics = () => {
 
 		let data = analyticsData.data.map((item) => ({
 			category: item?.name || 'N/A',
-			leadCount: item.leadCount || 0,
-			deals: item.deals || 0,
-			releasedLeads: item.releasedLeads || 0,
-			interestedLeads: item.interestedLeads || 0,
-			notInterestedLeads: item.notInterestedLeads || 0,
-			newLeadsToday: item.newLeadsToday || 0,
-			newLeadsThisWeek: item.newLeadsThisWeek || 0,
-			newLeadsThisMonth: item.newLeadsThisMonth || 0,
-			avgResponseTime: item.avgResponseTime || 'N/A',
-			dealConversionRate: item.dealConversionRate || 0,
+			...item,
 		}));
 
 		// Apply search filter (real-time, case-insensitive)
@@ -96,45 +115,76 @@ export const useLeadAnalytics = () => {
 
 		// Apply sorting
 		if (sortConfig.key) {
-			data = [...data].sort((a, b) => {
-				const aVal = a[sortConfig.key];
-				const bVal = b[sortConfig.key];
+			// Sorting data
+			// data = [...data].sort((a, b) => {
+			// 	const aVal = a[sortConfig.key];
+			// 	const bVal = b[sortConfig.key];
 
-				// Numeric sort if both values are numbers
+			// 	// Numeric sort if both values are numbers
+			// 	if (typeof aVal === 'number' && typeof bVal === 'number') {
+			// 		return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+			// 	}
+
+			// 	// String sort fallback
+			// 	return sortConfig.direction === 'asc'
+			// 		? String(aVal).localeCompare(String(bVal))
+			// 		: String(bVal).localeCompare(String(aVal));
+			// });
+
+			// optimize version of sorting
+			data = [...data].sort((a, b) => {
+				const key = sortConfig.key;
+				const dir = sortConfig.direction === 'asc' ? 1 : -1;
+
+				const aVal = a[key];
+				const bVal = b[key];
+
+				// Both numbers - fastest path
 				if (typeof aVal === 'number' && typeof bVal === 'number') {
-					return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+					return dir * (aVal - bVal);
 				}
 
-				// String sort fallback
-				return sortConfig.direction === 'asc'
-					? String(aVal).localeCompare(String(bVal))
-					: String(bVal).localeCompare(String(aVal));
+				// Mixed or string values - use localeCompare for accuracy
+				const aStr = String(aVal);
+				const bStr = String(bVal);
+
+				return (
+					dir *
+					aStr.localeCompare(bStr, undefined, {
+						sensitivity: 'base',
+						numeric: true,
+					})
+				);
 			});
+
+			updateSearchParams({
+				sortBy: sortConfig.key,
+				sortOrder: sortConfig?.direction || 'asc',
+			});
+
+			// Save sorting preference
+			localStorage.setItem('analyticsSort', JSON.stringify(sortConfig));
 		}
 
 		return data;
-	}, [analyticsData, searchTerm, sortConfig]);
+	}, [analyticsData.data, searchTerm, sortConfig, updateSearchParams]);
 
 	const handleCategoryChange = (category) => {
 		setSelectedCategory(category);
 
-		// Update the URL search param
-		const newParams = new URLSearchParams(searchParams);
-
-		newParams.delete('search');
-		newParams.set('category', category);
-
-		setSearchParams(newParams);
+		updateSearchParams({
+			category,
+			search: '', // reset search param
+		});
 		setSearchTerm('');
 	};
 
 	const handleSearchChange = (value) => {
 		setSearchTerm(value);
 
-		// Update the URL search param
-		const newParams = new URLSearchParams(searchParams);
-		newParams.set('search', value);
-		setSearchParams(newParams);
+		updateSearchParams({
+			search: value,
+		});
 	};
 
 	return {
