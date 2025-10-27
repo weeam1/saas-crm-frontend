@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Divider, Button, Flex, Stack } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
 import AttendanceMark from './AttendanceMark';
 import Header from './Header';
@@ -19,26 +19,20 @@ import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 
 const Attendance = ({ userId }) => {
-	// let { id: paramId } = useParams();
+	let { id: paramId } = useParams();
 	// const user = JSON.parse(localStorage.getItem('user'));
 
 	const { user, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
+
+	const navigate = useNavigate();
 
 	// const userRoleName =
 	// 	user?.userRoleName === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 	// const employeeId =
 	// 	userRoleName === 'Developer' ? user?._id : userId;
 
-	const employeeId = user?._id || userId;
-
-	// useEffect(() => {
-	// 	if (user?._id && !userId) {
-	// 		setEmployeeId(user?._id)
-	// 	}
-	// })
-
-	const navigate = useNavigate();
+	const employeeId = paramId || userId || user?._id;
 
 	useEffect(() => {
 		if (!hasPermission('attendance')) return navigate('/default');
@@ -83,6 +77,8 @@ const Attendance = ({ userId }) => {
 		refetch();
 	};
 
+	console.log({ userId });
+
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>
 			<AttendanceShimmer />
@@ -90,11 +86,11 @@ const Attendance = ({ userId }) => {
 	) : employee ? (
 		data?.officeSettings ? (
 			<Box p={{ base: 4, md: 6 }} minH='100vh'>
-				{/* {hasPermission('attendance', 'employees') && (
+				{paramId && (
 					<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
 						Back
 					</AppButton>
-				)} */}
+				)}
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
@@ -106,7 +102,7 @@ const Attendance = ({ userId }) => {
 					gap='4'
 				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-						Attendance Record
+						Attendance Record s
 					</Text>
 
 					<Stack direction={{ base: 'row' }} spacing={2}>
