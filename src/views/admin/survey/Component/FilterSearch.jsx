@@ -76,79 +76,37 @@ const FilterSearch = ({
   return (
     <Box>
       <Flex
-        direction={{ base: "column", lg: "row" }}
-        justify={{ base: "center", lg: "flex-end" }}
-        align={{ base: "flex-end", lg: "center" }}
-        // align='center'
-        gap={{ base: 3, lg: 3 }}
-        width="100%"
+        justifyContent="space-between"
+        alignItems={{ base: "normal", sm: "normal", md: "center" }}
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
       >
-        <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
-        <ViewToggle
-          view={view}
-          handleView={handleViewChange}
-          moduleView="surveysView"
-        />
-        {isModalOpen && (
-          <DateFilter
-            isOpen={isModalOpen}
-            onClose={handleModalClose}
-            dateFitlerHanlder={handleApply}
-          />
-        )}
-        {/* Date Filters */}
-        {/* <Box
-					display='flex'
-					flexDirection={{ base: 'column', md: 'row' }}
-					alignItems={{ base: 'center', md: 'flex-end' }}
-					gap={2}
-					width={{ base: '100%', md: 'auto' }}
-					flexWrap='wrap'
-					justifyContent={{ base: 'center', md: 'flex-end' }}
-					marginTop={{ base: 3, md: 0 }}
-          >
-					<Flex align='center' gap={1} mb={{ base: 2, md: 0 }}>
-          <Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
-          Date
-          </Text>
-          <CustomDatePicker
-          selectedDate={startDate}
-          handleDateChange={setStartDate}
-          placeholder='Select start date'
-          maxDate={endDate || new Date()}
-          isCalendarOpen={openCalendar === 'startFrom'}
-          toggleCalendar={() => toggleCalendar('startFrom')}
-          popperPlacement='bottom-start'
-							popperModifiers={[
-								{
-									name: 'preventOverflow',
-									options: {
-										boundary: 'viewport',
-										padding: 8,
-                    },
-                    },
-                    ]}
-                    />
-                    </Flex>
-                    <Flex align='center' gap={1}>
-                    <Text fontSize='sm' fontWeight='medium' textAlign='center' mx={1}>
-                    To
-                    </Text>
-						<Box minW='160px' maxW='200px'>
-            <CustomDatePicker
-            selectedDate={endDate}
-            handleDateChange={setEndDate}
-            placeholder='Select end date'
-            minDate={startDate}
-            maxDate={new Date()}
-            isCalendarOpen={openCalendar === 'endDate'}
-            toggleCalendar={() => toggleCalendar('endDate')}
-            />
-						</Box>
-            </Flex>
-            </Box> */}
-      </Flex>
+        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+          Survey Records
+        </Text>
 
+        <Box
+          gap={2}
+          display="flex"
+          alignItems="center"
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+          justifyContent={{ base: "center", sm: "center", md: "normal" }}
+        >
+          <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
+          <ViewToggle
+            view={view}
+            handleView={handleViewChange}
+            moduleView="surveysView"
+          />
+          {isModalOpen && (
+            <DateFilter
+              isOpen={isModalOpen}
+              onClose={handleModalClose}
+              dateFitlerHanlder={handleApply}
+            />
+          )}
+        </Box>
+      </Flex>
       <Flex
         justifyContent="space-between"
         my={2}
