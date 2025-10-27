@@ -77,8 +77,6 @@ const Attendance = ({ userId }) => {
 		refetch();
 	};
 
-	console.log({ userId });
-
 	return isLoading || employeeLoading ? (
 		<Box h='100vh'>
 			<AttendanceShimmer />

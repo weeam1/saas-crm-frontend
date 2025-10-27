@@ -33,10 +33,17 @@ export const useLeadAnalytics = () => {
 		isFetching,
 		isError,
 		error,
-	} = useFetchItemsQuery({
-		path: '/lead_analytics/summary',
-		params: { category: selectedCategory },
-	});
+	} = useFetchItemsQuery(
+		{
+			path: '/lead_analytics/summary',
+			params: { category: selectedCategory },
+		},
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnReconnect: true,
+			refetchOnFocus: true,
+		}
+	);
 
 	const handleSort = (key) => {
 		setSortConfig((current) => ({

@@ -245,8 +245,6 @@ const EmployeeAttendanceMark = ({
 	// Check logged in user has permission to perform this operations
 	if (!hasPermission('attendance', 'operations')) return null;
 
-	console.log('permissions allowed checking');
-
 	return shouldRender ? (
 		<Box
 			display='flex'
