@@ -176,11 +176,11 @@ const Employees = () => {
 
 	return (
 		<>
-			{!hasTabParam && (
+			{/* {!hasTabParam && (
 				<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
 					Back
 				</AppButton>
-			)}
+			)} */}
 
 			<Box minH='100vh' py='2' fontFamily="'DM Sans', sans-serif">
 				{/* Header */}

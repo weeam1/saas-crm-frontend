@@ -27,8 +27,16 @@ const Attendance = ({ userId }) => {
 
 	// const userRoleName =
 	// 	user?.userRoleName === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
-	const employeeId =
-		userRoleName === 'Developer' ? user?._id : userId ;
+	// const employeeId =
+	// 	userRoleName === 'Developer' ? user?._id : userId;
+
+	const employeeId = user?._id || userId;
+
+	// useEffect(() => {
+	// 	if (user?._id && !userId) {
+	// 		setEmployeeId(user?._id)
+	// 	}
+	// })
 
 	const navigate = useNavigate();
 
@@ -82,11 +90,11 @@ const Attendance = ({ userId }) => {
 	) : employee ? (
 		data?.officeSettings ? (
 			<Box p={{ base: 4, md: 6 }} minH='100vh'>
-				{hasPermission('attendance', 'employees') && (
+				{/* {hasPermission('attendance', 'employees') && (
 					<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
 						Back
 					</AppButton>
-				)}
+				)} */}
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
