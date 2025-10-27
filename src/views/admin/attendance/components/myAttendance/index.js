@@ -19,7 +19,7 @@ import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 
 const Attendance = ({ userId }) => {
-	let { id: paramId } = useParams();
+	// let { id: paramId } = useParams();
 	// const user = JSON.parse(localStorage.getItem('user'));
 
 	const { user, userRoleName } = useUserSession();
@@ -28,7 +28,7 @@ const Attendance = ({ userId }) => {
 	// const userRoleName =
 	// 	user?.userRoleName === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
 	const employeeId =
-		userRoleName === 'Developer' ? user?._id : userId || paramId;
+		userRoleName === 'Developer' ? user?._id : userId ;
 
 	const navigate = useNavigate();
 

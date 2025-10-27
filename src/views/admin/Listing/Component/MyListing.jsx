@@ -356,7 +356,8 @@ const MyListing = () => {
         >
           {hasPermission("listing", "create:any") && (
             <Button
-              size="md"
+              size="sm"
+              borderRadius={"md"}
               variant="brand"
               leftIcon={<AddIcon />}
               py={3}
@@ -381,8 +382,8 @@ const MyListing = () => {
           ) : (
             <Button
               colorScheme="brand"
-              size="md"
-              borderRadius="full"
+              size="sm"
+              borderRadius={"md"}
               py={3}
               px={6}
               onClick={() => setIsFilterOpen(true)}
