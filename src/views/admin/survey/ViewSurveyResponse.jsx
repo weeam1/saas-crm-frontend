@@ -418,7 +418,7 @@ const ViewSurveyResponse = () => {
 
   const items = [
     {
-      path: "/survey",
+      path: "/survey/records",
       label: "Surveys",
     },
     {

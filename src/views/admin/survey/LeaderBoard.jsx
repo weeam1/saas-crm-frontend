@@ -132,7 +132,7 @@ const LeaderBoard = () => {
 
   const items = [
     {
-      path: "/survey",
+      path: "/survey/dashboard",
       label: "Surveys",
     },
     {
