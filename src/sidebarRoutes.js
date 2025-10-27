@@ -3,14 +3,15 @@
 // ====================================================================
 // import { Icon } from '@chakra-ui/react';
 import {
-  MdHome,
-  MdLeaderboard,
-  MdOutlineLaptopMac,
-  MdInsertChartOutlined,
-  MdOutlineAdminPanelSettings,
-  MdPeopleOutline,
-  MdCampaign,
-} from "react-icons/md";
+	MdHome,
+	MdLeaderboard,
+	MdOutlineLaptopMac,
+	MdInsertChartOutlined,
+	MdOutlineAdminPanelSettings,
+	MdPeopleOutline,
+	MdCampaign,
+	MdInsights,
+} from 'react-icons/md';
 import {
   FaTasks,
   FaRegCalendarCheck,
@@ -253,28 +254,41 @@ export const sidebarRoutes = [
     color: "#6366F1", // Indigo
   },
 
-  // -------- Leads --------
-  {
-    moduleId: "leads",
-    name: "Lead",
-    path: "/lead",
-    icon: MdLeaderboard,
-    color: "#9333EA", // Emerald
-  },
-  {
-    moduleId: "leadpool_admin",
-    name: "Lead Pool",
-    path: "/pool",
-    icon: MdOutlineAdminPanelSettings,
-    color: "#F59E0B", // Amber
-  },
-  {
-    moduleId: "leadpool_agents",
-    name: "Lead Pool (Agents)",
-    path: "/agent_pool",
-    icon: MdPeopleOutline,
-    color: "#FBBF24", // Yellow
-  },
+	// -------- Leads --------
+	{
+		moduleId: 'leads',
+		name: 'Lead',
+		path: '/lead',
+		icon: MdLeaderboard,
+		color: '#9333EA', // Emerald
+		children: [
+			{
+				// id: 'leads',
+				name: 'Leads',
+				path: '/lead',
+			},
+			{
+				id: 'lead_analytics',
+				name: 'Analytics',
+				path: '/lead_analytics',
+				version: 'Beta',
+			},
+		],
+	},
+	{
+		moduleId: 'leadpool_admin',
+		name: 'Lead Pool',
+		path: '/pool',
+		icon: MdOutlineAdminPanelSettings,
+		color: '#F59E0B', // Amber
+	},
+	{
+		moduleId: 'leadpool_agents',
+		name: 'Lead Pool',
+		path: '/agent_pool',
+		icon: MdPeopleOutline,
+		color: '#FBBF24', // Yellow
+	},
 
   // -------- Deals --------
   {

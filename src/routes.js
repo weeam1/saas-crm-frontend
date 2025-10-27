@@ -43,6 +43,9 @@ const SharedDealsScreen = React.lazy(
 const CloseDealScreen = React.lazy(
   () => import("views/admin/deals/DealsScreen")
 );
+const LeadAnalytics = React.lazy(
+	() => import('views/admin/lead-v2/leadAnalytics')
+);
 
 // Hiring
 const Hiring = React.lazy(() => import("views/admin/hiring"));
@@ -264,43 +267,52 @@ const BulkMessage = React.lazy(
 );
 
 const routes = [
-  // ========================== Dashboard ==========================
-  {
-    // moduleId: 'dashboard',
-    name: "Dashboard",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/default",
-    icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
-    component: MainDashboard,
-  },
-  // ========================== Admin Layout ==========================
-  {
-    moduleId: "leads",
-    name: "Lead",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/lead",
-    icon: (
-      <Icon as={MdLeaderboard} width="20px" height="20px" color="inherit" />
-    ),
-    component: LeadScreen,
-  },
 
-  {
-    moduleId: "leadpool_admin",
-    name: "Lead Pool",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/pool",
-    icon: (
-      <Icon
-        as={MdOutlineAdminPanelSettings}
-        width="20px"
-        height="20px"
-        color="inherit"
-      />
-    ),
-    component: LeadPoolAdmin,
-  },
-
+	// ========================== Dashboard ==========================
+	{
+		// moduleId: 'dashboard',
+		name: 'Dashboard',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/default',
+		icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+		component: MainDashboard,
+	},
+	// ========================== Admin Layout ==========================
+	{
+		moduleId: 'leads',
+		name: 'Lead',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead',
+		under: 'lead',
+		parent: 'lead',
+		icon: (
+			<Icon as={MdLeaderboard} width='20px' height='20px' color='inherit' />
+		),
+		component: LeadScreen,
+	},
+	{
+		// childId: 'lead_analytics',
+		name: 'Lead',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead_analytics',
+		parent: 'lead',
+		component: LeadAnalytics,
+	},
+	{
+		moduleId: 'leadpool_admin',
+		name: 'Lead Pool',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/pool',
+		icon: (
+			<Icon
+				as={MdOutlineAdminPanelSettings}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: LeadPoolAdmin,
+	},
   {
     moduleId: "leadpool_agents",
     name: "Leads Pool",
