@@ -65,6 +65,7 @@ const LeadsLayout = memo(
 			// setCurrentPage,
 			// pageSize,
 			// setPageSize,
+			leads,
 			queryParams,
 			setQueryParams,
 			setSearchQueryParams,
@@ -81,7 +82,7 @@ const LeadsLayout = memo(
 		// 	(prev, next) => prev === next
 		// );
 
-		const leads = useSelector((state) => state.leads, shallowEqual);
+		// const leads = useSelector((state) => state.leads, shallowEqual);
 
 		const [isLoaded, setIsLoaded] = useState(false);
 		// const [refetchLoading, setRefetchLoading] = useState(false);
@@ -306,7 +307,7 @@ const LeadsLayout = memo(
 			setSearchClear(true);
 			// setSearchTags([`search: ${term}`]);
 
-			setSearchQueryParams({ search: term });
+			setSearchQueryParams({ search: term, page: 1, pageSize });
 
 			// setQueryParams((prev) => ({
 			// 	...prev,

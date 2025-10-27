@@ -26,7 +26,7 @@ import ViewToggle from 'components/toggle/ViewToggle';
 import { usePermissions } from 'hooks/usePermissions';
 import { useNavigate } from 'react-router-dom';
 
-const LIMIT = 12;
+const LIMIT = 20;
 
 const DealsScreen = () => {
 	const [deals, setDeals] = useState([]);
