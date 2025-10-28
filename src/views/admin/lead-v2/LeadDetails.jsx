@@ -133,129 +133,135 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
       : value;
 
   return (
-    <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
-      {/* Basic Information */}
-      <GridItem colSpan={2}>
-        <SectionCard title="Basic Information" icon={FaUser} color="brand.500">
-          <DetailGrid>
-            <DetailItem label="Lead Name" value={data?.leadName} />
-            {hasPermission("leads", "contactDetails") && !hideContact && (
-              <>
-                <DetailItem label="Email" value={data?.leadEmail} />
+    <Box width="100%" overflowX="hidden">
+      <Grid
+        templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+        gap={4}
+        width="100%"
+      >
+        {/* Basic Information */}
+        <GridItem colSpan={2}>
+          <SectionCard title="Basic Information" icon={FaUser} color="brand.500">
+            <DetailGrid>
+              <DetailItem label="Lead Name" value={data?.leadName} />
+              {hasPermission("leads", "contactDetails") && !hideContact && (
+                <>
+                  <DetailItem label="Email" value={data?.leadEmail} />
+                  <DetailItem
+                    label="Phone"
+                    value={formatValue(data?.leadPhoneNumber)}
+                  />
+                  <DetailItem
+                    label="WhatsApp"
+                    value={formatValue(data?.leadWhatsappNumber)}
+                  />
+                </>
+              )}
+              <DetailItem label="Address" value={data?.leadAddress} />
+            </DetailGrid>
+          </SectionCard>
+        </GridItem>
+
+        {/* Responsive row that becomes column on mobile */}
+        <GridItem colSpan={2}>
+          <Grid
+            templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+            gap={4}
+            width="100%"
+          >
+            {/* Source & Tracking */}
+            <SectionCard
+              title="Source & Tracking"
+              icon={FaClipboardList}
+              color="brand.500"
+              flex="1"
+            >
+              <DetailGrid>
+                <DetailItem label="Source" value={data?.leadSource} />
                 <DetailItem
-                  label="Phone"
-                  value={formatValue(data?.leadPhoneNumber)}
+                  label="Channel"
+                  value={data?.leadSourceChannel || data?.leadSourceMedium}
+                />
+                <DetailItem label="Campaign" value={data?.leadCampaign} />
+                <DetailItem label="Adset" value={data?.adset} />
+                <DetailItem
+                  label="Source Content"
+                  value={data?.leadSourceDetails}
+                />
+                <DetailItem label="Page URL" value={data?.pageUrl} isLink />
+              </DetailGrid>
+            </SectionCard>
+
+            {/* Status & Timeline */}
+            <SectionCard
+              title="Status & Timeline"
+              icon={FaChartLine}
+              color="brand.500"
+              flex="1"
+            >
+              <DetailGrid>
+                <DetailItem
+                  label="Status"
+                  value={leadStatusLabels[data?.leadStatus] || "N/A"}
                 />
                 <DetailItem
-                  label="WhatsApp"
-                  value={formatValue(data?.leadWhatsappNumber)}
+                  label="Main Status"
+                  value={mainLeadStatusLabels[data?.eLeadStatus] || "N/A"}
                 />
-              </>
-            )}
-            <DetailItem label="Address" value={data?.leadAddress} />
-          </DetailGrid>
-        </SectionCard>
-      </GridItem>
+                <DetailItem
+                  label="Follow-up Status"
+                  value={data?.leadFollowUpStatus}
+                />
+                <DetailItem
+                  label="Created Date"
+                  value={
+                    data?.createdDate
+                      ? format(new Date(data?.createdDate), "d MMM, yyyy h:mm a")
+                      : "N/A"
+                  }
+                />
+              </DetailGrid>
+            </SectionCard>
+          </Grid>
+        </GridItem>
 
-      {/* Grouped row with equal height */}
-      <GridItem display="flex" flex="1">
-        <SectionCard
-          title="Source & Tracking"
-          icon={FaClipboardList}
-          color="brand.500"
-          flex="1"
-        >
-          <DetailGrid>
-            <DetailItem label="Source" value={data?.leadSource} />
-            <DetailItem
-              label="Channel"
-              value={data?.leadSourceChannel || data?.leadSourceMedium}
-            />
-            <DetailItem label="Campaign" value={data?.leadCampaign} />
-            <DetailItem label="Adset" value={data?.adset} />
-            <DetailItem
-              label="Source Content"
-              value={data?.leadSourceDetails}
-            />
-            <DetailItem label="Page URL" value={data?.pageUrl} isLink />
-          </DetailGrid>
-        </SectionCard>
-      </GridItem>
+        {/* Additional Details */}
+        <GridItem colSpan={2}>
+          <SectionCard
+            title="Additional Details"
+            icon={FaInfoCircle}
+            color="brand.500"
+          >
+            <DetailGrid>
+              <DetailItem label="Nationality" value={safeValue(data?.nationality)} />
+              <DetailItem label="Preferred Time" value={safeValue(data?.timetocall)} />
+              <DetailItem label="In UAE?" value={safeValue(data?.r_u_in_uae)} />
+              <DetailItem label="Interest" value={safeValue(data?.interest)} />
+              <DetailItem label="Language" value={safeValue(data?.leadLang)} />
+              <DetailItem label="Budget" value={safeValue(data?.budget)} />
+            </DetailGrid>
+          </SectionCard>
+        </GridItem>
 
-      <GridItem display="flex" flex="1">
-        <SectionCard
-          title="Status & Timeline"
-          icon={FaChartLine}
-          color="brand.500"
-          flex="1"
-        >
-          <DetailGrid>
-            <DetailItem
-              label="Status"
-              value={leadStatusLabels[data?.leadStatus] || "N/A"}
-            />
-            <DetailItem
-              label="Main Status"
-              value={mainLeadStatusLabels[data?.eLeadStatus] || "N/A"}
-            />
-            <DetailItem
-              label="Follow-up Status"
-              value={data?.leadFollowUpStatus}
-            />
-            <DetailItem
-              label="Created Date"
-              value={
-                data?.createdDate
-                  ? format(new Date(data?.createdDate), "d MMM, yyyy h:mm a")
-                  : "N/A"
-              }
-            />
-          </DetailGrid>
-        </SectionCard>
-      </GridItem>
-
-      {/* Additional Details */}
-      <GridItem colSpan={2}>
-        <SectionCard
-          title="Additional Details"
-          icon={FaInfoCircle}
-          color="brand.500"
-        >
-          <DetailGrid>
-            <DetailItem
-              label="Nationality"
-              value={safeValue(data?.nationality)}
-            />
-            <DetailItem
-              label="Preferred Time"
-              value={safeValue(data?.timetocall)}
-            />
-            <DetailItem label="In UAE?" value={safeValue(data?.r_u_in_uae)} />
-            <DetailItem label="Interest" value={safeValue(data?.interest)} />
-            <DetailItem label="Language" value={safeValue(data?.leadLang)} />
-            <DetailItem label="Budget" value={safeValue(data?.budget)} />
-          </DetailGrid>
-        </SectionCard>
-      </GridItem>
-
-      {/* Technical Details */}
-      <GridItem colSpan={2}>
-        <SectionCard title="Technical Details" icon={FaGlobe} color="brand.500">
-          <DetailGrid>
-            <DetailItem
-              label="City"
-              value={leadIp?.city}
-              textTransform="capitalize"
-            />
-            <DetailItem
-              label="Country"
-              value={leadIp?.country}
-              textTransform="capitalize"
-            />
-          </DetailGrid>
-        </SectionCard>
-      </GridItem>
-    </Grid>
+        {/* Technical Details */}
+        <GridItem colSpan={2}>
+          <SectionCard title="Technical Details" icon={FaGlobe} color="brand.500">
+            <DetailGrid>
+              <DetailItem
+                label="City"
+                value={leadIp?.city}
+                textTransform="capitalize"
+              />
+              <DetailItem
+                label="Country"
+                value={leadIp?.country}
+                textTransform="capitalize"
+              />
+            </DetailGrid>
+          </SectionCard>
+        </GridItem>
+      </Grid>
+    </Box>
   );
 };
 
@@ -288,7 +294,11 @@ const SectionCard = ({ title, children, icon, color, ...props }) => (
 
 // Detail grid layout
 const DetailGrid = ({ children }) => (
-  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} columnGap={10} rowGap={2}> 
+  <Grid
+    templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
+    columnGap={10}
+    rowGap={2}
+  >
     {children}
   </Grid>
 );
@@ -321,13 +331,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
           </CustomTooltip>
         </HStack>
       ) : (
-        <Text
-          fontSize="sm"
-          color="gray.700"
-          fontWeight="500"
-          isTruncated
-          {...props}
-        >
+        <Text fontSize="sm" color="gray.700" fontWeight="500" isTruncated {...props}>
           {value || "N/A"}
         </Text>
       )}
