@@ -8,7 +8,7 @@ const LeadAnalytics = () => {
 	const {
 		categories,
 		selectedCategory,
-		handleSearchChange,
+		onSearchChange,
 		handleCategoryChange,
 		searchTerm,
 		sortConfig,
@@ -17,6 +17,7 @@ const LeadAnalytics = () => {
 		summary,
 		totals,
 		isLoading,
+		handleDateFilter,
 		isFetching,
 		isError,
 		error,
@@ -28,6 +29,8 @@ const LeadAnalytics = () => {
 		(cat) => cat.value === selectedCategory
 	)?.label;
 
+	console.log({ selectedCategoryLabel });
+
 	return (
 		<Box minH='100vh' bg={bgColor} p='4' rounded='lg' shadow='md'>
 			<VStack spacing={0} align='stretch' gap='2'>
@@ -38,8 +41,9 @@ const LeadAnalytics = () => {
 					selectedCategory={selectedCategory}
 					onCategoryChange={handleCategoryChange}
 					searchTerm={searchTerm}
-					onSearchChange={handleSearchChange}
+					onSearchChange={onSearchChange}
 					isLoading={isLoading || isFetching}
+					handleDateFilter={handleDateFilter}
 				/>
 
 				{/* Summary Cards - AT THE TOP */}

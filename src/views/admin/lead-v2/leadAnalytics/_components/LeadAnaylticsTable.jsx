@@ -11,6 +11,7 @@ import {
 	Text,
 	Center,
 	Tooltip,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import NoData from 'components/Message/NoData';
@@ -119,6 +120,7 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 				color={isActive ? 'blue.600' : 'gray.700'}
 				_hover={{ color: 'blue.500', bg: 'gray.100' }}
 				transition='all 0.2s ease-in-out'
+				minW={column === 'category' ? '200px' : '50px'}
 			>
 				<Flex align='center' justify='space-between' gap={2}>
 					<Text>{children}</Text>
@@ -150,9 +152,15 @@ export const LeadAnalyticsTable = ({
 		{ key: 'notInterestedLeads', label: 'Not Int.' },
 		{ key: 'dealConversionRate', label: 'Deal %' },
 		{ key: 'avgNotesPerLead', label: 'Avg Notes' },
-		{ key: 'newLeadsToday', label: 'Today' },
-		{ key: 'newLeadsThisWeek', label: 'This Week' },
-		{ key: 'newLeadsThisMonth', label: 'This Month' },
+
+		{ key: 'newLeadsToday', label: 'Fresh Today' },
+		{ key: 'newLeadsThisWeek', label: 'Fresh Week' },
+		{ key: 'newLeadsThisMonth', label: 'Fresh Month' },
+		{ key: 'todayLeads', label: 'Today’s Leads' },
+		{ key: 'currentWeekLeads', label: 'This Week' },
+		{ key: 'currentMonthLeads', label: 'This Month' },
+		{ key: 'prevMonthLeads', label: 'Last Month' },
+		// { key: 'leadGrowthRate', label: 'Growth %' },
 		{ key: 'leadsAssignedToManagers', label: 'Managers' },
 		{ key: 'leadsAssignedToAgents', label: 'Agents' },
 		{ key: 'unassignedLeads', label: 'Unassigned' },
@@ -167,7 +175,7 @@ export const LeadAnalyticsTable = ({
 				: null;
 
 	const formatValue = (key, value) => {
-		if (['dealConversionRate'].includes(key)) {
+		if (['dealConversionRate', 'leadGrowthRate'].includes(key)) {
 			return `${value}%`;
 		}
 
@@ -190,7 +198,7 @@ export const LeadAnalyticsTable = ({
 			bg='white'
 		>
 			<Table variant='simple' size='md'>
-				<Thead bg='gray.100' position='sticky' top={0} zIndex={5}>
+				<Thead bg='gray.100' position='sticky' top={0} zIndex={1}>
 					<Tr>
 						{columns.map((column) => (
 							<SortableHeader
