@@ -14,6 +14,7 @@ import {
   Flex,
   Divider,
   useColorModeValue,
+  Text,
 } from "@chakra-ui/react";
 import { validationLeadSearchSchema } from "schema/leadSchema";
 import { leadStatus, mainLeadStatus } from "utils/options";
@@ -81,8 +82,8 @@ const AdvancedSearchModal = ({
                 value === "active"
                   ? "Interested"
                   : value === "pending"
-                  ? "Not Interested"
-                  : leadStatus[value];
+                    ? "Not Interested"
+                    : leadStatus[value];
             }
 
             if (key === "eLeadStatus") {
@@ -100,8 +101,8 @@ const AdvancedSearchModal = ({
               displayValue = assignedAgent
                 ? `${assignedAgent.firstName} ${assignedAgent.lastName}`
                 : value === "-1"
-                ? "No Agent"
-                : value;
+                  ? "No Agent"
+                  : value;
             }
 
             if (key === "managerAssigned") {
@@ -111,8 +112,8 @@ const AdvancedSearchModal = ({
               displayValue = assignedManager
                 ? `${assignedManager.firstName} ${assignedManager.lastName}`
                 : value === "-1"
-                ? "No Manager"
-                : value;
+                  ? "No Manager"
+                  : value;
             }
 
             acc.tags.push(`${key}: ${displayValue}`);
@@ -171,9 +172,10 @@ const AdvancedSearchModal = ({
           bg={bgColor}
           borderRadius="2xl"
           shadow="2xl"
-          maxW="80vw"
+          maxW={ { base: "full",sm: "full",md:"80vw"}}
           maxH="90vh"
           overflow="hidden"
+          mx= {{base:2, sm:2, md:0}}
         >
           {/* Header */}
           <ModalHeader
@@ -195,7 +197,20 @@ const AdvancedSearchModal = ({
               zIndex="10"
               boxShadow="md"
             >
-              Advanced Lead Search
+              <Text
+                fontSize={{
+                  base: "clamp(1rem, 2vw, 1.25rem)",
+                  md: "clamp(1.1rem, 1.8vw, 1.4rem)",
+                }}
+                fontWeight="semibold"
+                letterSpacing="wide"
+                noOfLines={1} // ensures single-line clamp
+                textOverflow="ellipsis"
+                overflow="hidden"
+                whiteSpace="nowrap"
+              >
+                Advanced Lead Search
+              </Text>
               <ModalCloseButton color="white" position="relative" top="0" />
             </Flex>
           </ModalHeader>
@@ -239,7 +254,7 @@ const AdvancedSearchModal = ({
               colorScheme="gray"
               size="sm"
               onClick={handleClear}
-			  borderRadius={"md"}
+              borderRadius={"md"}
             >
               Clear
             </Button>
@@ -249,7 +264,7 @@ const AdvancedSearchModal = ({
               size="sm"
               onClick={handleSubmit}
               isDisabled={!dirty}
-			   borderRadius={"md"}
+              borderRadius={"md"}
             >
               Search
             </Button>
@@ -261,7 +276,6 @@ const AdvancedSearchModal = ({
 };
 
 export default AdvancedSearchModal;
-
 
 // import { useSelector } from 'react-redux';
 // import { validationLeadSearchSchema } from 'schema/leadSchema';
