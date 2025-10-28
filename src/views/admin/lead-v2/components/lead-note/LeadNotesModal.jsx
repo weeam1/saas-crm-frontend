@@ -154,7 +154,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
               <CountUpComponent targetNumber={allNotes?.length || 0} />
             </HStack>
 
-            <HStack spacing="3" align="center">
+            <HStack spacing="3" align="center" gap={2}>
               <Button
                 bg="whiteAlpha.200"
                 color="white"
@@ -174,6 +174,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
               <ModalCloseButton
                 position="relative"
                 top="0"
+				right="0"
                 color="white"
                 _focus={{ outline: "none" }}
                 _hover={{ bg: "whiteAlpha.300" }}
