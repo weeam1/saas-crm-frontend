@@ -139,12 +139,12 @@ export const useLeadAnalytics = () => {
 				const aVal = a[key];
 				const bVal = b[key];
 
-				// Both numbers - fastest path
+				// Both numbers
 				if (typeof aVal === 'number' && typeof bVal === 'number') {
 					return dir * (aVal - bVal);
 				}
 
-				// Mixed or string values - use localeCompare for accuracy
+				// Mixed or string values
 				const aStr = String(aVal);
 				const bStr = String(bVal);
 

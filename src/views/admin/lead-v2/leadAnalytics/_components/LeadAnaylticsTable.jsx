@@ -59,7 +59,12 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 			<Text fontWeight='semibold' color='gray.200' mb={1}>
 				Column: {children}
 			</Text>
-			<Text fontSize='sm' color='gray.300' whiteSpace='normal'>
+			<Text
+				fontSize='sm'
+				color='gray.300'
+				whiteSpace='pre-line'
+				// whiteSpace='normal'
+			>
 				{analyticsColumnDescriptions[column] ||
 					'No description available for this column.'}
 			</Text>
@@ -150,6 +155,7 @@ export const LeadAnalyticsTable = ({
 		{ key: 'newLeadsThisMonth', label: 'This Month' },
 		{ key: 'leadsAssignedToManagers', label: 'Managers' },
 		{ key: 'leadsAssignedToAgents', label: 'Agents' },
+		{ key: 'unassignedLeads', label: 'Unassigned' },
 		{ key: 'releasedLeads', label: 'Released' },
 	];
 
@@ -164,6 +170,10 @@ export const LeadAnalyticsTable = ({
 		if (['dealConversionRate'].includes(key)) {
 			return `${value}%`;
 		}
+
+		// if (key === 'avgNotesPerLead') {
+		// 	return Math.round(value);
+		// }
 
 		return value;
 	};
