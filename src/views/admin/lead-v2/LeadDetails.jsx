@@ -62,7 +62,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
         entityType: "Lead",
         entityId: leadId,
         status: "success",
-        message: `${user?.fullName || ""} viewed ${response?.data?.lead?.leadName || ""} lead.`,
+        message: `${user?.fullName || ""} viewed ${
+          response?.data?.lead?.leadName || ""
+        } lead.`,
       });
     } catch (err) {
       console.error(err);
@@ -103,13 +105,13 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
         <CardShimmer
           count={4}
           height="200px"
-          columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 2, "2xl": 2 }}
+          columns={{ base: 1, sm: 1, md: 2, lg: 2 }}
         />
         <CardShimmer
           count={1}
           height="100px"
           width={{ base: "full" }}
-          columns={{ base: 1, sm: 1, md: 1, lg: 1, xl: 1, "2xl": 1 }}
+          columns={{ base: 1 }}
         />
       </VStack>
     );
@@ -127,11 +129,11 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
     !value
       ? "N/A"
       : typeof value === "object"
-        ? value.result || value.text
-        : value;
+      ? value.result || value.text
+      : value;
 
   return (
-    <Grid templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }} gap={4}>
+    <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
       {/* Basic Information */}
       <GridItem colSpan={2}>
         <SectionCard title="Basic Information" icon={FaUser} color="brand.500">
@@ -155,12 +157,13 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
         </SectionCard>
       </GridItem>
 
-      {/* Source & Tracking */}
-      <GridItem>
+      {/* Grouped row with equal height */}
+      <GridItem display="flex" flex="1">
         <SectionCard
           title="Source & Tracking"
           icon={FaClipboardList}
           color="brand.500"
+          flex="1"
         >
           <DetailGrid>
             <DetailItem label="Source" value={data?.leadSource} />
@@ -179,12 +182,12 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
         </SectionCard>
       </GridItem>
 
-      {/* Status & Timeline */}
-      <GridItem>
+      <GridItem display="flex" flex="1">
         <SectionCard
           title="Status & Timeline"
           icon={FaChartLine}
           color="brand.500"
+          flex="1"
         >
           <DetailGrid>
             <DetailItem
@@ -249,10 +252,6 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
               value={leadIp?.country}
               textTransform="capitalize"
             />
-            {/* Optionally show IP for non-Agent roles:
-            {!['Agent'].includes(user?.roles[0]?.roleName) && (
-              <DetailItem label='IP Address' value={data?.ip} />
-            )} */}
           </DetailGrid>
         </SectionCard>
       </GridItem>
@@ -260,7 +259,8 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
   );
 };
 
-const SectionCard = ({ title, children, icon, color }) => (
+// Reusable Section Card
+const SectionCard = ({ title, children, icon, color, ...props }) => (
   <Box
     p={4}
     rounded="xl"
@@ -270,6 +270,11 @@ const SectionCard = ({ title, children, icon, color }) => (
     shadow="md"
     _hover={{ shadow: "lg", transform: "translateY(-2px)" }}
     transition="0.18s ease"
+    display="flex"
+    flexDirection="column"
+    height="100%"
+    flex="1"
+    {...props}
   >
     <HStack mb={3} spacing={3}>
       {icon && <Icon as={icon} boxSize={5} color={color || "brand.500"} />}
@@ -277,16 +282,18 @@ const SectionCard = ({ title, children, icon, color }) => (
         {title}
       </Heading>
     </HStack>
-    {children}
+    <Box flex="1">{children}</Box>
   </Box>
 );
 
+// Detail grid layout
 const DetailGrid = ({ children }) => (
   <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
     {children}
   </Grid>
 );
 
+// Each detail row
 const DetailItem = ({ label, value, isLink = false, ...props }) => {
   const { hasCopied, onCopy } = useClipboard(value || "");
   return (
@@ -310,12 +317,7 @@ const DetailItem = ({ label, value, isLink = false, ...props }) => {
             </a>
           </Text>
           <CustomTooltip label={value || "N/A"}>
-            <Icon
-              as={InfoIcon}
-              boxSize={3}
-              color="brand.300"
-              cursor="pointer"
-            />
+            <Icon as={InfoIcon} boxSize={3} color="brand.300" cursor="pointer" />
           </CustomTooltip>
         </HStack>
       ) : (
