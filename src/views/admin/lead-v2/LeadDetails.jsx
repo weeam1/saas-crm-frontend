@@ -288,7 +288,7 @@ const SectionCard = ({ title, children, icon, color, ...props }) => (
 
 // Detail grid layout
 const DetailGrid = ({ children }) => (
-  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={10} >
+  <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} columnGap={10} rowGap={2}> 
     {children}
   </Grid>
 );
