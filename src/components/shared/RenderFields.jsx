@@ -55,22 +55,46 @@ const RenderFields = ({ fields }) => {
               {field.label}
             </Checkbox>
           ) : field.type === "select" ? (
-            <InputGroup>
+            <InputGroup
+              position="relative"
+              width="100%"
+              _hover={{ borderColor: "brand.400" }}
+              border={"1px solid"}
+              borderColor="gray.300"
+              _focus={{
+                borderColor: "brand.500",
+                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+              }}
+              borderRadius="md"
+              bg="gray.50"
+            >
               {field.icon && (
-                <InputLeftElement pointerEvents="none" width="2.5rem">
+                <InputLeftElement
+                  pointerEvents="none"
+                  width="2.5rem"
+                  height="100%"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Icon as={field.icon} color="gray.400" boxSize={4} />
                 </InputLeftElement>
               )}
+
               <Select
                 id={field.name}
                 {...formikField}
-                bg="gray.50"
-                borderColor="gray.300"
-                pl={field.icon ? 10 : 4}
-                _hover={{ borderColor: "brand.400" }}
+                borderColor="none"
+                ouline="none"
+                pl={field.icon ? "1.4rem" : "1rem"}
+                height="40px"
+                border="none"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                _hover={{ borderColor: "none" }}
                 _focus={{
-                  borderColor: "brand.500",
-                  boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                  borderColor: "none",
+                  boxShadow: "none",
                 }}
               >
                 <option value="">Select {field.label}</option>
@@ -81,7 +105,8 @@ const RenderFields = ({ fields }) => {
                 ))}
               </Select>
             </InputGroup>
-          ) : (field.name === "leadPhoneNumber" || field.name === "leadWhatsappNumber") ? (
+          ) : field.name === "leadPhoneNumber" ||
+            field.name === "leadWhatsappNumber" ? (
             <PhoneInput
               country={"pk"}
               value={formikField.value}

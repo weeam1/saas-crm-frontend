@@ -36,31 +36,51 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
         shadow="2xl"
         overflow="hidden"
       >
-        <ModalHeader px="4" py="4">
-          <Flex justify="space-between" align="center" mt={8}>
-            <HStack spacing="3" align="center">
+        <ModalHeader px={4} py={4} bg="brand.500" color="white">
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+            align={{ base: "flex-start", sm: "center" }}
+            gap={{ base: 3, sm: 2 }}
+            w="full"
+            flexWrap="wrap"
+          >
+            <HStack spacing={3} align="center">
               <Icon as={FaUserCircle} boxSize={6} color="white" />
-              <Text fontSize={{ base: "md", md: "lg" }} fontWeight="600">
+              <Text
+                fontSize={{ base: "md", md: "lg" }}
+                fontWeight="600"
+                noOfLines={1}
+                maxW={{ base: "200px", sm: "none" }}
+              >
                 Lead Details
               </Text>
             </HStack>
 
-            <Button
-              {...buttonStyle}
-              bg="whiteAlpha.200"
-              color="white"
-              _hover={{ bg: "whiteAlpha.300" }}
-              size="sm"
-              leftIcon={<FaPen />}
-              onClick={() => setLeadNotes(true)}
-              aria-label="lead notes"
-            >
-              Lead Notes
-            </Button>
+            <HStack spacing={2} align="center" justify="flex-end">
+              <Button
+                {...buttonStyle}
+                bg="whiteAlpha.200"
+                color="white"
+                _hover={{ bg: "whiteAlpha.300" }}
+                size="sm"
+                leftIcon={<FaPen />}
+                onClick={() => setLeadNotes(true)}
+                aria-label="lead notes"
+                whiteSpace="nowrap"
+              >
+                Lead Notes
+              </Button>
+              <ModalCloseButton
+                position="relative"
+                color="white"
+                top="0"
+                right="0"
+                _focus={{ outline: "none" }}
+              />
+            </HStack>
           </Flex>
         </ModalHeader>
-
-        <ModalCloseButton color="white" _focus={{ outline: "none" }} />
 
         <Box
           bg="white"

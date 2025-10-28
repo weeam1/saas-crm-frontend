@@ -187,10 +187,9 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
         borderRadius="2xl"
         boxShadow="2xl"
         maxH="90vh"
-        maxW="70vw"
+        maxW={{base:"full", sm: "full", md: "70vw"}}
         overflow="hidden"
         mx={{ base: 2, md: 8 }}
-        my={{ base: 2, md: 10 }}
         w="full"
       >
         {/* Header */}
