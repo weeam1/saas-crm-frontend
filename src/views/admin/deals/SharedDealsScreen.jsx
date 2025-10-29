@@ -26,7 +26,7 @@ import ViewToggle from 'components/toggle/ViewToggle';
 import { usePermissions } from 'hooks/usePermissions';
 import { useNavigate } from 'react-router-dom';
 
-const LIMIT = 12;
+const LIMIT = 20;
 
 const SharedDealsScreen = () => {
 	const [deals, setDeals] = useState([]);
@@ -250,7 +250,9 @@ const SharedDealsScreen = () => {
 				gap={2}
 			>
 				<HStack gap='1' fontWeight='bold'>
-					<Text fontSize='lg'>Shared Deals</Text>
+					<Text fontSize='20px' fontWeight={'bold'}>
+						Shared Deals
+					</Text>
 					<CountUpComponent
 						key={data?.meta?.total}
 						targetNumber={data?.meta?.total}
@@ -263,16 +265,15 @@ const SharedDealsScreen = () => {
 					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 					align='center'
 				>
+					<DateFilterButton onClick={dateTimeOnOpen} />
 					<Button
 						onClick={() => setIsFilterOpen(true)}
 						colorScheme='brand'
-						variant='solid'
+						borderRadius={'md'}
 						size='sm'
 					>
 						Advanced Search
 					</Button>
-
-					<DateFilterButton onClick={dateTimeOnOpen} />
 					<ViewToggle
 						moduleView='dealsView'
 						view={view}

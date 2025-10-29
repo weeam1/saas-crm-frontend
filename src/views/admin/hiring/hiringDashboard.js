@@ -54,19 +54,19 @@ const HiringDashboard = () => {
 			title: 'Candidates',
 			total: data?.doc?.totalCandidates || 0,
 			icon: MdDashboard,
-			path: '/hiring?tab=candidates',
+			path: '/hiring/candidates',
 		},
 		{
 			title: 'Short Listed',
 			total: data?.doc?.totalShortListed || 0,
 			icon: FaUsers,
-			path: '/hiring?tab=short-listed',
+			path: '/hiring/short-listed',
 		},
 		{
 			title: 'Interviewed Candidates',
 			total: data?.doc?.totalCompletedInterviews || 0,
 			icon: FaUserCheck,
-			path: '/hiring?tab=interviewed-candidates',
+			path: '/hiring/interviewed-candidates',
 		},
 		// {
 		// 	title: 'Running Interviews',
@@ -93,7 +93,7 @@ const HiringDashboard = () => {
 		</Box>
 	) : (
 		<Box>
-			<Flex justifyContent='flex-end' alignItems='center'>
+			{/* <Flex justifyContent='flex-end' alignItems='center'>
 				{isSuperAdmin && (
 					<Button
 						colorScheme='gray'
@@ -107,7 +107,7 @@ const HiringDashboard = () => {
 						Settings
 					</Button>
 				)}
-			</Flex>
+			</Flex> */}
 
 			<SimpleGrid columns={[1, 2, 3]} spacing={6} p={5}>
 				{filteredStats.map((stat, index) => (

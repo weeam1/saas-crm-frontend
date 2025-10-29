@@ -178,6 +178,8 @@ const UserSetting = () => {
 						colorScheme='brand'
 						leftIcon={<AddIcon />}
 						onClick={onAddOpen}
+						size='sm'
+						borderRadius={"md"}
 					>
 						Add SIP Setting
 					</Button>
@@ -193,7 +195,7 @@ const UserSetting = () => {
 							boxShadow='md'
 						/>
 					) : (
-						<Button colorScheme='brand' onClick={onFilterOpen}>
+						<Button colorScheme='brand' onClick={onFilterOpen} size='sm' borderRadius={"md"}>
 							Advanced Search
 						</Button>
 					)}

@@ -275,7 +275,6 @@ export const sidebarRoutes = [
 			},
 		],
 	},
-
 	{
 		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',
@@ -298,6 +297,18 @@ export const sidebarRoutes = [
 		path: '/deals',
 		icon: FaHandshake,
 		color: '#22C55E', // Green
+		children: [
+			{
+				id: 'closed_deals',
+				name: 'Close Deals',
+				path: '/deals/close-deal',
+			},
+			{
+				id: 'shared_deals',
+				name: 'Shared Deals',
+				path: '/deals/shared-deals',
+			},
+		],
 	},
 
 	// ------- Announcement ------
@@ -307,6 +318,17 @@ export const sidebarRoutes = [
 		path: '/announcements',
 		icon: MdCampaign,
 		color: '#EC4899', // Pink
+		children: [
+			{
+				id: 'create',
+				name: 'Announcement',
+				path: '/announcement/create',
+			},
+			{
+				name: 'History',
+				path: '/announcement/history',
+			},
+		],
 	},
 
 	// -------- Hiring --------
@@ -316,6 +338,32 @@ export const sidebarRoutes = [
 		path: '/hiring',
 		icon: FaClipboardUser,
 		color: '#0EA5E9', // Sky
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/hiring/dasboard',
+			},
+			{
+				name: 'Candidates',
+				path: '/hiring/candidates',
+			},
+			{
+				name: 'Short Listed',
+				path: '/hiring/short-listed',
+			},
+			{
+				name: 'Multi-Round',
+				path: '/hiring/multi-round',
+			},
+			{
+				name: 'Interviewed Candidates',
+				path: '/hiring/interviewed-candidates',
+			},
+			{
+				name: 'Settings',
+				path: '/hiring/settings',
+			},
+		],
 	},
 
 	// -------- Attendance --------
@@ -325,6 +373,28 @@ export const sidebarRoutes = [
 		path: '/attendance',
 		icon: FaRegCalendarCheck,
 		color: '#A855F7', // Violet
+		children: [
+			{
+				id: 'dashboard',
+				name: 'Dashboard',
+				path: '/attendance/dashboard',
+			},
+			{
+				id: 'employees',
+				name: 'Employees',
+				path: '/attendance/employees',
+			},
+			{
+				id: 'record',
+				name: 'Record',
+				path: '/attendance/record',
+			},
+			{
+				id: 'my_attendance',
+				name: 'My Attendence',
+				path: '/attendance/my_attendance',
+			},
+		],
 	},
 
 	// -------- Invoices --------
@@ -334,6 +404,20 @@ export const sidebarRoutes = [
 		path: '/invoice',
 		icon: HiOutlineDocumentReport,
 		color: '#3B82F6', // Blue
+		children: [
+			{
+				name: 'Bank Accounts',
+				path: '/invoice/bank-account',
+			},
+			{
+				name: 'Developer',
+				path: '/invoice/developer',
+			},
+			{
+				name: 'Project',
+				path: '/invoice/project',
+			},
+		],
 	},
 
 	// -------- Expenses --------
@@ -343,6 +427,16 @@ export const sidebarRoutes = [
 		path: '/expenses',
 		icon: FaRegCopy,
 		color: '#F97316', // Orange
+		children: [
+			{
+				name: 'Balance',
+				path: '/expenses/balance',
+			},
+			{
+				name: 'Outgoing Cash',
+				path: '/expenses/outgoing-cash',
+			},
+		],
 	},
 
 	// -------- Tasks --------
@@ -397,6 +491,16 @@ export const sidebarRoutes = [
 		path: '/survey',
 		icon: FaSquarePlus,
 		color: '#8B5CF6', // Violet
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/survey/dashboard',
+			},
+			{
+				name: 'Records',
+				path: '/survey/records',
+			},
+		],
 	},
 
 	// -------- Call Logs (SIP) --------

@@ -208,7 +208,9 @@ const ListingTypes = () => {
       refetch();
     } catch (error) {
       console.error(error);
-      toast.error(error.data?.message || "Failed to update listing type status");
+      toast.error(
+        error.data?.message || "Failed to update listing type status"
+      );
       const errorMsg =
         error?.data?.message ||
         "Failed to update the status of listing type. Please try again.";
@@ -238,7 +240,8 @@ const ListingTypes = () => {
           Listing Types
         </Text>
         <Button
-          size="md"
+          size="sm"
+          borderRadius={"md"}
           variant="brand"
           leftIcon={<AddIcon />}
           py={3}
@@ -403,7 +406,14 @@ const ListingTypes = () => {
               setSubmitting(false);
             }}
           >
-            {({ values, errors, touched, handleChange, handleSubmit, isSubmitting }) => (
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleSubmit,
+              isSubmitting,
+            }) => (
               <Form onSubmit={handleSubmit}>
                 <ModalBody pb={6}>
                   <FormControl isInvalid={touched.name && errors.name}>

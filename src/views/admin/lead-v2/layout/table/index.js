@@ -151,7 +151,7 @@ const LeadTableView = memo((props) => {
 			width: 20,
 		});
 
-		// 🔥 filter out hidden fields by accessor
+		// filter out hidden fields by accessor
 		return baseCols.filter((col) => !hiddenFields.includes(col.accessor));
 	}, [hiddenFields]);
 

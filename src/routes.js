@@ -34,15 +34,24 @@ const MainDashboard = React.lazy(() => import('views/admin/default'));
 
 // Leads & Deals
 const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
-const LeadAnalytics = React.lazy(
-	() => import('views/admin/lead-v2/leadAnalytics')
-);
 const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
+const SharedDealsScreen = React.lazy(
+	() => import('views/admin/deals/SharedDealsScreen')
+);
+const CloseDealScreen = React.lazy(
+	() => import('views/admin/deals/DealsScreen')
+);
+const LeadAnalytics = React.lazy(
+	() => import('views/admin/lead-v2/leadAnalytics')
+);
 
 // Hiring
 const Hiring = React.lazy(() => import('views/admin/hiring'));
+const HiringDashboard = React.lazy(
+	() => import('views/admin/hiring/hiringDashboard')
+);
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
 const ShortListedCandidates = React.lazy(
 	() => import('views/admin/hiring/shortListedCandidates')
@@ -60,7 +69,9 @@ const OfferView = React.lazy(
 	() => import('views/admin/hiring/interviewedCandidates/OfferView')
 );
 const Positions = React.lazy(() => import('views/admin/hiring/positions'));
-
+const InterviewedRound = React.lazy(
+	() => import('views/admin/hiring/interviewedCandidates/Rounds/index')
+);
 // Attendance
 const AttendanceV2 = React.lazy(
 	() => import('views/admin/attendance/AttendenceV2')
@@ -85,11 +96,29 @@ const DeveloperInvoices = React.lazy(
 );
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+
 const Expenses = React.lazy(() => import('views/admin/expenses'));
 const ExpensesV1 = React.lazy(() => import('views/admin/expensesV1/index'));
+const ExpenseBalanceScreen = React.lazy(
+	() => import('views/admin/expensesV1/ExpenseBalanceScreen')
+);
+const OutgoingCashScreen = React.lazy(
+	() => import('views/admin/expensesV1/OutgoingCashScreen')
+);
 
 const DeveloperDetails = React.lazy(
 	() => import('views/admin/developers/components/DeveloperView')
+);
+
+const BankAccount = React.lazy(
+	() => import('views/admin/bankAccountsV2/index')
+);
+
+const DeveloperScreen = React.lazy(
+	() => import('views/admin/invoice/developers/index')
+);
+const ProjectScreen = React.lazy(
+	() => import('views/admin/developers/projects/index')
 );
 
 // Listing
@@ -144,7 +173,12 @@ const CreateSurvey = React.lazy(
 const ViewSurveyResponse = React.lazy(
 	() => import('views/admin/survey/ViewSurveyResponse')
 );
-
+const SurveyDashboard = React.lazy(
+	() => import('views/admin/survey/Component/SurveyDashboard')
+);
+const SurveyManage = React.lazy(
+	() => import('views/admin/survey/Component/ManageSurveys')
+);
 // Whatsapp
 const AdminWhatsapp = React.lazy(
 	() => import('views/admin/whatsapp/AdminWhatsapp')
@@ -215,6 +249,13 @@ const SharedSipRecording = React.lazy(
 	() => import('views/admin/sip/component/sharedRecording/index')
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
+const CreateAnnouncement = React.lazy(
+	() => import('views/admin/announcement/components/CreateAnnouncement')
+);
+const AnnouncementHistory = React.lazy(
+	() => import('views/admin/announcement/components/History')
+);
+
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
@@ -271,7 +312,6 @@ const routes = [
 		),
 		component: LeadPoolAdmin,
 	},
-
 	{
 		moduleId: 'leadpool_agents',
 		name: 'Leads Pool',
@@ -290,7 +330,24 @@ const routes = [
 		icon: <Icon as={FaHandshake} width='20px' height='20px' color='inherit' />,
 		component: DealsScreen,
 	},
-
+	{
+		moduleId: 'deal',
+		name: 'Close Deals',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/deals/close-deal',
+		under: 'deal',
+		parentName: 'deal',
+		component: CloseDealScreen,
+	},
+	{
+		moduleId: 'deal',
+		name: 'Shared Deals',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/deals/shared-deals',
+		under: 'deal',
+		parentName: 'deal',
+		component: SharedDealsScreen,
+	},
 	{
 		moduleId: 'announcement',
 		name: 'Announcement',
@@ -300,14 +357,32 @@ const routes = [
 		component: Announcement,
 	},
 	{
-		moduleId: 'hiring',
-		name: 'Hiring',
-		path: '/hiring',
+		moduleId: 'announcement',
+		name: 'Announcement',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		icon: (
-			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
-		),
-		component: Hiring,
+		path: '/announcement/create',
+		under: 'announcement',
+		parentName: 'announcement',
+		component: CreateAnnouncement,
+	},
+
+	{
+		moduleId: 'announcement',
+		name: 'History',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/announcement/history',
+		under: 'announcement',
+		parentName: 'announcement',
+		component: AnnouncementHistory,
+	},
+	{
+		moduleId: 'attendance',
+		name: 'Employees',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/attendance/employees',
+		under: 'employees',
+		parentName: 'Attendance',
+		component: Employees,
 	},
 
 	// Attendance Routes
@@ -327,7 +402,7 @@ const routes = [
 		component: AttendanceV2,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Attendance Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/dashboard',
@@ -336,7 +411,7 @@ const routes = [
 		component: AttendanceDashboard,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Employees',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/employees',
@@ -345,7 +420,7 @@ const routes = [
 		component: Employees,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'Attendance Record',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/record',
@@ -354,10 +429,19 @@ const routes = [
 		component: Records,
 	},
 	{
-		moduleId: 'attendance',
+		childid: 'attendance',
 		name: 'My Attendance',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/attendance/employees/:id',
+		under: 'my-attendance',
+		parentName: 'Attendance',
+		component: MyAttendance,
+	},
+	{
+		childid: 'attendance',
+		name: 'My Attendance',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/attendance/my_attendance',
 		under: 'my-attendance',
 		parentName: 'Attendance',
 		component: MyAttendance,
@@ -388,12 +472,57 @@ const routes = [
 		component: InvoiceModule,
 	},
 	{
+		moduleId: 'invoice',
+		name: 'Bank Accounts',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/invoice/bank-account',
+		under: 'invoice',
+		parentName: 'invoice',
+		component: BankAccount,
+	},
+	{
+		moduleId: 'invoice',
+		name: 'Developer',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/invoice/developer',
+		under: 'invoice',
+		parentName: 'invoice',
+		component: DeveloperScreen,
+	},
+	{
+		moduleId: 'invoice',
+		name: 'Project',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/invoice/project',
+		under: 'invoice',
+		parentName: 'invoice',
+		component: ProjectScreen,
+	},
+	{
 		moduleId: 'expense',
 		name: 'Expenses',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/expenses',
 		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
 		component: ExpensesV1,
+	},
+	{
+		moduleId: 'expense',
+		name: 'Balance',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'expense',
+		path: '/expenses/balance',
+		parentName: 'expense',
+		component: ExpenseBalanceScreen,
+	},
+	{
+		moduleId: 'expense',
+		name: 'Outgoing Cash',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'expense',
+		path: '/expenses/outgoing-cash',
+		parentName: 'expense',
+		component: OutgoingCashScreen,
 	},
 	{
 		moduleId: 'invoice',
@@ -444,6 +573,26 @@ const routes = [
 	},
 
 	// ------------- Hiring Routes -----------------------
+
+	{
+		moduleId: 'hiring',
+		name: 'Hiring',
+		path: '/hiring',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		icon: (
+			<Icon as={FaClipboardUser} width='20px' height='20px' color='inherit' />
+		),
+		component: Hiring,
+	},
+	{
+		moduleId: 'hiring',
+		name: 'Hiring Dashboard',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/dasboard',
+		under: 'Hiring',
+		parentName: 'Hiring',
+		component: HiringDashboard,
+	},
 	{
 		moduleId: 'hiring',
 		name: 'Candidates',
@@ -479,6 +628,15 @@ const routes = [
 		under: 'interviewCandidates',
 		parentName: 'Hiring',
 		component: InterviewedCandidates,
+	},
+	{
+		moduleId: 'hiring',
+		name: 'Multi-Round Candidates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/hiring/multi-round',
+		under: 'Hiring',
+		parentName: 'Hiring',
+		component: InterviewedRound,
 	},
 	{
 		moduleId: 'hiring',
@@ -718,6 +876,24 @@ const routes = [
 		path: '/survey',
 		icon: <Icon as={FaSquarePlus} width='20px' height='20px' color='inherit' />,
 		component: Survey,
+	},
+	{
+		moduleId: 'survey',
+		name: 'Dashboard',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/survey/dashboard',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: SurveyDashboard,
+	},
+	{
+		moduleId: 'survey',
+		name: 'Records',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/survey/records',
+		under: 'Survey',
+		parentName: 'Survey',
+		component: SurveyManage,
 	},
 	{
 		moduleId: 'survey',

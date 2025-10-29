@@ -115,7 +115,7 @@ const SurveySummary = ({
 			>
 				<Heading
 					as='h2'
-					size='lg'
+					fontSize='20px'
 					color={textColor}
 					fontWeight='700'
 					letterSpacing='-0.5px'
@@ -128,7 +128,7 @@ const SurveySummary = ({
 						<Button
 							bg={vibrantColors.buttons[0]}
 							color='white'
-							size='md'
+							size='sm'
 							onClick={onButtonClick}
 							_hover={{
 								opacity: 0.9,
@@ -141,7 +141,7 @@ const SurveySummary = ({
 							}}
 							fontWeight='600'
 							px={6}
-							borderRadius='lg'
+							borderRadius='md'
 							transition='all 0.2s ease'
 							isDisabled={isLoading}
 							minW={isMobile ? 'full' : 'auto'}
@@ -153,7 +153,7 @@ const SurveySummary = ({
 						<Button
 							bg={vibrantColors.buttons[1]}
 							color='white'
-							size='md'
+							size='sm'
 							onClick={onSecondaryButtonClick}
 							_hover={{
 								opacity: 0.9,
@@ -166,7 +166,7 @@ const SurveySummary = ({
 							}}
 							fontWeight='600'
 							px={6}
-							borderRadius='lg'
+							borderRadius='md'
 							transition='all 0.2s ease'
 							isDisabled={isLoading}
 							minW={isMobile ? 'full' : 'auto'}

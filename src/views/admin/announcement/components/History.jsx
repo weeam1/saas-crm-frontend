@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import AnnouncementList from './AnnouncementList';
 import useFetchAnnouncements from 'hooks/useFetchAnnouncements';
+import useUserSession from "hooks/useUserSession";
 
-const History = ({ user }) => {
+const History = () => {
+	const { user } = useUserSession();
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10; // Number of announcements per page
 

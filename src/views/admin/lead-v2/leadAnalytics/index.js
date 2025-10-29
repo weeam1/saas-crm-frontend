@@ -3,12 +3,13 @@ import { useLeadAnalytics } from './useLeadAnalytics';
 import LeadAnalyticsTable from './_components/LeadAnaylticsTable';
 import AnalyticsHeader from './_components/AnalyticsHeader';
 import { SummaryCards } from './_components/SummaryCards';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const LeadAnalytics = () => {
 	const {
 		categories,
 		selectedCategory,
-		handleSearchChange,
+		onSearchChange,
 		handleCategoryChange,
 		searchTerm,
 		sortConfig,
@@ -17,6 +18,7 @@ const LeadAnalytics = () => {
 		summary,
 		totals,
 		isLoading,
+		handleDateFilter,
 		isFetching,
 		isError,
 		error,
@@ -38,22 +40,32 @@ const LeadAnalytics = () => {
 					selectedCategory={selectedCategory}
 					onCategoryChange={handleCategoryChange}
 					searchTerm={searchTerm}
-					onSearchChange={handleSearchChange}
+					onSearchChange={onSearchChange}
 					isLoading={isLoading || isFetching}
+					handleDateFilter={handleDateFilter}
 				/>
 
-				{/* Summary Cards - AT THE TOP */}
-				<SummaryCards summary={summary} isLoading={isLoading || isFetching} />
+				{isError && error ? (
+					<ErrorMessage message={error || 'Something went wrong!'} />
+				) : (
+					<>
+						{/* Summary Cards - AT THE TOP */}
+						<SummaryCards
+							summary={summary}
+							isLoading={isLoading || isFetching}
+						/>
 
-				<LeadAnalyticsTable
-					selectedCategoryLabel={selectedCategoryLabel}
-					data={data}
-					sortConfig={sortConfig}
-					onSort={handleSort}
-					isLoading={isLoading || isFetching}
-					isError={isError}
-					error={error}
-				/>
+						<LeadAnalyticsTable
+							selectedCategoryLabel={selectedCategoryLabel}
+							data={data}
+							sortConfig={sortConfig}
+							onSort={handleSort}
+							isLoading={isLoading || isFetching}
+							isError={isError}
+							error={error}
+						/>
+					</>
+				)}
 			</VStack>
 		</Box>
 	);
