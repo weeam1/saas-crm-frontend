@@ -24,7 +24,7 @@ import { safeValue } from "utils";
 import useUserSession from "hooks/useUserSession";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
-import { addOrUpdateLead } from '../../../../redux/leadsSlice';
+import { addOrUpdateLead } from "../../../../redux/leadsSlice";
 
 import {
   FaUserEdit,
@@ -39,21 +39,29 @@ import {
   MdCampaign,
   MdLanguage,
   MdNoteAlt,
+  MdAccessTime,
+  MdOutlineWeb,
+  MdLocationCity,
+  MdApartment,
+  MdHome,
+  MdPublic,
 } from "react-icons/md";
 
 const EditLeadModal = ({ isOpen, onClose, leadData }) => {
   const dispatch = useDispatch();
   const countries = useSelector((state) => state.countries.countryNames);
   const { ip, city, country } = extractLocationData(leadData?.ip, countries);
-  const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
+  const { user } = useUserSession();
   const { hasPermission } = usePermissions();
   const { createUserLog } = useUserActivityLog();
   const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
 
   const bgColor = useColorModeValue("white", "gray.800");
-  const headerColor = useColorModeValue("brand.500", "brand.200");
-
-  // ✅ Initial Values
+  const headerColor = useColorModeValue("brand.300", "brand.100");
+  const textColor = useColorModeValue("brand.700", "brand.900");
+  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
+  
+  // Initial Values
   const initialValues = {
     leadName: safeValue(leadData?.leadName) || "",
     leadWhatsappNumber: safeValue(leadData?.leadWhatsappNumber) || "",
@@ -66,24 +74,22 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
     leadLang: safeValue(leadData?.leadLang) || "",
     timetocall: safeValue(leadData?.timetocall) || "",
     leadSourceDetails: safeValue(leadData?.leadSourceDetails) || "",
+    leadSourceChannel: safeValue(leadData?.leadSourceChannel) || "",
     leadCampaign: safeValue(leadData?.leadCampaign) || "",
     pageUrl: safeValue(leadData?.pageUrl) || "",
     leadAddress: safeValue(leadData?.leadAddress) || "",
     leadEmail: safeValue(leadData?.leadEmail) || "",
     leadSourceMedium: safeValue(leadData?.leadSourceMedium) || "",
-    leadSourceChannel: safeValue(leadData?.leadSourceChannel) || "",
     r_u_in_uae: safeValue(leadData?.r_u_in_uae) || "",
-    lastNote: safeValue(leadData?.lastNote) || "",
-    adset: safeValue(leadData?.adset) || "",
     attendanceDay: safeValue(leadData?.attendanceDay) || "",
+    adset: safeValue(leadData?.adset) || "",
   };
 
-  // ✅ Validation
+  // Validation
   const validationSchema = Yup.object({
     leadName: Yup.string().required("Name is required"),
   });
 
-  // ✅ All possible fields
   const fields = [
     { name: "leadName", label: "Name", type: "text", icon: FaUserEdit },
     { name: "leadEmail", label: "Email", type: "email", icon: FaEnvelope },
@@ -91,25 +97,32 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
     { name: "leadPhoneNumber", label: "Phone Number", type: "text", icon: FaPhone },
     { name: "nationality", label: "Nationality", type: "text", icon: FaFlag },
     { name: "budget", label: "Budget", type: "text", icon: FaMoneyBill },
-    { name: "ip", label: "IP", type: "text", icon: MdLocationOn },
-    { name: "city", label: "City", type: "text", icon: MdLocationOn },
+    { name: "timetocall", label: "Time to Call", type: "text", icon: MdAccessTime },
+    { name: "ip", label: "IP", type: "text", icon: MdPublic },
+    { name: "city", label: "City", type: "text", icon: MdLocationCity },
     {
       name: "country",
       label: "Country",
       type: "select",
-      icon: MdLocationOn,
+      icon: MdApartment,
       options: countries.map((name) => ({
         label: toCapitalCase(name),
         value: toCapitalCase(name),
       })),
     },
     { name: "leadLang", label: "Language", type: "text", icon: MdLanguage },
+    { name: "leadSourceDetails", label: "Source Content", type: "text", icon: MdNoteAlt },
+    { name: "leadSourceChannel", label: "Lead Source Channel", type: "text", icon: MdCampaign },
     { name: "leadCampaign", label: "Campaign", type: "text", icon: MdCampaign },
-    { name: "leadAddress", label: "Address", type: "text", icon: MdLocationOn },
-    { name: "lastNote", label: "Last Note", type: "textarea", icon: MdNoteAlt },
+    { name: "pageUrl", label: "Page URL", type: "url", icon: MdOutlineWeb },
+    { name: "leadSourceMedium", label: "Source Medium", type: "text", icon: MdCampaign },
+    { name: "leadAddress", label: "Address", type: "text", icon: MdHome },
+    { name: "r_u_in_uae", label: "Are you In UAE ?", type: "text", icon: MdPublic },
+    { name: "attendanceDay", label: "Attendance Day", type: "text", icon: MdAccessTime },
+    { name: "adset", label: "Adset", type: "text", icon: MdCampaign },
   ];
 
-  // ✅ Apply Permissions (Dynamic Field Control)
+  // Apply Permissions
   const allowedFields = (() => {
     if (hasPermission("leads", "update")) return fields;
     if (hasPermission("leads", "edit_contacts")) {
@@ -120,7 +133,7 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
     return [];
   })();
 
-  // ✅ Submit Handler
+  // Submit Handler
   const handleSubmit = async (values, actions) => {
     try {
       const formattedIp = [values.ip || "", values.city || "", values.country || ""]
@@ -136,10 +149,8 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
         body: updatedValues,
       }).unwrap();
 
-      // ✅ Redux update
       dispatch(addOrUpdateLead(res));
 
-      // ✅ Toast and Log
       toast.success("Lead updated successfully.");
       createUserLog({
         userId: user?._id,
@@ -187,18 +198,18 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
         borderRadius="2xl"
         boxShadow="2xl"
         maxH="90vh"
-        maxW={{base:"full", sm: "full", md: "70vw"}}
+        maxW={{ base: "full", sm: "full", md: "70vw" }}
         overflow="hidden"
         mx={{ base: 2, md: 8 }}
         w="full"
       >
         {/* Header */}
-        <ModalHeader fontSize="lg" fontWeight="semibold" color="white" m="0" p="0">
+        <ModalHeader fontSize="lg" fontWeight="semibold" m="0" p="0">
           <Flex
             align="center"
             justify="space-between"
             bg={headerColor}
-            color="white"
+            color={textColor}
             position="sticky"
             top="0"
             zIndex="20"
@@ -207,10 +218,14 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
             py={3}
           >
             <Flex align="center" gap={2}>
-              <Icon as={FaUserEdit} boxSize={5} />
+              <Icon as={FaUserEdit} boxSize={5} color={textColor} />
               Edit Lead
             </Flex>
-            <ModalCloseButton color="white" position="relative" top="0" />
+            <ModalCloseButton
+              color={closeBtnColor}
+              position="relative"
+              top="0"
+            />
           </Flex>
         </ModalHeader>
 
@@ -223,7 +238,13 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
           onSubmit={handleSubmit}
         >
           {() => (
-            <Form style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+            <Form
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
               <ModalBody py={4} px={6} flex="1" overflowY="auto" maxH="60vh">
                 <Grid
                   templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
