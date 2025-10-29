@@ -24,8 +24,6 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 	// header bg uses your theme token 'brand'
 	const headerBg = useColorModeValue('brand.600', 'brand.700');
 	const headerText = useColorModeValue('white', 'gray.100');
-	const headerBg = useColorModeValue('brand.600', 'brand.700');
-	const headerText = useColorModeValue('white', 'gray.100');
 
 	return (
 		<Modal onClose={onClose} isOpen={leadsModal.isOpen} size='6xl' isCentered>

@@ -234,6 +234,11 @@ const SidebarItem = React.memo(function SidebarItem({
 										borderRadius='md'
 										color={isActive ? activeColor : 'gray.600'}
 										_hover={{ bg: hoverBg }}
+										cursor={isActive ? 'default' : 'pointer'}
+										onClick={(e) => {
+											if (isActive) e.preventDefault();
+											else onClick?.(e);
+										}}
 									>
 										{child.name}
 										{child?.version && (
