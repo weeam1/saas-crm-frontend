@@ -21,7 +21,6 @@ import { buttonStyle } from "utils/btn";
 const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
   const [leadNotes, setLeadNotes] = useState(false);
 
-  // header bg uses your theme token 'brand'
   const headerBg = useColorModeValue("brand.600", "brand.700");
   const headerText = useColorModeValue("white", "gray.100");
 

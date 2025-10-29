@@ -34,10 +34,10 @@ const Index = () => {
   const menuItems = [
     { name: "Users", icon: HiUsers, route: "/admin-setting/users" },
     { name: "Roles & Permissions", icon: FaCreativeCommonsBy, route: "/role" },
-    { name: "Change Images", icon: TbExchange, route: "/change-images" },
-    { name: "Custom Fields", icon: FaWpforms, route: "/custom-Fields" },
-    { name: "Validations", icon: GrValidate, route: "/validations" },
-    { name: "Table Fields", icon: TbTableColumn, route: "/table-field" },
+    // { name: "Change Images", icon: TbExchange, route: "/change-images" },
+    // { name: "Custom Fields", icon: FaWpforms, route: "/custom-Fields" },
+    // { name: "Validations", icon: GrValidate, route: "/validations" },
+    // { name: "Table Fields", icon: TbTableColumn, route: "/table-field" },
     { name: "Lead Settings", icon: MdSettings, route: "/lead-settings" },
     { name: "Agencies", icon: HiOfficeBuilding, route: "/agencies" },
     {
