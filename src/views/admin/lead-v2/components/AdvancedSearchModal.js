@@ -198,10 +198,7 @@ const AdvancedSearchModal = ({
               boxShadow="md"
             >
               <Text
-                fontSize={{
-                  base: "clamp(1rem, 2vw, 1.25rem)",
-                  md: "clamp(1.1rem, 1.8vw, 1.4rem)",
-                }}
+                fontSize={{ base: "md", md: "lg" }}
                 fontWeight="semibold"
                 letterSpacing="wide"
                 noOfLines={1} // ensures single-line clamp
