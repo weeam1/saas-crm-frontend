@@ -36,7 +36,9 @@ const AdvancedSearchModal = ({
   const tree = useSelector((state) => state.user.tree);
 
   const bgColor = useColorModeValue("white", "gray.800");
-  const headerColor = useColorModeValue("brand.500", "brand.300");
+  const headerColor = useColorModeValue("brand.300", "brand.100");
+  const textColor = useColorModeValue("brand.700", "brand.900");
+  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
 
   const updateAdvancedSearchQuery = (advancedSearchData) => {
     setSearchQueryParams({ data: advancedSearchData });
@@ -172,10 +174,10 @@ const AdvancedSearchModal = ({
           bg={bgColor}
           borderRadius="2xl"
           shadow="2xl"
-          maxW={ { base: "full",sm: "full",md:"80vw"}}
+          maxW={{ base: "full", sm: "full", md: "80vw" }}
           maxH="90vh"
           overflow="hidden"
-          mx= {{base:2, sm:2, md:0}}
+          mx={{ base: 2, sm: 2, md: 0 }}
         >
           {/* Header */}
           <ModalHeader
@@ -189,7 +191,7 @@ const AdvancedSearchModal = ({
               align="center"
               justify="space-between"
               bg={headerColor}
-              color="white"
+              color={textColor}
               px={6}
               py={3}
               position="sticky"
@@ -208,7 +210,11 @@ const AdvancedSearchModal = ({
               >
                 Advanced Lead Search
               </Text>
-              <ModalCloseButton color="white" position="relative" top="0" />
+              <ModalCloseButton
+                color={closeBtnColor}
+                position="relative"
+                top="0"
+              />
             </Flex>
           </ModalHeader>
 

@@ -32,6 +32,9 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
   const { createUserLog } = useUserActivityLog();
   const countries = useSelector((state) => state.countries.countryNames);
   const bg = useColorModeValue("white", "gray.800");
+  const headerColor = useColorModeValue("brand.300", "brand.100");
+  const textColor = useColorModeValue("brand.700", "brand.900");
+  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
 
   const initialValues = {
     leadName: "",
@@ -157,10 +160,15 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="6xl" scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent bg={bg} borderRadius="lg" overflow="hidden" mx={{base:2, sm:2, md:0}}>
+      <ModalContent
+        bg={bg}
+        borderRadius="lg"
+        overflow="hidden"
+        mx={{ base: 2, sm: 2, md: 0 }}
+      >
         <ModalHeader
-          bg="brand.500"
-          color="white"
+          bg={headerColor}
+          color={textColor}
           py={{ base: 3, md: 4 }}
           px={{ base: 4, md: 6 }}
         >
@@ -171,7 +179,7 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
                 Add New Lead
               </Text>
             </HStack>
-            <ModalCloseButton color="white" position="relative" top="0" />
+            <ModalCloseButton color={textColor} position="relative" top="0"  />
           </HStack>
         </ModalHeader>
 
@@ -227,7 +235,7 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
                   colorScheme="gray"
                   size="sm"
                   onClick={onClose}
-				  borderRadius={"md"}
+                  borderRadius={"md"}
                 >
                   Close
                 </Button>
@@ -235,7 +243,7 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
                   size="sm"
                   colorScheme="brand"
                   type="submit"
-				  borderRadius={"md"}
+                  borderRadius={"md"}
                   isLoading={isLoading}
                 >
                   Add Lead

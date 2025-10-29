@@ -58,7 +58,9 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 
   const bgColor = useColorModeValue("white", "gray.800");
   const headerColor = useColorModeValue("brand.300", "brand.100");
-
+  const textColor = useColorModeValue("brand.700", "brand.900");
+  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
+  
   // Initial Values
   const initialValues = {
     leadName: safeValue(leadData?.leadName) || "",
@@ -202,12 +204,12 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
         w="full"
       >
         {/* Header */}
-        <ModalHeader fontSize="lg" fontWeight="semibold" color="white" m="0" p="0">
+        <ModalHeader fontSize="lg" fontWeight="semibold" m="0" p="0">
           <Flex
             align="center"
             justify="space-between"
             bg={headerColor}
-            color="white"
+            color={textColor}
             position="sticky"
             top="0"
             zIndex="20"
@@ -216,10 +218,14 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
             py={3}
           >
             <Flex align="center" gap={2}>
-              <Icon as={FaUserEdit} boxSize={5} />
+              <Icon as={FaUserEdit} boxSize={5} color={textColor} />
               Edit Lead
             </Flex>
-            <ModalCloseButton color="white" position="relative" top="0" />
+            <ModalCloseButton
+              color={closeBtnColor}
+              position="relative"
+              top="0"
+            />
           </Flex>
         </ModalHeader>
 
